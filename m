@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2D0291312
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 18:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25CF291347
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 18:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437695AbgJQQYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Oct 2020 12:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39582 "EHLO
+        id S2438685AbgJQQyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Oct 2020 12:54:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437559AbgJQQYJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 12:24:09 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47454C061755
-        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 09:24:08 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id 10so3329725pfp.5
-        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 09:24:08 -0700 (PDT)
+        with ESMTP id S2438684AbgJQQyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 12:54:18 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E124C061755
+        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 09:54:17 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id c6so2848730plr.9
+        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 09:54:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=FoWgP62Txx3NCE7Kc2ocCYVNfOhMdriC5LRfnfUYlWE=;
-        b=ybXWjQ6Y5aqWlgvCvocDJLxU5Uq9jXFQyiwtbqNHMNGHfW27UEuXs/qF2GHEeqOZap
-         0QpnDhtANrxXBHqwcp4NpRrcC60w/V8dfNrQiGHvS1TdmHaMaEaIVMMErGvgTz1m591B
-         5IoLMvPMPfWBANLlN48GoLgCqvbzF95IziP7yoaz79NdkL06aCrrfemYaZ9yEZb47gaU
-         W595is8ErYTTyn+YOl4jgRV1aOp73K/plswZsRqqb2HV+8RRiR6E+rueD1jsuvM5jymQ
-         6JCRiAmLONi1UJuY6fd/RcgTIKbIhIic5tF4KRaXluL6Fdpq3xxpqgZa+VPjwtLtOHx3
-         1Qdw==
+        bh=NHMSNDa9uCrdDP+hMM4451OfJ6Ee5OKpRJv0evJojTo=;
+        b=bTsEf6GT6KfKg8l+6B2Dt+YDC5me13TJF9TbeDohnwNojp1EzNj0qE5wxwBjRHZsE0
+         zYFollWsDYzlq2XjlLbFBazGH1NxSqUBcgzNXHsPLJ1xUd4cCJ+KulbUxgcIe8TPZTsS
+         PXMNEV8K5JjJkQ5/EgKuTVydYaQd9oOOm7B8je0YTupt6+kewc9qfEhz3nMpnkXIx92l
+         E/zWDxnnLi7Txo0JSuZtlTcEIh6xqiBUAVrbzdLpg7B72vTD/2g/YCnKjmH9BsfD1i+I
+         YShqzGte7sKmiUTpmI/7Ew0dJ7yrX+3KUeRVx7WmgKk4qiw8ABFOFgUn6HH3vYZPpKxI
+         ZgUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=FoWgP62Txx3NCE7Kc2ocCYVNfOhMdriC5LRfnfUYlWE=;
-        b=C2FDlcO81UfDU7YuhQIluzdNgb43ymXZJSQaUz5E9/ZG43SM43hqkC3ZIf4OlOHSMi
-         Su0SPVz+OStLbZ3VRETNltUJ9WQowoFMrNRviJfZR08R4G04qy8IPxIvkWwNcU9yixk5
-         eg5WMDoiEtElY2DSaimcbHKnBE1jvgnPkCSPIM5hMrTu3abx2YuO5F05gNwL2Y8XlOEj
-         1dOgaH5XwvS3D/Iu6KTVATgz660HabzIxoVkxfj7QrGKC4iPjmVl+k96MG1jytZuy1dQ
-         rVU8HEIlGfP53u1ukhaCM8wlhjG5FkXftUjBht51cMf3/KtdiQWAwsyUxaVBp+ghadXy
-         t7Tg==
-X-Gm-Message-State: AOAM531NuNTclUr0ukFhP/ZU2mOsUSU+nGf2bwixaBZUj5WrqeVQIF7L
-        XTIOczjZ8OWUSKEB0dYk4y16TmZf6AlgZQ==
-X-Google-Smtp-Source: ABdhPJxbq0kPP7fDEjFVG7cbcveU2yRlfK5q62mygIwWs6ExvDO2bPBFrYay/qtyu6U/1A+Bq5tpHg==
-X-Received: by 2002:aa7:910c:0:b029:13e:d13d:a07b with SMTP id 12-20020aa7910c0000b029013ed13da07bmr9207372pfh.18.1602951846489;
-        Sat, 17 Oct 2020 09:24:06 -0700 (PDT)
+        bh=NHMSNDa9uCrdDP+hMM4451OfJ6Ee5OKpRJv0evJojTo=;
+        b=EHEdWdugMghWB/yg0yUE9nN364oIbUkCCy8yGqt3IhV60UDhrhl/OoGq6Kn6dFwQfZ
+         KIMBBYd7vZrvX/G851rxjDkZVcCt+Pggum5jW3qHBpY1xGshyJmNmihA/uW+XqCiG03L
+         Hl19gv4kLI6Ev8zeFeCrSDO/X86FpzV9m1cKDoVfaICo2yyOs9D605MRqX2PBJ2w53AS
+         Y5HNL0MTGOQYev02rIm4O4HHcilJytmgUHaGCzcSQpwRlggpwavIKzpA7HoejOXVHZyA
+         +h9sR16lyUnmI+WcnTPKSTuSRpzN7qQjbPNDgsMc8FdNK3tc09ECOai03THjexYoRrXX
+         TVcw==
+X-Gm-Message-State: AOAM531c5Grzr5Tz26IClqHDzQM+pS1EZ5/IehyFRdEQUrHjfjK6P8P2
+        uYtq6TPOWsgUDcgMHVG8cULOogzedPTp5g==
+X-Google-Smtp-Source: ABdhPJwq+rlecG6GcJcNaYo/00F7Y5UQO6kZl0MVVzMlaonoQVsLG1Hp+sTF4FPvQvHdi8R1dgNpWg==
+X-Received: by 2002:a17:90a:8c02:: with SMTP id a2mr9758965pjo.186.1602953655585;
+        Sat, 17 Oct 2020 09:54:15 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u8sm6109870pfk.79.2020.10.17.09.24.05
+        by smtp.gmail.com with ESMTPSA id j11sm6183605pfe.80.2020.10.17.09.54.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2020 09:24:05 -0700 (PDT)
-Message-ID: <5f8b1aa5.1c69fb81.8b695.d1e9@mx.google.com>
-Date:   Sat, 17 Oct 2020 09:24:05 -0700 (PDT)
+        Sat, 17 Oct 2020 09:54:14 -0700 (PDT)
+Message-ID: <5f8b21b6.1c69fb81.d7960.d777@mx.google.com>
+Date:   Sat, 17 Oct 2020 09:54:14 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.202-10-g337afb44c54c
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 build: 201 builds: 1 failed, 200 passed,
- 66 warnings (v4.14.202-10-g337afb44c54c)
+X-Kernelci-Kernel: v4.14.202
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.14.y build: 197 builds: 1 failed, 196 passed,
+ 63 warnings (v4.14.202)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,18 +65,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 201 builds: 1 failed, 200 passed, 66 warnings (=
-v4.14.202-10-g337afb44c54c)
+stable/linux-4.14.y build: 197 builds: 1 failed, 196 passed, 63 warnings (v=
+4.14.202)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.202-10-g337afb44c54c/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.202/
 
-Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.202-10-g337afb44c54c
-Git Commit: 337afb44c54c87e117e3b3883a6925d194f2b911
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.202
+Git Commit: 5b7a52cd2eef952cee8a72512ef370bcdef46636
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
+e.git
 Built: 6 unique architectures
 
 Build Failure Detected:
@@ -88,10 +88,8 @@ Warnings Detected:
 
 arc:
     allnoconfig (gcc-8): 1 warning
-    axs103_defconfig (gcc-8): 1 warning
     axs103_smp_defconfig (gcc-8): 1 warning
     haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
     hsdk_defconfig (gcc-8): 1 warning
     nsim_hs_defconfig (gcc-8): 1 warning
     nsim_hs_smp_defconfig (gcc-8): 1 warning
@@ -129,7 +127,6 @@ arm:
     pxa255-idp_defconfig (gcc-8): 1 warning
     pxa3xx_defconfig (gcc-8): 1 warning
     pxa910_defconfig (gcc-8): 1 warning
-    raumfeld_defconfig (gcc-8): 1 warning
     s3c2410_defconfig (gcc-8): 1 warning
     s3c6400_defconfig (gcc-8): 1 warning
     s5pv210_defconfig (gcc-8): 1 warning
@@ -166,7 +163,7 @@ x86_64:
 
 Warnings summary:
 
-    64   /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_l=
+    61   /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_l=
 ist=E2=80=99 defined but not used [-Wunused-variable]
     1    {standard input}:29: Warning: macro instruction expanded into mult=
 iple instructions
@@ -200,11 +197,6 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
 matches
 
@@ -214,17 +206,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -237,8 +225,17 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -288,15 +285,6 @@ on mismatches
 -----
 axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -549,15 +537,6 @@ ion mismatches
 -----
 haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
 
 Warnings:
     /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
@@ -833,11 +812,6 @@ section mismatches
 Warnings:
     /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1123,15 +1097,6 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
 rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -1295,12 +1260,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1313,15 +1274,16 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
 
 Warnings:
-    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
 Warnings:
@@ -1335,8 +1297,11 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1028:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
