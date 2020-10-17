@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 959A829119B
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 13:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1208E29119D
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 13:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437372AbgJQLXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Oct 2020 07:23:45 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:56909 "EHLO
+        id S2437367AbgJQLXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Oct 2020 07:23:47 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:46865 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726821AbgJQLUt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 07:20:49 -0400
+        by vger.kernel.org with ESMTP id S1726686AbgJQLU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 07:20:58 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2B3BD1940D3C;
-        Sat, 17 Oct 2020 07:20:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 17 Oct 2020 07:20:47 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3B1C51940D61;
+        Sat, 17 Oct 2020 07:20:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 17 Oct 2020 07:20:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MGj/3M
-        tONQrwTfnpkw15GvWnNYw8Vy2BRLIoA8hZhfA=; b=jJRpbYIUTN76s0wlzgsHlx
-        FaUcgpeNTjIVFjMp/pVu6gOHuQlsHQwKDqeMgnQFdnCXNRpyEUl6SpR2YOggiH18
-        0RXIim5QXXpZG02EPcTiVG1HPOCkf21mM3Krt90Ijr5fC7ol6KWrR+jS+WIZfzK8
-        t5+fuxMQviJreKsyQD8QHFHzck17rjb9eREyetR/uxD7+EzK9byMBanuxFePVHOS
-        +4+LOxat8/ogexqfsqj2s71GU2w9gD1x1R3gN8nHh7iNBxkh2k0krE24PauhGCE4
-        c3h1nV+rnGFoYxCJ12jA2shLARng1IpNn5tfuekQoagKQ9mTIbJKIG68XgP9FxTA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uac5rk
+        HpYbecuioXHbTC7VoY7pK9q58n47dPdxGbHi0=; b=SvemSCxeGaFQleFyKu+uih
+        NDRMG42IcufguP3CrWX93PHyLbd+siKSh+ZGHBeWlpQrBTcJemtf07GUef5R6gPX
+        aKaLgPw/h61z4JtPt6HWlH14KByHxtM43lhZ9IcqQWTpMzKvvoSf1wy0VnzWFai2
+        5ldPSqcqSO7N8NBBdDZMIofVRxTMY3gBIq11OoupSkdxid+rGc69RUds6Jou11j0
+        7qv4VJmwHufnykTtAbQoq5djzqdscEe814DQjKssFxZRogHT1ytESaj8X1cW/SA/
+        ui0MYCItpIOg1xKtTVYi+brTvKXRX3xwT74AoQTADREGQCZWfhYoloXpS8IqxnFQ
         ==
-X-ME-Sender: <xms:jtOKX6-uiTZxe-m3xm0oUyB_U4Ad3F-s46hLeCvX0vdjI240Rl4RZw>
-    <xme:jtOKX6u22v5ggE1rNX5VfIhrRUvNSELkB2Us0UKby-fEdG-Kavd0Uh684tDGEf6k0
-    fKboUfbbVboyA>
+X-ME-Sender: <xms:mNOKX6TnCggdE-7bm3By0_hMfUjFRdbNGh_2DSLWnlO_IXoSKoZm-g>
+    <xme:mNOKX_wU6EPzWen0tOXubNn3lUEUFiiyn2Uwa7xA6gqGSo50KdY4Grvh28tRgUjm7
+    CboQgkFWDrtKg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrieejgdeflecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:jtOKXwDBQapYi-PPeV32DeZSaAlxcPHVX3FOShio75GmcT3dF0o6WA>
-    <xmx:jtOKXyeZSMLT_dMf6ciUg6-5tgDsbtrKnYC-yYJG8ZhoVcVLyI-25Q>
-    <xmx:jtOKX_MDujABSMIDgZwxicatwNqDmuZ6zdxqf05zWMTZQNo4wsp_Qg>
-    <xmx:j9OKXxX-pdatO6UKkscqVnqOrSje2lpeYTjOzcLCdsBIb1J_-TqykQ>
+X-ME-Proxy: <xmx:mNOKX32vW0QFtrdtJMOyqwx5jbqG4BBlvBiy18rSqEQbXleXz0UPEg>
+    <xmx:mNOKX2By0-w0KhZlvxhbA4dg-d5y9tnoKwriSF9MpcrHP2qHI4jI5w>
+    <xmx:mNOKXzi3jbtATEd6JOjQ2uyjx4g4CO-HEMGqK-1ykxBElqeLsVkuwQ>
+    <xmx:mNOKXzJfLuplxubhJXMtUBFzwlv2Z0FBO7y2ykMBngLsIk66-xKGQQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 704E6328005A;
-        Sat, 17 Oct 2020 07:20:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C9E2D306467D;
+        Sat, 17 Oct 2020 07:20:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close" failed to apply to 4.14-stable tree
 To:     kai.vehmanen@linux.intel.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 17 Oct 2020 13:21:37 +0200
-Message-ID: <16029336977950@kroah.com>
+Message-ID: <160293369792177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
