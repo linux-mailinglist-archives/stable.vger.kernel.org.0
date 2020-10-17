@@ -2,165 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CE529128A
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 16:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 945B4291291
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 16:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438429AbgJQOwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Oct 2020 10:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53822 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2411523AbgJQOwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 10:52:46 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8D5C061755
-        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 07:52:46 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id az3so2904612pjb.4
-        for <stable@vger.kernel.org>; Sat, 17 Oct 2020 07:52:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8pftj553tGKNzn3HJSujaUOJRB0G+Gi8oJG5ZZk2/tg=;
-        b=zGRqna06IC0b0UIb5xcy7PvYqVuxw+fmPOXnvd3DUJSgYiAOVW0omPUFxOQZITGt26
-         uxkmSUr6t8Rmmmgkbs6eupANVqiZZekXc7eU1ro3WhjBsuEEI1YFL6uo68mc0GL+yXsn
-         ZhLj0WYPYFQANHWqLfft1UWVb9U3Lq78U1n2K41qMYhFPSfEvifBVIKkQF4Cmu7OFNLA
-         CM/rsp5RpyzH6SLj2Typ/z6uwSd7SPnz9yya84tGC40DUSlioowu207tKILfJV8NsyBq
-         mRyX89cmJlMYeVmKmhigH9IlHSwx6zNfPbGrg5EGPmHJbHYXjKPa3LOAGgiV/Pq7fbDh
-         b6/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8pftj553tGKNzn3HJSujaUOJRB0G+Gi8oJG5ZZk2/tg=;
-        b=ZIvBB+qcfGFyX9o6GNgXCfmgXx4iv54rkC11AXk6/vtVneSVTJgXz3K1kpiGREDlwd
-         Fjuk2CTX8IjbqEmsl81PIne2tSaiH9+LQjxZxQmrfM5NidKziTU/mirddwgMAGsu5Qtr
-         6PlfVHHByVkym9MutiO4Dl3j+SMIIYFAonViK+KpjZTWAve3RlgbT9X/WjQfAMQSag/n
-         YBwSiWtaGrIWB0gvakE5H9oiPPzCCYmFGHMgdB6jegU2yPEXkyqAuVWVvD+YnOSUVxl8
-         Q+Vx4JbJW1I2MaSTmumvaa112aNHiHs0E90suUfO0OOiX26g0IK2Wf7sKzFUpGuEzZOe
-         m9jg==
-X-Gm-Message-State: AOAM533Cy3uNg9Y7yWujvDJF0PUvKootfBTsPRX7YoMR4Rb9523lhHw1
-        2gGt/IG9xAHFhFRSz5DxtJauXffSaJaJew==
-X-Google-Smtp-Source: ABdhPJyJ7/cEtfGSdP09kJszMjNnEV6ehyIXqsVyobimWad3bJ74EIW7rbuzo8UttLMjCi2Xu2Yo1Q==
-X-Received: by 2002:a17:90a:7089:: with SMTP id g9mr9270932pjk.4.1602946365510;
-        Sat, 17 Oct 2020 07:52:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 20sm6021779pfh.219.2020.10.17.07.52.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2020 07:52:44 -0700 (PDT)
-Message-ID: <5f8b053c.1c69fb81.2a172.cdb3@mx.google.com>
-Date:   Sat, 17 Oct 2020 07:52:44 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2438438AbgJQO6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Oct 2020 10:58:23 -0400
+Received: from mail-03.mail-europe.com ([91.134.188.129]:44478 "EHLO
+        mail-03.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2438441AbgJQO6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Oct 2020 10:58:22 -0400
+Date:   Sat, 17 Oct 2020 14:58:13 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1602946696;
+        bh=XX5l0JqA4j5ycEOGeKlfrui0wBpfH9SbVROZs+7Z7Wc=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=PJL30PpZJiencMSL9LL4zY+rl8xuKBmqTBfI655YK/cnjCPYOSgBDGhKFwBhhAHKR
+         Rx2+rFI2znTaVx8UDUdqhLguMjsBik5PL5zxIj9OHdMq8BHG0pEvv4u6/LAR31qHOA
+         Z3ao/8PK0KMqL9giEHYDYPUhnGcZlJJaAbtwkQqM=
+To:     Coiby Xu <coiby.xu@gmail.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Helmut Stult <helmut.stult@schinfo.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
+Message-ID: <fRxQJHWq9ZL950ZPGFFm_LfSlMjsjrpG7Y63gd7V7iV647KR8WIfZ4-ljLeo0n4X3Gpu1KIEsMVLxQnzAtJdUdMydi_b0-vjIVb304Da1bQ=@protonmail.com>
+In-Reply-To: <20201017140541.fggujaz2klpv3cd5@Rk>
+References: <20201016131335.8121-1-coiby.xu@gmail.com> <T2SIcFVxZ81NUwKLDbSESA7Wpm7DYowEiii8ZaxTPtrdXZZeHLq5iZPkN5BLlp-9C6PLwUZOVwNpMdEdPSRZcAG4MmDt-tfyKZoQYJ0KHOA=@protonmail.com> <20201017004556.kuoxzmbvef4yr3kg@Rk> <FWsXxqGztJgszUpmNtKli8eOyeKP-lxFeTsjs2nQAxgYZBkT3JNTU3VdHF4GbQVS_PvKiqbfrZXI7vaUHA_lXTxjPX-WjkNEOdiMUetO8IQ=@protonmail.com> <20201017140541.fggujaz2klpv3cd5@Rk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.72
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.4.y baseline: 201 runs, 4 regressions (v5.4.72)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 201 runs, 4 regressions (v5.4.72)
+> [...]
+> >> >> +static int get_gpio_pin_state(struct irq_desc *irq_desc)
+> >> >> +{
+> >> >> +=09struct gpio_chip *gc =3D irq_data_get_irq_chip_data(&irq_desc->=
+irq_data);
+> >> >> +
+> >> >> +=09return gc->get(gc, irq_desc->irq_data.hwirq);
+> >> >> +}
+> >> >> +
+> >> >> +static bool interrupt_line_active(struct i2c_client *client)
+> >> >> +{
+> >> >> +=09unsigned long trigger_type =3D irq_get_trigger_type(client->irq=
+);
+> >> >> +=09struct irq_desc *irq_desc =3D irq_to_desc(client->irq);
+> >> >> +
+> >> >> +=09/*
+> >> >> +=09 * According to Windows Precsiontion Touchpad's specs
+> >> >> +=09 * https://docs.microsoft.com/en-us/windows-hardware/design/com=
+ponent-guidelines/windows-precision-touchpad-device-bus-connectivity,
+> >> >> +=09 * GPIO Interrupt Assertion Leve could be either ActiveLow or
+> >> >> +=09 * ActiveHigh.
+> >> >> +=09 */
+> >> >> +=09if (trigger_type & IRQF_TRIGGER_LOW)
+> >> >> +=09=09return !get_gpio_pin_state(irq_desc);
+> >> >> +
+> >> >> +=09return get_gpio_pin_state(irq_desc);
+> >> >> +}
+> >> >
+> >> >Excuse my ignorance, but I think some kind of error handling regardin=
+g the return
+> >> >value of `get_gpio_pin_state()` should be present here.
+> >> >
+> >> What kind of errors would you expect? It seems (struct gpio_chip *)->g=
+et
+> >> only return 0 or 1.
+> >> >
+> >
+> >I read the code of a couple gpio chips and - I may be wrong, but - it se=
+ems they
+> >can return an arbitrary errno.
+> >
+> I thought all GPIO chip return 0 or 1 since !!val is returned. I find
+> an example which could return negative value,
+>
 
-Regressions Summary
--------------------
-
-platform              | arch  | lab           | compiler | defconfig       =
-| results
-----------------------+-------+---------------+----------+-----------------=
-+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-| 0/1    =
-
-rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
-| 85/90  =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.72/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.72
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      52f6ded2a377ac4f191c84182488e454b1386239 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-| results
-----------------------+-------+---------------+----------+-----------------=
-+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-| 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f8acad59063e6fb424ff3ff
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.72/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.72/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+Yes, when a function returns `int`, there is a very high chance that the re=
+turn
+value may be an errno.
 
 
-  * baseline.login: https://kernelci.org/test/case/id/5f8acad59063e6fb424ff=
-400
-      failing since 121 days (last pass: v5.4.46, first fail: v5.4.47)  =
+> >
+> >> >> +
+> >> >> +static int i2c_hid_polling_thread(void *i2c_hid)
+> >> >> +{
+> >> >> +=09struct i2c_hid *ihid =3D i2c_hid;
+> >> >> +=09struct i2c_client *client =3D ihid->client;
+> >> >> +=09unsigned int polling_interval_idle;
+> >> >> +
+> >> >> +=09while (1) {
+> >> >> +=09=09/*
+> >> >> +=09=09 * re-calculate polling_interval_idle
+> >> >> +=09=09 * so the module parameters polling_interval_idle_ms can be
+> >> >> +=09=09 * changed dynamically through sysfs as polling_interval_act=
+ive_us
+> >> >> +=09=09 */
+> >> >> +=09=09polling_interval_idle =3D polling_interval_idle_ms * 1000;
+> >> >> +=09=09if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
+> >> >> +=09=09=09usleep_range(50000, 100000);
+> >> >> +
+> >> >> +=09=09if (kthread_should_stop())
+> >> >> +=09=09=09break;
+> >> >> +
+> >> >> +=09=09while (interrupt_line_active(client)) {
+> >> >
+> >> >I realize it's quite unlikely, but can't this be a endless loop if da=
+ta is coming
+> >> >in at a high enough rate? Maybe the maximum number of iterations coul=
+d be limited here?
+> >> >
+> >> If we find HID reports are constantly read and send to front-end
+> >> application like libinput, won't it help expose the problem of the I2C
+> >> HiD device?
+> >> >
+> >
+> >I'm not sure I completely understand your point. The reason why I wrote =
+what I wrote
+> >is that this kthread could potentially could go on forever (since `kthre=
+ad_should_stop()`
+> >is not checked in the inner while loop) if the data is supplied at a hig=
+h enough rate.
+> >That's why I said, to avoid this problem, only allow a certain number of=
+ iterations
+> >for the inner loop, to guarantee that the kthread can stop in any case.
+> >
+> I mean if "data is supplied at a high enough rate" does happen, this is
+> an abnormal case and indicates a bug. So we shouldn't cover it up. We
+> expect the user to report it to us.
+> >
+
+I agree in principle, but if this abnormal case ever occurs, that'll preven=
+t
+this module from being unloaded since `kthread_stop()` will hang because th=
+e
+thread is "stuck" in the inner loop, never checking `kthread_should_stop()`=
+.
+That's why I think it makes sense to only allow a certain number of operati=
+ons
+for the inner loop, and maybe show a warning if that's exceeded:
+
+ for (i =3D 0; i < max_iter && interrupt_line_active(...); i++) {
+    ....
+ }
+
+ WARN_ON[CE](i =3D=3D max_iter[, "data is coming in at an unreasonably high=
+ rate"]);
+
+or something like this, where `max_iter` could possibly be some value depen=
+dent on
+`polling_interval_active_us`, or even just a constant.
 
 
+> >> >> +=09=09=09i2c_hid_get_input(ihid);
+> >> >> +=09=09=09usleep_range(polling_interval_active_us,
+> >> >> +=09=09=09=09     polling_interval_active_us + 100);
+> >> >> +=09=09}
+> >> >> +
+> >> >> +=09=09usleep_range(polling_interval_idle,
+> >> >> +=09=09=09     polling_interval_idle + 1000);
+> >> >> +=09}
+> >> >> +
+> >> >> +=09do_exit(0);
+> >> >> +=09return 0;
+> >> >> +}
+> [...]
+> Thank you for offering your understandings on this patch. When I'm going
+> to submit next version, I will add a "Signed-off-by" tag with your name
+> and email, does it look good to you?
+> [...]
 
-platform              | arch  | lab           | compiler | defconfig       =
-| results
-----------------------+-------+---------------+----------+-----------------=
-+--------
-rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
-| 85/90  =
+I'm not sure if that follows proper procedures.
+
+ "The sign-off is a simple line at the end of the explanation for the patch=
+, which
+  certifies that you wrote it or otherwise have the right to pass it on as =
+an
+  open-source patch."[1]
+
+I'm not the author, nor co-author, nor am I going to pass this patch on, so=
+ I don't
+think that's appropriate.
+
+Furthermore, please note that
+
+ "[...] you may optionally add a Cc: tag to the patch. **This is the only t=
+ag which
+  might be added without an explicit action by the person it names** - but =
+it should
+  indicate that this person was copied on the patch."[2]
+  (emphasis mine)
 
 
-  Details:     https://kernelci.org/test/plan/id/5f8ac9e3ea01a3d0e14ff3e0
-
-  Results:     85 PASS, 5 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.72/arm=
-64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.72/arm=
-64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+Regards,
+Barnab=C3=A1s P=C5=91cze
 
 
-  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
-t/case/id/5f8ac9e3ea01a3d0e14ff3f4
-      failing since 15 days (last pass: v5.4.68, first fail: v5.4.69)
-
-    2020-10-17 10:39:22.792000  /lava-2729553/1/../bin/lava-test-case
-     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
-test/case/id/5f8ac9e3ea01a3d0e14ff3f5
-      failing since 15 days (last pass: v5.4.68, first fail: v5.4.69)
-
-    2020-10-17 10:39:23.814000  /lava-2729553/1/../bin/lava-test-case
-     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
-est/case/id/5f8ac9e3ea01a3d0e14ff3f6
-      failing since 15 days (last pass: v5.4.68, first fail: v5.4.69)
-
-    2020-10-17 10:39:24.836000  /lava-2729553/1/../bin/lava-test-case
-    2020-10-17 10:39:24.846000  <8>[   24.924015] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
-      =20
+[1]: https://www.kernel.org/doc/html/latest/process/submitting-patches.html=
+#sign-your-work-the-developer-s-certificate-of-origin
+[2]: https://www.kernel.org/doc/html/latest/process/submitting-patches.html=
+#when-to-use-acked-by-cc-and-co-developed-by
