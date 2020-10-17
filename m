@@ -2,141 +2,1046 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF7029112B
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD72291128
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437915AbgJQJuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2437913AbgJQJuO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 17 Oct 2020 05:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59854 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437911AbgJQJuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Oct 2020 05:50:14 -0400
+        id S2437891AbgJQJuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Oct 2020 05:50:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B817120720;
-        Sat, 17 Oct 2020 09:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66091206CB;
+        Sat, 17 Oct 2020 09:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602928213;
-        bh=Hfi1ZLEX2GCVG2qNeol/bVjA2YKd2CqEeUvMwK9oqPE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=AUcdhE3yOVjcGvBwG4C3u9GFFcEO8vfMdYGrNUQoHykYIASDKWRQ3boaiWxFpoeym
-         ZSbynErfhvUZlBZYXk3P8qihm6ZWFYwKz+E6OGVrESU9V3BUE8cSEgMF4/gQDE6yY8
-         n4sKmctETTe6VTx0E6EOUArd9BliCwSzjY0D9jB8=
+        s=default; t=1602928211;
+        bh=LyKqUu6EM9X+CB5MQfH7t0cN/bYZ2exqLyqwXxH2fYE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=k0Js+E+qT6QCH2oJlmB3IqEYFBGs9PUGGuuCUJ3RoJH6bDnmPLYpR+fJ2J1gqScLl
+         h8mo1TEUaH+tRZXmBMywpijBYWPMe2Q7Sg/t1ZOuk4BW0X9bN7fiElv76nbOc4QQK8
+         rZTL7XCJHWnyE3rJjvT2IZfBBhpYpaMV6yqYef3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.72
-Date:   Sat, 17 Oct 2020 11:50:54 +0200
-Message-Id: <160292825411493@kroah.com>
+Subject: Re: Linux 5.4.72
+Date:   Sat, 17 Oct 2020 11:50:55 +0200
+Message-Id: <1602928254103227@kroah.com>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <160292825411493@kroah.com>
+References: <160292825411493@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.72 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                 |    2 -
- arch/arm/boot/compressed/Makefile        |    4 +-
- drivers/acpi/Makefile                    |    2 -
- drivers/crypto/bcm/cipher.c              |   15 ++++++++-
- drivers/crypto/qat/qat_common/qat_algs.c |   10 +++++-
- drivers/media/usb/usbtv/usbtv-core.c     |    3 +
- drivers/staging/comedi/drivers/vmk80xx.c |    3 +
- drivers/usb/serial/ftdi_sio.c            |    5 +++
- drivers/usb/serial/ftdi_sio_ids.h        |    7 ++++
- drivers/usb/serial/option.c              |    5 +++
- drivers/usb/serial/pl2303.c              |    1 
- drivers/usb/serial/pl2303.h              |    1 
- drivers/xen/events/events_base.c         |   29 +++++++++++++----
- fs/btrfs/block-group.c                   |   38 ++++++++++++++++-------
- fs/btrfs/space-info.c                    |   50 ++++++++++++-------------------
- fs/btrfs/space-info.h                    |    3 +
- fs/reiserfs/inode.c                      |    6 ---
- fs/reiserfs/xattr.c                      |    7 ++++
- include/net/bluetooth/hci_core.h         |   30 ++++++++++++++----
- include/net/bluetooth/l2cap.h            |    2 +
- net/bluetooth/a2mp.c                     |   22 +++++++++++++
- net/bluetooth/hci_conn.c                 |   17 ++++++++++
- net/bluetooth/hci_event.c                |   48 ++++++-----------------------
- net/bluetooth/l2cap_core.c               |    7 ++--
- net/bluetooth/l2cap_sock.c               |   14 ++++++++
- net/bluetooth/mgmt.c                     |    7 +++-
- tools/perf/util/cs-etm.c                 |    3 +
- tools/perf/util/cs-etm.h                 |    3 -
- 28 files changed, 231 insertions(+), 113 deletions(-)
-
-Anant Thazhemadam (1):
-      staging: comedi: check validity of wMaxPacketSize of usb endpoints found
-
-Arjan van de Ven (1):
-      ACPI: Always build evged in
-
-Dmitry Golovin (1):
-      ARM: 8939/1: kbuild: use correct nm executable
-
-Dominik Przychodni (1):
-      crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.72
-
-Herbert Xu (1):
-      crypto: bcm - Verify GCM/CCM key length in setkey
-
-Jan Kara (2):
-      reiserfs: Initialize inode keys properly
-      reiserfs: Fix oops during mount
-
-Josef Bacik (2):
-      btrfs: don't pass system_chunk into can_overcommit
-      btrfs: take overcommit into account in inc_block_group_ro
-
-Juergen Gross (1):
-      xen/events: don't use chip_data for legacy IRQs
-
-Leo Yan (1):
-      perf cs-etm: Move definition of 'traceid_list' global variable from header file
-
-Leonid Bloch (1):
-      USB: serial: option: Add Telit FT980-KS composition
-
-Luiz Augusto von Dentz (5):
-      Bluetooth: A2MP: Fix not initializing all members
-      Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
-      Bluetooth: MGMT: Fix not checking if BT_HS is enabled
-      Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
-      Bluetooth: Disconnect if E0 is used for Level 4
-
-Mychaela N. Falconia (1):
-      USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
-
-Oliver Neukum (1):
-      media: usbtv: Fix refcounting mixup
-
-Patrick Steinhardt (1):
-      Bluetooth: Fix update of connection state in `hci_encrypt_cfm`
-
-Scott Chen (1):
-      USB: serial: pl2303: add device-id for HP GC device
-
-Wilken Gottwalt (1):
-      USB: serial: option: add Cellient MPL200 card
-
+diff --git a/Makefile b/Makefile
+index f342e64c8c1d..8db75cc76ed1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 71
++SUBLEVEL = 72
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm/boot/compressed/Makefile b/arch/arm/boot/compressed/Makefile
+index 1483966dcf23..6da67789ac22 100644
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -121,7 +121,7 @@ ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin \
+ asflags-y := -DZIMAGE
+ 
+ # Supply kernel BSS size to the decompressor via a linker symbol.
+-KBSS_SZ = $(shell echo $$(($$($(CROSS_COMPILE)nm $(obj)/../../../../vmlinux | \
++KBSS_SZ = $(shell echo $$(($$($(NM) $(obj)/../../../../vmlinux | \
+ 		sed -n -e 's/^\([^ ]*\) [AB] __bss_start$$/-0x\1/p' \
+ 		       -e 's/^\([^ ]*\) [AB] __bss_stop$$/+0x\1/p') )) )
+ LDFLAGS_vmlinux = --defsym _kernel_bss_size=$(KBSS_SZ)
+@@ -165,7 +165,7 @@ $(obj)/bswapsdi2.S: $(srctree)/arch/$(SRCARCH)/lib/bswapsdi2.S
+ # The .data section is already discarded by the linker script so no need
+ # to bother about it here.
+ check_for_bad_syms = \
+-bad_syms=$$($(CROSS_COMPILE)nm $@ | sed -n 's/^.\{8\} [bc] \(.*\)/\1/p') && \
++bad_syms=$$($(NM) $@ | sed -n 's/^.\{8\} [bc] \(.*\)/\1/p') && \
+ [ -z "$$bad_syms" ] || \
+   ( echo "following symbols must have non local/private scope:" >&2; \
+     echo "$$bad_syms" >&2; false )
+diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+index 5d361e4e3405..ef1ac4d127da 100644
+--- a/drivers/acpi/Makefile
++++ b/drivers/acpi/Makefile
+@@ -48,7 +48,7 @@ acpi-y				+= acpi_pnp.o
+ acpi-$(CONFIG_ARM_AMBA)	+= acpi_amba.o
+ acpi-y				+= power.o
+ acpi-y				+= event.o
+-acpi-$(CONFIG_ACPI_REDUCED_HARDWARE_ONLY) += evged.o
++acpi-y				+= evged.o
+ acpi-y				+= sysfs.o
+ acpi-y				+= property.o
+ acpi-$(CONFIG_X86)		+= acpi_cmos_rtc.o
+diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
+index f85356a48e7e..ec4b5033013e 100644
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -2937,7 +2937,6 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *cipher,
+ 
+ 	ctx->enckeylen = keylen;
+ 	ctx->authkeylen = 0;
+-	memcpy(ctx->enckey, key, ctx->enckeylen);
+ 
+ 	switch (ctx->enckeylen) {
+ 	case AES_KEYSIZE_128:
+@@ -2953,6 +2952,8 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *cipher,
+ 		goto badkey;
+ 	}
+ 
++	memcpy(ctx->enckey, key, ctx->enckeylen);
++
+ 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
+ 		 ctx->authkeylen);
+ 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
+@@ -3013,6 +3014,10 @@ static int aead_gcm_esp_setkey(struct crypto_aead *cipher,
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3041,6 +3046,10 @@ static int rfc4543_gcm_esp_setkey(struct crypto_aead *cipher,
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3070,6 +3079,10 @@ static int aead_ccm_esp_setkey(struct crypto_aead *cipher,
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < CCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = CCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = CCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
+diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+index b50eb55f8f57..0d67cf5ede51 100644
+--- a/drivers/crypto/qat/qat_common/qat_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_algs.c
+@@ -873,6 +873,11 @@ static int qat_alg_aead_dec(struct aead_request *areq)
+ 	struct icp_qat_fw_la_bulk_req *msg;
+ 	int digst_size = crypto_aead_authsize(aead_tfm);
+ 	int ret, ctr = 0;
++	u32 cipher_len;
++
++	cipher_len = areq->cryptlen - digst_size;
++	if (cipher_len % AES_BLOCK_SIZE != 0)
++		return -EINVAL;
+ 
+ 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
+ 	if (unlikely(ret))
+@@ -887,7 +892,7 @@ static int qat_alg_aead_dec(struct aead_request *areq)
+ 	qat_req->req.comn_mid.src_data_addr = qat_req->buf.blp;
+ 	qat_req->req.comn_mid.dest_data_addr = qat_req->buf.bloutp;
+ 	cipher_param = (void *)&qat_req->req.serv_specif_rqpars;
+-	cipher_param->cipher_length = areq->cryptlen - digst_size;
++	cipher_param->cipher_length = cipher_len;
+ 	cipher_param->cipher_offset = areq->assoclen;
+ 	memcpy(cipher_param->u.cipher_IV_array, areq->iv, AES_BLOCK_SIZE);
+ 	auth_param = (void *)((uint8_t *)cipher_param + sizeof(*cipher_param));
+@@ -916,6 +921,9 @@ static int qat_alg_aead_enc(struct aead_request *areq)
+ 	uint8_t *iv = areq->iv;
+ 	int ret, ctr = 0;
+ 
++	if (areq->cryptlen % AES_BLOCK_SIZE != 0)
++		return -EINVAL;
++
+ 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
+ 	if (unlikely(ret))
+ 		return ret;
+diff --git a/drivers/media/usb/usbtv/usbtv-core.c b/drivers/media/usb/usbtv/usbtv-core.c
+index ee9c656d121f..2308c0b4f5e7 100644
+--- a/drivers/media/usb/usbtv/usbtv-core.c
++++ b/drivers/media/usb/usbtv/usbtv-core.c
+@@ -113,7 +113,8 @@ static int usbtv_probe(struct usb_interface *intf,
+ 
+ usbtv_audio_fail:
+ 	/* we must not free at this point */
+-	usb_get_dev(usbtv->udev);
++	v4l2_device_get(&usbtv->v4l2_dev);
++	/* this will undo the v4l2_device_get() */
+ 	usbtv_video_free(usbtv);
+ 
+ usbtv_video_fail:
+diff --git a/drivers/staging/comedi/drivers/vmk80xx.c b/drivers/staging/comedi/drivers/vmk80xx.c
+index 65dc6c51037e..7956abcbae22 100644
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -667,6 +667,9 @@ static int vmk80xx_find_usb_endpoints(struct comedi_device *dev)
+ 	if (!devpriv->ep_rx || !devpriv->ep_tx)
+ 		return -ENODEV;
+ 
++	if (!usb_endpoint_maxp(devpriv->ep_rx) || !usb_endpoint_maxp(devpriv->ep_tx))
++		return -EINVAL;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index ae98fe94fe91..01a98d071c7c 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1037,6 +1037,11 @@ static const struct usb_device_id id_table_combined[] = {
+ 	/* U-Blox devices */
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
++	/* FreeCalypso USB adapters */
++	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_BUF_PID),
++		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
++	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_UNBUF_PID),
++		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
+ 	{ }					/* Terminating entry */
+ };
+ 
+diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
+index b5ca17a5967a..3d47c6d72256 100644
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -39,6 +39,13 @@
+ 
+ #define FTDI_LUMEL_PD12_PID	0x6002
+ 
++/*
++ * Custom USB adapters made by Falconia Partners LLC
++ * for FreeCalypso project, ID codes allocated to Falconia by FTDI.
++ */
++#define FTDI_FALCONIA_JTAG_BUF_PID	0x7150
++#define FTDI_FALCONIA_JTAG_UNBUF_PID	0x7151
++
+ /* Sienna Serial Interface by Secyourit GmbH */
+ #define FTDI_SIENNA_PID		0x8348
+ 
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index f7a6ac05ac57..eb5538a44ee9 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -528,6 +528,7 @@ static void option_instat_callback(struct urb *urb);
+ /* Cellient products */
+ #define CELLIENT_VENDOR_ID			0x2692
+ #define CELLIENT_PRODUCT_MEN200			0x9005
++#define CELLIENT_PRODUCT_MPL200			0x9025
+ 
+ /* Hyundai Petatel Inc. products */
+ #define PETATEL_VENDOR_ID			0x1ff4
+@@ -1186,6 +1187,8 @@ static const struct usb_device_id option_ids[] = {
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1053, 0xff),	/* Telit FN980 (ECM) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1054, 0xff),	/* Telit FT980-KS */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+@@ -1982,6 +1985,8 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x02, 0x01) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x00, 0x00) },
+ 	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MEN200) },
++	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MPL200),
++	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600A) },
+ 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600E) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(TPLINK_VENDOR_ID, TPLINK_PRODUCT_LTE, 0xff, 0x00, 0x00) },	/* TP-Link LTE Module */
+diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
+index e6d9b79d3521..e290b250f45c 100644
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -94,6 +94,7 @@ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220TA_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381_PRODUCT_ID) },
++	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960TA_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
+diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
+index c98db6b650a5..a897680473a7 100644
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -121,6 +121,7 @@
+ 
+ /* Hewlett-Packard POS Pole Displays */
+ #define HP_VENDOR_ID		0x03f0
++#define HP_LD381GC_PRODUCT_ID	0x0183
+ #define HP_LM920_PRODUCT_ID	0x026b
+ #define HP_TD620_PRODUCT_ID	0x0956
+ #define HP_LD960_PRODUCT_ID	0x0b39
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 55f2b834cf13..e402620b8920 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -91,6 +91,8 @@ static bool (*pirq_needs_eoi)(unsigned irq);
+ /* Xen will never allocate port zero for any purpose. */
+ #define VALID_EVTCHN(chn)	((chn) != 0)
+ 
++static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
++
+ static struct irq_chip xen_dynamic_chip;
+ static struct irq_chip xen_percpu_chip;
+ static struct irq_chip xen_pirq_chip;
+@@ -155,7 +157,18 @@ int get_evtchn_to_irq(unsigned evtchn)
+ /* Get info for IRQ */
+ struct irq_info *info_for_irq(unsigned irq)
+ {
+-	return irq_get_chip_data(irq);
++	if (irq < nr_legacy_irqs())
++		return legacy_info_ptrs[irq];
++	else
++		return irq_get_chip_data(irq);
++}
++
++static void set_info_for_irq(unsigned int irq, struct irq_info *info)
++{
++	if (irq < nr_legacy_irqs())
++		legacy_info_ptrs[irq] = info;
++	else
++		irq_set_chip_data(irq, info);
+ }
+ 
+ /* Constructors for packed IRQ information. */
+@@ -376,7 +389,7 @@ static void xen_irq_init(unsigned irq)
+ 	info->type = IRQT_UNBOUND;
+ 	info->refcnt = -1;
+ 
+-	irq_set_chip_data(irq, info);
++	set_info_for_irq(irq, info);
+ 
+ 	list_add_tail(&info->list, &xen_irq_list_head);
+ }
+@@ -425,14 +438,14 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
+ 
+ static void xen_free_irq(unsigned irq)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+ 
+ 	list_del(&info->list);
+ 
+-	irq_set_chip_data(irq, NULL);
++	set_info_for_irq(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
+@@ -602,7 +615,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
+ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	int evtchn = evtchn_from_irq(irq);
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -1106,7 +1119,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
+ 
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+@@ -1140,7 +1153,7 @@ int evtchn_make_refcounted(unsigned int evtchn)
+ 	if (irq == -1)
+ 		return -ENOENT;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		return -ENOENT;
+@@ -1168,7 +1181,7 @@ int evtchn_get(unsigned int evtchn)
+ 	if (irq == -1)
+ 		goto done;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		goto done;
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index b167649f5f5d..ace49a999ece 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1186,7 +1186,6 @@ static int inc_block_group_ro(struct btrfs_block_group_cache *cache, int force)
+ {
+ 	struct btrfs_space_info *sinfo = cache->space_info;
+ 	u64 num_bytes;
+-	u64 sinfo_used;
+ 	u64 min_allocable_bytes;
+ 	int ret = -ENOSPC;
+ 
+@@ -1213,20 +1212,38 @@ static int inc_block_group_ro(struct btrfs_block_group_cache *cache, int force)
+ 
+ 	num_bytes = cache->key.offset - cache->reserved - cache->pinned -
+ 		    cache->bytes_super - btrfs_block_group_used(&cache->item);
+-	sinfo_used = btrfs_space_info_used(sinfo, true);
+ 
+ 	/*
+-	 * sinfo_used + num_bytes should always <= sinfo->total_bytes.
+-	 *
+-	 * Here we make sure if we mark this bg RO, we still have enough
+-	 * free space as buffer (if min_allocable_bytes is not 0).
++	 * Data never overcommits, even in mixed mode, so do just the straight
++	 * check of left over space in how much we have allocated.
+ 	 */
+-	if (sinfo_used + num_bytes + min_allocable_bytes <=
+-	    sinfo->total_bytes) {
++	if (force) {
++		ret = 0;
++	} else if (sinfo->flags & BTRFS_BLOCK_GROUP_DATA) {
++		u64 sinfo_used = btrfs_space_info_used(sinfo, true);
++
++		/*
++		 * Here we make sure if we mark this bg RO, we still have enough
++		 * free space as buffer.
++		 */
++		if (sinfo_used + num_bytes <= sinfo->total_bytes)
++			ret = 0;
++	} else {
++		/*
++		 * We overcommit metadata, so we need to do the
++		 * btrfs_can_overcommit check here, and we need to pass in
++		 * BTRFS_RESERVE_NO_FLUSH to give ourselves the most amount of
++		 * leeway to allow us to mark this block group as read only.
++		 */
++		if (btrfs_can_overcommit(cache->fs_info, sinfo, num_bytes,
++					 BTRFS_RESERVE_NO_FLUSH))
++			ret = 0;
++	}
++
++	if (!ret) {
+ 		sinfo->bytes_readonly += num_bytes;
+ 		cache->ro++;
+ 		list_add_tail(&cache->ro_list, &sinfo->ro_bgs);
+-		ret = 0;
+ 	}
+ out:
+ 	spin_unlock(&cache->lock);
+@@ -1235,9 +1252,6 @@ static int inc_block_group_ro(struct btrfs_block_group_cache *cache, int force)
+ 		btrfs_info(cache->fs_info,
+ 			"unable to make block group %llu ro",
+ 			cache->key.objectid);
+-		btrfs_info(cache->fs_info,
+-			"sinfo_used=%llu bg_num_bytes=%llu min_allocable=%llu",
+-			sinfo_used, num_bytes, min_allocable_bytes);
+ 		btrfs_dump_space_info(cache->fs_info, cache->space_info, 0, 0);
+ 	}
+ 	return ret;
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 6f484f0d347e..90500b6c41fc 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -160,10 +160,9 @@ static inline u64 calc_global_rsv_need_space(struct btrfs_block_rsv *global)
+ 	return (global->size << 1);
+ }
+ 
+-static int can_overcommit(struct btrfs_fs_info *fs_info,
+-			  struct btrfs_space_info *space_info, u64 bytes,
+-			  enum btrfs_reserve_flush_enum flush,
+-			  bool system_chunk)
++int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
++			 struct btrfs_space_info *space_info, u64 bytes,
++			 enum btrfs_reserve_flush_enum flush)
+ {
+ 	u64 profile;
+ 	u64 avail;
+@@ -174,7 +173,7 @@ static int can_overcommit(struct btrfs_fs_info *fs_info,
+ 	if (space_info->flags & BTRFS_BLOCK_GROUP_DATA)
+ 		return 0;
+ 
+-	if (system_chunk)
++	if (space_info->flags & BTRFS_BLOCK_GROUP_SYSTEM)
+ 		profile = btrfs_system_alloc_profile(fs_info);
+ 	else
+ 		profile = btrfs_metadata_alloc_profile(fs_info);
+@@ -228,8 +227,8 @@ void btrfs_try_granting_tickets(struct btrfs_fs_info *fs_info,
+ 
+ 		/* Check and see if our ticket can be satisified now. */
+ 		if ((used + ticket->bytes <= space_info->total_bytes) ||
+-		    can_overcommit(fs_info, space_info, ticket->bytes, flush,
+-				   false)) {
++		    btrfs_can_overcommit(fs_info, space_info, ticket->bytes,
++					 flush)) {
+ 			btrfs_space_info_update_bytes_may_use(fs_info,
+ 							      space_info,
+ 							      ticket->bytes);
+@@ -634,8 +633,7 @@ static void flush_space(struct btrfs_fs_info *fs_info,
+ 
+ static inline u64
+ btrfs_calc_reclaim_metadata_size(struct btrfs_fs_info *fs_info,
+-				 struct btrfs_space_info *space_info,
+-				 bool system_chunk)
++				 struct btrfs_space_info *space_info)
+ {
+ 	struct reserve_ticket *ticket;
+ 	u64 used;
+@@ -650,14 +648,14 @@ btrfs_calc_reclaim_metadata_size(struct btrfs_fs_info *fs_info,
+ 		return to_reclaim;
+ 
+ 	to_reclaim = min_t(u64, num_online_cpus() * SZ_1M, SZ_16M);
+-	if (can_overcommit(fs_info, space_info, to_reclaim,
+-			   BTRFS_RESERVE_FLUSH_ALL, system_chunk))
++	if (btrfs_can_overcommit(fs_info, space_info, to_reclaim,
++				 BTRFS_RESERVE_FLUSH_ALL))
+ 		return 0;
+ 
+ 	used = btrfs_space_info_used(space_info, true);
+ 
+-	if (can_overcommit(fs_info, space_info, SZ_1M,
+-			   BTRFS_RESERVE_FLUSH_ALL, system_chunk))
++	if (btrfs_can_overcommit(fs_info, space_info, SZ_1M,
++				 BTRFS_RESERVE_FLUSH_ALL))
+ 		expected = div_factor_fine(space_info->total_bytes, 95);
+ 	else
+ 		expected = div_factor_fine(space_info->total_bytes, 90);
+@@ -673,7 +671,7 @@ btrfs_calc_reclaim_metadata_size(struct btrfs_fs_info *fs_info,
+ 
+ static inline int need_do_async_reclaim(struct btrfs_fs_info *fs_info,
+ 					struct btrfs_space_info *space_info,
+-					u64 used, bool system_chunk)
++					u64 used)
+ {
+ 	u64 thresh = div_factor_fine(space_info->total_bytes, 98);
+ 
+@@ -681,8 +679,7 @@ static inline int need_do_async_reclaim(struct btrfs_fs_info *fs_info,
+ 	if ((space_info->bytes_used + space_info->bytes_reserved) >= thresh)
+ 		return 0;
+ 
+-	if (!btrfs_calc_reclaim_metadata_size(fs_info, space_info,
+-					      system_chunk))
++	if (!btrfs_calc_reclaim_metadata_size(fs_info, space_info))
+ 		return 0;
+ 
+ 	return (used >= thresh && !btrfs_fs_closing(fs_info) &&
+@@ -805,8 +802,7 @@ static void btrfs_async_reclaim_metadata_space(struct work_struct *work)
+ 	space_info = btrfs_find_space_info(fs_info, BTRFS_BLOCK_GROUP_METADATA);
+ 
+ 	spin_lock(&space_info->lock);
+-	to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info, space_info,
+-						      false);
++	to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info, space_info);
+ 	if (!to_reclaim) {
+ 		space_info->flush = 0;
+ 		spin_unlock(&space_info->lock);
+@@ -825,8 +821,7 @@ static void btrfs_async_reclaim_metadata_space(struct work_struct *work)
+ 			return;
+ 		}
+ 		to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info,
+-							      space_info,
+-							      false);
++							      space_info);
+ 		if (last_tickets_id == space_info->tickets_id) {
+ 			flush_state++;
+ 		} else {
+@@ -898,8 +893,7 @@ static void priority_reclaim_metadata_space(struct btrfs_fs_info *fs_info,
+ 	int flush_state;
+ 
+ 	spin_lock(&space_info->lock);
+-	to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info, space_info,
+-						      false);
++	to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info, space_info);
+ 	if (!to_reclaim) {
+ 		spin_unlock(&space_info->lock);
+ 		return;
+@@ -1031,8 +1025,7 @@ static int handle_reserve_ticket(struct btrfs_fs_info *fs_info,
+ static int __reserve_metadata_bytes(struct btrfs_fs_info *fs_info,
+ 				    struct btrfs_space_info *space_info,
+ 				    u64 orig_bytes,
+-				    enum btrfs_reserve_flush_enum flush,
+-				    bool system_chunk)
++				    enum btrfs_reserve_flush_enum flush)
+ {
+ 	struct reserve_ticket ticket;
+ 	u64 used;
+@@ -1054,8 +1047,7 @@ static int __reserve_metadata_bytes(struct btrfs_fs_info *fs_info,
+ 	 */
+ 	if (!pending_tickets &&
+ 	    ((used + orig_bytes <= space_info->total_bytes) ||
+-	     can_overcommit(fs_info, space_info, orig_bytes, flush,
+-			   system_chunk))) {
++	     btrfs_can_overcommit(fs_info, space_info, orig_bytes, flush))) {
+ 		btrfs_space_info_update_bytes_may_use(fs_info, space_info,
+ 						      orig_bytes);
+ 		ret = 0;
+@@ -1097,8 +1089,7 @@ static int __reserve_metadata_bytes(struct btrfs_fs_info *fs_info,
+ 		 * the async reclaim as we will panic.
+ 		 */
+ 		if (!test_bit(BTRFS_FS_LOG_RECOVERING, &fs_info->flags) &&
+-		    need_do_async_reclaim(fs_info, space_info,
+-					  used, system_chunk) &&
++		    need_do_async_reclaim(fs_info, space_info, used) &&
+ 		    !work_busy(&fs_info->async_reclaim_work)) {
+ 			trace_btrfs_trigger_flush(fs_info, space_info->flags,
+ 						  orig_bytes, flush, "preempt");
+@@ -1135,10 +1126,9 @@ int btrfs_reserve_metadata_bytes(struct btrfs_root *root,
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct btrfs_block_rsv *global_rsv = &fs_info->global_block_rsv;
+ 	int ret;
+-	bool system_chunk = (root == fs_info->chunk_root);
+ 
+ 	ret = __reserve_metadata_bytes(fs_info, block_rsv->space_info,
+-				       orig_bytes, flush, system_chunk);
++				       orig_bytes, flush);
+ 	if (ret == -ENOSPC &&
+ 	    unlikely(root->orphan_cleanup_state == ORPHAN_CLEANUP_STARTED)) {
+ 		if (block_rsv != global_rsv &&
+diff --git a/fs/btrfs/space-info.h b/fs/btrfs/space-info.h
+index 8b9a1d8fefcb..b9cffc62cafa 100644
+--- a/fs/btrfs/space-info.h
++++ b/fs/btrfs/space-info.h
+@@ -129,6 +129,9 @@ int btrfs_reserve_metadata_bytes(struct btrfs_root *root,
+ 				 enum btrfs_reserve_flush_enum flush);
+ void btrfs_try_granting_tickets(struct btrfs_fs_info *fs_info,
+ 				struct btrfs_space_info *space_info);
++int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
++			 struct btrfs_space_info *space_info, u64 bytes,
++			 enum btrfs_reserve_flush_enum flush);
+ 
+ static inline void btrfs_space_info_free_bytes_may_use(
+ 				struct btrfs_fs_info *fs_info,
+diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+index 6419e6dacc39..70387650436c 100644
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -1553,11 +1553,7 @@ void reiserfs_read_locked_inode(struct inode *inode,
+ 	 * set version 1, version 2 could be used too, because stat data
+ 	 * key is the same in both versions
+ 	 */
+-	key.version = KEY_FORMAT_3_5;
+-	key.on_disk_key.k_dir_id = dirino;
+-	key.on_disk_key.k_objectid = inode->i_ino;
+-	key.on_disk_key.k_offset = 0;
+-	key.on_disk_key.k_type = 0;
++	_make_cpu_key(&key, KEY_FORMAT_3_5, dirino, inode->i_ino, 0, 0, 3);
+ 
+ 	/* look for the object's stat data */
+ 	retval = search_item(inode->i_sb, &key, &path_to_sd);
+diff --git a/fs/reiserfs/xattr.c b/fs/reiserfs/xattr.c
+index 28b241cd6987..fe63a7c3e0da 100644
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -674,6 +674,13 @@ reiserfs_xattr_get(struct inode *inode, const char *name, void *buffer,
+ 	if (get_inode_sd_version(inode) == STAT_DATA_V1)
+ 		return -EOPNOTSUPP;
+ 
++	/*
++	 * priv_root needn't be initialized during mount so allow initial
++	 * lookups to succeed.
++	 */
++	if (!REISERFS_SB(inode->i_sb)->priv_root)
++		return 0;
++
+ 	dentry = xattr_lookup(inode, name, XATTR_REPLACE);
+ 	if (IS_ERR(dentry)) {
+ 		err = PTR_ERR(dentry);
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index b689aceb636b..3cd232cf29c6 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1308,16 +1308,34 @@ static inline void hci_auth_cfm(struct hci_conn *conn, __u8 status)
+ 		conn->security_cfm_cb(conn, status);
+ }
+ 
+-static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
+-								__u8 encrypt)
++static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
+ {
+ 	struct hci_cb *cb;
++	__u8 encrypt;
++
++	if (conn->state == BT_CONFIG) {
++		if (!status)
++			conn->state = BT_CONNECTED;
+ 
+-	if (conn->sec_level == BT_SECURITY_SDP)
+-		conn->sec_level = BT_SECURITY_LOW;
++		hci_connect_cfm(conn, status);
++		hci_conn_drop(conn);
++		return;
++	}
+ 
+-	if (conn->pending_sec_level > conn->sec_level)
+-		conn->sec_level = conn->pending_sec_level;
++	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
++		encrypt = 0x00;
++	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
++		encrypt = 0x02;
++	else
++		encrypt = 0x01;
++
++	if (!status) {
++		if (conn->sec_level == BT_SECURITY_SDP)
++			conn->sec_level = BT_SECURITY_LOW;
++
++		if (conn->pending_sec_level > conn->sec_level)
++			conn->sec_level = conn->pending_sec_level;
++	}
+ 
+ 	mutex_lock(&hci_cb_list_lock);
+ 	list_for_each_entry(cb, &hci_cb_list, list) {
+diff --git a/include/net/bluetooth/l2cap.h b/include/net/bluetooth/l2cap.h
+index 093aedebdf0c..8efc2419a815 100644
+--- a/include/net/bluetooth/l2cap.h
++++ b/include/net/bluetooth/l2cap.h
+@@ -623,6 +623,8 @@ struct l2cap_ops {
+ 	struct sk_buff		*(*alloc_skb) (struct l2cap_chan *chan,
+ 					       unsigned long hdr_len,
+ 					       unsigned long len, int nb);
++	int			(*filter) (struct l2cap_chan * chan,
++					   struct sk_buff *skb);
+ };
+ 
+ struct l2cap_conn {
+diff --git a/net/bluetooth/a2mp.c b/net/bluetooth/a2mp.c
+index 26526be579c7..da7fd7c8c2dc 100644
+--- a/net/bluetooth/a2mp.c
++++ b/net/bluetooth/a2mp.c
+@@ -226,6 +226,9 @@ static int a2mp_discover_rsp(struct amp_mgr *mgr, struct sk_buff *skb,
+ 			struct a2mp_info_req req;
+ 
+ 			found = true;
++
++			memset(&req, 0, sizeof(req));
++
+ 			req.id = cl->id;
+ 			a2mp_send(mgr, A2MP_GETINFO_REQ, __next_ident(mgr),
+ 				  sizeof(req), &req);
+@@ -305,6 +308,8 @@ static int a2mp_getinfo_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 	if (!hdev || hdev->dev_type != HCI_AMP) {
+ 		struct a2mp_info_rsp rsp;
+ 
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		rsp.id = req->id;
+ 		rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -348,6 +353,8 @@ static int a2mp_getinfo_rsp(struct amp_mgr *mgr, struct sk_buff *skb,
+ 	if (!ctrl)
+ 		return -ENOMEM;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.id = rsp->id;
+ 	a2mp_send(mgr, A2MP_GETAMPASSOC_REQ, __next_ident(mgr), sizeof(req),
+ 		  &req);
+@@ -376,6 +383,8 @@ static int a2mp_getampassoc_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 		struct a2mp_amp_assoc_rsp rsp;
+ 		rsp.id = req->id;
+ 
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		if (tmp) {
+ 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+ 			amp_mgr_put(tmp);
+@@ -464,7 +473,6 @@ static int a2mp_createphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 				   struct a2mp_cmd *hdr)
+ {
+ 	struct a2mp_physlink_req *req = (void *) skb->data;
+-
+ 	struct a2mp_physlink_rsp rsp;
+ 	struct hci_dev *hdev;
+ 	struct hci_conn *hcon;
+@@ -475,6 +483,8 @@ static int a2mp_createphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 
+ 	BT_DBG("local_id %d, remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 
+@@ -553,6 +563,8 @@ static int a2mp_discphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 
+ 	BT_DBG("local_id %d remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 	rsp.status = A2MP_STATUS_SUCCESS;
+@@ -675,6 +687,8 @@ static int a2mp_chan_recv_cb(struct l2cap_chan *chan, struct sk_buff *skb)
+ 	if (err) {
+ 		struct a2mp_cmd_rej rej;
+ 
++		memset(&rej, 0, sizeof(rej));
++
+ 		rej.reason = cpu_to_le16(0);
+ 		hdr = (void *) skb->data;
+ 
+@@ -898,6 +912,8 @@ void a2mp_send_getinfo_rsp(struct hci_dev *hdev)
+ 
+ 	BT_DBG("%s mgr %p", hdev->name, mgr);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.id = hdev->id;
+ 	rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -995,6 +1011,8 @@ void a2mp_send_create_phy_link_rsp(struct hci_dev *hdev, u8 status)
+ 	if (!mgr)
+ 		return;
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	hs_hcon = hci_conn_hash_lookup_state(hdev, AMP_LINK, BT_CONNECT);
+ 	if (!hs_hcon) {
+ 		rsp.status = A2MP_STATUS_UNABLE_START_LINK_CREATION;
+@@ -1027,6 +1045,8 @@ void a2mp_discover_amp(struct l2cap_chan *chan)
+ 
+ 	mgr->bredr_chan = chan;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.mtu = cpu_to_le16(L2CAP_A2MP_DEFAULT_MTU);
+ 	req.ext_feat = 0;
+ 	a2mp_send(mgr, A2MP_DISCOVER_REQ, 1, sizeof(req), &req);
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index 87691404d0c6..ee57fa20bac3 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1285,6 +1285,23 @@ int hci_conn_check_link_mode(struct hci_conn *conn)
+ 			return 0;
+ 	}
+ 
++	 /* AES encryption is required for Level 4:
++	  *
++	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
++	  * page 1319:
++	  *
++	  * 128-bit equivalent strength for link and encryption keys
++	  * required using FIPS approved algorithms (E0 not allowed,
++	  * SAFER+ not allowed, and P-192 not allowed; encryption key
++	  * not shortened)
++	  */
++	if (conn->sec_level == BT_SECURITY_FIPS &&
++	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
++		bt_dev_err(conn->hdev,
++			   "Invalid security: Missing AES-CCM usage");
++		return 0;
++	}
++
+ 	if (hci_conn_ssp_enabled(conn) &&
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index fd436e5d7b54..9917b399ddd0 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -2840,7 +2840,7 @@ static void hci_auth_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 				     &cp);
+ 		} else {
+ 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
+-			hci_encrypt_cfm(conn, ev->status, 0x00);
++			hci_encrypt_cfm(conn, ev->status);
+ 		}
+ 	}
+ 
+@@ -2925,22 +2925,7 @@ static void read_enc_key_size_complete(struct hci_dev *hdev, u8 status,
+ 		conn->enc_key_size = rp->key_size;
+ 	}
+ 
+-	if (conn->state == BT_CONFIG) {
+-		conn->state = BT_CONNECTED;
+-		hci_connect_cfm(conn, 0);
+-		hci_conn_drop(conn);
+-	} else {
+-		u8 encrypt;
+-
+-		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+-			encrypt = 0x00;
+-		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
+-			encrypt = 0x02;
+-		else
+-			encrypt = 0x01;
+-
+-		hci_encrypt_cfm(conn, 0, encrypt);
+-	}
++	hci_encrypt_cfm(conn, 0);
+ 
+ unlock:
+ 	hci_dev_unlock(hdev);
+@@ -2989,27 +2974,23 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 
+ 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
+ 
++	/* Check link security requirements are met */
++	if (!hci_conn_check_link_mode(conn))
++		ev->status = HCI_ERROR_AUTH_FAILURE;
++
+ 	if (ev->status && conn->state == BT_CONNECTED) {
+ 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
+ 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
+ 
++		/* Notify upper layers so they can cleanup before
++		 * disconnecting.
++		 */
++		hci_encrypt_cfm(conn, ev->status);
+ 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
+ 		hci_conn_drop(conn);
+ 		goto unlock;
+ 	}
+ 
+-	/* In Secure Connections Only mode, do not allow any connections
+-	 * that are not encrypted with AES-CCM using a P-256 authenticated
+-	 * combination key.
+-	 */
+-	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
+-	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
+-	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
+-		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
+-		hci_conn_drop(conn);
+-		goto unlock;
+-	}
+-
+ 	/* Try reading the encryption key size for encrypted ACL links */
+ 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
+ 		struct hci_cp_read_enc_key_size cp;
+@@ -3058,14 +3039,7 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	}
+ 
+ notify:
+-	if (conn->state == BT_CONFIG) {
+-		if (!ev->status)
+-			conn->state = BT_CONNECTED;
+-
+-		hci_connect_cfm(conn, ev->status);
+-		hci_conn_drop(conn);
+-	} else
+-		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
++	hci_encrypt_cfm(conn, ev->status);
+ 
+ unlock:
+ 	hci_dev_unlock(hdev);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 12a50e5a9f45..3499bace25ec 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -6701,9 +6701,10 @@ static int l2cap_data_rcv(struct l2cap_chan *chan, struct sk_buff *skb)
+ 		goto drop;
+ 	}
+ 
+-	if ((chan->mode == L2CAP_MODE_ERTM ||
+-	     chan->mode == L2CAP_MODE_STREAMING) && sk_filter(chan->data, skb))
+-		goto drop;
++	if (chan->ops->filter) {
++		if (chan->ops->filter(chan, skb))
++			goto drop;
++	}
+ 
+ 	if (!control->sframe) {
+ 		int err;
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index 390a9afab647..40e96a610e2b 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1479,6 +1479,19 @@ static void l2cap_sock_suspend_cb(struct l2cap_chan *chan)
+ 	sk->sk_state_change(sk);
+ }
+ 
++static int l2cap_sock_filter(struct l2cap_chan *chan, struct sk_buff *skb)
++{
++	struct sock *sk = chan->data;
++
++	switch (chan->mode) {
++	case L2CAP_MODE_ERTM:
++	case L2CAP_MODE_STREAMING:
++		return sk_filter(sk, skb);
++	}
++
++	return 0;
++}
++
+ static const struct l2cap_ops l2cap_chan_ops = {
+ 	.name			= "L2CAP Socket Interface",
+ 	.new_connection		= l2cap_sock_new_connection_cb,
+@@ -1493,6 +1506,7 @@ static const struct l2cap_ops l2cap_chan_ops = {
+ 	.set_shutdown		= l2cap_sock_set_shutdown_cb,
+ 	.get_sndtimeo		= l2cap_sock_get_sndtimeo_cb,
+ 	.alloc_skb		= l2cap_sock_alloc_skb_cb,
++	.filter			= l2cap_sock_filter,
+ };
+ 
+ static void l2cap_sock_destruct(struct sock *sk)
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index acb7c6d5643f..5fce559a61bf 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -756,7 +756,8 @@ static u32 get_supported_settings(struct hci_dev *hdev)
+ 
+ 		if (lmp_ssp_capable(hdev)) {
+ 			settings |= MGMT_SETTING_SSP;
+-			settings |= MGMT_SETTING_HS;
++			if (IS_ENABLED(CONFIG_BT_HS))
++				settings |= MGMT_SETTING_HS;
+ 		}
+ 
+ 		if (lmp_sc_capable(hdev))
+@@ -1771,6 +1772,10 @@ static int set_hs(struct sock *sk, struct hci_dev *hdev, void *data, u16 len)
+ 
+ 	BT_DBG("request for %s", hdev->name);
+ 
++	if (!IS_ENABLED(CONFIG_BT_HS))
++		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
++				       MGMT_STATUS_NOT_SUPPORTED);
++
+ 	status = mgmt_bredr_support(hdev);
+ 	if (status)
+ 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
+diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+index 451eee24165e..f5a9cb408808 100644
+--- a/tools/perf/util/cs-etm.c
++++ b/tools/perf/util/cs-etm.c
+@@ -94,6 +94,9 @@ struct cs_etm_queue {
+ 	struct cs_etm_traceid_queue **traceid_queues;
+ };
+ 
++/* RB tree for quick conversion between traceID and metadata pointers */
++static struct intlist *traceid_list;
++
+ static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
+ static int cs_etm__process_queues(struct cs_etm_auxtrace *etm);
+ static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
+diff --git a/tools/perf/util/cs-etm.h b/tools/perf/util/cs-etm.h
+index 650ecc2a6349..4ad925d6d799 100644
+--- a/tools/perf/util/cs-etm.h
++++ b/tools/perf/util/cs-etm.h
+@@ -114,9 +114,6 @@ enum cs_etm_isa {
+ 	CS_ETM_ISA_T32,
+ };
+ 
+-/* RB tree for quick conversion between traceID and metadata pointers */
+-struct intlist *traceid_list;
+-
+ struct cs_etm_queue;
+ 
+ struct cs_etm_packet {
