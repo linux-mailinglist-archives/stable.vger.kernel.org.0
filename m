@@ -2,136 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D010291115
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:48:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46544291117
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411495AbgJQJsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Oct 2020 05:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        id S2436570AbgJQJtc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Oct 2020 05:49:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410334AbgJQJsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Oct 2020 05:48:54 -0400
+        id S2411665AbgJQJtc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Oct 2020 05:49:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3787206CB;
-        Sat, 17 Oct 2020 09:48:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DA6B206CB;
+        Sat, 17 Oct 2020 09:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602928133;
-        bh=kVPGSawdTzm6fxKGp6WkH3lpLhOH3m5i432ozWjMbiA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZGCXXWfjJvYw7tQUy31lZMspPSCudYKHDRxBfVaFL4a0DugWDo+GdJImMGw0sIOh6
-         kAO2jIbukkDRdE65afibp+iuJKdKNAKXjLBA760DhMP+upBUwTwBQiteyPeP+nn+Eb
-         6O6Uy/YefF9shML7p/XOFA6E7Y/TAgdjffLgYt6I=
-Date:   Sat, 17 Oct 2020 11:49:43 +0200
+        s=default; t=1602928171;
+        bh=CSebjV3iaeivwG2V8vr85gvyzQJdVKqtD6iR1WB6LDY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tj2Ldb4qAAPjsRv2xPieET3Wlp1XueJ/lNqbAFNg1ePr0cbREHDM74eUGhAa9qpG0
+         lp26w0zs1o30lKzwQ9mnyPUdFAda/rE/xX3vL4iGBvBenDPhDThllgQthqjdVUs4SE
+         SwR15vLUn+gIms1RqHYfSdXdHqcpt6FM7YapbwQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/21] 4.19.152-rc1 review
-Message-ID: <20201017094943.GA1356372@kroah.com>
-References: <20201016090437.301376476@linuxfoundation.org>
- <20201016190151.GD32893@roeck-us.net>
- <20201017094153.GA190870@eldamar.lan>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.240
+Date:   Sat, 17 Oct 2020 11:50:20 +0200
+Message-Id: <16029282207465@kroah.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20201017094153.GA190870@eldamar.lan>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 17, 2020 at 11:41:53AM +0200, Salvatore Bonaccorso wrote:
-> hi,
->=20
-> On Fri, Oct 16, 2020 at 12:01:51PM -0700, Guenter Roeck wrote:
-> > On Fri, Oct 16, 2020 at 11:07:19AM +0200, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.19.152 release.
-> > > There are 21 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, plea=
-se
-> > > let me know.
-> > >=20
-> > > Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
-> > > Anything received after that time might be too late.
-> > >=20
-> >=20
-> > Build results:
-> > 	total: 155 pass: 153 fail: 2
-> > Failed builds:
-> > 	i386:tools/perf
-> > 	x86_64:tools/perf
->=20
-> I'm seeing the tools/perf failure as well:
->=20
->   gcc -Wp,-MD,/home/build/linux-4.19.152/debian/build/build-tools/tools/p=
-erf/util/intel-pt-decoder/.intel-pt-insn-decoder.o.d -Wp,-MT,/home/build/li=
-nux-4.19.152/debian/build/build-tools/tools/perf/util/intel-pt-decoder/inte=
-l-pt-insn-decoder.o -g -O2 -fstack-protector-strong -Wformat -Werror=3Dform=
-at-security -Wall -Wdate-time -D_FORTIFY_SOURCE=3D2 -I/home/build/linux-4.1=
-9.152/tools/perf -I/home/build/linux-4.19.152/debian/build/build-tools/tool=
-s/perf -isystem /home/build/linux-4.19.152/debian/build/build-tools/include=
- -Wbad-function-cast -Wdeclaration-after-statement -Wformat-security -Wform=
-at-y2k -Winit-self -Wmissing-declarations -Wmissing-prototypes -Wnested-ext=
-erns -Wno-system-headers -Wold-style-definition -Wpacked -Wredundant-decls =
--Wshadow -Wstrict-prototypes -Wswitch-default -Wswitch-enum -Wundef -Wwrite=
--strings -Wformat -Wstrict-aliasing=3D3 -DHAVE_ARCH_X86_64_SUPPORT -I/home/=
-build/linux-4.19.152/debian/build/build-tools/tools/perf/arch/x86/include/g=
-enerated -DHAVE_SYSCALL_TABLE_SUPPORT -DHAVE_PERF_REGS_SUPPORT -DHAVE_ARCH_=
-REGS_QUERY_REGISTER_OFFSET -O6 -fno-omit-frame-pointer -ggdb3 -funwind-tabl=
-es -Wall -Wextra -std=3Dgnu99 -fstack-protector-all -D_FORTIFY_SOURCE=3D2 -=
-I/home/build/linux-4.19.152/tools/perf/util/include -I/home/build/linux-4.1=
-9.152/tools/perf/arch/x86/include -I/home/build/linux-4.19.152/tools/includ=
-e/uapi -I/home/build/linux-4.19.152/tools/include/ -I/home/build/linux-4.19=
-=2E152/tools/arch/x86/include/uapi -I/home/build/linux-4.19.152/tools/arch/=
-x86/include/ -I/home/build/linux-4.19.152/tools/arch/x86/ -I/home/build/lin=
-ux-4.19.152/debian/build/build-tools/tools/perf//util -I/home/build/linux-4=
-=2E19.152/debian/build/build-tools/tools/perf/ -I/home/build/linux-4.19.152=
-/tools/perf/util -I/home/build/linux-4.19.152/tools/perf -I/home/build/linu=
-x-4.19.152/tools/lib/ -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=3D64 -D_GNU=
-_SOURCE -DHAVE_SYNC_COMPARE_AND_SWAP_SUPPORT -DHAVE_PTHREAD_ATTR_SETAFFINIT=
-Y_NP -DHAVE_PTHREAD_BARRIER -DHAVE_DWARF_GETLOCATIONS_SUPPORT -DHAVE_GLIBC_=
-SUPPORT -DHAVE_SCHED_GETCPU_SUPPORT -DHAVE_SETNS_SUPPORT -DHAVE_CSTRACE_SUP=
-PORT -DHAVE_LIBELF_SUPPORT -DHAVE_LIBELF_MMAP_SUPPORT -DHAVE_ELF_GETPHDRNUM=
-_SUPPORT -DHAVE_GELF_GETNOTE_SUPPORT -DHAVE_ELF_GETSHDRSTRNDX_SUPPORT -DHAV=
-E_DWARF_SUPPORT -DHAVE_LIBBPF_SUPPORT -DHAVE_BPF_PROLOGUE -DHAVE_JITDUMP -D=
-HAVE_DWARF_UNWIND_SUPPORT -DNO_LIBUNWIND_DEBUG_FRAME -DHAVE_LIBUNWIND_SUPPO=
-RT -I/usr/include/slang -DHAVE_SLANG_SUPPORT -DHAVE_LIBPERL_SUPPORT -DHAVE_=
-TIMERFD_SUPPORT -DHAVE_LIBPYTHON_SUPPORT -DHAVE_CPLUS_DEMANGLE_SUPPORT -DHA=
-VE_ZLIB_SUPPORT -DHAVE_LZMA_SUPPORT -DHAVE_BACKTRACE_SUPPORT -DHAVE_LIBNUMA=
-_SUPPORT -DHAVE_KVM_STAT_SUPPORT -DHAVE_PERF_READ_VDSO32 -DHAVE_PERF_READ_V=
-DSOX32 -DHAVE_LIBBABELTRACE_SUPPORT -DHAVE_AUXTRACE_SUPPORT -I/home/build/l=
-inux-4.19.152/debian/build/build-tools/tools/perf/ -D"BUILD_STR(s)=3D#s" -I=
-/home/build/linux-4.19.152/debian/build/build-tools/tools/perf/util/intel-p=
-t-decoder -c -o /home/build/linux-4.19.152/debian/build/build-tools/tools/p=
-erf/util/intel-pt-decoder/intel-pt-insn-decoder.o util/intel-pt-decoder/int=
-el-pt-insn-decoder.c
-> util/cs-etm-decoder/cs-etm-decoder.c: In function 'cs_etm_decoder__buffer=
-_packet':
-> util/cs-etm-decoder/cs-etm-decoder.c:287:24: error: 'traceid_list' undecl=
-ared (first use in this function); did you mean 'trace_event'?
->   inode =3D intlist__find(traceid_list, trace_chan_id);
->                         ^~~~~~~~~~~~
->                         trace_event
-> util/cs-etm-decoder/cs-etm-decoder.c:287:24: note: each undeclared identi=
-fier is reported only once for each function it appears in
-> make[8]: *** [/home/build/linux-4.19.152/tools/build/Makefile.build:97: /=
-home/build/linux-4.19.152/debian/build/build-tools/tools/perf/util/cs-etm-d=
-ecoder/cs-etm-decoder.o] Error 1
-> make[8]: Leaving directory '/home/build/linux-4.19.152/tools/perf'
-> make[7]: *** [/home/build/linux-4.19.152/tools/build/Makefile.build:139: =
-cs-etm-decoder] Error 2
+I'm announcing the release of the 4.4.240 kernel.
 
-Yeah, it's a mess, and I tried to unwind it, but it was not a simple
-fix.
+All users of the 4.4 kernel series must upgrade.
 
-If people still care about building perf on 4.19 with newer gcc
-releases, I'll gladly take backports of the needed patches for this.
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                 |    2 
+ drivers/crypto/qat/qat_common/qat_algs.c |   10 +++-
+ drivers/media/usb/usbtv/usbtv-core.c     |    3 -
+ drivers/spi/spi.c                        |    4 -
+ drivers/staging/comedi/drivers/vmk80xx.c |    3 +
+ drivers/usb/serial/ftdi_sio.c            |    5 ++
+ drivers/usb/serial/ftdi_sio_ids.h        |    7 +++
+ drivers/usb/serial/option.c              |    5 ++
+ drivers/usb/serial/pl2303.c              |    1 
+ drivers/usb/serial/pl2303.h              |    1 
+ fs/reiserfs/inode.c                      |    6 --
+ fs/reiserfs/xattr.c                      |    7 +++
+ include/net/bluetooth/hci_core.h         |   30 ++++++++++---
+ net/bluetooth/a2mp.c                     |   22 +++++++++
+ net/bluetooth/hci_conn.c                 |   17 +++++++
+ net/bluetooth/hci_event.c                |   70 ++++++++++++-------------------
+ net/bluetooth/mgmt.c                     |    7 ++-
+ 17 files changed, 140 insertions(+), 60 deletions(-)
+
+Alain Michaud (1):
+      Bluetooth: fix kernel oops in store_pending_adv_report
+
+Anant Thazhemadam (1):
+      staging: comedi: check validity of wMaxPacketSize of usb endpoints found
+
+Dominik Przychodni (1):
+      crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.240
+
+Jan Kara (2):
+      reiserfs: Initialize inode keys properly
+      reiserfs: Fix oops during mount
+
+Leonid Bloch (1):
+      USB: serial: option: Add Telit FT980-KS composition
+
+Luiz Augusto von Dentz (4):
+      Bluetooth: A2MP: Fix not initializing all members
+      Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+      Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+      Bluetooth: Disconnect if E0 is used for Level 4
+
+Mychaela N. Falconia (1):
+      USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
+
+Oliver Neukum (1):
+      media: usbtv: Fix refcounting mixup
+
+Patrick Steinhardt (1):
+      Bluetooth: Fix update of connection state in `hci_encrypt_cfm`
+
+Scott Chen (1):
+      USB: serial: pl2303: add device-id for HP GC device
+
+Wilken Gottwalt (1):
+      USB: serial: option: add Cellient MPL200 card
+
+yangerkun (1):
+      spi: unbinding slave before calling spi_destroy_queue
+
