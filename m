@@ -2,780 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30B6291124
-	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EF7029112B
+	for <lists+stable@lfdr.de>; Sat, 17 Oct 2020 11:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437893AbgJQJuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Oct 2020 05:50:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59586 "EHLO mail.kernel.org"
+        id S2437915AbgJQJuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Oct 2020 05:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437862AbgJQJuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Oct 2020 05:50:04 -0400
+        id S2437911AbgJQJuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Oct 2020 05:50:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 181A0206CB;
-        Sat, 17 Oct 2020 09:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B817120720;
+        Sat, 17 Oct 2020 09:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602928202;
-        bh=kpqxRvynrrqPREVXYaq037Ra6og29GPabCq2lgVxUOQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNm685WHl4MATr/M+NLBaenaRz/qdLO3a4Q7BYcMjCUzkNZ/aUxyd7ASq4TgOPDNj
-         aD0YLCN+1WDrKCnQk7V8unil7Mi/BglpfLummLzafF6pwRYKNI0iNvxdSRKRRIBKBB
-         asQ/WUC8QAX0nyjQi4I8DSVSrZmfi/ybWS25FmZg=
+        s=default; t=1602928213;
+        bh=Hfi1ZLEX2GCVG2qNeol/bVjA2YKd2CqEeUvMwK9oqPE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AUcdhE3yOVjcGvBwG4C3u9GFFcEO8vfMdYGrNUQoHykYIASDKWRQ3boaiWxFpoeym
+         ZSbynErfhvUZlBZYXk3P8qihm6ZWFYwKz+E6OGVrESU9V3BUE8cSEgMF4/gQDE6yY8
+         n4sKmctETTe6VTx0E6EOUArd9BliCwSzjY0D9jB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.152
-Date:   Sat, 17 Oct 2020 11:50:44 +0200
-Message-Id: <16029282448932@kroah.com>
+Subject: Linux 5.4.72
+Date:   Sat, 17 Oct 2020 11:50:54 +0200
+Message-Id: <160292825411493@kroah.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <160292824411211@kroah.com>
-References: <160292824411211@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f2c9db9b4015..aa79ce7bfdc7 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 151
-+SUBLEVEL = 152
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/arm/boot/compressed/Makefile b/arch/arm/boot/compressed/Makefile
-index 1f5a5ffe7fcf..c762004572ef 100644
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -120,7 +120,7 @@ ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin -I$(obj)
- asflags-y := -DZIMAGE
- 
- # Supply kernel BSS size to the decompressor via a linker symbol.
--KBSS_SZ = $(shell echo $$(($$($(CROSS_COMPILE)nm $(obj)/../../../../vmlinux | \
-+KBSS_SZ = $(shell echo $$(($$($(NM) $(obj)/../../../../vmlinux | \
- 		sed -n -e 's/^\([^ ]*\) [AB] __bss_start$$/-0x\1/p' \
- 		       -e 's/^\([^ ]*\) [AB] __bss_stop$$/+0x\1/p') )) )
- LDFLAGS_vmlinux = --defsym _kernel_bss_size=$(KBSS_SZ)
-@@ -166,7 +166,7 @@ $(obj)/bswapsdi2.S: $(srctree)/arch/$(SRCARCH)/lib/bswapsdi2.S
- # The .data section is already discarded by the linker script so no need
- # to bother about it here.
- check_for_bad_syms = \
--bad_syms=$$($(CROSS_COMPILE)nm $@ | sed -n 's/^.\{8\} [bc] \(.*\)/\1/p') && \
-+bad_syms=$$($(NM) $@ | sed -n 's/^.\{8\} [bc] \(.*\)/\1/p') && \
- [ -z "$$bad_syms" ] || \
-   ( echo "following symbols must have non local/private scope:" >&2; \
-     echo "$$bad_syms" >&2; rm -f $@; false )
-diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
-index f4efff9d3afb..1f5ec9741e6d 100644
---- a/arch/arm/vdso/Makefile
-+++ b/arch/arm/vdso/Makefile
-@@ -10,12 +10,13 @@ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
- ccflags-y := -fPIC -fno-common -fno-builtin -fno-stack-protector
- ccflags-y += -DDISABLE_BRANCH_PROFILING
- 
--VDSO_LDFLAGS := -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1
--VDSO_LDFLAGS += -Wl,-z,max-page-size=4096 -Wl,-z,common-page-size=4096
--VDSO_LDFLAGS += -nostdlib -shared
--VDSO_LDFLAGS += $(call cc-ldoption, -Wl$(comma)--hash-style=sysv)
--VDSO_LDFLAGS += $(call cc-ldoption, -Wl$(comma)--build-id)
--VDSO_LDFLAGS += $(call cc-ldoption, -fuse-ld=bfd)
-+ldflags-$(CONFIG_CPU_ENDIAN_BE8) := --be8
-+ldflags-y := -Bsymbolic --no-undefined -soname=linux-vdso.so.1 \
-+	    -z max-page-size=4096 -z common-page-size=4096 \
-+	    -nostdlib -shared $(ldflags-y) \
-+	    $(call ld-option, --hash-style=sysv) \
-+	    $(call ld-option, --build-id) \
-+	    -T
- 
- obj-$(CONFIG_VDSO) += vdso.o
- extra-$(CONFIG_VDSO) += vdso.lds
-@@ -37,8 +38,8 @@ KCOV_INSTRUMENT := n
- $(obj)/vdso.o : $(obj)/vdso.so
- 
- # Link rule for the .so file
--$(obj)/vdso.so.raw: $(src)/vdso.lds $(obj-vdso) FORCE
--	$(call if_changed,vdsold)
-+$(obj)/vdso.so.raw: $(obj)/vdso.lds $(obj-vdso) FORCE
-+	$(call if_changed,ld)
- 
- $(obj)/vdso.so.dbg: $(obj)/vdso.so.raw $(obj)/vdsomunge FORCE
- 	$(call if_changed,vdsomunge)
-@@ -48,11 +49,6 @@ $(obj)/%.so: OBJCOPYFLAGS := -S
- $(obj)/%.so: $(obj)/%.so.dbg FORCE
- 	$(call if_changed,objcopy)
- 
--# Actual build commands
--quiet_cmd_vdsold = VDSO    $@
--      cmd_vdsold = $(CC) $(c_flags) $(VDSO_LDFLAGS) \
--                   -Wl,-T $(filter %.lds,$^) $(filter %.o,$^) -o $@
--
- quiet_cmd_vdsomunge = MUNGE   $@
-       cmd_vdsomunge = $(objtree)/$(obj)/vdsomunge $< $@
- 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index 0b1fc5664b1d..c2736274ad63 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -2980,7 +2980,6 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *cipher,
- 
- 	ctx->enckeylen = keylen;
- 	ctx->authkeylen = 0;
--	memcpy(ctx->enckey, key, ctx->enckeylen);
- 
- 	switch (ctx->enckeylen) {
- 	case AES_KEYSIZE_128:
-@@ -2996,6 +2995,8 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *cipher,
- 		goto badkey;
- 	}
- 
-+	memcpy(ctx->enckey, key, ctx->enckeylen);
-+
- 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
- 		 ctx->authkeylen);
- 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
-@@ -3056,6 +3057,10 @@ static int aead_gcm_esp_setkey(struct crypto_aead *cipher,
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
- 
- 	flow_log("%s\n", __func__);
-+
-+	if (keylen < GCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = GCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
-@@ -3084,6 +3089,10 @@ static int rfc4543_gcm_esp_setkey(struct crypto_aead *cipher,
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
- 
- 	flow_log("%s\n", __func__);
-+
-+	if (keylen < GCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = GCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
-@@ -3113,6 +3122,10 @@ static int aead_ccm_esp_setkey(struct crypto_aead *cipher,
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
- 
- 	flow_log("%s\n", __func__);
-+
-+	if (keylen < CCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = CCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = CCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
-diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
-index 1138e41d6805..883342a45be7 100644
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -828,6 +828,11 @@ static int qat_alg_aead_dec(struct aead_request *areq)
- 	struct icp_qat_fw_la_bulk_req *msg;
- 	int digst_size = crypto_aead_authsize(aead_tfm);
- 	int ret, ctr = 0;
-+	u32 cipher_len;
-+
-+	cipher_len = areq->cryptlen - digst_size;
-+	if (cipher_len % AES_BLOCK_SIZE != 0)
-+		return -EINVAL;
- 
- 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
- 	if (unlikely(ret))
-@@ -842,7 +847,7 @@ static int qat_alg_aead_dec(struct aead_request *areq)
- 	qat_req->req.comn_mid.src_data_addr = qat_req->buf.blp;
- 	qat_req->req.comn_mid.dest_data_addr = qat_req->buf.bloutp;
- 	cipher_param = (void *)&qat_req->req.serv_specif_rqpars;
--	cipher_param->cipher_length = areq->cryptlen - digst_size;
-+	cipher_param->cipher_length = cipher_len;
- 	cipher_param->cipher_offset = areq->assoclen;
- 	memcpy(cipher_param->u.cipher_IV_array, areq->iv, AES_BLOCK_SIZE);
- 	auth_param = (void *)((uint8_t *)cipher_param + sizeof(*cipher_param));
-@@ -871,6 +876,9 @@ static int qat_alg_aead_enc(struct aead_request *areq)
- 	uint8_t *iv = areq->iv;
- 	int ret, ctr = 0;
- 
-+	if (areq->cryptlen % AES_BLOCK_SIZE != 0)
-+		return -EINVAL;
-+
- 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
- 	if (unlikely(ret))
- 		return ret;
-diff --git a/drivers/media/usb/usbtv/usbtv-core.c b/drivers/media/usb/usbtv/usbtv-core.c
-index ee9c656d121f..2308c0b4f5e7 100644
---- a/drivers/media/usb/usbtv/usbtv-core.c
-+++ b/drivers/media/usb/usbtv/usbtv-core.c
-@@ -113,7 +113,8 @@ static int usbtv_probe(struct usb_interface *intf,
- 
- usbtv_audio_fail:
- 	/* we must not free at this point */
--	usb_get_dev(usbtv->udev);
-+	v4l2_device_get(&usbtv->v4l2_dev);
-+	/* this will undo the v4l2_device_get() */
- 	usbtv_video_free(usbtv);
- 
- usbtv_video_fail:
-diff --git a/drivers/net/ethernet/marvell/mvmdio.c b/drivers/net/ethernet/marvell/mvmdio.c
-index ee7857298361..cf7e10fbab0e 100644
---- a/drivers/net/ethernet/marvell/mvmdio.c
-+++ b/drivers/net/ethernet/marvell/mvmdio.c
-@@ -319,15 +319,25 @@ static int orion_mdio_probe(struct platform_device *pdev)
- 
- 	init_waitqueue_head(&dev->smi_busy_wait);
- 
--	for (i = 0; i < ARRAY_SIZE(dev->clk); i++) {
--		dev->clk[i] = of_clk_get(pdev->dev.of_node, i);
--		if (PTR_ERR(dev->clk[i]) == -EPROBE_DEFER) {
-+	if (pdev->dev.of_node) {
-+		for (i = 0; i < ARRAY_SIZE(dev->clk); i++) {
-+			dev->clk[i] = of_clk_get(pdev->dev.of_node, i);
-+			if (PTR_ERR(dev->clk[i]) == -EPROBE_DEFER) {
-+				ret = -EPROBE_DEFER;
-+				goto out_clk;
-+			}
-+			if (IS_ERR(dev->clk[i]))
-+				break;
-+			clk_prepare_enable(dev->clk[i]);
-+		}
-+	} else {
-+		dev->clk[0] = clk_get(&pdev->dev, NULL);
-+		if (PTR_ERR(dev->clk[0]) == -EPROBE_DEFER) {
- 			ret = -EPROBE_DEFER;
- 			goto out_clk;
- 		}
--		if (IS_ERR(dev->clk[i]))
--			break;
--		clk_prepare_enable(dev->clk[i]);
-+		if (!IS_ERR(dev->clk[0]))
-+			clk_prepare_enable(dev->clk[0]);
- 	}
- 
- 	dev->err_interrupt = platform_get_irq(pdev, 0);
-diff --git a/drivers/staging/comedi/drivers/vmk80xx.c b/drivers/staging/comedi/drivers/vmk80xx.c
-index 65dc6c51037e..7956abcbae22 100644
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -667,6 +667,9 @@ static int vmk80xx_find_usb_endpoints(struct comedi_device *dev)
- 	if (!devpriv->ep_rx || !devpriv->ep_tx)
- 		return -ENODEV;
- 
-+	if (!usb_endpoint_maxp(devpriv->ep_rx) || !usb_endpoint_maxp(devpriv->ep_tx))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index f0f630e1cf1c..b2364e379429 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1027,6 +1027,11 @@ static const struct usb_device_id id_table_combined[] = {
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
-+	/* FreeCalypso USB adapters */
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_BUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_UNBUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
- 	{ }					/* Terminating entry */
- };
- 
-diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
-index b5ca17a5967a..3d47c6d72256 100644
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -39,6 +39,13 @@
- 
- #define FTDI_LUMEL_PD12_PID	0x6002
- 
-+/*
-+ * Custom USB adapters made by Falconia Partners LLC
-+ * for FreeCalypso project, ID codes allocated to Falconia by FTDI.
-+ */
-+#define FTDI_FALCONIA_JTAG_BUF_PID	0x7150
-+#define FTDI_FALCONIA_JTAG_UNBUF_PID	0x7151
-+
- /* Sienna Serial Interface by Secyourit GmbH */
- #define FTDI_SIENNA_PID		0x8348
- 
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index 810f1010ab13..c773db129bf9 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -528,6 +528,7 @@ static void option_instat_callback(struct urb *urb);
- /* Cellient products */
- #define CELLIENT_VENDOR_ID			0x2692
- #define CELLIENT_PRODUCT_MEN200			0x9005
-+#define CELLIENT_PRODUCT_MPL200			0x9025
- 
- /* Hyundai Petatel Inc. products */
- #define PETATEL_VENDOR_ID			0x1ff4
-@@ -1186,6 +1187,8 @@ static const struct usb_device_id option_ids[] = {
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1053, 0xff),	/* Telit FN980 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1054, 0xff),	/* Telit FT980-KS */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
-@@ -1982,6 +1985,8 @@ static const struct usb_device_id option_ids[] = {
- 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x02, 0x01) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x00, 0x00) },
- 	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MEN200) },
-+	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MPL200),
-+	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600A) },
- 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600E) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(TPLINK_VENDOR_ID, TPLINK_PRODUCT_LTE, 0xff, 0x00, 0x00) },	/* TP-Link LTE Module */
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index 7751b94ac7f5..2d78ad2842a4 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -94,6 +94,7 @@ static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220TA_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381_PRODUCT_ID) },
-+	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381GC_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960TA_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
-diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
-index c98db6b650a5..a897680473a7 100644
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -121,6 +121,7 @@
- 
- /* Hewlett-Packard POS Pole Displays */
- #define HP_VENDOR_ID		0x03f0
-+#define HP_LD381GC_PRODUCT_ID	0x0183
- #define HP_LM920_PRODUCT_ID	0x026b
- #define HP_TD620_PRODUCT_ID	0x0956
- #define HP_LD960_PRODUCT_ID	0x0b39
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 6419e6dacc39..70387650436c 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -1553,11 +1553,7 @@ void reiserfs_read_locked_inode(struct inode *inode,
- 	 * set version 1, version 2 could be used too, because stat data
- 	 * key is the same in both versions
- 	 */
--	key.version = KEY_FORMAT_3_5;
--	key.on_disk_key.k_dir_id = dirino;
--	key.on_disk_key.k_objectid = inode->i_ino;
--	key.on_disk_key.k_offset = 0;
--	key.on_disk_key.k_type = 0;
-+	_make_cpu_key(&key, KEY_FORMAT_3_5, dirino, inode->i_ino, 0, 0, 3);
- 
- 	/* look for the object's stat data */
- 	retval = search_item(inode->i_sb, &key, &path_to_sd);
-diff --git a/fs/reiserfs/xattr.c b/fs/reiserfs/xattr.c
-index ee216925a709..0a397f179fd6 100644
---- a/fs/reiserfs/xattr.c
-+++ b/fs/reiserfs/xattr.c
-@@ -665,6 +665,13 @@ reiserfs_xattr_get(struct inode *inode, const char *name, void *buffer,
- 	if (get_inode_sd_version(inode) == STAT_DATA_V1)
- 		return -EOPNOTSUPP;
- 
-+	/*
-+	 * priv_root needn't be initialized during mount so allow initial
-+	 * lookups to succeed.
-+	 */
-+	if (!REISERFS_SB(inode->i_sb)->priv_root)
-+		return 0;
-+
- 	dentry = xattr_lookup(inode, name, XATTR_REPLACE);
- 	if (IS_ERR(dentry)) {
- 		err = PTR_ERR(dentry);
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index cc2d0c3b475b..319572809575 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1287,16 +1287,34 @@ static inline void hci_auth_cfm(struct hci_conn *conn, __u8 status)
- 		conn->security_cfm_cb(conn, status);
- }
- 
--static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
--								__u8 encrypt)
-+static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
- {
- 	struct hci_cb *cb;
-+	__u8 encrypt;
-+
-+	if (conn->state == BT_CONFIG) {
-+		if (!status)
-+			conn->state = BT_CONNECTED;
- 
--	if (conn->sec_level == BT_SECURITY_SDP)
--		conn->sec_level = BT_SECURITY_LOW;
-+		hci_connect_cfm(conn, status);
-+		hci_conn_drop(conn);
-+		return;
-+	}
- 
--	if (conn->pending_sec_level > conn->sec_level)
--		conn->sec_level = conn->pending_sec_level;
-+	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
-+		encrypt = 0x00;
-+	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
-+		encrypt = 0x02;
-+	else
-+		encrypt = 0x01;
-+
-+	if (!status) {
-+		if (conn->sec_level == BT_SECURITY_SDP)
-+			conn->sec_level = BT_SECURITY_LOW;
-+
-+		if (conn->pending_sec_level > conn->sec_level)
-+			conn->sec_level = conn->pending_sec_level;
-+	}
- 
- 	mutex_lock(&hci_cb_list_lock);
- 	list_for_each_entry(cb, &hci_cb_list, list) {
-diff --git a/include/net/bluetooth/l2cap.h b/include/net/bluetooth/l2cap.h
-index 0697fd413087..21dbd38f724d 100644
---- a/include/net/bluetooth/l2cap.h
-+++ b/include/net/bluetooth/l2cap.h
-@@ -619,6 +619,8 @@ struct l2cap_ops {
- 	struct sk_buff		*(*alloc_skb) (struct l2cap_chan *chan,
- 					       unsigned long hdr_len,
- 					       unsigned long len, int nb);
-+	int			(*filter) (struct l2cap_chan * chan,
-+					   struct sk_buff *skb);
- };
- 
- struct l2cap_conn {
-diff --git a/net/bluetooth/a2mp.c b/net/bluetooth/a2mp.c
-index 51c2cf2d8923..be9640e9ca00 100644
---- a/net/bluetooth/a2mp.c
-+++ b/net/bluetooth/a2mp.c
-@@ -233,6 +233,9 @@ static int a2mp_discover_rsp(struct amp_mgr *mgr, struct sk_buff *skb,
- 			struct a2mp_info_req req;
- 
- 			found = true;
-+
-+			memset(&req, 0, sizeof(req));
-+
- 			req.id = cl->id;
- 			a2mp_send(mgr, A2MP_GETINFO_REQ, __next_ident(mgr),
- 				  sizeof(req), &req);
-@@ -312,6 +315,8 @@ static int a2mp_getinfo_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 	if (!hdev || hdev->dev_type != HCI_AMP) {
- 		struct a2mp_info_rsp rsp;
- 
-+		memset(&rsp, 0, sizeof(rsp));
-+
- 		rsp.id = req->id;
- 		rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
- 
-@@ -355,6 +360,8 @@ static int a2mp_getinfo_rsp(struct amp_mgr *mgr, struct sk_buff *skb,
- 	if (!ctrl)
- 		return -ENOMEM;
- 
-+	memset(&req, 0, sizeof(req));
-+
- 	req.id = rsp->id;
- 	a2mp_send(mgr, A2MP_GETAMPASSOC_REQ, __next_ident(mgr), sizeof(req),
- 		  &req);
-@@ -383,6 +390,8 @@ static int a2mp_getampassoc_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 		struct a2mp_amp_assoc_rsp rsp;
- 		rsp.id = req->id;
- 
-+		memset(&rsp, 0, sizeof(rsp));
-+
- 		if (tmp) {
- 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
- 			amp_mgr_put(tmp);
-@@ -471,7 +480,6 @@ static int a2mp_createphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 				   struct a2mp_cmd *hdr)
- {
- 	struct a2mp_physlink_req *req = (void *) skb->data;
--
- 	struct a2mp_physlink_rsp rsp;
- 	struct hci_dev *hdev;
- 	struct hci_conn *hcon;
-@@ -482,6 +490,8 @@ static int a2mp_createphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 
- 	BT_DBG("local_id %d, remote_id %d", req->local_id, req->remote_id);
- 
-+	memset(&rsp, 0, sizeof(rsp));
-+
- 	rsp.local_id = req->remote_id;
- 	rsp.remote_id = req->local_id;
- 
-@@ -560,6 +570,8 @@ static int a2mp_discphyslink_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 
- 	BT_DBG("local_id %d remote_id %d", req->local_id, req->remote_id);
- 
-+	memset(&rsp, 0, sizeof(rsp));
-+
- 	rsp.local_id = req->remote_id;
- 	rsp.remote_id = req->local_id;
- 	rsp.status = A2MP_STATUS_SUCCESS;
-@@ -682,6 +694,8 @@ static int a2mp_chan_recv_cb(struct l2cap_chan *chan, struct sk_buff *skb)
- 	if (err) {
- 		struct a2mp_cmd_rej rej;
- 
-+		memset(&rej, 0, sizeof(rej));
-+
- 		rej.reason = cpu_to_le16(0);
- 		hdr = (void *) skb->data;
- 
-@@ -905,6 +919,8 @@ void a2mp_send_getinfo_rsp(struct hci_dev *hdev)
- 
- 	BT_DBG("%s mgr %p", hdev->name, mgr);
- 
-+	memset(&rsp, 0, sizeof(rsp));
-+
- 	rsp.id = hdev->id;
- 	rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
- 
-@@ -1002,6 +1018,8 @@ void a2mp_send_create_phy_link_rsp(struct hci_dev *hdev, u8 status)
- 	if (!mgr)
- 		return;
- 
-+	memset(&rsp, 0, sizeof(rsp));
-+
- 	hs_hcon = hci_conn_hash_lookup_state(hdev, AMP_LINK, BT_CONNECT);
- 	if (!hs_hcon) {
- 		rsp.status = A2MP_STATUS_UNABLE_START_LINK_CREATION;
-@@ -1034,6 +1052,8 @@ void a2mp_discover_amp(struct l2cap_chan *chan)
- 
- 	mgr->bredr_chan = chan;
- 
-+	memset(&req, 0, sizeof(req));
-+
- 	req.mtu = cpu_to_le16(L2CAP_A2MP_DEFAULT_MTU);
- 	req.ext_feat = 0;
- 	a2mp_send(mgr, A2MP_DISCOVER_REQ, 1, sizeof(req), &req);
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index db735d0d931e..1b50e4ef2c68 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1282,6 +1282,23 @@ int hci_conn_check_link_mode(struct hci_conn *conn)
- 			return 0;
- 	}
- 
-+	 /* AES encryption is required for Level 4:
-+	  *
-+	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
-+	  * page 1319:
-+	  *
-+	  * 128-bit equivalent strength for link and encryption keys
-+	  * required using FIPS approved algorithms (E0 not allowed,
-+	  * SAFER+ not allowed, and P-192 not allowed; encryption key
-+	  * not shortened)
-+	  */
-+	if (conn->sec_level == BT_SECURITY_FIPS &&
-+	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
-+		bt_dev_err(conn->hdev,
-+			   "Invalid security: Missing AES-CCM usage");
-+		return 0;
-+	}
-+
- 	if (hci_conn_ssp_enabled(conn) &&
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 310622086f74..d98d8e78b736 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2756,7 +2756,7 @@ static void hci_auth_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 				     &cp);
- 		} else {
- 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
--			hci_encrypt_cfm(conn, ev->status, 0x00);
-+			hci_encrypt_cfm(conn, ev->status);
- 		}
- 	}
- 
-@@ -2841,22 +2841,7 @@ static void read_enc_key_size_complete(struct hci_dev *hdev, u8 status,
- 		conn->enc_key_size = rp->key_size;
- 	}
- 
--	if (conn->state == BT_CONFIG) {
--		conn->state = BT_CONNECTED;
--		hci_connect_cfm(conn, 0);
--		hci_conn_drop(conn);
--	} else {
--		u8 encrypt;
--
--		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
--			encrypt = 0x00;
--		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
--			encrypt = 0x02;
--		else
--			encrypt = 0x01;
--
--		hci_encrypt_cfm(conn, 0, encrypt);
--	}
-+	hci_encrypt_cfm(conn, 0);
- 
- unlock:
- 	hci_dev_unlock(hdev);
-@@ -2905,27 +2890,23 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 
- 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
- 
-+	/* Check link security requirements are met */
-+	if (!hci_conn_check_link_mode(conn))
-+		ev->status = HCI_ERROR_AUTH_FAILURE;
-+
- 	if (ev->status && conn->state == BT_CONNECTED) {
- 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
- 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
- 
-+		/* Notify upper layers so they can cleanup before
-+		 * disconnecting.
-+		 */
-+		hci_encrypt_cfm(conn, ev->status);
- 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
- 		hci_conn_drop(conn);
- 		goto unlock;
- 	}
- 
--	/* In Secure Connections Only mode, do not allow any connections
--	 * that are not encrypted with AES-CCM using a P-256 authenticated
--	 * combination key.
--	 */
--	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
--	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
--	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
--		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
--		hci_conn_drop(conn);
--		goto unlock;
--	}
--
- 	/* Try reading the encryption key size for encrypted ACL links */
- 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
- 		struct hci_cp_read_enc_key_size cp;
-@@ -2955,14 +2936,7 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	}
- 
- notify:
--	if (conn->state == BT_CONFIG) {
--		if (!ev->status)
--			conn->state = BT_CONNECTED;
--
--		hci_connect_cfm(conn, ev->status);
--		hci_conn_drop(conn);
--	} else
--		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
-+	hci_encrypt_cfm(conn, ev->status);
- 
- unlock:
- 	hci_dev_unlock(hdev);
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index c04107d44601..f1ff83321023 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6683,9 +6683,10 @@ static int l2cap_data_rcv(struct l2cap_chan *chan, struct sk_buff *skb)
- 		goto drop;
- 	}
- 
--	if ((chan->mode == L2CAP_MODE_ERTM ||
--	     chan->mode == L2CAP_MODE_STREAMING) && sk_filter(chan->data, skb))
--		goto drop;
-+	if (chan->ops->filter) {
-+		if (chan->ops->filter(chan, skb))
-+			goto drop;
-+	}
- 
- 	if (!control->sframe) {
- 		int err;
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index 5572042f0453..2a85dc3be8bf 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1476,6 +1476,19 @@ static void l2cap_sock_suspend_cb(struct l2cap_chan *chan)
- 	sk->sk_state_change(sk);
- }
- 
-+static int l2cap_sock_filter(struct l2cap_chan *chan, struct sk_buff *skb)
-+{
-+	struct sock *sk = chan->data;
-+
-+	switch (chan->mode) {
-+	case L2CAP_MODE_ERTM:
-+	case L2CAP_MODE_STREAMING:
-+		return sk_filter(sk, skb);
-+	}
-+
-+	return 0;
-+}
-+
- static const struct l2cap_ops l2cap_chan_ops = {
- 	.name			= "L2CAP Socket Interface",
- 	.new_connection		= l2cap_sock_new_connection_cb,
-@@ -1490,6 +1503,7 @@ static const struct l2cap_ops l2cap_chan_ops = {
- 	.set_shutdown		= l2cap_sock_set_shutdown_cb,
- 	.get_sndtimeo		= l2cap_sock_get_sndtimeo_cb,
- 	.alloc_skb		= l2cap_sock_alloc_skb_cb,
-+	.filter			= l2cap_sock_filter,
- };
- 
- static void l2cap_sock_destruct(struct sock *sk)
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index ccce954f8146..5340b1097afb 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -756,7 +756,8 @@ static u32 get_supported_settings(struct hci_dev *hdev)
- 
- 		if (lmp_ssp_capable(hdev)) {
- 			settings |= MGMT_SETTING_SSP;
--			settings |= MGMT_SETTING_HS;
-+			if (IS_ENABLED(CONFIG_BT_HS))
-+				settings |= MGMT_SETTING_HS;
- 		}
- 
- 		if (lmp_sc_capable(hdev))
-@@ -1771,6 +1772,10 @@ static int set_hs(struct sock *sk, struct hci_dev *hdev, void *data, u16 len)
- 
- 	BT_DBG("request for %s", hdev->name);
- 
-+	if (!IS_ENABLED(CONFIG_BT_HS))
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
-+				       MGMT_STATUS_NOT_SUPPORTED);
-+
- 	status = mgmt_bredr_support(hdev);
- 	if (status)
- 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
-diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
-index 7b5e15cc6b71..ad33b99f5d21 100644
---- a/tools/perf/util/cs-etm.c
-+++ b/tools/perf/util/cs-etm.c
-@@ -87,6 +87,9 @@ struct cs_etm_queue {
- 	struct cs_etm_packet *packet;
- };
- 
-+/* RB tree for quick conversion between traceID and metadata pointers */
-+static struct intlist *traceid_list;
-+
- static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
- static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
- 					   pid_t tid, u64 time_);
-diff --git a/tools/perf/util/cs-etm.h b/tools/perf/util/cs-etm.h
-index 37f8d48179ca..c7ef97b198c7 100644
---- a/tools/perf/util/cs-etm.h
-+++ b/tools/perf/util/cs-etm.h
-@@ -53,9 +53,6 @@ enum {
- 	CS_ETMV4_PRIV_MAX,
- };
- 
--/* RB tree for quick conversion between traceID and CPUs */
--struct intlist *traceid_list;
--
- #define KiB(x) ((x) * 1024)
- #define MiB(x) ((x) * 1024 * 1024)
- 
+I'm announcing the release of the 5.4.72 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                 |    2 -
+ arch/arm/boot/compressed/Makefile        |    4 +-
+ drivers/acpi/Makefile                    |    2 -
+ drivers/crypto/bcm/cipher.c              |   15 ++++++++-
+ drivers/crypto/qat/qat_common/qat_algs.c |   10 +++++-
+ drivers/media/usb/usbtv/usbtv-core.c     |    3 +
+ drivers/staging/comedi/drivers/vmk80xx.c |    3 +
+ drivers/usb/serial/ftdi_sio.c            |    5 +++
+ drivers/usb/serial/ftdi_sio_ids.h        |    7 ++++
+ drivers/usb/serial/option.c              |    5 +++
+ drivers/usb/serial/pl2303.c              |    1 
+ drivers/usb/serial/pl2303.h              |    1 
+ drivers/xen/events/events_base.c         |   29 +++++++++++++----
+ fs/btrfs/block-group.c                   |   38 ++++++++++++++++-------
+ fs/btrfs/space-info.c                    |   50 ++++++++++++-------------------
+ fs/btrfs/space-info.h                    |    3 +
+ fs/reiserfs/inode.c                      |    6 ---
+ fs/reiserfs/xattr.c                      |    7 ++++
+ include/net/bluetooth/hci_core.h         |   30 ++++++++++++++----
+ include/net/bluetooth/l2cap.h            |    2 +
+ net/bluetooth/a2mp.c                     |   22 +++++++++++++
+ net/bluetooth/hci_conn.c                 |   17 ++++++++++
+ net/bluetooth/hci_event.c                |   48 ++++++-----------------------
+ net/bluetooth/l2cap_core.c               |    7 ++--
+ net/bluetooth/l2cap_sock.c               |   14 ++++++++
+ net/bluetooth/mgmt.c                     |    7 +++-
+ tools/perf/util/cs-etm.c                 |    3 +
+ tools/perf/util/cs-etm.h                 |    3 -
+ 28 files changed, 231 insertions(+), 113 deletions(-)
+
+Anant Thazhemadam (1):
+      staging: comedi: check validity of wMaxPacketSize of usb endpoints found
+
+Arjan van de Ven (1):
+      ACPI: Always build evged in
+
+Dmitry Golovin (1):
+      ARM: 8939/1: kbuild: use correct nm executable
+
+Dominik Przychodni (1):
+      crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.72
+
+Herbert Xu (1):
+      crypto: bcm - Verify GCM/CCM key length in setkey
+
+Jan Kara (2):
+      reiserfs: Initialize inode keys properly
+      reiserfs: Fix oops during mount
+
+Josef Bacik (2):
+      btrfs: don't pass system_chunk into can_overcommit
+      btrfs: take overcommit into account in inc_block_group_ro
+
+Juergen Gross (1):
+      xen/events: don't use chip_data for legacy IRQs
+
+Leo Yan (1):
+      perf cs-etm: Move definition of 'traceid_list' global variable from header file
+
+Leonid Bloch (1):
+      USB: serial: option: Add Telit FT980-KS composition
+
+Luiz Augusto von Dentz (5):
+      Bluetooth: A2MP: Fix not initializing all members
+      Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
+      Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+      Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+      Bluetooth: Disconnect if E0 is used for Level 4
+
+Mychaela N. Falconia (1):
+      USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
+
+Oliver Neukum (1):
+      media: usbtv: Fix refcounting mixup
+
+Patrick Steinhardt (1):
+      Bluetooth: Fix update of connection state in `hci_encrypt_cfm`
+
+Scott Chen (1):
+      USB: serial: pl2303: add device-id for HP GC device
+
+Wilken Gottwalt (1):
+      USB: serial: option: add Cellient MPL200 card
+
