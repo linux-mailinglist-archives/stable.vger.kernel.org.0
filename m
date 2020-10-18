@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A49291F0B
+	by mail.lfdr.de (Postfix) with ESMTP id 382E8291F0A
 	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728264AbgJRTTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:19:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58160 "EHLO mail.kernel.org"
+        id S2388269AbgJRT46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:56:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbgJRTT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:29 -0400
+        id S1728263AbgJRTTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:19:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F18E222E8;
-        Sun, 18 Oct 2020 19:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E0BC222B9;
+        Sun, 18 Oct 2020 19:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048769;
-        bh=gUnPsjpz8bbn+vtIHxWGc2snR+x1L4HKGTSAMvog4+U=;
+        s=default; t=1603048770;
+        bh=OUR4xePPL/uT6nw4O/uyuUsxy+afCtN8euw1cYdPSTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzhJbZWKd6Fd1F4TJTh1GvyQ4KaJvYFWjq2m5xTKjOtm1i3XjLVpe8R2cFogM5/iF
-         V7oWGIRvvAr3hTwi2NoWLKZv51ky3Rqp/H4aqKglUgh1OhbVKfBAmpJl9goIpFGVfb
-         PRLtiVUzlurgWSdLGEhgJO2MZaBggPQQP7J3i3Yk=
+        b=Ppfgbssk634WTaVw1RYASXsKTQZXSTaekPSxjdtHWewSB3s0ylll+tyKbcl+v+igK
+         sh68sOTc7OoKVA+kxYBQhXXS5Ie5Je6t8OUhWswd+D9W94rbp2uqNnXA0UA7EIkpY+
+         veluTnQDg8ft60/1bdNjH1x37byGh47zCGfYItwI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 068/111] opp: Prevent memory leak in dev_pm_opp_attach_genpd()
-Date:   Sun, 18 Oct 2020 15:17:24 -0400
-Message-Id: <20201018191807.4052726-68-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 069/111] xfs: make sure the rt allocator doesn't run off the end
+Date:   Sun, 18 Oct 2020 15:17:25 -0400
+Message-Id: <20201018191807.4052726-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -42,53 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit cb60e9602cce1593eb1e9cdc8ee562815078a354 ]
+[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
 
-If dev_pm_opp_attach_genpd() is called multiple times (once for each CPU
-sharing the table), then it would result in unwanted behavior like
-memory leak, attaching the domain multiple times, etc.
+There's an overflow bug in the realtime allocator.  If the rt volume is
+large enough to handle a single allocation request that is larger than
+the maximum bmap extent length and the rt bitmap ends exactly on a
+bitmap block boundary, it's possible that the near allocator will try to
+check the freeness of a range that extends past the end of the bitmap.
+This fails with a corruption error and shuts down the fs.
 
-Handle that by checking and returning earlier if the domains are already
-attached. Now that dev_pm_opp_detach_genpd() can get called multiple
-times as well, we need to protect that too.
+Therefore, constrain maxlen so that the range scan cannot run off the
+end of the rt bitmap.
 
-Note that the virtual device pointers aren't returned in this case, as
-they may become unavailable to some callers during the middle of the
-operation.
-
-Reported-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/xfs/xfs_rtalloc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index 3ca7543142bf3..1a95ad40795be 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -1949,6 +1949,9 @@ static void _opp_detach_genpd(struct opp_table *opp_table)
- {
- 	int index;
- 
-+	if (!opp_table->genpd_virt_devs)
-+		return;
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 6209e7b6b895b..86994d7f7cba3 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -247,6 +247,9 @@ xfs_rtallocate_extent_block(
+ 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
+ 	     i <= end;
+ 	     i++) {
++		/* Make sure we don't scan off the end of the rt volume. */
++		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
 +
- 	for (index = 0; index < opp_table->required_opp_count; index++) {
- 		if (!opp_table->genpd_virt_devs[index])
- 			continue;
-@@ -1995,6 +1998,9 @@ struct opp_table *dev_pm_opp_attach_genpd(struct device *dev,
- 	if (!opp_table)
- 		return ERR_PTR(-ENOMEM);
- 
-+	if (opp_table->genpd_virt_devs)
-+		return opp_table;
+ 		/*
+ 		 * See if there's a free extent of maxlen starting at i.
+ 		 * If it's not so then next will contain the first non-free.
+@@ -442,6 +445,14 @@ xfs_rtallocate_extent_near(
+ 	 */
+ 	if (bno >= mp->m_sb.sb_rextents)
+ 		bno = mp->m_sb.sb_rextents - 1;
++
++	/* Make sure we don't run off the end of the rt volume. */
++	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
++	if (maxlen < minlen) {
++		*rtblock = NULLRTBLOCK;
++		return 0;
++	}
 +
  	/*
- 	 * If the genpd's OPP table isn't already initialized, parsing of the
- 	 * required-opps fail for dev. We should retry this after genpd's OPP
+ 	 * Try the exact allocation first.
+ 	 */
 -- 
 2.25.1
 
