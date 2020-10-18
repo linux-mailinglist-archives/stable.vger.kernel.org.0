@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13838291F4F
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:59:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847C3291F46
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727919AbgJRT64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
+        id S2388495AbgJRT6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:58:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727952AbgJRTS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:18:57 -0400
+        id S1727963AbgJRTS7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:18:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 571D5222B9;
-        Sun, 18 Oct 2020 19:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F0BE222E7;
+        Sun, 18 Oct 2020 19:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048737;
-        bh=TGKc6QVgUeVsc+RN0pYhQRyq44uqV+oxYpJYyD4olwo=;
+        s=default; t=1603048738;
+        bh=rEgEmrRM35eoBqfZs7DdD6giuzYoi6c0bGNFCpKWva4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1mBzlo4Q7sHmM59pn666w1hW/w7rZ8ApPVmM1y+KEklDQS0uw/sCxmwI+A1/n8OZ
-         yD0lWMI8Aej89Soav5LCHbYpSe/8VjkWxyBQQRf6/W/CwG3nuKlRgIMwgFjIoe/hj4
-         nmBMMUTHvjmcCTq6iwjhMXh19yDZ+cjm+jr39BKU=
+        b=eZUOxfAYDD7KRocy3CFtNnOaaECmEH+TTp2/4Q3b8kkAPneBTrUhyIwhGH1Po+i51
+         7hWULoW13bxl2H+8WeDHjsRLckJ5DRppLg1ubj5qZRpIT2mU3v3nMNyiKE8iofDRJM
+         kBMS+/pKNqjEV/SnGy0zxruU1yXnM0SU1pNys6FM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangbin Liu <liuhangbin@gmail.com>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
+Cc:     Song Liu <songliubraving@fb.com>,
         Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 040/111] libbpf: Close map fd if init map slots failed
-Date:   Sun, 18 Oct 2020 15:16:56 -0400
-Message-Id: <20201018191807.4052726-40-sashal@kernel.org>
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 041/111] bpf: Use raw_spin_trylock() for pcpu_freelist_push/pop in NMI
+Date:   Sun, 18 Oct 2020 15:16:57 -0400
+Message-Id: <20201018191807.4052726-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -44,100 +44,250 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit a0f2b7acb4b1d29127ff99c714233b973afd1411 ]
+[ Upstream commit 39d8f0d1026a990604770a658708f5845f7dbec0 ]
 
-Previously we forgot to close the map fd if bpf_map_update_elem()
-failed during map slot init, which will leak map fd.
+Recent improvements in LOCKDEP highlighted a potential A-A deadlock with
+pcpu_freelist in NMI:
 
-Let's move map slot initialization to new function init_map_slots() to
-simplify the code. And close the map fd if init slot failed.
+./tools/testing/selftests/bpf/test_progs -t stacktrace_build_id_nmi
 
-Reported-by: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20201006021345.3817033-2-liuhangbin@gmail.com
+[   18.984807] ================================
+[   18.984807] WARNING: inconsistent lock state
+[   18.984808] 5.9.0-rc6-01771-g1466de1330e1 #2967 Not tainted
+[   18.984809] --------------------------------
+[   18.984809] inconsistent {INITIAL USE} -> {IN-NMI} usage.
+[   18.984810] test_progs/1990 [HC2[2]:SC0[0]:HE0:SE1] takes:
+[   18.984810] ffffe8ffffc219c0 (&head->lock){....}-{2:2}, at: __pcpu_freelist_pop+0xe3/0x180
+[   18.984813] {INITIAL USE} state was registered at:
+[   18.984814]   lock_acquire+0x175/0x7c0
+[   18.984814]   _raw_spin_lock+0x2c/0x40
+[   18.984815]   __pcpu_freelist_pop+0xe3/0x180
+[   18.984815]   pcpu_freelist_pop+0x31/0x40
+[   18.984816]   htab_map_alloc+0xbbf/0xf40
+[   18.984816]   __do_sys_bpf+0x5aa/0x3ed0
+[   18.984817]   do_syscall_64+0x2d/0x40
+[   18.984818]   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   18.984818] irq event stamp: 12
+[...]
+[   18.984822] other info that might help us debug this:
+[   18.984823]  Possible unsafe locking scenario:
+[   18.984823]
+[   18.984824]        CPU0
+[   18.984824]        ----
+[   18.984824]   lock(&head->lock);
+[   18.984826]   <Interrupt>
+[   18.984826]     lock(&head->lock);
+[   18.984827]
+[   18.984828]  *** DEADLOCK ***
+[   18.984828]
+[   18.984829] 2 locks held by test_progs/1990:
+[...]
+[   18.984838]  <NMI>
+[   18.984838]  dump_stack+0x9a/0xd0
+[   18.984839]  lock_acquire+0x5c9/0x7c0
+[   18.984839]  ? lock_release+0x6f0/0x6f0
+[   18.984840]  ? __pcpu_freelist_pop+0xe3/0x180
+[   18.984840]  _raw_spin_lock+0x2c/0x40
+[   18.984841]  ? __pcpu_freelist_pop+0xe3/0x180
+[   18.984841]  __pcpu_freelist_pop+0xe3/0x180
+[   18.984842]  pcpu_freelist_pop+0x17/0x40
+[   18.984842]  ? lock_release+0x6f0/0x6f0
+[   18.984843]  __bpf_get_stackid+0x534/0xaf0
+[   18.984843]  bpf_prog_1fd9e30e1438d3c5_oncpu+0x73/0x350
+[   18.984844]  bpf_overflow_handler+0x12f/0x3f0
+
+This is because pcpu_freelist_head.lock is accessed in both NMI and
+non-NMI context. Fix this issue by using raw_spin_trylock() in NMI.
+
+Since NMI interrupts non-NMI context, when NMI context tries to lock the
+raw_spinlock, non-NMI context of the same CPU may already have locked a
+lock and is blocked from unlocking the lock. For a system with N CPUs,
+there could be N NMIs at the same time, and they may block N non-NMI
+raw_spinlocks. This is tricky for pcpu_freelist_push(), where unlike
+_pop(), failing _push() means leaking memory. This issue is more likely to
+trigger in non-SMP system.
+
+Fix this issue with an extra list, pcpu_freelist.extralist. The extralist
+is primarily used to take _push() when raw_spin_trylock() failed on all
+the per CPU lists. It should be empty most of the time. The following
+table summarizes the behavior of pcpu_freelist in NMI and non-NMI:
+
+non-NMI pop(): 	use _lock(); check per CPU lists first;
+                if all per CPU lists are empty, check extralist;
+                if extralist is empty, return NULL.
+
+non-NMI push(): use _lock(); only push to per CPU lists.
+
+NMI pop():    use _trylock(); check per CPU lists first;
+              if all per CPU lists are locked or empty, check extralist;
+              if extralist is locked or empty, return NULL.
+
+NMI push():   use _trylock(); check per CPU lists first;
+              if all per CPU lists are locked; try push to extralist;
+              if extralist is also locked, keep trying on per CPU lists.
+
+Reported-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20201005165838.3735218-1-songliubraving@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 55 ++++++++++++++++++++++++++----------------
- 1 file changed, 34 insertions(+), 21 deletions(-)
+ kernel/bpf/percpu_freelist.c | 101 +++++++++++++++++++++++++++++++++--
+ kernel/bpf/percpu_freelist.h |   1 +
+ 2 files changed, 97 insertions(+), 5 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index e493d6048143f..d71d93c56363c 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3841,6 +3841,36 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
+diff --git a/kernel/bpf/percpu_freelist.c b/kernel/bpf/percpu_freelist.c
+index b367430e611c7..3d897de890612 100644
+--- a/kernel/bpf/percpu_freelist.c
++++ b/kernel/bpf/percpu_freelist.c
+@@ -17,6 +17,8 @@ int pcpu_freelist_init(struct pcpu_freelist *s)
+ 		raw_spin_lock_init(&head->lock);
+ 		head->first = NULL;
+ 	}
++	raw_spin_lock_init(&s->extralist.lock);
++	s->extralist.first = NULL;
  	return 0;
  }
  
-+static int init_map_slots(struct bpf_map *map)
+@@ -40,12 +42,50 @@ static inline void ___pcpu_freelist_push(struct pcpu_freelist_head *head,
+ 	raw_spin_unlock(&head->lock);
+ }
+ 
++static inline bool pcpu_freelist_try_push_extra(struct pcpu_freelist *s,
++						struct pcpu_freelist_node *node)
 +{
-+	const struct bpf_map *targ_map;
-+	unsigned int i;
-+	int fd, err;
++	if (!raw_spin_trylock(&s->extralist.lock))
++		return false;
 +
-+	for (i = 0; i < map->init_slots_sz; i++) {
-+		if (!map->init_slots[i])
-+			continue;
-+
-+		targ_map = map->init_slots[i];
-+		fd = bpf_map__fd(targ_map);
-+		err = bpf_map_update_elem(map->fd, &i, &fd, 0);
-+		if (err) {
-+			err = -errno;
-+			pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
-+				map->name, i, targ_map->name,
-+				fd, err);
-+			return err;
-+		}
-+		pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
-+			 map->name, i, targ_map->name, fd);
-+	}
-+
-+	zfree(&map->init_slots);
-+	map->init_slots_sz = 0;
-+
-+	return 0;
++	pcpu_freelist_push_node(&s->extralist, node);
++	raw_spin_unlock(&s->extralist.lock);
++	return true;
 +}
 +
- static int
- bpf_object__create_maps(struct bpf_object *obj)
++static inline void ___pcpu_freelist_push_nmi(struct pcpu_freelist *s,
++					     struct pcpu_freelist_node *node)
++{
++	int cpu, orig_cpu;
++
++	orig_cpu = cpu = raw_smp_processor_id();
++	while (1) {
++		struct pcpu_freelist_head *head;
++
++		head = per_cpu_ptr(s->freelist, cpu);
++		if (raw_spin_trylock(&head->lock)) {
++			pcpu_freelist_push_node(head, node);
++			raw_spin_unlock(&head->lock);
++			return;
++		}
++		cpu = cpumask_next(cpu, cpu_possible_mask);
++		if (cpu >= nr_cpu_ids)
++			cpu = 0;
++
++		/* cannot lock any per cpu lock, try extralist */
++		if (cpu == orig_cpu &&
++		    pcpu_freelist_try_push_extra(s, node))
++			return;
++	}
++}
++
+ void __pcpu_freelist_push(struct pcpu_freelist *s,
+ 			struct pcpu_freelist_node *node)
  {
-@@ -3883,28 +3913,11 @@ bpf_object__create_maps(struct bpf_object *obj)
- 		}
- 
- 		if (map->init_slots_sz) {
--			for (j = 0; j < map->init_slots_sz; j++) {
--				const struct bpf_map *targ_map;
--				int fd;
+-	struct pcpu_freelist_head *head = this_cpu_ptr(s->freelist);
 -
--				if (!map->init_slots[j])
--					continue;
--
--				targ_map = map->init_slots[j];
--				fd = bpf_map__fd(targ_map);
--				err = bpf_map_update_elem(map->fd, &j, &fd, 0);
--				if (err) {
--					err = -errno;
--					pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
--						map->name, j, targ_map->name,
--						fd, err);
--					goto err_out;
--				}
--				pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
--					 map->name, j, targ_map->name, fd);
-+			err = init_map_slots(map);
-+			if (err < 0) {
-+				zclose(map->fd);
-+				goto err_out;
- 			}
--			zfree(&map->init_slots);
--			map->init_slots_sz = 0;
- 		}
+-	___pcpu_freelist_push(head, node);
++	if (in_nmi())
++		___pcpu_freelist_push_nmi(s, node);
++	else
++		___pcpu_freelist_push(this_cpu_ptr(s->freelist), node);
+ }
  
- 		if (map->pin_path && !map->pinned) {
+ void pcpu_freelist_push(struct pcpu_freelist *s,
+@@ -81,7 +121,7 @@ void pcpu_freelist_populate(struct pcpu_freelist *s, void *buf, u32 elem_size,
+ 	}
+ }
+ 
+-struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
++static struct pcpu_freelist_node *___pcpu_freelist_pop(struct pcpu_freelist *s)
+ {
+ 	struct pcpu_freelist_head *head;
+ 	struct pcpu_freelist_node *node;
+@@ -102,8 +142,59 @@ struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
+ 		if (cpu >= nr_cpu_ids)
+ 			cpu = 0;
+ 		if (cpu == orig_cpu)
+-			return NULL;
++			break;
++	}
++
++	/* per cpu lists are all empty, try extralist */
++	raw_spin_lock(&s->extralist.lock);
++	node = s->extralist.first;
++	if (node)
++		s->extralist.first = node->next;
++	raw_spin_unlock(&s->extralist.lock);
++	return node;
++}
++
++static struct pcpu_freelist_node *
++___pcpu_freelist_pop_nmi(struct pcpu_freelist *s)
++{
++	struct pcpu_freelist_head *head;
++	struct pcpu_freelist_node *node;
++	int orig_cpu, cpu;
++
++	orig_cpu = cpu = raw_smp_processor_id();
++	while (1) {
++		head = per_cpu_ptr(s->freelist, cpu);
++		if (raw_spin_trylock(&head->lock)) {
++			node = head->first;
++			if (node) {
++				head->first = node->next;
++				raw_spin_unlock(&head->lock);
++				return node;
++			}
++			raw_spin_unlock(&head->lock);
++		}
++		cpu = cpumask_next(cpu, cpu_possible_mask);
++		if (cpu >= nr_cpu_ids)
++			cpu = 0;
++		if (cpu == orig_cpu)
++			break;
+ 	}
++
++	/* cannot pop from per cpu lists, try extralist */
++	if (!raw_spin_trylock(&s->extralist.lock))
++		return NULL;
++	node = s->extralist.first;
++	if (node)
++		s->extralist.first = node->next;
++	raw_spin_unlock(&s->extralist.lock);
++	return node;
++}
++
++struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
++{
++	if (in_nmi())
++		return ___pcpu_freelist_pop_nmi(s);
++	return ___pcpu_freelist_pop(s);
+ }
+ 
+ struct pcpu_freelist_node *pcpu_freelist_pop(struct pcpu_freelist *s)
+diff --git a/kernel/bpf/percpu_freelist.h b/kernel/bpf/percpu_freelist.h
+index fbf8a8a289791..3c76553cfe571 100644
+--- a/kernel/bpf/percpu_freelist.h
++++ b/kernel/bpf/percpu_freelist.h
+@@ -13,6 +13,7 @@ struct pcpu_freelist_head {
+ 
+ struct pcpu_freelist {
+ 	struct pcpu_freelist_head __percpu *freelist;
++	struct pcpu_freelist_head extralist;
+ };
+ 
+ struct pcpu_freelist_node {
 -- 
 2.25.1
 
