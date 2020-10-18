@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 562F0291ECC
+	by mail.lfdr.de (Postfix) with ESMTP id C4B92291ECD
 	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728642AbgJRTUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:20:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59200 "EHLO mail.kernel.org"
+        id S1728622AbgJRTUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728605AbgJRTT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:59 -0400
+        id S1728614AbgJRTUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:20:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAA86222E8;
-        Sun, 18 Oct 2020 19:19:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E476222C8;
+        Sun, 18 Oct 2020 19:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048799;
-        bh=Xg1vAPI8/tmcy3Kj8xVGhsXN/pB9+I66vzxazf9RW8w=;
+        s=default; t=1603048800;
+        bh=TfWJq0F+eNJwR3zuDSJhyRJNiFATVZ7YZaKoLVaSsv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImT08lswXcWUGEYJsqqS55sqphEoC0APTfdQzL01L/kqd/WrP2viaWawmtzFm55Q1
-         JmmoxUMDhEAGZQKdqvUpFHQ3it4zPxsa+xSRuFrvn34SR85iN6fMziz1hvhVgw1K2M
-         AcO4uMHGFlFJFWzl9cgBlpfX5us277KfG+py8o9A=
+        b=RX6Jr2ChF0S/luSlXbRlLVNXN+5UhF54C8aGL7IwoAurZN9GJxRvOeL6JWGVQZyqf
+         e3poyO6NEp6irQRu/Qr669t5XeXZ9TF7nlbwCxkgu2rDhk5rH1k29j5pRmVxIt6Vlt
+         l+A2oLFRFBELtyErGr8J8O1T5YjKCw5JCMwf/Wew=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peilin Ye <yepeilin.cs@gmail.com>,
-        syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org
-Subject: [PATCH AUTOSEL 5.9 092/111] ipvs: Fix uninit-value in do_ip_vs_set_ctl()
-Date:   Sun, 18 Oct 2020 15:17:48 -0400
-Message-Id: <20201018191807.4052726-92-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, reiserfs-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 093/111] reiserfs: Fix memory leak in reiserfs_parse_options()
+Date:   Sun, 18 Oct 2020 15:17:49 -0400
+Message-Id: <20201018191807.4052726-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -47,50 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit c5a8a8498eed1c164afc94f50a939c1a10abf8ad ]
+[ Upstream commit e9d4709fcc26353df12070566970f080e651f0c9 ]
 
-do_ip_vs_set_ctl() is referencing uninitialized stack value when `len` is
-zero. Fix it.
+When a usrjquota or grpjquota mount option is used multiple times, we
+will leak memory allocated for the file name. Make sure the last setting
+is used and all the previous ones are properly freed.
 
-Reported-by: syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=46ebfb92a8a812621a001ef04d90dfa459520fe2
-Suggested-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_ctl.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/reiserfs/super.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 678c5b14841c1..8dbfd84322a88 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -2508,6 +2508,10 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, sockptr_t ptr, unsigned int len)
- 		/* Set timeout values for (tcp tcpfin udp) */
- 		ret = ip_vs_set_timeout(ipvs, (struct ip_vs_timeout_user *)arg);
- 		goto out_unlock;
-+	} else if (!len) {
-+		/* No more commands with len == 0 below */
-+		ret = -EINVAL;
-+		goto out_unlock;
- 	}
- 
- 	usvc_compat = (struct ip_vs_service_user *)arg;
-@@ -2584,9 +2588,6 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, sockptr_t ptr, unsigned int len)
- 		break;
- 	case IP_VS_SO_SET_DELDEST:
- 		ret = ip_vs_del_dest(svc, &udest);
--		break;
--	default:
--		ret = -EINVAL;
- 	}
- 
-   out_unlock:
+diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+index a6bce5b1fb1dc..1b9c7a387dc71 100644
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -1258,6 +1258,10 @@ static int reiserfs_parse_options(struct super_block *s,
+ 						 "turned on.");
+ 				return 0;
+ 			}
++			if (qf_names[qtype] !=
++			    REISERFS_SB(s)->s_qf_names[qtype])
++				kfree(qf_names[qtype]);
++			qf_names[qtype] = NULL;
+ 			if (*arg) {	/* Some filename specified? */
+ 				if (REISERFS_SB(s)->s_qf_names[qtype]
+ 				    && strcmp(REISERFS_SB(s)->s_qf_names[qtype],
+@@ -1287,10 +1291,6 @@ static int reiserfs_parse_options(struct super_block *s,
+ 				else
+ 					*mount_options |= 1 << REISERFS_GRPQUOTA;
+ 			} else {
+-				if (qf_names[qtype] !=
+-				    REISERFS_SB(s)->s_qf_names[qtype])
+-					kfree(qf_names[qtype]);
+-				qf_names[qtype] = NULL;
+ 				if (qtype == USRQUOTA)
+ 					*mount_options &= ~(1 << REISERFS_USRQUOTA);
+ 				else
 -- 
 2.25.1
 
