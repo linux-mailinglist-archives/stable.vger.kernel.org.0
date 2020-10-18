@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD592291A89
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614E5291C8D
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731098AbgJRTY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:24:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39198 "EHLO mail.kernel.org"
+        id S1731106AbgJRTY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731093AbgJRTY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:24:57 -0400
+        id S1731102AbgJRTY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:24:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B204222E7;
-        Sun, 18 Oct 2020 19:24:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E600207DE;
+        Sun, 18 Oct 2020 19:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049097;
-        bh=A5UPCaJx5Oi5D5KSUb5jIZXtqyqL1s2NS/utkdkqUws=;
+        s=default; t=1603049098;
+        bh=Nd3+MoAz9K9wXHjGl6r8SuKQkM2Zz33m1bHM2FWXFk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaKrhxhLqdzdIFPhbhk2ZT3v+CvhU8bUxWSmlszxVDWWeJIr9k9JaxiGP6TfHFI9L
-         xVNFbtXCUhYhdfXHzCU12WJevfy/er7Od6lUOQGObvvSWs32ghdDyCx0BYoZkzJUub
-         PNlgrRNNRVfA6cqHJAZECEkWswpOTY5bjCAaKa2A=
+        b=oBkt9jeKjQx2fXtwTKtx383HkLVel7Ur8DkQM59bMmQTcUU5A4EoSEXL+QeaJFJ8Y
+         +dKtj30wu/5l0xr/zPo0WWaVJ8w/9ERwAIWYwVjd8JGONnkG/RVjrKczNCjP1qNyaU
+         nyD3jmmnmNhgtBudjzFCLWUKoUlu9JyBUBcyLHcs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/56] udf: Avoid accessing uninitialized data on failed inode read
-Date:   Sun, 18 Oct 2020 15:23:53 -0400
-Message-Id: <20201018192417.4055228-32-sashal@kernel.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 33/56] USB: cdc-acm: handle broken union descriptors
+Date:   Sun, 18 Oct 2020 15:23:54 -0400
+Message-Id: <20201018192417.4055228-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192417.4055228-1-sashal@kernel.org>
 References: <20201018192417.4055228-1-sashal@kernel.org>
@@ -42,60 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
+[ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
 
-When we fail to read inode, some data accessed in udf_evict_inode() may
-be uninitialized. Move the accesses to !is_bad_inode() branch.
+Handle broken union functional descriptors where the master-interface
+doesn't exist or where its class is of neither Communication or Data
+type (as required by the specification) by falling back to
+"combined-interface" probing.
 
-Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Note that this still allows for handling union descriptors with switched
+interfaces.
+
+This specifically makes the Whistler radio scanners TRX series devices
+work with the driver without adding further quirks to the device-id
+table.
+
+Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/usb/class/cdc-acm.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 4c46ebf0e773b..3bf89a6338367 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -132,21 +132,24 @@ void udf_evict_inode(struct inode *inode)
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int want_delete = 0;
- 
--	if (!inode->i_nlink && !is_bad_inode(inode)) {
--		want_delete = 1;
--		udf_setsize(inode, 0);
--		udf_update_inode(inode, IS_SYNC(inode));
-+	if (!is_bad_inode(inode)) {
-+		if (!inode->i_nlink) {
-+			want_delete = 1;
-+			udf_setsize(inode, 0);
-+			udf_update_inode(inode, IS_SYNC(inode));
-+		}
-+		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
-+		    inode->i_size != iinfo->i_lenExtents) {
-+			udf_warn(inode->i_sb,
-+				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
-+				 inode->i_ino, inode->i_mode,
-+				 (unsigned long long)inode->i_size,
-+				 (unsigned long long)iinfo->i_lenExtents);
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 41453bf6fc0bd..ba3df4af74f11 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1275,9 +1275,21 @@ static int acm_probe(struct usb_interface *intf,
+ 			}
+ 		}
+ 	} else {
++		int class = -1;
++
+ 		data_intf_num = union_header->bSlaveInterface0;
+ 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
+ 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
++
++		if (control_interface)
++			class = control_interface->cur_altsetting->desc.bInterfaceClass;
++
++		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
++			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
++			combined_interfaces = 1;
++			control_interface = data_interface = intf;
++			goto look_for_collapsed_interface;
 +		}
  	}
- 	truncate_inode_pages_final(&inode->i_data);
- 	invalidate_inode_buffers(inode);
- 	clear_inode(inode);
--	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
--	    inode->i_size != iinfo->i_lenExtents) {
--		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
--			 inode->i_ino, inode->i_mode,
--			 (unsigned long long)inode->i_size,
--			 (unsigned long long)iinfo->i_lenExtents);
--	}
- 	kfree(iinfo->i_ext.i_data);
- 	iinfo->i_ext.i_data = NULL;
- 	udf_clear_extent_cache(inode);
+ 
+ 	if (!control_interface || !data_interface) {
 -- 
 2.25.1
 
