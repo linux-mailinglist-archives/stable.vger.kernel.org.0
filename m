@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C88291EF4
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC100291EEC
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728481AbgJRT40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
+        id S1728394AbgJRTTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:19:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgJRTTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:40 -0400
+        id S1728301AbgJRTTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:19:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4242422365;
-        Sun, 18 Oct 2020 19:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EDA4222E8;
+        Sun, 18 Oct 2020 19:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048780;
-        bh=+Y0a2asrL7jAicrUGmb4DlOlW6Zj6PfPYrl0sTo8Acc=;
+        s=default; t=1603048781;
+        bh=D2rn82u9XBoGzM/QeR1D+rIp50ldv11A3HZpYHRRCSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCJWw70SK7lQn74zwJUFfDBMhTegj7Gg+ChqWOgeOItrKgYNlNxWawM+FZJxNSbE3
-         nehzfA1I955pTTcEkO46kq1wq2zvano+V/JNDhUR/QLCIcF2elTMGbrNcgODuS/1qT
-         SPE/CH/w6h9gzB5cf4hC+Ime+/rKVhWZBB2Rg3QA=
+        b=UAFjkAvcX11hEANXXOXh/Qiuj+jnfcfwOsg/LQ0FaFpgxXxSbUOfRAQwNUYjMAj04
+         CLr99+IKjnv1AAb6oNDRlZ4pwg6JkjAvp7ytPZT9lHagcHyRtJF5wash/wLtUAF+Ew
+         pCjpG9a0mX/Y9VZCC+wZKq02iBuL7ualWbhZtQmA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Wagner <dwagner@suse.de>, Martin Wilck <mwilck@suse.com>,
-        Arun Easi <aeasi@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 077/111] scsi: qla2xxx: Warn if done() or free() are called on an already freed srb
-Date:   Sun, 18 Oct 2020 15:17:33 -0400
-Message-Id: <20201018191807.4052726-77-sashal@kernel.org>
+Cc:     Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 078/111] selftests/bpf: Fix test_sysctl_loop{1, 2} failure due to clang change
+Date:   Sun, 18 Oct 2020 15:17:34 -0400
+Message-Id: <20201018191807.4052726-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -43,73 +43,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit c0014f94218ea3a312f6235febea0d626c5f2154 ]
+[ Upstream commit 7fb5eefd76394cfefb380724a87ca40b47d44405 ]
 
-Emit a warning when ->done or ->free are called on an already freed
-srb. There is a hidden use-after-free bug in the driver which corrupts
-the srb memory pool which originates from the cleanup callbacks.
+Andrii reported that with latest clang, when building selftests, we have
+error likes:
+  error: progs/test_sysctl_loop1.c:23:16: in function sysctl_tcp_mem i32 (%struct.bpf_sysctl*):
+  Looks like the BPF stack limit of 512 bytes is exceeded.
+  Please move large on stack variables into BPF per-cpu array map.
 
-An extensive search didn't bring any lights on the real problem. The
-initial fix was to set both pointers to NULL and try to catch invalid
-accesses. But instead the memory corruption was gone and the driver
-didn't crash. Since not all calling places check for NULL pointer, add
-explicitly default handlers. With this we workaround the memory
-corruption and add a debug help.
+The error is triggered by the following LLVM patch:
+  https://reviews.llvm.org/D87134
 
-Link: https://lore.kernel.org/r/20200908081516.8561-2-dwagner@suse.de
-Reviewed-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+For example, the following code is from test_sysctl_loop1.c:
+  static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
+  {
+    volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+    ...
+  }
+Without the above LLVM patch, the compiler did optimization to load the string
+(59 bytes long) with 7 64bit loads, 1 8bit load and 1 16bit load,
+occupying 64 byte stack size.
+
+With the above LLVM patch, the compiler only uses 8bit loads, but subregister is 32bit.
+So stack requirements become 4 * 59 = 236 bytes. Together with other stuff on
+the stack, total stack size exceeds 512 bytes, hence compiler complains and quits.
+
+To fix the issue, removing "volatile" key word or changing "volatile" to
+"const"/"static const" does not work, the string is put in .rodata.str1.1 section,
+which libbpf did not process it and errors out with
+  libbpf: elf: skipping unrecognized data section(6) .rodata.str1.1
+  libbpf: prog 'sysctl_tcp_mem': bad map relo against '.L__const.is_tcp_mem.tcp_mem_name'
+          in section '.rodata.str1.1'
+
+Defining the string const as global variable can fix the issue as it puts the string constant
+in '.rodata' section which is recognized by libbpf. In the future, when libbpf can process
+'.rodata.str*.*' properly, the global definition can be changed back to local definition.
+
+Defining tcp_mem_name as a global, however, triggered a verifier failure.
+   ./test_progs -n 7/21
+  libbpf: load bpf program failed: Permission denied
+  libbpf: -- BEGIN DUMP LOG ---
+  libbpf:
+  invalid stack off=0 size=1
+  verification time 6975 usec
+  stack depth 160+64
+  processed 889 insns (limit 1000000) max_states_per_insn 4 total_states
+  14 peak_states 14 mark_read 10
+
+  libbpf: -- END LOG --
+  libbpf: failed to load program 'sysctl_tcp_mem'
+  libbpf: failed to load object 'test_sysctl_loop2.o'
+  test_bpf_verif_scale:FAIL:114
+  #7/21 test_sysctl_loop2.o:FAIL
+This actually exposed a bpf program bug. In test_sysctl_loop{1,2}, we have code
+like
+  const char tcp_mem_name[] = "<...long string...>";
+  ...
+  char name[64];
+  ...
+  for (i = 0; i < sizeof(tcp_mem_name); ++i)
+      if (name[i] != tcp_mem_name[i])
+          return 0;
+In the above code, if sizeof(tcp_mem_name) > 64, name[i] access may be
+out of bound. The sizeof(tcp_mem_name) is 59 for test_sysctl_loop1.c and
+79 for test_sysctl_loop2.c.
+
+Without promotion-to-global change, old compiler generates code where
+the overflowed stack access is actually filled with valid value, so hiding
+the bpf program bug. With promotion-to-global change, the code is different,
+more specifically, the previous loading constants to stack is gone, and
+"name" occupies stack[-64:0] and overflow access triggers a verifier error.
+To fix the issue, adjust "name" buffer size properly.
+
+Reported-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200909171542.3673449-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c   | 10 ++++++++++
- drivers/scsi/qla2xxx/qla_inline.h |  5 +++++
- 2 files changed, 15 insertions(+)
+ tools/testing/selftests/bpf/progs/test_sysctl_loop1.c | 4 ++--
+ tools/testing/selftests/bpf/progs/test_sysctl_loop2.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 0bd04a62af836..8d4b651e14422 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -63,6 +63,16 @@ void qla2x00_sp_free(srb_t *sp)
- 	qla2x00_rel_sp(sp);
- }
+diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
+index 458b0d69133e4..553a282d816ab 100644
+--- a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
++++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
+@@ -18,11 +18,11 @@
+ #define MAX_ULONG_STR_LEN 7
+ #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
  
-+void qla2xxx_rel_done_warning(srb_t *sp, int res)
-+{
-+	WARN_ONCE(1, "Calling done() of an already freed srb %p object\n", sp);
-+}
-+
-+void qla2xxx_rel_free_warning(srb_t *sp)
-+{
-+	WARN_ONCE(1, "Calling free() of an already freed srb %p object\n", sp);
-+}
-+
- /* Asynchronous Login/Logout Routines -------------------------------------- */
- 
- unsigned long
-diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
-index 861dc522723ce..2aa6f81f87c43 100644
---- a/drivers/scsi/qla2xxx/qla_inline.h
-+++ b/drivers/scsi/qla2xxx/qla_inline.h
-@@ -207,10 +207,15 @@ qla2xxx_get_qpair_sp(scsi_qla_host_t *vha, struct qla_qpair *qpair,
- 	return sp;
- }
- 
-+void qla2xxx_rel_done_warning(srb_t *sp, int res);
-+void qla2xxx_rel_free_warning(srb_t *sp);
-+
- static inline void
- qla2xxx_rel_qpair_sp(struct qla_qpair *qpair, srb_t *sp)
++const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+ static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
  {
- 	sp->qpair = NULL;
-+	sp->done = qla2xxx_rel_done_warning;
-+	sp->free = qla2xxx_rel_free_warning;
- 	mempool_free(sp, qpair->srb_mempool);
- 	QLA_QPAIR_MARK_NOT_BUSY(qpair);
- }
+-	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+ 	unsigned char i;
+-	char name[64];
++	char name[sizeof(tcp_mem_name)];
+ 	int ret;
+ 
+ 	memset(name, 0, sizeof(name));
+diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
+index b2e6f9b0894d8..2b64bc563a12e 100644
+--- a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
++++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
+@@ -18,11 +18,11 @@
+ #define MAX_ULONG_STR_LEN 7
+ #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
+ 
++const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
+ static __attribute__((noinline)) int is_tcp_mem(struct bpf_sysctl *ctx)
+ {
+-	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
+ 	unsigned char i;
+-	char name[64];
++	char name[sizeof(tcp_mem_name)];
+ 	int ret;
+ 
+ 	memset(name, 0, sizeof(name));
 -- 
 2.25.1
 
