@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FCB8291B38
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64829291B15
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732691AbgJRTaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43706 "EHLO mail.kernel.org"
+        id S1729610AbgJRT1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:27:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732164AbgJRT1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:27:43 -0400
+        id S1732167AbgJRT1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:27:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBF2922277;
-        Sun, 18 Oct 2020 19:27:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 205E1207DE;
+        Sun, 18 Oct 2020 19:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049262;
-        bh=qr5IBMUcnmL6i6o7msUoTodHVxH92J3rwPTt3mSQ8hE=;
+        s=default; t=1603049263;
+        bh=LtKe44qQioHt8IPmm8+2jd8eqgBOO6gQuZGX4rvL82I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1RxJNHrMNlIS97E0U7sYeRIVociA/W0HAiIwfnyqX9UZRfk3AqNoKTyrzSTwnAaH
-         xkSZMwcj1T9SlM1NFGwm7cs6pmX96NeyElrg9VBS1oC+ilqwYiAz4CzFnwqWM3aWir
-         pIQn+YJ2mPvHNQWBmDZ5dRw8pK+XejEt0tNgjv6A=
+        b=MfvALnNRKpIAFQ07x8TbtbQ47MuC1s+FlwLXzhVf24e4uIyuWWZj490bosPL5eQjX
+         hpVVoOuvXC9yuEJL5tbkGzlNFy7HavFYElrae+/QcZP91YJzFIuuXguywObohLynCz
+         BZx/XrdT3QU5Ci0K8sUTf0J5CfTYn5M6+BKQran4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rustam Kovhaev <rkovhaev@gmail.com>,
-        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.4 11/33] ntfs: add check for mft record size in superblock
-Date:   Sun, 18 Oct 2020 15:27:06 -0400
-Message-Id: <20201018192728.4056577-11-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 12/33] PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
+Date:   Sun, 18 Oct 2020 15:27:07 -0400
+Message-Id: <20201018192728.4056577-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192728.4056577-1-sashal@kernel.org>
 References: <20201018192728.4056577-1-sashal@kernel.org>
@@ -46,44 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
+[ Upstream commit 428805c0c5e76ef643b1fbc893edfb636b3d8aef ]
 
-Number of bytes allocated for mft record should be equal to the mft record
-size stored in ntfs superblock as reported by syzbot, userspace might
-trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
+get_gendisk grabs a reference on the disk and file operation, so this
+code will leak both of them while having absolutely no use for the
+gendisk itself.
 
-Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
-Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This effectively reverts commit 2df83fa4bce421f ("PM / Hibernate: Use
+get_gendisk to verify partition if resume_file is integer format")
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/power/hibernate.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index d284f07eda775..38260c07de8b5 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1844,6 +1844,12 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		brelse(bh);
- 	}
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 3124cebaec31e..7d73b30c55ccd 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -779,17 +779,6 @@ static int software_resume(void)
  
-+	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
-+		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
-+				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
-+		goto err_out;
-+	}
-+
- 	/* Apply the mst fixups. */
- 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
- 		/* FIXME: Try to use the $MFTMirr now. */
+ 	/* Check if the device is there */
+ 	swsusp_resume_device = name_to_dev_t(resume_file);
+-
+-	/*
+-	 * name_to_dev_t is ineffective to verify parition if resume_file is in
+-	 * integer format. (e.g. major:minor)
+-	 */
+-	if (isdigit(resume_file[0]) && resume_wait) {
+-		int partno;
+-		while (!get_gendisk(swsusp_resume_device, &partno))
+-			msleep(10);
+-	}
+-
+ 	if (!swsusp_resume_device) {
+ 		/*
+ 		 * Some device discovery might still be in progress; we need
 -- 
 2.25.1
 
