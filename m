@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD836291E48
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17757291A0C
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbgJRTvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
+        id S1729302AbgJRTVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729274AbgJRTVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:21:11 -0400
+        id S1729298AbgJRTVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:21:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B50C0222C8;
-        Sun, 18 Oct 2020 19:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02BB5222EC;
+        Sun, 18 Oct 2020 19:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048871;
-        bh=0Si8sYFictuo/anSAUU6Sehfcghwz4mryykeuuymkMQ=;
+        s=default; t=1603048872;
+        bh=b3yn/e1fuNGB/nSvT2z3p0aLOFj4I7+dDr6hA0bzlTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNKTQvENaRbBbfm3Nz+PB4UayVKHcKAUZwuNJDWKr4StlZ5UfhvigvwBwJyz2u+rr
-         u9+HLr60N4eMjfLm3JdMOVP1nOPuxoIvuCboyKlj/s2iZTceHdlZA3FGCEKidxAqHK
-         GX9w+pzMijwfyIZCerOBSOJLZHT/uYcCRL3GpqLs=
+        b=nFqvQq+3xHdd9SHiVKCf/+vGouKLZKylAp+2PWtth4U4ffJ7891PJ6M7/pFUw2Fit
+         nuATwOBYkfqx4ZZdLDeASf00LG57jHtIeI6/hTzwpK97TK+XfKrELMFA3q5N++DL1K
+         PeKP7qY2u6OClhbdoBtQfclHAxrbu4OnNcKYM/kI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 036/101] mac80211: handle lack of sband->bitrates in rates
-Date:   Sun, 18 Oct 2020 15:19:21 -0400
-Message-Id: <20201018192026.4053674-36-sashal@kernel.org>
+Cc:     =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.8 037/101] staging: wfx: fix handling of MMIC error
+Date:   Sun, 18 Oct 2020 15:19:22 -0400
+Message-Id: <20201018192026.4053674-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,56 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
+[ Upstream commit 8d350c14ee5eb62ecd40b0991248bfbce511954d ]
 
-Even though a driver or mac80211 shouldn't produce a
-legacy bitrate if sband->bitrates doesn't exist, don't
-crash if that is the case either.
+As expected, when the device detect a MMIC error, it returns a specific
+status. However, it also strip IV from the frame (don't ask me why).
 
-This fixes a kernel panic if station dump is run before
-last_rate can be updated with a data frame when
-sband->bitrates is missing (eg. in S1G bands).
+So, with the current code, mac80211 detects a corrupted frame and it
+drops it before it handle the MMIC error. The expected behavior would be
+to detect MMIC error then to renegotiate the EAP session.
 
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+So, this patch correctly informs mac80211 that IV is not available. So,
+mac80211 correctly takes into account the MMIC error.
+
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/20201007101943.749898-2-Jerome.Pouiller@silabs.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c      | 3 ++-
- net/mac80211/sta_info.c | 4 ++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/wfx/data_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 1079a07e43e49..d74cfec685477 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -709,7 +709,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
- 		u16 brate;
+diff --git a/drivers/staging/wfx/data_rx.c b/drivers/staging/wfx/data_rx.c
+index 0e959ebc38b56..a9fb5165b33d9 100644
+--- a/drivers/staging/wfx/data_rx.c
++++ b/drivers/staging/wfx/data_rx.c
+@@ -80,7 +80,7 @@ void wfx_rx_cb(struct wfx_vif *wvif,
+ 		goto drop;
  
- 		sband = ieee80211_get_sband(sta->sdata);
--		if (sband) {
-+		WARN_ON_ONCE(sband && !sband->bitrates);
-+		if (sband && sband->bitrates) {
- 			brate = sband->bitrates[rate->idx].bitrate;
- 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
- 		}
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 05e966f1609e2..b93916c382cdb 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -2122,6 +2122,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
- 		int rate_idx = STA_STATS_GET(LEGACY_IDX, rate);
+ 	if (arg->status == HIF_STATUS_RX_FAIL_MIC)
+-		hdr->flag |= RX_FLAG_MMIC_ERROR;
++		hdr->flag |= RX_FLAG_MMIC_ERROR | RX_FLAG_IV_STRIPPED;
+ 	else if (arg->status)
+ 		goto drop;
  
- 		sband = local->hw.wiphy->bands[band];
-+
-+		if (WARN_ON_ONCE(!sband->bitrates))
-+			break;
-+
- 		brate = sband->bitrates[rate_idx].bitrate;
- 		if (rinfo->bw == RATE_INFO_BW_5)
- 			shift = 2;
 -- 
 2.25.1
 
