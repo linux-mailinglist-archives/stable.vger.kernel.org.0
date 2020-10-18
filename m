@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40199291B75
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16D2291B67
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732347AbgJRTbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43148 "EHLO mail.kernel.org"
+        id S1732070AbgJRT1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:27:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732043AbgJRT1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:27:22 -0400
+        id S1732067AbgJRT1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:27:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A15BC22267;
-        Sun, 18 Oct 2020 19:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B20A122272;
+        Sun, 18 Oct 2020 19:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049242;
-        bh=qQkpsY95igRkNtXkV+01ckVVt9mzZ3IvlB7j+mGHTu0=;
+        s=default; t=1603049243;
+        bh=lBErSqNfIc6JjwuNWgC5mTOspePfHS9GbRGVP4n6Slo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+5W3zNrCj6KjYHqoD4RK3hbR3ZgeyqzqWcbOLl0StucvY12AMTWWoe5l7SmYjryK
-         ePYSVGzSazqvOjkGOGHNhwmm1MogM/9yG+Fhx+lWXv7leXstWIu9L24+upM7mfaruf
-         t2JbxeRAIIYzIaiZiPbMeUjiV0thnjm8jM8WQQYg=
+        b=ESnRWMrVzONKA5F+Qran1LjOohPmdBjJSY07FFom78vfaQ/vX06Zabrfm0AWRDrNQ
+         eRApLAlDShlV2f/AcNSMu1Y4RTH24EQdgsdn6bPzCxXOhD0aV3ksYNk9u3OMPAn/p6
+         0pw6hkSen53cZEhBkcH8VHPF9W98qKgUkuN+gPmY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 38/41] reiserfs: Fix memory leak in reiserfs_parse_options()
-Date:   Sun, 18 Oct 2020 15:26:32 -0400
-Message-Id: <20201018192635.4056198-38-sashal@kernel.org>
+Cc:     Wang Yufen <wangyufen@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 39/41] brcm80211: fix possible memleak in brcmf_proto_msgbuf_attach
+Date:   Sun, 18 Oct 2020 15:26:33 -0400
+Message-Id: <20201018192635.4056198-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192635.4056198-1-sashal@kernel.org>
 References: <20201018192635.4056198-1-sashal@kernel.org>
@@ -42,47 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit e9d4709fcc26353df12070566970f080e651f0c9 ]
+[ Upstream commit 6c151410d5b57e6bb0d91a735ac511459539a7bf ]
 
-When a usrjquota or grpjquota mount option is used multiple times, we
-will leak memory allocated for the file name. Make sure the last setting
-is used and all the previous ones are properly freed.
+When brcmf_proto_msgbuf_attach fail and msgbuf->txflow_wq != NULL,
+we should destroy the workqueue.
 
-Reported-by: syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1595237765-66238-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index 677608a89b08d..c533d8715a6ca 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1234,6 +1234,10 @@ static int reiserfs_parse_options(struct super_block *s,
- 						 "turned on.");
- 				return 0;
- 			}
-+			if (qf_names[qtype] !=
-+			    REISERFS_SB(s)->s_qf_names[qtype])
-+				kfree(qf_names[qtype]);
-+			qf_names[qtype] = NULL;
- 			if (*arg) {	/* Some filename specified? */
- 				if (REISERFS_SB(s)->s_qf_names[qtype]
- 				    && strcmp(REISERFS_SB(s)->s_qf_names[qtype],
-@@ -1263,10 +1267,6 @@ static int reiserfs_parse_options(struct super_block *s,
- 				else
- 					*mount_options |= 1 << REISERFS_GRPQUOTA;
- 			} else {
--				if (qf_names[qtype] !=
--				    REISERFS_SB(s)->s_qf_names[qtype])
--					kfree(qf_names[qtype]);
--				qf_names[qtype] = NULL;
- 				if (qtype == USRQUOTA)
- 					*mount_options &= ~(1 << REISERFS_USRQUOTA);
- 				else
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+index ab9f136c15937..e306e5a89dd4f 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+@@ -1540,6 +1540,8 @@ int brcmf_proto_msgbuf_attach(struct brcmf_pub *drvr)
+ 					  BRCMF_TX_IOCTL_MAX_MSG_SIZE,
+ 					  msgbuf->ioctbuf,
+ 					  msgbuf->ioctbuf_handle);
++		if (msgbuf->txflow_wq)
++			destroy_workqueue(msgbuf->txflow_wq);
+ 		kfree(msgbuf);
+ 	}
+ 	return -ENOMEM;
 -- 
 2.25.1
 
