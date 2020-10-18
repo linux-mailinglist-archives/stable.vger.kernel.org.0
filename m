@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69220291B71
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F44291B55
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732282AbgJRTbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:31:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
+        id S1732651AbgJRTaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:30:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732083AbgJRT11 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:27:27 -0400
+        id S1732112AbgJRT1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:27:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62F0E22273;
-        Sun, 18 Oct 2020 19:27:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FD592226B;
+        Sun, 18 Oct 2020 19:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049246;
-        bh=+o/6cz51jcR3bkKKYls59uylCP3asuUJzRmWDyWyUlM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqKz/RSvbIr9iM6wkGM/+49EDdQITwZU7dkMNVYFEisLgTC3Sy7pQxDWhvLM5sEOQ
-         M1dTVTjEPV2TCMICtRcakIHR0/FsIbZPVGkgRryYbFz+04xFRBpdzFZOBPJM/AL1z6
-         IPc/xYn71JXEnN9/+5fDQuMIw3A+nGiLFcOHtgIY=
+        s=default; t=1603049250;
+        bh=3BpnqO3HAOZZuIA352xBin6HwuuJeAgKkuyK8XOP52w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DoxjwVOHr1hRU60NNCCawHcp2Wpbf8PWiamkowQV5fu1YkQ7U9dJBSsB00Hw/dgg2
+         /k0lB+F1iS0ErMgtxFX4TF4AgfFrBZzy9sSqmebNG0hb63LH0dmQ0tKRQ0Ian9FLzm
+         j71QxnWyFceq1TEZH1Ai0DHiFKSC6qhsrcR24AqE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 41/41] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
-Date:   Sun, 18 Oct 2020 15:26:35 -0400
-Message-Id: <20201018192635.4056198-41-sashal@kernel.org>
+Cc:     Pavel Machek <pavel@ucw.cz>, Pavel Machek <pavel@denx.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 01/33] media: firewire: fix memory leak
+Date:   Sun, 18 Oct 2020 15:26:56 -0400
+Message-Id: <20201018192728.4056577-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201018192635.4056198-1-sashal@kernel.org>
-References: <20201018192635.4056198-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,66 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
 
-[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
+[ Upstream commit b28e32798c78a346788d412f1958f36bb760ec03 ]
 
-The idx in __ath10k_htt_rx_ring_fill_n function lives in
-consistent dma region writable by the device. Malfunctional
-or malicious device could manipulate such idx to have a OOB
-write. Either by
-    htt->rx_ring.netbufs_ring[idx] = skb;
-or by
-    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
+Fix memory leak in node_probe.
 
-The idx can also be negative as it's signed, giving a large
-memory space to write to.
-
-It's possibly exploitable by corruptting a legit pointer with
-a skb pointer. And then fill skb with payload as rougue object.
-
-Part of the log here. Sometimes it appears as UAF when writing
-to a freed memory by chance.
-
- [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
- [   15.595483] #PF: supervisor write access in kernel mode
- [   15.596250] #PF: error_code(0x0002) - not-present page
- [   15.597013] PGD 0 P4D 0
- [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
- [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
- [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
- BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
- [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
- [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
- (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/firewire/firedtv-fw.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index a3c2180475971..fce2064ebc469 100644
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -100,6 +100,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
- 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
+index 5d634706a7eaa..382f290c3f4d5 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -271,8 +271,10 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
  
- 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
-+
-+	if (idx < 0 || idx >= htt->rx_ring.size) {
-+		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
-+		idx &= htt->rx_ring.size_mask;
-+		ret = -ENOMEM;
-+		goto fail;
+ 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
+-	if (name_len < 0)
+-		return name_len;
++	if (name_len < 0) {
++		err = name_len;
++		goto fail_free;
 +	}
-+
- 	while (num > 0) {
- 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
- 		if (!skb) {
+ 	for (i = ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <= name_len &&
+ 		    strncmp(name, model_names[i], name_len) == 0)
 -- 
 2.25.1
 
