@@ -2,153 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B31A29174B
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 14:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF8E2918C3
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 20:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbgJRMXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 08:23:22 -0400
-Received: from mail-40132.protonmail.ch ([185.70.40.132]:14719 "EHLO
-        mail-40132.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726537AbgJRMXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Oct 2020 08:23:22 -0400
-X-Greylist: delayed 77103 seconds by postgrey-1.27 at vger.kernel.org; Sun, 18 Oct 2020 08:23:21 EDT
-Date:   Sun, 18 Oct 2020 12:23:14 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1603023799;
-        bh=Si/sDxp81cibqgSxPPtoAjFrCd8mtAH2nl/znWmdQGY=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=Gku9EbnAj06ght/wpRe3tHwnyij60K657O40Flpnx0uzmEFzcUfhLjSOzX9oU98O5
-         6mciQLsTfknvbP+z/OLEFb5NKZWE+mAlwTT5wxlHIONPEoyiGlzMvOD1Fpi1uuul4Y
-         riA8tjrkk3oyVp1Rpr66GBnqR4EvzZMX3awKRNm0=
-To:     Coiby Xu <coiby.xu@gmail.com>
-From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Helmut Stult <helmut.stult@schinfo.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
-Message-ID: <BXoa8IFE81mt8sW2luHnqgFoZUBIDxRGg8SzTxqCuBMm0PPopB98-w7u1ckq77Gtj2bJCVSFFA83zOPVdP_kynQ8Zkys3B96lFTV6fUCJHM=@protonmail.com>
-In-Reply-To: <fRxQJHWq9ZL950ZPGFFm_LfSlMjsjrpG7Y63gd7V7iV647KR8WIfZ4-ljLeo0n4X3Gpu1KIEsMVLxQnzAtJdUdMydi_b0-vjIVb304Da1bQ=@protonmail.com>
-References: <20201016131335.8121-1-coiby.xu@gmail.com> <T2SIcFVxZ81NUwKLDbSESA7Wpm7DYowEiii8ZaxTPtrdXZZeHLq5iZPkN5BLlp-9C6PLwUZOVwNpMdEdPSRZcAG4MmDt-tfyKZoQYJ0KHOA=@protonmail.com> <20201017004556.kuoxzmbvef4yr3kg@Rk> <FWsXxqGztJgszUpmNtKli8eOyeKP-lxFeTsjs2nQAxgYZBkT3JNTU3VdHF4GbQVS_PvKiqbfrZXI7vaUHA_lXTxjPX-WjkNEOdiMUetO8IQ=@protonmail.com> <20201017140541.fggujaz2klpv3cd5@Rk> <fRxQJHWq9ZL950ZPGFFm_LfSlMjsjrpG7Y63gd7V7iV647KR8WIfZ4-ljLeo0n4X3Gpu1KIEsMVLxQnzAtJdUdMydi_b0-vjIVb304Da1bQ=@protonmail.com>
+        id S1726608AbgJRSKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 14:10:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725776AbgJRSKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Oct 2020 14:10:02 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9DAC061755
+        for <stable@vger.kernel.org>; Sun, 18 Oct 2020 11:10:00 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id t20so3388683qvv.8
+        for <stable@vger.kernel.org>; Sun, 18 Oct 2020 11:10:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
+        b=a1VzaRLuBUsaqeQhn0cdtfNMTAg10H0K5E3ZQYVDm37nRjzGO3r1SY+UkXW0lZrfWn
+         doeARVjx+Ss6lmWmZIEGICzUdK1+pzCDrnpipNWLsL2x4OTomWPEZXe/e0ewzHE/6lFB
+         1U2QMtq59ByyxZegN1uyQOcaN+ebG9eI8mzjY+vOVYY/+seEozRXohsIc20YFmsGeBTr
+         YWD6MQDz5fbX6dHPJWsDjpzRIkeeVIfOm1GYT/wqqFpnbIcEyWNhJOt8mL6Anw5JtLHk
+         IdFLH9XFBlXjd8q5mwN/4qK2EZM9xAVY5hloTlmw/5JMhhUI4+MD+3j0Ingj/Y6FPWJJ
+         3P7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
+        b=o0/rJ6SLslzlD7XpnmtONkhDFJ0NZ0mgSLfteUnymhZq4IVhwVDXSX2XMm1fz5GjST
+         VrbkY4HJHIQqLDSSSF2K9zkh904BeAV59HxFqldzmPH8WKDz1rTkQPyhuUSZcx9pG7Q8
+         pRxxe9Nc6A39IpbgH5EBD2xvEt72Aq5NbCdzXXOrN+WWXKScyOWraFFWchv/WkqgFLXq
+         hZTx1xt8tkoWTY/iSar4kREoMbBoSHV9e+wo2IndlYRYIphjSX9G+1HTyk2N+cPB+lBm
+         crMGd76tqToKsjfgszmezjcEgYi6G2ntyYHmNqiTillkbr/yvlFOddWIm8nYbqmnX/h/
+         EH2A==
+X-Gm-Message-State: AOAM531gpZshECV230S2YXlXnbx3VZwzF2HyXZXZk65xDSBcgrfMorPe
+        6tZk6pcNHFq6vfSdls53K3U5Y+15fVBBcmWs0nk=
+X-Google-Smtp-Source: ABdhPJxqUd7mvASjLbPW3XfUL5UbJwTO/wo3r1EqK+wYoR3uOJ1cgYjA7Clk4FX86+FZogRcvE36g6TyZJq6VvfA2WI=
+X-Received: by 2002:a0c:8c4c:: with SMTP id o12mr12841107qvb.46.1603044599729;
+ Sun, 18 Oct 2020 11:09:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Sender: gloriapauleric@gmail.com
+Received: by 2002:ad4:4f05:0:0:0:0:0 with HTTP; Sun, 18 Oct 2020 11:09:59
+ -0700 (PDT)
+From:   Donna Louise <donnamcinneslouise@gmail.com>
+Date:   Sun, 18 Oct 2020 06:09:59 -1200
+X-Google-Sender-Auth: wS_cvaYF3R6DBsK2hvM9zuCXdU4
+Message-ID: <CAEwunR-JZQks7OQD0eza5Ptpo9+PHp=Tk0xT2T4DVQeziNuzag@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> [...]
-> > > > > > +static int i2c_hid_polling_thread(void *i2c_hid)
-> > > > > > +{
-> > > > > >
-> > > > > > -   struct i2c_hid *ihid =3D i2c_hid;
-> > > > > > -   struct i2c_client *client =3D ihid->client;
-> > > > > > -   unsigned int polling_interval_idle;
-> > > > > > -
-> > > > > > -   while (1) {
-> > > > > > -       /*
-> > > > > >
-> > > > > >
-> > > > > > -        * re-calculate polling_interval_idle
-> > > > > >
-> > > > > >
-> > > > > > -        * so the module parameters polling_interval_idle_ms ca=
-n be
-> > > > > >
-> > > > > >
-> > > > > > -        * changed dynamically through sysfs as polling_interva=
-l_active_us
-> > > > > >
-> > > > > >
-> > > > > > -        */
-> > > > > >
-> > > > > >
-> > > > > > -       polling_interval_idle =3D polling_interval_idle_ms * 10=
-00;
-> > > > > >
-> > > > > >
-> > > > > > -       if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
-> > > > > >
-> > > > > >
-> > > > > > -       =09usleep_range(50000, 100000);
-> > > > > >
-> > > > > >
-> > > > > > -
-> > > > > > -       if (kthread_should_stop())
-> > > > > >
-> > > > > >
-> > > > > > -       =09break;
-> > > > > >
-> > > > > >
-> > > > > > -
-> > > > > > -       while (interrupt_line_active(client)) {
-> > > > > >
-> > > > > >
-> > > > >
-> > > > > I realize it's quite unlikely, but can't this be a endless loop i=
-f data is coming
-> > > > > in at a high enough rate? Maybe the maximum number of iterations =
-could be limited here?
-> > > >
-> > > > If we find HID reports are constantly read and send to front-end
-> > > > application like libinput, won't it help expose the problem of the =
-I2C
-> > > > HiD device?
-> > > >
-> > > > >
-> > >
-> > > I'm not sure I completely understand your point. The reason why I wro=
-te what I wrote
-> > > is that this kthread could potentially could go on forever (since `kt=
-hread_should_stop()`
-> > > is not checked in the inner while loop) if the data is supplied at a =
-high enough rate.
-> > > That's why I said, to avoid this problem, only allow a certain number=
- of iterations
-> > > for the inner loop, to guarantee that the kthread can stop in any cas=
-e.
-> >
-> > I mean if "data is supplied at a high enough rate" does happen, this is
-> > an abnormal case and indicates a bug. So we shouldn't cover it up. We
-> > expect the user to report it to us.
-> >
-> > >
->
-> I agree in principle, but if this abnormal case ever occurs, that'll prev=
-ent
-> this module from being unloaded since `kthread_stop()` will hang because =
-the
-> thread is "stuck" in the inner loop, never checking `kthread_should_stop(=
-)`.
-> That's why I think it makes sense to only allow a certain number of opera=
-tions
-> for the inner loop, and maybe show a warning if that's exceeded:
->
-> for (i =3D 0; i < max_iter && interrupt_line_active(...); i++) {
-> ....
-> }
->
-> WARN_ON[CE](i =3D=3D max_iter[, "data is coming in at an unreasonably hig=
-h rate"]);
->
+ Dear Friend,
 
-I now realize that WARN_ON[CE] is probably not the best fit here, `hid_warn=
-()` is possibly better.
+  I am glad to know you, but God knows you better and he knows why he
+has directed me to you at this point in time so do not be surprised at
+all. My name is Mrs. Donna Louise McInnes, a widow, i have been
+suffering from ovarian cancer disease. At this moment i am about to
+end the race like this because the illness has gotten to a very bad
+stage, without any family members and no child. I hope that you will
+not expose or betray this trust and confidence that I am about to
+entrust to you for the mutual benefit of the orphans and the less
+privileged ones. I have some funds I inherited from my late husband,
+the sum of ($11.000.000 Eleven million dollars.) deposited in the
+Bank.  Having known my present health status, I decided to entrust
+this fund to you believing that you will utilize it the way i am going
+to instruct herein.
 
+Therefore I need you to assist me and reclaim this money and use it
+for Charity works, for orphanages and giving justice and help to the
+poor, needy and to promote the words of God and the effort that the
+house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
 
-> or something like this, where `max_iter` could possibly be some value dep=
-endent on
-> `polling_interval_active_us`, or even just a constant.
-> [...]
+It will be my great pleasure to compensate you with 35 % percent of
+the total money for your personal use, 5 % percent for any expenses
+that may occur during the international transfer process while 60% of
+the money will go to the charity project.
 
+All I require from you is sincerity and the ability to complete God's
+task without any failure. It will be my pleasure to see that the bank
+has finally released and transferred the fund into your bank account
+therein your country even before I die here in the hospital, because
+of my present health status everything needs to be processed rapidly
+as soon as possible. I am waiting for your immediate reply, if only
+you are interested for further details of the transaction and
+execution of this charitable project.
 
-Regards,
-Barnab=C3=A1s P=C5=91cze
+Best Regards your friend Mrs.
+Donna Louise McInnes.
