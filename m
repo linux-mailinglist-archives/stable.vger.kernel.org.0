@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B44E3291F1F
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F661291F20
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728130AbgJRTTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
+        id S1728146AbgJRTTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgJRTTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:17 -0400
+        id S1727286AbgJRTTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:19:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C720B222EA;
-        Sun, 18 Oct 2020 19:19:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC038222C8;
+        Sun, 18 Oct 2020 19:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048756;
-        bh=/amRTRH9Qh8DBTjRksWE8cHXZSaHJCgR6d5zKVJpyug=;
+        s=default; t=1603048757;
+        bh=BDNwQRwoRfZPxJGVVrsS9A5kA4VPUPUBVwYYvkvLSsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5ibiZuHEDiPe+qnm2ivt1+Q3w7N1amuU0sdzd8CjcPsVXSybKD+5C69OeDHyznZK
-         iGD9KZ0RFLSUYpL3X1WqyDv2YFz6orhgTbfnKlhaNFS3hTjBk9chZG+jTZ1xaJUoJ1
-         PVov3j9Mv5OCO0OJgviE+E23fArfykW1+LDnmaj8=
+        b=BANUMzjuDytOSGQCyFO5m/cOMQcJkRjLAzTfuHdPHyKba1uW/hAZkJh6VqmFEFPIb
+         bByKdvtdioA02sOmilVTkEf8OEEp8IRCsy8vu2L5herQMg5SEr+izlSJa6JCt+DYUr
+         kfwnDCkpP6cYtNynBZHO1PJNt7SSKn8j2tl3AHs0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oded Gabbay <oded.gabbay@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 057/111] habanalabs: cast to u64 before shift > 31 bits
-Date:   Sun, 18 Oct 2020 15:17:13 -0400
-Message-Id: <20201018191807.4052726-57-sashal@kernel.org>
+Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 058/111] can: flexcan: flexcan_chip_stop(): add error handling and propagate error value
+Date:   Sun, 18 Oct 2020 15:17:14 -0400
+Message-Id: <20201018191807.4052726-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -43,89 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <oded.gabbay@gmail.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit f763946aefe67b3ea58696b75a930ba1ed886a83 ]
+[ Upstream commit 9ad02c7f4f279504bdd38ab706fdc97d5f2b2a9c ]
 
-When shifting a boolean variable by more than 31 bits and putting the
-result into a u64 variable, we need to cast the boolean into unsigned 64
-bits to prevent possible overflow.
+This patch implements error handling and propagates the error value of
+flexcan_chip_stop(). This function will be called from flexcan_suspend()
+in an upcoming patch in some SoCs which support LPSR mode.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Add a new function flexcan_chip_stop_disable_on_error() that tries to
+disable the chip even in case of errors.
+
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+[mkl: introduce flexcan_chip_stop_disable_on_error() and use it in flexcan_close()]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200922144429.2613631-11-mkl@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 8 +++++---
- drivers/misc/habanalabs/goya/goya.c   | 8 +++++---
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/can/flexcan.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 4009b7df4cafe..2e55890ad6a61 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -6099,7 +6099,7 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 94d10ec954a05..2ac7a667bde35 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1260,18 +1260,23 @@ static int flexcan_chip_start(struct net_device *dev)
+ 	return err;
+ }
  
- 		if (mask)
--			*mask |= !is_eng_idle <<
-+			*mask |= ((u64) !is_eng_idle) <<
- 					(GAUDI_ENGINE_ID_DMA_0 + dma_id);
- 		if (s)
- 			seq_printf(s, fmt, dma_id,
-@@ -6122,7 +6122,8 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+-/* flexcan_chip_stop
++/* __flexcan_chip_stop
+  *
+- * this functions is entered with clocks enabled
++ * this function is entered with clocks enabled
+  */
+-static void flexcan_chip_stop(struct net_device *dev)
++static int __flexcan_chip_stop(struct net_device *dev, bool disable_on_error)
+ {
+ 	struct flexcan_priv *priv = netdev_priv(dev);
+ 	struct flexcan_regs __iomem *regs = priv->regs;
++	int err;
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GAUDI_ENGINE_ID_TPC_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GAUDI_ENGINE_ID_TPC_0 + i);
- 		if (s)
- 			seq_printf(s, fmt, i,
- 				is_eng_idle ? "Y" : "N",
-@@ -6150,7 +6151,8 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+ 	/* freeze + disable module */
+-	flexcan_chip_freeze(priv);
+-	flexcan_chip_disable(priv);
++	err = flexcan_chip_freeze(priv);
++	if (err && !disable_on_error)
++		return err;
++	err = flexcan_chip_disable(priv);
++	if (err && !disable_on_error)
++		goto out_chip_unfreeze;
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GAUDI_ENGINE_ID_MME_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GAUDI_ENGINE_ID_MME_0 + i);
- 		if (s) {
- 			if (!is_slave)
- 				seq_printf(s, fmt, i,
-diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
-index 33cd2ae653d23..c09742f440f96 100644
---- a/drivers/misc/habanalabs/goya/goya.c
-+++ b/drivers/misc/habanalabs/goya/goya.c
-@@ -5166,7 +5166,8 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+ 	/* Disable all interrupts */
+ 	priv->write(0, &regs->imask2);
+@@ -1281,6 +1286,23 @@ static void flexcan_chip_stop(struct net_device *dev)
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GOYA_ENGINE_ID_DMA_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GOYA_ENGINE_ID_DMA_0 + i);
- 		if (s)
- 			seq_printf(s, dma_fmt, i, is_eng_idle ? "Y" : "N",
- 					qm_glbl_sts0, dma_core_sts0);
-@@ -5189,7 +5190,8 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+ 	flexcan_transceiver_disable(priv);
+ 	priv->can.state = CAN_STATE_STOPPED;
++
++	return 0;
++
++ out_chip_unfreeze:
++	flexcan_chip_unfreeze(priv);
++
++	return err;
++}
++
++static inline int flexcan_chip_stop_disable_on_error(struct net_device *dev)
++{
++	return __flexcan_chip_stop(dev, true);
++}
++
++static inline int flexcan_chip_stop(struct net_device *dev)
++{
++	return __flexcan_chip_stop(dev, false);
+ }
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GOYA_ENGINE_ID_TPC_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GOYA_ENGINE_ID_TPC_0 + i);
- 		if (s)
- 			seq_printf(s, fmt, i, is_eng_idle ? "Y" : "N",
- 				qm_glbl_sts0, cmdq_glbl_sts0, tpc_cfg_sts);
-@@ -5209,7 +5211,7 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 	is_idle &= is_eng_idle;
+ static int flexcan_open(struct net_device *dev)
+@@ -1362,7 +1384,7 @@ static int flexcan_close(struct net_device *dev)
  
- 	if (mask)
--		*mask |= !is_eng_idle << GOYA_ENGINE_ID_MME_0;
-+		*mask |= ((u64) !is_eng_idle) << GOYA_ENGINE_ID_MME_0;
- 	if (s) {
- 		seq_printf(s, fmt, 0, is_eng_idle ? "Y" : "N", qm_glbl_sts0,
- 				cmdq_glbl_sts0, mme_arch_sts);
+ 	netif_stop_queue(dev);
+ 	can_rx_offload_disable(&priv->offload);
+-	flexcan_chip_stop(dev);
++	flexcan_chip_stop_disable_on_error(dev);
+ 
+ 	can_rx_offload_del(&priv->offload);
+ 	free_irq(dev->irq, dev);
 -- 
 2.25.1
 
