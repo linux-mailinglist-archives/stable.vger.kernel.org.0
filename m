@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B17291F37
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8692919B5
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgJRT6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:58:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
+        id S1728079AbgJRTTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:19:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728064AbgJRTTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:08 -0400
+        id S1728071AbgJRTTK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:19:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB6D1222EB;
-        Sun, 18 Oct 2020 19:19:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D99DA222EA;
+        Sun, 18 Oct 2020 19:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048748;
-        bh=rajoBg90m9v2veNuegkxxzBLUEQ6nFdodXsoaaQtBF8=;
+        s=default; t=1603048749;
+        bh=My1jZhxrhaIwPxyYadbJWkFqJCp8iFABq5AI9LDc2wU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydHxYZ4beQO1cMJdmBck7wknuUGdYpvZdMVDddLd0YBvwBxE7tgEHT0F8tzgFq0pO
-         cA8tjHyiGl2/um5vM9/JnwQIz8b6fh4BxcLOpz2MUTHaODRbsc0iZO7M61LNsjLw2d
-         p5crnZSxxz0tdDoTP+iCoIfRqGbdShgSofewgPr0=
+        b=Zec3gsCKLn98hfPsZrFzUSyJGh1lOAdUdlMzpeljICmzLnm/Tbvi40AW3fayClxb6
+         hP/Tt+8vyDcQIYPE5J4xPkrcUP7uxFtROy20+EvvgfkljGczl7xOb5TPvAGnKoO0G6
+         4wnTqqBsk3gIlQ4Y/2JJ9JDPzBi20E+yBg5qHdWY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+9991561e714f597095da@syzkaller.appspotmail.com,
+        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 050/111] udf: Limit sparing table size
-Date:   Sun, 18 Oct 2020 15:17:06 -0400
-Message-Id: <20201018191807.4052726-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 051/111] udf: Avoid accessing uninitialized data on failed inode read
+Date:   Sun, 18 Oct 2020 15:17:07 -0400
+Message-Id: <20201018191807.4052726-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -44,36 +44,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 44ac6b829c4e173fdf6df18e6dd86aecf9a3dc99 ]
+[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
 
-Although UDF standard allows it, we don't support sparing table larger
-than a single block. Check it during mount so that we don't try to
-access memory beyond end of buffer.
+When we fail to read inode, some data accessed in udf_evict_inode() may
+be uninitialized. Move the accesses to !is_bad_inode() branch.
 
-Reported-by: syzbot+9991561e714f597095da@syzkaller.appspotmail.com
+Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/udf/inode.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 1c42f544096d8..a03b8ce5ef0fd 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -1353,6 +1353,12 @@ static int udf_load_sparable_map(struct super_block *sb,
- 			(int)spm->numSparingTables);
- 		return -EIO;
- 	}
-+	if (le32_to_cpu(spm->sizeSparingTable) > sb->s_blocksize) {
-+		udf_err(sb, "error loading logical volume descriptor: "
-+			"Too big sparing table size (%u)\n",
-+			le32_to_cpu(spm->sizeSparingTable));
-+		return -EIO;
-+	}
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index adaba8e8b326e..566118417e562 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -139,21 +139,24 @@ void udf_evict_inode(struct inode *inode)
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	int want_delete = 0;
  
- 	for (i = 0; i < spm->numSparingTables; i++) {
- 		loc = le32_to_cpu(spm->locSparingTable[i]);
+-	if (!inode->i_nlink && !is_bad_inode(inode)) {
+-		want_delete = 1;
+-		udf_setsize(inode, 0);
+-		udf_update_inode(inode, IS_SYNC(inode));
++	if (!is_bad_inode(inode)) {
++		if (!inode->i_nlink) {
++			want_delete = 1;
++			udf_setsize(inode, 0);
++			udf_update_inode(inode, IS_SYNC(inode));
++		}
++		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
++		    inode->i_size != iinfo->i_lenExtents) {
++			udf_warn(inode->i_sb,
++				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
++				 inode->i_ino, inode->i_mode,
++				 (unsigned long long)inode->i_size,
++				 (unsigned long long)iinfo->i_lenExtents);
++		}
+ 	}
+ 	truncate_inode_pages_final(&inode->i_data);
+ 	invalidate_inode_buffers(inode);
+ 	clear_inode(inode);
+-	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
+-	    inode->i_size != iinfo->i_lenExtents) {
+-		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
+-			 inode->i_ino, inode->i_mode,
+-			 (unsigned long long)inode->i_size,
+-			 (unsigned long long)iinfo->i_lenExtents);
+-	}
+ 	kfree(iinfo->i_ext.i_data);
+ 	iinfo->i_ext.i_data = NULL;
+ 	udf_clear_extent_cache(inode);
 -- 
 2.25.1
 
