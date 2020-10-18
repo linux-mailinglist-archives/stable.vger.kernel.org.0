@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1C5291E59
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5CB291E53
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbgJRTw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32874 "EHLO mail.kernel.org"
+        id S1729428AbgJRTwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbgJRTVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:21:03 -0400
+        id S1729191AbgJRTVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:21:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA7A5222EB;
-        Sun, 18 Oct 2020 19:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17D50222EA;
+        Sun, 18 Oct 2020 19:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048862;
-        bh=+m6xu3aGhCkPp0WNGUiov9exqKq/HXvY0saNarZFAsA=;
+        s=default; t=1603048863;
+        bh=yq0gWSECjPQM66kKtNub8gytoCMnqfIguqqQEgqvihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcmvQ9RdrP6xqSGOIYpVRiHUGhWTRzukbbmUsOC5zefE1uBdelgSBMe+msL7aKhtM
-         iQlc3QgA7KsreTthwwVpbTDrU5SNoa5rA28yFlv5bH0u4oB6WGAIH0nuhEorU1Fly0
-         GIG/nsX2WMPtA8MQRXuO4fmG4FVxcGqtVvUgTjTQ=
+        b=HpCShYFX3uRajgJ1BXEBeVD35C9VTuEHyazVXoQTd5V2wHjvvwd6BV1Y46XX9BGnw
+         pTF+PzDtJnrilZHiCypdetZ4FiS28hEd0zZiy3RoUoerNxxUxFHKaJJJf29bYGAy13
+         D4u8/njKioNadLTeXjMMJsA6Jhp4ZH4GtsDi2CLU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vikash Garodia <vgarodia@codeaurora.org>,
-        Fritz Koenig <frkoenig@chromium.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 029/101] media: venus: fixes for list corruption
-Date:   Sun, 18 Oct 2020 15:19:14 -0400
-Message-Id: <20201018192026.4053674-29-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.8 030/101] fs: dlm: fix configfs memory leak
+Date:   Sun, 18 Oct 2020 15:19:15 -0400
+Message-Id: <20201018192026.4053674-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -45,77 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Garodia <vgarodia@codeaurora.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit e1c69c4eef61ffe295b747992c6fd849e6cd747d ]
+[ Upstream commit 3d2825c8c6105b0f36f3ff72760799fa2e71420e ]
 
-There are few list handling issues while adding and deleting
-node in the registered buf list in the driver.
-1. list addition - buffer added into the list during buf_init
-while not deleted during cleanup.
-2. list deletion - In capture streamoff, the list was reinitialized.
-As a result, if any node was present in the list, it would
-lead to issue while cleaning up that node during buf_cleanup.
+This patch fixes the following memory detected by kmemleak and umount
+gfs2 filesystem which removed the last lockspace:
 
-Corresponding call traces below:
-[  165.751014] Call trace:
-[  165.753541]  __list_add_valid+0x58/0x88
-[  165.757532]  venus_helper_vb2_buf_init+0x74/0xa8 [venus_core]
-[  165.763450]  vdec_buf_init+0x34/0xb4 [venus_dec]
-[  165.768271]  __buf_prepare+0x598/0x8a0 [videobuf2_common]
-[  165.773820]  vb2_core_qbuf+0xb4/0x334 [videobuf2_common]
-[  165.779298]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
-[  165.784053]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
-[  165.789067]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
-[  165.794624]  v4l_qbuf+0x48/0x58
+unreferenced object 0xffff9264f482f600 (size 192):
+  comm "dlm_controld", pid 325, jiffies 4294690276 (age 48.136s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 6e 6f 64 65 73 00 00 00  ........nodes...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000060481d7>] make_space+0x41/0x130
+    [<000000008d905d46>] configfs_mkdir+0x1a2/0x5f0
+    [<00000000729502cf>] vfs_mkdir+0x155/0x210
+    [<000000000369bcf1>] do_mkdirat+0x6d/0x110
+    [<00000000cc478a33>] do_syscall_64+0x33/0x40
+    [<00000000ce9ccf01>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-[ 1797.556001] Call trace:
-[ 1797.558516]  __list_del_entry_valid+0x88/0x9c
-[ 1797.562989]  vdec_buf_cleanup+0x54/0x228 [venus_dec]
-[ 1797.568088]  __buf_prepare+0x270/0x8a0 [videobuf2_common]
-[ 1797.573625]  vb2_core_qbuf+0xb4/0x338 [videobuf2_common]
-[ 1797.579082]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
-[ 1797.583830]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
-[ 1797.588843]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
-[ 1797.594389]  v4l_qbuf+0x48/0x58
+The patch just remembers the "nodes" entry pointer in space as I think
+it's created as subdirectory when parent "spaces" is created. In
+function drop_space() we will lost the pointer reference to nds because
+configfs_remove_default_groups(). However as this subdirectory is always
+available when "spaces" exists it will just be freed when "spaces" will be
+freed.
 
-Signed-off-by: Vikash Garodia <vgarodia@codeaurora.org>
-Reviewed-by: Fritz Koenig <frkoenig@chromium.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/vdec.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/dlm/config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
-index 7c4c483d54389..76be14efbfb09 100644
---- a/drivers/media/platform/qcom/venus/vdec.c
-+++ b/drivers/media/platform/qcom/venus/vdec.c
-@@ -1088,8 +1088,6 @@ static int vdec_stop_capture(struct venus_inst *inst)
- 		break;
- 	}
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 3b21082e1b550..3b1012a3c4396 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -216,6 +216,7 @@ struct dlm_space {
+ 	struct list_head members;
+ 	struct mutex members_lock;
+ 	int members_count;
++	struct dlm_nodes *nds;
+ };
  
--	INIT_LIST_HEAD(&inst->registeredbufs);
--
- 	return ret;
+ struct dlm_comms {
+@@ -424,6 +425,7 @@ static struct config_group *make_space(struct config_group *g, const char *name)
+ 	INIT_LIST_HEAD(&sp->members);
+ 	mutex_init(&sp->members_lock);
+ 	sp->members_count = 0;
++	sp->nds = nds;
+ 	return &sp->group;
+ 
+  fail:
+@@ -445,6 +447,7 @@ static void drop_space(struct config_group *g, struct config_item *i)
+ static void release_space(struct config_item *i)
+ {
+ 	struct dlm_space *sp = config_item_to_space(i);
++	kfree(sp->nds);
+ 	kfree(sp);
  }
  
-@@ -1189,6 +1187,14 @@ static int vdec_buf_init(struct vb2_buffer *vb)
- static void vdec_buf_cleanup(struct vb2_buffer *vb)
- {
- 	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
-+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
-+	struct venus_buffer *buf = to_venus_buffer(vbuf);
-+
-+	mutex_lock(&inst->lock);
-+	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
-+		if (!list_empty(&inst->registeredbufs))
-+			list_del_init(&buf->reg_list);
-+	mutex_unlock(&inst->lock);
- 
- 	inst->buf_count--;
- 	if (!inst->buf_count)
 -- 
 2.25.1
 
