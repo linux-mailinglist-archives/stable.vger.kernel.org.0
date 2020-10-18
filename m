@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 823EF291BA5
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB14291BB4
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731878AbgJRT0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:26:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
+        id S1731814AbgJRTdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:33:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731824AbgJRT0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:26:49 -0400
+        id S1731842AbgJRT0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:26:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C32CB222EB;
-        Sun, 18 Oct 2020 19:26:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3FF1222E7;
+        Sun, 18 Oct 2020 19:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049208;
-        bh=Wxi1XBhGF/wh1370KrNDn2t5GpIdHOqlEnjSG0PyVcI=;
+        s=default; t=1603049209;
+        bh=5uoHFF2A2jlM1VPWPJgzLbjYCdlZhhicwnt+SDr7LNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HcUe2L6bOphGdf26XeD/Sy0JjQYnu2DVLKujMgbtr4kj9CjM4Lao8gB2yWMTt1eVc
-         dZ0ret4/huTQHsUZblRz4OmiXdgio0DcHo1BeSwFRIYfj6jZmjRTnY7X+kunQR+keA
-         NiTkPn86Or+07LxjOS/v29QIbfW+uLkRnNZyD4Fo=
+        b=bt+Lj8heAUUQaqq6GW/6u165DSPg+XUswRM0RgXyjJA0r/NjKG7RGgVT+8+aweLGy
+         IGSNrAchgsCDZYNgKmUePhNcvXStfFzw58aPU4ZflTFcBVwErvV3DPvEFYTkNym3bl
+         pqhXXuKmoIb+Qxp2a/DADBG2Q/qfsG3FhZetyKtE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/41] media: platform: sti: hva: Fix runtime PM imbalance on error
-Date:   Sun, 18 Oct 2020 15:26:03 -0400
-Message-Id: <20201018192635.4056198-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/41] media: bdisp: Fix runtime PM imbalance on error
+Date:   Sun, 18 Oct 2020 15:26:04 -0400
+Message-Id: <20201018192635.4056198-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192635.4056198-1-sashal@kernel.org>
 References: <20201018192635.4056198-1-sashal@kernel.org>
@@ -45,33 +46,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit d912a1d9e9afe69c6066c1ceb6bfc09063074075 ]
+[ Upstream commit dbd2f2dc025f9be8ae063e4f270099677238f620 ]
 
 pm_runtime_get_sync() increments the runtime PM usage counter even
 when it returns an error code. Thus a pairing decrement is needed on
 the error handling path to keep the counter balanced.
 
 Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/hva/hva-hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
-index cf2a8d8845367..c4d97fb80aaec 100644
---- a/drivers/media/platform/sti/hva/hva-hw.c
-+++ b/drivers/media/platform/sti/hva/hva-hw.c
-@@ -389,7 +389,7 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
+diff --git a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+index d88c9ba401b5d..bec4278401b2a 100644
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -1366,7 +1366,7 @@ static int bdisp_probe(struct platform_device *pdev)
  	ret = pm_runtime_get_sync(dev);
  	if (ret < 0) {
- 		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
--		goto err_clk;
+ 		dev_err(dev, "failed to set PM\n");
+-		goto err_dbg;
 +		goto err_pm;
  	}
  
- 	/* check IP hardware version */
+ 	/* Filters */
+@@ -1394,7 +1394,6 @@ static int bdisp_probe(struct platform_device *pdev)
+ 	bdisp_hw_free_filters(bdisp->dev);
+ err_pm:
+ 	pm_runtime_put(dev);
+-err_dbg:
+ 	bdisp_debugfs_remove(bdisp);
+ err_v4l2:
+ 	v4l2_device_unregister(&bdisp->v4l2_dev);
 -- 
 2.25.1
 
