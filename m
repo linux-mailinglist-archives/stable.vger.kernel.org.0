@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A41291EA1
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75861291EA6
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:54:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbgJRTUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:20:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59954 "EHLO mail.kernel.org"
+        id S1728880AbgJRTU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728824AbgJRTUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:20:24 -0400
+        id S1728874AbgJRTU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:20:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6010222B9;
-        Sun, 18 Oct 2020 19:20:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D190A222B9;
+        Sun, 18 Oct 2020 19:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048823;
-        bh=og7teVhvN4vcGvdScK1wcCLZyTGXDMzKSJjn00EVR/8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hdsh6pK9mXiaB0hRbwQsg5iOQeJCUzjdldzd41sflqlK4fsEYhEEv4pSP/3QdOKd/
-         gS8b8zMsx2uu+Cfg2E5WIgnNrNAHVHLYdV+P0DcmAdC+uJ0nnr6fYeNJvcvROturkI
-         EOSPGuTgM0MV0c5CXJTqxDnRlyltLoM+yaEPSwI4=
+        s=default; t=1603048828;
+        bh=s0/RFL6KuD/rXT5ExrOUu6B75yi54Z7D0EtZWLZhuRQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZuA/fpWwkuWQaNlCIR2zcmfV33rbs/qU7joBz1NzPPnYaqkHkdIMVxqiPiKZV9OlF
+         BT8ZDm2mRLFswAzJ3BQG96gVViLDU4hNf32QdCJLJk0o8v0Lr+K4kC/xoKspBkuWeY
+         YO1vLd3M3niHwyXcA5rxlMR5rs17+x2DMxH7vE1A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 111/111] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
-Date:   Sun, 18 Oct 2020 15:18:07 -0400
-Message-Id: <20201018191807.4052726-111-sashal@kernel.org>
+Cc:     Zhao Heming <heming.zhao@suse.com>,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 001/101] md/bitmap: fix memory leak of temporary bitmap
+Date:   Sun, 18 Oct 2020 15:18:46 -0400
+Message-Id: <20201018192026.4053674-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
-References: <20201018191807.4052726-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,66 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Zhao Heming <heming.zhao@suse.com>
 
-[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
+[ Upstream commit 1383b347a8ae4a69c04ae3746e6cb5c8d38e2585 ]
 
-The idx in __ath10k_htt_rx_ring_fill_n function lives in
-consistent dma region writable by the device. Malfunctional
-or malicious device could manipulate such idx to have a OOB
-write. Either by
-    htt->rx_ring.netbufs_ring[idx] = skb;
-or by
-    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
+Callers of get_bitmap_from_slot() are responsible to free the bitmap.
 
-The idx can also be negative as it's signed, giving a large
-memory space to write to.
-
-It's possibly exploitable by corruptting a legit pointer with
-a skb pointer. And then fill skb with payload as rougue object.
-
-Part of the log here. Sometimes it appears as UAF when writing
-to a freed memory by chance.
-
- [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
- [   15.595483] #PF: supervisor write access in kernel mode
- [   15.596250] #PF: error_code(0x0002) - not-present page
- [   15.597013] PGD 0 P4D 0
- [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
- [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
- [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
- BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
- [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
- [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
- (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
+Suggested-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Zhao Heming <heming.zhao@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/md/md-bitmap.c  | 3 ++-
+ drivers/md/md-cluster.c | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index d787cbead56ab..215ade6faf328 100644
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -142,6 +142,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
- 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index 95a5f3757fa30..19b2601be3c5e 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -1949,6 +1949,7 @@ int md_bitmap_load(struct mddev *mddev)
+ }
+ EXPORT_SYMBOL_GPL(md_bitmap_load);
  
- 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
-+
-+	if (idx < 0 || idx >= htt->rx_ring.size) {
-+		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
-+		idx &= htt->rx_ring.size_mask;
-+		ret = -ENOMEM;
-+		goto fail;
-+	}
-+
- 	while (num > 0) {
- 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
- 		if (!skb) {
++/* caller need to free returned bitmap with md_bitmap_free() */
+ struct bitmap *get_bitmap_from_slot(struct mddev *mddev, int slot)
+ {
+ 	int rv = 0;
+@@ -2012,6 +2013,7 @@ int md_bitmap_copy_from_slot(struct mddev *mddev, int slot,
+ 	md_bitmap_unplug(mddev->bitmap);
+ 	*low = lo;
+ 	*high = hi;
++	md_bitmap_free(bitmap);
+ 
+ 	return rv;
+ }
+@@ -2615,4 +2617,3 @@ struct attribute_group md_bitmap_group = {
+ 	.name = "bitmap",
+ 	.attrs = md_bitmap_attrs,
+ };
+-
+diff --git a/drivers/md/md-cluster.c b/drivers/md/md-cluster.c
+index d50737ec40394..afbbc552c3275 100644
+--- a/drivers/md/md-cluster.c
++++ b/drivers/md/md-cluster.c
+@@ -1166,6 +1166,7 @@ static int resize_bitmaps(struct mddev *mddev, sector_t newsize, sector_t oldsiz
+ 			 * can't resize bitmap
+ 			 */
+ 			goto out;
++		md_bitmap_free(bitmap);
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
