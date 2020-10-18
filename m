@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F379291C73
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABB1291C71
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731168AbgJRTZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
+        id S1732754AbgJRTiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:38:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731167AbgJRTZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:25:09 -0400
+        id S1731173AbgJRTZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:25:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EED5C2137B;
-        Sun, 18 Oct 2020 19:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34397222EA;
+        Sun, 18 Oct 2020 19:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049108;
-        bh=8wlKawfhytZkCmkTMNOR1p8shCmwP4n+GekvhZnIxEY=;
+        s=default; t=1603049110;
+        bh=y5uEBq0CMBZP0Qcq7Mbc5G5pWK9ose4iPnukaUataFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMPRtP/xW7FWdGiZDJ9Liu8VGAkRSNc491ue+J5iF/S+Ul9O4j1pW+jk0XD/dNwg+
-         wKerzlz2rqJOgesBZBnXbZzvGyFEUISOmgm8J3uGzfQeJG4ubLCIh/ZYHpoqIcUbjX
-         2WjfSn65mh5FuiXb1BNZ4+ajxftOHCn+/Xej12aE=
+        b=BhcBlzQimQIRVnUSSDPjbdioXATQPeX19ISTcF5wplWpFvc1ESWycF15Lhgz+Ycsa
+         gFUpWfWSTiTZMxDoQjc8pjh94qEjiAzKEXwWgT/TBV79P70xB156sBaK5lBpDwWDLp
+         rQrVfhFeY+LMGljSxrYxVFZKRn7n8A2fVqyBT8/A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 42/56] scsi: ibmvfc: Fix error return in ibmvfc_probe()
-Date:   Sun, 18 Oct 2020 15:24:03 -0400
-Message-Id: <20201018192417.4055228-42-sashal@kernel.org>
+Cc:     Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 43/56] brcmsmac: fix memory leak in wlc_phy_attach_lcnphy
+Date:   Sun, 18 Oct 2020 15:24:04 -0400
+Message-Id: <20201018192417.4055228-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192417.4055228-1-sashal@kernel.org>
 References: <20201018192417.4055228-1-sashal@kernel.org>
@@ -44,34 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 5e48a084f4e824e1b624d3fd7ddcf53d2ba69e53 ]
+[ Upstream commit f4443293d741d1776b86ed1dd8c4e4285d0775fc ]
 
-Fix to return error code PTR_ERR() from the error handling case instead of
-0.
+When wlc_phy_txpwr_srom_read_lcnphy fails in wlc_phy_attach_lcnphy,
+the allocated pi->u.pi_lcnphy is leaked, since struct brcms_phy will be
+freed in the caller function.
 
-Link: https://lore.kernel.org/r/20200907083949.154251-1-jingxiangfeng@huawei.com
-Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by calling wlc_phy_detach_lcnphy in the error handler of
+wlc_phy_txpwr_srom_read_lcnphy before returning.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200908121743.23108-1-keitasuzuki.park@sslab.ics.keio.ac.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 71d53bb239e25..090ab377f65e5 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -4795,6 +4795,7 @@ static int ibmvfc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 	if (IS_ERR(vhost->work_thread)) {
- 		dev_err(dev, "Couldn't create kernel thread: %ld\n",
- 			PTR_ERR(vhost->work_thread));
-+		rc = PTR_ERR(vhost->work_thread);
- 		goto free_host_mem;
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+index 9fb0d9fbd9395..d532decc15383 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+@@ -5085,8 +5085,10 @@ bool wlc_phy_attach_lcnphy(struct brcms_phy *pi)
+ 	pi->pi_fptr.radioloftget = wlc_lcnphy_get_radio_loft;
+ 	pi->pi_fptr.detach = wlc_phy_detach_lcnphy;
  
+-	if (!wlc_phy_txpwr_srom_read_lcnphy(pi))
++	if (!wlc_phy_txpwr_srom_read_lcnphy(pi)) {
++		kfree(pi->u.pi_lcnphy);
+ 		return false;
++	}
+ 
+ 	if (LCNREV_IS(pi->pubpi.phy_rev, 1)) {
+ 		if (pi_lcn->lcnphy_tempsense_option == 3) {
 -- 
 2.25.1
 
