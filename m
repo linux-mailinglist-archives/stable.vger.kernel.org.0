@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181E6291BFE
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F421291BFC
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:35:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731624AbgJRT0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731631AbgJRT0T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 18 Oct 2020 15:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41392 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731618AbgJRT0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731619AbgJRT0S (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 18 Oct 2020 15:26:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE268207DE;
-        Sun, 18 Oct 2020 19:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EF66222EC;
+        Sun, 18 Oct 2020 19:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049175;
-        bh=GwReP5S7w2Fjy/LChrZty43c7cfGrzddYTZbZCLqK08=;
+        s=default; t=1603049177;
+        bh=l83XoGev7/j113GM7Lzz2Jh5ztG8Aodju2TukKVp2fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oi1qaE53fLZ5RauzVJzjcW1Rgacfy2gp6DZ7Z4pW02wt1JeW4v7MKojjpbfpcnPOq
-         R/O9QDKdJSjC4wC/ZVR/8tVaFrOmikExTtka8LDB0w9oRODWcoVv3siBCJWbQavhL0
-         JgzWIpr5u6oYa1kIZoKle8wD873L4RHZWdST8+Io=
+        b=Q/ah7KCN/1foFXdVC1MgkApg4iFIa3EHBR9jR4xw8u+IFZx8lRGPFKhGQcSfchLwS
+         eLwH+Sn7Mhlsh80FONCjttjCeGIP0fN0RpdYaw1eW/JMEywBtovQQz4mDfuaPnm3aq
+         w6036LNBDWD41rcVoIlurh0i2nzcxZk/ES87N2vs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
-        Manish Mandlik <mmandlik@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 38/52] Bluetooth: Only mark socket zapped after unlocking
-Date:   Sun, 18 Oct 2020 15:25:15 -0400
-Message-Id: <20201018192530.4055730-38-sashal@kernel.org>
+Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 39/52] scsi: ibmvfc: Fix error return in ibmvfc_probe()
+Date:   Sun, 18 Oct 2020 15:25:16 -0400
+Message-Id: <20201018192530.4055730-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192530.4055730-1-sashal@kernel.org>
 References: <20201018192530.4055730-1-sashal@kernel.org>
@@ -45,71 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
+[ Upstream commit 5e48a084f4e824e1b624d3fd7ddcf53d2ba69e53 ]
 
-Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
-setting the socket as zapped, it could potentially race with
-l2cap_sock_release which frees the socket. Thus, wait until the cleanup
-is complete before marking the socket as zapped.
+Fix to return error code PTR_ERR() from the error handling case instead of
+0.
 
-This race was reproduced on a JBL GO speaker after the remote device
-rejected L2CAP connection due to resource unavailability.
-
-Here is a dmesg log with debug logs from a repro of this bug:
-[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
-[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
-[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
-[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
-[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
-[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
-[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
-[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
-[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
-[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
-[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
-[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
-[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
-[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
-[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-[ 3465.430332] Causing a watchdog bite!
-
-Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
-Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20200907083949.154251-1-jingxiangfeng@huawei.com
+Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index 511a1da6ca971..3c4e56167a760 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1342,8 +1342,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
- 
- 	parent = bt_sk(sk)->parent;
- 
--	sock_set_flag(sk, SOCK_ZAPPED);
--
- 	switch (chan->state) {
- 	case BT_OPEN:
- 	case BT_BOUND:
-@@ -1370,8 +1368,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
- 
- 		break;
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index 34612add3829f..dbacd9830d3df 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -4797,6 +4797,7 @@ static int ibmvfc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 	if (IS_ERR(vhost->work_thread)) {
+ 		dev_err(dev, "Couldn't create kernel thread: %ld\n",
+ 			PTR_ERR(vhost->work_thread));
++		rc = PTR_ERR(vhost->work_thread);
+ 		goto free_host_mem;
  	}
--
- 	release_sock(sk);
-+
-+	/* Only zap after cleanup to avoid use after free race */
-+	sock_set_flag(sk, SOCK_ZAPPED);
-+
- }
  
- static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
 -- 
 2.25.1
 
