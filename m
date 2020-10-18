@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2982B291AE0
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69220291B71
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732084AbgJRT10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:27:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43236 "EHLO mail.kernel.org"
+        id S1732282AbgJRTbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgJRT10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:27:26 -0400
+        id S1732083AbgJRT11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:27:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FEAC207DE;
-        Sun, 18 Oct 2020 19:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62F0E22273;
+        Sun, 18 Oct 2020 19:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049245;
-        bh=gzZhv0vxwAseOChN9Gr4jeyJXvCLNj1Lc/qd9dh4pHY=;
+        s=default; t=1603049246;
+        bh=+o/6cz51jcR3bkKKYls59uylCP3asuUJzRmWDyWyUlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgVeOTscp2d3zXAar48mUzx+j6OLX/ffrJUg6U1jIuWtOhIEJtbMmPl5qNQhAK3sX
-         FcZEDayxJopws/xy3Ozeflo9Tbhgr0dP0Q9FJdSZq8zkaM8b3iqDJBtD7JcuEZCZ96
-         PI+7PDXQVp3s9ShAvN9NAldv3nBOSjhcuq1BhX8s=
+        b=yqKz/RSvbIr9iM6wkGM/+49EDdQITwZU7dkMNVYFEisLgTC3Sy7pQxDWhvLM5sEOQ
+         M1dTVTjEPV2TCMICtRcakIHR0/FsIbZPVGkgRryYbFz+04xFRBpdzFZOBPJM/AL1z6
+         IPc/xYn71JXEnN9/+5fDQuMIw3A+nGiLFcOHtgIY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Billauer <eli.billauer@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 40/41] usb: core: Solve race condition in anchor cleanup functions
-Date:   Sun, 18 Oct 2020 15:26:34 -0400
-Message-Id: <20201018192635.4056198-40-sashal@kernel.org>
+Cc:     Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 41/41] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
+Date:   Sun, 18 Oct 2020 15:26:35 -0400
+Message-Id: <20201018192635.4056198-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192635.4056198-1-sashal@kernel.org>
 References: <20201018192635.4056198-1-sashal@kernel.org>
@@ -44,200 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Billauer <eli.billauer@gmail.com>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit fbc299437c06648afcc7891e6e2e6638dd48d4df ]
+[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
 
-usb_kill_anchored_urbs() is commonly used to cancel all URBs on an
-anchor just before releasing resources which the URBs rely on. By doing
-so, users of this function rely on that no completer callbacks will take
-place from any URB on the anchor after it returns.
+The idx in __ath10k_htt_rx_ring_fill_n function lives in
+consistent dma region writable by the device. Malfunctional
+or malicious device could manipulate such idx to have a OOB
+write. Either by
+    htt->rx_ring.netbufs_ring[idx] = skb;
+or by
+    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
 
-However if this function is called in parallel with __usb_hcd_giveback_urb
-processing a URB on the anchor, the latter may call the completer
-callback after usb_kill_anchored_urbs() returns. This can lead to a
-kernel panic due to use after release of memory in interrupt context.
+The idx can also be negative as it's signed, giving a large
+memory space to write to.
 
-The race condition is that __usb_hcd_giveback_urb() first unanchors the URB
-and then makes the completer callback. Such URB is hence invisible to
-usb_kill_anchored_urbs(), allowing it to return before the completer has
-been called, since the anchor's urb_list is empty.
+It's possibly exploitable by corruptting a legit pointer with
+a skb pointer. And then fill skb with payload as rougue object.
 
-Even worse, if the racing completer callback resubmits the URB, it may
-remain in the system long after usb_kill_anchored_urbs() returns.
+Part of the log here. Sometimes it appears as UAF when writing
+to a freed memory by chance.
 
-Hence list_empty(&anchor->urb_list), which is used in the existing
-while-loop, doesn't reliably ensure that all URBs of the anchor are gone.
+ [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
+ [   15.595483] #PF: supervisor write access in kernel mode
+ [   15.596250] #PF: error_code(0x0002) - not-present page
+ [   15.597013] PGD 0 P4D 0
+ [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
+ [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
+ [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+ BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
+ [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
+ (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
 
-A similar problem exists with usb_poison_anchored_urbs() and
-usb_scuttle_anchored_urbs().
-
-This patch adds an external do-while loop, which ensures that all URBs
-are indeed handled before these three functions return. This change has
-no effect at all unless the race condition occurs, in which case the
-loop will busy-wait until the racing completer callback has finished.
-This is a rare condition, so the CPU waste of this spinning is
-negligible.
-
-The additional do-while loop relies on usb_anchor_check_wakeup(), which
-returns true iff the anchor list is empty, and there is no
-__usb_hcd_giveback_urb() in the system that is in the middle of the
-unanchor-before-complete phase. The @suspend_wakeups member of
-struct usb_anchor is used for this purpose, which was introduced to solve
-another problem which the same race condition causes, in commit
-6ec4147e7bdb ("usb-anchor: Delay usb_wait_anchor_empty_timeout wake up
-till completion is done").
-
-The surely_empty variable is necessary, because usb_anchor_check_wakeup()
-must be called with the lock held to prevent races. However the spinlock
-must be released and reacquired if the outer loop spins with an empty
-URB list while waiting for the unanchor-before-complete passage to finish:
-The completer callback may very well attempt to take the very same lock.
-
-To summarize, using usb_anchor_check_wakeup() means that the patched
-functions can return only when the anchor's list is empty, and there is
-no invisible URB being processed. Since the inner while loop finishes on
-the empty list condition, the new do-while loop will terminate as well,
-except for when the said race condition occurs.
-
-Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200731054650.30644-1-eli.billauer@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/urb.c | 89 +++++++++++++++++++++++++-----------------
- 1 file changed, 54 insertions(+), 35 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
-index 56dcc0820898c..6785ebc078047 100644
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -765,11 +765,12 @@ void usb_block_urb(struct urb *urb)
- EXPORT_SYMBOL_GPL(usb_block_urb);
+diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
+index a3c2180475971..fce2064ebc469 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -100,6 +100,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
+ 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
  
- /**
-- * usb_kill_anchored_urbs - cancel transfer requests en masse
-+ * usb_kill_anchored_urbs - kill all URBs associated with an anchor
-  * @anchor: anchor the requests are bound to
-  *
-- * this allows all outstanding URBs to be killed starting
-- * from the back of the queue
-+ * This kills all outstanding URBs starting from the back of the queue,
-+ * with guarantee that no completer callbacks will take place from the
-+ * anchor after this function returns.
-  *
-  * This routine should not be called by a driver after its disconnect
-  * method has returned.
-@@ -777,20 +778,26 @@ EXPORT_SYMBOL_GPL(usb_block_urb);
- void usb_kill_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
-+	int surely_empty;
- 
--	spin_lock_irq(&anchor->lock);
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		/* we must make sure the URB isn't freed before we kill it*/
--		usb_get_urb(victim);
--		spin_unlock_irq(&anchor->lock);
--		/* this will unanchor the URB */
--		usb_kill_urb(victim);
--		usb_put_urb(victim);
-+	do {
- 		spin_lock_irq(&anchor->lock);
--	}
--	spin_unlock_irq(&anchor->lock);
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			/* make sure the URB isn't freed before we kill it */
-+			usb_get_urb(victim);
-+			spin_unlock_irq(&anchor->lock);
-+			/* this will unanchor the URB */
-+			usb_kill_urb(victim);
-+			usb_put_urb(victim);
-+			spin_lock_irq(&anchor->lock);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
+ 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
 +
-+		spin_unlock_irq(&anchor->lock);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
- EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
- 
-@@ -809,21 +816,27 @@ EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
- void usb_poison_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
-+	int surely_empty;
- 
--	spin_lock_irq(&anchor->lock);
--	anchor->poisoned = 1;
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		/* we must make sure the URB isn't freed before we kill it*/
--		usb_get_urb(victim);
--		spin_unlock_irq(&anchor->lock);
--		/* this will unanchor the URB */
--		usb_poison_urb(victim);
--		usb_put_urb(victim);
-+	do {
- 		spin_lock_irq(&anchor->lock);
--	}
--	spin_unlock_irq(&anchor->lock);
-+		anchor->poisoned = 1;
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			/* make sure the URB isn't freed before we kill it */
-+			usb_get_urb(victim);
-+			spin_unlock_irq(&anchor->lock);
-+			/* this will unanchor the URB */
-+			usb_poison_urb(victim);
-+			usb_put_urb(victim);
-+			spin_lock_irq(&anchor->lock);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
++	if (idx < 0 || idx >= htt->rx_ring.size) {
++		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
++		idx &= htt->rx_ring.size_mask;
++		ret = -ENOMEM;
++		goto fail;
++	}
 +
-+		spin_unlock_irq(&anchor->lock);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
- EXPORT_SYMBOL_GPL(usb_poison_anchored_urbs);
- 
-@@ -963,14 +976,20 @@ void usb_scuttle_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
- 	unsigned long flags;
-+	int surely_empty;
-+
-+	do {
-+		spin_lock_irqsave(&anchor->lock, flags);
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			__usb_unanchor_urb(victim, anchor);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
- 
--	spin_lock_irqsave(&anchor->lock, flags);
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		__usb_unanchor_urb(victim, anchor);
--	}
--	spin_unlock_irqrestore(&anchor->lock, flags);
-+		spin_unlock_irqrestore(&anchor->lock, flags);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
- 
- EXPORT_SYMBOL_GPL(usb_scuttle_anchored_urbs);
+ 	while (num > 0) {
+ 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
+ 		if (!skb) {
 -- 
 2.25.1
 
