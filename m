@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E87F7291F2D
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3F4291F27
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727235AbgJRT6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:58:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
+        id S1728114AbgJRT5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728111AbgJRTTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:19:13 -0400
+        id S1728117AbgJRTTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:19:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E528222E9;
-        Sun, 18 Oct 2020 19:19:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BA4F222EB;
+        Sun, 18 Oct 2020 19:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048753;
-        bh=bzQkU9Qz/bjx/6kjfzTUK0k/Vqf0K+PBXgMc+qXaGXA=;
+        s=default; t=1603048754;
+        bh=Il9Br0hKPkszm54/JVjOqIIyHlDSaKWZbOXM3vOFJvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twTgXtFVFSQBbeDqKxD9Gn328IbR1py6dJczGbeCjgsYYWMinb7lpyVZ4fdjyt5wa
-         lHNQ9Pq6iI9kDL/XidrpIJ12x/W+lOSNld67RJrZu5uLeuM9DiZwUO4qVDsvwv+T8O
-         KtjgeU4bQamZ6n6apQ35VEI5kcNy0GKWqtoi8CmQ=
+        b=HrC3Ta7h63uoW5XzmWTx3N8H3yStHqAznV4wgv5uYUyoGNcFe1y/BQ/pPbJ3lRXRx
+         iejzdq4By1kPP4mUsVMFFZz+chZtC/O0cqw9/vHW+DGgxy41FbLL9Rkaa6hdcBA5rX
+         7VLN7rdnz3cthD1RhCrC10eV2NDfxpuCk2JC1lz8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 054/111] USB: cdc-acm: handle broken union descriptors
-Date:   Sun, 18 Oct 2020 15:17:10 -0400
-Message-Id: <20201018191807.4052726-54-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 055/111] mt76: mt7915: do not do any work in napi poll after calling napi_complete_done()
+Date:   Sun, 18 Oct 2020 15:17:11 -0400
+Message-Id: <20201018191807.4052726-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -44,59 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
+[ Upstream commit 38b04398c532e9bb9aa90fc07846ad0b0845fe94 ]
 
-Handle broken union functional descriptors where the master-interface
-doesn't exist or where its class is of neither Communication or Data
-type (as required by the specification) by falling back to
-"combined-interface" probing.
+Fixes a race condition where multiple tx cleanup or sta poll tasks could run
+in parallel.
 
-Note that this still allows for handling union descriptors with switched
-interfaces.
-
-This specifically makes the Whistler radio scanners TRX series devices
-work with the driver without adding further quirks to the device-id
-table.
-
-Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/dma.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 7f6f3ab5b8a67..c8fb85a71c3ad 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1243,9 +1243,21 @@ static int acm_probe(struct usb_interface *intf,
- 			}
- 		}
- 	} else {
-+		int class = -1;
-+
- 		data_intf_num = union_header->bSlaveInterface0;
- 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
- 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
-+
-+		if (control_interface)
-+			class = control_interface->cur_altsetting->desc.bInterfaceClass;
-+
-+		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
-+			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
-+			combined_interfaces = 1;
-+			control_interface = data_interface = intf;
-+			goto look_for_collapsed_interface;
-+		}
- 	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+index a8832c5e60041..8a1ae08d9572e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+@@ -95,16 +95,13 @@ static int mt7915_poll_tx(struct napi_struct *napi, int budget)
+ 	dev = container_of(napi, struct mt7915_dev, mt76.tx_napi);
  
- 	if (!control_interface || !data_interface) {
+ 	mt7915_tx_cleanup(dev);
+-
+-	if (napi_complete_done(napi, 0))
+-		mt7915_irq_enable(dev, MT_INT_TX_DONE_ALL);
+-
+-	mt7915_tx_cleanup(dev);
+-
+ 	mt7915_mac_sta_poll(dev);
+ 
+ 	tasklet_schedule(&dev->mt76.tx_tasklet);
+ 
++	if (napi_complete_done(napi, 0))
++		mt7915_irq_enable(dev, MT_INT_TX_DONE_ALL);
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
