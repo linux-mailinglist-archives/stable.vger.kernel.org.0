@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DE1291D89
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C40291D8A
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbgJRTWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:22:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35462 "EHLO mail.kernel.org"
+        id S1730160AbgJRTq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729914AbgJRTWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:22:38 -0400
+        id S1727737AbgJRTWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:22:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C59622225F;
-        Sun, 18 Oct 2020 19:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D36E207DE;
+        Sun, 18 Oct 2020 19:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048957;
-        bh=4ldd25gK/zX+ossEJ9MQrkUp4JrGInDEPle26nbUnyM=;
+        s=default; t=1603048958;
+        bh=xL8ILGkFw6xtr0TGQPiY83B9mEMpc9DCyccn1srqliI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/Y9/jO9DurlEOXoPEwMXRZGISgVzM2cq4VeXsCPXM+1cXKSo7xIWdfY7rV8D33tA
-         P3iJGHtj3zngq7tAC4X5M7b3I2W6POxZSz4JmhZb/iOsj3muNyqcSKh0124oJiHhiU
-         hfZpSlyKmpp7I4ydsJgyTS5NhQ7nDwPnaBeR0P4A=
+        b=OhiXn19vMSpy0vFxuBQkF2S0sEUjYZmVldtaXVQUtrY9CzKA/wbrL7+FbEgi6pbZ8
+         miXLHIcEfrMRgUozR7kBlVmpSiY+7RYfSOBO1inxSNqlswxJef/K4dJCz5LPkSqT2q
+         goBPtbMjyBLmWc1+kwi5UKo5W9XlZHoS/dfBpsG4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
+Cc:     Borislav Petkov <bp@suse.de>,
+        Youquan Song <youquan.song@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 04/80] x86/asm: Replace __force_order with a memory clobber
-Date:   Sun, 18 Oct 2020 15:21:15 -0400
-Message-Id: <20201018192231.4054535-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 05/80] x86/mce: Add Skylake quirk for patrol scrub reported errors
+Date:   Sun, 18 Oct 2020 15:21:16 -0400
+Message-Id: <20201018192231.4054535-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192231.4054535-1-sashal@kernel.org>
 References: <20201018192231.4054535-1-sashal@kernel.org>
@@ -46,175 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit aa5cacdc29d76a005cbbee018a47faa6e724dd2d ]
+[ Upstream commit fd258dc4442c5c1c069c6b5b42bfe7d10cddda95 ]
 
-The CRn accessor functions use __force_order as a dummy operand to
-prevent the compiler from reordering CRn reads/writes with respect to
-each other.
+The patrol scrubber in Skylake and Cascade Lake systems can be configured
+to report uncorrected errors using a special signature in the machine
+check bank and to signal using CMCI instead of machine check.
 
-The fact that the asm is volatile should be enough to prevent this:
-volatile asm statements should be executed in program order. However GCC
-4.9.x and 5.x have a bug that might result in reordering. This was fixed
-in 8.1, 7.3 and 6.5. Versions prior to these, including 5.x and 4.9.x,
-may reorder volatile asm statements with respect to each other.
+Update the severity calculation mechanism to allow specifying the model,
+minimum stepping and range of machine check bank numbers.
 
-There are some issues with __force_order as implemented:
-- It is used only as an input operand for the write functions, and hence
-  doesn't do anything additional to prevent reordering writes.
-- It allows memory accesses to be cached/reordered across write
-  functions, but CRn writes affect the semantics of memory accesses, so
-  this could be dangerous.
-- __force_order is not actually defined in the kernel proper, but the
-  LLVM toolchain can in some cases require a definition: LLVM (as well
-  as GCC 4.9) requires it for PIE code, which is why the compressed
-  kernel has a definition, but also the clang integrated assembler may
-  consider the address of __force_order to be significant, resulting in
-  a reference that requires a definition.
+Add a new rule to detect the special signature (on model 0x55, stepping
+>=4 in any of the memory controller banks).
 
-Fix this by:
-- Using a memory clobber for the write functions to additionally prevent
-  caching/reordering memory accesses across CRn writes.
-- Using a dummy input operand with an arbitrary constant address for the
-  read functions, instead of a global variable. This will prevent reads
-  from being reordered across writes, while allowing memory loads to be
-  cached/reordered across CRn reads, which should be safe.
+ [ bp: Rewrite it.
+   aegl: Productize it. ]
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Suggested-by: Youquan Song <youquan.song@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82602
-Link: https://lore.kernel.org/lkml/20200527135329.1172644-1-arnd@arndb.de/
-Link: https://lkml.kernel.org/r/20200902232152.3709896-1-nivedita@alum.mit.edu
+Co-developed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200930021313.31810-2-tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/pgtable_64.c |  9 ---------
- arch/x86/include/asm/special_insns.h  | 28 ++++++++++++++-------------
- arch/x86/kernel/cpu/common.c          |  4 ++--
- 3 files changed, 17 insertions(+), 24 deletions(-)
+ arch/x86/kernel/cpu/mce/severity.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/pgtable_64.c b/arch/x86/boot/compressed/pgtable_64.c
-index c8862696a47b9..7d0394f4ebf97 100644
---- a/arch/x86/boot/compressed/pgtable_64.c
-+++ b/arch/x86/boot/compressed/pgtable_64.c
-@@ -5,15 +5,6 @@
- #include "pgtable.h"
- #include "../string.h"
+diff --git a/arch/x86/kernel/cpu/mce/severity.c b/arch/x86/kernel/cpu/mce/severity.c
+index 87bcdc6dc2f0c..0d09eb13743b4 100644
+--- a/arch/x86/kernel/cpu/mce/severity.c
++++ b/arch/x86/kernel/cpu/mce/severity.c
+@@ -9,9 +9,11 @@
+ #include <linux/seq_file.h>
+ #include <linux/init.h>
+ #include <linux/debugfs.h>
+-#include <asm/mce.h>
+ #include <linux/uaccess.h>
  
--/*
-- * __force_order is used by special_insns.h asm code to force instruction
-- * serialization.
-- *
-- * It is not referenced from the code, but GCC < 5 with -fPIE would fail
-- * due to an undefined symbol. Define it to make these ancient GCCs work.
-- */
--unsigned long __force_order;
--
- #define BIOS_START_MIN		0x20000U	/* 128K, less than this is insane */
- #define BIOS_START_MAX		0x9f000U	/* 640K, absolute maximum */
- 
-diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-index 6d37b8fcfc778..2e0cdc64cb50d 100644
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -10,45 +10,47 @@
- #include <linux/jump_label.h>
++#include <asm/mce.h>
++#include <asm/intel-family.h>
++
+ #include "internal.h"
  
  /*
-- * Volatile isn't enough to prevent the compiler from reordering the
-- * read/write functions for the control registers and messing everything up.
-- * A memory clobber would solve the problem, but would prevent reordering of
-- * all loads stores around it, which can hurt performance. Solution is to
-- * use a variable and mimic reads and writes to it to enforce serialization
-+ * The compiler should not reorder volatile asm statements with respect to each
-+ * other: they should execute in program order. However GCC 4.9.x and 5.x have
-+ * a bug (which was fixed in 8.1, 7.3 and 6.5) where they might reorder
-+ * volatile asm. The write functions are not affected since they have memory
-+ * clobbers preventing reordering. To prevent reads from being reordered with
-+ * respect to writes, use a dummy memory operand.
-  */
--extern unsigned long __force_order;
-+
-+#define __FORCE_ORDER "m"(*(unsigned int *)0x1000UL)
+@@ -40,9 +42,14 @@ static struct severity {
+ 	unsigned char context;
+ 	unsigned char excp;
+ 	unsigned char covered;
++	unsigned char cpu_model;
++	unsigned char cpu_minstepping;
++	unsigned char bank_lo, bank_hi;
+ 	char *msg;
+ } severities[] = {
+ #define MCESEV(s, m, c...) { .sev = MCE_ ## s ## _SEVERITY, .msg = m, ## c }
++#define BANK_RANGE(l, h) .bank_lo = l, .bank_hi = h
++#define MODEL_STEPPING(m, s) .cpu_model = m, .cpu_minstepping = s
+ #define  KERNEL		.context = IN_KERNEL
+ #define  USER		.context = IN_USER
+ #define  KERNEL_RECOV	.context = IN_KERNEL_RECOV
+@@ -97,7 +104,6 @@ static struct severity {
+ 		KEEP, "Corrected error",
+ 		NOSER, BITCLR(MCI_STATUS_UC)
+ 		),
+-
+ 	/*
+ 	 * known AO MCACODs reported via MCE or CMC:
+ 	 *
+@@ -113,6 +119,18 @@ static struct severity {
+ 		AO, "Action optional: last level cache writeback error",
+ 		SER, MASK(MCI_UC_AR|MCACOD, MCI_STATUS_UC|MCACOD_L3WB)
+ 		),
++	/*
++	 * Quirk for Skylake/Cascade Lake. Patrol scrubber may be configured
++	 * to report uncorrected errors using CMCI with a special signature.
++	 * UC=0, MSCOD=0x0010, MCACOD=binary(000X 0000 1100 XXXX) reported
++	 * in one of the memory controller banks.
++	 * Set severity to "AO" for same action as normal patrol scrub error.
++	 */
++	MCESEV(
++		AO, "Uncorrected Patrol Scrub Error",
++		SER, MASK(MCI_STATUS_UC|MCI_ADDR|0xffffeff0, MCI_ADDR|0x001000c0),
++		MODEL_STEPPING(INTEL_FAM6_SKYLAKE_X, 4), BANK_RANGE(13, 18)
++	),
  
- void native_write_cr0(unsigned long val);
- 
- static inline unsigned long native_read_cr0(void)
- {
- 	unsigned long val;
--	asm volatile("mov %%cr0,%0\n\t" : "=r" (val), "=m" (__force_order));
-+	asm volatile("mov %%cr0,%0\n\t" : "=r" (val) : __FORCE_ORDER);
- 	return val;
- }
- 
- static inline unsigned long native_read_cr2(void)
- {
- 	unsigned long val;
--	asm volatile("mov %%cr2,%0\n\t" : "=r" (val), "=m" (__force_order));
-+	asm volatile("mov %%cr2,%0\n\t" : "=r" (val) : __FORCE_ORDER);
- 	return val;
- }
- 
- static inline void native_write_cr2(unsigned long val)
- {
--	asm volatile("mov %0,%%cr2": : "r" (val), "m" (__force_order));
-+	asm volatile("mov %0,%%cr2": : "r" (val) : "memory");
- }
- 
- static inline unsigned long __native_read_cr3(void)
- {
- 	unsigned long val;
--	asm volatile("mov %%cr3,%0\n\t" : "=r" (val), "=m" (__force_order));
-+	asm volatile("mov %%cr3,%0\n\t" : "=r" (val) : __FORCE_ORDER);
- 	return val;
- }
- 
- static inline void native_write_cr3(unsigned long val)
- {
--	asm volatile("mov %0,%%cr3": : "r" (val), "m" (__force_order));
-+	asm volatile("mov %0,%%cr3": : "r" (val) : "memory");
- }
- 
- static inline unsigned long native_read_cr4(void)
-@@ -63,10 +65,10 @@ static inline unsigned long native_read_cr4(void)
- 	asm volatile("1: mov %%cr4, %0\n"
- 		     "2:\n"
- 		     _ASM_EXTABLE(1b, 2b)
--		     : "=r" (val), "=m" (__force_order) : "0" (0));
-+		     : "=r" (val) : "0" (0), __FORCE_ORDER);
- #else
- 	/* CR4 always exists on x86_64. */
--	asm volatile("mov %%cr4,%0\n\t" : "=r" (val), "=m" (__force_order));
-+	asm volatile("mov %%cr4,%0\n\t" : "=r" (val) : __FORCE_ORDER);
- #endif
- 	return val;
- }
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 9b3f25e146087..8a85c2e144a6f 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -377,7 +377,7 @@ void native_write_cr0(unsigned long val)
- 	unsigned long bits_missing = 0;
- 
- set_register:
--	asm volatile("mov %0,%%cr0": "+r" (val), "+m" (__force_order));
-+	asm volatile("mov %0,%%cr0": "+r" (val) : : "memory");
- 
- 	if (static_branch_likely(&cr_pinning)) {
- 		if (unlikely((val & X86_CR0_WP) != X86_CR0_WP)) {
-@@ -396,7 +396,7 @@ void native_write_cr4(unsigned long val)
- 	unsigned long bits_changed = 0;
- 
- set_register:
--	asm volatile("mov %0,%%cr4": "+r" (val), "+m" (cr4_pinned_bits));
-+	asm volatile("mov %0,%%cr4": "+r" (val) : : "memory");
- 
- 	if (static_branch_likely(&cr_pinning)) {
- 		if (unlikely((val & cr4_pinned_mask) != cr4_pinned_bits)) {
+ 	/* ignore OVER for UCNA */
+ 	MCESEV(
+@@ -320,6 +338,12 @@ static int mce_severity_intel(struct mce *m, int tolerant, char **msg, bool is_e
+ 			continue;
+ 		if (s->excp && excp != s->excp)
+ 			continue;
++		if (s->cpu_model && boot_cpu_data.x86_model != s->cpu_model)
++			continue;
++		if (s->cpu_minstepping && boot_cpu_data.x86_stepping < s->cpu_minstepping)
++			continue;
++		if (s->bank_lo && (m->bank < s->bank_lo || m->bank > s->bank_hi))
++			continue;
+ 		if (msg)
+ 			*msg = s->msg;
+ 		s->covered = 1;
 -- 
 2.25.1
 
