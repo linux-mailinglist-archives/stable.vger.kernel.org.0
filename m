@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 847C3291F46
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90151291F4E
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388495AbgJRT6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
+        id S2388481AbgJRT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:58:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727963AbgJRTS7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727973AbgJRTS7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 18 Oct 2020 15:18:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F0BE222E7;
-        Sun, 18 Oct 2020 19:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB55E222B9;
+        Sun, 18 Oct 2020 19:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048738;
-        bh=rEgEmrRM35eoBqfZs7DdD6giuzYoi6c0bGNFCpKWva4=;
+        s=default; t=1603048739;
+        bh=/h1xhoNENzWz7xFag+CiLh8ZiH59vFAEZBBj7oTBg2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZUOxfAYDD7KRocy3CFtNnOaaECmEH+TTp2/4Q3b8kkAPneBTrUhyIwhGH1Po+i51
-         7hWULoW13bxl2H+8WeDHjsRLckJ5DRppLg1ubj5qZRpIT2mU3v3nMNyiKE8iofDRJM
-         kBMS+/pKNqjEV/SnGy0zxruU1yXnM0SU1pNys6FM=
+        b=eHhpjGuDerafYdF/ub8Q8indf/x5NKMIjiUGnZIXF8RHS+QM2bs12LpBQuGDOKiQH
+         4TzSHMQ/vzNoJpv/qDWFISyUra47QpZ6CB1IViaU976p20ls5b/CU3oB1kY+/PKaz5
+         Zxjqq/PVVBG5xhgQeeu8LmL15dFepPs3QKyI3KEk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 041/111] bpf: Use raw_spin_trylock() for pcpu_freelist_push/pop in NMI
-Date:   Sun, 18 Oct 2020 15:16:57 -0400
-Message-Id: <20201018191807.4052726-41-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 042/111] PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
+Date:   Sun, 18 Oct 2020 15:16:58 -0400
+Message-Id: <20201018191807.4052726-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -44,250 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 39d8f0d1026a990604770a658708f5845f7dbec0 ]
+[ Upstream commit 428805c0c5e76ef643b1fbc893edfb636b3d8aef ]
 
-Recent improvements in LOCKDEP highlighted a potential A-A deadlock with
-pcpu_freelist in NMI:
+get_gendisk grabs a reference on the disk and file operation, so this
+code will leak both of them while having absolutely no use for the
+gendisk itself.
 
-./tools/testing/selftests/bpf/test_progs -t stacktrace_build_id_nmi
+This effectively reverts commit 2df83fa4bce421f ("PM / Hibernate: Use
+get_gendisk to verify partition if resume_file is integer format")
 
-[   18.984807] ================================
-[   18.984807] WARNING: inconsistent lock state
-[   18.984808] 5.9.0-rc6-01771-g1466de1330e1 #2967 Not tainted
-[   18.984809] --------------------------------
-[   18.984809] inconsistent {INITIAL USE} -> {IN-NMI} usage.
-[   18.984810] test_progs/1990 [HC2[2]:SC0[0]:HE0:SE1] takes:
-[   18.984810] ffffe8ffffc219c0 (&head->lock){....}-{2:2}, at: __pcpu_freelist_pop+0xe3/0x180
-[   18.984813] {INITIAL USE} state was registered at:
-[   18.984814]   lock_acquire+0x175/0x7c0
-[   18.984814]   _raw_spin_lock+0x2c/0x40
-[   18.984815]   __pcpu_freelist_pop+0xe3/0x180
-[   18.984815]   pcpu_freelist_pop+0x31/0x40
-[   18.984816]   htab_map_alloc+0xbbf/0xf40
-[   18.984816]   __do_sys_bpf+0x5aa/0x3ed0
-[   18.984817]   do_syscall_64+0x2d/0x40
-[   18.984818]   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   18.984818] irq event stamp: 12
-[...]
-[   18.984822] other info that might help us debug this:
-[   18.984823]  Possible unsafe locking scenario:
-[   18.984823]
-[   18.984824]        CPU0
-[   18.984824]        ----
-[   18.984824]   lock(&head->lock);
-[   18.984826]   <Interrupt>
-[   18.984826]     lock(&head->lock);
-[   18.984827]
-[   18.984828]  *** DEADLOCK ***
-[   18.984828]
-[   18.984829] 2 locks held by test_progs/1990:
-[...]
-[   18.984838]  <NMI>
-[   18.984838]  dump_stack+0x9a/0xd0
-[   18.984839]  lock_acquire+0x5c9/0x7c0
-[   18.984839]  ? lock_release+0x6f0/0x6f0
-[   18.984840]  ? __pcpu_freelist_pop+0xe3/0x180
-[   18.984840]  _raw_spin_lock+0x2c/0x40
-[   18.984841]  ? __pcpu_freelist_pop+0xe3/0x180
-[   18.984841]  __pcpu_freelist_pop+0xe3/0x180
-[   18.984842]  pcpu_freelist_pop+0x17/0x40
-[   18.984842]  ? lock_release+0x6f0/0x6f0
-[   18.984843]  __bpf_get_stackid+0x534/0xaf0
-[   18.984843]  bpf_prog_1fd9e30e1438d3c5_oncpu+0x73/0x350
-[   18.984844]  bpf_overflow_handler+0x12f/0x3f0
-
-This is because pcpu_freelist_head.lock is accessed in both NMI and
-non-NMI context. Fix this issue by using raw_spin_trylock() in NMI.
-
-Since NMI interrupts non-NMI context, when NMI context tries to lock the
-raw_spinlock, non-NMI context of the same CPU may already have locked a
-lock and is blocked from unlocking the lock. For a system with N CPUs,
-there could be N NMIs at the same time, and they may block N non-NMI
-raw_spinlocks. This is tricky for pcpu_freelist_push(), where unlike
-_pop(), failing _push() means leaking memory. This issue is more likely to
-trigger in non-SMP system.
-
-Fix this issue with an extra list, pcpu_freelist.extralist. The extralist
-is primarily used to take _push() when raw_spin_trylock() failed on all
-the per CPU lists. It should be empty most of the time. The following
-table summarizes the behavior of pcpu_freelist in NMI and non-NMI:
-
-non-NMI pop(): 	use _lock(); check per CPU lists first;
-                if all per CPU lists are empty, check extralist;
-                if extralist is empty, return NULL.
-
-non-NMI push(): use _lock(); only push to per CPU lists.
-
-NMI pop():    use _trylock(); check per CPU lists first;
-              if all per CPU lists are locked or empty, check extralist;
-              if extralist is locked or empty, return NULL.
-
-NMI push():   use _trylock(); check per CPU lists first;
-              if all per CPU lists are locked; try push to extralist;
-              if extralist is also locked, keep trying on per CPU lists.
-
-Reported-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20201005165838.3735218-1-songliubraving@fb.com
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/percpu_freelist.c | 101 +++++++++++++++++++++++++++++++++--
- kernel/bpf/percpu_freelist.h |   1 +
- 2 files changed, 97 insertions(+), 5 deletions(-)
+ kernel/power/hibernate.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/kernel/bpf/percpu_freelist.c b/kernel/bpf/percpu_freelist.c
-index b367430e611c7..3d897de890612 100644
---- a/kernel/bpf/percpu_freelist.c
-+++ b/kernel/bpf/percpu_freelist.c
-@@ -17,6 +17,8 @@ int pcpu_freelist_init(struct pcpu_freelist *s)
- 		raw_spin_lock_init(&head->lock);
- 		head->first = NULL;
- 	}
-+	raw_spin_lock_init(&s->extralist.lock);
-+	s->extralist.first = NULL;
- 	return 0;
- }
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 1dee70815f3cd..2fc7d509a34fc 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -946,17 +946,6 @@ static int software_resume(void)
  
-@@ -40,12 +42,50 @@ static inline void ___pcpu_freelist_push(struct pcpu_freelist_head *head,
- 	raw_spin_unlock(&head->lock);
- }
- 
-+static inline bool pcpu_freelist_try_push_extra(struct pcpu_freelist *s,
-+						struct pcpu_freelist_node *node)
-+{
-+	if (!raw_spin_trylock(&s->extralist.lock))
-+		return false;
-+
-+	pcpu_freelist_push_node(&s->extralist, node);
-+	raw_spin_unlock(&s->extralist.lock);
-+	return true;
-+}
-+
-+static inline void ___pcpu_freelist_push_nmi(struct pcpu_freelist *s,
-+					     struct pcpu_freelist_node *node)
-+{
-+	int cpu, orig_cpu;
-+
-+	orig_cpu = cpu = raw_smp_processor_id();
-+	while (1) {
-+		struct pcpu_freelist_head *head;
-+
-+		head = per_cpu_ptr(s->freelist, cpu);
-+		if (raw_spin_trylock(&head->lock)) {
-+			pcpu_freelist_push_node(head, node);
-+			raw_spin_unlock(&head->lock);
-+			return;
-+		}
-+		cpu = cpumask_next(cpu, cpu_possible_mask);
-+		if (cpu >= nr_cpu_ids)
-+			cpu = 0;
-+
-+		/* cannot lock any per cpu lock, try extralist */
-+		if (cpu == orig_cpu &&
-+		    pcpu_freelist_try_push_extra(s, node))
-+			return;
-+	}
-+}
-+
- void __pcpu_freelist_push(struct pcpu_freelist *s,
- 			struct pcpu_freelist_node *node)
- {
--	struct pcpu_freelist_head *head = this_cpu_ptr(s->freelist);
+ 	/* Check if the device is there */
+ 	swsusp_resume_device = name_to_dev_t(resume_file);
 -
--	___pcpu_freelist_push(head, node);
-+	if (in_nmi())
-+		___pcpu_freelist_push_nmi(s, node);
-+	else
-+		___pcpu_freelist_push(this_cpu_ptr(s->freelist), node);
- }
- 
- void pcpu_freelist_push(struct pcpu_freelist *s,
-@@ -81,7 +121,7 @@ void pcpu_freelist_populate(struct pcpu_freelist *s, void *buf, u32 elem_size,
- 	}
- }
- 
--struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
-+static struct pcpu_freelist_node *___pcpu_freelist_pop(struct pcpu_freelist *s)
- {
- 	struct pcpu_freelist_head *head;
- 	struct pcpu_freelist_node *node;
-@@ -102,8 +142,59 @@ struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
- 		if (cpu >= nr_cpu_ids)
- 			cpu = 0;
- 		if (cpu == orig_cpu)
--			return NULL;
-+			break;
-+	}
-+
-+	/* per cpu lists are all empty, try extralist */
-+	raw_spin_lock(&s->extralist.lock);
-+	node = s->extralist.first;
-+	if (node)
-+		s->extralist.first = node->next;
-+	raw_spin_unlock(&s->extralist.lock);
-+	return node;
-+}
-+
-+static struct pcpu_freelist_node *
-+___pcpu_freelist_pop_nmi(struct pcpu_freelist *s)
-+{
-+	struct pcpu_freelist_head *head;
-+	struct pcpu_freelist_node *node;
-+	int orig_cpu, cpu;
-+
-+	orig_cpu = cpu = raw_smp_processor_id();
-+	while (1) {
-+		head = per_cpu_ptr(s->freelist, cpu);
-+		if (raw_spin_trylock(&head->lock)) {
-+			node = head->first;
-+			if (node) {
-+				head->first = node->next;
-+				raw_spin_unlock(&head->lock);
-+				return node;
-+			}
-+			raw_spin_unlock(&head->lock);
-+		}
-+		cpu = cpumask_next(cpu, cpu_possible_mask);
-+		if (cpu >= nr_cpu_ids)
-+			cpu = 0;
-+		if (cpu == orig_cpu)
-+			break;
- 	}
-+
-+	/* cannot pop from per cpu lists, try extralist */
-+	if (!raw_spin_trylock(&s->extralist.lock))
-+		return NULL;
-+	node = s->extralist.first;
-+	if (node)
-+		s->extralist.first = node->next;
-+	raw_spin_unlock(&s->extralist.lock);
-+	return node;
-+}
-+
-+struct pcpu_freelist_node *__pcpu_freelist_pop(struct pcpu_freelist *s)
-+{
-+	if (in_nmi())
-+		return ___pcpu_freelist_pop_nmi(s);
-+	return ___pcpu_freelist_pop(s);
- }
- 
- struct pcpu_freelist_node *pcpu_freelist_pop(struct pcpu_freelist *s)
-diff --git a/kernel/bpf/percpu_freelist.h b/kernel/bpf/percpu_freelist.h
-index fbf8a8a289791..3c76553cfe571 100644
---- a/kernel/bpf/percpu_freelist.h
-+++ b/kernel/bpf/percpu_freelist.h
-@@ -13,6 +13,7 @@ struct pcpu_freelist_head {
- 
- struct pcpu_freelist {
- 	struct pcpu_freelist_head __percpu *freelist;
-+	struct pcpu_freelist_head extralist;
- };
- 
- struct pcpu_freelist_node {
+-	/*
+-	 * name_to_dev_t is ineffective to verify parition if resume_file is in
+-	 * integer format. (e.g. major:minor)
+-	 */
+-	if (isdigit(resume_file[0]) && resume_wait) {
+-		int partno;
+-		while (!get_gendisk(swsusp_resume_device, &partno))
+-			msleep(10);
+-	}
+-
+ 	if (!swsusp_resume_device) {
+ 		/*
+ 		 * Some device discovery might still be in progress; we need
 -- 
 2.25.1
 
