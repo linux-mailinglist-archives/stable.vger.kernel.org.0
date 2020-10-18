@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07AC1291B1F
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA24291B23
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732210AbgJRT2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:28:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
+        id S1728127AbgJRT3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:29:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732201AbgJRT2A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:28:00 -0400
+        id S1732206AbgJRT2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:28:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30B7A22274;
-        Sun, 18 Oct 2020 19:27:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A05D22267;
+        Sun, 18 Oct 2020 19:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049279;
-        bh=I9abcd9KWuhpipgU+LGs2WDKTi0MFSc+wWieyXzN8Dk=;
+        s=default; t=1603049281;
+        bh=wDUYPS56b/18VlLZ2KLd4bd6O6ujEctojC7MEYgAW6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bj0egLy5XoUdxNtd7O3cXFjrawInVD9iPufhvupcTjuxbnPtxToDsm6WyYL9kn79w
-         Vxbbny300XqKgwFr7UeO/rt8qofVeEueuz1zSgKyio8GeyPsjlW9BBNpR1vpgsGBwe
-         ugm5g6xTwnJXixX6qJZzpXCzprWQ3wl67t58Xo3Y=
+        b=nmFR4Nk1r9NuNN/GuVrgjpSA0kiXXoC3OVA6zhkbkeEyMbDPvnvXfsuwePNGxSbmt
+         bFyTTnTR/EAS4Q/E6fP4f6xA3kmzbv6bEuwwXmnOYzqI3tVgEHuGTAtCoTGA/GzaiK
+         TvKhvg3EmWenoAVYFGAMLgXwlNH4K26oWxdcaCqQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Chiu <chiu@endlessm.com>, Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Doug Horn <doughorn@google.com>, Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 26/33] rtl8xxxu: prevent potential memory leak
-Date:   Sun, 18 Oct 2020 15:27:21 -0400
-Message-Id: <20201018192728.4056577-26-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.4 27/33] Fix use after free in get_capset_info callback.
+Date:   Sun, 18 Oct 2020 15:27:22 -0400
+Message-Id: <20201018192728.4056577-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192728.4056577-1-sashal@kernel.org>
 References: <20201018192728.4056577-1-sashal@kernel.org>
@@ -42,63 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Doug Horn <doughorn@google.com>
 
-[ Upstream commit 86279456a4d47782398d3cb8193f78f672e36cac ]
+[ Upstream commit e219688fc5c3d0d9136f8d29d7e0498388f01440 ]
 
-Free the skb if usb_submit_urb fails on rx_urb. And free the urb
-no matter usb_submit_urb succeeds or not in rtl8xxxu_submit_int_urb.
+If a response to virtio_gpu_cmd_get_capset_info takes longer than
+five seconds to return, the callback will access freed kernel memory
+in vg->capsets.
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200906040424.22022-1-chiu@endlessm.com
+Signed-off-by: Doug Horn <doughorn@google.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200902210847.2689-2-gurchetansingh@chromium.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_kms.c |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 10 +++++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c
-index 8254d4b22c50b..b8d387edde65c 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c
-@@ -5135,7 +5135,6 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
- 	ret = usb_submit_urb(urb, GFP_KERNEL);
- 	if (ret) {
- 		usb_unanchor_urb(urb);
--		usb_free_urb(urb);
- 		goto error;
- 	}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 06496a1281622..476b9993b0682 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -113,8 +113,10 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
+ 					 vgdev->capsets[i].id > 0, 5 * HZ);
+ 		if (ret == 0) {
+ 			DRM_ERROR("timed out waiting for cap set %d\n", i);
++			spin_lock(&vgdev->display_info_lock);
+ 			kfree(vgdev->capsets);
+ 			vgdev->capsets = NULL;
++			spin_unlock(&vgdev->display_info_lock);
+ 			return;
+ 		}
+ 		DRM_INFO("cap set %d: id %d, max-version %d, max-size %d\n",
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 772a5a3b0ce1a..18e8fcad6690b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -596,9 +596,13 @@ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
+ 	int i = le32_to_cpu(cmd->capset_index);
  
-@@ -5144,6 +5143,7 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
- 	rtl8xxxu_write32(priv, REG_USB_HIMR, val32);
- 
- error:
-+	usb_free_urb(urb);
- 	return ret;
+ 	spin_lock(&vgdev->display_info_lock);
+-	vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
+-	vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
+-	vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
++	if (vgdev->capsets) {
++		vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
++		vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
++		vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
++	} else {
++		DRM_ERROR("invalid capset memory.");
++	}
+ 	spin_unlock(&vgdev->display_info_lock);
+ 	wake_up(&vgdev->resp_wq);
  }
- 
-@@ -5424,6 +5424,7 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct rtl8xxxu_rx_urb *rx_urb;
- 	struct rtl8xxxu_tx_urb *tx_urb;
-+	struct sk_buff *skb;
- 	unsigned long flags;
- 	int ret, i;
- 
-@@ -5472,6 +5473,13 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
- 		rx_urb->hw = hw;
- 
- 		ret = rtl8xxxu_submit_rx_urb(priv, rx_urb);
-+		if (ret) {
-+			if (ret != -ENOMEM) {
-+				skb = (struct sk_buff *)rx_urb->urb.context;
-+				dev_kfree_skb(skb);
-+			}
-+			rtl8xxxu_queue_rx_urb(priv, rx_urb);
-+		}
- 	}
- exit:
- 	/*
 -- 
 2.25.1
 
