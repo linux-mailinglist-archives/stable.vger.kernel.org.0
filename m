@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF87291DE2
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F15291A1E
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbgJRTVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729546AbgJRTVn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 18 Oct 2020 15:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729532AbgJRTVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729466AbgJRTVl (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 18 Oct 2020 15:21:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABFDA222E9;
-        Sun, 18 Oct 2020 19:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF528222EC;
+        Sun, 18 Oct 2020 19:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048900;
-        bh=Tuo0iHcv7VU/6mZZ8ASYelqERa3qXQOWMK4haxyB34Q=;
+        s=default; t=1603048901;
+        bh=CilbWumy1OkKKoMV0AS7uYNfVWeemj8VkFJRUL7CD0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/ZoMpcW63wk6Ynh6kBlE0aKNlHr5UOlbFY983xFMhnPJu4VLGnOS3i3vj2DPpx1Y
-         tRkHRo0qffB0V5MYP/s1m8edcnjsf7lmZEO0UJUMSIgrXk/iZBNK7IjW2BIYOvXHC0
-         7ohPikoqIXHwMSF52FfOaVkIOn+SbPj04VXQ5mRU=
+        b=UCzAXFHtdZLsGYP4Hi3+RQOfA6FCO//LPEoRlGjhc5G1krcONJ2lIEQ1Ubxz4dMV1
+         wq7/sQ4WaR8lx11mm/CFiAMIiZ+Nw5Ci3kQ4ap0W1RFVywEP6ceok4NIWyqaolGmFW
+         jprlCIrAsWZkC/nqszhpTyrWfeekW/qWn9x79nxk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 061/101] bpf: Limit caller's stack depth 256 for subprogs with tailcalls
-Date:   Sun, 18 Oct 2020 15:19:46 -0400
-Message-Id: <20201018192026.4053674-61-sashal@kernel.org>
+Cc:     Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 062/101] misc: rtsx: Fix memory leak in rtsx_pci_probe
+Date:   Sun, 18 Oct 2020 15:19:47 -0400
+Message-Id: <20201018192026.4053674-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -42,83 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 7f6e4312e15a5c370e84eaa685879b6bdcc717e4 ]
+[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
 
-Protect against potential stack overflow that might happen when bpf2bpf
-calls get combined with tailcalls. Limit the caller's stack depth for
-such case down to 256 so that the worst case scenario would result in 8k
-stack size (32 which is tailcall limit * 256 = 8k).
+When mfd_add_devices() fail, pcr->slots should also be freed. However,
+the current implementation does not free the member, leading to a memory
+leak.
 
-Suggested-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fix this by adding a new goto label that frees pcr->slots.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf_verifier.h |  1 +
- kernel/bpf/verifier.c        | 29 +++++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+)
+ drivers/misc/cardreader/rtsx_pcr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
-index ca08db4ffb5f7..ce3f5231aa698 100644
---- a/include/linux/bpf_verifier.h
-+++ b/include/linux/bpf_verifier.h
-@@ -358,6 +358,7 @@ struct bpf_subprog_info {
- 	u32 start; /* insn idx of function entry point */
- 	u32 linfo_idx; /* The idx to the main_prog->aux->linfo */
- 	u16 stack_depth; /* max. stack depth used by this function */
-+	bool has_tail_call;
- };
+diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
+index 0d5928bc1b6d7..82246f7aec6fb 100644
+--- a/drivers/misc/cardreader/rtsx_pcr.c
++++ b/drivers/misc/cardreader/rtsx_pcr.c
+@@ -1536,12 +1536,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
+ 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
+ 	if (ret < 0)
+-		goto disable_irq;
++		goto free_slots;
  
- /* single container for all structs
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 89b07db146763..17145f8f81979 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1470,6 +1470,10 @@ static int check_subprogs(struct bpf_verifier_env *env)
- 	for (i = 0; i < insn_cnt; i++) {
- 		u8 code = insn[i].code;
+ 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
  
-+		if (code == (BPF_JMP | BPF_CALL) &&
-+		    insn[i].imm == BPF_FUNC_tail_call &&
-+		    insn[i].src_reg != BPF_PSEUDO_CALL)
-+			subprog[cur_subprog].has_tail_call = true;
- 		if (BPF_CLASS(code) != BPF_JMP && BPF_CLASS(code) != BPF_JMP32)
- 			goto next;
- 		if (BPF_OP(code) == BPF_EXIT || BPF_OP(code) == BPF_CALL)
-@@ -2951,6 +2955,31 @@ static int check_max_stack_depth(struct bpf_verifier_env *env)
- 	int ret_prog[MAX_CALL_FRAMES];
+ 	return 0;
  
- process_func:
-+	/* protect against potential stack overflow that might happen when
-+	 * bpf2bpf calls get combined with tailcalls. Limit the caller's stack
-+	 * depth for such case down to 256 so that the worst case scenario
-+	 * would result in 8k stack size (32 which is tailcall limit * 256 =
-+	 * 8k).
-+	 *
-+	 * To get the idea what might happen, see an example:
-+	 * func1 -> sub rsp, 128
-+	 *  subfunc1 -> sub rsp, 256
-+	 *  tailcall1 -> add rsp, 256
-+	 *   func2 -> sub rsp, 192 (total stack size = 128 + 192 = 320)
-+	 *   subfunc2 -> sub rsp, 64
-+	 *   subfunc22 -> sub rsp, 128
-+	 *   tailcall2 -> add rsp, 128
-+	 *    func3 -> sub rsp, 32 (total stack size 128 + 192 + 64 + 32 = 416)
-+	 *
-+	 * tailcall will unwind the current stack frame but it will not get rid
-+	 * of caller's stack as shown on the example above.
-+	 */
-+	if (idx && subprog[idx].has_tail_call && depth >= 256) {
-+		verbose(env,
-+			"tail_calls are not allowed when call stack of previous frames is %d bytes. Too large\n",
-+			depth);
-+		return -EACCES;
-+	}
- 	/* round up to 32-bytes, since this is granularity
- 	 * of interpreter stack size
- 	 */
++free_slots:
++	kfree(pcr->slots);
+ disable_irq:
+ 	free_irq(pcr->irq, (void *)pcr);
+ disable_msi:
 -- 
 2.25.1
 
