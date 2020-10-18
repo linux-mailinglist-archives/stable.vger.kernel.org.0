@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04689291BEF
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032A5291BF3
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731489AbgJRTZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:25:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40926 "EHLO mail.kernel.org"
+        id S1731496AbgJRT0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731422AbgJRTZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:25:58 -0400
+        id S1731482AbgJRTZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:25:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF1D4222E9;
-        Sun, 18 Oct 2020 19:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13F74222EB;
+        Sun, 18 Oct 2020 19:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049157;
-        bh=CjoBqnIUwU8OsjDiYAN4C8ltkaGbcwBB0IHARfU1d0I=;
+        s=default; t=1603049158;
+        bh=4eFD7TwZnawJg4Hi1+00/SCKX7MXlqWJUocga77l13Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvRl3pH8G0B5UEMGjemDxQoqm2TdUQDZqnZtVXurCWZdbl/T9gaPiQXZNjG3+kt8Q
-         Mr54qdjag/H89YKePMvA7frIJRAQdRQnG2/odn0YF5QFnIFys2ohkmQ54gjJRVexc/
-         dtapMJbbDDkDc7ycfOodC28kf75KOK6AdAn8fNs8=
+        b=NSovedOMHWaLqARuoewhdYcbSSprwzuOg2r6G05ywsCh7qMBOBMA/jtQHsaU9ThGu
+         SNRsRcBl1iPSa1+sE2M0nurEDEaXC8clYnYzfzDRq+wU7kO34/d1aOW0mhGKRyt9ra
+         mPifJFBoCs8E2dn9mqOKTWraauhrtuV0wrEgIxbo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 22/52] mac80211: handle lack of sband->bitrates in rates
-Date:   Sun, 18 Oct 2020 15:24:59 -0400
-Message-Id: <20201018192530.4055730-22-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 23/52] PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
+Date:   Sun, 18 Oct 2020 15:25:00 -0400
+Message-Id: <20201018192530.4055730-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192530.4055730-1-sashal@kernel.org>
 References: <20201018192530.4055730-1-sashal@kernel.org>
@@ -43,56 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
+[ Upstream commit 428805c0c5e76ef643b1fbc893edfb636b3d8aef ]
 
-Even though a driver or mac80211 shouldn't produce a
-legacy bitrate if sband->bitrates doesn't exist, don't
-crash if that is the case either.
+get_gendisk grabs a reference on the disk and file operation, so this
+code will leak both of them while having absolutely no use for the
+gendisk itself.
 
-This fixes a kernel panic if station dump is run before
-last_rate can be updated with a data frame when
-sband->bitrates is missing (eg. in S1G bands).
+This effectively reverts commit 2df83fa4bce421f ("PM / Hibernate: Use
+get_gendisk to verify partition if resume_file is integer format")
 
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c      | 3 ++-
- net/mac80211/sta_info.c | 4 ++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ kernel/power/hibernate.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index c883cb67b7311..0b82d8da4ab0a 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -661,7 +661,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
- 		u16 brate;
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 2e65aacfa1162..02df69a8ee3c0 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -833,17 +833,6 @@ static int software_resume(void)
  
- 		sband = ieee80211_get_sband(sta->sdata);
--		if (sband) {
-+		WARN_ON_ONCE(sband && !sband->bitrates);
-+		if (sband && sband->bitrates) {
- 			brate = sband->bitrates[rate->idx].bitrate;
- 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
- 		}
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 6af5fda6461ce..2a18687019003 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -2004,6 +2004,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u16 rate,
- 
- 		rinfo->flags = 0;
- 		sband = local->hw.wiphy->bands[band];
-+
-+		if (WARN_ON_ONCE(!sband->bitrates))
-+			break;
-+
- 		brate = sband->bitrates[rate_idx].bitrate;
- 		if (rinfo->bw == RATE_INFO_BW_5)
- 			shift = 2;
+ 	/* Check if the device is there */
+ 	swsusp_resume_device = name_to_dev_t(resume_file);
+-
+-	/*
+-	 * name_to_dev_t is ineffective to verify parition if resume_file is in
+-	 * integer format. (e.g. major:minor)
+-	 */
+-	if (isdigit(resume_file[0]) && resume_wait) {
+-		int partno;
+-		while (!get_gendisk(swsusp_resume_device, &partno))
+-			msleep(10);
+-	}
+-
+ 	if (!swsusp_resume_device) {
+ 		/*
+ 		 * Some device discovery might still be in progress; we need
 -- 
 2.25.1
 
