@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6D6291AE6
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCB8291B38
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732163AbgJRT1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:27:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43676 "EHLO mail.kernel.org"
+        id S1732691AbgJRTaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgJRT1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:27:41 -0400
+        id S1732164AbgJRT1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:27:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBCC822284;
-        Sun, 18 Oct 2020 19:27:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBF2922277;
+        Sun, 18 Oct 2020 19:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049261;
-        bh=fqJxabfMkz6RU154unbmDzgV5qtAy8Ka4yXuq2UqcNg=;
+        s=default; t=1603049262;
+        bh=qr5IBMUcnmL6i6o7msUoTodHVxH92J3rwPTt3mSQ8hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjazmJEhL3O/SsNY4GCPJxjXgxubaamz2OZL327vFKZcLu9K3BWDhZStvTzcOx38F
-         X9a/SYO24OA+QDfncBYmBekR32J7+pWzpaIJRfJqZU+Y97AoHK7z8GGw32WoKOoLLR
-         tJENTzKK804ELUxfomgKpCdmdV6cALrD2V8WpCjA=
+        b=y1RxJNHrMNlIS97E0U7sYeRIVociA/W0HAiIwfnyqX9UZRfk3AqNoKTyrzSTwnAaH
+         xkSZMwcj1T9SlM1NFGwm7cs6pmX96NeyElrg9VBS1oC+ilqwYiAz4CzFnwqWM3aWir
+         pIQn+YJ2mPvHNQWBmDZ5dRw8pK+XejEt0tNgjv6A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/33] media: saa7134: avoid a shift overflow
-Date:   Sun, 18 Oct 2020 15:27:05 -0400
-Message-Id: <20201018192728.4056577-10-sashal@kernel.org>
+Cc:     Rustam Kovhaev <rkovhaev@gmail.com>,
+        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 11/33] ntfs: add check for mft record size in superblock
+Date:   Sun, 18 Oct 2020 15:27:06 -0400
+Message-Id: <20201018192728.4056577-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192728.4056577-1-sashal@kernel.org>
 References: <20201018192728.4056577-1-sashal@kernel.org>
@@ -41,37 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 15a36aae1ec1c1f17149b6113b92631791830740 ]
+[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
 
-As reported by smatch:
-	drivers/media/pci/saa7134//saa7134-tvaudio.c:686 saa_dsp_writel() warn: should 'reg << 2' be a 64 bit type?
+Number of bytes allocated for mft record should be equal to the mft record
+size stored in ntfs superblock as reported by syzbot, userspace might
+trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
 
-On a 64-bits Kernel, the shift might be bigger than 32 bits.
-
-In real, this should never happen, but let's shut up the warning.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
+Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7134/saa7134-tvaudio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ntfs/inode.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/pci/saa7134/saa7134-tvaudio.c b/drivers/media/pci/saa7134/saa7134-tvaudio.c
-index 21a579309575d..02407983ce236 100644
---- a/drivers/media/pci/saa7134/saa7134-tvaudio.c
-+++ b/drivers/media/pci/saa7134/saa7134-tvaudio.c
-@@ -696,7 +696,8 @@ int saa_dsp_writel(struct saa7134_dev *dev, int reg, u32 value)
- {
- 	int err;
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index d284f07eda775..38260c07de8b5 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1844,6 +1844,12 @@ int ntfs_read_inode_mount(struct inode *vi)
+ 		brelse(bh);
+ 	}
  
--	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n", reg << 2, value);
-+	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n",
-+		  (reg << 2) & 0xffffffff, value);
- 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_WRR);
- 	if (err < 0)
- 		return err;
++	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
++		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
++				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
++		goto err_out;
++	}
++
+ 	/* Apply the mst fixups. */
+ 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
+ 		/* FIXME: Try to use the $MFTMirr now. */
 -- 
 2.25.1
 
