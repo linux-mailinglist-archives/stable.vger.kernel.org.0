@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE34B291D4D
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52FA3291D47
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730683AbgJRTob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36552 "EHLO mail.kernel.org"
+        id S1730277AbgJRTXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36601 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730201AbgJRTXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:23:23 -0400
+        id S1730271AbgJRTXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:23:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA87E2137B;
-        Sun, 18 Oct 2020 19:23:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC4E8222E9;
+        Sun, 18 Oct 2020 19:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049002;
-        bh=n4m9dSikzU+zygSZcCDw8o3mQ54FGsAky9zfTGYN9HA=;
+        s=default; t=1603049003;
+        bh=iC0jZdjoqn1Py7xJojtmdX9lti5RGCBfHf+sGISAEjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2WTYI5MCNsu4BS7mwX3ut78yv/XGrGA62s1SEPddNAQjwnpXxLf+A3atrprCUIer
-         PMH1NtJyrJBD8X5zE+xcTM4mGO5i+NksZBFN2rT9q8SNFaA9YrK8bfrYW93ikhg0sK
-         1UVXn3LYZYi/eppVoQnv7NBX49f/NXrzaE8HzpaE=
+        b=nJt/DSe9JpYSDIV1ygH5ZFcvj189lUN8MWoqmXD2Ffmp/1CFlPSt1isFugGsEqG5m
+         Xq9eWtPiIk/hcOoeOIZhL2eaO27VtdZwUQ8Vz1FeWN0oM7RljC4cyC61KNuBVNb19r
+         BrTWsnkiZ3J6sv5wcQMn78DPgSI5qvudPzcfaAA4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 39/80] udf: Avoid accessing uninitialized data on failed inode read
-Date:   Sun, 18 Oct 2020 15:21:50 -0400
-Message-Id: <20201018192231.4054535-39-sashal@kernel.org>
+Cc:     Tzu-En Huang <tehuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 40/80] rtw88: increse the size of rx buffer size
+Date:   Sun, 18 Oct 2020 15:21:51 -0400
+Message-Id: <20201018192231.4054535-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192231.4054535-1-sashal@kernel.org>
 References: <20201018192231.4054535-1-sashal@kernel.org>
@@ -42,60 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tzu-En Huang <tehuang@realtek.com>
 
-[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
+[ Upstream commit ee755732b7a16af018daa77d9562d2493fb7092f ]
 
-When we fail to read inode, some data accessed in udf_evict_inode() may
-be uninitialized. Move the accesses to !is_bad_inode() branch.
+The vht capability of MAX_MPDU_LENGTH is 11454 in rtw88; however, the rx
+buffer size for each packet is 8192. When receiving packets that are
+larger than rx buffer size, it will leads to rx buffer ring overflow.
 
-Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Tzu-En Huang <tehuang@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200925061219.23754-2-tehuang@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/net/wireless/realtek/rtw88/pci.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index ea80036d7897b..97a192eb9949c 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -139,21 +139,24 @@ void udf_evict_inode(struct inode *inode)
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int want_delete = 0;
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.h b/drivers/net/wireless/realtek/rtw88/pci.h
+index 87824a4caba98..a47d871ae506a 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.h
++++ b/drivers/net/wireless/realtek/rtw88/pci.h
+@@ -13,8 +13,8 @@
+ #define RTK_BEQ_TX_DESC_NUM	256
  
--	if (!inode->i_nlink && !is_bad_inode(inode)) {
--		want_delete = 1;
--		udf_setsize(inode, 0);
--		udf_update_inode(inode, IS_SYNC(inode));
-+	if (!is_bad_inode(inode)) {
-+		if (!inode->i_nlink) {
-+			want_delete = 1;
-+			udf_setsize(inode, 0);
-+			udf_update_inode(inode, IS_SYNC(inode));
-+		}
-+		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
-+		    inode->i_size != iinfo->i_lenExtents) {
-+			udf_warn(inode->i_sb,
-+				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
-+				 inode->i_ino, inode->i_mode,
-+				 (unsigned long long)inode->i_size,
-+				 (unsigned long long)iinfo->i_lenExtents);
-+		}
- 	}
- 	truncate_inode_pages_final(&inode->i_data);
- 	invalidate_inode_buffers(inode);
- 	clear_inode(inode);
--	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
--	    inode->i_size != iinfo->i_lenExtents) {
--		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
--			 inode->i_ino, inode->i_mode,
--			 (unsigned long long)inode->i_size,
--			 (unsigned long long)iinfo->i_lenExtents);
--	}
- 	kfree(iinfo->i_ext.i_data);
- 	iinfo->i_ext.i_data = NULL;
- 	udf_clear_extent_cache(inode);
+ #define RTK_MAX_RX_DESC_NUM	512
+-/* 8K + rx desc size */
+-#define RTK_PCI_RX_BUF_SIZE	(8192 + 24)
++/* 11K + rx desc size */
++#define RTK_PCI_RX_BUF_SIZE	(11454 + 24)
+ 
+ #define RTK_PCI_CTRL		0x300
+ #define BIT_RST_TRXDMA_INTF	BIT(20)
 -- 
 2.25.1
 
