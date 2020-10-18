@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D50291D60
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30422291D5E
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387755AbgJRTpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36180 "EHLO mail.kernel.org"
+        id S2387723AbgJRTpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:45:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730124AbgJRTXG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:23:06 -0400
+        id S1730137AbgJRTXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:23:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE87320791;
-        Sun, 18 Oct 2020 19:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 260BC2137B;
+        Sun, 18 Oct 2020 19:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048985;
-        bh=rK51jplwA3YwpR3Dp5dzZgzEV6e/HF4Q/7N3mCQY+AY=;
+        s=default; t=1603048987;
+        bh=ol4XzgCgiSAo+VG8163d8PMcok7mq+RvK+N/xj0+L3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gS9PKgY8GvvU+hbEMPA0HV7buG7tn49jL8/Y8GrokbLqN6f/jxyOC2YcXw4137U1q
-         psERHU1FQOsErBPiApwM7JAaYBTRcnBwrOiitlsCK50H4XULnNaGoIAIDALf0PCTCD
-         Ld2LWvRhE103InHEmVHCfIe8fRzwi4Lk9xLz2eH0=
+        b=huC+J/SDszP2UTUcAfCzo/k96fhFdgyr1m0PhyFTgFPlPl+xAlMRV9+g+3dBN4kBk
+         VIw9PQRdyRawryr8XJJVhge5nsw9/KOWwUysJu/PpMbCYAlVgP3v/5wSq2tNaJ2cZM
+         4jxxtePxotYYakc2UAdklwS+ol3ogwsvzfpjkdv8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 26/80] media: venus: core: Fix runtime PM imbalance in venus_probe
-Date:   Sun, 18 Oct 2020 15:21:37 -0400
-Message-Id: <20201018192231.4054535-26-sashal@kernel.org>
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        David Ahern <dsahern@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 27/80] ipv6/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
+Date:   Sun, 18 Oct 2020 15:21:38 -0400
+Message-Id: <20201018192231.4054535-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192231.4054535-1-sashal@kernel.org>
 References: <20201018192231.4054535-1-sashal@kernel.org>
@@ -43,51 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-[ Upstream commit bbe516e976fce538db96bd2b7287df942faa14a3 ]
+[ Upstream commit 272928d1cdacfc3b55f605cb0e9115832ecfb20c ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code. Thus a pairing decrement is needed on
-the error handling path to keep the counter balanced. For other error
-paths after this call, things are the same.
+As per RFC4443, the destination address field for ICMPv6 error messages
+is copied from the source address field of the invoking packet.
 
-Fix this by adding pm_runtime_put_noidle() after 'err_runtime_disable'
-label. But in this case, the error path after pm_runtime_put_sync()
-will decrease PM usage counter twice. Thus add an extra
-pm_runtime_get_noresume() in this path to balance PM counter.
+In configurations with Virtual Routing and Forwarding tables, looking up
+which routing table to use for sending ICMPv6 error messages is
+currently done by using the destination net_device.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+If the source and destination interfaces are within separate VRFs, or
+one in the global routing table and the other in a VRF, looking up the
+source address of the invoking packet in the destination interface's
+routing table will fail if the destination interface's routing table
+contains no route to the invoking packet's source address.
+
+One observable effect of this issue is that traceroute6 does not work in
+the following cases:
+
+- Route leaking between global routing table and VRF
+- Route leaking between VRFs
+
+Use the source device routing table when sending ICMPv6 error
+messages.
+
+[ In the context of ipv4, it has been pointed out that a similar issue
+  may exist with ICMP errors triggered when forwarding between network
+  namespaces. It would be worthwhile to investigate whether ipv6 has
+  similar issues, but is outside of the scope of this investigation. ]
+
+[ Testing shows that similar issues exist with ipv6 unreachable /
+  fragmentation needed messages.  However, investigation of this
+  additional failure mode is beyond this investigation's scope. ]
+
+Link: https://tools.ietf.org/html/rfc4443
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv6/icmp.c       | 7 +++++--
+ net/ipv6/ip6_output.c | 2 --
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
-index 84e982f259a06..bbc430a003443 100644
---- a/drivers/media/platform/qcom/venus/core.c
-+++ b/drivers/media/platform/qcom/venus/core.c
-@@ -316,8 +316,10 @@ static int venus_probe(struct platform_device *pdev)
- 		goto err_core_deinit;
+diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
+index 7d3a3894f785c..50c6305c66d01 100644
+--- a/net/ipv6/icmp.c
++++ b/net/ipv6/icmp.c
+@@ -482,8 +482,11 @@ static void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+ 	if (__ipv6_addr_needs_scope_id(addr_type)) {
+ 		iif = icmp6_iif(skb);
+ 	} else {
+-		dst = skb_dst(skb);
+-		iif = l3mdev_master_ifindex(dst ? dst->dev : skb->dev);
++		/*
++		 * The source device is used for looking up which routing table
++		 * to use for sending an ICMP error.
++		 */
++		iif = l3mdev_master_ifindex(skb->dev);
+ 	}
  
- 	ret = pm_runtime_put_sync(dev);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_get_noresume(dev);
- 		goto err_dev_unregister;
-+	}
+ 	/*
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 78d495581d696..475705c62bd5a 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -467,8 +467,6 @@ int ip6_forward(struct sk_buff *skb)
+ 	 *	check and decrement ttl
+ 	 */
+ 	if (hdr->hop_limit <= 1) {
+-		/* Force OUTPUT device used as source address */
+-		skb->dev = dst->dev;
+ 		icmpv6_send(skb, ICMPV6_TIME_EXCEED, ICMPV6_EXC_HOPLIMIT, 0);
+ 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INHDRERRORS);
  
- 	return 0;
- 
-@@ -328,6 +330,7 @@ static int venus_probe(struct platform_device *pdev)
- err_venus_shutdown:
- 	venus_shutdown(core);
- err_runtime_disable:
-+	pm_runtime_put_noidle(dev);
- 	pm_runtime_set_suspended(dev);
- 	pm_runtime_disable(dev);
- 	hfi_destroy(core);
 -- 
 2.25.1
 
