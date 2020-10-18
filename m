@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAC5291F71
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 22:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB0F29198A
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388958AbgJRUAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 16:00:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
+        id S1727755AbgJRTSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:18:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727698AbgJRTSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:18:33 -0400
+        id S1727705AbgJRTSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:18:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAD4B22274;
-        Sun, 18 Oct 2020 19:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03391222D9;
+        Sun, 18 Oct 2020 19:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048712;
-        bh=jiy9vWTn50fD4MZ6fl/rHP8hti2qRxhKsMglCxxq8WI=;
+        s=default; t=1603048713;
+        bh=24E4I2wVgcDcC8lMsXnny7Jl2B8AmMs8vL8BoWMURYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4onsN16Z46l3lw4BDB/12tsYp5Kq0kUfgPivGpRfpYRdHxw5FIjLnvCQkw4QdQVg
-         QkEvcS5L1EyQHS3ILIFwn1G6qaHbW7zA7VZkVFGroSRdwUpKamNE8i/hM1wHqe7wEP
-         b1j0UezWXHkxLjPrmBIqyn9wjI4AXgIjHgWToRAw=
+        b=bIY/VPWveQ4VE2UZhMUW/65sSNnvXsIMIIlK9kaejN1Xo+Wrjd4FsphDsT4hJS8Tv
+         pHwOTiLFU5M2PyQ2si/gX6rSUc+Q2Gc9RQXFcr/x+JnBpS64noLC5kBIA74OmVWL4L
+         euYE3gqlCLsePcF/kbm0WlQNUd4K9p+ddJgXEzRk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Longfang Liu <liulongfang@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 020/111] crypto: hisilicon - fixed memory allocation error
-Date:   Sun, 18 Oct 2020 15:16:36 -0400
-Message-Id: <20201018191807.4052726-20-sashal@kernel.org>
+Cc:     Brad Bishop <bradleyb@fuzziesquirrel.com>,
+        Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 021/111] spi: fsi: Fix clock running too fast
+Date:   Sun, 18 Oct 2020 15:16:37 -0400
+Message-Id: <20201018191807.4052726-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -42,70 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longfang Liu <liulongfang@huawei.com>
+From: Brad Bishop <bradleyb@fuzziesquirrel.com>
 
-[ Upstream commit 24efcec2919afa7d56f848c83a605b46c8042a53 ]
+[ Upstream commit 0b546bbe9474ff23e6843916ad6d567f703b2396 ]
 
-1. Fix the bug of 'mac' memory leak as allocating 'pbuf' failing.
-2. Fix the bug of 'qps' leak as allocating 'qp_ctx' failing.
+Use a clock divider tuned to a 200MHz FSI bus frequency (the maximum). Use
+of the previous divider at 200MHz results in corrupt data from endpoint
+devices. Ideally the clock divider would be calculated from the FSI clock,
+but that would require some significant work on the FSI driver. With FSI
+frequencies slower than 200MHz, the SPI clock will simply run slower, but
+safely.
 
-Signed-off-by: Longfang Liu <liulongfang@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20200909222857.28653-3-eajames@linux.ibm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec2/sec_crypto.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/spi/spi-fsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-index 497969ae8b230..b9973d152a24a 100644
---- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
-+++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-@@ -342,11 +342,14 @@ static int sec_alg_resource_alloc(struct sec_ctx *ctx,
- 		ret = sec_alloc_pbuf_resource(dev, res);
- 		if (ret) {
- 			dev_err(dev, "fail to alloc pbuf dma resource!\n");
--			goto alloc_fail;
-+			goto alloc_pbuf_fail;
- 		}
- 	}
+diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
+index 37a3e0f8e7526..6e6b3c6437288 100644
+--- a/drivers/spi/spi-fsi.c
++++ b/drivers/spi/spi-fsi.c
+@@ -350,7 +350,7 @@ static int fsi_spi_transfer_init(struct fsi_spi *ctx)
+ 	u64 status = 0ULL;
+ 	u64 wanted_clock_cfg = SPI_FSI_CLOCK_CFG_ECC_DISABLE |
+ 		SPI_FSI_CLOCK_CFG_SCK_NO_DEL |
+-		FIELD_PREP(SPI_FSI_CLOCK_CFG_SCK_DIV, 4);
++		FIELD_PREP(SPI_FSI_CLOCK_CFG_SCK_DIV, 19);
  
- 	return 0;
-+alloc_pbuf_fail:
-+	if (ctx->alg_type == SEC_AEAD)
-+		sec_free_mac_resource(dev, qp_ctx->res);
- alloc_fail:
- 	sec_free_civ_resource(dev, res);
- 
-@@ -457,8 +460,10 @@ static int sec_ctx_base_init(struct sec_ctx *ctx)
- 	ctx->fake_req_limit = QM_Q_DEPTH >> 1;
- 	ctx->qp_ctx = kcalloc(sec->ctx_q_num, sizeof(struct sec_qp_ctx),
- 			      GFP_KERNEL);
--	if (!ctx->qp_ctx)
--		return -ENOMEM;
-+	if (!ctx->qp_ctx) {
-+		ret = -ENOMEM;
-+		goto err_destroy_qps;
-+	}
- 
- 	for (i = 0; i < sec->ctx_q_num; i++) {
- 		ret = sec_create_qp_ctx(&sec->qm, ctx, i, 0);
-@@ -467,12 +472,15 @@ static int sec_ctx_base_init(struct sec_ctx *ctx)
- 	}
- 
- 	return 0;
-+
- err_sec_release_qp_ctx:
- 	for (i = i - 1; i >= 0; i--)
- 		sec_release_qp_ctx(ctx, &ctx->qp_ctx[i]);
- 
--	sec_destroy_qps(ctx->qps, sec->ctx_q_num);
- 	kfree(ctx->qp_ctx);
-+err_destroy_qps:
-+	sec_destroy_qps(ctx->qps, sec->ctx_q_num);
-+
- 	return ret;
- }
- 
+ 	end = jiffies + msecs_to_jiffies(SPI_FSI_INIT_TIMEOUT_MS);
+ 	do {
 -- 
 2.25.1
 
