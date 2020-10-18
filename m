@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C53291E0B
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB85291E09
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387793AbgJRTtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
+        id S1730388AbgJRTtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:49:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727326AbgJRTVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:21:43 -0400
+        id S1729552AbgJRTVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:21:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC49A223AE;
-        Sun, 18 Oct 2020 19:21:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7696222E7;
+        Sun, 18 Oct 2020 19:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048902;
-        bh=hAYIdHO7/WDzE4XJhYurmHtjVgByz5Wp4pXVuqmlTbA=;
+        s=default; t=1603048903;
+        bh=x1IGtqNi66+N71baZWo3oPu/0C1iftvwJaW5fsiVJZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnbzsUndsOQK1noeLh/WFJBPg3VzwurXsVZqZqGBXoSR/votsk96+xazRzKOrwXWm
-         TioHG3x0jsPt0kHkpjc/bN9oLctBv+1t6zzkgExfvMIkKTeiPVz9wkXqMPr0Tn+7I6
-         UOC0pNim8vODaQO6DWo5YzWXmPeq/STuooQZKw0o=
+        b=oGAAYO0qlquwzQJnbM1DiyWNdPqcFfWVKIYPyjNCMha6kv5wGZVLT5wcB6sEOM8ya
+         oIcD4lshV6maj8iKxlVwdY55LuGxBFofYs62RnZfSMGYxwvN/u5cP1oMBCTk13B9Qw
+         K4aAiyd/gGJ7i/F9gIJDytffixMPDOvhfr6gltBQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 063/101] reiserfs: only call unlock_new_inode() if I_NEW
-Date:   Sun, 18 Oct 2020 15:19:48 -0400
-Message-Id: <20201018192026.4053674-63-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 064/101] opp: Prevent memory leak in dev_pm_opp_attach_genpd()
+Date:   Sun, 18 Oct 2020 15:19:49 -0400
+Message-Id: <20201018192026.4053674-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -43,42 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 8859bf2b1278d064a139e3031451524a49a56bd0 ]
+[ Upstream commit cb60e9602cce1593eb1e9cdc8ee562815078a354 ]
 
-unlock_new_inode() is only meant to be called after a new inode has
-already been inserted into the hash table.  But reiserfs_new_inode() can
-call it even before it has inserted the inode, triggering the WARNING in
-unlock_new_inode().  Fix this by only calling unlock_new_inode() if the
-inode has the I_NEW flag set, indicating that it's in the table.
+If dev_pm_opp_attach_genpd() is called multiple times (once for each CPU
+sharing the table), then it would result in unwanted behavior like
+memory leak, attaching the domain multiple times, etc.
 
-This addresses the syzbot report "WARNING in unlock_new_inode"
-(https://syzkaller.appspot.com/bug?extid=187510916eb6a14598f7).
+Handle that by checking and returning earlier if the domains are already
+attached. Now that dev_pm_opp_detach_genpd() can get called multiple
+times as well, we need to protect that too.
 
-Link: https://lore.kernel.org/r/20200628070057.820213-1-ebiggers@kernel.org
-Reported-by: syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Note that the virtual device pointers aren't returned in this case, as
+they may become unavailable to some callers during the middle of the
+operation.
+
+Reported-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/opp/core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 1509775da040a..e3af44c61524d 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -2163,7 +2163,8 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
- out_inserted_sd:
- 	clear_nlink(inode);
- 	th->t_trans_id = 0;	/* so the caller can't use this handle later */
--	unlock_new_inode(inode); /* OK to do even if we hadn't locked it */
-+	if (inode->i_state & I_NEW)
-+		unlock_new_inode(inode);
- 	iput(inode);
- 	return err;
- }
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index 91dcad982d362..11d192fb2e813 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -1918,6 +1918,9 @@ static void _opp_detach_genpd(struct opp_table *opp_table)
+ {
+ 	int index;
+ 
++	if (!opp_table->genpd_virt_devs)
++		return;
++
+ 	for (index = 0; index < opp_table->required_opp_count; index++) {
+ 		if (!opp_table->genpd_virt_devs[index])
+ 			continue;
+@@ -1964,6 +1967,9 @@ struct opp_table *dev_pm_opp_attach_genpd(struct device *dev,
+ 	if (!opp_table)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	if (opp_table->genpd_virt_devs)
++		return opp_table;
++
+ 	/*
+ 	 * If the genpd's OPP table isn't already initialized, parsing of the
+ 	 * required-opps fail for dev. We should retry this after genpd's OPP
 -- 
 2.25.1
 
