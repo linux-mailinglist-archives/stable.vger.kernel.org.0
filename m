@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C652E291F48
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEE1291996
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727873AbgJRTSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
+        id S1727912AbgJRTSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbgJRTSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:18:51 -0400
+        id S1727761AbgJRTSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:18:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B9C42231B;
-        Sun, 18 Oct 2020 19:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F669222EC;
+        Sun, 18 Oct 2020 19:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048730;
-        bh=d1Lr4GehX4dE3kIk5kxyDTMVA52mPqEtJ0L3Pwyw6a4=;
+        s=default; t=1603048732;
+        bh=j0LIKN0AGws6i/FKT7AeuxpkYYH9yjFN2mAKrtet9CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLWOlYLGVVB7Ekmw9Ml0rryAYG0qiauFL/mGUM77YBQkekhao6bKc4YM96svrAdfc
-         XRnyNvxOzq5ZIDvomrGU33WvtPwQlJtFa05dDz6QQ5y6eaKuEhwfPsNF1m7uQV/w3h
-         Hwee1mARjaUJ6fpXQoEeE6cHHSv17pB/Gc+6oOWU=
+        b=GIlOfLX549mz+mr/c/P4DmpXHkM3nmObe3TYWx17B/itOzrNfPclhBpufKQT1IGu9
+         4ygzsHLh06/jv+3BIklYI5iiZDH9yGuNokOHLT81kW+D8C3tQgljgJEsgto1zsPNaM
+         Xha8BgDT3Xu8VfkwFGBQTN4K+wWHe6L/x09YGZUo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        David Ahern <dsahern@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 035/111] ipv6/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
-Date:   Sun, 18 Oct 2020 15:16:51 -0400
-Message-Id: <20201018191807.4052726-35-sashal@kernel.org>
+Cc:     Rustam Kovhaev <rkovhaev@gmail.com>,
+        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.9 036/111] ntfs: add check for mft record size in superblock
+Date:   Sun, 18 Oct 2020 15:16:52 -0400
+Message-Id: <20201018191807.4052726-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
 References: <20201018191807.4052726-1-sashal@kernel.org>
@@ -43,82 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 272928d1cdacfc3b55f605cb0e9115832ecfb20c ]
+[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
 
-As per RFC4443, the destination address field for ICMPv6 error messages
-is copied from the source address field of the invoking packet.
+Number of bytes allocated for mft record should be equal to the mft record
+size stored in ntfs superblock as reported by syzbot, userspace might
+trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
 
-In configurations with Virtual Routing and Forwarding tables, looking up
-which routing table to use for sending ICMPv6 error messages is
-currently done by using the destination net_device.
-
-If the source and destination interfaces are within separate VRFs, or
-one in the global routing table and the other in a VRF, looking up the
-source address of the invoking packet in the destination interface's
-routing table will fail if the destination interface's routing table
-contains no route to the invoking packet's source address.
-
-One observable effect of this issue is that traceroute6 does not work in
-the following cases:
-
-- Route leaking between global routing table and VRF
-- Route leaking between VRFs
-
-Use the source device routing table when sending ICMPv6 error
-messages.
-
-[ In the context of ipv4, it has been pointed out that a similar issue
-  may exist with ICMP errors triggered when forwarding between network
-  namespaces. It would be worthwhile to investigate whether ipv6 has
-  similar issues, but is outside of the scope of this investigation. ]
-
-[ Testing shows that similar issues exist with ipv6 unreachable /
-  fragmentation needed messages.  However, investigation of this
-  additional failure mode is beyond this investigation's scope. ]
-
-Link: https://tools.ietf.org/html/rfc4443
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
+Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/icmp.c       | 7 +++++--
- net/ipv6/ip6_output.c | 2 --
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ fs/ntfs/inode.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
-index a4e4912ad607b..91209a2760aa5 100644
---- a/net/ipv6/icmp.c
-+++ b/net/ipv6/icmp.c
-@@ -501,8 +501,11 @@ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
- 	if (__ipv6_addr_needs_scope_id(addr_type)) {
- 		iif = icmp6_iif(skb);
- 	} else {
--		dst = skb_dst(skb);
--		iif = l3mdev_master_ifindex(dst ? dst->dev : skb->dev);
-+		/*
-+		 * The source device is used for looking up which routing table
-+		 * to use for sending an ICMP error.
-+		 */
-+		iif = l3mdev_master_ifindex(skb->dev);
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index 9bb9f0952b186..caf563981532b 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1810,6 +1810,12 @@ int ntfs_read_inode_mount(struct inode *vi)
+ 		brelse(bh);
  	}
  
- 	/*
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index c78e67d7747fb..cd623068de536 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -468,8 +468,6 @@ int ip6_forward(struct sk_buff *skb)
- 	 *	check and decrement ttl
- 	 */
- 	if (hdr->hop_limit <= 1) {
--		/* Force OUTPUT device used as source address */
--		skb->dev = dst->dev;
- 		icmpv6_send(skb, ICMPV6_TIME_EXCEED, ICMPV6_EXC_HOPLIMIT, 0);
- 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INHDRERRORS);
- 
++	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
++		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
++				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
++		goto err_out;
++	}
++
+ 	/* Apply the mst fixups. */
+ 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
+ 		/* FIXME: Try to use the $MFTMirr now. */
 -- 
 2.25.1
 
