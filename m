@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDF3291E03
+	by mail.lfdr.de (Postfix) with ESMTP id 5164E291E02
 	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387686AbgJRTtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34154 "EHLO mail.kernel.org"
+        id S2387625AbgJRTs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:48:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728029AbgJRTVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:21:47 -0400
+        id S1729587AbgJRTVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:21:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27B10222E9;
-        Sun, 18 Oct 2020 19:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A38622365;
+        Sun, 18 Oct 2020 19:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048907;
-        bh=2CscpyPUTq5ces9fwMXzlJZFFHzMmXLkJxIFVnKjt0E=;
+        s=default; t=1603048908;
+        bh=Hdo7Sg9N/WT6VNUNXp5/pHKOqAdhhsYSrzrzCREuq6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oW5M9TonfiPXhClN1pxNhR3MBUOHsFEnGg9lBGW/vRmI/xPBT2c+IfMlRxurfjzzN
-         auYApngIleaPfeKmqP+eHC9xjxoDSO6UCLb2zRT6ksDABxvTfH+rW/CEwk9Eipbu9k
-         wFOCjz2th2QiEPx8X7dtlysdSY792JL4azeLcFXI=
+        b=oItkHhJMY6KcWNqiBwpom5ellT6AHVixZwjl81Z+TY50CInD9ODXDwlVX0yOQM0Qe
+         faxUvK69kD7P3J0KCp/8nuMjh1mg6D3cK3wD8ylclKjKuK6XAYnddO8WKmw6z/YMZB
+         ssTgM3NJmv/RqVGErVwCownYZOQtCc+EbmkCBN+0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia Yang <jiayang5@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+Cc:     Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
+        Manish Mandlik <mmandlik@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 067/101] drm: fix double free for gbo in drm_gem_vram_init and drm_gem_vram_create
-Date:   Sun, 18 Oct 2020 15:19:52 -0400
-Message-Id: <20201018192026.4053674-67-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 068/101] Bluetooth: Only mark socket zapped after unlocking
+Date:   Sun, 18 Oct 2020 15:19:53 -0400
+Message-Id: <20201018192026.4053674-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -44,169 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Yang <jiayang5@huawei.com>
+From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 
-[ Upstream commit da62cb7230f0871c30dc9789071f63229158d261 ]
+[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
 
-I got a use-after-free report when doing some fuzz test:
+Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
+setting the socket as zapped, it could potentially race with
+l2cap_sock_release which frees the socket. Thus, wait until the cleanup
+is complete before marking the socket as zapped.
 
-If ttm_bo_init() fails, the "gbo" and "gbo->bo.base" will be
-freed by ttm_buffer_object_destroy() in ttm_bo_init(). But
-then drm_gem_vram_create() and drm_gem_vram_init() will free
-"gbo" and "gbo->bo.base" again.
+This race was reproduced on a JBL GO speaker after the remote device
+rejected L2CAP connection due to resource unavailability.
 
-BUG: KMSAN: use-after-free in drm_vma_offset_remove+0xb3/0x150
-CPU: 0 PID: 24282 Comm: syz-executor.1 Tainted: G    B   W         5.7.0-rc4-msan #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-Call Trace:
- __dump_stack
- dump_stack+0x1c9/0x220
- kmsan_report+0xf7/0x1e0
- __msan_warning+0x58/0xa0
- drm_vma_offset_remove+0xb3/0x150
- drm_gem_free_mmap_offset
- drm_gem_object_release+0x159/0x180
- drm_gem_vram_init
- drm_gem_vram_create+0x7c5/0x990
- drm_gem_vram_fill_create_dumb
- drm_gem_vram_driver_dumb_create+0x238/0x590
- drm_mode_create_dumb
- drm_mode_create_dumb_ioctl+0x41d/0x450
- drm_ioctl_kernel+0x5a4/0x710
- drm_ioctl+0xc6f/0x1240
- vfs_ioctl
- ksys_ioctl
- __do_sys_ioctl
- __se_sys_ioctl+0x2e9/0x410
- __x64_sys_ioctl+0x4a/0x70
- do_syscall_64+0xb8/0x160
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x4689b9
-Code: fd e0 fa ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 cb e0 fa ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f368fa4dc98 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 000000000076bf00 RCX: 00000000004689b9
-RDX: 0000000020000240 RSI: 00000000c02064b2 RDI: 0000000000000003
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00000000004d17e0 R14: 00007f368fa4e6d4 R15: 000000000076bf0c
+Here is a dmesg log with debug logs from a repro of this bug:
+[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
+[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
+[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
+[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
+[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
+[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
+[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
+[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
+[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
+[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
+[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
+[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
+[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
+[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
+[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[ 3465.430332] Causing a watchdog bite!
 
-Uninit was created at:
- kmsan_save_stack_with_flags
- kmsan_internal_poison_shadow+0x66/0xd0
- kmsan_slab_free+0x6e/0xb0
- slab_free_freelist_hook
- slab_free
- kfree+0x571/0x30a0
- drm_gem_vram_destroy
- ttm_buffer_object_destroy+0xc8/0x130
- ttm_bo_release
- kref_put
- ttm_bo_put+0x117d/0x23e0
- ttm_bo_init_reserved+0x11c0/0x11d0
- ttm_bo_init+0x289/0x3f0
- drm_gem_vram_init
- drm_gem_vram_create+0x775/0x990
- drm_gem_vram_fill_create_dumb
- drm_gem_vram_driver_dumb_create+0x238/0x590
- drm_mode_create_dumb
- drm_mode_create_dumb_ioctl+0x41d/0x450
- drm_ioctl_kernel+0x5a4/0x710
- drm_ioctl+0xc6f/0x1240
- vfs_ioctl
- ksys_ioctl
- __do_sys_ioctl
- __se_sys_ioctl+0x2e9/0x410
- __x64_sys_ioctl+0x4a/0x70
- do_syscall_64+0xb8/0x160
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-If ttm_bo_init() fails, the "gbo" will be freed by
-ttm_buffer_object_destroy() in ttm_bo_init(). But then
-drm_gem_vram_create() and drm_gem_vram_init() will free
-"gbo" again.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Jia Yang <jiayang5@huawei.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200714083238.28479-2-tzimmermann@suse.de
+Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
+Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem_vram_helper.c | 28 +++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ net/bluetooth/l2cap_sock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index 8b2d5c945c95c..1d85af9a481ac 100644
---- a/drivers/gpu/drm/drm_gem_vram_helper.c
-+++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -175,6 +175,10 @@ static void drm_gem_vram_placement(struct drm_gem_vram_object *gbo,
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index a995d2c51fa7f..2ea6bcbe6f559 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1521,8 +1521,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
+ 
+ 	parent = bt_sk(sk)->parent;
+ 
+-	sock_set_flag(sk, SOCK_ZAPPED);
+-
+ 	switch (chan->state) {
+ 	case BT_OPEN:
+ 	case BT_BOUND:
+@@ -1549,8 +1547,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
+ 
+ 		break;
  	}
- }
- 
-+/*
-+ * Note that on error, drm_gem_vram_init will free the buffer object.
-+ */
+-
+ 	release_sock(sk);
 +
- static int drm_gem_vram_init(struct drm_device *dev,
- 			     struct drm_gem_vram_object *gbo,
- 			     size_t size, unsigned long pg_align)
-@@ -184,15 +188,19 @@ static int drm_gem_vram_init(struct drm_device *dev,
- 	int ret;
- 	size_t acc_size;
- 
--	if (WARN_ONCE(!vmm, "VRAM MM not initialized"))
-+	if (WARN_ONCE(!vmm, "VRAM MM not initialized")) {
-+		kfree(gbo);
- 		return -EINVAL;
-+	}
- 	bdev = &vmm->bdev;
- 
- 	gbo->bo.base.funcs = &drm_gem_vram_object_funcs;
- 
- 	ret = drm_gem_object_init(dev, &gbo->bo.base, size);
--	if (ret)
-+	if (ret) {
-+		kfree(gbo);
- 		return ret;
-+	}
- 
- 	acc_size = ttm_bo_dma_acc_size(bdev, size, sizeof(*gbo));
- 
-@@ -203,13 +211,13 @@ static int drm_gem_vram_init(struct drm_device *dev,
- 			  &gbo->placement, pg_align, false, acc_size,
- 			  NULL, NULL, ttm_buffer_object_destroy);
- 	if (ret)
--		goto err_drm_gem_object_release;
-+		/*
-+		 * A failing ttm_bo_init will call ttm_buffer_object_destroy
-+		 * to release gbo->bo.base and kfree gbo.
-+		 */
-+		return ret;
- 
- 	return 0;
--
--err_drm_gem_object_release:
--	drm_gem_object_release(&gbo->bo.base);
--	return ret;
++	/* Only zap after cleanup to avoid use after free race */
++	sock_set_flag(sk, SOCK_ZAPPED);
++
  }
  
- /**
-@@ -243,13 +251,9 @@ struct drm_gem_vram_object *drm_gem_vram_create(struct drm_device *dev,
- 
- 	ret = drm_gem_vram_init(dev, gbo, size, pg_align);
- 	if (ret < 0)
--		goto err_kfree;
-+		return ERR_PTR(ret);
- 
- 	return gbo;
--
--err_kfree:
--	kfree(gbo);
--	return ERR_PTR(ret);
- }
- EXPORT_SYMBOL(drm_gem_vram_create);
- 
+ static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
 -- 
 2.25.1
 
