@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB58291BBA
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 823EF291BA5
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732312AbgJRTdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:33:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42134 "EHLO mail.kernel.org"
+        id S1731878AbgJRT0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731813AbgJRT0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:26:48 -0400
+        id S1731824AbgJRT0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:26:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A03E20791;
-        Sun, 18 Oct 2020 19:26:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C32CB222EB;
+        Sun, 18 Oct 2020 19:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049207;
-        bh=xV8v4HsfW/T/pSVmTp0YC8+BuJdwI81D8/nK9ImUFdk=;
+        s=default; t=1603049208;
+        bh=Wxi1XBhGF/wh1370KrNDn2t5GpIdHOqlEnjSG0PyVcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNE+MArCXnpH+3gWclpCbwMtv5O350iwunm/bx5KOFdjnsCidbaP6M6jd3++96HoE
-         p+AhQTugMduA1La43lQWIrIKDDJaSZc1nnj8Yv/i1g40xPos5x9AvH8CMaj/MkWB9Q
-         3g+2hc5YgafPxSB0Ic53jbZoMVq1f8gDJHOja5Sc=
+        b=HcUe2L6bOphGdf26XeD/Sy0JjQYnu2DVLKujMgbtr4kj9CjM4Lao8gB2yWMTt1eVc
+         dZ0ret4/huTQHsUZblRz4OmiXdgio0DcHo1BeSwFRIYfj6jZmjRTnY7X+kunQR+keA
+         NiTkPn86Or+07LxjOS/v29QIbfW+uLkRnNZyD4Fo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/41] media: platform: s3c-camif: Fix runtime PM imbalance on error
-Date:   Sun, 18 Oct 2020 15:26:02 -0400
-Message-Id: <20201018192635.4056198-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 09/41] media: platform: sti: hva: Fix runtime PM imbalance on error
+Date:   Sun, 18 Oct 2020 15:26:03 -0400
+Message-Id: <20201018192635.4056198-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192635.4056198-1-sashal@kernel.org>
 References: <20201018192635.4056198-1-sashal@kernel.org>
@@ -47,49 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit dafa3605fe60d5a61239d670919b2a36e712481e ]
+[ Upstream commit d912a1d9e9afe69c6066c1ceb6bfc09063074075 ]
 
 pm_runtime_get_sync() increments the runtime PM usage counter even
 when it returns an error code. Thus a pairing decrement is needed on
 the error handling path to keep the counter balanced.
 
-Also, call pm_runtime_disable() when pm_runtime_get_sync() returns
-an error code.
-
 Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Sylwester Nawrocki <snawrocki@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s3c-camif/camif-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/platform/sti/hva/hva-hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s3c-camif/camif-core.c b/drivers/media/platform/s3c-camif/camif-core.c
-index ec40019703132..560e1ff236508 100644
---- a/drivers/media/platform/s3c-camif/camif-core.c
-+++ b/drivers/media/platform/s3c-camif/camif-core.c
-@@ -476,7 +476,7 @@ static int s3c_camif_probe(struct platform_device *pdev)
- 
- 	ret = camif_media_dev_init(camif);
- 	if (ret < 0)
--		goto err_alloc;
+diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
+index cf2a8d8845367..c4d97fb80aaec 100644
+--- a/drivers/media/platform/sti/hva/hva-hw.c
++++ b/drivers/media/platform/sti/hva/hva-hw.c
+@@ -389,7 +389,7 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
+-		goto err_clk;
 +		goto err_pm;
+ 	}
  
- 	ret = camif_register_sensor(camif);
- 	if (ret < 0)
-@@ -510,10 +510,9 @@ static int s3c_camif_probe(struct platform_device *pdev)
- 	media_device_unregister(&camif->media_dev);
- 	media_device_cleanup(&camif->media_dev);
- 	camif_unregister_media_entities(camif);
--err_alloc:
-+err_pm:
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
--err_pm:
- 	camif_clk_put(camif);
- err_clk:
- 	s3c_camif_unregister_subdev(camif);
+ 	/* check IP hardware version */
 -- 
 2.25.1
 
