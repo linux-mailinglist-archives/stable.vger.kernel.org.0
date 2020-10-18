@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 708FC291E71
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB461291E67
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729164AbgJRTwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S1727712AbgJRTU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729091AbgJRTUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:20:55 -0400
+        id S1729074AbgJRTU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:20:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE549222E9;
-        Sun, 18 Oct 2020 19:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E710222EC;
+        Sun, 18 Oct 2020 19:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048854;
-        bh=qw3Vi2e2hKlFYN6n42eU43Ub6HBceSaWpe9Ma+pAkNg=;
+        s=default; t=1603048856;
+        bh=bKe3MNMrhUKZGjJmilsT28wL8uxdUhmboq/eRPyBLps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRtuEXJ0rXurK6mkd7815ipE8seeijWLm3vJ/QwILIzjPYJc8PRy1gE98LfiswZIe
-         pRhvIWAHbdTcaW3Ba/EmOxzTd1+MIiu7rSPRLrK9YD/xK/Ug/4R/zVXot67dIx+En5
-         iXItqklSvKy4pgXVaeFeOXpESqV5vnJxJpFon8Yw=
+        b=w6A4Xq9tYn9+vqbiWL3/OmMbPAVrgE0V+LSUaMh2ELp/z/JmjlkHiQgDnpUwYJeiM
+         +98i9gMPG/Byxa+nM6yvCnh668JddkBNnjI99noR7h6afbVcKn4BgyXhDuMIN0SDIn
+         2SVKntzVREzaF9h7QCav5iGb9B25IEfj+uSRMe9c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 022/101] x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR
-Date:   Sun, 18 Oct 2020 15:19:07 -0400
-Message-Id: <20201018192026.4053674-22-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 023/101] media: rcar_drif: Fix fwnode reference leak when parsing DT
+Date:   Sun, 18 Oct 2020 15:19:08 -0400
+Message-Id: <20201018192026.4053674-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -44,176 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit e2def7d49d0812ea40a224161b2001b2e815dce2 ]
+[ Upstream commit cdd4f7824994c9254acc6e415750529ea2d2cfe0 ]
 
-If an exception needs to be handled while reading an MSR - which is in
-most of the cases caused by a #GP on a non-existent MSR - then this
-is most likely the incarnation of a BIOS or a hardware bug. Such bug
-violates the architectural guarantee that MCA banks are present with all
-MSRs belonging to them.
+The fwnode reference corresponding to the endpoint is leaked in an error
+path of the rcar_drif_parse_subdevs() function. Fix it, and reorganize
+fwnode reference handling in the function to release references early,
+simplifying error paths.
 
-The proper fix belongs in the hardware/firmware - not in the kernel.
-
-Handling an #MC exception which is raised while an NMI is being handled
-would cause the nasty NMI nesting issue because of the shortcoming of
-IRET of reenabling NMIs when executed. And the machine is in an #MC
-context already so <Deity> be at its side.
-
-Tracing MSR accesses while in #MC is another no-no due to tracing being
-inherently a bad idea in atomic context:
-
-  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
-
-so remove all that "additional" functionality from mce_rdmsrl() and
-provide it with a special exception handler which panics the machine
-when that MSR is not accessible.
-
-The exception handler prints a human-readable message explaining what
-the panic reason is but, what is more, it panics while in the #GP
-handler and latter won't have executed an IRET, thus opening the NMI
-nesting issue in the case when the #MC has happened while handling
-an NMI. (#MC itself won't be reenabled until MCG_STATUS hasn't been
-cleared).
-
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-[ Add missing prototypes for ex_handler_* ]
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20200906212130.GA28456@zn.tnic
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c     | 72 +++++++++++++++++++++++++-----
- arch/x86/kernel/cpu/mce/internal.h | 10 +++++
- 2 files changed, 70 insertions(+), 12 deletions(-)
+ drivers/media/platform/rcar_drif.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index d8dca24feccbe..07673a034d39c 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -370,10 +370,28 @@ static int msr_to_offset(u32 msr)
- 	return -1;
- }
+diff --git a/drivers/media/platform/rcar_drif.c b/drivers/media/platform/rcar_drif.c
+index 3d2451ac347d7..3f1e5cb8b1976 100644
+--- a/drivers/media/platform/rcar_drif.c
++++ b/drivers/media/platform/rcar_drif.c
+@@ -1227,28 +1227,22 @@ static int rcar_drif_parse_subdevs(struct rcar_drif_sdr *sdr)
+ 	if (!ep)
+ 		return 0;
  
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, regs->ip, (void *)regs->ip);
++	/* Get the endpoint properties */
++	rcar_drif_get_ep_properties(sdr, ep);
 +
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
-+}
-+
- /* MSR access wrappers used for error injection */
- static noinstr u64 mce_rdmsrl(u32 msr)
- {
--	u64 v;
-+	DECLARE_ARGS(val, low, high);
- 
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
-@@ -392,21 +410,43 @@ static noinstr u64 mce_rdmsrl(u32 msr)
- 		return ret;
+ 	fwnode = fwnode_graph_get_remote_port_parent(ep);
++	fwnode_handle_put(ep);
+ 	if (!fwnode) {
+ 		dev_warn(sdr->dev, "bad remote port parent\n");
+-		fwnode_handle_put(ep);
+ 		return -EINVAL;
  	}
  
--	if (rdmsrl_safe(msr, &v)) {
--		WARN_ONCE(1, "mce: Unable to read MSR 0x%x!\n", msr);
--		/*
--		 * Return zero in case the access faulted. This should
--		 * not happen normally but can happen if the CPU does
--		 * something weird, or if the code is buggy.
--		 */
--		v = 0;
+ 	sdr->ep.asd.match.fwnode = fwnode;
+ 	sdr->ep.asd.match_type = V4L2_ASYNC_MATCH_FWNODE;
+ 	ret = v4l2_async_notifier_add_subdev(notifier, &sdr->ep.asd);
+-	if (ret) {
+-		fwnode_handle_put(fwnode);
+-		return ret;
 -	}
-+	/*
-+	 * RDMSR on MCA MSRs should not fault. If they do, this is very much an
-+	 * architectural violation and needs to be reported to hw vendor. Panic
-+	 * the box to not allow any further progress.
-+	 */
-+	asm volatile("1: rdmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_rdmsr_fault)
-+		     : EAX_EDX_RET(val, low, high) : "c" (msr));
+-
+-	/* Get the endpoint properties */
+-	rcar_drif_get_ep_properties(sdr, ep);
+-
+ 	fwnode_handle_put(fwnode);
+-	fwnode_handle_put(ep);
  
--	return v;
-+
-+	return EAX_EDX_VAL(val, low, high);
-+}
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, (unsigned int)regs->dx, (unsigned int)regs->ax,
-+		  regs->ip, (void *)regs->ip);
-+
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
+-	return 0;
++	return ret;
  }
  
- static noinstr void mce_wrmsrl(u32 msr, u64 v)
- {
-+	u32 low, high;
-+
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
- 
-@@ -420,7 +460,15 @@ static noinstr void mce_wrmsrl(u32 msr, u64 v)
- 
- 		return;
- 	}
--	wrmsrl(msr, v);
-+
-+	low  = (u32)v;
-+	high = (u32)(v >> 32);
-+
-+	/* See comment in mce_rdmsrl() */
-+	asm volatile("1: wrmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_wrmsr_fault)
-+		     : : "c" (msr), "a"(low), "d" (high) : "memory");
- }
- 
- /*
-diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
-index 6473070b5da49..b122610e9046a 100644
---- a/arch/x86/kernel/cpu/mce/internal.h
-+++ b/arch/x86/kernel/cpu/mce/internal.h
-@@ -185,4 +185,14 @@ extern bool amd_filter_mce(struct mce *m);
- static inline bool amd_filter_mce(struct mce *m)			{ return false; };
- #endif
- 
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
- #endif /* __X86_MCE_INTERNAL_H__ */
+ /* Check if the given device is the primary bond */
 -- 
 2.25.1
 
