@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6851F291E9B
-	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA452919D9
+	for <lists+stable@lfdr.de>; Sun, 18 Oct 2020 21:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728933AbgJRTx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Oct 2020 15:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60224 "EHLO mail.kernel.org"
+        id S1728923AbgJRTUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Oct 2020 15:20:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728902AbgJRTUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:20:31 -0400
+        id S1728913AbgJRTUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:20:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BCD4222C8;
-        Sun, 18 Oct 2020 19:20:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39DFD222E7;
+        Sun, 18 Oct 2020 19:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603048830;
-        bh=n2DLLg6zbaRyUaW8mG7d2lE77ZgileO8u2hHMvZBvM4=;
+        s=default; t=1603048832;
+        bh=euSlTIDisOskMB5UgyqLeAfOkw/u0PxXEldvc7fiz98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmDAnCqO8JnGJ8Zr73t+fCQY1QvdzlAgXP/vdkcG0Os5whqRr+xUGXpPLew1g16yY
-         kbyA9MUBHvJk9hRcoL+tjtSudpZip7LjmHHxxvmodWeG3r7dmc0JJhXsEyUgMjDicx
-         DRrtjr4QJ1VZFOKn1iRpAmPkIdiPT0r+igfIR1o0=
+        b=0yYXORKPKI2MkyaG/QJCtqnY2ttuw1Q9rKnrhaz0WNH6hqJEl6fK1RHP1JoDp+9U7
+         dwz7xMhYbwmHh761Tmo4SewETjK4jFm1d39HutPd7KNw/AnWqGk1T3YoEGmaWQNYyI
+         r6ycBzzYpKLMvwq4JANa34q3sjTBnYaIeBGTTxqo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Mossberg <mark.mossberg@gmail.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 003/101] x86/dumpstack: Fix misleading instruction pointer error message
-Date:   Sun, 18 Oct 2020 15:18:48 -0400
-Message-Id: <20201018192026.4053674-3-sashal@kernel.org>
+Cc:     Pavel Machek <pavel@denx.de>, John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 004/101] crypto: ccp - fix error handling
+Date:   Sun, 18 Oct 2020 15:18:49 -0400
+Message-Id: <20201018192026.4053674-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
 References: <20201018192026.4053674-1-sashal@kernel.org>
@@ -41,48 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Mossberg <mark.mossberg@gmail.com>
+From: Pavel Machek <pavel@denx.de>
 
-[ Upstream commit 238c91115cd05c71447ea071624a4c9fe661f970 ]
+[ Upstream commit e356c49c6cf0db3f00e1558749170bd56e47652d ]
 
-Printing "Bad RIP value" if copy_code() fails can be misleading for
-userspace pointers, since copy_code() can fail if the instruction
-pointer is valid but the code is paged out. This is because copy_code()
-calls copy_from_user_nmi() for userspace pointers, which disables page
-fault handling.
+Fix resource leak in error handling.
 
-This is reproducible in OOM situations, where it's plausible that the
-code may be reclaimed in the time between entry into the kernel and when
-this message is printed. This leaves a misleading log in dmesg that
-suggests instruction pointer corruption has occurred, which may alarm
-users.
-
-Change the message to state the error condition more precisely.
-
- [ bp: Massage a bit. ]
-
-Signed-off-by: Mark Mossberg <mark.mossberg@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201002042915.403558-1-mark.mossberg@gmail.com
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/dumpstack.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index 7401cc12c3ccf..42679610c9bea 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -115,7 +115,8 @@ void show_opcodes(struct pt_regs *regs, const char *loglvl)
- 	unsigned long prologue = regs->ip - PROLOGUE_SIZE;
- 
- 	if (copy_code(regs, opcodes, prologue, sizeof(opcodes))) {
--		printk("%sCode: Bad RIP value.\n", loglvl);
-+		printk("%sCode: Unable to access opcode bytes at RIP 0x%lx.\n",
-+		       loglvl, prologue);
+diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
+index 64112c736810e..7234b95241e91 100644
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -1746,7 +1746,7 @@ ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 			break;
+ 		default:
+ 			ret = -EINVAL;
+-			goto e_ctx;
++			goto e_data;
+ 		}
  	} else {
- 		printk("%sCode: %" __stringify(PROLOGUE_SIZE) "ph <%02x> %"
- 		       __stringify(EPILOGUE_SIZE) "ph\n", loglvl, opcodes,
+ 		/* Stash the context */
 -- 
 2.25.1
 
