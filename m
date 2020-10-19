@@ -2,101 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B24B7292BF3
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 18:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2975292C16
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 19:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730690AbgJSQ4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 12:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36650 "EHLO
+        id S1730892AbgJSRCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 13:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730025AbgJSQ4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 12:56:05 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4604FC0613CE;
-        Mon, 19 Oct 2020 09:56:05 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id i1so559992wro.1;
-        Mon, 19 Oct 2020 09:56:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9PYh9zOEyCKmAv70piA7xO/5F+a+eOAGeDMzmq6LTgU=;
-        b=e2v4xWqR0zmlnm2YqD0yptlm8H/vyT2xIG9OhDne1W9sxkxfzWV0pQXmdt34eTxALR
-         G3egG9E0KIO/LFHh416TY6bGdH26j7//issKq0+VcjVcOIDy2dXzWORWbERx0IPT+TLV
-         Yhde/k+Bzl319BWbZZ0zo8yfJVPwLGYq7w7h9vsP/k2gGvmb7WBmtB9v2l1582tqYHWQ
-         BvGZGx3r7iNZM6x1mI4wY6oJDdxLggLRTt58x0MQj2+LiF7iCJWNSsRPm3HaVXGapSsR
-         WSpenueZpYchbcPlcH+kgumIDXTTcd/p3uByWf8HKB0mpOmNJRLE6S9j4Xl32HQvxCUe
-         F0wg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9PYh9zOEyCKmAv70piA7xO/5F+a+eOAGeDMzmq6LTgU=;
-        b=aFzZTDgJG2PlphV+pmY2XMwOqZvdd0tJlBgtCtw032Na53keC5uZKfHUxixXm7jcIU
-         UegdF/DRQfuxvzVCk3TgtsNjchhjgp7ma72q5+M0Bexsuu9xOYAKxGiVIIah3TTCn1pF
-         TwU7M9sMCyBiXgZ/Nv/Lg0WJYNR8RYBuBS6TfMm+7wnGibaix3s1XREaiPMzR9CBbynt
-         3lPYeoSAwVrpSB0wNs2b2llspVowISbT/eY6tEFOg0IBp6caf2wY67FW51Lxwva/BTzp
-         ZUXrJ9cVH2cnkyqVnDnBzOlCBoNDPZdr0gL03Rk4c0CGUi7M66Q2sYCBqmqqKHFiq9dP
-         amFQ==
-X-Gm-Message-State: AOAM530YtTZh1xLQRksva9jx7xkuqLY/md4J4PEvtx/xOTqS9OJPL521
-        1RaWKmZn7VXsq6e70MSHtJ+8RC6/DCn5eg==
-X-Google-Smtp-Source: ABdhPJzNrVvlnKmQjLdC1PIVPbVtvAUgSiH/bDPFBKMZqEbpxG+44idgNxVAcHv/cn2n/pRoO0gRfA==
-X-Received: by 2002:a05:6000:118c:: with SMTP id g12mr185200wrx.246.1603126563897;
-        Mon, 19 Oct 2020 09:56:03 -0700 (PDT)
-Received: from Ansuel-XPS.localdomain (93-39-149-95.ip76.fastwebnet.it. [93.39.149.95])
-        by smtp.googlemail.com with ESMTPSA id 4sm412706wrn.48.2020.10.19.09.56.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Oct 2020 09:56:03 -0700 (PDT)
-From:   Ansuel Smith <ansuelsmth@gmail.com>
-To:     lorenzo.pieralisi@arm.com
-Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
-        Ilia Mirkin <imirkin@alum.mit.edu>, stable@vger.kernel.org,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
-        Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sham Muthayyan <smuthayy@codeaurora.org>,
-        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [RESEND PATCH] PCI: qcom: use PHY_REFCLK_USE_PAD only for ipq8064
-Date:   Mon, 19 Oct 2020 18:55:55 +0200
-Message-Id: <20201019165555.8269-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.27.0
+        with ESMTP id S1730657AbgJSRCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 13:02:43 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8615CC0613CE;
+        Mon, 19 Oct 2020 10:02:43 -0700 (PDT)
+Date:   Mon, 19 Oct 2020 17:02:40 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1603126961;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=F9x02KxlrD1qoGO+VwTb6oVocoE14TXHnjN1lLSWp1c=;
+        b=tZODMVVaTHU1pbK7t6Q7vRjiN4Xos/RO8raLRDS5t9yGwNxs5HIFJpu5L3es5p+/El+nvU
+        hO21HLnHu6vcxxZ6bhQLQj0HWpIAOaH6iSUwpunMfU4yPdhReIpSRcCDXaw42SYLF6au3U
+        p4SzFCPpYMimehG5aoJaouLsa8b5CBAKUuzvdSHJfdOXGIy+DE6AtkEbbbrDbpXYk6YrvX
+        eiCxX+OJiERcfCrEOdeuCraY5E1UGl+ioyB1T57/6qhnNbfOhIwE1OS37qNZURZSlT5WPW
+        M+fQYKeis1aS/H1XGxwwxzU3lsdbDLNoFtpePjpFv7cFVheb0VXSYywOW0vbHA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1603126961;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=F9x02KxlrD1qoGO+VwTb6oVocoE14TXHnjN1lLSWp1c=;
+        b=8Hsbux32bXi2DEondQsZAHrawwTEscv3524B+9M4En99P5QJmHGPGUjDBmUWrTzbL3iAIh
+        re7wyhxPu7UwoIBQ==
+From:   "tip-bot2 for Herbert Xu" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] crypto: bcm - Verify GCM/CCM key length in setkey
+Cc:     <stable@vger.kernel.org>, kiyin@tencent.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160312696050.7002.7315809954786207518.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The use of PHY_REFCLK_USE_PAD introduced a regression for apq8064
-devices. It was tested that while apq doesn't require the padding, ipq
-SoC must use it or the kernel hangs on boot.
+The following commit has been merged into the perf/urgent branch of tip:
 
-Fixes: de3c4bf6489 ("PCI: qcom: Add support for tx term offset for rev 2.1.0")
-Reported-by: Ilia Mirkin <imirkin@alum.mit.edu>
-Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v4.19+
+Commit-ID:     a745dda98d8a4e9946f2aca751a5b0a3cc71f474
+Gitweb:        https://git.kernel.org/tip/a745dda98d8a4e9946f2aca751a5b0a3cc7=
+1f474
+Author:        Herbert Xu <herbert@gondor.apana.org.au>
+AuthorDate:    Fri, 02 Oct 2020 17:55:22 +10:00
+Committer:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CommitterDate: Sat, 17 Oct 2020 08:31:22 +02:00
+
+crypto: bcm - Verify GCM/CCM key length in setkey
+
+commit 10a2f0b311094ffd45463a529a410a51ca025f27 upstream.
+
+The setkey function for GCM/CCM algorithms didn't verify the key
+length before copying the key and subtracting the salt length.
+
+This patch delays the copying of the key til after the verification
+has been done.  It also adds checks on the key length to ensure
+that it's at least as long as the salt.
+
+Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
+Cc: <stable@vger.kernel.org>
+Reported-by: kiyin(=E5=B0=B9=E4=BA=AE) <kiyin@tencent.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/controller/dwc/pcie-qcom.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/bcm/cipher.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index 3aac77a295ba..dad6e9ce66ba 100644
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -387,7 +387,9 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 
- 	/* enable external reference clock */
- 	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
--	val &= ~PHY_REFCLK_USE_PAD;
-+	/* USE_PAD is required only for ipq806x */
-+	if (!of_device_is_compatible(node, "qcom,pcie-apq8064"))
-+		val &= ~PHY_REFCLK_USE_PAD;
- 	val |= PHY_REFCLK_SSP_EN;
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
- 
--- 
-2.27.0
-
+diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
+index 8a7fa1a..ba25d26 100644
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -2930,7 +2930,6 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *ciph=
+er,
+=20
+ 	ctx->enckeylen =3D keylen;
+ 	ctx->authkeylen =3D 0;
+-	memcpy(ctx->enckey, key, ctx->enckeylen);
+=20
+ 	switch (ctx->enckeylen) {
+ 	case AES_KEYSIZE_128:
+@@ -2946,6 +2945,8 @@ static int aead_gcm_ccm_setkey(struct crypto_aead *ciph=
+er,
+ 		goto badkey;
+ 	}
+=20
++	memcpy(ctx->enckey, key, ctx->enckeylen);
++
+ 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
+ 		 ctx->authkeylen);
+ 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
+@@ -3000,6 +3001,10 @@ static int aead_gcm_esp_setkey(struct crypto_aead *cip=
+her,
+ 	struct iproc_ctx_s *ctx =3D crypto_aead_ctx(cipher);
+=20
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len =3D GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset =3D GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3028,6 +3033,10 @@ static int rfc4543_gcm_esp_setkey(struct crypto_aead *=
+cipher,
+ 	struct iproc_ctx_s *ctx =3D crypto_aead_ctx(cipher);
+=20
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len =3D GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset =3D GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3057,6 +3066,10 @@ static int aead_ccm_esp_setkey(struct crypto_aead *cip=
+her,
+ 	struct iproc_ctx_s *ctx =3D crypto_aead_ctx(cipher);
+=20
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < CCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len =3D CCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset =3D CCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
