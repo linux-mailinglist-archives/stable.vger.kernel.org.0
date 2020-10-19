@@ -2,83 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D258C2927E5
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D3C292807
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:18:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbgJSNI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 09:08:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726931AbgJSNI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 09:08:27 -0400
-Received: from manul.sfritsch.de (manul.sfritsch.de [IPv6:2a01:4f8:172:195f:112::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F6FC0613CE
-        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 06:08:27 -0700 (PDT)
-Date:   Mon, 19 Oct 2020 15:08:17 +0200 (CEST)
-From:   Stefan Fritsch <sf@sfritsch.de>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-cc:     intel-gfx@lists.freedesktop.org,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915: Force VT'd workarounds when running as a guest
- OS
-In-Reply-To: <20201019101523.4145-1-chris@chris-wilson.co.uk>
-Message-ID: <alpine.DEB.2.21.2010191506390.5579@manul.sfritsch.de>
-References: <20201019101230.29860-1-chris@chris-wilson.co.uk> <20201019101523.4145-1-chris@chris-wilson.co.uk>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1727297AbgJSNSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 09:18:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47158 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726931AbgJSNSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Oct 2020 09:18:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1603113524;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=v7WfNYUczwmH5kd5aVp7TEjtwO+BlARGhkxvUJGVTF0=;
+        b=GD0WHEFrCzHMg5Z0lQPfieggrhYlzjuX855mHBK97YmlA1j7G7uzqYtkKXsUj9o8vOwWe3
+        yhdqR/DCHUPH/woBF0h8XxL8eXKaMXFmKfS/KJh6IpOzs8dDshVhrBGIyVDAcqXvMSLeDv
+        NrL90hTRKpHYke2rvNy4kyQHhKoflM0=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 3006FB7F1;
+        Mon, 19 Oct 2020 13:18:44 +0000 (UTC)
+Date:   Mon, 19 Oct 2020 15:18:43 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Matteo Croce <mcroce@linux.microsoft.com>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] reboot: fix overflow parsing reboot cpu number
+Message-ID: <20201019131843.GB26718@alley>
+References: <20201016180907.171957-1-mcroce@linux.microsoft.com>
+ <20201016180907.171957-2-mcroce@linux.microsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201016180907.171957-2-mcroce@linux.microsoft.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Works for me and makes the fault messages disappear. Thanks.
-
-Tested-by: Stefan Fritsch <sf@sfritsch.de>
-
-
-On Mon, 19 Oct 2020, Chris Wilson wrote:
-
-> If i915.ko is being used as a passthrough device, it does not know if
-> the host is using intel_iommu. Mixing the iommu and gfx causing a few
-> issues (such as scanout overfetch) which we need to workaround inside
-> the driver, so if we detect we are running under a hypervisor, also
-> assume the device access is being virtualised.
+On Fri 2020-10-16 20:09:06, Matteo Croce wrote:
+> From: Matteo Croce <mcroce@microsoft.com>
 > 
-> Reported-by: Stefan Fritsch <sf@sfritsch.de>
-> Suggested-by: Stefan Fritsch <sf@sfritsch.de>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Stefan Fritsch <sf@sfritsch.de>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/i915_drv.h | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> Limit the CPU number to num_possible_cpus(), because setting it
+> to a value lower than INT_MAX but higher than NR_CPUS produces the
+> following error on reboot and shutdown:
 > 
-> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-> index 1a5729932c81..bcd8650603d8 100644
-> --- a/drivers/gpu/drm/i915/i915_drv.h
-> +++ b/drivers/gpu/drm/i915/i915_drv.h
-> @@ -33,6 +33,8 @@
->  #include <uapi/drm/i915_drm.h>
->  #include <uapi/drm/drm_fourcc.h>
->  
-> +#include <asm/hypervisor.h>
-> +
->  #include <linux/io-mapping.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-algo-bit.h>
-> @@ -1760,7 +1762,9 @@ static inline bool intel_vtd_active(void)
->  	if (intel_iommu_gfx_mapped)
->  		return true;
->  #endif
-> -	return false;
-> +
-> +	/* Running as a guest, we assume the host is enforcing VT'd */
-> +	return !hypervisor_is_type(X86_HYPER_NATIVE);
->  }
->  
->  static inline bool intel_scanout_needs_vtd_wa(struct drm_i915_private *dev_priv)
-> 
+> Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
+> Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+
+Best Regards,
+Petr
