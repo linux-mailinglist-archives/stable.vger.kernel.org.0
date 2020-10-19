@@ -2,77 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE981292EC8
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 21:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C2C292F8C
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 22:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgJSTwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 15:52:02 -0400
-Received: from surat-el.surakarta.go.id ([103.115.227.187]:48446 "EHLO
-        surat-el.surakarta.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728012AbgJSTwC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 15:52:02 -0400
-X-Greylist: delayed 680 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Oct 2020 15:52:01 EDT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by surat-el.surakarta.go.id (Postfix) with ESMTP id DE2408E7BA7;
-        Tue, 20 Oct 2020 02:40:36 +0700 (WIB)
-Received: from surat-el.surakarta.go.id ([127.0.0.1])
-        by localhost (surat-el.surakarta.go.id [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id c2a503p0Mo-3; Tue, 20 Oct 2020 02:40:35 +0700 (WIB)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by surat-el.surakarta.go.id (Postfix) with ESMTP id A69518E7BA6;
-        Tue, 20 Oct 2020 02:40:34 +0700 (WIB)
-DKIM-Filter: OpenDKIM Filter v2.10.3 surat-el.surakarta.go.id A69518E7BA6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=surakarta.go.id;
-        s=108D7042-CD8C-11EA-94FB-95DFADA11866; t=1603136434;
-        bh=rr82TVra+sMRQ9UdeBnR0iZD1cjhMdXN6zpXN+MzqmE=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=ZIDo4HFdOlAbQ+o2CcTi3C8PX7q9VLmOnkNUd6UjxJ1qMM6NJKskDaru5GZ53ZD2V
-         n+E/Ksfu8q6Aiu9o4318JEYAMDoIAoltWDJib7x/w2ECnZGhTutOhMoLD8iZcxcppK
-         KALLLxsL6lJFuHrJkgD91GYw6TlpQPBpfIuWhDhyC2eEvnwS92UutC0NY0flfjhWw1
-         xnwIATgluCtIpaT6QzEl3jAJKuTE/iBlIx0YEzSyp7uEKkrUvbobi1ClSOOq+y1TDG
-         kDk4AW/xM3mQWp3SHj7vl+mBXzH3pmLutZt8jCBTm0lBr260o24AC307YOuhQYObsk
-         bk/7lvs4JzAUA==
-X-Virus-Scanned: amavisd-new at surakarta.go.id
-Received: from surat-el.surakarta.go.id ([127.0.0.1])
-        by localhost (surat-el.surakarta.go.id [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id XExwDKkXLY5W; Tue, 20 Oct 2020 02:40:34 +0700 (WIB)
-Received: from [100.81.197.204] (unknown [106.210.46.170])
-        by surat-el.surakarta.go.id (Postfix) with ESMTPSA id 635218E7B63;
-        Tue, 20 Oct 2020 02:40:04 +0700 (WIB)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1726689AbgJSUia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 16:38:30 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:52686 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725904AbgJSUia (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 16:38:30 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22760834-1500050 
+        for multiple; Mon, 19 Oct 2020 21:38:26 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?q?Zbigniew=20Kempczy=C5=84ski?= 
+        <zbigniew.kempczynski@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gem: Flush coherency domains on first set-domain-ioctl
+Date:   Mon, 19 Oct 2020 21:38:25 +0100
+Message-Id: <20201019203825.10966-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: =?utf-8?q?ATENCI=C3=93N___?=
-To:     Recipients <fahruddineka@surakarta.go.id>
-From:   Sistemas administrador <fahruddineka@surakarta.go.id>
-Date:   Tue, 20 Oct 2020 01:09:36 +0530
-Reply-To: mailupgrade@mail2engineer.com
-Message-Id: <20201019194005.635218E7B63@surat-el.surakarta.go.id>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATENCI=D3N;
+Avoid skipping what appears to be a no-op set-domain-ioctl if the cache
+coherency state is inconsistent with our target domain. This also has
+the utility of using the population of the pages to validate the backing
+store.
 
-Su buz=F3n ha superado el l=EDmite de almacenamiento, que es de 5 GB defini=
-dos por el administrador, quien actualmente est=E1 ejecutando en 10.9GB, no=
- puede ser capaz de enviar o recibir correo nuevo hasta que vuelva a valida=
-r su buz=F3n de correo electr=F3nico. Para revalidar su buz=F3n de correo, =
-env=EDe la siguiente informaci=F3n a continuaci=F3n:
+The danger in skipping the first set-domain is leaving the cache
+inconsistent and submitting stale data, or worse leaving the clean data
+in the cache and not flushing it to the GPU. The impact should be small
+as it requires a no-op set-domain as the very first ioctl in a
+particular sequence not found in typical userspace.
 
-nombre:
-Nombre de usuario:
-contrase=F1a:
-Confirmar contrase=F1a:
-E-mail:
-tel=E9fono:
+Reported-by: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Fixes: 754a25442705 ("drm/i915: Skip object locking around a no-op set-domain ioctl")
+Testcase: igt/gem_mmap_offset/blt-coherency
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+---
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c | 28 ++++++++++------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-Si usted no puede revalidar su buz=F3n, el buz=F3n se deshabilitar=E1!
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 7c90a63c273d..fcce6909f201 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -508,21 +508,6 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (!obj)
+ 		return -ENOENT;
+ 
+-	/*
+-	 * Already in the desired write domain? Nothing for us to do!
+-	 *
+-	 * We apply a little bit of cunning here to catch a broader set of
+-	 * no-ops. If obj->write_domain is set, we must be in the same
+-	 * obj->read_domains, and only that domain. Therefore, if that
+-	 * obj->write_domain matches the request read_domains, we are
+-	 * already in the same read/write domain and can skip the operation,
+-	 * without having to further check the requested write_domain.
+-	 */
+-	if (READ_ONCE(obj->write_domain) == read_domains) {
+-		err = 0;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * Try to flush the object off the GPU without holding the lock.
+ 	 * We will repeat the flush holding the lock in the normal manner
+@@ -560,6 +545,19 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (err)
+ 		goto out;
+ 
++	/*
++	 * Already in the desired write domain? Nothing for us to do!
++	 *
++	 * We apply a little bit of cunning here to catch a broader set of
++	 * no-ops. If obj->write_domain is set, we must be in the same
++	 * obj->read_domains, and only that domain. Therefore, if that
++	 * obj->write_domain matches the request read_domains, we are
++	 * already in the same read/write domain and can skip the operation,
++	 * without having to further check the requested write_domain.
++	 */
++	if (READ_ONCE(obj->write_domain) == read_domains)
++		goto out_unpin;
++
+ 	err = i915_gem_object_lock_interruptible(obj, NULL);
+ 	if (err)
+ 		goto out_unpin;
+-- 
+2.20.1
 
-Disculpa las molestias.
-C=F3digo de verificaci=F3n:666690opp4r56 es: 006524
-Correo Soporte T=E9cnico =A9 2020
-
-=A1gracias
-Sistemas administrador
