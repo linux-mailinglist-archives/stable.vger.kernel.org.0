@@ -2,58 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D24C12924D9
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 11:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C02BA292584
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 12:19:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727712AbgJSJrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 05:47:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53966 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727254AbgJSJrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 05:47:06 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFAEC0613CE
-        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 02:47:06 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id a7so13356603lfk.9
-        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 02:47:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=fijZF+PKP3bKn1GG29+KBm7Zj7mn3udi/MXea05YgWYJTsMwhvygMJg51fEvq9QrzX
-         e9KnecXIhBv7eTVlNbPIyDXYd3XsThDwigxmqbN9U4c6jBOAKt2KLrkcPYhaKL35Q0Rq
-         yqyEKZZHE+s/3JNuotF75SeGTAWcD/sRspIYHPFzHK3PRuhSJWnyG6bic7eYJYGdtbBi
-         GJrPc5XzbW6gSiyIO4A2UfnXgvQGE0QbSBI1VhR21RebfFHk/+/kfQHhA1ZVvnmy79Pb
-         qVSf8VCuZJFaLqgD6cJQogOALsDVtxpvO5DnAifIgb3hgRk4uYRfZV0caFR4M2G6W+XI
-         4ESQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=tjObU9lwsMjMflYmNryQqGVFP6hfKLpasINTxNx7VIp1E6U5++sdIk41VlJeJHcvFV
-         rSzuXDzvxgh2OywXADcuPKnYXbXzWUtUUv38G1Tc//2tshYZzktOhrhC3jE5LIyTw1kP
-         FykWnp+sKEGrFxtBe1xChpEMXaYboNW1B168rid8IgCyIry/JVrLl9SW6hsCiC0wssc3
-         Wrd5LJuW8cyrI+Ne8iUFKDu7nbQYNiEqwJsea8XpuTByl9jbgAo7OHxJtHVHtYtZnpbC
-         7JuMDJMp9uL2meFgyegMUQ+4bdADc1vF3iYq2G3VtHM4AjpMfOiYZcNG6vAqT4sHT9qB
-         2lFw==
-X-Gm-Message-State: AOAM533EY9sy0sx90U1YKPNayV5f+Z+cMzkZ2i2+aN7YMHOuuBPplSpf
-        eTXxixtShbLvU7p2Cup4ftz1fJ0gc2u4zFOwylQ=
-X-Google-Smtp-Source: ABdhPJycPHhUyBbMFsxuOC9wpgqW7dfhTG1v0DvXbULJiolMEUFBiybZxoKqI41fZDABAzdB4euvHZQAbXwc9EHeLYs=
-X-Received: by 2002:a19:80d5:: with SMTP id b204mr5230905lfd.384.1603100825076;
- Mon, 19 Oct 2020 02:47:05 -0700 (PDT)
+        id S1729136AbgJSKSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 06:18:08 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:58696 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727524AbgJSKSG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 06:18:06 -0400
+Message-Id: <20201019101109.603244207@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1603102683;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
+        b=tl5wef45fNGo5qqku0RXIq+k+/4W5Q5pAIFBbYg5gHeiLz+rmzsYUbEI3sumMndcKnV617
+        MFFwqK5RIs3GufNia1xUXF+YC1q1ts4jwtlb7Ua/wwMSvgy7787t31DxiRtl3cCt4/uhKK
+        AyYnqXDkGUNL71Ex1qyWaW7moaGiflTzGR9pI75Xrvato+85LDRsR/1vSjNVORVpri1nLK
+        kn/ZmQGgHXECgIAq45Z18bsJnOSfgf++dbm9svkITC3qP9gnqllazKhtNB2KZXVIJPxUDO
+        oGKr0anhSRYMnEKTbl/+mqUgWEDKmzjj9foPm959CshuqF2iw/vNmXcRd1bVhg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1603102683;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
+        b=mFdIWnSa3Q+Zc90yiD08Wh2Z/poUmlh/UuAiBa7jk0GT1OVt+U/ksI8/JfrThIju7Jh6Tn
+        sviYJm2vlKfOSvDA==
+Date:   Mon, 19 Oct 2020 12:06:30 +0200
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Winischhofer <thomas@winischhofer.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        linux-omap@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Duncan Sands <duncan.sands@free.fr>
+Subject: [patch V2 01/13] USB: sisusbvga: Make console support depend on BROKEN
+References: <20201019100629.419020859@linutronix.de>
 MIME-Version: 1.0
-Received: by 2002:ab3:72d0:0:0:0:0:0 with HTTP; Mon, 19 Oct 2020 02:47:04
- -0700 (PDT)
-Reply-To: celina2x2@yahoo.com
-From:   Celina Peter <celinap2x1@gmail.com>
-Date:   Mon, 19 Oct 2020 10:47:04 +0100
-Message-ID: <CAFv0OFKmk4E-kG+fzLtrpWTg3kN93H6jL99+yMqA9jgrnRBPDg@mail.gmail.com>
-Subject: Good day,Please can we talk?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
+to detect contexts in which it cannot sleep despite the big fat comment in
+preempt.h which says: Do not use in_atomic() in driver code.
+
+in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
+means that spin/rw_lock held regions are not detected by it.
+
+There is no way to make this work by handing context information through to
+the driver and this only can be solved once the core printk infrastructure
+supports sleepable console drivers.
+
+Make it depend on BROKEN for now.
+
+Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable@vger.kernel.org
+---
+ drivers/usb/misc/sisusbvga/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/usb/misc/sisusbvga/Kconfig
++++ b/drivers/usb/misc/sisusbvga/Kconfig
+@@ -16,7 +16,7 @@ config USB_SISUSBVGA
+ 
+ config USB_SISUSBVGA_CON
+ 	bool "Text console and mode switching support" if USB_SISUSBVGA
+-	depends on VT
++	depends on VT && BROKEN
+ 	select FONT_8x16
+ 	help
+ 	  Say Y here if you want a VGA text console via the USB dongle or
 
