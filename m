@@ -2,95 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C02BA292584
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 12:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA74E292536
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 12:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729136AbgJSKSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 06:18:08 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:58696 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727524AbgJSKSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 06:18:06 -0400
-Message-Id: <20201019101109.603244207@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1603102683;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
-        b=tl5wef45fNGo5qqku0RXIq+k+/4W5Q5pAIFBbYg5gHeiLz+rmzsYUbEI3sumMndcKnV617
-        MFFwqK5RIs3GufNia1xUXF+YC1q1ts4jwtlb7Ua/wwMSvgy7787t31DxiRtl3cCt4/uhKK
-        AyYnqXDkGUNL71Ex1qyWaW7moaGiflTzGR9pI75Xrvato+85LDRsR/1vSjNVORVpri1nLK
-        kn/ZmQGgHXECgIAq45Z18bsJnOSfgf++dbm9svkITC3qP9gnqllazKhtNB2KZXVIJPxUDO
-        oGKr0anhSRYMnEKTbl/+mqUgWEDKmzjj9foPm959CshuqF2iw/vNmXcRd1bVhg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1603102683;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
-        b=mFdIWnSa3Q+Zc90yiD08Wh2Z/poUmlh/UuAiBa7jk0GT1OVt+U/ksI8/JfrThIju7Jh6Tn
-        sviYJm2vlKfOSvDA==
-Date:   Mon, 19 Oct 2020 12:06:30 +0200
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        linux-omap@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Duncan Sands <duncan.sands@free.fr>
-Subject: [patch V2 01/13] USB: sisusbvga: Make console support depend on BROKEN
-References: <20201019100629.419020859@linutronix.de>
+        id S1726581AbgJSKMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 06:12:34 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:53536 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725921AbgJSKMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 06:12:34 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22755041-1500050 
+        for multiple; Mon, 19 Oct 2020 11:12:30 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Stefan Fritsch <sf@sfritsch.de>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Force VT'd workarounds when running as a guest OS
+Date:   Mon, 19 Oct 2020 11:12:30 +0100
+Message-Id: <20201019101230.29860-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
-to detect contexts in which it cannot sleep despite the big fat comment in
-preempt.h which says: Do not use in_atomic() in driver code.
+If i915.ko is being used as a passthrough device, it does not know if
+the host is using intel_iommu. Mixing the iommu and gfx causing a few
+issues (such as scanout overfetch) which we need to workaround inside
+the driver, so if we detect we are running under a hypervisor, also
+assume the device access is being virtualised.
 
-in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
-means that spin/rw_lock held regions are not detected by it.
-
-There is no way to make this work by handing context information through to
-the driver and this only can be solved once the core printk infrastructure
-supports sleepable console drivers.
-
-Make it depend on BROKEN for now.
-
-Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
+Reported-by: Stefan Fritsch <sf@sfritsch.de>
+Suggested-by: Stefan Fritsch <sf@sfritsch.de>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Stefan Fritsch <sf@sfritsch.de>
 Cc: stable@vger.kernel.org
 ---
- drivers/usb/misc/sisusbvga/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_drv.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/usb/misc/sisusbvga/Kconfig
-+++ b/drivers/usb/misc/sisusbvga/Kconfig
-@@ -16,7 +16,7 @@ config USB_SISUSBVGA
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 1a5729932c81..02a3dac412d8 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -33,6 +33,8 @@
+ #include <uapi/drm/i915_drm.h>
+ #include <uapi/drm/drm_fourcc.h>
  
- config USB_SISUSBVGA_CON
- 	bool "Text console and mode switching support" if USB_SISUSBVGA
--	depends on VT
-+	depends on VT && BROKEN
- 	select FONT_8x16
- 	help
- 	  Say Y here if you want a VGA text console via the USB dongle or
++#include <asm/hypervisor.h>
++
+ #include <linux/io-mapping.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+@@ -1760,6 +1762,13 @@ static inline bool intel_vtd_active(void)
+ 	if (intel_iommu_gfx_mapped)
+ 		return true;
+ #endif
++
++#ifdef CONFIG_HYPERVISOR_GUEST
++	/* Running as a guest, we assume the host is enforcing VT'd */
++	if (x86_hyper_type != X86_HYPER_NATIVE)
++		return true;
++#endif
++
+ 	return false;
+ }
+ 
+-- 
+2.20.1
 
