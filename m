@@ -2,60 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B652926BE
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 13:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBEA292720
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 14:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbgJSLwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 07:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45546 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726015AbgJSLwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Oct 2020 07:52:39 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6302080D;
-        Mon, 19 Oct 2020 11:52:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603108358;
-        bh=JnT9sHQRIZ3jZpGC9ANCu7yXrVu9WDXvQ3urEiT7Vxk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eBN01PXE0XDenSuu6kOiyfxPJAv9vezu+f1ivm25Ec1241EK3EIHJIndkXL+8Wvv/
-         IEiUi0DttLAlHXku3dDWgnrpXwdDlehYkPU280YGE808uhi/clwVc9OvlOMVCHa0Qm
-         gff2Oac3+VltTgwVx4SbviQ/cZyun8Nea/Z8hdCE=
-Date:   Mon, 19 Oct 2020 07:52:36 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     David Ahern <dsahern@gmail.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.9 035/111] ipv6/icmp: l3mdev: Perform icmp
- error route lookup on source device routing table (v2)
-Message-ID: <20201019115236.GA4060117@sasha-vm>
-References: <20201018191807.4052726-1-sashal@kernel.org>
- <20201018191807.4052726-35-sashal@kernel.org>
- <20201018124004.5f8c50a3@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
+        id S1726931AbgJSMVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 08:21:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726336AbgJSMVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 08:21:04 -0400
+Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D11C0613CE
+        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 05:21:04 -0700 (PDT)
+Received: by mail-qv1-xf44.google.com with SMTP id t20so4194177qvv.8
+        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 05:21:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=PAuXBSedgkB7JHEREAU3K2PTRg23BPy/IdSFB7zdDLM=;
+        b=GFO3LQCZSpx/15vW6hMApSazup6ATBQMH1u0lg5/T39wFRifkXzNloN1OE4DeL1tsO
+         kZMSpiemV2qcrHyrTys7x10ke9bxepEyur/TihGy72C3KepBRjVDJx7FxxHx+UdUg5Eb
+         zZf6ghQ/7hOPyXut77lJksf+ssrjimq34SZmuqL8M/akEn0nO7au/OKuHd4IR2gq5cLr
+         sZGqWk/Lzn7jxlmenVC6OUiDzH+9lI9n99J2LTfaRCf/g43N1SOfe6qY4Uo9ojO1lRRy
+         b9L5w0Rr7zpX2s2ua1nT78sC9cU3g4WM5mmZuhW9FxNT+IlpuLg7icnnY+NXIm15kc3x
+         ml3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=PAuXBSedgkB7JHEREAU3K2PTRg23BPy/IdSFB7zdDLM=;
+        b=GVjaYGTzL4S7Cj/gKVaBQ3rpNXDrR4ivMr/MRddLKIwnWCQvU1BgC8OA8taVtIAdj9
+         UVpGKr1E0qXrResDxIpSH/E5YLpKU8rwibaRt3fUtDo0MMgejX2W2VPkIYdpaU/R+cPm
+         W8PvTCETlU3ugkGbHgnpAGEUTx2A6fTp2FLBzOJidAwhCb5jvOCJA3aj+aNvkCW9zJ5k
+         q8ax/w65+dVuZwAMGdbk0uqmuRu3tAXR2aaAP+825JGixpFsKxkKdD56BIby67Uxlx/y
+         pQMkt5GVwR2W4Am1GgwNm3i1Da5vjXjpqaxRC2Vy1fn9HRRjA03HU8vP3JHb+pF2Bonm
+         eyHw==
+X-Gm-Message-State: AOAM530MD/iUMrv6gIfWJob0prcC/yhFrOih5l3K49J5yU1u5fNI4yYV
+        tSsNB01YhlXKvPjCpItXlnJ75nsG3rFtW65DKFs=
+X-Google-Smtp-Source: ABdhPJyXF+qBxEgtSUQNyVIsITGsi13vsc9biL4QVOKOcpmM+O0YSgoB66ZB5jXPPe1bMc4WihMNJ2/vmDbGxOAQCbM=
+X-Received: by 2002:ad4:42ad:: with SMTP id e13mr17014195qvr.59.1603110063495;
+ Mon, 19 Oct 2020 05:21:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
+Received: by 2002:ad4:4d4f:0:0:0:0:0 with HTTP; Mon, 19 Oct 2020 05:21:02
+ -0700 (PDT)
+Reply-To: kalifabahati@gmail.com
+From:   "Mr. Kalifa Bahati" <alimahammed01@gmail.com>
+Date:   Mon, 19 Oct 2020 14:21:02 +0200
+Message-ID: <CAE4hd3mDHKLk9sR1-Y=V+93b6rFXrOm0M6z9JhWCG5A0OmPiEg@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 18, 2020 at 07:40:12PM -0600, David Ahern wrote:
->On 10/18/20 1:40 PM, Jakub Kicinski wrote:
->> This one got applied a few days ago, and the urgency is low so it may be
->> worth letting it see at least one -rc release ;)
->
->agreed
+Greetings,
 
-Definitely - AUTOSEL patches get extra soaking time before getting
-queued up. This is more of a request to make sure it's not doing
-anything silly.
+I know that this mail will come to you as a surprise as we have never
+met before, but need not to worry as I am contacting you independently
+of my investigation and no one is informed of this communication. I
+need your urgent assistance in transferring the sum of $11,300,000.00
+USD immediately to your private account.The money has been here in our
+Bank lying dormant for years now without anybody coming for the claim
+of it.
 
--- 
-Thanks,
-Sasha
+I want to release the money to you as the relative to our deceased
+customer (the account owner) who died along with his supposed NEXT OF
+KIN since 16th October 2005. The Banking laws here does not allow such
+money to stay more than 15 years, because the money will be recalled
+to the Bank treasury account as an unclaimed fund.
+
+By indicating your interest I will send you the full details on how
+the business will be executed.
+
+Please respond urgently and delete if you are not interested.
+
+Best Regards,
+Mr. Kalifa Bahati
