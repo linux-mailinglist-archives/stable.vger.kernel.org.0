@@ -2,52 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 560C02922CF
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 09:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87A72922D2
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 09:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727301AbgJSHKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 03:10:38 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:46986 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727223AbgJSHKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 03:10:38 -0400
-Received: by mail-lf1-f66.google.com with SMTP id v6so12820876lfa.13;
-        Mon, 19 Oct 2020 00:10:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ikfGLiawk4LAa9mmuiQJyjvU9DU+KHULB1EowMpanLg=;
-        b=cMvRg+cQwJfgyd/u7eaHhyEFhkHqINQ5lLYyClI3PsmTCE8LhZIiZVDRB0Da4m6HHe
-         c0Zpr27emsElttdq6uHqev3EvIL96uSsWI2xrfJEtt+MZhb3U8QkkrxWbXpTv1rGPtrb
-         xCiupGkX1iW7Av9UjmdM8LT9xXSZGDa3v9tni/TCCHfbO/Jh+dfVUdkOO82L+1wO5/en
-         mg0mAWPwsgwDgJ07EAzQacwc/yyAsEVINsKPJYtlmbBFk7/Fk3AYP1bw0ErriG5CI8gu
-         CxlsV7LdkkDwzN5iDyJRBcPBweETAyNuMsOPlHWUxJUAjee+60dMBHkyAmKOSibXPpsC
-         Ui9A==
-X-Gm-Message-State: AOAM532hbBHNS/VppH6uz3tF97TEaDTsE0kJAVCKVTS0WMYbu4avYsNB
-        z6eLl0UeBNk0CR+ij4oml5M=
-X-Google-Smtp-Source: ABdhPJy8EM5pQmEMIslJHID50+RLzkBY759atuoK7g1AHSh5Hgttw0gI8CX7gLfJX76K3Wpx71j5pg==
-X-Received: by 2002:a19:4c1:: with SMTP id 184mr5081180lfe.547.1603091435120;
-        Mon, 19 Oct 2020 00:10:35 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id 131sm3108699lff.198.2020.10.19.00.10.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Oct 2020 00:10:34 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kUPJS-0000ID-Ui; Mon, 19 Oct 2020 09:10:35 +0200
-Date:   Mon, 19 Oct 2020 09:10:34 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
+        id S1727370AbgJSHMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 03:12:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727368AbgJSHMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Oct 2020 03:12:30 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9245F2080D;
+        Mon, 19 Oct 2020 07:12:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603091549;
+        bh=5KWfa7sJYcWcm6dkg2aYHmuXbbgdGpIrlFETSjV9xXg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hDSlXXt3EdItHz+5KX4HMmeskgYWe80eeGRlu/Gt5LW0eVRCeAgR+nIe9leVjsKmp
+         HD/bqqR/mnVPW/6CBxA9oZwnyFR4NYEXRvNA6/SN94e0dbLorEvvSPzFLjgXbUCmSy
+         xzUqcXqG9R9m8s3IF4dtfC5oKvo5QKYFH8N5MX9U=
+Date:   Mon, 19 Oct 2020 09:13:14 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
         Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>, linux-usb@vger.kernel.org,
-        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+        Oliver Neukum <oneukum@suse.com>, linux-usb@vger.kernel.org
 Subject: Re: [PATCH AUTOSEL 5.9 054/111] USB: cdc-acm: handle broken union
  descriptors
-Message-ID: <20201019071034.GP26280@localhost>
+Message-ID: <20201019071314.GA3219053@kroah.com>
 References: <20201018191807.4052726-1-sashal@kernel.org>
  <20201018191807.4052726-54-sashal@kernel.org>
  <20201019070218.GO26280@localhost>
@@ -91,14 +76,14 @@ On Mon, Oct 19, 2020 at 09:02:18AM +0200, Johan Hovold wrote:
 > 
 > Greg, just to make sure this wasn't due to a b4 bug; did you drop the
 > stable tag on purpose when applying?
-> 
+
+I did not, looks like b4 stripped it off!
+
 > The tag-order has been reshuffled by b4 too it seems (I know, some
 > people think that's ok) so maybe it fell out in the process.
 
-Hmm. Apparently the Link-tag that I had added to keep a record of the
-descriptors provided in the original report also fell out. Another b4
-bug?
+I think so, let me verify it's a bug and report it to Konstantin...
 
-Adding Konstantin just in case.
+thanks,
 
-Johan
+greg k-h
