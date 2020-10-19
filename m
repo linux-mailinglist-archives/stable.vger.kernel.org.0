@@ -2,60 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D3C292807
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911F1292812
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727297AbgJSNSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 09:18:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47158 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726931AbgJSNSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Oct 2020 09:18:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1603113524;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=v7WfNYUczwmH5kd5aVp7TEjtwO+BlARGhkxvUJGVTF0=;
-        b=GD0WHEFrCzHMg5Z0lQPfieggrhYlzjuX855mHBK97YmlA1j7G7uzqYtkKXsUj9o8vOwWe3
-        yhdqR/DCHUPH/woBF0h8XxL8eXKaMXFmKfS/KJh6IpOzs8dDshVhrBGIyVDAcqXvMSLeDv
-        NrL90hTRKpHYke2rvNy4kyQHhKoflM0=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 3006FB7F1;
-        Mon, 19 Oct 2020 13:18:44 +0000 (UTC)
-Date:   Mon, 19 Oct 2020 15:18:43 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Matteo Croce <mcroce@linux.microsoft.com>
-Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] reboot: fix overflow parsing reboot cpu number
-Message-ID: <20201019131843.GB26718@alley>
-References: <20201016180907.171957-1-mcroce@linux.microsoft.com>
- <20201016180907.171957-2-mcroce@linux.microsoft.com>
+        id S1728143AbgJSNTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 09:19:36 -0400
+Received: from mail.efficios.com ([167.114.26.124]:36948 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727952AbgJSNTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 09:19:35 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 40490255292;
+        Mon, 19 Oct 2020 09:19:34 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id C0DBrNvOVBH4; Mon, 19 Oct 2020 09:19:34 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id ECFBC254E64;
+        Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com ECFBC254E64
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1603113573;
+        bh=M0BMdItvnodZf2iKshbizu8bAjYebGgVLOD1oUvXyFs=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=dqhCE66rSdZF2NEXBXdPyOYATz5AzB9DKKNe5i33G5qLU4A1Sko68FcvvEnK2LwDW
+         0ytGnzHcE8YTXoTqq2BycWKA1m9T9c/nKl2PXy5RRkGnE16IIq+VgLN75SmJdK9d/H
+         /KtTVuux4M1+kGM8J9+8HceIp0Ljq+w/QamV7MguLhk0STHO8LHNggLo0VgGpB5pGQ
+         NGSbzO4cHcW1BTIyqPBIcMYAac4+Qd9ack3gX4ZTp3Eknl+25JpCqwOacigPSdzAc/
+         HXy2re99f1gu+WSb9TY29j+xtZBgwQU/sYnHiLKyaAiC6sAf27nbKyz0Yu3MYwlujy
+         o2zZR3EeoXCTg==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 4X1LApaftglY; Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id E0BAC25528D;
+        Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
+Date:   Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, netdev <netdev@vger.kernel.org>
+Message-ID: <1388027317.27186.1603113573797.JavaMail.zimbra@efficios.com>
+In-Reply-To: <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
+References: <20201018191807.4052726-1-sashal@kernel.org> <20201018191807.4052726-35-sashal@kernel.org> <20201018124004.5f8c50a3@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com> <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.9 035/111] ipv6/icmp: l3mdev: Perform icmp
+ error route lookup on source device routing table (v2)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201016180907.171957-2-mcroce@linux.microsoft.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_3968 (ZimbraWebClient - FF81 (Linux)/8.8.15_GA_3968)
+Thread-Topic: ipv6/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
+Thread-Index: O++JGGQaiLsP+V6zxscZGFGKFob4qg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 2020-10-16 20:09:06, Matteo Croce wrote:
-> From: Matteo Croce <mcroce@microsoft.com>
-> 
-> Limit the CPU number to num_possible_cpus(), because setting it
-> to a value lower than INT_MAX but higher than NR_CPUS produces the
-> following error on reboot and shutdown:
-> 
-> Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
-> Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+----- On Oct 18, 2020, at 9:40 PM, David Ahern dsahern@gmail.com wrote:
 
-Reviewed-by: Petr Mladek <pmladek@suse.com>
+> On 10/18/20 1:40 PM, Jakub Kicinski wrote:
+>> This one got applied a few days ago, and the urgency is low so it may be
+>> worth letting it see at least one -rc release ;)
+> 
+> agreed
 
-Best Regards,
-Petr
+Likewise, I agree there is no need to hurry. Letting those patches live through
+a few -rc releases before picking them into stable is a wise course of action.
+
+Thanks,
+
+Mathieu
+
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
