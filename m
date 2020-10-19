@@ -2,215 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CCCF292DA3
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 20:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9731292E65
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 21:24:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730652AbgJSSkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 14:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
+        id S1730932AbgJSTYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 15:24:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730021AbgJSSkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 14:40:37 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B30C0613CE
-        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 11:40:36 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id p15so951848ioh.0
-        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 11:40:36 -0700 (PDT)
+        with ESMTP id S1730845AbgJSTYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 15:24:16 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FA1C0613CE
+        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 12:24:14 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id r10so302948plx.3
+        for <stable@vger.kernel.org>; Mon, 19 Oct 2020 12:24:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=M9iLeKVp3nEaJ65+HjYKGrEoohnZIpxfdaQ1MUWPtik=;
-        b=XOBQwAqFu1fNKsYXa1rDfMAvWGF1Lyv0OQg5cOxKv+52V+dAgknCxWle4pmYrjrGWF
-         Ts85Ms5oP6tqYqLt9H+yt61luBwVw95BSEQm72ffhTqpRZpe70TnSuNh4cRYXrgjeYuA
-         bN0GgubH43uabNyI8ZkCxHp5uwVB4iA1vgoP4xX9dt2Lf70uanwld8k+VXgjHpCfSRId
-         lodC4OX2UK8lCE/4VzHkUIdf6SAvANJCXC1mIH5ra19atDE6QEIHIminYcwT9CeeY85j
-         zPhPCWFuRthLziVp6fgDOeBpDdfchlMM0OPFG+cALWf5Pf+cxKL5HsaBuMTDP3uAMhR2
-         UsZA==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uIfWuzz/Oi2OkmAg7QQj+om01xgjYQC13tivpsY4ap0=;
+        b=ju2ohyzmil762bBA/+brUwTLU43sMSwJMV0FhC8+6ixcmC2U/oxWhswQCiDoLgBTUq
+         p38dzwpBKwDZa/efpZvK4m6WhqPMHbQ2nXWl6u+aLkz1P1YvH2ZTBMGTYtlij0fGVrR1
+         8/4wmK5ZOlv3i1Wo/uWqlSeTjUL8TPN+LYBhvCcT+4ll1YeCG4PA5efit4fMi7TBt36X
+         446mVLHBrmxiOeOxV3oXOWdivJ5xLjlSbBhAidBizfZ88KKnU02l2rj8QkkZBYdfpXMO
+         V9o0f74EhHJEqH7/ORiwM5hXl41CnZyh2cXElz3eU497i0hMHhN0wQhJHKmr9CwS/VwY
+         thnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=M9iLeKVp3nEaJ65+HjYKGrEoohnZIpxfdaQ1MUWPtik=;
-        b=Qsa0Q7DdqvEhG5Nk2VtkyNr6kCoVuLX9l3Z2+pxCM4yW7/Zss152RAepMhNx2AqQo5
-         aZMjnmtaXQo/TdeXnT3hYUGJEFm84H5OEF1ENihOYyNnrDWZIs7cwK0ED7TJsi0g8Al9
-         Nws97wJX+FSCpXEIupp08vRw4NlncJb1RsZQ1MAcj8KHvBf4h6fIjjQayDN2bJbwFuAG
-         ybkEuOoFBvIjJRi1Of+ah6+NYdAt8SQBCs5nxmcX5snAdoFHpUBdrAB//W9hojNcSHdL
-         j/3PRTqnjbv8HnQ0BCT7jHpTs7D8s7kTBFIxYor5tUtQ5GCLMx/q5IpYB19mTZI1vciQ
-         ghTg==
-X-Gm-Message-State: AOAM532J6KOdZ2ZKc38loac3zWzDOtTSgW2iBPLcZJLhUxlK8yu56h1k
-        MpG+jJGwMfJmM2vCnmFCkhI4XA==
-X-Google-Smtp-Source: ABdhPJwGuj/LaDCk9GYBi2KaN9NrA7sl8nQaLWLXCPHIlpaB0MoKs+G4iOZ2D9dgWP3hsGlstOygWg==
-X-Received: by 2002:a6b:7942:: with SMTP id j2mr664217iop.73.1603132836151;
-        Mon, 19 Oct 2020 11:40:36 -0700 (PDT)
-Received: from maple.netwinder.org (rfs.netwinder.org. [206.248.184.2])
-        by smtp.gmail.com with ESMTPSA id t26sm436320ioi.11.2020.10.19.11.40.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Oct 2020 11:40:35 -0700 (PDT)
-From:   Ralph Siemsen <ralph.siemsen@linaro.org>
-To:     akpm@linux-foundation.org
-Cc:     charante@codeaurora.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, mgorman@techsingularity.net,
-        vinmenon@codeaurora.org, stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ralph Siemsen <ralph.siemsen@linaro.org>
-Subject: Re: [PATCH] mm, page_alloc: skip ->watermark_boost for atomic order-0 allocations-fix
-Date:   Mon, 19 Oct 2020 14:40:17 -0400
-Message-Id: <20201019184017.6340-1-ralph.siemsen@linaro.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200617171518.96211e345de65c54b9343a3a@linux-foundation.org>
-References: <20200617171518.96211e345de65c54b9343a3a@linux-foundation.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uIfWuzz/Oi2OkmAg7QQj+om01xgjYQC13tivpsY4ap0=;
+        b=OsMFV5mRiNv3/iY+JTQ6P5OWJmI16ByK5CEsl0Ow7NIdRq33Q4tyVF1psa4rJTcfUo
+         0I3qUjfjeDvB6ggLZROcD7QP6wtj+0jBtkyGdRYBsan0FqHCcjCoTKotASkO50uerXTY
+         xx2RWJ1i572Bw2Cj4ssOjMRw+PPtwEej+E7skNLgynrHEv2hNM7V9hgu6ux/8aNphjJT
+         39o9XDS2NQS6CmVq7LYk3qvG5WvfLevFhTKnYl25v3mmBkNW2ibHNg/L7iMC7PZStkRM
+         G7KgHo3l1VRe0HtjVJzowsHi9yxy5vIapotwUN7dFSHEgJtsd3Glb8XjjoSGAqKX9WK4
+         P8Hg==
+X-Gm-Message-State: AOAM531zYCBAG5o7KjFSmNlO3QFPV7j4eYe5zfCiuUV+zYe8VOebr7GW
+        7bg28pAj5wWVfV5qS6k0JFBlCMsLRvamuPJiOmrYhQ==
+X-Google-Smtp-Source: ABdhPJwkm9qKOonfmzQG2CiafojX189ed37IunFvJ5nWQQY16dHeLxrFVDxkHYRel+Q/LZos+oZFpTmwL6ODbB6paFw=
+X-Received: by 2002:a17:902:c40b:b029:d3:def2:d90f with SMTP id
+ k11-20020a170902c40bb02900d3def2d90fmr1361931plk.29.1603135453759; Mon, 19
+ Oct 2020 12:24:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20201017002500.503011-1-palmerdabbelt@google.com>
+In-Reply-To: <20201017002500.503011-1-palmerdabbelt@google.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 19 Oct 2020 12:24:02 -0700
+Message-ID: <CAKwvOdnsRHA1WMb7OWi-jV662xLrBBBZ=zBbB1gvfpBqVFeSfQ@mail.gmail.com>
+Subject: Re: [PATCH] RISC-V: Fix the VDSO symbol generaton for binutils-2.34+
+To:     Palmer Dabbelt <palmerdabbelt@google.com>
+Cc:     linux-riscv@lists.infradead.org,
+        kernel-team <kernel-team@android.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, Oct 16, 2020 at 5:44 PM 'Palmer Dabbelt' via Clang Built Linux
+<clang-built-linux@googlegroups.com> wrote:
+>
+> We were relying on GNU ld's ability to re-link executable files in order
+> to extract our VDSO symbols.  This behavior was deemed a bug as of
+> binutils-2.34 (specifically the binutils-gdb commit a87e1817a4 ("Have
+> the linker fail if any attempt to link in an executable is made."),
+> which IIUC landed in 2.34), which recently installed itself on my build
+> setup.
+>
+> The previous version of this was a bit of a mess: we were linking a
+> static executable version of the VDSO, containing only a subset of the
+> input symbols, which we then linked into the kernel.  This worked, but
+> certainly wasn't a supported path through the toolchain.  Instead this
+> new version parses the textual output of nm to produce a symbol table.
+> Both rely on near-zero addresses being linkable, but as we rely on weak
+> undefined symbols being linkable elsewhere I don't view this as a major
+> issue.
+>
+> Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
+> Cc: stable@vger.kernel.org
+> Cc: clang-built-linux@googlegroups.com
+> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 
-Please consider applying the patch from this thread to 5.8.y:
-commit f80b08fc44536a311a9f3182e50f318b79076425
+Ah, I do see a build failure to link the vdso with:
+$ riscv64-linux-gnu-ld --version
+GNU ld (GNU Binutils for Debian) 2.34.90.20200706
 
-The fix should also go into 5.4.y, however the patch needs some minor
-adjustments due to surrounding context differences. Attached below is a
-version I have tested against 5.4.71.
+riscv64-linux-gnu-ld: cannot use executable file
+'arch/riscv/kernel/vdso/vdso-dummy.o' as input to a link
 
-This solves a "page allocation failure" error that can be reproduced
-both on physical hardware, and also under qemu-system-arm. The test
-consists of repeatedly running md5sum on a large file. In my tests the
-file contains 1GB of random data, while the system has only 256MB RAM. 
-No other tasks are running or consuming significant memory. 
+This patch fixes that for me, but there's a problem related to related
+to `nm` below.
 
-After some time (between 1 and 200 iterations) the kernel reports a page
-allocation failure. Additional failures occur fairly quickly thereafter.
-The md5sum is correctly computed in each case. The OOM is not invoked.
-The backtrace shows a 0-order GFP_ATOMIC was requested, with quite a
-bit of memory available, and yet the allocation fails.
+After this, there's two other things we might want to fix up related
+to the build of the vdso:
+1. it looks like $(CC) is being used to link the vdso, rather than
+$(LD).  While it's generally fine to use the compiler as the driver
+for building a linked object file, it does not respect the set $(LD).
+`-fuse-ld=` needs to be passed to invoke the linker the user
+specified.  See also:
+https://lore.kernel.org/linux-kbuild/20201013033947.2257501-1-natechancellor@gmail.com/T/#u
+(this has popped up in a few places when trying to do hermetic builds
+with LLD).
+2. I observe the warning when building with clang: `argument unused
+during compilation: '-no-pie' [-Wunused-command-line-argument]`. IIRC,
+the top level Makefile sets `-Qunused-arguments` for builds with
+clang.  `cmd_vdsold` may need that, but it's curious why it's unused
+and makes me wonder why/if `-no-pie` is necessary?  That also might be
+fixed by fixing 1.
 
-Similar error also occurs when "md5sum" is replaced by "scp" or "nc".
-The backtrace again shows a 0-order with GFP_ATOMIC that fails, with
-plenty of memory available according to the Mem-Info dump.
+> ---
+>  arch/riscv/kernel/vdso/.gitignore |  1 +
+>  arch/riscv/kernel/vdso/Makefile   | 19 +++++++++----------
+>  arch/riscv/kernel/vdso/so2s.sh    |  7 +++++++
+>  3 files changed, 17 insertions(+), 10 deletions(-)
+>  create mode 100755 arch/riscv/kernel/vdso/so2s.sh
+>
+> diff --git a/arch/riscv/kernel/vdso/.gitignore b/arch/riscv/kernel/vdso/.gitignore
+> index 11ebee9e4c1d..3a19def868ec 100644
+> --- a/arch/riscv/kernel/vdso/.gitignore
+> +++ b/arch/riscv/kernel/vdso/.gitignore
+> @@ -1,3 +1,4 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+>  vdso.lds
+>  *.tmp
+> +vdso-syms.S
+> diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+> index 478e7338ddc1..2e02958f6224 100644
+> --- a/arch/riscv/kernel/vdso/Makefile
+> +++ b/arch/riscv/kernel/vdso/Makefile
+> @@ -43,19 +43,14 @@ $(obj)/vdso.o: $(obj)/vdso.so
+>  SYSCFLAGS_vdso.so.dbg = $(c_flags)
+>  $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
+>         $(call if_changed,vdsold)
+> +SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+> +       -Wl,--build-id -Wl,--hash-style=both
+>
+>  # We also create a special relocatable object that should mirror the symbol
+>  # table and layout of the linked DSO. With ld --just-symbols we can then
+>  # refer to these symbols in the kernel code rather than hand-coded addresses.
+> -
+> -SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+> -       -Wl,--build-id -Wl,--hash-style=both
+> -$(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
+> -       $(call if_changed,vdsold)
+> -
+> -LDFLAGS_vdso-syms.o := -r --just-symbols
+> -$(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
+> -       $(call if_changed,ld)
+> +$(obj)/vdso-syms.S: $(obj)/vdso.so FORCE
+> +       $(call if_changed,so2s)
+>
+>  # strip rule for the .so file
+>  $(obj)/%.so: OBJCOPYFLAGS := -S
+> @@ -68,11 +63,15 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
+>  # Make sure only to export the intended __vdso_xxx symbol offsets.
+>  quiet_cmd_vdsold = VDSOLD  $@
+>        cmd_vdsold = $(CC) $(KBUILD_CFLAGS) $(call cc-option, -no-pie) -nostdlib -nostartfiles $(SYSCFLAGS_$(@F)) \
+> -                           -Wl,-T,$(filter-out FORCE,$^) -o $@.tmp && \
+> +                           -Wl,-T,$(filter-out FORCE,$^) -o $@.tmp -Wl,-Map,$@.map && \
+>                     $(CROSS_COMPILE)objcopy \
+>                             $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
+>                     rm $@.tmp
+>
+> +# Extracts
+> +quiet_cmd_so2s = SO2S    $@
+> +      cmd_so2s = $(CROSS_COMPILE)nm -D $< | $(src)/so2s.sh > $@
 
-The problem does not occur under 4.9.y or 4.19.y. Bisction has found
-that the problem started to occur with 688fcbfc06e4 ("mm/vmalloc: modify
-struct vmap_area to reduce its size") during the 5.4 dev cycle.
+This should use `$(NM)` rather than `$(CROSS_COMPILE)nm` which
+hardcodes the use of GNU nm from GNU binutils.
 
-I can provide additional logs and details if interested.
+> +
+>  # install commands for the unstripped file
+>  quiet_cmd_vdso_install = INSTALL $@
+>        cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
+> diff --git a/arch/riscv/kernel/vdso/so2s.sh b/arch/riscv/kernel/vdso/so2s.sh
+> new file mode 100755
+> index 000000000000..7862866b5ebb
+> --- /dev/null
+> +++ b/arch/riscv/kernel/vdso/so2s.sh
+> @@ -0,0 +1,6 @@
+> +#!/bin/sh
+> +# SPDX-License-Identifier: GPL-2.0+
+> +# Copyright 2020 Palmer Dabbelt <palmerdabbelt@google.com>
+> +
+> +sed 's!\([0-9a-f]*\) T \([a-z0-9_]*\)@@LINUX_4.15!.global \2\n.set \2,0x\1!' \
+> +| grep '^\.'
+> --
 
-Thanks,
-Ralph
-
-Below is the f80b08fc445 commit, tweaked to apply to 5.4.y.
-
-From: Charan Teja Reddy <charante@codeaurora.org>
-Subject: [PATCH] mm, page_alloc: skip ->waternark_boost for atomic order-0
- allocations
-
-[upstream commit f80b08fc44536a311a9f3182e50f318b79076425
- with context adjusted to match linux-5.4.y]
-
-When boosting is enabled, it is observed that rate of atomic order-0
-allocation failures are high due to the fact that free levels in the
-system are checked with ->watermark_boost offset.  This is not a problem
-for sleepable allocations but for atomic allocations which looks like
-regression.
-
-This problem is seen frequently on system setup of Android kernel running
-on Snapdragon hardware with 4GB RAM size.  When no extfrag event occurred
-in the system, ->watermark_boost factor is zero, thus the watermark
-configurations in the system are:
-
-   _watermark = (
-          [WMARK_MIN] = 1272, --> ~5MB
-          [WMARK_LOW] = 9067, --> ~36MB
-          [WMARK_HIGH] = 9385), --> ~38MB
-   watermark_boost = 0
-
-After launching some memory hungry applications in Android which can cause
-extfrag events in the system to an extent that ->watermark_boost can be
-set to max i.e.  default boost factor makes it to 150% of high watermark.
-
-   _watermark = (
-          [WMARK_MIN] = 1272, --> ~5MB
-          [WMARK_LOW] = 9067, --> ~36MB
-          [WMARK_HIGH] = 9385), --> ~38MB
-   watermark_boost = 14077, -->~57MB
-
-With default system configuration, for an atomic order-0 allocation to
-succeed, having free memory of ~2MB will suffice.  But boosting makes the
-min_wmark to ~61MB thus for an atomic order-0 allocation to be successful
-system should have minimum of ~23MB of free memory(from calculations of
-zone_watermark_ok(), min = 3/4(min/2)).  But failures are observed despite
-system is having ~20MB of free memory.  In the testing, this is
-reproducible as early as first 300secs since boot and with furtherlowram
-configurations(<2GB) it is observed as early as first 150secs since boot.
-
-These failures can be avoided by excluding the ->watermark_boost in
-watermark caluculations for atomic order-0 allocations.
-
-[akpm@linux-foundation.org: fix comment grammar, reflow comment]
-[charante@codeaurora.org: fix suggested by Mel Gorman]
-  Link: http://lkml.kernel.org/r/31556793-57b1-1c21-1a9d-22674d9bd938@codeaurora.org
-
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Vinayak Menon <vinmenon@codeaurora.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Link: http://lkml.kernel.org/r/1589882284-21010-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
----
- mm/page_alloc.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index aff0bb4629bd..b0e9ea4c220e 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3484,7 +3484,8 @@ bool zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
- }
- 
- static inline bool zone_watermark_fast(struct zone *z, unsigned int order,
--		unsigned long mark, int classzone_idx, unsigned int alloc_flags)
-+				unsigned long mark, int classzone_idx,
-+				unsigned int alloc_flags, gfp_t gfp_mask)
- {
- 	long free_pages = zone_page_state(z, NR_FREE_PAGES);
- 	long cma_pages = 0;
-@@ -3505,8 +3506,23 @@ static inline bool zone_watermark_fast(struct zone *z, unsigned int order,
- 	if (!order && (free_pages - cma_pages) > mark + z->lowmem_reserve[classzone_idx])
- 		return true;
- 
--	return __zone_watermark_ok(z, order, mark, classzone_idx, alloc_flags,
--					free_pages);
-+	if (__zone_watermark_ok(z, order, mark, classzone_idx, alloc_flags,
-+					free_pages))
-+		return true;
-+	/*
-+	 * Ignore watermark boosting for GFP_ATOMIC order-0 allocations
-+	 * when checking the min watermark. The min watermark is the
-+	 * point where boosting is ignored so that kswapd is woken up
-+	 * when below the low watermark.
-+	 */
-+	if (unlikely(!order && (gfp_mask & __GFP_ATOMIC) && z->watermark_boost
-+		&& ((alloc_flags & ALLOC_WMARK_MASK) == WMARK_MIN))) {
-+		mark = z->_watermark[WMARK_MIN];
-+		return __zone_watermark_ok(z, order, mark, classzone_idx,
-+					alloc_flags, free_pages);
-+	}
-+
-+	return false;
- }
- 
- bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
-@@ -3647,7 +3663,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
- 
- 		mark = wmark_pages(zone, alloc_flags & ALLOC_WMARK_MASK);
- 		if (!zone_watermark_fast(zone, order, mark,
--				       ac_classzone_idx(ac), alloc_flags)) {
-+				       ac_classzone_idx(ac), alloc_flags,
-+				       gfp_mask)) {
- 			int ret;
- 
- #ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
 -- 
-2.17.1
-
+Thanks,
+~Nick Desaulniers
