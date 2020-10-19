@@ -2,81 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 911F1292812
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A16029288F
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 15:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728143AbgJSNTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 09:19:36 -0400
-Received: from mail.efficios.com ([167.114.26.124]:36948 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727952AbgJSNTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 09:19:35 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 40490255292;
-        Mon, 19 Oct 2020 09:19:34 -0400 (EDT)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id C0DBrNvOVBH4; Mon, 19 Oct 2020 09:19:34 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id ECFBC254E64;
-        Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com ECFBC254E64
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1603113573;
-        bh=M0BMdItvnodZf2iKshbizu8bAjYebGgVLOD1oUvXyFs=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=dqhCE66rSdZF2NEXBXdPyOYATz5AzB9DKKNe5i33G5qLU4A1Sko68FcvvEnK2LwDW
-         0ytGnzHcE8YTXoTqq2BycWKA1m9T9c/nKl2PXy5RRkGnE16IIq+VgLN75SmJdK9d/H
-         /KtTVuux4M1+kGM8J9+8HceIp0Ljq+w/QamV7MguLhk0STHO8LHNggLo0VgGpB5pGQ
-         NGSbzO4cHcW1BTIyqPBIcMYAac4+Qd9ack3gX4ZTp3Eknl+25JpCqwOacigPSdzAc/
-         HXy2re99f1gu+WSb9TY29j+xtZBgwQU/sYnHiLKyaAiC6sAf27nbKyz0Yu3MYwlujy
-         o2zZR3EeoXCTg==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 4X1LApaftglY; Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
-        by mail.efficios.com (Postfix) with ESMTP id E0BAC25528D;
-        Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
-Date:   Mon, 19 Oct 2020 09:19:33 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, netdev <netdev@vger.kernel.org>
-Message-ID: <1388027317.27186.1603113573797.JavaMail.zimbra@efficios.com>
-In-Reply-To: <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
-References: <20201018191807.4052726-1-sashal@kernel.org> <20201018191807.4052726-35-sashal@kernel.org> <20201018124004.5f8c50a3@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com> <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.9 035/111] ipv6/icmp: l3mdev: Perform icmp
- error route lookup on source device routing table (v2)
+        id S1728557AbgJSNtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 09:49:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47262 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728344AbgJSNtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Oct 2020 09:49:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1603115385;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0WuEu1sVQYwypPrmeh7IRBZ4h6wCe1meEeUaExOedg4=;
+        b=bjmLHlUzq4NO0ZPLwtRJ1+FOVEceZm8hIxvyXlWUP+fNXiERSRk+mo3ZpqKLhnA38DTkaf
+        jzRUjxUVeC1zNT8Bdi75/VmjbctFveWyPyVU3v6SU7XUT/sbGP2Rg94/dMs6p+2Q1iPc8f
+        WVuA6U70zeoMKukXSNeQYDZh+ifpn9I=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id DDD1AB22E;
+        Mon, 19 Oct 2020 13:49:44 +0000 (UTC)
+Date:   Mon, 19 Oct 2020 15:49:44 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Matteo Croce <mcroce@linux.microsoft.com>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] reboot: fix parsing of reboot cpu number
+Message-ID: <20201019134944.GC26718@alley>
+References: <20201016180907.171957-1-mcroce@linux.microsoft.com>
+ <20201016180907.171957-3-mcroce@linux.microsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_3968 (ZimbraWebClient - FF81 (Linux)/8.8.15_GA_3968)
-Thread-Topic: ipv6/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
-Thread-Index: O++JGGQaiLsP+V6zxscZGFGKFob4qg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201016180907.171957-3-mcroce@linux.microsoft.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Oct 18, 2020, at 9:40 PM, David Ahern dsahern@gmail.com wrote:
-
-> On 10/18/20 1:40 PM, Jakub Kicinski wrote:
->> This one got applied a few days ago, and the urgency is low so it may be
->> worth letting it see at least one -rc release ;)
+On Fri 2020-10-16 20:09:07, Matteo Croce wrote:
+> From: Matteo Croce <mcroce@microsoft.com>
 > 
-> agreed
+> The kernel cmdline reboot= argument allows to specify the CPU used
+> for rebooting, with the syntax `s####` among the other flags, e.g.
+> 
+>   reboot=soft,s4
+>   reboot=warm,s31,force
+> 
+> In the early days the parsing was done with simple_strtoul(), later
+> deprecated in favor of the safer kstrtoint() which handles overflow.
+> 
+> But kstrtoint() returns -EINVAL if there are non-digit characters
+> in a string, so if this flag is not the last given, it's silently
+> ignored as well as the subsequent ones.
+> 
+> To fix it, revert the usage of simple_strtoul(), which is no longer
+> deprecated, and restore the old behaviour.
+> 
+> While at it, merge two identical code blocks into one.
+> 
+> Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
+> Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+> ---
+> diff --git a/kernel/reboot.c b/kernel/reboot.c
+> index c4e7965c39b9..475f790bbd75 100644
+> --- a/kernel/reboot.c
+> +++ b/kernel/reboot.c
+> @@ -552,25 +552,19 @@ static int __init reboot_setup(char *str)
+>  
+>  		case 's':
+>  		{
+> -			int rc;
+> -
+> -			if (isdigit(*(str+1))) {
+> -				rc = kstrtoint(str+1, 0, &reboot_cpu);
+> -				if (rc)
+> -					return rc;
+> -				if (reboot_cpu >= num_possible_cpus()) {
+> -					reboot_cpu = 0;
+> -					return -ERANGE;
+> -				}
+> -			} else if (str[1] == 'm' && str[2] == 'p' &&
+> -				   isdigit(*(str+3))) {
+> -				rc = kstrtoint(str+3, 0, &reboot_cpu);
+> -				if (rc)
+> -					return rc;
+> -				if (reboot_cpu >= num_possible_cpus()) {
+> -					reboot_cpu = 0;
+> +			int cpu;
+> +
+> +			/*
+> +			 * reboot_cpu is s[mp]#### with #### being the processor
+> +			 * to be used for rebooting. Skip 's' or 'smp' prefix.
+> +			 */
+> +			str += str[1] == 'm' && str[2] == 'p' ? 3 : 1;
+> +
+> +			if (isdigit(str[0])) {
+> +				cpu = simple_strtoul(str, NULL, 10);
 
-Likewise, I agree there is no need to hurry. Letting those patches live through
-a few -rc releases before picking them into stable is a wise course of action.
+The original code did not force the base 10. And even the code before the
+commit 616feab75397 ("kernel/reboot.c: convert simple_strtoul to
+kstrtoint") did not force the base 10.
 
-Thanks,
+I am not sure if people use it. But sometimes it might be easier
+to define the CPU number in hexa format.
 
-Mathieu
+With using simple_strtoul(str, NULL, 0):
 
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+Best Regards,
+Petr
