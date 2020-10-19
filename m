@@ -2,79 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C22D292547
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 12:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B652926BE
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 13:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726492AbgJSKP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 06:15:27 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:53577 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725892AbgJSKP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 06:15:27 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22755077-1500050 
-        for multiple; Mon, 19 Oct 2020 11:15:24 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Stefan Fritsch <sf@sfritsch.de>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Force VT'd workarounds when running as a guest OS
-Date:   Mon, 19 Oct 2020 11:15:23 +0100
-Message-Id: <20201019101523.4145-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201019101230.29860-1-chris@chris-wilson.co.uk>
-References: <20201019101230.29860-1-chris@chris-wilson.co.uk>
+        id S1726619AbgJSLwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 07:52:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45546 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726015AbgJSLwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Oct 2020 07:52:39 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C6302080D;
+        Mon, 19 Oct 2020 11:52:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603108358;
+        bh=JnT9sHQRIZ3jZpGC9ANCu7yXrVu9WDXvQ3urEiT7Vxk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eBN01PXE0XDenSuu6kOiyfxPJAv9vezu+f1ivm25Ec1241EK3EIHJIndkXL+8Wvv/
+         IEiUi0DttLAlHXku3dDWgnrpXwdDlehYkPU280YGE808uhi/clwVc9OvlOMVCHa0Qm
+         gff2Oac3+VltTgwVx4SbviQ/cZyun8Nea/Z8hdCE=
+Date:   Mon, 19 Oct 2020 07:52:36 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     David Ahern <dsahern@gmail.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.9 035/111] ipv6/icmp: l3mdev: Perform icmp
+ error route lookup on source device routing table (v2)
+Message-ID: <20201019115236.GA4060117@sasha-vm>
+References: <20201018191807.4052726-1-sashal@kernel.org>
+ <20201018191807.4052726-35-sashal@kernel.org>
+ <20201018124004.5f8c50a3@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <842ae8c4-44ef-2005-18d5-80e00c140107@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If i915.ko is being used as a passthrough device, it does not know if
-the host is using intel_iommu. Mixing the iommu and gfx causing a few
-issues (such as scanout overfetch) which we need to workaround inside
-the driver, so if we detect we are running under a hypervisor, also
-assume the device access is being virtualised.
+On Sun, Oct 18, 2020 at 07:40:12PM -0600, David Ahern wrote:
+>On 10/18/20 1:40 PM, Jakub Kicinski wrote:
+>> This one got applied a few days ago, and the urgency is low so it may be
+>> worth letting it see at least one -rc release ;)
+>
+>agreed
 
-Reported-by: Stefan Fritsch <sf@sfritsch.de>
-Suggested-by: Stefan Fritsch <sf@sfritsch.de>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Stefan Fritsch <sf@sfritsch.de>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/i915_drv.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Definitely - AUTOSEL patches get extra soaking time before getting
+queued up. This is more of a request to make sure it's not doing
+anything silly.
 
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 1a5729932c81..bcd8650603d8 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -33,6 +33,8 @@
- #include <uapi/drm/i915_drm.h>
- #include <uapi/drm/drm_fourcc.h>
- 
-+#include <asm/hypervisor.h>
-+
- #include <linux/io-mapping.h>
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
-@@ -1760,7 +1762,9 @@ static inline bool intel_vtd_active(void)
- 	if (intel_iommu_gfx_mapped)
- 		return true;
- #endif
--	return false;
-+
-+	/* Running as a guest, we assume the host is enforcing VT'd */
-+	return !hypervisor_is_type(X86_HYPER_NATIVE);
- }
- 
- static inline bool intel_scanout_needs_vtd_wa(struct drm_i915_private *dev_priv)
 -- 
-2.20.1
-
+Thanks,
+Sasha
