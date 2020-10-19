@@ -2,87 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB0C29229F
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 08:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F702922BD
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 09:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbgJSGnX convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 19 Oct 2020 02:43:23 -0400
-Received: from mga18.intel.com ([134.134.136.126]:42737 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726840AbgJSGnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Oct 2020 02:43:23 -0400
-IronPort-SDR: MRMdegYoTZld922ofMxr8J/N1Jsm+effKO+gZuKJ34BZ3/myAZwbbUJ8HLLEuCiqUsHHR6A5rk
- QjqzbX1WR1yA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9778"; a="154768937"
-X-IronPort-AV: E=Sophos;i="5.77,393,1596524400"; 
-   d="scan'208";a="154768937"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2020 23:43:20 -0700
-IronPort-SDR: fr80jlmgluxsrlngIvwH9H4IS2y9c7Z9lyMr4lkqG6er7vrl2/MWQHSQg3nzfOm9DLUZf/L3Bg
- z9DJnPLeF4GA==
-X-IronPort-AV: E=Sophos;i="5.77,393,1596524400"; 
-   d="scan'208";a="523000067"
-Received: from gmanojku-mobl.ger.corp.intel.com (HELO localhost) ([10.252.4.169])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2020 23:43:17 -0700
-Content-Type: text/plain; charset="utf-8"
+        id S1727200AbgJSHCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 03:02:22 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:38675 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727175AbgJSHCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 03:02:22 -0400
+Received: by mail-lj1-f193.google.com with SMTP id m20so10723747ljj.5;
+        Mon, 19 Oct 2020 00:02:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wEeufKCObi+IpynLWe9WQXVzx+1s6haXoiocpLiNQWo=;
+        b=CTUa5PA0sM21/wJoCQIcDKj4u48uBDatapYtrzgOdf59bzPCXOoe4Afu5bSlw3fxEg
+         9w4zthNHRfKOz1QVliJ8+bnUg/AL49dcmVX/oFbX0G5Jf85+7qMgM+dh54RiFIFxxlWC
+         2A+9c7WfDg8uF9ibPeuM83AzC78nMHZYvgxhWq/smYLq0KgITBqOoP5dQhpOLvrgnkQb
+         lenINQ+YiBY1mBlOvWtbzRlmwHfXg+HJi7/BEdVC52VUmf54nPfpXkBXDGub/inKUfpI
+         sMMrJN/RycvH6jBkISqLaSFRS00B1j6UHzignVlXnJn9uAjHE7BLzv3nHX56CnF3mBK3
+         JiFA==
+X-Gm-Message-State: AOAM533ohz9xy9njN9GOOyxR5MfQX2XurqXxmyxMiUhVkMNRYnfRjbhF
+        PUCuJAiK+UPTPJ50NhN+fZw=
+X-Google-Smtp-Source: ABdhPJzO8A67rktquY4rITqfyjaoRASffHIkslIvibA+CK2ltevaV9KMlSuD/8bGwnWkHIXM8KDtJQ==
+X-Received: by 2002:a2e:9951:: with SMTP id r17mr6173655ljj.37.1603090938756;
+        Mon, 19 Oct 2020 00:02:18 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id v4sm3437678ljk.80.2020.10.19.00.02.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Oct 2020 00:02:17 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kUPBS-0000EE-8I; Mon, 19 Oct 2020 09:02:18 +0200
+Date:   Mon, 19 Oct 2020 09:02:18 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.9 054/111] USB: cdc-acm: handle broken union
+ descriptors
+Message-ID: <20201019070218.GO26280@localhost>
+References: <20201018191807.4052726-1-sashal@kernel.org>
+ <20201018191807.4052726-54-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20201016152340.15906-1-sf@sfritsch.de>
-References: <20201016152340.15906-1-sf@sfritsch.de>
-Cc:     Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Stefan Fritsch <sf@sfritsch.de>, stable@vger.kernel.org
-To:     Stefan Fritsch <sf@sfritsch.de>, intel-gfx@lists.freedesktop.org,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Subject: Re: [PATCH] drm/i915: Rate limit 'Fault errors' message
-From:   Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Message-ID: <160308979457.4267.13628612734509793218@jlahtine-mobl.ger.corp.intel.com>
-User-Agent: alot/0.8.1
-Date:   Mon, 19 Oct 2020 09:43:15 +0300
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201018191807.4052726-54-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ Zhenyu & Zhi,
+On Sun, Oct 18, 2020 at 03:17:10PM -0400, Sasha Levin wrote:
+> From: Johan Hovold <johan@kernel.org>
+> 
+> [ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
+> 
+> Handle broken union functional descriptors where the master-interface
+> doesn't exist or where its class is of neither Communication or Data
+> type (as required by the specification) by falling back to
+> "combined-interface" probing.
+> 
+> Note that this still allows for handling union descriptors with switched
+> interfaces.
+> 
+> This specifically makes the Whistler radio scanners TRX series devices
+> work with the driver without adding further quirks to the device-id
+> table.
+> 
+> Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+> Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+> Acked-by: Oliver Neukum <oneukum@suse.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Should not we instead fix the reason why the errors happen instead of
-rate-limiting them?
+I was surprised to see this picked up by AUTOSEL since I remember adding
+a stable tag to this patch (to v2, changed my mind since v1) -- and it's
+there in the lore link above.
 
-Regards, Joonas
+Greg, just to make sure this wasn't due to a b4 bug; did you drop the
+stable tag on purpose when applying?
 
-Quoting Stefan Fritsch (2020-10-16 18:23:40)
-> If linux is running as a guest and the host is doing igd pass-through
-> with VT-d enabled, this message is logged dozens of times per second.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stefan Fritsch <sf@sfritsch.de>
-> ---
-> 
-> The i915 driver should also detect VT-d in this case, but that is a
-> different issue.  I have sent a separate mail with subject 'Detecting
-> Vt-d when running as guest os'.
-> 
-> 
->  drivers/gpu/drm/i915/i915_irq.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
-> index 759f523c6a6b..29096634e697 100644
-> --- a/drivers/gpu/drm/i915/i915_irq.c
-> +++ b/drivers/gpu/drm/i915/i915_irq.c
-> @@ -2337,7 +2337,7 @@ gen8_de_irq_handler(struct drm_i915_private *dev_priv, u32 master_ctl)
->  
->                 fault_errors = iir & gen8_de_pipe_fault_mask(dev_priv);
->                 if (fault_errors)
-> -                       drm_err(&dev_priv->drm,
-> +                       drm_err_ratelimited(&dev_priv->drm,
->                                 "Fault errors on pipe %c: 0x%08x\n",
->                                 pipe_name(pipe),
->                                 fault_errors);
-> -- 
-> 2.28.0
-> 
+The tag-order has been reshuffled by b4 too it seems (I know, some
+people think that's ok) so maybe it fell out in the process.
+
+Johan
