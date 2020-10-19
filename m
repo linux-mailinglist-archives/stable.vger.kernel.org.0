@@ -2,64 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6545E292D00
-	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 19:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76912292D54
+	for <lists+stable@lfdr.de>; Mon, 19 Oct 2020 20:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbgJSRml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 13:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727255AbgJSRml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Oct 2020 13:42:41 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C58B20720;
-        Mon, 19 Oct 2020 17:42:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603129361;
-        bh=RfrTCidALdftT0BtNOmHgEMqPyabobNKzsG38fnWsTI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rghtu6+R/BkH6PeKX6wlekyZM8xZT3TTJTJbv8SGmnV+YRZ7fVlIqyaSFuD14ITJW
-         ROL1GaHtxiV6RO6MRo5zMPyUI+0Ufv2tP7YUU3vFuSQ6hL5Lu5CN4xUWi8FEVFnGNk
-         G72DUl5P5kUClYieO2bVvBqtrQzH18hMQQhSpSKE=
-Date:   Mon, 19 Oct 2020 19:43:25 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Protopopov, Boris" <pboris@amazon.com>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.9-5.8] Convert trailing spaces and periods in path
- components
-Message-ID: <20201019174325.GD3327376@kroah.com>
+        id S1728483AbgJSSKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 14:10:24 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:39033 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727328AbgJSSKX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 14:10:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1603131023; x=1634667023;
+  h=from:to:cc:date:message-id:references:in-reply-to:
+   content-id:content-transfer-encoding:mime-version:subject;
+  bh=u9iVOEYGVwkJxH5kuaRa1Cbf+1PMW+0hv98iKdr9koQ=;
+  b=XI2qBtY/6NjKdwt9QxK2JulfTdhIsJ5aTmARfWcQNktSAgXMu3YjAzS5
+   o3j6OdO6wCoJvDWoMb/IZ/s4thgRUITxrI0iZXDcRoMhR2/b3Nzich+m7
+   Rm2qjO+7Yf3fmsS4adIpSpik599d1EI+NKOIb4sFjQYJzV0pzVMbpj/pD
+   o=;
+X-IronPort-AV: E=Sophos;i="5.77,395,1596499200"; 
+   d="scan'208";a="59994102"
+Subject: Re: [PATCH 4.9-5.8] Convert trailing spaces and periods in path components
+Thread-Topic: [PATCH 4.9-5.8] Convert trailing spaces and periods in path components
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-42f764a0.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 19 Oct 2020 18:10:17 +0000
+Received: from EX13MTAUEB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1e-42f764a0.us-east-1.amazon.com (Postfix) with ESMTPS id 189FAB9B08;
+        Mon, 19 Oct 2020 18:10:15 +0000 (UTC)
+Received: from EX13D11UEB003.ant.amazon.com (10.43.60.110) by
+ EX13MTAUEB001.ant.amazon.com (10.43.60.96) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 19 Oct 2020 18:10:15 +0000
+Received: from EX13D11UEB004.ant.amazon.com (10.43.60.132) by
+ EX13D11UEB003.ant.amazon.com (10.43.60.110) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 19 Oct 2020 18:10:14 +0000
+Received: from EX13D11UEB004.ant.amazon.com ([10.43.60.132]) by
+ EX13D11UEB004.ant.amazon.com ([10.43.60.132]) with mapi id 15.00.1497.006;
+ Mon, 19 Oct 2020 18:10:14 +0000
+From:   "Protopopov, Boris" <pboris@amazon.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     stable <stable@vger.kernel.org>
+Thread-Index: AQHWpJoxvkgDfMnA7kSnhOBbCo9a7qmc3VCAgAHbm4CAAHyRgP//xHAA
+Date:   Mon, 19 Oct 2020 18:10:14 +0000
+Message-ID: <7EF7E73F-E149-4A15-8AE6-4F4A79C2BBE5@amazon.com>
 References: <20201017152839.4398-1-pboris@amazon.com>
  <20201018055519.GB599591@kroah.com>
  <B1901644-CAEB-45B7-87F8-A05C70423914@amazon.com>
+ <20201019174325.GD3327376@kroah.com>
+In-Reply-To: <20201019174325.GD3327376@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.43.60.242]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <561317E571ABA141841B60012D8178B7@amazon.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B1901644-CAEB-45B7-87F8-A05C70423914@amazon.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A: http://en.wikipedia.org/wiki/Top_post
-Q: Were do I find info about this thing called top-posting?
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
-
-A: No.
-Q: Should I include quotations after my reply?
-
-http://daringfireball.net/2007/07/on_top
-
-On Mon, Oct 19, 2020 at 02:17:35PM +0000, Protopopov, Boris wrote:
-> I could not find the patch in Linus's tree at https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/cifs/cifs_unicode.c#n491 or in the commit list. The patch is in linux-next, commit https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=7698a46ed868f03afe1871d7cb63061db6a62b71
-
-Have you read the rules for stable patches:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-
-Please do so, you seem to be missing the "MUST BE IN LINUS'S TREE"
-requirement...
-
-greg k-h
+T0sgdGhhbmtzIEkgd2lsbCByZXN1Ym1pdCBsYXRlci4gDQoNCu+7v09uIDEwLzE5LzIwLCAxOjQy
+IFBNLCAiR3JlZyBLSCIgPGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPiB3cm90ZToNCg0KICAg
+IENBVVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgdGhlIG9yZ2Fu
+aXphdGlvbi4gRG8gbm90IGNsaWNrIGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlv
+dSBjYW4gY29uZmlybSB0aGUgc2VuZGVyIGFuZCBrbm93IHRoZSBjb250ZW50IGlzIHNhZmUuDQoN
+Cg0KDQogICAgQTogaHR0cDovL2VuLndpa2lwZWRpYS5vcmcvd2lraS9Ub3BfcG9zdA0KICAgIFE6
+IFdlcmUgZG8gSSBmaW5kIGluZm8gYWJvdXQgdGhpcyB0aGluZyBjYWxsZWQgdG9wLXBvc3Rpbmc/
+DQogICAgQTogQmVjYXVzZSBpdCBtZXNzZXMgdXAgdGhlIG9yZGVyIGluIHdoaWNoIHBlb3BsZSBu
+b3JtYWxseSByZWFkIHRleHQuDQogICAgUTogV2h5IGlzIHRvcC1wb3N0aW5nIHN1Y2ggYSBiYWQg
+dGhpbmc/DQogICAgQTogVG9wLXBvc3RpbmcuDQogICAgUTogV2hhdCBpcyB0aGUgbW9zdCBhbm5v
+eWluZyB0aGluZyBpbiBlLW1haWw/DQoNCiAgICBBOiBOby4NCiAgICBROiBTaG91bGQgSSBpbmNs
+dWRlIHF1b3RhdGlvbnMgYWZ0ZXIgbXkgcmVwbHk/DQoNCiAgICBodHRwOi8vZGFyaW5nZmlyZWJh
+bGwubmV0LzIwMDcvMDcvb25fdG9wDQoNCiAgICBPbiBNb24sIE9jdCAxOSwgMjAyMCBhdCAwMjox
+NzozNVBNICswMDAwLCBQcm90b3BvcG92LCBCb3JpcyB3cm90ZToNCiAgICA+IEkgY291bGQgbm90
+IGZpbmQgdGhlIHBhdGNoIGluIExpbnVzJ3MgdHJlZSBhdCBodHRwczovL2dpdC5rZXJuZWwub3Jn
+L3B1Yi9zY20vbGludXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvdHJlZS9mcy9jaWZz
+L2NpZnNfdW5pY29kZS5jI240OTEgb3IgaW4gdGhlIGNvbW1pdCBsaXN0LiBUaGUgcGF0Y2ggaXMg
+aW4gbGludXgtbmV4dCwgY29tbWl0IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51
+eC9rZXJuZWwvZ2l0L25leHQvbGludXgtbmV4dC5naXQvY29tbWl0Lz9pZD03Njk4YTQ2ZWQ4Njhm
+MDNhZmUxODcxZDdjYjYzMDYxZGI2YTYyYjcxDQoNCiAgICBIYXZlIHlvdSByZWFkIHRoZSBydWxl
+cyBmb3Igc3RhYmxlIHBhdGNoZXM6DQogICAgICAgIGh0dHBzOi8vd3d3Lmtlcm5lbC5vcmcvZG9j
+L2h0bWwvbGF0ZXN0L3Byb2Nlc3Mvc3RhYmxlLWtlcm5lbC1ydWxlcy5odG1sDQoNCiAgICBQbGVh
+c2UgZG8gc28sIHlvdSBzZWVtIHRvIGJlIG1pc3NpbmcgdGhlICJNVVNUIEJFIElOIExJTlVTJ1Mg
+VFJFRSINCiAgICByZXF1aXJlbWVudC4uLg0KDQogICAgZ3JlZyBrLWgNCg0K
