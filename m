@@ -2,84 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D51294444
-	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 23:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4AC2944B0
+	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 23:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438656AbgJTVKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Oct 2020 17:10:00 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:56250 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2438655AbgJTVKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 17:10:00 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09KL0C0A127411;
-        Tue, 20 Oct 2020 21:09:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=ZY42jQ7uBytgNE6jHPQfJVTlzsqVTNBlsAj5UFv6F20=;
- b=XZhH+rsrVKTCYGUS2ykQyZMYevD4T//pyEpwzd03L1mF59QqxJnT4rDqwcP7gXyn4Jff
- Sn+qPz/yLuM2nFqoc3DZTqnA2brJS72rNs5WO+q7aUF0c4rC0bA6Jaiw20C5atEwDe+y
- UrXGLnGmcs3t73c6nbSwqBxX/V9kO/I2lgBcwyf+amLjIw4qPb9THd9+dKtHGMImeCu5
- JOJAhBme9vba6zgOx7KEEIOwTAv/nUNJsVBnen9Kre2Pe/lLwin7A77iVuC+xZ/zzle8
- txA5m8UnbA1mHOGljsdnQw3qETusHkM23GWvS+vgHALNO+8isaECVlt0CDDUSyrDR9J3 6g== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 347s8mwbft-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 20 Oct 2020 21:09:58 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09KL0weB160674;
-        Tue, 20 Oct 2020 21:09:57 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 348ahws1nh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Oct 2020 21:09:57 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 09KL9ugh024460;
-        Tue, 20 Oct 2020 21:09:57 GMT
-Received: from char.us.oracle.com (/10.152.32.25)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 20 Oct 2020 14:09:56 -0700
-Received: by char.us.oracle.com (Postfix, from userid 1000)
-        id DB07B6A00D6; Tue, 20 Oct 2020 17:11:38 -0400 (EDT)
-Date:   Tue, 20 Oct 2020 17:11:38 -0400
-From:   Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH RFC UEK5 6/7] debugfs: Return -EPERM when locked down
-Message-ID: <20201020211138.GC21080@char.us.oracle.com>
-References: <20201020210004.18977-1-konrad.wilk@oracle.com>
- <20201020210004.18977-7-konrad.wilk@oracle.com>
+        id S2392139AbgJTVpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Oct 2020 17:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389512AbgJTVpr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 17:45:47 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 477F2C0613D3
+        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 14:45:47 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id d23so86064pll.7
+        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 14:45:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5zb2k/yQhQ8oyMKadz8VKlRfv548LEmsWMcy3EDlZOI=;
+        b=eJue/YhgqPzoAvHtxwGGnR1AAhL5nzuMGilf9kh6oUy0ZKG/UkcwvAbMmdP8Mw8joZ
+         m+7t7pBo8T0Ns3AEP3PzVa5SlOKwT4UKfb3zAYVPkCbHB6tQcpKBzn0DrE3W0PsSAvMp
+         AamR0ipjPf/3ltevlzpJBHc0w0KZmD5DNCea4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5zb2k/yQhQ8oyMKadz8VKlRfv548LEmsWMcy3EDlZOI=;
+        b=byIUyzEfK9rlxD+F2PYck7Alj6Tec+5nFT+eo/5Sw734tYvFYIEhVbbrzG1DJun1es
+         vugKBp4O/eRuXJ87lmsZv2XYl+XNMFrEo87mY4LbboLYZm0XT2oxo4miWejSwUvUcdwe
+         W9dp/g3g+KiRhpo4wpnwvkwjfsexNGl3RLQ+zw4H1rMO4F8uT1EBIY7T+HZr6QYJaIIL
+         N7XiqDr7zQfmkz06CzLe6plsx3Kwj8PV87EApGiaJJ0abLnpm2oLA5zBBeb9DLPL7NR5
+         0OufEDTQCs+svun0Owyd+aUO0Jgeejr2gp1L3hbAiudDDL/q4VPU0bFfoIwNhNIuJAsz
+         /cyw==
+X-Gm-Message-State: AOAM532C/rkdIc9aMM3zADWV2ZgqMdtNt9+iEpMcElEopOPHd30BdwNQ
+        KjcrmrsDBzAFAd1ilac2ZMzLbw==
+X-Google-Smtp-Source: ABdhPJzOOD53E9+RyIyrrpIG0jxFtoCxvbNHFdP6EwHmydJyw118zxPHplRgGT/cUCXCGu8J73L2Bg==
+X-Received: by 2002:a17:902:6a8b:b029:d3:b4d2:11f0 with SMTP id n11-20020a1709026a8bb02900d3b4d211f0mr234847plk.2.1603230346663;
+        Tue, 20 Oct 2020 14:45:46 -0700 (PDT)
+Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
+        by smtp.gmail.com with ESMTPSA id j23sm130751pgh.31.2020.10.20.14.45.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2020 14:45:45 -0700 (PDT)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Andre Przywara <andre.przywara@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 0/2] arm64: Fixes for spectre-v2 detection in guest kernels
+Date:   Tue, 20 Oct 2020 14:45:42 -0700
+Message-Id: <20201020214544.3206838-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.29.0.rc1.297.gfa9743e501-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201020210004.18977-7-konrad.wilk@oracle.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9780 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 bulkscore=0
- malwarescore=0 spamscore=0 mlxlogscore=999 mlxscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2010200143
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9780 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 suspectscore=0
- lowpriorityscore=0 mlxlogscore=999 priorityscore=1501 spamscore=0
- phishscore=0 clxscore=1015 bulkscore=0 impostorscore=0 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010200143
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 20, 2020 at 05:00:03PM -0400, Konrad Rzeszutek Wilk wrote:
-> From: Eric Snowberg <eric.snowberg@oracle.com>
+The first patch fixes a problem with spectre-v2 detection in guest
+kernels found on v5.4 and the second patch fixes an outdated comment.
 
-..monster snip..
-> Cc: stable <stable@vger.kernel.org>
+Cc: Andre Przywara <andre.przywara@arm.com>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
 
-..stable tree folks please ignore this. 
+Stephen Boyd (2):
+  arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return
+    SMCCC_RET_NOT_REQUIRED
+  arm64: proton-pack: Update comment to reflect new function name
 
-<sigh>
+ arch/arm64/kernel/proton-pack.c | 7 +++----
+ arch/arm64/kvm/hypercalls.c     | 2 +-
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
-My apologies for spamming you all!
 
-<goes to hide in the corner of shame>
+base-commit: 38525c6919e2f6b27c1855905f342a0def3cbdcf
+-- 
+Sent by a computer, using git, on the internet
+
