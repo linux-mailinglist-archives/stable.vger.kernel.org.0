@@ -2,56 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A257929453F
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 00:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46456294543
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 00:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410434AbgJTWuz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 20 Oct 2020 18:50:55 -0400
-Received: from ip-177.75.112.18.machanet.com.br ([177.75.112.18]:33277 "EHLO
-        srv01.machanet.com.br" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2410432AbgJTWuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 18:50:55 -0400
-X-Greylist: delayed 8195 seconds by postgrey-1.27 at vger.kernel.org; Tue, 20 Oct 2020 18:50:54 EDT
-Received: from [84.38.132.11] (helo=IP-132-11.dataclub.eu)
-        by srv01.machanet.com.br with esmtpa (Exim 4.92.2)
-        (envelope-from <robertnellsona@citromail.hu>)
-        id 1kUyKo-0005us-1I
-        for stable@vger.kernel.org; Tue, 20 Oct 2020 18:34:18 -0200
-Content-Type: text/plain; charset="iso-8859-1"
+        id S2410451AbgJTWxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Oct 2020 18:53:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2410448AbgJTWxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 18:53:30 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C15DC0613CE;
+        Tue, 20 Oct 2020 15:53:30 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id n15so96760wrq.2;
+        Tue, 20 Oct 2020 15:53:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8xwOX1wGQ4kRH+yi59Vnc3TmWT0s7ByJ8bzcObDDX7Q=;
+        b=ON5D7qGIrN/mzBiPook+4cQJ3NpDeqHDWk+nMEJIB7VHsm59H6fDxj7TgJ3giqIZVi
+         esB3UtIx8jYonJ54zkGI1e/oxfBBTMLYMqqWncVD+HGMQzuIYDDmiI2KaZNLeW5bC1Na
+         09Fv17i2BtRHPEp8qTjZoBEYv6hTFNecjxmrRIKZGWtLIAC69tK1VyMYb+MB+jcMUyET
+         a90XnX31PsWGOsDEURjGs33MQbYa+dCJcSs8A328kbn35Lb5lawjRnd6sqW2kbu0PI2J
+         ESKenooopyuR900y47lkug4Q6Q1yfxRWrU2qX8OFs3mOvJXR96wd7awk1SwH5dRB7p7q
+         59fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8xwOX1wGQ4kRH+yi59Vnc3TmWT0s7ByJ8bzcObDDX7Q=;
+        b=JRHUltWPxPSioKYQvbvWZgAtwOm8n41xWkbgqmnN7XGt8My8pr3D6d6w3IjSYkdQ4a
+         ET2ZSLF2DFiZCGzhH9rgAmvZMCC2noSMUIUrb3qCzQXHDOKkIayeCcxq594W0vfve6dH
+         lmL6Bo7/2Q9fOhSOIGD1QTO7DnttDzStdFFeLmOGfET62T5Y3sER7D2G+kI4RfL3wJAk
+         H1YJjrmqqvS2ABaKQD5efGLZQ6QMuuirnsah2IpzW5ZFNVUIdp8avTkp/ndznymFXCv5
+         9k0VG57pPjV0Df+zNWrYqSPY3Go94TjosBSAG7x51H3+pcpZaJwUvtjyQtYXPzmAnhnL
+         6aHg==
+X-Gm-Message-State: AOAM5339sGVXzsKrurdY4ag6qWbDKPvKvwlkWwtdFiHV0ZhmNzk8XNAi
+        gDjN8t7ek4dv0k3173B9jdwi5eIMX/brrg==
+X-Google-Smtp-Source: ABdhPJw9TbYepD0LjrHyQx6+g06HRp6kkcDs2MVSNCz9+IbI8xbFgycL1Hj6/Q04br8VVv2ksbYMzw==
+X-Received: by 2002:adf:ec0e:: with SMTP id x14mr745893wrn.204.1603234409218;
+        Tue, 20 Oct 2020 15:53:29 -0700 (PDT)
+Received: from localhost.localdomain (host109-152-100-228.range109-152.btcentralplus.com. [109.152.100.228])
+        by smtp.gmail.com with ESMTPSA id f14sm292830wrr.80.2020.10.20.15.53.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2020 15:53:28 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] io_uring: don't reuse linked_timeout
+Date:   Tue, 20 Oct 2020 23:50:27 +0100
+Message-Id: <10d1ee288a9a352ec8345fcdcd4c6b6827a12cd1.1603233677.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Re: BE MY BUSINESS PARTNER
-To:     stable@vger.kernel.org
-From:   "Mr Doswell" <robertnellsona@citromail.hu>
-Date:   Tue, 20 Oct 2020 23:34:12 +0300
-Reply-To: doswellcoakley181@gmail.com
-Message-Id: <E1kUyKo-0005us-1I@srv01.machanet.com.br>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
+Clear linked_timeout for next requests in __io_queue_sqe() so we won't
+queue it up unnecessary when it's going to be punted.
 
-My names are Barrister Doswell Coakley,I am contacting you for a partnership in business venture to invest on lucrative business in your country,I want to partner with you for this investment purpose.
+Cc: stable@vger.kernel.org # v5.9
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-I am the legal trustee to late Mr.Paul Louis Halley,who died along with his wife in a plane crash in the year 2003,after the death of my client his estates and funds that where known by member of his family where shared according to his will,but there is a certain amount  of funds that my late client deposited with a finance firm in the U.S before his death,which only my client and me are aware of,the only family member that also knows about this funds is the wife of my late client,who died along with my client in the plane crash.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c4e54728175e..8e48e47906ba 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6235,8 +6235,10 @@ static void __io_queue_sqe(struct io_kiocb *req, struct io_comp_state *cs)
+ 	if (nxt) {
+ 		req = nxt;
+ 
+-		if (req->flags & REQ_F_FORCE_ASYNC)
++		if (req->flags & REQ_F_FORCE_ASYNC) {
++			linked_timeout = NULL;
+ 			goto punt;
++		}
+ 		goto again;
+ 	}
+ exit:
+-- 
+2.24.0
 
-Just last week,the finance firm contacted me as his attorney to provide the next of kin to my late client to claim the funds my late client deposited with the finance firm,according to the finance firm the funds has over stayed their security vault,and if the next of kin of my late client do not make an application for claim for the funds in their custody it will be declared as unclaimed funds by the United States Government and will be use for charity purpose for offernage homes,which does not go down well with me,that was why I decide to search for someone who I can present as the next of kin to this funds,with supporting legal documentation,all I need from you is your hundred percent sincerity and trust.Please note that I am an attorney,and everything will be done legally,so there is nothing absolutely for you to be worried or skeptic about.
-
-I got your contact information through the U.S public records on the internet while searching for someone who can partner with me to lay claims to this funds as the next of kin to my late client.Bellow is a link you can view to be more inform about my late client.
-
-http://newswww.bbc.net.uk/2/hi/uk_news/england/oxfordshire/4537663.stm
-
-Prior to my explaining further, I must first make an apology for this unsolicited mail to you. I am conscious that this is certainly not a predictable way of approach to foster a relationship of trust but because of the circumstances and urgency surrounding this claim,that is why I am contacting you through this medium.
-
-Before the catastrophe,my late client deposited the sum of $25million(Twenty Five Million U.S Dollars) with the finance firm in the U.S. As the attorney to late Paul Louis Halley, the security/Finance firm in U.S has contacted me and  mandating  me to present a member of his family (heir/inheritor) to make Claims or the vault will be confiscated by the United States Government as unclaimed funds.
-
-  I have worked out all modalities to complete the operation effectively. Once the  funds are released to you, we shall divide the funds in the ratio of 40% for you, 60% for me as our benefit.  
-
-Please note that there is nothing absolutely to be worried and skeptic about,as I am the only person that knows the existence of this funds,and it is only me that the Finance/Security firms recognize as the legal trustee to my late client.
-
-Kindly indicate your responses to this mail via, my private email address(doswellcoakley181@gmail.com)only,as I do not want this transaction discuss on telephone here in the U.S for confidentiality.
-
-Kind Regards,
-Doswell Coakley.(ESQ.)
