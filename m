@@ -2,128 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03151293301
-	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 04:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E2C2933A0
+	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 05:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390541AbgJTCUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Oct 2020 22:20:03 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:35222 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390538AbgJTCUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Oct 2020 22:20:02 -0400
-Received: from mailhost.synopsys.com (sv2-mailhost2.synopsys.com [10.205.2.134])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id C20CEC00A7;
-        Tue, 20 Oct 2020 02:20:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1603160402; bh=Y5kCe7twpvpAVlRszOPR/AKOY980wsss/eMlLX4vYD0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BBmBAqsYTIqhj205PkATalZZvP46q05w9Z39AokxS6jNjbgwvyI6Vp5ICtTOZMHW2
-         0qUkxeL4fMoGxP/Jdz8+l+3iL6xSgiG9p5zw0yfKAUG39pKhDk+IoDTRrcZTizKeSu
-         dpCvP+pWz1uF/wEVqcQYvKGwxVShiXpUJc1OXj2H6Cl7qi+EaCa9855TS7VoTH9FXt
-         quDzntNpYJFjy4FKAOLJheRDcmY8NS5OE1ffGKq2DIqVGhbOIO8BxRathzGgwWF8lw
-         CBiZlknCU56RX58qXSCUnsbtLGJymWZaT2MTKbMtG0UQFmk4yagUtdropjiNoCZqI0
-         IfqEhmCvC3ctw==
-Received: from vineetg-Latitude-7400.internal.synopsys.com (unknown [10.13.183.89])
-        by mailhost.synopsys.com (Postfix) with ESMTP id 37221A0099;
-        Tue, 20 Oct 2020 02:19:58 +0000 (UTC)
-X-SNPS-Relay: synopsys.com
-From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
-To:     stable@vger.kernel.org
-Cc:     linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        Waldemar Brodkorb <wbx@uclibc-ng.org>
-Subject: [PATCH] Revert "ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE"
-Date:   Mon, 19 Oct 2020 19:19:57 -0700
-Message-Id: <20201020021957.1260521-1-vgupta@synopsys.com>
-X-Mailer: git-send-email 2.25.1
+        id S1729857AbgJTD0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Oct 2020 23:26:47 -0400
+Received: from mga18.intel.com ([134.134.136.126]:29094 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729594AbgJTD0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Oct 2020 23:26:47 -0400
+IronPort-SDR: dm3A2EVgnEG/18kBaOHb6y+G2Y2M5G8erUh7MxzuIsvZBX1+OXoPyDGjEnKODbPh28gm7Fe0CT
+ o2lStvblKkzw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9779"; a="154932212"
+X-IronPort-AV: E=Sophos;i="5.77,396,1596524400"; 
+   d="asc'?scan'208";a="154932212"
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2020 20:26:45 -0700
+IronPort-SDR: WzG7+NPimw7oGUfCD0AgqPsE91rR1PN+uVL+x0dUrfh45OK1iaOgSeVk9NnYva3y3UBBJmOPa8
+ FwP33YCPjMiw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,396,1596524400"; 
+   d="asc'?scan'208";a="353193858"
+Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.160.147])
+  by fmsmga002.fm.intel.com with ESMTP; 19 Oct 2020 20:26:43 -0700
+Date:   Tue, 20 Oct 2020 11:05:56 +0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, Stefan Fritsch <sf@sfritsch.de>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915: Force VT'd workarounds when running as a guest
+ OS
+Message-ID: <20201020030556.GZ27141@zhen-hp.sh.intel.com>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <20201019101230.29860-1-chris@chris-wilson.co.uk>
+ <20201019101523.4145-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="thwsKKN5whlRGe6j"
+Content-Disposition: inline
+In-Reply-To: <20201019101523.4145-1-chris@chris-wilson.co.uk>
+User-Agent: Mutt/1.10.0 (2018-05-17)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 00fdec98d9881bf5173af09aebd353ab3b9ac729.
-(but only from 5.2 and prior kernels)
 
-The original commit was a preventive fix based on code-review and was
-auto-picked for stable back-port (for better or worse).
-It was OK for v5.3+ kernels, but turned up needing an implicit change
-68e5c6f073bcf70 "(ARC: entry: EV_Trap expects r10 (vs. r9) to have
- exception cause)" merged in v5.3 which itself was not backported.
-So to summarize the stable backport of this patch for v5.2 and prior
-kernels is busted and it won't boot.
+--thwsKKN5whlRGe6j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The obvious solution is backport 68e5c6f073bcf70 but that is a pain as
-it doesn't revert cleanly and each of affected kernels (so far v4.19,
-v4.14, v4.9, v4.4) needs a slightly different massaged varaint.
-So the easier fix is to simply revert the backport from 5.2 and prior.
-The issue was not a big deal as it would cause strace to sporadically
-not work correctly.
+On 2020.10.19 11:15:23 +0100, Chris Wilson wrote:
+> If i915.ko is being used as a passthrough device, it does not know if
+> the host is using intel_iommu. Mixing the iommu and gfx causing a few
+> issues (such as scanout overfetch) which we need to workaround inside
+> the driver, so if we detect we are running under a hypervisor, also
+> assume the device access is being virtualised.
+>=20
+> Reported-by: Stefan Fritsch <sf@sfritsch.de>
+> Suggested-by: Stefan Fritsch <sf@sfritsch.de>
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: Stefan Fritsch <sf@sfritsch.de>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/i915/i915_drv.h | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_=
+drv.h
+> index 1a5729932c81..bcd8650603d8 100644
+> --- a/drivers/gpu/drm/i915/i915_drv.h
+> +++ b/drivers/gpu/drm/i915/i915_drv.h
+> @@ -33,6 +33,8 @@
+>  #include <uapi/drm/i915_drm.h>
+>  #include <uapi/drm/drm_fourcc.h>
+> =20
+> +#include <asm/hypervisor.h>
+> +
+>  #include <linux/io-mapping.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-algo-bit.h>
+> @@ -1760,7 +1762,9 @@ static inline bool intel_vtd_active(void)
+>  	if (intel_iommu_gfx_mapped)
+>  		return true;
+>  #endif
+> -	return false;
+> +
+> +	/* Running as a guest, we assume the host is enforcing VT'd */
+> +	return !hypervisor_is_type(X86_HYPER_NATIVE);
+>  }
+> =20
+>  static inline bool intel_scanout_needs_vtd_wa(struct drm_i915_private *d=
+ev_priv)
+> --=20
 
-Waldemar Brodkorb first reported this when running ARC uClibc regressions
-on latest stable kernels (with offending backport). Once he bisected it,
-the analysis was trivial, so thx to him for this.
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-Reported-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-Bisected-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-Cc: stable <stable@vger.kernel.org> # 5.2 and prior
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
----
- arch/arc/kernel/entry.S | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+--=20
 
-diff --git a/arch/arc/kernel/entry.S b/arch/arc/kernel/entry.S
-index ea00c8a17f07..60406ec62eb8 100644
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -165,6 +165,7 @@ END(EV_Extension)
- tracesys:
- 	; save EFA in case tracer wants the PC of traced task
- 	; using ERET won't work since next-PC has already committed
-+	lr  r12, [efa]
- 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
- 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
- 
-@@ -207,9 +208,15 @@ tracesys_exit:
- ; Breakpoint TRAP
- ; ---------------------------------------------
- trap_with_param:
--	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
-+
-+	; stop_pc info by gdb needs this info
-+	lr  r0, [efa]
- 	mov r1, sp
- 
-+	; Now that we have read EFA, it is safe to do "fake" rtie
-+	;   and get out of CPU exception mode
-+	FAKE_RET_FROM_EXCPN
-+
- 	; Save callee regs in case gdb wants to have a look
- 	; SP will grow up by size of CALLEE Reg-File
- 	; NOTE: clobbers r12
-@@ -236,10 +243,6 @@ ENTRY(EV_Trap)
- 
- 	EXCEPTION_PROLOGUE
- 
--	lr  r12, [efa]
--
--	FAKE_RET_FROM_EXCPN
--
- 	;============ TRAP 1   :breakpoints
- 	; Check ECR for trap with arg (PROLOGUE ensures r10 has ECR)
- 	bmsk.f 0, r10, 7
-@@ -247,6 +250,9 @@ ENTRY(EV_Trap)
- 
- 	;============ TRAP  (no param): syscall top level
- 
-+	; First return from Exception to pure K mode (Exception/IRQs renabled)
-+	FAKE_RET_FROM_EXCPN
-+
- 	; If syscall tracing ongoing, invoke pre-post-hooks
- 	GET_CURR_THR_INFO_FLAGS   r10
- 	btst r10, TIF_SYSCALL_TRACE
--- 
-2.25.1
+$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
 
+--thwsKKN5whlRGe6j
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCX45UFAAKCRCxBBozTXgY
+J3dyAJ0bGhyAbPBXVP41vLhpRNvs/WX9NQCeK9QA1u1jUvczmPmapaRjHNs17hE=
+=/q/D
+-----END PGP SIGNATURE-----
+
+--thwsKKN5whlRGe6j--
