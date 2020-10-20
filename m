@@ -2,154 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4EE2943C2
-	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 22:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B132943D9
+	for <lists+stable@lfdr.de>; Tue, 20 Oct 2020 22:27:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409389AbgJTUQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Oct 2020 16:16:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
+        id S2438464AbgJTU12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Oct 2020 16:27:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391622AbgJTUQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 16:16:55 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8377EC0613CE
-        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 13:16:55 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id o3so10664pgr.11
-        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 13:16:55 -0700 (PDT)
+        with ESMTP id S2438446AbgJTU12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Oct 2020 16:27:28 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190FDC0613CE
+        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 13:27:28 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id kk5so1027222pjb.1
+        for <stable@vger.kernel.org>; Tue, 20 Oct 2020 13:27:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=46RFYozjOUrCT47DTNQygaXDa0U+oyBU4TtGuU6XNI4=;
-        b=GCHVRghA7TeXHOUfpK8XK0MgAeLsh6HEk8QgnUB8L2yCL2zOT3M6p5SwYT0wLxsnKG
-         ZEaY9YWd86FRdLWyCHsCtvol72hfc0jItncd9ghOxvuhpi8g7ugEEtDsTNJ9ogWkSOMX
-         vzJIaSmfV304rau7rEvZ98LpWLIP1sVdgEqEC7xjyMvHub870EJbjSIGnq7B9aYekCa/
-         a/qBt2p813YIWeNZRHmJcndjfqdAio4yvWkjhGogr1bYvSy/f40UZmiNWh+HOReLSjm2
-         NDPHNcC8KDwwWadxDamjweTZQ9zPQaOKLMADpJZ752+SomEr6LFbWxOchVr9XxfcMl3c
-         mTmA==
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version;
+        bh=ioGSLjjzW1jFusbYT15fLMiEwDxra3dUOLM0YP5dTns=;
+        b=ctC9b+I0eQKpi7PDlRDbJOeEhB03t4V1QSeNPan+OcjDvKRZmV3p22hAFwcRaA7UL/
+         ymSloojnREJlbau1YEK6xp2tgEQINTeVk4vu+OO1dtLvxRvXI66zeKKRSo1abSRBzPOL
+         VBF1Q2n1cUjlj8S5Rkj5SS1OtL8BwwW+U0c2E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=46RFYozjOUrCT47DTNQygaXDa0U+oyBU4TtGuU6XNI4=;
-        b=RLIKZj0lKxOVfNxQLhZvH/w8FJ1kOLrkAFr2F9SN+Y9E0Lrfr11RrhlNrZFm8LNNwL
-         zlrVlidrHbGSKnAZNWA7fvRLTsZg5AP2Ywv6ra/y8iMGpzYD3DM+xzSkEZn/BmLfPErB
-         VbkMfvNM5y92tXqQsYfkP3vjGstppxSg0a3cH9J8wGQj+NG7VVnw5JWmRMOSPelz57Wi
-         M1VCqzV9nxJNOyTzgYBF5mjjPXSMCbenuphvK04J+rDfqnTG7pUUCBM4wS2x3C9up8uB
-         PIUeqBEfW6nUxMuKHiPtGSHc/aw3QPvBqez9qlvdL5VCdXrZNnesR7zvT0eUqNuEzWFE
-         YvQg==
-X-Gm-Message-State: AOAM530mKSum5Lxh0Y/gRUG89tYZ6JFmSBH10PWyS9J6wsB+uknrmDDB
-        DNhaEqNIKve8ptsqOqXkqFcn/p9FsGrCb2yvG/8mbg==
-X-Google-Smtp-Source: ABdhPJxhzEcDxnQbUj+JT015TazLvxkNXCfo9dZTKFxf4yePhzBsAZxDhe3cue6Irvla0qzlx31G36qNCtX49jixXDk=
-X-Received: by 2002:a63:70d:: with SMTP id 13mr35019pgh.263.1603225014754;
- Tue, 20 Oct 2020 13:16:54 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version;
+        bh=ioGSLjjzW1jFusbYT15fLMiEwDxra3dUOLM0YP5dTns=;
+        b=Y9mwXk7r3mFFSRk1rh4NHvL4i7mmeAV/bAaJJjVb1ZRrGddBUi+TLgYtdXRteh1F2R
+         +FJiveFic9LF2KV924R5Uiyfgro6Zoiim/0esBVfACb8i3qfVQzy1vOswx4rgjANBg2K
+         Gqkht4i6sD5LtXRLf9qq4ZxmXQwYgWVeWjr4FeRBh37fsF744K661OOGIYqrkbuMf3NA
+         HMq0MfPFPVDpyIXGrQNde7trgGwqR9ki9D1SowRfiaJqtTYqdAdGHj/THPZrfTmHbvZN
+         DzXc/K9DoNaIXfILG5A3rwYXxOew1O+6Dv2+5rFUyfy0ibm9wH7jhHWtG7X1YCj3D9eR
+         lHgA==
+X-Gm-Message-State: AOAM533usBOS71c5pj0Xul1kAfiWlruP0hGd0Gg+iHnKnF4z7aw7j+qf
+        Dz7JLZHbuJu5IbsZfJ1/Lcftyw==
+X-Google-Smtp-Source: ABdhPJysrBcfSRndRfCtxhGte89H6xyh1HTdvueR2tvs+lhSBplzZ5Y9VT3hv2ZZ8nU9l9KHmHWN1g==
+X-Received: by 2002:a17:90a:7d09:: with SMTP id g9mr4267pjl.63.1603225647495;
+        Tue, 20 Oct 2020 13:27:27 -0700 (PDT)
+Received: from localhost.localdomain ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id b16sm2871404pfp.195.2020.10.20.13.27.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2020 13:27:26 -0700 (PDT)
+From:   James Smart <james.smart@broadcom.com>
+To:     linux-scsi@vger.kernel.org
+Cc:     James Smart <james.smart@broadcom.com>, stable@vger.kernel.org,
+        Dick Kennedy <dick.kennedy@broadcom.com>
+Subject: [PATCH 1/9] lpfc: fix invalid sleeping context in lpfc_sli4_nvmet_alloc
+Date:   Tue, 20 Oct 2020 13:27:11 -0700
+Message-Id: <20201020202719.54726-2-james.smart@broadcom.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201020202719.54726-1-james.smart@broadcom.com>
+References: <20201020202719.54726-1-james.smart@broadcom.com>
 MIME-Version: 1.0
-References: <20201016175339.2429280-1-ndesaulniers@google.com> <160319373854.2175971.17968938488121846972.b4-ty@kernel.org>
-In-Reply-To: <160319373854.2175971.17968938488121846972.b4-ty@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 20 Oct 2020 13:16:43 -0700
-Message-ID: <CAKwvOd=ZJjYOVubjHN6DFuopMP7jg9PAxGHhOPVu6KefPMNfkg@mail.gmail.com>
-Subject: Re: [PATCH] arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
-To:     Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-        =?UTF-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        kernel-team <kernel-team@android.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Peter Smith <Peter.Smith@arm.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+        boundary="0000000000003caafb05b2200f4e"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 20, 2020 at 10:57 AM Will Deacon <will@kernel.org> wrote:
->
-> On Fri, 16 Oct 2020 10:53:39 -0700, Nick Desaulniers wrote:
-> > With CONFIG_EXPERT=y, CONFIG_KASAN=y, CONFIG_RANDOMIZE_BASE=n,
-> > CONFIG_RELOCATABLE=n, we observe the following failure when trying to
-> > link the kernel image with LD=ld.lld:
-> >
-> > error: section: .exit.data is not contiguous with other relro sections
-> >
-> > ld.lld defaults to -z relro while ld.bfd defaults to -z norelro. This
-> > was previously fixed, but only for CONFIG_RELOCATABLE=y.
->
-> Applied to arm64 (for-next/core), thanks!
->
-> [1/1] arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
->       https://git.kernel.org/arm64/c/3b92fa7485eb
+--0000000000003caafb05b2200f4e
+Content-Transfer-Encoding: 8bit
 
-IF we wanted to go further and remove `-z norelro`, or even enable `-z
-relro` for aarch64, then we would have to detangle some KASAN/GCOV
-generated section discard spaghetti.  Fangrui did some more digging
-and found that .fini_array.* sections were relro (read only after
-relocations, IIUC), so adding them to EXIT_DATA
-(include/asm-generic/vmlinux.lds.h) was causing them to get included
-in .exit.data (arch/arm64/kernel/vmlinux.lds.S) making that relro.
-There's some history here with commits:
+The following calltrace was seen:
 
-- e41f501d39126 ("vmlinux.lds: account for destructor sections")
-- 8dcf86caa1e3da ("vmlinux.lds.h: Fix incomplete .text.exit discards")
-- d812db78288d7 ("vmlinux.lds.h: Avoid KASAN and KCSAN's unwanted sections")
+BUG: sleeping function called from invalid context at mm/slab.h:494
+...
+Call Trace:
+ dump_stack+0x9a/0xf0
+ ___might_sleep.cold.63+0x13d/0x178
+ slab_pre_alloc_hook+0x6a/0x90
+ kmem_cache_alloc_trace+0x3a/0x2d0
+ lpfc_sli4_nvmet_alloc+0x4c/0x280 [lpfc]
+ lpfc_post_rq_buffer+0x2e7/0xa60 [lpfc]
+ lpfc_sli4_hba_setup+0x6b4c/0xa4b0 [lpfc]
+ lpfc_pci_probe_one_s4.isra.15+0x14f8/0x2280 [lpfc]
+ lpfc_pci_probe_one+0x260/0x2880 [lpfc]
+ local_pci_probe+0xd4/0x180
+ work_for_cpu_fn+0x51/0xa0
+ process_one_work+0x8f0/0x17b0
+ worker_thread+0x536/0xb50
+ kthread+0x30c/0x3d0
+ ret_from_fork+0x3a/0x50
 
-It seems the following works for quite a few different
-configs/toolchains I played with, but the big IF is whether enabling
-`-z relro` is worthwhile?  If the kernel does respect that mapping,
-then I assume that's a yes, but I haven't checked yet whether relro is
-respected within the kernel (`grep -rn RELRO` turns up nothing
-interesting).  I also haven't checked yet whether all supported
-versions of GNU ld.bfd support -z relro (guessing not, since a quick
-test warns: `aarch64-linux-gnu-ld: warning: -z relro ignored` for
-v2.34.90.20200706, may be holding it wrong).
+A prior patch introduced a spin_lock_irqsave(hbalock) in the
+lpfc_post_rq_buffer() routine. Call trace is seen as the hbalock
+is held with interrupts disabled during a GFP_KERNEL allocation in
+lpfc_sli4_nvmet_alloc().
 
-(Fangrui also filed https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97507
-in regards to GCOV+GCC)
+Fix by reordering locking so that hbalock not held when calling
+sli4_nvmet_alloc() (aka rqb_buf_list()).
 
-diff --git a/include/asm-generic/vmlinux.lds.h
-b/include/asm-generic/vmlinux.lds.h
-index cd14444bf600..64578c998e53 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -744,7 +744,6 @@
+Fixes: 	411de511c694 ("scsi: lpfc: Fix RQ empty firmware trap")
+Cc: <stable@vger.kernel.org> # v4.17+
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
+---
+ drivers/scsi/lpfc/lpfc_mem.c |  4 +---
+ drivers/scsi/lpfc/lpfc_sli.c | 10 ++++++++--
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
- #define EXIT_DATA                                                      \
-        *(.exit.data .exit.data.*)                                      \
--       *(.fini_array .fini_array.*)                                    \
-        *(.dtors .dtors.*)                                              \
-        MEM_DISCARD(exit.data*)                                         \
-        MEM_DISCARD(exit.rodata*)
-@@ -995,6 +994,7 @@
- #if defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KCSAN)
- # ifdef CONFIG_CONSTRUCTORS
- #  define SANITIZER_DISCARDS                                           \
-+       *(.fini_array .fini_array.*)                                    \
-        *(.eh_frame)
- # else
- #  define SANITIZER_DISCARDS                                           \
-@@ -1005,8 +1005,16 @@
- # define SANITIZER_DISCARDS
- #endif
-
-+#if defined(CONFIG_GCOV_KERNEL) && defined(CONFIG_CC_IS_GCC)
-+# define GCOV_DISCARDS                                                 \
-+       *(.fini_array .fini_array.*)
-+#else
-+# define GCOV_DISCARDS
-+#endif
+diff --git a/drivers/scsi/lpfc/lpfc_mem.c b/drivers/scsi/lpfc/lpfc_mem.c
+index 27ff67e9edae..656f35eb853e 100644
+--- a/drivers/scsi/lpfc/lpfc_mem.c
++++ b/drivers/scsi/lpfc/lpfc_mem.c
+@@ -588,8 +588,6 @@ lpfc_sli4_rb_free(struct lpfc_hba *phba, struct hbq_dmabuf *dmab)
+  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
+  * pool along a non-DMA-mapped container for it.
+  *
+- * Notes: Not interrupt-safe.  Must be called with no locks held.
+- *
+  * Returns:
+  *   pointer to HBQ on success
+  *   NULL on failure
+@@ -599,7 +597,7 @@ lpfc_sli4_nvmet_alloc(struct lpfc_hba *phba)
+ {
+ 	struct rqb_dmabuf *dma_buf;
+ 
+-	dma_buf = kzalloc(sizeof(struct rqb_dmabuf), GFP_KERNEL);
++	dma_buf = kzalloc(sizeof(*dma_buf), GFP_KERNEL);
+ 	if (!dma_buf)
+ 		return NULL;
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 4cd7ded656b7..4958bb0f2c97 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -7248,12 +7248,16 @@ lpfc_post_rq_buffer(struct lpfc_hba *phba, struct lpfc_queue *hrq,
+ 	struct rqb_dmabuf *rqb_buffer;
+ 	LIST_HEAD(rqb_buf_list);
+ 
+-	spin_lock_irqsave(&phba->hbalock, flags);
+ 	rqbp = hrq->rqbp;
+ 	for (i = 0; i < count; i++) {
++		spin_lock_irqsave(&phba->hbalock, flags);
+ 		/* IF RQ is already full, don't bother */
+-		if (rqbp->buffer_count + i >= rqbp->entry_count - 1)
++		if (rqbp->buffer_count + i >= rqbp->entry_count - 1) {
++			spin_unlock_irqrestore(&phba->hbalock, flags);
+ 			break;
++		}
++		spin_unlock_irqrestore(&phba->hbalock, flags);
 +
- #define COMMON_DISCARDS
-         \
-        SANITIZER_DISCARDS                                              \
-+       GCOV_DISCARDS                                                   \
-        *(.discard)                                                     \
-        *(.discard.*)                                                   \
-        *(.modinfo)                                                     \
+ 		rqb_buffer = rqbp->rqb_alloc_buffer(phba);
+ 		if (!rqb_buffer)
+ 			break;
+@@ -7262,6 +7266,8 @@ lpfc_post_rq_buffer(struct lpfc_hba *phba, struct lpfc_queue *hrq,
+ 		rqb_buffer->idx = idx;
+ 		list_add_tail(&rqb_buffer->hbuf.list, &rqb_buf_list);
+ 	}
++
++	spin_lock_irqsave(&phba->hbalock, flags);
+ 	while (!list_empty(&rqb_buf_list)) {
+ 		list_remove_head(&rqb_buf_list, rqb_buffer, struct rqb_dmabuf,
+ 				 hbuf.list);
 -- 
-Thanks,
-~Nick Desaulniers
+2.26.2
+
+
+--0000000000003caafb05b2200f4e
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIIQPwYJKoZIhvcNAQcCoIIQMDCCECwCAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
+gg2UMIIE6DCCA9CgAwIBAgIOSBtqCRO9gCTKXSLwFPMwDQYJKoZIhvcNAQELBQAwTDEgMB4GA1UE
+CxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjMxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzARBgNVBAMT
+Ckdsb2JhbFNpZ24wHhcNMTYwNjE1MDAwMDAwWhcNMjQwNjE1MDAwMDAwWjBdMQswCQYDVQQGEwJC
+RTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTEzMDEGA1UEAxMqR2xvYmFsU2lnbiBQZXJzb25h
+bFNpZ24gMiBDQSAtIFNIQTI1NiAtIEczMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+tpZok2X9LAHsYqMNVL+Ly6RDkaKar7GD8rVtb9nw6tzPFnvXGeOEA4X5xh9wjx9sScVpGR5wkTg1
+fgJIXTlrGESmaqXIdPRd9YQ+Yx9xRIIIPu3Jp/bpbiZBKYDJSbr/2Xago7sb9nnfSyjTSnucUcIP
+ZVChn6hKneVGBI2DT9yyyD3PmCEJmEzA8Y96qT83JmVH2GaPSSbCw0C+Zj1s/zqtKUbwE5zh8uuZ
+p4vC019QbaIOb8cGlzgvTqGORwK0gwDYpOO6QQdg5d03WvIHwTunnJdoLrfvqUg2vOlpqJmqR+nH
+9lHS+bEstsVJtZieU1Pa+3LzfA/4cT7XA/pnwwIDAQABo4IBtTCCAbEwDgYDVR0PAQH/BAQDAgEG
+MGoGA1UdJQRjMGEGCCsGAQUFBwMCBggrBgEFBQcDBAYIKwYBBQUHAwkGCisGAQQBgjcUAgIGCisG
+AQQBgjcKAwQGCSsGAQQBgjcVBgYKKwYBBAGCNwoDDAYIKwYBBQUHAwcGCCsGAQUFBwMRMBIGA1Ud
+EwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFGlygmIxZ5VEhXeRgMQENkmdewthMB8GA1UdIwQYMBaA
+FI/wS3+oLkUkrk1Q+mOai97i3Ru8MD4GCCsGAQUFBwEBBDIwMDAuBggrBgEFBQcwAYYiaHR0cDov
+L29jc3AyLmdsb2JhbHNpZ24uY29tL3Jvb3RyMzA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vY3Js
+Lmdsb2JhbHNpZ24uY29tL3Jvb3QtcjMuY3JsMGcGA1UdIARgMF4wCwYJKwYBBAGgMgEoMAwGCisG
+AQQBoDIBKAowQQYJKwYBBAGgMgFfMDQwMgYIKwYBBQUHAgEWJmh0dHBzOi8vd3d3Lmdsb2JhbHNp
+Z24uY29tL3JlcG9zaXRvcnkvMA0GCSqGSIb3DQEBCwUAA4IBAQConc0yzHxn4gtQ16VccKNm4iXv
+6rS2UzBuhxI3XDPiwihW45O9RZXzWNgVcUzz5IKJFL7+pcxHvesGVII+5r++9eqI9XnEKCILjHr2
+DgvjKq5Jmg6bwifybLYbVUoBthnhaFB0WLwSRRhPrt5eGxMw51UmNICi/hSKBKsHhGFSEaJQALZy
+4HL0EWduE6ILYAjX6BSXRDtHFeUPddb46f5Hf5rzITGLsn9BIpoOVrgS878O4JnfUWQi29yBfn75
+HajifFvPC+uqn+rcVnvrpLgsLOYG/64kWX/FRH8+mhVe+mcSX3xsUpcxK9q9vLTVtroU/yJUmEC4
+OcH5dQsbHBqjMIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G
+A1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjMxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzARBgNV
+BAMTCkdsb2JhbFNpZ24wHhcNMDkwMzE4MTAwMDAwWhcNMjkwMzE4MTAwMDAwWjBMMSAwHgYDVQQL
+ExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMK
+R2xvYmFsU2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMwldpB5BngiFvXAg7aE
+yiie/QV2EcWtiHL8RgJDx7KKnQRfJMsuS+FggkbhUqsMgUdwbN1k0ev1LKMPgj0MK66X17YUhhB5
+uzsTgHeMCOFJ0mpiLx9e+pZo34knlTifBtc+ycsmWQ1z3rDI6SYOgxXG71uL0gRgykmmKPZpO/bL
+yCiR5Z2KYVc3rHQU3HTgOu5yLy6c+9C7v/U9AOEGM+iCK65TpjoWc4zdQQ4gOsC0p6Hpsk+QLjJg
+6VfLuQSSaGjlOCZgdbKfd/+RFO+uIEn8rUAVSNECMWEZXriX7613t2Saer9fwRPvm2L7DWzgVGkW
+qQPabumDk3F2xmmFghcCAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8w
+HQYDVR0OBBYEFI/wS3+oLkUkrk1Q+mOai97i3Ru8MA0GCSqGSIb3DQEBCwUAA4IBAQBLQNvAUKr+
+yAzv95ZURUm7lgAJQayzE4aGKAczymvmdLm6AC2upArT9fHxD4q/c2dKg8dEe3jgr25sbwMpjjM5
+RcOO5LlXbKr8EpbsU8Yt5CRsuZRj+9xTaGdWPoO4zzUhw8lo/s7awlOqzJCK6fBdRoyV3XpYKBov
+Hd7NADdBj+1EbddTKJd+82cEHhXXipa0095MJ6RMG3NzdvQXmcIfeg7jLQitChws/zyrVQ4PkX42
+68NXSb7hLi18YIvDQVETI53O9zJrlAGomecsMx86OyXShkDOOyyGeMlhLxS67ttVb9+E7gUJTb0o
+2HLO02JQZR7rkpeDMdmztcpHWD9fMIIFQTCCBCmgAwIBAgIMfmKtsn6cI8G7HjzCMA0GCSqGSIb3
+DQEBCwUAMF0xCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTMwMQYDVQQD
+EypHbG9iYWxTaWduIFBlcnNvbmFsU2lnbiAyIENBIC0gU0hBMjU2IC0gRzMwHhcNMjAwOTE3MDU0
+NjI0WhcNMjIwOTE4MDU0NjI0WjCBjDELMAkGA1UEBhMCSU4xEjAQBgNVBAgTCUthcm5hdGFrYTES
+MBAGA1UEBxMJQmFuZ2Fsb3JlMRYwFAYDVQQKEw1Ccm9hZGNvbSBJbmMuMRQwEgYDVQQDEwtKYW1l
+cyBTbWFydDEnMCUGCSqGSIb3DQEJARYYamFtZXMuc21hcnRAYnJvYWRjb20uY29tMIIBIjANBgkq
+hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0B4Ym0dby5rc/1eyTwvNzsepN0S9eBGyF45ltfEmEmoe
+sY3NAmThxJaLBzoPYjCpfPWh65cxrVIOw9R3a9TrkDN+aISE1NPyyHOabU57I8bKvfS8WMpCQKSJ
+pDWUbzanP3MMP4C2qbJgQW+xh9UDzBi8u69f40kP+cLEPNJWbz0KxNNp7H/4zWNyTouJRtO6QKVh
+XqR+mg0QW4TJlH5sJ7NIbVGZKzs0PEbUJJJw0zJsp3m0iS6AzNFtTGHWVO1me58DIYR/VDSiY9Sh
+AanDaJF6fE9TEzbfn5AWgVgHkbqS3VY3Gq05xkLhRugDQ60IGwT29K1B+wGfcujKSaalhQIDAQAB
+o4IBzzCCAcswDgYDVR0PAQH/BAQDAgWgMIGeBggrBgEFBQcBAQSBkTCBjjBNBggrBgEFBQcwAoZB
+aHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQvZ3NwZXJzb25hbHNpZ24yc2hhMmcz
+b2NzcC5jcnQwPQYIKwYBBQUHMAGGMWh0dHA6Ly9vY3NwMi5nbG9iYWxzaWduLmNvbS9nc3BlcnNv
+bmFsc2lnbjJzaGEyZzMwTQYDVR0gBEYwRDBCBgorBgEEAaAyASgKMDQwMgYIKwYBBQUHAgEWJmh0
+dHBzOi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwRAYDVR0fBD0w
+OzA5oDegNYYzaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc3BlcnNvbmFsc2lnbjJzaGEyZzMu
+Y3JsMCMGA1UdEQQcMBqBGGphbWVzLnNtYXJ0QGJyb2FkY29tLmNvbTATBgNVHSUEDDAKBggrBgEF
+BQcDBDAfBgNVHSMEGDAWgBRpcoJiMWeVRIV3kYDEBDZJnXsLYTAdBgNVHQ4EFgQUUXCHNA1n5KXj
+CXL1nHkJ8oKX5wYwDQYJKoZIhvcNAQELBQADggEBAGQDKmIdULu06w+bE15XZJOwlarihiP2PHos
+/4bNU3NRgy/tCQbTpJJr3L7LU9ldcPam9qQsErGZKmb5ypUjVdmS5n5M7KN42mnfLs/p7+lOOY5q
+ZwPZfsjYiUuaCWDGMvVpuBgJtdADOE1v24vgyyLZjtCbvSUzsgKKda3/Z/iwLFCRrIogixS1L6Vg
+2JU2wwirL0Sy5S1DREQmTMAuHL+M9Qwbl+uh/AprkVqaSYuvUzWFwBVgafOl2XgGdn8r6ubxSZhX
+9SybOi1fAXGcISX8GzOd85ygu/3dFqvMyCBpNke4vdweIll52KZIMyWji3y2PKJYfgqO+bxo7BAa
+ROYxggJvMIICawIBATBtMF0xCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNh
+MTMwMQYDVQQDEypHbG9iYWxTaWduIFBlcnNvbmFsU2lnbiAyIENBIC0gU0hBMjU2IC0gRzMCDH5i
+rbJ+nCPBux48wjANBglghkgBZQMEAgEFAKCB1DAvBgkqhkiG9w0BCQQxIgQgH2iGkR1T8qGOiPDR
+30qTwwZ0lAutDS4OvIYhVl7KB6MwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
+CQUxDxcNMjAxMDIwMjAyNzI3WjBpBgkqhkiG9w0BCQ8xXDBaMAsGCWCGSAFlAwQBKjALBglghkgB
+ZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMAsGCSqGSIb3DQEBCjALBgkqhkiG9w0BAQcw
+CwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAG5EGe/lrGV5jTeW5h12pD5dzy8ki3oFjDn0
+aYKudHn8Xi5/swi1VfDzBwXkuHfhLCHBbvHdexUXEpJXz5kRLh3XUcIupN9KHpVWhXN6L1K176b2
+fy65ubledjawjIySLjmZNJyKZzvqxZvvFPvlSGvPVkWiXhDnpsZ/rI48vW4Ofs1sQ5kaZmqlO3+X
+ODxExRlNuoT3EOVRpRSan5fdfoIaYZvlnV1JI9AfVQ5Dm7iGjP0MsXSJN3xTlb+sgFwDE4MUDEqr
+DNMtsBj+f2ykXRQXVrq10MsIoCeMWme3NXXo12A1iXs4MHN3JYEmm3vgyWfkcTEoxh6BgSfXFNAF
+sXA=
+--0000000000003caafb05b2200f4e--
