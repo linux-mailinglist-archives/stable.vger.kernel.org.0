@@ -2,81 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252F4294D44
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 15:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CF7294D61
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 15:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437420AbgJUNOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 09:14:47 -0400
-Received: from mga03.intel.com ([134.134.136.65]:6931 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437412AbgJUNOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Oct 2020 09:14:47 -0400
-IronPort-SDR: g2FogmL06VZzj1YLNxR6IofDbyJ6n/1HAopj/YLrxjXT1cSTm6HwJIlOBixDiIWS9SsUEZIf6f
- P4nNY0kr4w1Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9780"; a="167454380"
-X-IronPort-AV: E=Sophos;i="5.77,401,1596524400"; 
-   d="scan'208";a="167454380"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2020 06:14:46 -0700
-IronPort-SDR: BHJ7erK/zo8E+rVN8E8rEFoOTgjfX1Z1AYb4BbHXX8A2/YVpRpKCLZUnoS0V5UYcLpcNhozz85
- uE4N4Gq8wHxg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,401,1596524400"; 
-   d="scan'208";a="321009626"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga006.jf.intel.com with SMTP; 21 Oct 2020 06:14:44 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 21 Oct 2020 16:14:43 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>
-Subject: [PATCH 1/5] drm/i915: Restore ILK-M RPS support
-Date:   Wed, 21 Oct 2020 16:14:39 +0300
-Message-Id: <20201021131443.25616-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S2436899AbgJUNTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 09:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54254 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2436510AbgJUNTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 09:19:15 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 917F2C0613CE
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 06:19:15 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id f10so1774527otb.6
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 06:19:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=gf6T0bDr/+kliCPEuN3gSMlRo1Vk324M6UwnRE/Jex8=;
+        b=AKops/iPoMpZoFTfZAtsvm3AEJMAffvF55JnEWQBz6iCJ6+7ABESUarJW1qSCLLdIh
+         ZSaaLrOCHu9+5MaJ8151OaZCbWfQsIFh/O+HBTWaOBUj5Cz/fOEB2PvKdkQFz2zX6PYT
+         QgxySALdRsIxcIlzsr4iMmasPn+5cx/FySiyG2bbPWtcVS5PDQY90vQuscHe/8Jfg2o3
+         YDtg8umGY+t3sR85ltjxm0yN24crinybqIUZXKjhPRimq6bwFDrZwPM3xl1PpSIqfbB3
+         vsMmlXtxaUe6wXM1FOz7iAGUDZj6MdS8KliCYyHAziHVJFnoso9hoL6HgKrb5Bdtbh+0
+         E3AQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=gf6T0bDr/+kliCPEuN3gSMlRo1Vk324M6UwnRE/Jex8=;
+        b=MTzKJ1hKGpF73GJv9K9NwgaIry+xSp0iGKS5h+bcs+aA6Jo1s5nkzwG1WMdzHpxgsG
+         a7opiszdUZxVQ0RaI32FX6dQtl6dKJKkNmn0YJ5K5FQ5RwfoItg2GnNlj1d/obNptPd2
+         XeWr9v0DrKLUeQM4XPVJmbFIzyXaromt806MgYLvaUp4cjdR/pY99Gfzx4BFrvwAgwsz
+         PBzdENTl7PT20/v/sUNE7wfQXVqZKcv0Hggpo8J96BujF25zcMGoQliZgN0IKBdbyO86
+         S9HPmVu2xFOXTTCxDBQ07NWxUAe3mVevVtoBKK/SOoxRj7OEXuv1RnjNTvgX7CgGkKA1
+         /ptw==
+X-Gm-Message-State: AOAM533YVYKIiSUjhlflhxgzTHX++fOdTE/NZ7idWVFM3YJB9yWvmIuE
+        autT58jx/OmWq/Zf/a/hxvgAXhwQCK/c1777cvo=
+X-Google-Smtp-Source: ABdhPJzIQPSXDseG60G7iWVNAB9n8PSVgGgOB9ErQF5IMvNmhOeGoumN7VVmqVGvnpbyB35dCnRXFTwbiLm72ZhRiFY=
+X-Received: by 2002:a05:6830:1446:: with SMTP id w6mr2349246otp.330.1603286354901;
+ Wed, 21 Oct 2020 06:19:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:aca:c584:0:0:0:0:0 with HTTP; Wed, 21 Oct 2020 06:19:14
+ -0700 (PDT)
+Reply-To: mralimusa84@gmail.com
+From:   Mr Ali Musa <wdoris215@gmail.com>
+Date:   Wed, 21 Oct 2020 06:19:14 -0700
+Message-ID: <CAKd0fGgjO9xo9yqUknRtHkBmMe3Yg=jXqQMGvn3NbsFq+QzCGA@mail.gmail.com>
+Subject: VERY URGENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+VERY URGENT
 
-Restore RPS for ILK-M. We lost it when an extra HAS_RPS()
-check appeared in intel_rps_enable().
 
-Unfortunaltey this just makes the performance worse on my
-ILK because intel_ips insists on limiting the GPU freq to
-the minimum. If we don't do the RPS init then intel_ips will
-not limit the frequency for whatever reason. Either it can't
-get at some required information and thus makes wrong decisions,
-or we mess up some weights/etc. and cause it to make the wrong
-decisions when RPS init has been done, or the entire thing is
-just wrong. Would require a bunch of reverse engineering to
-figure out what's going on.
+Dear friend,
 
-Cc: stable@vger.kernel.org
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Fixes: 9c878557b1eb ("drm/i915/gt: Use the RPM config register to determine clk frequencies")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/i915_pci.c | 1 +
- 1 file changed, 1 insertion(+)
+I am Mr. Ali Musa. I work with an accredited bank here in Burkina
+Faso.as manager in the audit department. During our last bank
+audits,discovered that an abandoned account belongs to one of our
+deceased client, deceased Mr. Hamid Amine Razzaq, a billionaire
+businessman.
 
-diff --git a/drivers/gpu/drm/i915/i915_pci.c b/drivers/gpu/drm/i915/i915_pci.c
-index 27964ac0638a..1fe390727d80 100644
---- a/drivers/gpu/drm/i915/i915_pci.c
-+++ b/drivers/gpu/drm/i915/i915_pci.c
-@@ -389,6 +389,7 @@ static const struct intel_device_info ilk_m_info = {
- 	GEN5_FEATURES,
- 	PLATFORM(INTEL_IRONLAKE),
- 	.is_mobile = 1,
-+	.has_rps = true,
- 	.display.has_fbc = 1,
- };
- 
--- 
-2.26.2
+Meanwhile, before contacting him, I did a personal investigation.to
+locate one of your relatives who knows the account, but I came out
+without success. I am writing to request your assistance in
+transferring the sum of 10,500,000.00 (ten million five hundred
+Thousand dollars) in your account.
 
+I decided to contact him to act as his foreign business partner that
+my bank will grant you recognition and will have the fund transfer to
+your account. More detailed information will be sent for you.
+
+Therefore, to start processing, I will need the following
+information from you:
+
+Your full name (as written on your ID card
+or passport)
+Your full name.........
+Your sex ..............
+Your age..................
+Your country...........
+Passport / driving license .......
+Marital status (married or single)
+Your occupation.......
+Your personal mobile number .....
+
+
+
+I hope to read from you soon.
+Sincerely
+Mr.  Ali Musa.
