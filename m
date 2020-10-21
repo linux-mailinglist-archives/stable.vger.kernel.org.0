@@ -2,178 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D9C295397
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 22:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B7F2953EB
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 23:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505298AbgJUUo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 16:44:58 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:60242 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2505026AbgJUUo5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 16:44:57 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09LKiCWd162250;
-        Wed, 21 Oct 2020 20:44:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=1b8YRCjA/uvkQdkZbUeVGHOgdFx9CEWFOQ/Jb+PIWWc=;
- b=EYv7vOYML6S00NFk6CmZRhtPZjcDRyjPbSE/XlfY4XUadiruIkhpj3opG4bAhexwH6BB
- kshbgx8yq6RGLixVHCBloBss3vB4QHBz7ChITvtcQn6lyRIiXOgiogA2MQgB3p+zhb4x
- FjNkEdZPbu0Fx3awiSWcQDQyjnFoTT5rb6ycleitsq0U8WAiRN2YtiWnpPsu9Pm5vF90
- tET7OqHukLmH/PFuQlTOHW+hBvaoUtBxa/RIUc5KNWnaGawZWkOVWpdWk/Q2DccuItSk
- 8PkHql863X/Dlas7TTjEjmNOjKYxCmUUXtD5NxP6UnhenPQNrz+XkSUVh0qDXyrM7LKj pQ== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 34ak16k3dk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 21 Oct 2020 20:44:43 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09LKZ0ik100071;
-        Wed, 21 Oct 2020 20:44:43 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 348ahy1bh5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Oct 2020 20:44:43 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 09LKiff1003552;
-        Wed, 21 Oct 2020 20:44:41 GMT
-Received: from monkey.oracle.com (/50.38.35.18)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 21 Oct 2020 13:44:41 -0700
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Michal Privoznik <mprivozn@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>, stable@vger.kernel.org
-Subject: [PATCH] hugetlb_cgroup: fix reservation accounting
-Date:   Wed, 21 Oct 2020 13:44:26 -0700
-Message-Id: <20201021204426.36069-1-mike.kravetz@oracle.com>
-X-Mailer: git-send-email 2.25.4
+        id S2505842AbgJUVNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 17:13:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38710 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2505841AbgJUVNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Oct 2020 17:13:34 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69C0821D24;
+        Wed, 21 Oct 2020 21:13:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603314813;
+        bh=BtKiZxDK41Nclw/9t2jRmKjztnbi4BYxCL4GQBmJpk0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vPM+cNOTqKbsob17ev4ihDQyFzprwiBMsI1EwcD+zOaYEdm1uLOkrgma179cxNPHw
+         z+211X7JQvp8KLPRi4aCJ4zks6VSi0oE0iKZiIF+KX+h52yiMAQaweuyFFRWbkvlVF
+         ArCyRfSv6YLxbf12cfQF1QemFkfVVx5wN5EvG9gw=
+Date:   Wed, 21 Oct 2020 22:13:26 +0100
+From:   Will Deacon <will@kernel.org>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Andre Przywara <andre.przywara@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return
+ SMCCC_RET_NOT_REQUIRED
+Message-ID: <20201021211326.GA18548@willie-the-truck>
+References: <20201020214544.3206838-1-swboyd@chromium.org>
+ <20201020214544.3206838-2-swboyd@chromium.org>
+ <20201021075722.GA17230@willie-the-truck>
+ <160329383454.884498.3396883189907056188@swboyd.mtv.corp.google.com>
+ <20201021154909.GD18071@willie-the-truck>
+ <160329672229.884498.3370140649393072677@swboyd.mtv.corp.google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9781 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 bulkscore=0
- malwarescore=0 spamscore=0 mlxlogscore=999 mlxscore=0 suspectscore=2
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2010210142
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9781 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 phishscore=0
- priorityscore=1501 clxscore=1011 malwarescore=0 mlxscore=0 adultscore=0
- lowpriorityscore=0 impostorscore=0 spamscore=0 mlxlogscore=999
- suspectscore=2 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010210143
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <160329672229.884498.3370140649393072677@swboyd.mtv.corp.google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Michal Privoznik was using "free page reporting" in QEMU/virtio-balloon
-with hugetlbfs and hit the warning below.  QEMU with free page hinting
-uses fallocate(FALLOC_FL_PUNCH_HOLE) to discard pages that are reported
-as free by a VM. The reporting granularity is in pageblock granularity.
-So when the guest reports 2M chunks, we fallocate(FALLOC_FL_PUNCH_HOLE)
-one huge page in QEMU.
+On Wed, Oct 21, 2020 at 09:12:02AM -0700, Stephen Boyd wrote:
+> Quoting Will Deacon (2020-10-21 08:49:09)
+> > On Wed, Oct 21, 2020 at 08:23:54AM -0700, Stephen Boyd wrote:
+> > > 
+> > > If I'm reading the TF-A code correctly it looks like this will return
+> > > SMC_UNK if the platform decides that "This flag can be set to 0 by the
+> > > platform if none of the PEs in the system need the workaround." Where
+> > > the flag is WORKAROUND_CVE_2017_5715 and the call handler returns 1 if
+> > > the errata doesn't apply but the config is enabled, 0 if the errata
+> > > applies and the config is enabled, or SMC_UNK (I guess this is
+> > > NOT_SUPPORTED?) if the config is disabled[2].
+> > > 
+> > > So TF-A could disable this config and then the kernel would think it is
+> > > vulnerable when it actually isn't? The spec is a pile of ectoplasma
+> > > here.
+> > 
+> > Yes, but there's not a lot we can do in that case as we rely on the
+> > firmware to tell us whether or not we're affected. We do have the
+> > "safelist" as a last resort, but that's about it.
+> 
+> There are quite a few platforms that set this config to 0. Should they
+> be setting it to 1?
+> 
+>  tf-a $ git grep WORKAROUND_CVE_2017_5715 -- **/platform.mk | wc -l
+>  17
 
-[  315.251417] ------------[ cut here ]------------
-[  315.251424] WARNING: CPU: 7 PID: 6636 at mm/page_counter.c:57 page_counter_uncharge+0x4b/0x50
-[  315.251425] Modules linked in: ...
-[  315.251466] CPU: 7 PID: 6636 Comm: qemu-system-x86 Not tainted 5.9.0 #137
-[  315.251467] Hardware name: Gigabyte Technology Co., Ltd. X570 AORUS PRO/X570 AORUS PRO, BIOS F21 07/31/2020
-[  315.251469] RIP: 0010:page_counter_uncharge+0x4b/0x50
-...
-[  315.251479] Call Trace:
-[  315.251485]  hugetlb_cgroup_uncharge_file_region+0x4b/0x80
-[  315.251487]  region_del+0x1d3/0x300
-[  315.251489]  hugetlb_unreserve_pages+0x39/0xb0
-[  315.251492]  remove_inode_hugepages+0x1a8/0x3d0
-[  315.251495]  ? tlb_finish_mmu+0x7a/0x1d0
-[  315.251497]  hugetlbfs_fallocate+0x3c4/0x5c0
-[  315.251519]  ? kvm_arch_vcpu_ioctl_run+0x614/0x1700 [kvm]
-[  315.251522]  ? file_has_perm+0xa2/0xb0
-[  315.251524]  ? inode_security+0xc/0x60
-[  315.251525]  ? selinux_file_permission+0x4e/0x120
-[  315.251527]  vfs_fallocate+0x146/0x290
-[  315.251529]  __x64_sys_fallocate+0x3e/0x70
-[  315.251531]  do_syscall_64+0x33/0x40
-[  315.251533]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
-[  315.251542] ---[ end trace 4c88c62ccb1349c9 ]---
+A quick skim suggests that most (all?) of these are A53-based, so that's
+on the safelist and will be fine.
 
-Investigation of the issue uncovered bugs in hugetlb cgroup reservation
-accounting.  This patch addresses the found issues.
+> This looks like a disconnect between kernel and TF-A but I'm not aware
+> of all the details here.
 
-Fixes: 075a61d07a8e ("hugetlb_cgroup: add accounting for shared mappings")
-Cc: <stable@vger.kernel.org>
-Reported-by: Michal Privoznik <mprivozn@redhat.com>
-Co-developed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
----
- mm/hugetlb.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+I think it's alright, as it's just a legacy problem (newer cores should
+have CSV2 set) and older cores are safelisted.
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 67fc6383995b..b853a11de14f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -655,6 +655,8 @@ static long region_del(struct resv_map *resv, long f, long t)
- 			}
- 
- 			del += t - f;
-+			hugetlb_cgroup_uncharge_file_region(
-+				resv, rg, t - f);
- 
- 			/* New entry for end of split region */
- 			nrg->from = t;
-@@ -667,9 +669,6 @@ static long region_del(struct resv_map *resv, long f, long t)
- 			/* Original entry is trimmed */
- 			rg->to = f;
- 
--			hugetlb_cgroup_uncharge_file_region(
--				resv, rg, nrg->to - nrg->from);
--
- 			list_add(&nrg->link, &rg->link);
- 			nrg = NULL;
- 			break;
-@@ -685,17 +684,17 @@ static long region_del(struct resv_map *resv, long f, long t)
- 		}
- 
- 		if (f <= rg->from) {	/* Trim beginning of region */
--			del += t - rg->from;
--			rg->from = t;
--
- 			hugetlb_cgroup_uncharge_file_region(resv, rg,
- 							    t - rg->from);
--		} else {		/* Trim end of region */
--			del += rg->to - f;
--			rg->to = f;
- 
-+			del += t - rg->from;
-+			rg->from = t;
-+		} else {		/* Trim end of region */
- 			hugetlb_cgroup_uncharge_file_region(resv, rg,
- 							    rg->to - f);
-+
-+			del += rg->to - f;
-+			rg->to = f;
- 		}
- 	}
- 
-@@ -2454,6 +2453,9 @@ struct page *alloc_huge_page(struct vm_area_struct *vma,
- 
- 		rsv_adjust = hugepage_subpool_put_pages(spool, 1);
- 		hugetlb_acct_memory(h, -rsv_adjust);
-+		if (deferred_reserve)
-+			hugetlb_cgroup_uncharge_page_rsvd(hstate_index(h),
-+					pages_per_huge_page(h), page);
- 	}
- 	return page;
- 
--- 
-2.25.4
+> > > Does the kernel implement a workaround in the case that no guest PE is
+> > > affected? If so then returning 1 sounds OK to me, but otherwise
+> > > NOT_SUPPORTED should work per the spec.
+> > 
+> > I don't follow you here. The spec says that "SMCCC_RET_NOT_SUPPORTED" is
+> > valid return code in the case that "The system contains at least 1 PE
+> > affected by CVE-2017-5715 that has no firmware mitigation available."
+> > and do the guest would end up in the "vulnerable" state.
+> > 
+> 
+> Returning 1 says "SMCCC_ARCH_WORKAROUND_1 can be invoked safely on all
+> PEs in the system" so I am not sure that invoking it is from a guest is
+> safe on systems that don't require the workaround? If it is always safe
+> to invoke the call from guest to host then returning 1 should be fine
+> here.
 
+I think it's fine, as KVM will pick that up.
+
+> My read of the spec was that the intent is to remove the call at some
+> point and have the removal of the call mean that it isn't vulnerable.
+
+No, the CSV2 field in whichever ID register is for that. We check that in
+spectre_v2_get_cpu_hw_mitigation_state().
+
+> Because NOT_SUPPORTED per the spec means "not needed", "maybe needed",
+> or "firmware doesn't know". Aha maybe they wanted us to make the call on
+> each CPU (i.e. PE) and then if any of them return 0 we should consider
+> it vulnerable and if they return NOT_SUPPORTED we should keep calling
+> for each CPU until we are sure we don't see a 0 and only see a 1 or
+> NOT_SUPPORTED? Looks like a saturating value sort of thing, across CPUs
+> that we care/know about.
+
+The mitigation state is always per-cpu because of big/little systems, there
+just isn't a short-cut for the firmware to say "all CPUs are unaffected"
+like there is for SMCCC_ARCH_WORKAROUND_2 with its "NOT_REQUIRED" return
+code.
+
+Will
