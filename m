@@ -2,104 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89869294B65
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 12:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C56294B88
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 12:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388699AbgJUKpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 06:45:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
+        id S2441811AbgJUKy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 06:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392101AbgJUKpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 06:45:46 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A891C0613CF
-        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 03:45:46 -0700 (PDT)
-Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1kVBcj-000800-De; Wed, 21 Oct 2020 12:45:41 +0200
-Received: from sha by dude02.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1kVBci-0005cs-Q4; Wed, 21 Oct 2020 12:45:40 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     linux-spi@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, kernel@pengutronix.de,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Christian Eggers <ceggers@arri.de>, stable@vger.kernel.org
-Subject: [PATCH] spi: imx: fix runtime pm support for !CONFIG_PM
-Date:   Wed, 21 Oct 2020 12:45:13 +0200
-Message-Id: <20201021104513.21560-1-s.hauer@pengutronix.de>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S2441810AbgJUKy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 06:54:27 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241EAC0613CE
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 03:54:27 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id o3so1248067pgr.11
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 03:54:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8FgWYfYzU8+d16mLleMpKr70IWhTprMJ6S5VMEX6z74=;
+        b=T2WJzfCwa/LjiGneeuFMeWXtIhsa1iJXkZdeQn+mW32OixDuFGxYibETFRNO6fBnm3
+         gVNuMO8uXCKh7sJyH6WeIcBH0e7ZgFKCZoA+w1p0YtdcxOrNgemYR0BeAVHMx9eHotPs
+         gmGK6mMJ44vHvip7Mdqdp9lYHE7+MUw3dsc3h40Vh4YasW47vv2uEecQlEG+H5c7bt9d
+         QR6momJ2OZJ+WSEljkuQmbtW6B+nclutZ8EJ1lNHNAP66WfLmyHQaVJ1HhGj6U1BtaFh
+         rOfHIQtMs1O0B6NJNxd4Vb+UCmmvavDCT8fLvSqYR2zguyWbZgoO5wN/3IiYE+/4Dma8
+         9++Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8FgWYfYzU8+d16mLleMpKr70IWhTprMJ6S5VMEX6z74=;
+        b=qixORzxHR4wvA8DI1ORYWxbWkcypSkirksqmPrqwnc2bqCBmOd1a9MmM13Jkb3DEAO
+         Erh5cD7RszEytkR8qf7EP5lf2MK5Od7aP0CrL7L4t9MSuL7Txug3nIOFbPEhpkGlLfLZ
+         XD7AOlM3Y/+ollpzr3Ou9Xw7XBtOsYc0oOVrT4pgdpwR4qA5g6By3qeZ9yXdjzd71DQL
+         C4Km4+4qdkm70qqNWmtVwXYZd/M4UgodmANNXPhGIBBw//z62bU039Z+44fZVHAcDeHm
+         sGMtAOTnw7Z2XuZTH79Q3Y++JRNj1KiOsQICEIyHHA7y60BUf8pVTzC9dAio4472lCht
+         bCOw==
+X-Gm-Message-State: AOAM532541NxncGbOdWgUZZ2FRRYU/QN7k2eG7l9RCixicuOpMVD7zsC
+        eWy1L05s3eRbL1O3lu871uf3LagAcu7wfw==
+X-Google-Smtp-Source: ABdhPJz+aIjQXEHLxWbp+3djxQ7UxIN3mGFPtVeY2RsnI9SvUTR7+1eqVdNQT1zbumrxE+JAtDcj3A==
+X-Received: by 2002:aa7:9e9d:0:b029:152:5ebd:42a with SMTP id p29-20020aa79e9d0000b02901525ebd042amr2855239pfq.4.1603277666353;
+        Wed, 21 Oct 2020 03:54:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w135sm2072823pfc.103.2020.10.21.03.54.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2020 03:54:25 -0700 (PDT)
+Message-ID: <5f901361.1c69fb81.d1cd7.4c91@mx.google.com>
+Date:   Wed, 21 Oct 2020 03:54:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.240-5-gbfa505ccb587
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 74 runs,
+ 1 regressions (v4.4.240-5-gbfa505ccb587)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-525c9e5a32bd introduced pm_runtime support for the i.MX SPI driver. With
-this pm_runtime is used to bring up the clocks initially. When CONFIG_PM
-is disabled the clocks are no longer enabled and the driver doesn't work
-anymore. Fix this by enabling the clocks in the probe function and
-telling pm_runtime that the device is active using
-pm_runtime_set_active().
+stable-rc/queue/4.4 baseline: 74 runs, 1 regressions (v4.4.240-5-gbfa505ccb=
+587)
 
-Fixes: 525c9e5a32bd spi: imx: enable runtime pm support
-Tested-by: Christian Eggers <ceggers@arri.de> [tested for !CONFIG_PM only]
-Cc: stable@vger.kernel.org  # 5.9.x only
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
----
- drivers/spi/spi-imx.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+Regressions Summary
+-------------------
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 38a5f1304cec..c796e937dc6a 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -1674,15 +1674,18 @@ static int spi_imx_probe(struct platform_device *pdev)
- 		goto out_master_put;
- 	}
- 
--	pm_runtime_enable(spi_imx->dev);
-+	ret = clk_prepare_enable(spi_imx->clk_per);
-+	if (ret)
-+		goto out_master_put;
-+
-+	ret = clk_prepare_enable(spi_imx->clk_ipg);
-+	if (ret)
-+		goto out_put_per;
-+
- 	pm_runtime_set_autosuspend_delay(spi_imx->dev, MXC_RPM_TIMEOUT);
- 	pm_runtime_use_autosuspend(spi_imx->dev);
--
--	ret = pm_runtime_get_sync(spi_imx->dev);
--	if (ret < 0) {
--		dev_err(spi_imx->dev, "failed to enable clock\n");
--		goto out_runtime_pm_put;
--	}
-+	pm_runtime_set_active(spi_imx->dev);
-+	pm_runtime_enable(spi_imx->dev);
- 
- 	spi_imx->spi_clk = clk_get_rate(spi_imx->clk_per);
- 	/*
-@@ -1719,8 +1722,12 @@ static int spi_imx_probe(struct platform_device *pdev)
- 
- out_runtime_pm_put:
- 	pm_runtime_dont_use_autosuspend(spi_imx->dev);
--	pm_runtime_put_sync(spi_imx->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_disable(spi_imx->dev);
-+
-+	clk_disable_unprepare(spi_imx->clk_ipg);
-+out_put_per:
-+	clk_disable_unprepare(spi_imx->clk_per);
- out_master_put:
- 	spi_master_put(master);
- 
--- 
-2.20.1
+platform  | arch | lab           | compiler | defconfig      | results
+----------+------+---------------+----------+----------------+--------
+qemu_i386 | i386 | lab-collabora | gcc-8    | i386_defconfig | 0/1    =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.240-5-gbfa505ccb587/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.240-5-gbfa505ccb587
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bfa505ccb5872a9ea42e59c6b067da008e63d6cc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab           | compiler | defconfig      | results
+----------+------+---------------+----------+----------------+--------
+qemu_i386 | i386 | lab-collabora | gcc-8    | i386_defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f8fdaaecb3e7208564ff40c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-5=
+-gbfa505ccb587/i386/i386_defconfig/gcc-8/lab-collabora/baseline-qemu_i386.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-5=
+-gbfa505ccb587/i386/i386_defconfig/gcc-8/lab-collabora/baseline-qemu_i386.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f8fdaaecb3e7208564ff=
+40d
+      new failure (last pass: v4.4.240-5-gba0afff56cd5)  =20
