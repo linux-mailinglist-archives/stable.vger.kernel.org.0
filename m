@@ -2,91 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD47F2952C5
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 21:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B60802952F4
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 21:26:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409014AbgJUTLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 15:11:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52504 "EHLO
+        id S2442038AbgJUT06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 15:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2409009AbgJUTLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 15:11:22 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF818C0613CE;
-        Wed, 21 Oct 2020 12:11:21 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id a7so4469944lfk.9;
-        Wed, 21 Oct 2020 12:11:21 -0700 (PDT)
+        with ESMTP id S2410912AbgJUT05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 15:26:57 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2728C0613CE
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 12:26:57 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id m11so2867889otk.13
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 12:26:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RCshK3M4udSA0kpWWZPjCFazMoUFiZb71kFWv+5y9v8=;
-        b=ubX1axnYMdBQbOxOqFsPd4Ij95x5LYE09iUx3I/KyZjjJLGGgndmXabyt/7rvqdmiQ
-         dJb1V8skO+QLh7IAOWyI2XajqSsn36nBE1lxWGzcWM5zVx//cg+imwggm4baYKqUXjjn
-         pjlVltvfc2ud2jvFeo7VzdzA4d531saIqV9fbKz/h4D/UqWr3BhdDrHAy2ICC77SnWvd
-         5Y5A4Ped/zrRY1KQN+0iE7hJ1nlFxxhlglTDtbTHiEB3z0/o4NyFNMDME88reOuu+nz/
-         TZN4BX+EPQ4QxN/GyFokS1ClQNsqjdGPnUrvYSlxvrSCtVCoS2NuunkT5YqQYP2wqgEt
-         C/kQ==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=DJVcsRbAIyk2yjePwRMNk++7p7QtSuMjuIeN9JkiT69NEsfb3gx+0nRtUg+Ed02FUZ
+         0/ZkwQ81/s/K1oyEvR+FMW0xf2wu2sjUEo8jIiJJUk37bDXWmkk8kPnhbDduJxDMJ4hR
+         1jjNXr56aGejAckU6LcA42vkc0qYG9FKs4uWqyA2tUE8IYNOPiTaAeYI1wTCwA70LQMU
+         a4lCTu+KpusR8+T2PuV5FFRsvC3qsraN0hDHKDdgGOgVZasbUsrqEwWNumm/LAIhq1mt
+         rpOt/9uv7MTuYEvvT6/JwThgQaaMa+TDiA5DWdI6DWyv8aZWE2MteFEp3d5mUEXtw0X+
+         V5Kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RCshK3M4udSA0kpWWZPjCFazMoUFiZb71kFWv+5y9v8=;
-        b=KCWsKXIKZuDGdI4JYOl160FL+LoDqfElcR3Qzf4JuK2c4jhaKWJMUfWxyzMzRAFfgU
-         gxq+Je9o5Bua6gzQMAsVwMM7F7muzSnxMpvnJVLacNwMW6LpWvnHnKkt+pimjqeR7hAx
-         q3f/3mey7z4rvUoQEg4SBFT6IuXCILF+AupT+jzP29X1q4w7dhvyjL0/hMv8zgoTX9qB
-         QHmZLjMjnz8Rkk5ZH4YbhA3Uu1kw4QClgQKrECMtWLxKZhjB7d23Sv9U2hhKiPqJ2ZR4
-         xsYZf31GO4Cy5K/ULuZAN2ZTNTuIDNqGvuI3ZDXKM/hPrRSRNbjCIM/k87JFAaCZc3Ac
-         xa5w==
-X-Gm-Message-State: AOAM53218dqiUON3rDauWH6VkihfuYfzGxAF0pwFWDAykmCTYwHFuXSC
-        qQ0+NS6ZlkN8uwSPZEQSkl1KIoLL6tYXDCIgLoI=
-X-Google-Smtp-Source: ABdhPJwJeuIx13ndXi6SItY4Tf2f4ob7L0nOMpL8/Dkwxx7ppk/31oDfLYa21E4D7Rtdez4WzQ3rBSgufTnUo1Me7kU=
-X-Received: by 2002:ac2:44a4:: with SMTP id c4mr1833700lfm.365.1603307480086;
- Wed, 21 Oct 2020 12:11:20 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=U4D9EPggJ5yguASzK84vBBgpLSVOA4Bn+57TSFQApw/ovuWULHDLEkLc3yuFRvk/r8
+         TJY4uFHZOW7+boYiIeBgQ4ejeFPjNMj74Wi9qYEYEcQq1QSR7fORXFb7XY7Bv31Momjt
+         e8whO9h+W5oMZupdHQV2J5rnj3BhoQDSJmYufIyxNHLFGL/K3OzFe2Exh68MXQTvx7sD
+         DbZiUVQeJM8xtYj4g4suT9z/H5kChyw+FMiAUUDRxiD2QopCLZuu1HZGfP8+fY4OJe4x
+         zKjfpjh5SDLjrDmK9iXzTEKQSVQaScrg7P1NQfJitc/blDlRisBnlCDQwpmfOQM6hbpU
+         tmbA==
+X-Gm-Message-State: AOAM533ez2KLkJMaHHZUFAZFayIxQCushfim14VRTX0gctWIOGHzyvyW
+        q0qUt84e1jBLq6bq1hSJqORHNibznAM1QWc6mL0=
+X-Google-Smtp-Source: ABdhPJxF9PqO4qaPsIU9mq+oedXxD3UteRz+f07sKmHdSgFAaCnfRUOiiWSsYOFkUExS6P0YHJ8FWBQp5EEbocdBniI=
+X-Received: by 2002:a9d:1e86:: with SMTP id n6mr3800769otn.94.1603308416762;
+ Wed, 21 Oct 2020 12:26:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201019130532.19959-1-jandryuk@gmail.com>
-In-Reply-To: <20201019130532.19959-1-jandryuk@gmail.com>
-From:   Jason Andryuk <jandryuk@gmail.com>
-Date:   Wed, 21 Oct 2020 15:11:07 -0400
-Message-ID: <CAKf6xptMj9VdS8oo_pQcJT1zRPZ2fXJR7_ifiSXo=TqtBgnc2Q@mail.gmail.com>
-Subject: Re: [PATCH] hid-mt: Fix Cirque 121f touch release
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>
-Cc:     stable@vger.kernel.org, linux-input@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>
+Received: by 2002:a9d:68:0:0:0:0:0 with HTTP; Wed, 21 Oct 2020 12:26:55 -0700 (PDT)
+Reply-To: mfdp@tlen.pl
+From:   Mr Bill T Winters <alimoses08@gmail.com>
+Date:   Wed, 21 Oct 2020 12:26:55 -0700
+Message-ID: <CALQtRt8001s4PMbvkKqF7XS-ABtVx8_dYYQkMYK+j-woPPy0dg@mail.gmail.com>
+Subject: Good Morning!
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 19, 2020 at 9:05 AM Jason Andryuk <jandryuk@gmail.com> wrote:
->
-> We're seeing the touchpad not send all the touch release events.  This
-> can result in the cursor getting stuck generating scroll events instead
-> of cursor movement for single finger motion.  With the cursor not
-> moving, users think the trackpad is broken.  With libinput-record, you
-> can see that it doesn't always get to a neutral state when there are no
-> fingers on the touchpad.
->
-> MT_QUIRK_STICKY_FINGERS was insufficient alone.  The timer often didn't
-> fire to release all the contacts.  MT_QUIRK_NOT_SEEN_MEANS_UP seems to
-> help with tracking the touches, and allows the timer to fire properly
-> when needed.
->
-> You can reproduce by touching the trackpad with 4 fingers spread out,
-> then pulling them all together and removing from the track pad.
+-- 
+Greetings,
+I Mr Bill T, did you Receive the (FUND), that was paid to you?
+Let me know with your full name:...  immediately,
 
-<snip>
+Sincerely Yours, Respectfully,
 
-> ---
-> This is developed and tested against 5.4 and forward ported to latest
-> upstream.
-
-I installed Fedora 32 with kernel 5.6.6 to test out some other stuff,
-and it is not reproducing with the steps above.  Is there some other
-change that may have fixed the release tracking?  I was definitely
-seeing it with 5.4.72.
-
-Regards,
-Jason
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
