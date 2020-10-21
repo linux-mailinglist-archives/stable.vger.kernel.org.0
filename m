@@ -2,54 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 157F6295185
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 19:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B802951A2
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 19:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503492AbgJURaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 13:30:02 -0400
-Received: from sonic311-31.consmr.mail.ir2.yahoo.com ([77.238.176.163]:44476
-        "EHLO sonic311-31.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2503481AbgJURaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 13:30:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603301400; bh=q1C/9Mh7Qw9wbzPZZVYs9UsLDFdW7TfJAw0vMVR5QHs=; h=Date:From:Reply-To:Subject:References:From:Subject; b=lt/kSt/dcf7W7nKbwZBwDfad8vkpLFpofYzmBNuKXG7y4zsBLPtlfyTyIkHda3ch4501fvwi7FW5Y+Eq8Y6r8vZx9nsWbgt6oisVQBsgz5UU1/ramwh4UhDUNllVb5Y59TGqjx7SC7n/0FtWy2hml5yj88y+mdiqalm3sL8o01Td9ZD8cuZ+gPSOR3aKVueFl2RYf/FfXikWFmwwiszRTlOzSrdNuKkvcEFyUlwnROsfCtOc3gsLm4OXU2j6pFfDFC9RI9nAAd+pLwuKobFFYa7oQuTFIFv6lMC4oM2+fj1TIfLQJzH3BIa4zpH/N4HClscOgkLCX+7jp+YcTNpOQg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603301400; bh=YnqCv6RBqqZpyJtjI8ycix4+5NCpUN+O9lkfvBpZoN5=; h=Date:From:Subject; b=a0lMIv9Pul8hQeXDBn2rYT5NP4jAk/8e5TgqlYq78QLNPPWWMGJuEvJQyTG07SXS9EWp4+zYsu6QlE7ESpc/0xWEiHfkktbWP45Bxy/7pt26SISnDbn8AC+XdoKiuHHww7LI2YWHRjs4qsqX+ooXlyOTFpbYniOn9QRKunQqZ61hKVC0wUeQwQiuEoyOMBu0O5nxRdRdsnNlwJqryMbi3awOx2KyxKyClBa6f/hEzo62VwqBnTxA2fWyyNU3nUm4jTUGCTU4xy+QS9swjkFI+s2CpyqHzQyFpOALqc7K1bk7T+iEsKg9UgHS4tHLejDYMRLhxyPNVgLh2yNz6i0pwg==
-X-YMail-OSG: NQlzhS4VM1kc6DsZ6v9UvnkuPbPSbJBu.l7yc63PjkPI8J0nohYB7JrJ66IKIyi
- C4mSvHeGrki5b7lK_d2_s9uMZlQVgOxlDA_xGAxjdYUNsSIXqRyKkdQncGbAAurH96qabbXWi8ft
- ePrBJuE6gdhMI1kfk9VeKzUHsKQTQBjRBLcDpietk0QQ1IkZP0GNsMLYK1qhT0b7B4F7MUv.SyhM
- 1u8_VAGJ3R5q7WcKyjntQYEbCuwnyk9dIaqhvCQ7MmwASVmNDZ4n84IkD0B.E8SV_OJFV5eVTY36
- Wu4aV0nXUM2pTfWcb3Na_qrDXlNHIkeOEp2mZKHvc6kXaPUfqPCUihKq5Vr4r5.hfmvkffTI0yVv
- 7OgnKabaKyt3ywl8VVew_V4_R6mtcHcW.JD94zGv3cRvxUeFLuV6sNAbTFIcNoyhcBG.SFrM_Nw9
- CIeNM4gb.K8VVQcxYnok67SForcon1sq7EkOn0LniiON4xXn_tJXTg3kqEOE5Zuxf_qs6ukm2vPF
- jLL5PVGqjb9gx3pS.MIT3v0He2cWz8zwBscn4TMd1iK_9_0UhS7Foy2ZBXCBsHjJa85rMDjml8ZE
- 81BKkXdyU_16sn8Ima_hYVFXQ49OSlr.Nccxt6Xcp_y8mxVZ01hug0X_cqmJm5wGigDGCElIX4pU
- d9MNyEXMTiCjOyMpNIR.5F0yjdfVbfPyy6b5PnegwNtPM5vdf69zAtzRSQKN1aq7HQF5HO1X3_S8
- WKYcKOzDcZ3PIi94WfmNEuOEOtL9pzZzsyeAmSnkdpcfl9eVHvrwQ0DRfSB7bxkPpefL.NQ.7pKI
- RtoV6Uq5NzmVffVvz5lpUgIgO_1vFkuVu6nX9mEYCeR80lmWrkT8aGrH9fn3uDzhDS4GHlZCNiVI
- P4N74aI5kLUsfUh_u3PjXU88tQQal4Zri.ezKKiAv3dcL.LMBwJ7fWuNFJvjFxO0CggZTL3zWBhi
- L6CnDyo4yX9ojwpfRPqbdMZzlvOG6ANp7qmsadw8Xj3WlBRYv_ercMXWAgs1VzaTzH8Ih1YYf3kH
- 6p0OFR28FUCBcCpWnYXARtH6W8XgaqHNkFgheDhsWUTJu6q_lA2Z_qW_6ut8ZjvV3Gio7BMyqC6S
- YRqA1Q6uI.56Njivdq9RRQfF3NB9A3dVT4coMTENBKH35tzGdeATq2zfZIZgj0_feV3BoHKiTXDS
- mr.Iaf.hkcEIbdzQdlJvN6h_2cJd4xUUoljrSsh3D8TvDnAfd0sUVyi.4NF1Rb8aJOEJgmLdSZe8
- 7YpB6m3jHKuTCBSxNbZBFFYQON46uOUbqbAo9WzqJRkLEEiy3vZbCypNcc58EAxZZw2BQEfS3bzv
- ABNQkN2sb89Q1Q6ylxxU_dc.tcUDFOQuvjjnRCLnOKdZZi5xCLtedtQI9YUBP17OVhy3oFSWhpZR
- yFMwhyeBSsvvwmJtUphxdXZFZcb9k0IM3PJNo3i_CKGAuBMnGog--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ir2.yahoo.com with HTTP; Wed, 21 Oct 2020 17:30:00 +0000
-Date:   Wed, 21 Oct 2020 17:29:58 +0000 (UTC)
-From:   Miss Favour <krnbviodx@gmail.com>
-Reply-To: miss.favour150@yahoo.com
-Message-ID: <457549217.3142446.1603301398761@mail.yahoo.com>
-Subject: OK
+        id S2438278AbgJURhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 13:37:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2409090AbgJURhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 13:37:41 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37405C0613CF
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 10:37:41 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id 1so1582608ple.2
+        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 10:37:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Vv4D6R8eCrxIdV737anNuhnF8IUhGJrIC7ODh0WqRn4=;
+        b=dlzULxYrcwFEAysolrUXefx4l0ArH8nOmnJo9alhmX37Mhvb1oCaeM0cyMuqsVJPQl
+         TPii35xDDMoDi6pduoTF9DRMB8GzzU9hHqQDHVOWvSUF1VmR6AaN0FgbUv586hY+OXtt
+         zVETlZB5+cjylJDAFM5jRpD0Qu1vuI+0mu/QsL8I4TMtODLEK/rkHSIuDfS3pvvdsk71
+         GsS8tLoKCWWAaGK5UkHzZBug+JfgAHhbWbd4JCjvwon8Ju0iimx0Xlj1Wye2mvuk5cfh
+         xH+no8SbXkI2rYTdZX9PhK3Fon1bGR+JC2lh+g1KNODz8/Cjm2Azl9eaSLNKMkHTRX0a
+         Ay4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Vv4D6R8eCrxIdV737anNuhnF8IUhGJrIC7ODh0WqRn4=;
+        b=CwiD3cWfIr+2AG5neLt57haoOQgQ+4oUA4pDRKq03Kuovw6PN1frzZXX9k9fmix6VH
+         QPmwdRWR+F2NLch4XdBQvFXjbwhbMowQbaEwzs/6vpNlgK1jUGf65D2gMh2tP+fZxx4Y
+         TSYJ/sApkQgWwB9bRveNpYCRgNJbCCHsek5ZZJH+z+Uv3dsPusdHnmo7a2jRVAPQTqM7
+         OBD5aWJovyykGv+vb164YKKCdKdAfQVe9hissWbXKvQCNmZdlZdj2JPYw+FHNdOLHLzt
+         4h0XMTciHS9EV1y40jpnT6SAPcFIMjh0U6YAItpKLnOh7GGT88K0ngDPW42lQ29jYVeu
+         hgxA==
+X-Gm-Message-State: AOAM5319KDhXpiVtJqnZXcLrZq/Qa+Zc8yRSXvMCfGRf6veOmRyyU6Dh
+        v78jTvkUyIld82BJEqfGX+UhfloVFrEcYA==
+X-Google-Smtp-Source: ABdhPJyqXLky4rR61ibxKJuxM+nTdYLB/JGLg+Umjbt8bqpnF/9Ka1rpKVnlII7e64wNkJ6e3zEARA==
+X-Received: by 2002:a17:902:23:b029:d5:b88a:c782 with SMTP id 32-20020a1709020023b02900d5b88ac782mr4669113pla.5.1603301860444;
+        Wed, 21 Oct 2020 10:37:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z73sm3063510pfc.75.2020.10.21.10.37.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2020 10:37:39 -0700 (PDT)
+Message-ID: <5f9071e3.1c69fb81.22323.704e@mx.google.com>
+Date:   Wed, 21 Oct 2020 10:37:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <457549217.3142446.1603301398761.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:81.0) Gecko/20100101 Firefox/81.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.152-15-g0ea747efc059
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 153 runs,
+ 1 regressions (v4.19.152-15-g0ea747efc059)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-I came across your email address through the google sites and I have much feelings over it. Apologies for my surprising email to you. Penpal friendship doesn't think distance,age or color. Friendship is hearing each other voice from the heart. A friend is a gift from God and someone who cares as much as you do. I'm Miss Favour, I want to be your friend. I'll be glad to read from you and I will reply with my picture as we get to know better.
-Best regards
-Miss Favour.
+stable-rc/queue/4.19 baseline: 153 runs, 1 regressions (v4.19.152-15-g0ea74=
+7efc059)
+
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.152-15-g0ea747efc059/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.152-15-g0ea747efc059
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0ea747efc05951b70fa9e2e3e2cbec0d5b4ee2ed =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9040e3420e3690594ff49e
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
+-15-g0ea747efc059/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
+-15-g0ea747efc059/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9040e3420e369=
+0594ff4a5
+      new failure (last pass: v4.19.152-15-gc465dd732a86)
+      2 lines  =20
