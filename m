@@ -2,138 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5688529517C
-	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 19:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157F6295185
+	for <lists+stable@lfdr.de>; Wed, 21 Oct 2020 19:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438029AbgJUR0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Oct 2020 13:26:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730782AbgJUR0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 13:26:41 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45650C0613CE
-        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 10:26:41 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id b6so2334473pju.1
-        for <stable@vger.kernel.org>; Wed, 21 Oct 2020 10:26:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=67ozpfa0wvk9WBj51Yc7P6sLPX70F9s/rdWKGTiTyO0=;
-        b=i6AVqapmp9MThLtGT/Bko/P1f8IVLFqshfbmiXKuva/Clv/TnuYmmEASX8byCjzHRZ
-         4MViZeRsDQT5DJVNS5+0CFI5NcC/6T1MpvDY9PDUFLcmC8XwglIsTX3aRn40UsLrHJGT
-         as+gzxElaxBbMRVU+63GVFhyAgx1UEO8pl9UAt3uYxtURzqyAE/Npt2lrdFND0IyCgfb
-         ReWdmySDdJe97IyWHo3KSA3ztmZtI2EzQoAkbzfM0uPxAek4d6o0BMkJj6YVilx9GEt2
-         Z/E/6aG9Q4xBfAy6g+KRBg/93ADBO9UBYroVfMiKMLbl3Q/a4KSSEso0q1xFaoIMVCmm
-         ezqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=67ozpfa0wvk9WBj51Yc7P6sLPX70F9s/rdWKGTiTyO0=;
-        b=jSgpV02d9lNP5XRaMW9bLb5wg/USxg9wjR+p26wKvVPiP9LWGPx1lLUWaL7XWgtDYV
-         Z0J26eDRwJl2QYt92/+0eQiPQXT3Hq2AqK5dZdcJC3zQrMzI9NiMKtYqWpkuxgDkhdA9
-         GvlkdwGzNw/PkfUEL2Iji5XHRoBl0zTYxK6g/HevYyta0kHSpuczZAT06B0qW3J41Ewg
-         ZmzxOilfrDkUCvv/k2OLZLuGyrv6KFBhuS8IG1WCMk1dpjI1P+x4A7RBIH9cW7BoFChQ
-         2sUa8hXfi3TBRraYt2VXvpsfALc6E4AqRaR9mhrc1WFHTgc1f1WjMiNnOo/LwM8LIOtt
-         BYnQ==
-X-Gm-Message-State: AOAM5306fZCccY026iksJeqL0VaUd+JoORIcgTOcrKYQlwOpPiPAmiBT
-        CUUXbo/mGlOODGQc++Si0HX6q4yJKG8rbA==
-X-Google-Smtp-Source: ABdhPJwy2dh2bwSNKHttxus24Bceb8lVzFnwncaBNCu6G+/ZMhhdPUXEo7woIfLRgOQk7tj9DIJ1Dw==
-X-Received: by 2002:a17:90a:5885:: with SMTP id j5mr4576168pji.117.1603301200020;
-        Wed, 21 Oct 2020 10:26:40 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ga19sm2667461pjb.3.2020.10.21.10.26.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2020 10:26:39 -0700 (PDT)
-Message-ID: <5f906f4f.1c69fb81.2b175.63ea@mx.google.com>
-Date:   Wed, 21 Oct 2020 10:26:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2503492AbgJURaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Oct 2020 13:30:02 -0400
+Received: from sonic311-31.consmr.mail.ir2.yahoo.com ([77.238.176.163]:44476
+        "EHLO sonic311-31.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2503481AbgJURaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Oct 2020 13:30:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603301400; bh=q1C/9Mh7Qw9wbzPZZVYs9UsLDFdW7TfJAw0vMVR5QHs=; h=Date:From:Reply-To:Subject:References:From:Subject; b=lt/kSt/dcf7W7nKbwZBwDfad8vkpLFpofYzmBNuKXG7y4zsBLPtlfyTyIkHda3ch4501fvwi7FW5Y+Eq8Y6r8vZx9nsWbgt6oisVQBsgz5UU1/ramwh4UhDUNllVb5Y59TGqjx7SC7n/0FtWy2hml5yj88y+mdiqalm3sL8o01Td9ZD8cuZ+gPSOR3aKVueFl2RYf/FfXikWFmwwiszRTlOzSrdNuKkvcEFyUlwnROsfCtOc3gsLm4OXU2j6pFfDFC9RI9nAAd+pLwuKobFFYa7oQuTFIFv6lMC4oM2+fj1TIfLQJzH3BIa4zpH/N4HClscOgkLCX+7jp+YcTNpOQg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603301400; bh=YnqCv6RBqqZpyJtjI8ycix4+5NCpUN+O9lkfvBpZoN5=; h=Date:From:Subject; b=a0lMIv9Pul8hQeXDBn2rYT5NP4jAk/8e5TgqlYq78QLNPPWWMGJuEvJQyTG07SXS9EWp4+zYsu6QlE7ESpc/0xWEiHfkktbWP45Bxy/7pt26SISnDbn8AC+XdoKiuHHww7LI2YWHRjs4qsqX+ooXlyOTFpbYniOn9QRKunQqZ61hKVC0wUeQwQiuEoyOMBu0O5nxRdRdsnNlwJqryMbi3awOx2KyxKyClBa6f/hEzo62VwqBnTxA2fWyyNU3nUm4jTUGCTU4xy+QS9swjkFI+s2CpyqHzQyFpOALqc7K1bk7T+iEsKg9UgHS4tHLejDYMRLhxyPNVgLh2yNz6i0pwg==
+X-YMail-OSG: NQlzhS4VM1kc6DsZ6v9UvnkuPbPSbJBu.l7yc63PjkPI8J0nohYB7JrJ66IKIyi
+ C4mSvHeGrki5b7lK_d2_s9uMZlQVgOxlDA_xGAxjdYUNsSIXqRyKkdQncGbAAurH96qabbXWi8ft
+ ePrBJuE6gdhMI1kfk9VeKzUHsKQTQBjRBLcDpietk0QQ1IkZP0GNsMLYK1qhT0b7B4F7MUv.SyhM
+ 1u8_VAGJ3R5q7WcKyjntQYEbCuwnyk9dIaqhvCQ7MmwASVmNDZ4n84IkD0B.E8SV_OJFV5eVTY36
+ Wu4aV0nXUM2pTfWcb3Na_qrDXlNHIkeOEp2mZKHvc6kXaPUfqPCUihKq5Vr4r5.hfmvkffTI0yVv
+ 7OgnKabaKyt3ywl8VVew_V4_R6mtcHcW.JD94zGv3cRvxUeFLuV6sNAbTFIcNoyhcBG.SFrM_Nw9
+ CIeNM4gb.K8VVQcxYnok67SForcon1sq7EkOn0LniiON4xXn_tJXTg3kqEOE5Zuxf_qs6ukm2vPF
+ jLL5PVGqjb9gx3pS.MIT3v0He2cWz8zwBscn4TMd1iK_9_0UhS7Foy2ZBXCBsHjJa85rMDjml8ZE
+ 81BKkXdyU_16sn8Ima_hYVFXQ49OSlr.Nccxt6Xcp_y8mxVZ01hug0X_cqmJm5wGigDGCElIX4pU
+ d9MNyEXMTiCjOyMpNIR.5F0yjdfVbfPyy6b5PnegwNtPM5vdf69zAtzRSQKN1aq7HQF5HO1X3_S8
+ WKYcKOzDcZ3PIi94WfmNEuOEOtL9pzZzsyeAmSnkdpcfl9eVHvrwQ0DRfSB7bxkPpefL.NQ.7pKI
+ RtoV6Uq5NzmVffVvz5lpUgIgO_1vFkuVu6nX9mEYCeR80lmWrkT8aGrH9fn3uDzhDS4GHlZCNiVI
+ P4N74aI5kLUsfUh_u3PjXU88tQQal4Zri.ezKKiAv3dcL.LMBwJ7fWuNFJvjFxO0CggZTL3zWBhi
+ L6CnDyo4yX9ojwpfRPqbdMZzlvOG6ANp7qmsadw8Xj3WlBRYv_ercMXWAgs1VzaTzH8Ih1YYf3kH
+ 6p0OFR28FUCBcCpWnYXARtH6W8XgaqHNkFgheDhsWUTJu6q_lA2Z_qW_6ut8ZjvV3Gio7BMyqC6S
+ YRqA1Q6uI.56Njivdq9RRQfF3NB9A3dVT4coMTENBKH35tzGdeATq2zfZIZgj0_feV3BoHKiTXDS
+ mr.Iaf.hkcEIbdzQdlJvN6h_2cJd4xUUoljrSsh3D8TvDnAfd0sUVyi.4NF1Rb8aJOEJgmLdSZe8
+ 7YpB6m3jHKuTCBSxNbZBFFYQON46uOUbqbAo9WzqJRkLEEiy3vZbCypNcc58EAxZZw2BQEfS3bzv
+ ABNQkN2sb89Q1Q6ylxxU_dc.tcUDFOQuvjjnRCLnOKdZZi5xCLtedtQI9YUBP17OVhy3oFSWhpZR
+ yFMwhyeBSsvvwmJtUphxdXZFZcb9k0IM3PJNo3i_CKGAuBMnGog--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ir2.yahoo.com with HTTP; Wed, 21 Oct 2020 17:30:00 +0000
+Date:   Wed, 21 Oct 2020 17:29:58 +0000 (UTC)
+From:   Miss Favour <krnbviodx@gmail.com>
+Reply-To: miss.favour150@yahoo.com
+Message-ID: <457549217.3142446.1603301398761@mail.yahoo.com>
+Subject: OK
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.8.16-29-gb009255afab7
-X-Kernelci-Branch: queue/5.8
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.8 baseline: 164 runs,
- 1 regressions (v5.8.16-29-gb009255afab7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <457549217.3142446.1603301398761.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:81.0) Gecko/20100101 Firefox/81.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 164 runs, 1 regressions (v5.8.16-29-gb009255a=
-fab7)
-
-Regressions Summary
--------------------
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.16-29-gb009255afab7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.16-29-gb009255afab7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b009255afab7a463b4a07438228e492a103ba1d3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f90389f54dd731f6d4ff3fa
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-29=
--gb009255afab7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-29=
--gb009255afab7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f90389f54dd731f=
-6d4ff3fe
-      failing since 0 day (last pass: v5.8.16-29-g970dd0292df8, first fail:=
- v5.8.16-29-g94b8033e99d8)
-      1 lines
-
-    2020-10-21 13:31:16.907000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-21 13:31:16.907000  (user:khilman) is already connected
-    2020-10-21 13:31:32.113000  =00
-    2020-10-21 13:31:32.113000  =
-
-    2020-10-21 13:31:32.113000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-21 13:31:32.113000  =
-
-    2020-10-21 13:31:32.113000  DRAM:  948 MiB
-    2020-10-21 13:31:32.129000  RPI 3 Model B (0xa02082)
-    2020-10-21 13:31:32.216000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-21 13:31:32.248000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (381 line(s) more)
-      =20
+Hello,
+I came across your email address through the google sites and I have much feelings over it. Apologies for my surprising email to you. Penpal friendship doesn't think distance,age or color. Friendship is hearing each other voice from the heart. A friend is a gift from God and someone who cares as much as you do. I'm Miss Favour, I want to be your friend. I'll be glad to read from you and I will reply with my picture as we get to know better.
+Best regards
+Miss Favour.
