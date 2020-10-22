@@ -2,96 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 142EF296572
-	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 21:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C58329658A
+	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 21:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S370379AbgJVTnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Oct 2020 15:43:01 -0400
-Received: from mga06.intel.com ([134.134.136.31]:32479 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S370377AbgJVTnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Oct 2020 15:43:00 -0400
-IronPort-SDR: xLUw50XBX7drIwniDkRNk8BecWBrXLBq33Usteg+OVYviNSahzpgKABuVrbeVtArKkdNdBB4I9
- qbZwOZMMzkZg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9782"; a="229219213"
-X-IronPort-AV: E=Sophos;i="5.77,404,1596524400"; 
-   d="scan'208";a="229219213"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2020 12:42:59 -0700
-IronPort-SDR: R8HzbOifldxclQO2dv3ElHs52VSySzXOiLPATVFu5X7TmrgzBfbMJnLj/8mKqgx8yEKNwCMRhk
- HpDBwD1CZXmg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,404,1596524400"; 
-   d="scan'208";a="359370921"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by FMSMGA003.fm.intel.com with SMTP; 22 Oct 2020 12:42:56 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 22 Oct 2020 22:42:56 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] drm/modes: Switch to 64bit maths to avoid integer overflow
-Date:   Thu, 22 Oct 2020 22:42:56 +0300
-Message-Id: <20201022194256.30978-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S370441AbgJVTxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Oct 2020 15:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S370423AbgJVTxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Oct 2020 15:53:01 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD39DC0613CE
+        for <stable@vger.kernel.org>; Thu, 22 Oct 2020 12:53:01 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id e10so1868383pfj.1
+        for <stable@vger.kernel.org>; Thu, 22 Oct 2020 12:53:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tVrs05k99qObM+pRHeouhZwCLuO4VhsZWPskOfa8Img=;
+        b=tQhAy90nZqWHbzKpXEPHPPyGD/fNzBZmt97Mlkoa7yVrqZJRFkf7atmag8gaSlwFRL
+         WMDHKxnjU0oQ5keImO4EFUywqfguUXUw0dQwY7Sy118l5oziBgVbydqxTCe1AnMyBWD3
+         xDkVthgEsqIRkirH+aBM8xJuY9ITYurKpiVZilkRgsdjr0hhBBRLfsuw8VcVYHCeek+J
+         60d91KA7FpBH+4woCM73tscTeUI/pxih4Gj6UkoNZLS+VvNUL7h6T9ihRCn++VKgai+c
+         mRYhoO42m2UI4rQLfj30dqGfSsXpe7BzRRIOptAcj67RjZg8yppV1eMbGj3nrtIbnht8
+         4Txg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tVrs05k99qObM+pRHeouhZwCLuO4VhsZWPskOfa8Img=;
+        b=Mcobjr7SYat93v7eVtlUZZHJs8hyzotecCvMyi8OI7z4w6pUhiUaFMu+3X7OAEPf/M
+         Iix1dAaSRLwk9diQdViCxS87LCgnh0JrMaFjCOpePDZP3pnaRhZioJBBRC5rwuvBBLWQ
+         C/ddlMp/GI8pMUNQT9vFYzJyz4Y8XdkBzHSFUPZ7HUNmv/1NTCO4C8/V7sCgCK2szGCW
+         fB/GERbpeEke482RcaAyp7H/YRIe94VSyrJUw6dfZP6tckBHxkdn7/KY2WkU2j97raS7
+         0ajLpAOUh1oZOivqk2ispPT2zxC7k33nu3wFVEvIhXYqmJIY1UxnANkKLpiSLgtF7DIP
+         NTWQ==
+X-Gm-Message-State: AOAM530XhEQC/t/MJHt0ZVbIF8xFWhQhlwmNBpCm+UkqlhHbeqJVx5LZ
+        FvP+xfwe6oU73PL6Ti0JcMN9n5ql1DgoPg==
+X-Google-Smtp-Source: ABdhPJzgyPfhx5j64lEO8xPvw5PobeB6rBNLtn17x6piB6GF6A/GO2sawHGT8gLQWQcfHKJw7d+maQ==
+X-Received: by 2002:a17:90b:2301:: with SMTP id mt1mr3542888pjb.80.1603396380961;
+        Thu, 22 Oct 2020 12:53:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y10sm3156286pff.119.2020.10.22.12.53.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Oct 2020 12:53:00 -0700 (PDT)
+Message-ID: <5f91e31c.1c69fb81.7f9d9.5f96@mx.google.com>
+Date:   Thu, 22 Oct 2020 12:53:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.8.16-29-g7f7c35e6fb34
+X-Kernelci-Branch: queue/5.8
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.8 baseline: 177 runs,
+ 1 regressions (v5.8.16-29-g7f7c35e6fb34)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+stable-rc/queue/5.8 baseline: 177 runs, 1 regressions (v5.8.16-29-g7f7c35e6=
+fb34)
 
-The new >8k CEA modes have dotclocks reaching 5.94 GHz, which
-means our clock*1000 will now overflow the 32bit unsigned
-integer. Switch to 64bit maths to avoid it.
+Regressions Summary
+-------------------
 
-Cc: stable@vger.kernel.org
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
-An interesting question how many other place might suffer from similar
-overflows. I think i915 should be mostly OK. The one place I know we use
-Hz instead kHz is the hsw DPLL code, which I would prefer we also change
-to use kHz. The other concern is whether we have any potential overflows
-before we check this against the platform's max dotclock.
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
 
-I do have this unreviewed igt series 
-https://patchwork.freedesktop.org/series/69531/ which extends the
-current testing with some other forms of invalid modes. Could probably
-extend that with a mode.clock=INT_MAX test to see if anything else might
-trip up.
 
-No idea about other drivers.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
+el/v5.8.16-29-g7f7c35e6fb34/plan/baseline/
 
- drivers/gpu/drm/drm_modes.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.8
+  Describe: v5.8.16-29-g7f7c35e6fb34
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7f7c35e6fb344bb03b90db9a4ad6346b8fe7c87e =
 
-diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-index 501b4fe55a3d..511cde5c7fa6 100644
---- a/drivers/gpu/drm/drm_modes.c
-+++ b/drivers/gpu/drm/drm_modes.c
-@@ -762,7 +762,7 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
- 	if (mode->htotal == 0 || mode->vtotal == 0)
- 		return 0;
- 
--	num = mode->clock * 1000;
-+	num = mode->clock;
- 	den = mode->htotal * mode->vtotal;
- 
- 	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
-@@ -772,7 +772,7 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
- 	if (mode->vscan > 1)
- 		den *= mode->vscan;
- 
--	return DIV_ROUND_CLOSEST(num, den);
-+	return DIV_ROUND_CLOSEST_ULL(mul_u32_u32(num, 1000), den);
- }
- EXPORT_SYMBOL(drm_mode_vrefresh);
- 
--- 
-2.26.2
 
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f91a9e7d03ca1e60311095c
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-29=
+-g7f7c35e6fb34/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-29=
+-g7f7c35e6fb34/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f91a9e7d03ca1e6=
+03110961
+        failing since 1 day (last pass: v5.8.16-29-g970dd0292df8, first fai=
+l: v5.8.16-29-g94b8033e99d8)
+        3 lines
+
+    2020-10-22 15:46:12.965000+00:00  Connected to bcm2837-rpi-3-b console =
+[channel connected] (~$quit to exit)
+    2020-10-22 15:46:12.966000+00:00  (user:khilman) is already connected
+    2020-10-22 15:46:28.136000+00:00  =00
+    2020-10-22 15:46:28.137000+00:00  =
+
+    2020-10-22 15:46:28.137000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
+2 -0800)
+    2020-10-22 15:46:28.137000+00:00  =
+
+    2020-10-22 15:46:28.137000+00:00  DRAM:  948 MiB
+    2020-10-22 15:46:28.152000+00:00  RPI 3 Model B (0xa02082)
+    2020-10-22 15:46:28.240000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
+0: 1
+    2020-10-22 15:46:28.273000+00:00  Loading Environment from FAT... *** W=
+arning - bad CRC, using default environment =
+
+    ... (392 line(s) more)  =
+
+ =20
