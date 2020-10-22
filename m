@@ -2,167 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A99295E3D
-	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 14:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9721F296078
+	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 15:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898045AbgJVMV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Oct 2020 08:21:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:31024 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2503993AbgJVMVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Oct 2020 08:21:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603369284;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=euAFIBXlvXDybxKcUe+tcQ4NLZzwD/QgxcNGj7ZymUE=;
-        b=Y/0Q1YiWBX2uw7dOMa1Z12Bty/HjGI243quu9WsoCQ0j2P23d89MbBBFjhw2P8PX9bwiHm
-        Nr0hHFamesirlHoXkdZ4EGNpEwPCP0ZWcgkivbjGIgIPwEki3KQ3xITV8D9M9sFDHRAMfh
-        vXoK8OgY6qLuOt0ViOVorJP34JndMr4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-210-3qAsfDymPuu52pwRmY_ejg-1; Thu, 22 Oct 2020 08:21:20 -0400
-X-MC-Unique: 3qAsfDymPuu52pwRmY_ejg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4F2E5188C126;
-        Thu, 22 Oct 2020 12:21:18 +0000 (UTC)
-Received: from redhat.com (ovpn-113-117.ams2.redhat.com [10.36.113.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id EDA305B4A3;
-        Thu, 22 Oct 2020 12:21:10 +0000 (UTC)
-Date:   Thu, 22 Oct 2020 08:21:07 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Michal Privoznik <mprivozn@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] hugetlb_cgroup: fix reservation accounting
-Message-ID: <20201022081538-mutt-send-email-mst@kernel.org>
-References: <20201021204426.36069-1-mike.kravetz@oracle.com>
+        id S2900519AbgJVNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Oct 2020 09:55:47 -0400
+Received: from aibo.runbox.com ([91.220.196.211]:54282 "EHLO aibo.runbox.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2442869AbgJVNzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Oct 2020 09:55:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
+         s=selector1; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To
+        :Message-Id:Date:Subject:Cc:To:From;
+        bh=RLOsQAWw+vGlqNwVSZlDdr2JvP1N7nTxGdiLPOxd2ig=; b=mndfz1QUR5OU9krOjL1SwlCZmm
+        Ovvlf5HCkf39Cd0aXktZJRlYPatwQULtaM8xc0CQtmnW8q3Io1Tym60/A2Jz2fjdth/Nlu6gPVibt
+        WxQ+CI3qjniHav7Y9LpJ6bo0IGRN2roRURDYChNi7dxy5NP89Jod+Fj61yjqy+Td0i1v5AtG8AeRS
+        GBnwUv7D1BTeIcKoQn1GJPg/ZDehQNSOIV2R5bEmcTW2RkMJBjMUE/U3D2teLNB7eorO3IVq5Yw/O
+        Bm8alus2125OOoh9Ojl+GTSJyq3smYtty+XST4zZoCKhzgaefuRogPpBTxTj5jQev48+ovw9FZknb
+        ah4FoncQ==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+        by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+        (envelope-from <m.v.b@runbox.com>)
+        id 1kVb4C-0001ZH-JV; Thu, 22 Oct 2020 15:55:44 +0200
+Received: by submission01.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        id 1kVb42-0008Qw-OZ; Thu, 22 Oct 2020 15:55:35 +0200
+From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
+To:     linux-usb@vger.kernel.org
+Cc:     Bastien Nocera <hadess@hadess.net>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        "M . Vefa Bicakci" <m.v.b@runbox.com>
+Subject: [PATCH 1/2] usbcore: Check both id_table and match() when both available
+Date:   Thu, 22 Oct 2020 09:55:20 -0400
+Message-Id: <20201022135521.375211-2-m.v.b@runbox.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201022135521.375211-1-m.v.b@runbox.com>
+References: <4cc0e162-c607-3fdf-30c9-1b3a77f6cf20@runbox.com>
+ <20201022135521.375211-1-m.v.b@runbox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201021204426.36069-1-mike.kravetz@oracle.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 21, 2020 at 01:44:26PM -0700, Mike Kravetz wrote:
-> Michal Privoznik was using "free page reporting" in QEMU/virtio-balloon
-> with hugetlbfs and hit the warning below.  QEMU with free page hinting
-> uses fallocate(FALLOC_FL_PUNCH_HOLE) to discard pages that are reported
-> as free by a VM. The reporting granularity is in pageblock granularity.
-> So when the guest reports 2M chunks, we fallocate(FALLOC_FL_PUNCH_HOLE)
-> one huge page in QEMU.
-> 
-> [  315.251417] ------------[ cut here ]------------
-> [  315.251424] WARNING: CPU: 7 PID: 6636 at mm/page_counter.c:57 page_counter_uncharge+0x4b/0x50
-> [  315.251425] Modules linked in: ...
-> [  315.251466] CPU: 7 PID: 6636 Comm: qemu-system-x86 Not tainted 5.9.0 #137
-> [  315.251467] Hardware name: Gigabyte Technology Co., Ltd. X570 AORUS PRO/X570 AORUS PRO, BIOS F21 07/31/2020
-> [  315.251469] RIP: 0010:page_counter_uncharge+0x4b/0x50
-> ...
-> [  315.251479] Call Trace:
-> [  315.251485]  hugetlb_cgroup_uncharge_file_region+0x4b/0x80
-> [  315.251487]  region_del+0x1d3/0x300
-> [  315.251489]  hugetlb_unreserve_pages+0x39/0xb0
-> [  315.251492]  remove_inode_hugepages+0x1a8/0x3d0
-> [  315.251495]  ? tlb_finish_mmu+0x7a/0x1d0
-> [  315.251497]  hugetlbfs_fallocate+0x3c4/0x5c0
-> [  315.251519]  ? kvm_arch_vcpu_ioctl_run+0x614/0x1700 [kvm]
-> [  315.251522]  ? file_has_perm+0xa2/0xb0
-> [  315.251524]  ? inode_security+0xc/0x60
-> [  315.251525]  ? selinux_file_permission+0x4e/0x120
-> [  315.251527]  vfs_fallocate+0x146/0x290
-> [  315.251529]  __x64_sys_fallocate+0x3e/0x70
-> [  315.251531]  do_syscall_64+0x33/0x40
-> [  315.251533]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> ...
-> [  315.251542] ---[ end trace 4c88c62ccb1349c9 ]---
-> 
-> Investigation of the issue uncovered bugs in hugetlb cgroup reservation
-> accounting.  This patch addresses the found issues.
-> 
-> Fixes: 075a61d07a8e ("hugetlb_cgroup: add accounting for shared mappings")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Michal Privoznik <mprivozn@redhat.com>
-> Co-developed-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+From: Bastien Nocera <hadess@hadess.net>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+From: Bastien Nocera <hadess@hadess.net>
 
-> ---
->  mm/hugetlb.c | 20 +++++++++++---------
->  1 file changed, 11 insertions(+), 9 deletions(-)
-> 
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 67fc6383995b..b853a11de14f 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -655,6 +655,8 @@ static long region_del(struct resv_map *resv, long f, long t)
->  			}
->  
->  			del += t - f;
-> +			hugetlb_cgroup_uncharge_file_region(
-> +				resv, rg, t - f);
->  
->  			/* New entry for end of split region */
->  			nrg->from = t;
-> @@ -667,9 +669,6 @@ static long region_del(struct resv_map *resv, long f, long t)
->  			/* Original entry is trimmed */
->  			rg->to = f;
->  
-> -			hugetlb_cgroup_uncharge_file_region(
-> -				resv, rg, nrg->to - nrg->from);
-> -
->  			list_add(&nrg->link, &rg->link);
->  			nrg = NULL;
->  			break;
-> @@ -685,17 +684,17 @@ static long region_del(struct resv_map *resv, long f, long t)
->  		}
->  
->  		if (f <= rg->from) {	/* Trim beginning of region */
-> -			del += t - rg->from;
-> -			rg->from = t;
-> -
->  			hugetlb_cgroup_uncharge_file_region(resv, rg,
->  							    t - rg->from);
-> -		} else {		/* Trim end of region */
-> -			del += rg->to - f;
-> -			rg->to = f;
->  
-> +			del += t - rg->from;
-> +			rg->from = t;
-> +		} else {		/* Trim end of region */
->  			hugetlb_cgroup_uncharge_file_region(resv, rg,
->  							    rg->to - f);
-> +
-> +			del += rg->to - f;
-> +			rg->to = f;
->  		}
->  	}
->  
-> @@ -2454,6 +2453,9 @@ struct page *alloc_huge_page(struct vm_area_struct *vma,
->  
->  		rsv_adjust = hugepage_subpool_put_pages(spool, 1);
->  		hugetlb_acct_memory(h, -rsv_adjust);
-> +		if (deferred_reserve)
-> +			hugetlb_cgroup_uncharge_page_rsvd(hstate_index(h),
-> +					pages_per_huge_page(h), page);
->  	}
->  	return page;
->  
-> -- 
-> 2.25.4
+When a USB device driver has both an id_table and a match() function, make
+sure to check both to find a match, first matching the id_table, then
+checking the match() function.
+
+This makes it possible to have module autoloading done through the
+id_table when devices are plugged in, before checking for further
+device eligibility in the match() function.
+
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Cc: <stable@vger.kernel.org> # 5.8
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Co-developed-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+---
+ drivers/usb/core/driver.c  | 30 +++++++++++++++++++++---------
+ drivers/usb/core/generic.c |  4 +---
+ drivers/usb/core/usb.h     |  2 ++
+ 3 files changed, 24 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+index 98b7449c11f3..4dfa44d6cc3c 100644
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -839,6 +839,22 @@ const struct usb_device_id *usb_device_match_id(struct usb_device *udev,
+ 	return NULL;
+ }
+ 
++bool usb_driver_applicable(struct usb_device *udev,
++			   struct usb_device_driver *udrv)
++{
++	if (udrv->id_table && udrv->match)
++		return usb_device_match_id(udev, udrv->id_table) != NULL &&
++		       udrv->match(udev);
++
++	if (udrv->id_table)
++		return usb_device_match_id(udev, udrv->id_table) != NULL;
++
++	if (udrv->match)
++		return udrv->match(udev);
++
++	return false;
++}
++
+ static int usb_device_match(struct device *dev, struct device_driver *drv)
+ {
+ 	/* devices and interfaces are handled separately */
+@@ -853,17 +869,14 @@ static int usb_device_match(struct device *dev, struct device_driver *drv)
+ 		udev = to_usb_device(dev);
+ 		udrv = to_usb_device_driver(drv);
+ 
+-		if (udrv->id_table)
+-			return usb_device_match_id(udev, udrv->id_table) != NULL;
+-
+-		if (udrv->match)
+-			return udrv->match(udev);
+-
+ 		/* If the device driver under consideration does not have a
+ 		 * id_table or a match function, then let the driver's probe
+ 		 * function decide.
+ 		 */
+-		return 1;
++		if (!udrv->id_table && !udrv->match)
++			return 1;
++
++		return usb_driver_applicable(udev, udrv);
+ 
+ 	} else if (is_usb_interface(dev)) {
+ 		struct usb_interface *intf;
+@@ -941,8 +954,7 @@ static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
+ 		return 0;
+ 
+ 	udev = to_usb_device(dev);
+-	if (usb_device_match_id(udev, new_udriver->id_table) == NULL &&
+-	    (!new_udriver->match || new_udriver->match(udev) == 0))
++	if (!usb_driver_applicable(udev, new_udriver))
+ 		return 0;
+ 
+ 	ret = device_reprobe(dev);
+diff --git a/drivers/usb/core/generic.c b/drivers/usb/core/generic.c
+index 22c887f5c497..26f9fb9f67ca 100644
+--- a/drivers/usb/core/generic.c
++++ b/drivers/usb/core/generic.c
+@@ -205,9 +205,7 @@ static int __check_for_non_generic_match(struct device_driver *drv, void *data)
+ 	udrv = to_usb_device_driver(drv);
+ 	if (udrv == &usb_generic_driver)
+ 		return 0;
+-	if (usb_device_match_id(udev, udrv->id_table) != NULL)
+-		return 1;
+-	return (udrv->match && udrv->match(udev));
++	return usb_driver_applicable(udev, udrv);
+ }
+ 
+ static bool usb_generic_driver_match(struct usb_device *udev)
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index c893f54a3420..82538daac8b8 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -74,6 +74,8 @@ extern int usb_match_device(struct usb_device *dev,
+ 			    const struct usb_device_id *id);
+ extern const struct usb_device_id *usb_device_match_id(struct usb_device *udev,
+ 				const struct usb_device_id *id);
++extern bool usb_driver_applicable(struct usb_device *udev,
++				  struct usb_device_driver *udrv);
+ extern void usb_forced_unbind_intf(struct usb_interface *intf);
+ extern void usb_unbind_and_rebind_marked_interfaces(struct usb_device *udev);
+ 
+-- 
+2.26.2
 
