@@ -2,51 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182BD296082
-	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 15:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CAB296087
+	for <lists+stable@lfdr.de>; Thu, 22 Oct 2020 15:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900530AbgJVN5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Oct 2020 09:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36078 "EHLO mail.kernel.org"
+        id S2900536AbgJVN7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Oct 2020 09:59:20 -0400
+Received: from aibo.runbox.com ([91.220.196.211]:51822 "EHLO aibo.runbox.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2443798AbgJVN5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Oct 2020 09:57:25 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10B9F2085B;
-        Thu, 22 Oct 2020 13:57:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603375043;
-        bh=bKPjkUKQuK42e+zQkxR2JKO0CY2iL+sL+1ptac2lo6g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H4UeW7ZXepjo4PME3Em3JRUTomjH6qW64i36v0SqoEUlnQRKSUo5niS3TdIUJlRJE
-         ddXO0PrX0KNsSKpCpU23pk3tWKt9t/wKFfDb/lbWzU9q1+MwsemxZ+Nj/SiGDH494v
-         tugwsGhmWyyofXS2g8aLTPMx1sqDr7REUrgVXaUQ=
-Date:   Thu, 22 Oct 2020 15:57:49 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: [4.4] Fix warnings with KASAN enabled
-Message-ID: <20201022135749.GA1799093@kroah.com>
-References: <994ec2d7674602c00c9d55d866b8e8ebe6efa253.camel@codethink.co.uk>
+        id S2900534AbgJVN7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Oct 2020 09:59:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
+         s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
+        bh=e4L2Skc/u+U3cTDg4U5BffAKA96T/CEy6T+u2+GyPvk=; b=M0ZtZtZLjDUjRk0LLanee/HAmv
+        xDpADo108zljwYNhaohNC+Z4DzKxc7B+icxWmYZ8KZKFYrVkLwk7CN9wN27ZMT16WXQEynyDF63V3
+        8HfAJP6DY7EcgFmZ12HxcdS5H0sV9tP/7/dU7cKN741xMi98UvZXuEgob3Aq5avb6EBJ9hRO+ijAZ
+        jUlCoEhl4czJxQ0dFp6a2KasuDHSEGUmICt8CSbDHxke/LeDv2hfhXuNuUjY2TdaoRxk7XQ8k6hBH
+        r1dnDVwpHFgJEdG7N8/ZcIqSpkUvfjlDUBn6X5DTSi3Lnob26PpwIJ8mnhCoRF2Z+hlmTCxLqn6YW
+        FF9QgcZw==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+        by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+        (envelope-from <m.v.b@runbox.com>)
+        id 1kVb7c-0001h0-NI; Thu, 22 Oct 2020 15:59:16 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        id 1kVb7b-0007Bp-BX; Thu, 22 Oct 2020 15:59:15 +0200
+Subject: Re: [PATCH 1/2] usbcore: Check both id_table and match() when both
+ available
+To:     linux-usb@vger.kernel.org
+Cc:     Bastien Nocera <hadess@hadess.net>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+References: <4cc0e162-c607-3fdf-30c9-1b3a77f6cf20@runbox.com>
+ <20201022135521.375211-1-m.v.b@runbox.com>
+ <20201022135521.375211-2-m.v.b@runbox.com>
+From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
+Message-ID: <dc03de23-f1f7-7948-ce18-a1d53567e50a@runbox.com>
+Date:   Thu, 22 Oct 2020 09:59:11 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <994ec2d7674602c00c9d55d866b8e8ebe6efa253.camel@codethink.co.uk>
+In-Reply-To: <20201022135521.375211-2-m.v.b@runbox.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-CA
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 21, 2020 at 10:21:11PM +0100, Ben Hutchings wrote:
-> The attached patches fix:
+On 22/10/2020 09.55, M. Vefa Bicakci wrote:
+> From: Bastien Nocera <hadess@hadess.net>
 > 
-> * KASAN warnings for strscpy()
-> * RCU and soft-lockup warnings with CONFIG_KASAN and CONFIG_DEBUG_WX
->   enabled
-> 
-> All of these are already present in later stable branches.
+> From: Bastien Nocera <hadess@hadess.net>
 
-All now queued up, thanks.
+Ah, sorry for this mistake. This is the first time I sent patches
+authored by another person, with git-send-email. I should have
+tested with my own e-mail address initially.
 
-greg k-h
+I will fix this mistake with the next patch set version.
+
+Thank you,
+
+Vefa
+
