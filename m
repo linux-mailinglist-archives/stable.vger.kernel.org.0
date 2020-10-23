@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 576C02979A4
+	by mail.lfdr.de (Postfix) with ESMTP id C3EB22979A5
 	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758628AbgJWXXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 19:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
+        id S1758631AbgJWXXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 19:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758619AbgJWXXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:23:31 -0400
+        with ESMTP id S1758630AbgJWXXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:23:43 -0400
 Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EFA8C0613CE
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:30 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id dt13so4551303ejb.12
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83296C0613CE
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:41 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id k3so4558753ejj.10
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=2UGb3Lm/0wdxFBm3bTs8krKwdYJQ/T360YgGEwiYch4=;
-        b=Ll4Ftp8bw8IQd91VW19hJhZtT/daNNJ4J4NJp+UBKx6wPj2QaqMS9mDzNfrcpPMHJO
-         OJD2IXpT0vGIahLdo6fECfGuZu2wqU1rCduK5Ee6IakzNK6qUfpSuDajV+cYK3+l/gNa
-         6xRYxsdXhu00qH0LszWCohRr/ZJGix7jjcwzk=
+        bh=qTI02kYHvPG2L4A2/U+zoWx4mR7brYgtGdM89QKxjLc=;
+        b=UgeLk8xPEr+vI4/c9aheq9Bhdrj2SXxdbaDWLbRqTzvvRpHG/hLCnPehgrV3wN6eeV
+         k5Uzn8kGxtPC+cp1e/QwJHdRVXQoIq58mq+NArw2OorlTp+1f7Ne6qEw5n1v7pJeWMKj
+         ZSNjRC3sOSWiNDn0aEaFBs7+P0G3HAkymwYqk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=2UGb3Lm/0wdxFBm3bTs8krKwdYJQ/T360YgGEwiYch4=;
-        b=KQVxv75FBqlkNL+15NCvl8velAIF4Fmf0v9B5aYMSTyQu1DuzXwrLoz390WVrdZoxM
-         trDaeumT1S8lRgUItgJUEW0QcQ9+sxQErzTJHsFkCFDGXd29Bkc4oN3DAQtAQVWTKP11
-         3lDpv4wo42t3b0oPV2x6yZJE4yVV4CvfQ+P/4nSmEeEmNIXCwTUN1rXryrf1VBy8rB4W
-         CAL5PfePSGPJ3f7jPFZq6uBrrde7wgDnkQqEQe4hsMNWsAAl9RdKxCw+4uA5T94Rv9nN
-         whPS/w5DhdTdxDoeYx24V3nJIWIJ7rKSobuGGTSyTiw6v0VX7k/e2TpqDjWfvS9lVwnv
-         Zyng==
-X-Gm-Message-State: AOAM531K0bc9GY2SgOqa54LQHfADch6VUGboyEmbAeUFyjGNIGuRrlS/
-        wt3AxTpmK+Z+3edbYfT86YWBRCyy/rUwTbt2Rh8=
-X-Google-Smtp-Source: ABdhPJwgxS4eL+439Mr5MnD64/yFO9wB7U9FDXl2B0rZHTsWUj3Zxp22j6GTvN2gDbLOw8IFcFAboQ==
-X-Received: by 2002:a17:906:1955:: with SMTP id b21mr4567895eje.42.1603495408917;
-        Fri, 23 Oct 2020 16:23:28 -0700 (PDT)
+        bh=qTI02kYHvPG2L4A2/U+zoWx4mR7brYgtGdM89QKxjLc=;
+        b=HFtOInGKsgrtPGTnfUAB3v1moM/Mj8WI6w67nOwx2QKGiILyQiHc6yqlbD/Fzjpqv4
+         7l86wDj37bUy5kIH/m2PIZMtyakx4uCJpiin3zBbYWWgP+ZfYM2XCB9NjuI3nwRp7B0h
+         1mxtXTUPoAUXNRqayt9plCdaEbxpeFFubQDd6Nroc4TsN3gvzCAhMG5JTPHQpO3+mIEB
+         kYsDWUrkIcE73J0gg4DDILEq5G4wDTJWTt6UHogef7ff0Y7hQ1AUrXwEQeB6GIz/ZmCP
+         FvLJpOmI+wX3klP9VL0W9YX+Z87fpg3y+P6Q+cDvvlZJBwnOT+4JNd3hcbF1ZPMz+6Z8
+         QMWw==
+X-Gm-Message-State: AOAM5329fwYAT60TCmgFadgLv7uK62KYMIvtPlIA9DfE4XF/VsUbJxPZ
+        o+zdo1vjCy1tl/2/S50H5Il+K0Qa10KtJOxHpJw=
+X-Google-Smtp-Source: ABdhPJwtVfTHNldkhWhb6QoIs00lRJz+a9eiZiA9kCa8LvYclEKp4sPLBfwpCQ7R6IViocvK0vTagg==
+X-Received: by 2002:a17:906:1c57:: with SMTP id l23mr4260059ejg.372.1603495419952;
+        Fri, 23 Oct 2020 16:23:39 -0700 (PDT)
 Received: from prevas-ravi.aaad.autarch.net (5.186.115.188.cgn.fibianet.dk. [5.186.115.188])
-        by smtp.gmail.com with ESMTPSA id j10sm1135836ejy.90.2020.10.23.16.23.28
+        by smtp.gmail.com with ESMTPSA id mc4sm1478337ejb.61.2020.10.23.16.23.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 16:23:28 -0700 (PDT)
+        Fri, 23 Oct 2020 16:23:39 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-To:     stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To:     stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Masahiro Yamada <masahiroy@kernel.org>
 Cc:     Greg KH <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14-stable] scripts/setlocalversion: make git describe output more reliable
-Date:   Sat, 24 Oct 2020 01:23:26 +0200
-Message-Id: <20201023232326.10683-1-linux@rasmusvillemoes.dk>
+Subject: [PATCH 4.19-stable] scripts/setlocalversion: make git describe output more reliable
+Date:   Sat, 24 Oct 2020 01:23:33 +0200
+Message-Id: <20201023232333.10755-1-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -95,7 +96,7 @@ with the current rule for -stable patches, and is almost always enough
 to identify the head commit unambigously - in the few cases where it
 does not, the v5.4.3-00021- prefix would certainly nail it down.
 
-[Adapt to `` vs $() differences between 4.14 and upstream.]
+[Adapt to `` vs $() differences between 4.19 and upstream.]
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
