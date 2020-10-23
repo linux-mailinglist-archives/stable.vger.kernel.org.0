@@ -2,143 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E822967E6
-	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 02:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94260296B42
+	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 10:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S373746AbgJWARe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Oct 2020 20:17:34 -0400
-Received: from sonic314-20.consmr.mail.sg3.yahoo.com ([106.10.240.144]:38713
-        "EHLO sonic314-20.consmr.mail.sg3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S373745AbgJWARe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Oct 2020 20:17:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603412250; bh=RchYhSnUH4D8ir65x6OKK1yxktPnAGhcFCbackPivPM=; h=Date:From:Reply-To:Subject:References:From:Subject; b=YM+x8DnO+n7QJiITRiC+WhV5Zu9BfJRFgdEc58KJ3ZZ7D4u4d0AoUUiVoJxghxIQdymorm7AI9JBmTfgJ2Un0ZS3cZpaLk50xkxHjBG5vYTBq3Q4i19dP4FTDJL048dL7ivv5LxO6Zy2scSkTKjJ7Ap2XvhlovKt2JuoxiKhGi4LswcSfBTweSq0jQ0dT8sk/4UhKZ5XdVK0P3YGWSzFSvLRBJ8NLJIT9QLAuZ0Tpx6v89o3fNIm+65Ld/Nh+BfSNlM6CeFOuEfx6C0q8eYqv23FoXEVio0voQedATCmysgjjRjsI8/x/+qMBTomsnzJzamdhw4lDbgqHZgzMqGClg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603412250; bh=sHwykC+PWD8yDAxPs1I0QrA1QmW33+Wrs3DrHN7anzJ=; h=Date:From:Subject; b=svqJzePm0XcTrK5Vb09lciT1YiRJrH6TbKkoWj72XDTL2mZWY08Kn7HfoDInLasueMxeDfrkppggSGvGA1KQGqoQ7uQUIIJ/yCUirRRw7hP43WUdMMMQFeDxR10jJdWu7VjmuPJKYpLpxnCCGLHxsADI0s60XKlJPqXLORcx1GN45v1YNjfZTUDZ8+ZcIiZsY8C9bSLgOLTXu1MnDeI3ucnTsAGEF7vKETMgNOeGZvW97wWgwEzPveWY4XHFXHbEMxcQWntX7WH3FXs/17bDjBNYKPBe9mi2oOIyrLhPTNDKyWVUH4rqRn7hzcq0z7BB3cfZY3/il8HAlZVZW+TR2w==
-X-YMail-OSG: P.pyQX4VM1lCW2FOxwiaAj5VDGheKdGWNqobLA0wzebohvZJ3xENBNbqCRc__e4
- 68HppchPAtKyUfIhEQcVdpKhoJqvlNGw9ynx2isJ68JxzD5mRDS3fQPAeEoTn8FMMuMfUfDVlxkC
- bxkzTxvos8CQE_BlvmJOi4UV0NgyXAEUbEtUfoYACgNOtklmiMxMZeHof970vPBbZGZyi4lwxVMz
- VzuHkiLbkbNxbihjNT5Lpv978yp0l.L47dcnFbN6nq8XH1SSZJFdrxWf_eqRjH5j6dkrTsTmbzfw
- e94IqiDtu5O.7cSkfrWwRKHHMdr4NCcmwoFzVbHm0CCh3chFesJ8aUMfYb6QuMdrZhm7XlOuK1tl
- jjdIRLAtykTSJOSLTmihILqEGx8u9euIO6ExawnSCfUJjruSCE.5j_afbJ4uRNRuQJPrlgt0hi_c
- gElwYzMyRRobZ3EsmoJ7XHvoq4x9fuGeglLgbX0EFS5ydxkBKXawwFPlwunHkAXKb6UDcEyNpBh7
- Nm4TrMiOYF9Qd5jpGPhMDemngptxZ_965Bi7BNfIsdV4OoT49c6mUGlKRgyBHotBa4imKRbbvNSN
- uhvazCveMtBUba9tY7L0L42tPc.XNdZYNVmPdC0cv.1TzeVQQfNbOfXDVzltwExAlr.vuKkkTybM
- 166BIHG9TDLHiIpb3MqL3mzMAxklAk4d0yYqQZqlpf_oyrLdx94yteXZ7p6o_z7tTBr9bOWu96Iw
- PUE87bCzOfQ6aAhdZs0BuqFi9JimwrlReCREIwUkwi5yqBOCr.frbdbMOy1we8Y02HGOMmaitJCJ
- AUecy84CwNDJdM69zDarthxWVEWZnC1YyHORR.2Us_Gs4H2t4JjmH1MWmjDT6NhTIUwRckyZvFGA
- Q7qvCzP7eM8yq9XbgydZ7MiR0PlaVl7aiBIPGvUUk8TguksAgVx6EVMbH_oG2X4zzJOSBUBt4YcZ
- cigEFjGuOF2ivj03pYNAYKYMntGXPpGCH3KiB7RGNVZ5e0cAtaHD3fNY9zW2k56uWhiCAd7ZW_R8
- io6mQWDioQ84eKgd0y.yO_OE2.FTwxlj_5ETpalxwb1YG73eHWv2nxr0INDgMWGb_CvNo4rv7eSK
- WJO.OcKYyBD7xeZYAivJ5lEHSdKpOCVEk19bfH8w6Rel8h7VZlziLbXu.SWNCY38eAut3Edtov9M
- g1_udBtqY4n2KVCFZDZnFAB5Iaq9nYarthh9xaIMUMHdnem7z7CoXNGjstNVSwjRmQpzUfvcf_5S
- pOO2O1B9PgpK04DTz6fdrYPhra0Xg1apMhpvmv36oRB96NcVVYyHHBNqu4ytsBiDCJFKyFv82OIh
- KmjykxJ8oGUSiAQynbWh0HoJ48djtEWjwbuQLCIhcMO.n53hgWvFlpB1YQdSzgen1lSFU5s3zXJc
- oI1YW3XhWX8tAisVFD.TymLNseDfAuQ2ihqk.atmOdRnU.SRuQN1yWmxxl7GVZ.CcRPRAp9mJvf5
- vTOT9t_TFK7UmV1kglZ0g3906qX0iubxQUuIshVMaQL6LJJ5.ShewzPrtc45LIAJnL1bJJLjPa1z
- W5A5gkXz_s4gvJycQ8P.znk2WDVZPYZXRxEZtfLnSFnHOqiJeEI3CJlXLoCwaH7BZy1I18V2Qdeh
- JmWCui.jTWE.0_71B.mJJVULQu4lRKxaPM0Wf8ngtvQinqaFBhGFlKfyTO92R4CVB.FipUmZY_jr
- osCkL_TXRlVJ117ALJpZTUF98OxK.ogAT3Yj155zmyzbierIFS8sFQ9GTI.z.TstyMa6JLGhvQ0u
- odw_u.SsGLxNYvjSMNBGw7NYR2XNpT91w00ufxhz14FWyH7_aOd1T80Y4vhE3dgJMFQb13Mg1gzP
- mgbUAVJWvn5aMSyG3JGplXYEqG07IV4DILKdStQIuzo_qcAgEMQkJ3ESXN_9apo70.Boy3mdeDs5
- nfoEjLt1ZIIKHJKwJgxLcvvDfzHwiD0XdhMejqgv.AZXNiDjGq.FfU_9Ued0cspo1xwKrZy1FVgs
- tjEFNDlY3.ogiihKPChce9ao7A2CsRBSh0atNpZta2OUwC9IsaAWP5gQAblZn784VxspGdYBqdDr
- 7eXrIlASYJQosXZ8FZULLg2JLG5.FmT2gWD4YyfTTKfo3S_NiIttxj3X0newjrdEP6Dr3US04Uro
- RpXoLHKMyAdoBO3Z53edG4WGZmMA.HziWBQI5yyYDuMfBLGTfIxVAEMn0.e8HP_cc4f4BV4NB9d6
- dRhtFkBVu0aU0EsfLvcu7.BYKIOkhAorp8mXbQkDkUcdLFQkG4nU2wu9sM0DWqFhxMjbzSqUIMlk
- y2ieVqukongIbCh4IosXI7TJPaAKEYgLVwXHDts1GfmOTV44iXe.ZLEWrLs__r2Tcy23Ny.8Clmi
- ldMUUD_KUKRWT2mpkoBRZYOBkSgIGXkb9ED1H5XqvNwIm4.Xd5OYZLNMGpkDS2xtOeUAxxZPGvLT
- 3WugDfW1mjc2lbrB_M4dMZ4X.LX64qtZf5lH_7sPSSPruvW2sKaMHYA23LEM4xsKoebryR3nn2nA
- w9Jhow5w32XEFlcKgvYEjDME.FMISkFbdHqYIZIn24g3ORDe3i1v2m8jCr188qDaN7pXBeS3j4Z8
- dIk2wXi.CF.4NmROSp12tK3MQafkjHztAs4PkQnxWZWx4Obz3WnMh0ZNmPOGdX2iQZ72pqapRd6h
- gGdDy_gNWr5NM83HoyZNVV2Yq9GKq4Dz2d_8za0ZyQYTTYmh5mWhROM5OWDMPBd1Pa_WCQfwUA.v
- fgWpV669H5xzwJ4siawpaurmpqjtEl_F8ty7oIbaAU8bu34HKvHOacdjOrIHJh7N9QVUVkOjShiu
- 4Q._pRvwRlBfBooXdKQ07wRy4Z7DviDxfNd9e_To5O2oMFt3r9RbjzvROZ_Lgm_3vyp8bqsITgm0
- HHRml.LsoIsEX3Yi1UO_SW9MdX6Wk58umPvpDlk83iyKQytgWrbOCGzvGyegMmcMRLPd2Ws6zoJh
- JExbaVWoq.zrR0zeIIi3BoInx3ZdFtWeQttUKH3x7AVFEMna5Af9Sr6z4DpLQWBXFD9mslm7y1rb
- OKwHo2Ym3_eYe_z8O1F7RSz0iY_vukYWyUbAnGu6MOl8RA3j6fu0a6.Mt2R.d9ZHHjTQ73InFHId
- k1Q_jU2rqLC7sYtrdmbpBGTdJvUggdWpwSR8PwnrmtH__RfXbby6p42jx_VO86_M8Zs3stkJdtHH
- 3BToVU_9r6xseg8uZWiKxnXddAZaL98wqtQB1wXlAIK0rIar6Or0AwVP1GEzhldSA0ARvmpQmnOA
- EJLq7gGbr5ZtoFDgXbWBtXCulmIrhUt3rC9KRaMFvLALVR3cFc_LwGOAtX_h.ipB5oIpNEDIdjqd
- .zK8ZChO7eFEc4R77CBdjpNSTgV0xNl.7negp1DRF.A63gOUHfLLwU0bRamE4kUUEp4iSCFHzTty
- fu9qNKG4f_x3vKqkzuUvP4PulERn6n.QUp.K6_sIEfOSCXUScnuY2Ex3.mlULu3oce1ySRUFd488
- PIvjIyESbTEW6I4zyTLKtahGZvhgDCkTBxDEU9jgVfF9U83tFWZvAOEy1yYJ9zRLlTxCOS_lDPkd
- EVdX2saO911e5Jku_UZBJnNKsxMX1asORq.U__Dxw_yzrNHiPXpOhzLGFCSuNcQmZNGMvW1JqGFD
- MDlLlN5f4ev0tR7KSge7ddi3WQ_AsVF7XHAr8YgeQTDquK_6tb6uZUQS1bxKHUifWRyeNhhFjIKm
- zbKSVobEuMsgAgLjX_KFJLTjP9p1ggcl4TSj7uLhFkNFP7ChCnirN2ydsImIiJ_m488Rb5_Dm_Xw
- 2rriDCVXp5orKnIFCaxuNrBZg.exsCXAIqu_b4kOd4B8mC8qPIIrC_OoCBc3pweBVY3eSzUMNwFD
- 7_uCHZcUQ7yA0iYuC_.a7csC.8y5PwBsgX5dEpLFJwg7w147llMCTydQQUJFOg.xfgIT2E7GO5qb
- 4qshF0HMjtL4ogJPB94KJSRSyP_qaW3V.3Y8y.cLr9K4Gc.2MsJWp0_.Jv0yEENw6nGpTrnlIu9S
- K4ip5LMF_Zz6ZDl2vJntW6pa99HtdgQMWRQtjDR4stXX_NYBoaWci.7Z9pAoHH0kkPJXavDV2un_
- knetkEGggobUs9kvDS9Be7Gc3s0aJJ2LM911h6IaWuA8d57g_eLcut57ci3TiApj1730RaHdpGnD
- tkoHAEPQsDVkGxs0Bg6Lq.wv8V__5VcoO0PZfK4XWJkk.asfD5r71hCYfA3vkkAshPgU7Stsz555
- 8h033MhxGrrFdaacRZVHzRghsW_svTGOMdb_w3FM5ewjovq1QblD_p_vfMKPwQ5giyBCAREV3wB0
- G8VAsynbSUtnEaFkaS4eX9b9_flWFczib6Y4m9eU.UR01kbcmCE.5bFTUvmcpbgOAHTAJo_6RtFX
- jH1hnfMrAWUpD1FLo89uYEQaKCVD3.wvxY29qfQnoeFylzLSnZb.EYK1tGEYmqNTldHh8bHPTY2B
- sCs8Ly1R.Tm2cz8W2ecEv_NJM3T846Gl4pUaZmUPIGl_DJq3vFbyUMUesg83OUfqBAGNsKv5T5dz
- a_OvXop792snZwPTQA740tQPjTqKxoy9hCpAm_EeXeYDiMeizHIHyCb7Zhly0tIOGl8oBPfNJ44y
- f3.0XQ5sBCFG5pLKOYwY22Ny_98xP9E.RcvjXiAY8s_8izbOEuMSVvXqpCCSe278nZpwl3CWPCjj
- 86DFeTSqB3myuMlOxHcPZr_GumTkoUIZXEdCGrUsf9YI_Wi9JFkaWaCd9WYcgGlTsSQDa.U7RsRd
- dBlS6aa776WkU64AVFeAowkBEEV1nFpmxKKyyVn6RG_EOT09DMLXV2tiaI3oO2kH6LNAnzK7qovY
- 3maCV1yO1K6Z6dOy6zYwt3eeL1GF8Aw4Q4YQm8hvrSIBAHIPnhEzK5oUCT1dHVcgvmqcKWq7Cgec
- xQqW_OSRQPmqMsQTiZ_dYFyjaZDaZqFHhsiU4vs.0bn_Nq12Tzcslac13EtKos9W3EejOyLMKVFw
- IvFtqqKJ5A3Me0B5J8RuysoRhFmbPkWrZopeA5wc2atzqAllkxypU2E3kxygnPFVCZATHR.PHEbT
- s3fLJDsSA_9Zf6gJRIX55CiMb_xa2dBWULkywcsfH2snPpyxFgmaWwl3FYHslPIBWz2qy0QKFO1s
- _pT9uO7YtQ25I0So7ToSv.ExXEXk34441uN2CbITexxnCmTfcHZv9Vbn.KZrqApqTAuOcvrjveH7
- 6P6.Vk138uUNHqtu.SrcAIGnnfxvLXHUx_3J9zYczR5jMXs3LUg6sCY1jVZziXGhVhTv_C5m2dqr
- Y3b8dPUbZRwxmQFDvm_r3Hqrk_xpisqkToVs1y_j5oQve4HQ4yZEIqQdmq84.xVcw4i08.5WXXwh
- onMXCbYTHcXSZ.rHDjVadRGh.DZiqdz0IDAs1Swct7D14gZfMZpxOtxlhLjLW4VVqAZmixWwY5Xh
- 6mFOsxtG3PjPhNtkiu..CBPBOhQXdwB35n6J_SGaA5qHn3EejEXZXBbFZY3PMfT8r9WM6qNuA2pN
- P42.lUyp75CAU9IW0GyEK4rESSnXw0zNVYoCK1T06gezuUdKVpehjKOuFR1fz5shPONtUD1Tpgcp
- I5rt1UtyqM76yTK.i8M44nwF4jjTPO.7H04mxfGN7MxFr3ePXaPUXwv.ZOA6N98rfDNXWlmH4d.9
- nGjX__mdS1lblrqKEIcK5
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.sg3.yahoo.com with HTTP; Fri, 23 Oct 2020 00:17:30 +0000
-Date:   Fri, 23 Oct 2020 00:17:26 +0000 (UTC)
-From:   "Mrs. Grace Williams" <gw78986@gmail.com>
-Reply-To: gw78986@gmail.com
-Message-ID: <824483916.1839177.1603412246333@mail.yahoo.com>
-Subject: FORM MRS.GRACE WILLIAMS
+        id S460666AbgJWIfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 04:35:18 -0400
+Received: from sonic306-20.consmr.mail.ne1.yahoo.com ([66.163.189.82]:41511
+        "EHLO sonic306-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S460665AbgJWIfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 04:35:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603442116; bh=B9FynONTlj3nF0+gmds9WbWzodfi14FwitbyEyRJAf8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=YU75QcZKDB5XnHqts7ReWZgVIbUh4ImpT2TF+jx+Ddc5bKRDtWHA0x7qyh1IjSjuUyraukXehXbD8vkZJrLMbamcZ3pfCazAkGKvCi6kNwQpb9uVavjJg4PryxNvLfMo/fxtECKEbxOWFvPPBA/2k+S4b49YyrIhEa0trd2HkLW2hFfT19/TejQPcNbMFP+WHdUZEPOi/btYdr5MxJ9zrHnkq9wnJlrCMsBd3Fhv9GDCTMtbkGijtj3+dePDewnxQs3E2E4krq5f/HPG8UdWbsYr/zyuGTESx2TmSSaSG4lyHIzhe9V19bYQAIXJb1pua+r2tsK/5N3qDHZr4v6sPw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603442116; bh=KHQI7tLDMUxgeV7qfF5NCPL8xi86IZIdP6lAiqCcRvW=; h=Date:From:Subject; b=j1jMwswwHB1cIGj5jFeZwNNCbhWqEmMHUsSyl+/GiIylIBnE3125EXGk4QvkMPUqEcwBjrkkZCj3bBs6/q24JUVG8mZ726mDKsFtdjAQlCIQNuxlH1l4O/MUB331EfZyIvVvcEWvjtsn11L2mPVIN4arjdIfJ/BPcAZK5yDkEohw1ClVhek9tiSCeu0Mc44zZL8K3vpAu/lBhlJwyLfpPDIc5L48780aC9m1fPVcgol77p1I8dbw7DhnBvfGTGuMzvspiKAnlrQxf+4TpYZoA/QOaIEgv0Fy1wJbH2aWWZuPHH+EW0zok5rBSgPbFbTZ2I7u/KNH6SpC8+ZJHqyFUA==
+X-YMail-OSG: T6zVuM4VM1naX8zrJEF0vBwkOO48HghEe3OlBi0mCvkgNRxdWqRrlMSInQp1JaK
+ .Z10DDO5GRQqsxwE_TmRQuObXJAY0FfWdB38oUoUjfJDLNw.rEBR3Jrl_pX0fd8Ti1CxWLVx5mO_
+ UrunX1uT05M.Q4NRZVUdYwLRmkm.tpPipUbJrlVdVS6tbApOj5ww457dQVm2qhLZs95Y_KYvKBfN
+ lroue8hhuWvSRSrc.r7xiLhphKGdvOeZA1JBQkgnSETRiWGPw4kj5OSj1niCTl0AJ7fNkub37Csx
+ WaaVsnLO2bVhbP5Lweqb4x7xTD4oa6H81E8bl1CpbCdw5ez3msfc0GWtb9JtzNUuUD.kYeqkdmZU
+ fTHCW4Yjav2SIoZtyVRD8MHkJ685GU3aJd9CVa7THQEFVnGm4FdQi1kq3Htll6K53ySpqWqIDcv1
+ JZRXec87SneloL0MnfuOW8CjDQkWNsYyE6uV9RQmJl1o7X4w29qHgSiOL0YLQA56WkWOlBRo6Pqc
+ FceUdHuaf5fTsZ_hb0XbBPSQe.pFblHS_zZxyGGnsBn2Iesjs6QH3Mg_ITReUGZHhtbhyOA_9hP_
+ l8GfkcfXfED03Oyn2CvjR0G2_xYoyLmSF27Aqkz.Zx_eOYftHe5PZmzz9TmY0JSrljl6TWGW4d.2
+ gtR2uY7Bqs3X6moMY4dxVbuFZfnWv7TrrhUd6_4xxAbx7HBmvj6WzZkPwNytQRomUCp4ICmMJoUu
+ YEouF7ZvFSvCVwEj1QCcUGtgFiXhLU0vzpRG2TVADMN28.i5rwFSCDTmbULiN3ueWMdDP8LwYQC1
+ UTILnQt_9t42rZk4CAMH7p1uAei4WOmI_klPiSGq.YUDe4lp.mtC.TGCpsHXTFPwwxGCUEXfMpbS
+ vePUQ8AJH5dpM7x54VoU7rfChVbs0MdhyWxicAbqNZD0RueJFG7F03JrEnpOpvV31hvgl4xhtBXO
+ a0g_b5V.pmPP58k1Rliu23jUTOju22n04PwYp7zpEVqCJSe54S_7C9Vd8SMLM2c7.fbvP1jb8fm3
+ wq_OO.l_hK4.7fvjeNrvJBwKPLcWmKOiwYmonW9FO6_aDvx1GawFGORSAFw17xMuN5nXf4ZL15aG
+ itsMhlci3LUXPKc.4vF4JfU1Bi3EKd2MxLF2G9MaAygiWCGnErk3RHeJflgPj_rOKGU1UO.qIcIv
+ k9ffws1wD4RBjz_xfgbka69lh88vHHfjoj_n9vRQ5JhYH1E9rvW2Hji3B_PpA4gXGscjPFB5RNsW
+ cloml4mg2RWxklPgOm3L3qa91tmWNUJ1fNbA8Myxq1YG1noybuFWJpfCPgJLZtcfK6TVNyWllWvf
+ 1YKI0Haag1tdvkq77L9y3Dpd_56z8Mmx8EP0tCHCVjM1qIgMXnbOiBBeIz1eLikgykbi.3ZldeLS
+ .GQxh1yU334VhRRjNoo2esVLW03rfa.gLUKN3cKkA6MkxwSWWsatGGiQ4Hx8o4yaGWNtP.fJ.DHZ
+ lpa8_ayg6B7QHMhoj40njSNsN3gqN9t3Z1Q.VwBFuAyKLP0nC3DUjkGlZhJZG7IVpoOuIjmlbWEr
+ t8b9aagTP8xND0Da1nmAN_j8Ex_ZBAGwcUQgRL0PwwMmacO37LRbgRkxxDHyt.A1Xf6kNbRDoz5E
+ O.Fwn49wFcpZo68TtV2zVngc.VoIMycDgKbY0ddwGEcA8c.ecfE8cb1TFggO48UL14mhjnKBkofq
+ 6VbnPfPIAOhqOtuaJ6bUc.BJgyLVii3nGTZoAAkQZ3jewwCjheWityc4._Y7lICZezaE9dh9gtmw
+ Ezs_Ne668ibpzgTsp0lhjqDcIn6NMqwYugTYegCzjBTOUWEdA3TTRT1mzI506OkBAMsNH6.2jBW7
+ FE_foNAIstCpMSayd_j2wROoHmqEzb163qrQS5t9ntqD9D3bJnsYL2twPvdUAUK4.KUfdc.jEdLv
+ Qb0KkDAhq6Enjx3LhzbdzKvzVKKdu._VtlQWskIwSZJGt9CNAtLXVX6N7dILtFiOp1jvooQfT4vI
+ VOU2sejeeSCPd4WGRz8jKjbEgGEkGTYMOs9Bi8Rz_Il4RKC2k2KHhJHZr2QBFs76v0q8e.c5Xyzm
+ WUOVgzIF9zmSf4loekwecuN5z8gjAPbsyrkc1sAO6w4vESluhe.sJcYktX8HreKILQb0x192ZfSI
+ cGTlAl5lPYzcYFOaijafYLFA1jxk3p02posVY7P1oH8LYOrfumyZeqh0ixm3F3XWy0CSrxJKOd_n
+ 4xijn7Ct4A1QgPjcAcirzGjXA2RmQ_Rf_yFAZzvPtIzYjcabm5lCYQKN5D15i4e0VQBbk5v_5Wwo
+ qvqNjp_iB_wM3L7jc3OnG0sgWBbINSltMJl.jWK5Yjf0Aj4dHp6zCRTAw419mUjjbab.urnWjtOV
+ oPieaafyiDnxiqazkA7iU1JaKxByQ_odDASRde_s10U8W2ZD_im6ecuzQE70Y9oeCWVb86u3lOjg
+ W2VYyfcDrUabhjKxA0mN_.1hMXA2palyfGODwi7g3QnadAlPwIBB3RKe4.DA.2CqDVzeYbzM2oQz
+ wzWN1YvLS8gskHH3k0PZfGolyjoJsv7.qdqGu_ZFRTmr6ZsgF7hNoACfeQQtfcqoLoEEnTuj2Ece
+ 4aoN8wiI2lCcpPWi98bREWCjV_gm8sn2tDoRYHrmbQnv2t6LJrWhRYnceAEbFzs6M7Fg7b4N3sQ3
+ LY6aFUdXH612wpOPpyz8eQmEbAHG4qS4ZpjDfsFggUik2Um6vb9f4WPWzTruBIMPLf5_8q5Dnhaf
+ eMWL8pNhx253tybK3gf5EPIEr46S8IddUntvfiq9UHfRVOv8xXO5voZO3156PG_.uFwL6sAP4UHb
+ u7rC437AoNxM_u7kE9Ku7gFnVMWViV_foxBFD1BZCnrQVNPAS1qw_M0GboByRvET9AZLYBgkreSr
+ oHx8Az.oCBI.XZkRJyHwdbefD1.5TX.3T1Iii19AThvZrecYfAzQB0uJ8NjQD7ZE.uV2JyhEOyDm
+ aZcP1YlHuI1WGB0bXTwEAeMIplA6MKzXU8hVFRTB8_LyXgo_zyVEOmNQ7bbrFfO5vLqO0_WnIFYB
+ TFi35N8RRMRCtEzELKWqTQblVjdIWUgumncKdBHU_rcRRUXmQPzH8xd4ZuwoS00UFPsgUXhimTj8
+ X7csK6c.vmvvwGGiM2fT9ajcaUMnDUKLCBDYpBHdFuuDBZanV3FQo4H.bjXnPaVluODd7x3s6IWf
+ iHRNcPICHBXOF5xgitYn5yVpPVJJnUbaF9i0pgjOZsOgxHFOHMKrcsJs0GzKzrN4.6lgENA4TXaF
+ zPbH.zToAmOM5E7pzbLjKHWK4djbhBhen_8zwXh974qXaSvwIB83quzLrkdY8gb5uAzfX5hdCdwf
+ 4QKMZrBLcrRHQryg9FHIV6LKttQ7zsfeSEYLjlODIscpvt7FdjuV9wDUnZiV2zlOf67uJ8.mu6xN
+ G1G8uHZhkHDulC6uNCiRQ_ycAGcVSCazJztio6gDojZeDc25jAwWOqTyxxgZm7MNfve.DPBXYLLX
+ HqCFIFSH0eoT7qt9RZPXcUN3M42ocae8tnL4QG6Dllpurk_5itnU35qhWzuRfaApTmmB5.9VdsDq
+ b6oc69PqfMIip7bwD_.hmPG3crv07BvEW_4bW0KzggccgXmiv9qCtQ7s8rXMkKTHMIPu0bWhoEgu
+ tUxo88FulhmhxEBS5ztwgY.EeJg_WOkpN8C6MuFP0WnOngYBYjZYyGzpvh7A9gLEqSiB0MrkSLNj
+ J7hqNR_yGrAQDlqOIzCjtZDElBFmjEjFAdwN4EKgI_IPjVfQiyE4AqCGQy7XheE0EeljBYbzfQlZ
+ kBhU4tx3qZACiQSf.7UoL0Dg9QX_2ZKjFmtnu5r3.DZXv1Y1q6UMQTZKsxC_dk8e2BrPBlIOvnW9
+ 6qyZr24wKAQ8tKpP23XVW92Agpadk7ToCdf11IC38zmJtfVQjT3ZOnVcCl1ISjSs3LHOcqjASo5Y
+ mjke8cWaUqtcSbvy74bLxsQtBfP62CN45g81PXMTnstLRfyfy_zZE20bpsH0QPs73AjcHN0uDXVI
+ GtzT2Z20FFfuE65RqXkc0htGv8NLb2fUqpJDQeLPxh69kiha2J8ysfzcyb7kmQ1z8OTE4tSmxa4u
+ 1zzHNLkaXFAs0URg4SttXAu6PKGnFjw2nfoHTdxTAWpmZYY4ZvDcwJy0iXouaLuE8TwHLMpFXz9.
+ ilZW2Kd05x_ZSZ5ncuZTQ0TgOAh9YLLVdqEyfSDOggzxEdR4NXRZEWJncVjnWnnnQioVaMeFO.QJ
+ xc4RkY640g4Ntm.2sidWKq8w9UpoM1Tx7tgjNjA.JoDXYh2tBdVUc_sc4QoSQjYZpgvZQnOvU5KR
+ NfNU_I5p7jMmgaz5_PR_KbHp6YNIDGPdFpHdoOksfYsII021AwT1167ogcGF1XSZr.63FTFT0.tm
+ RDylJccViwMBkssl2SuQouu6FZsz6RHvPTHVVe9nWx5I.B6lG4FZ6LH3hisysWkisUq.w8tnVfID
+ FqXALLsYWzyOhaKmFpCmbGQcE3iEVBkfDIe5jyCXjAEddnUDv5GT9.zkwv.iFFfawFbohDCBHzXo
+ SF_B2qjHsVFeUS_1YARs9ZqEjCjEgRHi4k0udIIwxMNgzUrargOR9mvcWITe60cUMdDBiy81pufW
+ FYEy3zDzpcOAEpYlNF8D_0qCdCFPOGlZBNYs6WVLhVZRcKzIpTU_xVO5ber3thMclEsL8je7YnN5
+ Yb_B00ttWisowdLWodrcj1YMcIcreTIQo.YpNygEPT3lNkzZX51asJFKoUp1lVJVimIpnMe28u5j
+ .sC2WNiwFVBlAhNAhDG90te0UdRfEpwvoO0zYYlno_ccaJzXyAt.1NBm.e_f4QlDczj7F.vsynV3
+ L5LnZHUJo4IlngnNT0BlgxJ9KADETEMr11UAsRV9HTuL204vKCwvOZNCZSXk2JgFW8YqTvXRLh0B
+ TUOFxGWdZUxR5oMKz3OxijTkABLMQEOsOM3k5h0bnt791p9EAUw1OHa9ZXuquBFpXq0rI4iyegRT
+ Esm0EWm1UBpKz5tzK0iVEvKOnRGW9oRQEF3ZKfcuc5JN8tOsK5RG6Ew3vJjGpSZTQB8k6qck0cum
+ t.F6TGATDJwMDHqX8SwDOywTqoQvD72XPeAHxZEzx2lWNFYkih4wVTytS.LhqaHewiyOA8pSqRDt
+ Jksy3o2PUT4Pn7IiynGl6JS2kPZxCCWpV8sva0UrAYCTFItEiJfpx_fESDURVGOntbyDdovU_D9B
+ 88lzz0lkY3UlfpbrOek0RqWt56HABx2EuinQtNiL6hbq_nDdIgNWZK75LrTDqOJ5fA9NyMh7Ha4R
+ iMv8M6NHKitgdhcWbwb9czKignBZ_KvXucY79Dqjpt8FHgEsH1dQfiIBRCqRCJNZJH5XAt_xoz5L
+ fsqF9LafmMoJVVgiAnwmpiKZTc1Vp2nTLEIDZhvq.s88dilQPMfMz.JUsfT9bZXgFcZ_uMPc0yxi
+ nNToOdTCTrJ.R03whbZ4fWpDqTwMuhk1lxUE08stRMRbGxTROvhFih07Uwpz_3IbZXcYJDn0GS5V
+ nYRvuuxtjjvsGC4iYFAh.kDZdxBFMfz_R6r4EhqYugl7n4JaZthcJp5bBvWalPm0eEZpPFe4LyUe
+ jh7uaSbV7HCO9NqYgEeLWFSr6KzaP9T3i5ta735n0AN5ifwYCMy783l.nn081V5I2yKYQ2M09eCf
+ XJmZaAbMinQ2xPDuYWe21ilAwN6kj8LZrB6_eo4LKhU9RaIWfwGBesdDXbS.oSJwv2HM-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Fri, 23 Oct 2020 08:35:16 +0000
+Date:   Fri, 23 Oct 2020 08:35:12 +0000 (UTC)
+From:   "Mrs.Edith Rosanna Vega" <mrsedithrosannavega@gmail.com>
+Reply-To: mrsedithrosannavega@gmail.com
+Message-ID: <228935211.2593778.1603442112934@mail.yahoo.com>
+Subject: Please help me to fulfill this my last wish,
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-References: <824483916.1839177.1603412246333.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36
+References: <228935211.2593778.1603442112934.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:32.0) Gecko/20100101 Firefox/32.0
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello To Whom It May Concern,
-Dear Friend,
+Hello! Dear
 
-Please forgive me for stressing you with my predicaments as I know
-that this letter may come to you as big surprise. Actually, as my
-pastor advised me to reject earthly reward and thanks by handing the
-project to someone I have never seen or met for a greater reward in
-heaven waits for whoever can give such a costly donation. I came
-across your E-mail from my personal search, and I decided to email you
-directly believing that you will be honest to fulfill my final wish
-before or after my death.
+May the peace and love of the Almighty God be with you and your family!
 
-Meanwhile, I am Madam Grace Williams, 53 years, am from UK, married
-JO Williams my mother she from South Korea, we live together in USA
-before he dead. I am suffering from Adenocarcinoma Cancer of the lungs
-for the past 8 years and from all indication my condition is really
-deteriorating as my doctors have confirmed and courageously advised me
-that I may not live beyond 2 weeks from now for the reason that my
-tumor has reached a critical stage which has defiled all forms of
-medical treatment.
+Greeting in the name of the almighty God i wish you and your family happy m=
+oments of life now and forever more amen, .my name is Mrs. Edith Rosanna Ve=
+ga, 69 yers old from United State, I know that this will sound so strange t=
+o you, as we did not know or seen each other before,  but sometimes underst=
+anding and trust matters, been related or known does not grant any assuranc=
+e of trust, even someone unknowing may create act of trust even than someon=
+e we know very well, therefore never you have such thoughts in your mind, e=
+ven if I don=E2=80=99t know you or we never seen or know each other before,=
+ but God knows us and he has a reason and a great purpose of directing this=
+ message to you, Please because of my present predicament and circumstances=
+ i wish to contact  you. i have been suffering from cancer and have a short=
+ life to leave. i have made up my mind to donate this my inheritance =E2=82=
+=AC15.5Million Euro to the less privileged, Orphanage home, those effected =
+by Corona virus for their medical support and treatment, Therefore for your=
+ support and efforts to fulfill this mission, 40% of this fund will be for =
+you, this means that upon your receipt of this fund you withdraw this 40% i=
+mmediately for your own personal use and compensation of your efforts. The =
+rest 60% you use it to support the above mentioned organizations as our agr=
+eement.
 
-Since my days are numbered, I=E2=80=99ve decided willingly to fulfill my
-long-time vow to donate to the underprivileged the sum of Eight
-Million Five Hundred Thousand Dollars I deposited in a different
-account over 10 years now because I have tried to handle this project
-by myself but I have seen that my health could not allow me to do so
-anymore. My promise for the poor includes building of well-equipped
-charity foundation hospital and a technical school for their survival.
+Please help me to fulfill this my last wish,
 
-If you will be honest, kind and willing to assist me handle this
-charity project as I=E2=80=99ve mentioned here, I will like you to Contact =
-me
-through this email address (gracewillia01@gmail.com).
+I wait to hear from you again for further information if possible
 
-Best Regards!
-Mrs. Grace Williams
+Thanks
+Mrs. Edith Rosanna Vega
