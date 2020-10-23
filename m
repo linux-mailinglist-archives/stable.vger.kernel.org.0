@@ -2,128 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7523296F2E
-	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 14:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333D9296FAC
+	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 14:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S463799AbgJWM3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 08:29:06 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:22240 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S372483AbgJWM3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Oct 2020 08:29:06 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4CHk722DKjz9v0CW;
-        Fri, 23 Oct 2020 14:29:02 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id 4Bi4vCxJo23W; Fri, 23 Oct 2020 14:29:02 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4CHk720T1Pz9v0CM;
-        Fri, 23 Oct 2020 14:29:02 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 4193D8B86A;
-        Fri, 23 Oct 2020 14:29:03 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id tdfQKIjC4FR2; Fri, 23 Oct 2020 14:29:03 +0200 (CEST)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 341098B85E;
-        Fri, 23 Oct 2020 14:29:02 +0200 (CEST)
-Subject: Re: [PATCH] x86/mpx: fix recursive munmap() corruption
-To:     Laurent Dufour <ldufour@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, mhocko@suse.com,
-        rguenther@suse.de, x86@kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        luto@amacapital.net, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev@lists.ozlabs.org, vbabka@suse.cz
-References: <20190401141549.3F4721FE@viggo.jf.intel.com>
- <alpine.DEB.2.21.1904191248090.3174@nanos.tec.linutronix.de>
- <87d0lht1c0.fsf@concordia.ellerman.id.au>
- <6718ede2-1fcb-1a8f-a116-250eef6416c7@linux.vnet.ibm.com>
- <4f43d4d4-832d-37bc-be7f-da0da735bbec@intel.com>
- <4e1bbb14-e14f-8643-2072-17b4cdef5326@linux.vnet.ibm.com>
- <87k1faa2i0.fsf@concordia.ellerman.id.au>
- <9c2b2826-4083-fc9c-5a4d-c101858dd560@linux.vnet.ibm.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <12313ba8-75b5-d44d-dbc0-0bf2c87dfb59@csgroup.eu>
-Date:   Fri, 23 Oct 2020 14:28:52 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
+        id S464043AbgJWMsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 08:48:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S464042AbgJWMsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 08:48:17 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC36FC0613CE;
+        Fri, 23 Oct 2020 05:48:17 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id z33so751970qth.8;
+        Fri, 23 Oct 2020 05:48:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kN9kvxiNVibBZTgq0gJlnAcXQlAi8tvlS3bLfxZ/9Tg=;
+        b=iSruePsCDOSSSek8VmIdWIecZPJdKPQB8neXqqeC0RcF1jNjM1uQe/LYOBgrDFst7v
+         k5UG8O4FaKJKN9Jq7EVBEvVG38rRjFCJ0J9xaAdZQOgCfmryI2Wd16uQFD0JYjAMiMJu
+         CLyQuSW+UJkXQHG1gsguO4sAuTUi3XRwEV12KQoirWZaDJ/vLsEJOMp6pFA4Gs9aUFd9
+         M0y2qhI+FNmAKp7i1dp/JeSaZCd3FL9V/ZfYFAFI92YyaCSGP/RwUfQ1Q3bK4eVm3YI0
+         vfdYpbi9wIB3/huwm73ZW8Bgs96cH65iOqmbHKOXWsl5iVXPCoFrbSQUH6fbHfz7jInJ
+         3LbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kN9kvxiNVibBZTgq0gJlnAcXQlAi8tvlS3bLfxZ/9Tg=;
+        b=It3EAbpb11/EDzS/2hw2x2GRi3w3rj59MNT/msyR0IdxkcV4arhPJCALZuMRUHO//g
+         sitRyy3eKCNdU5SJc7dyDWQW7MFXHQSsMHscSOIDvlS/LMC/RmJI94yZx5xjZWWstWGp
+         TdqMgZzGjWO/KzTg7+CctCl96rVTW3OuDYz3LZgqA7UsNQc2RXI6xRLApTjKKw+8EaFd
+         CAaXJEtMpaXoSFC8GcnVdkvDh85zPBqfXhnCXOoyQOaaljdrBoJvjnAstQWWhFOhHsjl
+         sOGoJNEBvOQXKJOfew8ibr9y7M0y7Cq+ZgWiKqCWTblkYzuny4RPGbDMN1nkS6UQtkOl
+         0Vnw==
+X-Gm-Message-State: AOAM533N266A3kV2RYNlrhyO/C0W7kTClidGdVBLR6bQqvL7+zC0a4fN
+        m0PUiyC5aI+AxmQI6eEFwg8=
+X-Google-Smtp-Source: ABdhPJwss66nnNh/TIoNtNpkFq5ijx+SQxOSU4m66935MInf9uh/+db78AydLcYVToxU309qomK8BQ==
+X-Received: by 2002:ac8:5bc2:: with SMTP id b2mr1951485qtb.284.1603457296761;
+        Fri, 23 Oct 2020 05:48:16 -0700 (PDT)
+Received: from pm2-ws13.praxislan02.com ([2001:470:8:67e:ba27:ebff:fee8:ce27])
+        by smtp.gmail.com with ESMTPSA id q188sm626586qka.56.2020.10.23.05.48.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Oct 2020 05:48:16 -0700 (PDT)
+From:   Jason Andryuk <jandryuk@gmail.com>
+To:     Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     Jason Andryuk <jandryuk@gmail.com>, stable@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] i915: Add QUIRK_EDP_CHANNEL_EQ for Dell 7200 2-in-1
+Date:   Fri, 23 Oct 2020 08:48:04 -0400
+Message-Id: <20201023124804.11457-1-jandryuk@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <9c2b2826-4083-fc9c-5a4d-c101858dd560@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Laurent
+We're seeing channel equalization "fail" consistently coming out of DPMS
+on the eDP of a Dell Latitude 7200 2-in-1.  When the display tries to
+come out of DPMS, it briefly flashes on before going dark.  This repeats
+once per second, and the system is unusable.  ssh-ing into the system,
+it also seems to be sluggish when in this state.  You have to reboot to
+get the display back.
 
-Le 07/05/2019 à 18:35, Laurent Dufour a écrit :
-> Le 01/05/2019 à 12:32, Michael Ellerman a écrit :
->> Laurent Dufour <ldufour@linux.vnet.ibm.com> writes:
->>> Le 23/04/2019 à 18:04, Dave Hansen a écrit :
->>>> On 4/23/19 4:16 AM, Laurent Dufour wrote:
->> ...
->>>>> There are 2 assumptions here:
->>>>>    1. 'start' and 'end' are page aligned (this is guaranteed by __do_munmap().
->>>>>    2. the VDSO is 1 page (this is guaranteed by the union vdso_data_store on powerpc)
->>>>
->>>> Are you sure about #2?  The 'vdso64_pages' variable seems rather
->>>> unnecessary if the VDSO is only 1 page. ;)
->>>
->>> Hum, not so sure now ;)
->>> I got confused, only the header is one page.
->>> The test is working as a best effort, and don't cover the case where
->>> only few pages inside the VDSO are unmmapped (start >
->>> mm->context.vdso_base). This is not what CRIU is doing and so this was
->>> enough for CRIU support.
->>>
->>> Michael, do you think there is a need to manage all the possibility
->>> here, since the only user is CRIU and unmapping the VDSO is not a so
->>> good idea for other processes ?
->>
->> Couldn't we implement the semantic that if any part of the VDSO is
->> unmapped then vdso_base is set to zero? That should be fairly easy, eg:
->>
->>     if (start < vdso_end && end >= mm->context.vdso_base)
->>         mm->context.vdso_base = 0;
->>
->>
->> We might need to add vdso_end to the mm->context, but that should be OK.
->>
->> That seems like it would work for CRIU and make sense in general?
-> 
-> Sorry for the late answer, yes this would make more sense.
-> 
-> Here is a patch doing that.
-> 
+In intel_dp_link_training_channel_equalization, lane 0 can get to state
+0x7 by the 3rd pattern, but lane 1 never gets further than 0x1.
+[drm] ln0_1:0x0 ln2_3:0x0 align:0x0 sink:0x0 adj_req0_1:0x0 adj_req2_3:0x0
+[drm] ln0_1:0x11 ln2_3:0x0 align:0x80 sink:0x0 adj_req0_1:0x44 adj_req2_3:0x0
+[drm] ln0_1:0x11 ln2_3:0x0 align:0x80 sink:0x0 adj_req0_1:0x88 adj_req2_3:0x0
+[drm] ln0_1:0x71 ln2_3:0x0 align:0x80 sink:0x0 adj_req0_1:0x84 adj_req2_3:0x0
+[drm] ln0_1:0x71 ln2_3:0x0 align:0x0 sink:0x0 adj_req0_1:0x84 adj_req2_3:0x0
+[drm] ln0_1:0x71 ln2_3:0x0 align:0x0 sink:0x0 adj_req0_1:0x84 adj_req2_3:0x0
 
-In your patch, the test seems overkill:
+Narrow fast vs. wide slow is not an option because the max clock is
+270000 and the 1920x1280 resolution requires 2x270000.
+[drm] DP link computation with lane count min/max 1/2 270000/270000 bpp
+min/max 18/24 pixel clock 164250KHz
 
-+	if ((start <= vdso_base && vdso_end <= end) ||  /* 1   */
-+	    (vdso_base <= start && start < vdso_end) || /* 3,4 */
-+	    (vdso_base < end && end <= vdso_end))       /* 2,3 */
-+		mm->context.vdso_base = mm->context.vdso_end = 0;
+The display is functional even though lane 1 is in state 0x1, so just
+return success for channel equalization on eDP.
 
-What about
+Introduce QUIRK_EDP_CHANNEL_EQ and match the DMI for a Dell Latitude
+7200 2-in-1.  This quirk allows channel equalization to succeed even
+though it failed.
 
-	if (start < vdso_end && vdso_start < end)
-		mm->context.vdso_base = mm->context.vdso_end = 0;
+Workaround for https://gitlab.freedesktop.org/drm/intel/-/issues/1378
 
-This should cover all cases, or am I missing something ?
+Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+Cc: <stable@vger.kernel.org>
+---
+ .../drm/i915/display/intel_dp_link_training.c |  7 +++++
+ drivers/gpu/drm/i915/display/intel_quirks.c   | 30 +++++++++++++++++++
+ drivers/gpu/drm/i915/i915_drv.h               |  1 +
+ 3 files changed, 38 insertions(+)
 
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+index a23ed7290843..2dd441a94fda 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+@@ -375,6 +375,13 @@ intel_dp_link_training_channel_equalization(struct intel_dp *intel_dp)
+ 
+ 	intel_dp_set_idle_link_train(intel_dp);
+ 
++	if (channel_eq == false &&
++	    intel_dp_is_edp(intel_dp) &&
++	    i915->quirks & QUIRK_EDP_CHANNEL_EQ) {
++		DRM_NOTE("Forcing channel_eq success for eDP\n");
++		channel_eq = true;
++	}
++
+ 	return channel_eq;
+ 
+ }
+diff --git a/drivers/gpu/drm/i915/display/intel_quirks.c b/drivers/gpu/drm/i915/display/intel_quirks.c
+index 46beb155d835..b45b23680321 100644
+--- a/drivers/gpu/drm/i915/display/intel_quirks.c
++++ b/drivers/gpu/drm/i915/display/intel_quirks.c
+@@ -53,6 +53,17 @@ static void quirk_increase_ddi_disabled_time(struct drm_i915_private *i915)
+ 	drm_info(&i915->drm, "Applying Increase DDI Disabled quirk\n");
+ }
+ 
++/*
++ * Some machines (Dell Latitude 7200 2-in-1) fail channel equalization
++ * on their eDP when it is actually usable.  This lets channel_eq
++ * report success.
++ */
++static void quirk_edp_channel_eq(struct drm_i915_private *i915)
++{
++	i915->quirks |= QUIRK_EDP_CHANNEL_EQ;
++	drm_info(&i915->drm, "applying eDP channel_eq quirk\n");
++}
++
+ struct intel_quirk {
+ 	int device;
+ 	int subsystem_vendor;
+@@ -72,6 +83,12 @@ static int intel_dmi_reverse_brightness(const struct dmi_system_id *id)
+ 	return 1;
+ }
+ 
++static int intel_dmi_edp_channel_eq(const struct dmi_system_id *id)
++{
++	DRM_INFO("eDP channel_eq workaround on %s\n", id->ident);
++	return 1;
++}
++
+ static const struct intel_dmi_quirk intel_dmi_quirks[] = {
+ 	{
+ 		.dmi_id_list = &(const struct dmi_system_id[]) {
+@@ -96,6 +113,19 @@ static const struct intel_dmi_quirk intel_dmi_quirks[] = {
+ 		},
+ 		.hook = quirk_invert_brightness,
+ 	},
++	{
++		.dmi_id_list = &(const struct dmi_system_id[]) {
++			{
++				.callback = intel_dmi_edp_channel_eq,
++				.ident = "Dell Latitude 7200 2-in-1",
++				.matches = {DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++					    DMI_MATCH(DMI_PRODUCT_NAME, "Latitude 7200 2-in-1"),
++				},
++			},
++			{ }  /* terminating entry */
++		},
++		.hook = quirk_edp_channel_eq,
++	},
+ };
+ 
+ static struct intel_quirk intel_quirks[] = {
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index e4f7f6518945..fc32ea7380b7 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -525,6 +525,7 @@ struct i915_psr {
+ #define QUIRK_PIN_SWIZZLED_PAGES (1<<5)
+ #define QUIRK_INCREASE_T12_DELAY (1<<6)
+ #define QUIRK_INCREASE_DDI_DISABLED_TIME (1<<7)
++#define QUIRK_EDP_CHANNEL_EQ (1<<8)
+ 
+ struct intel_fbdev;
+ struct intel_fbc_work;
+-- 
+2.26.2
 
-And do we really need to store vdso_end in the context ?
-I think it should be possible to re-calculate it: the size of the VDSO should be (&vdso32_end - 
-&vdso32_start) + PAGE_SIZE for 32 bits VDSO, and (&vdso64_end - &vdso64_start) + PAGE_SIZE for the 
-64 bits VDSO.
-
-Christophe
