@@ -2,56 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A78B297750
-	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 20:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B40092978C3
+	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 23:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1751113AbgJWSxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 14:53:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750881AbgJWSxK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Oct 2020 14:53:10 -0400
-Subject: Re: [GIT PULL] vhost,vdpa,virtio: cleanups, fixes
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603479190;
-        bh=Fut4z9JGmD3maTcbN0fyqQYAM6FFJ60UFXb6vsO1lrQ=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=1rYV7y8L4fqyq9/Y6Bnv1MRUN5CH9C1NVdDlnXKwc+pHbTGwO+qs9nuzXdqbcqgQ2
-         iK879U4YmweY6ZAB3WKs5YSBOBm357iHtVfUFwj6qAaBElopHUrBpO3aA07Cyr9mpu
-         +ORWDuaAJduX+3FjpxGUBUrHT/szHvvNtSoosSfs=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20201023113832-mutt-send-email-mst@kernel.org>
-References: <20201023113832-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: Linux virtualization <virtualization.lists.linux-foundation.org>
-X-PR-Tracked-Message-Id: <20201023113832-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 88a0d60c6445f315fbcfff3db792021bb3a67b28
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 9313f8026328d0309d093f6774be4b8f5340c0e5
-Message-Id: <160347919010.2166.1997610625454370758.pr-tracker-bot@kernel.org>
-Date:   Fri, 23 Oct 2020 18:53:10 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        pankaj.gupta.linux@gmail.com, pmorel@linux.ibm.com,
-        kvm@vger.kernel.org, netdev@vger.kernel.org, mst@redhat.com,
-        linux-kernel@vger.kernel.org, rikard.falkeborn@gmail.com,
-        virtualization@lists.linux-foundation.org, li.wang@windriver.com,
-        borntraeger@de.ibm.com, stable@vger.kernel.org,
-        tiantao6@hisilicon.com, elic@nvidia.com, lingshan.zhu@intel.com
+        id S1756458AbgJWVRg convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 23 Oct 2020 17:17:36 -0400
+Received: from ws86-195-133-112.rcil.gov.in ([112.133.192.86]:62762 "EHLO
+        notokin.jp" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1756446AbgJWVRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Oct 2020 17:17:36 -0400
+X-Greylist: delayed 82689 seconds by postgrey-1.27 at vger.kernel.org; Fri, 23 Oct 2020 17:17:35 EDT
+Reply-To: info@free551.com
+From:   "FM" <info@notokin.jp>
+To:     stable@vger.kernel.org
+Subject: =?UTF-8?B?44GU5oyo5ou2?=
+Date:   24 Oct 2020 02:47:32 +0530
+Message-ID: <20201024024732.0DD6BE15925B0EE0@notokin.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pull request you sent on Fri, 23 Oct 2020 11:38:32 -0400:
-
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/9313f8026328d0309d093f6774be4b8f5340c0e5
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+ご挨拶、
+ 
+私の名前はフェリックスです。亡くなった口座名義人が所有する清算されたBTC口座から生じた900万米ドルを超える資金に関する緊急事項
+（取引）についてご連絡いたします。 
+私の計画と、私があなたの返事を受け取り、あなたの信頼を得た後、私が最初にあなたに連絡することを選んだ理由をあなたに知らせます。
+ 
+たくさんの感謝とあなたの返事を楽しみにしています。
+ 
+フェリックス。
