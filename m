@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D53F9297998
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 595F529799B
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754267AbgJWXWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 19:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56404 "EHLO
+        id S1758579AbgJWXW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 19:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754109AbgJWXWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:22:16 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF12C0613D2
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:15 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id h24so4565086ejg.9
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:15 -0700 (PDT)
+        with ESMTP id S1754381AbgJWXW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:22:28 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AF68C0613D2
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:27 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id dt13so4548886ejb.12
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=++BugjGu7Yhj4JJ5Ke8vw5pSfa1dW+nAyP06MUn3l9A=;
-        b=fR0nhC4hwwjEQcrMhtmyY8sKhRj7dxdyF2zz4p2zmTkw1Z0wFyN6uM8KqqmqF9puaD
-         azZCsjAie4XeXmRw8k5oFcVimIPj5arVNPrWI/4l7+qfonfFuq1dSKSgUP+3yJoNTWGY
-         PK6TCb5HWFqHN0sC5H3zBhkAPcfUPFCdkfRjA=
+        bh=IsEIFoe7sZUuYhcMcTQFflZv80V+XCrEWT+PDhHP6xY=;
+        b=WPW0NNDdKQvCSAhhDOrwNw9dMjbs6A8JVXUrjTqIgR7bsnYa6xixXVEKNbvnju0c5t
+         MRcXdP28n33qfWwKDTG/15TYQVG6kCYEW0a+6tG9z6XSJB1IToGvXw+NwjAwkxSfNnQ/
+         lhz4yx1sLnKH/IrdCZ1Lg0SQwSqiH42iRTpf8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=++BugjGu7Yhj4JJ5Ke8vw5pSfa1dW+nAyP06MUn3l9A=;
-        b=o9GhR7dV6gxsmoKBx2kyqA0KZ8uX8UL16rtUP7Cx6bwSY51da0oh2OSfgGULa+MI2c
-         11/7CvDTTMv5Ud14pOueuqT7vq0meHxxabgKRGEkts5vTxTyZneSghO5vlPk957yCG+E
-         5KHVdioutWlUABinvEWyqrxeXAyxPQvY4s5NxZJ1Fir7jfsNwrjhBUM3VOLigaYI4YHl
-         ++s7UzYP96+dN9W7XcLYb8nAZliI8C9gKfCRdH5TJot0keAuBvO2/+39mqLzIb3wfQUg
-         DcFB1vpRWSlWV2wxHSgCVs/MzmskSEGtJ4QC0/qR5c/KdjX14Xqjf7d0d9iVyIN36usA
-         POTA==
-X-Gm-Message-State: AOAM530koWr1i3xx4MbE5y+L3Giit2jRqnycSMzmTptIUSu41q5MMZlz
-        IEZ5DVW6CXHOOUfFd/p7yiks3YeLhzwBPHCU//A=
-X-Google-Smtp-Source: ABdhPJy+FWvlI+Yb5UgOMrRC0uoX6rrAlvnu2D+ZLWWHSqFs6mIC+Extu8sxGFc3rWBf00r8KmBxUg==
-X-Received: by 2002:a17:906:4d59:: with SMTP id b25mr4565331ejv.404.1603495334032;
-        Fri, 23 Oct 2020 16:22:14 -0700 (PDT)
+        bh=IsEIFoe7sZUuYhcMcTQFflZv80V+XCrEWT+PDhHP6xY=;
+        b=EePGI6SrDcUIDbdL452W+PSCKtJAFOxnikqqYyzSrWkm8huIc0UJ90XReKNIzvgU0v
+         nRVhOGaCqg4Bmaxd7ox6KlREd4ShoHDtf7yvcyR9AM4TJvpLDfJ7IsxuNaF3mymOZGvH
+         NoRRSQ2Wdi7yvw1gXbBd4KxcMTSuNP5BqxVvIczjKhGOHsfCAQQwVkXcqjk10HletMod
+         CBILs0uOnm7ZwhpDbfv4oPFBuckppWnh291tcZyHtng7KdeJsVvu8W7EvBck+49i8M0t
+         iOb4wM7vCnlTr4gT+8mFUdvKc0qtSz3xTP2cNj+GnqVMAidFOhoL/p2gL791r+ibxCNC
+         gUqA==
+X-Gm-Message-State: AOAM533uJTzolfQhvXs+jFIgDoxyET+m6fUsoeyKZmfnu6TwX09A87IO
+        PbuWCSdMSd8RMCLkYTkGDkhME/5eAk5NbtjPp2Q=
+X-Google-Smtp-Source: ABdhPJwHFQQs9h1GtuNWhnvYjSEssXP1pmsJpJk3lNxPNHQCXTndKGBRBBWs85n9Hf/Ekk9osTPoZg==
+X-Received: by 2002:a17:906:3ada:: with SMTP id z26mr4249760ejd.151.1603495345371;
+        Fri, 23 Oct 2020 16:22:25 -0700 (PDT)
 Received: from prevas-ravi.aaad.autarch.net (5.186.115.188.cgn.fibianet.dk. [5.186.115.188])
-        by smtp.gmail.com with ESMTPSA id q25sm1447937eja.86.2020.10.23.16.22.13
+        by smtp.gmail.com with ESMTPSA id ck19sm1474650ejb.99.2020.10.23.16.22.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 16:22:13 -0700 (PDT)
+        Fri, 23 Oct 2020 16:22:24 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-To:     stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Masahiro Yamada <masahiroy@kernel.org>
+To:     stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4.4-stable] scripts/setlocalversion: make git describe output more reliable
-Date:   Sat, 24 Oct 2020 01:22:07 +0200
-Message-Id: <20201023232207.10373-1-linux@rasmusvillemoes.dk>
+Subject: [PATCH 4.9-stable] scripts/setlocalversion: make git describe output more reliable
+Date:   Sat, 24 Oct 2020 01:22:20 +0200
+Message-Id: <20201023232220.10448-1-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -96,7 +95,7 @@ with the current rule for -stable patches, and is almost always enough
 to identify the head commit unambigously - in the few cases where it
 does not, the v5.4.3-00021- prefix would certainly nail it down.
 
-[Adapt to `` vs $() differences between 4.4 and upstream.]
+[Adapt to `` vs $() differences between 4.9 and upstream.]
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
