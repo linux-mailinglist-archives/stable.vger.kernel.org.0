@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EE52979A7
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1A32979A8
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758616AbgJWXYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 19:24:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
+        id S1758627AbgJWXYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 19:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758543AbgJWXYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:24:24 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73308C0613CE
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:24:24 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id z5so4580151ejw.7
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:24:24 -0700 (PDT)
+        with ESMTP id S1754521AbgJWXYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:24:41 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52C7C0613CE
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:24:40 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id c15so4614018ejs.0
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:24:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=bakNZ2VxMsli77njVy36n+7MORbCxzqoWw0AiOVluF4=;
-        b=iz+NkY2IanXu72Rv1QYvfjlTOtnuaAUlwksEvDUQruD8QsjgATO+0LPKSOKksJAY7C
-         0JXUwhnu46otSLZHeiIgrL64mgdfzpcJFXhrsRdYGx+uVeewojTq9Xj3jDAIGjf2afyl
-         8qB0mTZ0szeiZaBecm0JTO5bm182jM450/ZYQ=
+        b=SVzlXkuASrpe6CvIGPLz9rNQdD/0UEapNPjodWnU0PWiJlXAbgn55doUTy5skHPs17
+         FAx223ujGfM3D9OiEfRE0doO39O61t+nKNrqatpJVQafiWZh0pVl6Sxj4BZI29ZGORY1
+         d9NgWb7thkyA13q3YT8zxMyDCe0/g/cgkd0i4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=bakNZ2VxMsli77njVy36n+7MORbCxzqoWw0AiOVluF4=;
-        b=tO7zTbVvNWXVRc29nXs1aOVsWJNqv7P2c8QFULCZRJ9GabEZWvrHm3I5k50W0oE8Rx
-         Tq2rrr9FH0vnXBsU+1tsJ2xblUDR3zhQIdgbUGEzXvJstDbDg8T3DTemOc+3OjDiF4pk
-         jEEVGJL2iBmXfMMuUJ8IjVq/37zwe8fWQB/yh1h+5PhOWWqHSALGyzTDklBJOoXu7/Qt
-         eTeHblQ3H4T2w+pk2rtgHIbUyc3suSA3Y8LFQYYU/dnxWnEQNenkK0U8ijUmzMLGR2G9
-         pvCh3PWfa4s50nxDi5lkiXSySqPXkDJUHVU2KgOqlUZP49rhD+SS9YaB8VuKNRAjXZAl
-         6P3g==
-X-Gm-Message-State: AOAM532f5H2vN2NfHULLYYw7VXCs5sJzjnwxwmGgMkULrU0LALFluCM2
-        YzUpiaQ4nlSY33bBR+vvw/W3hT3rXgyDt1FZBPQ=
-X-Google-Smtp-Source: ABdhPJzZvXqe/36xmQvP05KrNQXTq+6w6fuS2Vo2XhODnS25gIVlyiDq5r3n/RV2rVQm1Rs8IkTtjw==
-X-Received: by 2002:a17:906:bc4b:: with SMTP id s11mr4487956ejv.437.1603495462848;
-        Fri, 23 Oct 2020 16:24:22 -0700 (PDT)
+        b=AG4yTZfOdwdq0gGRNtNW8VN3SegAfqUawpn9lioD/Uq6AENl7513VT2V46eXwmQcSz
+         c8nP4dYGKMsVSY19sU8GWvF3ukHqu673ow6yoX3fpaX7+9uJdwnRCBhTdLM3NZyRrbUv
+         6r27zuZeYugDYB+bAq4HShCEmQY7d3Qtu9P6duurB6tDmTQEVH9AV70BVnBF1whwmGvV
+         9vOEKaUbC5APQ1IuQHhtj4qcE3msimoFE5GzcwzVHS4LmjCR7Z8G0IYwr2q4LhGAupsg
+         2ZKsiw2hIukgIJNAu8rh175SG1MpV+SyG8PFk+m7DQfcd++neHdKpOfbF8x7LlQoqa0A
+         uifQ==
+X-Gm-Message-State: AOAM5312WHF9bXL6+2C0hntREXROuN5zH7moRIVnhwUmfUAvAHhT/BTM
+        WFwZXPy+xoFIHgtzXa6BYqeN1vFXhVcMoDA2YGs=
+X-Google-Smtp-Source: ABdhPJxDIjp0Hh/VsdI5Od5uavZ8LYJfBl1vrVdy0LV4CdFN9aK6/Eo7lCoTGuMUeIGqAcnGcUdBlA==
+X-Received: by 2002:a17:906:f14b:: with SMTP id gw11mr4590506ejb.41.1603495479220;
+        Fri, 23 Oct 2020 16:24:39 -0700 (PDT)
 Received: from prevas-ravi.aaad.autarch.net (5.186.115.188.cgn.fibianet.dk. [5.186.115.188])
-        by smtp.gmail.com with ESMTPSA id i27sm1358189edy.5.2020.10.23.16.24.22
+        by smtp.gmail.com with ESMTPSA id x21sm1366667edq.88.2020.10.23.16.24.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 16:24:22 -0700 (PDT)
+        Fri, 23 Oct 2020 16:24:38 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-To:     stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To:     stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Masahiro Yamada <masahiroy@kernel.org>
 Cc:     Greg KH <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.8-stable] scripts/setlocalversion: make git describe output more reliable
-Date:   Sat, 24 Oct 2020 01:24:20 +0200
-Message-Id: <20201023232420.10907-1-linux@rasmusvillemoes.dk>
+Subject: [PATCH 5.9-stable] scripts/setlocalversion: make git describe output more reliable
+Date:   Sat, 24 Oct 2020 01:24:34 +0200
+Message-Id: <20201023232434.10987-1-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
