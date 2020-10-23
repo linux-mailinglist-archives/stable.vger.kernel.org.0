@@ -2,183 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F1F2967B6
-	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 01:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72C9B2967DF
+	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 02:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S373509AbgJVXsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Oct 2020 19:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59508 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S373215AbgJVXsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Oct 2020 19:48:09 -0400
-Received: from X1 (216-169-68-50.scinternet.net [216.169.68.50])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B447223BF;
-        Thu, 22 Oct 2020 23:48:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603410488;
-        bh=Zp+fjT/nZddp6WKPIbU+0O/pg+DAXLPr0e+GA16IcWg=;
-        h=Date:From:To:Subject:From;
-        b=l5dGX38qsamE4Ty/W5+cFXFEXNswagSXZa0saQaslUYceJXDDXo7vSMGrDDOOES7t
-         Uxtdopo31lxG87S5aK0qaZ0GzV1AXlj7Vok98xMV5IXacMdB9aCkK8CZPLRvo6fmIy
-         YcURMGCBdwRVfYE5JV4Wz/yh2rHSHJiOkAf26B1k=
-Date:   Thu, 22 Oct 2020 16:47:56 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, tj@kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, mst@redhat.com, mprivozn@redhat.com,
-        mhocko@kernel.org, david@redhat.com,
-        aneesh.kumar@linux.vnet.ibm.com, almasrymina@google.com,
-        mike.kravetz@oracle.com
-Subject:  + hugetlb_cgroup-fix-reservation-accounting.patch added to
- -mm tree
-Message-ID: <20201022234756.6lZba%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S373726AbgJWANY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Oct 2020 20:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S373725AbgJWANY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Oct 2020 20:13:24 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9865C0613CE
+        for <stable@vger.kernel.org>; Thu, 22 Oct 2020 17:13:23 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id y16so3888073ljk.1
+        for <stable@vger.kernel.org>; Thu, 22 Oct 2020 17:13:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=JsXfltKzVkc5dFCc7ppE1F9bq8/YY2alL+j9MWsy4zpKdc5xqT+F/DOnqPUV7FqECU
+         IIwvwuxQC8rIG47ErYyg8bbtkLRUqNTu/rh+W22PQvlUXRO6n5+xVhg1+syfsH7FwqaA
+         ZqyPLT/vLwU9dN2Yg4FTo3SJpDy/8CiaKQKEVUVlA2yzHSNCYI5agrVyR1rL96A+EQ/d
+         +NTO32GLcT2oxQtcAvMUafj9yMywkfvuOgkEB3v78ecuU3ZuL6BsjK0nI33OgNF5P/e7
+         NndMeqo+X7ws5yfFLIf6+E+b8UGToYyQrdiYyztLREiwXp/SKFwSOmv7TT5t7IM8Nooi
+         6T0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=fudlb9QcvGz9NsKNnPB87/cmqMdPgL6uXCWVYYn4azRxg6vlvPqLpLa2wX+O29lEyO
+         pvKDAAmAH54uW2D2flsY7dUAn1Krakl/OgnHBPo43rCPuSagMTv4tw3I6mW0xPBB91vU
+         n+YlB4ZGO7WYXf40ySB3JNQWEcywjGWc9kNvVIAAHr/y6CpzbAX+FZbexgT/GxjS0aFZ
+         8GiVuAAcLHZStUhF7rVF40fqLTM3Qanl4PDuIXYEqRkyCAVQ/eT8dbcrKTJ/x/MQ6ulr
+         uSwWbNk/ObUKSDV/N5nXEwjqExg3kgYxRSSNF0pLSmeC2L2eE5dlgBbxKI/cf2IMTi56
+         OHfg==
+X-Gm-Message-State: AOAM530H1u57OXiV1729BCGx25tEqH7AAeKrxByj9Uowe/YpOOA3syBV
+        gagiRDJYlsiyCQ8AlyaUJFjBTEFbp+QjFA/KMZA=
+X-Google-Smtp-Source: ABdhPJyt5bHY/NM3DM5coIM8/9wC3ora1KsLI0aRLYprbGvgWQcjcu6Fc/8rdSPHT/34kV7nOH6U+qrunstcQrshN18=
+X-Received: by 2002:a2e:b5d7:: with SMTP id g23mr2086848ljn.61.1603412002103;
+ Thu, 22 Oct 2020 17:13:22 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a19:be93:0:0:0:0:0 with HTTP; Thu, 22 Oct 2020 17:13:21
+ -0700 (PDT)
+Reply-To: mfdp@tlen.pl
+From:   Mr Bill T Winters <fazhi35@gmail.com>
+Date:   Thu, 22 Oct 2020 17:13:21 -0700
+Message-ID: <CABTE2TCntWkzyvsPqGVqrmHaAwAtJooqZSra4TRBPdM+gATBgg@mail.gmail.com>
+Subject: Good Morning!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+Greetings,
+I Mr Bill T, did you Receive the (FUND), that was paid to you?
+Let me know with your full name:...  immediately,
 
-The patch titled
-     Subject: hugetlb_cgroup: fix reservation accounting
-has been added to the -mm tree.  Its filename is
-     hugetlb_cgroup-fix-reservation-accounting.patch
+Sincerely Yours, Respectfully,
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/hugetlb_cgroup-fix-reservation-accounting.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/hugetlb_cgroup-fix-reservation-accounting.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb_cgroup: fix reservation accounting
-
-Michal Privoznik was using "free page reporting" in QEMU/virtio-balloon
-with hugetlbfs and hit the warning below.  QEMU with free page hinting
-uses fallocate(FALLOC_FL_PUNCH_HOLE) to discard pages that are reported
-as free by a VM. The reporting granularity is in pageblock granularity.
-So when the guest reports 2M chunks, we fallocate(FALLOC_FL_PUNCH_HOLE)
-one huge page in QEMU.
-
-[  315.251417] ------------[ cut here ]------------
-[  315.251424] WARNING: CPU: 7 PID: 6636 at mm/page_counter.c:57 page_counter_uncharge+0x4b/0x50
-[  315.251425] Modules linked in: ...
-[  315.251466] CPU: 7 PID: 6636 Comm: qemu-system-x86 Not tainted 5.9.0 #137
-[  315.251467] Hardware name: Gigabyte Technology Co., Ltd. X570 AORUS PRO/X570 AORUS PRO, BIOS F21 07/31/2020
-[  315.251469] RIP: 0010:page_counter_uncharge+0x4b/0x50
-...
-[  315.251479] Call Trace:
-[  315.251485]  hugetlb_cgroup_uncharge_file_region+0x4b/0x80
-[  315.251487]  region_del+0x1d3/0x300
-[  315.251489]  hugetlb_unreserve_pages+0x39/0xb0
-[  315.251492]  remove_inode_hugepages+0x1a8/0x3d0
-[  315.251495]  ? tlb_finish_mmu+0x7a/0x1d0
-[  315.251497]  hugetlbfs_fallocate+0x3c4/0x5c0
-[  315.251519]  ? kvm_arch_vcpu_ioctl_run+0x614/0x1700 [kvm]
-[  315.251522]  ? file_has_perm+0xa2/0xb0
-[  315.251524]  ? inode_security+0xc/0x60
-[  315.251525]  ? selinux_file_permission+0x4e/0x120
-[  315.251527]  vfs_fallocate+0x146/0x290
-[  315.251529]  __x64_sys_fallocate+0x3e/0x70
-[  315.251531]  do_syscall_64+0x33/0x40
-[  315.251533]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
-[  315.251542] ---[ end trace 4c88c62ccb1349c9 ]---
-
-Investigation of the issue uncovered bugs in hugetlb cgroup reservation
-accounting.  This patch addresses the found issues.
-
-Link: https://lkml.kernel.org/r/20201021204426.36069-1-mike.kravetz@oracle.com
-Fixes: 075a61d07a8e ("hugetlb_cgroup: add accounting for shared mappings")
-Cc: <stable@vger.kernel.org>
-Reported-by: Michal Privoznik <mprivozn@redhat.com>
-Co-developed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Tested-by: Michal Privoznik <mprivozn@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
-
---- a/mm/hugetlb.c~hugetlb_cgroup-fix-reservation-accounting
-+++ a/mm/hugetlb.c
-@@ -648,6 +648,8 @@ retry:
- 			}
- 
- 			del += t - f;
-+			hugetlb_cgroup_uncharge_file_region(
-+				resv, rg, t - f);
- 
- 			/* New entry for end of split region */
- 			nrg->from = t;
-@@ -660,9 +662,6 @@ retry:
- 			/* Original entry is trimmed */
- 			rg->to = f;
- 
--			hugetlb_cgroup_uncharge_file_region(
--				resv, rg, nrg->to - nrg->from);
--
- 			list_add(&nrg->link, &rg->link);
- 			nrg = NULL;
- 			break;
-@@ -678,17 +677,17 @@ retry:
- 		}
- 
- 		if (f <= rg->from) {	/* Trim beginning of region */
--			del += t - rg->from;
--			rg->from = t;
--
- 			hugetlb_cgroup_uncharge_file_region(resv, rg,
- 							    t - rg->from);
--		} else {		/* Trim end of region */
--			del += rg->to - f;
--			rg->to = f;
- 
-+			del += t - rg->from;
-+			rg->from = t;
-+		} else {		/* Trim end of region */
- 			hugetlb_cgroup_uncharge_file_region(resv, rg,
- 							    rg->to - f);
-+
-+			del += rg->to - f;
-+			rg->to = f;
- 		}
- 	}
- 
-@@ -2443,6 +2442,9 @@ struct page *alloc_huge_page(struct vm_a
- 
- 		rsv_adjust = hugepage_subpool_put_pages(spool, 1);
- 		hugetlb_acct_memory(h, -rsv_adjust);
-+		if (deferred_reserve)
-+			hugetlb_cgroup_uncharge_page_rsvd(hstate_index(h),
-+					pages_per_huge_page(h), page);
- 	}
- 	return page;
- 
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
-
-hugetlb_cgroup-fix-reservation-accounting.patch
-
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
