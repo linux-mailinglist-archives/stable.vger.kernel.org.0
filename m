@@ -2,84 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653542970C7
-	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 15:40:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A45129712D
+	for <lists+stable@lfdr.de>; Fri, 23 Oct 2020 16:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S372591AbgJWNka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 09:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S372086AbgJWNka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 09:40:30 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E102AC0613CE
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 06:40:29 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id x1so1582562eds.1
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 06:40:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=C7scyvHlrOdlyJVggLq0/PPNcQWlw4W/p8da1eTopDY=;
-        b=RgocgajM82za5/KcSbU0vSzR0plP00yvv+qeHEdE9D08aKamQ3C/DS7qi4PcyazLUW
-         xiC5ioDemQnQTEBrZnc/gH544TlQSTas7AWheBDKvd+e3bk52yMsscmKaNnG98VV5gIf
-         Q4T9cZQvs1Leb6Uo3oEOpTb2DNFYXaqIsgvsc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=C7scyvHlrOdlyJVggLq0/PPNcQWlw4W/p8da1eTopDY=;
-        b=ilch+XGb0E7d5VL5e5h4NGbX7cSPwLjd0u/zmGWcNi+3mb4kRsFRc58Qd0WEwaqP+w
-         wOwHPMkW/T7T1Or3kfBTOijJrGUEpJ7pf2V0yAKHUrNPlAP0+7tD9nCPGNWavcBE3+x3
-         xqlokZEv4vGbHbs7YNg5pXC5LbpesqvRmxGtbM4bzM8FMPKjIeVrYuJ/+tI4JKN3EV+K
-         +3Sde5bOoXOnhWGj2v8O1ENng1Gd2dakALFzXUQcLK0IQUzoDzQnuqe4Ns3SPdP9IsAB
-         6rt1lh8rXVSbJGABCZ0gXh8HNcpf5XsRymPytcEeOq0yXZ2uFqJ+RKPnnUI4fb/2wLgR
-         frlg==
-X-Gm-Message-State: AOAM532rey/ytTZ+zRqM3n++2fwBSdgq/wtFpSfJoEW6FcuQgJZiqsPw
-        C8g+4XTRHs+dSv6LmBhCO608e0G6KwekLkaqjiw=
-X-Google-Smtp-Source: ABdhPJw5mPb/L97FRG/46MYAkiw64/u44Bkizpd6Hhh4NsbjJCpRZ5kuYd/g1XjzEFbCJazT7VWVWg==
-X-Received: by 2002:a50:aa84:: with SMTP id q4mr2226840edc.331.1603460428345;
-        Fri, 23 Oct 2020 06:40:28 -0700 (PDT)
-Received: from [172.16.11.132] ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id q2sm863677ejd.20.2020.10.23.06.40.27
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Oct 2020 06:40:27 -0700 (PDT)
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: does 548b8b5168c9 qualify for stable?
-Message-ID: <4f1324d2-6b0f-dcb6-ff58-a6a05a15d407@rasmusvillemoes.dk>
-Date:   Fri, 23 Oct 2020 15:40:26 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1750420AbgJWOSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 10:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750307AbgJWOSC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Oct 2020 10:18:02 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A43921527;
+        Fri, 23 Oct 2020 14:18:01 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1kVxtH-004deC-Ut; Fri, 23 Oct 2020 10:17:59 -0400
+Message-ID: <20201023141759.821185545@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 23 Oct 2020 10:16:10 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Qiujun Huang <hqjagain@gmail.com>, stable@vger.kernel.org
+Subject: [for-linus][PATCH 1/2] ring-buffer: Return 0 on success from ring_buffer_resize()
+References: <20201023141609.430954343@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Qiujun Huang <hqjagain@gmail.com>
 
-Please consider whether
+We don't need to check the new buffer size, and the return value
+had confused resize_buffer_duplicate_size().
+...
+	ret = ring_buffer_resize(trace_buf->buffer,
+		per_cpu_ptr(size_buf->data,cpu_id)->entries, cpu_id);
+	if (ret == 0)
+		per_cpu_ptr(trace_buf->data, cpu_id)->entries =
+			per_cpu_ptr(size_buf->data, cpu_id)->entries;
+...
 
-commit 548b8b5168c90c42e88f70fcf041b4ce0b8e7aa8
-Author: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Date:   Thu Sep 17 08:56:11 2020 +0200
+Link: https://lkml.kernel.org/r/20201019142242.11560-1-hqjagain@gmail.com
 
-    scripts/setlocalversion: make git describe output more reliable
+Cc: stable@vger.kernel.org
+Fixes: d60da506cbeb3 ("tracing: Add a resize function to make one buffer equivalent to another buffer")
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/ring_buffer.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-qualifies for -stable. It removes one potential source of binary
-non-reproducibility that we have actually seen cause problems.
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 15bf28b13e50..5c6a9c6a058f 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1952,18 +1952,18 @@ int ring_buffer_resize(struct trace_buffer *buffer, unsigned long size,
+ {
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	unsigned long nr_pages;
+-	int cpu, err = 0;
++	int cpu, err;
+ 
+ 	/*
+ 	 * Always succeed at resizing a non-existent buffer:
+ 	 */
+ 	if (!buffer)
+-		return size;
++		return 0;
+ 
+ 	/* Make sure the requested buffer exists */
+ 	if (cpu_id != RING_BUFFER_ALL_CPUS &&
+ 	    !cpumask_test_cpu(cpu_id, buffer->cpumask))
+-		return size;
++		return 0;
+ 
+ 	nr_pages = DIV_ROUND_UP(size, BUF_PAGE_SIZE);
+ 
+@@ -2119,7 +2119,7 @@ int ring_buffer_resize(struct trace_buffer *buffer, unsigned long size,
+ 	}
+ 
+ 	mutex_unlock(&buffer->mutex);
+-	return size;
++	return 0;
+ 
+  out_err:
+ 	for_each_buffer_cpu(buffer, cpu) {
+-- 
+2.28.0
 
-I'm fine with it not qualifying, but please let me know if so, because
-then I'll go and add some workarounds to various customer projects.
 
-In case it doesn't cherry-pick cleanly (I think there might have been
-some shell-portability patches replacing $() by `` or something like
-that) I am happy to provide backports to the still maintained -stable
-branches.
-
-Thanks,
-Rasmus
