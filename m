@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 595F529799B
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 576C02979A4
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 01:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758579AbgJWXW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Oct 2020 19:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56438 "EHLO
+        id S1758628AbgJWXXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Oct 2020 19:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754381AbgJWXW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:22:28 -0400
+        with ESMTP id S1758619AbgJWXXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Oct 2020 19:23:31 -0400
 Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AF68C0613D2
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:27 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id dt13so4548886ejb.12
-        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:22:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EFA8C0613CE
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:30 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id dt13so4551303ejb.12
+        for <stable@vger.kernel.org>; Fri, 23 Oct 2020 16:23:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=IsEIFoe7sZUuYhcMcTQFflZv80V+XCrEWT+PDhHP6xY=;
-        b=WPW0NNDdKQvCSAhhDOrwNw9dMjbs6A8JVXUrjTqIgR7bsnYa6xixXVEKNbvnju0c5t
-         MRcXdP28n33qfWwKDTG/15TYQVG6kCYEW0a+6tG9z6XSJB1IToGvXw+NwjAwkxSfNnQ/
-         lhz4yx1sLnKH/IrdCZ1Lg0SQwSqiH42iRTpf8=
+        bh=2UGb3Lm/0wdxFBm3bTs8krKwdYJQ/T360YgGEwiYch4=;
+        b=Ll4Ftp8bw8IQd91VW19hJhZtT/daNNJ4J4NJp+UBKx6wPj2QaqMS9mDzNfrcpPMHJO
+         OJD2IXpT0vGIahLdo6fECfGuZu2wqU1rCduK5Ee6IakzNK6qUfpSuDajV+cYK3+l/gNa
+         6xRYxsdXhu00qH0LszWCohRr/ZJGix7jjcwzk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=IsEIFoe7sZUuYhcMcTQFflZv80V+XCrEWT+PDhHP6xY=;
-        b=EePGI6SrDcUIDbdL452W+PSCKtJAFOxnikqqYyzSrWkm8huIc0UJ90XReKNIzvgU0v
-         nRVhOGaCqg4Bmaxd7ox6KlREd4ShoHDtf7yvcyR9AM4TJvpLDfJ7IsxuNaF3mymOZGvH
-         NoRRSQ2Wdi7yvw1gXbBd4KxcMTSuNP5BqxVvIczjKhGOHsfCAQQwVkXcqjk10HletMod
-         CBILs0uOnm7ZwhpDbfv4oPFBuckppWnh291tcZyHtng7KdeJsVvu8W7EvBck+49i8M0t
-         iOb4wM7vCnlTr4gT+8mFUdvKc0qtSz3xTP2cNj+GnqVMAidFOhoL/p2gL791r+ibxCNC
-         gUqA==
-X-Gm-Message-State: AOAM533uJTzolfQhvXs+jFIgDoxyET+m6fUsoeyKZmfnu6TwX09A87IO
-        PbuWCSdMSd8RMCLkYTkGDkhME/5eAk5NbtjPp2Q=
-X-Google-Smtp-Source: ABdhPJwHFQQs9h1GtuNWhnvYjSEssXP1pmsJpJk3lNxPNHQCXTndKGBRBBWs85n9Hf/Ekk9osTPoZg==
-X-Received: by 2002:a17:906:3ada:: with SMTP id z26mr4249760ejd.151.1603495345371;
-        Fri, 23 Oct 2020 16:22:25 -0700 (PDT)
+        bh=2UGb3Lm/0wdxFBm3bTs8krKwdYJQ/T360YgGEwiYch4=;
+        b=KQVxv75FBqlkNL+15NCvl8velAIF4Fmf0v9B5aYMSTyQu1DuzXwrLoz390WVrdZoxM
+         trDaeumT1S8lRgUItgJUEW0QcQ9+sxQErzTJHsFkCFDGXd29Bkc4oN3DAQtAQVWTKP11
+         3lDpv4wo42t3b0oPV2x6yZJE4yVV4CvfQ+P/4nSmEeEmNIXCwTUN1rXryrf1VBy8rB4W
+         CAL5PfePSGPJ3f7jPFZq6uBrrde7wgDnkQqEQe4hsMNWsAAl9RdKxCw+4uA5T94Rv9nN
+         whPS/w5DhdTdxDoeYx24V3nJIWIJ7rKSobuGGTSyTiw6v0VX7k/e2TpqDjWfvS9lVwnv
+         Zyng==
+X-Gm-Message-State: AOAM531K0bc9GY2SgOqa54LQHfADch6VUGboyEmbAeUFyjGNIGuRrlS/
+        wt3AxTpmK+Z+3edbYfT86YWBRCyy/rUwTbt2Rh8=
+X-Google-Smtp-Source: ABdhPJwgxS4eL+439Mr5MnD64/yFO9wB7U9FDXl2B0rZHTsWUj3Zxp22j6GTvN2gDbLOw8IFcFAboQ==
+X-Received: by 2002:a17:906:1955:: with SMTP id b21mr4567895eje.42.1603495408917;
+        Fri, 23 Oct 2020 16:23:28 -0700 (PDT)
 Received: from prevas-ravi.aaad.autarch.net (5.186.115.188.cgn.fibianet.dk. [5.186.115.188])
-        by smtp.gmail.com with ESMTPSA id ck19sm1474650ejb.99.2020.10.23.16.22.24
+        by smtp.gmail.com with ESMTPSA id j10sm1135836ejy.90.2020.10.23.16.23.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 16:22:24 -0700 (PDT)
+        Fri, 23 Oct 2020 16:23:28 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
 To:     stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4.9-stable] scripts/setlocalversion: make git describe output more reliable
-Date:   Sat, 24 Oct 2020 01:22:20 +0200
-Message-Id: <20201023232220.10448-1-linux@rasmusvillemoes.dk>
+Cc:     Greg KH <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14-stable] scripts/setlocalversion: make git describe output more reliable
+Date:   Sat, 24 Oct 2020 01:23:26 +0200
+Message-Id: <20201023232326.10683-1-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -95,7 +95,7 @@ with the current rule for -stable patches, and is almost always enough
 to identify the head commit unambigously - in the few cases where it
 does not, the v5.4.3-00021- prefix would certainly nail it down.
 
-[Adapt to `` vs $() differences between 4.9 and upstream.]
+[Adapt to `` vs $() differences between 4.14 and upstream.]
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
@@ -104,10 +104,10 @@ Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
  1 file changed, 16 insertions(+), 5 deletions(-)
 
 diff --git a/scripts/setlocalversion b/scripts/setlocalversion
-index aa28c3f29809314bfa58..0c8741b795d0c82a38c9 100755
+index 365b3c2b8f431f28a83a..2cb0b92f40bedeaebfe9 100755
 --- a/scripts/setlocalversion
 +++ b/scripts/setlocalversion
-@@ -44,7 +44,7 @@ scm_version()
+@@ -45,7 +45,7 @@ scm_version()
  
  	# Check for git and a git repo.
  	if test -z "$(git rev-parse --show-cdup 2>/dev/null)" &&
@@ -116,7 +116,7 @@ index aa28c3f29809314bfa58..0c8741b795d0c82a38c9 100755
  
  		# If we are at a tagged commit (like "v2.6.30-rc6"), we ignore
  		# it, because this version is defined in the top level Makefile.
-@@ -58,11 +58,22 @@ scm_version()
+@@ -59,11 +59,22 @@ scm_version()
  			fi
  			# If we are past a tagged commit (like
  			# "v2.6.30-rc5-302-g72357d5"), we pretty print it.
