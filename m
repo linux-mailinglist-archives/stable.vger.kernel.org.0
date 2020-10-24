@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1813E297BB3
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E4D297BB4
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760497AbgJXJmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 05:42:51 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:37663 "EHLO
+        id S1760499AbgJXJn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 05:43:29 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:54819 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1756717AbgJXJmu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:42:50 -0400
+        by vger.kernel.org with ESMTP id S1751459AbgJXJn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:43:27 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id D55BCB84;
-        Sat, 24 Oct 2020 05:42:49 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:42:50 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id CFF13B40;
+        Sat, 24 Oct 2020 05:43:26 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:43:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=t53kdd
-        IBoh/ZYE5xSuX/ymmD6/enWtaUrdDcUF7J17g=; b=o/HWwOo28Opk+Zwy7rU5Y0
-        Kc8E7MlRrTWffvosPl34zQ9io7B0gNexmFZ4aJLwtjxpuHaT8lzBt8R796ShhKQa
-        W21tjEXja4kk17EFehALXd5//ByaWXYnBl28BjeSiZAZBDL3SK4WadSxMuOeextt
-        H9gUv7GUsO/rvptVrZi1hCyvbLwZ6L/iCt/dZfVYT71CCrq0/V9ICCa/PQAQl1Aw
-        z4QXnOw0yj7tbkOC8f2QYaZVvbqp//WkZd+RBdJ5IqZyUjvGi4BnxJguUEaHLzOv
-        WRJTb3OqPV8HOh4os3DpDzEntmTex5hUcQqE1p+m1x+JIiQRvwLQIG7ESj3/K6eg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=e2rYZt
+        bCI1paR3dkc/O/jm63Kk8Jpip1F2TL7VauYfs=; b=Iw9tthXPdPTuvpBP+V9MNj
+        /8VNCnuVlzJGZUvzqh9yXQupcxa9PDGU0xVc0YViuYf8fUBkM6h4fWSWPU/htL9a
+        B5RfOOsw9wqc80r/OE4FuTRgrZwvI7FKzTQ45jzGrf9ei/iwOtBJCOC+okFYTBF8
+        hQXgKLKBDOINQPDMTfPxYv6tWEKFNOeePoCs6cSTKjrrePByNPwcHQ59GLpcM5Cl
+        66bC9eJoqYi9b0MePr2iUShX5fhkKsnf65azu17wN0XsxXIVksr2uw33I/68HuyN
+        w0sXvbC09nNisB3NlSPIS65tlwO41Rfls1kznMzdEbeoSkOdjeCR37tEE7EXNk6g
         ==
-X-ME-Sender: <xms:GfeTX8z2Yb7DDWh_9g4ii1UyQGVuKoY4OIlsP2kW14yKTbVXl1xBog>
-    <xme:GfeTXwR5d8fkjKcdN81EH16OTwjuOCE9DjTOSoV5cxA89bPuLa0shixBX4Yrt9vjA
-    0iTttdFIi6n9Q>
+X-ME-Sender: <xms:PveTXzuJb_DqflG03QcdlHjktfRMvX1INMVRn7Rzg5x9nMuVKIoGSQ>
+    <xme:PveTX0eMIokMKIO_2VQOijYCUHsagZmv8L4b5b15S0NoThtLJXgyRbTl0IWbksFBF
+    9gbGWbIPh2U4A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgddulecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:GfeTX-V2qEP35g1njFyNSobfgDVoRZIq0zL8-5aGxjQrGl0M8JQAoQ>
-    <xmx:GfeTX6jJi59bHb7_8FCw-Sqg49spiL1v7kBaLlEfCKBeonb7-oktBg>
-    <xmx:GfeTX-CQ1VhNg8KXiYRHNGUvTh0kxpINsm_OeuB0t7zojlpJYod2Yw>
-    <xmx:GfeTX5qr9ewHsmia-TMEfJFMI5V-R7GUQBIOOEfAPdMgEz1VLE4YK8TqdSA>
+X-ME-Proxy: <xmx:PveTX2zckUhLUfjsPY-Ht2EvC2LN-v8GhH9PFXZv_ZdL49-gVpQcvA>
+    <xmx:PveTXyNOlxLOKuFFgxcExqqOn25HENIHKo-0PfT89Xnan0w8NVD9ZQ>
+    <xmx:PveTXz97J3lyaGzFjg0XEirus5zUfURZyX5eWJy0Vgh4i-6I9WTpWg>
+    <xmx:PveTXwGbnQqgQM4heHjeQHcdzRcyHCV1AD95-2yh9P7EMeysHKtMQ82U7nw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 247A43064674;
-        Sat, 24 Oct 2020 05:42:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Reset the segment cache when stuffing guest segs" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 19F38328005A;
+        Sat, 24 Oct 2020 05:43:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Explicitly check for valid guest state for" failed to apply to 5.9-stable tree
 To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Oct 2020 11:43:24 +0200
-Message-ID: <1603532604128176@kroah.com>
+Date:   Sat, 24 Oct 2020 11:44:00 +0200
+Message-ID: <16035326401033@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,71 +70,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fc387d8daf3960c5e1bc18fa353768056f4fd394 Mon Sep 17 00:00:00 2001
+From 2ba4493a8b195cc1d7dd5b762a84e6235c2d67bd Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Wed, 23 Sep 2020 11:44:46 -0700
-Subject: [PATCH] KVM: nVMX: Reset the segment cache when stuffing guest segs
+Date: Wed, 23 Sep 2020 11:44:48 -0700
+Subject: [PATCH] KVM: nVMX: Explicitly check for valid guest state for
+ !unrestricted guest
 
-Explicitly reset the segment cache after stuffing guest segment regs in
-prepare_vmcs02_rare().  Although the cache is reset when switching to
-vmcs02, there is nothing that prevents KVM from re-populating the cache
-prior to writing vmcs02 with vmcs12's values.  E.g. if the vCPU is
-preempted after switching to vmcs02 but before prepare_vmcs02_rare(),
-kvm_arch_vcpu_put() will dereference GUEST_SS_AR_BYTES via .get_cpl()
-and cache the stale vmcs02 value.  While the current code base only
-caches stale data in the preemption case, it's theoretically possible
-future code could read a segment register during the nested flow itself,
-i.e. this isn't technically illegal behavior in kvm_arch_vcpu_put(),
-although it did introduce the bug.
+Call guest_state_valid() directly instead of querying emulation_required
+when checking if L1 is attempting VM-Enter with invalid guest state.
+If emulate_invalid_guest_state is false, KVM will fixup segment regs to
+avoid emulation and will never set emulation_required, i.e. KVM will
+incorrectly miss the associated consistency checks because the nested
+path stuffs segments directly into vmcs02.
 
-This manifests as an unexpected nested VM-Enter failure when running
-with unrestricted guest disabled if the above preemption case coincides
-with L1 switching L2's CPL, e.g. when switching from a L2 vCPU at CPL3
-to to a L2 vCPU at CPL0.  stack_segment_valid() will see the new SS_SEL
-but the old SS_AR_BYTES and incorrectly mark the guest state as invalid
-due to SS.dpl != SS.rpl.
+Opportunsitically add Consistency Check tracing to make future debug
+suck a little less.
 
-Don't bother updating the cache even though prepare_vmcs02_rare() writes
-every segment.  With unrestricted guest, guest segments are almost never
-read, let alone L2 guest segments.  On the other hand, populating the
-cache requires a large number of memory writes, i.e. it's unlikely to be
-a net win.  Updating the cache would be a win when unrestricted guest is
-not supported, as guest_state_valid() will immediately cache all segment
-registers.  But, nested virtualization without unrestricted guest is
-dirt slow, saving some VMREADs won't change that, and every CPU
-manufactured in the last decade supports unrestricted guest.  In other
-words, the extra (minor) complexity isn't worth the trouble.
-
-Note, kvm_arch_vcpu_put() may see stale data when querying guest CPL
-depending on when preemption occurs.  This is "ok" in that the usage is
-imperfect by nature, i.e. it's used heuristically to improve performance
-but doesn't affect functionality.  kvm_arch_vcpu_put() could be "fixed"
-by also disabling preemption while loading segments, but that's
-pointless and misleading as reading state from kvm_sched_{in,out}() is
-guaranteed to see stale data in one form or another.  E.g. even if all
-the usage of regs_avail is fixed to call kvm_register_mark_available()
-after the associated state is set, the individual state might still be
-stale with respect to the overall vCPU state.  I.e. making functional
-decisions in an asynchronous hook is doomed from the get go.  Thankfully
-KVM doesn't do that.
-
-Fixes: de63ad4cf4973 ("KVM: X86: implement the logic for spinlock optimization")
+Fixes: 2bb8cafea80bf ("KVM: vVMX: signal failure for nested VMEntry if emulation_required")
+Fixes: 3184a995f782c ("KVM: nVMX: fix vmentry failure code when L2 state would require emulation")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923184452.980-2-sean.j.christopherson@intel.com>
+Message-Id: <20200923184452.980-4-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
 diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index e8048e01c044..2e0f9dbc0ab6 100644
+index 321a6790ad9f..e004ab8c2ea6 100644
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -2411,6 +2411,8 @@ static void prepare_vmcs02_rare(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
- 		vmcs_writel(GUEST_TR_BASE, vmcs12->guest_tr_base);
- 		vmcs_writel(GUEST_GDTR_BASE, vmcs12->guest_gdtr_base);
- 		vmcs_writel(GUEST_IDTR_BASE, vmcs12->guest_idtr_base);
-+
-+		vmx->segment_cache.bitmask = 0;
+@@ -2576,7 +2576,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+ 	 * which means L1 attempted VMEntry to L2 with invalid state.
+ 	 * Fail the VMEntry.
+ 	 */
+-	if (vmx->emulation_required) {
++	if (CC(!vmx_guest_state_valid(vcpu))) {
+ 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
+ 		return -EINVAL;
  	}
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 68b9a9b3661c..d87c8d2892ca 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -337,7 +337,6 @@ static const struct kernel_param_ops vmentry_l1d_flush_ops = {
+ };
+ module_param_cb(vmentry_l1d_flush, &vmentry_l1d_flush_ops, NULL, 0644);
  
- 	if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
+-static bool guest_state_valid(struct kvm_vcpu *vcpu);
+ static u32 vmx_segment_access_rights(struct kvm_segment *var);
+ static __always_inline void vmx_disable_intercept_for_msr(unsigned long *msr_bitmap,
+ 							  u32 msr, int type);
+@@ -1340,7 +1339,7 @@ static void vmx_vcpu_put(struct kvm_vcpu *vcpu)
+ 
+ static bool emulation_required(struct kvm_vcpu *vcpu)
+ {
+-	return emulate_invalid_guest_state && !guest_state_valid(vcpu);
++	return emulate_invalid_guest_state && !vmx_guest_state_valid(vcpu);
+ }
+ 
+ unsigned long vmx_get_rflags(struct kvm_vcpu *vcpu)
+@@ -3402,11 +3401,8 @@ static bool cs_ss_rpl_check(struct kvm_vcpu *vcpu)
+  * not.
+  * We assume that registers are always usable
+  */
+-static bool guest_state_valid(struct kvm_vcpu *vcpu)
++bool __vmx_guest_state_valid(struct kvm_vcpu *vcpu)
+ {
+-	if (is_unrestricted_guest(vcpu))
+-		return true;
+-
+ 	/* real mode guest state checks */
+ 	if (!is_protmode(vcpu) || (vmx_get_rflags(vcpu) & X86_EFLAGS_VM)) {
+ 		if (!rmode_segment_valid(vcpu, VCPU_SREG_CS))
+diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
+index 60bb7a125f0b..e87fae204d3d 100644
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -321,6 +321,7 @@ void vmx_get_segment(struct kvm_vcpu *vcpu, struct kvm_segment *var, int seg);
+ void vmx_set_segment(struct kvm_vcpu *vcpu, struct kvm_segment *var, int seg);
+ u64 construct_eptp(struct kvm_vcpu *vcpu, unsigned long root_hpa,
+ 		   int root_level);
++
+ void update_exception_bitmap(struct kvm_vcpu *vcpu);
+ void vmx_update_msr_bitmap(struct kvm_vcpu *vcpu);
+ bool vmx_nmi_blocked(struct kvm_vcpu *vcpu);
+@@ -472,6 +473,12 @@ static inline bool is_unrestricted_guest(struct kvm_vcpu *vcpu)
+ 	    SECONDARY_EXEC_UNRESTRICTED_GUEST));
+ }
+ 
++bool __vmx_guest_state_valid(struct kvm_vcpu *vcpu);
++static inline bool vmx_guest_state_valid(struct kvm_vcpu *vcpu)
++{
++	return is_unrestricted_guest(vcpu) || __vmx_guest_state_valid(vcpu);
++}
++
+ void dump_vmcs(void);
+ 
+ #endif /* __KVM_X86_VMX_H */
 
