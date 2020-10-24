@@ -2,82 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A53EF297D75
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 18:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF3C297D79
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 18:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760388AbgJXQ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 12:27:49 -0400
-Received: from mga18.intel.com ([134.134.136.126]:49816 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760111AbgJXQ1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 24 Oct 2020 12:27:48 -0400
-IronPort-SDR: GB9ympbJs4IqkzUlPd+XTSG5YdzL9rP7rELDxZZinI0+9Mww4lRs3mw2clC2b0NGMfj0+wJVwz
- JX6MOp7M1+WQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9784"; a="155568293"
-X-IronPort-AV: E=Sophos;i="5.77,412,1596524400"; 
-   d="scan'208";a="155568293"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2020 09:27:48 -0700
-IronPort-SDR: q/d4CGkNYsO2YETvtlAgGKKbbVKRamwEtUfMYy3pMEPizZxoUnFSU1CAKAzr7noqKuzqXxxXLV
- TpJm+LhjjdPQ==
-X-IronPort-AV: E=Sophos;i="5.77,412,1596524400"; 
-   d="scan'208";a="534797141"
-Received: from chenyu-office.sh.intel.com ([10.239.158.173])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2020 09:27:46 -0700
-From:   Chen Yu <yu.c.chen@intel.com>
-To:     Len Brown <lenb@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Chen Yu <yu.c.chen@intel.com>,
-        "5 . 6+" <stable@vger.kernel.org>
-Subject: [PATCH] intel_idle: Fix max_cstate for processor models without C-state tables
-Date:   Sun, 25 Oct 2020 00:29:53 +0800
-Message-Id: <20201024162953.14142-1-yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1761836AbgJXQbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 12:31:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43852 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761824AbgJXQbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 12:31:17 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A28AC0613CE
+        for <stable@vger.kernel.org>; Sat, 24 Oct 2020 09:31:17 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id x13so3620367pfa.9
+        for <stable@vger.kernel.org>; Sat, 24 Oct 2020 09:31:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=D1K+9umwD9L/sNLEEBns0jtcnuXztPU9GQeYntlCLQs=;
+        b=LdB+MGl5FgQsxYCv+bRMt3l3JnV8MNNoP7bLzLgOBDuZatTmmiZQ65csgeMCyUJgpR
+         r8pSycsIKmbZTDKvJduRPwDNRFot9590cOPFbWW5FdigdWbK5oEglaAfRuraqgCYXEcE
+         HnpeEfNsV1rnIl8FYI0I9X+caN449Mhsguejw1vV3aYBPc/u5FAuneuDUXPFQAzKZHaq
+         dK6+XZCSm2x9Zg1Y/GhfW52V+8Nu4rKht9vT7K2jrieVvo7MeCetcnx3Bw4cYjMEkkL3
+         U2AUqlvJrt2G93swFQUj4c4A7EG5ohIDDvTLN/qW/JGkF20FRpHIOnxaIRusgRQgOnZo
+         AtGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=D1K+9umwD9L/sNLEEBns0jtcnuXztPU9GQeYntlCLQs=;
+        b=nVwLAzJfOdFyBpmF5ETKzHBEG7alr0n8TH8wROxMDIiIgU+yQx64yGCrn/Nu1swLB3
+         /+g9391fBWWzSobqjqJY3SclSL1A+goFTTVF3e3yROG/kLpGKANce0JnxvI2YTsL/ovc
+         NvYi+rh1d8EOEoIMJeSr1hlEi5iGk3t+/3ZFV1UeMop/BhYXcPnnYQYwfAx3OOxJ98Ih
+         4XMKtpT15EjQ51TkApUTRgylbEF1S9yScjg110d5A/8fdadx80Pn+nspgxCIzoyYpZs9
+         ag1bZ7hk+Xe7i4Z1MGHBONi0Xk4EwpRIPoBMpb/WS1Ftdy3gnC+0d5Pg/xx+4lyMnGW1
+         +vmA==
+X-Gm-Message-State: AOAM532gGJC3rh1VkBtS8AvNxxCTYDDGNnmsgIEnaecowSomAn7HFzWd
+        FhKODhLyaMNFcJdFoWuwuGYzTL28zYsY+g==
+X-Google-Smtp-Source: ABdhPJwWJr8+CPgwc4bjT/8BdGS9idvb0q+FAZECm6CAZZdCAdNhBRHyOITygl/YkQjhJ6sNXNTrUQ==
+X-Received: by 2002:a63:1d12:: with SMTP id d18mr7738900pgd.314.1603557076716;
+        Sat, 24 Oct 2020 09:31:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id kc21sm6749161pjb.36.2020.10.24.09.31.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 24 Oct 2020 09:31:15 -0700 (PDT)
+Message-ID: <5f9456d3.1c69fb81.d9650.bbae@mx.google.com>
+Date:   Sat, 24 Oct 2020 09:31:15 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.8.16-80-ge394f106fdb6
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.8.y
+Subject: stable-rc/linux-5.8.y baseline: 126 runs,
+ 1 regressions (v5.8.16-80-ge394f106fdb6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently intel_idle driver gets the c-state information from ACPI
-_CST if the processor model is not recognized by it. However the
-c-state in _CST starts with index 1 which is different from the
-index in intel_idle driver's internal c-state table. While
-intel_idle_max_cstate_reached() was previously introduced to
-deal with intel_idle driver's internal c-state table, re-using
-this function directly on _CST might get wrong. Fix this by
-subtracting the index by 1 when checking max cstate via _CST.
-For example, append intel_idle.max_cstate=1 in boot command line,
-Before the patch:
-grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/name
-POLL
-After the patch:
-grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/name
-/sys/devices/system/cpu/cpu0/cpuidle/state0/name:POLL
-/sys/devices/system/cpu/cpu0/cpuidle/state1/name:C1_ACPI
+stable-rc/linux-5.8.y baseline: 126 runs, 1 regressions (v5.8.16-80-ge394f1=
+06fdb6)
 
-Fixes: 18734958e9bf ("intel_idle: Use ACPI _CST for processor models without C-state tables")
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Cc: 5.6+ <stable@vger.kernel.org> # 5.6+
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
- drivers/idle/intel_idle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Regressions Summary
+-------------------
 
-diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
-index 9a810e4a7946..dbd4be1c271b 100644
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -1236,7 +1236,7 @@ static void __init intel_idle_init_cstates_acpi(struct cpuidle_driver *drv)
- 		struct acpi_processor_cx *cx;
- 		struct cpuidle_state *state;
- 
--		if (intel_idle_max_cstate_reached(cstate))
-+		if (intel_idle_max_cstate_reached(cstate - 1))
- 			break;
- 
- 		cx = &acpi_state_table.states[cstate];
--- 
-2.17.1
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.8.y/kern=
+el/v5.8.16-80-ge394f106fdb6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.8.y
+  Describe: v5.8.16-80-ge394f106fdb6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e394f106fdb6a465ecf4e0de3ed79c8c3c41e380 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f94225ef65be3cd7a381027
+
+  Results:     68 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.8.y/v5.8.16-=
+80-ge394f106fdb6/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.8.y/v5.8.16-=
+80-ge394f106fdb6/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.cros-ec-keyb-probed: https://kernelci.org/test/case/id/=
+5f94225ef65be3cd7a381030
+        new failure (last pass: v5.8.16-30-gcfc6983c9555)
+
+    2020-10-24 12:46:55.878000+00:00  <8>[   14.907794] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Dcros-ec-keyb-probed RESULT=3Dfail>   =
+
+ =20
