@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99380297BE3
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 12:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F3E297BE4
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 12:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758524AbgJXKhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 06:37:20 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55591 "EHLO
+        id S1760996AbgJXKh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 06:37:29 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:36905 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1760995AbgJXKhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 06:37:19 -0400
+        by vger.kernel.org with ESMTP id S1760995AbgJXKh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 06:37:28 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 80F9DB26;
-        Sat, 24 Oct 2020 06:37:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 24 Oct 2020 06:37:18 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id B6A4B607;
+        Sat, 24 Oct 2020 06:37:27 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 24 Oct 2020 06:37:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/Ue9sO
-        CtI/kzRqNSUno+dgeKr5azkZT+gm7IH3dCiMw=; b=CUnhHXAYdmjh2PTqVdO2mQ
-        2eiNQ4ex2d2AodVUWg6vNgwovf9Fs0U8Di93qAzfvWLZj9mSxyjigVW2p+XExAX7
-        U2I7CxqL+xccLr5mUD7mSXAOXggcHrEbjSKEtsikK1eq1gXI/x14qNWK1ttUUrWj
-        g5bmO6mnDjPfF/pkKgjAs0v6AbovGXjQl0T6PfVkPbqyzEWXj4iAf7tQAdNrQYkd
-        8M9nV0jjvLxqSSd3jkVAwTMO1hTzz+dSwFkDBTuCEbqCEUPdmW9E//wSQy2lK97T
-        y0dLOTkh6h+su82ZzII37EQ15vQhNd8TpNlOsiPEVlu5yTkUZ+58c0xL62I38p1A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=grk92e
+        i/nRHsmFdNg7JFf4g5MXM2Awz8mGLyx/LIw1Y=; b=fRUoburhKZfBindnak5w9l
+        WUPXThg20CAKeF4CFpWzviBJHV8tW9w7pNUq2FGkb+up8f9317gFA9abZjJM9Fgs
+        Nv96eESatM6wERRf/9PyR+PIEusWUBrqFWgJnJUyiZB72W+cPItRmChF6VoSsA5m
+        YsGO8K+TRVTT6bkuffemBC6ANQG6dRWxqfOUalzEHKVAytH+VqFqt8u2mii72LXm
+        f1DiewVyowTLZ2LFY1HG0LAChQppGT/3kTeec6g+UR2o1e4W3eDs/2mcc6TWzCvd
+        Qko++3OGokT2JPgq8Jp7p+wgSQiqZIqisoe0WYcJoqOrAPjlmn0ChENZEfJfc8WA
         ==
-X-ME-Sender: <xms:3gOUXx4qCKOoT8S4lQ1tDtOo0oaKSdqZ0-8W1Jk8i6G9ND_n4yV2yg>
-    <xme:3gOUX-7-7t9oAGOyUH2Ks02jLcGIrBbGo-oQkTOuEhQlMd2TU_CJ-Mx9rJLbwZc3L
-    FpHTkWET-WxlA>
+X-ME-Sender: <xms:5wOUX-N_lgmNKhCobqmmHIjl-riTZLs_mLow418fXfGowUo0FfTqhA>
+    <xme:5wOUX8-BNFOnGcac0C0qyzlNDf1kjqJl28EQVgHJJ7f7NlnrVlV2zG7OdhdDBD3kh
+    R2oahCBB3s0HQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgdefudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeetffffleevkeffteehtedvudetgfekhefhfedvtdfgue
-    fhjedtjeethfffkefhjeenucffohhmrghinhepohhprdguohenucfkphepkeefrdekiedr
-    jeegrdeigeenucevlhhushhtvghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:3gOUX4e3lHDfzoA5tr7KpeZWp6aAzkrQxpvBbSL7n38Y_edqBiDHdA>
-    <xmx:3gOUX6LajBOgda9TsKtW1xvfysJYDr5aAhiZPzK_kWfYGj5WM9Zvnw>
-    <xmx:3gOUX1JnAiVo-GSfR3ouEjm_69fdhJr5vwVondAgcTRTdTAEHz1Ziw>
-    <xmx:3gOUXzjYs1Pw9RyZVw66ydOOycficWxwNY62FeFgHlk9eTfGinlShXCGgjA>
+    qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
+    dufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:5wOUX1SXL75N3PsJ-4gKzG0HPNYnQx_UqLiIWJqRKuyZyRwZj1UcVg>
+    <xmx:5wOUX-tSjFpIEtc9SUKE7o0R2lqr9AeqlTnYEIZwJuLx1zCBkiXwHA>
+    <xmx:5wOUX2c0Jhcg2MooEYwAZUlI4A4SLP8qA6ly3sCNikAytoEgIikT8w>
+    <xmx:5wOUX6Gw5N_3SzfKyfwsX8DN24rzT-vtwsvJvTR-6Ex3UG6WzQpnuP6syzU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BC5423064610;
-        Sat, 24 Oct 2020 06:37:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: caam/jr - add fallback for XTS with more than 8B IV" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DAF1E328005D;
+        Sat, 24 Oct 2020 06:37:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: caam/jr - add support for more XTS key lengths" failed to apply to 5.8-stable tree
 To:     andrei.botila@nxp.com, herbert@gondor.apana.org.au,
         horia.geanta@nxp.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Oct 2020 12:37:45 +0200
-Message-ID: <16035358655841@kroah.com>
+Date:   Sat, 24 Oct 2020 12:38:01 +0200
+Message-ID: <160353588112059@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,17 +71,18 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9d9b14dbe077c8704d8c3546e38820d35aff2d35 Mon Sep 17 00:00:00 2001
+From c91f734862664ca86dc3ee7e55f199e2bde829e4 Mon Sep 17 00:00:00 2001
 From: Andrei Botila <andrei.botila@nxp.com>
-Date: Tue, 22 Sep 2020 19:03:19 +0300
-Subject: [PATCH] crypto: caam/jr - add fallback for XTS with more than 8B IV
+Date: Tue, 22 Sep 2020 19:03:22 +0300
+Subject: [PATCH] crypto: caam/jr - add support for more XTS key lengths
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-A hardware limitation exists for CAAM until Era 9 which restricts
-the accelerator to IVs with only 8 bytes. When CAAM has a lower era
-a fallback is necessary to process 16 bytes IV.
+CAAM accelerator only supports XTS-AES-128 and XTS-AES-256 since
+it adheres strictly to the standard. All the other key lengths
+are accepted and processed through a fallback as long as they pass
+the xts_verify_key() checks.
 
 Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
 Cc: <stable@vger.kernel.org> # v4.4+
@@ -89,168 +90,52 @@ Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
 Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-diff --git a/drivers/crypto/caam/Kconfig b/drivers/crypto/caam/Kconfig
-index bc35aa0ec07a..dfeaad8dfe81 100644
---- a/drivers/crypto/caam/Kconfig
-+++ b/drivers/crypto/caam/Kconfig
-@@ -101,6 +101,7 @@ config CRYPTO_DEV_FSL_CAAM_CRYPTO_API
- 	select CRYPTO_AUTHENC
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_DES
-+	select CRYPTO_XTS
- 	help
- 	  Selecting this will offload crypto for users of the
- 	  scatterlist crypto API (such as the linux native IPSec
 diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
-index 91feda5b63f6..adb2c05a8bde 100644
+index adb2c05a8bde..a79b26f84169 100644
 --- a/drivers/crypto/caam/caamalg.c
 +++ b/drivers/crypto/caam/caamalg.c
 @@ -57,6 +57,7 @@
  #include "key_gen.h"
  #include "caamalg_desc.h"
  #include <crypto/engine.h>
-+#include <asm/unaligned.h>
++#include <crypto/xts.h>
+ #include <asm/unaligned.h>
  
  /*
-  * crypto alg
-@@ -114,10 +115,12 @@ struct caam_ctx {
+@@ -115,6 +116,7 @@ struct caam_ctx {
  	struct alginfo adata;
  	struct alginfo cdata;
  	unsigned int authsize;
-+	struct crypto_skcipher *fallback;
++	bool xts_key_fallback;
+ 	struct crypto_skcipher *fallback;
  };
  
- struct caam_skcipher_req_ctx {
- 	struct skcipher_edesc *edesc;
-+	struct skcipher_request fallback_req;
- };
- 
- struct caam_aead_req_ctx {
-@@ -830,12 +833,17 @@ static int xts_skcipher_setkey(struct crypto_skcipher *skcipher, const u8 *key,
- 	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
- 	struct device *jrdev = ctx->jrdev;
+@@ -835,11 +837,15 @@ static int xts_skcipher_setkey(struct crypto_skcipher *skcipher, const u8 *key,
  	u32 *desc;
-+	int err;
+ 	int err;
  
- 	if (keylen != 2 * AES_MIN_KEY_SIZE  && keylen != 2 * AES_MAX_KEY_SIZE) {
+-	if (keylen != 2 * AES_MIN_KEY_SIZE  && keylen != 2 * AES_MAX_KEY_SIZE) {
++	err = xts_verify_key(skcipher, key, keylen);
++	if (err) {
  		dev_dbg(jrdev, "key size mismatch\n");
- 		return -EINVAL;
+-		return -EINVAL;
++		return err;
  	}
  
-+	err = crypto_skcipher_setkey(ctx->fallback, key, keylen);
-+	if (err)
-+		return err;
++	if (keylen != 2 * AES_KEYSIZE_128 && keylen != 2 * AES_KEYSIZE_256)
++		ctx->xts_key_fallback = true;
 +
- 	ctx->cdata.keylen = keylen;
- 	ctx->cdata.key_virt = key;
- 	ctx->cdata.key_inline = true;
-@@ -1755,6 +1763,14 @@ static int skcipher_do_one_req(struct crypto_engine *engine, void *areq)
- 	return ret;
- }
- 
-+static inline bool xts_skcipher_ivsize(struct skcipher_request *req)
-+{
-+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
-+	unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
-+
-+	return !!get_unaligned((u64 *)(req->iv + (ivsize / 2)));
-+}
-+
- static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
- {
- 	struct skcipher_edesc *edesc;
-@@ -1768,6 +1784,21 @@ static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
+ 	err = crypto_skcipher_setkey(ctx->fallback, key, keylen);
+ 	if (err)
+ 		return err;
+@@ -1784,7 +1790,8 @@ static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
  	if (!req->cryptlen)
  		return 0;
  
-+	if (ctx->fallback && xts_skcipher_ivsize(req)) {
-+		struct caam_skcipher_req_ctx *rctx = skcipher_request_ctx(req);
-+
-+		skcipher_request_set_tfm(&rctx->fallback_req, ctx->fallback);
-+		skcipher_request_set_callback(&rctx->fallback_req,
-+					      req->base.flags,
-+					      req->base.complete,
-+					      req->base.data);
-+		skcipher_request_set_crypt(&rctx->fallback_req, req->src,
-+					   req->dst, req->cryptlen, req->iv);
-+
-+		return encrypt ? crypto_skcipher_encrypt(&rctx->fallback_req) :
-+				 crypto_skcipher_decrypt(&rctx->fallback_req);
-+	}
-+
- 	/* allocate extended descriptor */
- 	edesc = skcipher_edesc_alloc(req, DESC_JOB_IO_LEN * CAAM_CMD_SZ);
- 	if (IS_ERR(edesc))
-@@ -1905,6 +1936,7 @@ static struct caam_skcipher_alg driver_algs[] = {
- 			.base = {
- 				.cra_name = "xts(aes)",
- 				.cra_driver_name = "xts-aes-caam",
-+				.cra_flags = CRYPTO_ALG_NEED_FALLBACK,
- 				.cra_blocksize = AES_BLOCK_SIZE,
- 			},
- 			.setkey = xts_skcipher_setkey,
-@@ -3344,13 +3376,35 @@ static int caam_cra_init(struct crypto_skcipher *tfm)
- 	struct caam_skcipher_alg *caam_alg =
- 		container_of(alg, typeof(*caam_alg), skcipher);
- 	struct caam_ctx *ctx = crypto_skcipher_ctx(tfm);
--
--	crypto_skcipher_set_reqsize(tfm, sizeof(struct caam_skcipher_req_ctx));
-+	u32 alg_aai = caam_alg->caam.class1_alg_type & OP_ALG_AAI_MASK;
-+	int ret = 0;
+-	if (ctx->fallback && xts_skcipher_ivsize(req)) {
++	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
++			      ctx->xts_key_fallback)) {
+ 		struct caam_skcipher_req_ctx *rctx = skcipher_request_ctx(req);
  
- 	ctx->enginectx.op.do_one_request = skcipher_do_one_req;
- 
--	return caam_init_common(crypto_skcipher_ctx(tfm), &caam_alg->caam,
--				false);
-+	if (alg_aai == OP_ALG_AAI_XTS) {
-+		const char *tfm_name = crypto_tfm_alg_name(&tfm->base);
-+		struct crypto_skcipher *fallback;
-+
-+		fallback = crypto_alloc_skcipher(tfm_name, 0,
-+						 CRYPTO_ALG_NEED_FALLBACK);
-+		if (IS_ERR(fallback)) {
-+			dev_err(ctx->jrdev, "Failed to allocate %s fallback: %ld\n",
-+				tfm_name, PTR_ERR(fallback));
-+			return PTR_ERR(fallback);
-+		}
-+
-+		ctx->fallback = fallback;
-+		crypto_skcipher_set_reqsize(tfm, sizeof(struct caam_skcipher_req_ctx) +
-+					    crypto_skcipher_reqsize(fallback));
-+	} else {
-+		crypto_skcipher_set_reqsize(tfm, sizeof(struct caam_skcipher_req_ctx));
-+	}
-+
-+	ret = caam_init_common(ctx, &caam_alg->caam, false);
-+	if (ret && ctx->fallback)
-+		crypto_free_skcipher(ctx->fallback);
-+
-+	return ret;
- }
- 
- static int caam_aead_init(struct crypto_aead *tfm)
-@@ -3378,7 +3432,11 @@ static void caam_exit_common(struct caam_ctx *ctx)
- 
- static void caam_cra_exit(struct crypto_skcipher *tfm)
- {
--	caam_exit_common(crypto_skcipher_ctx(tfm));
-+	struct caam_ctx *ctx = crypto_skcipher_ctx(tfm);
-+
-+	if (ctx->fallback)
-+		crypto_free_skcipher(ctx->fallback);
-+	caam_exit_common(ctx);
- }
- 
- static void caam_aead_exit(struct crypto_aead *tfm)
-@@ -3412,8 +3470,8 @@ static void caam_skcipher_alg_init(struct caam_skcipher_alg *t_alg)
- 	alg->base.cra_module = THIS_MODULE;
- 	alg->base.cra_priority = CAAM_CRA_PRIORITY;
- 	alg->base.cra_ctxsize = sizeof(struct caam_ctx);
--	alg->base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY |
--			      CRYPTO_ALG_KERN_DRIVER_ONLY;
-+	alg->base.cra_flags |= (CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY |
-+			      CRYPTO_ALG_KERN_DRIVER_ONLY);
- 
- 	alg->init = caam_cra_init;
- 	alg->exit = caam_cra_exit;
+ 		skcipher_request_set_tfm(&rctx->fallback_req, ctx->fallback);
 
