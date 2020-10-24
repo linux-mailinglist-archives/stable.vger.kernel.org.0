@@ -2,128 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC040297E88
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 22:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1A6297F73
+	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 00:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1764526AbgJXUty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 16:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1764525AbgJXUtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 16:49:53 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EED0C0613CE
-        for <stable@vger.kernel.org>; Sat, 24 Oct 2020 13:49:52 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id w21so3844201pfc.7
-        for <stable@vger.kernel.org>; Sat, 24 Oct 2020 13:49:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3F72j+rbg/9m36/kyblcuHGgXPUVnYJ/RGqW9Gxv7PY=;
-        b=s7T/Ak6XQsTH7e7IhjU90BmTibQtzlcFH2Fh0S7pbtF7KAjRuvvvfZaJJpbr/cBIa+
-         z7U6TGywP2YwUXaupSXRd4YoJ7Y0hCjfJGh6l2HhTMMNpd9VX1y9n5ebm+V5elHCye+s
-         O16CFrDJy77NTNzlnD5hWQGqUOfjO505zxN41u1bqNG2uF+vmQWMto89ZiRBeYG/iQ2V
-         Ot9tFjDAy/3Ix/14XP+dZebXjaGXOHpcqEOPeFIFOtb7VSCpURIx4e0VQJakK5dUl93f
-         x/oVYXe+MMEzwL9+Ro8JeQcj4etzLuaKEZkgrjGVq8bMbiKMaC08cm+Mp25D1RkiT0uG
-         eqJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3F72j+rbg/9m36/kyblcuHGgXPUVnYJ/RGqW9Gxv7PY=;
-        b=uOETwfvBPHiX+Trhx/X0pm5m7XX+XNmQQHAzp3yOyn6G5QdbIyDpdtqUzs6jJAePD8
-         4fKFI2zrQK+h7b9fKke4UZKVIsRzHHkF8w02VMnX6WdMg+qY/zRoiapxnrwogEkdqmxr
-         6f2tLsh+xp27GirgloWFr6nmAQ3PImvg2vqU8voR4nEHPRB0klTYXV0NJFL+Bym/OAvi
-         741Sjuea0bH38VFRznTP8o5NH9ds4R73ew6be+P069n0p86bRItelGUU5xDAxTh3M5p8
-         S4swqZRCMQCf/7zWK10HwsI30IoxGmPxpbY50nclM1b78XQp29kDJs/ITe4vIS6Yv5O9
-         OHHQ==
-X-Gm-Message-State: AOAM530CxQz3hlaMX3f4HFtwTJml36VepreQQy1Jp6gSXyXipgBQUSlE
-        gXORjewYE5GNXpoWYb/kh0u/mrVOa1O8uw==
-X-Google-Smtp-Source: ABdhPJyjj+f2jb5NNK6IYG9RtReFrwQ+w6y+pJ5CmUBkRb4UynBOLEn+aqBwGDanBU3t0V5UAnN58w==
-X-Received: by 2002:a62:d418:0:b029:152:8812:8e47 with SMTP id a24-20020a62d4180000b029015288128e47mr4663855pfh.40.1603572591484;
-        Sat, 24 Oct 2020 13:49:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j15sm6374619pgn.32.2020.10.24.13.49.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Oct 2020 13:49:50 -0700 (PDT)
-Message-ID: <5f94936e.1c69fb81.b04c5.aacd@mx.google.com>
-Date:   Sat, 24 Oct 2020 13:49:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1762608AbgJXWdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 18:33:13 -0400
+Received: from sonic306-3.consmr.mail.bf2.yahoo.com ([74.6.132.42]:42096 "EHLO
+        sonic306-3.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1762538AbgJXWdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 18:33:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603578791; bh=qFbuKRmrzUWd5SE3tGcypHHoWywgg3aF/p/xNRx13LQ=; h=Date:From:Reply-To:Subject:References:From:Subject; b=UPM5fiiVMMPIxWJlHqJvEI1SGCfrJNt1K916GmD3sr7fxAW5KEPyfDh8ehs6mbvJOn3PLn39WYggUHyY66V5M6wnAEwb/n/aSlg+DYiguX03YPIBIuwxfdGmk/912Fx49dzE3SdahE/z8PSsJZWwt7dkLhlZZoKrjhCIJ5CkXUSW0K/34LWY3r4mxddnk3GcHJ1a7TAuxyxMQcZKXAxnIbW1F7ySzT0asc77IIQAkp+cmASNK6/3gGu/mbQKcRCm7dohqyBu+Q1kLYZQjp3Uj422rcm2wbkDggqV/P1Cu1EKKhorX0MSb9CqMi4k2feGXezhXT/KMi8DaRlv+9nb1w==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603578791; bh=bVKuYW8Rz8PQkAWAKu5dxRLtbuU36MwINeQwXGbejRx=; h=Date:From:Subject; b=K43KivUm8LGSYHm4cqQxzR9O5ZuNQry/LW4hNznjvYOcZaJ/WIaeyuGJUvmuw5j6GCxOXiIl9uaXSJA8qUkUJ56Yy04YgO2HQt7yBv/3VNvrhioW6KcEigQcdJoe8B0MhsdZnyc9xh1Y3Y9YaGE1cpWPM1U3C9YRXxYYu4gztCLaHrMekENBC28mkfJpTSPPpwBFwFWi1ys+GltBOvVUiRITnOkQqdFxdvdws+8nu3HlXye7bIgKEoZ/RffRcMfb+kfGOlZEEDt385s1NyOsu88zLJTaUK/3sdpT0rOzFC3+kwX9M4LOqdKl9dwu3gTFFUqQgy2k3lLq/2/w3m1SaA==
+X-YMail-OSG: H07GPSQVM1mvdTZlJ63idVWeUXxhrFDWVoMZUAzFWY0_VO4d7v21Tkck9saHsPD
+ 3bB0wduGMGP7VV4PTv8yA7uFEgrEwsKYTt6crHxw.t5ea786bOFTL8ihxdWnwuMMWhMlKZtwagPP
+ QJ0_eWNJ69714zr7y0Sao.TdMUFjoBH4oMUFZeIfgIiV65Iea_URJCI8mWvnxAM1UbmjJMt7lcnI
+ 5MEHJyq19AECtyxv1dGgbzvk0bMo7zr0qDedqd9H44FOL7JFDJsxouN9Z5eGRWLQmRKcQXxFBL1N
+ ISP9SFm05XaED.43eKsZDHrN4GThkKOhKWPY96oy8iDVNHWpMSe4JHp_fhAqRlMngCwdO.qn7SPa
+ v6riE1zaFb.gtSBnNtxmJT_7knv2.A95mSkiDilNZsxzh2tdt7Ad.BrF9.S6mJU8rRwuK8G9xprT
+ UTFjy0DGwv6Qe9pNQbjiLJqJr_b.9MmeyMz0JU7whRcnd4clq3.rz8_GwZWZ0ATs5gvI.E3otyUS
+ Le.XpR8h7fclIgP.IXXUUdbf4LNrUdrSgQF2hDs_sq9ZujKpIsOWNyFw4KPAiY7pSmh_S7L0TCDl
+ yOkzi9mxX7jVBWv9ScWwjiOLNxspSZFXshzucAdyjrFyXv2y29nl4eJU9Kc6AYv59WgzW8rbsRk_
+ QG4ihZ3paKo_7CgdU6SjbB3HwMBn1rmnYUlFsZWVxyUaxJD5keRpwvk5ypZt2YZTheaSNXfJvVNC
+ etNpNtdbUKm8xEgJKWvXkobGOV1Hs3ugJOiITK2sDtEVAgeo5GH6tqGz6FvoEIeCNHqvGDpJzdun
+ YQpRzMlyMnmRVMYQ6OHd0.lLOKMd3s7PZBfgfu.zvih9rFMzK2TS9CgWX4tuvPNhStQIMQ0BtIgF
+ czI13Yh1qITWscwXhH2E.hKUrPpVjIOZf5ssySGvEPYHax8RoaMOGfviN5WOdS.EvRD3ZoEdneb4
+ tFZQfxdquD60FZNK46O0xOGuBHa0gihkf.JxFv5hiP4Tp3sdhUGiQSfz3M1KBLmBjQ25WngxhsYU
+ rUzngsQ4e3utkQDz8B74rMcO16WZ1kxQxVD3vDRWiNZHnph0jlEOzJMg8k1NerlgRervLJDK1Uev
+ xdMB9bkHuRecCwIxdFwotGs3Cec84KOW9txZ4EeTV3sL_2P5epXay9aVCWNCYGyeuZR2vNgZm32C
+ 3N20KR9vpm.tkX4y65LkTGz3Oyk0NMel0NILdcwxssQ_Ct42NyNE6KOqvFDKrT5VRRbh4kUxP1VX
+ VwO5.q0RtabyTNceDhu5uqNPxUkqFmDqMwKjNTLSce0HLiuXt2ODJmB7rVeMWQmESY8y9N6JLx2k
+ ubbpSS9gVK40_kdEFhFYtRXboq9I_HDYGH2eqfbzThNJAlfhWkJBLXS4iQ5S0aMXF4YtucKfohZX
+ EVgIN1uxOYh.oSPKzXUN.JMA538PrTpyVs3lau_nOpe6dhggfLxhSXd9seObfSSeELNbFSGoIezh
+ sgVOrHOE0i7yWf2C43G1t4vLR3H8.cvFzfk.OdL0nsXmzkRLldSgtHc7C7CMsQ8DHopuXWuca46h
+ nuRqXSVjGQ80RMXAVfyZ9rukAMryQ3yqx5_gG4UcVOGR_Vjkcdemn45kP2NcVtOcOqDaVaufbGHr
+ .sX967K8hHi3DmEXiTMOGjcYp.Hw1yqjhtVmml3f81bBOBXE0fkvtsgWhQZSUb1f4O3vZ49zhhhn
+ uXAgVtZuTXrmQq0Hn.xNQgiB1JVmsYUrCSiU30NaU_oyuhfFoV6vhLvy0fSkTNQvwGz1XnGqi5E0
+ tdn9WKKTpGporC1eJfoVmNVzSW8Kyuv27quaM4MB6nMdET43cnDuIJCFuUYoUgtfZjSGbG54KKhC
+ txIlasYb7eTdZlGv3hL7OO2.HXLnsvqz_Cpk1TPQSa4jQ4uEGy2Dk7q87keuGEGdh1Ke7tQvdh.7
+ 0hlIrHgPZEqDpjdFM8N7vld_Arco0uI.DEpNh44dvlp9mrNhuAenEgYnvhHsJU7KPYW4SAdwKAUI
+ a9Jl8iRWwXRcz0Zl2RTKTsbIn3diXRDbbJXRKB8Tqt63tcJ15dROWfN5vaAvpy5_wEXU5HcPaVrK
+ ZfgveFhGGNHi0ElMxr1WqQ9vKGpeR9ZlnctG5OF05ZpCL7mTJOri5PAP2cjkiOcSpaRzEtEzthEg
+ aUEqSlR5mXzzF5920YIhvsdO1ZRVJFY16S7r6GVqehyZ5hTRAG7FJHN.Ka8OsJZuki03vMNYT1pD
+ Cx4uBQJ82wfMsJ0mbAu3eUu0zq1wDUk653IMAv8zkn5ZQkyCKY2Wyw_HkYg5wjv474WIFwIp7_Ve
+ mrcrL29qTl7P1F3LLuyQ1vcKsRllcz3PdNzWcAK7HItwsD3E5462zZnhVPVnKd8xEt9p5ZXpXkM4
+ kHS4tFOmuSG6_mRA8JlQ0iAaIShtY9D988LRvyA_Ao1s3DDUUzua_0N84QlNN2qL2QVHV9Z.X4R2
+ AF7co7UceVig4RY.MwlUaqXuotoPaa9_or_jhB9XokLBNn9bL4u5hT7NiGItb4.lK6mQ6raZPgIj
+ HbMaV77WYS_rmS9LAi4RmulXR.2mqT3x2gVsJ5Eme1pzgxScV5TGyPe35y3FfUB.MnNADPNFEDra
+ QUThb26JNyR0xsfjeOSK5EaWTrTI1RzOgFLfW6VgQmvDU3AID5XIJBmhA7nNEmUpfxvdewybdbWn
+ 38skY0B.SOCJ0Y7air.QRVsvJfURnXcTYIMUF8el_y8rmNkEi_fOAdu6EbaUShwhx0ghYpry6FHC
+ _poxOXTK4Vd7Z8LTSb71R22JlqFk5hZKZ9j.SUpg0clFw5.YR_DN4Yxfk3L.DSGNdebAjudD6Y4F
+ VoVcUWG20ZzPkGlQiRkmE_hl0ARRrdvEImu7.oqdPNbMfHnIUQYsiHpywdI2LvuhbkLxyLCEJ0rO
+ cKGA_LHFI6NokppNicva2hvxmuE4F4tWOlaG79zEe4Y5kXzUsfRRtZ4Rd3BiPefQHEbarnPh6.3D
+ ABoeyev_QXJC1wrAI6Z8iUDjIMzuY9cIllw2YVf1xOlneFBoDzqq8mSpjyo2U4_KmHiA3dsIaZo0
+ 2NnYGkwKkDmTLp.d.YtfCXudJDPldJTXxKbzKP1oEQGAoMYqmNh4hhSVYhepx45Js7dDC5I9Ijf9
+ LN2HFIziBC..XIZO0eILGpt9.6CicCo4cduNeXAhBOoIUEMfeWmLhQhJ.msns3knkzmMsrDVUiAZ
+ 2QfV_GN2tLzdGVC3slJtplRTFMIcd9CmRyRLa8E2Gt1Cg42kPidK_iGusJndfLIMI8JEi86Cjq4l
+ hLBGE89_B_Eh4IDJirU2UjewmK9tISLG9l6IFbJSM21hmOrPubNW5dRAnGeYFMmrDyvdmAl9e2Z1
+ H3B8mi.7ehbRW0cyS71FHIfmYSp8_4ZGoi5ivfi.AdqUC8hYM7XD8Y7ufQSKcIhRTWdpH3G3LlYc
+ ab5WRperbY6_rYJVC1MLPVhXHUxAE6IIrQAlTGKt1Cqkhd55dh0PbVaE67ajEbiCfhXuakDOIHfh
+ NhP2XuNF4IeZqbNJ_2BNf8HavTLMWoJFk5wNCciQ73xmbSyrqyjEcIo4BbRYQ2jiIv5KMoOAnpgT
+ kt7uPdKtipcYCYlX.HzyTiC1cDTJjzYr75iFWTf0gGBIrh38bCtdJ_4Em1ZGKg229HlpBMZtvaox
+ s8g4vpuolIL4HpVCoujhQkY5sNjN7YfunPyGbjQhhTsGg0qPFSje6igUul4MODjBO7F9qHJ8NKR4
+ TImpDd8Y2_VNr_nYaqS1xaEoDAuZiiizkPR3_YnaE414EIYPICWOTOK8l_HAkMbIcVDAtcCXrPPA
+ mzyLFlBapnalRP3GApitquyPFBdE3Cqt5eM4LU0P3jf5wUF_tENKe0.0A8Gbh3IwXvB9gh65BrSr
+ kWwzXkgFrFN8NU5H53piUQ8JTHHkoZXIejX48W_sbwG8xmLiyB9xlo7RiQTQ6bYa2Da1WN6BJyoj
+ JvW0DqYZwEiCdMxgShErEmaAlFkPCFI.wiYjWaohD4RSkG6TpsNVCjBhDt1ZJb_FRH7K6sh4cP8J
+ 1suUH4fX4zW0gQVX6CGRS4VgN7gP6zluc7Z9gR6_jrPtHvxIP4xG9iR7IfxtbUHxdURnq.lohgrx
+ CFkzefqH9uUV1JOAizKzXlBIoP1v6PaRBBzoy2hSf.EkUCXMcVDHpPrQ7BEM2GmSnKgV2T.9B5TK
+ Jf9d5ZgHTqIofH8Y6wWUtT19LUtYKGc9pRpaFcN4OwwHF9iRzp1aDMt0i7OcnPaCf7e5sCyiPQZR
+ 4dTzxhI0hvFOvpd7WXXMfX12uoE8YCkaIJlcgCDZUIGRgFlm71OpqIhhSrbwiL8WRk3aOHo5yN9w
+ 2Jp85Cl508chHZH2AtSLmUCCSaX.dYAlgM3EaRWKV5xLeIvBFaUffZEZJPhjaLs1ZdqXeolyzWaS
+ kUVJMIZzKldbq5LhmyA68GiIRQ3LxNxNVxrhbs0Ax0zmFRGbHCgxLKzh227tmBWzKUXeN5TicU0B
+ lletOgF8.Wc69hHl8GCnN0HXYnab9Z9s.0C5eYFHgSQPtvX3uYUzUfMt7P.1QfXfuitf60YKYAAM
+ 7HC._6FDP0tttHoBTVRtMs5bgzT3yvN34pqOw4WZYIDU9tI1aDF6A2I_6AGWuol2NrafPwc6XAfd
+ TmPf3gr8W2V0XFFyXgDz5rxlDz_8TvFjTwmSV.ZUAS34WSnPSP.8g_XZxhhzQaTMQBQ7aYje0Zz3
+ fqGE4sn_liq_4tKx64uqOz3GC598vVUPxKOWSrDLn98LRHfmZUVmxVRMbZHacNwYK14My1Fn0s.a
+ cYAxsNbqZmL6NjpDlWBuV.3k11hJN_KOpoRMT8cNxzljF2N9j2LtJvSewkJwW28weYH.VG90Z1p.
+ OCIys.bjZ7GOjhCRQKoerCwxHplYc74i5Mnt2lwsWtgTU5ZZzkAucpb69xSlTVWcDOSjdVltvn.F
+ J1rb7QgeyUt9be8yzVJXj4ZpjwGX1e_pabQtXAYN56PRnusIaf.aeafCXsX8C97ezMD_xlYip9K1
+ oLY1HpsPwqj9SndaFoUbYCRVzAaqcYK6VvHeKgynu62i8SucNMLAObG6i_htAeS7dXZ3tJBVrxbS
+ 55b0V1Rd8wAF_kC7ShoSGjL204x38KNvJJP8ADYgRkXXZ_DdoZRC5QI71Kd1RtRJ3dv_uu04DsCr
+ W3CuYRN94_TpMbLD.S0Atb3T95ogYcrGYWzYqTRrahkLC9UpN_geT_fAgRs3FKtrRiKGFG5okBRv
+ HsGLroUFrjFi8iWcc5JKgwTGqa8NwYyG19YtVdRwMU9cdEF.CESUVJYfRfsXDl31x5sq_qkkYdJf
+ UyYW58QLh0S2AykbZxaf9hMHbyCblFPLs.znzF9_.2JpjUrBjfsB6K5PCfmzbRPADNq7_CFELbdc
+ vIzDFVHToZgSh5V9qc9lkbeBI9SBEh8_a5ZOpsaoMXHgQ0XvMtRkj.cLKe8wsgV6PqVawZ.UeGWM
+ vIZPfqc9bo7HN8vK4SnZJ3NtuEeRd2JK.I4DQktsf.o.0B5RF6sJ0lz.s5qpqemHH1R6KQIobWe2
+ IIVIbDB7N2bfjIyjS2eOs1Lm0qQXQtyzu9hrL1ZIFczLK7hWi4o2GkuT6wjlhyeZH1HTlrIJKxq2
+ zyjpJdu6TpG69c.fREFtHdHEtNy9bOswjdYDXwfWc8xhzCVjGbFJOUGRGWCOTwXUPyAKRFUtDT0L
+ EGZ8Bz6ZvFdlvx_21ZCQyRVjpLc5WkTJhbu1yoCAtbPGrsN4cn9WwZpFPhRoyUwlOHkjItai8mr5
+ nuxXwtiFj7mTEuH92g81.lX4jV_wU8VvJrtTR3I90poTcy3PoTnxZ6rqL0NE61Kow.1eapJpFBAu
+ S2JnV8DifsNSKyb7idFQ1OqtNCDk6zu7nP06iOO2NVeBUeTfBAKq6wkUYK007ZxALE8Jmp8NPqrl
+ mIclZ_LxzbTyC4Q1q29SZYnq0lD0iQJhJvF7YdafjQLW.eVIWoipjR1spJjr4eeDhYqGGa_bmPpj
+ 0XdD7nqWVXp.Ma4EC6APydfl4syAfFFpgUmdUAppMUow65ZXeoxRIPGWtrnPgroA8y8tug3myU8S
+ Ps8D7zYLxXWS1Uh37R8WV4xlF8NzUxBTC_IFbif4avbtIi9QZznMmNUKFRZuxsTaEugZod63Cfbw
+ 9QqKGzar38SatATlJuHsM6Kl7K7oUwaN5tLYlqwj3T_9JDzWg_AdgkYHsF3BlbzPFlxuDOq37hgx
+ QtA6q9DzpD8RK4UhX5i8lJY7Qjt6SAacGvQuW5mCLcQ0RJ7hGBOZ0tyMssV8dOxs5.KQS.quCOVS
+ GF7x_NrIkgasRJWXCbCWWWU0gi6C8OI0mIE1uU1FJXn4lyv4A5CUm3OSsQBFbroi5lsb19FyJ9aE
+ mU9sQPrv1NCDQ8XoH9Q0sZOvOhh_WOOF95gCpm6fS4xFGFAL5maNjUOQPySqbruAj_KLOxUTvWoF
+ o7CyWqafJfaQ.RZeWkYLk7PZP6Wft5yZ4yxO_yTrOnNyzlHhN6rUf2PsHGavVie.jqfS1.cK6mGT
+ CjgQroQmpcCLORV2iOJJUahl6y_kumWSX_3fIXrW7YRPkGaSa_fkWCDdRRHTIKlM7v5Kcq_6ge2R
+ b6zX2NXT50iGPhnU1txW2VIE1QPjhnWyIa8ezbyXYzNFRd5L_9IqR7O1NFzCgwsjaJhYirQiYJ0f
+ uhaRrRqIga47B7ZQ4bfV7hPeeuPZkz2vcO06GQ4DgKgXOm1wsusTBDiSHE.ZM0974nlIchbJOfE1
+ EzKv.mRklpFGw.sC2CXw.PgpWKVeKl_IajnXvEEyzoHkNpKhScwdtcxnj3ezTnmJE8fZ8AeiSFjj
+ Sn_XNkKr6PZeaTKsDB4t0G6Y_w9YdT66F.jDweUaxaoMaN_7tU8NsZmQG45Dusc66ZzSuACiUunh
+ RYWg0Yp1SVmfXMBgJ1aaJfLrSHtd8grr_Bl96k7S1kYQ53CtUYM3bQIWrSXbWgelaNB4nRi1UybW
+ qvhG8tYF2R5g6criFdCKf2CdASGyQXSs.ircQGeHJSEQ3jNgANoDuQ3RhJJ.p7hrZFrm5wLZrEdS
+ GLv67E9ytvgf3Buou_PUtrJ_pbVAOV5kCxydNXzb9.hUD3le5ka.QKd4FmrI0k6Kf4FFWs3Q6leC
+ Srv5A1TVin4Xec8HqqTwto8De2rGK6MjoLFZHBH8IPv9u9ZxSOmUEZAQFj6aOIjPJCAdCnVjyvU6
+ CV8nljVmePp.HmF9LbW4MQGIEu6bQBFMyodC1QdaoQKOJkeW12ebqTcVQisWMnAc6h0WARtYWkkL
+ mz9dIixiyonRWZFeNvxmrw9kjSU6ovxzDkzmRb_hm2zGKEptoi_npq_DPs0GRa3cQWE_gN7JNcD1
+ 96uuDpCBmXODjhFfJ4MBTb3.G7vvQt4r.xQviMPFaxpRYOmUP2xM6on0jq8M3sFy0l9T6fuI2gyG
+ 4mLygH9n0pXX350KBqL9LMowSFeh9Z4k.aC_KeMH2R28ER5p1kM_IT8DxtWJ9KRwzs1bniNII0Vc
+ JcPx77Mt0jaioom8_1fPh6.Qx8kKR0gjpMgvd1kBBuCi1xx4_vWhyRQTmdvVgjnlykm3MkBTS8O6
+ 20W01RTlDF.vaSkXNWSzXoXc.0ALVyUePzwzX2cZvfJszfLbu4C6kJ1IgOEHfDfuaA.x1FyaIJYa
+ egP8xnzjG5Cv9_j16Xj.jXqEK.EgDC7gE0xa2kxPbqo.QozBytMx1fSvT5clV4O5YtZx9ooVLU8A
+ 8Ggc7azZlpfBXcnReb8Xb69oFCpkqQTOuX2G1dWQHNG_12vtxCnYdOa9eQkrrS_bf.IdxI8nEChf
+ SCt8dN9AxXWrq1_FdjfSuCFojycCdWb0tt5u3qq3FcBiOnGW5Bse0HDIGinZlR7frcK_CR9zedQn
+ 9_GSm5WsoBDuPl0bQ4BjpxYymod9yAIWA0P4g5MsPCvDk_ekSu2FElTq.PeGC1r0_kKcRexBqQdY
+ D8OAvKr_QJtHda7ivY3tEzANSkzJHelM89vIkPChpA4lmRuRcEfujdYJ4GMRKwWk931MaSrjMKH6
+ QE6WJn2I8eJ9AhYhDGTtP5URzlZKS4zxTRw10_7M3yueHzFhguJ7m8W.T_yqdO4LOXDss3TZmPST
+ WASPG19dnEgOhHKvy9bAugFhuA.JiGzBY_XeOi5IZEVfUlMG7kXJTw5SzClbBgNaHPq4tXlJz5fg
+ q.Oo7KC2aBlf6GlipaVlm32KZVf.E8KT2fSIToUx_r2hAUBZg7RukCEcJBoNJw2g.ccECdiyFJB3
+ 185c1l9AoZ3PWSeCgMFhG.mi3ajD7JUMQmyf2R6Hd7LSgU6k9oLus.Fy3QGqn_f3g0hmCwpviu7I
+ ukxPNc_uiP1vwN5O7BFbny6_SlnyH.9O2vcWbNGPT4NN6ImHzcTzWHtIM_dX4u6iYyp9sqb5obPA
+ D4Z0KSBFXILKUzfVdK2_vkPfvNYcAPnZe7y6CwjsY4pHWsV1IqvUB66teBACR7Hel79kMa_7D0rG
+ PWWyt7zmWvPhqodIr6iIPqeUXVgofPxpm9HSkfMD1kIkkuFdRRHa2SnkkHsPVBtevrhqOVTkStHo
+ Yjx3eAHuro3Wh1A_7KAXGrvp9aiiiFxqDKorxUAeh9hVdpTXbUV4fRC0kf8KpMy_DfFkJOECiEI3
+ xUoXUiymbiVc9K5jxWsTliGPJi41e0K3K02MthkXN6kdAyGWgE2HihBdG48iijS7TkwRQd0YW67D
+ DfeOJSldqr5WtKg4aewXE88jRLfUfGoXGbRFvsxZDvz3cgRE.7cB7y3xoII6wfX1DoWGbzfHsD.N
+ nBXpCt_Zwvo6cUaKuq22sLJqxsoWnKJeYS.axv1uA0l2PrHyZG2CJxf62hbOVuSsYUB4bT999RSS
+ ka..O5d3aac5EdSC8wYO8k2R07UG1MnKE6XkZ65Ypzn0yHrB84ZJ5si5rp8xdRTG_AKc8WNnmDE1
+ K9tf0zrBK1DVbYImEaf7TBeTn7IXR2y9ysaf_65xm8BsqmddQHZvGF42GhoTkyiYfliRRBHmTOz9
+ V7rNQlz2z06DTgyB8whYayz31ZNvEtXe0UnzfJ2pzTg0dX_fhbAEVSzCNN_dzZD64ftpaU1bTv6Z
+ LV_EbDN07T.kdh_H58noM7k9SrqS3yWeQTbDzVnVNcA9is.5hOK9uhhufHeibae6TIF7wQIER_Hu
+ YuhFJZW.3G4kIiAj6vK40M8eMHNvWbMiOjptowilisSgA3x9sJSVryqs22JbphteEGegZbGvSdt3
+ epPL1sknsNPs8znm_jV16Vm9p9um8B9VVQDQfCFut2qDZflJXWyTLq5E9mZoe4F0gUSi8vg5Lnl6
+ B_7Z0By4gbOARCqZkXbRhq0DafIZcr5TT.WWj2UkL_HrooTfv8TPQtuZYA26MT_rBk6cE5u.xkyA
+ TM8VqR6sW8kx2QAZyMK45bszF4puc2G4MWvWH36imIpz8IaZX6Ef6Yf9kCT2xsxLj_UYMObPWpSr
+ QVIvDgZ7c9QU1E7ZnVJ_m0G58PLYnSmTmXobiolo_l0qRVfTs0ut19T2VDRGANgCDI39QneUnmUH
+ GhDM3DltLycll8b4TwKLJX7v9SvRwtA9sqEvb67KzW8OTRT4BIZkfclFXZa3kzD884m4Ql8KEUn6
+ LrNJj6I8ikpJny_G2nknFHH6fKhHJ69cvhI92wrO30UDuOsWuwNM4.TLfNZFwnS6DlhE2coKGbwv
+ .Vdn7Tn6cEj2u16TTmsSORU2W87yc27jLYIV.OzHDtiydiYhh6FBvlrFZxbOsBxnS.5tsZk4vvsq
+ SCRsQ13q9Q7MbNFdeuSPglctq4Xk9rKb_MuIGDjpZtI15t3fphu2ZONlXeL3ECY9LntYLmO1DZ0S
+ PC.QOus9t6P7JI6BLnPeieKftu0apM4PHZLdZIExzXa8bRtJ8jIL5n.ohJHD3kI9hq8q15Ry2jEP
+ rz7YAA_lEDGscXXzinP.GB0zyWKG1903VMUTMymqyZ2mbPF4clmOQRBjQtPWvMbt3NXFn5mSFl00
+ rxwaTMaV0NSjYaZhKvpiAHFIFIWzSpCZvjMglT8UcKNCdEK1lR8vxXdij9S9R.hsS2ZXCWtmIHW8
+ Xtn8c8yOBZ1ZhwcSLV1KlLsunc48vmz71X3tujIAqTf5WzPB9Fstgk80hcPw3mtvkbCguloZDIjk
+ B3SJy9QijiXDeFXtsxNiVtykT3SvylMntQB0WUZSLnQ9HEjaBi2jb_n94ePLZ_JjJR5JotHMUSBu
+ Txm85UE7GNxhTlnBfIoWId8lcRoahs6B7xDRWNroXBUymycm9DYQ2QnjjB5vq3f4NxetU7zBanoz
+ jW.yjgXGdo5D8vPOuUTA6KKvOl_UBZIbFGQORChjkYJH7mUnGv1XZqUDzzOJd
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Sat, 24 Oct 2020 22:33:11 +0000
+Date:   Sat, 24 Oct 2020 22:33:06 +0000 (UTC)
+From:   Michel <micheldukuu@gmail.com>
+Reply-To: mrmichelduku@outlook.com
+Message-ID: <40332329.2307788.1603578786307@mail.yahoo.com>
+Subject: HELLO..
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.72-54-gc97bc0eb3ef2
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 195 runs,
- 1 regressions (v5.4.72-54-gc97bc0eb3ef2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <40332329.2307788.1603578786307.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:80.0) Gecko/20100101 Firefox/80.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 195 runs, 1 regressions (v5.4.72-54-gc97bc0eb=
-3ef2)
-
-Regressions Summary
--------------------
-
-platform              | arch | lab          | compiler | defconfig       | =
-regressions
-----------------------+------+--------------+----------+-----------------+-=
------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.72-54-gc97bc0eb3ef2/plan/baseline/
+Greetings,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.72-54-gc97bc0eb3ef2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c97bc0eb3ef29cf2b50b4ef4b060b086574d31e4 =
+I know that this mail will come to you as a surprise as we have never met before, but need not to worry as I am contacting you independently of my investigation and no one is informed of this communication. I need your urgent assistance in transferring the sum of $11.3million immediately to your private account.The money has been here in our Bank lying dormant for years now without anybody coming for the claim of it.
 
+I want to release the money to you as the relative to our deceased customer (the account owner) who died a long with his supposed Next Of Kin since 16th October 2005. The Banking laws here does not allow such money to stay more than 15 years, because the money will be recalled to the Bank treasury account as unclaimed fund.
 
+By indicating your interest I will send you the full details on how the business will be executed.
 
-Test Regressions
----------------- =
+Please respond urgently and delete if you are not interested.
 
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-regressions
-----------------------+------+--------------+----------+-----------------+-=
------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f94616d67e45757fa381024
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.72-54=
--gc97bc0eb3ef2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.72-54=
--gc97bc0eb3ef2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f94616d67e45757fa381=
-025
-        failing since 0 day (last pass: v5.4.72-24-g088b4440ff14, first fai=
-l: v5.4.72-54-g5ae53d8d80cb) =
-
- =20
+Best Regards,
+Michel Duku.
