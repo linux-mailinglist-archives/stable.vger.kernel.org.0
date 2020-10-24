@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4ECE297BB2
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1813E297BB3
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:42:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760496AbgJXJm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 05:42:29 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:32793 "EHLO
+        id S1760497AbgJXJmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 05:42:51 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:37663 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1756717AbgJXJm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:42:28 -0400
+        by vger.kernel.org with ESMTP id S1756717AbgJXJmu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:42:50 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 5AEC1B89;
-        Sat, 24 Oct 2020 05:42:27 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:42:27 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id D55BCB84;
+        Sat, 24 Oct 2020 05:42:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:42:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=bkEOT2
-        ZBu8qjKsja/e8YUj+lF61HWpVyCitgBjBTpl0=; b=Qq8uERidC4QRYmKeUlYppQ
-        EaCxoh3uVCxdp8zZtSXq+NB6oLAlEaEeuaJG02wTe9Q+kNmx5X3rNjioOYQxNfKQ
-        RrgL+L02+T+6zQtKC6HyeSjz89fGJKydzhDufQhaoGSrh44WbYpk3UOhZfkBMIqd
-        h1HbDVeYa0O+j0UXCZKKyzZY/YEW4+XtggP+FS0budSqw59eeRIgRwFiEcrUjfgQ
-        YsVkeax98HZviyKYStM/Lvme3rYTqXcTBdN6Jc0jIrIvwdcsEFth8JQX/W/t8uhv
-        LKcbz+frOKmvONOWDx/wrFj5ogYSREo8dCjw2QGhexsoBi5XSzkAKkqYPsGltgpg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=t53kdd
+        IBoh/ZYE5xSuX/ymmD6/enWtaUrdDcUF7J17g=; b=o/HWwOo28Opk+Zwy7rU5Y0
+        Kc8E7MlRrTWffvosPl34zQ9io7B0gNexmFZ4aJLwtjxpuHaT8lzBt8R796ShhKQa
+        W21tjEXja4kk17EFehALXd5//ByaWXYnBl28BjeSiZAZBDL3SK4WadSxMuOeextt
+        H9gUv7GUsO/rvptVrZi1hCyvbLwZ6L/iCt/dZfVYT71CCrq0/V9ICCa/PQAQl1Aw
+        z4QXnOw0yj7tbkOC8f2QYaZVvbqp//WkZd+RBdJ5IqZyUjvGi4BnxJguUEaHLzOv
+        WRJTb3OqPV8HOh4os3DpDzEntmTex5hUcQqE1p+m1x+JIiQRvwLQIG7ESj3/K6eg
         ==
-X-ME-Sender: <xms:AveTX7Qe3a70Ij5uA3ECcSc9nIcVAQng9ufn1c9rb4qIy6oES2HRgg>
-    <xme:AveTX8zmocuJreigzPRfvcVCJZ4btdGGzzVrH-HDYyfGCQ3KJAUmsVuSaVGW30dc1
-    ACsgf9n1Wr9fA>
+X-ME-Sender: <xms:GfeTX8z2Yb7DDWh_9g4ii1UyQGVuKoY4OIlsP2kW14yKTbVXl1xBog>
+    <xme:GfeTXwR5d8fkjKcdN81EH16OTwjuOCE9DjTOSoV5cxA89bPuLa0shixBX4Yrt9vjA
+    0iTttdFIi6n9Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgddulecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:AveTXw3lusx3dFgoSCoSG03IfQ7N_pBvSFlak1ddMwjqTt-WuOU_5g>
-    <xmx:AveTX7CgPMjh6dNis7EzRciTF1M02PIpz66R0hgqXYzTuZypKaghhA>
-    <xmx:AveTX0hPsrhgwrRBCc5BVPKLCU2Xo9RbrXR1k_VbuH24u8g2efFoKA>
-    <xmx:A_eTXwYSZRyT4tmH_ADkO4-O-DZf2cPMTsThXk68AD5EiJWABqup7thjpZI>
+X-ME-Proxy: <xmx:GfeTX-V2qEP35g1njFyNSobfgDVoRZIq0zL8-5aGxjQrGl0M8JQAoQ>
+    <xmx:GfeTX6jJi59bHb7_8FCw-Sqg49spiL1v7kBaLlEfCKBeonb7-oktBg>
+    <xmx:GfeTX-CQ1VhNg8KXiYRHNGUvTh0kxpINsm_OeuB0t7zojlpJYod2Yw>
+    <xmx:GfeTX5qr9ewHsmia-TMEfJFMI5V-R7GUQBIOOEfAPdMgEz1VLE4YK8TqdSA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 977B23280060;
-        Sat, 24 Oct 2020 05:42:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Morph notification vector IRQ on nested VM-Enter" failed to apply to 4.4-stable tree
-To:     sean.j.christopherson@intel.com, liran.alon@oracle.com,
-        pbonzini@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 247A43064674;
+        Sat, 24 Oct 2020 05:42:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Reset the segment cache when stuffing guest segs" failed to apply to 4.19-stable tree
+To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Oct 2020 11:42:55 +0200
-Message-ID: <16035325758584@kroah.com>
+Date:   Sat, 24 Oct 2020 11:43:24 +0200
+Message-ID: <1603532604128176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,96 +70,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 25bb2cf97139f81e3bb8910d26016a529019528e Mon Sep 17 00:00:00 2001
+From fc387d8daf3960c5e1bc18fa353768056f4fd394 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Wed, 12 Aug 2020 10:51:29 -0700
-Subject: [PATCH] KVM: nVMX: Morph notification vector IRQ on nested VM-Enter
- to pending PI
+Date: Wed, 23 Sep 2020 11:44:46 -0700
+Subject: [PATCH] KVM: nVMX: Reset the segment cache when stuffing guest segs
 
-On successful nested VM-Enter, check for pending interrupts and convert
-the highest priority interrupt to a pending posted interrupt if it
-matches L2's notification vector.  If the vCPU receives a notification
-interrupt before nested VM-Enter (assuming L1 disables IRQs before doing
-VM-Enter), the pending interrupt (for L1) should be recognized and
-processed as a posted interrupt when interrupts become unblocked after
-VM-Enter to L2.
+Explicitly reset the segment cache after stuffing guest segment regs in
+prepare_vmcs02_rare().  Although the cache is reset when switching to
+vmcs02, there is nothing that prevents KVM from re-populating the cache
+prior to writing vmcs02 with vmcs12's values.  E.g. if the vCPU is
+preempted after switching to vmcs02 but before prepare_vmcs02_rare(),
+kvm_arch_vcpu_put() will dereference GUEST_SS_AR_BYTES via .get_cpl()
+and cache the stale vmcs02 value.  While the current code base only
+caches stale data in the preemption case, it's theoretically possible
+future code could read a segment register during the nested flow itself,
+i.e. this isn't technically illegal behavior in kvm_arch_vcpu_put(),
+although it did introduce the bug.
 
-This fixes a bug where L1/L2 will get stuck in an infinite loop if L1 is
-trying to inject an interrupt into L2 by setting the appropriate bit in
-L2's PIR and sending a self-IPI prior to VM-Enter (as opposed to KVM's
-method of manually moving the vector from PIR->vIRR/RVI).  KVM will
-observe the IPI while the vCPU is in L1 context and so won't immediately
-morph it to a posted interrupt for L2.  The pending interrupt will be
-seen by vmx_check_nested_events(), cause KVM to force an immediate exit
-after nested VM-Enter, and eventually be reflected to L1 as a VM-Exit.
-After handling the VM-Exit, L1 will see that L2 has a pending interrupt
-in PIR, send another IPI, and repeat until L2 is killed.
+This manifests as an unexpected nested VM-Enter failure when running
+with unrestricted guest disabled if the above preemption case coincides
+with L1 switching L2's CPL, e.g. when switching from a L2 vCPU at CPL3
+to to a L2 vCPU at CPL0.  stack_segment_valid() will see the new SS_SEL
+but the old SS_AR_BYTES and incorrectly mark the guest state as invalid
+due to SS.dpl != SS.rpl.
 
-Note, posted interrupts require virtual interrupt deliveriy, and virtual
-interrupt delivery requires exit-on-interrupt, ergo interrupts will be
-unconditionally unmasked on VM-Enter if posted interrupts are enabled.
+Don't bother updating the cache even though prepare_vmcs02_rare() writes
+every segment.  With unrestricted guest, guest segments are almost never
+read, let alone L2 guest segments.  On the other hand, populating the
+cache requires a large number of memory writes, i.e. it's unlikely to be
+a net win.  Updating the cache would be a win when unrestricted guest is
+not supported, as guest_state_valid() will immediately cache all segment
+registers.  But, nested virtualization without unrestricted guest is
+dirt slow, saving some VMREADs won't change that, and every CPU
+manufactured in the last decade supports unrestricted guest.  In other
+words, the extra (minor) complexity isn't worth the trouble.
 
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
+Note, kvm_arch_vcpu_put() may see stale data when querying guest CPL
+depending on when preemption occurs.  This is "ok" in that the usage is
+imperfect by nature, i.e. it's used heuristically to improve performance
+but doesn't affect functionality.  kvm_arch_vcpu_put() could be "fixed"
+by also disabling preemption while loading segments, but that's
+pointless and misleading as reading state from kvm_sched_{in,out}() is
+guaranteed to see stale data in one form or another.  E.g. even if all
+the usage of regs_avail is fixed to call kvm_register_mark_available()
+after the associated state is set, the individual state might still be
+stale with respect to the overall vCPU state.  I.e. making functional
+decisions in an asynchronous hook is doomed from the get go.  Thankfully
+KVM doesn't do that.
+
+Fixes: de63ad4cf4973 ("KVM: X86: implement the logic for spinlock optimization")
 Cc: stable@vger.kernel.org
-Cc: Liran Alon <liran.alon@oracle.com>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200812175129.12172-1-sean.j.christopherson@intel.com>
+Message-Id: <20200923184452.980-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 51ed4f0b1390..105e7859d1f2 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -494,6 +494,12 @@ static inline void apic_clear_irr(int vec, struct kvm_lapic *apic)
- 	}
- }
- 
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec)
-+{
-+	apic_clear_irr(vec, vcpu->arch.apic);
-+}
-+EXPORT_SYMBOL_GPL(kvm_apic_clear_irr);
-+
- static inline void apic_set_isr(int vec, struct kvm_lapic *apic)
- {
- 	struct kvm_vcpu *vcpu;
-@@ -2465,6 +2471,7 @@ int kvm_apic_has_interrupt(struct kvm_vcpu *vcpu)
- 	__apic_update_ppr(apic, &ppr);
- 	return apic_has_interrupt_for_ppr(apic, ppr);
- }
-+EXPORT_SYMBOL_GPL(kvm_apic_has_interrupt);
- 
- int kvm_apic_accept_pic_intr(struct kvm_vcpu *vcpu)
- {
-diff --git a/arch/x86/kvm/lapic.h b/arch/x86/kvm/lapic.h
-index 754f29beb83e..4fb86e3a9dd3 100644
---- a/arch/x86/kvm/lapic.h
-+++ b/arch/x86/kvm/lapic.h
-@@ -89,6 +89,7 @@ int kvm_lapic_reg_read(struct kvm_lapic *apic, u32 offset, int len,
- bool kvm_apic_match_dest(struct kvm_vcpu *vcpu, struct kvm_lapic *source,
- 			   int shorthand, unsigned int dest, int dest_mode);
- int kvm_apic_compare_prio(struct kvm_vcpu *vcpu1, struct kvm_vcpu *vcpu2);
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec);
- bool __kvm_apic_update_irr(u32 *pir, void *regs, int *max_irr);
- bool kvm_apic_update_irr(struct kvm_vcpu *vcpu, u32 *pir, int *max_irr);
- void kvm_apic_update_ppr(struct kvm_vcpu *vcpu);
 diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 9861179d9a8c..f39491cc92c7 100644
+index e8048e01c044..2e0f9dbc0ab6 100644
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -3531,6 +3531,14 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
- 	if (unlikely(status != NVMX_VMENTRY_SUCCESS))
- 		goto vmentry_failed;
- 
-+	/* Emulate processing of posted interrupts on VM-Enter. */
-+	if (nested_cpu_has_posted_intr(vmcs12) &&
-+	    kvm_apic_has_interrupt(vcpu) == vmx->nested.posted_intr_nv) {
-+		vmx->nested.pi_pending = true;
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_apic_clear_irr(vcpu, vmx->nested.posted_intr_nv);
-+	}
+@@ -2411,6 +2411,8 @@ static void prepare_vmcs02_rare(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 		vmcs_writel(GUEST_TR_BASE, vmcs12->guest_tr_base);
+ 		vmcs_writel(GUEST_GDTR_BASE, vmcs12->guest_gdtr_base);
+ 		vmcs_writel(GUEST_IDTR_BASE, vmcs12->guest_idtr_base);
 +
- 	/* Hide L1D cache contents from the nested guest.  */
- 	vmx->vcpu.arch.l1tf_flush_l1d = true;
++		vmx->segment_cache.bitmask = 0;
+ 	}
  
+ 	if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
 
