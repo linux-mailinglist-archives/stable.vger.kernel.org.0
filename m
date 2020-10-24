@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D3D297BB7
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC740297BB9
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 11:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760503AbgJXJng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 05:43:36 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:56547 "EHLO
+        id S1760551AbgJXJtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 05:49:23 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:59933 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1760502AbgJXJng (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:43:36 -0400
+        by vger.kernel.org with ESMTP id S1760550AbgJXJtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 05:49:22 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id A4221B40;
-        Sat, 24 Oct 2020 05:43:35 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:43:35 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id DCFBBC0C;
+        Sat, 24 Oct 2020 05:49:20 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 24 Oct 2020 05:49:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MiVRVv
-        vdyvdvCbh7lpbxZQ+QKZSBxUpN3IM1FOqwzME=; b=j7nlpIr1GZPrvOBbXVkHmU
-        pMi0Ol4ViJNYMbh0lQkxrDn/IsVUPtvOyDL3YginjMGXhzscyn3lCl2NaNcUYPeT
-        3iZW0gNYmMx8aITuuOBKotO22iKHNwxwnL3GVUTbmnSSnN3tV4CzMX6WeC9WJpsJ
-        XEiJr/ctiB3I7Oi8sGpLBLCopsEd1sMch2mJDMd2rYAgQiUFA2y1UWv+9UaSa773
-        e6evi3Sk6kE0orGJa4/6J5hd6YNDX6UXrQf4qq4ysDvXNQ/SAR7Y4stCvdaP32bW
-        hT6/onkIAIJ0tYw1kmaQzc1BRTC2AcPYeSh40u4NedqB7omZZkHOZfFKnwyUaeYg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Hbbldm
+        wZ8IYwJA0QCxDa43FSE2SkokrEyHdcFuV47bY=; b=CH3r5dv/QK38UWscq/ZhY7
+        oQjQos9yj16K8gnOc+qQsNz+0cojINBTjL536o5C81nTTjXmgWEfuzZE9o735qFx
+        WhKZ+2aCoC0kHwCXRleO75e/7KJlzoWKhUbjkXbmYVZYtWBqV3MO74QGI68TZ+3I
+        0ZvrR0EAwGnBZHbjGmXKk6SC9EhmoNX3J/BXh769HDFeguLJ6DaiWjjBB6IWS2oG
+        m7sUjAJeDXUjalDSqTBiOOPo5Rmi8pFHXeZ/Pfeim1KUIOU3OtSqJN/492mPPWDX
+        GhMI2kNoGGopDlP6KeeLrONZUmgeLASj0y9rFghHuISd4NzP2X17uPsX84KxEmyA
         ==
-X-ME-Sender: <xms:R_eTX3arGOSMHRzzpOG8nSu8JZYRtDJ4L_8rEMhuIXbowK9YOzyOBg>
-    <xme:R_eTX2YhS_WWlWmJ3zB7NlAaszGZmazX8YTrC9Tit-MeXcqsWUh2-BFRC0tWM29FJ
-    ENXUP4Fv8kzeg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgddulecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:n_iTX6ayhBhKhIL6_Sq-PqXaUlgHueGpnH82yIixUtD3Rruzhar8AQ>
+    <xme:n_iTX9ZQ_5WGwFouRsch3SPsehX6R_JgQ5CIPQTHb21rpURbfDpCmYRjOXVAqNQUv
+    3-qSRC3w8_ZPg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgddvtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedutdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:R_eTX580ZyYu7AtpuFVWUxqy0rQk0sqFw8siabevdWj7DRpfinr7ig>
-    <xmx:R_eTX9qtr7yRKSydvn5QSD2Fys83MrBMx4xzoyjxFe-ToW6SQGWwsg>
-    <xmx:R_eTXyqmOrozCog9mc5UF-vgs0BDrbGcfJtTBcALADxJt-yKsi1rgg>
-    <xmx:R_eTX5SmRJHeBr7Npk5U-9bKJ5MW1sj4Jp8a43JZbji4yKopT3fJNciBQkg>
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:n_iTX08H_lBi8jGNU8DBaN8D3dpYow_Tw1QG3iieJBUhnbTAHJgLBA>
+    <xmx:n_iTX8qCcToGgsrLG6VZ7Jlp1Q7QbEflF9zBpJQc9ZBow-v0ZcCZVQ>
+    <xmx:n_iTX1rwUdhi-iw82anNNBKqgTDRKTB65uqO0HjF3OY2Y54F9P8sJA>
+    <xmx:oPiTX83upCYm6-uD0v2vDH4-dH0hUi3S6O0VUhai2Fwb1thO1vwls9SkaSU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E22EE3064674;
-        Sat, 24 Oct 2020 05:43:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Explicitly check for valid guest state for" failed to apply to 4.19-stable tree
-To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 79EEB3280060;
+        Sat, 24 Oct 2020 05:49:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Intercept LA57 to inject #GP fault when it's" failed to apply to 4.14-stable tree
+To:     laijs@linux.alibaba.com, jiangshanlai@gmail.com,
+        pbonzini@redhat.com, sean.j.christopherson@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Oct 2020 11:44:03 +0200
-Message-ID: <160353264314196@kroah.com>
+Date:   Sat, 24 Oct 2020 11:49:49 +0200
+Message-ID: <16035329891242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,99 +71,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ba4493a8b195cc1d7dd5b762a84e6235c2d67bd Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Wed, 23 Sep 2020 11:44:48 -0700
-Subject: [PATCH] KVM: nVMX: Explicitly check for valid guest state for
- !unrestricted guest
+From 6e1d849fa3296526e64b75fa227b6377cd0fd3da Mon Sep 17 00:00:00 2001
+From: Lai Jiangshan <laijs@linux.alibaba.com>
+Date: Tue, 29 Sep 2020 21:16:55 -0700
+Subject: [PATCH] KVM: x86: Intercept LA57 to inject #GP fault when it's
+ reserved
 
-Call guest_state_valid() directly instead of querying emulation_required
-when checking if L1 is attempting VM-Enter with invalid guest state.
-If emulate_invalid_guest_state is false, KVM will fixup segment regs to
-avoid emulation and will never set emulation_required, i.e. KVM will
-incorrectly miss the associated consistency checks because the nested
-path stuffs segments directly into vmcs02.
+Unconditionally intercept changes to CR4.LA57 so that KVM correctly
+injects a #GP fault if the guest attempts to set CR4.LA57 when it's
+supported in hardware but not exposed to the guest.
 
-Opportunsitically add Consistency Check tracing to make future debug
-suck a little less.
+Long term, KVM needs to properly handle CR4 bits that can be under guest
+control but also may be reserved from the guest's perspective.  But, KVM
+currently sets the CR4 guest/host mask only during vCPU creation, and
+reworking flows to change that will take a bit of elbow grease.
 
-Fixes: 2bb8cafea80bf ("KVM: vVMX: signal failure for nested VMEntry if emulation_required")
-Fixes: 3184a995f782c ("KVM: nVMX: fix vmentry failure code when L2 state would require emulation")
+Even if/when generic support for intercepting reserved bits exists, it's
+probably not worth letting the guest set CR4.LA57 directly.  LA57 can't
+be toggled while long mode is enabled, thus it's all but guaranteed to
+be set once (maybe twice, e.g. by BIOS and kernel) during boot and never
+touched again.  On the flip side, letting the guest own CR4.LA57 may
+incur extra VMREADs.  In other words, this temporary "hack" is probably
+also the right long term fix.
+
+Fixes: fd8cb433734e ("KVM: MMU: Expose the LA57 feature to VM.")
 Cc: stable@vger.kernel.org
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+[sean: rewrote changelog]
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923184452.980-4-sean.j.christopherson@intel.com>
+Message-Id: <20200930041659.28181-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 321a6790ad9f..e004ab8c2ea6 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2576,7 +2576,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	 * which means L1 attempted VMEntry to L2 with invalid state.
- 	 * Fail the VMEntry.
- 	 */
--	if (vmx->emulation_required) {
-+	if (CC(!vmx_guest_state_valid(vcpu))) {
- 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
- 		return -EINVAL;
- 	}
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 68b9a9b3661c..d87c8d2892ca 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -337,7 +337,6 @@ static const struct kernel_param_ops vmentry_l1d_flush_ops = {
- };
- module_param_cb(vmentry_l1d_flush, &vmentry_l1d_flush_ops, NULL, 0644);
+diff --git a/arch/x86/kvm/kvm_cache_regs.h b/arch/x86/kvm/kvm_cache_regs.h
+index cfe83d4ae625..ca0781b41df9 100644
+--- a/arch/x86/kvm/kvm_cache_regs.h
++++ b/arch/x86/kvm/kvm_cache_regs.h
+@@ -7,7 +7,7 @@
+ #define KVM_POSSIBLE_CR0_GUEST_BITS X86_CR0_TS
+ #define KVM_POSSIBLE_CR4_GUEST_BITS				  \
+ 	(X86_CR4_PVI | X86_CR4_DE | X86_CR4_PCE | X86_CR4_OSFXSR  \
+-	 | X86_CR4_OSXMMEXCPT | X86_CR4_LA57 | X86_CR4_PGE | X86_CR4_TSD)
++	 | X86_CR4_OSXMMEXCPT | X86_CR4_PGE | X86_CR4_TSD)
  
--static bool guest_state_valid(struct kvm_vcpu *vcpu);
- static u32 vmx_segment_access_rights(struct kvm_segment *var);
- static __always_inline void vmx_disable_intercept_for_msr(unsigned long *msr_bitmap,
- 							  u32 msr, int type);
-@@ -1340,7 +1339,7 @@ static void vmx_vcpu_put(struct kvm_vcpu *vcpu)
- 
- static bool emulation_required(struct kvm_vcpu *vcpu)
- {
--	return emulate_invalid_guest_state && !guest_state_valid(vcpu);
-+	return emulate_invalid_guest_state && !vmx_guest_state_valid(vcpu);
- }
- 
- unsigned long vmx_get_rflags(struct kvm_vcpu *vcpu)
-@@ -3402,11 +3401,8 @@ static bool cs_ss_rpl_check(struct kvm_vcpu *vcpu)
-  * not.
-  * We assume that registers are always usable
-  */
--static bool guest_state_valid(struct kvm_vcpu *vcpu)
-+bool __vmx_guest_state_valid(struct kvm_vcpu *vcpu)
- {
--	if (is_unrestricted_guest(vcpu))
--		return true;
--
- 	/* real mode guest state checks */
- 	if (!is_protmode(vcpu) || (vmx_get_rflags(vcpu) & X86_EFLAGS_VM)) {
- 		if (!rmode_segment_valid(vcpu, VCPU_SREG_CS))
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index 60bb7a125f0b..e87fae204d3d 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -321,6 +321,7 @@ void vmx_get_segment(struct kvm_vcpu *vcpu, struct kvm_segment *var, int seg);
- void vmx_set_segment(struct kvm_vcpu *vcpu, struct kvm_segment *var, int seg);
- u64 construct_eptp(struct kvm_vcpu *vcpu, unsigned long root_hpa,
- 		   int root_level);
-+
- void update_exception_bitmap(struct kvm_vcpu *vcpu);
- void vmx_update_msr_bitmap(struct kvm_vcpu *vcpu);
- bool vmx_nmi_blocked(struct kvm_vcpu *vcpu);
-@@ -472,6 +473,12 @@ static inline bool is_unrestricted_guest(struct kvm_vcpu *vcpu)
- 	    SECONDARY_EXEC_UNRESTRICTED_GUEST));
- }
- 
-+bool __vmx_guest_state_valid(struct kvm_vcpu *vcpu);
-+static inline bool vmx_guest_state_valid(struct kvm_vcpu *vcpu)
-+{
-+	return is_unrestricted_guest(vcpu) || __vmx_guest_state_valid(vcpu);
-+}
-+
- void dump_vmcs(void);
- 
- #endif /* __KVM_X86_VMX_H */
+ #define BUILD_KVM_GPR_ACCESSORS(lname, uname)				      \
+ static __always_inline unsigned long kvm_##lname##_read(struct kvm_vcpu *vcpu)\
 
