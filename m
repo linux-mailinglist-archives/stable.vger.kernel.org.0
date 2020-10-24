@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503DC297BEC
-	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 12:39:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A46B297BEE
+	for <lists+stable@lfdr.de>; Sat, 24 Oct 2020 12:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761001AbgJXKiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 06:38:04 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:60643 "EHLO
+        id S1761019AbgJXKjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 06:39:46 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:40331 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1760995AbgJXKiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 06:38:04 -0400
+        by vger.kernel.org with ESMTP id S1761018AbgJXKjp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 06:39:45 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 4F0A8B26;
-        Sat, 24 Oct 2020 06:38:03 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id A8D56B26;
+        Sat, 24 Oct 2020 06:39:44 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 24 Oct 2020 06:38:03 -0400
+  by compute4.internal (MEProxy); Sat, 24 Oct 2020 06:39:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hRBWk4
-        BYAmQUxksujPxmg9BcfCq06BthT0tsx436b6k=; b=HX2H/RONEnfjMZyVNzUH9w
-        dTtINbxHh17WwGUZxWzXGO4GJfBQPvf41uHSmcdad9Ksbjf5g1GdSgs5A7ylLGYW
-        tKbjfaBQvfhtZVfrDlUJ0jKW/AlvK8HYjFArQul+oqmOz1wo1ObRq1rgH/6T5uyP
-        8pqk4yt1KAKrsrMpCNJFGInHPqCpUcAk41e5QOr1NCGwh1qw9lqsICq2gTwxxWjH
-        xupKQHDhlZe/4M04xvn2rBQwRlrLT1LtYVXa5rTl1QDodxfPktdQnfsAPA2Z4tzR
-        r92NUA+Ztyps5ht1XkiOoIc/y3RcLg7ue93LTDnhimNSVz6M10ccNB4lQ9p1H86g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=UdxFAY
+        Z3kbnjGCy7juWP2+dbY76DG4M6BdCtatWf83I=; b=Y+xsn4mP+bgMCREnqhSANe
+        tC/f4AtOmwdzqf77SJs14++xyWynXF6VPnvB2ZQ4g1FNNciH2C0dRENud6lG/DC8
+        cK/6Z/Q3TMlJnaSOjq1QhjnvYF7ScgQWxR7yL+gmugkJfclQD9mEIO3ZAVt0QRYE
+        rZlE+VEWW4ayqlJfFgXuGLYYzfFclpR2REtuiSOpXjE7Kg3Ov3yiLJMeo70HDtix
+        VZPTbH/D1wiZn9vZ1g47n1Qk83erzmhMrv1nsXiqMLmXGv6BTzvVpa3AFaGQHXvj
+        C+XROSSEXSYvKrjzdaxd0LSUvjMp+uUJMpUsv663rIhQ54ZraKYkAqHIhgJeNe6w
         ==
-X-ME-Sender: <xms:CgSUX4RpY0X88FQTXmJkznhq1ExGawwUs4wCHzjiuXwxIVA6GU3Tqw>
-    <xme:CgSUX1yhxuH1dS4DOG35N6N9NSG1NDRW8k11TmpGFdUiQZ7QCQ-QRxBAkF-xFYSTh
-    RFMkmGMlmVgfQ>
+X-ME-Sender: <xms:bwSUXw8J1lSukKa5e9sTuNoIfmg64t4avbHD9j9xWc5dst9w9Sbs5g>
+    <xme:bwSUX4txDw8Id_baDisOlLQlfEnCuNGJ0NMbdDnF7KegbpCizrPBu1PbFCrs7moXA
+    nQtPX7vrqVcpg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkedvgdefudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
     dufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeduudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    ufhiiigvpedufeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:CgSUX120uxY3l1BFVrcU-h5lJtXL3eIbBPmCBNowWWn_pIlPaNohPA>
-    <xmx:CgSUX8DFloJySV90w2EcifAtMd1-FOKKnhN2vgTnTsEDTbn5XKQOaA>
-    <xmx:CgSUXxh3IBn0yI_TqKN5_B9f6CCyL0rU17m-u6vn1rO5QVlRiGAQTA>
-    <xmx:CgSUXxbJWGr8k57XliIy3qa1WRDZksnWB_Dk4W7NJ4jKJZSMsLsvNyTemfA>
+X-ME-Proxy: <xmx:bwSUX2CSGndAF-0DGxj-bUuKAQGSJJHuHMBk7HzpJPaZZs3P6N_wnQ>
+    <xmx:bwSUXwf_NQvDVBidSs7LP__c3EaNDq_pIsww1kWuFGjf6UFmFpwdHQ>
+    <xmx:bwSUX1Ok1bHX15czUcDJ8MOAoEH4gYH_MNzqF8IeSFY3HGD8zoCHCw>
+    <xmx:cASUXz1EtUvABDplzQMf8xpfoHkA6aE2LlDcOYK_5tuW8gPmAEWtcU-H7lQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6CE97328005E;
-        Sat, 24 Oct 2020 06:38:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: caam/qi2 - add support for more XTS key lengths" failed to apply to 5.8-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 490C63280063;
+        Sat, 24 Oct 2020 06:39:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: caam - add xts check for block length equal to zero" failed to apply to 5.4-stable tree
 To:     andrei.botila@nxp.com, herbert@gondor.apana.org.au,
         horia.geanta@nxp.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Oct 2020 12:38:37 +0200
-Message-ID: <160353591714690@kroah.com>
+Date:   Sat, 24 Oct 2020 12:40:17 +0200
+Message-ID: <160353601716205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.8-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,81 +71,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 596efd57cfa1e1bee575e2a2df44fd8ec5e4a42d Mon Sep 17 00:00:00 2001
+From 297b931c2a3cada230d8b84432ee982fc68cf76a Mon Sep 17 00:00:00 2001
 From: Andrei Botila <andrei.botila@nxp.com>
-Date: Tue, 22 Sep 2020 19:03:24 +0300
-Subject: [PATCH] crypto: caam/qi2 - add support for more XTS key lengths
+Date: Tue, 22 Sep 2020 19:03:25 +0300
+Subject: [PATCH] crypto: caam - add xts check for block length equal to zero
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-CAAM accelerator only supports XTS-AES-128 and XTS-AES-256 since
-it adheres strictly to the standard. All the other key lengths
-are accepted and processed through a fallback as long as they pass
-the xts_verify_key() checks.
+XTS should not return succes when dealing with block length equal to zero.
+This is different than the rest of the skcipher algorithms.
 
-Fixes: 226853ac3ebe ("crypto: caam/qi2 - add skcipher algorithms")
-Cc: <stable@vger.kernel.org> # v4.20+
+Fixes: 31bb2f0da1b50 ("crypto: caam - check zero-length input")
+Cc: <stable@vger.kernel.org> # v5.4+
 Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
 Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
+diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
+index a79b26f84169..e72aa3e2e065 100644
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -1787,7 +1787,12 @@ static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
+ 	u32 *desc;
+ 	int ret = 0;
+ 
+-	if (!req->cryptlen)
++	/*
++	 * XTS is expected to return an error even for input length = 0
++	 * Note that the case input length < block size will be caught during
++	 * HW offloading and return an error.
++	 */
++	if (!req->cryptlen && !ctx->fallback)
+ 		return 0;
+ 
+ 	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
+diff --git a/drivers/crypto/caam/caamalg_qi.c b/drivers/crypto/caam/caamalg_qi.c
+index 30aceaf325d7..efcc7cb050fc 100644
+--- a/drivers/crypto/caam/caamalg_qi.c
++++ b/drivers/crypto/caam/caamalg_qi.c
+@@ -1405,7 +1405,12 @@ static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
+ 	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
+ 	int ret;
+ 
+-	if (!req->cryptlen)
++	/*
++	 * XTS is expected to return an error even for input length = 0
++	 * Note that the case input length < block size will be caught during
++	 * HW offloading and return an error.
++	 */
++	if (!req->cryptlen && !ctx->fallback)
+ 		return 0;
+ 
+ 	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
 diff --git a/drivers/crypto/caam/caamalg_qi2.c b/drivers/crypto/caam/caamalg_qi2.c
-index c36d11820db3..255b818c82b2 100644
+index 255b818c82b2..4cbd7e834888 100644
 --- a/drivers/crypto/caam/caamalg_qi2.c
 +++ b/drivers/crypto/caam/caamalg_qi2.c
-@@ -19,6 +19,7 @@
- #include <linux/fsl/mc.h>
- #include <soc/fsl/dpaa2-io.h>
- #include <soc/fsl/dpaa2-fd.h>
-+#include <crypto/xts.h>
- #include <asm/unaligned.h>
+@@ -1472,7 +1472,12 @@ static int skcipher_encrypt(struct skcipher_request *req)
+ 	struct caam_request *caam_req = skcipher_request_ctx(req);
+ 	int ret;
  
- #define CAAM_CRA_PRIORITY	2000
-@@ -81,6 +82,7 @@ struct caam_ctx {
- 	struct alginfo adata;
- 	struct alginfo cdata;
- 	unsigned int authsize;
-+	bool xts_key_fallback;
- 	struct crypto_skcipher *fallback;
- };
- 
-@@ -1060,11 +1062,15 @@ static int xts_skcipher_setkey(struct crypto_skcipher *skcipher, const u8 *key,
- 	u32 *desc;
- 	int err;
- 
--	if (keylen != 2 * AES_MIN_KEY_SIZE  && keylen != 2 * AES_MAX_KEY_SIZE) {
-+	err = xts_verify_key(skcipher, key, keylen);
-+	if (err) {
- 		dev_dbg(dev, "key size mismatch\n");
--		return -EINVAL;
-+		return err;
- 	}
- 
-+	if (keylen != 2 * AES_KEYSIZE_128 && keylen != 2 * AES_KEYSIZE_256)
-+		ctx->xts_key_fallback = true;
-+
- 	err = crypto_skcipher_setkey(ctx->fallback, key, keylen);
- 	if (err)
- 		return err;
-@@ -1469,7 +1475,8 @@ static int skcipher_encrypt(struct skcipher_request *req)
- 	if (!req->cryptlen)
+-	if (!req->cryptlen)
++	/*
++	 * XTS is expected to return an error even for input length = 0
++	 * Note that the case input length < block size will be caught during
++	 * HW offloading and return an error.
++	 */
++	if (!req->cryptlen && !ctx->fallback)
  		return 0;
  
--	if (ctx->fallback && xts_skcipher_ivsize(req)) {
-+	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
-+			      ctx->xts_key_fallback)) {
- 		skcipher_request_set_tfm(&caam_req->fallback_req, ctx->fallback);
- 		skcipher_request_set_callback(&caam_req->fallback_req,
- 					      req->base.flags,
-@@ -1512,7 +1519,8 @@ static int skcipher_decrypt(struct skcipher_request *req)
- 	if (!req->cryptlen)
+ 	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
+@@ -1516,7 +1521,12 @@ static int skcipher_decrypt(struct skcipher_request *req)
+ 	struct caam_request *caam_req = skcipher_request_ctx(req);
+ 	int ret;
+ 
+-	if (!req->cryptlen)
++	/*
++	 * XTS is expected to return an error even for input length = 0
++	 * Note that the case input length < block size will be caught during
++	 * HW offloading and return an error.
++	 */
++	if (!req->cryptlen && !ctx->fallback)
  		return 0;
  
--	if (ctx->fallback && xts_skcipher_ivsize(req)) {
-+	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
-+			      ctx->xts_key_fallback)) {
- 		skcipher_request_set_tfm(&caam_req->fallback_req, ctx->fallback);
- 		skcipher_request_set_callback(&caam_req->fallback_req,
- 					      req->base.flags,
+ 	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
 
