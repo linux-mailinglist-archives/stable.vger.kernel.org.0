@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D752982D3
-	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 18:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DCD42982ED
+	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 18:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1417722AbgJYRqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Oct 2020 13:46:39 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:38412 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1417705AbgJYRqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Oct 2020 13:46:38 -0400
-Received: by mail-lj1-f194.google.com with SMTP id m20so7303258ljj.5;
-        Sun, 25 Oct 2020 10:46:36 -0700 (PDT)
+        id S1416482AbgJYRsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Oct 2020 13:48:00 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:37198 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1417706AbgJYRqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Oct 2020 13:46:39 -0400
+Received: by mail-lj1-f196.google.com with SMTP id i2so7286354ljg.4;
+        Sun, 25 Oct 2020 10:46:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ryLZzM6AeLljw7FhT9jJjorgcKimBmMyaAgnsuFGOJ8=;
-        b=sw5KEo9n0mtrgSpZuX/PubMGgcYb3gohfDN5lssABBRCO+RvKNN64gML3g10fjGosE
-         a36zHJouFKw+7bkVI+EcGta0Yt0mvlvYX3pyspeR/Yv5y6FFjGmXOKztJ+2UlEqhH5Z7
-         WAYKRlH2mx7wawrPgo+e++z2usFodGWwmhVgRE/PK20yj6KqNSQyiAh7dsFvZlimqctO
-         tRDAoAhhdbUuk5IcAanZluJQnQfc1p20am79AcnHbvrlFl7R+8kb/rOTB+92Pzf7bl/E
-         73H6GQr/58lHDF71G/DKI3zCKNvtWTz12+K9CrjWorFxdL04h7NN09U1CpM/lR9xy6+O
-         9bdg==
-X-Gm-Message-State: AOAM532BJ4aMpf+sR+TGy66kdxwf5MmedfpzHxy25sGHjfK5YdU9CKCb
-        0+CzPGf1cfeTzEwUTMreoGbHIMQQWMTfxA==
-X-Google-Smtp-Source: ABdhPJzp9+8tU7hNK8dUch6AG4rzoM8aZWmKlQbR7EyEo7boJbW7ZHtMArRSx2nMe9x4IKw+v/7V6A==
-X-Received: by 2002:a2e:8096:: with SMTP id i22mr3937528ljg.176.1603647995906;
-        Sun, 25 Oct 2020 10:46:35 -0700 (PDT)
+        bh=8F5bIaxdX0w1ouDNYj2bcxzTc3dOdSXKUtWoL55jsSs=;
+        b=GjnRw5jyGUquqq7ClfTNt2lJah8pcLnv+/Wu7+cuEP26L8MKrr/d0IZKVdkG0b06A1
+         HV0SElbUagF5e4X1YY7VU69OaeP0AOyOLZixD1RBa3muvKmHXugig7a9iTOJ4Jf+wZ83
+         /ZTkkk5SK99f5DE0AJg1s51uOwN6bqiTwwNtIWIlP/Cvhu/qD7pC491ynINh32oJBQdT
+         B1mak+Q+gAUG8KrigIqk+4wm5DaXxO3vUsktg+FWS5dFeSRt8PhaiN4JKgy+hwOQs4fy
+         X2gPLn8HYC2iTjyhMtQYQAB6lkfu0FuhbhvLZRpDSIBQacOEMn9bTYL8rNxevcBu+xrF
+         uGnQ==
+X-Gm-Message-State: AOAM531Zk0tzBIi6ejsNwlWGKNOCbJAeSVXRIHc3bmMTF1E9Ri2a/cOf
+        lEZo+AWAeKuEO63xwr/1qGk5lYVZUBau4A==
+X-Google-Smtp-Source: ABdhPJyAZnlLiVQGH9JpmXnwbzpxeBbCOjWEjNVHAbx8vvb0U0Z4GJNV1tjTZaMnjdyEx6NQx+6X/A==
+X-Received: by 2002:a2e:8e6c:: with SMTP id t12mr4059103ljk.432.1603647996931;
+        Sun, 25 Oct 2020 10:46:36 -0700 (PDT)
 Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id d7sm875735ljg.140.2020.10.25.10.46.34
+        by smtp.gmail.com with ESMTPSA id m18sm795963lfb.35.2020.10.25.10.46.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Sun, 25 Oct 2020 10:46:34 -0700 (PDT)
 Received: from johan by xi.terra with local (Exim 4.93.0.4)
         (envelope-from <johan@xi.terra>)
-        id 1kWk6I-0007HA-G8; Sun, 25 Oct 2020 18:46:38 +0100
+        id 1kWk6I-0007HF-JL; Sun, 25 Oct 2020 18:46:38 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     linux-usb@vger.kernel.org
 Cc:     "Ahmed S . Darwish" <a.darwish@linutronix.de>,
@@ -43,9 +43,9 @@ Cc:     "Ahmed S . Darwish" <a.darwish@linutronix.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable <stable@vger.kernel.org>
-Subject: [PATCH 01/14] USB: serial: keyspan_pda: fix dropped unthrottle interrupts
-Date:   Sun, 25 Oct 2020 18:45:47 +0100
-Message-Id: <20201025174600.27896-2-johan@kernel.org>
+Subject: [PATCH 02/14] USB: serial: keyspan_pda: fix write deadlock
+Date:   Sun, 25 Oct 2020 18:45:48 +0100
+Message-Id: <20201025174600.27896-3-johan@kernel.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201025174600.27896-1-johan@kernel.org>
 References: <20201025174600.27896-1-johan@kernel.org>
@@ -55,40 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity
-checks") broke write-unthrottle handling by dropping well-formed
-unthrottle-interrupt packets which are precisely two bytes long. This
-could lead to blocked writers not being woken up when buffer space again
-becomes available.
+The write() callback can be called in interrupt context (e.g. when used
+as a console) so interrupts must be disabled while holding the port lock
+to prevent a possible deadlock.
 
-Instead, stop unconditionally printing the third byte which is
-(presumably) only valid on modem-line changes.
-
-Fixes: c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity checks")
-Cc: stable <stable@vger.kernel.org>     # 4.11
+Fixes: e81ee637e4ae ("usb-serial: possible irq lock inversion (PPP vs. usb/serial)")
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/keyspan_pda.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/keyspan_pda.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/serial/keyspan_pda.c b/drivers/usb/serial/keyspan_pda.c
-index c1333919716b..2d5ad579475a 100644
+index 2d5ad579475a..17b60e5a9f1f 100644
 --- a/drivers/usb/serial/keyspan_pda.c
 +++ b/drivers/usb/serial/keyspan_pda.c
-@@ -172,11 +172,11 @@ static void keyspan_pda_rx_interrupt(struct urb *urb)
- 		break;
- 	case 1:
- 		/* status interrupt */
--		if (len < 3) {
-+		if (len < 2) {
- 			dev_warn(&port->dev, "short interrupt message received\n");
- 			break;
- 		}
--		dev_dbg(&port->dev, "rx int, d1=%d, d2=%d\n", data[1], data[2]);
-+		dev_dbg(&port->dev, "rx int, d1=%d\n", data[1]);
- 		switch (data[1]) {
- 		case 1: /* modemline change */
- 			break;
+@@ -443,6 +443,7 @@ static int keyspan_pda_write(struct tty_struct *tty,
+ 	int request_unthrottle = 0;
+ 	int rc = 0;
+ 	struct keyspan_pda_private *priv;
++	unsigned long flags;
+ 
+ 	priv = usb_get_serial_port_data(port);
+ 	/* guess how much room is left in the device's ring buffer, and if we
+@@ -462,13 +463,13 @@ static int keyspan_pda_write(struct tty_struct *tty,
+ 	   the TX urb is in-flight (wait until it completes)
+ 	   the device is full (wait until it says there is room)
+ 	*/
+-	spin_lock_bh(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 	if (!test_bit(0, &port->write_urbs_free) || priv->tx_throttled) {
+-		spin_unlock_bh(&port->lock);
++		spin_unlock_irqrestore(&port->lock, flags);
+ 		return 0;
+ 	}
+ 	clear_bit(0, &port->write_urbs_free);
+-	spin_unlock_bh(&port->lock);
++	spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 	/* At this point the URB is in our control, nobody else can submit it
+ 	   again (the only sudden transition was the one from EINPROGRESS to
 -- 
 2.26.2
 
