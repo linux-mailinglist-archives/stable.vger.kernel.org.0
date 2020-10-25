@@ -2,166 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1A6297F73
-	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 00:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C700297FD3
+	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 02:42:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762608AbgJXWdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Oct 2020 18:33:13 -0400
-Received: from sonic306-3.consmr.mail.bf2.yahoo.com ([74.6.132.42]:42096 "EHLO
-        sonic306-3.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1762538AbgJXWdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 18:33:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603578791; bh=qFbuKRmrzUWd5SE3tGcypHHoWywgg3aF/p/xNRx13LQ=; h=Date:From:Reply-To:Subject:References:From:Subject; b=UPM5fiiVMMPIxWJlHqJvEI1SGCfrJNt1K916GmD3sr7fxAW5KEPyfDh8ehs6mbvJOn3PLn39WYggUHyY66V5M6wnAEwb/n/aSlg+DYiguX03YPIBIuwxfdGmk/912Fx49dzE3SdahE/z8PSsJZWwt7dkLhlZZoKrjhCIJ5CkXUSW0K/34LWY3r4mxddnk3GcHJ1a7TAuxyxMQcZKXAxnIbW1F7ySzT0asc77IIQAkp+cmASNK6/3gGu/mbQKcRCm7dohqyBu+Q1kLYZQjp3Uj422rcm2wbkDggqV/P1Cu1EKKhorX0MSb9CqMi4k2feGXezhXT/KMi8DaRlv+9nb1w==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603578791; bh=bVKuYW8Rz8PQkAWAKu5dxRLtbuU36MwINeQwXGbejRx=; h=Date:From:Subject; b=K43KivUm8LGSYHm4cqQxzR9O5ZuNQry/LW4hNznjvYOcZaJ/WIaeyuGJUvmuw5j6GCxOXiIl9uaXSJA8qUkUJ56Yy04YgO2HQt7yBv/3VNvrhioW6KcEigQcdJoe8B0MhsdZnyc9xh1Y3Y9YaGE1cpWPM1U3C9YRXxYYu4gztCLaHrMekENBC28mkfJpTSPPpwBFwFWi1ys+GltBOvVUiRITnOkQqdFxdvdws+8nu3HlXye7bIgKEoZ/RffRcMfb+kfGOlZEEDt385s1NyOsu88zLJTaUK/3sdpT0rOzFC3+kwX9M4LOqdKl9dwu3gTFFUqQgy2k3lLq/2/w3m1SaA==
-X-YMail-OSG: H07GPSQVM1mvdTZlJ63idVWeUXxhrFDWVoMZUAzFWY0_VO4d7v21Tkck9saHsPD
- 3bB0wduGMGP7VV4PTv8yA7uFEgrEwsKYTt6crHxw.t5ea786bOFTL8ihxdWnwuMMWhMlKZtwagPP
- QJ0_eWNJ69714zr7y0Sao.TdMUFjoBH4oMUFZeIfgIiV65Iea_URJCI8mWvnxAM1UbmjJMt7lcnI
- 5MEHJyq19AECtyxv1dGgbzvk0bMo7zr0qDedqd9H44FOL7JFDJsxouN9Z5eGRWLQmRKcQXxFBL1N
- ISP9SFm05XaED.43eKsZDHrN4GThkKOhKWPY96oy8iDVNHWpMSe4JHp_fhAqRlMngCwdO.qn7SPa
- v6riE1zaFb.gtSBnNtxmJT_7knv2.A95mSkiDilNZsxzh2tdt7Ad.BrF9.S6mJU8rRwuK8G9xprT
- UTFjy0DGwv6Qe9pNQbjiLJqJr_b.9MmeyMz0JU7whRcnd4clq3.rz8_GwZWZ0ATs5gvI.E3otyUS
- Le.XpR8h7fclIgP.IXXUUdbf4LNrUdrSgQF2hDs_sq9ZujKpIsOWNyFw4KPAiY7pSmh_S7L0TCDl
- yOkzi9mxX7jVBWv9ScWwjiOLNxspSZFXshzucAdyjrFyXv2y29nl4eJU9Kc6AYv59WgzW8rbsRk_
- QG4ihZ3paKo_7CgdU6SjbB3HwMBn1rmnYUlFsZWVxyUaxJD5keRpwvk5ypZt2YZTheaSNXfJvVNC
- etNpNtdbUKm8xEgJKWvXkobGOV1Hs3ugJOiITK2sDtEVAgeo5GH6tqGz6FvoEIeCNHqvGDpJzdun
- YQpRzMlyMnmRVMYQ6OHd0.lLOKMd3s7PZBfgfu.zvih9rFMzK2TS9CgWX4tuvPNhStQIMQ0BtIgF
- czI13Yh1qITWscwXhH2E.hKUrPpVjIOZf5ssySGvEPYHax8RoaMOGfviN5WOdS.EvRD3ZoEdneb4
- tFZQfxdquD60FZNK46O0xOGuBHa0gihkf.JxFv5hiP4Tp3sdhUGiQSfz3M1KBLmBjQ25WngxhsYU
- rUzngsQ4e3utkQDz8B74rMcO16WZ1kxQxVD3vDRWiNZHnph0jlEOzJMg8k1NerlgRervLJDK1Uev
- xdMB9bkHuRecCwIxdFwotGs3Cec84KOW9txZ4EeTV3sL_2P5epXay9aVCWNCYGyeuZR2vNgZm32C
- 3N20KR9vpm.tkX4y65LkTGz3Oyk0NMel0NILdcwxssQ_Ct42NyNE6KOqvFDKrT5VRRbh4kUxP1VX
- VwO5.q0RtabyTNceDhu5uqNPxUkqFmDqMwKjNTLSce0HLiuXt2ODJmB7rVeMWQmESY8y9N6JLx2k
- ubbpSS9gVK40_kdEFhFYtRXboq9I_HDYGH2eqfbzThNJAlfhWkJBLXS4iQ5S0aMXF4YtucKfohZX
- EVgIN1uxOYh.oSPKzXUN.JMA538PrTpyVs3lau_nOpe6dhggfLxhSXd9seObfSSeELNbFSGoIezh
- sgVOrHOE0i7yWf2C43G1t4vLR3H8.cvFzfk.OdL0nsXmzkRLldSgtHc7C7CMsQ8DHopuXWuca46h
- nuRqXSVjGQ80RMXAVfyZ9rukAMryQ3yqx5_gG4UcVOGR_Vjkcdemn45kP2NcVtOcOqDaVaufbGHr
- .sX967K8hHi3DmEXiTMOGjcYp.Hw1yqjhtVmml3f81bBOBXE0fkvtsgWhQZSUb1f4O3vZ49zhhhn
- uXAgVtZuTXrmQq0Hn.xNQgiB1JVmsYUrCSiU30NaU_oyuhfFoV6vhLvy0fSkTNQvwGz1XnGqi5E0
- tdn9WKKTpGporC1eJfoVmNVzSW8Kyuv27quaM4MB6nMdET43cnDuIJCFuUYoUgtfZjSGbG54KKhC
- txIlasYb7eTdZlGv3hL7OO2.HXLnsvqz_Cpk1TPQSa4jQ4uEGy2Dk7q87keuGEGdh1Ke7tQvdh.7
- 0hlIrHgPZEqDpjdFM8N7vld_Arco0uI.DEpNh44dvlp9mrNhuAenEgYnvhHsJU7KPYW4SAdwKAUI
- a9Jl8iRWwXRcz0Zl2RTKTsbIn3diXRDbbJXRKB8Tqt63tcJ15dROWfN5vaAvpy5_wEXU5HcPaVrK
- ZfgveFhGGNHi0ElMxr1WqQ9vKGpeR9ZlnctG5OF05ZpCL7mTJOri5PAP2cjkiOcSpaRzEtEzthEg
- aUEqSlR5mXzzF5920YIhvsdO1ZRVJFY16S7r6GVqehyZ5hTRAG7FJHN.Ka8OsJZuki03vMNYT1pD
- Cx4uBQJ82wfMsJ0mbAu3eUu0zq1wDUk653IMAv8zkn5ZQkyCKY2Wyw_HkYg5wjv474WIFwIp7_Ve
- mrcrL29qTl7P1F3LLuyQ1vcKsRllcz3PdNzWcAK7HItwsD3E5462zZnhVPVnKd8xEt9p5ZXpXkM4
- kHS4tFOmuSG6_mRA8JlQ0iAaIShtY9D988LRvyA_Ao1s3DDUUzua_0N84QlNN2qL2QVHV9Z.X4R2
- AF7co7UceVig4RY.MwlUaqXuotoPaa9_or_jhB9XokLBNn9bL4u5hT7NiGItb4.lK6mQ6raZPgIj
- HbMaV77WYS_rmS9LAi4RmulXR.2mqT3x2gVsJ5Eme1pzgxScV5TGyPe35y3FfUB.MnNADPNFEDra
- QUThb26JNyR0xsfjeOSK5EaWTrTI1RzOgFLfW6VgQmvDU3AID5XIJBmhA7nNEmUpfxvdewybdbWn
- 38skY0B.SOCJ0Y7air.QRVsvJfURnXcTYIMUF8el_y8rmNkEi_fOAdu6EbaUShwhx0ghYpry6FHC
- _poxOXTK4Vd7Z8LTSb71R22JlqFk5hZKZ9j.SUpg0clFw5.YR_DN4Yxfk3L.DSGNdebAjudD6Y4F
- VoVcUWG20ZzPkGlQiRkmE_hl0ARRrdvEImu7.oqdPNbMfHnIUQYsiHpywdI2LvuhbkLxyLCEJ0rO
- cKGA_LHFI6NokppNicva2hvxmuE4F4tWOlaG79zEe4Y5kXzUsfRRtZ4Rd3BiPefQHEbarnPh6.3D
- ABoeyev_QXJC1wrAI6Z8iUDjIMzuY9cIllw2YVf1xOlneFBoDzqq8mSpjyo2U4_KmHiA3dsIaZo0
- 2NnYGkwKkDmTLp.d.YtfCXudJDPldJTXxKbzKP1oEQGAoMYqmNh4hhSVYhepx45Js7dDC5I9Ijf9
- LN2HFIziBC..XIZO0eILGpt9.6CicCo4cduNeXAhBOoIUEMfeWmLhQhJ.msns3knkzmMsrDVUiAZ
- 2QfV_GN2tLzdGVC3slJtplRTFMIcd9CmRyRLa8E2Gt1Cg42kPidK_iGusJndfLIMI8JEi86Cjq4l
- hLBGE89_B_Eh4IDJirU2UjewmK9tISLG9l6IFbJSM21hmOrPubNW5dRAnGeYFMmrDyvdmAl9e2Z1
- H3B8mi.7ehbRW0cyS71FHIfmYSp8_4ZGoi5ivfi.AdqUC8hYM7XD8Y7ufQSKcIhRTWdpH3G3LlYc
- ab5WRperbY6_rYJVC1MLPVhXHUxAE6IIrQAlTGKt1Cqkhd55dh0PbVaE67ajEbiCfhXuakDOIHfh
- NhP2XuNF4IeZqbNJ_2BNf8HavTLMWoJFk5wNCciQ73xmbSyrqyjEcIo4BbRYQ2jiIv5KMoOAnpgT
- kt7uPdKtipcYCYlX.HzyTiC1cDTJjzYr75iFWTf0gGBIrh38bCtdJ_4Em1ZGKg229HlpBMZtvaox
- s8g4vpuolIL4HpVCoujhQkY5sNjN7YfunPyGbjQhhTsGg0qPFSje6igUul4MODjBO7F9qHJ8NKR4
- TImpDd8Y2_VNr_nYaqS1xaEoDAuZiiizkPR3_YnaE414EIYPICWOTOK8l_HAkMbIcVDAtcCXrPPA
- mzyLFlBapnalRP3GApitquyPFBdE3Cqt5eM4LU0P3jf5wUF_tENKe0.0A8Gbh3IwXvB9gh65BrSr
- kWwzXkgFrFN8NU5H53piUQ8JTHHkoZXIejX48W_sbwG8xmLiyB9xlo7RiQTQ6bYa2Da1WN6BJyoj
- JvW0DqYZwEiCdMxgShErEmaAlFkPCFI.wiYjWaohD4RSkG6TpsNVCjBhDt1ZJb_FRH7K6sh4cP8J
- 1suUH4fX4zW0gQVX6CGRS4VgN7gP6zluc7Z9gR6_jrPtHvxIP4xG9iR7IfxtbUHxdURnq.lohgrx
- CFkzefqH9uUV1JOAizKzXlBIoP1v6PaRBBzoy2hSf.EkUCXMcVDHpPrQ7BEM2GmSnKgV2T.9B5TK
- Jf9d5ZgHTqIofH8Y6wWUtT19LUtYKGc9pRpaFcN4OwwHF9iRzp1aDMt0i7OcnPaCf7e5sCyiPQZR
- 4dTzxhI0hvFOvpd7WXXMfX12uoE8YCkaIJlcgCDZUIGRgFlm71OpqIhhSrbwiL8WRk3aOHo5yN9w
- 2Jp85Cl508chHZH2AtSLmUCCSaX.dYAlgM3EaRWKV5xLeIvBFaUffZEZJPhjaLs1ZdqXeolyzWaS
- kUVJMIZzKldbq5LhmyA68GiIRQ3LxNxNVxrhbs0Ax0zmFRGbHCgxLKzh227tmBWzKUXeN5TicU0B
- lletOgF8.Wc69hHl8GCnN0HXYnab9Z9s.0C5eYFHgSQPtvX3uYUzUfMt7P.1QfXfuitf60YKYAAM
- 7HC._6FDP0tttHoBTVRtMs5bgzT3yvN34pqOw4WZYIDU9tI1aDF6A2I_6AGWuol2NrafPwc6XAfd
- TmPf3gr8W2V0XFFyXgDz5rxlDz_8TvFjTwmSV.ZUAS34WSnPSP.8g_XZxhhzQaTMQBQ7aYje0Zz3
- fqGE4sn_liq_4tKx64uqOz3GC598vVUPxKOWSrDLn98LRHfmZUVmxVRMbZHacNwYK14My1Fn0s.a
- cYAxsNbqZmL6NjpDlWBuV.3k11hJN_KOpoRMT8cNxzljF2N9j2LtJvSewkJwW28weYH.VG90Z1p.
- OCIys.bjZ7GOjhCRQKoerCwxHplYc74i5Mnt2lwsWtgTU5ZZzkAucpb69xSlTVWcDOSjdVltvn.F
- J1rb7QgeyUt9be8yzVJXj4ZpjwGX1e_pabQtXAYN56PRnusIaf.aeafCXsX8C97ezMD_xlYip9K1
- oLY1HpsPwqj9SndaFoUbYCRVzAaqcYK6VvHeKgynu62i8SucNMLAObG6i_htAeS7dXZ3tJBVrxbS
- 55b0V1Rd8wAF_kC7ShoSGjL204x38KNvJJP8ADYgRkXXZ_DdoZRC5QI71Kd1RtRJ3dv_uu04DsCr
- W3CuYRN94_TpMbLD.S0Atb3T95ogYcrGYWzYqTRrahkLC9UpN_geT_fAgRs3FKtrRiKGFG5okBRv
- HsGLroUFrjFi8iWcc5JKgwTGqa8NwYyG19YtVdRwMU9cdEF.CESUVJYfRfsXDl31x5sq_qkkYdJf
- UyYW58QLh0S2AykbZxaf9hMHbyCblFPLs.znzF9_.2JpjUrBjfsB6K5PCfmzbRPADNq7_CFELbdc
- vIzDFVHToZgSh5V9qc9lkbeBI9SBEh8_a5ZOpsaoMXHgQ0XvMtRkj.cLKe8wsgV6PqVawZ.UeGWM
- vIZPfqc9bo7HN8vK4SnZJ3NtuEeRd2JK.I4DQktsf.o.0B5RF6sJ0lz.s5qpqemHH1R6KQIobWe2
- IIVIbDB7N2bfjIyjS2eOs1Lm0qQXQtyzu9hrL1ZIFczLK7hWi4o2GkuT6wjlhyeZH1HTlrIJKxq2
- zyjpJdu6TpG69c.fREFtHdHEtNy9bOswjdYDXwfWc8xhzCVjGbFJOUGRGWCOTwXUPyAKRFUtDT0L
- EGZ8Bz6ZvFdlvx_21ZCQyRVjpLc5WkTJhbu1yoCAtbPGrsN4cn9WwZpFPhRoyUwlOHkjItai8mr5
- nuxXwtiFj7mTEuH92g81.lX4jV_wU8VvJrtTR3I90poTcy3PoTnxZ6rqL0NE61Kow.1eapJpFBAu
- S2JnV8DifsNSKyb7idFQ1OqtNCDk6zu7nP06iOO2NVeBUeTfBAKq6wkUYK007ZxALE8Jmp8NPqrl
- mIclZ_LxzbTyC4Q1q29SZYnq0lD0iQJhJvF7YdafjQLW.eVIWoipjR1spJjr4eeDhYqGGa_bmPpj
- 0XdD7nqWVXp.Ma4EC6APydfl4syAfFFpgUmdUAppMUow65ZXeoxRIPGWtrnPgroA8y8tug3myU8S
- Ps8D7zYLxXWS1Uh37R8WV4xlF8NzUxBTC_IFbif4avbtIi9QZznMmNUKFRZuxsTaEugZod63Cfbw
- 9QqKGzar38SatATlJuHsM6Kl7K7oUwaN5tLYlqwj3T_9JDzWg_AdgkYHsF3BlbzPFlxuDOq37hgx
- QtA6q9DzpD8RK4UhX5i8lJY7Qjt6SAacGvQuW5mCLcQ0RJ7hGBOZ0tyMssV8dOxs5.KQS.quCOVS
- GF7x_NrIkgasRJWXCbCWWWU0gi6C8OI0mIE1uU1FJXn4lyv4A5CUm3OSsQBFbroi5lsb19FyJ9aE
- mU9sQPrv1NCDQ8XoH9Q0sZOvOhh_WOOF95gCpm6fS4xFGFAL5maNjUOQPySqbruAj_KLOxUTvWoF
- o7CyWqafJfaQ.RZeWkYLk7PZP6Wft5yZ4yxO_yTrOnNyzlHhN6rUf2PsHGavVie.jqfS1.cK6mGT
- CjgQroQmpcCLORV2iOJJUahl6y_kumWSX_3fIXrW7YRPkGaSa_fkWCDdRRHTIKlM7v5Kcq_6ge2R
- b6zX2NXT50iGPhnU1txW2VIE1QPjhnWyIa8ezbyXYzNFRd5L_9IqR7O1NFzCgwsjaJhYirQiYJ0f
- uhaRrRqIga47B7ZQ4bfV7hPeeuPZkz2vcO06GQ4DgKgXOm1wsusTBDiSHE.ZM0974nlIchbJOfE1
- EzKv.mRklpFGw.sC2CXw.PgpWKVeKl_IajnXvEEyzoHkNpKhScwdtcxnj3ezTnmJE8fZ8AeiSFjj
- Sn_XNkKr6PZeaTKsDB4t0G6Y_w9YdT66F.jDweUaxaoMaN_7tU8NsZmQG45Dusc66ZzSuACiUunh
- RYWg0Yp1SVmfXMBgJ1aaJfLrSHtd8grr_Bl96k7S1kYQ53CtUYM3bQIWrSXbWgelaNB4nRi1UybW
- qvhG8tYF2R5g6criFdCKf2CdASGyQXSs.ircQGeHJSEQ3jNgANoDuQ3RhJJ.p7hrZFrm5wLZrEdS
- GLv67E9ytvgf3Buou_PUtrJ_pbVAOV5kCxydNXzb9.hUD3le5ka.QKd4FmrI0k6Kf4FFWs3Q6leC
- Srv5A1TVin4Xec8HqqTwto8De2rGK6MjoLFZHBH8IPv9u9ZxSOmUEZAQFj6aOIjPJCAdCnVjyvU6
- CV8nljVmePp.HmF9LbW4MQGIEu6bQBFMyodC1QdaoQKOJkeW12ebqTcVQisWMnAc6h0WARtYWkkL
- mz9dIixiyonRWZFeNvxmrw9kjSU6ovxzDkzmRb_hm2zGKEptoi_npq_DPs0GRa3cQWE_gN7JNcD1
- 96uuDpCBmXODjhFfJ4MBTb3.G7vvQt4r.xQviMPFaxpRYOmUP2xM6on0jq8M3sFy0l9T6fuI2gyG
- 4mLygH9n0pXX350KBqL9LMowSFeh9Z4k.aC_KeMH2R28ER5p1kM_IT8DxtWJ9KRwzs1bniNII0Vc
- JcPx77Mt0jaioom8_1fPh6.Qx8kKR0gjpMgvd1kBBuCi1xx4_vWhyRQTmdvVgjnlykm3MkBTS8O6
- 20W01RTlDF.vaSkXNWSzXoXc.0ALVyUePzwzX2cZvfJszfLbu4C6kJ1IgOEHfDfuaA.x1FyaIJYa
- egP8xnzjG5Cv9_j16Xj.jXqEK.EgDC7gE0xa2kxPbqo.QozBytMx1fSvT5clV4O5YtZx9ooVLU8A
- 8Ggc7azZlpfBXcnReb8Xb69oFCpkqQTOuX2G1dWQHNG_12vtxCnYdOa9eQkrrS_bf.IdxI8nEChf
- SCt8dN9AxXWrq1_FdjfSuCFojycCdWb0tt5u3qq3FcBiOnGW5Bse0HDIGinZlR7frcK_CR9zedQn
- 9_GSm5WsoBDuPl0bQ4BjpxYymod9yAIWA0P4g5MsPCvDk_ekSu2FElTq.PeGC1r0_kKcRexBqQdY
- D8OAvKr_QJtHda7ivY3tEzANSkzJHelM89vIkPChpA4lmRuRcEfujdYJ4GMRKwWk931MaSrjMKH6
- QE6WJn2I8eJ9AhYhDGTtP5URzlZKS4zxTRw10_7M3yueHzFhguJ7m8W.T_yqdO4LOXDss3TZmPST
- WASPG19dnEgOhHKvy9bAugFhuA.JiGzBY_XeOi5IZEVfUlMG7kXJTw5SzClbBgNaHPq4tXlJz5fg
- q.Oo7KC2aBlf6GlipaVlm32KZVf.E8KT2fSIToUx_r2hAUBZg7RukCEcJBoNJw2g.ccECdiyFJB3
- 185c1l9AoZ3PWSeCgMFhG.mi3ajD7JUMQmyf2R6Hd7LSgU6k9oLus.Fy3QGqn_f3g0hmCwpviu7I
- ukxPNc_uiP1vwN5O7BFbny6_SlnyH.9O2vcWbNGPT4NN6ImHzcTzWHtIM_dX4u6iYyp9sqb5obPA
- D4Z0KSBFXILKUzfVdK2_vkPfvNYcAPnZe7y6CwjsY4pHWsV1IqvUB66teBACR7Hel79kMa_7D0rG
- PWWyt7zmWvPhqodIr6iIPqeUXVgofPxpm9HSkfMD1kIkkuFdRRHa2SnkkHsPVBtevrhqOVTkStHo
- Yjx3eAHuro3Wh1A_7KAXGrvp9aiiiFxqDKorxUAeh9hVdpTXbUV4fRC0kf8KpMy_DfFkJOECiEI3
- xUoXUiymbiVc9K5jxWsTliGPJi41e0K3K02MthkXN6kdAyGWgE2HihBdG48iijS7TkwRQd0YW67D
- DfeOJSldqr5WtKg4aewXE88jRLfUfGoXGbRFvsxZDvz3cgRE.7cB7y3xoII6wfX1DoWGbzfHsD.N
- nBXpCt_Zwvo6cUaKuq22sLJqxsoWnKJeYS.axv1uA0l2PrHyZG2CJxf62hbOVuSsYUB4bT999RSS
- ka..O5d3aac5EdSC8wYO8k2R07UG1MnKE6XkZ65Ypzn0yHrB84ZJ5si5rp8xdRTG_AKc8WNnmDE1
- K9tf0zrBK1DVbYImEaf7TBeTn7IXR2y9ysaf_65xm8BsqmddQHZvGF42GhoTkyiYfliRRBHmTOz9
- V7rNQlz2z06DTgyB8whYayz31ZNvEtXe0UnzfJ2pzTg0dX_fhbAEVSzCNN_dzZD64ftpaU1bTv6Z
- LV_EbDN07T.kdh_H58noM7k9SrqS3yWeQTbDzVnVNcA9is.5hOK9uhhufHeibae6TIF7wQIER_Hu
- YuhFJZW.3G4kIiAj6vK40M8eMHNvWbMiOjptowilisSgA3x9sJSVryqs22JbphteEGegZbGvSdt3
- epPL1sknsNPs8znm_jV16Vm9p9um8B9VVQDQfCFut2qDZflJXWyTLq5E9mZoe4F0gUSi8vg5Lnl6
- B_7Z0By4gbOARCqZkXbRhq0DafIZcr5TT.WWj2UkL_HrooTfv8TPQtuZYA26MT_rBk6cE5u.xkyA
- TM8VqR6sW8kx2QAZyMK45bszF4puc2G4MWvWH36imIpz8IaZX6Ef6Yf9kCT2xsxLj_UYMObPWpSr
- QVIvDgZ7c9QU1E7ZnVJ_m0G58PLYnSmTmXobiolo_l0qRVfTs0ut19T2VDRGANgCDI39QneUnmUH
- GhDM3DltLycll8b4TwKLJX7v9SvRwtA9sqEvb67KzW8OTRT4BIZkfclFXZa3kzD884m4Ql8KEUn6
- LrNJj6I8ikpJny_G2nknFHH6fKhHJ69cvhI92wrO30UDuOsWuwNM4.TLfNZFwnS6DlhE2coKGbwv
- .Vdn7Tn6cEj2u16TTmsSORU2W87yc27jLYIV.OzHDtiydiYhh6FBvlrFZxbOsBxnS.5tsZk4vvsq
- SCRsQ13q9Q7MbNFdeuSPglctq4Xk9rKb_MuIGDjpZtI15t3fphu2ZONlXeL3ECY9LntYLmO1DZ0S
- PC.QOus9t6P7JI6BLnPeieKftu0apM4PHZLdZIExzXa8bRtJ8jIL5n.ohJHD3kI9hq8q15Ry2jEP
- rz7YAA_lEDGscXXzinP.GB0zyWKG1903VMUTMymqyZ2mbPF4clmOQRBjQtPWvMbt3NXFn5mSFl00
- rxwaTMaV0NSjYaZhKvpiAHFIFIWzSpCZvjMglT8UcKNCdEK1lR8vxXdij9S9R.hsS2ZXCWtmIHW8
- Xtn8c8yOBZ1ZhwcSLV1KlLsunc48vmz71X3tujIAqTf5WzPB9Fstgk80hcPw3mtvkbCguloZDIjk
- B3SJy9QijiXDeFXtsxNiVtykT3SvylMntQB0WUZSLnQ9HEjaBi2jb_n94ePLZ_JjJR5JotHMUSBu
- Txm85UE7GNxhTlnBfIoWId8lcRoahs6B7xDRWNroXBUymycm9DYQ2QnjjB5vq3f4NxetU7zBanoz
- jW.yjgXGdo5D8vPOuUTA6KKvOl_UBZIbFGQORChjkYJH7mUnGv1XZqUDzzOJd
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Sat, 24 Oct 2020 22:33:11 +0000
-Date:   Sat, 24 Oct 2020 22:33:06 +0000 (UTC)
-From:   Michel <micheldukuu@gmail.com>
-Reply-To: mrmichelduku@outlook.com
-Message-ID: <40332329.2307788.1603578786307@mail.yahoo.com>
-Subject: HELLO..
+        id S1766646AbgJYBmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Oct 2020 21:42:33 -0400
+Received: from sonic308-21.consmr.mail.sg3.yahoo.com ([106.10.241.211]:43637
+        "EHLO sonic308-21.consmr.mail.sg3.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1766641AbgJYBmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Oct 2020 21:42:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603590139; bh=rL9Nereyf6z11xgF2Y4betqrYfTpmZ3zohYWpfFPbDg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Q6mCb/ZmXyC8YAe46zz6uP+MgvEx4slaTOwMKK3U7Js7HAO6MbTXq7DNSRrwX8QNv6lP35PiFjRolQ+u5G/5G1PGEKlxiK70u7lHo0XfxnzYPzJ0PV/BXl7IBtDcwGfWmtI6fFUZ+rQvuK4Fz+V2d5NZf2+lY0qAlQ7IkIa1grJYg51VXOrkPCSZkoyKksfIhuuTvTM9Ial8MldJ9xFL6GH9ygh3sFIBz/pWUnGhJYQ6Fv9yKyyZ4EGDIAUiiGnMiZWbwScNrcNEmQGaNMBd7kXiCjcmUWFu8phAqEO9KzFfemC6iR9FqoBbtZuvzTOLMlokQ9mI79aZhcpxBfmUyA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1603590139; bh=YPc7rgfuUZuxJIlYp5jLZ3WkjMl06BzoitxEGX1deA3=; h=Date:From:Subject; b=JXTrfiB2ipfiUg0IVgjjceOvBg6fxbJOboLvZ6vkAAEIrLi89TnVqq9TnaOX/Nd6rJkZaMVzsKZfAfcYduUkSYS5f0zK0QFThEwG+gOd6TByDgxsnUIkOE94YxiGXeQYvAu8mun7wvYdfFvaPDGDvux/jV59ky23ixBKflB5/2Kix6dYCmua8ORq+ZwEgENEs5rTd0+W/ZPgZLkvhzsYKEwTb3mNLqIZIX16X+LUT8KvCJjoxd3y+MvCXFt+q+4wm+RbYYHVq/lvSW6HFPFkT9cBFn8cp1YMJESEWSPnVTQOR3ydcQGho2qepmoNtUEBz0fl7ZMYTFH/1kmJ2cPKPg==
+X-YMail-OSG: 900A0S4VM1llUzYqysK_n1piQx_yPflrec.H9yEw2ym0X5Eyy.2UfVcKJRhTKnt
+ 0JgfEAdSC_mNbfdET70xaxvi2zbGVLVu92n_GMMTs7PyaEYE0SbKntueca8TyaQVYqCFMVTWHXIB
+ CyLCMzklMZzgoguF6ZzEGpcvnaLFzmPPuprasHGmWQtpAjXQCJgpJL645xe4_YsbpSJLYZleUGGj
+ iSnN2Fv5q_iaqGsJpF5MneLAsdmK_ojhdA8iDbabjR9PLxKIlLqdWwpwdK4l_ukuF1karHSnkZJ2
+ pGDXmelHqm134g2Fi7ouI4VaHkHqo8wOzeXltdJAxNHnK5kZqDfRdfJHfHFE0Qwbci9BopEuEPVT
+ m3n9rdekLBKxXaw8ZPc6Ss3DptEmxer.7Ry06obnEliaPKP8iH39jCElvBrtTz.1ZdG38GSsbDa3
+ mHo2ViIk7Tgse4Cd1ozW7qSJr2RRy9gl5pT_Gg3ok6xAz24NvmYXZbSTWyJdxyKLdymuQpsgbCKV
+ 2vP66dkpkWmOMHqsWKsIFNVHvDKJmuCihgG6KUhJYe1uQ7yd7XWnfcSJLXtp4b6K2S2BLZleZOqy
+ LGlCldMPzLX3mQtqPJz27utdFaeXbtVw.th60GpZxL8sfr7NEBbjd93qgVrUjnnwV2PR4EhsrVvc
+ JgP_R03U3RXzVxSHt0hw3i8.ZnB8JDbeM0r39KAImQ2CRV4Eq.7zksQfzP8UYMx6T4dF_ewFviCB
+ 79KbYwErYt4yXyX9SGztR49kHQT5JbZKZ1zSbAwXu9LoUnBT8EyXHJzQs65OjGMJ2F_4txn32sDd
+ _TRLoYhp85IOUW2NdwSGfZZDl3pG1H2E5yIcYzpRcJ0Jyg8NP1mcy66E7H3Zq6x5BlvqsOZ02dnM
+ oFVxR8rjQhljwNDN1cLZisHaXBaJRv_83PTdXYd1fW4jsrUhdOT5hYS45S2dztLnzutdkDdzX.Lq
+ vov_GIWuKbvI_s.TQ_CLydtkdTq7MqSvt2XBHi8A4mJxpEL82u77NbzZWX5VnbFM1XTVPjOi5A7F
+ lettVqsoMi3KglGRsLwH46ShGgBHRxrkjYuNXLnXXhYHuJFvKZvYwfOpuUTG55JoKUdBsoza4yaI
+ SURIyylvQuXF_H12XyXn7pan6N9mQwYqSN_DGoYoX68Mb8ajASEooHhsi0jHufGEUV1bywHk6pDP
+ GomJBJ2fDfX4PJ9N9_HSL5tXzb8lPCJ2M9P2SMDJ5w9_9AKmWljXmNAzP_yojraO1bKqvkWf01Xi
+ LUcZl4hXabAszanPBEul0vlXB9aBphce22HOpVMbXmQhMw7JFLjzmDTAhh9Hs7N_pGvwfnLOwX0t
+ JzBCJK.rN0TTUzovkzhEQkDcIylk_waSnTCYHE2qAH9Wdd7in5iadWIDd0XJ8YiUenBM0YMhqTMU
+ jhdaRXghRCpGGO7C5aIKdwkBNk75EYcbr7F5IVJamjggHp0rbbHnWEBI8GEvF9ulOcV3Tfn.kBYX
+ yn43FOEMewb4ZhThLVVDg3P9tWgE3u.N5CZicIRm1Zo8OfZOcfCD.e6MKpvSJPpUGi33XF3WmJWm
+ syiTw0K7qXdKe.Bz4MtOxYlgflzo2OmFAaS_3vxXixvYX2bh9azGD.CNRqLkyN7Bvzh6N3U5fu5u
+ .9atx_BkrcuK6XEAu2VX4XGA0Szrc24sXwC4wmF62o8NDSuFVzCORDs_STplWD1cxF5eff1gsrhJ
+ Mcs18Vc9We2sdx3XWmnuZPTEkOEKVPn7AhXXQ455IdKHFCdZx43.pxQZ_GotnoPNhvAfsOAj1now
+ xDbw4SPKomguH4d6zMUGCUw1Qt.pjN2p5M0NKz25XfkeiPYe8Ch77uP9zPoa.HFNHgRyEDXd.i98
+ wN9cveRtMiAjLSDUjcyl.TcKniWym4IDm0EbCP6r1jxIqvckiSS2QhIhdcUgQ_nFjyDh5t2bfdkY
+ EBfFi1WMUeA3MWRCNrFSGTO5rwEHLtW0RPb0DZZA1W8sWFcuSlwB5j2LJyjEnAFvcaIIQ6BAwdL7
+ JMrHM9VUvo8rn208d3I9Jph6Mk1z7LuBJw09Z6xGYLntwUsZq48OTt4SQOBvgi35sGXwzhxuPOB9
+ EX.uhefRIGJSnvMlyI9wvL9oAsUVda6kuq.o_NNJP3uoHY2FmyG_R1doGRBbi8FwX1_DhUCNScrL
+ zuj.ku4T.CnVg9irkG.Ni2QrotdGzWebf_Xvo9a6hKlVUCjPtg99Aka36n2MkLUc.7_7fjcGvYXL
+ PXcSUoWfgSUtVF5xzzufKNFf3k3mGJU7UkcaxOvZXQswxJ_CVsb0nPNYBItIDZI01kt.ubdOB9ZH
+ xfgg280mPUCeQIfbwpEsTQOawCCqRi3Ytr4uMUdpjF0O.8PNe_YcJ8hoCaHTgl83GJQCXFlRvAC1
+ hQPMfPTJAZH1h7qJSX7E0g0POmRA9L5AIsHyHTTv.Ly3bem5Wgrd2.ZVR2Igp.ss1OqIv88lXjZM
+ Vk7tXBYL_TTomRKb27btflyuJFGZKTIPD8Lt_0ELyOKOuqtjNTXKulMsDjVxUyAAmyUwnEtGNy1j
+ OYOiFycTFkIs.F4rk2I24Fm15kvV4j7uU0oGl46FDz1ffmwNY_RECr2hVn1MhlCcR0smvDf.JcRw
+ 8DUIduNBQrGGCxpjVVuvu5wousuAa0TpnhUtFcn.lWcUvvKPpD4io8e09S_cPwM0RRktJ8ehLlq5
+ mxJ88Tss7N8mEOxp.S3Tb8vLM6kaK_Yd9WE4DthyRRYZnAUeZlmMEv4HHp9FK9Yp5opOLtjRwR_m
+ x2sYqLpFXyQrdS3281NNifFSok_6Nk8UEtGARCr7E9AJDVhD06WmooxUJr.n_zp4tA4vVjO_ex9k
+ hDSwzT2yQTLYvlYO5wBitwftcs6Sdy46oXFWY1HG_U20YmCOX9Jfs9AuWuTxGczqZFJscakFjnHJ
+ haORLWYmgxNIni9hyEdTquK92_1OFopgk5GFPMH6WNrcgBP9XOHgQknVdnjVLgXjXm39EmTmnUhQ
+ O6Pw5HIvQ0HUKcFYbafoLYRqw8wvsgcWpYEz.0z9mHpuIKQOKvaKPcgcX4qXfkbmdLDa7TrxWB5M
+ Xkqo9EMlg_gV1uaNAwfynrN03U1D7stMq6tmPHlyOB62V4SVTrJPXczUhAa2LX_u3tfLutj3ptun
+ Kz2dWjqlcODXnuhozFk0Vu5df0GQFVWA7.Xv_nROE0CJS3tbZqPymtJQC84mSuGWhTJeYpKtaIHS
+ _jgG_23LM7zm.lNsPsyQzzUBiABh0YDp.Z_IUcnhTMC3tFlBjbDv1zvE5Y9GvVTkUdUpOAbDhF7Q
+ UsLywPjSAmx8RpyAwbu3uw9hkaE6MHNsL1uB8Ns0xxfH.5Hbz9Ylyli2LhaYg7tJXhGvXCHlNoox
+ lq4OFF70DeWrkNHUYlgMxWpJrS8kN3N3A_ELQZzcdPxf2wrhNwlGukwV7DqRe.3E1T1dDgyGEW3x
+ hDQPx8IAT43ujp.Zcyy1slK1USEHm58S8LfogivRFao76llqmHegVnhlro2vpUFyzdMzMU8dqoDR
+ mdal3nr6yK_CrtXrK.CicuasWXG3Pp3S0aXTt3AGZQwxxZ22ORpi6M6w_VJQ3VbL5T5qYZ0QWwUC
+ BNyDhohgyR3xxlttVTJWwR2mkwE7RZFxPZV3eKnNlOyyKvaj0uCS0K7UDibx0ULSu9fJVkqfWCCi
+ 6ZmtQLDg3w1RqEla61DOM.k8omTG7.2KWXHEycDoXfsuY6XyX3XotNOXwGMtzMYjKaGcw1u2np73
+ CjrCUNd0B12gAj.zMF7h2frb3NCT2WUoIE639yg3oEwcYh_ghnrxUfGSsy4mfzKfocQj_0yvLoMs
+ YaB5_kjBx6RyHqw5oLXUmZuUFILfQlX.2OlFmlaoHcVjFCiQ5YEFuhMtc7F07z9SOfjLsdTTR3ZZ
+ VIzjrm9Nf2OcF9zNDpKzMi3cdSfx2L2DlouPGfek6oIYaITlGo8hRwm92d_xiqLiiQ_u3OTRbMze
+ TqdDn5VSOGNMGhY7PnUiRjEJoL1loTIcgr3qEoHX6rsYFtkVUgUa2bHGS1WcCzn6_xdxe3tzLM5G
+ k2ekw_OKJ1eTbgfenUDZky.TZ7CNaIihxHL5M0hT9yN8OZQ4curULyjDB8IsGAPSzxv.f4jL2tQ6
+ pVpJLbzhhkBJDfGOpQECDYDJw14QA98GPEtae5uSbklodx0I.8D3fWlZHj97xdXMlsPsLmOnlSoY
+ 0SXgaVpm2b.FPcbNPIOiaSbj0vR4_bZJ0OeQLrTWCnCl6vjlpVbjyh_p1jRIggz8aruFzWsBHFJ5
+ n8jDriVNE4p5OBA583XUfRm0grdDOPXcJU2lGL7Mp3QvFPAy0WNwrjf9PG49qFqwg6XXMVAqyDGZ
+ B8fKyetGRk2JvPTNRAjKgDNdtaifjDc76pRkbBogwFWrGD6nhmAjAgupNQ8iRx.PWjNUvJuA7RCV
+ VnBh256tiEgljKZWe3hGyK_SM5AgEIMbizTOFYcmzcNlJhGvlo2wmsfSiwZMskHjh_4SMsIBrWrb
+ AwtgVYXoEtSkU9is9.Y39dNvmqPPkUbtOdlpaF.kNdTd5aEarL7xb0tcdFuTYTwVpLy6qBJcDvll
+ ECycnPV._HbxZxo8ThdTQAuGnZBXTLewOeNgM68lxNHgnvuZAOdXjyMNfHfNUG8jtnIc9s1fZf90
+ mGrJGCVaxN.j.5uzdDmUDEIPfTo0.MPijrDMe547T2zAfv4ihRQEXqG9NRUz5JbY1xUe9kH9I4.f
+ KtKL9KtoUuJRLFoLj2fsVeMTwIFkq3UUgHEeFUbzrWfh_kdQXj7.tvop8MHQBBPFVVpIFfbtyDFM
+ cGDrnEfwJnpYHVRB2rmlEekQDzvPaoLAGdy4lyZvfYiYHWcx0r9ZPXgUSzJgtDhNrjnWzGMWj9yA
+ RE7toqPfVQ6CV7VavuOptswS4YE4jhsr.Tz.O150awhgeR6fpaow5ylJfCz2kgeruK3Mzj57Fkr.
+ MLZaes7.hd1jKRKFbjqvv4CHoV8rh2vRPBsBSdxiTSu0zmLekYNUI3RCoBgjAdN3vNmb_cT1GwXr
+ w.ZWaEAEjsbK3GkMqFJ_XjVmi0PsiDq8nx5MpFI_XFa9VkvbxBq.aCng7ikCleCYUDERbWUKzExf
+ RO6FqiMF1q6GCl2dPTRuAxWm0qTfWefDyEUpXpeFAuPryW8s1hKD_V768_3iIN_j2uXp8aJvLnv1
+ _K0hPS1WmCtEhDd6jjTTsU39bmWHJKQ.eulUKGTQl6kfreGdQpg0D_h.4ZGXdrTooSaS2iZqXXif
+ QIrvllfnP3cDFPgNPr3zw7gd5Ui.HDXcz0hlh9mUsAbsLZ.0jOP0i1oD9xwt_RJELzor1b1DO.S6
+ f22yf.LC9ppTZt.eiZDlLXAUsNN3gpSzso.2jQ39AXbN4neKozJd02L2pOG6ftP4uFN6OypHAFVF
+ C4fWZl7N.zdtKkiH6skzToGgTmTqSyDW95yKACPpabDt3UN4FyEFXuYns73bfAr0cq5JAosM1oH6
+ 3bS9GEacEUv6XLs2vna710kTib6HjkOkmJBftJCnIfDh.z5IbtobuxqwiP_DLhu7faaHKgo4lbUd
+ oS5xoYi9_Jfk65H92sG8fP6FuQ6Qt5A_AZdAR7kP3bEzWTlqfxc0o4ipt4SNa4FRHp.Lf4Z_KToI
+ -
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.sg3.yahoo.com with HTTP; Sun, 25 Oct 2020 01:42:19 +0000
+Date:   Sun, 25 Oct 2020 01:42:15 +0000 (UTC)
+From:   "Mr. Abdul Salam" <as6171099@gmail.com>
+Reply-To: as6174759@gmail.com
+Message-ID: <1075496489.2298083.1603590135376@mail.yahoo.com>
+Subject: Greetings,With due respect
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <40332329.2307788.1603578786307.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:80.0) Gecko/20100101 Firefox/80.0
+Content-Transfer-Encoding: quoted-printable
+References: <1075496489.2298083.1603590135376.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16868 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -169,15 +107,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-Greetings,
+My Dear Friend,
 
-I know that this mail will come to you as a surprise as we have never met before, but need not to worry as I am contacting you independently of my investigation and no one is informed of this communication. I need your urgent assistance in transferring the sum of $11.3million immediately to your private account.The money has been here in our Bank lying dormant for years now without anybody coming for the claim of it.
+Before I introduce myself, I wish to inform you that this letter is not a h=
+oax mail and I urge you to treat it serious. This letter must come to you a=
+s a big surprise, but I believe it is only a day that people meet and becom=
+e great friends and business partners. Please I want you to read this lette=
+r very carefully and I must apologize for barging this message into your ma=
+il box without any formal introduction due to the urgency and confidentiali=
+ty of this business and I know that this message will come to you as a surp=
+rise. Please this is not a joke and I will not like you to joke with it ok,=
+ with due respect to your person and much sincerity of purpose, I make this=
+ contact with you as I believe that you can be of great assistance to me. M=
+y name is Mr. Abdul Salam, from Burkina Faso, West Africa. I work in United=
+ Bank for Africa (UBA) as telex manager, please see this as a confidential =
+message and do not reveal it to another person and let me know whether you =
+can be of assistance regarding my proposal below because it is top secret.
 
-I want to release the money to you as the relative to our deceased customer (the account owner) who died a long with his supposed Next Of Kin since 16th October 2005. The Banking laws here does not allow such money to stay more than 15 years, because the money will be recalled to the Bank treasury account as unclaimed fund.
+I am about to retire from active Banking service to start a new life but I =
+am skeptical to reveal this particular secret to a stranger. You must assur=
+e me that everything will be handled confidentially because we are not goin=
+g to suffer again in life. It has been 10 years now that most of the greedy=
+ African Politicians used our bank to launder money overseas through the he=
+lp of their Political advisers. Most of the funds which they transferred ou=
+t of the shores of Africa were gold and oil money that was supposed to have=
+ been used to develop the continent. Their Political advisers always inflat=
+ed the amounts before transferring to foreign accounts, so I also used the =
+opportunity to divert part of the funds hence I am aware that there is no o=
+fficial trace of how much was transferred as all the accounts used for such=
+ transfers were being closed after transfer. I acted as the Bank Officer to=
+ most of the politicians and when I discovered that they were using me to s=
+ucceed in their greedy act; I also cleaned some of their banking records fr=
+om the Bank files and no one cared to ask me because the money was too much=
+ for them to control. They laundered over $5billion Dollars during the proc=
+ess.
 
-By indicating your interest I will send you the full details on how the business will be executed.
+Before I send this message to you, I have already diverted ($10.5million Do=
+llars) to an escrow account belonging to no one in the bank. The bank is an=
+xious now to know who the beneficiary to the funds is because they have mad=
+e a lot of profits with the funds. It is more than Eight years now and most=
+ of the politicians are no longer using our bank to transfer funds overseas=
+. The ($10.5million Dollars) has been laying waste in our bank and I don=E2=
+=80=99t want to retire from the bank without transferring the funds to a fo=
+reign account to enable me share the proceeds with the receiver (a foreigne=
+r). The money will be shared 60% for me and 40% for you. There is no one co=
+ming to ask you about the funds because I secured everything. I only want y=
+ou to assist me by providing a reliable bank account where the funds can be=
+ transferred.
 
-Please respond urgently and delete if you are not interested.
-
-Best Regards,
-Michel Duku.
+You are not to face any difficulties or legal implications as I am going to=
+ handle the transfer personally. If you are capable of receiving the funds,=
+ do let me know immediately to enable me give you a detailed information on=
+ what to do. For me, I have not stolen the money from anyone because the ot=
+her people that took the whole money did not face any problems. This is my =
+chance to grab my own life opportunity but you must keep the details of the=
+ funds secret to avoid any leakages as no one in the bank knows about my pl=
+ans. Please get back to me if you are interested and capable to handle this=
+ project, I shall intimate you on what to do when I hear from your confirma=
+tion and acceptance. If you are capable of being my trusted associate, do d=
+eclare your consent to me I am looking forward to hear from you immediately=
+ for further information.
+Thanks with my best regards.
+Mr. Abdul Salam,
+Telex Manager
+United Bank for Africa (UBA)
+Burkina Faso
