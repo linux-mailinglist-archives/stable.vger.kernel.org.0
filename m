@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32CA129836B
-	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 20:45:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 637B029836E
+	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 20:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1418612AbgJYTpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Oct 2020 15:45:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58126 "EHLO mail.kernel.org"
+        id S1418633AbgJYTum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Oct 2020 15:50:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1418608AbgJYTpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 25 Oct 2020 15:45:23 -0400
+        id S1418632AbgJYTum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 25 Oct 2020 15:50:42 -0400
 Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA31C2222C;
-        Sun, 25 Oct 2020 19:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B47372223C;
+        Sun, 25 Oct 2020 19:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603655123;
-        bh=rNlExHitv58TdCAgcht8DmfvbpZ0dm8In8ohJtF4Duw=;
+        s=default; t=1603655439;
+        bh=4u7IFYWQqFOEsOoLnc7N2hujBL8SzGW7WJh4BG/C7F4=;
         h=Date:From:To:Subject:From;
-        b=WhVrbK/QEKfreeYDWz4e7mGyIBYuG8f7nnnl0DOuWCiOdYMd0jO1xal0m/YdKL7XT
-         mftHTz2kXyxmoOR1iQtThRDGFxSC8+WxlMi0VRYeY6CjlippIJF/Bw+sHAgH+OLDzY
-         Ol9bPlGboPs3TXzy6x82ezpIy821xmi9skRLS4s0=
-Date:   Sun, 25 Oct 2020 12:45:22 -0700
+        b=eCENUkA038aDarcvLXGZIGXybrvMGT61OarSbGd7dhB1Lhhi6H5t7UVII0PTYb3Hf
+         j6X/Gos54PCwwvMGsDB+05f3IyVdxQ6ZXbmzfLw8EQ/WPimUsPlaZ70qRu+O8nXpym
+         fF4wqxTeDtkMVgeMem9rw8GB5ug1MakaTUbbgxYg=
+Date:   Sun, 25 Oct 2020 12:50:37 -0700
 From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, tj@kernel.org, stable@vger.kernel.org,
-        liuzhiqiang26@huawei.com, ebiederm@xmission.com,
-        christian@brauner.io, axboe@kernel.dk, oleg@redhat.com
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        osalvador@suse.de, mhocko@suse.com, linmiaohe@huawei.com,
+        linfeilong@huawei.com, luoshijie1@huawei.com
 Subject:  +
- ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
- added to -mm tree
-Message-ID: <20201025194522.hA2XT%akpm@linux-foundation.org>
+ mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error.patch added to -mm tree
+Message-ID: <20201025195037.YsXPE%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,14 +38,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ptrace: fix task_join_group_stop() for the case when current is traced
+     Subject: mm: mempolicy: fix potential pte_unmap_unlock pte error
 has been added to the -mm tree.  Its filename is
-     ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
+     mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -60,118 +59,69 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: ptrace: fix task_join_group_stop() for the case when current is traced
+From: Shijie Luo <luoshijie1@huawei.com>
+Subject: mm: mempolicy: fix potential pte_unmap_unlock pte error
 
-This testcase
+When flags in queue_pages_pte_range don't have MPOL_MF_MOVE or
+MPOL_MF_MOVE_ALL bits, code breaks and passing origin pte - 1 to
+pte_unmap_unlock seems like not a good idea.
 
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <pthread.h>
-	#include <assert.h>
+queue_pages_pte_range can run in MPOL_MF_MOVE_ALL mode which doesn't
+migrate misplaced pages but returns with EIO when encountering such a
+page.  Since commit a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO
+when MPOL_MF_STRICT is specified") and early break on the first pte in the
+range results in pte_unmap_unlock on an underflow pte.  This can lead to
+lockups later on when somebody tries to lock the pte resp. 
+page_table_lock again..
 
-	void *tf(void *arg)
-	{
-		return NULL;
-	}
-
-	int main(void)
-	{
-		int pid = fork();
-		if (!pid) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-
-			return 0;
-		}
-
-		waitpid(pid, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, pid, 0, PTRACE_O_TRACECLONE);
-		waitpid(pid, NULL, 0);
-
-		ptrace(PTRACE_CONT, pid, 0,0);
-		waitpid(pid, NULL, 0);
-
-		int status;
-		int thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != pid);
-		assert(status == 0x80137f);
-
-		return 0;
-	}
-
-fails and triggers WARN_ON_ONCE(!signr) in do_jobctl_trap().
-
-This is because task_join_group_stop() has 2 problems when current is traced:
-
-	1. We can't rely on the "JOBCTL_STOP_PENDING" check, a stopped tracee
-	   can be woken up by debugger and it can clone another thread which
-	   should join the group-stop.
-
-	   We need to check group_stop_count || SIGNAL_STOP_STOPPED.
-
-	2. If SIGNAL_STOP_STOPPED is already set, we should not increment
-	   sig->group_stop_count and add JOBCTL_STOP_CONSUME. The new thread
-	   should stop without another do_notify_parent_cldstop() report.
-
-To clarify, the problem is very old and we should blame
-ptrace_init_task().  But now that we have task_join_group_stop() it makes
-more sense to fix this helper to avoid the code duplication.
-
-Link: https://lkml.kernel.org/r/20201019134237.GA18810@redhat.com
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
+Link: https://lkml.kernel.org/r/20201019074853.50856-1-luoshijie1@huawei.com
+Fixes: a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when MPOL_MF_STRICT is specified")
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Shijie Luo <luoshijie1@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/signal.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ mm/mempolicy.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/signal.c~ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced
-+++ a/kernel/signal.c
-@@ -391,16 +391,17 @@ static bool task_participate_group_stop(
+--- a/mm/mempolicy.c~mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error
++++ a/mm/mempolicy.c
+@@ -525,7 +525,7 @@ static int queue_pages_pte_range(pmd_t *
+ 	unsigned long flags = qp->flags;
+ 	int ret;
+ 	bool has_unmovable = false;
+-	pte_t *pte;
++	pte_t *pte, *mapped_pte;
+ 	spinlock_t *ptl;
  
- void task_join_group_stop(struct task_struct *task)
- {
-+	unsigned long mask = current->jobctl & JOBCTL_STOP_SIGMASK;
-+	struct signal_struct *sig = current->signal;
-+
-+	if (sig->group_stop_count) {
-+		sig->group_stop_count++;
-+		mask |= JOBCTL_STOP_CONSUME;
-+	} else if (!(sig->flags & SIGNAL_STOP_STOPPED))
-+		return;
-+
- 	/* Have the new thread join an on-going signal group stop */
--	unsigned long jobctl = current->jobctl;
--	if (jobctl & JOBCTL_STOP_PENDING) {
--		struct signal_struct *sig = current->signal;
--		unsigned long signr = jobctl & JOBCTL_STOP_SIGMASK;
--		unsigned long gstop = JOBCTL_STOP_PENDING | JOBCTL_STOP_CONSUME;
--		if (task_set_jobctl_pending(task, signr | gstop)) {
--			sig->group_stop_count++;
--		}
--	}
-+	task_set_jobctl_pending(task, mask | JOBCTL_STOP_PENDING);
- }
+ 	ptl = pmd_trans_huge_lock(pmd, vma);
+@@ -539,7 +539,7 @@ static int queue_pages_pte_range(pmd_t *
+ 	if (pmd_trans_unstable(pmd))
+ 		return 0;
  
- /*
+-	pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
++	mapped_pte = pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
+ 	for (; addr != end; pte++, addr += PAGE_SIZE) {
+ 		if (!pte_present(*pte))
+ 			continue;
+@@ -571,7 +571,7 @@ static int queue_pages_pte_range(pmd_t *
+ 		} else
+ 			break;
+ 	}
+-	pte_unmap_unlock(pte - 1, ptl);
++	pte_unmap_unlock(mapped_pte, ptl);
+ 	cond_resched();
+ 
+ 	if (has_unmovable)
 _
 
-Patches currently in -mm which might be from oleg@redhat.com are
+Patches currently in -mm which might be from luoshijie1@huawei.com are
 
-ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
-aio-simplify-read_events.patch
+mm-mempolicy-fix-potential-pte_unmap_unlock-pte-error.patch
 
