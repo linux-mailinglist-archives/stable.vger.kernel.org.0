@@ -2,92 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAEF429832E
-	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 19:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BB9298331
+	for <lists+stable@lfdr.de>; Sun, 25 Oct 2020 19:50:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1418064AbgJYSmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Oct 2020 14:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58658 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1418060AbgJYSmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Oct 2020 14:42:54 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7F1C0613CE
-        for <stable@vger.kernel.org>; Sun, 25 Oct 2020 11:42:54 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id r3so3556944plo.1
-        for <stable@vger.kernel.org>; Sun, 25 Oct 2020 11:42:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=aqgNmMFZrxIKJlNmgtuCAVBzQMDjimfBZ/rcFecxI9Y=;
-        b=XK26PuCyRcuvv9pI52HRheKrKPpze6GW4xOf191G7NNYMw472zcAu0E014Q99Ml7/7
-         8htmsuyEAwHtv/NZ1syF7UeXtc1m+VbiYM2nNSXnaUh3ZK4LX6l+rWqD2uuFLnIg0inz
-         Ro4+Zer/LiHq7quBuqDb21BTdr7diSYG/p7kYSAzdCcgYjXXzeufrN2oFrPGUanwF9SL
-         BwqGewakA9/b7GdLt+zCYsMKAF39gIXpG2ibiNem9spmKzHKtQx5izUVAny9nkfZ9Tjb
-         AqqEMLWI1Y3tGt72amOYiKJEZn80ww/F2K3L8D0DnLso5q2YozR0hy1WJOVHZAea9c5d
-         6YDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=aqgNmMFZrxIKJlNmgtuCAVBzQMDjimfBZ/rcFecxI9Y=;
-        b=Cc5aYXV2qSQDPNzDqbXQttdAQ0x+8f6jDNHwdHwyLOjdQaBHFxeT4e0z5czUJSsJtA
-         6v86Hxc06E/aZ3VxBlXNCHpJ38+YZZlFoq+RHrfgJuZeYBbhs5/4G/hzNDDDHQI3ROFU
-         e9UlZC/e5GtBaH1NAxWNa4HLou62MY7oL1qNQelDwGzRA/PNjjniZtGjYRkZAqD321D0
-         1j0mvwLl0LvJCIknoOPnzDk8xzutqrojLfSBUv0aLme05D7RNG47G2hA9qqu9aEzAkZm
-         GjiwEpX/+rys+wphQ+o4l7ssZnTg+0kJgopBvQiJuP1CjeUuVCDh26x6KD6IN/8WiVmR
-         avWg==
-X-Gm-Message-State: AOAM532xiei9kV+xu/fTZVgGYXSbMYPw3YrRo/u082zrzhDskOiVnukB
-        gCJKf/5Ye/vBz++Asy8rsZuSXJ5ooPicvA==
-X-Google-Smtp-Source: ABdhPJx6drJtgGXH9U4dmj++8VW/dckb6tb+lMwsyS9xRsZkIZI6pqpqUoh9jbK4Lf8FxjvSM3iUjw==
-X-Received: by 2002:a17:902:eb13:b029:d6:1aa0:32fb with SMTP id l19-20020a170902eb13b02900d61aa032fbmr10102286plb.35.1603651373740;
-        Sun, 25 Oct 2020 11:42:53 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id z26sm774000pfr.84.2020.10.25.11.42.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 25 Oct 2020 11:42:52 -0700 (PDT)
-Subject: Re: [PATCH] io_uring: fix invalid handler for double apoll
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <1bf1093730a68f8939bfd7e6747add7af37ad321.1603635991.git.asml.silence@gmail.com>
- <1ea94ec7-d80a-527b-5366-b91815496f4a@kernel.dk>
- <2022677d-6783-468d-6e77-43208a91edba@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <83e9fd0e-9136-0ca7-5eb9-01f8da6bd212@kernel.dk>
-Date:   Sun, 25 Oct 2020 12:42:51 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <2022677d-6783-468d-6e77-43208a91edba@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1418294AbgJYSuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Oct 2020 14:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52224 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1418246AbgJYSuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 25 Oct 2020 14:50:50 -0400
+Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA05C22260;
+        Sun, 25 Oct 2020 18:50:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603651850;
+        bh=f/wO+AUYFC4kWLBfNADwMDd1EKzdj9VspjJ/5qwp8mA=;
+        h=Date:From:To:Subject:From;
+        b=GDLnLGCnvMpRiD0srZ/bqpDbWNEUozklhLVEC5hXMyG5fgRuTbKG1D4BBZ3nsNVAB
+         EdiqL14KcqrtbC1F6zc9U85yqphC8yNHg9aC2wUnpRKWQLVWDzOSgsZJtAkjtyRtpp
+         RGVXJnLcEG6wHv7FmgiBJ6ibra0klXOlooRPj+uQ=
+Date:   Sun, 25 Oct 2020 11:50:49 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        ndesaulniers@google.com, keescook@chromium.org,
+        nivedita@alum.mit.edu
+Subject:  + compilerh-fix-barrier_data-on-clang.patch added to -mm
+ tree
+Message-ID: <20201025185049.0Nu8X%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/25/20 10:24 AM, Pavel Begunkov wrote:
-> On 25/10/2020 15:53, Jens Axboe wrote:
->> On 10/25/20 8:26 AM, Pavel Begunkov wrote:
->>> io_poll_double_wake() is called for both: poll requests and as apoll
->>> (internal poll to make rw and other requests), hence when it calls
->>> __io_async_wake() it should use a right callback depending on the
->>> current poll type.
->>
->> Can we do something like this instead? Untested...
-> 
-> It should work, but looks less comprehensible. Though, it'll need
 
-Not sure I agree, with a comment it'd be nicer imho:
+The patch titled
+     Subject: compiler.h: fix barrier_data() on clang
+has been added to the -mm tree.  Its filename is
+     compilerh-fix-barrier_data-on-clang.patch
 
-/* call appropriate handler for this request type */
-poll->wait.func(wait, mode, sync, key);
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/compilerh-fix-barrier_data-on-clang.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/compilerh-fix-barrier_data-on-clang.patch
 
-instead of having to manually dig at the opcode to figure out which one
-to use.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
--- 
-Jens Axboe
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Arvind Sankar <nivedita@alum.mit.edu>
+Subject: compiler.h: fix barrier_data() on clang
+
+Commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
+mutually exclusive") neglected to copy barrier_data() from compiler-gcc.h
+into compiler-clang.h.  The definition in compiler-gcc.h was really to
+work around clang's more aggressive optimization, so this broke
+barrier_data() on clang, and consequently memzero_explicit() as well.
+
+For example, this results in at least the memzero_explicit() call in
+lib/crypto/sha256.c:sha256_transform() being optimized away by clang.
+
+Fix this by moving the definition of barrier_data() into compiler.h.
+
+Also move the gcc/clang definition of barrier() into compiler.h,
+__memory_barrier() is icc-specific (and barrier() is already defined using
+it in compiler-intel.h) and doesn't belong in compiler.h.
+
+Link: https://lkml.kernel.org/r/20201014212631.207844-1-nivedita@alum.mit.edu
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/compiler-clang.h |    6 ------
+ include/linux/compiler-gcc.h   |   19 -------------------
+ include/linux/compiler.h       |   18 ++++++++++++++++--
+ 3 files changed, 16 insertions(+), 27 deletions(-)
+
+--- a/include/linux/compiler-clang.h~compilerh-fix-barrier_data-on-clang
++++ a/include/linux/compiler-clang.h
+@@ -60,12 +60,6 @@
+ #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+ #endif
+ 
+-/* The following are for compatibility with GCC, from compiler-gcc.h,
+- * and may be redefined here because they should not be shared with other
+- * compilers, like ICC.
+- */
+-#define barrier() __asm__ __volatile__("" : : : "memory")
+-
+ #if __has_feature(shadow_call_stack)
+ # define __noscs	__attribute__((__no_sanitize__("shadow-call-stack")))
+ #endif
+--- a/include/linux/compiler-gcc.h~compilerh-fix-barrier_data-on-clang
++++ a/include/linux/compiler-gcc.h
+@@ -15,25 +15,6 @@
+ # error Sorry, your version of GCC is too old - please use 4.9 or newer.
+ #endif
+ 
+-/* Optimization barrier */
+-
+-/* The "volatile" is due to gcc bugs */
+-#define barrier() __asm__ __volatile__("": : :"memory")
+-/*
+- * This version is i.e. to prevent dead stores elimination on @ptr
+- * where gcc and llvm may behave differently when otherwise using
+- * normal barrier(): while gcc behavior gets along with a normal
+- * barrier(), llvm needs an explicit input variable to be assumed
+- * clobbered. The issue is as follows: while the inline asm might
+- * access any memory it wants, the compiler could have fit all of
+- * @ptr into memory registers instead, and since @ptr never escaped
+- * from that, it proved that the inline asm wasn't touching any of
+- * it. This version works well with both compilers, i.e. we're telling
+- * the compiler that the inline asm absolutely may see the contents
+- * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
+- */
+-#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+-
+ /*
+  * This macro obfuscates arithmetic on a variable address so that gcc
+  * shouldn't recognize the original var, and make assumptions about it.
+--- a/include/linux/compiler.h~compilerh-fix-barrier_data-on-clang
++++ a/include/linux/compiler.h
+@@ -80,11 +80,25 @@ void ftrace_likely_update(struct ftrace_
+ 
+ /* Optimization barrier */
+ #ifndef barrier
+-# define barrier() __memory_barrier()
++/* The "volatile" is due to gcc bugs */
++# define barrier() __asm__ __volatile__("": : :"memory")
+ #endif
+ 
+ #ifndef barrier_data
+-# define barrier_data(ptr) barrier()
++/*
++ * This version is i.e. to prevent dead stores elimination on @ptr
++ * where gcc and llvm may behave differently when otherwise using
++ * normal barrier(): while gcc behavior gets along with a normal
++ * barrier(), llvm needs an explicit input variable to be assumed
++ * clobbered. The issue is as follows: while the inline asm might
++ * access any memory it wants, the compiler could have fit all of
++ * @ptr into memory registers instead, and since @ptr never escaped
++ * from that, it proved that the inline asm wasn't touching any of
++ * it. This version works well with both compilers, i.e. we're telling
++ * the compiler that the inline asm absolutely may see the contents
++ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
++ */
++# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+ #endif
+ 
+ /* workaround for GCC PR82365 if needed */
+_
+
+Patches currently in -mm which might be from nivedita@alum.mit.edu are
+
+compilerh-fix-barrier_data-on-clang.patch
 
