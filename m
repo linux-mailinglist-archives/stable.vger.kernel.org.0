@@ -2,100 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5848F29883E
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 09:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0061E298918
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 10:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728857AbgJZI0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 04:26:05 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:38147 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1771667AbgJZI0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 04:26:05 -0400
-Received: by mail-lf1-f67.google.com with SMTP id c141so10628910lfg.5;
-        Mon, 26 Oct 2020 01:26:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=V+jakLBrl9A0QRy0ACCLn+POIM4wvTqpKbwiPWwLh/Q=;
-        b=Dfikz2Q0gQx/n0L8u50e80xHJ1DI4lfCNXsOAbOuz6yJ04Cf5zKJ/7CfGt+WX7XlMr
-         gCuJtnywsCz9+kdI8u/ihdefmdl9nK2yRbMlqkD9hKAQN6S+mKaYtUO3AE5zSVGc1wEf
-         /ddHLEQxzmtSKXoNz3pLBk6mZb71Bd0CgqYYomxOs/BSxlrLNBmJnBU2UY1NscWr8wO5
-         Yx66TV3RotU+Gs1rH4TsC6yYDCGcbENydL8BZprAFonxHu4SynlKg7VMID/1xmpNN5nJ
-         489fEo5PCpVFztYGEUNf/ukpLQol/xfxgt2TrCNkIXY+oRd6k4koXcJX63xluIff8wxp
-         2Qpw==
-X-Gm-Message-State: AOAM533ftT0m+FfrZiFQR222D71Ao9jsUxu8CzSlfvTSlW+FfzEcxgmZ
-        O9j6Wi0jgn+vEFfVcqlwUrJmisY5Y8oXWg==
-X-Google-Smtp-Source: ABdhPJyQ2uJccQ59KpQO+0fxZT6r2bgdyJeamwvsQXPtm53K89Gp7AGJVz29970BpKGYASjAYjZKuA==
-X-Received: by 2002:a19:8884:: with SMTP id k126mr5009463lfd.63.1603700762566;
-        Mon, 26 Oct 2020 01:26:02 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id w18sm967685lfc.5.2020.10.26.01.26.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 01:26:01 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@xi.terra>)
-        id 1kWxpO-0004gc-Uf; Mon, 26 Oct 2020 09:26:07 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     linux-usb@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>
-Subject: [PATCH] USB: serial: cyberjack: fix write-URB completion race
-Date:   Mon, 26 Oct 2020 09:25:48 +0100
-Message-Id: <20201026082548.17970-1-johan@kernel.org>
-X-Mailer: git-send-email 2.26.2
+        id S1772583AbgJZJHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 05:07:14 -0400
+Received: from mail.persuitflow.com ([89.46.74.132]:56608 "EHLO
+        server1.mail.persuitflow.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2391078AbgJZJHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 05:07:13 -0400
+X-Greylist: delayed 392 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Oct 2020 05:07:13 EDT
+Received: by server1.mail.persuitflow.com (Postfix, from userid 1001)
+        id 5A087A3B9F; Mon, 26 Oct 2020 09:00:37 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=persuitflow.com;
+        s=mail; t=1603702839;
+        bh=LIG/EV9hZypKEB8e9JkxJFCirHVIBsQt3YrIS4TkXUA=;
+        h=Date:From:To:Subject:From;
+        b=hQ2RkaVAiXGjouW5BHUWJLvXLD6RRvNgePCIc9+IEyKIZ2dO8exjp2LyfxMlZpOJj
+         TcWUX2Nl8/21I7cl4Uog3R1AV7n1GpV0laFTzvk9FeXm+nGQYk1+wDQ/xIZZojRClR
+         iNzg3wKuKU9k3BgkaSNkL9XSmkKVa8nFIMozTl7bN7Oi9SLtAiS7Ay47MQ0iNiCTeH
+         EDXq7VL/RzGngyHCri6fE7taQVD1wY/L9pvcLD0GWnHk1nLDSTOIpYqBoSjTBCAMcT
+         VwHLTaOzW1O1LXJMl8qTo8GcEgiXlns8UHCi4S4Z+XSa8ie8LRForW1v1lh2Ehp5VU
+         6lVZrOAmXY1nQ==
+Received: by mail.persuitflow.com for <stable@vger.kernel.org>; Mon, 26 Oct 2020 09:00:34 GMT
+Message-ID: <20201026074501-0.1.10.2bas.0.0qx67oey74@persuitflow.com>
+Date:   Mon, 26 Oct 2020 09:00:34 GMT
+From:   "Raquel Carvalho" <raquel.carvalho@persuitflow.com>
+To:     <stable@vger.kernel.org>
+Subject: Desinfetante
+X-Mailer: mail.persuitflow.com
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The write-URB busy flag was being cleared before the completion handler
-was done with the URB, something which could lead to corrupt transfers
-due to a racing write request if the URB is resubmitted.
+Bom Dia,
 
-Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/cyberjack.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+A demanda por desinfetantes eficazes que permitam a elimina=C3=A7=C3=A3o =
+de microrganismos prejudiciais =C3=A9 continuamente alta em todo o mundo.
 
-diff --git a/drivers/usb/serial/cyberjack.c b/drivers/usb/serial/cyberjack.c
-index 821970609695..2e40908963da 100644
---- a/drivers/usb/serial/cyberjack.c
-+++ b/drivers/usb/serial/cyberjack.c
-@@ -357,11 +357,12 @@ static void cyberjack_write_bulk_callback(struct urb *urb)
- 	struct device *dev = &port->dev;
- 	int status = urb->status;
- 	unsigned long flags;
-+	bool resubmitted = false;
- 
--	set_bit(0, &port->write_urbs_free);
- 	if (status) {
- 		dev_dbg(dev, "%s - nonzero write bulk status received: %d\n",
- 			__func__, status);
-+		set_bit(0, &port->write_urbs_free);
- 		return;
- 	}
- 
-@@ -394,6 +395,8 @@ static void cyberjack_write_bulk_callback(struct urb *urb)
- 			goto exit;
- 		}
- 
-+		resubmitted = true;
-+
- 		dev_dbg(dev, "%s - priv->wrsent=%d\n", __func__, priv->wrsent);
- 		dev_dbg(dev, "%s - priv->wrfilled=%d\n", __func__, priv->wrfilled);
- 
-@@ -410,6 +413,8 @@ static void cyberjack_write_bulk_callback(struct urb *urb)
- 
- exit:
- 	spin_unlock_irqrestore(&priv->lock, flags);
-+	if (!resubmitted)
-+		set_bit(0, &port->write_urbs_free);
- 	usb_serial_port_softint(port);
- }
- 
--- 
-2.26.2
+Expandir a oferta com uma gama profissional de produtos com atividade vir=
+icida e bactericida permite aumentar a posi=C3=A7=C3=A3o competitiva da e=
+mpresa e construir novas redes de vendas.
 
+Diversificamos a linha de atacadistas e distribuidores com sabonetes, l=C3=
+=ADquidos e g=C3=A9is para desinfec=C3=A7=C3=A3o das m=C3=A3os e outros p=
+rodutos de limpeza, entre eles: g=C3=A9is de banho, shampoos e condiciona=
+dores de cabelo, al=C3=A9m de detergentes concentrados.
+
+Nossos parceiros de neg=C3=B3cios est=C3=A3o aumentando sua participa=C3=A7=
+=C3=A3o no mercado externo devido =C3=A0 crescente satisfa=C3=A7=C3=A3o d=
+o cliente e oferta diversificada.
+
+O potencial de crescimento de nossas solu=C3=A7=C3=B5es resulta de pre=C3=
+=A7os acess=C3=ADveis, alto desempenho e versatilidade para se adaptar a =
+todos os tipos de pele.
+
+A extens=C3=A3o da gama de produtos proposta =C3=A9 um campo interessante=
+ para a coopera=C3=A7=C3=A3o?
+
+
+Cumprimentos,
+Raquel Carvalho
+Conselheiro do Cliente
