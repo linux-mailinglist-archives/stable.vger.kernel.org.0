@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8253F299D13
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EF3299CF5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411023AbgJZX4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33600 "EHLO mail.kernel.org"
+        id S2411057AbgJZX4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:56:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410906AbgJZXz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:29 -0400
+        id S2410908AbgJZXza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7BBD20770;
-        Mon, 26 Oct 2020 23:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C6AD2151B;
+        Mon, 26 Oct 2020 23:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756528;
-        bh=QBMzE2TYiAzTYDYeREI8e45MI19Mj2RK6UJvoABnMWU=;
+        s=default; t=1603756529;
+        bh=BwDSGI2k7zPAIBao7C3yspzbGWjvkJnOmLGAWP5UUks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fI9KiPNZvvh45M++SKjDf52dfpixRwHLOLpWBX9xdz66UiBwjCjJRTkoaeq9TyUm9
-         odlaJYUsUcEW1VQm9P0DSQz74N3E7c98Qma71lzLVP4FGriNw7FgYcVr6lwitLmpTQ
-         mUFdhQgCRE3mki3YJ70dARfQWhZJLRf/FEU0txEU=
+        b=1HyB71eUSbrESRZnJW9G/Y6zy0QirXOGwZUYvFQZheYu7OwhvJfvwOrrMDorjfcDS
+         M+y6h1NzVH6GV5S0oe1grGNSqDR4J+W8nWGeaqhkzphot5HU6WlccXTnJwiN/oXh7C
+         F1nzwgf6nHN0kxyOcfkRxjWEEbiPV6gaLAzYf5mY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 09/80] um: change sigio_spinlock to a mutex
-Date:   Mon, 26 Oct 2020 19:54:05 -0400
-Message-Id: <20201026235516.1025100-9-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
+        syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com,
+        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 10/80] f2fs: handle errors of f2fs_get_meta_page_nofail
+Date:   Mon, 26 Oct 2020 19:54:06 -0400
+Message-Id: <20201026235516.1025100-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -42,76 +43,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit f2d05059e15af3f70502074f4e3a504530af504a ]
+[ Upstream commit 86f33603f8c51537265ff7ac0320638fd2cbdb1b ]
 
-Lockdep complains at boot:
+First problem is we hit BUG_ON() in f2fs_get_sum_page given EIO on
+f2fs_get_meta_page_nofail().
 
-=============================
-[ BUG: Invalid wait context ]
-5.7.0-05093-g46d91ecd597b #98 Not tainted
------------------------------
-swapper/1 is trying to lock:
-0000000060931b98 (&desc[i].request_mutex){+.+.}-{3:3}, at: __setup_irq+0x11d/0x623
-other info that might help us debug this:
-context-{4:4}
-1 lock held by swapper/1:
- #0: 000000006074fed8 (sigio_spinlock){+.+.}-{2:2}, at: sigio_lock+0x1a/0x1c
-stack backtrace:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0-05093-g46d91ecd597b #98
-Stack:
- 7fa4fab0 6028dfd1 0000002a 6008bea5
- 7fa50700 7fa50040 7fa4fac0 6028e016
- 7fa4fb50 6007f6da 60959c18 00000000
+Quick fix was not to give any error with infinite loop, but syzbot caught
+a case where it goes to that loop from fuzzed image. In turned out we abused
+f2fs_get_meta_page_nofail() like in the below call stack.
+
+- f2fs_fill_super
+ - f2fs_build_segment_manager
+  - build_sit_entries
+   - get_current_sit_page
+
+INFO: task syz-executor178:6870 can't die for more than 143 seconds.
+task:syz-executor178 state:R
+ stack:26960 pid: 6870 ppid:  6869 flags:0x00004006
 Call Trace:
- [<60023a0e>] show_stack+0x13b/0x155
- [<6028e016>] dump_stack+0x2a/0x2c
- [<6007f6da>] __lock_acquire+0x515/0x15f2
- [<6007eb50>] lock_acquire+0x245/0x273
- [<6050d9f1>] __mutex_lock+0xbd/0x325
- [<6050dc76>] mutex_lock_nested+0x1d/0x1f
- [<6008e27e>] __setup_irq+0x11d/0x623
- [<6008e8ed>] request_threaded_irq+0x169/0x1a6
- [<60021eb0>] um_request_irq+0x1ee/0x24b
- [<600234ee>] write_sigio_irq+0x3b/0x76
- [<600383ca>] sigio_broken+0x146/0x2e4
- [<60020bd8>] do_one_initcall+0xde/0x281
 
-Because we hold sigio_spinlock and then get into requesting
-an interrupt with a mutex.
+Showing all locks held in the system:
+1 lock held by khungtaskd/1179:
+ #0: ffffffff8a554da0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6242
+1 lock held by systemd-journal/3920:
+1 lock held by in:imklog/6769:
+ #0: ffff88809eebc130 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:930
+1 lock held by syz-executor178/6870:
+ #0: ffff8880925120e0 (&type->s_umount_key#47/1){+.+.}-{3:3}, at: alloc_super+0x201/0xaf0 fs/super.c:229
 
-Change the spinlock to a mutex to avoid that.
+Actually, we didn't have to use _nofail in this case, since we could return
+error to mount(2) already with the error handler.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+As a result, this patch tries to 1) remove _nofail callers as much as possible,
+2) deal with error case in last remaining caller, f2fs_get_sum_page().
+
+Reported-by: syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/sigio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/f2fs/checkpoint.c |  2 +-
+ fs/f2fs/f2fs.h       |  2 +-
+ fs/f2fs/node.c       |  2 +-
+ fs/f2fs/segment.c    | 12 +++++++++---
+ 4 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/um/kernel/sigio.c b/arch/um/kernel/sigio.c
-index 10c99e058fcae..d1cffc2a7f212 100644
---- a/arch/um/kernel/sigio.c
-+++ b/arch/um/kernel/sigio.c
-@@ -35,14 +35,14 @@ int write_sigio_irq(int fd)
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index 6d9be7783d25c..c966ccc44c157 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -108,7 +108,7 @@ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index)
+ 	return __get_meta_page(sbi, index, true);
  }
  
- /* These are called from os-Linux/sigio.c to protect its pollfds arrays. */
--static DEFINE_SPINLOCK(sigio_spinlock);
-+static DEFINE_MUTEX(sigio_mutex);
- 
- void sigio_lock(void)
+-struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index)
++struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index)
  {
--	spin_lock(&sigio_spinlock);
-+	mutex_lock(&sigio_mutex);
+ 	struct page *page;
+ 	int count = 0;
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index b3b7e63394be7..63440abe58c42 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3149,7 +3149,7 @@ enum rw_hint f2fs_io_type_to_rw_hint(struct f2fs_sb_info *sbi,
+ void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
+ struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+-struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index);
++struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_tmp_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
+ 					block_t blkaddr, int type);
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index ed12e96681842..2a4a382f28fed 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -109,7 +109,7 @@ static void clear_node_page_dirty(struct page *page)
+ 
+ static struct page *get_current_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
+ {
+-	return f2fs_get_meta_page_nofail(sbi, current_nat_addr(sbi, nid));
++	return f2fs_get_meta_page(sbi, current_nat_addr(sbi, nid));
  }
  
- void sigio_unlock(void)
+ static struct page *get_next_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 7d85784012678..5ba677f85533c 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -2310,7 +2310,9 @@ int f2fs_npages_for_summary_flush(struct f2fs_sb_info *sbi, bool for_ra)
+  */
+ struct page *f2fs_get_sum_page(struct f2fs_sb_info *sbi, unsigned int segno)
  {
--	spin_unlock(&sigio_spinlock);
-+	mutex_unlock(&sigio_mutex);
+-	return f2fs_get_meta_page_nofail(sbi, GET_SUM_BLOCK(sbi, segno));
++	if (unlikely(f2fs_cp_error(sbi)))
++		return ERR_PTR(-EIO);
++	return f2fs_get_meta_page_retry(sbi, GET_SUM_BLOCK(sbi, segno));
  }
+ 
+ void f2fs_update_meta_page(struct f2fs_sb_info *sbi,
+@@ -2582,7 +2584,11 @@ static void change_curseg(struct f2fs_sb_info *sbi, int type)
+ 	__next_free_blkoff(sbi, curseg, 0);
+ 
+ 	sum_page = f2fs_get_sum_page(sbi, new_segno);
+-	f2fs_bug_on(sbi, IS_ERR(sum_page));
++	if (IS_ERR(sum_page)) {
++		/* GC won't be able to use stale summary pages by cp_error */
++		memset(curseg->sum_blk, 0, SUM_ENTRY_SIZE);
++		return;
++	}
+ 	sum_node = (struct f2fs_summary_block *)page_address(sum_page);
+ 	memcpy(curseg->sum_blk, sum_node, SUM_ENTRY_SIZE);
+ 	f2fs_put_page(sum_page, 1);
+@@ -3713,7 +3719,7 @@ int f2fs_lookup_journal_in_cursum(struct f2fs_journal *journal, int type,
+ static struct page *get_current_sit_page(struct f2fs_sb_info *sbi,
+ 					unsigned int segno)
+ {
+-	return f2fs_get_meta_page_nofail(sbi, current_sit_addr(sbi, segno));
++	return f2fs_get_meta_page(sbi, current_sit_addr(sbi, segno));
+ }
+ 
+ static struct page *get_next_sit_page(struct f2fs_sb_info *sbi,
 -- 
 2.25.1
 
