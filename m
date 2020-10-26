@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE1A29A088
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2766029A08B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443531AbgJ0AbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54168 "EHLO mail.kernel.org"
+        id S2443542AbgJ0AbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:31:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409642AbgJZXwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:52:09 -0400
+        id S2409653AbgJZXwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9502F222C8;
-        Mon, 26 Oct 2020 23:52:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0878E20882;
+        Mon, 26 Oct 2020 23:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756329;
-        bh=MLlX5pu9y4LtLqUQIZXzIODt8iyhZLUJ6FC9cWhFCYo=;
+        s=default; t=1603756331;
+        bh=lcasvV20dzHVbxUCDTwqYc1WGmUNFgV/A9VWpSiQnPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNXVT/Bl+yQxDnVmO96KfmXWqQMUqSKaIdo6e/4OzJ2Vh+mlPeh0NWCBH9SrDFnDY
-         syfdV2/jt9CtuDQ/XjV0gqb8bSwUa4EN2XJvRbymOIZLb6AAT+peH4e1w2rzWwKoxN
-         6EuzzxWhcaYCYJkA84FZ3rzg/4MgVi/xgt8yyu74=
+        b=qitAQA36snlovyeZM4fpDReqeJRt8Tda+My0qehoWOtupOrAyLbhACOfVqjY1jY/d
+         TuRRnai0QSiHSO5XuDzNHinnV9Dk2C+kNXRzYUsIxIjIAhXdPzimlOJoJBWesWaC79
+         KCr7By0N7FlYUxyacn5ZMFwKeTP7PhKNCEy0h9GU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, 5kft <5kft@5kft.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.8 003/132] f2fs: allocate proper size memory for zstd decompress
-Date:   Mon, 26 Oct 2020 19:49:55 -0400
-Message-Id: <20201026235205.1023962-3-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 005/132] mm: fix exec activate_mm vs TLB shootdown and lazy tlb switching race
+Date:   Mon, 26 Oct 2020 19:49:57 -0400
+Message-Id: <20201026235205.1023962-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -43,84 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 0e2b7385cb59e566520cfd0a04b4b53bc9461e98 ]
+[ Upstream commit d53c3dfb23c45f7d4f910c3a3ca84bf0a99c6143 ]
 
-As 5kft <5kft@5kft.org> reported:
+Reading and modifying current->mm and current->active_mm and switching
+mm should be done with irqs off, to prevent races seeing an intermediate
+state.
 
- kworker/u9:3: page allocation failure: order:9, mode:0x40c40(GFP_NOFS|__GFP_COMP), nodemask=(null),cpuset=/,mems_allowed=0
- CPU: 3 PID: 8168 Comm: kworker/u9:3 Tainted: G         C        5.8.3-sunxi #trunk
- Hardware name: Allwinner sun8i Family
- Workqueue: f2fs_post_read_wq f2fs_post_read_work
- [<c010d6d5>] (unwind_backtrace) from [<c0109a55>] (show_stack+0x11/0x14)
- [<c0109a55>] (show_stack) from [<c056d489>] (dump_stack+0x75/0x84)
- [<c056d489>] (dump_stack) from [<c0243b53>] (warn_alloc+0xa3/0x104)
- [<c0243b53>] (warn_alloc) from [<c024473b>] (__alloc_pages_nodemask+0xb87/0xc40)
- [<c024473b>] (__alloc_pages_nodemask) from [<c02267c5>] (kmalloc_order+0x19/0x38)
- [<c02267c5>] (kmalloc_order) from [<c02267fd>] (kmalloc_order_trace+0x19/0x90)
- [<c02267fd>] (kmalloc_order_trace) from [<c047c665>] (zstd_init_decompress_ctx+0x21/0x88)
- [<c047c665>] (zstd_init_decompress_ctx) from [<c047e9cf>] (f2fs_decompress_pages+0x97/0x228)
- [<c047e9cf>] (f2fs_decompress_pages) from [<c045d0ab>] (__read_end_io+0xfb/0x130)
- [<c045d0ab>] (__read_end_io) from [<c045d141>] (f2fs_post_read_work+0x61/0x84)
- [<c045d141>] (f2fs_post_read_work) from [<c0130b2f>] (process_one_work+0x15f/0x3b0)
- [<c0130b2f>] (process_one_work) from [<c0130e7b>] (worker_thread+0xfb/0x3e0)
- [<c0130e7b>] (worker_thread) from [<c0135c3b>] (kthread+0xeb/0x10c)
- [<c0135c3b>] (kthread) from [<c0100159>]
+This is similar to commit 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB
+invalidate"). At exec-time when the new mm is activated, the old one
+should usually be single-threaded and no longer used, unless something
+else is holding an mm_users reference (which may be possible).
 
-zstd may allocate large size memory for {,de}compression, it may cause
-file copy failure on low-end device which has very few memory.
+Absent other mm_users, there is also a race with preemption and lazy tlb
+switching. Consider the kernel_execve case where the current thread is
+using a lazy tlb active mm:
 
-For decompression, let's just allocate proper size memory based on current
-file's cluster size instead of max cluster size.
+  call_usermodehelper()
+    kernel_execve()
+      old_mm = current->mm;
+      active_mm = current->active_mm;
+      *** preempt *** -------------------->  schedule()
+                                               prev->active_mm = NULL;
+                                               mmdrop(prev active_mm);
+                                             ...
+                      <--------------------  schedule()
+      current->mm = mm;
+      current->active_mm = mm;
+      if (!old_mm)
+          mmdrop(active_mm);
 
-Reported-by: 5kft <5kft@5kft.org>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+If we switch back to the kernel thread from a different mm, there is a
+double free of the old active_mm, and a missing free of the new one.
+
+Closing this race only requires interrupts to be disabled while ->mm
+and ->active_mm are being switched, but the TLB problem requires also
+holding interrupts off over activate_mm. Unfortunately not all archs
+can do that yet, e.g., arm defers the switch if irqs are disabled and
+expects finish_arch_post_lock_switch() to be called to complete the
+flush; um takes a blocking lock in activate_mm().
+
+So as a first step, disable interrupts across the mm/active_mm updates
+to close the lazy tlb preempt race, and provide an arch option to
+extend that to activate_mm which allows architectures doing IPI based
+TLB shootdowns to close the second race.
+
+This is a bit ugly, but in the interest of fixing the bug and backporting
+before all architectures are converted this is a compromise.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200914045219.3736466-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 7 ++++---
- fs/f2fs/f2fs.h     | 2 +-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ arch/Kconfig |  7 +++++++
+ fs/exec.c    | 17 +++++++++++++++--
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 2390f7943f6c8..47b62099533bd 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -375,16 +375,17 @@ static int zstd_init_decompress_ctx(struct decompress_io_ctx *dic)
- 	ZSTD_DStream *stream;
- 	void *workspace;
- 	unsigned int workspace_size;
-+	unsigned int max_window_size =
-+			MAX_COMPRESS_WINDOW_SIZE(dic->log_cluster_size);
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 8cc35dc556c72..2fb97d79e7693 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -411,6 +411,13 @@ config MMU_GATHER_NO_GATHER
+ 	bool
+ 	depends on MMU_GATHER_TABLE_FREE
  
--	workspace_size = ZSTD_DStreamWorkspaceBound(MAX_COMPRESS_WINDOW_SIZE);
-+	workspace_size = ZSTD_DStreamWorkspaceBound(max_window_size);
++config ARCH_WANT_IRQS_OFF_ACTIVATE_MM
++	bool
++	help
++	  Temporary select until all architectures can be converted to have
++	  irqs disabled over activate_mm. Architectures that do IPI based TLB
++	  shootdowns should enable this.
++
+ config ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	bool
  
- 	workspace = f2fs_kvmalloc(F2FS_I_SB(dic->inode),
- 					workspace_size, GFP_NOFS);
- 	if (!workspace)
- 		return -ENOMEM;
+diff --git a/fs/exec.c b/fs/exec.c
+index e6e8a9a703278..791384bb02b05 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1103,11 +1103,24 @@ static int exec_mmap(struct mm_struct *mm)
+ 	}
  
--	stream = ZSTD_initDStream(MAX_COMPRESS_WINDOW_SIZE,
--					workspace, workspace_size);
-+	stream = ZSTD_initDStream(max_window_size, workspace, workspace_size);
- 	if (!stream) {
- 		printk_ratelimited("%sF2FS-fs (%s): %s ZSTD_initDStream failed\n",
- 				KERN_ERR, F2FS_I_SB(dic->inode)->sb->s_id,
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 7d9afd54e9d8f..f03c573e427a5 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1392,7 +1392,7 @@ struct decompress_io_ctx {
- #define NULL_CLUSTER			((unsigned int)(~0))
- #define MIN_COMPRESS_LOG_SIZE		2
- #define MAX_COMPRESS_LOG_SIZE		8
--#define MAX_COMPRESS_WINDOW_SIZE	((PAGE_SIZE) << MAX_COMPRESS_LOG_SIZE)
-+#define MAX_COMPRESS_WINDOW_SIZE(log_size)	((PAGE_SIZE) << (log_size))
- 
- struct f2fs_sb_info {
- 	struct super_block *sb;			/* pointer to VFS super block */
+ 	task_lock(tsk);
+-	active_mm = tsk->active_mm;
+ 	membarrier_exec_mmap(mm);
+-	tsk->mm = mm;
++
++	local_irq_disable();
++	active_mm = tsk->active_mm;
+ 	tsk->active_mm = mm;
++	tsk->mm = mm;
++	/*
++	 * This prevents preemption while active_mm is being loaded and
++	 * it and mm are being updated, which could cause problems for
++	 * lazy tlb mm refcounting when these are updated by context
++	 * switches. Not all architectures can handle irqs off over
++	 * activate_mm yet.
++	 */
++	if (!IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
++		local_irq_enable();
+ 	activate_mm(active_mm, mm);
++	if (IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
++		local_irq_enable();
+ 	tsk->mm->vmacache_seqnum = 0;
+ 	vmacache_flush(tsk);
+ 	task_unlock(tsk);
 -- 
 2.25.1
 
