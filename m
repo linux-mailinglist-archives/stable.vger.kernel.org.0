@@ -2,182 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 177BA298A68
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 11:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6F2298A86
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 11:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1737242AbgJZKaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 06:30:12 -0400
-Received: from mail-pg1-f177.google.com ([209.85.215.177]:36617 "EHLO
-        mail-pg1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1769858AbgJZKaI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 06:30:08 -0400
-Received: by mail-pg1-f177.google.com with SMTP id b23so5844418pgb.3
-        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 03:30:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fs0DCwP63Sm/aUaJJX2Vl+BtwdhqbFxhpKzAy1OujpY=;
-        b=uyEQAY/pTQpOeZYLOcUb9NJOw0hmo9o+/8o18PApo9fCpNofmdpzxVRSsp3tNCm87i
-         u5NAbHlRAliTZzu88smPNEIHieQB0gWMjwYVUn+7RJ2IyEIEmYgRQ4KwX3tRUaaQpr0i
-         EzIG9ZQGZwPNjkB/xHDrVGXZDndJYdb5im/jH/Iw7y3/9uDIcSK1O0E3SeoXb4W+PrTo
-         1r5L4Lp8Ay0dQqKq8ar5/xTqLV0gD5Jtj4AkDvhE3XpR9r/YwkCIl0/2CGaTC0NOL1zs
-         mv2mK9l65w1sKd8JNSZF5NM9W8jVDAE5fG1ix0Wiy9fh20soSdTWNo3pO+bBASUE7fwP
-         w48Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fs0DCwP63Sm/aUaJJX2Vl+BtwdhqbFxhpKzAy1OujpY=;
-        b=l7FRZRM3T07SMhXRBr/dtHI7coMV/Xufqqtk0Ak+dhWARokD/Ej5dmTY42p99m5+56
-         VYRK+w3xQRmZL4qHhH/XM1o+3NudnL8fssnMyQANBjtGqqHu8jOOVdzFKeni14VpHUjp
-         bmTtKgl1EKZT/LfJx7xVMXB6sUP0QXaCU6o1Ochi/T0eZdOKj/QNva7/gn5M4ri4cqm2
-         nYVQYozgkaEaBxoHL+gDe6+h16bDocVCxw/HDJGdA9xxuEGpQlw2NakgaHv8HqX9PPuz
-         hY6fc6o+rI+wWsTZr+WDf+lqB0nbDoXoLJ6M23o4msDMplDjGU/mAmbQwmnmN7jsz2yE
-         6DsQ==
-X-Gm-Message-State: AOAM53122wJZGCm/dacvMXB4nz0ZpAPU+IZoEmrPBgWNvNf7EZ+F/kkV
-        trDFSNTSdE76BKjEMTgt7C0b1aOgnq+cEQ==
-X-Google-Smtp-Source: ABdhPJwCJOr5qJafi2iWOkxCWPMnB4tmkHO+Ns79V6tahn3XQNyUjRj2NGvWMZt8Z678AHVI3qngow==
-X-Received: by 2002:a63:5046:: with SMTP id q6mr2760743pgl.373.1603708206989;
-        Mon, 26 Oct 2020 03:30:06 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p5sm11862399pjz.47.2020.10.26.03.30.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 03:30:06 -0700 (PDT)
-Message-ID: <5f96a52e.1c69fb81.bad37.85e5@mx.google.com>
-Date:   Mon, 26 Oct 2020 03:30:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1770074AbgJZKkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 06:40:24 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:39044 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1770067AbgJZKkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 06:40:22 -0400
+Date:   Mon, 26 Oct 2020 10:40:19 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1603708820;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=08EbtSloDeX9auUDy0ygY+Usk0vTSJgHxNB0kRIuqHI=;
+        b=U1HiCRqw0eqEO3woi64N3L2U6jUWXJQFAi9SmZpUo0YOUadobX7QsZUclfv1c/2oRD5g/5
+        THn36L/GIjtq/b3aM0Uc6M9qy42uUGNmRnHYIqVeVz88cDc7VYqxdXvy2mNNRTXj+NqEtv
+        XNYs7ahHPZP6TVA8mqoWaXxd+fkNDEi+kaDESnTC+bx0s6QAgHpELUfz1aqERTc0HTVwXb
+        oBrahh9+zWD1s7lfYA3gnssErMhOwK1BlDJmAzJFbjxiUUuPG120t8F1LByq0U5jx1Ezbq
+        iENWoXIiojOrFJhya7tPFOeDodtJM4oFMj7q/XAmHPePYwLZC5KGFcEIwAfwKg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1603708820;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=08EbtSloDeX9auUDy0ygY+Usk0vTSJgHxNB0kRIuqHI=;
+        b=waGHkoGOIjcIPakATwVuZOFfPWUh4d3Iaqtao7Y/7E9rWuI/bnPlrO8f0B7KkUxdVWuRZn
+        sBXccEynEQzFH7BQ==
+From:   "tip-bot2 for Quanyang Wang" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] time/sched_clock: Mark
+ sched_clock_read_begin/retry() as notrace
+Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200929082027.16787-1-quanyang.wang@windriver.com>
+References: <20200929082027.16787-1-quanyang.wang@windriver.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.152-260-g13765aa29be3
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 177 runs,
- 2 regressions (v4.19.152-260-g13765aa29be3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <160370881926.397.16021594131838342411.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 177 runs, 2 regressions (v4.19.152-260-g1376=
-5aa29be3)
+The following commit has been merged into the timers/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     4cd2bb12981165f865d2b8ed92b446b52310ef74
+Gitweb:        https://git.kernel.org/tip/4cd2bb12981165f865d2b8ed92b446b52310ef74
+Author:        Quanyang Wang <quanyang.wang@windriver.com>
+AuthorDate:    Tue, 29 Sep 2020 16:20:27 +08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Mon, 26 Oct 2020 11:34:31 +01:00
 
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
+time/sched_clock: Mark sched_clock_read_begin/retry() as notrace
 
-panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
+Since sched_clock_read_begin() and sched_clock_read_retry() are called
+by notrace function sched_clock(), they shouldn't be traceable either,
+or else ftrace_graph_caller will run into a dead loop on the path
+as below (arm for instance):
 
+  ftrace_graph_caller()
+    prepare_ftrace_return()
+      function_graph_enter()
+        ftrace_push_return_trace()
+          trace_clock_local()
+            sched_clock()
+              sched_clock_read_begin/retry()
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.152-260-g13765aa29be3/plan/baseline/
+Fixes: 1b86abc1c645 ("sched_clock: Expose struct clock_read_data")
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200929082027.16787-1-quanyang.wang@windriver.com
+---
+ kernel/time/sched_clock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.152-260-g13765aa29be3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      13765aa29be363ca408d3012a3dc9a4aefaa178b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9670b20376ce7e76381012
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
--260-g13765aa29be3/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-=
-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
--260-g13765aa29be3/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-=
-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f9670b20376ce7e=
-76381017
-        failing since 3 days (last pass: v4.19.152-15-g0ea747efc059, first =
-fail: v4.19.152-15-gc47f727e21ba)
-        1 lines
-
-    2020-10-26 06:44:21.003000+00:00  Connected to bcm2837-rpi-3-b console =
-[channel connected] (~$quit to exit)
-    2020-10-26 06:44:21.003000+00:00  (user:khilman) is already connected
-    2020-10-26 06:44:36.269000+00:00  =00
-    2020-10-26 06:44:36.269000+00:00  =
-
-    2020-10-26 06:44:36.285000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
-2 -0800)
-    2020-10-26 06:44:36.285000+00:00  =
-
-    2020-10-26 06:44:36.285000+00:00  DRAM:  948 MiB
-    2020-10-26 06:44:36.301000+00:00  RPI 3 Model B (0xa02082)
-    2020-10-26 06:44:36.392000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
-0: 1
-    2020-10-26 06:44:36.423000+00:00  Loading Environment from FAT... *** W=
-arning - bad CRC, using default environment =
-
-    ... (362 line(s) more)  =
-
- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9670d03dcd163c6e38101b
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
--260-g13765aa29be3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.152=
--260-g13765aa29be3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9670d03dcd163=
-c6e381022
-        failing since 1 day (last pass: v4.19.152-15-gc47f727e21ba, first f=
-ail: v4.19.152-30-g31ec31f50737)
-        2 lines =
-
- =20
+diff --git a/kernel/time/sched_clock.c b/kernel/time/sched_clock.c
+index 0642013..b1b9b12 100644
+--- a/kernel/time/sched_clock.c
++++ b/kernel/time/sched_clock.c
+@@ -68,13 +68,13 @@ static inline u64 notrace cyc_to_ns(u64 cyc, u32 mult, u32 shift)
+ 	return (cyc * mult) >> shift;
+ }
+ 
+-struct clock_read_data *sched_clock_read_begin(unsigned int *seq)
++notrace struct clock_read_data *sched_clock_read_begin(unsigned int *seq)
+ {
+ 	*seq = raw_read_seqcount_latch(&cd.seq);
+ 	return cd.read_data + (*seq & 1);
+ }
+ 
+-int sched_clock_read_retry(unsigned int seq)
++notrace int sched_clock_read_retry(unsigned int seq)
+ {
+ 	return read_seqcount_latch_retry(&cd.seq, seq);
+ }
