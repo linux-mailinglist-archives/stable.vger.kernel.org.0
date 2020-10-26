@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1663029A1D9
+	by mail.lfdr.de (Postfix) with ESMTP id 85B9729A1DA
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409690AbgJ0AoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
+        id S2442771AbgJ0AoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409330AbgJZXvL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:51:11 -0400
+        id S2409336AbgJZXvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:51:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B344E20878;
-        Mon, 26 Oct 2020 23:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D53E62075B;
+        Mon, 26 Oct 2020 23:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756271;
-        bh=9+3VoOP+nxTVMDbH4zV35RJX/lzj91BA3Ht3ZiGjQZk=;
+        s=default; t=1603756272;
+        bh=ZQ4rUae0MFq+q+xuLJba7D1u85eRkZ30SW3jH8xmVcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/JQei82sTEmJQClUB3HlFlw//547F5HGUk1+CGa8qr6j2Ce2dHKlq+w84z9ZPsce
-         gkxRdU1LrhToWxLv7WY1RrbA76aw9zzlwxIurTgSnFJInil32LLkEW//SOqt/jQWwX
-         4uZa7sQL1tkBc72SlsXZ3ORuYDXiNG/65mcG6vvU=
+        b=W046cHoSC3Ov5I62XBdCKcxid8qUDspHjLObY70QsaiHQIz5fwFr5JNuPahqqXzx8
+         SwjQFyY4vFxYU/eoVxZvhBUAtG88pLNX0LpNsBG9XQY0QwW92Gqfwo4BqczYD23b0R
+         PVSXppiq24XeIan7lLqYMBL5XkUVX3GBZxiA0F7U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 103/147] block: Consider only dispatched requests for inflight statistic
-Date:   Mon, 26 Oct 2020 19:48:21 -0400
-Message-Id: <20201026234905.1022767-103-sashal@kernel.org>
+Cc:     Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 104/147] btrfs: fix replace of seed device
+Date:   Mon, 26 Oct 2020 19:48:22 -0400
+Message-Id: <20201026234905.1022767-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,51 +42,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit a926c7afffcc0f2e35e6acbccb16921bacf34617 ]
+[ Upstream commit c6a5d954950c5031444173ad2195efc163afcac9 ]
 
-According to Documentation/block/stat.rst, inflight should not include
-I/O requests that are in the queue but not yet dispatched to the device,
-but blk-mq identifies as inflight any request that has a tag allocated,
-which, for queues without elevator, happens at request allocation time
-and before it is queued in the ctx (default case in blk_mq_submit_bio).
+If you replace a seed device in a sprouted fs, it appears to have
+successfully replaced the seed device, but if you look closely, it
+didn't.  Here is an example.
 
-In addition, current behavior is different for queues with elevator from
-queues without it, since for the former the driver tag is allocated at
-dispatch time.  A more precise approach would be to only consider
-requests with state MQ_RQ_IN_FLIGHT.
+  $ mkfs.btrfs /dev/sda
+  $ btrfstune -S1 /dev/sda
+  $ mount /dev/sda /btrfs
+  $ btrfs device add /dev/sdb /btrfs
+  $ umount /btrfs
+  $ btrfs device scan --forget
+  $ mount -o device=/dev/sda /dev/sdb /btrfs
+  $ btrfs replace start -f /dev/sda /dev/sdc /btrfs
+  $ echo $?
+  0
 
-This effectively reverts commit 6131837b1de6 ("blk-mq: count allocated
-but not started requests in iostats inflight") to consolidate blk-mq
-behavior with itself (elevator case) and with original documentation,
-but it differs from the behavior used by the legacy path.
+  BTRFS info (device sdb): dev_replace from /dev/sda (devid 1) to /dev/sdc started
+  BTRFS info (device sdb): dev_replace from /dev/sda (devid 1) to /dev/sdc finished
 
-This version differs from v1 by using blk_mq_rq_state to access the
-state attribute.  Avoid using blk_mq_request_started, which was
-suggested, since we don't want to include MQ_RQ_COMPLETE.
+  $ btrfs fi show
+  Label: none  uuid: ab2c88b7-be81-4a7e-9849-c3666e7f9f4f
+	  Total devices 2 FS bytes used 256.00KiB
+	  devid    1 size 3.00GiB used 520.00MiB path /dev/sdc
+	  devid    2 size 3.00GiB used 896.00MiB path /dev/sdb
 
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Cc: Omar Sandoval <osandov@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  Label: none  uuid: 10bd3202-0415-43af-96a8-d5409f310a7e
+	  Total devices 1 FS bytes used 128.00KiB
+	  devid    1 size 3.00GiB used 536.00MiB path /dev/sda
+
+So as per the replace start command and kernel log replace was successful.
+Now let's try to clean mount.
+
+  $ umount /btrfs
+  $ btrfs device scan --forget
+
+  $ mount -o device=/dev/sdc /dev/sdb /btrfs
+  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/sdb, missing codepage or helper program, or other error.
+
+  [  636.157517] BTRFS error (device sdc): failed to read chunk tree: -2
+  [  636.180177] BTRFS error (device sdc): open_ctree failed
+
+That's because per dev items it is still looking for the original seed
+device.
+
+ $ btrfs inspect-internal dump-tree -d /dev/sdb
+
+	item 0 key (DEV_ITEMS DEV_ITEM 1) itemoff 16185 itemsize 98
+		devid 1 total_bytes 3221225472 bytes_used 545259520
+		io_align 4096 io_width 4096 sector_size 4096 type 0
+		generation 6 start_offset 0 dev_group 0
+		seek_speed 0 bandwidth 0
+		uuid 59368f50-9af2-4b17-91da-8a783cc418d4  <--- seed uuid
+		fsid 10bd3202-0415-43af-96a8-d5409f310a7e  <--- seed fsid
+	item 1 key (DEV_ITEMS DEV_ITEM 2) itemoff 16087 itemsize 98
+		devid 2 total_bytes 3221225472 bytes_used 939524096
+		io_align 4096 io_width 4096 sector_size 4096 type 0
+		generation 0 start_offset 0 dev_group 0
+		seek_speed 0 bandwidth 0
+		uuid 56a0a6bc-4630-4998-8daf-3c3030c4256a  <- sprout uuid
+		fsid ab2c88b7-be81-4a7e-9849-c3666e7f9f4f <- sprout fsid
+
+But the replaced target has the following uuid+fsid in its superblock
+which doesn't match with the expected uuid+fsid in its devitem.
+
+  $ btrfs in dump-super /dev/sdc | egrep '^generation|dev_item.uuid|dev_item.fsid|devid'
+  generation	20
+  dev_item.uuid	59368f50-9af2-4b17-91da-8a783cc418d4
+  dev_item.fsid	ab2c88b7-be81-4a7e-9849-c3666e7f9f4f [match]
+  dev_item.devid	1
+
+So if you provide the original seed device the mount shall be
+successful.  Which so long happening in the test case btrfs/163.
+
+  $ btrfs device scan --forget
+  $ mount -o device=/dev/sda /dev/sdb /btrfs
+
+Fix in this patch:
+If a seed is not sprouted then there is no replacement of it, because of
+its read-only filesystem with a read-only device. Similarly, in the case
+of a sprouted filesystem, the seed device is still read only. So, mark
+it as you can't replace a seed device, you can only add a new device and
+then delete the seed device. If replace is attempted then returns
+-EINVAL.
+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 2 +-
+ fs/btrfs/dev-replace.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index cdced4aca2e81..fd578a0ea67dc 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -105,7 +105,7 @@ static bool blk_mq_check_inflight(struct blk_mq_hw_ctx *hctx,
- {
- 	struct mq_inflight *mi = priv;
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index e4a1c6afe35dc..0cb36746060da 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -230,7 +230,7 @@ static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,
+ 	int ret = 0;
  
--	if (rq->part == mi->part)
-+	if (rq->part == mi->part && blk_mq_rq_state(rq) == MQ_RQ_IN_FLIGHT)
- 		mi->inflight[rq_data_dir(rq)]++;
- 
- 	return true;
+ 	*device_out = NULL;
+-	if (fs_info->fs_devices->seeding) {
++	if (srcdev->fs_devices->seeding) {
+ 		btrfs_err(fs_info, "the filesystem is a seed filesystem!");
+ 		return -EINVAL;
+ 	}
 -- 
 2.25.1
 
