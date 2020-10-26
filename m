@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCBB299C26
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2D8299C29
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411005AbgJZXz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33450 "EHLO mail.kernel.org"
+        id S2411044AbgJZX4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:56:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410899AbgJZXzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:24 -0400
+        id S2410905AbgJZXz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2A7A20770;
-        Mon, 26 Oct 2020 23:55:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A247921D7B;
+        Mon, 26 Oct 2020 23:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756522;
-        bh=IXKvZ8ptF2r5eLQzATs9X+yzaoFinvLNNofxFDrLHCo=;
+        s=default; t=1603756527;
+        bh=dSaMw7DZ/Cwp8wEKQgooEOP4HmHQ5X9A99xBpkLxvVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJj0jOnee5fjWpVuXoKEHifqg1vsgxQmdvQXkBqQd+mzjh2NwlzL/RT+wxameyEyN
-         TqH+yXsX33+yUZaShgOHUFWh+6U/Zyo13YKS9Uo6a64qNISSvKRtSgM0tyaC2EyQLW
-         bgkzt7GW/MSzBzmMMs4JamjpcQfkaw89fj8NrNuQ=
+        b=KQyh0VkShfGQvVgRASu+0Nh9My1Uhxwn9lS466Ga1e7ho+/Vw+Mda5eVnBNYb9Puo
+         inL+Bced1eBs1zerO/FMD+7loC/erfvapJu59V6n2xla915cBqrBOU08Oszha1tgEe
+         S4senxMptOY8PB84/aNPpTT71YQUpRV9w29iMf58=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/80] sparc64: remove mm_cpumask clearing to fix kthread_use_mm race
-Date:   Mon, 26 Oct 2020 19:54:00 -0400
-Message-Id: <20201026235516.1025100-4-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/80] s390/startup: avoid save_area_sync overflow
+Date:   Mon, 26 Oct 2020 19:54:04 -0400
+Message-Id: <20201026235516.1025100-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -43,177 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit bafb056ce27940c9994ea905336aa8f27b4f7275 ]
+[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
 
-The de facto (and apparently uncommented) standard for using an mm had,
-thanks to this code in sparc if nothing else, been that you must have a
-reference on mm_users *and that reference must have been obtained with
-mmget()*, i.e., from a thread with a reference to mm_users that had used
-the mm.
+Currently we overflow save_area_sync and write over
+save_area_async. Although this is not a real problem make
+startup_pgm_check_handler consistent with late pgm check handler and
+store [%r0,%r7] directly into gpregs_save_area.
 
-The introduction of mmget_not_zero() in commit d2005e3f41d4
-("userfaultfd: don't pin the user memory in userfaultfd_file_create()")
-allowed mm_count holders to aoperate on user mappings asynchronously
-from the actual threads using the mm, but they were not to load those
-mappings into their TLB (i.e., walking vmas and page tables is okay,
-kthread_use_mm() is not).
-
-io_uring 2b188cc1bb857 ("Add io_uring IO interface") added code which
-does a kthread_use_mm() from a mmget_not_zero() refcount.
-
-The problem with this is code which previously assumed mm == current->mm
-and mm->mm_users == 1 implies the mm will remain single-threaded at
-least until this thread creates another mm_users reference, has now
-broken.
-
-arch/sparc/kernel/smp_64.c:
-
-    if (atomic_read(&mm->mm_users) == 1) {
-        cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
-        goto local_flush_and_out;
-    }
-
-vs fs/io_uring.c
-
-    if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
-                 !mmget_not_zero(ctx->sqo_mm)))
-        return -EFAULT;
-    kthread_use_mm(ctx->sqo_mm);
-
-mmget_not_zero() could come in right after the mm_users == 1 test, then
-kthread_use_mm() which sets its CPU in the mm_cpumask. That update could
-be lost if cpumask_copy() occurs afterward.
-
-I propose we fix this by allowing mmget_not_zero() to be a first-class
-reference, and not have this obscure undocumented and unchecked
-restriction.
-
-The basic fix for sparc64 is to remove its mm_cpumask clearing code. The
-optimisation could be effectively restored by sending IPIs to mm_cpumask
-members and having them remove themselves from mm_cpumask. This is more
-tricky so I leave it as an exercise for someone with a sparc64 SMP.
-powerpc has a (currently similarly broken) example.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-4-npiggin@gmail.com
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/smp_64.c | 65 ++++++++------------------------------
- 1 file changed, 14 insertions(+), 51 deletions(-)
+ arch/s390/boot/head.S | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index a8275fea4b70c..aa81c25b44cf3 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1039,38 +1039,9 @@ void smp_fetch_global_pmu(void)
-  * are flush_tlb_*() routines, and these run after flush_cache_*()
-  * which performs the flushw.
-  *
-- * The SMP TLB coherency scheme we use works as follows:
-- *
-- * 1) mm->cpu_vm_mask is a bit mask of which cpus an address
-- *    space has (potentially) executed on, this is the heuristic
-- *    we use to avoid doing cross calls.
-- *
-- *    Also, for flushing from kswapd and also for clones, we
-- *    use cpu_vm_mask as the list of cpus to make run the TLB.
-- *
-- * 2) TLB context numbers are shared globally across all processors
-- *    in the system, this allows us to play several games to avoid
-- *    cross calls.
-- *
-- *    One invariant is that when a cpu switches to a process, and
-- *    that processes tsk->active_mm->cpu_vm_mask does not have the
-- *    current cpu's bit set, that tlb context is flushed locally.
-- *
-- *    If the address space is non-shared (ie. mm->count == 1) we avoid
-- *    cross calls when we want to flush the currently running process's
-- *    tlb state.  This is done by clearing all cpu bits except the current
-- *    processor's in current->mm->cpu_vm_mask and performing the
-- *    flush locally only.  This will force any subsequent cpus which run
-- *    this task to flush the context from the local tlb if the process
-- *    migrates to another cpu (again).
-- *
-- * 3) For shared address spaces (threads) and swapping we bite the
-- *    bullet for most cases and perform the cross call (but only to
-- *    the cpus listed in cpu_vm_mask).
-- *
-- *    The performance gain from "optimizing" away the cross call for threads is
-- *    questionable (in theory the big win for threads is the massive sharing of
-- *    address space state across processors).
-+ * mm->cpu_vm_mask is a bit mask of which cpus an address
-+ * space has (potentially) executed on, this is the heuristic
-+ * we use to limit cross calls.
-  */
- 
- /* This currently is only used by the hugetlb arch pre-fault
-@@ -1080,18 +1051,13 @@ void smp_fetch_global_pmu(void)
- void smp_flush_tlb_mm(struct mm_struct *mm)
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
- 
--	if (atomic_read(&mm->mm_users) == 1) {
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--		goto local_flush_and_out;
--	}
-+	get_cpu();
- 
- 	smp_cross_call_masked(&xcall_flush_tlb_mm,
- 			      ctx, 0, 0,
- 			      mm_cpumask(mm));
- 
--local_flush_and_out:
- 	__flush_tlb_mm(ctx, SECONDARY_CONTEXT);
- 
- 	put_cpu();
-@@ -1114,17 +1080,15 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
- 	struct tlb_pending_info info;
--	int cpu = get_cpu();
-+
-+	get_cpu();
- 
- 	info.ctx = ctx;
- 	info.nr = nr;
- 	info.vaddrs = vaddrs;
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
--				       &info, 1);
-+	smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
-+			       &info, 1);
- 
- 	__flush_tlb_pending(ctx, nr, vaddrs);
- 
-@@ -1134,14 +1098,13 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- void smp_flush_tlb_page(struct mm_struct *mm, unsigned long vaddr)
- {
- 	unsigned long context = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_cross_call_masked(&xcall_flush_tlb_page,
--				      context, vaddr, 0,
--				      mm_cpumask(mm));
-+	get_cpu();
-+
-+	smp_cross_call_masked(&xcall_flush_tlb_page,
-+			      context, vaddr, 0,
-+			      mm_cpumask(mm));
-+
- 	__flush_tlb_page(context, vaddr);
- 
- 	put_cpu();
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index 4b86a8d3c1219..e6bf5f40bff34 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
+ # the save area and does disabled wait with a faulty address.
+ #
+ ENTRY(startup_pgm_check_handler)
+-	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
+-	la	%r1,4095
+-	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
+-	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
+-	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
++	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
++	la	%r8,4095
++	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
++	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
++	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
++	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
+ 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
+ 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
+ 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
+ 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
+-	larl	%r2,.Lold_psw_disabled_wait
+-	stg	%r2,__LC_PGM_NEW_PSW+8
+-	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
++	larl	%r9,.Lold_psw_disabled_wait
++	stg	%r9,__LC_PGM_NEW_PSW+8
++	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
+ 	brasl	%r14,print_pgm_check_info
+ .Lold_psw_disabled_wait:
+-	la	%r1,4095
+-	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
++	la	%r8,4095
++	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
+ 	lpswe	__LC_RETURN_PSW		# disabled wait
+ .Ldump_info_stack:
+ 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
 -- 
 2.25.1
 
