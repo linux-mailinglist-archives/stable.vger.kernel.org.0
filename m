@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7C529A1B1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B206729A1B4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502372AbgJ0Ane (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:43:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50374 "EHLO mail.kernel.org"
+        id S2409151AbgJ0Ang (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409162AbgJZXuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:39 -0400
+        id S2409165AbgJZXul (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5157216FD;
-        Mon, 26 Oct 2020 23:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053932075B;
+        Mon, 26 Oct 2020 23:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756239;
-        bh=r9elibudGHXmx10/BpDXAg31w2XFaZ9O1NrZhZUe91Q=;
+        s=default; t=1603756240;
+        bh=3Tid0z77FOPAKyxCArbwfdFzfiDVOeZwGFliCQNSh2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNR6maTxBf0w69DcsgcvZ1PGtOK0DvJXzfPtVvxB38/6y4wKt0sj0wwpa0Vi0fEPY
-         YAhlGd48khC/CPAqGu9+EiCPdCRzlUz1L0FvpYQ2Fe2ZohUkifFPl3uM2Fl/sj4xrc
-         TN1obZU/6pMhtXy5Viq7jTKnE8J4D88GRefVnYFM=
+        b=BKOQG7FP4Ot69BcztMBtvhg7cVIaG2KpLQTEaKD92WH7Nc7teAEBb5OkH4ssphZBV
+         2oE+AEuqiboyzsGZ7OoDcgIOhjky8SkT/fUhQHh7OPfTiaPcvbO9NCi5FX/0J+5gdW
+         lJ+gNBTSOx/HomicA13dxE2Pubc1Fx+OF1CnmKqY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luben Tuikov <luben.tuikov@amd.com>,
-        Slava Abramov <slava.abramov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.9 076/147] drm/amdgpu: No sysfs, not an error condition
-Date:   Mon, 26 Oct 2020 19:47:54 -0400
-Message-Id: <20201026234905.1022767-76-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 077/147] mac80211: add missing queue/hash initialization to 802.3 xmit
+Date:   Mon, 26 Oct 2020 19:47:55 -0400
+Message-Id: <20201026234905.1022767-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -44,41 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 5aea5327ea2ddf544cbeff096f45fc2319b0714e ]
+[ Upstream commit 5f8d69eaab1915df97f4f2aca89ea16abdd092d5 ]
 
-Not being able to create amdgpu sysfs attributes
-is not a fatal error warranting not to continue
-to try to bring up the display. Thus, if we get
-an error trying to create amdgpu sysfs attrs,
-report it and continue on to try to bring up
-a display.
+Fixes AQL for encap-offloaded tx
 
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Slava Abramov <slava.abramov@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20200908123702.88454-2-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/mac80211/tx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index d0b8d0d341af5..2576c299958c5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3316,10 +3316,8 @@ int amdgpu_device_init(struct amdgpu_device *adev,
- 		flush_delayed_work(&adev->delayed_init_work);
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index dca01d7e6e3e0..282b0bc201eeb 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -4209,6 +4209,12 @@ static void ieee80211_8023_xmit(struct ieee80211_sub_if_data *sdata,
+ 	if (is_zero_ether_addr(ra))
+ 		goto out_free;
  
- 	r = sysfs_create_files(&adev->dev->kobj, amdgpu_dev_attributes);
--	if (r) {
-+	if (r)
- 		dev_err(adev->dev, "Could not create amdgpu device attr\n");
--		return r;
--	}
++	if (local->ops->wake_tx_queue) {
++		u16 queue = __ieee80211_select_queue(sdata, sta, skb);
++		skb_set_queue_mapping(skb, queue);
++		skb_get_hash(skb);
++	}
++
+ 	multicast = is_multicast_ether_addr(ra);
  
- 	if (IS_ENABLED(CONFIG_PERF_EVENTS))
- 		r = amdgpu_pmu_init(adev);
+ 	if (sta)
 -- 
 2.25.1
 
