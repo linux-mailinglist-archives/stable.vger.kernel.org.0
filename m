@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C09299BD7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C67F3299BDF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410168AbgJZXxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58492 "EHLO mail.kernel.org"
+        id S2410259AbgJZXxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410166AbgJZXxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:53:43 -0400
+        id S2410256AbgJZXxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:53:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C0E920882;
-        Mon, 26 Oct 2020 23:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37F9620B1F;
+        Mon, 26 Oct 2020 23:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756423;
-        bh=4en1etJbfMcAJ0pImQlkn1Yva9agtXtlts5g62gS6Ws=;
+        s=default; t=1603756434;
+        bh=qgHC9+KJFOVaZqnF2h2PQVHOpkvApWP1S7LFooBaEcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVkC67tcWyOHG6tUNjGFCRjs0lRjeOU3l3akm2mSVD7XGGdG4Cu0pPlgXRrOa01Ai
-         HaiuQknw/qXl9xsNYRlUcDxkbklhl+ADsJjXyLqUX9Iu0iU+s5i8hyTMAkcmkbk9sF
-         cJITpF5yOJbN1a9mlN75zZbVJwwUkFWi9JVvN+lw=
+        b=biwpPb3kQPtfgmzCMoysDYKkVQk5DsPP0/g0mVu+GpdthQdKc4Dln9ijx8P4goFx9
+         bIDLbRQ6F7H9OnVKNgSdEbVXhGGu0cUpsP93bXU0u2/CuQppKsGmCN391Xwm86oumV
+         Ary+qUMEfnZthIV8jbtmoEXLHTlGH1lg32fFddDo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 079/132] genirq: Add stub for set_handle_irq() when !GENERIC_IRQ_MULTI_HANDLER
-Date:   Mon, 26 Oct 2020 19:51:11 -0400
-Message-Id: <20201026235205.1023962-79-sashal@kernel.org>
+Cc:     Diana Craciun <diana.craciun@oss.nxp.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 089/132] bus/fsl_mc: Do not rely on caller to provide non NULL mc_io
+Date:   Mon, 26 Oct 2020 19:51:21 -0400
+Message-Id: <20201026235205.1023962-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -41,40 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Diana Craciun <diana.craciun@oss.nxp.com>
 
-[ Upstream commit ea0c80d1764449acf2f70fdb25aec33800cd0348 ]
+[ Upstream commit 5026cf605143e764e1785bbf9158559d17f8d260 ]
 
-In order to avoid compilation errors when a driver references set_handle_irq(),
-but that the architecture doesn't select GENERIC_IRQ_MULTI_HANDLER,
-add a stub function that will just WARN_ON_ONCE() if ever used.
+Before destroying the mc_io, check first that it was
+allocated.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-[maz: commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200924071754.4509-2-thunder.leizhen@huawei.com
+Reviewed-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Acked-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Signed-off-by: Diana Craciun <diana.craciun@oss.nxp.com>
+Link: https://lore.kernel.org/r/20200929085441.17448-11-diana.craciun@oss.nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/irq.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/bus/fsl-mc/mc-io.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 1b7f4dfee35b3..b167baef88c0b 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -1252,6 +1252,12 @@ int __init set_handle_irq(void (*handle_irq)(struct pt_regs *));
-  * top-level IRQ handler.
+diff --git a/drivers/bus/fsl-mc/mc-io.c b/drivers/bus/fsl-mc/mc-io.c
+index 6ae48ad804091..e1dfe4a765198 100644
+--- a/drivers/bus/fsl-mc/mc-io.c
++++ b/drivers/bus/fsl-mc/mc-io.c
+@@ -129,7 +129,12 @@ int __must_check fsl_create_mc_io(struct device *dev,
   */
- extern void (*handle_arch_irq)(struct pt_regs *) __ro_after_init;
-+#else
-+#define set_handle_irq(handle_irq)		\
-+	do {					\
-+		(void)handle_irq;		\
-+		WARN_ON(1);			\
-+	} while (0)
- #endif
+ void fsl_destroy_mc_io(struct fsl_mc_io *mc_io)
+ {
+-	struct fsl_mc_device *dpmcp_dev = mc_io->dpmcp_dev;
++	struct fsl_mc_device *dpmcp_dev;
++
++	if (!mc_io)
++		return;
++
++	dpmcp_dev = mc_io->dpmcp_dev;
  
- #endif /* _LINUX_IRQ_H */
+ 	if (dpmcp_dev)
+ 		fsl_mc_io_unset_dpmcp(mc_io);
 -- 
 2.25.1
 
