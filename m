@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9498A299CF6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 812BE299CFA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411314AbgJ0ACw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S2437473AbgJ0ACx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411048AbgJZX4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2411054AbgJZX4N (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Oct 2020 19:56:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6440F20B1F;
-        Mon, 26 Oct 2020 23:56:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F0CD2151B;
+        Mon, 26 Oct 2020 23:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756570;
-        bh=OpIFis7+wh8rI++WHbem2rOCrI9SOsDtNkCi7Absdqw=;
+        s=default; t=1603756571;
+        bh=VolI0NG8ZRfMBdojfYaKtxeTYyglur0QxGNK8tJCbK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCkrmFkPsF2NCc3x/uzv2DwMzauekmMdYf68eDNjsnn3ywAwDyqx53vDGhuKgBcE7
-         +VLD5/OTt6Eh/tW5wchFImIW4xq2c9RZBGeYMqJkOaSSw6/A5HbDHJ1WWFDQn5IsFq
-         7adLsMBDwUlX1ArtgyGgS8zuLARcdSJFzfGsq/Ck=
+        b=B7rbDC83tUb3Q6bfS8odjx6fLWKeIdPUABgowbFFl698aFyTZ0JfIcgyB4Na3WAVT
+         QBT7xdLE/tdY1yLdDNY+hn2o3Igrbx5yz/+8p7AHU39Ydw1/nHL3RhYoyPezCIW+xy
+         m22PoQxW4LbvLN8kf3O8CFcgEYB48RSHVWvLF8sk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 44/80] can: flexcan: disable clocks during stop mode
-Date:   Mon, 26 Oct 2020 19:54:40 -0400
-Message-Id: <20201026235516.1025100-44-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 45/80] xfs: don't free rt blocks when we're doing a REMAP bunmapi call
+Date:   Mon, 26 Oct 2020 19:54:41 -0400
+Message-Id: <20201026235516.1025100-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -44,83 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 02f71c6605e1f8259c07f16178330db766189a74 ]
+[ Upstream commit 8df0fa39bdd86ca81a8d706a6ed9d33cc65ca625 ]
 
-Disable clocks while CAN core is in stop mode.
+When callers pass XFS_BMAPI_REMAP into xfs_bunmapi, they want the extent
+to be unmapped from the given file fork without the extent being freed.
+We do this for non-rt files, but we forgot to do this for realtime
+files.  So far this isn't a big deal since nobody makes a bunmapi call
+to a rt file with the REMAP flag set, but don't leave a logic bomb.
 
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Tested-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20191210085721.9853-2-qiangqing.zhang@nxp.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c | 30 ++++++++++++++++++++----------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ fs/xfs/libxfs/xfs_bmap.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index e5c207ad3c77d..ae05ed57211df 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -1681,8 +1681,6 @@ static int __maybe_unused flexcan_suspend(struct device *device)
- 			err = flexcan_chip_disable(priv);
- 			if (err)
- 				return err;
--
--			err = pm_runtime_force_suspend(device);
- 		}
- 		netif_stop_queue(dev);
- 		netif_device_detach(dev);
-@@ -1708,10 +1706,6 @@ static int __maybe_unused flexcan_resume(struct device *device)
- 			if (err)
- 				return err;
- 		} else {
--			err = pm_runtime_force_resume(device);
--			if (err)
--				return err;
--
- 			err = flexcan_chip_enable(priv);
- 		}
- 	}
-@@ -1742,8 +1736,16 @@ static int __maybe_unused flexcan_noirq_suspend(struct device *device)
- 	struct net_device *dev = dev_get_drvdata(device);
- 	struct flexcan_priv *priv = netdev_priv(dev);
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index f8db3fe616df9..c114d24be6193 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -4985,20 +4985,25 @@ xfs_bmap_del_extent_real(
  
--	if (netif_running(dev) && device_may_wakeup(device))
--		flexcan_enable_wakeup_irq(priv, true);
-+	if (netif_running(dev)) {
-+		int err;
-+
-+		if (device_may_wakeup(device))
-+			flexcan_enable_wakeup_irq(priv, true);
-+
-+		err = pm_runtime_force_suspend(device);
-+		if (err)
-+			return err;
-+	}
+ 	flags = XFS_ILOG_CORE;
+ 	if (whichfork == XFS_DATA_FORK && XFS_IS_REALTIME_INODE(ip)) {
+-		xfs_fsblock_t	bno;
+ 		xfs_filblks_t	len;
+ 		xfs_extlen_t	mod;
  
- 	return 0;
- }
-@@ -1753,8 +1755,16 @@ static int __maybe_unused flexcan_noirq_resume(struct device *device)
- 	struct net_device *dev = dev_get_drvdata(device);
- 	struct flexcan_priv *priv = netdev_priv(dev);
+-		bno = div_u64_rem(del->br_startblock, mp->m_sb.sb_rextsize,
+-				  &mod);
+-		ASSERT(mod == 0);
+ 		len = div_u64_rem(del->br_blockcount, mp->m_sb.sb_rextsize,
+ 				  &mod);
+ 		ASSERT(mod == 0);
  
--	if (netif_running(dev) && device_may_wakeup(device))
--		flexcan_enable_wakeup_irq(priv, false);
-+	if (netif_running(dev)) {
-+		int err;
+-		error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
+-		if (error)
+-			goto done;
++		if (!(bflags & XFS_BMAPI_REMAP)) {
++			xfs_fsblock_t	bno;
 +
-+		err = pm_runtime_force_resume(device);
-+		if (err)
-+			return err;
++			bno = div_u64_rem(del->br_startblock,
++					mp->m_sb.sb_rextsize, &mod);
++			ASSERT(mod == 0);
 +
-+		if (device_may_wakeup(device))
-+			flexcan_enable_wakeup_irq(priv, false);
-+	}
- 
- 	return 0;
- }
++			error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
++			if (error)
++				goto done;
++		}
++
+ 		do_fx = 0;
+ 		nblks = len * mp->m_sb.sb_rextsize;
+ 		qfield = XFS_TRANS_DQ_RTBCOUNT;
 -- 
 2.25.1
 
