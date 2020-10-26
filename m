@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E633829A176
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC5629A177
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502255AbgJ0AmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47752 "EHLO mail.kernel.org"
+        id S2502258AbgJ0AmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408755AbgJZXth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:37 -0400
+        id S2408762AbgJZXti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BE342075B;
-        Mon, 26 Oct 2020 23:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D969320872;
+        Mon, 26 Oct 2020 23:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756176;
-        bh=+NwHXhlGzd5i8K77Rhgue2pCfD0yCHRoE8gcXo1uYcA=;
+        s=default; t=1603756177;
+        bh=Qkiu1VBCR/x0u2CoicjjBcwxbg8v4o+Ufa2KFInKf3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Peywlc+2e68GtRpo/rtWAmoiVecxCRFx8qlINqa7MQAkrRtkk5iVPkkUT7AbMZxwJ
-         1oPkvbDUHRN8SpWTq57G5ICgdOkRPCW3z3iAVwA6n2jd2lzKjHo9smBmV6SQiVCvCJ
-         pWNww3zSYt/mssk4craqs+Es+E8YcUuoFRa5RcvE=
+        b=lIw6mDsBAtXfHm1xJDySBkhAc4b6cwB9ABFoA102eJ13A8/C4+IwtNTjRFqUjHdjV
+         snwYDecDVyYM4135jGvV+j3pOrUGWf1pf+FGiuMUA/iVr426YrxNXOsT/yQv0zKwxq
+         PLMk2KUJNkT3xw7atywH+jZN3rYpPIWw/UqIpInk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chandan Babu R <chandanrlinux@gmail.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 024/147] xfs: Set xfs_buf's b_ops member when zeroing bitmap/summary files
-Date:   Mon, 26 Oct 2020 19:47:02 -0400
-Message-Id: <20201026234905.1022767-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 025/147] xfs: log new intent items created as part of finishing recovered intent items
+Date:   Mon, 26 Oct 2020 19:47:03 -0400
+Message-Id: <20201026234905.1022767-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,88 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandan Babu R <chandanrlinux@gmail.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit c54e14d155f5fdbac73a8cd4bd2678cb252149dc ]
+[ Upstream commit 93293bcbde93567efaf4e6bcd58cad270e1fcbf5 ]
 
-In xfs_growfs_rt(), we enlarge bitmap and summary files by allocating
-new blocks for both files. For each of the new blocks allocated, we
-allocate an xfs_buf, zero the payload, log the contents and commit the
-transaction. Hence these buffers will eventually find themselves
-appended to list at xfs_ail->ail_buf_list.
+During a code inspection, I found a serious bug in the log intent item
+recovery code when an intent item cannot complete all the work and
+decides to requeue itself to get that done.  When this happens, the
+item recovery creates a new incore deferred op representing the
+remaining work and attaches it to the transaction that it allocated.  At
+the end of _item_recover, it moves the entire chain of deferred ops to
+the dummy parent_tp that xlog_recover_process_intents passed to it, but
+fail to log a new intent item for the remaining work before committing
+the transaction for the single unit of work.
 
-Later, xfs_growfs_rt() loops across all of the new blocks belonging to
-the bitmap inode to set the bitmap values to 1. In doing so, it
-allocates a new transaction and invokes the following sequence of
-functions,
-  - xfs_rtfree_range()
-    - xfs_rtmodify_range()
-      - xfs_rtbuf_get()
-        We pass '&xfs_rtbuf_ops' as the ops pointer to xfs_trans_read_buf().
-        - xfs_trans_read_buf()
-	  We find the xfs_buf of interest in per-ag hash table, invoke
-	  xfs_buf_reverify() which ends up assigning '&xfs_rtbuf_ops' to
-	  xfs_buf->b_ops.
+xlog_finish_defer_ops logs those new intent items once recovery has
+finished dealing with the intent items that it recovered, but this isn't
+sufficient.  If the log is forced to disk after a recovered log item
+decides to requeue itself and the system goes down before we call
+xlog_finish_defer_ops, the second log recovery will never see the new
+intent item and therefore has no idea that there was more work to do.
+It will finish recovery leaving the filesystem in a corrupted state.
 
-On the other hand, if xfs_growfs_rt_alloc() had allocated a few blocks
-for the bitmap inode and returned with an error, all the xfs_bufs
-corresponding to the new bitmap blocks that have been allocated would
-continue to be on xfs_ail->ail_buf_list list without ever having a
-non-NULL value assigned to their b_ops members. An AIL flush operation
-would then trigger the following warning message to be printed on the
-console,
+The same logic applies to /any/ deferred ops added during intent item
+recovery, not just the one handling the remaining work.
 
-  XFS (loop0): _xfs_buf_ioapply: no buf ops on daddr 0x58 len 8
-  00000000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  CPU: 3 PID: 449 Comm: xfsaild/loop0 Not tainted 5.8.0-rc4-chandan-00038-g4d8c2b9de9ab-dirty #37
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  Call Trace:
-   dump_stack+0x57/0x70
-   _xfs_buf_ioapply+0x37c/0x3b0
-   ? xfs_rw_bdev+0x1e0/0x1e0
-   ? xfs_buf_delwri_submit_buffers+0xd4/0x210
-   __xfs_buf_submit+0x6d/0x1f0
-   xfs_buf_delwri_submit_buffers+0xd4/0x210
-   xfsaild+0x2c8/0x9e0
-   ? __switch_to_asm+0x42/0x70
-   ? xfs_trans_ail_cursor_first+0x80/0x80
-   kthread+0xfe/0x140
-   ? kthread_park+0x90/0x90
-   ret_from_fork+0x22/0x30
-
-This message indicates that the xfs_buf had its b_ops member set to
-NULL.
-
-This commit fixes the issue by assigning "&xfs_rtbuf_ops" to b_ops
-member of each of the xfs_bufs logged by xfs_growfs_rt_alloc().
-
-Signed-off-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/libxfs/xfs_defer.c  | 26 ++++++++++++++++++++++++--
+ fs/xfs/libxfs/xfs_defer.h  |  6 ++++++
+ fs/xfs/xfs_bmap_item.c     |  2 +-
+ fs/xfs/xfs_refcount_item.c |  2 +-
+ 4 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 04b953c3ffa75..48be55b18c494 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -838,6 +838,7 @@ xfs_growfs_rt_alloc(
- 				goto out_trans_cancel;
+diff --git a/fs/xfs/libxfs/xfs_defer.c b/fs/xfs/libxfs/xfs_defer.c
+index d8f586256add7..29e9762f3b77c 100644
+--- a/fs/xfs/libxfs/xfs_defer.c
++++ b/fs/xfs/libxfs/xfs_defer.c
+@@ -186,8 +186,9 @@ xfs_defer_create_intent(
+ {
+ 	const struct xfs_defer_op_type	*ops = defer_op_types[dfp->dfp_type];
  
- 			xfs_trans_buf_set_type(tp, bp, buf_type);
-+			bp->b_ops = &xfs_rtbuf_ops;
- 			memset(bp->b_addr, 0, mp->m_sb.sb_blocksize);
- 			xfs_trans_log_buf(tp, bp, 0, mp->m_sb.sb_blocksize - 1);
- 			/*
+-	dfp->dfp_intent = ops->create_intent(tp, &dfp->dfp_work,
+-			dfp->dfp_count, sort);
++	if (!dfp->dfp_intent)
++		dfp->dfp_intent = ops->create_intent(tp, &dfp->dfp_work,
++						     dfp->dfp_count, sort);
+ }
+ 
+ /*
+@@ -390,6 +391,7 @@ xfs_defer_finish_one(
+ 			list_add(li, &dfp->dfp_work);
+ 			dfp->dfp_count++;
+ 			dfp->dfp_done = NULL;
++			dfp->dfp_intent = NULL;
+ 			xfs_defer_create_intent(tp, dfp, false);
+ 		}
+ 
+@@ -552,3 +554,23 @@ xfs_defer_move(
+ 
+ 	xfs_defer_reset(stp);
+ }
++
++/*
++ * Prepare a chain of fresh deferred ops work items to be completed later.  Log
++ * recovery requires the ability to put off until later the actual finishing
++ * work so that it can process unfinished items recovered from the log in
++ * correct order.
++ *
++ * Create and log intent items for all the work that we're capturing so that we
++ * can be assured that the items will get replayed if the system goes down
++ * before log recovery gets a chance to finish the work it put off.  Then we
++ * move the chain from stp to dtp.
++ */
++void
++xfs_defer_capture(
++	struct xfs_trans	*dtp,
++	struct xfs_trans	*stp)
++{
++	xfs_defer_create_intents(stp);
++	xfs_defer_move(dtp, stp);
++}
+diff --git a/fs/xfs/libxfs/xfs_defer.h b/fs/xfs/libxfs/xfs_defer.h
+index 6b2ca580f2b06..3164199162b61 100644
+--- a/fs/xfs/libxfs/xfs_defer.h
++++ b/fs/xfs/libxfs/xfs_defer.h
+@@ -63,4 +63,10 @@ extern const struct xfs_defer_op_type xfs_rmap_update_defer_type;
+ extern const struct xfs_defer_op_type xfs_extent_free_defer_type;
+ extern const struct xfs_defer_op_type xfs_agfl_free_defer_type;
+ 
++/*
++ * Functions to capture a chain of deferred operations and continue them later.
++ * This doesn't normally happen except log recovery.
++ */
++void xfs_defer_capture(struct xfs_trans *dtp, struct xfs_trans *stp);
++
+ #endif /* __XFS_DEFER_H__ */
+diff --git a/fs/xfs/xfs_bmap_item.c b/fs/xfs/xfs_bmap_item.c
+index ec3691372e7c0..815a0563288f4 100644
+--- a/fs/xfs/xfs_bmap_item.c
++++ b/fs/xfs/xfs_bmap_item.c
+@@ -534,7 +534,7 @@ xfs_bui_item_recover(
+ 		xfs_bmap_unmap_extent(tp, ip, &irec);
+ 	}
+ 
+-	xfs_defer_move(parent_tp, tp);
++	xfs_defer_capture(parent_tp, tp);
+ 	error = xfs_trans_commit(tp);
+ 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ 	xfs_irele(ip);
+diff --git a/fs/xfs/xfs_refcount_item.c b/fs/xfs/xfs_refcount_item.c
+index ca93b64883774..492d80a0b4060 100644
+--- a/fs/xfs/xfs_refcount_item.c
++++ b/fs/xfs/xfs_refcount_item.c
+@@ -555,7 +555,7 @@ xfs_cui_item_recover(
+ 	}
+ 
+ 	xfs_refcount_finish_one_cleanup(tp, rcur, error);
+-	xfs_defer_move(parent_tp, tp);
++	xfs_defer_capture(parent_tp, tp);
+ 	error = xfs_trans_commit(tp);
+ 	return error;
+ 
 -- 
 2.25.1
 
