@@ -2,126 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98997299753
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 20:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 602192997A1
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 21:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728392AbgJZTsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 15:48:50 -0400
-Received: from mail-pl1-f175.google.com ([209.85.214.175]:45588 "EHLO
-        mail-pl1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728136AbgJZTsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 15:48:50 -0400
-Received: by mail-pl1-f175.google.com with SMTP id v22so5222563ply.12
-        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 12:48:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8hOgnUKg/ahH2qw/6xu1ybMJEoDh9+XGrg7ba3ellNY=;
-        b=SoHB+4yktQowkbwRPM1wBXEBZe3lOqAK2oJTGv1FVE1dv5M86FxGJVIXix0cbw9kKd
-         7WMFW9OP1dIn3alJ0u+Wcdl4ZlfQ2ivjjA785hx9t45ukbBtYkVi5FNQ5qb07/SrysQ4
-         s/fZueXLCdNJczRkMCN12wVFaayv0Cq/6S6ihQYRTD2i+4q3IC1BXV42ic9icihRiP2Z
-         Oub/gJip+9K/CHkT7fr8jxsPGKn9BPa9srMzxKVW2eUAt4xsMAIXb39X9NRLLWgARQub
-         H1Rbvg7Da5m3fSr6N6Kd/81n/wsnH0wtume9Eji6/nd894BLslLS1XPOSPd0vq+XMQzi
-         aNJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8hOgnUKg/ahH2qw/6xu1ybMJEoDh9+XGrg7ba3ellNY=;
-        b=F5+Xa0y9e2Gako6+71ISwUMv0QDCD9eOTyGcWHrJDZ4Zd3BiCeuz9A+i80z/ACtuUP
-         MX3cAfx75q3rdagSsD6awrVVanFBcz7CFYHdXa3qfmsokjo2uj+9mrUEWESnMgtV68/H
-         GDIrJHT2an0pmjpKYXamv11Y/V9QECw2sLE4VNn7yX5FayRiDazYCcbBrHNJzahUdD52
-         sND8q1se/xr+EnLEtyoh1gwRXKltbIJQZ0swgsziOXSV6p2O88A6z9Yfzm1yVXLwuF1W
-         VbvJnd84g/JsS1pFW69EtfZ1wK2brfZ0eEfRJfLse33M7XeMj9+vi4R5JaMDhEDI6RWK
-         uH7Q==
-X-Gm-Message-State: AOAM533sCBBSlRKWFngXZpNCYlH/4fH2nFUcSjbemVegjRCR4BQkrye8
-        akd2s9NIOTUKc+AJ9SHtpSQiComxdYlnsA==
-X-Google-Smtp-Source: ABdhPJwniVRER7LsI09YqvgM9yAv+fkEYh01FsHXSAwMehpBOiT6CpnzJZk/f4EvMBvFC9GYeUS4OQ==
-X-Received: by 2002:a17:90a:de5:: with SMTP id 92mr17924982pjv.179.1603741729494;
-        Mon, 26 Oct 2020 12:48:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e2sm13434537pjw.13.2020.10.26.12.48.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 12:48:48 -0700 (PDT)
-Message-ID: <5f972820.1c69fb81.363dd.b736@mx.google.com>
-Date:   Mon, 26 Oct 2020 12:48:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730024AbgJZUIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 16:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51858 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726059AbgJZUIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 16:08:12 -0400
+Received: from sol.attlocal.net (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B276821BE5;
+        Mon, 26 Oct 2020 20:08:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603742892;
+        bh=nqiSiVnZ0rhfYdOwfE4FtrcQRW3wI+osVJOzPMj6Cy4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=npYKCGJQlwbwQhm4NR1Gi5cNRyMVPcd5j98huT1AmLqbzY0vjhXRVyt0cBkicSMq3
+         nAIlja9fAjuPvq0rGI5IlX6CBG0JlbCMM6leyx6mLdEN5U5xeBiW3p1N/uqa+NSdpy
+         sSR65LGWv72V7FdOFHPniH6rJAQdKJ6rJ7lgTt4Y=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-crypto@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     syzkaller-bugs@googlegroups.com, linux-hardening@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Elena Petrova <lenaptr@google.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
+Subject: [PATCH] crypto: af_alg - avoid undefined behavior accessing salg_name
+Date:   Mon, 26 Oct 2020 13:07:15 -0700
+Message-Id: <20201026200715.170261-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.29.1
+In-Reply-To: <CACT4Y+beaHrWisaSsV90xQn+t2Xn-bxvVgmx8ih_h=yJYPjs4A@mail.gmail.com>
+References: <CACT4Y+beaHrWisaSsV90xQn+t2Xn-bxvVgmx8ih_h=yJYPjs4A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.240-110-g3f6f806e2524
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 110 runs,
- 1 regressions (v4.4.240-110-g3f6f806e2524)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 110 runs, 1 regressions (v4.4.240-110-g3f6f80=
-6e2524)
+From: Eric Biggers <ebiggers@google.com>
 
-Regressions Summary
--------------------
+Commit 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm
+names") made the kernel start accepting arbitrarily long algorithm names
+in sockaddr_alg.  However, the actual length of the salg_name field
+stayed at the original 64 bytes.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+This is broken because the kernel can access indices >= 64 in salg_name,
+which is undefined behavior -- even though the memory that is accessed
+is still located within the sockaddr structure.  It would only be
+defined behavior if the array were properly marked as arbitrary-length
+(either by making it a flexible array, which is the recommended way
+these days, or by making it an array of length 0 or 1).
+
+We can't simply change salg_name into a flexible array, since that would
+break source compatibility with userspace programs that embed
+sockaddr_alg into another struct, or (more commonly) declare a
+sockaddr_alg like 'struct sockaddr_alg sa = { .salg_name = "foo" };'.
+
+One solution would be to change salg_name into a flexible array only
+when '#ifdef __KERNEL__'.  However, that would keep userspace without an
+easy way to actually use the longer algorithm names.
+
+Instead, add a new structure 'sockaddr_alg_new' that has the flexible
+array field, and expose it to both userspace and the kernel.
+Make the kernel use it correctly in alg_bind().
+
+This addresses the syzbot report
+"UBSAN: array-index-out-of-bounds in alg_bind"
+(https://syzkaller.appspot.com/bug?extid=92ead4eb8e26a26d465e).
+
+Reported-by: syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
+Fixes: 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm names")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+ crypto/af_alg.c             | 10 +++++++---
+ include/uapi/linux/if_alg.h | 16 ++++++++++++++++
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index d11db80d24cd1..9acb9d2c4bcf9 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -147,7 +147,7 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
+ 	struct sock *sk = sock->sk;
+ 	struct alg_sock *ask = alg_sk(sk);
+-	struct sockaddr_alg *sa = (void *)uaddr;
++	struct sockaddr_alg_new *sa = (void *)uaddr;
+ 	const struct af_alg_type *type;
+ 	void *private;
+ 	int err;
+@@ -155,7 +155,11 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	if (sock->state == SS_CONNECTED)
+ 		return -EINVAL;
+ 
+-	if (addr_len < sizeof(*sa))
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
++		     offsetof(struct sockaddr_alg, salg_name));
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
++
++	if (addr_len < sizeof(*sa) + 1)
+ 		return -EINVAL;
+ 
+ 	/* If caller uses non-allowed flag, return error. */
+@@ -163,7 +167,7 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 		return -EINVAL;
+ 
+ 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
+-	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
++	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
+ 
+ 	type = alg_get_type(sa->salg_type);
+ 	if (PTR_ERR(type) == -ENOENT) {
+diff --git a/include/uapi/linux/if_alg.h b/include/uapi/linux/if_alg.h
+index 60b7c2efd921c..dc52a11ba6d15 100644
+--- a/include/uapi/linux/if_alg.h
++++ b/include/uapi/linux/if_alg.h
+@@ -24,6 +24,22 @@ struct sockaddr_alg {
+ 	__u8	salg_name[64];
+ };
+ 
++/*
++ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
++ * arbitrary-length field.  We had to keep the original struct above for source
++ * compatibility with existing userspace programs, though.  Use the new struct
++ * below if support for very long algorithm names is needed.  To do this,
++ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
++ * copy algname (including the null terminator) into salg_name.
++ */
++struct sockaddr_alg_new {
++	__u16	salg_family;
++	__u8	salg_type[14];
++	__u32	salg_feat;
++	__u32	salg_mask;
++	__u8	salg_name[];
++};
++
+ struct af_alg_iv {
+ 	__u32	ivlen;
+ 	__u8	iv[0];
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.240-110-g3f6f806e2524/plan/baseline/
+base-commit: 3650b228f83adda7e5ee532e2b90429c03f7b9ec
+-- 
+2.29.1
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.240-110-g3f6f806e2524
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3f6f806e2524fb49417edec4fc8ef4abb15e7550 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f96f05ba4315ebb9438104b
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
-10-g3f6f806e2524/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
-10-g3f6f806e2524/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f96f05ba4315eb=
-b94381052
-        failing since 2 days (last pass: v4.4.240-11-g59c7a4fa128e, first f=
-ail: v4.4.240-18-ge29a79b89605)
-        2 lines =
-
- =20
