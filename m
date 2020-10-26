@@ -2,125 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 011D22993B8
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 18:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5720F2993DE
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 18:31:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1787753AbgJZRZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 13:25:14 -0400
-Received: from mail-pg1-f180.google.com ([209.85.215.180]:45819 "EHLO
-        mail-pg1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1776000AbgJZRZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 13:25:13 -0400
-Received: by mail-pg1-f180.google.com with SMTP id 19so6425839pge.12
-        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 10:25:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3+7ihcA0ZTWLAKr5jwEKenvGMsBdf6mbSRjFKeJnJ9k=;
-        b=O7UjtgKOdfNMEEWhropo75O8IfROegi5+8eRDZwiEIZ5Z47vuNU3kc2q2t0EMvhjgW
-         B/iXO+OCE0H3huTFmdLdOXpJsROFeU1Pt5P9R0Yc0NewCZjRbibs+62qIQx2uER8tgvp
-         wk7U5QFtAuVnKx4mTqd46Gzdy3ATYny+J81fGWda7LBDjkwWNr/D+HIqlBsomxy1l4Fu
-         8rfeU6SVovVcInmOcQGDNHxaqM7SVOf5qf+rvKihxrnHA+3eOYARYUna7t285YKOIMWS
-         9fCmGga8yUfAseqIrdFu3Dijfht3GruGbbOt00E5QqMZLToUPXXtRGZjT6da1iNdxUk1
-         78dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3+7ihcA0ZTWLAKr5jwEKenvGMsBdf6mbSRjFKeJnJ9k=;
-        b=MUm4INMXP0U8p6fBfkROy7k9nBig2VbMob7HnHf/mAZIEorDdT/+CQRP+I+WP9xrmJ
-         s/lXU6fzcgbtTKFgtONTxgauVVZQl7S0Nk0A3gAs4OFa3qU8L/n9q53fOYfjhEVAp13i
-         utqDiHIjdd/+IdILxKBzIrX1i/FbZiR1HJ3G4ZPvMGykDbeVpMgV/LpgKlqnphD/J9XP
-         yCy0bRmCWZtYawWer2V1Ekc9yiCwHmiTiU+X0Y0vJDiottS8Hi7ZRitaVQPxRDbN+mLe
-         IufJ4Rq670v5gx722jFnQxr+aDVJQYCDNTmDQywokSRbvzCxVW2ukaSGU6ivDfiQbDWk
-         filQ==
-X-Gm-Message-State: AOAM5324kKReihOAJfLCHp5F0YnsX5n7za8LV3XUjomQUhVPsZJ0iFnc
-        hQjB6OS65U3g1PY8zdv+0J3n0Mnbhss5MA==
-X-Google-Smtp-Source: ABdhPJwwZama5RdfdpwbC/7plRSjbaQghzK2cBc52FLcQ/H/KKlJaneqsNWUEpbqziJFeaWWfueQcw==
-X-Received: by 2002:a62:5c06:0:b029:160:1b43:14ed with SMTP id q6-20020a625c060000b02901601b4314edmr13285339pfb.11.1603733112547;
-        Mon, 26 Oct 2020 10:25:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p17sm2293717pgn.28.2020.10.26.10.25.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 10:25:11 -0700 (PDT)
-Message-ID: <5f970677.1c69fb81.6e650.4f22@mx.google.com>
-Date:   Mon, 26 Oct 2020 10:25:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1776139AbgJZRbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 13:31:39 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:33542 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1770793AbgJZRbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 13:31:39 -0400
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:d3ea:1c7:41fd:3038])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 613EC1F44A85;
+        Mon, 26 Oct 2020 17:31:37 +0000 (GMT)
+Date:   Mon, 26 Oct 2020 18:31:32 +0100
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Steven Price <steven.price@arm.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/panfrost: Fix a race in the job timeout handling
+ (again)
+Message-ID: <20201026183132.6eb21c71@collabora.com>
+In-Reply-To: <67cf9263-a400-6ffe-0e30-9e8bce0d3a87@arm.com>
+References: <20201026153206.97037-1-boris.brezillon@collabora.com>
+        <67cf9263-a400-6ffe-0e30-9e8bce0d3a87@arm.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.8.16-626-g572a2b0651dc
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.8
-Subject: stable-rc/queue/5.8 baseline: 198 runs,
- 1 regressions (v5.8.16-626-g572a2b0651dc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 198 runs, 1 regressions (v5.8.16-626-g572a2b0=
-651dc)
+On Mon, 26 Oct 2020 16:16:49 +0000
+Steven Price <steven.price@arm.com> wrote:
 
-Regressions Summary
--------------------
+> On 26/10/2020 15:32, Boris Brezillon wrote:
+> > In our last attempt to fix races in the panfrost_job_timedout() path we
+> > overlooked the case where a re-submitted job immediately triggers a
+> > fault. This lead to a situation where we try to stop a scheduler that's
+> > not resumed yet and lose the 'timedout' event without restarting the
+> > timeout, thus blocking the whole queue.
+> > 
+> > Let's fix that by tracking timeouts occurring between the
+> > drm_sched_resubmit_jobs() and drm_sched_start() calls.
+> > 
+> > Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > ---
+> >   drivers/gpu/drm/panfrost/panfrost_job.c | 42 ++++++++++++++++++++-----
+> >   1 file changed, 34 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
+> > index d0469e944143..96c2c21a4205 100644
+> > --- a/drivers/gpu/drm/panfrost/panfrost_job.c
+> > +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+> > @@ -26,6 +26,7 @@
+> >   struct panfrost_queue_state {
+> >   	struct drm_gpu_scheduler sched;
+> >   	bool stopped;
+> > +	bool timedout;
+> >   	struct mutex lock;
+> >   	u64 fence_context;
+> >   	u64 emit_seqno;
+> > @@ -383,11 +384,33 @@ static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
+> >   		queue->stopped = true;
+> >   		stopped = true;
+> >   	}
+> > +	queue->timedout = true;
+> >   	mutex_unlock(&queue->lock);
+> >   
+> >   	return stopped;
+> >   }
+> >   
+> > +static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
+> > +{
+> > +	if (WARN_ON(!queue->stopped))  
+> 
+> I *think* this can be hit, see below.
+> 
+> > +		return;
+> > +
+> > +	mutex_lock(&queue->lock);
+> > +	drm_sched_start(&queue->sched, true);
+> > +
+> > +	/*
+> > +	 * We might have missed fault-timeouts (AKA immediate timeouts) while
+> > +	 * the scheduler was stopped. Let's fake a new fault to trigger an
+> > +	 * immediate reset.
+> > +	 */
+> > +	if (queue->timedout)
+> > +		drm_sched_fault(&queue->sched);
+> > +
+> > +	queue->timedout = false;
+> > +	queue->stopped = false;
+> > +	mutex_unlock(&queue->lock);
+> > +}
+> > +
+> >   static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+> >   {
+> >   	struct panfrost_job *job = to_panfrost_job(sched_job);
+> > @@ -437,12 +460,6 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+> >   		 */
+> >   		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
+> >   			cancel_delayed_work_sync(&sched->work_tdr);
+> > -
+> > -		/*
+> > -		 * Now that we cancelled the pending timeouts, we can safely
+> > -		 * reset the stopped state.
+> > -		 */
+> > -		pfdev->js->queue[i].stopped = false;
+> >   	}
+> >   
+> >   	spin_lock_irqsave(&pfdev->js->job_lock, flags);
+> > @@ -457,14 +474,23 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+> >   
+> >   	panfrost_device_reset(pfdev);
+> >   
+> > -	for (i = 0; i < NUM_JOB_SLOTS; i++)
+> > +	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+> > +		/*
+> > +		 * The GPU is idle, and the scheduler is stopped, we can safely
+> > +		 * reset the ->timedout state without taking any lock. We need
+> > +		 * to do that before calling drm_sched_resubmit_jobs() though,
+> > +		 * because the resubmission might trigger immediate faults
+> > +		 * which we want to catch.
+> > +		 */
+> > +		pfdev->js->queue[i].timedout = false;
+> >   		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
+> > +	}
+> >   
+> >   	mutex_unlock(&pfdev->reset_lock);  
+> 
+> In here we've resubmitted the jobs and are no longer holding the mutex. 
+> So AFAICT if one of those jobs fails we may re-enter 
+> panfrost_job_timedout() and stop (no-op) the scheduler.
 
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
+Actually, we won't even try to stop the scheduler, because the
+scheduler is still marked as 'stopped', and we bail out early in that
+case.
 
+> The first thread 
+> could then proceed to start the scheduler (possibly during the GPU reset 
+> handled by the second thread which could be interesting in itself),
+> followed by the second thread attempting to start the scheduler which 
+> then hits the WARN_ON().
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.16-626-g572a2b0651dc/plan/baseline/
+Right, one of the queue might be started while another thread
+(attached to a different queue) is resetting the GPU, but I'm wondering
+if that's really an issue. I mean, the thread resetting the GPU will
+wait for all pending timeout handlers to return before proceeding
+(cancel_delayed_work_sync() call). Things are then serialized until
+we call drm_sched_resubmit_jobs() which restarts the bad jobs and might
+lead to new faults. But the queues are still marked as stopped between
+drm_sched_resubmit_jobs() and panfrost_scheduler_start(), meaning that
+the timeout handlers are effectively NOOPs during that period of time.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.16-626-g572a2b0651dc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      572a2b0651dcb8abfe489510f64a8bd80a5cf5a1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f96d362c7a7a9d430381012
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-62=
-6-g572a2b0651dc/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-62=
-6-g572a2b0651dc/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f96d362c7a7a9d430381=
-013
-        failing since 0 day (last pass: v5.8.16-78-g480e444094c4, first fai=
-l: v5.8.16-626-g41d0d5713799) =
-
- =20
+This being said, I agree that the current implementation is
+cumbersome, and I'd prefer to have something simpler if we can.
