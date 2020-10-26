@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D88B4299B9B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDEB299BA3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:52:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409758AbgJZXwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54926 "EHLO mail.kernel.org"
+        id S2409806AbgJZXwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:52:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409749AbgJZXw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:52:29 -0400
+        id S2409796AbgJZXwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B03221F8;
-        Mon, 26 Oct 2020 23:52:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01A0620882;
+        Mon, 26 Oct 2020 23:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756349;
-        bh=M7m7F8XvewI0zgBxlsuaCVECm9BU7hsOxf77ZbhlsVM=;
+        s=default; t=1603756357;
+        bh=X8lBN1La8+tYGxssc0c66XRKu04bVNdwauw8oNCdDSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwxSVKLNuGQEyeUFX71T9t768UzTQ5z8Xs43Plr7LlEA/bMCPwAK6DHg6r3c7gBMh
-         WKqaLeINo/xlBJBz3uevd711d+SPm7Ua1DPicHEU/MyCWYLdcBCoXd9jUuFNP2bi1v
-         IuqAGn/NjNyrV1mEQRGJXy5kkpo/nZ76HwDR9dSE=
+        b=Ik/53r9gQ01rLYRWgGChTckYnYJ3CnV0XsP/R4FuRrUiFnKH1kpwwaFJmdwtXD9ox
+         KCyLG97tu1ONPvPbpVaJ+eNeEe9ObD6Pjgm6p3vvv4LY3uhnpOhsbeqZXLyQpyUvse
+         9quOnqEhk4TU/fnG4OQi2LLW7Cnl1bnzxaWtMFvk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Wysochanski <dwysocha@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 020/132] NFS4: Fix oops when copy_file_range is attempted with NFS4.0 source
-Date:   Mon, 26 Oct 2020 19:50:12 -0400
-Message-Id: <20201026235205.1023962-20-sashal@kernel.org>
+Cc:     Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 027/132] ath10k: fix retry packets update in station dump
+Date:   Mon, 26 Oct 2020 19:50:19 -0400
+Message-Id: <20201026235205.1023962-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -42,60 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit d8a6ad913c286d4763ae20b14c02fe6f39d7cd9f ]
+[ Upstream commit 67b927f9820847d30e97510b2f00cd142b9559b6 ]
 
-The following oops is seen during xfstest/565 when the 'test'
-(source of the copy) is NFS4.0 and 'scratch' (destination) is NFS4.2
-[   59.692458] run fstests generic/565 at 2020-08-01 05:50:35
-[   60.613588] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[   60.624970] #PF: supervisor read access in kernel mode
-[   60.627671] #PF: error_code(0x0000) - not-present page
-[   60.630347] PGD 0 P4D 0
-[   60.631853] Oops: 0000 [#1] SMP PTI
-[   60.634086] CPU: 6 PID: 2828 Comm: xfs_io Kdump: loaded Not tainted 5.8.0-rc3 #1
-[   60.637676] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[   60.639901] RIP: 0010:nfs4_check_serverowner_major_id+0x5/0x30 [nfsv4]
-[   60.642719] Code: 89 ff e8 3e b3 b8 e1 e9 71 fe ff ff 41 bc da d8 ff ff e9 c3 fe ff ff e8 e9 9d 08 e2 66 0f 1f 84 00 00 00 00 00 66 66 66 66 90 <8b> 57 08 31 c0 3b 56 08 75 12 48 83 c6 0c 48 83 c7 0c e8 c4 97 bb
-[   60.652629] RSP: 0018:ffffc265417f7e10 EFLAGS: 00010287
-[   60.655379] RAX: ffffa0664b066400 RBX: 0000000000000000 RCX: 0000000000000001
-[   60.658754] RDX: ffffa066725fb000 RSI: ffffa066725fd000 RDI: 0000000000000000
-[   60.662292] RBP: 0000000000020000 R08: 0000000000020000 R09: 0000000000000000
-[   60.666189] R10: 0000000000000003 R11: 0000000000000000 R12: ffffa06648258d00
-[   60.669914] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa06648258100
-[   60.673645] FS:  00007faa9fb35800(0000) GS:ffffa06677d80000(0000) knlGS:0000000000000000
-[   60.677698] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   60.680773] CR2: 0000000000000008 CR3: 0000000203f14000 CR4: 00000000000406e0
-[   60.684476] Call Trace:
-[   60.685809]  nfs4_copy_file_range+0xfc/0x230 [nfsv4]
-[   60.688704]  vfs_copy_file_range+0x2ee/0x310
-[   60.691104]  __x64_sys_copy_file_range+0xd6/0x210
-[   60.693527]  do_syscall_64+0x4d/0x90
-[   60.695512]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   60.698006] RIP: 0033:0x7faa9febc1bd
+When tx status enabled, retry count is updated from tx completion status.
+which is not working as expected due to firmware limitation where
+firmware can not provide per MSDU rate statistics from tx completion
+status. Due to this tx retry count is always 0 in station dump.
 
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fix this issue by updating the retry packet count from per peer
+statistics. This patch will not break on SDIO devices since, this retry
+count is already updating from peer statistics for SDIO devices.
+
+Tested-on: QCA9984 PCI 10.4-3.6-00104
+Tested-on: QCA9882 PCI 10.2.4-1.0-00047
+
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1591856446-26977-1-git-send-email-vnaralas@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c | 8 +++++---
+ drivers/net/wireless/ath/ath10k/mac.c    | 5 +++--
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index a339707654673..af84787aa0631 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -145,7 +145,8 @@ static ssize_t __nfs4_copy_file_range(struct file *file_in, loff_t pos_in,
- 	/* Only offload copy if superblock is the same */
- 	if (file_in->f_op != &nfs4_file_operations)
- 		return -EXDEV;
--	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
-+	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY) ||
-+	    !nfs_server_capable(file_inode(file_in), NFS_CAP_COPY))
- 		return -EOPNOTSUPP;
- 	if (file_inode(file_in) == file_inode(file_out))
- 		return -EOPNOTSUPP;
+diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
+index d787cbead56ab..cac05e7bb6b07 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -3575,12 +3575,14 @@ ath10k_update_per_peer_tx_stats(struct ath10k *ar,
+ 	}
+ 
+ 	if (ar->htt.disable_tx_comp) {
+-		arsta->tx_retries += peer_stats->retry_pkts;
+ 		arsta->tx_failed += peer_stats->failed_pkts;
+-		ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx retries %d tx failed %d\n",
+-			   arsta->tx_retries, arsta->tx_failed);
++		ath10k_dbg(ar, ATH10K_DBG_HTT, "tx failed %d\n",
++			   arsta->tx_failed);
+ 	}
+ 
++	arsta->tx_retries += peer_stats->retry_pkts;
++	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx retries %d", arsta->tx_retries);
++
+ 	if (ath10k_debug_is_extd_tx_stats_enabled(ar))
+ 		ath10k_accumulate_per_peer_tx_stats(ar, arsta, peer_stats,
+ 						    rate_idx);
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 919d15584d4a2..d9d4b15a6d81c 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -8547,12 +8547,13 @@ static void ath10k_sta_statistics(struct ieee80211_hw *hw,
+ 	sinfo->filled |= BIT_ULL(NL80211_STA_INFO_TX_BITRATE);
+ 
+ 	if (ar->htt.disable_tx_comp) {
+-		sinfo->tx_retries = arsta->tx_retries;
+-		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_TX_RETRIES);
+ 		sinfo->tx_failed = arsta->tx_failed;
+ 		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_TX_FAILED);
+ 	}
+ 
++	sinfo->tx_retries = arsta->tx_retries;
++	sinfo->filled |= BIT_ULL(NL80211_STA_INFO_TX_RETRIES);
++
+ 	ath10k_mac_sta_get_peer_stats_info(ar, sta, sinfo);
+ }
+ 
 -- 
 2.25.1
 
