@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3204C29A0F2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB9629A06E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443519AbgJ0Aa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:30:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54846 "EHLO mail.kernel.org"
+        id S2409767AbgJZXwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409740AbgJZXw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:52:27 -0400
+        id S2409753AbgJZXwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4EC621655;
-        Mon, 26 Oct 2020 23:52:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 998652222C;
+        Mon, 26 Oct 2020 23:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756346;
-        bh=hDWv18K8FFoNMJrL7sEu3v5o+lDr5Vb/t6ZxAzE8q5Q=;
+        s=default; t=1603756350;
+        bh=mPBuKbaS/hmJtHA4/4Z3Ltibrw3uuXcBuYlOE2nTEe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufWOO/jwnvNvm6hE1lCZlpksP4jKQCGmO6XF6bCqifkibm5eJtEE9T97Eykib/BIf
-         9jk12Zc95y612OSLD22IQuf1q5jiy5x83OgTF1cyxug9BbGB3RzfModPGU/+75ngPZ
-         1vabGujanw62jt/8M5N5mo59tVituQSv/HpZ9kjI=
+        b=GEEj66RpvzbJAQ/gHVoEq564EZfFOnspGvE2yHwoiR4vsoAL8kcGBcNP0Kmpvb9A+
+         Opb7sCmKVtJQjw/maltbZD1W+Z3sbo1JhSHck+5aVNukgxfdTv7ZOFtQBPl6LOEVxM
+         ReoU0MdcSasGOVwbmtYJayi2VTokYejYHQ++EYWc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        kvm-ppc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 018/132] powerpc/64s: handle ISA v3.1 local copy-paste context switches
-Date:   Mon, 26 Oct 2020 19:50:10 -0400
-Message-Id: <20201026235205.1023962-18-sashal@kernel.org>
+Cc:     Chandan Babu R <chandanrlinux@gmail.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 021/132] xfs: Set xfs_buf type flag when growing summary/bitmap files
+Date:   Mon, 26 Oct 2020 19:50:13 -0400
+Message-Id: <20201026235205.1023962-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -44,98 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Chandan Babu R <chandanrlinux@gmail.com>
 
-[ Upstream commit dc462267d2d7aacffc3c1d99b02d7a7c59db7c66 ]
+[ Upstream commit 72cc95132a93293dcd0b6f68353f4741591c9aeb ]
 
-The ISA v3.1 the copy-paste facility has a new memory move functionality
-which allows the copy buffer to be pasted to domestic memory (RAM) as
-opposed to foreign memory (accelerator).
+The following sequence of commands,
 
-This means the POWER9 trick of avoiding the cp_abort on context switch if
-the process had not mapped foreign memory does not work on POWER10. Do the
-cp_abort unconditionally there.
+  mkfs.xfs -f -m reflink=0 -r rtdev=/dev/loop1,size=10M /dev/loop0
+  mount -o rtdev=/dev/loop1 /dev/loop0 /mnt
+  xfs_growfs  /mnt
 
-KVM must also cp_abort on guest exit to prevent copy buffer state leaking
-between contexts.
+... causes the following call trace to be printed on the console,
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200825075535.224536-1-npiggin@gmail.com
+XFS: Assertion failed: (bip->bli_flags & XFS_BLI_STALE) || (xfs_blft_from_flags(&bip->__bli_format) > XFS_BLFT_UNKNOWN_BUF && xfs_blft_from_flags(&bip->__bli_format) < XFS_BLFT_MAX_BUF), file: fs/xfs/xfs_buf_item.c, line: 331
+Call Trace:
+ xfs_buf_item_format+0x632/0x680
+ ? kmem_alloc_large+0x29/0x90
+ ? kmem_alloc+0x70/0x120
+ ? xfs_log_commit_cil+0x132/0x940
+ xfs_log_commit_cil+0x26f/0x940
+ ? xfs_buf_item_init+0x1ad/0x240
+ ? xfs_growfs_rt_alloc+0x1fc/0x280
+ __xfs_trans_commit+0xac/0x370
+ xfs_growfs_rt_alloc+0x1fc/0x280
+ xfs_growfs_rt+0x1a0/0x5e0
+ xfs_file_ioctl+0x3fd/0xc70
+ ? selinux_file_ioctl+0x174/0x220
+ ksys_ioctl+0x87/0xc0
+ __x64_sys_ioctl+0x16/0x20
+ do_syscall_64+0x3e/0x70
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This occurs because the buffer being formatted has the value of
+XFS_BLFT_UNKNOWN_BUF assigned to the 'type' subfield of
+bip->bli_formats->blf_flags.
+
+This commit fixes the issue by assigning one of XFS_BLFT_RTSUMMARY_BUF
+and XFS_BLFT_RTBITMAP_BUF to the 'type' subfield of
+bip->bli_formats->blf_flags before committing the corresponding
+transaction.
+
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Chandan Babu R <chandanrlinux@gmail.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/process.c           | 16 +++++++++-------
- arch/powerpc/kvm/book3s_hv.c            |  7 +++++++
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |  8 ++++++++
- 3 files changed, 24 insertions(+), 7 deletions(-)
+ fs/xfs/xfs_rtalloc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index 4650b9bb217fb..fcae69ac9acaa 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -1231,15 +1231,17 @@ struct task_struct *__switch_to(struct task_struct *prev,
- 		restore_math(current->thread.regs);
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 6209e7b6b895b..04b953c3ffa75 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -767,8 +767,14 @@ xfs_growfs_rt_alloc(
+ 	struct xfs_bmbt_irec	map;		/* block map output */
+ 	int			nmap;		/* number of block maps */
+ 	int			resblks;	/* space reservation */
++	enum xfs_blft		buf_type;
+ 	struct xfs_trans	*tp;
  
- 		/*
--		 * The copy-paste buffer can only store into foreign real
--		 * addresses, so unprivileged processes can not see the
--		 * data or use it in any way unless they have foreign real
--		 * mappings. If the new process has the foreign real address
--		 * mappings, we must issue a cp_abort to clear any state and
--		 * prevent snooping, corruption or a covert channel.
-+		 * On POWER9 the copy-paste buffer can only paste into
-+		 * foreign real addresses, so unprivileged processes can not
-+		 * see the data or use it in any way unless they have
-+		 * foreign real mappings. If the new process has the foreign
-+		 * real address mappings, we must issue a cp_abort to clear
-+		 * any state and prevent snooping, corruption or a covert
-+		 * channel. ISA v3.1 supports paste into local memory.
- 		 */
- 		if (current->mm &&
--			atomic_read(&current->mm->context.vas_windows))
-+			(cpu_has_feature(CPU_FTR_ARCH_31) ||
-+			atomic_read(&current->mm->context.vas_windows)))
- 			asm volatile(PPC_CP_ABORT);
- 	}
- #endif /* CONFIG_PPC_BOOK3S_64 */
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 6bf66649ab92f..1928b86d6e6b5 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3485,6 +3485,13 @@ static int kvmhv_load_hv_regs_and_go(struct kvm_vcpu *vcpu, u64 time_limit,
- 	 */
- 	asm volatile("eieio; tlbsync; ptesync");
- 
-+	/*
-+	 * cp_abort is required if the processor supports local copy-paste
-+	 * to clear the copy buffer that was under control of the guest.
-+	 */
-+	if (cpu_has_feature(CPU_FTR_ARCH_31))
-+		asm volatile(PPC_CP_ABORT);
-+
- 	mtspr(SPRN_LPID, vcpu->kvm->arch.host_lpid);	/* restore host LPID */
- 	isync();
- 
-diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-index 71943892c81c6..092ef0ee29753 100644
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -1830,6 +1830,14 @@ END_FTR_SECTION_IFSET(CPU_FTR_P9_RADIX_PREFETCH_BUG)
- 2:
- #endif /* CONFIG_PPC_RADIX_MMU */
- 
-+	/*
-+	 * cp_abort is required if the processor supports local copy-paste
-+	 * to clear the copy buffer that was under control of the guest.
-+	 */
-+BEGIN_FTR_SECTION
-+	PPC_CP_ABORT
-+END_FTR_SECTION_IFSET(CPU_FTR_ARCH_31)
++	if (ip == mp->m_rsumip)
++		buf_type = XFS_BLFT_RTSUMMARY_BUF;
++	else
++		buf_type = XFS_BLFT_RTBITMAP_BUF;
 +
  	/*
- 	 * POWER7/POWER8 guest -> host partition switch code.
- 	 * We don't have to lock against tlbies but we do
+ 	 * Allocate space to the file, as necessary.
+ 	 */
+@@ -830,6 +836,8 @@ xfs_growfs_rt_alloc(
+ 					mp->m_bsize, 0, &bp);
+ 			if (error)
+ 				goto out_trans_cancel;
++
++			xfs_trans_buf_set_type(tp, bp, buf_type);
+ 			memset(bp->b_addr, 0, mp->m_sb.sb_blocksize);
+ 			xfs_trans_log_buf(tp, bp, 0, mp->m_sb.sb_blocksize - 1);
+ 			/*
 -- 
 2.25.1
 
