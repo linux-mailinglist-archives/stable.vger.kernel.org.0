@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90565299F20
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A07299F9D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411009AbgJZXz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60350 "EHLO mail.kernel.org"
+        id S2410917AbgJZXze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410442AbgJZXy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:54:27 -0400
+        id S2410545AbgJZXym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:54:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25E4220882;
-        Mon, 26 Oct 2020 23:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36D0C20B1F;
+        Mon, 26 Oct 2020 23:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756466;
-        bh=AXS4eiwCm9+CjfvQITmJBblMM8wvZGcfxkf9hEHwgTQ=;
+        s=default; t=1603756482;
+        bh=olfPI7k9lj6uw5SfddY8q38Z540EwleMSau/CmqvOZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi/8I02kUEIXiMrcEB2HA/WM70gVuW5eWyGiWJXh+hHd2hCCb1WEbA5UAPO78ws74
-         p0ut4je54oDBd+IqnlcaT1JBGforFgQILNoZ0ke7aIfY3spTlg76DLRpMLh8FFnQXr
-         uVWPSeLRj3dH9/8B/YlW8RsUVvCAbTtU9OQu78hg=
+        b=hIsw5/NVmN0KkclhaRMuxwQJR5ywHaVvHeZRwsZx0FBBnUIROZt9c/ZmbTNnW4OVa
+         /2zyQQvMsUUkpCmdc2atLLPN+Zp91dchfWfD7Npd1rFCzEfcqHP7HGqQTOYnbxEIBt
+         Ma8ICksuNOVRHHUj+Bzbz8a8TwLd1vylkohmJN7w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.8 114/132] gfs2: call truncate_inode_pages_final for address space glocks
-Date:   Mon, 26 Oct 2020 19:51:46 -0400
-Message-Id: <20201026235205.1023962-114-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 125/132] ARM: dts: s5pv210: move PMU node out of clock controller
+Date:   Mon, 26 Oct 2020 19:51:57 -0400
+Message-Id: <20201026235205.1023962-125-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -42,40 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit ee1e2c773e4f4ce2213f9d77cc703b669ca6fa3f ]
+[ Upstream commit bb98fff84ad1ea321823759edaba573a16fa02bd ]
 
-Before this patch, we were not calling truncate_inode_pages_final for the
-address space for glocks, which left the possibility of a leak. We now
-take care of the problem instead of complaining, and we do it during
-glock tear-down..
+The Power Management Unit (PMU) is a separate device which has little
+common with clock controller.  Moving it to one level up (from clock
+controller child to SoC) allows to remove fake simple-bus compatible and
+dtbs_check warnings like:
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+  clock-controller@e0100000: $nodename:0:
+    'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/20200907161141.31034-8-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/s5pv210.dtsi | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index f92876f4f37a1..d8194479b8328 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -270,7 +270,12 @@ static void __gfs2_glock_put(struct gfs2_glock *gl)
- 	gfs2_glock_remove_from_lru(gl);
- 	spin_unlock(&gl->gl_lockref.lock);
- 	GLOCK_BUG_ON(gl, !list_empty(&gl->gl_holders));
--	GLOCK_BUG_ON(gl, mapping && mapping->nrpages && !gfs2_withdrawn(sdp));
-+	if (mapping) {
-+		truncate_inode_pages_final(mapping);
-+		if (!gfs2_withdrawn(sdp))
-+			GLOCK_BUG_ON(gl, mapping->nrpages ||
-+				     mapping->nrexceptional);
-+	}
- 	trace_gfs2_glock_put(gl);
- 	sdp->sd_lockstruct.ls_ops->lm_put_lock(gl);
- }
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 5c760a6d79557..46221a5c8ce59 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -92,19 +92,16 @@ chipid@e0000000 {
+ 		};
+ 
+ 		clocks: clock-controller@e0100000 {
+-			compatible = "samsung,s5pv210-clock", "simple-bus";
++			compatible = "samsung,s5pv210-clock";
+ 			reg = <0xe0100000 0x10000>;
+ 			clock-names = "xxti", "xusbxti";
+ 			clocks = <&xxti>, <&xusbxti>;
+ 			#clock-cells = <1>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			ranges;
++		};
+ 
+-			pmu_syscon: syscon@e0108000 {
+-				compatible = "samsung-s5pv210-pmu", "syscon";
+-				reg = <0xe0108000 0x8000>;
+-			};
++		pmu_syscon: syscon@e0108000 {
++			compatible = "samsung-s5pv210-pmu", "syscon";
++			reg = <0xe0108000 0x8000>;
+ 		};
+ 
+ 		pinctrl0: pinctrl@e0200000 {
 -- 
 2.25.1
 
