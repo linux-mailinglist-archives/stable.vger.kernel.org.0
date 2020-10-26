@@ -2,68 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52FDD298F1A
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 15:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DCD4298F29
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 15:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780788AbgJZOWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 10:22:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57016 "EHLO mail.kernel.org"
+        id S1780814AbgJZOXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 10:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1780745AbgJZOWA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 10:22:00 -0400
+        id S1780757AbgJZOXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 10:23:30 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAC9D21655;
-        Mon, 26 Oct 2020 14:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CA692075B;
+        Mon, 26 Oct 2020 14:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603722120;
-        bh=qMwX55k216JAdqAI7jPwmD5XnNj9qoOif8zLlNVzfzE=;
+        s=default; t=1603722210;
+        bh=3cRs8+aFIHwhDrhEhE6hbibf8pvjg4zxaQgkKiudhoE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0hlAHC3IAN5fsD43BvIZssd4HiriXGhvXZsd5Kn3vKvFZGkajUKAooEQoqxcnVsI0
-         resilyH1NLjiAzRQMBGz1qMQK8LgCQcMHPNR1s2PwsMChgAC7iW2D96RZdUc+SRTuW
-         P9CEi7x4bX4zQge8YkxozHHjvXDdOOB3a+OpSJtU=
-Date:   Mon, 26 Oct 2020 10:21:58 -0400
+        b=chUkWrnl/1VgEMLV6DbOuJp3uB9mSpQt3naktmSInhvKrLW4GZNsUUsC114vYhmpL
+         e4an/HslLVxyn7aJDoppaFVhNlh5grR8TrjantzQ90J6SDWnjnFzVjm8zy1cGFO95a
+         5Tdbl0fRY2wAsiL71zXOwq4qX8kEbQcR5EiwsxNI=
+Date:   Mon, 26 Oct 2020 10:23:29 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Jann Horn <jannh@google.com>
-Cc:     stable <stable@vger.kernel.org>, stable-commits@vger.kernel.org
-Subject: Re: Patch "mm/mmu_notifier: fix mmget() assert in
- __mmu_interval_notifier_insert" has been added to the 5.8-stable tree
-Message-ID: <20201026142158.GI4060117@sasha-vm>
-References: <20201026053052.9CB982085B@mail.kernel.org>
- <CAG48ez3gb8E34ePqSmmqhadfLMsLFiNhX=fmCRZKNfSQztXcMQ@mail.gmail.com>
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: Re: Patch "selftests: mptcp: depends on built-in IPv6" has been
+ added to the 5.9-stable tree
+Message-ID: <20201026142329.GJ4060117@sasha-vm>
+References: <20201026051850.8F51D206A1@mail.kernel.org>
+ <1de2bf78-4b47-21b0-9d56-3c8063cdf4bb@tessares.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAG48ez3gb8E34ePqSmmqhadfLMsLFiNhX=fmCRZKNfSQztXcMQ@mail.gmail.com>
+In-Reply-To: <1de2bf78-4b47-21b0-9d56-3c8063cdf4bb@tessares.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 26, 2020 at 10:25:08AM +0100, Jann Horn wrote:
->On Mon, Oct 26, 2020 at 6:30 AM Sasha Levin <sashal@kernel.org> wrote:
->>
->> This is a note to let you know that I've just added the patch titled
->>
->>     mm/mmu_notifier: fix mmget() assert in __mmu_interval_notifier_insert
->>
->> to the 5.8-stable tree which can be found at:
->>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->>
->> The filename of the patch is:
->>      mm-mmu_notifier-fix-mmget-assert-in-__mmu_interval_n.patch
->> and it can be found in the queue-5.8 subdirectory.
->>
->> If you, or anyone else, feels it should not be added to the stable tree,
->> please let <stable@vger.kernel.org> know about it.
+On Mon, Oct 26, 2020 at 09:20:47AM +0100, Matthieu Baerts wrote:
+>Hi Sasha,
 >
->This patch has no reason to go into the stable trees. It just makes an
->assertion stricter (mm_users>0 implies mm_count>0). It only has an
->effect if your kernel is horrendously broken anyway.
+>On 26/10/2020 06:18, Sasha Levin wrote:
+>>This is a note to let you know that I've just added the patch titled
+>>
+>>     selftests: mptcp: depends on built-in IPv6
 >
->Please take it out of the stable queue.
+>Thank you for backporting this patch.
+>
+>(...)
+>
+>>     Fixes: 010b430d5df5 ("mptcp: MPTCP_IPV6 should depend on IPV6 instead of selecting it")
+>
+>This patch is not really needed because AFAICS this commit here above 
+>has not been backported to v5.9. It is only in v5.10-rc1.
+>
+>(...)
+>
+>>diff --git a/tools/testing/selftests/net/mptcp/config b/tools/testing/selftests/net/mptcp/config
+>>index 8df5cb8f71ff9..741a1c4f4ae8f 100644
+>>--- a/tools/testing/selftests/net/mptcp/config
+>>+++ b/tools/testing/selftests/net/mptcp/config
+>>@@ -1,4 +1,5 @@
+>>  CONFIG_MPTCP=y
+>>+CONFIG_IPV6=y
+>>  CONFIG_MPTCP_IPV6=y
+>
+>But you can also keep this patch, it doesn't hurt: without this commit 
+>010b430d5df5 ("mptcp: MPTCP_IPV6 should depend on IPV6 instead of 
+>selecting it"), CONFIG_MPTCP_IPV6=y selects CONFIG_IPV6=y. In other 
+>words, adding "CONFIG_IPV6=y" here in the selftests config is 
+>redundant if you don't have this commit 010b430d5df5 but not wrong.
+>
+>Note that if you also want to backport this commit 010b430d5df5 
+>("mptcp: MPTCP_IPV6 should depend on IPV6 instead of selecting it"), 
+>you will need commit 0ed37ac586c0 ("mptcp: depends on IPV6 but not as 
+>a module") as well.
 
-Will do.
+I'll drop the selftests fix then, thanks for the heads-up!
 
 -- 
 Thanks,
