@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5209129A108
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD59829A116
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443576AbgJ0AbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51956 "EHLO mail.kernel.org"
+        id S2409443AbgJ0Ac0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409378AbgJZXvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:51:20 -0400
+        id S2409380AbgJZXvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:51:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4706520878;
-        Mon, 26 Oct 2020 23:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66372218AC;
+        Mon, 26 Oct 2020 23:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756280;
-        bh=VZVHPvdGvoauXFvYUP0vUslj5DObR0FlXbYEGzh0Xo4=;
+        s=default; t=1603756281;
+        bh=TCxBJlrClEOMZEDctJ9wU7tFb4s4MDYFVP4/8BQhuA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHjHO6cMCMnxQC4D9t6Z6d6xhv6ZnrIRyoCWqhdbObgbIigRAYT+Qx0qDXU+ToP/p
-         kAuBuvp8VEJViVWMHdOV4Zp965hp5rofOfRJfMLoMsy7nx/3Wpf+Sv7FEX0WohR8Lk
-         3L3fqjYiRYGryUdutVplU/02AMegYUrwCjYPlK98=
+        b=FmIuP0nLrCdS8XkqAqou8BHvSQYf2UU0lUgGpyMEl0ZfJyHVbbeZENQUc58lJvbuv
+         OeK3mySCtAFKSQogibajOJx1hWH15sZH0ilgJusQGwuLYLQIX3gKTVHYhMWas9lFgv
+         liK7sc+DuE2YyJGK87LacXNa/I/wY3hQrw1A7klU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuan Phan <tuanphan@os.amperecomputing.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 110/147] PCI/ACPI: Add Ampere Altra SOC MCFG quirk
-Date:   Mon, 26 Oct 2020 19:48:28 -0400
-Message-Id: <20201026234905.1022767-110-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>, Dan Murphy <dmurphy@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 111/147] clk: ti: clockdomain: fix static checker warning
+Date:   Mon, 26 Oct 2020 19:48:29 -0400
+Message-Id: <20201026234905.1022767-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -43,85 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuan Phan <tuanphan@os.amperecomputing.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 877c1a5f79c6984bbe3f2924234c08e2f4f1acd5 ]
+[ Upstream commit b7a7943fe291b983b104bcbd2f16e8e896f56590 ]
 
-Ampere Altra SOC supports only 32-bit ECAM reads.  Add an MCFG quirk for
-the platform.
+Fix a memory leak induced by not calling clk_put after doing of_clk_get.
 
-Link: https://lore.kernel.org/r/1596751055-12316-1-git-send-email-tuanphan@os.amperecomputing.com
-Signed-off-by: Tuan Phan <tuanphan@os.amperecomputing.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907082600.454-3-t-kristo@ti.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_mcfg.c  | 20 ++++++++++++++++++++
- drivers/pci/ecam.c       | 10 ++++++++++
- include/linux/pci-ecam.h |  1 +
- 3 files changed, 31 insertions(+)
+ drivers/clk/ti/clockdomain.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
-index 54b36b7ad47d9..e526571e0ebdb 100644
---- a/drivers/acpi/pci_mcfg.c
-+++ b/drivers/acpi/pci_mcfg.c
-@@ -142,6 +142,26 @@ static struct mcfg_fixup mcfg_quirks[] = {
- 	XGENE_V2_ECAM_MCFG(4, 0),
- 	XGENE_V2_ECAM_MCFG(4, 1),
- 	XGENE_V2_ECAM_MCFG(4, 2),
-+
-+#define ALTRA_ECAM_QUIRK(rev, seg) \
-+	{ "Ampere", "Altra   ", rev, seg, MCFG_BUS_ANY, &pci_32b_read_ops }
-+
-+	ALTRA_ECAM_QUIRK(1, 0),
-+	ALTRA_ECAM_QUIRK(1, 1),
-+	ALTRA_ECAM_QUIRK(1, 2),
-+	ALTRA_ECAM_QUIRK(1, 3),
-+	ALTRA_ECAM_QUIRK(1, 4),
-+	ALTRA_ECAM_QUIRK(1, 5),
-+	ALTRA_ECAM_QUIRK(1, 6),
-+	ALTRA_ECAM_QUIRK(1, 7),
-+	ALTRA_ECAM_QUIRK(1, 8),
-+	ALTRA_ECAM_QUIRK(1, 9),
-+	ALTRA_ECAM_QUIRK(1, 10),
-+	ALTRA_ECAM_QUIRK(1, 11),
-+	ALTRA_ECAM_QUIRK(1, 12),
-+	ALTRA_ECAM_QUIRK(1, 13),
-+	ALTRA_ECAM_QUIRK(1, 14),
-+	ALTRA_ECAM_QUIRK(1, 15),
- };
- 
- static char mcfg_oem_id[ACPI_OEM_ID_SIZE];
-diff --git a/drivers/pci/ecam.c b/drivers/pci/ecam.c
-index 8f065a42fc1a2..b54d32a316693 100644
---- a/drivers/pci/ecam.c
-+++ b/drivers/pci/ecam.c
-@@ -168,4 +168,14 @@ const struct pci_ecam_ops pci_32b_ops = {
- 		.write		= pci_generic_config_write32,
+diff --git a/drivers/clk/ti/clockdomain.c b/drivers/clk/ti/clockdomain.c
+index ee56306f79d5f..700b7f44f6716 100644
+--- a/drivers/clk/ti/clockdomain.c
++++ b/drivers/clk/ti/clockdomain.c
+@@ -148,10 +148,12 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
+ 		if (!omap2_clk_is_hw_omap(clk_hw)) {
+ 			pr_warn("can't setup clkdm for basic clk %s\n",
+ 				__clk_get_name(clk));
++			clk_put(clk);
+ 			continue;
+ 		}
+ 		to_clk_hw_omap(clk_hw)->clkdm_name = clkdm_name;
+ 		omap2_init_clk_clkdm(clk_hw);
++		clk_put(clk);
  	}
- };
-+
-+/* ECAM ops for 32-bit read only (non-compliant) */
-+const struct pci_ecam_ops pci_32b_read_ops = {
-+	.bus_shift	= 20,
-+	.pci_ops	= {
-+		.map_bus	= pci_ecam_map_bus,
-+		.read		= pci_generic_config_read32,
-+		.write		= pci_generic_config_write,
-+	}
-+};
- #endif
-diff --git a/include/linux/pci-ecam.h b/include/linux/pci-ecam.h
-index 1af5cb02ef7f9..033ce74f02e81 100644
---- a/include/linux/pci-ecam.h
-+++ b/include/linux/pci-ecam.h
-@@ -51,6 +51,7 @@ extern const struct pci_ecam_ops pci_generic_ecam_ops;
+ }
  
- #if defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS)
- extern const struct pci_ecam_ops pci_32b_ops;	/* 32-bit accesses only */
-+extern const struct pci_ecam_ops pci_32b_read_ops; /* 32-bit read only */
- extern const struct pci_ecam_ops hisi_pcie_ops;	/* HiSilicon */
- extern const struct pci_ecam_ops thunder_pem_ecam_ops; /* Cavium ThunderX 1.x & 2.x */
- extern const struct pci_ecam_ops pci_thunder_ecam_ops; /* Cavium ThunderX 1.x */
 -- 
 2.25.1
 
