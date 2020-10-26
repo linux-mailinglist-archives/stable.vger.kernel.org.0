@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D5929A190
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E46129A0D4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502323AbgJ0Am4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49152 "EHLO mail.kernel.org"
+        id S2409051AbgJZXuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408771AbgJZXuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:09 -0400
+        id S2409045AbgJZXuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB26B216FD;
-        Mon, 26 Oct 2020 23:50:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 125B021741;
+        Mon, 26 Oct 2020 23:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756208;
-        bh=SK9zudvrywtJq/m9EgjmbBefuNPDXV6s1teD0suvgyc=;
+        s=default; t=1603756210;
+        bh=gAPL6BNOfP5T2Mrk9jG/GKNKMQj51k78R9X5CwxhFNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzmZsZ6s86NaTvL1SO/REsuPvcWqA4U5MWMJH/quYpj4OFrFo9QV7tb5EsHt2V/wc
-         wbHisav7LHISYLc6xl9AREllX/i3Dv4mvL9BnSDPx22w13Jsc3gzOgXOvmeN/MZAbp
-         +Amltw22o0WjIABwT+yVxcNbxCDcgif7HO0KeWiw=
+        b=JhK1Xl4d+kd5Eu5m8LOTwb+5f/2zW5DHQv6lzMf+GTrFvcxCGRv3dUvHaARKHKAEY
+         wb8rX/ZEYWz4az2PylRId3zWlSncvZmLvMVZnKfFNP1crB6hKpDuSrYMLuFN+4pgIt
+         eY2cOTefDyjJc6xvyhn9hJZBw9wc5Jlfhe17aE4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 050/147] media: imx274: fix frame interval handling
-Date:   Mon, 26 Oct 2020 19:47:28 -0400
-Message-Id: <20201026234905.1022767-50-sashal@kernel.org>
+Cc:     Antonio Borneo <antonio.borneo@st.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.9 052/147] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
+Date:   Mon, 26 Oct 2020 19:47:30 -0400
+Message-Id: <20201026234905.1022767-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -45,52 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Antonio Borneo <antonio.borneo@st.com>
 
-[ Upstream commit 49b20d981d723fae5a93843c617af2b2c23611ec ]
+[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
 
-1) the numerator and/or denominator might be 0, in that case
-   fall back to the default frame interval. This is per the spec
-   and this caused a v4l2-compliance failure.
+Current code enables the HS clock when video mode is started or to
+send out a HS command, and disables the HS clock to send out a LP
+command. This is not what DSI spec specify.
 
-2) the updated frame interval wasn't returned in the s_frame_interval
-   subdev op.
+Enable HS clock either in command and in video mode.
+Set automatic HS clock management for panels and devices that
+support non-continuous HS clock.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx274.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/imx274.c b/drivers/media/i2c/imx274.c
-index 6011cec5e351d..e6aa9f32b6a83 100644
---- a/drivers/media/i2c/imx274.c
-+++ b/drivers/media/i2c/imx274.c
-@@ -1235,6 +1235,8 @@ static int imx274_s_frame_interval(struct v4l2_subdev *sd,
- 	ret = imx274_set_frame_interval(imx274, fi->interval);
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+index d580b2aa4ce98..979acaa90d002 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+@@ -365,7 +365,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
+ 	if (lpm)
+ 		val |= CMD_MODE_ALL_LP;
  
- 	if (!ret) {
-+		fi->interval = imx274->frame_interval;
+-	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
+ 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
+ }
+ 
+@@ -541,16 +540,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
+ static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
+ 				 unsigned long mode_flags)
+ {
++	u32 val;
 +
- 		/*
- 		 * exposure time range is decided by frame interval
- 		 * need to update it after frame interval changes
-@@ -1730,9 +1732,9 @@ static int imx274_set_frame_interval(struct stimx274 *priv,
- 		__func__, frame_interval.numerator,
- 		frame_interval.denominator);
+ 	dsi_write(dsi, DSI_PWR_UP, RESET);
  
--	if (frame_interval.numerator == 0) {
--		err = -EINVAL;
--		goto fail;
-+	if (frame_interval.numerator == 0 || frame_interval.denominator == 0) {
-+		frame_interval.denominator = IMX274_DEF_FRAME_RATE;
-+		frame_interval.numerator = 1;
+ 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
+ 		dw_mipi_dsi_video_mode_config(dsi);
+-		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
+ 	} else {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
  	}
  
- 	req_frame_rate = (u32)(frame_interval.denominator
++	val = PHY_TXREQUESTCLKHS;
++	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
++		val |= AUTO_CLKLANE_CTRL;
++	dsi_write(dsi, DSI_LPCLK_CTRL, val);
++
+ 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
+ }
+ 
 -- 
 2.25.1
 
