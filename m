@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5BB29A0DA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A6029A0D9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409118AbgJZXu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:50:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49724 "EHLO mail.kernel.org"
+        id S2409113AbgJZXu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:50:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409099AbgJZXuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:22 -0400
+        id S2409103AbgJZXuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7FC721707;
-        Mon, 26 Oct 2020 23:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16B1B2075B;
+        Mon, 26 Oct 2020 23:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756221;
-        bh=CtXkxi4z3ePz3347kCygJai6J6gCO1+WxDFYAEUk9so=;
+        s=default; t=1603756222;
+        bh=j8+aveAqrJQEVzbm2fQkpi44naYHrixzixT0DdUmo5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giX/b5RloOfIOK0dEGdfXlPJVlbA31hCJNAJwjTnXraRC0CY4+Ecik+fnmAnhQ+2P
-         HGftatvgOrF06dmCUdN1B4GDXFW4MdndJXEd5NnPR3+MgjP2+HKNrUxJ+5r64FhSVL
-         c0WSqsnG3tk5wWFequ1VD8TB8DV8JANiJ+vQlTKw=
+        b=uhJHajN05XdyKQNP3gZpGIRZiFVOsNjDBVOIJHE6npc+ADEGGTWD4twcXlr//Gzw+
+         63SpAPUMffktbH4QiOwm90Tizcrla1eYVBT7x1XbQcoWH3bWSmu1JLCuDZarx7Gqrr
+         P4ToM9QncBvJWQbimTSHHt60lvgcP6vyoqa1XUMM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 061/147] drm: exynos: fix common struct sg_table related issues
-Date:   Mon, 26 Oct 2020 19:47:39 -0400
-Message-Id: <20201026234905.1022767-61-sashal@kernel.org>
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.9 062/147] xen: gntdev: fix common struct sg_table related issues
+Date:   Mon, 26 Oct 2020 19:47:40 -0400
+Message-Id: <20201026234905.1022767-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -47,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 84404614167b829f7b58189cd24b6c0c74897171 ]
+[ Upstream commit d1749eb1ab85e04e58c29e58900e3abebbdd6e82 ]
 
 The Documentation/DMA-API-HOWTO.txt states that the dma_map_sg() function
 returns the number of the created entries in the DMA address space.
@@ -73,42 +70,50 @@ nents and orig_nents entries, making the code robust, easier to follow
 and copy/paste safe.
 
 Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Acked-by : Inki Dae <inki.dae@samsung.com>
+Acked-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_g2d.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/xen/gntdev-dmabuf.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_g2d.c b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-index 03be314271811..967a5cdc120e3 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-@@ -395,8 +395,8 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
- 		return;
+diff --git a/drivers/xen/gntdev-dmabuf.c b/drivers/xen/gntdev-dmabuf.c
+index b1b6eebafd5de..4c13cbc99896a 100644
+--- a/drivers/xen/gntdev-dmabuf.c
++++ b/drivers/xen/gntdev-dmabuf.c
+@@ -247,10 +247,9 @@ static void dmabuf_exp_ops_detach(struct dma_buf *dma_buf,
  
- out:
--	dma_unmap_sg(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt->sgl,
--			g2d_userptr->sgt->nents, DMA_BIDIRECTIONAL);
-+	dma_unmap_sgtable(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt,
-+			  DMA_BIDIRECTIONAL, 0);
+ 		if (sgt) {
+ 			if (gntdev_dmabuf_attach->dir != DMA_NONE)
+-				dma_unmap_sg_attrs(attach->dev, sgt->sgl,
+-						   sgt->nents,
+-						   gntdev_dmabuf_attach->dir,
+-						   DMA_ATTR_SKIP_CPU_SYNC);
++				dma_unmap_sgtable(attach->dev, sgt,
++						  gntdev_dmabuf_attach->dir,
++						  DMA_ATTR_SKIP_CPU_SYNC);
+ 			sg_free_table(sgt);
+ 		}
  
- 	pages = frame_vector_pages(g2d_userptr->vec);
- 	if (!IS_ERR(pages)) {
-@@ -511,10 +511,10 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
+@@ -288,8 +287,8 @@ dmabuf_exp_ops_map_dma_buf(struct dma_buf_attachment *attach,
+ 	sgt = dmabuf_pages_to_sgt(gntdev_dmabuf->pages,
+ 				  gntdev_dmabuf->nr_pages);
+ 	if (!IS_ERR(sgt)) {
+-		if (!dma_map_sg_attrs(attach->dev, sgt->sgl, sgt->nents, dir,
+-				      DMA_ATTR_SKIP_CPU_SYNC)) {
++		if (dma_map_sgtable(attach->dev, sgt, dir,
++				    DMA_ATTR_SKIP_CPU_SYNC)) {
+ 			sg_free_table(sgt);
+ 			kfree(sgt);
+ 			sgt = ERR_PTR(-ENOMEM);
+@@ -633,7 +632,7 @@ dmabuf_imp_to_refs(struct gntdev_dmabuf_priv *priv, struct device *dev,
  
- 	g2d_userptr->sgt = sgt;
- 
--	if (!dma_map_sg(to_dma_dev(g2d->drm_dev), sgt->sgl, sgt->nents,
--				DMA_BIDIRECTIONAL)) {
-+	ret = dma_map_sgtable(to_dma_dev(g2d->drm_dev), sgt,
-+			      DMA_BIDIRECTIONAL, 0);
-+	if (ret) {
- 		DRM_DEV_ERROR(g2d->dev, "failed to map sgt with dma region.\n");
--		ret = -ENOMEM;
- 		goto err_sg_free_table;
- 	}
- 
+ 	/* Now convert sgt to array of pages and check for page validity. */
+ 	i = 0;
+-	for_each_sg_page(sgt->sgl, &sg_iter, sgt->nents, 0) {
++	for_each_sgtable_page(sgt, &sg_iter, 0) {
+ 		struct page *page = sg_page_iter_page(&sg_iter);
+ 		/*
+ 		 * Check if page is valid: this can happen if we are given
 -- 
 2.25.1
 
