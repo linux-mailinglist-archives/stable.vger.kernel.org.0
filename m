@@ -2,198 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901C829896A
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 10:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF6B298A31
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 11:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1422387AbgJZJaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 05:30:39 -0400
-Received: from mail-pl1-f172.google.com ([209.85.214.172]:46273 "EHLO
-        mail-pl1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1422386AbgJZJai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 05:30:38 -0400
-Received: by mail-pl1-f172.google.com with SMTP id x10so2207243plm.13
-        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 02:30:38 -0700 (PDT)
+        id S1769413AbgJZKPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 06:15:17 -0400
+Received: from valentin-vidic.from.hr ([94.229.67.141]:45739 "EHLO
+        valentin-vidic.from.hr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1768367AbgJZJr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 05:47:28 -0400
+X-Greylist: delayed 472 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Oct 2020 05:47:27 EDT
+X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
+Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
+        id 42CF54120; Mon, 26 Oct 2020 10:39:31 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OJrcxgLIZhrP3DBgXRhSXDRrZWQZH8FrzISvVI08tq4=;
-        b=S8Kas4e++xrMOW5zcH9l1ge8CguuqMNmM6Daz122swGug224j3XrX78UVDI46Nl/g+
-         Y/rtGTh6/VprzTG2davZUiZQEsjLF8UTOAIp+ukJ2SHtN5Z01LDq3x3GgJeODqENr60E
-         N37Cpu5CCJF6hYn5Rw6hPiGKIYI/hLChcH/+Bsewcb18T+ANwnycBRzeyx3uJB02HwSW
-         g0V7w+/fkBk8U2H6upsy4UxaPjMVlB3R4g9/QIrP0KCaPlDciC/aKiRmOAqUf7RUP2sb
-         73OE9A/3cx3j3YzUnqPSN/GkGnpVSx38Zc93XHk7GGjc9wH3pVD7U8/TPeOlE6EEzh/N
-         izqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OJrcxgLIZhrP3DBgXRhSXDRrZWQZH8FrzISvVI08tq4=;
-        b=V3YgGNs2eptGGGO+pjzsvoFTtFf4KZ5GXXVU0rLbqSBmC+MeHufHjfLQURlmbCXWVY
-         m7NlsZMOgEUYKaQ0rr+D9gaHWtBnqnyFaGisgOG2t4UxGDDvu6vOeRde8snxhD5+PQUO
-         QqrIRXaxmr/xMbXxgIWOb0bK5xKcJuodVVZTh5IRhUCkIf+/wq+Kq3OaXN/3JndNCpGv
-         4deWvrwEfJs2u+ZjtR339oPdDKfFqn5qdKVcO5+qStVX0ol354SW6JqZ94zdYj7OjKHR
-         M4kgIJInwoku6mCmVHD4+cldbnQ9QCZhGjs07cUPJ7nWyNBYWTnr6/+Ml77Cz130x3OV
-         YqoQ==
-X-Gm-Message-State: AOAM533XS8r5UKpQidFvZhRkixNf0Y68lne/4MC6ndVv3sWffoGpuErc
-        JMFdttH7Lyv6YFTjzMrOsx1VgStmjTS7Lg==
-X-Google-Smtp-Source: ABdhPJw39gFcEL/Hvi9dWpLUlPBXA06at4hOFyceRZonp6HRZVmrS7JflfyfJRTtElwB0xZEHhb5EA==
-X-Received: by 2002:a17:90b:3849:: with SMTP id nl9mr14134077pjb.217.1603704637411;
-        Mon, 26 Oct 2020 02:30:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i30sm10591292pgb.81.2020.10.26.02.30.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2020 02:30:36 -0700 (PDT)
-Message-ID: <5f96973c.1c69fb81.a4a6a.4de3@mx.google.com>
-Date:   Mon, 26 Oct 2020 02:30:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        d=valentin-vidic.from.hr; s=2020; t=1603705171;
+        bh=znD6lkVbNfaZ0zHkzgIp3Fv73O/9JQfUXlbCJcyIaGg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jB2ueFf2TKMpESFXED2YuWdxOoV69/E6BpmF/FpXjM7LKuA1529+add4yyXJjslAD
+         kK64hSpDvrpBmxKVsuBLS8RRl0Pw1JmGLhZruobAm4ShyfW4n9w/3V6R0ywDgY1I1P
+         hQp5rPvtFvLx9q60kZlqZALfwBkh2VbuXRdxaTdNblfPge8rbogVBIf9PthD2Pw/PV
+         6a8dSx3RbVMBj/uUtxSWaMsXRoB25mf61GUv6yzZiPArKCkxBl6/se4jK/urD+dJRH
+         SDEBPbDmc515m587rQWCBJKMgd9QG4zjgJH4OtevoSkb3fYYoopYA0cMj1IyCzoPh0
+         kr9YkGb/t9ucwdBTd1jsWtaThsPtamrxCbI0VT0+7tlNZHGMm7NtB6LFZum6Ge7VQG
+         PqJCfCJsP75zrNmZtoSsf7HMHsUD46T1y+1OJXXlZG3RG07twp7+cMjeBmgIwrmTT0
+         XGsW26bf96obtUVFXpHevy+XYDaz85qGNCfXb3aOMq2BxFJ1oIHujckbRT0oHeDT/i
+         xqv2Vh5fYHJT6LHoklquEcrGHFcNpZ1DWnLplB25Wq4zBU0zE4oIbTE7QxLoFU4SAj
+         hex1o2jA532z2cmlFg+jbQWOQD69pk5W+7f/CvHY0a0QYnlXG2rL2e5Az0IZ8LeUjQ
+         RPXVxpfa+AkHQKV78m3//ZZA=
+Date:   Mon, 26 Oct 2020 10:39:31 +0100
+From:   Valentin =?utf-8?B?VmlkacSH?= <vvidic@valentin-vidic.from.hr>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: Patch "net: korina: fix kfree of rx/tx descriptor array" has
+ been added to the 4.4-stable tree
+Message-ID: <20201026093931.GE29903@valentin-vidic.from.hr>
+References: <20201026055650.4235D2222C@mail.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.202-187-g41515da3a101
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 158 runs,
- 3 regressions (v4.14.202-187-g41515da3a101)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201026055650.4235D2222C@mail.kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 158 runs, 3 regressions (v4.14.202-187-g4151=
-5da3a101)
+On Mon, Oct 26, 2020 at 01:56:49AM -0400, Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     net: korina: fix kfree of rx/tx descriptor array
+> 
+> to the 4.4-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      net-korina-fix-kfree-of-rx-tx-descriptor-array.patch
+> and it can be found in the queue-4.4 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
 
-Regressions Summary
--------------------
+A followup patch is probably required with this one:
 
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1      =
-    =
+commit 3bd57b90554b4bb82dce638e0668ef9dc95d3e96
+net: korina: cast KSEG0 address to pointer in kfree
 
-panda     | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig  | 1      =
-    =
+Fixes gcc warning:
 
-panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
-    =
+passing argument 1 of 'kfree' makes pointer from integer without a cast
 
+Fixes: 3af5f0f ("net: korina: fix kfree of rx/tx descriptor array")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Link: https://lore.kernel.org/r/20201018184255.28989-1-vvidic@valentin-vidic.from.hr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.202-187-g41515da3a101/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.202-187-g41515da3a101
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      41515da3a1014f259d1c8f97de09a2b861ef0acb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9665d01741e05a38381012
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9665d01741e05a38381=
-013
-        new failure (last pass: v4.14.202-21-g136cf8fe1a50) =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig  | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f96656b4aece92e04381012
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f96656b4aece92e04381=
-013
-        new failure (last pass: v4.14.202-21-g136cf8fe1a50) =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9664f72bd442bc693810ce
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.202=
--187-g41515da3a101/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9664f72bd442b=
-c693810d5
-        new failure (last pass: v4.14.202-21-g136cf8fe1a50)
-        2 lines
-
-    2020-10-26 05:56:04.324000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+-- 
+Valentin
