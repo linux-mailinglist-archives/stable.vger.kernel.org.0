@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FE6299B2F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:50:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC00C299B32
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:50:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408628AbgJZXtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S2408671AbgJZXtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:49:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408617AbgJZXtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:12 -0400
+        id S2408661AbgJZXtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC3B2075B;
-        Mon, 26 Oct 2020 23:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD7A520773;
+        Mon, 26 Oct 2020 23:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756152;
-        bh=U4B/0X6tZ+S10/tnV+8pBx5isrKe4N4+lJJrH4AokzE=;
+        s=default; t=1603756159;
+        bh=VdYd0jj9ZMGqyNWWvSiCMk9u7hXc40vpCtEkyfaY488=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2CugDGR8OpZg7p5CJQGgGpEsCuuQZ+TOqo9OjhjMXvkSjikNbjQMkJmkvdmz4AVc
-         7MBjvvD/GVs5+k/7XL3Mo9NWIyPU8SFXLTGkj6FWYaeXNwLTfajpNdv1oo9gzquveW
-         xufd3vbXtn4JvlUeTJNNSyRCpB42am9pL8VUq+GU=
+        b=w0vZLPrYMeUm/rQ5ySLyRr3RZWd+SsDyBMO1dXCRH0JY0oCSavCv9a/PcsvSKNcNJ
+         0m9+4/Q1tJyPgLXOE9YsZGXEP6Dn94kHEHWO1oyjucC1nnndeoGQBWgDRuvN2cQHLa
+         kRNShqV5ACVIs1lFJj2mk+b+XxKzjcMPQO4eZcI4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Pedro Miraglia Franco de Carvalho <pedromfc@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.9 005/147] powerpc/watchpoint/ptrace: Fix SETHWDEBUG when CONFIG_HAVE_HW_BREAKPOINT=N
-Date:   Mon, 26 Oct 2020 19:46:43 -0400
-Message-Id: <20201026234905.1022767-5-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>,
+        syzbot+0eac6f0bbd558fd866d7@syzkaller.appspotmail.com,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.9 011/147] f2fs: fix uninit-value in f2fs_lookup
+Date:   Mon, 26 Oct 2020 19:46:49 -0400
+Message-Id: <20201026234905.1022767-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -43,42 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 9b6b7c680cc20971444d9f836e49fc98848bcd0a ]
+[ Upstream commit 6d7ab88a98c1b7a47c228f8ffb4f44d631eaf284 ]
 
-When kernel is compiled with CONFIG_HAVE_HW_BREAKPOINT=N, user can
-still create watchpoint using PPC_PTRACE_SETHWDEBUG, with limited
-functionalities. But, such watchpoints are never firing because of
-the missing privilege settings. Fix that.
+As syzbot reported:
 
-It's safe to set HW_BRK_TYPE_PRIV_ALL because we don't really leak
-any kernel address in signal info. Setting HW_BRK_TYPE_PRIV_ALL will
-also help to find scenarios when kernel accesses user memory.
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:219
+ f2fs_lookup+0xe05/0x1a80 fs/f2fs/namei.c:503
+ lookup_open fs/namei.c:3082 [inline]
+ open_last_lookups fs/namei.c:3177 [inline]
+ path_openat+0x2729/0x6a90 fs/namei.c:3365
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
-Reported-by: Pedro Miraglia Franco de Carvalho <pedromfc@linux.ibm.com>
-Suggested-by: Pedro Miraglia Franco de Carvalho <pedromfc@linux.ibm.com>
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200902042945.129369-4-ravi.bangoria@linux.ibm.com
+In f2fs_lookup(), @res_page could be used before being initialized,
+because in __f2fs_find_entry(), once F2FS_I(dir)->i_current_depth was
+been fuzzed to zero, then @res_page will never be initialized, causing
+this kmsan warning, relocating @res_page initialization place to fix
+this bug.
+
+Reported-by: syzbot+0eac6f0bbd558fd866d7@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/ptrace/ptrace-noadv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/dir.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kernel/ptrace/ptrace-noadv.c b/arch/powerpc/kernel/ptrace/ptrace-noadv.c
-index 697c7e4b5877f..57a0ab822334f 100644
---- a/arch/powerpc/kernel/ptrace/ptrace-noadv.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-noadv.c
-@@ -217,7 +217,7 @@ long ppc_set_hwdebug(struct task_struct *child, struct ppc_hw_breakpoint *bp_inf
- 		return -EIO;
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index 069f498af1e38..ceb4431b56690 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -357,16 +357,15 @@ struct f2fs_dir_entry *__f2fs_find_entry(struct inode *dir,
+ 	unsigned int max_depth;
+ 	unsigned int level;
  
- 	brk.address = ALIGN_DOWN(bp_info->addr, HW_BREAKPOINT_SIZE);
--	brk.type = HW_BRK_TYPE_TRANSLATE;
-+	brk.type = HW_BRK_TYPE_TRANSLATE | HW_BRK_TYPE_PRIV_ALL;
- 	brk.len = DABR_MAX_LEN;
- 	if (bp_info->trigger_type & PPC_BREAKPOINT_TRIGGER_READ)
- 		brk.type |= HW_BRK_TYPE_READ;
++	*res_page = NULL;
++
+ 	if (f2fs_has_inline_dentry(dir)) {
+-		*res_page = NULL;
+ 		de = f2fs_find_in_inline_dir(dir, fname, res_page);
+ 		goto out;
+ 	}
+ 
+-	if (npages == 0) {
+-		*res_page = NULL;
++	if (npages == 0)
+ 		goto out;
+-	}
+ 
+ 	max_depth = F2FS_I(dir)->i_current_depth;
+ 	if (unlikely(max_depth > MAX_DIR_HASH_DEPTH)) {
+@@ -377,7 +376,6 @@ struct f2fs_dir_entry *__f2fs_find_entry(struct inode *dir,
+ 	}
+ 
+ 	for (level = 0; level < max_depth; level++) {
+-		*res_page = NULL;
+ 		de = find_in_level(dir, level, fname, res_page);
+ 		if (de || IS_ERR(*res_page))
+ 			break;
 -- 
 2.25.1
 
