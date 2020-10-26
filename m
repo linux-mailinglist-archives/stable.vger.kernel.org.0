@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE58299C2D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71994299C06
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411060AbgJZX4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60106 "EHLO mail.kernel.org"
+        id S2410420AbgJZXyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:54:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410195AbgJZXyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:54:21 -0400
+        id S2410413AbgJZXyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:54:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95BAD21655;
-        Mon, 26 Oct 2020 23:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCE5421D7B;
+        Mon, 26 Oct 2020 23:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756460;
-        bh=03IWLhNICanjpu44Xap0cbktcyiY4USCLLvEEvUWjh4=;
+        s=default; t=1603756461;
+        bh=3h/KDye+pdvR8YObW/9JDp9+11bVzKGYL211CQdRk7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLnMNsKSkjZBfKOiy6zSRrAs8+VIZVdKq2etiIC5rEHYgjjptuTpjzNa7XUdIV1Qt
-         2V56HUSE38JPXG5lJ8+6n0ZiZom1ZGYppB/SJWj1xHrfhQ4LKSoG6WJvpuiuxlshNK
-         Elnv01vGLgYMVr1CqPwY01ThN7l6vWqYtuNWY+B4=
+        b=PvoTrD3quKQRMMLAAsMFuoLT91le/oKfCvA0SCtidoip4RKi0YAV08JtZu2o+vymv
+         N0jWdzpkIwPN6eSgySoCoLGp8R4EK7bPvzv8fnJ/Urfgw0mYp/0E+wGygFUfkci6lv
+         Wvo8FEgyWpv67PE4lu8+mqJsH6u9gufZr90OxSvc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 109/132] drivers: watchdog: rdc321x_wdt: Fix race condition bugs
-Date:   Mon, 26 Oct 2020 19:51:41 -0400
-Message-Id: <20201026235205.1023962-109-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Andreas Dilger <adilger@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 110/132] ext4: Detect already used quota file early
+Date:   Mon, 26 Oct 2020 19:51:42 -0400
+Message-Id: <20201026235205.1023962-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -44,60 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 4b2e7f99cdd314263c9d172bc17193b8b6bba463 ]
+[ Upstream commit e0770e91424f694b461141cbc99adf6b23006b60 ]
 
-In rdc321x_wdt_probe(), rdc321x_wdt_device.queue is initialized
-after misc_register(), hence if ioctl is called before its
-initialization which can call rdc321x_wdt_start() function,
-it will see an uninitialized value of rdc321x_wdt_device.queue,
-hence initialize it before misc_register().
-Also, rdc321x_wdt_device.default_ticks is accessed in reset()
-function called from write callback, thus initialize it before
-misc_register().
+When we try to use file already used as a quota file again (for the same
+or different quota type), strange things can happen. At the very least
+lockdep annotations may be wrong but also inode flags may be wrongly set
+/ reset. When the file is used for two quota types at once we can even
+corrupt the file and likely crash the kernel. Catch all these cases by
+checking whether passed file is already used as quota file and bail
+early in that case.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This fixes occasional generic/219 failure due to lockdep complaint.
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20200807112902.28764-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20201015110330.28716-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/rdc321x_wdt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/super.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
-index 57187efeb86f1..f0c94ea51c3e4 100644
---- a/drivers/watchdog/rdc321x_wdt.c
-+++ b/drivers/watchdog/rdc321x_wdt.c
-@@ -231,6 +231,8 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
- 
- 	rdc321x_wdt_device.sb_pdev = pdata->sb_pdev;
- 	rdc321x_wdt_device.base_reg = r->start;
-+	rdc321x_wdt_device.queue = 0;
-+	rdc321x_wdt_device.default_ticks = ticks;
- 
- 	err = misc_register(&rdc321x_wdt_misc);
- 	if (err < 0) {
-@@ -245,14 +247,11 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
- 				rdc321x_wdt_device.base_reg, RDC_WDT_RST);
- 
- 	init_completion(&rdc321x_wdt_device.stop);
--	rdc321x_wdt_device.queue = 0;
- 
- 	clear_bit(0, &rdc321x_wdt_device.inuse);
- 
- 	timer_setup(&rdc321x_wdt_device.timer, rdc321x_wdt_trigger, 0);
- 
--	rdc321x_wdt_device.default_ticks = ticks;
--
- 	dev_info(&pdev->dev, "watchdog init success\n");
- 
- 	return 0;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 0b38bf29c07e0..04b776501aff8 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5999,6 +5999,11 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
+ 	/* Quotafile not on the same filesystem? */
+ 	if (path->dentry->d_sb != sb)
+ 		return -EXDEV;
++
++	/* Quota already enabled for this file? */
++	if (IS_NOQUOTA(d_inode(path->dentry)))
++		return -EBUSY;
++
+ 	/* Journaling quota? */
+ 	if (EXT4_SB(sb)->s_qf_names[type]) {
+ 		/* Quotafile not in fs root? */
 -- 
 2.25.1
 
