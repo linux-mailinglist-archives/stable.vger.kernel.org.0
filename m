@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 248FC299FE0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 076F5299FEF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409945AbgJZXxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:53:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56714 "EHLO mail.kernel.org"
+        id S2442446AbgJ0A03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:26:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409942AbgJZXxC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:53:02 -0400
+        id S2409947AbgJZXxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:53:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DB3E20882;
-        Mon, 26 Oct 2020 23:53:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C3B21655;
+        Mon, 26 Oct 2020 23:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756381;
-        bh=8JTEb6R/KWIinrBT6TmYsYwNQ9bXkQw4E7WuXn2k6N4=;
+        s=default; t=1603756383;
+        bh=BmqIYeNVJGSaXqSpMDnF4k9Qr8Mglw/qDSNx+xCnxdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OP+DY5rE2jdpq9esLtH8OltMQv+XZCbIrFEyS51cu5KNyrup6ULBx4oiVkP4mYjNI
-         XIIS1xTiD/X5C4Bcer/ggwhEWJm3SDxFyx2yHBWI2CYegX9Tdkj4Cx+6mwd8wCRxWL
-         BHuceE4CW0Ixt6RS47JP2Qg9LlU204ppMmpVRzGA=
+        b=Ynp+GhTuDN1yU7bUHXT4MqxRJdN/9HWQ3q5pkKGu8HntjOcZeOlqbqweOMM/PP671
+         rvK0bqaeQaePtCjJ+HaJAbpgexlON3+BCo/N4yLBKmM7GnP7kOjyEJDMe+RXAS+Q0S
+         rKvMTMCMft7AuDeS1VzIwTqBxFCwNWBo68e5IZ+0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antonio Borneo <antonio.borneo@st.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 046/132] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
-Date:   Mon, 26 Oct 2020 19:50:38 -0400
-Message-Id: <20201026235205.1023962-46-sashal@kernel.org>
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 047/132] brcmfmac: increase F2 watermark for BCM4329
+Date:   Mon, 26 Oct 2020 19:50:39 -0400
+Message-Id: <20201026235205.1023962-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -44,65 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
+[ Upstream commit 317da69d10b0247c4042354eb90c75b81620ce9d ]
 
-Current code enables the HS clock when video mode is started or to
-send out a HS command, and disables the HS clock to send out a LP
-command. This is not what DSI spec specify.
+This patch fixes SDHCI CRC errors during of RX throughput testing on
+BCM4329 chip if SDIO BUS is clocked above 25MHz. In particular the
+checksum problem is observed on NVIDIA Tegra20 SoCs. The good watermark
+value is borrowed from downstream BCMDHD driver and it's matching to the
+value that is already used for the BCM4339 chip, hence let's re-use it
+for BCM4329.
 
-Enable HS clock either in command and in video mode.
-Set automatic HS clock management for panels and devices that
-support non-continuous HS clock.
-
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Tested-by: Philippe Cornu <philippe.cornu@st.com>
-Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200830191439.10017-2-digetx@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-index 5ef0f154aa7bd..1dd57db184c89 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-@@ -366,7 +366,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
- 	if (lpm)
- 		val |= CMD_MODE_ALL_LP;
- 
--	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
- 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
- }
- 
-@@ -542,16 +541,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
- static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
- 				 unsigned long mode_flags)
- {
-+	u32 val;
-+
- 	dsi_write(dsi, DSI_PWR_UP, RESET);
- 
- 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
- 		dw_mipi_dsi_video_mode_config(dsi);
--		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
- 	} else {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
- 	}
- 
-+	val = PHY_TXREQUESTCLKHS;
-+	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
-+		val |= AUTO_CLKLANE_CTRL;
-+	dsi_write(dsi, DSI_LPCLK_CTRL, val);
-+
- 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
- }
- 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index bc02168ebb536..9ac9e6085a0c5 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -4227,6 +4227,7 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+ 					   CY_43012_MESBUSYCTRL, &err);
+ 			break;
++		case SDIO_DEVICE_ID_BROADCOM_4329:
+ 		case SDIO_DEVICE_ID_BROADCOM_4339:
+ 			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes for 4339\n",
+ 				  CY_4339_F2_WATERMARK);
 -- 
 2.25.1
 
