@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEF6299CF4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE57299CEC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411053AbgJZX4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
+        id S2411067AbgJZX4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:56:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410909AbgJZXzb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:31 -0400
+        id S2410914AbgJZXze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37CAB221FA;
-        Mon, 26 Oct 2020 23:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0F8C221F8;
+        Mon, 26 Oct 2020 23:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756530;
-        bh=K+pXON+EpeZwcukcdCKp2fT/ruRvzTT1E/1PKb+EpGg=;
+        s=default; t=1603756533;
+        bh=cme9WN7qcSRNiUJET6MwAsG0RRGkGz8drNhlzUhFiZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEO5s999gSymXSpAHcKUvFckPmXpn0/iyYSgTlGU3ERvVSIxAgCyuxGQtlHEWS/IW
-         Ep3+n/8PlJZsv9bycMMiGUrD0u3C+hjx75JPOclPPdIV/6AMNOKhvxpg+QMjmiw6TB
-         eccX1SIf5tAD4cq4J8fh+Dec3Zrra33HbDE/GOqE=
+        b=vgGGCtmxOVSdyq+NBIM2cHdp719qnuKGkncaGxDSI6ihv45vSC5XiTqQviuKKc3CI
+         YJi6FOZLAMKUBgCd8MwBWFwpvZ74zdUvOgdjGSYRPhZyzDSoaY1I6C2OESDBCOce/8
+         TLnVTIn/Jlh4+dRPBFdZBhjhLccYif6R54mz+fn4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zejiang Tang <tangzejiang@loongson.cn>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/80] MIPS: ftrace: Remove redundant #ifdef CONFIG_DYNAMIC_FTRACE
-Date:   Mon, 26 Oct 2020 19:54:07 -0400
-Message-Id: <20201026235516.1025100-11-sashal@kernel.org>
+Cc:     Dave Wysochanski <dwysocha@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/80] NFS4: Fix oops when copy_file_range is attempted with NFS4.0 source
+Date:   Mon, 26 Oct 2020 19:54:09 -0400
+Message-Id: <20201026235516.1025100-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -43,35 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zejiang Tang <tangzejiang@loongson.cn>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit 39116103a7345927fa99644d08bc0cc9d45fea6f ]
+[ Upstream commit d8a6ad913c286d4763ae20b14c02fe6f39d7cd9f ]
 
-There exists redundant #ifdef CONFIG_DYNAMIC_FTRACE in ftrace.c, remove it.
+The following oops is seen during xfstest/565 when the 'test'
+(source of the copy) is NFS4.0 and 'scratch' (destination) is NFS4.2
+[   59.692458] run fstests generic/565 at 2020-08-01 05:50:35
+[   60.613588] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[   60.624970] #PF: supervisor read access in kernel mode
+[   60.627671] #PF: error_code(0x0000) - not-present page
+[   60.630347] PGD 0 P4D 0
+[   60.631853] Oops: 0000 [#1] SMP PTI
+[   60.634086] CPU: 6 PID: 2828 Comm: xfs_io Kdump: loaded Not tainted 5.8.0-rc3 #1
+[   60.637676] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   60.639901] RIP: 0010:nfs4_check_serverowner_major_id+0x5/0x30 [nfsv4]
+[   60.642719] Code: 89 ff e8 3e b3 b8 e1 e9 71 fe ff ff 41 bc da d8 ff ff e9 c3 fe ff ff e8 e9 9d 08 e2 66 0f 1f 84 00 00 00 00 00 66 66 66 66 90 <8b> 57 08 31 c0 3b 56 08 75 12 48 83 c6 0c 48 83 c7 0c e8 c4 97 bb
+[   60.652629] RSP: 0018:ffffc265417f7e10 EFLAGS: 00010287
+[   60.655379] RAX: ffffa0664b066400 RBX: 0000000000000000 RCX: 0000000000000001
+[   60.658754] RDX: ffffa066725fb000 RSI: ffffa066725fd000 RDI: 0000000000000000
+[   60.662292] RBP: 0000000000020000 R08: 0000000000020000 R09: 0000000000000000
+[   60.666189] R10: 0000000000000003 R11: 0000000000000000 R12: ffffa06648258d00
+[   60.669914] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa06648258100
+[   60.673645] FS:  00007faa9fb35800(0000) GS:ffffa06677d80000(0000) knlGS:0000000000000000
+[   60.677698] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   60.680773] CR2: 0000000000000008 CR3: 0000000203f14000 CR4: 00000000000406e0
+[   60.684476] Call Trace:
+[   60.685809]  nfs4_copy_file_range+0xfc/0x230 [nfsv4]
+[   60.688704]  vfs_copy_file_range+0x2ee/0x310
+[   60.691104]  __x64_sys_copy_file_range+0xd6/0x210
+[   60.693527]  do_syscall_64+0x4d/0x90
+[   60.695512]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   60.698006] RIP: 0033:0x7faa9febc1bd
 
-Signed-off-by: Zejiang Tang <tangzejiang@loongson.cn>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/ftrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/nfs/nfs4file.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/ftrace.c b/arch/mips/kernel/ftrace.c
-index 2625232bfe526..f57e68f40a348 100644
---- a/arch/mips/kernel/ftrace.c
-+++ b/arch/mips/kernel/ftrace.c
-@@ -37,10 +37,6 @@ void arch_ftrace_update_code(int command)
- 	ftrace_modify_all_code(command);
- }
- 
--#endif
--
--#ifdef CONFIG_DYNAMIC_FTRACE
--
- #define JAL 0x0c000000		/* jump & link: ip --> ra, jump to target */
- #define ADDR_MASK 0x03ffffff	/*  op_code|addr : 31...26|25 ....0 */
- #define JUMP_RANGE_MASK ((1UL << 28) - 1)
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 534b6fd70ffdb..6b31cb5f9c9db 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -138,7 +138,8 @@ static ssize_t __nfs4_copy_file_range(struct file *file_in, loff_t pos_in,
+ 	/* Only offload copy if superblock is the same */
+ 	if (file_inode(file_in)->i_sb != file_inode(file_out)->i_sb)
+ 		return -EXDEV;
+-	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
++	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY) ||
++	    !nfs_server_capable(file_inode(file_in), NFS_CAP_COPY))
+ 		return -EOPNOTSUPP;
+ 	if (file_inode(file_in) == file_inode(file_out))
+ 		return -EOPNOTSUPP;
 -- 
 2.25.1
 
