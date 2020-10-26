@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C1A729A0DF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7206F29A1BA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409178AbgJZXun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
+        id S2442540AbgJ0Anm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409172AbgJZXum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:42 -0400
+        id S2409179AbgJZXuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 444F320882;
-        Mon, 26 Oct 2020 23:50:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8674720B1F;
+        Mon, 26 Oct 2020 23:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756242;
-        bh=LEOzesVKSbDDx512NULGkFfnLWlkMR5U4KXl2lzpGSk=;
+        s=default; t=1603756243;
+        bh=A13ztRz3hfVCYuX8QCRdP7ucVEpzD5vonq4BkI9VVFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKHv3nsPpheBYMXp0+Q1umftxh3vBeSMEPFzeSDjqZHGRZNUWsGO9WLmuMM3OZ4qd
-         G4BkK1uXI3hQnykoJm5rpoxY7VZMmjhb2ZLWZn7B2g85JH1uxFZLr9JqXlc6np0x3L
-         4r0SawbOtBHdc1vKgPPvixwafpz3wk9nWhqrWcCs=
+        b=J18EjqDLQz2OP4nPD0tKEOjQrDiPsHiVj1NBqjT5Vok1OqFtqlAwDsIWRjSq1mZEf
+         jR432yvjdiAupVUpfHDAkSsvCqZ+tp5rRc9QNhtK+b4FsMhg8GTL1gz+mDRVJaW1xd
+         sSX/371j/WbxcgFGFHMz4xLA9jhOo+97VwuEqJ7k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Chen <peter.chen@nxp.com>, Jun Li <jun.li@nxp.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 078/147] usb: xhci: omit duplicate actions when suspending a runtime suspended host.
-Date:   Mon, 26 Oct 2020 19:47:56 -0400
-Message-Id: <20201026234905.1022767-78-sashal@kernel.org>
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 079/147] SUNRPC: Mitigate cond_resched() in xprt_transmit()
+Date:   Mon, 26 Oct 2020 19:47:57 -0400
+Message-Id: <20201026234905.1022767-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -43,55 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 18a367e8947d72dd91b6fc401e88a2952c6363f7 ]
+[ Upstream commit 6f9f17287e78e5049931af2037b15b26d134a32a ]
 
-If the xhci-plat.c is the platform driver, after the runtime pm is
-enabled, the xhci_suspend is called if nothing is connected on
-the port. When the system goes to suspend, it will call xhci_suspend again
-if USB wakeup is enabled.
+The original purpose of this expensive call is to prevent a long
+queue of requests from blocking other work.
 
-Since the runtime suspend wakeup setting is not always the same as
-system suspend wakeup setting, eg, at runtime suspend we always need
-wakeup if the controller is in low power mode; but at system suspend,
-we may not need wakeup. So, we move the judgement after changing
-wakeup setting.
+The cond_resched() call is unnecessary after just a single send
+operation.
 
-[commit message rewording -Mathias]
+For longer queues, instead of invoking the kernel scheduler, simply
+release the transport send lock and return to the RPC scheduler.
 
-Reviewed-by: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200918131752.16488-8-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/sunrpc/xprt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index f4cedcaee14b3..4cfb95104c26b 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -982,12 +982,15 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
- 			xhci->shared_hcd->state != HC_STATE_SUSPENDED)
- 		return -EINVAL;
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 5a8e47bbfb9f4..13fbc2dd4196a 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1520,10 +1520,13 @@ xprt_transmit(struct rpc_task *task)
+ {
+ 	struct rpc_rqst *next, *req = task->tk_rqstp;
+ 	struct rpc_xprt	*xprt = req->rq_xprt;
+-	int status;
++	int counter, status;
  
--	xhci_dbc_suspend(xhci);
--
- 	/* Clear root port wake on bits if wakeup not allowed. */
- 	if (!do_wakeup)
- 		xhci_disable_port_wake_on_bits(xhci);
- 
-+	if (!HCD_HW_ACCESSIBLE(hcd))
-+		return 0;
-+
-+	xhci_dbc_suspend(xhci);
-+
- 	/* Don't poll the roothubs on bus suspend. */
- 	xhci_dbg(xhci, "%s: stopping port polling.\n", __func__);
- 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+ 	spin_lock(&xprt->queue_lock);
++	counter = 0;
+ 	while (!list_empty(&xprt->xmit_queue)) {
++		if (++counter == 20)
++			break;
+ 		next = list_first_entry(&xprt->xmit_queue,
+ 				struct rpc_rqst, rq_xmit);
+ 		xprt_pin_rqst(next);
+@@ -1531,7 +1534,6 @@ xprt_transmit(struct rpc_task *task)
+ 		status = xprt_request_transmit(next, task);
+ 		if (status == -EBADMSG && next != req)
+ 			status = 0;
+-		cond_resched();
+ 		spin_lock(&xprt->queue_lock);
+ 		xprt_unpin_rqst(next);
+ 		if (status == 0) {
 -- 
 2.25.1
 
