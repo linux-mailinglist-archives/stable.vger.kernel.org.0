@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8F029A0CB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2D3E29A0CE
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408977AbgJZXuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:50:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
+        id S2408990AbgJZXuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408796AbgJZXts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:48 -0400
+        id S2408798AbgJZXtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87AC9222D9;
-        Mon, 26 Oct 2020 23:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9CCF216FD;
+        Mon, 26 Oct 2020 23:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756188;
-        bh=W2bEeiQAfoQioyqsnBUOJWlPraJVYRnpniBcf1u+A3w=;
+        s=default; t=1603756189;
+        bh=4evDXZqiaG6E4PstCTzCtKAW6Halr373+z+lN8tqAvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVxJQetIutCf6pWSF4NWuYMWmcHldexAM1Q0djcfge4o1TRc9LaMhg9g2kQgGjEBZ
-         K2/Mjt6MGpCAdiohMYKePXUtNxL/xum794pfFH7Etjnc4GMXWE6sYg2MapDDcrlnYc
-         FdXthSkmLZE/JU5R9q8tl54HFeTo7l49ARaVmOsc=
+        b=zY2CgN3UE0OL9x9ukXy6a/I8/QgXk+9H4d3oK8aVVlaDeMlbRveCbzcH8sCIb96XI
+         pVjYCvUSiDpv1k4kGWQSo94uTorRUgv9FHioSTdVdpRNEuN8VcG/BNm4dIxBuWtuRL
+         0MJ43Rb7WjCI4E/I3e/MmHa9+a2TE1CyDSj8fJGU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Rix <trix@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.9 034/147] video: fbdev: pvr2fb: initialize variables
-Date:   Mon, 26 Oct 2020 19:47:12 -0400
-Message-Id: <20201026234905.1022767-34-sashal@kernel.org>
+Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 035/147] ath10k: start recovery process when payload length exceeds max htc length for sdio
+Date:   Mon, 26 Oct 2020 19:47:13 -0400
+Message-Id: <20201026234905.1022767-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -44,47 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit 8e1ba47c60bcd325fdd097cd76054639155e5d2e ]
+[ Upstream commit 2fd3c8f34d08af0a6236085f9961866ad92ef9ec ]
 
-clang static analysis reports this repesentative error
+When simulate random transfer fail for sdio write and read, it happened
+"payload length exceeds max htc length" and recovery later sometimes.
 
-pvr2fb.c:1049:2: warning: 1st function call argument
-  is an uninitialized value [core.CallAndMessage]
-        if (*cable_arg)
-        ^~~~~~~~~~~~~~~
+Test steps:
+1. Add config and update kernel:
+CONFIG_FAIL_MMC_REQUEST=y
+CONFIG_FAULT_INJECTION=y
+CONFIG_FAULT_INJECTION_DEBUG_FS=y
 
-Problem is that cable_arg depends on the input loop to
-set the cable_arg[0].  If it does not, then some random
-value from the stack is used.
+2. Run simulate fail:
+cd /sys/kernel/debug/mmc1/fail_mmc_request
+echo 10 > probability
+echo 10 > times # repeat until hitting issues
 
-A similar problem exists for output_arg.
+3. It happened payload length exceeds max htc length.
+[  199.935506] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
+....
+[  264.990191] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
 
-So initialize cable_arg and output_arg.
+4. after some time, such as 60 seconds, it start recovery which triggered
+by wmi command timeout for periodic scan.
+[  269.229232] ieee80211 phy0: Hardware restart was requested
+[  269.734693] ath10k_sdio mmc1:0001:1: device successfully recovered
 
-Signed-off-by: Tom Rix <trix@redhat.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200720191845.20115-1-trix@redhat.com
+The simulate fail of sdio is not a real sdio transter fail, it only
+set an error status in mmc_should_fail_request after the transfer end,
+actually the transfer is success, then sdio_io_rw_ext_helper will
+return error status and stop transfer the left data. For example,
+the really RX len is 286 bytes, then it will split to 2 blocks in
+sdio_io_rw_ext_helper, one is 256 bytes, left is 30 bytes, if the
+first 256 bytes get an error status by mmc_should_fail_request,then
+the left 30 bytes will not read in this RX operation. Then when the
+next RX arrive, the left 30 bytes will be considered as the header
+of the read, the top 4 bytes of the 30 bytes will be considered as
+lookaheads, but actually the 4 bytes is not the lookaheads, so the len
+from this lookaheads is not correct, it exceeds max htc length 4088
+sometimes. When happened exceeds, the buffer chain is not matched between
+firmware and ath10k, then it need to start recovery ASAP. Recently then
+recovery will be started by wmi command timeout, but it will be long time
+later, for example, it is 60+ seconds later from the periodic scan, if
+it does not have periodic scan, it will be longer.
+
+Start recovery when it happened "payload length exceeds max htc length"
+will be reasonable.
+
+This patch only effect sdio chips.
+
+Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
+
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200108031957.22308-3-wgong@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pvr2fb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath10k/sdio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/video/fbdev/pvr2fb.c b/drivers/video/fbdev/pvr2fb.c
-index 2d9f69b93392a..f4add36cb5f4d 100644
---- a/drivers/video/fbdev/pvr2fb.c
-+++ b/drivers/video/fbdev/pvr2fb.c
-@@ -1028,6 +1028,8 @@ static int __init pvr2fb_setup(char *options)
- 	if (!options || !*options)
- 		return 0;
- 
-+	cable_arg[0] = output_arg[0] = 0;
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index 63f882c690bff..0841e69b10b1a 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -557,6 +557,10 @@ static int ath10k_sdio_mbox_rx_alloc(struct ath10k *ar,
+ 				    le16_to_cpu(htc_hdr->len),
+ 				    ATH10K_HTC_MBOX_MAX_PAYLOAD_LENGTH);
+ 			ret = -ENOMEM;
 +
- 	while ((this_opt = strsep(&options, ","))) {
- 		if (!*this_opt)
- 			continue;
++			queue_work(ar->workqueue, &ar->restart_work);
++			ath10k_warn(ar, "exceeds length, start recovery\n");
++
+ 			goto err;
+ 		}
+ 
 -- 
 2.25.1
 
