@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B206729A1B4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C1A729A0DF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409151AbgJ0Ang (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
+        id S2409178AbgJZXun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409165AbgJZXul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:41 -0400
+        id S2409172AbgJZXum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 053932075B;
-        Mon, 26 Oct 2020 23:50:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 444F320882;
+        Mon, 26 Oct 2020 23:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756240;
-        bh=3Tid0z77FOPAKyxCArbwfdFzfiDVOeZwGFliCQNSh2s=;
+        s=default; t=1603756242;
+        bh=LEOzesVKSbDDx512NULGkFfnLWlkMR5U4KXl2lzpGSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BKOQG7FP4Ot69BcztMBtvhg7cVIaG2KpLQTEaKD92WH7Nc7teAEBb5OkH4ssphZBV
-         2oE+AEuqiboyzsGZ7OoDcgIOhjky8SkT/fUhQHh7OPfTiaPcvbO9NCi5FX/0J+5gdW
-         lJ+gNBTSOx/HomicA13dxE2Pubc1Fx+OF1CnmKqY=
+        b=RKHv3nsPpheBYMXp0+Q1umftxh3vBeSMEPFzeSDjqZHGRZNUWsGO9WLmuMM3OZ4qd
+         G4BkK1uXI3hQnykoJm5rpoxY7VZMmjhb2ZLWZn7B2g85JH1uxFZLr9JqXlc6np0x3L
+         4r0SawbOtBHdc1vKgPPvixwafpz3wk9nWhqrWcCs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 077/147] mac80211: add missing queue/hash initialization to 802.3 xmit
-Date:   Mon, 26 Oct 2020 19:47:55 -0400
-Message-Id: <20201026234905.1022767-77-sashal@kernel.org>
+Cc:     Peter Chen <peter.chen@nxp.com>, Jun Li <jun.li@nxp.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 078/147] usb: xhci: omit duplicate actions when suspending a runtime suspended host.
+Date:   Mon, 26 Oct 2020 19:47:56 -0400
+Message-Id: <20201026234905.1022767-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -43,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit 5f8d69eaab1915df97f4f2aca89ea16abdd092d5 ]
+[ Upstream commit 18a367e8947d72dd91b6fc401e88a2952c6363f7 ]
 
-Fixes AQL for encap-offloaded tx
+If the xhci-plat.c is the platform driver, after the runtime pm is
+enabled, the xhci_suspend is called if nothing is connected on
+the port. When the system goes to suspend, it will call xhci_suspend again
+if USB wakeup is enabled.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20200908123702.88454-2-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Since the runtime suspend wakeup setting is not always the same as
+system suspend wakeup setting, eg, at runtime suspend we always need
+wakeup if the controller is in low power mode; but at system suspend,
+we may not need wakeup. So, we move the judgement after changing
+wakeup setting.
+
+[commit message rewording -Mathias]
+
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200918131752.16488-8-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/host/xhci.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index dca01d7e6e3e0..282b0bc201eeb 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -4209,6 +4209,12 @@ static void ieee80211_8023_xmit(struct ieee80211_sub_if_data *sdata,
- 	if (is_zero_ether_addr(ra))
- 		goto out_free;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index f4cedcaee14b3..4cfb95104c26b 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -982,12 +982,15 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
+ 			xhci->shared_hcd->state != HC_STATE_SUSPENDED)
+ 		return -EINVAL;
  
-+	if (local->ops->wake_tx_queue) {
-+		u16 queue = __ieee80211_select_queue(sdata, sta, skb);
-+		skb_set_queue_mapping(skb, queue);
-+		skb_get_hash(skb);
-+	}
+-	xhci_dbc_suspend(xhci);
+-
+ 	/* Clear root port wake on bits if wakeup not allowed. */
+ 	if (!do_wakeup)
+ 		xhci_disable_port_wake_on_bits(xhci);
+ 
++	if (!HCD_HW_ACCESSIBLE(hcd))
++		return 0;
 +
- 	multicast = is_multicast_ether_addr(ra);
- 
- 	if (sta)
++	xhci_dbc_suspend(xhci);
++
+ 	/* Don't poll the roothubs on bus suspend. */
+ 	xhci_dbg(xhci, "%s: stopping port polling.\n", __func__);
+ 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 -- 
 2.25.1
 
