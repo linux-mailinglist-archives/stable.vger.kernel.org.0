@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F253299BE5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B86299BEC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410291AbgJZXyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59238 "EHLO mail.kernel.org"
+        id S2410387AbgJZXyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:54:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410285AbgJZXyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:54:02 -0400
+        id S2410374AbgJZXyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:54:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A96120882;
-        Mon, 26 Oct 2020 23:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6435B21D7B;
+        Mon, 26 Oct 2020 23:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756441;
-        bh=B9H6nK9D552MIy0BT6AhHHXsPhBe/o6i0H01te9IGSM=;
+        s=default; t=1603756455;
+        bh=H6ry7Os++r5kVQ9RTuDztQX63AwHHBSJQ66YLrCVN0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVq8Y4G73y1agEzyhWXkd2leo7v9iZJUEXY2Z5iWLiWczc0MOgCr3LL2Y1VNeeYAO
-         6b35YiDdUqrASwDMy/EyfVz83dp7Uf1HdudJKpddeZ6+pK4DxnugeE+U09wWElXaFU
-         Paj/UpFgL0nxcx0MMw5LPbhCoXvBsHO7xTTEtLAU=
+        b=AftVZ+sTTDOXlfqnqi2i6DkTL4THMUL5g/ODArAQbLokTodMrL1uG9V3pmfX0juBT
+         0g+YWXhBYTQdhDYAidEPpyzu+ln1SNlD9jKHatWSWFux0TxwIcCWDhssT5vL/r0blC
+         g2BIyIimkAcj3zVU3BvqYc0Rj7jWvnP4EMEr8Cfw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 094/132] ARC: [dts] fix the errors detected by dtbs_check
-Date:   Mon, 26 Oct 2020 19:51:26 -0400
-Message-Id: <20201026235205.1023962-94-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 105/132] phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+Date:   Mon, 26 Oct 2020 19:51:37 -0400
+Message-Id: <20201026235205.1023962-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,93 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 05b1be68c4d6d76970025e6139bfd735c2256ee5 ]
+[ Upstream commit ea17a0f153af2cd890e4ce517130dcccaa428c13 ]
 
-xxx/arc/boot/dts/axs101.dt.yaml: dw-apb-ictl@e0012000: $nodename:0: \
-'dw-apb-ictl@e0012000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
- From schema: xxx/interrupt-controller/snps,dw-apb-ictl.yaml
+Driver ->power_on and ->power_off callbacks leaks internal SMCC firmware
+return codes to phy caller. This patch converts SMCC error codes to
+standard linux errno codes. Include file linux/arm-smccc.h already provides
+defines for SMCC error codes, so use them instead of custom driver defines.
+Note that return value is signed 32bit, but stored in unsigned long type
+with zero padding.
 
-The node name of the interrupt controller must start with
-"interrupt-controller" instead of "dw-apb-ictl".
-
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Link: https://lore.kernel.org/r/20200902144344.16684-2-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/boot/dts/axc001.dtsi         | 2 +-
- arch/arc/boot/dts/axc003.dtsi         | 2 +-
- arch/arc/boot/dts/axc003_idu.dtsi     | 2 +-
- arch/arc/boot/dts/vdk_axc003.dtsi     | 2 +-
- arch/arc/boot/dts/vdk_axc003_idu.dtsi | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/phy/marvell/phy-mvebu-a3700-comphy.c | 14 +++++++++++---
+ drivers/phy/marvell/phy-mvebu-cp110-comphy.c | 14 +++++++++++---
+ 2 files changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arc/boot/dts/axc001.dtsi b/arch/arc/boot/dts/axc001.dtsi
-index 79ec27c043c1d..2a151607b0805 100644
---- a/arch/arc/boot/dts/axc001.dtsi
-+++ b/arch/arc/boot/dts/axc001.dtsi
-@@ -91,7 +91,7 @@ arcpct0: pct {
- 	 * avoid duplicating the MB dtsi file given that IRQ from
- 	 * this intc to cpu intc are different for axs101 and axs103
- 	 */
--	mb_intc: dw-apb-ictl@e0012000 {
-+	mb_intc: interrupt-controller@e0012000 {
- 		#interrupt-cells = <1>;
- 		compatible = "snps,dw-apb-ictl";
- 		reg = < 0x0 0xe0012000 0x0 0x200 >;
-diff --git a/arch/arc/boot/dts/axc003.dtsi b/arch/arc/boot/dts/axc003.dtsi
-index ac8e1b463a709..cd1edcf4f95ef 100644
---- a/arch/arc/boot/dts/axc003.dtsi
-+++ b/arch/arc/boot/dts/axc003.dtsi
-@@ -129,7 +129,7 @@ mmc@15000 {
- 	 * avoid duplicating the MB dtsi file given that IRQ from
- 	 * this intc to cpu intc are different for axs101 and axs103
- 	 */
--	mb_intc: dw-apb-ictl@e0012000 {
-+	mb_intc: interrupt-controller@e0012000 {
- 		#interrupt-cells = <1>;
- 		compatible = "snps,dw-apb-ictl";
- 		reg = < 0x0 0xe0012000 0x0 0x200 >;
-diff --git a/arch/arc/boot/dts/axc003_idu.dtsi b/arch/arc/boot/dts/axc003_idu.dtsi
-index 9da21e7fd246f..70779386ca796 100644
---- a/arch/arc/boot/dts/axc003_idu.dtsi
-+++ b/arch/arc/boot/dts/axc003_idu.dtsi
-@@ -135,7 +135,7 @@ mmc@15000 {
- 	 * avoid duplicating the MB dtsi file given that IRQ from
- 	 * this intc to cpu intc are different for axs101 and axs103
- 	 */
--	mb_intc: dw-apb-ictl@e0012000 {
-+	mb_intc: interrupt-controller@e0012000 {
- 		#interrupt-cells = <1>;
- 		compatible = "snps,dw-apb-ictl";
- 		reg = < 0x0 0xe0012000 0x0 0x200 >;
-diff --git a/arch/arc/boot/dts/vdk_axc003.dtsi b/arch/arc/boot/dts/vdk_axc003.dtsi
-index f8be7ba8dad49..c21d0eb07bf67 100644
---- a/arch/arc/boot/dts/vdk_axc003.dtsi
-+++ b/arch/arc/boot/dts/vdk_axc003.dtsi
-@@ -46,7 +46,7 @@ debug_uart: dw-apb-uart@5000 {
+diff --git a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+index 1a138be8bd6a0..810f25a476321 100644
+--- a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
++++ b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+@@ -26,7 +26,6 @@
+ #define COMPHY_SIP_POWER_ON			0x82000001
+ #define COMPHY_SIP_POWER_OFF			0x82000002
+ #define COMPHY_SIP_PLL_LOCK			0x82000003
+-#define COMPHY_FW_NOT_SUPPORTED			(-1)
  
- 	};
+ #define COMPHY_FW_MODE_SATA			0x1
+ #define COMPHY_FW_MODE_SGMII			0x2
+@@ -112,10 +111,19 @@ static int mvebu_a3700_comphy_smc(unsigned long function, unsigned long lane,
+ 				  unsigned long mode)
+ {
+ 	struct arm_smccc_res res;
++	s32 ret;
  
--	mb_intc: dw-apb-ictl@e0012000 {
-+	mb_intc: interrupt-controller@e0012000 {
- 		#interrupt-cells = <1>;
- 		compatible = "snps,dw-apb-ictl";
- 		reg = < 0xe0012000 0x200 >;
-diff --git a/arch/arc/boot/dts/vdk_axc003_idu.dtsi b/arch/arc/boot/dts/vdk_axc003_idu.dtsi
-index 0afa3e53a4e39..4d348853ac7c5 100644
---- a/arch/arc/boot/dts/vdk_axc003_idu.dtsi
-+++ b/arch/arc/boot/dts/vdk_axc003_idu.dtsi
-@@ -54,7 +54,7 @@ debug_uart: dw-apb-uart@5000 {
+ 	arm_smccc_smc(function, lane, mode, 0, 0, 0, 0, 0, &res);
++	ret = res.a0;
  
- 	};
+-	return res.a0;
++	switch (ret) {
++	case SMCCC_RET_SUCCESS:
++		return 0;
++	case SMCCC_RET_NOT_SUPPORTED:
++		return -EOPNOTSUPP;
++	default:
++		return -EINVAL;
++	}
+ }
  
--	mb_intc: dw-apb-ictl@e0012000 {
-+	mb_intc: interrupt-controller@e0012000 {
- 		#interrupt-cells = <1>;
- 		compatible = "snps,dw-apb-ictl";
- 		reg = < 0xe0012000 0x200 >;
+ static int mvebu_a3700_comphy_get_fw_mode(int lane, int port,
+@@ -220,7 +228,7 @@ static int mvebu_a3700_comphy_power_on(struct phy *phy)
+ 	}
+ 
+ 	ret = mvebu_a3700_comphy_smc(COMPHY_SIP_POWER_ON, lane->id, fw_param);
+-	if (ret == COMPHY_FW_NOT_SUPPORTED)
++	if (ret == -EOPNOTSUPP)
+ 		dev_err(lane->dev,
+ 			"unsupported SMC call, try updating your firmware\n");
+ 
+diff --git a/drivers/phy/marvell/phy-mvebu-cp110-comphy.c b/drivers/phy/marvell/phy-mvebu-cp110-comphy.c
+index e41367f36ee1c..53ad127b100fe 100644
+--- a/drivers/phy/marvell/phy-mvebu-cp110-comphy.c
++++ b/drivers/phy/marvell/phy-mvebu-cp110-comphy.c
+@@ -123,7 +123,6 @@
+ 
+ #define COMPHY_SIP_POWER_ON	0x82000001
+ #define COMPHY_SIP_POWER_OFF	0x82000002
+-#define COMPHY_FW_NOT_SUPPORTED	(-1)
+ 
+ /*
+  * A lane is described by the following bitfields:
+@@ -273,10 +272,19 @@ static int mvebu_comphy_smc(unsigned long function, unsigned long phys,
+ 			    unsigned long lane, unsigned long mode)
+ {
+ 	struct arm_smccc_res res;
++	s32 ret;
+ 
+ 	arm_smccc_smc(function, phys, lane, mode, 0, 0, 0, 0, &res);
++	ret = res.a0;
+ 
+-	return res.a0;
++	switch (ret) {
++	case SMCCC_RET_SUCCESS:
++		return 0;
++	case SMCCC_RET_NOT_SUPPORTED:
++		return -EOPNOTSUPP;
++	default:
++		return -EINVAL;
++	}
+ }
+ 
+ static int mvebu_comphy_get_mode(bool fw_mode, int lane, int port,
+@@ -819,7 +827,7 @@ static int mvebu_comphy_power_on(struct phy *phy)
+ 	if (!ret)
+ 		return ret;
+ 
+-	if (ret == COMPHY_FW_NOT_SUPPORTED)
++	if (ret == -EOPNOTSUPP)
+ 		dev_err(priv->dev,
+ 			"unsupported SMC call, try updating your firmware\n");
+ 
 -- 
 2.25.1
 
