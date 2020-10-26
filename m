@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C24A029A026
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D32A299FBC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442567AbgJ0A04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57700 "EHLO mail.kernel.org"
+        id S2410062AbgJZXxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:53:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410046AbgJZXxW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:53:22 -0400
+        id S2410053AbgJZXxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:53:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157712231B;
-        Mon, 26 Oct 2020 23:53:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 487F42151B;
+        Mon, 26 Oct 2020 23:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756401;
-        bh=x2VzrOmid5aVY9WAx3Z3mqj5B63Us9NQmZHN+hh2kUU=;
+        s=default; t=1603756403;
+        bh=0coM9A8x/YGE0BscLSA59VPascxQ21PgmSXSC7yGRpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+fEL/OHSVEXKv1BftBtQmwL89T2ws96zIH5UKSqR5vgiuw39Q4fqBQCI0MBQsANL
-         dz5r5cIBCTKjhMp4dBp+GToZggVOWrZvF1QOV8qpP5077DsmF/0HGYiWiL69JbbJxp
-         u3wSSe9aJGuAbDHbMviU9b0LWzjMvoF6cDX264Dc=
+        b=oSvbBZGcmJvAFU9QlL03B+4HgdmHsfJSTIeyfTjp/NP+XGllpslfIQ3PIQ9veBF7D
+         OXfaPZqTZbzcyKSZgMkT2QgWCnTIwBBUaP1GxZIZhzPOHiWChHfqQtRJTJLpM0z1zL
+         jyAoecTuzJNthbGnnXe7Y6DAhV2XXKjiGw5JFNbQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Magnus Karlsson <magnus.karlsson@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 061/132] samples/bpf: Fix possible deadlock in xdpsock
-Date:   Mon, 26 Oct 2020 19:50:53 -0400
-Message-Id: <20201026235205.1023962-61-sashal@kernel.org>
+Cc:     Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.8 062/132] drm/amd/display: Check clock table return
+Date:   Mon, 26 Oct 2020 19:50:54 -0400
+Message-Id: <20201026235205.1023962-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -43,39 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 
-[ Upstream commit 5a2a0dd88f0f267ac5953acd81050ae43a82201f ]
+[ Upstream commit 4b4f21ff7f5d11bb77e169b306dcbc5b216f5db5 ]
 
-Fix a possible deadlock in the l2fwd application in xdpsock that can
-occur when there is no space in the Tx ring. There are two ways to get
-the kernel to consume entries in the Tx ring: calling sendto() to make
-it send packets and freeing entries from the completion ring, as the
-kernel will not send a packet if there is no space for it to add a
-completion entry in the completion ring. The Tx loop in l2fwd only
-used to call sendto(). This patches adds cleaning the completion ring
-in that loop.
+During the load processes for Renoir, our display code needs to retrieve
+the SMU clock and voltage table, however, this operation can fail which
+means that we have to check this scenario. Currently, we are not
+handling this case properly and as a result, we have seen the following
+dmesg log during the boot:
 
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/1599726666-8431-3-git-send-email-magnus.karlsson@gmail.com
+RIP: 0010:rn_clk_mgr_construct+0x129/0x3d0 [amdgpu]
+...
+Call Trace:
+ dc_clk_mgr_create+0x16a/0x1b0 [amdgpu]
+ dc_create+0x231/0x760 [amdgpu]
+
+This commit fixes this issue by checking the return status retrieved
+from the clock table before try to populate any bandwidth.
+
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdpsock_user.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/samples/bpf/xdpsock_user.c b/samples/bpf/xdpsock_user.c
-index c91e91362a0c6..a2f8033ab9c3d 100644
---- a/samples/bpf/xdpsock_user.c
-+++ b/samples/bpf/xdpsock_user.c
-@@ -1028,6 +1028,7 @@ static void l2fwd(struct xsk_socket_info *xsk, struct pollfd *fds)
- 	while (ret != rcvd) {
- 		if (ret < 0)
- 			exit_with_error(-ret);
-+		complete_tx_l2fwd(xsk, fds);
- 		if (xsk_ring_prod__needs_wakeup(&xsk->tx))
- 			kick_tx(xsk);
- 		ret = xsk_ring_prod__reserve(&xsk->tx, rcvd, &idx_tx);
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 24c5765890fa7..14f21a7307791 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -699,6 +699,7 @@ void rn_clk_mgr_construct(
+ {
+ 	struct dc_debug_options *debug = &ctx->dc->debug;
+ 	struct dpm_clocks clock_table = { 0 };
++	enum pp_smu_status status = 0;
+ 
+ 	clk_mgr->base.ctx = ctx;
+ 	clk_mgr->base.funcs = &dcn21_funcs;
+@@ -751,8 +752,10 @@ void rn_clk_mgr_construct(
+ 	clk_mgr->base.bw_params = &rn_bw_params;
+ 
+ 	if (pp_smu && pp_smu->rn_funcs.get_dpm_clock_table) {
+-		pp_smu->rn_funcs.get_dpm_clock_table(&pp_smu->rn_funcs.pp_smu, &clock_table);
+-		if (ctx->dc_bios && ctx->dc_bios->integrated_info) {
++		status = pp_smu->rn_funcs.get_dpm_clock_table(&pp_smu->rn_funcs.pp_smu, &clock_table);
++
++		if (status == PP_SMU_RESULT_OK &&
++		    ctx->dc_bios && ctx->dc_bios->integrated_info) {
+ 			rn_clk_mgr_helper_populate_bw_params (clk_mgr->base.bw_params, &clock_table, ctx->dc_bios->integrated_info);
+ 		}
+ 	}
 -- 
 2.25.1
 
