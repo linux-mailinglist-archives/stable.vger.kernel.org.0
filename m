@@ -2,208 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C83298530
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 01:54:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A921E298549
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 02:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1420962AbgJZAyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Oct 2020 20:54:43 -0400
-Received: from mail-pj1-f48.google.com ([209.85.216.48]:54037 "EHLO
-        mail-pj1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1420960AbgJZAyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Oct 2020 20:54:40 -0400
-Received: by mail-pj1-f48.google.com with SMTP id g16so2262838pjv.3;
-        Sun, 25 Oct 2020 17:54:39 -0700 (PDT)
+        id S1421125AbgJZBW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Oct 2020 21:22:28 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37772 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1421124AbgJZBW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Oct 2020 21:22:28 -0400
+Received: by mail-pg1-f194.google.com with SMTP id h6so5175207pgk.4
+        for <stable@vger.kernel.org>; Sun, 25 Oct 2020 18:22:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=5WFCJezsdW5InvoJ5ci2QDi2UOmYLen9tQ8gYVcpN3w=;
-        b=uY6GYjSLa/x7I2N1wnxY/R7XS3AwDtn9ONMTegO6/SVOJPii+FlNPVfC07yfFBT9G9
-         4T1cO6hdZpy6errCj0Wz96Ni/fXCRxnFhVYAac+0VFOLU24mmmhqlwyZqsUQ4UUIQeST
-         T4kMaUEt+CJNQhKnd1Q59dJRsZcXkuCKt5wVI6X0XfemSAluFKy3FAFr0pkcInrEIs3+
-         UwMwj8Fm0gPYN7T0vL2DsQmov7xPxFItn8PJ3kgd2+PqXVpX7AV3shPUI4JPRZnjg4oN
-         Iyrp71wHXXiCYXLwQyQ5TmmjLeRzyHLJhFR7tgtwpS6Jsb+frmoi7N94G/JWi77CCY1D
-         EyUQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=lg/7cmH9t/EtA8Y3evt0da551l81VTzyMivTHLJCtQ4=;
+        b=oGo7XQxQrviQgAmxENev3VKsKVqEtjIMSVvGJNT3/tuYNNE3bbavh4UqWaXlJ+Wkm6
+         w7Toomp2wr/GUc8NCWk0WO5vXG/R/jTnAPSWA6CEze2K/0l0o6Ppc0ZPBCKTZewUqL0y
+         DycA4hdHwUwcgg57S00nmIgS9nrwB5ZQJzugHIBhGTyUoA/rnB6d2LDa4ry8WMPTxm4a
+         aafsDrwwJ4bZl1U3w3Jl38K4FamYJtmYmPlv2y0JcnleE/M8kLZpnxrJyxWKzj6Kh6pM
+         /ZJUQI6GlqCZKZ40IXJuFf3efitdiLH6haAbVeydMqEFONBUr+lKUTsWdr8eX02E6ulg
+         goLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:in-reply-to
-         :message-id:references:user-agent:mime-version;
-        bh=5WFCJezsdW5InvoJ5ci2QDi2UOmYLen9tQ8gYVcpN3w=;
-        b=QkKPn72oN6hmKG4y3e8Ct0sVtqNZ9jQ2b68FrLQwI/75EYOVn7YFMCbty6SA22FdYV
-         YJBLcmpXKhXTvXvSfOO6x4wr+KBiQa6uajQsz2b+UM6shGVJ+IK1mbtMk+ypOSEIRedq
-         1v0oZoXcBEZZVLcmdPTesySuy+UsmnBvRB9rDGI79LdqisN3LkBh+6Qpe4peSEX7l7D5
-         S8vexO5FIgoGBwqygktzozWJbsWfHmcrx2Plye1IH+/JmTEb/XxHnZL8i/PzA3FqMizT
-         2K/KrgVsgqfCtSRjHnrSyq9I5NMe6cBmuiBVnawxkVL2PyDsQe7yqsa0UcqdpFYwLcTE
-         eyTg==
-X-Gm-Message-State: AOAM530fKB5Rhf2BYDebGIpYB7X/hBJnKeUVGVxYaqUbgE6jAN+FW+Q/
-        WlljSoXyRtIqFlxkgjHMRXYsLsvXcNJgfHgC
-X-Google-Smtp-Source: ABdhPJwOjGkDOWw09MNgFCbTFwod9DQo+B7tryt8PatrYPSmJN6dGKhNdfyYXW/hpB0BG8uGobRSIg==
-X-Received: by 2002:a17:90a:2a01:: with SMTP id i1mr10753161pjd.54.1603673679380;
-        Sun, 25 Oct 2020 17:54:39 -0700 (PDT)
-Received: from darkskies.za.net ([2601:647:4b00:9968:1e4b:d6ff:feba:b9ef])
-        by smtp.gmail.com with ESMTPSA id p19sm9749184pfn.204.2020.10.25.17.54.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Oct 2020 17:54:38 -0700 (PDT)
-Sender: Norman Rasmussen <normanr@gmail.com>
-Received: from norman (helo=localhost)
-        by darkskies.za.net with local-esmtp (Exim 4.92)
-        (envelope-from <norman@rasmussen.co.za>)
-        id 1kWqmR-0000Pe-O8; Sun, 25 Oct 2020 17:54:36 -0700
-Date:   Sun, 25 Oct 2020 17:54:35 -0700 (PDT)
-From:   Norman Rasmussen <norman@rasmussen.co.za>
-X-X-Sender: norman@darkflame.darkskies.za.net
-To:     Sean Young <sean@mess.org>
-cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 053/125] media: gpio-ir-tx: improve precision of
- transmitted signal due to scheduling
-In-Reply-To: <20200902125101.GA12378@gofer.mess.org>
-Message-ID: <alpine.DEB.2.21.2010241744490.21269@darkflame.darkskies.za.net>
-References: <20200901150934.576210879@linuxfoundation.org> <20200901150937.150292200@linuxfoundation.org> <20200902102521.GC3765@duo.ucw.cz> <20200902125101.GA12378@gofer.mess.org>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=lg/7cmH9t/EtA8Y3evt0da551l81VTzyMivTHLJCtQ4=;
+        b=WXZvjmc1KTE5k0XjTHrUdP5z5Pb4Lq1LHgBGz292FvEgo83kV8hdTS+PP3AxhPSssG
+         jxm+F9ecglvHVtGUX6Kw2mW2MmL0AJcmYmMPQNYrs9FzUHW6Nbs7SItXkgAtzv2bubTV
+         onw/rhnxOnLvkCCJCMGU+F4xFD8QwUunxwShhKzbeyx+yEkc8oZHZs52nQq5yViL3MBA
+         c1ODzB5IGm87owFDfZBenM8guPvRZLXXKBL2hpWbmuwwBKviMjrEXtTkLC8dg5SwrRP5
+         KPjcz2zJctLMTMy8cd1AgVwIGELPqe4328lDptAcDZ/8kp1CgiKRjoXxoivREGf7W3A3
+         15dw==
+X-Gm-Message-State: AOAM533txkMFRUu7bfSam7uR3LvLTw29PfZ+B1T1LiY9vcpqTnyMMnkw
+        BPhInqVj5z8w3vcV8HN69zEtuBFr/bJ/eg==
+X-Google-Smtp-Source: ABdhPJwkJkIYsQE2mDvyG+b1+iako9UEQ7FwS9GIIV9tqiEGRyUbk1zcHvv7UR1JA0tkrgLs5k89rQ==
+X-Received: by 2002:a63:eb4f:: with SMTP id b15mr11752761pgk.127.1603675347275;
+        Sun, 25 Oct 2020 18:22:27 -0700 (PDT)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id 15sm6127463pfj.179.2020.10.25.18.22.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 25 Oct 2020 18:22:26 -0700 (PDT)
+Subject: Re: [PATCH] io_uring: fix invalid handler for double apoll
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <1bf1093730a68f8939bfd7e6747add7af37ad321.1603635991.git.asml.silence@gmail.com>
+ <1ea94ec7-d80a-527b-5366-b91815496f4a@kernel.dk>
+ <2022677d-6783-468d-6e77-43208a91edba@gmail.com>
+ <83e9fd0e-9136-0ca7-5eb9-01f8da6bd212@kernel.dk>
+ <94e07136-2be5-2981-79ae-d4f714803143@gmail.com>
+ <a2e5105f-88e3-c6aa-1d91-cfd604a848e7@kernel.dk>
+ <923cecfe-6d0e-515f-3237-99884053b7f0@gmail.com>
+ <07ce7445-e4bf-b8f0-b666-51730ec1ef80@kernel.dk>
+ <7f453b21-f0a2-88c5-a73e-02a9f52b7387@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <3699d590-6685-0692-ab50-22a5648d73b8@kernel.dk>
+Date:   Sun, 25 Oct 2020 19:22:25 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-1463809279-370925855-1603673675=:21269"
+In-Reply-To: <7f453b21-f0a2-88c5-a73e-02a9f52b7387@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
----1463809279-370925855-1603673675=:21269
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
-
-Hi Sean,
-
-On Wed, 2 Sep 2020, Sean Young wrote:
-
-> Hi Pavel,
->
-> On Wed, Sep 02, 2020 at 12:25:21PM +0200, Pavel Machek wrote:
->> Hi!
+On 10/25/20 1:54 PM, Pavel Begunkov wrote:
+> On 25/10/2020 19:44, Jens Axboe wrote:
+>> On 10/25/20 1:32 PM, Pavel Begunkov wrote:
+>>> On 25/10/2020 19:18, Jens Axboe wrote:
+>>>> On 10/25/20 1:01 PM, Pavel Begunkov wrote:
+>>>>> On 25/10/2020 18:42, Jens Axboe wrote:
+>>>>>> On 10/25/20 10:24 AM, Pavel Begunkov wrote:
+>>>>>>> On 25/10/2020 15:53, Jens Axboe wrote:
+>>>>>>>> On 10/25/20 8:26 AM, Pavel Begunkov wrote:
+>>>>>>>>> io_poll_double_wake() is called for both: poll requests and as apoll
+>>>>>>>>> (internal poll to make rw and other requests), hence when it calls
+>>>>>>>>> __io_async_wake() it should use a right callback depending on the
+>>>>>>>>> current poll type.
+>>>>>>>>
+>>>>>>>> Can we do something like this instead? Untested...
+>>>>>>>
+>>>>>>> It should work, but looks less comprehensible. Though, it'll need
+>>>>>>
+>>>>>> Not sure I agree, with a comment it'd be nicer im ho:
+>>>>>
+>>>>> I don't really care enough to start a bikeshedding, let's get yours
+>>>>> tested and merged.
+>>>>
+>>>> Not really bikeshedding I think, we're not debating names of
+>>>> functions :-)
 >>>
->>> [ Upstream commit ea8912b788f8144e7d32ee61e5ccba45424bef83 ]
->>>
->>> usleep_range() may take longer than the max argument due to scheduling,
->>> especially under load. This is causing random errors in the transmitted
->>> IR. Remove the usleep_range() in favour of busy-looping with udelay().
->>>
->>> Signed-off-by: Sean Young <sean@mess.org>
+>>> It's just not so important, and it even may get removed in a month,
+>>> who knows.
 >>
->> I don't believe this should be in stable.
->>
->> Yes, it probably fixes someone's remote control.
->>
->> It also introduces > half a second (!) with interrupts disabled
->> (according to the code comments), which will break other devices on
->> the system.
->
-> Yes, I've always been uncomfortable with this code, but nothing else I
-> tried worked.
->
-> BTW the delay has a maximum of half a second, but the point stands of
-> course.
->
->> Less intrusive solutions should be explored, first. Like.. if that
->> part is time-critical, perhaps it should set itself at realtime
->> priority, so that scheduler has motivation to schedule it at the right
->> times?
->
-> That is an interesting idea, I'll explore that.
->
+>> Well it might not or it might take longer, still nice to have the
+>> simplest fix...
+> 
+> Ok, then TLDR: my reasoning is that with poll->wait.func(), a person
+> who reads it needs to
+> a) go look up what's poll (assigned depending on the opcode),
+> b) then find out which wait.func callback it set. And it's not
+> as easy to associate __io_arm_poll_handler() call sites with cases
+> if you haven't seen this code before.
+> c) then go through io_{async,poll}_wake to finally find out that they
+> do almost the same thing, that's calling __io_async_wake().
+> 
+> I'm familiar with the code structure, but IMHO it's harder to
+> understand, if I'd be looking for the first time.
 
-Did you try anything around this? It looks like it might be required for 
-devices like the raspbetty pi zero w (see more details below).
-
-Is there a way to temporarily increase the priority of the existing 
-thread? or is the preferred way to do readtime priority with a dedicated 
-thread? Assuming the latter: What's the preferred way to transfer data & 
-control from the user's thread to the dedicated thread and back? I'd 
-guess some sort of queue or mailbox?
-
->> Perhaps usleep_range should be delta, delta+1?
->
-> I'm pretty sure I tried that and it didn't work. I'll give it another go.
->
-
-Shouldn't max actually be less than delta? Otherwise the code is 
-indicating that it's okay to sleep for longer than delta + rescheduling 
-overhead.
-
-I tried your latest patch ("re-introduce sleeping for periods of > 50us") 
-on my Pi Zero W and the post-usleep "remaining" delta is anywhere between 
--25,500us and -50us (i.e. usleep_range usually oversleeps!).
-
-The upstream patch gives very stable results: post-udelay delta is 
-typically <10us (i.e. it's underdelaying just a tiny bit).
-
-I tried adding a module_param to tune the sleep threshold buffer but 
-because typical delays are 500us and 1,500us and the worst usleep overruns 
-are way larger than that, effectively I had to set it so that usleep never 
-triggered
-
-I even tried usleep_range(0, delta - buffer), but that produced the same 
-behaviour. (I even saw a post-usleep delta of -125,000us once!)
-
-I added a call to switch to the FIFO scheduler at priority 50 (the same 
-as the recently proposed sched_set_fifo function would do), and (as long 
-as ir-ctl is run as root) it brings the post-usleep delta to ~500us (or 
-with usleep_range(0, ...) for large deltas the post-usleep delta was 
-between ~500us and ~5000us - still undersleeping and very acceptable).
-
-Note that pwm-ir-tx has the same issue and so should probably get the same 
-fixes (when they're figured out what they'll be).
-
->> Perhaps udelay makes sense to use for more than 10usec?
->
-> I don't follow -- what are you suggesting here?
->
-> So any other ideas here would be very welcome. I'm happy to explore options,
-> so far under load the output is can be total garbage if you're unlucky.
->
->
-> Thanks,
->
-> Sean
->
->
->>
->> Best regards,
->> 										Pavel
->>
->>> @@ -87,13 +87,8 @@ static int gpio_ir_tx(struct rc_dev *dev, unsigned int *txbuf,
->>>  			// space
->>>  			edge = ktime_add_us(edge, txbuf[i]);
->>>  			delta = ktime_us_delta(edge, ktime_get());
->>> -			if (delta > 10) {
->>> -				spin_unlock_irqrestore(&gpio_ir->lock, flags);
->>> -				usleep_range(delta, delta + 10);
->>> -				spin_lock_irqsave(&gpio_ir->lock, flags);
->>> -			} else if (delta > 0) {
->>> +			if (delta > 0)
->>>  				udelay(delta);
->>> -			}
->>>  		} else {
->>>  			// pulse
->>>  			ktime_t last = ktime_add_us(edge, txbuf[i]);
->>> --
->>> 2.25.1
->>>
->>>
->>
->> --
->> (english) http://www.livejournal.com/~pavelmachek
->> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
->
->
->
+I guess we'll just have to agree to disagree on that one. Yes, you'd
+have to find where it's assigned to see what happens, which is a
+downside. The benefit would be that even if these things change in the
+future, the callback func would always be right, so you'd never have to
+touch that code again. c) is the same for both.
 
 -- 
-- Norman Rasmussen
- - Email: norman@rasmussen.co.za
- - Home page: http://norman.rasmussen.co.za/
----1463809279-370925855-1603673675=:21269--
+Jens Axboe
+
