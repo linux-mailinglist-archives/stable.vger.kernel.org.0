@@ -2,179 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C2F29974E
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 20:48:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98997299753
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 20:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725861AbgJZTsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 15:48:21 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:39211 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726083AbgJZTsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 15:48:20 -0400
-Received: by mail-pg1-f196.google.com with SMTP id o7so6646379pgv.6
-        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 12:48:20 -0700 (PDT)
+        id S1728392AbgJZTsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 15:48:50 -0400
+Received: from mail-pl1-f175.google.com ([209.85.214.175]:45588 "EHLO
+        mail-pl1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728136AbgJZTsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 15:48:50 -0400
+Received: by mail-pl1-f175.google.com with SMTP id v22so5222563ply.12
+        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 12:48:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=doiRAFC5F5k0Pyq4fvs/ODdap3/UO+Ut/LZ4yfCBqcQ=;
-        b=FrcQ2jUFe4WvgbiY4vxGQxzWTKB09nYh5F9jaFKLDJV2pIlD6AmzIr/mMbvK6AkxzN
-         c9x8TcE/YmkmT40PSBDKUjBLWd8a9vwOpcvBQITSl+1OMkwCP5j/QGDzqCtWi5pkctVb
-         +Ne/vkvyGH+gp8mslhLSekhWG5CYwQ7rj0ZRP2++tJG3hdY1c62fw6+koDCTmKVqaEW4
-         QmCkUs19URqbr73JbhHch1Ef7U7PhB7O53NdtNW4asv6ml39JuBUlp1ajVbEeU2/roVy
-         asj7FvxAAyB9h+JKw3m8ws8eo5XF8MLoztMA9VtZwxa0Hs4E4F1QNLHdS8RGQz8MdF5n
-         Q2ag==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8hOgnUKg/ahH2qw/6xu1ybMJEoDh9+XGrg7ba3ellNY=;
+        b=SoHB+4yktQowkbwRPM1wBXEBZe3lOqAK2oJTGv1FVE1dv5M86FxGJVIXix0cbw9kKd
+         7WMFW9OP1dIn3alJ0u+Wcdl4ZlfQ2ivjjA785hx9t45ukbBtYkVi5FNQ5qb07/SrysQ4
+         s/fZueXLCdNJczRkMCN12wVFaayv0Cq/6S6ihQYRTD2i+4q3IC1BXV42ic9icihRiP2Z
+         Oub/gJip+9K/CHkT7fr8jxsPGKn9BPa9srMzxKVW2eUAt4xsMAIXb39X9NRLLWgARQub
+         H1Rbvg7Da5m3fSr6N6Kd/81n/wsnH0wtume9Eji6/nd894BLslLS1XPOSPd0vq+XMQzi
+         aNJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=doiRAFC5F5k0Pyq4fvs/ODdap3/UO+Ut/LZ4yfCBqcQ=;
-        b=SmhtngYHMBpd9sVasRH1btnf+vgNuu4LIywBKafs5WDTDpq/iD34IMWM3SUkO+Yb2D
-         VC9wNCwzezhFL0SoWDmlgA6wdH+Vv2roJN3N3OiOlxEdkPJ7V/fv/wj87Uj72vaeCBW3
-         MVXpkNTjpH1NqXg5Z+kACWjAsqmQRl7R20jCnwx7Go6a0fkEhuucVC4ozmwwlzWfWvQY
-         Mz31JZ95ToZjYLp6GKli17n4ymp9o4B672/5LBkBGDZEncQOLabwMPm76hfnnVxaPkq/
-         1tlbCt0eGbTvtlh8AVm1J/GLrt1rsDTMAjz50pqYyLlyKRZUKwldCYOvgmVUtk8jZ9h3
-         9aHw==
-X-Gm-Message-State: AOAM532oz5+C+uKTO5oJTnbNjAzg65LrCIX54+Px5RYkRa5h/MLHCOPM
-        n6bfVCNCfI/yMWXNlt3Nph/2gh0GvZDHXoEN8FEqUA==
-X-Google-Smtp-Source: ABdhPJyDrUHKeb08a2I8Bc7zcdgb45iTqty7MePTVMxTuJuvlkxrX48Ze7NNkghUEIwbeysCilJCOtxaOJivQLbsMHs=
-X-Received: by 2002:aa7:9a04:0:b029:163:fe2a:9e04 with SMTP id
- w4-20020aa79a040000b0290163fe2a9e04mr3150062pfj.30.1603741699320; Mon, 26 Oct
- 2020 12:48:19 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8hOgnUKg/ahH2qw/6xu1ybMJEoDh9+XGrg7ba3ellNY=;
+        b=F5+Xa0y9e2Gako6+71ISwUMv0QDCD9eOTyGcWHrJDZ4Zd3BiCeuz9A+i80z/ACtuUP
+         MX3cAfx75q3rdagSsD6awrVVanFBcz7CFYHdXa3qfmsokjo2uj+9mrUEWESnMgtV68/H
+         GDIrJHT2an0pmjpKYXamv11Y/V9QECw2sLE4VNn7yX5FayRiDazYCcbBrHNJzahUdD52
+         sND8q1se/xr+EnLEtyoh1gwRXKltbIJQZ0swgsziOXSV6p2O88A6z9Yfzm1yVXLwuF1W
+         VbvJnd84g/JsS1pFW69EtfZ1wK2brfZ0eEfRJfLse33M7XeMj9+vi4R5JaMDhEDI6RWK
+         uH7Q==
+X-Gm-Message-State: AOAM533sCBBSlRKWFngXZpNCYlH/4fH2nFUcSjbemVegjRCR4BQkrye8
+        akd2s9NIOTUKc+AJ9SHtpSQiComxdYlnsA==
+X-Google-Smtp-Source: ABdhPJwniVRER7LsI09YqvgM9yAv+fkEYh01FsHXSAwMehpBOiT6CpnzJZk/f4EvMBvFC9GYeUS4OQ==
+X-Received: by 2002:a17:90a:de5:: with SMTP id 92mr17924982pjv.179.1603741729494;
+        Mon, 26 Oct 2020 12:48:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e2sm13434537pjw.13.2020.10.26.12.48.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Oct 2020 12:48:48 -0700 (PDT)
+Message-ID: <5f972820.1c69fb81.363dd.b736@mx.google.com>
+Date:   Mon, 26 Oct 2020 12:48:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20201024045046.3018271-1-palmerdabbelt@google.com>
-In-Reply-To: <20201024045046.3018271-1-palmerdabbelt@google.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 26 Oct 2020 12:48:08 -0700
-Message-ID: <CAKwvOdn5ib_WHpTg8YpHtqeOMLs+QDxVkzb8fuyDUL_N9BA_xw@mail.gmail.com>
-Subject: Re: [PATCH v3] RISC-V: Fix the VDSO symbol generaton for binutils-2.35+
-To:     Palmer Dabbelt <palmerdabbelt@google.com>
-Cc:     linux-riscv@lists.infradead.org,
-        kernel-team <kernel-team@android.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.240-110-g3f6f806e2524
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 110 runs,
+ 1 regressions (v4.4.240-110-g3f6f806e2524)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 23, 2020 at 10:03 PM 'Palmer Dabbelt' via Clang Built
-Linux <clang-built-linux@googlegroups.com> wrote:
->
-> We were relying on GNU ld's ability to re-link executable files in order
-> to extract our VDSO symbols.  This behavior was deemed a bug as of
-> binutils-2.35 (specifically the binutils-gdb commit a87e1817a4 ("Have
-> the linker fail if any attempt to link in an executable is made."), but as that
-> has been backported to at least Debian's binutils-2.34 in may manifest in other
-> places.
->
-> The previous version of this was a bit of a mess: we were linking a
-> static executable version of the VDSO, containing only a subset of the
-> input symbols, which we then linked into the kernel.  This worked, but
-> certainly wasn't a supported path through the toolchain.  Instead this
-> new version parses the textual output of nm to produce a symbol table.
-> Both rely on near-zero addresses being linkable, but as we rely on weak
-> undefined symbols being linkable elsewhere I don't view this as a major
-> issue.
->
-> Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
-> Cc: clang-built-linux@googlegroups.com
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+stable-rc/queue/4.4 baseline: 110 runs, 1 regressions (v4.4.240-110-g3f6f80=
+6e2524)
 
-Any way to improve the error message if/when this fails?
-https://travis-ci.com/github/ClangBuiltLinux/continuous-integration/jobs/407165683
+Regressions Summary
+-------------------
 
->
-> ---
->
-> Changes since v2 <20201019235630.762886-1-palmerdabbelt@google.com>:
->
-> * Uses $(srctree)/$(src) to allow for out-of-tree builds.
->
-> Changes since v1 <20201017002500.503011-1-palmerdabbelt@google.com>:
->
-> * Uses $(NM) instead of $(CROSS_COMPILE)nm.  We use the $(CROSS_COMPILE) form
->   elsewhere in this file, but we'll fix that later.
-> * Removed the unnecesary .map file creation.
->
-> ---
->  arch/riscv/kernel/vdso/.gitignore |  1 +
->  arch/riscv/kernel/vdso/Makefile   | 17 ++++++++---------
->  arch/riscv/kernel/vdso/so2s.sh    |  6 ++++++
->  3 files changed, 15 insertions(+), 9 deletions(-)
->  create mode 100755 arch/riscv/kernel/vdso/so2s.sh
->
-> diff --git a/arch/riscv/kernel/vdso/.gitignore b/arch/riscv/kernel/vdso/.gitignore
-> index 11ebee9e4c1d..3a19def868ec 100644
-> --- a/arch/riscv/kernel/vdso/.gitignore
-> +++ b/arch/riscv/kernel/vdso/.gitignore
-> @@ -1,3 +1,4 @@
->  # SPDX-License-Identifier: GPL-2.0-only
->  vdso.lds
->  *.tmp
-> +vdso-syms.S
-> diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-> index 478e7338ddc1..a8ecf102e09b 100644
-> --- a/arch/riscv/kernel/vdso/Makefile
-> +++ b/arch/riscv/kernel/vdso/Makefile
-> @@ -43,19 +43,14 @@ $(obj)/vdso.o: $(obj)/vdso.so
->  SYSCFLAGS_vdso.so.dbg = $(c_flags)
->  $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
->         $(call if_changed,vdsold)
-> +SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
-> +       -Wl,--build-id -Wl,--hash-style=both
->
->  # We also create a special relocatable object that should mirror the symbol
->  # table and layout of the linked DSO. With ld --just-symbols we can then
->  # refer to these symbols in the kernel code rather than hand-coded addresses.
-> -
-> -SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
-> -       -Wl,--build-id -Wl,--hash-style=both
-> -$(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
-> -       $(call if_changed,vdsold)
-> -
-> -LDFLAGS_vdso-syms.o := -r --just-symbols
-> -$(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
-> -       $(call if_changed,ld)
-> +$(obj)/vdso-syms.S: $(obj)/vdso.so FORCE
-> +       $(call if_changed,so2s)
->
->  # strip rule for the .so file
->  $(obj)/%.so: OBJCOPYFLAGS := -S
-> @@ -73,6 +68,10 @@ quiet_cmd_vdsold = VDSOLD  $@
->                             $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
->                     rm $@.tmp
->
-> +# Extracts
-> +quiet_cmd_so2s = SO2S    $@
-> +      cmd_so2s = $(NM) -D $< | $(srctree)/$(src)/so2s.sh > $@
-> +
->  # install commands for the unstripped file
->  quiet_cmd_vdso_install = INSTALL $@
->        cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
-> diff --git a/arch/riscv/kernel/vdso/so2s.sh b/arch/riscv/kernel/vdso/so2s.sh
-> new file mode 100755
-> index 000000000000..3c5b43207658
-> --- /dev/null
-> +++ b/arch/riscv/kernel/vdso/so2s.sh
-> @@ -0,0 +1,6 @@
-> +#!/bin/sh
-> +# SPDX-License-Identifier: GPL-2.0+
-> +# Copyright 2020 Palmer Dabbelt <palmerdabbelt@google.com>
-> +
-> +sed 's!\([0-9a-f]*\) T \([a-z0-9_]*\)@@LINUX_4.15!.global \2\n.set \2,0x\1!' \
-> +| grep '^\.'
-> --
-> 2.29.0.rc1.297.gfa9743e501-goog
->
-> --
-> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20201024045046.3018271-1-palmerdabbelt%40google.com.
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.240-110-g3f6f806e2524/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.240-110-g3f6f806e2524
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3f6f806e2524fb49417edec4fc8ef4abb15e7550 =
 
 
 
--- 
-Thanks,
-~Nick Desaulniers
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f96f05ba4315ebb9438104b
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+10-g3f6f806e2524/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+10-g3f6f806e2524/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f96f05ba4315eb=
+b94381052
+        failing since 2 days (last pass: v4.4.240-11-g59c7a4fa128e, first f=
+ail: v4.4.240-18-ge29a79b89605)
+        2 lines =
+
+ =20
