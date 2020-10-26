@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01033299CB9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:01:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 656D0299CBC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411152AbgJZX43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S2437310AbgJ0ABS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411138AbgJZX42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:56:28 -0400
+        id S2411148AbgJZX43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:56:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BFCA2222C;
-        Mon, 26 Oct 2020 23:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D29F820770;
+        Mon, 26 Oct 2020 23:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756587;
-        bh=kSRjWKkqerygM1Ug3EBCrHCDhUr4RdXYzpftCIvXDsw=;
+        s=default; t=1603756588;
+        bh=PYSup8cJDclLG37QWwdOKGOB4WRiilxqiT29AB8MppQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=np8Z8v07aqhoDZU53+Ni6HErdXNrU7TbL/KgoActkvwdA1ciNhvCLz0kd+odOevng
-         ydP3LWnSWy93YFwr/AEt9aF9E3rkJzkgNoujonSyBdHS49N1TkHCgziHS4uQogVkWi
-         GhK/tDgjrAyLyrp/AQ/tI6xUycyjI1jfZOiX7hrk=
+        b=ZDvBsAlfU1tmDtgGXAA3Eju5Oe32xLJv1b97EcoM65oGKyLjm8n/7dk5Ac4kY/ObU
+         +KLrOXbGT8zdacB9/t8Ev1cpFHBvEnjqTMbkE193rEn8sI2rdUOYvnsBHG8izWZsS/
+         MYE1h0jtfXolSFc8SatpbY5dZgt+UTYJD4eagFdI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Lew <clew@codeaurora.org>,
-        Arun Kumar Neelakantam <aneela@codeaurora.org>,
-        Deepak Kumar Singh <deesin@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 59/80] rpmsg: glink: Use complete_all for open states
-Date:   Mon, 26 Oct 2020 19:54:55 -0400
-Message-Id: <20201026235516.1025100-59-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>, Dan Murphy <dmurphy@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 60/80] clk: ti: clockdomain: fix static checker warning
+Date:   Mon, 26 Oct 2020 19:54:56 -0400
+Message-Id: <20201026235516.1025100-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -45,55 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lew <clew@codeaurora.org>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 4fcdaf6e28d11e2f3820d54dd23cd12a47ddd44e ]
+[ Upstream commit b7a7943fe291b983b104bcbd2f16e8e896f56590 ]
 
-The open_req and open_ack completion variables are the state variables
-to represet a remote channel as open. Use complete_all so there are no
-races with waiters and using completion_done.
+Fix a memory leak induced by not calling clk_put after doing of_clk_get.
 
-Signed-off-by: Chris Lew <clew@codeaurora.org>
-Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
-Signed-off-by: Deepak Kumar Singh <deesin@codeaurora.org>
-Link: https://lore.kernel.org/r/1593017121-7953-2-git-send-email-deesin@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reported-by: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907082600.454-3-t-kristo@ti.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_glink_native.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/ti/clockdomain.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index 1995f5b3ea677..d5114abcde197 100644
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -970,7 +970,7 @@ static int qcom_glink_rx_open_ack(struct qcom_glink *glink, unsigned int lcid)
- 		return -EINVAL;
+diff --git a/drivers/clk/ti/clockdomain.c b/drivers/clk/ti/clockdomain.c
+index 423a99b9f10c7..8d0dea188a284 100644
+--- a/drivers/clk/ti/clockdomain.c
++++ b/drivers/clk/ti/clockdomain.c
+@@ -146,10 +146,12 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
+ 		if (!omap2_clk_is_hw_omap(clk_hw)) {
+ 			pr_warn("can't setup clkdm for basic clk %s\n",
+ 				__clk_get_name(clk));
++			clk_put(clk);
+ 			continue;
+ 		}
+ 		to_clk_hw_omap(clk_hw)->clkdm_name = clkdm_name;
+ 		omap2_init_clk_clkdm(clk_hw);
++		clk_put(clk);
  	}
- 
--	complete(&channel->open_ack);
-+	complete_all(&channel->open_ack);
- 
- 	return 0;
  }
-@@ -1178,7 +1178,7 @@ static int qcom_glink_announce_create(struct rpmsg_device *rpdev)
- 	__be32 *val = defaults;
- 	int size;
  
--	if (glink->intentless)
-+	if (glink->intentless || !completion_done(&channel->open_ack))
- 		return 0;
- 
- 	prop = of_find_property(np, "qcom,intents", NULL);
-@@ -1413,7 +1413,7 @@ static int qcom_glink_rx_open(struct qcom_glink *glink, unsigned int rcid,
- 	channel->rcid = ret;
- 	spin_unlock_irqrestore(&glink->idr_lock, flags);
- 
--	complete(&channel->open_req);
-+	complete_all(&channel->open_req);
- 
- 	if (create_device) {
- 		rpdev = kzalloc(sizeof(*rpdev), GFP_KERNEL);
 -- 
 2.25.1
 
