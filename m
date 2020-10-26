@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EF3299CF5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABEF6299CF4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:03:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411057AbgJZX4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
+        id S2411053AbgJZX4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410908AbgJZXza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:30 -0400
+        id S2410909AbgJZXzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6AD2151B;
-        Mon, 26 Oct 2020 23:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37CAB221FA;
+        Mon, 26 Oct 2020 23:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756529;
-        bh=BwDSGI2k7zPAIBao7C3yspzbGWjvkJnOmLGAWP5UUks=;
+        s=default; t=1603756530;
+        bh=K+pXON+EpeZwcukcdCKp2fT/ruRvzTT1E/1PKb+EpGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HyB71eUSbrESRZnJW9G/Y6zy0QirXOGwZUYvFQZheYu7OwhvJfvwOrrMDorjfcDS
-         M+y6h1NzVH6GV5S0oe1grGNSqDR4J+W8nWGeaqhkzphot5HU6WlccXTnJwiN/oXh7C
-         F1nzwgf6nHN0kxyOcfkRxjWEEbiPV6gaLAzYf5mY=
+        b=aEO5s999gSymXSpAHcKUvFckPmXpn0/iyYSgTlGU3ERvVSIxAgCyuxGQtlHEWS/IW
+         Ep3+n/8PlJZsv9bycMMiGUrD0u3C+hjx75JPOclPPdIV/6AMNOKhvxpg+QMjmiw6TB
+         eccX1SIf5tAD4cq4J8fh+Dec3Zrra33HbDE/GOqE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
-        syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com,
-        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 10/80] f2fs: handle errors of f2fs_get_meta_page_nofail
-Date:   Mon, 26 Oct 2020 19:54:06 -0400
-Message-Id: <20201026235516.1025100-10-sashal@kernel.org>
+Cc:     Zejiang Tang <tangzejiang@loongson.cn>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/80] MIPS: ftrace: Remove redundant #ifdef CONFIG_DYNAMIC_FTRACE
+Date:   Mon, 26 Oct 2020 19:54:07 -0400
+Message-Id: <20201026235516.1025100-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -43,129 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Zejiang Tang <tangzejiang@loongson.cn>
 
-[ Upstream commit 86f33603f8c51537265ff7ac0320638fd2cbdb1b ]
+[ Upstream commit 39116103a7345927fa99644d08bc0cc9d45fea6f ]
 
-First problem is we hit BUG_ON() in f2fs_get_sum_page given EIO on
-f2fs_get_meta_page_nofail().
+There exists redundant #ifdef CONFIG_DYNAMIC_FTRACE in ftrace.c, remove it.
 
-Quick fix was not to give any error with infinite loop, but syzbot caught
-a case where it goes to that loop from fuzzed image. In turned out we abused
-f2fs_get_meta_page_nofail() like in the below call stack.
-
-- f2fs_fill_super
- - f2fs_build_segment_manager
-  - build_sit_entries
-   - get_current_sit_page
-
-INFO: task syz-executor178:6870 can't die for more than 143 seconds.
-task:syz-executor178 state:R
- stack:26960 pid: 6870 ppid:  6869 flags:0x00004006
-Call Trace:
-
-Showing all locks held in the system:
-1 lock held by khungtaskd/1179:
- #0: ffffffff8a554da0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6242
-1 lock held by systemd-journal/3920:
-1 lock held by in:imklog/6769:
- #0: ffff88809eebc130 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:930
-1 lock held by syz-executor178/6870:
- #0: ffff8880925120e0 (&type->s_umount_key#47/1){+.+.}-{3:3}, at: alloc_super+0x201/0xaf0 fs/super.c:229
-
-Actually, we didn't have to use _nofail in this case, since we could return
-error to mount(2) already with the error handler.
-
-As a result, this patch tries to 1) remove _nofail callers as much as possible,
-2) deal with error case in last remaining caller, f2fs_get_sum_page().
-
-Reported-by: syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Zejiang Tang <tangzejiang@loongson.cn>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |  2 +-
- fs/f2fs/f2fs.h       |  2 +-
- fs/f2fs/node.c       |  2 +-
- fs/f2fs/segment.c    | 12 +++++++++---
- 4 files changed, 12 insertions(+), 6 deletions(-)
+ arch/mips/kernel/ftrace.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 6d9be7783d25c..c966ccc44c157 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -108,7 +108,7 @@ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index)
- 	return __get_meta_page(sbi, index, true);
+diff --git a/arch/mips/kernel/ftrace.c b/arch/mips/kernel/ftrace.c
+index 2625232bfe526..f57e68f40a348 100644
+--- a/arch/mips/kernel/ftrace.c
++++ b/arch/mips/kernel/ftrace.c
+@@ -37,10 +37,6 @@ void arch_ftrace_update_code(int command)
+ 	ftrace_modify_all_code(command);
  }
  
--struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index)
-+struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index)
- {
- 	struct page *page;
- 	int count = 0;
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index b3b7e63394be7..63440abe58c42 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3149,7 +3149,7 @@ enum rw_hint f2fs_io_type_to_rw_hint(struct f2fs_sb_info *sbi,
- void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
- struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
--struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index);
-+struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_tmp_page(struct f2fs_sb_info *sbi, pgoff_t index);
- bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type);
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index ed12e96681842..2a4a382f28fed 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -109,7 +109,7 @@ static void clear_node_page_dirty(struct page *page)
- 
- static struct page *get_current_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
- {
--	return f2fs_get_meta_page_nofail(sbi, current_nat_addr(sbi, nid));
-+	return f2fs_get_meta_page(sbi, current_nat_addr(sbi, nid));
- }
- 
- static struct page *get_next_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 7d85784012678..5ba677f85533c 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -2310,7 +2310,9 @@ int f2fs_npages_for_summary_flush(struct f2fs_sb_info *sbi, bool for_ra)
-  */
- struct page *f2fs_get_sum_page(struct f2fs_sb_info *sbi, unsigned int segno)
- {
--	return f2fs_get_meta_page_nofail(sbi, GET_SUM_BLOCK(sbi, segno));
-+	if (unlikely(f2fs_cp_error(sbi)))
-+		return ERR_PTR(-EIO);
-+	return f2fs_get_meta_page_retry(sbi, GET_SUM_BLOCK(sbi, segno));
- }
- 
- void f2fs_update_meta_page(struct f2fs_sb_info *sbi,
-@@ -2582,7 +2584,11 @@ static void change_curseg(struct f2fs_sb_info *sbi, int type)
- 	__next_free_blkoff(sbi, curseg, 0);
- 
- 	sum_page = f2fs_get_sum_page(sbi, new_segno);
--	f2fs_bug_on(sbi, IS_ERR(sum_page));
-+	if (IS_ERR(sum_page)) {
-+		/* GC won't be able to use stale summary pages by cp_error */
-+		memset(curseg->sum_blk, 0, SUM_ENTRY_SIZE);
-+		return;
-+	}
- 	sum_node = (struct f2fs_summary_block *)page_address(sum_page);
- 	memcpy(curseg->sum_blk, sum_node, SUM_ENTRY_SIZE);
- 	f2fs_put_page(sum_page, 1);
-@@ -3713,7 +3719,7 @@ int f2fs_lookup_journal_in_cursum(struct f2fs_journal *journal, int type,
- static struct page *get_current_sit_page(struct f2fs_sb_info *sbi,
- 					unsigned int segno)
- {
--	return f2fs_get_meta_page_nofail(sbi, current_sit_addr(sbi, segno));
-+	return f2fs_get_meta_page(sbi, current_sit_addr(sbi, segno));
- }
- 
- static struct page *get_next_sit_page(struct f2fs_sb_info *sbi,
+-#endif
+-
+-#ifdef CONFIG_DYNAMIC_FTRACE
+-
+ #define JAL 0x0c000000		/* jump & link: ip --> ra, jump to target */
+ #define ADDR_MASK 0x03ffffff	/*  op_code|addr : 31...26|25 ....0 */
+ #define JUMP_RANGE_MASK ((1UL << 28) - 1)
 -- 
 2.25.1
 
