@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D84129A1D7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C68629A0EA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502433AbgJ0AoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51304 "EHLO mail.kernel.org"
+        id S2409314AbgJZXvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:51:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409304AbgJZXvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:51:05 -0400
+        id S2409308AbgJZXvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:51:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E3DD217A0;
-        Mon, 26 Oct 2020 23:51:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AABCB21BE5;
+        Mon, 26 Oct 2020 23:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756265;
-        bh=HOQPy0p4Pi0/XvfEJsVuHquvnr0IOxQpH7ArqHJntZk=;
+        s=default; t=1603756266;
+        bh=CrB6/OrwiBYznvNDffIExnezDMuDC+LEIk22ZuZdcIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjQkT5U9mot99B7y81BEOAoLu81zyvqQPhSbjgbrW1h+YkzJSo6AO90VukivUJKXu
-         F1KWDX+lOwqwQfBF9b6pCaLMo7aBq98uzC+ZN+wT6b5UlN0lOHKE3I5c1WJXhR+Dm0
-         +ku7NdBzMEEqr1enezAMh7953ivlmQ1WK0i30t6M=
+        b=xfC6mpCoDStY8v4UzkSXHNjJkOheVWGBUyNK8P9XW2ATzGOogRmQpTlQyCWJMJGfu
+         Ryjojms0O6pggmOXKaKvW/Fd17Nj99yyvUVf03MSss1Ar10Z9XM0vz02eV9DGymtNV
+         WiFpgI9c5ObBj0yWS2AR16XQiXHX0NK3CFFwrsqA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 098/147] ACPI: HMAT: Fix handling of changes from ACPI 6.2 to ACPI 6.3
-Date:   Mon, 26 Oct 2020 19:48:16 -0400
-Message-Id: <20201026234905.1022767-98-sashal@kernel.org>
+Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 099/147] power: supply: test_power: add missing newlines when printing parameters by sysfs
+Date:   Mon, 26 Oct 2020 19:48:17 -0400
+Message-Id: <20201026234905.1022767-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,42 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 2c5b9bde95c96942f2873cea6ef383c02800e4a8 ]
+[ Upstream commit c07fa6c1631333f02750cf59f22b615d768b4d8f ]
 
-In ACPI 6.3, the Memory Proximity Domain Attributes Structure
-changed substantially.  One of those changes was that the flag
-for "Memory Proximity Domain field is valid" was deprecated.
+When I cat some module parameters by sysfs, it displays as follows.
+It's better to add a newline for easy reading.
 
-This was because the field "Proximity Domain for the Memory"
-became a required field and hence having a validity flag makes
-no sense.
+root@syzkaller:~# cd /sys/module/test_power/parameters/
+root@syzkaller:/sys/module/test_power/parameters# cat ac_online
+onroot@syzkaller:/sys/module/test_power/parameters# cat battery_present
+trueroot@syzkaller:/sys/module/test_power/parameters# cat battery_health
+goodroot@syzkaller:/sys/module/test_power/parameters# cat battery_status
+dischargingroot@syzkaller:/sys/module/test_power/parameters# cat battery_technology
+LIONroot@syzkaller:/sys/module/test_power/parameters# cat usb_online
+onroot@syzkaller:/sys/module/test_power/parameters#
 
-So the correct logic is to always assume the field is there.
-Current code assumes it never is.
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/numa/hmat.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/supply/test_power.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
-index 2c32cfb723701..6a91a55229aee 100644
---- a/drivers/acpi/numa/hmat.c
-+++ b/drivers/acpi/numa/hmat.c
-@@ -424,7 +424,8 @@ static int __init hmat_parse_proximity_domain(union acpi_subtable_headers *heade
- 		pr_info("HMAT: Memory Flags:%04x Processor Domain:%u Memory Domain:%u\n",
- 			p->flags, p->processor_PD, p->memory_PD);
+diff --git a/drivers/power/supply/test_power.c b/drivers/power/supply/test_power.c
+index 04acd76bbaa12..4895ee5e63a9a 100644
+--- a/drivers/power/supply/test_power.c
++++ b/drivers/power/supply/test_power.c
+@@ -353,6 +353,7 @@ static int param_set_ac_online(const char *key, const struct kernel_param *kp)
+ static int param_get_ac_online(char *buffer, const struct kernel_param *kp)
+ {
+ 	strcpy(buffer, map_get_key(map_ac_online, ac_online, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
  
--	if (p->flags & ACPI_HMAT_MEMORY_PD_VALID && hmat_revision == 1) {
-+	if ((hmat_revision == 1 && p->flags & ACPI_HMAT_MEMORY_PD_VALID) ||
-+	    hmat_revision > 1) {
- 		target = find_mem_target(p->memory_PD);
- 		if (!target) {
- 			pr_debug("HMAT: Memory Domain missing from SRAT\n");
+@@ -366,6 +367,7 @@ static int param_set_usb_online(const char *key, const struct kernel_param *kp)
+ static int param_get_usb_online(char *buffer, const struct kernel_param *kp)
+ {
+ 	strcpy(buffer, map_get_key(map_ac_online, usb_online, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
+ 
+@@ -380,6 +382,7 @@ static int param_set_battery_status(const char *key,
+ static int param_get_battery_status(char *buffer, const struct kernel_param *kp)
+ {
+ 	strcpy(buffer, map_get_key(map_status, battery_status, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
+ 
+@@ -394,6 +397,7 @@ static int param_set_battery_health(const char *key,
+ static int param_get_battery_health(char *buffer, const struct kernel_param *kp)
+ {
+ 	strcpy(buffer, map_get_key(map_health, battery_health, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
+ 
+@@ -409,6 +413,7 @@ static int param_get_battery_present(char *buffer,
+ 					const struct kernel_param *kp)
+ {
+ 	strcpy(buffer, map_get_key(map_present, battery_present, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
+ 
+@@ -426,6 +431,7 @@ static int param_get_battery_technology(char *buffer,
+ {
+ 	strcpy(buffer,
+ 		map_get_key(map_technology, battery_technology, "unknown"));
++	strcat(buffer, "\n");
+ 	return strlen(buffer);
+ }
+ 
 -- 
 2.25.1
 
