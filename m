@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE57299CEC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5718D299FA0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411067AbgJZX4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33740 "EHLO mail.kernel.org"
+        id S2441395AbgJ0AXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410914AbgJZXze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:34 -0400
+        id S2410915AbgJZXzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0F8C221F8;
-        Mon, 26 Oct 2020 23:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5EC822202;
+        Mon, 26 Oct 2020 23:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756533;
-        bh=cme9WN7qcSRNiUJET6MwAsG0RRGkGz8drNhlzUhFiZE=;
+        s=default; t=1603756534;
+        bh=4mPmGH4ZMEdJWt6NgLwqyuOOqm7p4UkN2VDy0Yz7Fag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgGGCtmxOVSdyq+NBIM2cHdp719qnuKGkncaGxDSI6ihv45vSC5XiTqQviuKKc3CI
-         YJi6FOZLAMKUBgCd8MwBWFwpvZ74zdUvOgdjGSYRPhZyzDSoaY1I6C2OESDBCOce/8
-         TLnVTIn/Jlh4+dRPBFdZBhjhLccYif6R54mz+fn4=
+        b=IQcbnjh05f7UAtB2co0ncxn/e5ZdyoCx2JsV06Jz5ZVB9YcqLjGhHGwzn/sD/XXnE
+         t1xLHtRwmEEMsElmZvqDyMY7C84MpQ91mOoB4ohq4nIWuJCw+WFE9KYY86G32Nfi+L
+         gwZLY27cUNigFOFYzk+n1v6z0xwfmhRrEaLftLwM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Wysochanski <dwysocha@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/80] NFS4: Fix oops when copy_file_range is attempted with NFS4.0 source
-Date:   Mon, 26 Oct 2020 19:54:09 -0400
-Message-Id: <20201026235516.1025100-13-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/80] power: supply: bq27xxx: report "not charging" on all types
+Date:   Mon, 26 Oct 2020 19:54:10 -0400
+Message-Id: <20201026235516.1025100-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -42,60 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit d8a6ad913c286d4763ae20b14c02fe6f39d7cd9f ]
+[ Upstream commit 7bf738ba110722b63e9dc8af760d3fb2aef25593 ]
 
-The following oops is seen during xfstest/565 when the 'test'
-(source of the copy) is NFS4.0 and 'scratch' (destination) is NFS4.2
-[   59.692458] run fstests generic/565 at 2020-08-01 05:50:35
-[   60.613588] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[   60.624970] #PF: supervisor read access in kernel mode
-[   60.627671] #PF: error_code(0x0000) - not-present page
-[   60.630347] PGD 0 P4D 0
-[   60.631853] Oops: 0000 [#1] SMP PTI
-[   60.634086] CPU: 6 PID: 2828 Comm: xfs_io Kdump: loaded Not tainted 5.8.0-rc3 #1
-[   60.637676] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[   60.639901] RIP: 0010:nfs4_check_serverowner_major_id+0x5/0x30 [nfsv4]
-[   60.642719] Code: 89 ff e8 3e b3 b8 e1 e9 71 fe ff ff 41 bc da d8 ff ff e9 c3 fe ff ff e8 e9 9d 08 e2 66 0f 1f 84 00 00 00 00 00 66 66 66 66 90 <8b> 57 08 31 c0 3b 56 08 75 12 48 83 c6 0c 48 83 c7 0c e8 c4 97 bb
-[   60.652629] RSP: 0018:ffffc265417f7e10 EFLAGS: 00010287
-[   60.655379] RAX: ffffa0664b066400 RBX: 0000000000000000 RCX: 0000000000000001
-[   60.658754] RDX: ffffa066725fb000 RSI: ffffa066725fd000 RDI: 0000000000000000
-[   60.662292] RBP: 0000000000020000 R08: 0000000000020000 R09: 0000000000000000
-[   60.666189] R10: 0000000000000003 R11: 0000000000000000 R12: ffffa06648258d00
-[   60.669914] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa06648258100
-[   60.673645] FS:  00007faa9fb35800(0000) GS:ffffa06677d80000(0000) knlGS:0000000000000000
-[   60.677698] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   60.680773] CR2: 0000000000000008 CR3: 0000000203f14000 CR4: 00000000000406e0
-[   60.684476] Call Trace:
-[   60.685809]  nfs4_copy_file_range+0xfc/0x230 [nfsv4]
-[   60.688704]  vfs_copy_file_range+0x2ee/0x310
-[   60.691104]  __x64_sys_copy_file_range+0xd6/0x210
-[   60.693527]  do_syscall_64+0x4d/0x90
-[   60.695512]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   60.698006] RIP: 0033:0x7faa9febc1bd
+Commit 6f24ff97e323 ("power: supply: bq27xxx_battery: Add the
+BQ27Z561 Battery monitor") and commit d74534c27775 ("power:
+bq27xxx_battery: Add support for additional bq27xxx family devices")
+added support for new device types by copying most of the code and
+adding necessary quirks.
 
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+However they did not copy the code in bq27xxx_battery_status()
+responsible for returning POWER_SUPPLY_STATUS_NOT_CHARGING.
+
+Unify the bq27xxx_battery_status() so for all types when charger is
+supplied, it will return "not charging" status.
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/supply/bq27xxx_battery.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 534b6fd70ffdb..6b31cb5f9c9db 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -138,7 +138,8 @@ static ssize_t __nfs4_copy_file_range(struct file *file_in, loff_t pos_in,
- 	/* Only offload copy if superblock is the same */
- 	if (file_inode(file_in)->i_sb != file_inode(file_out)->i_sb)
- 		return -EXDEV;
--	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
-+	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY) ||
-+	    !nfs_server_capable(file_inode(file_in), NFS_CAP_COPY))
- 		return -EOPNOTSUPP;
- 	if (file_inode(file_in) == file_inode(file_out))
- 		return -EOPNOTSUPP;
+diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
+index 664e50103eaaf..aff0a0a5e7f8c 100644
+--- a/drivers/power/supply/bq27xxx_battery.c
++++ b/drivers/power/supply/bq27xxx_battery.c
+@@ -1678,8 +1678,6 @@ static int bq27xxx_battery_status(struct bq27xxx_device_info *di,
+ 			status = POWER_SUPPLY_STATUS_FULL;
+ 		else if (di->cache.flags & BQ27000_FLAG_CHGS)
+ 			status = POWER_SUPPLY_STATUS_CHARGING;
+-		else if (power_supply_am_i_supplied(di->bat) > 0)
+-			status = POWER_SUPPLY_STATUS_NOT_CHARGING;
+ 		else
+ 			status = POWER_SUPPLY_STATUS_DISCHARGING;
+ 	} else {
+@@ -1691,6 +1689,10 @@ static int bq27xxx_battery_status(struct bq27xxx_device_info *di,
+ 			status = POWER_SUPPLY_STATUS_CHARGING;
+ 	}
+ 
++	if ((status == POWER_SUPPLY_STATUS_DISCHARGING) &&
++	    (power_supply_am_i_supplied(di->bat) > 0))
++		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
++
+ 	val->intval = status;
+ 
+ 	return 0;
 -- 
 2.25.1
 
