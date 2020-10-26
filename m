@@ -2,125 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB5129C7CF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:53:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9746329C889
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 20:18:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1829160AbgJ0Suo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:50:44 -0400
-Received: from mail-pf1-f170.google.com ([209.85.210.170]:33686 "EHLO
-        mail-pf1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1829137AbgJ0Suh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 14:50:37 -0400
-Received: by mail-pf1-f170.google.com with SMTP id j18so1457276pfa.0
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 11:50:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N0z8H4BtfZylSbfDSpdlieXARFQd2q/3KXYgpN0ZbkY=;
-        b=IYu+kR2ZNl31ZHJ+N+aueJwYvyHn/iB6zr54kC6a/wz0hSR8Hwl7/GUP6zdA/nsMfe
-         olqDEABr33+ysDRgD0vipDKh9w/6ZSdScDTWJqFvtWhFtOxdmBgvAG/BVrkhbVYH0iO+
-         Ar+xi/0Jm/RPEbCYM+h892trmG50TjOxNK408H8/Trcdp53M+X5kWUmll8cGnAOjOrFE
-         jdlVAFq4/FLIX5kvx1YiiUIOd8FP/5gqSiSfxbwqfdCl3qUCFePAU1o6rdSGFoxNbh6f
-         +YOd5kvSjrVooYpqcqCTzFSn8vT1X/KvCWxurJP6tRpCIJK6cYauqJ1sRE7sIyohQqdT
-         lA6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N0z8H4BtfZylSbfDSpdlieXARFQd2q/3KXYgpN0ZbkY=;
-        b=JFrOSka50U2zZlOILWjkPa4P2mE3z5TQvJ/4c70QPykqllZrMYLKKjanLgtXNnUHol
-         MXFa2IJC4GEa6uTJXMvVfSEHCNFmKKmBFlwfvlNB9NTha1CG5jhlj+GV++8FnM2XY569
-         Gd0Ly181Lg5w2sc6314vlZGif7QHKQl5Moib//qrlu7UJzgXqzRk6RnGyKMX9xoW7Y56
-         UQ8n9b/qKeIx1pdk5CKxHzxqpqjotJ+ud6xWiFaYlO2IOAseVkdGe2WDNrbynmOcSL5j
-         uvz93QEkYFNMlt541DxwkQZQLkY/cc7XMe25mymRZBpotnNlk+xVOhlHiwOvThBywyvN
-         opSw==
-X-Gm-Message-State: AOAM530PEHzpRwZag8/d+Qbwr+GECAKiK4A2KEhvIQ4ofH3JS1iKk4pf
-        W9ZlrcotF3mEFRoYOFN/ul/QK1n4n03YPg==
-X-Google-Smtp-Source: ABdhPJyZ2D0S8KEqBqmyVGapiSNDIR7s4TfiJFvVvDHEWfEzu78mKn6Vmjx53VRHSqrJo+TIjr5zxg==
-X-Received: by 2002:aa7:9a04:0:b029:163:fe2a:9e04 with SMTP id w4-20020aa79a040000b0290163fe2a9e04mr3797579pfj.30.1603824626975;
-        Tue, 27 Oct 2020 11:50:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g22sm3132391pfh.147.2020.10.27.11.50.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2020 11:50:25 -0700 (PDT)
-Message-ID: <5f986bf1.1c69fb81.eaccd.61c6@mx.google.com>
-Date:   Tue, 27 Oct 2020 11:50:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.240-140-g97bfc73b33b5
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 129 runs,
- 1 regressions (v4.9.240-140-g97bfc73b33b5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1829576AbgJ0TR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 15:17:28 -0400
+Received: from 142-4-23-50.unifiedlayer.com ([142.4.23.50]:46332 "EHLO
+        142-4-23-50.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1758679AbgJ0TRL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 15:17:11 -0400
+X-Greylist: delayed 120904 seconds by postgrey-1.27 at vger.kernel.org; Tue, 27 Oct 2020 15:17:11 EDT
+Received: from omoraka25 by 142-4-23-50.ipage.com with local (Exim 4.93)
+        (envelope-from <omoraka25@142-4-23-50.ipage.com>)
+        id 1kWyg0-0001UI-6u; Mon, 26 Oct 2020 03:20:28 -0600
+To:     stana.luptakova@gmail.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: modernacademicedit.org/mail5/send.php for 105.112.107.37
+X-PHP-Originating-Script: 1001:send.php
+From:   scriptediting23@pub45.org
+Reply-To: modernacademicedit@gmail.com
+Message-Id: <E1kWyg0-0001UI-6u@142-4-23-50.ipage.com>
+Date:   Mon, 26 Oct 2020 03:20:28 -0600
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-23-50.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-23-50.ipage.com
+X-Get-Message-Sender-Via: 142-4-23-50.ipage.com: authenticated_id: omoraka25/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-23-50.ipage.com: omoraka25
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 129 runs, 1 regressions (v4.9.240-140-g97bf=
-c73b33b5)
-
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+MODERN ACADEMIC EDITING 
+www.modernacademicedit.com
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.240-140-g97bfc73b33b5/plan/baseline/
+Don't allow poor spelling or poor formatting deny your manuscript’s chance of publication in high-quality journals.
+Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling, grammatical, typographical or punctuation errors.
+Hence, what Are You Waiting For?
+Modern Academic Editing is the most trusted academic proofreading and editing services for you.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.240-140-g97bfc73b33b5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      97bfc73b33b595e89801f5fd849c14af344dccdd =
+Dear Colleague,
+MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking students, professionals, authors, and individuals from around the globe, for ensuring the highest-possible quality of editing and confirming that ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services now it’s your turn! Therefore, we call on writers and authors in all academic fields to submit their manuscripts for editing and proofreading. We have observed, over and over again, that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to manuscripts from reviewers. Using an online grammar correction service is not always sufficient to highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
 
+We invite you to submit your articles and theses (MS-Word document) as e-mail attachments to our Editorial Office at: articles@modernacaemicedit.com or modernacademicedit@gmail.com. Manuscripts are expected to be in double line spacing (Still depends on the journal's format).Upon receipt of your manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
 
+Our charges are as follows:
 
-Test Regressions
----------------- =
+WORD COUNT	STANDARD
+3 days	EXPRESS
+2 days	URGENT**
+24 hrs
+Up to 1,000	$25	$35	$50
+1,001 to 2,000	$50	$70	$100
+2,001 to 3,000	$75	$105	$150
+3,001 to 4,000	$100	$140	$200
+4,001 to 5,000	$125	$175	$250
+5,001 to 6,000	$150	$210	$300
+6,001 to 7,000	$175	$240	$350
+7,001 to 8,000	$200	$275	$400
+8,001 to 9,000	$225	$310	$450
+9,001 to 10,000	$250	$345	$500
+10,001 to 11,000	$275	$380	$550
+11,001 to 12,000	$300	$415	$600
+Over 12,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
 
+Payments are made through bank wire transfer or via credit card online (instant payment).Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
 
+For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+Best regards,
 
+Dr. Chris Tom
+Editor
+Modern Academic Editing
 
-  Details:     https://kernelci.org/test/plan/id/5f9838edc13a50b479381035
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.240=
--140-g97bfc73b33b5/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.240=
--140-g97bfc73b33b5/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+To unsubscribe, kindly send a mail tounsubscribe.modernacademicedit@gmail.com
 
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9838edc13a50b=
-47938103c
-        new failure (last pass: v4.9.240-15-g726ac45a50a6)
-        2 lines =
 
- =20
+
+
+
+
+
