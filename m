@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB0D29A199
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353DA29A19B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502335AbgJ0AnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:43:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
+        id S2441228AbgJ0AnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409073AbgJZXuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:17 -0400
+        id S2409083AbgJZXuS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6693A20878;
-        Mon, 26 Oct 2020 23:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71FC7221F8;
+        Mon, 26 Oct 2020 23:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756217;
-        bh=OceeY6QE41vNN3LO6sLR3LfqQEOrKWi7nX8CZOQFmuk=;
+        s=default; t=1603756218;
+        bh=Wy/KydK0ZqcnH/mktZ3ZcmM4o49aYFBg/WnZ0CpR5oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTDR2zEaXDTaIt4iufvltZ5Z12q1w4HL6FgSPzfRmJJsTAQg20xQ8mjXkDEHMi73A
-         xwwV9MBTBjtZXrH4EgZVnp6Cxy0Yrr8/ftfghZTnuB/7xe5xkchdO35eNeCFgpCgB3
-         sbJ3bZzWkt1+5RJ2iEOfIL/Tevm4+sZPcnmrprig=
+        b=zMDaxVQ51s3wNp80SAy5GJb+BUtBffhQ+8M9MNubtNnSF9JEDCq3MlsvwUBzH8RPS
+         7rMdeAWH6mVFD758ASPO5zNcYru0B2EmVIKKqWC6uXXB27nOcttxU2EcPb/KT19LXy
+         XS+32Y0W/w2skcfMC6uUMbj64DE7XddgufnEOjq4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 057/147] ia64: kprobes: Use generic kretprobe trampoline handler
-Date:   Mon, 26 Oct 2020 19:47:35 -0400
-Message-Id: <20201026234905.1022767-57-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 058/147] selftests/powerpc: Make using_hash_mmu() work on Cell & PowerMac
+Date:   Mon, 26 Oct 2020 19:47:36 -0400
+Message-Id: <20201026234905.1022767-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,118 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit e792ff804f49720ce003b3e4c618b5d996256a18 ]
+[ Upstream commit 34c103342be3f9397e656da7c5cc86e97b91f514 ]
 
-Use the generic kretprobe trampoline handler. Don't use
-framepointer verification.
+These platforms don't show the MMU in /proc/cpuinfo, but they always
+use hash, so teach using_hash_mmu() that.
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/159870606883.1229682.12331813108378725668.stgit@devnote2
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200819015727.1977134-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/kprobes.c | 77 +-------------------------------------
- 1 file changed, 2 insertions(+), 75 deletions(-)
+ tools/testing/selftests/powerpc/utils.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
-index 7a7df944d7986..fc1ff8a4d7de6 100644
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -396,83 +396,9 @@ static void kretprobe_trampoline(void)
- {
- }
+diff --git a/tools/testing/selftests/powerpc/utils.c b/tools/testing/selftests/powerpc/utils.c
+index 18b6a773d5c73..638ffacc90aa1 100644
+--- a/tools/testing/selftests/powerpc/utils.c
++++ b/tools/testing/selftests/powerpc/utils.c
+@@ -318,7 +318,9 @@ int using_hash_mmu(bool *using_hash)
  
--/*
-- * At this point the target function has been tricked into
-- * returning into our trampoline.  Lookup the associated instance
-- * and then:
-- *    - call the handler function
-- *    - cleanup by marking the instance as unused
-- *    - long jump back to the original return address
-- */
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
- {
--	struct kretprobe_instance *ri = NULL;
--	struct hlist_head *head, empty_rp;
--	struct hlist_node *tmp;
--	unsigned long flags, orig_ret_address = 0;
--	unsigned long trampoline_address =
--		((struct fnptr *)kretprobe_trampoline)->ip;
--
--	INIT_HLIST_HEAD(&empty_rp);
--	kretprobe_hash_lock(current, &head, &flags);
--
--	/*
--	 * It is possible to have multiple instances associated with a given
--	 * task either because an multiple functions in the call path
--	 * have a return probe installed on them, and/or more than one return
--	 * return probe was registered for a target function.
--	 *
--	 * We can handle this because:
--	 *     - instances are always inserted at the head of the list
--	 *     - when multiple return probes are registered for the same
--	 *       function, the first instance's ret_addr will point to the
--	 *       real return address, and all the rest will point to
--	 *       kretprobe_trampoline
--	 */
--	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
--		if (ri->task != current)
--			/* another task is sharing our hash bucket */
--			continue;
--
--		orig_ret_address = (unsigned long)ri->ret_addr;
--		if (orig_ret_address != trampoline_address)
--			/*
--			 * This is the real return address. Any other
--			 * instances associated with this task are for
--			 * other calls deeper on the call stack
--			 */
--			break;
--	}
--
--	regs->cr_iip = orig_ret_address;
--
--	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
--		if (ri->task != current)
--			/* another task is sharing our hash bucket */
--			continue;
--
--		if (ri->rp && ri->rp->handler)
--			ri->rp->handler(ri, regs);
--
--		orig_ret_address = (unsigned long)ri->ret_addr;
--		recycle_rp_inst(ri, &empty_rp);
--
--		if (orig_ret_address != trampoline_address)
--			/*
--			 * This is the real return address. Any other
--			 * instances associated with this task are for
--			 * other calls deeper on the call stack
--			 */
--			break;
--	}
--	kretprobe_assert(ri, orig_ret_address, trampoline_address);
--
--	kretprobe_hash_unlock(current, &flags);
--
--	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
--		hlist_del(&ri->hlist);
--		kfree(ri);
--	}
-+	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
- 	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -485,6 +411,7 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
- 				      struct pt_regs *regs)
- {
- 	ri->ret_addr = (kprobe_opcode_t *)regs->b0;
-+	ri->fp = NULL;
- 
- 	/* Replace the return addr with trampoline addr */
- 	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
+ 	rc = 0;
+ 	while (fgets(line, sizeof(line), f) != NULL) {
+-		if (strcmp(line, "MMU		: Hash\n") == 0) {
++		if (!strcmp(line, "MMU		: Hash\n") ||
++		    !strcmp(line, "platform	: Cell\n") ||
++		    !strcmp(line, "platform	: PowerMac\n")) {
+ 			*using_hash = true;
+ 			goto out;
+ 		}
 -- 
 2.25.1
 
