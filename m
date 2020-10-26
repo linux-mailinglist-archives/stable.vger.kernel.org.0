@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0B729A0D0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2568A29A0D1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409000AbgJZXuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2409005AbgJZXuD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Oct 2020 19:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48464 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408906AbgJZXt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:56 -0400
+        id S2408941AbgJZXt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F5AC20882;
-        Mon, 26 Oct 2020 23:49:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A1E22075B;
+        Mon, 26 Oct 2020 23:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756195;
-        bh=9C528tZoQ9h5NstXknIAS/BD9iT7n94wKg9f1AkabPU=;
+        s=default; t=1603756196;
+        bh=5CCHtZsHlLs2ADKT5zOMM/qPbQAuCxXoWoQ5stFxGNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2AdJ1WTaaip6fR5ChBlE+H6jSCUy0L2SX00hAFxr079ipJ8MrnRDuaLpTyRjJzz3
-         4KHikIW42xMXS+142YFm1nBribQwYeeV6CX+nCWkSVtM8h2y4QsI5lHh+L3VQEqxFg
-         FMKWpWML4TcbNmxO9bzXoKMoKdES5J1PqRjI3m0A=
+        b=nQxj0COwg2e38U8nO6RsO13MNG5cuWq0AQbHRZ0We0Qj8w8F25mHoSGC/uYS85xh2
+         l1nXcBq+b6j3gNqVz6zGVL+KoCf/AdoMC4sFMZwtHoT1bXkIdN41s7wyjnMWaDPOWq
+         dsHs4ZtsjD5KkHIE3H9rJAlFay+cdLlplbJWauXU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rander Wang <rander.wang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.9 039/147] ASoC: SOF: fix a runtime pm issue in SOF when HDMI codec doesn't work
-Date:   Mon, 26 Oct 2020 19:47:17 -0400
-Message-Id: <20201026234905.1022767-39-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 040/147] selftests/x86/fsgsbase: Reap a forgotten child
+Date:   Mon, 26 Oct 2020 19:47:18 -0400
+Message-Id: <20201026234905.1022767-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -47,53 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
+[ Upstream commit ab2dd173330a3f07142e68cd65682205036cd00f ]
 
-When hda_codec_probe() doesn't initialize audio component, we disable
-the codec and keep going. However,the resources are not released. The
-child_count of SOF device is increased in snd_hdac_ext_bus_device_init
-but is not decrease in error case, so SOF can't get suspended.
+The ptrace() test forgot to reap its child.  Reap it.
 
-snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
-gets a error. Now copy this behavior to release resources and decrease
-SOF device child_count to release SOF device.
-
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/e7700a503f30e79ab35a63103938a19893dbeff2.1598461151.git.luto@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-codec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/x86/fsgsbase.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda-codec.c b/sound/soc/sof/intel/hda-codec.c
-index 2c5c451fa19d7..c475955c6eeba 100644
---- a/sound/soc/sof/intel/hda-codec.c
-+++ b/sound/soc/sof/intel/hda-codec.c
-@@ -151,7 +151,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
- 		if (!hdev->bus->audio_component) {
- 			dev_dbg(sdev->dev,
- 				"iDisp hw present but no driver\n");
--			return -ENOENT;
-+			goto error;
- 		}
- 		hda_priv->need_display_power = true;
- 	}
-@@ -174,7 +174,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
- 		 * other return codes without modification
- 		 */
- 		if (ret == 0)
--			ret = -ENOENT;
-+			goto error;
- 	}
+diff --git a/tools/testing/selftests/x86/fsgsbase.c b/tools/testing/selftests/x86/fsgsbase.c
+index 9983195535237..0056e2597f53a 100644
+--- a/tools/testing/selftests/x86/fsgsbase.c
++++ b/tools/testing/selftests/x86/fsgsbase.c
+@@ -517,6 +517,9 @@ static void test_ptrace_write_gsbase(void)
  
- 	return ret;
+ END:
+ 	ptrace(PTRACE_CONT, child, NULL, NULL);
++	wait(&status);
++	if (!WIFEXITED(status))
++		printf("[WARN]\tChild didn't exit cleanly.\n");
+ }
+ 
+ int main()
 -- 
 2.25.1
 
