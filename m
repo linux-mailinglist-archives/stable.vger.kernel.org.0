@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 026B129A17F
+	by mail.lfdr.de (Postfix) with ESMTP id DDC8029A181
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408598AbgJ0AmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48772 "EHLO mail.kernel.org"
+        id S2408718AbgJ0AmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:42:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408969AbgJZXuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2408979AbgJZXuB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Oct 2020 19:50:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B926223AB;
-        Mon, 26 Oct 2020 23:49:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 857AA20878;
+        Mon, 26 Oct 2020 23:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756200;
-        bh=vMMAgSfikcnpjQ3HPznBETOr9yljsKexNKRHJBcCX5M=;
+        s=default; t=1603756201;
+        bh=Kfzq7AV37YFgA5ShnE9NH5z8uIFJ8H0nvzx2+znm3RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUTvTp6F8b5/BFM7ZmW8Y1ouUUOSv9Ags9z/o2v2iObxsaCdIQZmF864J9z+g/LqY
-         KZnQBStbqwGO/w44D2NhHFtVsKLYxKSyib4ZAAUBi5FJ9Lv04rur+ZRlZy2ehJX6yG
-         l5sf1GicGmdAEJr1CunuMyrJl4DkirL/GyCbJFc4=
+        b=stHEqP312wJb5PWEAUbXR9x+N2LlWkkFPWkGiYsFzmLbqMrN1lEoOSO0m/levpgdG
+         ljjnMfuCcMbhEwCM++3m4yqKmpoSrhFwtEi/wGTf+uHzeA6djmlyIGk3F69w4zYh0r
+         wQbV+/RULEU/bOfFtZNymWfIjuKYbomcTQR60em4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Akshu Agrawal <akshu.agrawal@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.9 043/147] ASoC: AMD: Clean kernel log from deferred probe error messages
-Date:   Mon, 26 Oct 2020 19:47:21 -0400
-Message-Id: <20201026234905.1022767-43-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 044/147] misc: fastrpc: fix common struct sg_table related issues
+Date:   Mon, 26 Oct 2020 19:47:22 -0400
+Message-Id: <20201026234905.1022767-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,46 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akshu Agrawal <akshu.agrawal@amd.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit f7660445c8e7fda91e8b944128554249d886b1d4 ]
+[ Upstream commit 7cd7edb89437457ec36ffdbb970cc314d00c4aba ]
 
-While the driver waits for DAIs to be probed and retries probing,
-have the error messages at debug level instead of error.
+The Documentation/DMA-API-HOWTO.txt states that the dma_map_sg() function
+returns the number of the created entries in the DMA address space.
+However the subsequent calls to the dma_sync_sg_for_{device,cpu}() and
+dma_unmap_sg must be called with the original number of the entries
+passed to the dma_map_sg().
 
-Signed-off-by: Akshu Agrawal <akshu.agrawal@amd.com>
-Link: https://lore.kernel.org/r/20200826185454.5545-1-akshu.agrawal@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+struct sg_table is a common structure used for describing a non-contiguous
+memory buffer, used commonly in the DRM and graphics subsystems. It
+consists of a scatterlist with memory pages and DMA addresses (sgl entry),
+as well as the number of scatterlist entries: CPU pages (orig_nents entry)
+and DMA mapped pages (nents entry).
+
+It turned out that it was a common mistake to misuse nents and orig_nents
+entries, calling DMA-mapping functions with a wrong number of entries or
+ignoring the number of mapped entries returned by the dma_map_sg()
+function.
+
+To avoid such issues, lets use a common dma-mapping wrappers operating
+directly on the struct sg_table objects and use scatterlist page
+iterators where possible. This, almost always, hides references to the
+nents and orig_nents entries, making the code robust, easier to follow
+and copy/paste safe.
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20200826063316.23486-29-m.szyprowski@samsung.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/acp3x-rt5682-max9836.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/misc/fastrpc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/amd/acp3x-rt5682-max9836.c b/sound/soc/amd/acp3x-rt5682-max9836.c
-index 406526e79af34..1a4e8ca0f99c2 100644
---- a/sound/soc/amd/acp3x-rt5682-max9836.c
-+++ b/sound/soc/amd/acp3x-rt5682-max9836.c
-@@ -472,12 +472,17 @@ static int acp3x_probe(struct platform_device *pdev)
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index 7939c55daceb2..9d68677493163 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -518,7 +518,7 @@ fastrpc_map_dma_buf(struct dma_buf_attachment *attachment,
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 	if (ret) {
--		dev_err(&pdev->dev,
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
- 				"devm_snd_soc_register_card(%s) failed: %d\n",
- 				card->name, ret);
--		return ret;
-+		else
-+			dev_dbg(&pdev->dev,
-+				"devm_snd_soc_register_card(%s) probe deferred: %d\n",
-+				card->name, ret);
- 	}
--	return 0;
-+
-+	return ret;
+ 	table = &a->sgt;
+ 
+-	if (!dma_map_sg(attachment->dev, table->sgl, table->nents, dir))
++	if (!dma_map_sgtable(attachment->dev, table, dir, 0))
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	return table;
+@@ -528,7 +528,7 @@ static void fastrpc_unmap_dma_buf(struct dma_buf_attachment *attach,
+ 				  struct sg_table *table,
+ 				  enum dma_data_direction dir)
+ {
+-	dma_unmap_sg(attach->dev, table->sgl, table->nents, dir);
++	dma_unmap_sgtable(attach->dev, table, dir, 0);
  }
  
- static const struct acpi_device_id acp3x_audio_acpi_match[] = {
+ static void fastrpc_release(struct dma_buf *dmabuf)
 -- 
 2.25.1
 
