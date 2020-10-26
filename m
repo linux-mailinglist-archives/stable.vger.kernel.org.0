@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE11829A1AE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5CAA29A1B0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439085AbgJ0Anb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:43:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
+        id S2442573AbgJ0And (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:43:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409151AbgJZXuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:37 -0400
+        id S2409156AbgJZXuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E1BA217A0;
-        Mon, 26 Oct 2020 23:50:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94FDF21655;
+        Mon, 26 Oct 2020 23:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756237;
-        bh=jdioljDCgQBbBlSFSWdq8Y6Bpb0NAauLqq+vhRl05Vc=;
+        s=default; t=1603756238;
+        bh=NT/aR51GDyryf0mLFIHacQgtCPgCwaGzIKT6Fi97x8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1LimOjL4E+RAJngURJhWSUjevTuj1Gr9KSmSv+2EkpeL7/LEw82kT9RAxbvV0rPz
-         z/zTmlXqwFEyFIGOERSUW7ucqZS0Thjhthe422a2lXVTUVwVHiTU5GahGECz0ShoYn
-         HHAemQ5wjIf0kUzJDl7jythKMuTYhF5Z+V8n+2nA=
+        b=StJ7Fj0NNp7tdGXvlMfnpdoLPk6nWvD13MrjhX31wW5u8lNNsVdaB06j4uxTWSt5g
+         /uNcaFpRgXog8cZns6RflBXzsXQy3lQuNEjjH7PyOHmswyJvWVKd7wXETHrzFSW9nB
+         XqlmHW0oJNOE4ZRkKB0iKtql/dEign5HY4Ub97Xs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lang Dai <lang.dai@intel.com>,
+Cc:     Linu Cherian <lcherian@marvell.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 074/147] uio: free uio id after uio file node is freed
-Date:   Mon, 26 Oct 2020 19:47:52 -0400
-Message-Id: <20201026234905.1022767-74-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, coresight@lists.linaro.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 075/147] coresight: Make sysfs functional on topologies with per core sink
+Date:   Mon, 26 Oct 2020 19:47:53 -0400
+Message-Id: <20201026234905.1022767-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,83 +44,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Dai <lang.dai@intel.com>
+From: Linu Cherian <lcherian@marvell.com>
 
-[ Upstream commit 8fd0e2a6df262539eaa28b0a2364cca10d1dc662 ]
+[ Upstream commit 6d578258b955fc8888e1bbd9a8fefe7b10065a84 ]
 
-uio_register_device() do two things.
-1) get an uio id from a global pool, e.g. the id is <A>
-2) create file nodes like /sys/class/uio/uio<A>
+Coresight driver assumes sink is common across all the ETMs,
+and tries to build a path between ETM and the first enabled
+sink found using bus based search. This breaks sysFS usage
+on implementations that has multiple per core sinks in
+enabled state.
 
-uio_unregister_device() do two things.
-1) free the uio id <A> and return it to the global pool
-2) free the file node /sys/class/uio/uio<A>
+To fix this, coresight_get_enabled_sink API is updated to
+do a connection based search starting from the given source,
+instead of bus based search.
+With sink selection using sysfs depecrated for perf interface,
+provision for reset is removed as well in this API.
 
-There is a situation is that one worker is calling uio_unregister_device(),
-and another worker is calling uio_register_device().
-If the two workers are X and Y, they go as below sequence,
-1) X free the uio id <AAA>
-2) Y get an uio id <AAA>
-3) Y create file node /sys/class/uio/uio<AAA>
-4) X free the file note /sys/class/uio/uio<AAA>
-Then it will failed at the 3rd step and cause the phenomenon we saw as it
-is creating a duplicated file node.
-
-Failure reports as follows:
-sysfs: cannot create duplicate filename '/class/uio/uio10'
-Call Trace:
-   sysfs_do_create_link_sd.isra.2+0x9e/0xb0
-   sysfs_create_link+0x25/0x40
-   device_add+0x2c4/0x640
-   __uio_register_device+0x1c5/0x576 [uio]
-   adf_uio_init_bundle_dev+0x231/0x280 [intel_qat]
-   adf_uio_register+0x1c0/0x340 [intel_qat]
-   adf_dev_start+0x202/0x370 [intel_qat]
-   adf_dev_start_async+0x40/0xa0 [intel_qat]
-   process_one_work+0x14d/0x410
-   worker_thread+0x4b/0x460
-   kthread+0x105/0x140
- ? process_one_work+0x410/0x410
- ? kthread_bind+0x40/0x40
- ret_from_fork+0x1f/0x40
- Code: 85 c0 48 89 c3 74 12 b9 00 10 00 00 48 89 c2 31 f6 4c 89 ef
- e8 ec c4 ff ff 4c 89 e2 48 89 de 48 c7 c7 e8 b4 ee b4 e8 6a d4 d7
- ff <0f> 0b 48 89 df e8 20 fa f3 ff 5b 41 5c 41 5d 5d c3 66 0f 1f 84
----[ end trace a7531c1ed5269e84 ]---
- c6xxvf b002:00:00.0: Failed to register UIO devices
- c6xxvf b002:00:00.0: Failed to register UIO devices
-
-Signed-off-by: Lang Dai <lang.dai@intel.com>
-
-Link: https://lore.kernel.org/r/1600054002-17722-1-git-send-email-lang.dai@intel.com
+Signed-off-by: Linu Cherian <lcherian@marvell.com>
+[Fixed indentation problem and removed obsolete comment]
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200916191737.4001561-15-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-priv.h |  3 +-
+ drivers/hwtracing/coresight/coresight.c      | 62 +++++++++-----------
+ 2 files changed, 29 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
-index 73efb80815db8..6dca744e39e95 100644
---- a/drivers/uio/uio.c
-+++ b/drivers/uio/uio.c
-@@ -1048,8 +1048,6 @@ void uio_unregister_device(struct uio_info *info)
- 
- 	idev = info->uio_dev;
- 
--	uio_free_minor(idev);
--
- 	mutex_lock(&idev->info_lock);
- 	uio_dev_del_attributes(idev);
- 
-@@ -1064,6 +1062,8 @@ void uio_unregister_device(struct uio_info *info)
- 
- 	device_unregister(&idev->dev);
- 
-+	uio_free_minor(idev);
-+
- 	return;
+diff --git a/drivers/hwtracing/coresight/coresight-priv.h b/drivers/hwtracing/coresight/coresight-priv.h
+index f2dc625ea5856..5fe773c4d6cc5 100644
+--- a/drivers/hwtracing/coresight/coresight-priv.h
++++ b/drivers/hwtracing/coresight/coresight-priv.h
+@@ -148,7 +148,8 @@ static inline void coresight_write_reg_pair(void __iomem *addr, u64 val,
+ void coresight_disable_path(struct list_head *path);
+ int coresight_enable_path(struct list_head *path, u32 mode, void *sink_data);
+ struct coresight_device *coresight_get_sink(struct list_head *path);
+-struct coresight_device *coresight_get_enabled_sink(bool reset);
++struct coresight_device *
++coresight_get_enabled_sink(struct coresight_device *source);
+ struct coresight_device *coresight_get_sink_by_id(u32 id);
+ struct coresight_device *
+ coresight_find_default_sink(struct coresight_device *csdev);
+diff --git a/drivers/hwtracing/coresight/coresight.c b/drivers/hwtracing/coresight/coresight.c
+index e9c90f2de34ac..bb4f9e0a5438d 100644
+--- a/drivers/hwtracing/coresight/coresight.c
++++ b/drivers/hwtracing/coresight/coresight.c
+@@ -540,50 +540,46 @@ struct coresight_device *coresight_get_sink(struct list_head *path)
+ 	return csdev;
  }
- EXPORT_SYMBOL_GPL(uio_unregister_device);
+ 
+-static int coresight_enabled_sink(struct device *dev, const void *data)
++static struct coresight_device *
++coresight_find_enabled_sink(struct coresight_device *csdev)
+ {
+-	const bool *reset = data;
+-	struct coresight_device *csdev = to_coresight_device(dev);
++	int i;
++	struct coresight_device *sink;
+ 
+ 	if ((csdev->type == CORESIGHT_DEV_TYPE_SINK ||
+ 	     csdev->type == CORESIGHT_DEV_TYPE_LINKSINK) &&
+-	     csdev->activated) {
+-		/*
+-		 * Now that we have a handle on the sink for this session,
+-		 * disable the sysFS "enable_sink" flag so that possible
+-		 * concurrent perf session that wish to use another sink don't
+-		 * trip on it.  Doing so has no ramification for the current
+-		 * session.
+-		 */
+-		if (*reset)
+-			csdev->activated = false;
++	     csdev->activated)
++		return csdev;
+ 
+-		return 1;
++	/*
++	 * Recursively explore each port found on this element.
++	 */
++	for (i = 0; i < csdev->pdata->nr_outport; i++) {
++		struct coresight_device *child_dev;
++
++		child_dev = csdev->pdata->conns[i].child_dev;
++		if (child_dev)
++			sink = coresight_find_enabled_sink(child_dev);
++		if (sink)
++			return sink;
+ 	}
+ 
+-	return 0;
++	return NULL;
+ }
+ 
+ /**
+- * coresight_get_enabled_sink - returns the first enabled sink found on the bus
+- * @deactivate:	Whether the 'enable_sink' flag should be reset
+- *
+- * When operated from perf the deactivate parameter should be set to 'true'.
+- * That way the "enabled_sink" flag of the sink that was selected can be reset,
+- * allowing for other concurrent perf sessions to choose a different sink.
++ * coresight_get_enabled_sink - returns the first enabled sink using
++ * connection based search starting from the source reference
+  *
+- * When operated from sysFS users have full control and as such the deactivate
+- * parameter should be set to 'false', hence mandating users to explicitly
+- * clear the flag.
++ * @source: Coresight source device reference
+  */
+-struct coresight_device *coresight_get_enabled_sink(bool deactivate)
++struct coresight_device *
++coresight_get_enabled_sink(struct coresight_device *source)
+ {
+-	struct device *dev = NULL;
+-
+-	dev = bus_find_device(&coresight_bustype, NULL, &deactivate,
+-			      coresight_enabled_sink);
++	if (!source)
++		return NULL;
+ 
+-	return dev ? to_coresight_device(dev) : NULL;
++	return coresight_find_enabled_sink(source);
+ }
+ 
+ static int coresight_sink_by_id(struct device *dev, const void *data)
+@@ -988,11 +984,7 @@ int coresight_enable(struct coresight_device *csdev)
+ 		goto out;
+ 	}
+ 
+-	/*
+-	 * Search for a valid sink for this session but don't reset the
+-	 * "enable_sink" flag in sysFS.  Users get to do that explicitly.
+-	 */
+-	sink = coresight_get_enabled_sink(false);
++	sink = coresight_get_enabled_sink(csdev);
+ 	if (!sink) {
+ 		ret = -EINVAL;
+ 		goto out;
 -- 
 2.25.1
 
