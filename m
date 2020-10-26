@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80DBD29A102
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9AE29A08A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443546AbgJ0AbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53686 "EHLO mail.kernel.org"
+        id S2443536AbgJ0AbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:31:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409600AbgJZXwA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:52:00 -0400
+        id S2409639AbgJZXwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E823C20882;
-        Mon, 26 Oct 2020 23:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 609BE21655;
+        Mon, 26 Oct 2020 23:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756319;
-        bh=xrteNirigUZc9HRoT/v/LZx8ZHqqq4+FtG69/NB7AcI=;
+        s=default; t=1603756328;
+        bh=LdhIsQP3Wpe1HFkaDxMtIKxZKkDqsSdrPjQQjtv8TLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QdUMr0hwjVkwiq0gxXbdK3huS9HOaV6ZJfupiTu0ra2klv5XLxArqoc1NPufqelw
-         Xl+lf1cEIvXLSPwf2BeVVbuqNTtQZz/cl+rw90haGEXBiOZO4TSmPJMq6sFvxFo7WM
-         qMRiMlt4kX0CwFjm9ysWb6z6V5eHlTLt0cjHuVDg=
+        b=0iwr/5z9jJdMLNPgIFgiAonZlQTzRPomfI0UAV0UAeZCjxuT4CNJjbVCWtuVuFNjC
+         zrcyH56iDvoZVyEb4ULBZMfNLvoKTbKiFmf/CxRsZcO7ivj1uj0kTDr7H6Pl6H52sI
+         LBjP1LrPkAJdiIS9jZ/+k2/ZOgfyvIizmmzb1DK0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.9 141/147] soc: ti: k3: ringacc: add am65x sr2.0 support
-Date:   Mon, 26 Oct 2020 19:48:59 -0400
-Message-Id: <20201026234905.1022767-141-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 002/132] RDMA/core: Change how failing destroy is handled during uobj abort
+Date:   Mon, 26 Oct 2020 19:49:54 -0400
+Message-Id: <20201026235205.1023962-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
-References: <20201026234905.1022767-1-sashal@kernel.org>
+In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
+References: <20201026235205.1023962-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,100 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 95e7be062aea6d2e09116cd4d28957d310c04781 ]
+[ Upstream commit f553246f7f794675da1794ae7ee07d1f35e561ae ]
 
-The AM65x SR2.0 Ringacc has fixed errata i2023 "RINGACC, UDMA: RINGACC and
-UDMA Ring State Interoperability Issue after Channel Teardown". This errata
-also fixed for J271E SoC.
+Currently it triggers a WARN_ON and then goes ahead and destroys the
+uobject anyhow, leaking any driver memory.
 
-Use SOC bus data for K3 SoC identification and enable i2023 errate w/a only
-for the AM65x SR1.0. This also makes obsolete "ti,dma-ring-reset-quirk" DT
-property.
+The only place that leaks driver memory should be during FD close() in
+uverbs_destroy_ufile_hw().
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Drivers are only allowed to fail destroy uobjects if they guarantee
+destroy will eventually succeed. uverbs_destroy_ufile_hw() provides the
+loop to give the driver that chance.
+
+Link: https://lore.kernel.org/r/20200902081708.746631-1-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/k3-ringacc.c | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/rdma_core.c | 30 ++++++++++++++---------------
+ include/rdma/ib_verbs.h             |  5 -----
+ 2 files changed, 15 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/soc/ti/k3-ringacc.c b/drivers/soc/ti/k3-ringacc.c
-index 6dcc21dde0cb7..1147dc4c1d596 100644
---- a/drivers/soc/ti/k3-ringacc.c
-+++ b/drivers/soc/ti/k3-ringacc.c
-@@ -10,6 +10,7 @@
- #include <linux/init.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/sys_soc.h>
- #include <linux/soc/ti/k3-ringacc.h>
- #include <linux/soc/ti/ti_sci_protocol.h>
- #include <linux/soc/ti/ti_sci_inta_msi.h>
-@@ -208,6 +209,15 @@ struct k3_ringacc {
- 	const struct k3_ringacc_ops *ops;
+diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
+index 6d3ed7c6e19eb..3962da54ffbf4 100644
+--- a/drivers/infiniband/core/rdma_core.c
++++ b/drivers/infiniband/core/rdma_core.c
+@@ -130,17 +130,6 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
+ 	lockdep_assert_held(&ufile->hw_destroy_rwsem);
+ 	assert_uverbs_usecnt(uobj, UVERBS_LOOKUP_WRITE);
+ 
+-	if (reason == RDMA_REMOVE_ABORT_HWOBJ) {
+-		reason = RDMA_REMOVE_ABORT;
+-		ret = uobj->uapi_object->type_class->destroy_hw(uobj, reason,
+-								attrs);
+-		/*
+-		 * Drivers are not permitted to ignore RDMA_REMOVE_ABORT, see
+-		 * ib_is_destroy_retryable, cleanup_retryable == false here.
+-		 */
+-		WARN_ON(ret);
+-	}
+-
+ 	if (reason == RDMA_REMOVE_ABORT) {
+ 		WARN_ON(!list_empty(&uobj->list));
+ 		WARN_ON(!uobj->context);
+@@ -674,11 +663,22 @@ void rdma_alloc_abort_uobject(struct ib_uobject *uobj,
+ 			      bool hw_obj_valid)
+ {
+ 	struct ib_uverbs_file *ufile = uobj->ufile;
++	int ret;
++
++	if (hw_obj_valid) {
++		ret = uobj->uapi_object->type_class->destroy_hw(
++			uobj, RDMA_REMOVE_ABORT, attrs);
++		/*
++		 * If the driver couldn't destroy the object then go ahead and
++		 * commit it. Leaking objects that can't be destroyed is only
++		 * done during FD close after the driver has a few more tries to
++		 * destroy it.
++		 */
++		if (WARN_ON(ret))
++			return rdma_alloc_commit_uobject(uobj, attrs);
++	}
+ 
+-	uverbs_destroy_uobject(uobj,
+-			       hw_obj_valid ? RDMA_REMOVE_ABORT_HWOBJ :
+-					      RDMA_REMOVE_ABORT,
+-			       attrs);
++	uverbs_destroy_uobject(uobj, RDMA_REMOVE_ABORT, attrs);
+ 
+ 	/* Matches the down_read in rdma_alloc_begin_uobject */
+ 	up_read(&ufile->hw_destroy_rwsem);
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index ef2f3986c4933..f1a072cc9fc0e 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1489,11 +1489,6 @@ enum rdma_remove_reason {
+ 	RDMA_REMOVE_DRIVER_REMOVE,
+ 	/* uobj is being cleaned-up before being committed */
+ 	RDMA_REMOVE_ABORT,
+-	/*
+-	 * uobj has been fully created, with the uobj->object set, but is being
+-	 * cleaned up before being comitted
+-	 */
+-	RDMA_REMOVE_ABORT_HWOBJ,
  };
  
-+/**
-+ * struct k3_ringacc - Rings accelerator SoC data
-+ *
-+ * @dma_ring_reset_quirk:  DMA reset w/a enable
-+ */
-+struct k3_ringacc_soc_data {
-+	unsigned dma_ring_reset_quirk:1;
-+};
-+
- static long k3_ringacc_ring_get_fifo_pos(struct k3_ring *ring)
- {
- 	return K3_RINGACC_FIFO_WINDOW_SIZE_BYTES -
-@@ -1051,9 +1061,6 @@ static int k3_ringacc_probe_dt(struct k3_ringacc *ringacc)
- 		return ret;
- 	}
- 
--	ringacc->dma_ring_reset_quirk =
--			of_property_read_bool(node, "ti,dma-ring-reset-quirk");
--
- 	ringacc->tisci = ti_sci_get_by_phandle(node, "ti,sci");
- 	if (IS_ERR(ringacc->tisci)) {
- 		ret = PTR_ERR(ringacc->tisci);
-@@ -1084,9 +1091,22 @@ static int k3_ringacc_probe_dt(struct k3_ringacc *ringacc)
- 						 ringacc->rm_gp_range);
- }
- 
-+static const struct k3_ringacc_soc_data k3_ringacc_soc_data_sr1 = {
-+	.dma_ring_reset_quirk = 1,
-+};
-+
-+static const struct soc_device_attribute k3_ringacc_socinfo[] = {
-+	{ .family = "AM65X",
-+	  .revision = "SR1.0",
-+	  .data = &k3_ringacc_soc_data_sr1
-+	},
-+	{/* sentinel */}
-+};
-+
- static int k3_ringacc_init(struct platform_device *pdev,
- 			   struct k3_ringacc *ringacc)
- {
-+	const struct soc_device_attribute *soc;
- 	void __iomem *base_fifo, *base_rt;
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
-@@ -1103,6 +1123,13 @@ static int k3_ringacc_init(struct platform_device *pdev,
- 	if (ret)
- 		return ret;
- 
-+	soc = soc_device_match(k3_ringacc_socinfo);
-+	if (soc && soc->data) {
-+		const struct k3_ringacc_soc_data *soc_data = soc->data;
-+
-+		ringacc->dma_ring_reset_quirk = soc_data->dma_ring_reset_quirk;
-+	}
-+
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rt");
- 	base_rt = devm_ioremap_resource(dev, res);
- 	if (IS_ERR(base_rt))
+ struct ib_rdmacg_object {
 -- 
 2.25.1
 
