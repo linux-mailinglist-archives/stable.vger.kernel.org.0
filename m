@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C357C299F92
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 879FC299FA7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410324AbgJZXyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59548 "EHLO mail.kernel.org"
+        id S2441431AbgJ0AXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:23:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410309AbgJZXyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:54:07 -0400
+        id S2410330AbgJZXyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:54:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30FFC218AC;
-        Mon, 26 Oct 2020 23:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CC1922202;
+        Mon, 26 Oct 2020 23:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756447;
-        bh=DEOz1968i1iHFu4ybcACpbYocmslq+F9fVBPL5oWk0U=;
+        s=default; t=1603756448;
+        bh=ZINp8YjkcbCqBF3mGLrWPfe+q+VQGBkIUU7W9Q9bY2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2erZ0JaoaefwPlAs3ZAcWWJn8blsb7cseQZObqyDSXlOeGSSb3LzbVG/C/yYAYILH
-         TkBjQ5pK5GoeJ7T1W1v95JxARHeqSy9b+gKoht0czOZuHAsIZFeJHj6jeFxNBT+NUY
-         QN3223fnCMV9ufTncgeDY+BKgj3kboSYzEDdOQ4E=
+        b=b01/WRLihUB6Jy2jJU6RExn1FgaUkmk1t8HE4AnqFVK7cfMFyGxb64Vdim2Cx61gd
+         aps1BT+etIdBNrHo7GT6rgyMfNrrLR6BKcCPbRpewnlAeyUi41dFoS3/pHfRWXY2j5
+         vZpSe9xtl13aEo+RQVVWcRS20va924lfZMP3uf6s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 099/132] bnxt_en: Log unknown link speed appropriately.
-Date:   Mon, 26 Oct 2020 19:51:31 -0400
-Message-Id: <20201026235205.1023962-99-sashal@kernel.org>
+Cc:     Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michel Lespinasse <walken@google.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 100/132] binfmt_elf: take the mmap lock around find_extend_vma()
+Date:   Mon, 26 Oct 2020 19:51:32 -0400
+Message-Id: <20201026235205.1023962-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -44,49 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 8eddb3e7ce124dd6375d3664f1aae13873318b0f ]
+[ Upstream commit b2767d97f5ff758250cf28684aaa48bbfd34145f ]
 
-If the VF virtual link is set to always enabled, the speed may be
-unknown when the physical link is down.  The driver currently logs
-the link speed as 4294967295 Mbps which is SPEED_UNKNOWN.  Modify
-the link up log message as "speed unknown" which makes more sense.
+create_elf_tables() runs after setup_new_exec(), so other tasks can
+already access our new mm and do things like process_madvise() on it.  (At
+the time I'm writing this commit, process_madvise() is not in mainline
+yet, but has been in akpm's tree for some time.)
 
-Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1602493854-29283-7-git-send-email-michael.chan@broadcom.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+While I believe that there are currently no APIs that would actually allow
+another process to mess up our VMA tree (process_madvise() is limited to
+MADV_COLD and MADV_PAGEOUT, and uring and userfaultfd cannot reach an mm
+under which no syscalls have been executed yet), this seems like an
+accident waiting to happen.
+
+Let's make sure that we always take the mmap lock around GUP paths as long
+as another process might be able to see the mm.
+
+(Yes, this diff looks suspicious because we drop the lock before doing
+anything with `vma`, but that's because we actually don't do anything with
+it apart from the NULL check.)
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michel Lespinasse <walken@google.com>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Link: https://lkml.kernel.org/r/CAG48ez1-PBCdv3y8pn-Ty-b+FmBSLwDuVKFSt8h7wARLy0dF-Q@mail.gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/binfmt_elf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index dd07db656a5c3..a7577642ab207 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8428,6 +8428,11 @@ static void bnxt_report_link(struct bnxt *bp)
- 		u16 fec;
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 9fe3b51c116a6..6a0d0427c7433 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -309,7 +309,10 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
+ 	 * Grow the stack manually; some architectures have a limit on how
+ 	 * far ahead a user-space access may be in order to grow the stack.
+ 	 */
++	if (mmap_read_lock_killable(mm))
++		return -EINTR;
+ 	vma = find_extend_vma(mm, bprm->p);
++	mmap_read_unlock(mm);
+ 	if (!vma)
+ 		return -EFAULT;
  
- 		netif_carrier_on(bp->dev);
-+		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
-+		if (speed == SPEED_UNKNOWN) {
-+			netdev_info(bp->dev, "NIC Link is Up, speed unknown\n");
-+			return;
-+		}
- 		if (bp->link_info.duplex == BNXT_LINK_DUPLEX_FULL)
- 			duplex = "full";
- 		else
-@@ -8440,7 +8445,6 @@ static void bnxt_report_link(struct bnxt *bp)
- 			flow_ctrl = "ON - receive";
- 		else
- 			flow_ctrl = "none";
--		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
- 		netdev_info(bp->dev, "NIC Link is Up, %u Mbps %s duplex, Flow control: %s\n",
- 			    speed, duplex, flow_ctrl);
- 		if (bp->flags & BNXT_FLAG_EEE_CAP)
 -- 
 2.25.1
 
