@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ADE829A1BE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8F029A1C4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409192AbgJ0Ant (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
+        id S2502397AbgJ0Anz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409209AbgJZXut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:50:49 -0400
+        id S2409216AbgJZXuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:50:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66A0E2075B;
-        Mon, 26 Oct 2020 23:50:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B53C21707;
+        Mon, 26 Oct 2020 23:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756249;
-        bh=SN9hvYg6Tex/aY6jOySTVpRN/tL+jIbw8znebRkPRf0=;
+        s=default; t=1603756250;
+        bh=Pw7O8ZblEt7Bo8anqNCP7K7/gDR57mWfMojXgBHS0NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHGpvs82XknpisJDoLgeUIICs4Hnz+YXy5498AnXNP83ex8p3Ng6l+i6N17iynVKg
-         oOClDcO8By1lEbNErZNNHtIsegajNejefp2tMGl+5k7XFeIvwlhpNrISDWr9JCHT8p
-         rzU8wSuZnM9HybW5FkGD9qqgw46eT3LiLu0Fd7ro=
+        b=KXgXQFBW6IX6x/i2w0oHPLlEUWtlmJo+lXjtN5dJlvPITe4pmZpu8Euqo77Aj+yz9
+         MBlf0rAae8DED4VmM3py1uF6sozyc7c3t+u/UNBd37QdJvXzmVKJ3oTsWrn3KRaJBw
+         2SRBS+hrWvt/NX965GNM7cObb9D20X9+SY4FWWrc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
+Cc:     Gao Xiang <hsiangkao@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 084/147] xfs: don't free rt blocks when we're doing a REMAP bunmapi call
-Date:   Mon, 26 Oct 2020 19:48:02 -0400
-Message-Id: <20201026234905.1022767-84-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 085/147] xfs: avoid LR buffer overrun due to crafted h_len
+Date:   Mon, 26 Oct 2020 19:48:03 -0400
+Message-Id: <20201026234905.1022767-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -43,61 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-[ Upstream commit 8df0fa39bdd86ca81a8d706a6ed9d33cc65ca625 ]
+[ Upstream commit f692d09e9c8fd0f5557c2e87f796a16dd95222b8 ]
 
-When callers pass XFS_BMAPI_REMAP into xfs_bunmapi, they want the extent
-to be unmapped from the given file fork without the extent being freed.
-We do this for non-rt files, but we forgot to do this for realtime
-files.  So far this isn't a big deal since nobody makes a bunmapi call
-to a rt file with the REMAP flag set, but don't leave a logic bomb.
+Currently, crafted h_len has been blocked for the log
+header of the tail block in commit a70f9fe52daa ("xfs:
+detect and handle invalid iclog size set by mkfs").
 
+However, each log record could still have crafted h_len
+and cause log record buffer overrun. So let's check
+h_len vs buffer size for each log record as well.
+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ fs/xfs/xfs_log_recover.c | 39 +++++++++++++++++++--------------------
+ 1 file changed, 19 insertions(+), 20 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index 1b0a01b06a05d..d9a692484eaed 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -5046,20 +5046,25 @@ xfs_bmap_del_extent_real(
+diff --git a/fs/xfs/xfs_log_recover.c b/fs/xfs/xfs_log_recover.c
+index e2ec91b2d0f46..9ceb67d0f2565 100644
+--- a/fs/xfs/xfs_log_recover.c
++++ b/fs/xfs/xfs_log_recover.c
+@@ -2904,7 +2904,8 @@ STATIC int
+ xlog_valid_rec_header(
+ 	struct xlog		*log,
+ 	struct xlog_rec_header	*rhead,
+-	xfs_daddr_t		blkno)
++	xfs_daddr_t		blkno,
++	int			bufsize)
+ {
+ 	int			hlen;
  
- 	flags = XFS_ILOG_CORE;
- 	if (whichfork == XFS_DATA_FORK && XFS_IS_REALTIME_INODE(ip)) {
--		xfs_fsblock_t	bno;
- 		xfs_filblks_t	len;
- 		xfs_extlen_t	mod;
+@@ -2920,10 +2921,14 @@ xlog_valid_rec_header(
+ 		return -EFSCORRUPTED;
+ 	}
  
--		bno = div_u64_rem(del->br_startblock, mp->m_sb.sb_rextsize,
--				  &mod);
--		ASSERT(mod == 0);
- 		len = div_u64_rem(del->br_blockcount, mp->m_sb.sb_rextsize,
- 				  &mod);
- 		ASSERT(mod == 0);
+-	/* LR body must have data or it wouldn't have been written */
++	/*
++	 * LR body must have data (or it wouldn't have been written)
++	 * and h_len must not be greater than LR buffer size.
++	 */
+ 	hlen = be32_to_cpu(rhead->h_len);
+-	if (XFS_IS_CORRUPT(log->l_mp, hlen <= 0 || hlen > INT_MAX))
++	if (XFS_IS_CORRUPT(log->l_mp, hlen <= 0 || hlen > bufsize))
+ 		return -EFSCORRUPTED;
++
+ 	if (XFS_IS_CORRUPT(log->l_mp,
+ 			   blkno > log->l_logBBsize || blkno > INT_MAX))
+ 		return -EFSCORRUPTED;
+@@ -2984,9 +2989,6 @@ xlog_do_recovery_pass(
+ 			goto bread_err1;
  
--		error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
+ 		rhead = (xlog_rec_header_t *)offset;
+-		error = xlog_valid_rec_header(log, rhead, tail_blk);
 -		if (error)
--			goto done;
-+		if (!(bflags & XFS_BMAPI_REMAP)) {
-+			xfs_fsblock_t	bno;
+-			goto bread_err1;
+ 
+ 		/*
+ 		 * xfsprogs has a bug where record length is based on lsunit but
+@@ -3001,21 +3003,18 @@ xlog_do_recovery_pass(
+ 		 */
+ 		h_size = be32_to_cpu(rhead->h_size);
+ 		h_len = be32_to_cpu(rhead->h_len);
+-		if (h_len > h_size) {
+-			if (h_len <= log->l_mp->m_logbsize &&
+-			    be32_to_cpu(rhead->h_num_logops) == 1) {
+-				xfs_warn(log->l_mp,
++		if (h_len > h_size && h_len <= log->l_mp->m_logbsize &&
++		    rhead->h_num_logops == cpu_to_be32(1)) {
++			xfs_warn(log->l_mp,
+ 		"invalid iclog size (%d bytes), using lsunit (%d bytes)",
+-					 h_size, log->l_mp->m_logbsize);
+-				h_size = log->l_mp->m_logbsize;
+-			} else {
+-				XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW,
+-						log->l_mp);
+-				error = -EFSCORRUPTED;
+-				goto bread_err1;
+-			}
++				 h_size, log->l_mp->m_logbsize);
++			h_size = log->l_mp->m_logbsize;
+ 		}
+ 
++		error = xlog_valid_rec_header(log, rhead, tail_blk, h_size);
++		if (error)
++			goto bread_err1;
 +
-+			bno = div_u64_rem(del->br_startblock,
-+					mp->m_sb.sb_rextsize, &mod);
-+			ASSERT(mod == 0);
-+
-+			error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
-+			if (error)
-+				goto done;
-+		}
-+
- 		do_fx = 0;
- 		nblks = len * mp->m_sb.sb_rextsize;
- 		qfield = XFS_TRANS_DQ_RTBCOUNT;
+ 		if ((be32_to_cpu(rhead->h_version) & XLOG_VERSION_2) &&
+ 		    (h_size > XLOG_HEADER_CYCLE_SIZE)) {
+ 			hblks = h_size / XLOG_HEADER_CYCLE_SIZE;
+@@ -3096,7 +3095,7 @@ xlog_do_recovery_pass(
+ 			}
+ 			rhead = (xlog_rec_header_t *)offset;
+ 			error = xlog_valid_rec_header(log, rhead,
+-						split_hblks ? blk_no : 0);
++					split_hblks ? blk_no : 0, h_size);
+ 			if (error)
+ 				goto bread_err2;
+ 
+@@ -3177,7 +3176,7 @@ xlog_do_recovery_pass(
+ 			goto bread_err2;
+ 
+ 		rhead = (xlog_rec_header_t *)offset;
+-		error = xlog_valid_rec_header(log, rhead, blk_no);
++		error = xlog_valid_rec_header(log, rhead, blk_no, h_size);
+ 		if (error)
+ 			goto bread_err2;
+ 
 -- 
 2.25.1
 
