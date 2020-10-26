@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3B529872C
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 08:01:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 416D729872F
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 08:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1769258AbgJZG6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 02:58:06 -0400
-Received: from mail-pf1-f181.google.com ([209.85.210.181]:45109 "EHLO
-        mail-pf1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390754AbgJZG6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 02:58:06 -0400
-Received: by mail-pf1-f181.google.com with SMTP id e7so5653782pfn.12
-        for <stable@vger.kernel.org>; Sun, 25 Oct 2020 23:58:04 -0700 (PDT)
+        id S1770204AbgJZHA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 03:00:29 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:34686 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1736766AbgJZHA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 03:00:29 -0400
+Received: by mail-pg1-f196.google.com with SMTP id t14so5582493pgg.1
+        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 00:00:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=HZZxqis6LpGngQlT0NsGbgTNS/M+xkoKEIH9221yCws=;
-        b=nKZua77zhutsieZvLpxyT/KcKTBPdU+AsRcr6cuuJWaIlFZyut9Ixe/YyYBMhyByjE
-         1Nbe+HRX8F+4XAzF5SAVr4Dvb7kiEJY6AV5f9OttfN2N8wMZ6Z45teVUbvNaC+KSdwPK
-         5ekEw6D1cZY65C7XbkHo7unZND0uYAXRWzrCgysw4Vu+6SYs23E+qeHktmHbMNe+klp7
-         PdXaWxIa/C1Wt/4o6Drb89IsM3yp25R3D+i7S7sLuxOkGhEPwb0j3Iwa/V9hucKrTnLZ
-         kqONt60NLj3f4IDfjtPGkvKyw2gdTVu0bcWs+TkVGopfVMToO7Ybrdi07Kw9WaV4VECJ
-         wSkA==
+        bh=SO2Zse+e0UcqNnq7RdLe4eFpXCFhPxrIBLAQ1qmLsiw=;
+        b=MSIpJA/3xgJ4Ztb0KP8LYuy1+2i+vqvEgjDtNizn17mGvpF0qq/2Ywxs/rgpFQ7jMu
+         perLCSKE6ITCA7FawaXuGSm+K2B8C83ClXkKbySlsQzfPPBBTmNQUEnRS5AVb8MgiqsO
+         9Stj5z9AEP+o3ca09OA6iiorPdiVo6DSuWpYu11KqqlPQBpTT79lnYf/SEfSdU8qTJ6Y
+         Jzw6f8vSCjnlRztxc2ug35RvIScN3UF/CPmlL23N2Z8uzrPOB+91LtJmXCA4yXNgkYlQ
+         IcB3nn2z258XjsQGzsjhjoc91DHmTlWgEcd17y3E2jSwBbX+6HBfouWYZfeaZF7GPfk/
+         vynA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=HZZxqis6LpGngQlT0NsGbgTNS/M+xkoKEIH9221yCws=;
-        b=PsSYlx6a3roydJ9kgEPdPv2o800Onaxw8FlsZxzOFefeBhy2YXeW+pT66LbVtg5Ytd
-         fUJj0icvADkayqzmhpBjQip5sG0h48TaOnafLvtNXCvvye242bP4AtV8lb+ZruYInl0Z
-         21yaWUUf0c60Rnvpqx02Gyx//VAWJppWQ1tkTi4zIg8j2WPcuVHyjkkTMjneamTVGscY
-         ycBgHzNL4gLUjUD1egQ+h+qYvHtzy+y9hbwCpkQ7SOlf2qnTUpTzB02EAY715Ml1beoC
-         zRs1zaac+zIbjgi0EleqzocSU/yvLeR7fA8FQ9+KZaPRdfPThW5kYKPSmNSs3KsYiSwn
-         Bajw==
-X-Gm-Message-State: AOAM533pS7PZng/qwDQBmRaPVUGlWF7u4wADQxbNy1DvF8hShjpIzp+7
-        CBVH+vAM55sCum594Fq/9XMVygwLCGPT4g==
-X-Google-Smtp-Source: ABdhPJys5t5ZcqsJWwxDM/iK/61+4TRcf/x9mExorqywj8zeYk/yg/GsP1s09ySPJ3goR/bgJvUz4g==
-X-Received: by 2002:a63:1a64:: with SMTP id a36mr12475234pgm.153.1603695482802;
-        Sun, 25 Oct 2020 23:58:02 -0700 (PDT)
+        bh=SO2Zse+e0UcqNnq7RdLe4eFpXCFhPxrIBLAQ1qmLsiw=;
+        b=FOUiJgkgclMfbUDR0gvkGxR4iEFrK8KielNuS0JLW4kQDb325oRzYCGhyI8SGkoYY4
+         /75t0bCJmUNB03wCvDR2uOP7amkVjhHvyn7A4vUAbvMb6J+Q7ogsJUKC+lShtT/qoB9Y
+         tCMK7ZQ9wo9ZrWHxXxYuZ7l5+NNMA7WtS6RGmQ46GVNgD1zizok87rKfxhUud0abDjTO
+         +D6Lb0c7Cbup0Mc7pH611MhFXOTVD5QoVfplgJ4cQ8w2guKYO4UyKqlJyDJ1zz6ArkDV
+         Vb7UXTWB+2eMqPfG1T9SB4rjH2vppslkP3tUNkeG/Sukk6nQS1rSoDtccuMV9j6+MoGQ
+         NhiA==
+X-Gm-Message-State: AOAM531+w43w5V8KDyJSqBJWhE6H9Cis9Dm01/GtuZ1OCNjGIPJWa5WB
+        nkAg6c1BkA/fImpekj59wr8ESUjRnw5qQQ==
+X-Google-Smtp-Source: ABdhPJy3PAbxhibfRyJ8/OpKrtn6/jLoE9xm9iu9FxHzWClJVii9xxygUjb7UD/qK8YLZo8pRGCXOA==
+X-Received: by 2002:a63:e345:: with SMTP id o5mr11789367pgj.398.1603695624607;
+        Mon, 26 Oct 2020 00:00:24 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m13sm11129302pjl.45.2020.10.25.23.58.01
+        by smtp.gmail.com with ESMTPSA id v65sm9260700pgv.21.2020.10.26.00.00.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Oct 2020 23:58:02 -0700 (PDT)
-Message-ID: <5f96737a.1c69fb81.cb582.79ad@mx.google.com>
-Date:   Sun, 25 Oct 2020 23:58:02 -0700 (PDT)
+        Mon, 26 Oct 2020 00:00:23 -0700 (PDT)
+Message-ID: <5f967407.1c69fb81.9a6cf.1e01@mx.google.com>
+Date:   Mon, 26 Oct 2020 00:00:23 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.240-136-g2de2492be746
+X-Kernelci-Kernel: v4.19.152-260-g13765aa29be3
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 build: 197 builds: 2 failed, 195 passed,
- 6 warnings (v4.9.240-136-g2de2492be746)
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 build: 206 builds: 1 failed, 205 passed,
+ 163 warnings (v4.19.152-260-g13765aa29be3)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -62,59 +62,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 197 builds: 2 failed, 195 passed, 6 warnings (v4=
-.9.240-136-g2de2492be746)
+stable-rc/queue/4.19 build: 206 builds: 1 failed, 205 passed, 163 warnings =
+(v4.19.152-260-g13765aa29be3)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.240-136-g2de2492be746/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+9/kernel/v4.19.152-260-g13765aa29be3/
 
 Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.240-136-g2de2492be746
-Git Commit: 2de2492be746dc9e44ffc5502e35d4bc88d81471
+Branch: queue/4.19
+Git Describe: v4.19.152-260-g13765aa29be3
+Git Commit: 13765aa29be363ca408d3012a3dc9a4aefaa178b
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
-Build Failures Detected:
+Build Failure Detected:
 
 arm:
     rpc_defconfig: (gcc-8) FAIL
 
-mips:
-    32r2el_defconfig: (gcc-8) FAIL
-
 Warnings Detected:
 
 arc:
+    allnoconfig (gcc-8): 1 warning
+    axs103_defconfig (gcc-8): 1 warning
+    axs103_smp_defconfig (gcc-8): 1 warning
+    haps_hs_defconfig (gcc-8): 3 warnings
+    haps_hs_smp_defconfig (gcc-8): 3 warnings
+    hsdk_defconfig (gcc-8): 1 warning
+    nsim_hs_defconfig (gcc-8): 3 warnings
+    nsim_hs_smp_defconfig (gcc-8): 3 warnings
+    nsimosci_hs_defconfig (gcc-8): 3 warnings
+    nsimosci_hs_smp_defconfig (gcc-8): 3 warnings
+    tinyconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
 
 arm64:
+    allnoconfig (gcc-8): 1 warning
+    defconfig (gcc-8): 2 warnings
+    tinyconfig (gcc-8): 1 warning
 
 arm:
-    at91_dt_defconfig (gcc-8): 1 warning
-    multi_v5_defconfig (gcc-8): 1 warning
+    allnoconfig (gcc-8): 1 warning
+    am200epdkit_defconfig (gcc-8): 1 warning
+    aspeed_g4_defconfig (gcc-8): 2 warnings
+    aspeed_g5_defconfig (gcc-8): 2 warnings
+    at91_dt_defconfig (gcc-8): 2 warnings
+    clps711x_defconfig (gcc-8): 3 warnings
+    cm_x2xx_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    corgi_defconfig (gcc-8): 1 warning
+    efm32_defconfig (gcc-8): 3 warnings
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 2 warnings
+    h3600_defconfig (gcc-8): 2 warnings
+    h5000_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 2 warnings
+    integrator_defconfig (gcc-8): 1 warning
+    lpc18xx_defconfig (gcc-8): 2 warnings
+    lpc32xx_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
+    lubbock_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 warning
+    moxart_defconfig (gcc-8): 2 warnings
+    multi_v4t_defconfig (gcc-8): 3 warnings
     multi_v7_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 2 warnings
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa255-idp_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    raumfeld_defconfig (gcc-8): 3 warnings
+    s3c2410_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    socfpga_defconfig (gcc-8): 2 warnings
+    spitz_defconfig (gcc-8): 1 warning
+    stm32_defconfig (gcc-8): 3 warnings
+    sunxi_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tct_hammer_defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+    u300_defconfig (gcc-8): 2 warnings
+    vexpress_defconfig (gcc-8): 2 warnings
+    vf610m4_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    vt8500_v6_v7_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
 
 i386:
 
 mips:
-    rb532_defconfig (gcc-8): 2 warnings
+    allnoconfig (gcc-8): 1 warning
+    ar7_defconfig (gcc-8): 2 warnings
+    bigsur_defconfig (gcc-8): 2 warnings
+    cavium_octeon_defconfig (gcc-8): 2 warnings
+    db1xxx_defconfig (gcc-8): 1 warning
+    fuloong2e_defconfig (gcc-8): 2 warnings
+    gcw0_defconfig (gcc-8): 1 warning
+    ip27_defconfig (gcc-8): 2 warnings
+    ip28_defconfig (gcc-8): 2 warnings
+    ip32_defconfig (gcc-8): 2 warnings
+    jmr3927_defconfig (gcc-8): 1 warning
+    lemote2f_defconfig (gcc-8): 3 warnings
+    loongson1b_defconfig (gcc-8): 2 warnings
+    loongson1c_defconfig (gcc-8): 2 warnings
+    loongson3_defconfig (gcc-8): 4 warnings
+    malta_defconfig (gcc-8): 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
+    maltaaprp_defconfig (gcc-8): 1 warning
+    maltasmvp_defconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
+    maltaup_defconfig (gcc-8): 1 warning
+    maltaup_xpa_defconfig (gcc-8): 1 warning
+    mips_paravirt_defconfig (gcc-8): 2 warnings
+    nlm_xlp_defconfig (gcc-8): 3 warnings
+    pic32mzda_defconfig (gcc-8): 1 warning
+    rb532_defconfig (gcc-8): 4 warnings
+    rbtx49xx_defconfig (gcc-8): 2 warnings
+    sb1250_swarm_defconfig (gcc-8): 2 warnings
+    tinyconfig (gcc-8): 1 warning
+
+riscv:
+    allnoconfig (gcc-8): 1 warning
+    defconfig (gcc-8): 3 warnings
+    tinyconfig (gcc-8): 1 warning
 
 x86_64:
+    tinyconfig (gcc-8): 1 warning
+    x86_64_defconfig (gcc-8): 2 warnings
 
 
 Warnings summary:
 
-    4    /scratch/linux/drivers/mtd/nand/atmel_nand.c:2337:19: warning: unu=
-sed variable =E2=80=98mtd=E2=80=99 [-Wunused-variable]
+    69   /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_l=
+ist=E2=80=99 defined but not used [-Wunused-variable]
+    42   /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =
+=E2=80=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned=
+ int=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=
+=80=98long unsigned int=E2=80=99} [-Wformat=3D]
+    28   /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =
+=E2=80=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned=
+ int=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 =
+[-Wformat=3D]
+    14   /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =
+=E2=80=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned=
+ int=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=
+=80=98long unsigned int=E2=80=99} [-Wformat=3D]
+    3    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame siz=
+e of 1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_propert=
+y): /wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 =
+or bad phandle (referred from clocks[0])
     2    /scratch/linux/arch/mips/include/asm/addrspace.h:88:37: warning: p=
 assing argument 1 of =E2=80=98kfree=E2=80=99 makes pointer from integer wit=
 hout a cast [-Wint-conversion]
-
-Section mismatches summary:
-
-    2    WARNING: modpost: Found 1 section mismatch(es).
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    .config:1010:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -125,7 +239,7 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -140,28 +254,21 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -170,23 +277,89 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -195,12 +368,18 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused v=
-ariable =E2=80=98mtd=E2=80=99 [-Wunused-variable]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -219,13 +398,21 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -249,24 +436,28 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
 bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -275,8 +466,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings,=
  0 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -290,13 +491,29 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -320,8 +537,12 @@ colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -330,8 +551,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -340,8 +565,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -350,8 +579,35 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
 smatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -370,8 +626,20 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -385,8 +653,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -395,8 +667,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
 mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -405,8 +687,32 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -415,13 +721,27 @@ gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -430,8 +750,51 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
+section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -440,8 +803,18 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -455,8 +828,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -480,18 +857,48 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -505,8 +912,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -535,58 +946,138 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
 
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+Warnings:
+    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
+lid for HOTPLUG_PCI_SHPC
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -595,38 +1086,68 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
 s, 0 section mismatches
 
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+Warnings:
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -640,8 +1161,18 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings,=
  0 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -650,8 +1181,18 @@ mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -675,17 +1216,25 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    /scratch/linux/drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused v=
-ariable =E2=80=98mtd=E2=80=99 [-Wunused-variable]
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -693,8 +1242,9 @@ multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused v=
-ariable =E2=80=98mtd=E2=80=99 [-Wunused-variable]
+    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_property): /=
+wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 or ba=
+d phandle (referred from clocks[0])
 
 ---------------------------------------------------------------------------=
 -----
@@ -738,8 +1288,20 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -748,23 +1310,71 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
+section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings=
 , 0 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -783,8 +1393,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -793,23 +1413,45 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
 ---------------------------------------------------------------------------=
 -----
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -828,28 +1470,48 @@ pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -868,15 +1530,35 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
 on mismatches
 
 Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
     /scratch/linux/arch/mips/include/asm/addrspace.h:88:37: warning: passin=
 g argument 1 of =E2=80=98kfree=E2=80=99 makes pointer from integer without =
 a cast [-Wint-conversion]
@@ -886,8 +1568,18 @@ a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -911,32 +1603,50 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
 
 Warnings:
-    /scratch/linux/drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused v=
-ariable =E2=80=98mtd=E2=80=99 [-Wunused-variable]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, =
 0 section mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -955,8 +1665,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -975,18 +1695,48 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_property): /=
+wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 or ba=
+d phandle (referred from clocks[0])
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1005,8 +1755,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1015,13 +1769,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
 
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1030,18 +1783,47 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1010:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1050,8 +1832,18 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
  mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1060,13 +1852,21 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1075,23 +1875,50 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98long unsigned int=E2=80=99 [-Wf=
+ormat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
 
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1100,18 +1927,27 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+Warnings:
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 4 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
+    /scratch/linux/include/linux/kern_levels.h:5:18: warning: format =E2=80=
+=98%llu=E2=80=99 expects argument of type =E2=80=98long long unsigned int=
+=E2=80=99, but argument 5 has type =E2=80=98sector_t=E2=80=99 {aka =E2=80=
+=98long unsigned int=E2=80=99} [-Wformat=3D]
 
 ---------------------------------------------------------------------------=
 -----
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1120,18 +1956,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
 
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
