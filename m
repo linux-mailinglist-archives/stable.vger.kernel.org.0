@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29EF829A08F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FD729A0AC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443568AbgJ0AbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:31:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52356 "EHLO mail.kernel.org"
+        id S2409444AbgJ0AcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409434AbgJZXvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:51:31 -0400
+        id S2409443AbgJZXvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:51:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1727520B1F;
-        Mon, 26 Oct 2020 23:51:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8671621D42;
+        Mon, 26 Oct 2020 23:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756290;
-        bh=JioVImbrp2d+nxdJUU6J6DSaUlYENFzCjy/MlR6npKM=;
+        s=default; t=1603756291;
+        bh=C7kJQJ0S4jIW0hiAo8BwjaG923P/qlYE9ayfR6bR/nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TD54PydgvELEcg7yBR3avbTDTKbHmN2iJcg+jRTpGwwqiU0yemdwcCjHSvfAFtE0Q
-         D+DS69kDMCmz9bf+YhNBH8ooYtdJ+XP2mepEgMLC1N8YsfHbNFtbPKmqFBqnv+gkhd
-         tvF5OAPLYu+E2vN0viXmg3BuDun5EIBpRBiGEKX0=
+        b=iWoxP0l5ACOeT94f8noo2sKT0QyWRP0MNSpjZQX9VsFK9PQ/HhtHLywpHJ/KVbUD2
+         Sh70qZev+d6Y4qyRcaUpwuQJsBN8u/qH6eLcZGATD2ifuydZ+GRrSJ1/5FMuQlvNUS
+         NtE80Ap9vHYbZDo1+pTONSxosxX8ZMqDYYKkKE14=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     changfengnan <fengnanchang@foxmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Fengnan Chang <changfengnan@hikvision.com>,
-        Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 118/147] jbd2: avoid transaction reuse after reformatting
-Date:   Mon, 26 Oct 2020 19:48:36 -0400
-Message-Id: <20201026234905.1022767-118-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Andreas Dilger <adilger@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 119/147] ext4: Detect already used quota file early
+Date:   Mon, 26 Oct 2020 19:48:37 -0400
+Message-Id: <20201026234905.1022767-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -45,168 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: changfengnan <fengnanchang@foxmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit fc750a3b44bdccb9fb96d6abbc48a9b8e480ce7b ]
+[ Upstream commit e0770e91424f694b461141cbc99adf6b23006b60 ]
 
-When ext4 is formatted with lazy_journal_init=1 and transactions from
-the previous filesystem are still on disk, it is possible that they are
-considered during a recovery after a crash. Because the checksum seed
-has changed, the CRC check will fail, and the journal recovery fails
-with checksum error although the journal is otherwise perfectly valid.
-Fix the problem by checking commit block time stamps to determine
-whether the data in the journal block is just stale or whether it is
-indeed corrupt.
+When we try to use file already used as a quota file again (for the same
+or different quota type), strange things can happen. At the very least
+lockdep annotations may be wrong but also inode flags may be wrongly set
+/ reset. When the file is used for two quota types at once we can even
+corrupt the file and likely crash the kernel. Catch all these cases by
+checking whether passed file is already used as quota file and bail
+early in that case.
 
-Reported-by: kernel test robot <lkp@intel.com>
+This fixes occasional generic/219 failure due to lockdep complaint.
+
 Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Fengnan Chang <changfengnan@hikvision.com>
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201012164900.20197-1-jack@suse.cz
+Link: https://lore.kernel.org/r/20201015110330.28716-1-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/recovery.c | 78 +++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 66 insertions(+), 12 deletions(-)
+ fs/ext4/super.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/jbd2/recovery.c b/fs/jbd2/recovery.c
-index faa97d748474d..fb134c7a12c89 100644
---- a/fs/jbd2/recovery.c
-+++ b/fs/jbd2/recovery.c
-@@ -428,6 +428,8 @@ static int do_one_pass(journal_t *journal,
- 	__u32			crc32_sum = ~0; /* Transactional Checksums */
- 	int			descr_csum_size = 0;
- 	int			block_error = 0;
-+	bool			need_check_commit_time = false;
-+	__u64			last_trans_commit_time = 0, commit_time;
- 
- 	/*
- 	 * First thing is to establish what we expect to find in the log
-@@ -520,12 +522,21 @@ static int do_one_pass(journal_t *journal,
- 			if (descr_csum_size > 0 &&
- 			    !jbd2_descriptor_block_csum_verify(journal,
- 							       bh->b_data)) {
--				printk(KERN_ERR "JBD2: Invalid checksum "
--				       "recovering block %lu in log\n",
--				       next_log_block);
--				err = -EFSBADCRC;
--				brelse(bh);
--				goto failed;
-+				/*
-+				 * PASS_SCAN can see stale blocks due to lazy
-+				 * journal init. Don't error out on those yet.
-+				 */
-+				if (pass != PASS_SCAN) {
-+					pr_err("JBD2: Invalid checksum recovering block %lu in log\n",
-+					       next_log_block);
-+					err = -EFSBADCRC;
-+					brelse(bh);
-+					goto failed;
-+				}
-+				need_check_commit_time = true;
-+				jbd_debug(1,
-+					"invalid descriptor block found in %lu\n",
-+					next_log_block);
- 			}
- 
- 			/* If it is a valid descriptor block, replay it
-@@ -535,6 +546,7 @@ static int do_one_pass(journal_t *journal,
- 			if (pass != PASS_REPLAY) {
- 				if (pass == PASS_SCAN &&
- 				    jbd2_has_feature_checksum(journal) &&
-+				    !need_check_commit_time &&
- 				    !info->end_transaction) {
- 					if (calc_chksums(journal, bh,
- 							&next_log_block,
-@@ -683,11 +695,41 @@ static int do_one_pass(journal_t *journal,
- 			 *	 mentioned conditions. Hence assume
- 			 *	 "Interrupted Commit".)
- 			 */
-+			commit_time = be64_to_cpu(
-+				((struct commit_header *)bh->b_data)->h_commit_sec);
-+			/*
-+			 * If need_check_commit_time is set, it means we are in
-+			 * PASS_SCAN and csum verify failed before. If
-+			 * commit_time is increasing, it's the same journal,
-+			 * otherwise it is stale journal block, just end this
-+			 * recovery.
-+			 */
-+			if (need_check_commit_time) {
-+				if (commit_time >= last_trans_commit_time) {
-+					pr_err("JBD2: Invalid checksum found in transaction %u\n",
-+					       next_commit_ID);
-+					err = -EFSBADCRC;
-+					brelse(bh);
-+					goto failed;
-+				}
-+			ignore_crc_mismatch:
-+				/*
-+				 * It likely does not belong to same journal,
-+				 * just end this recovery with success.
-+				 */
-+				jbd_debug(1, "JBD2: Invalid checksum ignored in transaction %u, likely stale data\n",
-+					  next_commit_ID);
-+				err = 0;
-+				brelse(bh);
-+				goto done;
-+			}
- 
--			/* Found an expected commit block: if checksums
--			 * are present verify them in PASS_SCAN; else not
-+			/*
-+			 * Found an expected commit block: if checksums
-+			 * are present, verify them in PASS_SCAN; else not
- 			 * much to do other than move on to the next sequence
--			 * number. */
-+			 * number.
-+			 */
- 			if (pass == PASS_SCAN &&
- 			    jbd2_has_feature_checksum(journal)) {
- 				struct commit_header *cbh =
-@@ -719,6 +761,8 @@ static int do_one_pass(journal_t *journal,
- 			    !jbd2_commit_block_csum_verify(journal,
- 							   bh->b_data)) {
- 			chksum_error:
-+				if (commit_time < last_trans_commit_time)
-+					goto ignore_crc_mismatch;
- 				info->end_transaction = next_commit_ID;
- 
- 				if (!jbd2_has_feature_async_commit(journal)) {
-@@ -728,11 +772,24 @@ static int do_one_pass(journal_t *journal,
- 					break;
- 				}
- 			}
-+			if (pass == PASS_SCAN)
-+				last_trans_commit_time = commit_time;
- 			brelse(bh);
- 			next_commit_ID++;
- 			continue;
- 
- 		case JBD2_REVOKE_BLOCK:
-+			/*
-+			 * Check revoke block crc in pass_scan, if csum verify
-+			 * failed, check commit block time later.
-+			 */
-+			if (pass == PASS_SCAN &&
-+			    !jbd2_descriptor_block_csum_verify(journal,
-+							       bh->b_data)) {
-+				jbd_debug(1, "JBD2: invalid revoke block found in %lu\n",
-+					  next_log_block);
-+				need_check_commit_time = true;
-+			}
- 			/* If we aren't in the REVOKE pass, then we can
- 			 * just skip over this block. */
- 			if (pass != PASS_REVOKE) {
-@@ -800,9 +857,6 @@ static int scan_revoke_records(journal_t *journal, struct buffer_head *bh,
- 	offset = sizeof(jbd2_journal_revoke_header_t);
- 	rcount = be32_to_cpu(header->r_count);
- 
--	if (!jbd2_descriptor_block_csum_verify(journal, header))
--		return -EFSBADCRC;
--
- 	if (jbd2_journal_has_csum_v2or3(journal))
- 		csum_size = sizeof(struct jbd2_journal_block_tail);
- 	if (rcount > journal->j_blocksize - csum_size)
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index ea425b49b3456..d31ae5a878594 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -6042,6 +6042,11 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
+ 	/* Quotafile not on the same filesystem? */
+ 	if (path->dentry->d_sb != sb)
+ 		return -EXDEV;
++
++	/* Quota already enabled for this file? */
++	if (IS_NOQUOTA(d_inode(path->dentry)))
++		return -EBUSY;
++
+ 	/* Journaling quota? */
+ 	if (EXT4_SB(sb)->s_qf_names[type]) {
+ 		/* Quotafile not in fs root? */
 -- 
 2.25.1
 
