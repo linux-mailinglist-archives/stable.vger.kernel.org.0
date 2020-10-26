@@ -2,141 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82AAF299109
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 16:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9B6A2991C1
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 17:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1422583AbgJZPcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 11:32:15 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:60704 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1783908AbgJZPcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 11:32:14 -0400
-Received: from localhost.localdomain (unknown [IPv6:2a01:e0a:2c:6930:d3ea:1c7:41fd:3038])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1784728AbgJZQEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 12:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49424 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1784724AbgJZQDu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 12:03:50 -0400
+Received: from localhost.localdomain (unknown [192.30.34.233])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id C44D91F44CAD;
-        Mon, 26 Oct 2020 15:32:12 +0000 (GMT)
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        by mail.kernel.org (Postfix) with ESMTPSA id 1800722404;
+        Mon, 26 Oct 2020 16:03:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603728229;
+        bh=h5o3KPrk9jciKwrxsOK8xD5GWwug93Z9pyZ535cbSrE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=aNA7OSHiRYPuMjVVMjUdSIVv6a1NrDK92k47wbUdSPoQOvkIlKpPsX1BnQg7JjVLE
+         aQTX2P85AAeknQA5/AXXy54ddpRIOs7+5ZbrdHoAuMjGUPQ/3Wzn8ijVUQoYOz4URS
+         UwFP3cBGkMFDwhhJELdCopkeTSErByPu/zp9lZvA=
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
         Steven Price <steven.price@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc:     dri-devel@lists.freedesktop.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/panfrost: Fix a race in the job timeout handling (again)
-Date:   Mon, 26 Oct 2020 16:32:06 +0100
-Message-Id: <20201026153206.97037-1-boris.brezillon@collabora.com>
-X-Mailer: git-send-email 2.26.2
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] arm64: cpu_errata: fix override-init warnings
+Date:   Mon, 26 Oct 2020 17:03:28 +0100
+Message-Id: <20201026160342.3705327-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In our last attempt to fix races in the panfrost_job_timedout() path we
-overlooked the case where a re-submitted job immediately triggers a
-fault. This lead to a situation where we try to stop a scheduler that's
-not resumed yet and lose the 'timedout' event without restarting the
-timeout, thus blocking the whole queue.
+From: Arnd Bergmann <arnd@arndb.de>
 
-Let's fix that by tracking timeouts occurring between the
-drm_sched_resubmit_jobs() and drm_sched_start() calls.
+The CPU table causes a handful of warnings because of fields that
+have more than one initializer, e.g.
 
-Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+arch/arm64/kernel/cpu_errata.c:127:13: warning: initialized field overwritten [-Woverride-init]
+  127 |  .matches = is_affected_midr_range,   \
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+arch/arm64/kernel/cpu_errata.c:139:2: note: in expansion of macro 'CAP_MIDR_RANGE'
+  139 |  CAP_MIDR_RANGE(model, v_min, r_min, v_max, r_max)
+      |  ^~~~~~~~~~~~~~
+arch/arm64/kernel/cpu_errata.c:151:2: note: in expansion of macro 'ERRATA_MIDR_RANGE'
+  151 |  ERRATA_MIDR_RANGE(model, var, rev, var, rev)
+      |  ^~~~~~~~~~~~~~~~~
+arch/arm64/kernel/cpu_errata.c:317:3: note: in expansion of macro 'ERRATA_MIDR_REV'
+  317 |   ERRATA_MIDR_REV(MIDR_BRAHMA_B53, 0, 0),
+      |   ^~~~~~~~~~~~~~~
+
+Address all of these by removing the extra initializer that
+has no effect on the output.
+
+Fixes: 1cf45b8fdbb8 ("arm64: apply ARM64_ERRATUM_843419 workaround for Brahma-B53 core")
+Fixes: bf87bb0881d0 ("arm64: Allow booting of late CPUs affected by erratum 1418040")
+Fixes: 93916beb7014 ("arm64: Enable workaround for Cavium TX2 erratum 219 when running SMT")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/gpu/drm/panfrost/panfrost_job.c | 42 ++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 8 deletions(-)
+ arch/arm64/kernel/cpu_errata.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-index d0469e944143..96c2c21a4205 100644
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -26,6 +26,7 @@
- struct panfrost_queue_state {
- 	struct drm_gpu_scheduler sched;
- 	bool stopped;
-+	bool timedout;
- 	struct mutex lock;
- 	u64 fence_context;
- 	u64 emit_seqno;
-@@ -383,11 +384,33 @@ static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
- 		queue->stopped = true;
- 		stopped = true;
- 	}
-+	queue->timedout = true;
- 	mutex_unlock(&queue->lock);
- 
- 	return stopped;
- }
- 
-+static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
-+{
-+	if (WARN_ON(!queue->stopped))
-+		return;
-+
-+	mutex_lock(&queue->lock);
-+	drm_sched_start(&queue->sched, true);
-+
-+	/*
-+	 * We might have missed fault-timeouts (AKA immediate timeouts) while
-+	 * the scheduler was stopped. Let's fake a new fault to trigger an
-+	 * immediate reset.
-+	 */
-+	if (queue->timedout)
-+		drm_sched_fault(&queue->sched);
-+
-+	queue->timedout = false;
-+	queue->stopped = false;
-+	mutex_unlock(&queue->lock);
-+}
-+
- static void panfrost_job_timedout(struct drm_sched_job *sched_job)
- {
- 	struct panfrost_job *job = to_panfrost_job(sched_job);
-@@ -437,12 +460,6 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
- 		 */
- 		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
- 			cancel_delayed_work_sync(&sched->work_tdr);
--
--		/*
--		 * Now that we cancelled the pending timeouts, we can safely
--		 * reset the stopped state.
--		 */
--		pfdev->js->queue[i].stopped = false;
- 	}
- 
- 	spin_lock_irqsave(&pfdev->js->job_lock, flags);
-@@ -457,14 +474,23 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
- 
- 	panfrost_device_reset(pfdev);
- 
--	for (i = 0; i < NUM_JOB_SLOTS; i++)
-+	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-+		/*
-+		 * The GPU is idle, and the scheduler is stopped, we can safely
-+		 * reset the ->timedout state without taking any lock. We need
-+		 * to do that before calling drm_sched_resubmit_jobs() though,
-+		 * because the resubmission might trigger immediate faults
-+		 * which we want to catch.
-+		 */
-+		pfdev->js->queue[i].timedout = false;
- 		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
-+	}
- 
- 	mutex_unlock(&pfdev->reset_lock);
- 
- 	/* restart scheduler after GPU is usable again */
- 	for (i = 0; i < NUM_JOB_SLOTS; i++)
--		drm_sched_start(&pfdev->js->queue[i].sched, true);
-+		panfrost_scheduler_start(&pfdev->js->queue[i]);
- }
- 
- static const struct drm_sched_backend_ops panfrost_sched_ops = {
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 24d75af344b1..2321f52e396f 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -307,13 +307,11 @@ static const struct midr_range erratum_845719_list[] = {
+ static const struct arm64_cpu_capabilities erratum_843419_list[] = {
+ 	{
+ 		/* Cortex-A53 r0p[01234] */
+-		.matches = is_affected_midr_range,
+ 		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
+ 		MIDR_FIXED(0x4, BIT(8)),
+ 	},
+ 	{
+ 		/* Brahma-B53 r0p[0] */
+-		.matches = is_affected_midr_range,
+ 		ERRATA_MIDR_REV(MIDR_BRAHMA_B53, 0, 0),
+ 	},
+ 	{},
+@@ -475,7 +473,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 	{
+ 		.desc = "ARM erratum 1418040",
+ 		.capability = ARM64_WORKAROUND_1418040,
+-		ERRATA_MIDR_RANGE_LIST(erratum_1418040_list),
++		CAP_MIDR_RANGE_LIST(erratum_1418040_list),
+ 		/*
+ 		 * We need to allow affected CPUs to come in late, but
+ 		 * also need the non-affected CPUs to be able to come
+@@ -504,8 +502,8 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 	{
+ 		.desc = "Cavium ThunderX2 erratum 219 (KVM guest sysreg trapping)",
+ 		.capability = ARM64_WORKAROUND_CAVIUM_TX2_219_TVM,
+-		ERRATA_MIDR_RANGE_LIST(tx2_family_cpus),
+ 		.matches = needs_tx2_tvm_workaround,
++		.midr_range_list = tx2_family_cpus,
+ 	},
+ 	{
+ 		.desc = "Cavium ThunderX2 erratum 219 (PRFM removal)",
 -- 
-2.26.2
+2.27.0
 
