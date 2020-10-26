@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4914229A16E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE92529A0BC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441478AbgJ0Als (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:41:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47154 "EHLO mail.kernel.org"
+        id S2408682AbgJZXtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408653AbgJZXtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:18 -0400
+        id S2408675AbgJZXtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70EEB2075B;
-        Mon, 26 Oct 2020 23:49:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F77320874;
+        Mon, 26 Oct 2020 23:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756158;
-        bh=wJ7tx26oXbwyvOoGgHEzr8rD6oBnYrEO0hRZuOwrsRE=;
+        s=default; t=1603756162;
+        bh=I7ND9zZbIMJSh/zsLnYBt0JTHrjjwCwqQGDRU/sWW9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7E0TKQI4k3G6BBMkBdxLTZnPorQpAc/BLrsFtdNflUvuni2ihbpWEDRHmlqQ6IUt
-         l1rFYPF6zszV89o0+1OR4ixb3XKT5x3B2THOpnrAHuaDM+BBsu9oUf7NWM6Bj4DZAR
-         yc5OaCyUI4xtAGgRZ0cu4KdSLVHDQLLQ+uwyWSWs=
+        b=dTxxzn7lgDzMIHsvtcJSXmRAu39GMr2FYZc0HSP6+p9nAk5ovk6k22Mys2gxSegSU
+         bgHz/ynLeTtk/+GsF+D/g2UbwLQRm621hzYsbVFSZuJKEAyk7+t9GZfl8K4lOTPrOK
+         MupKan5jp4wXgDkb4k6YJTKC8Qi3CnNsOLyaBDqg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.9 010/147] f2fs: do sanity check on zoned block device path
-Date:   Mon, 26 Oct 2020 19:46:48 -0400
-Message-Id: <20201026234905.1022767-10-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 013/147] s390/startup: avoid save_area_sync overflow
+Date:   Mon, 26 Oct 2020 19:46:51 -0400
+Message-Id: <20201026234905.1022767-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -42,60 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 07eb1d699452de04e9d389ff17fb8fc9e975d7bf ]
+[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
 
-sbi->devs would be initialized only if image enables multiple device
-feature or blkzoned feature, if blkzoned feature flag was set by fuzz
-in non-blkzoned device, we will suffer below panic:
+Currently we overflow save_area_sync and write over
+save_area_async. Although this is not a real problem make
+startup_pgm_check_handler consistent with late pgm check handler and
+store [%r0,%r7] directly into gpregs_save_area.
 
-get_zone_idx fs/f2fs/segment.c:4892 [inline]
-f2fs_usable_zone_blks_in_seg fs/f2fs/segment.c:4943 [inline]
-f2fs_usable_blks_in_seg+0x39b/0xa00 fs/f2fs/segment.c:4999
-Call Trace:
- check_block_count+0x69/0x4e0 fs/f2fs/segment.h:704
- build_sit_entries fs/f2fs/segment.c:4403 [inline]
- f2fs_build_segment_manager+0x51da/0xa370 fs/f2fs/segment.c:5100
- f2fs_fill_super+0x3880/0x6ff0 fs/f2fs/super.c:3684
- mount_bdev+0x32e/0x3f0 fs/super.c:1417
- legacy_get_tree+0x105/0x220 fs/fs_context.c:592
- vfs_get_tree+0x89/0x2f0 fs/super.c:1547
- do_new_mount fs/namespace.c:2896 [inline]
- path_mount+0x12ae/0x1e70 fs/namespace.c:3216
- do_mount fs/namespace.c:3229 [inline]
- __do_sys_mount fs/namespace.c:3437 [inline]
- __se_sys_mount fs/namespace.c:3414 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3414
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-
-Add sanity check to inconsistency on factors: blkzoned flag, device
-path and device character to avoid above panic.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/boot/head.S | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index dfa072fa80815..be5050292caa5 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2832,6 +2832,12 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
- 					segment_count, dev_seg_count);
- 			return -EFSCORRUPTED;
- 		}
-+	} else {
-+		if (__F2FS_HAS_FEATURE(raw_super, F2FS_FEATURE_BLKZONED) &&
-+					!bdev_is_zoned(sbi->sb->s_bdev)) {
-+			f2fs_info(sbi, "Zoned block device path is missing");
-+			return -EFSCORRUPTED;
-+		}
- 	}
- 
- 	if (secs_per_zone > total_sections || !secs_per_zone) {
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index dae10961d0724..1a2c2b1ed9649 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
+ # the save area and does disabled wait with a faulty address.
+ #
+ ENTRY(startup_pgm_check_handler)
+-	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
+-	la	%r1,4095
+-	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
+-	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
+-	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
++	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
++	la	%r8,4095
++	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
++	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
++	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
++	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
+ 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
+ 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
+ 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
+ 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
+-	larl	%r2,.Lold_psw_disabled_wait
+-	stg	%r2,__LC_PGM_NEW_PSW+8
+-	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
++	larl	%r9,.Lold_psw_disabled_wait
++	stg	%r9,__LC_PGM_NEW_PSW+8
++	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
+ 	brasl	%r14,print_pgm_check_info
+ .Lold_psw_disabled_wait:
+-	la	%r1,4095
+-	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
++	la	%r8,4095
++	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
+ 	lpswe	__LC_RETURN_PSW		# disabled wait
+ .Ldump_info_stack:
+ 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
 -- 
 2.25.1
 
