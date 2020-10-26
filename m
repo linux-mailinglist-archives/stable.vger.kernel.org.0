@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C518E299FB4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58451299FAF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441500AbgJ0AYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58910 "EHLO mail.kernel.org"
+        id S2410269AbgJZXx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410252AbgJZXxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:53:54 -0400
+        id S2410262AbgJZXx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:53:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17613221FC;
-        Mon, 26 Oct 2020 23:53:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A75F20882;
+        Mon, 26 Oct 2020 23:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756433;
-        bh=TBbf0P1iaTM9dF80Ec24hVxJ+5R1xA26OQgZCbEpp9Q=;
+        s=default; t=1603756435;
+        bh=HOQPy0p4Pi0/XvfEJsVuHquvnr0IOxQpH7ArqHJntZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5v5x9vNryMkqNsbGvCCMnW79TZDQqrz+tGFhdlYDwTqrs6FVlRWaiKHoyGhAILwh
-         W2ndBBdX51rUFsMYGMXHFkqv6EXtyPrxqOJLlZfgZDTuZWF1qmEHCqBsd/S+OISa3l
-         UL9iWzJ/Fpvgrz4yJOl9hz2cxjh8Wl1OEZn2M1EY=
+        b=ZSHRqqC6O0VD+2Udzw1/w8Tefpkjdojo5ZucRijGZqts+v8DZwtpI+24z6/p9Ww0l
+         vkmgvVdlDANTc0UwgN1UBrWYWuJXolLt59YBvMAtkgqbq4YPO0NtrOB/bEKzHtA8VW
+         JDrxkvL0lhGqK8H3GQrVpSLt346vFBKw3FpGCH3w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bhaumik Bhatt <bbhatt@codeaurora.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 088/132] bus: mhi: core: Abort suspends due to outgoing pending packets
-Date:   Mon, 26 Oct 2020 19:51:20 -0400
-Message-Id: <20201026235205.1023962-88-sashal@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 090/132] ACPI: HMAT: Fix handling of changes from ACPI 6.2 to ACPI 6.3
+Date:   Mon, 26 Oct 2020 19:51:22 -0400
+Message-Id: <20201026235205.1023962-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -43,49 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 515847c557dd33167be86cb429fc0674a331bc88 ]
+[ Upstream commit 2c5b9bde95c96942f2873cea6ef383c02800e4a8 ]
 
-Add the missing check to abort suspends if a client driver has pending
-outgoing packets to send to the device. This allows better utilization
-of the MHI bus wherein clients on the host are not left waiting for
-longer suspend or resume cycles to finish for data transfers.
+In ACPI 6.3, the Memory Proximity Domain Attributes Structure
+changed substantially.  One of those changes was that the flag
+for "Memory Proximity Domain field is valid" was deprecated.
 
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20200929175218.8178-4-manivannan.sadhasivam@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was because the field "Proximity Domain for the Memory"
+became a required field and hence having a validity flag makes
+no sense.
+
+So the correct logic is to always assume the field is there.
+Current code assumes it never is.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/core/pm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/numa/hmat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 7960980780832..661d704c8093d 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -686,7 +686,8 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
- 		return -EIO;
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index 2c32cfb723701..6a91a55229aee 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -424,7 +424,8 @@ static int __init hmat_parse_proximity_domain(union acpi_subtable_headers *heade
+ 		pr_info("HMAT: Memory Flags:%04x Processor Domain:%u Memory Domain:%u\n",
+ 			p->flags, p->processor_PD, p->memory_PD);
  
- 	/* Return busy if there are any pending resources */
--	if (atomic_read(&mhi_cntrl->dev_wake))
-+	if (atomic_read(&mhi_cntrl->dev_wake) ||
-+	    atomic_read(&mhi_cntrl->pending_pkts))
- 		return -EBUSY;
- 
- 	/* Take MHI out of M2 state */
-@@ -712,7 +713,8 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
- 
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 
--	if (atomic_read(&mhi_cntrl->dev_wake)) {
-+	if (atomic_read(&mhi_cntrl->dev_wake) ||
-+	    atomic_read(&mhi_cntrl->pending_pkts)) {
- 		write_unlock_irq(&mhi_cntrl->pm_lock);
- 		return -EBUSY;
- 	}
+-	if (p->flags & ACPI_HMAT_MEMORY_PD_VALID && hmat_revision == 1) {
++	if ((hmat_revision == 1 && p->flags & ACPI_HMAT_MEMORY_PD_VALID) ||
++	    hmat_revision > 1) {
+ 		target = find_mem_target(p->memory_PD);
+ 		if (!target) {
+ 			pr_debug("HMAT: Memory Domain missing from SRAT\n");
 -- 
 2.25.1
 
