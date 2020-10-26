@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0BC29A086
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB3D29A0A6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2443523AbgJ0AbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54338 "EHLO mail.kernel.org"
+        id S2409642AbgJ0AcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:32:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409666AbgJZXwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:52:15 -0400
+        id S2409680AbgJZXwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54B8C21BE5;
-        Mon, 26 Oct 2020 23:52:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B092C217A0;
+        Mon, 26 Oct 2020 23:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756334;
-        bh=IDcaushz+RU4d/trbv+CeTcDgzgPJ+elbC9UsdFz0P4=;
+        s=default; t=1603756336;
+        bh=9tZeHih8e7Uh4LwY8MPzkfHHfIefV9R/hNqCIllSfx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0XfPkNIyoSQibpweSMdw2298wVLHqKF0HuO+74kpej19r9xmSR9G0IIXOKIlbuCH
-         DFuuFob52r+KAMaBFZUuJ77kDXIIbzRL++TympuWjHrRWr/KaRc/vux7edMkIWxeMI
-         1VKFyxlq4LnYaPk3BaGpT3r8u3vrXhMf+2riVjcQ=
+        b=SvqDNmtDZ2ONNJTsdldX6NnxZHRUqICrlPseNLkXCEKyKbqcZHlgflrPDTCF4tGlB
+         7AkxanL/z7iZSqyuGdJdhZwk1pF9J8oQFW7qREaTtyve+o49D5rwO7R5giKz0P/y9e
+         rErGH3thfr928Wg53m97+cW6jkGKCx7u1FcQMVOo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 007/132] sparc64: remove mm_cpumask clearing to fix kthread_use_mm race
-Date:   Mon, 26 Oct 2020 19:49:59 -0400
-Message-Id: <20201026235205.1023962-7-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.8 009/132] f2fs: do sanity check on zoned block device path
+Date:   Mon, 26 Oct 2020 19:50:01 -0400
+Message-Id: <20201026235205.1023962-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -43,177 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit bafb056ce27940c9994ea905336aa8f27b4f7275 ]
+[ Upstream commit 07eb1d699452de04e9d389ff17fb8fc9e975d7bf ]
 
-The de facto (and apparently uncommented) standard for using an mm had,
-thanks to this code in sparc if nothing else, been that you must have a
-reference on mm_users *and that reference must have been obtained with
-mmget()*, i.e., from a thread with a reference to mm_users that had used
-the mm.
+sbi->devs would be initialized only if image enables multiple device
+feature or blkzoned feature, if blkzoned feature flag was set by fuzz
+in non-blkzoned device, we will suffer below panic:
 
-The introduction of mmget_not_zero() in commit d2005e3f41d4
-("userfaultfd: don't pin the user memory in userfaultfd_file_create()")
-allowed mm_count holders to aoperate on user mappings asynchronously
-from the actual threads using the mm, but they were not to load those
-mappings into their TLB (i.e., walking vmas and page tables is okay,
-kthread_use_mm() is not).
+get_zone_idx fs/f2fs/segment.c:4892 [inline]
+f2fs_usable_zone_blks_in_seg fs/f2fs/segment.c:4943 [inline]
+f2fs_usable_blks_in_seg+0x39b/0xa00 fs/f2fs/segment.c:4999
+Call Trace:
+ check_block_count+0x69/0x4e0 fs/f2fs/segment.h:704
+ build_sit_entries fs/f2fs/segment.c:4403 [inline]
+ f2fs_build_segment_manager+0x51da/0xa370 fs/f2fs/segment.c:5100
+ f2fs_fill_super+0x3880/0x6ff0 fs/f2fs/super.c:3684
+ mount_bdev+0x32e/0x3f0 fs/super.c:1417
+ legacy_get_tree+0x105/0x220 fs/fs_context.c:592
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1547
+ do_new_mount fs/namespace.c:2896 [inline]
+ path_mount+0x12ae/0x1e70 fs/namespace.c:3216
+ do_mount fs/namespace.c:3229 [inline]
+ __do_sys_mount fs/namespace.c:3437 [inline]
+ __se_sys_mount fs/namespace.c:3414 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3414
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
 
-io_uring 2b188cc1bb857 ("Add io_uring IO interface") added code which
-does a kthread_use_mm() from a mmget_not_zero() refcount.
+Add sanity check to inconsistency on factors: blkzoned flag, device
+path and device character to avoid above panic.
 
-The problem with this is code which previously assumed mm == current->mm
-and mm->mm_users == 1 implies the mm will remain single-threaded at
-least until this thread creates another mm_users reference, has now
-broken.
-
-arch/sparc/kernel/smp_64.c:
-
-    if (atomic_read(&mm->mm_users) == 1) {
-        cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
-        goto local_flush_and_out;
-    }
-
-vs fs/io_uring.c
-
-    if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
-                 !mmget_not_zero(ctx->sqo_mm)))
-        return -EFAULT;
-    kthread_use_mm(ctx->sqo_mm);
-
-mmget_not_zero() could come in right after the mm_users == 1 test, then
-kthread_use_mm() which sets its CPU in the mm_cpumask. That update could
-be lost if cpumask_copy() occurs afterward.
-
-I propose we fix this by allowing mmget_not_zero() to be a first-class
-reference, and not have this obscure undocumented and unchecked
-restriction.
-
-The basic fix for sparc64 is to remove its mm_cpumask clearing code. The
-optimisation could be effectively restored by sending IPIs to mm_cpumask
-members and having them remove themselves from mm_cpumask. This is more
-tricky so I leave it as an exercise for someone with a sparc64 SMP.
-powerpc has a (currently similarly broken) example.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-4-npiggin@gmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/smp_64.c | 65 ++++++++------------------------------
- 1 file changed, 14 insertions(+), 51 deletions(-)
+ fs/f2fs/super.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index 0085e28bf019a..d88467758ee87 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1038,38 +1038,9 @@ void smp_fetch_global_pmu(void)
-  * are flush_tlb_*() routines, and these run after flush_cache_*()
-  * which performs the flushw.
-  *
-- * The SMP TLB coherency scheme we use works as follows:
-- *
-- * 1) mm->cpu_vm_mask is a bit mask of which cpus an address
-- *    space has (potentially) executed on, this is the heuristic
-- *    we use to avoid doing cross calls.
-- *
-- *    Also, for flushing from kswapd and also for clones, we
-- *    use cpu_vm_mask as the list of cpus to make run the TLB.
-- *
-- * 2) TLB context numbers are shared globally across all processors
-- *    in the system, this allows us to play several games to avoid
-- *    cross calls.
-- *
-- *    One invariant is that when a cpu switches to a process, and
-- *    that processes tsk->active_mm->cpu_vm_mask does not have the
-- *    current cpu's bit set, that tlb context is flushed locally.
-- *
-- *    If the address space is non-shared (ie. mm->count == 1) we avoid
-- *    cross calls when we want to flush the currently running process's
-- *    tlb state.  This is done by clearing all cpu bits except the current
-- *    processor's in current->mm->cpu_vm_mask and performing the
-- *    flush locally only.  This will force any subsequent cpus which run
-- *    this task to flush the context from the local tlb if the process
-- *    migrates to another cpu (again).
-- *
-- * 3) For shared address spaces (threads) and swapping we bite the
-- *    bullet for most cases and perform the cross call (but only to
-- *    the cpus listed in cpu_vm_mask).
-- *
-- *    The performance gain from "optimizing" away the cross call for threads is
-- *    questionable (in theory the big win for threads is the massive sharing of
-- *    address space state across processors).
-+ * mm->cpu_vm_mask is a bit mask of which cpus an address
-+ * space has (potentially) executed on, this is the heuristic
-+ * we use to limit cross calls.
-  */
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 0deb839da0a03..28ab6cf26954a 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2782,6 +2782,12 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 					segment_count, dev_seg_count);
+ 			return -EFSCORRUPTED;
+ 		}
++	} else {
++		if (__F2FS_HAS_FEATURE(raw_super, F2FS_FEATURE_BLKZONED) &&
++					!bdev_is_zoned(sbi->sb->s_bdev)) {
++			f2fs_info(sbi, "Zoned block device path is missing");
++			return -EFSCORRUPTED;
++		}
+ 	}
  
- /* This currently is only used by the hugetlb arch pre-fault
-@@ -1079,18 +1050,13 @@ void smp_fetch_global_pmu(void)
- void smp_flush_tlb_mm(struct mm_struct *mm)
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
- 
--	if (atomic_read(&mm->mm_users) == 1) {
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--		goto local_flush_and_out;
--	}
-+	get_cpu();
- 
- 	smp_cross_call_masked(&xcall_flush_tlb_mm,
- 			      ctx, 0, 0,
- 			      mm_cpumask(mm));
- 
--local_flush_and_out:
- 	__flush_tlb_mm(ctx, SECONDARY_CONTEXT);
- 
- 	put_cpu();
-@@ -1113,17 +1079,15 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
- 	struct tlb_pending_info info;
--	int cpu = get_cpu();
-+
-+	get_cpu();
- 
- 	info.ctx = ctx;
- 	info.nr = nr;
- 	info.vaddrs = vaddrs;
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
--				       &info, 1);
-+	smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
-+			       &info, 1);
- 
- 	__flush_tlb_pending(ctx, nr, vaddrs);
- 
-@@ -1133,14 +1097,13 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- void smp_flush_tlb_page(struct mm_struct *mm, unsigned long vaddr)
- {
- 	unsigned long context = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_cross_call_masked(&xcall_flush_tlb_page,
--				      context, vaddr, 0,
--				      mm_cpumask(mm));
-+	get_cpu();
-+
-+	smp_cross_call_masked(&xcall_flush_tlb_page,
-+			      context, vaddr, 0,
-+			      mm_cpumask(mm));
-+
- 	__flush_tlb_page(context, vaddr);
- 
- 	put_cpu();
+ 	if (secs_per_zone > total_sections || !secs_per_zone) {
 -- 
 2.25.1
 
