@@ -2,130 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214E1298ABD
-	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 11:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0315D298AC3
+	for <lists+stable@lfdr.de>; Mon, 26 Oct 2020 11:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1771758AbgJZKvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 06:51:06 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:39090 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1770960AbgJZKvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 06:51:05 -0400
-Date:   Mon, 26 Oct 2020 10:51:01 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1603709462;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qAT90Ww8AO0M+YiJyfFcemR1v6O5CkiPMwWvyQYV/fY=;
-        b=JI5VgPrlb2sTVfT/EimV2Coyich9hMADy/nTs8fJ0wSeBt6g6kgFuvS4BrThrly+nihtjQ
-        rhvbypVaCm5OEE3UanpOVdBWg5a+jR9SMCnMfAo59UTRF1I3JcuGZfr4uyhwKVov83tYK+
-        Ca9XdnPF6wKGgsMbHCcr0R3CXoJdcf3JKcFde/qYrettkSKEoXxMJhROFPWUyujJmIuaM0
-        /ntZWqhnt0XMxzEm1etYlUxwh3f/kfmNH/Sv9q4PCosTzExDJ8WOE23naogACZpNIb59HU
-        /soV9A73uxCc4Tz9UcDzYPOOF4JA7wsGlYnbpbkuqyXrnC2pKSi6PRuAyAiIMw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1603709462;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qAT90Ww8AO0M+YiJyfFcemR1v6O5CkiPMwWvyQYV/fY=;
-        b=/EyD07S9+m1wwo4b3U5xNZT8cbgDs5As2B7r9hqv9utfobVOpsUCcNFT39wM1fuwc0Ctp3
-        O0XbT5N76ZQufhAQ==
-From:   "tip-bot2 for Zeng Tao" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] time: Prevent undefined behaviour in timespec64_to_ns()
-Cc:     Zeng Tao <prime.zeng@hisilicon.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com>
-References: <1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com>
-MIME-Version: 1.0
-Message-ID: <160370946176.397.12992652264857362737.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S1771845AbgJZKwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 06:52:18 -0400
+Received: from mail-pj1-f43.google.com ([209.85.216.43]:37463 "EHLO
+        mail-pj1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1771748AbgJZKwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 06:52:17 -0400
+Received: by mail-pj1-f43.google.com with SMTP id lt2so2893128pjb.2
+        for <stable@vger.kernel.org>; Mon, 26 Oct 2020 03:52:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ficI1vNH0mHoneGjD+a02ZkrkbfX8dMVF6maMXiGZ6w=;
+        b=nWw4NrWJlexKNXyeZY6EVjDkTiiwcFWHbyacEAPt1hgfnQxFeBLpZcxvP+V/XmJxJY
+         oFRH9HLVG7OF/IGt5AACPKTPVHEVpP0AyJ5osat798Qfh3fpFrhB/9HvXOyIiOk8E1mV
+         QY1X9obJbvuGug4b+dQ9mav/kZqoIXD1M7qH/eppXT12p0QKkDSRUgI98bonPScHeMH4
+         0jTL74aktQGLNvWTUDX2osFvKsuIXUB5135+bspTHkMvw3RETnj6THHElWbx7vlXDKEN
+         8ZoSW07nsGjW3XKTaHcsGourB0NGwLQO9hJE20e4nxmZh/6L8UwmN+tkYEvAvBBw2Jey
+         CY8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ficI1vNH0mHoneGjD+a02ZkrkbfX8dMVF6maMXiGZ6w=;
+        b=KFccO+Z9IN811U3AHPQ66UkaaNz1RBBuHv4MtjGS7OeNVn7fv3vEwMKcuHS8aLwHqW
+         3y43lYE03UDCk4HjUYyO8/RVTgI9se6zzKdY4mCVW7dfnUpuebRYbV7mzIFvVby13VpB
+         /daL2TpzrSu1+7smsfr9aPJxbg5KSUDrL45UZsR7sxV/o46mU1F3srsFVEwYHKZeF0Ja
+         7HQfUYWxHVGa+MkBW8m0N3//a/+PQX960w6E/rm67TsFNX5zwLIBk2B8U3udQN6+K91L
+         lQDdVwnwJ/0o4CXW1ghcpDmggzgr/+cdahkk+/TJyDaxaeS9MluJifDtK4legvOMEDxB
+         qEBg==
+X-Gm-Message-State: AOAM530nnxugVhHkC69yWS7BeRo+BzKcSn75fQuKgBBnGgg/VZVnEo2k
+        xTpDepOkdfmJErz1cVM+ky2rUqljlYnIFw==
+X-Google-Smtp-Source: ABdhPJwxd7ZHu9tQMy5d7Bia6rnlFbyqc4o4noSZkK8wzsLeOJ35MMtyGrZ+S78jNvkbgrnHD5vAtg==
+X-Received: by 2002:a17:90a:a394:: with SMTP id x20mr15834025pjp.213.1603709536752;
+        Mon, 26 Oct 2020 03:52:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v6sm12123110pjh.10.2020.10.26.03.52.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Oct 2020 03:52:16 -0700 (PDT)
+Message-ID: <5f96aa60.1c69fb81.94e5d.8b03@mx.google.com>
+Date:   Mon, 26 Oct 2020 03:52:16 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.240-109-g76d7a01ba8bf
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 113 runs,
+ 2 regressions (v4.4.240-109-g76d7a01ba8bf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+stable-rc/queue/4.4 baseline: 113 runs, 2 regressions (v4.4.240-109-g76d7a0=
+1ba8bf)
 
-Commit-ID:     cb47755725da7b90fecbb2aa82ac3b24a7adb89b
-Gitweb:        https://git.kernel.org/tip/cb47755725da7b90fecbb2aa82ac3b24a7adb89b
-Author:        Zeng Tao <prime.zeng@hisilicon.com>
-AuthorDate:    Tue, 01 Sep 2020 17:30:13 +08:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Mon, 26 Oct 2020 11:48:11 +01:00
+Regressions Summary
+-------------------
 
-time: Prevent undefined behaviour in timespec64_to_ns()
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
 
-UBSAN reports:
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
 
-Undefined behaviour in ./include/linux/time64.h:127:27
-signed integer overflow:
-17179869187 * 1000000000 cannot be represented in type 'long long int'
-Call Trace:
- timespec64_to_ns include/linux/time64.h:127 [inline]
- set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
- do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
- __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
- do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
 
-Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
-replaced the original conversion which handled time clamping correctly with
-timespec64_to_ns() which has no overflow protection.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.240-109-g76d7a01ba8bf/plan/baseline/
 
-Fix it in timespec64_to_ns() as this is not necessarily limited to the
-usage in itimers.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.240-109-g76d7a01ba8bf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      76d7a01ba8bf7f3d7a4767227c86ce2a024fe93d =
 
-[ tglx: Added comment and adjusted the fixes tag ]
 
-Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
----
- include/linux/time64.h | 4 ++++
- kernel/time/itimer.c   | 4 ----
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index c9dcb3e..5117cb5 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -124,6 +124,10 @@ static inline bool timespec64_valid_settod(const struct timespec64 *ts)
-  */
- static inline s64 timespec64_to_ns(const struct timespec64 *ts)
- {
-+	/* Prevent multiplication overflow */
-+	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
-+		return KTIME_MAX;
-+
- 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
- 
-diff --git a/kernel/time/itimer.c b/kernel/time/itimer.c
-index ca4e6d5..00629e6 100644
---- a/kernel/time/itimer.c
-+++ b/kernel/time/itimer.c
-@@ -172,10 +172,6 @@ static void set_cpu_itimer(struct task_struct *tsk, unsigned int clock_id,
- 	u64 oval, nval, ointerval, ninterval;
- 	struct cpu_itimer *it = &tsk->signal->it[clock_id];
- 
--	/*
--	 * Use the to_ktime conversion because that clamps the maximum
--	 * value to KTIME_MAX and avoid multiplication overflows.
--	 */
- 	nval = timespec64_to_ns(&value->it_value);
- 	ninterval = timespec64_to_ns(&value->it_interval);
- 
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f96783ca77285b91938101c
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+09-g76d7a01ba8bf/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+09-g76d7a01ba8bf/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f96783ca77285b=
+919381023
+        failing since 1 day (last pass: v4.4.240-11-g59c7a4fa128e, first fa=
+il: v4.4.240-18-ge29a79b89605)
+        2 lines =
+
+ =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9679147b9f20cef7381035
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+09-g76d7a01ba8bf/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.240-1=
+09-g76d7a01ba8bf/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9679147b9f20cef7381=
+036
+        new failure (last pass: v4.4.240-18-gec7216aecf8f) =
+
+ =20
