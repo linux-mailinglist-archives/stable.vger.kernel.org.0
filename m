@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBD4299C31
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD91299C3E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411094AbgJZX4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:56:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35366 "EHLO mail.kernel.org"
+        id S2411139AbgJZX41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:56:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411035AbgJZX4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:56:07 -0400
+        id S2411134AbgJZX40 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:56:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8DA7221FC;
-        Mon, 26 Oct 2020 23:56:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 563BA22202;
+        Mon, 26 Oct 2020 23:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756566;
-        bh=UsP5Op/3imQ3f2V8/G0OczM1OdRKveFc8e0d0Jr0dZY=;
+        s=default; t=1603756586;
+        bh=GRTFh941TkFlvAmR1IkQs3HYZXvOPtx9BbXfMkCYQCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKDnrXuH91vc5woM9Gxl2u+cr89qz+JDF9g+RsmbiNqp6///c3p0bwibujGBX1SRj
-         r7dppPKsJdGTdwO2oPl8s0VXGL5YOU09Ia+dUwNMSkP1ptVm6ZIVK+lhH/xJSJSz3A
-         AGMXujZYt7mCdBJI+7YZMoNPEcUa1H76iQqrFYp8=
+        b=I4M5Qs88zKY+pp4ETIdtV0gORQZwdzhudJuCLBSHzUTbO1wf81GDjOEk3Emj4GAL1
+         o7mmZDu2OTJOaO8AGs8Nqgt3ex8rgoAcxGrlQuCZyfDr2eU4MxoD+dBFKhL6crnwMb
+         /fdKWLmll7ma8sYk3sSXJMK7sRP59BsfaKsYBQDo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Chen <peter.chen@nxp.com>, Jun Li <jun.li@nxp.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 41/80] usb: xhci: omit duplicate actions when suspending a runtime suspended host.
-Date:   Mon, 26 Oct 2020 19:54:37 -0400
-Message-Id: <20201026235516.1025100-41-sashal@kernel.org>
+Cc:     Michael Chan <michael.chan@broadcom.com>,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 58/80] bnxt_en: Log unknown link speed appropriately.
+Date:   Mon, 26 Oct 2020 19:54:54 -0400
+Message-Id: <20201026235516.1025100-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -43,55 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 18a367e8947d72dd91b6fc401e88a2952c6363f7 ]
+[ Upstream commit 8eddb3e7ce124dd6375d3664f1aae13873318b0f ]
 
-If the xhci-plat.c is the platform driver, after the runtime pm is
-enabled, the xhci_suspend is called if nothing is connected on
-the port. When the system goes to suspend, it will call xhci_suspend again
-if USB wakeup is enabled.
+If the VF virtual link is set to always enabled, the speed may be
+unknown when the physical link is down.  The driver currently logs
+the link speed as 4294967295 Mbps which is SPEED_UNKNOWN.  Modify
+the link up log message as "speed unknown" which makes more sense.
 
-Since the runtime suspend wakeup setting is not always the same as
-system suspend wakeup setting, eg, at runtime suspend we always need
-wakeup if the controller is in low power mode; but at system suspend,
-we may not need wakeup. So, we move the judgement after changing
-wakeup setting.
-
-[commit message rewording -Mathias]
-
-Reviewed-by: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200918131752.16488-8-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/1602493854-29283-7-git-send-email-michael.chan@broadcom.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index bad154f446f8d..51116030852e9 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -982,12 +982,15 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
- 			xhci->shared_hcd->state != HC_STATE_SUSPENDED)
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 4f4fd80762610..292fe096139de 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8384,6 +8384,11 @@ static void bnxt_report_link(struct bnxt *bp)
+ 		u16 fec;
  
--	xhci_dbc_suspend(xhci);
--
- 	/* Clear root port wake on bits if wakeup not allowed. */
- 	if (!do_wakeup)
- 		xhci_disable_port_wake_on_bits(xhci);
- 
-+	if (!HCD_HW_ACCESSIBLE(hcd))
-+		return 0;
-+
-+	xhci_dbc_suspend(xhci);
-+
- 	/* Don't poll the roothubs on bus suspend. */
- 	xhci_dbg(xhci, "%s: stopping port polling.\n", __func__);
- 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+ 		netif_carrier_on(bp->dev);
++		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
++		if (speed == SPEED_UNKNOWN) {
++			netdev_info(bp->dev, "NIC Link is Up, speed unknown\n");
++			return;
++		}
+ 		if (bp->link_info.duplex == BNXT_LINK_DUPLEX_FULL)
+ 			duplex = "full";
+ 		else
+@@ -8396,7 +8401,6 @@ static void bnxt_report_link(struct bnxt *bp)
+ 			flow_ctrl = "ON - receive";
+ 		else
+ 			flow_ctrl = "none";
+-		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
+ 		netdev_info(bp->dev, "NIC Link is Up, %u Mbps %s duplex, Flow control: %s\n",
+ 			    speed, duplex, flow_ctrl);
+ 		if (bp->flags & BNXT_FLAG_EEE_CAP)
 -- 
 2.25.1
 
