@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9398D299F5D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:22:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C75299F57
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441243AbgJ0AVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:21:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33688 "EHLO mail.kernel.org"
+        id S2441232AbgJ0AVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410974AbgJZXzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:55:49 -0400
+        id S2410979AbgJZXzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E1D320B1F;
-        Mon, 26 Oct 2020 23:55:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 984F72151B;
+        Mon, 26 Oct 2020 23:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756549;
-        bh=aIiTGYggak3CM+beeinXqt9y0SWPQVk1XwmAovTDKd0=;
+        s=default; t=1603756550;
+        bh=scenCdaykCIS9/ktaWIti9ZG+4PJN2VqVmUcyHrSsnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmGY3bSVixfCbpnj/Z4L7WfGMEMzHLtcTleejhFVVdICO2iO7lH02i4sJzi4vYQDp
-         J1zcOOpJ4KPsURf6cFPDBTFBIdhIll1X0TRoUGqrw6Y/khqu1enfzQeQ9rh8lDhUct
-         LIVlvcXghxLYBFHH/htx3SxLg7lm/r3Rv9aJylHQ=
+        b=fVdfFg7hfPt8pFEvX1tzyuSDmiuSsg5/ZaRKrk0YSYWdhp29Sj/KJU9xKbZCs5EFb
+         S/5WX82c5mFf3NYylfixTAbqXtAxHIZi/MB9nOXWn0sW1i5+wX3hZDQ/qsIJ8JzU+F
+         KCtrvGnoCH/rSIN/K19NYXmn+AMkyRvBa+NitGI4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 26/80] mmc: via-sdmmc: Fix data race bug
-Date:   Mon, 26 Oct 2020 19:54:22 -0400
-Message-Id: <20201026235516.1025100-26-sashal@kernel.org>
+Cc:     Antonio Borneo <antonio.borneo@st.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 27/80] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
+Date:   Mon, 26 Oct 2020 19:54:23 -0400
+Message-Id: <20201026235516.1025100-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
 References: <20201026235516.1025100-1-sashal@kernel.org>
@@ -42,46 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Antonio Borneo <antonio.borneo@st.com>
 
-[ Upstream commit 87d7ad089b318b4f319bf57f1daa64eb6d1d10ad ]
+[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
 
-via_save_pcictrlreg() should be called with host->lock held
-as it writes to pm_pcictrl_reg, otherwise there can be a race
-condition between via_sd_suspend() and via_sdc_card_detect().
-The same pattern is used in the function via_reset_pcictrl()
-as well, where via_save_pcictrlreg() is called with host->lock
-held.
+Current code enables the HS clock when video mode is started or to
+send out a HS command, and disables the HS clock to send out a LP
+command. This is not what DSI spec specify.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Enable HS clock either in command and in video mode.
+Set automatic HS clock management for panels and devices that
+support non-continuous HS clock.
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200822061528.7035-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index 8d96ecba1b553..d12a068b0f9ed 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -1259,11 +1259,14 @@ static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
- static int via_sd_suspend(struct pci_dev *pcidev, pm_message_t state)
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+index 675442bfc1bd7..77384c49fb8dd 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+@@ -365,7 +365,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
+ 	if (lpm)
+ 		val |= CMD_MODE_ALL_LP;
+ 
+-	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
+ 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
+ }
+ 
+@@ -541,16 +540,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
+ static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
+ 				 unsigned long mode_flags)
  {
- 	struct via_crdr_mmc_host *host;
-+	unsigned long flags;
++	u32 val;
++
+ 	dsi_write(dsi, DSI_PWR_UP, RESET);
  
- 	host = pci_get_drvdata(pcidev);
+ 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
+ 		dw_mipi_dsi_video_mode_config(dsi);
+-		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
+ 	} else {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
+ 	}
  
-+	spin_lock_irqsave(&host->lock, flags);
- 	via_save_pcictrlreg(host);
- 	via_save_sdcreg(host);
-+	spin_unlock_irqrestore(&host->lock, flags);
++	val = PHY_TXREQUESTCLKHS;
++	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
++		val |= AUTO_CLKLANE_CTRL;
++	dsi_write(dsi, DSI_LPCLK_CTRL, val);
++
+ 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
+ }
  
- 	pci_save_state(pcidev);
- 	pci_enable_wake(pcidev, pci_choose_state(pcidev, state), 0);
 -- 
 2.25.1
 
