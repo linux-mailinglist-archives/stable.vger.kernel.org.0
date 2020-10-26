@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7860329A175
+	by mail.lfdr.de (Postfix) with ESMTP id E633829A176
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441369AbgJ0AmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47716 "EHLO mail.kernel.org"
+        id S2502255AbgJ0AmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408752AbgJZXtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:49:35 -0400
+        id S2408755AbgJZXth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:49:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B6F120882;
-        Mon, 26 Oct 2020 23:49:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BE342075B;
+        Mon, 26 Oct 2020 23:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756175;
-        bh=mPBuKbaS/hmJtHA4/4Z3Ltibrw3uuXcBuYlOE2nTEe4=;
+        s=default; t=1603756176;
+        bh=+NwHXhlGzd5i8K77Rhgue2pCfD0yCHRoE8gcXo1uYcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VM9+rlURgFwxCtUg+pOOjqNmTIzdsK38a1kacqlQ3JDgYSpJnRy6JL2PXeLmESWmA
-         imbgfETH2EAJ0CZpiU9espOZ33pqOn8HZRIt8YeFQM4AeDon0nhcdTz9DPoLABGfol
-         B20SBLUCdAUW6cDV9xA0/9qlzyS6UjjK3oqKiNuw=
+        b=Peywlc+2e68GtRpo/rtWAmoiVecxCRFx8qlINqa7MQAkrRtkk5iVPkkUT7AbMZxwJ
+         1oPkvbDUHRN8SpWTq57G5ICgdOkRPCW3z3iAVwA6n2jd2lzKjHo9smBmV6SQiVCvCJ
+         pWNww3zSYt/mssk4craqs+Es+E8YcUuoFRa5RcvE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chandan Babu R <chandanrlinux@gmail.com>,
         "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 023/147] xfs: Set xfs_buf type flag when growing summary/bitmap files
-Date:   Mon, 26 Oct 2020 19:47:01 -0400
-Message-Id: <20201026234905.1022767-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 024/147] xfs: Set xfs_buf's b_ops member when zeroing bitmap/summary files
+Date:   Mon, 26 Oct 2020 19:47:02 -0400
+Message-Id: <20201026234905.1022767-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
 References: <20201026234905.1022767-1-sashal@kernel.org>
@@ -45,78 +44,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chandan Babu R <chandanrlinux@gmail.com>
 
-[ Upstream commit 72cc95132a93293dcd0b6f68353f4741591c9aeb ]
+[ Upstream commit c54e14d155f5fdbac73a8cd4bd2678cb252149dc ]
 
-The following sequence of commands,
+In xfs_growfs_rt(), we enlarge bitmap and summary files by allocating
+new blocks for both files. For each of the new blocks allocated, we
+allocate an xfs_buf, zero the payload, log the contents and commit the
+transaction. Hence these buffers will eventually find themselves
+appended to list at xfs_ail->ail_buf_list.
 
-  mkfs.xfs -f -m reflink=0 -r rtdev=/dev/loop1,size=10M /dev/loop0
-  mount -o rtdev=/dev/loop1 /dev/loop0 /mnt
-  xfs_growfs  /mnt
+Later, xfs_growfs_rt() loops across all of the new blocks belonging to
+the bitmap inode to set the bitmap values to 1. In doing so, it
+allocates a new transaction and invokes the following sequence of
+functions,
+  - xfs_rtfree_range()
+    - xfs_rtmodify_range()
+      - xfs_rtbuf_get()
+        We pass '&xfs_rtbuf_ops' as the ops pointer to xfs_trans_read_buf().
+        - xfs_trans_read_buf()
+	  We find the xfs_buf of interest in per-ag hash table, invoke
+	  xfs_buf_reverify() which ends up assigning '&xfs_rtbuf_ops' to
+	  xfs_buf->b_ops.
 
-... causes the following call trace to be printed on the console,
+On the other hand, if xfs_growfs_rt_alloc() had allocated a few blocks
+for the bitmap inode and returned with an error, all the xfs_bufs
+corresponding to the new bitmap blocks that have been allocated would
+continue to be on xfs_ail->ail_buf_list list without ever having a
+non-NULL value assigned to their b_ops members. An AIL flush operation
+would then trigger the following warning message to be printed on the
+console,
 
-XFS: Assertion failed: (bip->bli_flags & XFS_BLI_STALE) || (xfs_blft_from_flags(&bip->__bli_format) > XFS_BLFT_UNKNOWN_BUF && xfs_blft_from_flags(&bip->__bli_format) < XFS_BLFT_MAX_BUF), file: fs/xfs/xfs_buf_item.c, line: 331
-Call Trace:
- xfs_buf_item_format+0x632/0x680
- ? kmem_alloc_large+0x29/0x90
- ? kmem_alloc+0x70/0x120
- ? xfs_log_commit_cil+0x132/0x940
- xfs_log_commit_cil+0x26f/0x940
- ? xfs_buf_item_init+0x1ad/0x240
- ? xfs_growfs_rt_alloc+0x1fc/0x280
- __xfs_trans_commit+0xac/0x370
- xfs_growfs_rt_alloc+0x1fc/0x280
- xfs_growfs_rt+0x1a0/0x5e0
- xfs_file_ioctl+0x3fd/0xc70
- ? selinux_file_ioctl+0x174/0x220
- ksys_ioctl+0x87/0xc0
- __x64_sys_ioctl+0x16/0x20
- do_syscall_64+0x3e/0x70
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  XFS (loop0): _xfs_buf_ioapply: no buf ops on daddr 0x58 len 8
+  00000000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  CPU: 3 PID: 449 Comm: xfsaild/loop0 Not tainted 5.8.0-rc4-chandan-00038-g4d8c2b9de9ab-dirty #37
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+  Call Trace:
+   dump_stack+0x57/0x70
+   _xfs_buf_ioapply+0x37c/0x3b0
+   ? xfs_rw_bdev+0x1e0/0x1e0
+   ? xfs_buf_delwri_submit_buffers+0xd4/0x210
+   __xfs_buf_submit+0x6d/0x1f0
+   xfs_buf_delwri_submit_buffers+0xd4/0x210
+   xfsaild+0x2c8/0x9e0
+   ? __switch_to_asm+0x42/0x70
+   ? xfs_trans_ail_cursor_first+0x80/0x80
+   kthread+0xfe/0x140
+   ? kthread_park+0x90/0x90
+   ret_from_fork+0x22/0x30
 
-This occurs because the buffer being formatted has the value of
-XFS_BLFT_UNKNOWN_BUF assigned to the 'type' subfield of
-bip->bli_formats->blf_flags.
+This message indicates that the xfs_buf had its b_ops member set to
+NULL.
 
-This commit fixes the issue by assigning one of XFS_BLFT_RTSUMMARY_BUF
-and XFS_BLFT_RTBITMAP_BUF to the 'type' subfield of
-bip->bli_formats->blf_flags before committing the corresponding
-transaction.
+This commit fixes the issue by assigning "&xfs_rtbuf_ops" to b_ops
+member of each of the xfs_bufs logged by xfs_growfs_rt_alloc().
 
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/xfs/xfs_rtalloc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 6209e7b6b895b..04b953c3ffa75 100644
+index 04b953c3ffa75..48be55b18c494 100644
 --- a/fs/xfs/xfs_rtalloc.c
 +++ b/fs/xfs/xfs_rtalloc.c
-@@ -767,8 +767,14 @@ xfs_growfs_rt_alloc(
- 	struct xfs_bmbt_irec	map;		/* block map output */
- 	int			nmap;		/* number of block maps */
- 	int			resblks;	/* space reservation */
-+	enum xfs_blft		buf_type;
- 	struct xfs_trans	*tp;
- 
-+	if (ip == mp->m_rsumip)
-+		buf_type = XFS_BLFT_RTSUMMARY_BUF;
-+	else
-+		buf_type = XFS_BLFT_RTBITMAP_BUF;
-+
- 	/*
- 	 * Allocate space to the file, as necessary.
- 	 */
-@@ -830,6 +836,8 @@ xfs_growfs_rt_alloc(
- 					mp->m_bsize, 0, &bp);
- 			if (error)
+@@ -838,6 +838,7 @@ xfs_growfs_rt_alloc(
  				goto out_trans_cancel;
-+
-+			xfs_trans_buf_set_type(tp, bp, buf_type);
+ 
+ 			xfs_trans_buf_set_type(tp, bp, buf_type);
++			bp->b_ops = &xfs_rtbuf_ops;
  			memset(bp->b_addr, 0, mp->m_sb.sb_blocksize);
  			xfs_trans_log_buf(tp, bp, 0, mp->m_sb.sb_blocksize - 1);
  			/*
