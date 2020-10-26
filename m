@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5B729A001
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:26:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC1C299FC2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442504AbgJ0A0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
+        id S2410182AbgJZXxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410174AbgJZXxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:53:45 -0400
+        id S2410178AbgJZXxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:53:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A651A21D7B;
-        Mon, 26 Oct 2020 23:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A147721D41;
+        Mon, 26 Oct 2020 23:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756425;
-        bh=CETs3Ol2tYhpXd6X39ECrE3Vb/usEuYgvpg+kHBIqgo=;
+        s=default; t=1603756426;
+        bh=3B9S0XhD7Pej9lw7yEH/XIm0PQSZQq0OnocoUCOmsug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAAJUApOr7APh8QMP/ZYJYrTqyUSEkTGvN3BnjlOdGU6yZUL3+6P8HGQADp0Ni7DE
-         dOovwRDywIY4Ow3ZB+EF0iiYYmwZIU7YndMNi4+oAmxQfVEG38sG1Cf8wrNpB8bCoC
-         uv2cHfAt+DSwOBJ7uikcNTUMeuoXlnH8zxSlwdho=
+        b=hS1zCDrUXsmZQBCBK1YPvrSbwvLuOMYH02h/2GHHwfdfLEQTPr2RMJ6xwDMGKcxC4
+         TBVJZBrUDcMa3lgRwfeMMbnu8dbl8N0qVY6eH8GFNlfVuy+hMQL2d5hyHrPfPbXofC
+         4XAEtXmhmrVUanMl22Nih3Gkg7js21bFZkb6WMBo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Snitzer <snitzer@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.8 081/132] dm: change max_io_len() to use blk_max_size_offset()
-Date:   Mon, 26 Oct 2020 19:51:13 -0400
-Message-Id: <20201026235205.1023962-81-sashal@kernel.org>
+Cc:     Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 082/132] brcmfmac: Fix warning message after dongle setup failed
+Date:   Mon, 26 Oct 2020 19:51:14 -0400
+Message-Id: <20201026235205.1023962-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
 References: <20201026235205.1023962-1-sashal@kernel.org>
@@ -41,55 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-[ Upstream commit 5091cdec56faeaefa79de4b6cb3c3c55e50d1ac3 ]
+[ Upstream commit 6aa5a83a7ed8036c1388a811eb8bdfa77b21f19c ]
 
-Using blk_max_size_offset() enables DM core's splitting to impose
-ti->max_io_len (via q->limits.chunk_sectors) and also fallback to
-respecting q->limits.max_sectors if chunk_sectors isn't set.
+Brcmfmac showed warning message in fweh.c when checking the size of event
+queue which is not initialized. Therefore, we only cancel the worker and
+reset event handler only when it is initialized.
 
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[  145.505899] brcmfmac 0000:02:00.0: brcmf_pcie_setup: Dongle setup
+[  145.929970] ------------[ cut here ]------------
+[  145.929994] WARNING: CPU: 0 PID: 288 at drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c:312
+brcmf_fweh_detach+0xbc/0xd0 [brcmfmac]
+...
+[  145.930029] Call Trace:
+[  145.930036]  brcmf_detach+0x77/0x100 [brcmfmac]
+[  145.930043]  brcmf_pcie_remove+0x79/0x130 [brcmfmac]
+[  145.930046]  pci_device_remove+0x39/0xc0
+[  145.930048]  device_release_driver_internal+0x141/0x200
+[  145.930049]  device_release_driver+0x12/0x20
+[  145.930054]  brcmf_pcie_setup+0x101/0x3c0 [brcmfmac]
+[  145.930060]  brcmf_fw_request_done+0x11d/0x1f0 [brcmfmac]
+[  145.930062]  ? lock_timer_base+0x7d/0xa0
+[  145.930063]  ? internal_add_timer+0x1f/0xa0
+[  145.930064]  ? add_timer+0x11a/0x1d0
+[  145.930066]  ? __kmalloc_track_caller+0x18c/0x230
+[  145.930068]  ? kstrdup_const+0x23/0x30
+[  145.930069]  ? add_dr+0x46/0x80
+[  145.930070]  ? devres_add+0x3f/0x50
+[  145.930072]  ? usermodehelper_read_unlock+0x15/0x20
+[  145.930073]  ? _request_firmware+0x288/0xa20
+[  145.930075]  request_firmware_work_func+0x36/0x60
+[  145.930077]  process_one_work+0x144/0x360
+[  145.930078]  worker_thread+0x4d/0x3c0
+[  145.930079]  kthread+0x112/0x150
+[  145.930080]  ? rescuer_thread+0x340/0x340
+[  145.930081]  ? kthread_park+0x60/0x60
+[  145.930083]  ret_from_fork+0x25/0x30
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200928054922.44580-3-wright.feng@cypress.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/fweh.c    | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 548ad06094e98..4cfd5c88113cb 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1051,22 +1051,18 @@ static sector_t max_io_len_target_boundary(sector_t sector, struct dm_target *ti
- static sector_t max_io_len(sector_t sector, struct dm_target *ti)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+index a5cced2c89ac6..921b94c4f5f9a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+@@ -304,10 +304,12 @@ void brcmf_fweh_detach(struct brcmf_pub *drvr)
  {
- 	sector_t len = max_io_len_target_boundary(sector, ti);
--	sector_t offset, max_len;
-+	sector_t max_len;
+ 	struct brcmf_fweh_info *fweh = &drvr->fweh;
  
- 	/*
- 	 * Does the target need to split even further?
-+	 * - q->limits.chunk_sectors reflects ti->max_io_len so
-+	 *   blk_max_size_offset() provides required splitting.
-+	 * - blk_max_size_offset() also respects q->limits.max_sectors
- 	 */
--	if (ti->max_io_len) {
--		offset = dm_target_offset(ti, sector);
--		if (unlikely(ti->max_io_len & (ti->max_io_len - 1)))
--			max_len = sector_div(offset, ti->max_io_len);
--		else
--			max_len = offset & (ti->max_io_len - 1);
--		max_len = ti->max_io_len - max_len;
--
--		if (len > max_len)
--			len = max_len;
--	}
-+	max_len = blk_max_size_offset(dm_table_get_md(ti->table)->queue,
-+				      dm_target_offset(ti, sector));
-+	if (len > max_len)
-+		len = max_len;
- 
- 	return len;
+-	/* cancel the worker */
+-	cancel_work_sync(&fweh->event_work);
+-	WARN_ON(!list_empty(&fweh->event_q));
+-	memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
++	/* cancel the worker if initialized */
++	if (fweh->event_work.func) {
++		cancel_work_sync(&fweh->event_work);
++		WARN_ON(!list_empty(&fweh->event_q));
++		memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
++	}
  }
+ 
+ /**
 -- 
 2.25.1
 
