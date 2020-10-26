@@ -2,85 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD24299C7D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:59:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E21299C80
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 00:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410510AbgJZX7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 19:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37336 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436633AbgJZX4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 19:56:54 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE21120770;
-        Mon, 26 Oct 2020 23:56:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603756613;
-        bh=cCVgGMe5hoIQ+QFz+qgGojy6g3g+wPwt63Y5/vZUW0Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNZ57PDg6tQ8tF+AM7jHI41/PE8CfMhXrflkKYIrdMkTA4H6I6KZ/Q4xvAnjqwH1X
-         dK6wX6pbK7Kdl0Rm1/XOowwiYj8vkeXwSBWOGZVGdwYtnDWTISD19d6RyAb9PFh6e9
-         hUfp5yWmDdXACr0aVLg0A/ocdJOLrM7aIVaBn8Q8=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Leng <lengchao@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 80/80] nvme-rdma: fix crash when connect rejected
-Date:   Mon, 26 Oct 2020 19:55:16 -0400
-Message-Id: <20201026235516.1025100-80-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
-References: <20201026235516.1025100-1-sashal@kernel.org>
+        id S2411288AbgJZX7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 19:59:50 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:40352 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2411175AbgJZX7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Oct 2020 19:59:48 -0400
+Received: by mail-lj1-f193.google.com with SMTP id 23so12535093ljv.7;
+        Mon, 26 Oct 2020 16:59:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=vA0yqlgv8BZU4FzIR60Mj5pzfuiNbfmhCbso2KenTsE=;
+        b=I8WlpO2r7AFvoimcwGj4E2mHNAM7VhcQEEvGsXo39CzqzsIDb+bNZqNd01K8cBseNw
+         +M9mkAJCcor5Vmo+fY4Io1ZsqYFFHFlxXAwPvkki3Fs+r4IXpWlKouVCfIvVHFFQOgRB
+         Kq23xwdrwxa3Q3L3+YhZOCmdvMFk2RR6AhSSxE5OhaKMclXwGvAV02BNWSgcP949Y86O
+         TJvGY13YOXt+QA5FxABhPXbrqPjKgyG3QqYMj1mddNxxg3YvD7Ay9YGu99mVMt3dtIDt
+         qI0kLIz1BTPgr+QfmgPSthq+4bwS/CpX8VMIuqnt1WkZtSwNY0eiTIXbHP5tf+gloyDE
+         Cm8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=vA0yqlgv8BZU4FzIR60Mj5pzfuiNbfmhCbso2KenTsE=;
+        b=Z31oqS7JLB/JDGf98XTB0lDzwREECfXVQGca998tTWG4G8uGeoeVye8RVmRcB9sCGI
+         Zkowvqk7lbsifirGiLhRt40SItwLQlM/jVJN+7sPBC2XxAvX/NiXSTiaR8ETIElMj2Jk
+         lARL1TqgPUMgjPt85USXNGtj4a5Y0pba0OFhPxFjEecOEYeeIAkDfdrzSDhku8MYiO58
+         geIv+CJ4XqIiwe/QKWKBWXwrVWf59Q2PGIXc1vyY5BXpdzE6EmaneqNLsBIA/2mkL43t
+         y2Cg5uYL+RL8qWl4Oe34LZeTK/tJOR6w78g0lDt4qPoayHZCSignIQCumNicg7hJLhBO
+         cagg==
+X-Gm-Message-State: AOAM531RCIgMnzb0SMy51tECMfkNPf9xTFbQH9JMA1Iq1umIhh67601U
+        X3Yr7MnCvR8qdR5Fq0rblxI1OKSHAME0ecTZ1pHTWE9P7SQ=
+X-Google-Smtp-Source: ABdhPJyUmCq7ePK2IjaqPj9d6K+LEMjvSZw6c+p36G6enWe34rn9YpAgfDwSixwcqaynfYcxKca7kNf/8V2BTzIBN+g=
+X-Received: by 2002:a2e:99ca:: with SMTP id l10mr6621825ljj.218.1603756785501;
+ Mon, 26 Oct 2020 16:59:45 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20201026234905.1022767-1-sashal@kernel.org> <20201026234905.1022767-131-sashal@kernel.org>
+In-Reply-To: <20201026234905.1022767-131-sashal@kernel.org>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Mon, 26 Oct 2020 20:59:34 -0300
+Message-ID: <CAOMZO5CF=KewxQm5jwXuwGDDeB1b_UqF4JZ5GqJpjV7LPR62zw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.9 131/147] soc: imx: gpcv2: Use dev_err_probe()
+ to simplify error handling
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?Q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Anson Huang <Anson.Huang@nxp.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+Hi Sasha,
 
-[ Upstream commit 43efdb8e870ee0f58633fd579aa5b5185bf5d39e ]
+On Mon, Oct 26, 2020 at 8:56 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Anson Huang <Anson.Huang@nxp.com>
+>
+> [ Upstream commit b663b798d04fb73f1ad4d54c46582d2fde7a76d6 ]
+>
+> dev_err_probe() can reduce code size, uniform error handling and record t=
+he
+> defer probe reason etc., use it to simplify the code.
+>
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> Reviewed-by: Guido G=C3=BCnther <agx@sigxcpu.org>
+> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-A crash can happened when a connect is rejected.   The host establishes
-the connection after received ConnectReply, and then continues to send
-the fabrics Connect command.  If the controller does not receive the
-ReadyToUse capsule, host may receive a ConnectReject reply.
-
-Call nvme_rdma_destroy_queue_ib after the host received the
-RDMA_CM_EVENT_REJECTED event.  Then when the fabrics Connect command
-times out, nvme_rdma_timeout calls nvme_rdma_complete_rq to fail the
-request.  A crash happenes due to use after free in
-nvme_rdma_complete_rq.
-
-nvme_rdma_destroy_queue_ib is redundant when handling the
-RDMA_CM_EVENT_REJECTED event as nvme_rdma_destroy_queue_ib is already
-called in connection failure handler.
-
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/nvme/host/rdma.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index abe4fe496d05c..a41ee9feab8e7 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1679,7 +1679,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		complete(&queue->cm_done);
- 		return 0;
- 	case RDMA_CM_EVENT_REJECTED:
--		nvme_rdma_destroy_queue_ib(queue);
- 		cm_error = nvme_rdma_conn_rejected(queue, ev);
- 		break;
- 	case RDMA_CM_EVENT_ROUTE_ERROR:
--- 
-2.25.1
-
+Does this qualify for stable since it is just a cleanup and not a bug fix?
