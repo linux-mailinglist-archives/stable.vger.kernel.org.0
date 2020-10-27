@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3E129C093
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 767E629C08E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818037AbgJ0RQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56104 "EHLO mail.kernel.org"
+        id S1818018AbgJ0RQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1772437AbgJ0Ozb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:55:31 -0400
+        id S1781527AbgJ0Ozs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:55:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3564B20679;
-        Tue, 27 Oct 2020 14:55:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0F262071A;
+        Tue, 27 Oct 2020 14:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810530;
-        bh=KOXJTid2xDyZt25H6x3ZKA2YehySt6F2hi3jIR4IdJU=;
+        s=default; t=1603810547;
+        bh=mK95Y5EpJLO5QnvBvmW3V/40l56fS/jzkZVuuRNb4VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbApbmW/eQDCnXuAiENOr1gAa0eTEpY0IuXmselrK5oQsTsYvBg/4a//nD1PHh9ir
-         at8HhSsq/ZbaQWwSJrwHtk0IyIaT0kyzyzlGwOWd2IwBWuN04JnLvBRRBfEUuVL48C
-         VkKKuUCWJsUmnUqVSQ7sBjIOOSw6tQN10vrvMuHg=
+        b=mkV83U4AuYCHr8raPeMjx5myHX7nsJeZLipGtDQjpAhi8buD5RUmTsW+akUs2Oq13
+         oQhqeNKJkt5j+5Lgq4IPqFFHGoCrJnYxASnD/FA8TjDz6SqQEvYek18nm3EYmQZqw8
+         rq9s2QGby7RGGkoofn0UlG9LW51cxZvIeYCGfjqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 144/633] media: ti-vpe: Fix a missing check and reference count leak
-Date:   Tue, 27 Oct 2020 14:48:07 +0100
-Message-Id: <20201027135529.446461995@linuxfoundation.org>
+Subject: [PATCH 5.8 146/633] pinctrl: bcm: fix kconfig dependency warning when !GPIOLIB
+Date:   Tue, 27 Oct 2020 14:48:09 +0100
+Message-Id: <20201027135529.541903479@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,40 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 7dae2aaaf432767ca7aa11fa84643a7c2600dbdd ]
+[ Upstream commit 513034d8b089b9a49dab57845aee70e830fe7334 ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code, causing incorrect ref count if
-pm_runtime_put_noidle() is not called in error handling paths.
-And also, when the call of function vpe_runtime_get() failed,
-we won't call vpe_runtime_put().
-Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails
-inside vpe_runtime_get().
+When PINCTRL_BCM2835 is enabled and GPIOLIB is disabled, it results in the
+following Kbuild warning:
 
-Fixes: 4571912743ac ("[media] v4l: ti-vpe: Add VPE mem to mem driver")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+WARNING: unmet direct dependencies detected for GPIOLIB_IRQCHIP
+  Depends on [n]: GPIOLIB [=n]
+  Selected by [y]:
+  - PINCTRL_BCM2835 [=y] && PINCTRL [=y] && OF [=y] && (ARCH_BCM2835 [=n] || ARCH_BRCMSTB [=n] || COMPILE_TEST [=y])
+
+The reason is that PINCTRL_BCM2835 selects GPIOLIB_IRQCHIP without
+depending on or selecting GPIOLIB while GPIOLIB_IRQCHIP is subordinate to
+GPIOLIB.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: 85ae9e512f43 ("pinctrl: bcm2835: switch to GPIOLIB_IRQCHIP")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://lore.kernel.org/r/20200914144025.371370-1-fazilyildiran@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/vpe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/bcm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
-index cff2fcd6d812a..82d3ee45e2e90 100644
---- a/drivers/media/platform/ti-vpe/vpe.c
-+++ b/drivers/media/platform/ti-vpe/vpe.c
-@@ -2475,6 +2475,8 @@ static int vpe_runtime_get(struct platform_device *pdev)
- 
- 	r = pm_runtime_get_sync(&pdev->dev);
- 	WARN_ON(r < 0);
-+	if (r)
-+		pm_runtime_put_noidle(&pdev->dev);
- 	return r < 0 ? r : 0;
- }
- 
+diff --git a/drivers/pinctrl/bcm/Kconfig b/drivers/pinctrl/bcm/Kconfig
+index dcf7df797af75..0ed14de0134cf 100644
+--- a/drivers/pinctrl/bcm/Kconfig
++++ b/drivers/pinctrl/bcm/Kconfig
+@@ -23,6 +23,7 @@ config PINCTRL_BCM2835
+ 	select PINMUX
+ 	select PINCONF
+ 	select GENERIC_PINCONF
++	select GPIOLIB
+ 	select GPIOLIB_IRQCHIP
+ 	default ARCH_BCM2835 || ARCH_BRCMSTB
+ 	help
 -- 
 2.25.1
 
