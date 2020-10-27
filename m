@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A02729B520
+	by mail.lfdr.de (Postfix) with ESMTP id 88D4129B521
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793793AbgJ0PIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:08:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
+        id S1793801AbgJ0PIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:08:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793787AbgJ0PIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:08:18 -0400
+        id S1793798AbgJ0PIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:08:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1893E206E5;
-        Tue, 27 Oct 2020 15:08:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAAE5206E5;
+        Tue, 27 Oct 2020 15:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811297;
-        bh=L37jF1pQXJyx4qM5+JP2pFqFz3sAMDilyqYOXV7D4E4=;
+        s=default; t=1603811300;
+        bh=jBNNwsIKnn0W5z4A48N5P+kQ4x2eqUrJssaQKKdLJdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jan6Ss/UAzOzD8B2CMfr0r8u/+5IEw8WbEBHqEoYjdZcnroUO9WJ9x3qxsV4+dGgP
-         +/NjZe1M/vAfX6F7dUXg1MJIfViDsYqCEcn1TZ5u8kNxxMlJS6Q9h8ZnSTUfTarx4a
-         Wl60ukJKHLzRr80gW/ntn0AMPKUGoWJaPSr9HjZw=
+        b=Dnl1VywCfEIEGUtZunvDdvqUPGwCF/f8zp1BOiRTaXtShrkAQIon6f8Hf75v83RkA
+         3d0wN6w4xLplN4bg+AjPtv7wvuEXb+YQ2x7D7qRbRNlBP7ethmjazpuvbwQQ3LL3nf
+         ljQJ0sizS8oyr5EWWxaczjXNUg0Yv3PTBesMowws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Simon South <simon@simonsouth.net>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Heiko Stuebner <heiko@sntech.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 442/633] clk: keystone: sci-clk: fix parsing assigned-clock data during probe
-Date:   Tue, 27 Oct 2020 14:53:05 +0100
-Message-Id: <20201027135543.455349461@linuxfoundation.org>
+Subject: [PATCH 5.8 443/633] pwm: rockchip: Keep enabled PWMs running while probing
+Date:   Tue, 27 Oct 2020 14:53:06 +0100
+Message-Id: <20201027135543.498231956@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,38 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Simon South <simon@simonsouth.net>
 
-[ Upstream commit 2f05cced7307489faab873367fb20cd212e1d890 ]
+[ Upstream commit 457f74abbed060a0395f75ab5297f2d76cada516 ]
 
-The DT clock probe loop incorrectly terminates after processing "clocks"
-only, fix this by re-starting the loop when all entries for current
-DT property have been parsed.
+Following commit cfc4c189bc70 ("pwm: Read initial hardware state at
+request time") the Rockchip PWM driver can no longer assume a device's
+pwm_state structure has been populated after a call to pwmchip_add().
+Consequently, the test in rockchip_pwm_probe() intended to prevent the
+driver from stopping PWM devices already enabled by the bootloader no
+longer functions reliably and this can lead to the kernel hanging
+during startup, particularly on devices like the Pinebook Pro that use
+a PWM-controlled backlight for their display.
 
-Fixes: 8e48b33f9def ("clk: keystone: sci-clk: probe clocks from DT instead of firmware")
-Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lore.kernel.org/r/20200907085740.1083-2-t-kristo@ti.com
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Avoid this by querying the device directly at probe time to determine
+whether or not it is enabled.
+
+Fixes: cfc4c189bc70 ("pwm: Read initial hardware state at request time")
+Signed-off-by: Simon South <simon@simonsouth.net>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/keystone/sci-clk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-rockchip.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/keystone/sci-clk.c b/drivers/clk/keystone/sci-clk.c
-index 7edf8c8432b67..64ea895f1a7df 100644
---- a/drivers/clk/keystone/sci-clk.c
-+++ b/drivers/clk/keystone/sci-clk.c
-@@ -522,7 +522,7 @@ static int ti_sci_scan_clocks_from_dt(struct sci_clk_provider *provider)
- 		np = of_find_node_with_property(np, *clk_name);
- 		if (!np) {
- 			clk_name++;
--			break;
-+			continue;
- 		}
+diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
+index eb8c9cb645a6c..098e94335cb5b 100644
+--- a/drivers/pwm/pwm-rockchip.c
++++ b/drivers/pwm/pwm-rockchip.c
+@@ -288,6 +288,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
+ 	const struct of_device_id *id;
+ 	struct rockchip_pwm_chip *pc;
+ 	struct resource *r;
++	u32 enable_conf, ctrl;
+ 	int ret, count;
  
- 		if (!of_device_is_available(np))
+ 	id = of_match_device(rockchip_pwm_dt_ids, &pdev->dev);
+@@ -362,7 +363,9 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Keep the PWM clk enabled if the PWM appears to be up and running. */
+-	if (!pwm_is_enabled(pc->chip.pwms))
++	enable_conf = pc->data->enable_conf;
++	ctrl = readl_relaxed(pc->base + pc->data->regs.ctrl);
++	if ((ctrl & enable_conf) != enable_conf)
+ 		clk_disable(pc->clk);
+ 
+ 	return 0;
 -- 
 2.25.1
 
