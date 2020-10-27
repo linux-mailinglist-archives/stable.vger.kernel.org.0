@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB9129AF28
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E17329AE92
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754955AbgJ0OHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56696 "EHLO mail.kernel.org"
+        id S1753743AbgJ0OB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754946AbgJ0OHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:07:46 -0400
+        id S2409530AbgJ0OBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE3B620757;
-        Tue, 27 Oct 2020 14:07:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 246882224A;
+        Tue, 27 Oct 2020 14:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807666;
-        bh=KkQt/FvxAA+fdzfTN8UhQWHaftWivf3zZK6bppI139Y=;
+        s=default; t=1603807313;
+        bh=li0AALASvS/vffOq+IhYoBhSC9RZu8XCAiuTSrsAyPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX7MqYst+m1OGZ5xENwgQCb3zQXvbVsTE6FvmcR/o6EM5uHn5g+Qi2rGT80fX0sy4
-         ofdGQSttip5/qLslxH4rcQu6wz4cN55hCebF94v0NsUTDI730m/ILbmAIKxoZeYz7r
-         snKWOCqZAr27clVkKuOcqg+PBU53dA8aOif09txI=
+        b=jO7nQDz1cQ3SFBk0KovxjDsaNLIs1k5X08LmMobbznP0fyGUQ6pd+mojfMGZwCS1v
+         zKIPoY+fGpo0TitLiPqDoCryHve9/XRYXxVkjsyDCS7yNF8HVCKRzTuMDrytJKZZj2
+         Szn6msQDIKEdG8JJOV8rh8H8yFj1li5TD5rdW7tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 106/139] mmc: sdio: Check for CISTPL_VERS_1 buffer size
-Date:   Tue, 27 Oct 2020 14:50:00 +0100
-Message-Id: <20201027134907.165862669@linuxfoundation.org>
+Subject: [PATCH 4.4 091/112] usb: gadget: function: printer: fix use-after-free in __lock_acquire
+Date:   Tue, 27 Oct 2020 14:50:01 +0100
+Message-Id: <20201027134904.854242036@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit 8ebe2607965d3e2dc02029e8c7dd35fbe508ffd0 ]
+[ Upstream commit e8d5f92b8d30bb4ade76494490c3c065e12411b1 ]
 
-Before parsing CISTPL_VERS_1 structure check that its size is at least two
-bytes to prevent buffer overflow.
+Fix this by increase object reference count.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20200727133837.19086-2-pali@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+BUG: KASAN: use-after-free in __lock_acquire+0x3fd4/0x4180
+kernel/locking/lockdep.c:3831
+Read of size 8 at addr ffff8880683b0018 by task syz-executor.0/3377
+
+CPU: 1 PID: 3377 Comm: syz-executor.0 Not tainted 5.6.11 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
+ __lock_acquire+0x3fd4/0x4180 kernel/locking/lockdep.c:3831
+ lock_acquire+0x127/0x350 kernel/locking/lockdep.c:4488
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+ _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
+ printer_ioctl+0x4a/0x110 drivers/usb/gadget/function/f_printer.c:723
+ vfs_ioctl fs/ioctl.c:47 [inline]
+ ksys_ioctl+0xfb/0x130 fs/ioctl.c:763
+ __do_sys_ioctl fs/ioctl.c:772 [inline]
+ __se_sys_ioctl fs/ioctl.c:770 [inline]
+ __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4531a9
+Code: ed 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48
+89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
+01 f0 ff ff 0f 83 bb 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fd14ad72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 000000000073bfa8 RCX: 00000000004531a9
+RDX: fffffffffffffff9 RSI: 000000000000009e RDI: 0000000000000003
+RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004bbd61
+R13: 00000000004d0a98 R14: 00007fd14ad736d4 R15: 00000000ffffffff
+
+Allocated by task 2393:
+ save_stack+0x21/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ __kasan_kmalloc.constprop.3+0xa7/0xd0 mm/kasan/common.c:515
+ kasan_kmalloc+0x9/0x10 mm/kasan/common.c:529
+ kmem_cache_alloc_trace+0xfa/0x2d0 mm/slub.c:2813
+ kmalloc include/linux/slab.h:555 [inline]
+ kzalloc include/linux/slab.h:669 [inline]
+ gprinter_alloc+0xa1/0x870 drivers/usb/gadget/function/f_printer.c:1416
+ usb_get_function+0x58/0xc0 drivers/usb/gadget/functions.c:61
+ config_usb_cfg_link+0x1ed/0x3e0 drivers/usb/gadget/configfs.c:444
+ configfs_symlink+0x527/0x11d0 fs/configfs/symlink.c:202
+ vfs_symlink+0x33d/0x5b0 fs/namei.c:4201
+ do_symlinkat+0x11b/0x1d0 fs/namei.c:4228
+ __do_sys_symlinkat fs/namei.c:4242 [inline]
+ __se_sys_symlinkat fs/namei.c:4239 [inline]
+ __x64_sys_symlinkat+0x73/0xb0 fs/namei.c:4239
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 3368:
+ save_stack+0x21/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ kasan_set_free_info mm/kasan/common.c:337 [inline]
+ __kasan_slab_free+0x135/0x190 mm/kasan/common.c:476
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:485
+ slab_free_hook mm/slub.c:1444 [inline]
+ slab_free_freelist_hook mm/slub.c:1477 [inline]
+ slab_free mm/slub.c:3034 [inline]
+ kfree+0xf7/0x410 mm/slub.c:3995
+ gprinter_free+0x49/0xd0 drivers/usb/gadget/function/f_printer.c:1353
+ usb_put_function+0x38/0x50 drivers/usb/gadget/functions.c:87
+ config_usb_cfg_unlink+0x2db/0x3b0 drivers/usb/gadget/configfs.c:485
+ configfs_unlink+0x3b9/0x7f0 fs/configfs/symlink.c:250
+ vfs_unlink+0x287/0x570 fs/namei.c:4073
+ do_unlinkat+0x4f9/0x620 fs/namei.c:4137
+ __do_sys_unlink fs/namei.c:4184 [inline]
+ __se_sys_unlink fs/namei.c:4182 [inline]
+ __x64_sys_unlink+0x42/0x50 fs/namei.c:4182
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8880683b0000
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 24 bytes inside of
+ 1024-byte region [ffff8880683b0000, ffff8880683b0400)
+The buggy address belongs to the page:
+page:ffffea0001a0ec00 refcount:1 mapcount:0 mapping:ffff88806c00e300
+index:0xffff8880683b1800 compound_mapcount: 0
+flags: 0x100000000010200(slab|head)
+raw: 0100000000010200 0000000000000000 0000000600000001 ffff88806c00e300
+raw: ffff8880683b1800 000000008010000a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_cis.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_printer.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/sdio_cis.c b/drivers/mmc/core/sdio_cis.c
-index dcb3dee59fa5f..934c4816d78bf 100644
---- a/drivers/mmc/core/sdio_cis.c
-+++ b/drivers/mmc/core/sdio_cis.c
-@@ -30,6 +30,9 @@ static int cistpl_vers_1(struct mmc_card *card, struct sdio_func *func,
- 	unsigned i, nr_strings;
- 	char **buffer, *string;
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index 69afc17fca38f..7b21ef09fffc2 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -35,6 +35,7 @@
+ #include <linux/types.h>
+ #include <linux/ctype.h>
+ #include <linux/cdev.h>
++#include <linux/kref.h>
  
-+	if (size < 2)
-+		return 0;
+ #include <asm/byteorder.h>
+ #include <linux/io.h>
+@@ -69,7 +70,7 @@ struct printer_dev {
+ 	struct usb_gadget	*gadget;
+ 	s8			interface;
+ 	struct usb_ep		*in_ep, *out_ep;
+-
++	struct kref             kref;
+ 	struct list_head	rx_reqs;	/* List of free RX structs */
+ 	struct list_head	rx_reqs_active;	/* List of Active RX xfers */
+ 	struct list_head	rx_buffers;	/* List of completed xfers */
+@@ -223,6 +224,13 @@ static inline struct usb_endpoint_descriptor *ep_desc(struct usb_gadget *gadget,
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++static void printer_dev_free(struct kref *kref)
++{
++	struct printer_dev *dev = container_of(kref, struct printer_dev, kref);
 +
- 	/* Find all null-terminated (including zero length) strings in
- 	   the TPLLV1_INFO field. Trailing garbage is ignored. */
- 	buf += 2;
++	kfree(dev);
++}
++
+ static struct usb_request *
+ printer_req_alloc(struct usb_ep *ep, unsigned len, gfp_t gfp_flags)
+ {
+@@ -353,6 +361,7 @@ printer_open(struct inode *inode, struct file *fd)
+ 
+ 	spin_unlock_irqrestore(&dev->lock, flags);
+ 
++	kref_get(&dev->kref);
+ 	DBG(dev, "printer_open returned %x\n", ret);
+ 	return ret;
+ }
+@@ -370,6 +379,7 @@ printer_close(struct inode *inode, struct file *fd)
+ 	dev->printer_status &= ~PRINTER_SELECTED;
+ 	spin_unlock_irqrestore(&dev->lock, flags);
+ 
++	kref_put(&dev->kref, printer_dev_free);
+ 	DBG(dev, "printer_close\n");
+ 
+ 	return 0;
+@@ -1316,7 +1326,8 @@ static void gprinter_free(struct usb_function *f)
+ 	struct f_printer_opts *opts;
+ 
+ 	opts = container_of(f->fi, struct f_printer_opts, func_inst);
+-	kfree(dev);
++
++	kref_put(&dev->kref, printer_dev_free);
+ 	mutex_lock(&opts->lock);
+ 	--opts->refcnt;
+ 	mutex_unlock(&opts->lock);
+@@ -1385,6 +1396,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
++	kref_init(&dev->kref);
+ 	++opts->refcnt;
+ 	dev->minor = opts->minor;
+ 	dev->pnp_string = opts->pnp_string;
 -- 
 2.25.1
 
