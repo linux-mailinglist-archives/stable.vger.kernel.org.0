@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A29029C618
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0171A29C6B0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825716AbgJ0SNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:13:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36216 "EHLO mail.kernel.org"
+        id S1827183AbgJ0SV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756623AbgJ0OOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:37 -0400
+        id S1753707AbgJ0OBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B22122265;
-        Tue, 27 Oct 2020 14:14:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93F8221F8;
+        Tue, 27 Oct 2020 14:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808075;
-        bh=xVDHc69iXsYbLU/rVvI+TzvkH9zIEGHQK0rAHhXPLG8=;
+        s=default; t=1603807294;
+        bh=fVk+ieiizZ0zn7gw9zpqvfdKJN+Ujcu01ZMRSE3wul8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkoPPJ3OIkQmxKZBOAi3Nv7BU9uw1jdJlrLLHFJCG1YJM8BakKGpXdJ0FY7FxjbP2
-         5f8BrtAtTMwUGh8QSUbxlzOAbFitZWrzQS8JVwwahoDasRBOxUr28tPhjyoFhjCtoO
-         S1SmC5KCF4ZCA0KYhBwZjVxsnbii4LZkJFJDyT+4=
+        b=CM25aGr5ZLcOt2l1XGUKIJ6K6V0SePOw71LFGaDYhiqi5kjp89fakWoBW1wxVQbPK
+         Pw+hH8wtHIGFeBGQMdpQ0bpq+rvgy7ukYx+lHKAFTl/xl3qSCbvIdScMbdu5xp8Kzf
+         q/luBh/Y3RQSnP+usUCS1pHA/rd+JvDyhxIs3wqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com,
+        Brooke Basile <brookebasile@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 148/191] media: media/pci: prevent memory leak in bttv_probe
-Date:   Tue, 27 Oct 2020 14:50:03 +0100
-Message-Id: <20201027134916.829636028@linuxfoundation.org>
+Subject: [PATCH 4.4 094/112] ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()
+Date:   Tue, 27 Oct 2020 14:50:04 +0100
+Message-Id: <20201027134904.995141765@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Brooke Basile <brookebasile@gmail.com>
 
-[ Upstream commit 7b817585b730665126b45df5508dd69526448bc8 ]
+[ Upstream commit 03fb92a432ea5abe5909bca1455b7e44a9380480 ]
 
-In bttv_probe if some functions such as pci_enable_device,
-pci_set_dma_mask and request_mem_region fails the allocated
- memory for btv should be released.
+Calls to usb_kill_anchored_urbs() after usb_kill_urb() on multiprocessor
+systems create a race condition in which usb_kill_anchored_urbs() deallocates
+the URB before the completer callback is called in usb_kill_urb(), resulting
+in a use-after-free.
+To fix this, add proper lock protection to usb_kill_urb() calls that can
+possibly run concurrently with usb_kill_anchored_urbs().
 
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=cabffad18eb74197f84871802fd2c5117b61febf
+Signed-off-by: Brooke Basile <brookebasile@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200911071427.32354-1-brookebasile@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/bt8xx/bttv-driver.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 227086a2e99c8..9e38c8b3ea762 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -4055,11 +4055,13 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	btv->id  = dev->device;
- 	if (pci_enable_device(dev)) {
- 		pr_warn("%d: Can't enable device\n", btv->c.nr);
--		return -EIO;
-+		result = -EIO;
-+		goto free_mem;
- 	}
- 	if (pci_set_dma_mask(dev, DMA_BIT_MASK(32))) {
- 		pr_warn("%d: No suitable DMA available\n", btv->c.nr);
--		return -EIO;
-+		result = -EIO;
-+		goto free_mem;
- 	}
- 	if (!request_mem_region(pci_resource_start(dev,0),
- 				pci_resource_len(dev,0),
-@@ -4067,7 +4069,8 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 		pr_warn("%d: can't request iomem (0x%llx)\n",
- 			btv->c.nr,
- 			(unsigned long long)pci_resource_start(dev, 0));
--		return -EBUSY;
-+		result = -EBUSY;
-+		goto free_mem;
- 	}
- 	pci_set_master(dev);
- 	pci_set_command(dev);
-@@ -4253,6 +4256,10 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	release_mem_region(pci_resource_start(btv->c.pci,0),
- 			   pci_resource_len(btv->c.pci,0));
- 	pci_disable_device(btv->c.pci);
-+
-+free_mem:
-+	bttvs[btv->c.nr] = NULL;
-+	kfree(btv);
- 	return result;
- }
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 76d91859cfde9..75072a8f8cf42 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -445,10 +445,19 @@ static void hif_usb_stop(void *hif_handle)
+ 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
  
+ 	/* The pending URBs have to be canceled. */
++	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
+ 				 &hif_dev->tx.tx_pending, list) {
++		usb_get_urb(tx_buf->urb);
++		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 		usb_kill_urb(tx_buf->urb);
++		list_del(&tx_buf->list);
++		usb_free_urb(tx_buf->urb);
++		kfree(tx_buf->buf);
++		kfree(tx_buf);
++		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	}
++	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 
+ 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
+ }
+@@ -758,27 +767,37 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
+ 	struct tx_buf *tx_buf = NULL, *tx_buf_tmp = NULL;
+ 	unsigned long flags;
+ 
++	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
+ 				 &hif_dev->tx.tx_buf, list) {
++		usb_get_urb(tx_buf->urb);
++		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 		usb_kill_urb(tx_buf->urb);
+ 		list_del(&tx_buf->list);
+ 		usb_free_urb(tx_buf->urb);
+ 		kfree(tx_buf->buf);
+ 		kfree(tx_buf);
++		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	}
++	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 
+ 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	hif_dev->tx.flags |= HIF_USB_TX_FLUSH;
+ 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 
++	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
+ 				 &hif_dev->tx.tx_pending, list) {
++		usb_get_urb(tx_buf->urb);
++		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 		usb_kill_urb(tx_buf->urb);
+ 		list_del(&tx_buf->list);
+ 		usb_free_urb(tx_buf->urb);
+ 		kfree(tx_buf->buf);
+ 		kfree(tx_buf);
++		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	}
++	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 
+ 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
+ }
 -- 
 2.25.1
 
