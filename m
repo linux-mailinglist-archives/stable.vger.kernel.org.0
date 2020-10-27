@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C6729C71A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B6929C6B7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827761AbgJ0S1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:27:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
+        id S1753812AbgJ0SWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504140AbgJ0N5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:45 -0400
+        id S1753840AbgJ0OCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A164C2072E;
-        Tue, 27 Oct 2020 13:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F9522258;
+        Tue, 27 Oct 2020 14:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807064;
-        bh=I6ItegFF5/0mB3bA4/y65+UrSzJEeBIb/GuBLhWEBSs=;
+        s=default; t=1603807358;
+        bh=P/W774Mh4AagQpUC0njjI77RWTZ6pF0peKq7+an9m8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0NA3bKroKFAMb4PkEuOjcxFY95CCvHYQyc2lENqyOTCV16zJXix3uPzPgz+zQORZ
-         JH8YlL3k2NSUZ0T9hl63blOj8X1m6rKzErGrHvbJwaVntCm/JtvTCWjmxawYxGvl8s
-         pD+ydR8g1wOgmjCOCPDQsdri16PFpY7b6hyl5WZQ=
+        b=RXT3agEoezaJYYO6uxwHfYyomi2wwVfZTujWvjnC1HS8pAgrB+/Fz7oAW0NX4xcJO
+         QjZsCGjdr9BUaWRUqhUgUh0/cKBPyWlRMtF/Q5EIcdrzBlYX6oIks9JHy4QuFaK0dO
+         vQxFd5LzFsVd5/GyjRRXcPorPrpqIJjirkY80+FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 007/112] mm/kasan: add API to check memory regions
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 023/139] media: ti-vpe: Fix a missing check and reference count leak
 Date:   Tue, 27 Oct 2020 14:48:37 +0100
-Message-Id: <20201027134900.893996677@linuxfoundation.org>
+Message-Id: <20201027134903.235622406@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 64f8ebaf115bcddc4aaa902f981c57ba6506bc42 upstream.
+[ Upstream commit 7dae2aaaf432767ca7aa11fa84643a7c2600dbdd ]
 
-Memory access coded in an assembly won't be seen by KASAN as a compiler
-can instrument only C code.  Add kasan_check_[read,write]() API which is
-going to be used to check a certain memory range.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+And also, when the call of function vpe_runtime_get() failed,
+we won't call vpe_runtime_put().
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails
+inside vpe_runtime_get().
 
-Link: http://lkml.kernel.org/r/1462538722-1574-3-git-send-email-aryabinin@virtuozzo.com
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[bwh: Backported to 4.4: drop change in MAINTAINERS]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4571912743ac ("[media] v4l: ti-vpe: Add VPE mem to mem driver")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kasan-checks.h |   12 ++++++++++++
- mm/kasan/kasan.c             |   12 ++++++++++++
- 2 files changed, 24 insertions(+)
- create mode 100644 include/linux/kasan-checks.h
+ drivers/media/platform/ti-vpe/vpe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- /dev/null
-+++ b/include/linux/kasan-checks.h
-@@ -0,0 +1,12 @@
-+#ifndef _LINUX_KASAN_CHECKS_H
-+#define _LINUX_KASAN_CHECKS_H
-+
-+#ifdef CONFIG_KASAN
-+void kasan_check_read(const void *p, unsigned int size);
-+void kasan_check_write(const void *p, unsigned int size);
-+#else
-+static inline void kasan_check_read(const void *p, unsigned int size) { }
-+static inline void kasan_check_write(const void *p, unsigned int size) { }
-+#endif
-+
-+#endif
---- a/mm/kasan/kasan.c
-+++ b/mm/kasan/kasan.c
-@@ -278,6 +278,18 @@ static void check_memory_region(unsigned
- 	check_memory_region_inline(addr, size, write, ret_ip);
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index dbb4829acc438..360a2ad14ce42 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -2133,6 +2133,8 @@ static int vpe_runtime_get(struct platform_device *pdev)
+ 
+ 	r = pm_runtime_get_sync(&pdev->dev);
+ 	WARN_ON(r < 0);
++	if (r)
++		pm_runtime_put_noidle(&pdev->dev);
+ 	return r < 0 ? r : 0;
  }
  
-+void kasan_check_read(const void *p, unsigned int size)
-+{
-+	check_memory_region((unsigned long)p, size, false, _RET_IP_);
-+}
-+EXPORT_SYMBOL(kasan_check_read);
-+
-+void kasan_check_write(const void *p, unsigned int size)
-+{
-+	check_memory_region((unsigned long)p, size, true, _RET_IP_);
-+}
-+EXPORT_SYMBOL(kasan_check_write);
-+
- #undef memset
- void *memset(void *addr, int c, size_t len)
- {
+-- 
+2.25.1
+
 
 
