@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1181729C481
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 538B829C530
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2508852AbgJ0OQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
+        id S1824782AbgJ0SFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:05:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757193AbgJ0OQl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:41 -0400
+        id S1757202AbgJ0OQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:16:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2AB6206F7;
-        Tue, 27 Oct 2020 14:16:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC547222D9;
+        Tue, 27 Oct 2020 14:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808200;
-        bh=l83XoGev7/j113GM7Lzz2Jh5ztG8Aodju2TukKVp2fk=;
+        s=default; t=1603808203;
+        bh=2uPyItsYv7sh2HwsuonUm6p+JI2jQxPJkHUuWR9M74I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maF+miIwZ0XVts+xWIRVB89tK+z0L8jljVE3d07szgL68/RSrxoJzKjbTKGWC09u/
-         kkGu+QjNPIpUtPzJto/7i3h5RapvRxI6ywMhVQEvIknxylnpEIBfOZjCo5hC0Fgafb
-         Eba1XDKJ3FZ81CE4xmdh0Lw13GRDcZci+nNs9C7E=
+        b=KXpNE2wBfz0LvUhBRhlApBmwJuYC61mbJac7poKmSU2YYrvbFVGG+Q7Tzi07QuC9A
+         ScWSN2Ep/ioWR5JwzP+iMFPImzh05U+OuPSjXaztMbBexVhfQq8FeXiHSWT8U6cIOp
+         PnNUri+mG53WXlbJLxsgi3wz1OKVrAcv5XgFKquo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 172/191] scsi: ibmvfc: Fix error return in ibmvfc_probe()
-Date:   Tue, 27 Oct 2020 14:50:27 +0100
-Message-Id: <20201027134917.996358348@linuxfoundation.org>
+Subject: [PATCH 4.14 173/191] brcmsmac: fix memory leak in wlc_phy_attach_lcnphy
+Date:   Tue, 27 Oct 2020 14:50:28 +0100
+Message-Id: <20201027134918.046249973@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -44,34 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 5e48a084f4e824e1b624d3fd7ddcf53d2ba69e53 ]
+[ Upstream commit f4443293d741d1776b86ed1dd8c4e4285d0775fc ]
 
-Fix to return error code PTR_ERR() from the error handling case instead of
-0.
+When wlc_phy_txpwr_srom_read_lcnphy fails in wlc_phy_attach_lcnphy,
+the allocated pi->u.pi_lcnphy is leaked, since struct brcms_phy will be
+freed in the caller function.
 
-Link: https://lore.kernel.org/r/20200907083949.154251-1-jingxiangfeng@huawei.com
-Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by calling wlc_phy_detach_lcnphy in the error handler of
+wlc_phy_txpwr_srom_read_lcnphy before returning.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200908121743.23108-1-keitasuzuki.park@sslab.ics.keio.ac.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 34612add3829f..dbacd9830d3df 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -4797,6 +4797,7 @@ static int ibmvfc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 	if (IS_ERR(vhost->work_thread)) {
- 		dev_err(dev, "Couldn't create kernel thread: %ld\n",
- 			PTR_ERR(vhost->work_thread));
-+		rc = PTR_ERR(vhost->work_thread);
- 		goto free_host_mem;
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+index 93d4cde0eb313..c9f48ec46f4a1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+@@ -5090,8 +5090,10 @@ bool wlc_phy_attach_lcnphy(struct brcms_phy *pi)
+ 	pi->pi_fptr.radioloftget = wlc_lcnphy_get_radio_loft;
+ 	pi->pi_fptr.detach = wlc_phy_detach_lcnphy;
  
+-	if (!wlc_phy_txpwr_srom_read_lcnphy(pi))
++	if (!wlc_phy_txpwr_srom_read_lcnphy(pi)) {
++		kfree(pi->u.pi_lcnphy);
+ 		return false;
++	}
+ 
+ 	if (LCNREV_IS(pi->pubpi.phy_rev, 1)) {
+ 		if (pi_lcn->lcnphy_tempsense_option == 3) {
 -- 
 2.25.1
 
