@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7640529C12B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E6629C128
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780417AbgJ0Oyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
+        id S1780362AbgJ0Oyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762641AbgJ0Ons (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:43:48 -0400
+        id S1762711AbgJ0OoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:44:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B5FA206E5;
-        Tue, 27 Oct 2020 14:43:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8283206B2;
+        Tue, 27 Oct 2020 14:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809827;
-        bh=xSI6GVNCFkFvJXIuLdB7QNqj8UQDNWjO7EfhUzUaK28=;
+        s=default; t=1603809850;
+        bh=IPBo/Bxj09puXFIl59GtLe4cG85zd4UoaUO4FnwU42s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKCvNqcn6KmmSfgCFmtvazVRDJqlDQMx8nW6fu+5S75+g98uzP92pC1x3Sxc2JuV4
-         HmaR4lN4XkHGNHrgM2RB0qLVJyj4fCbmPBhaig5Dqt0vsxTBnnZnxzlE62qcnnOYr/
-         /6g8FLD06xr4jX3MHpAOL2Lzlnx/92aavySkbU0s=
+        b=Bcf/lYs2xLQOdpXIOnRZZosW3XZgiiMCd1fx2rqJNK0CO/4m76HFAdsijd1gByudU
+         k7KkaFrsFhzILLScvg8YFmtghe234tGf3+Cue6djMJXHVsIpnbXK63KFoH0SCwZmhD
+         tk9XgiD9d5MmYkFl6A7TkulNm+CCIRiwZ+qSCDAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 333/408] media: exynos4-is: Fix several reference count leaks due to pm_runtime_get_sync
-Date:   Tue, 27 Oct 2020 14:54:31 +0100
-Message-Id: <20201027135510.487790908@linuxfoundation.org>
+Subject: [PATCH 5.4 341/408] x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR
+Date:   Tue, 27 Oct 2020 14:54:39 +0100
+Message-Id: <20201027135510.844967668@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,52 +45,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 7ef64ceea0008c17e94a8a2c60c5d6d46f481996 ]
+[ Upstream commit e2def7d49d0812ea40a224161b2001b2e815dce2 ]
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-reference count before returning the error.
+If an exception needs to be handled while reading an MSR - which is in
+most of the cases caused by a #GP on a non-existent MSR - then this
+is most likely the incarnation of a BIOS or a hardware bug. Such bug
+violates the architectural guarantee that MCA banks are present with all
+MSRs belonging to them.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The proper fix belongs in the hardware/firmware - not in the kernel.
+
+Handling an #MC exception which is raised while an NMI is being handled
+would cause the nasty NMI nesting issue because of the shortcoming of
+IRET of reenabling NMIs when executed. And the machine is in an #MC
+context already so <Deity> be at its side.
+
+Tracing MSR accesses while in #MC is another no-no due to tracing being
+inherently a bad idea in atomic context:
+
+  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
+
+so remove all that "additional" functionality from mce_rdmsrl() and
+provide it with a special exception handler which panics the machine
+when that MSR is not accessible.
+
+The exception handler prints a human-readable message explaining what
+the panic reason is but, what is more, it panics while in the #GP
+handler and latter won't have executed an IRET, thus opening the NMI
+nesting issue in the case when the #MC has happened while handling
+an NMI. (#MC itself won't be reenabled until MCG_STATUS hasn't been
+cleared).
+
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+[ Add missing prototypes for ex_handler_* ]
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20200906212130.GA28456@zn.tnic
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-isp.c  | 4 +++-
- drivers/media/platform/exynos4-is/fimc-lite.c | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c     | 72 +++++++++++++++++++++++++-----
+ arch/x86/kernel/cpu/mce/internal.h | 10 +++++
+ 2 files changed, 70 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-isp.c b/drivers/media/platform/exynos4-is/fimc-isp.c
-index cde0d254ec1c4..a77c49b185115 100644
---- a/drivers/media/platform/exynos4-is/fimc-isp.c
-+++ b/drivers/media/platform/exynos4-is/fimc-isp.c
-@@ -305,8 +305,10 @@ static int fimc_isp_subdev_s_power(struct v4l2_subdev *sd, int on)
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index fd76e3733dd3d..92331de16d70e 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -388,10 +388,28 @@ static int msr_to_offset(u32 msr)
+ 	return -1;
+ }
  
- 	if (on) {
- 		ret = pm_runtime_get_sync(&is->pdev->dev);
--		if (ret < 0)
-+		if (ret < 0) {
-+			pm_runtime_put(&is->pdev->dev);
- 			return ret;
-+		}
- 		set_bit(IS_ST_PWR_ON, &is->state);
++__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
++				      struct pt_regs *regs, int trapnr,
++				      unsigned long error_code,
++				      unsigned long fault_addr)
++{
++	pr_emerg("MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
++		 (unsigned int)regs->cx, regs->ip, (void *)regs->ip);
++
++	show_stack_regs(regs);
++
++	panic("MCA architectural violation!\n");
++
++	while (true)
++		cpu_relax();
++
++	return true;
++}
++
+ /* MSR access wrappers used for error injection */
+ static u64 mce_rdmsrl(u32 msr)
+ {
+-	u64 v;
++	DECLARE_ARGS(val, low, high);
  
- 		ret = fimc_is_start_firmware(is);
-diff --git a/drivers/media/platform/exynos4-is/fimc-lite.c b/drivers/media/platform/exynos4-is/fimc-lite.c
-index e87c6a09205bd..efd06621951c7 100644
---- a/drivers/media/platform/exynos4-is/fimc-lite.c
-+++ b/drivers/media/platform/exynos4-is/fimc-lite.c
-@@ -470,7 +470,7 @@ static int fimc_lite_open(struct file *file)
- 	set_bit(ST_FLITE_IN_USE, &fimc->state);
- 	ret = pm_runtime_get_sync(&fimc->pdev->dev);
- 	if (ret < 0)
--		goto unlock;
-+		goto err_pm;
+ 	if (__this_cpu_read(injectm.finished)) {
+ 		int offset = msr_to_offset(msr);
+@@ -401,21 +419,43 @@ static u64 mce_rdmsrl(u32 msr)
+ 		return *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
+ 	}
  
- 	ret = v4l2_fh_open(file);
- 	if (ret < 0)
+-	if (rdmsrl_safe(msr, &v)) {
+-		WARN_ONCE(1, "mce: Unable to read MSR 0x%x!\n", msr);
+-		/*
+-		 * Return zero in case the access faulted. This should
+-		 * not happen normally but can happen if the CPU does
+-		 * something weird, or if the code is buggy.
+-		 */
+-		v = 0;
+-	}
++	/*
++	 * RDMSR on MCA MSRs should not fault. If they do, this is very much an
++	 * architectural violation and needs to be reported to hw vendor. Panic
++	 * the box to not allow any further progress.
++	 */
++	asm volatile("1: rdmsr\n"
++		     "2:\n"
++		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_rdmsr_fault)
++		     : EAX_EDX_RET(val, low, high) : "c" (msr));
+ 
+-	return v;
++
++	return EAX_EDX_VAL(val, low, high);
++}
++
++__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
++				      struct pt_regs *regs, int trapnr,
++				      unsigned long error_code,
++				      unsigned long fault_addr)
++{
++	pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
++		 (unsigned int)regs->cx, (unsigned int)regs->dx, (unsigned int)regs->ax,
++		  regs->ip, (void *)regs->ip);
++
++	show_stack_regs(regs);
++
++	panic("MCA architectural violation!\n");
++
++	while (true)
++		cpu_relax();
++
++	return true;
+ }
+ 
+ static void mce_wrmsrl(u32 msr, u64 v)
+ {
++	u32 low, high;
++
+ 	if (__this_cpu_read(injectm.finished)) {
+ 		int offset = msr_to_offset(msr);
+ 
+@@ -423,7 +463,15 @@ static void mce_wrmsrl(u32 msr, u64 v)
+ 			*(u64 *)((char *)this_cpu_ptr(&injectm) + offset) = v;
+ 		return;
+ 	}
+-	wrmsrl(msr, v);
++
++	low  = (u32)v;
++	high = (u32)(v >> 32);
++
++	/* See comment in mce_rdmsrl() */
++	asm volatile("1: wrmsr\n"
++		     "2:\n"
++		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_wrmsr_fault)
++		     : : "c" (msr), "a"(low), "d" (high) : "memory");
+ }
+ 
+ /*
+diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
+index 43031db429d24..231954fe5b4e6 100644
+--- a/arch/x86/kernel/cpu/mce/internal.h
++++ b/arch/x86/kernel/cpu/mce/internal.h
+@@ -172,4 +172,14 @@ extern bool amd_filter_mce(struct mce *m);
+ static inline bool amd_filter_mce(struct mce *m)			{ return false; };
+ #endif
+ 
++__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
++				      struct pt_regs *regs, int trapnr,
++				      unsigned long error_code,
++				      unsigned long fault_addr);
++
++__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
++				      struct pt_regs *regs, int trapnr,
++				      unsigned long error_code,
++				      unsigned long fault_addr);
++
+ #endif /* __X86_MCE_INTERNAL_H__ */
 -- 
 2.25.1
 
