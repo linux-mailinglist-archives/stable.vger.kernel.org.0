@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57D3229BCDD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9804F29BCD7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811125AbgJ0QhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:37:25 -0400
+        id S1811115AbgJ0QhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:37:21 -0400
 Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801844AbgJ0Pob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:44:31 -0400
+        id S1801879AbgJ0Po6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:44:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 599CE22453;
-        Tue, 27 Oct 2020 15:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C73522454;
+        Tue, 27 Oct 2020 15:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813444;
-        bh=i9pwAcbMBFwVFvTsy6gwZlshudc99nSg7f/5QAsJM/4=;
+        s=default; t=1603813446;
+        bh=GF6jpslVjrnIaB3KlOvuiDwinRPmUoPBu6kW0RDV+YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYalVpGJ5DfRTrFYoyD0bGS/0G55dIV9bAlXJNZGBhU1vqmgjT0InD5glHkYQlYQq
-         jRNPQIIsd3+IaKkBX0hiz+wnTHsmo+/fUt3icRRZjDqPmQemYmEXVSkQZb/EXCTur3
-         mHSbGYDFgzKOePmRugvoX0q1a9iO5DLHbWVDX0jQ=
+        b=svLZ5xUt/6cW3aRg61yNBMKGo4EudF0W8FOWVlZiRGWPVPesxQYQ/1aYxb1AFyFJW
+         2xWoxuxRfRYCFhGEj8pKClBpuhrEwfSvyDUKcZfk9fRQ7LCFjDrIIHdUwlN8iECq6L
+         H32bWySUxS3xfbkWTB7z1h74bW8riFWfZk6weMp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, guomin chen <guomin_chen@sina.com>,
+        stable@vger.kernel.org, Xiaoyang Xu <xuxiaoyang2@huawei.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 554/757] vfio/pci: Clear token on bypass registration failure
-Date:   Tue, 27 Oct 2020 14:53:24 +0100
-Message-Id: <20201027135516.480546728@linuxfoundation.org>
+Subject: [PATCH 5.9 555/757] vfio iommu type1: Fix memory leak in vfio_iommu_type1_pin_pages
+Date:   Tue, 27 Oct 2020 14:53:25 +0100
+Message-Id: <20201027135516.530249899@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,45 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Xiaoyang Xu <xuxiaoyang2@huawei.com>
 
-[ Upstream commit 852b1beecb6ff9326f7ca4bc0fe69ae860ebdb9e ]
+[ Upstream commit 2e6cfd496f5b57034cf2aec738799571b5a52124 ]
 
-The eventfd context is used as our irqbypass token, therefore if an
-eventfd is re-used, our token is the same.  The irqbypass code will
-return an -EBUSY in this case, but we'll still attempt to unregister
-the producer, where if that duplicate token still exists, results in
-removing the wrong object.  Clear the token of failed producers so
-that they harmlessly fall out when unregistered.
+pfn is not added to pfn_list when vfio_add_to_pfn_list fails.
+vfio_unpin_page_external will exit directly without calling
+vfio_iova_put_vfio_pfn.  This will lead to a memory leak.
 
-Fixes: 6d7425f109d2 ("vfio: Register/unregister irq_bypass_producer")
-Reported-by: guomin chen <guomin_chen@sina.com>
-Tested-by: guomin chen <guomin_chen@sina.com>
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Signed-off-by: Xiaoyang Xu <xuxiaoyang2@huawei.com>
+[aw: simplified logic, add Fixes]
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_intrs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vfio/vfio_iommu_type1.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index 1d9fb25929459..869dce5f134dd 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -352,11 +352,13 @@ static int vfio_msi_set_vector_signal(struct vfio_pci_device *vdev,
- 	vdev->ctx[vector].producer.token = trigger;
- 	vdev->ctx[vector].producer.irq = irq;
- 	ret = irq_bypass_register_producer(&vdev->ctx[vector].producer);
--	if (unlikely(ret))
-+	if (unlikely(ret)) {
- 		dev_info(&pdev->dev,
- 		"irq bypass producer (token %p) registration fails: %d\n",
- 		vdev->ctx[vector].producer.token, ret);
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index d0438388feebe..9dde5ed852fd0 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -693,7 +693,8 @@ static int vfio_iommu_type1_pin_pages(void *iommu_data,
  
-+		vdev->ctx[vector].producer.token = NULL;
-+	}
- 	vdev->ctx[vector].trigger = trigger;
+ 		ret = vfio_add_to_pfn_list(dma, iova, phys_pfn[i]);
+ 		if (ret) {
+-			vfio_unpin_page_external(dma, iova, do_accounting);
++			if (put_pfn(phys_pfn[i], dma->prot) && do_accounting)
++				vfio_lock_acct(dma, -1, true);
+ 			goto pin_unwind;
+ 		}
  
- 	return 0;
 -- 
 2.25.1
 
