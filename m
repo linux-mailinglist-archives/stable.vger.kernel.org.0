@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E710A29AE52
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2D329AE7B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504404AbgJ0N7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:59:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46468 "EHLO mail.kernel.org"
+        id S2441884AbgJ0OAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504289AbgJ0N7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:59:02 -0400
+        id S1753590AbgJ0OAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:00:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D7DF21D42;
-        Tue, 27 Oct 2020 13:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B11921D7B;
+        Tue, 27 Oct 2020 14:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807141;
-        bh=oj5HLCgTap0UE8B9NbqNauRQX8CuLpo1hR0Pot0m9Jg=;
+        s=default; t=1603807252;
+        bh=71RSy4/ywzh9HOc4pC4rijPq9qiNxmStj1VnLhKexwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYdmOma7w78R3AJ1eFp8kpSlfwBt8YmQuYQ8IyvsgVvWYVFvW2hD1KS2ac3qYzXGv
-         0+zXryaQbyjILXtPZ6GIHLa6YJ2LWIYbZaXp/84ooyrtSf1kcRz/pvU/dg0AD+kcna
-         JyOhF8wCLCeOUDDZaUpfbruQIt0u74P/78SmYBb0=
+        b=fWTa3mpVbWiR/atM7QWbUIDiudphWG86v+Sk6iR087E8gEMAvCUxC/ZfKjX124KlV
+         WyHKpyxmLPyzCAvT2L83F0005jRZyARiFvacOehm3wC29nqBvxYzSnyxwUU97HuqdL
+         LYLuofLvyPfPb5JcT0LrkSfXv0ysdQVc9skaI6yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 056/112] mtd: lpddr: fix excessive stack usage with clang
-Date:   Tue, 27 Oct 2020 14:49:26 +0100
-Message-Id: <20201027134903.215575613@linuxfoundation.org>
+Subject: [PATCH 4.4 058/112] ARM: 9007/1: l2c: fix prefetch bits init in L2X0_AUX_CTRL using DT values
+Date:   Tue, 27 Oct 2020 14:49:28 +0100
+Message-Id: <20201027134903.313912675@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -44,94 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit 3e1b6469f8324bee5927b063e2aca30d3e56b907 ]
+[ Upstream commit 8e007b367a59bcdf484c81f6df9bd5a4cc179ca6 ]
 
-Building lpddr2_nvm with clang can result in a giant stack usage
-in one function:
+The L310_PREFETCH_CTRL register bits 28 and 29 to enable data and
+instruction prefetch respectively can also be accessed via the
+L2X0_AUX_CTRL register.  They appear to be actually wired together in
+hardware between the registers.  Changing them in the prefetch
+register only will get undone when restoring the aux control register
+later on.  For this reason, set these bits in both registers during
+initialisation according to the devicetree property values.
 
-drivers/mtd/lpddr/lpddr2_nvm.c:399:12: error: stack frame size of 1144 bytes in function 'lpddr2_nvm_probe' [-Werror,-Wframe-larger-than=]
+Link: https://lore.kernel.org/lkml/76f2f3ad5e77e356e0a5b99ceee1e774a2842c25.1597061474.git.guillaume.tucker@collabora.com/
 
-The problem is that clang decides to build a copy of the mtd_info
-structure on the stack and then do a memcpy() into the actual version. It
-shouldn't really do it that way, but it's not strictly a bug either.
-
-As a workaround, use a static const version of the structure to assign
-most of the members upfront and then only set the few members that
-require runtime knowledge at probe time.
-
-Fixes: 96ba9dd65788 ("mtd: lpddr: add driver for LPDDR2-NVM PCM memories")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200505140136.263461-1-arnd@arndb.de
+Fixes: ec3bd0e68a67 ("ARM: 8391/1: l2c: add options to overwrite prefetching behavior")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/lpddr/lpddr2_nvm.c | 35 ++++++++++++++++++----------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ arch/arm/mm/cache-l2x0.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/lpddr/lpddr2_nvm.c b/drivers/mtd/lpddr/lpddr2_nvm.c
-index 2342277c9bcb0..5e36366d9b36d 100644
---- a/drivers/mtd/lpddr/lpddr2_nvm.c
-+++ b/drivers/mtd/lpddr/lpddr2_nvm.c
-@@ -408,6 +408,17 @@ static int lpddr2_nvm_lock(struct mtd_info *mtd, loff_t start_add,
- 	return lpddr2_nvm_do_block_op(mtd, start_add, len, LPDDR2_NVM_LOCK);
- }
+diff --git a/arch/arm/mm/cache-l2x0.c b/arch/arm/mm/cache-l2x0.c
+index 493692d838c67..0b6f8a93d8c60 100644
+--- a/arch/arm/mm/cache-l2x0.c
++++ b/arch/arm/mm/cache-l2x0.c
+@@ -1228,20 +1228,28 @@ static void __init l2c310_of_parse(const struct device_node *np,
  
-+static const struct mtd_info lpddr2_nvm_mtd_info = {
-+	.type		= MTD_RAM,
-+	.writesize	= 1,
-+	.flags		= (MTD_CAP_NVRAM | MTD_POWERUP_LOCK),
-+	._read		= lpddr2_nvm_read,
-+	._write		= lpddr2_nvm_write,
-+	._erase		= lpddr2_nvm_erase,
-+	._unlock	= lpddr2_nvm_unlock,
-+	._lock		= lpddr2_nvm_lock,
-+};
-+
- /*
-  * lpddr2_nvm driver probe method
-  */
-@@ -448,6 +459,7 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
- 		.pfow_base	= OW_BASE_ADDRESS,
- 		.fldrv_priv	= pcm_data,
- 	};
-+
- 	if (IS_ERR(map->virt))
- 		return PTR_ERR(map->virt);
+ 	ret = of_property_read_u32(np, "prefetch-data", &val);
+ 	if (ret == 0) {
+-		if (val)
++		if (val) {
+ 			prefetch |= L310_PREFETCH_CTRL_DATA_PREFETCH;
+-		else
++			*aux_val |= L310_PREFETCH_CTRL_DATA_PREFETCH;
++		} else {
+ 			prefetch &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
++			*aux_val &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
++		}
++		*aux_mask &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
+ 	} else if (ret != -EINVAL) {
+ 		pr_err("L2C-310 OF prefetch-data property value is missing\n");
+ 	}
  
-@@ -459,22 +471,13 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
- 		return PTR_ERR(pcm_data->ctl_regs);
- 
- 	/* Populate mtd_info data structure */
--	*mtd = (struct mtd_info) {
--		.dev		= { .parent = &pdev->dev },
--		.name		= pdev->dev.init_name,
--		.type		= MTD_RAM,
--		.priv		= map,
--		.size		= resource_size(add_range),
--		.erasesize	= ERASE_BLOCKSIZE * pcm_data->bus_width,
--		.writesize	= 1,
--		.writebufsize	= WRITE_BUFFSIZE * pcm_data->bus_width,
--		.flags		= (MTD_CAP_NVRAM | MTD_POWERUP_LOCK),
--		._read		= lpddr2_nvm_read,
--		._write		= lpddr2_nvm_write,
--		._erase		= lpddr2_nvm_erase,
--		._unlock	= lpddr2_nvm_unlock,
--		._lock		= lpddr2_nvm_lock,
--	};
-+	*mtd = lpddr2_nvm_mtd_info;
-+	mtd->dev.parent		= &pdev->dev;
-+	mtd->name		= pdev->dev.init_name;
-+	mtd->priv		= map;
-+	mtd->size		= resource_size(add_range);
-+	mtd->erasesize		= ERASE_BLOCKSIZE * pcm_data->bus_width;
-+	mtd->writebufsize	= WRITE_BUFFSIZE * pcm_data->bus_width;
- 
- 	/* Verify the presence of the device looking for PFOW string */
- 	if (!lpddr2_nvm_pfow_present(map)) {
+ 	ret = of_property_read_u32(np, "prefetch-instr", &val);
+ 	if (ret == 0) {
+-		if (val)
++		if (val) {
+ 			prefetch |= L310_PREFETCH_CTRL_INSTR_PREFETCH;
+-		else
++			*aux_val |= L310_PREFETCH_CTRL_INSTR_PREFETCH;
++		} else {
+ 			prefetch &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
++			*aux_val &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
++		}
++		*aux_mask &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
+ 	} else if (ret != -EINVAL) {
+ 		pr_err("L2C-310 OF prefetch-instr property value is missing\n");
+ 	}
 -- 
 2.25.1
 
