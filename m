@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99DA29B707
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E547F29B703
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798537AbgJ0P2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35026 "EHLO mail.kernel.org"
+        id S1796951AbgJ0P2g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796916AbgJ0PUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:35 -0400
+        id S1796956AbgJ0PUr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:20:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7759520657;
-        Tue, 27 Oct 2020 15:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2358421527;
+        Tue, 27 Oct 2020 15:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812035;
-        bh=DXF48mq6FhP6yJuUDLkahPrjOE9J5yn6xuCS9tNPWvg=;
+        s=default; t=1603812046;
+        bh=QElG1aAp5okCuT19usec8CSs9Gw/L67dK4qjvYH3PIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2rO35xjcb+TsxFKYmmwSX47h54K4AZ40xW1c/O1z1dOhcwZe9pnlhil0Yd1vQkNH
-         DX11pS81uxqe11WzTycu30D2qpWjDe6QtRpvkYK/K1ViY2UltmPnInOLI+H6Mg/qfi
-         ZKcZY1eSYuHDqQoOVcbwbMqBrNO/e6EUSIw0Xw4w=
+        b=zuxMlO6V5cmS0RULzKBXV/NTFwMv5c47ewuT9/7TfTM+9ILZ+g3VhfTvmHLr300C7
+         0jhzx5NJL94PHCLc+EjniAJhgugef/qmXOuM7j0KEYWKsRC7IsH6e7FEE96Dfsh8X2
+         anTp9ZnCu2Zy/KRfnTPmBo3gqIaFhqvAMJu9p5Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
-        Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
+        stable@vger.kernel.org, Ji Li <jli@akamai.com>,
+        Ke Li <keli@akamai.com>, Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 042/757] net: hdlc_raw_eth: Clear the IFF_TX_SKB_SHARING flag after calling ether_setup
-Date:   Tue, 27 Oct 2020 14:44:52 +0100
-Message-Id: <20201027135452.497677144@linuxfoundation.org>
+Subject: [PATCH 5.9 043/757] net: Properly typecast int values to set sk_max_pacing_rate
+Date:   Tue, 27 Oct 2020 14:44:53 +0100
+Message-Id: <20201027135452.550189264@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,38 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Ke Li <keli@akamai.com>
 
-[ Upstream commit 5fce1e43e2d5bf2f7e3224d7b99b1c65ab2c26e2 ]
+[ Upstream commit 700465fd338fe5df08a1b2e27fa16981f562547f ]
 
-This driver calls ether_setup to set up the network device.
-The ether_setup function would add the IFF_TX_SKB_SHARING flag to the
-device. This flag indicates that it is safe to transmit shared skbs to
-the device.
+In setsockopt(SO_MAX_PACING_RATE) on 64bit systems, sk_max_pacing_rate,
+after extended from 'u32' to 'unsigned long', takes unintentionally
+hiked value whenever assigned from an 'int' value with MSB=1, due to
+binary sign extension in promoting s32 to u64, e.g. 0x80000000 becomes
+0xFFFFFFFF80000000.
 
-However, this is not true. This driver may pad the frame (in eth_tx)
-before transmission, so the skb may be modified.
+Thus inflated sk_max_pacing_rate causes subsequent getsockopt to return
+~0U unexpectedly. It may also result in increased pacing rate.
 
-Fixes: 550fd08c2ceb ("net: Audit drivers to identify those needing IFF_TX_SKB_SHARING cleared")
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201020063420.187497-1-xie.he.0141@gmail.com
+Fix by explicitly casting the 'int' value to 'unsigned int' before
+assigning it to sk_max_pacing_rate, for zero extension to happen.
+
+Fixes: 76a9ebe811fb ("net: extend sk_pacing_rate to unsigned long")
+Signed-off-by: Ji Li <jli@akamai.com>
+Signed-off-by: Ke Li <keli@akamai.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20201022064146.79873-1-keli@akamai.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc_raw_eth.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/filter.c |    3 ++-
+ net/core/sock.c   |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wan/hdlc_raw_eth.c
-+++ b/drivers/net/wan/hdlc_raw_eth.c
-@@ -99,6 +99,7 @@ static int raw_eth_ioctl(struct net_devi
- 		old_qlen = dev->tx_queue_len;
- 		ether_setup(dev);
- 		dev->tx_queue_len = old_qlen;
-+		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
- 		eth_hw_addr_random(dev);
- 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
- 		netif_dormant_off(dev);
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4354,7 +4354,8 @@ static int _bpf_setsockopt(struct sock *
+ 				cmpxchg(&sk->sk_pacing_status,
+ 					SK_PACING_NONE,
+ 					SK_PACING_NEEDED);
+-			sk->sk_max_pacing_rate = (val == ~0U) ? ~0UL : val;
++			sk->sk_max_pacing_rate = (val == ~0U) ?
++						 ~0UL : (unsigned int)val;
+ 			sk->sk_pacing_rate = min(sk->sk_pacing_rate,
+ 						 sk->sk_max_pacing_rate);
+ 			break;
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1176,7 +1176,7 @@ set_sndbuf:
+ 
+ 	case SO_MAX_PACING_RATE:
+ 		{
+-		unsigned long ulval = (val == ~0U) ? ~0UL : val;
++		unsigned long ulval = (val == ~0U) ? ~0UL : (unsigned int)val;
+ 
+ 		if (sizeof(ulval) != sizeof(val) &&
+ 		    optlen >= sizeof(ulval) &&
 
 
