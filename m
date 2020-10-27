@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AEB2299E3C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88110299E38
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439437AbgJ0ANV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:13:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33694 "EHLO mail.kernel.org"
+        id S2411827AbgJ0ALt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:11:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411806AbgJ0ALr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:11:47 -0400
+        id S2411819AbgJ0ALs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:11:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CA9B20791;
-        Tue, 27 Oct 2020 00:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0615620882;
+        Tue, 27 Oct 2020 00:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757506;
-        bh=pTmON0MBagbOpYt2bCEsqlJ5ioNCc9Yr4PxBXsDjCCY=;
+        s=default; t=1603757507;
+        bh=XWmWiMNyqi8F2iWBt3yqZc4NMaU6I2PQm1M1GdJkqRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oL9muj3AGuxYOdWvo+KnNLw9EYWAL2K4SOnzQZZtNMR8R+fZ9DXaQE91G5BdEKj1H
-         qvE9TTiL9ODIDfFOtMt+EJYFN7H0ORD4S1uqzs9Tz4DN2DmT3AdeaHgduWmUpa5Xpc
-         tqTenkmDumZUV83FSbbtLRrYYMg7C9RxORZ2F0/k=
+        b=0WAMxso4ZsTUDdNUnktZfeG7SQRcUlJ+7gZvIE2i37cteOU0rUz/0X+XOmRCclO6k
+         mocaotCvKRPK1cVXG2CGScQAx3J5oqMZFph5g5Oop7u11SadHDV2HHZcafQ2uUJqby
+         xRCktZuYwyumEbYPZdE9wCTbb/MEXBCdyw+pvd/g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+75d51fe5bf4ebe988518@syzkaller.appspotmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Sasha Levin <sashal@kernel.org>,
-        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 18/25] net: 9p: initialize sun_server.sun_path to have addr's value only when addr is valid
-Date:   Mon, 26 Oct 2020 20:11:16 -0400
-Message-Id: <20201027001123.1027642-18-sashal@kernel.org>
+Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 19/25] drivers: watchdog: rdc321x_wdt: Fix race condition bugs
+Date:   Mon, 26 Oct 2020 20:11:17 -0400
+Message-Id: <20201027001123.1027642-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027001123.1027642-1-sashal@kernel.org>
 References: <20201027001123.1027642-1-sashal@kernel.org>
@@ -44,42 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 7ca1db21ef8e0e6725b4d25deed1ca196f7efb28 ]
+[ Upstream commit 4b2e7f99cdd314263c9d172bc17193b8b6bba463 ]
 
-In p9_fd_create_unix, checking is performed to see if the addr (passed
-as an argument) is NULL or not.
-However, no check is performed to see if addr is a valid address, i.e.,
-it doesn't entirely consist of only 0's.
-The initialization of sun_server.sun_path to be equal to this faulty
-addr value leads to an uninitialized variable, as detected by KMSAN.
-Checking for this (faulty addr) and returning a negative error number
-appropriately, resolves this issue.
+In rdc321x_wdt_probe(), rdc321x_wdt_device.queue is initialized
+after misc_register(), hence if ioctl is called before its
+initialization which can call rdc321x_wdt_start() function,
+it will see an uninitialized value of rdc321x_wdt_device.queue,
+hence initialize it before misc_register().
+Also, rdc321x_wdt_device.default_ticks is accessed in reset()
+function called from write callback, thus initialize it before
+misc_register().
 
-Link: http://lkml.kernel.org/r/20201012042404.2508-1-anant.thazhemadam@gmail.com
-Reported-by: syzbot+75d51fe5bf4ebe988518@syzkaller.appspotmail.com
-Tested-by: syzbot+75d51fe5bf4ebe988518@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20200807112902.28764-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/rdc321x_wdt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index eab058f93ec97..6f8e84844bb27 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -991,7 +991,7 @@ p9_fd_create_unix(struct p9_client *client, const char *addr, char *args)
+diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
+index 47a8f1b1087d4..4568af9a165be 100644
+--- a/drivers/watchdog/rdc321x_wdt.c
++++ b/drivers/watchdog/rdc321x_wdt.c
+@@ -244,6 +244,8 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
  
- 	csocket = NULL;
+ 	rdc321x_wdt_device.sb_pdev = pdata->sb_pdev;
+ 	rdc321x_wdt_device.base_reg = r->start;
++	rdc321x_wdt_device.queue = 0;
++	rdc321x_wdt_device.default_ticks = ticks;
  
--	if (addr == NULL)
-+	if (!addr || !strlen(addr))
- 		return -EINVAL;
+ 	err = misc_register(&rdc321x_wdt_misc);
+ 	if (err < 0) {
+@@ -258,14 +260,11 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
+ 				rdc321x_wdt_device.base_reg, RDC_WDT_RST);
  
- 	if (strlen(addr) >= UNIX_PATH_MAX) {
+ 	init_completion(&rdc321x_wdt_device.stop);
+-	rdc321x_wdt_device.queue = 0;
+ 
+ 	clear_bit(0, &rdc321x_wdt_device.inuse);
+ 
+ 	setup_timer(&rdc321x_wdt_device.timer, rdc321x_wdt_trigger, 0);
+ 
+-	rdc321x_wdt_device.default_ticks = ticks;
+-
+ 	dev_info(&pdev->dev, "watchdog init success\n");
+ 
+ 	return 0;
 -- 
 2.25.1
 
