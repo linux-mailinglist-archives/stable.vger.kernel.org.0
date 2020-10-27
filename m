@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC2229B15F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C48C929B340
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:55:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759190AbgJ0O2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:28:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
+        id S1764766AbgJ0Ord (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:47:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759186AbgJ0O2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:28:14 -0400
+        id S1764928AbgJ0Orc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:47:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1CB9206DC;
-        Tue, 27 Oct 2020 14:28:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 425E0206E5;
+        Tue, 27 Oct 2020 14:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808894;
-        bh=DZzDuXt6tNp4fmj0O4D4scbmuud0U8H2nYwioy+4Q5c=;
+        s=default; t=1603810051;
+        bh=MoBhK/7Ht9x5KVldjiEmNJ4N0GxtlmSpLJsWAMgpVXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUhqDtShvYJKvxis4GdImeaZ7mqmG9bnzACETU45vG9UWaRzl5jffSKSGVI69YOoX
-         VonkOBJD+e6Vk5Dbhln2Ij5SJPYgZRkVXCuiohsjbHnJ9ltG0is/EB2YctGsREcvnn
-         GuvNPj4NfzIZNbVwkEgYNU3fXca956754Wnoe854=
+        b=SLHYWyg2tMuOPktPZmjScuhMd8mIdA4FM7cPUEqrr52QVN5/vGr+IlPxMBT2ETRor
+         z1//rLH0PdyOfERP6hqwLqhUuSPC1XxOuAFiguF6kTLcmLb0GIeOxxu28uKuyfbHDf
+         OdMUpgvBxAuhYWKIaxu9XRVUpAou0q9krEUOt8ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Dhaval Giani <dhaval.giani@oracle.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 264/264] usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
-Date:   Tue, 27 Oct 2020 14:55:22 +0100
-Message-Id: <20201027135443.053703269@linuxfoundation.org>
+Subject: [PATCH 5.4 385/408] fbmem: add margin check to fb_check_caps()
+Date:   Tue, 27 Oct 2020 14:55:23 +0100
+Message-Id: <20201027135512.858127619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Colitti <lorenzo@google.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 7974ecd7d3c0f42a98566f281e44ea8573a2ad88 ]
+[ Upstream commit a49145acfb975d921464b84fe00279f99827d816 ]
 
-Currently, enabling f_ncm at SuperSpeed Plus speeds results in an
-oops in config_ep_by_speed because ncm_set_alt passes in NULL
-ssp_descriptors. Fix this by re-using the SuperSpeed descriptors.
-This is safe because usb_assign_descriptors calls
-usb_copy_descriptors.
+A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
+or yres setting in struct fb_var_screeninfo will result in a
+KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
+the margins are being cleared. The margins are cleared in
+chunks and if the xres setting or yres setting is a value of
+zero upto the chunk size, the failure will occur.
 
-Tested: enabled f_ncm on a dwc3 gadget and 10Gbps link, ran iperf
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Add a margin check to validate xres and yres settings.
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dhaval Giani <dhaval.giani@oracle.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ncm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/core/fbmem.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
-index 09bc917d407d4..e4aa370e86a9e 100644
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -1523,7 +1523,7 @@ static int ncm_bind(struct usb_configuration *c, struct usb_function *f)
- 		fs_ncm_notify_desc.bEndpointAddress;
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 97abcd497c7e0..bf76dadbed87f 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1001,6 +1001,10 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
+ 		return 0;
+ 	}
  
- 	status = usb_assign_descriptors(f, ncm_fs_function, ncm_hs_function,
--			ncm_ss_function, NULL);
-+			ncm_ss_function, ncm_ss_function);
- 	if (status)
- 		goto fail;
++	/* bitfill_aligned() assumes that it's at least 8x8 */
++	if (var->xres < 8 || var->yres < 8)
++		return -EINVAL;
++
+ 	ret = info->fbops->fb_check_var(var, info);
  
+ 	if (ret)
 -- 
 2.25.1
 
