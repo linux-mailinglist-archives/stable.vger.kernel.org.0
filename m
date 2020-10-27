@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F5229B80D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72ABC29B90D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799292AbgJ0Pap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
+        id S1802167AbgJ0Ppu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799286AbgJ0Pan (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:30:43 -0400
+        id S1798596AbgJ0P3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 159D222264;
-        Tue, 27 Oct 2020 15:30:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B404020728;
+        Tue, 27 Oct 2020 15:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812642;
-        bh=JZO0FMmtG4vn/Ir8BKBtAao/jx/uemYfhrNZ6ukyQ5c=;
+        s=default; t=1603812549;
+        bh=cKsQjm/Jxc4p0wWw/RoMqSrFVokuN7UcbLlS2G+kzJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ia+q8Fhs+Lqh7lkqXPr/llXSXHsvdGmauI/ASKGUS5dvF4wmo21t67aacVvAB243L
-         gBoqsbBQ0BwkzMuu+WlD0314HJmt77GPJveSUeyUt35CTycn+4vd89SVNKDsGnJuDV
-         eiXm/TPKOesY3pvEJ4aK6NTPquibwhdHxEAca6n4=
+        b=JsUMFFFF9d4aml0pnRLLLpdZOmKj5OoXiBvQYMo8peQTFR47xJcK2t2DLzIYKPhf7
+         yYohFcF7l8QvGJlwa/zgilDUTVZ8+ptGWcoIff3Tw5ID2LrJKE/kWu3vSKf03tTyFX
+         1CYYe1aGaXkhfrmCGrDtXpClREGQBssF25dw3Vvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Andrew Morton <akpm@osdl.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Mathieu Malaterre <malat@debian.org>,
+        Kangjie Lu <kjlu@umn.edu>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 240/757] video: fbdev: sis: fix null ptr dereference
-Date:   Tue, 27 Oct 2020 14:48:10 +0100
-Message-Id: <20201027135501.851259442@linuxfoundation.org>
+Subject: [PATCH 5.9 241/757] video: fbdev: radeon: Fix memleak in radeonfb_pci_register
+Date:   Tue, 27 Oct 2020 14:48:11 +0100
+Message-Id: <20201027135501.891842750@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,76 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit ad6f93e9cd56f0b10e9b22e3e137d17a1a035242 ]
+[ Upstream commit fe6c6a4af2be8c15bac77f7ea160f947c04840d1 ]
 
-Clang static analysis reports this representative error
+When radeon_kick_out_firmware_fb() fails, info should be
+freed just like the subsequent error paths.
 
-init.c:2501:18: warning: Array access (from variable 'queuedata') results
-  in a null pointer dereference
-      templ |= ((queuedata[i] & 0xc0) << 3);
-
-This is the problem block of code
-
-   if(ModeNo > 0x13) {
-      ...
-      if(SiS_Pr->ChipType == SIS_730) {
-	 queuedata = &FQBQData730[0];
-      } else {
-	 queuedata = &FQBQData[0];
-      }
-   } else {
-
-   }
-
-queuedata is not set in the else block
-
-Reviewing the old code, the arrays FQBQData730 and FQBQData were
-used directly.
-
-So hoist the setting of queuedata out of the if-else block.
-
-Fixes: 544393fe584d ("[PATCH] sisfb update")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Andrew Morton <akpm@osdl.org>
+Fixes: 069ee21a82344 ("fbdev: Fix loading of module radeonfb on PowerMac")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Mathieu Malaterre <malat@debian.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805145208.17727-1-trix@redhat.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20200825062900.11210-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sis/init.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/aty/radeon_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/sis/init.c b/drivers/video/fbdev/sis/init.c
-index dfe3eb769638b..fde27feae5d0c 100644
---- a/drivers/video/fbdev/sis/init.c
-+++ b/drivers/video/fbdev/sis/init.c
-@@ -2428,6 +2428,11 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
+diff --git a/drivers/video/fbdev/aty/radeon_base.c b/drivers/video/fbdev/aty/radeon_base.c
+index 3fe509cb9b874..13bd2bd5c043a 100644
+--- a/drivers/video/fbdev/aty/radeon_base.c
++++ b/drivers/video/fbdev/aty/radeon_base.c
+@@ -2307,7 +2307,7 @@ static int radeonfb_pci_register(struct pci_dev *pdev,
  
-    i = 0;
+ 	ret = radeon_kick_out_firmware_fb(pdev);
+ 	if (ret)
+-		return ret;
++		goto err_release_fb;
  
-+	if (SiS_Pr->ChipType == SIS_730)
-+		queuedata = &FQBQData730[0];
-+	else
-+		queuedata = &FQBQData[0];
-+
-    if(ModeNo > 0x13) {
- 
-       /* Get VCLK  */
-@@ -2445,12 +2450,6 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
-       /* Get half colordepth */
-       colorth = colortharray[(SiS_Pr->SiS_ModeType - ModeEGA)];
- 
--      if(SiS_Pr->ChipType == SIS_730) {
--	 queuedata = &FQBQData730[0];
--      } else {
--	 queuedata = &FQBQData[0];
--      }
--
-       do {
- 	 templ = SiS_CalcDelay2(SiS_Pr, queuedata[i]) * VCLK * colorth;
- 
+ 	/* request the mem regions */
+ 	ret = pci_request_region(pdev, 0, "radeonfb framebuffer");
 -- 
 2.25.1
 
