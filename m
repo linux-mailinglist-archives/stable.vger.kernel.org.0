@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C98D29B3B9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8400929B320
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780330AbgJ0Oyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44296 "EHLO mail.kernel.org"
+        id S1762838AbgJ0Ood (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:44:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762782AbgJ0Oo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:44:27 -0400
+        id S1762827AbgJ0Ooc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:44:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D554521527;
-        Tue, 27 Oct 2020 14:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9481B206B2;
+        Tue, 27 Oct 2020 14:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809867;
-        bh=BdAJ4MjlzbJj6K5lFc8PuQNl8sUHh1kH3DZ5xn5jEHg=;
+        s=default; t=1603809870;
+        bh=TlzoQOTgJdo063lAP9IImjdEtkOQ5U8LxXHV/62dbH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0biU/cGmQkJh3XWjekfKM/AWcvC2IB80yhrth8CRgWqbJ48ZmPIaTpM6sSLGauF5V
-         X2HUeUtW2Cx+WYX9zuIlT5b6PXHbC3Rd9GLJ4gMppKSIUq6olgRLpsYaFL8Q1/qsQq
-         cd4a5oo9depcYyQMns1PJh1hWsBszz4Iu/1uRkSo=
+        b=zLdyhSkfZLv2e80Q/3um/cBA3PheAJmBf+MGqp5s77Rcqnosv+qhEQbVHkK+xEaj5
+         QezTrsEKCC0of1XcRk9LzHy77Lk5zJKAK/mWjsYb6HztkB9OL61hrCqvkqh5T2kIXv
+         sZa1ng7C1QGcAgR5lKHANwPBoHiqr/epVCxvrjZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 316/408] lightnvm: fix out-of-bounds write to array devices->info[]
-Date:   Tue, 27 Oct 2020 14:54:14 +0100
-Message-Id: <20201027135509.690511278@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/408] powerpc/powernv/dump: Fix race while processing OPAL dump
+Date:   Tue, 27 Oct 2020 14:54:15 +0100
+Message-Id: <20201027135509.738935775@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -42,40 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
 
-[ Upstream commit a48faebe65b0db55a73b9220c3d919eee849bb79 ]
+[ Upstream commit 0a43ae3e2beb77e3481d812834d33abe270768ab ]
 
-There is an off-by-one array check that can lead to a out-of-bounds
-write to devices->info[i].  Fix this by checking by using >= rather
-than > for the size check. Also replace hard-coded array size limit
-with ARRAY_SIZE on the array.
+Every dump reported by OPAL is exported to userspace through a sysfs
+interface and notified using kobject_uevent(). The userspace daemon
+(opal_errd) then reads the dump and acknowledges that the dump is
+saved safely to disk. Once acknowledged the kernel removes the
+respective sysfs file entry causing respective resources to be
+released including kobject.
 
-Addresses-Coverity: ("Out-of-bounds write")
-Fixes: cd9e9808d18f ("lightnvm: Support for Open-Channel SSDs")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+However it's possible the userspace daemon may already be scanning
+dump entries when a new sysfs dump entry is created by the kernel.
+User daemon may read this new entry and ack it even before kernel can
+notify userspace about it through kobject_uevent() call. If that
+happens then we have a potential race between
+dump_ack_store->kobject_put() and kobject_uevent which can lead to
+use-after-free of a kernfs object resulting in a kernel crash.
+
+This patch fixes this race by protecting the sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
+
+The function create_dump_obj() returns the dump object which if used
+by caller function will end up in use-after-free problem again.
+However, the return value of create_dump_obj() function isn't being
+used today and there is no need as well. Hence change it to return
+void to make this fix complete.
+
+Fixes: c7e64b9ce04a ("powerpc/powernv Platform dump interface")
+Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201017164210.264619-1-hegdevasant@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/powernv/opal-dump.c | 41 +++++++++++++++-------
+ 1 file changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/lightnvm/core.c b/drivers/lightnvm/core.c
-index 7543e395a2c64..a2ebc75af8c79 100644
---- a/drivers/lightnvm/core.c
-+++ b/drivers/lightnvm/core.c
-@@ -1316,8 +1316,9 @@ static long nvm_ioctl_get_devices(struct file *file, void __user *arg)
- 		strlcpy(info->bmname, "gennvm", sizeof(info->bmname));
- 		i++;
+diff --git a/arch/powerpc/platforms/powernv/opal-dump.c b/arch/powerpc/platforms/powernv/opal-dump.c
+index 543c816fa99ef..0e6693bacb7e7 100644
+--- a/arch/powerpc/platforms/powernv/opal-dump.c
++++ b/arch/powerpc/platforms/powernv/opal-dump.c
+@@ -318,15 +318,14 @@ static ssize_t dump_attr_read(struct file *filep, struct kobject *kobj,
+ 	return count;
+ }
  
--		if (i > 31) {
--			pr_err("max 31 devices can be reported.\n");
-+		if (i >= ARRAY_SIZE(devices->info)) {
-+			pr_err("max %zd devices can be reported.\n",
-+			       ARRAY_SIZE(devices->info));
- 			break;
- 		}
+-static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
+-					uint32_t type)
++static void create_dump_obj(uint32_t id, size_t size, uint32_t type)
+ {
+ 	struct dump_obj *dump;
+ 	int rc;
+ 
+ 	dump = kzalloc(sizeof(*dump), GFP_KERNEL);
+ 	if (!dump)
+-		return NULL;
++		return;
+ 
+ 	dump->kobj.kset = dump_kset;
+ 
+@@ -346,21 +345,39 @@ static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
+ 	rc = kobject_add(&dump->kobj, NULL, "0x%x-0x%x", type, id);
+ 	if (rc) {
+ 		kobject_put(&dump->kobj);
+-		return NULL;
++		return;
  	}
+ 
++	/*
++	 * As soon as the sysfs file for this dump is created/activated there is
++	 * a chance the opal_errd daemon (or any userspace) might read and
++	 * acknowledge the dump before kobject_uevent() is called. If that
++	 * happens then there is a potential race between
++	 * dump_ack_store->kobject_put() and kobject_uevent() which leads to a
++	 * use-after-free of a kernfs object resulting in a kernel crash.
++	 *
++	 * To avoid that, we need to take a reference on behalf of the bin file,
++	 * so that our reference remains valid while we call kobject_uevent().
++	 * We then drop our reference before exiting the function, leaving the
++	 * bin file to drop the last reference (if it hasn't already).
++	 */
++
++	/* Take a reference for the bin file */
++	kobject_get(&dump->kobj);
+ 	rc = sysfs_create_bin_file(&dump->kobj, &dump->dump_attr);
+-	if (rc) {
++	if (rc == 0) {
++		kobject_uevent(&dump->kobj, KOBJ_ADD);
++
++		pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
++			__func__, dump->id, dump->size);
++	} else {
++		/* Drop reference count taken for bin file */
+ 		kobject_put(&dump->kobj);
+-		return NULL;
+ 	}
+ 
+-	pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
+-		__func__, dump->id, dump->size);
+-
+-	kobject_uevent(&dump->kobj, KOBJ_ADD);
+-
+-	return dump;
++	/* Drop our reference */
++	kobject_put(&dump->kobj);
++	return;
+ }
+ 
+ static irqreturn_t process_dump(int irq, void *data)
 -- 
 2.25.1
 
