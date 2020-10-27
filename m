@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AEAB29AE4B
+	by mail.lfdr.de (Postfix) with ESMTP id D87E129AE4C
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409735AbgJ0N6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
+        id S1753184AbgJ0N6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:58:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753169AbgJ0N6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:45 -0400
+        id S1753150AbgJ0N6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1164E2068D;
-        Tue, 27 Oct 2020 13:58:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B52A3206D4;
+        Tue, 27 Oct 2020 13:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807124;
-        bh=KosNPV72kowdq3WJsyQKyMqfTD132vjbfFitmoWx/4w=;
+        s=default; t=1603807127;
+        bh=8B3owS/e2tltkU8ks4r/tsVhfXZQXWtNInk5utamHEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4LiQyKyhXm0sx7CLmJqD9ZoEBSFm+eMSrUjJb9L813nqOZaXYw3UztSfxz4ZgLQh
-         F+/Yg9AS01Go0ULRqZ7+NCDv6NVSxaDVIecfOWWAtqcL/WPYW8a0VXfIlcFaQ+qfQz
-         J+TrnRD5reXJIHHzfU4y+mOzHi93+FxRTANeezBE=
+        b=Ftoi4rDWKkZvI3H2Tj9bg1hjkPKTolfpd6ipBLEXQE4j6Lc3iv/W6nfdwbGc4vMX3
+         QMN5j9rOpQwVqAMROxsTW8bE2kbAN9n8H58rEbhqbzoWURTjHEmM488t5UC13fZBSv
+         O7vXY/2IUVCKaVw7NqoAiHjLxVbBZgobeigh90V8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 051/112] mwifiex: fix double free
-Date:   Tue, 27 Oct 2020 14:49:21 +0100
-Message-Id: <20201027134902.981414532@linuxfoundation.org>
+Subject: [PATCH 4.4 052/112] net: korina: fix kfree of rx/tx descriptor array
+Date:   Tue, 27 Oct 2020 14:49:22 +0100
+Message-Id: <20201027134903.030935110@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -44,48 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit 53708f4fd9cfe389beab5c8daa763bcd0e0b4aef ]
+[ Upstream commit 3af5f0f5c74ecbaf757ef06c3f80d56751277637 ]
 
-clang static analysis reports this problem:
+kmalloc returns KSEG0 addresses so convert back from KSEG1
+in kfree. Also make sure array is freed when the driver is
+unloaded from the kernel.
 
-sdio.c:2403:3: warning: Attempt to free released memory
-        kfree(card->mpa_rx.buf);
-        ^~~~~~~~~~~~~~~~~~~~~~~
-
-When mwifiex_init_sdio() fails in its first call to
-mwifiex_alloc_sdio_mpa_buffer, it falls back to calling it
-again.  If the second alloc of mpa_tx.buf fails, the error
-handler will try to free the old, previously freed mpa_rx.buf.
-Reviewing the code, it looks like a second double free would
-happen with mwifiex_cleanup_sdio().
-
-So set both pointers to NULL when they are freed.
-
-Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201004131931.29782-1-trix@redhat.com
+Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mwifiex/sdio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/korina.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mwifiex/sdio.c b/drivers/net/wireless/mwifiex/sdio.c
-index 78a8474e1a3dc..abfe4e8700ed3 100644
---- a/drivers/net/wireless/mwifiex/sdio.c
-+++ b/drivers/net/wireless/mwifiex/sdio.c
-@@ -1928,6 +1928,8 @@ static int mwifiex_alloc_sdio_mpa_buffers(struct mwifiex_adapter *adapter,
- 		kfree(card->mpa_rx.buf);
- 		card->mpa_tx.buf_size = 0;
- 		card->mpa_rx.buf_size = 0;
-+		card->mpa_tx.buf = NULL;
-+		card->mpa_rx.buf = NULL;
- 	}
+diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
+index 07eabf72c480c..3954c80f70fcb 100644
+--- a/drivers/net/ethernet/korina.c
++++ b/drivers/net/ethernet/korina.c
+@@ -1188,7 +1188,7 @@ static int korina_probe(struct platform_device *pdev)
+ 	return rc;
  
- 	return ret;
+ probe_err_register:
+-	kfree(lp->td_ring);
++	kfree(KSEG0ADDR(lp->td_ring));
+ probe_err_td_ring:
+ 	iounmap(lp->tx_dma_regs);
+ probe_err_dma_tx:
+@@ -1208,6 +1208,7 @@ static int korina_remove(struct platform_device *pdev)
+ 	iounmap(lp->eth_regs);
+ 	iounmap(lp->rx_dma_regs);
+ 	iounmap(lp->tx_dma_regs);
++	kfree(KSEG0ADDR(lp->td_ring));
+ 
+ 	unregister_netdev(bif->dev);
+ 	free_netdev(bif->dev);
 -- 
 2.25.1
 
