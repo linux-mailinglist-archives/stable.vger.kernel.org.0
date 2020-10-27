@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA66299E40
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C22AB299E43
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439475AbgJ0ANf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2439472AbgJ0ANf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Oct 2020 20:13:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33640 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411793AbgJ0ALo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:11:44 -0400
+        id S2411798AbgJ0ALp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:11:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2460216FD;
-        Tue, 27 Oct 2020 00:11:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C3B720754;
+        Tue, 27 Oct 2020 00:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757503;
-        bh=bMneyGtp3CeIJWhqmVnUJjLbZSLAA8NQVwKHREaNQk4=;
+        s=default; t=1603757504;
+        bh=j9POj2r1nX6u9tvx+5LnA8GUke9H/R2gsqq2IPVpf7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0d62q8kqHicqTUFHuQzHgQcjL3c80Hf2f1sm0aqQRPglOIHv9PW30qtfalIpjSvx
-         cfZfoc3K/ycvrFlZgFLlS611oohByeqChEmqFahrTu8fYKrjgnNGWeyliq8P4IYpRA
-         fvh8UYwgwkKNbYJHuPJiqz7dKh9N8LfsyeN7hkIs=
+        b=fZA8Tx7URoWced5EoMyr8fMwxqQ3gizlDmaqZ3lDtTL10IXJZumMSOnitQgUv3vJY
+         Vq8nrPcgn+EqtomnqYgc6TMOdM9Uc3tDsmDfk+Kzjb3c0jJIm6JkqR8v+7rDZ1Ay81
+         GJ4DEj7BLZX9iXBfhnFyJPtFDTGqP11HBx39YiIA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhao Heming <heming.zhao@suse.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 16/25] md/bitmap: md_bitmap_get_counter returns wrong blocks
-Date:   Mon, 26 Oct 2020 20:11:14 -0400
-Message-Id: <20201027001123.1027642-16-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>, Dan Murphy <dmurphy@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 17/25] clk: ti: clockdomain: fix static checker warning
+Date:   Mon, 26 Oct 2020 20:11:15 -0400
+Message-Id: <20201027001123.1027642-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027001123.1027642-1-sashal@kernel.org>
 References: <20201027001123.1027642-1-sashal@kernel.org>
@@ -42,51 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit d837f7277f56e70d82b3a4a037d744854e62f387 ]
+[ Upstream commit b7a7943fe291b983b104bcbd2f16e8e896f56590 ]
 
-md_bitmap_get_counter() has code:
+Fix a memory leak induced by not calling clk_put after doing of_clk_get.
 
-```
-    if (bitmap->bp[page].hijacked ||
-        bitmap->bp[page].map == NULL)
-        csize = ((sector_t)1) << (bitmap->chunkshift +
-                      PAGE_COUNTER_SHIFT - 1);
-```
-
-The minus 1 is wrong, this branch should report 2048 bits of space.
-With "-1" action, this only report 1024 bit of space.
-
-This bug code returns wrong blocks, but it doesn't inflence bitmap logic:
-1. Most callers focus this function return value (the counter of offset),
-   not the parameter blocks.
-2. The bug is only triggered when hijacked is true or map is NULL.
-   the hijacked true condition is very rare.
-   the "map == null" only true when array is creating or resizing.
-3. Even the caller gets wrong blocks, current code makes caller just to
-   call md_bitmap_get_counter() one more time.
-
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Reported-by: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907082600.454-3-t-kristo@ti.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bitmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/ti/clockdomain.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/bitmap.c b/drivers/md/bitmap.c
-index 391090c455cea..65281f168c6fb 100644
---- a/drivers/md/bitmap.c
-+++ b/drivers/md/bitmap.c
-@@ -1332,7 +1332,7 @@ __acquires(bitmap->lock)
- 	if (bitmap->bp[page].hijacked ||
- 	    bitmap->bp[page].map == NULL)
- 		csize = ((sector_t)1) << (bitmap->chunkshift +
--					  PAGE_COUNTER_SHIFT - 1);
-+					  PAGE_COUNTER_SHIFT);
- 	else
- 		csize = ((sector_t)1) << bitmap->chunkshift;
- 	*blocks = csize - (offset & (csize - 1));
+diff --git a/drivers/clk/ti/clockdomain.c b/drivers/clk/ti/clockdomain.c
+index b9bc3b8df659d..4fde9767392e3 100644
+--- a/drivers/clk/ti/clockdomain.c
++++ b/drivers/clk/ti/clockdomain.c
+@@ -124,10 +124,12 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
+ 		if (clk_hw_get_flags(clk_hw) & CLK_IS_BASIC) {
+ 			pr_warn("can't setup clkdm for basic clk %s\n",
+ 				__clk_get_name(clk));
++			clk_put(clk);
+ 			continue;
+ 		}
+ 		to_clk_hw_omap(clk_hw)->clkdm_name = clkdm_name;
+ 		omap2_init_clk_clkdm(clk_hw);
++		clk_put(clk);
+ 	}
+ }
+ 
 -- 
 2.25.1
 
