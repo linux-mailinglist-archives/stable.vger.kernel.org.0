@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8127729B2E0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:46:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2B529B2E3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1764322AbgJ0Oqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46588 "EHLO mail.kernel.org"
+        id S1764409AbgJ0Oqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1764304AbgJ0Oqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:46:42 -0400
+        id S1764397AbgJ0Oqs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:46:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4F6E2222C;
-        Tue, 27 Oct 2020 14:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BDE12222C;
+        Tue, 27 Oct 2020 14:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810001;
-        bh=wgqkcKgNfn4mCoNz0n7493iaFkxtzSi97pPwnY+ZTiw=;
+        s=default; t=1603810007;
+        bh=WLnf6TZZfMo2UufkeOxaHmltYlQFMUdzlIPoCuCQyGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDqED3d5Sg9ni2xokWHUrZ+M6POuNB0Fjs6tYFDpP8Iepvd+5hyMJSfBl39u33YtQ
-         RqulWbmTglza6FNxKrc+vrwVU28fH7iJNYp0C1oFGxWxbviQJoi4ii925HKp6U2blX
-         QYULGJcJXmzgtJsSetUh8FMmTJx22sDhVTju77mA=
+        b=C04xEmoDHb0sQQSHNvZz29rDvBoIDWPs/RqqGyVUI3ic7O9WIm6rw5GFRKvuFdFig
+         3WUSyIDB9vOlKRZDVtEmHIyJ29WghfNq/UJ9Vrujl+IbgFGQ5SAMVx0+M1K4hh0e69
+         jv+TqllqRfs5fTuCCd7C0SMUCowR3dYVwDGMdsgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 395/408] usb: core: Solve race condition in anchor cleanup functions
-Date:   Tue, 27 Oct 2020 14:55:33 +0100
-Message-Id: <20201027135513.311643741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 397/408] dmaengine: dw: Add DMA-channels mask cell support
+Date:   Tue, 27 Oct 2020 14:55:35 +0100
+Message-Id: <20201027135513.413483027@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,200 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Billauer <eli.billauer@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit fbc299437c06648afcc7891e6e2e6638dd48d4df ]
+[ Upstream commit e8ee6c8cb61b676f1a2d6b942329e98224bd8ee9 ]
 
-usb_kill_anchored_urbs() is commonly used to cancel all URBs on an
-anchor just before releasing resources which the URBs rely on. By doing
-so, users of this function rely on that no completer callbacks will take
-place from any URB on the anchor after it returns.
+DW DMA IP-core provides a way to synthesize the DMA controller with
+channels having different parameters like maximum burst-length,
+multi-block support, maximum data width, etc. Those parameters both
+explicitly and implicitly affect the channels performance. Since DMA slave
+devices might be very demanding to the DMA performance, let's provide a
+functionality for the slaves to be assigned with DW DMA channels, which
+performance according to the platform engineer fulfill their requirements.
+After this patch is applied it can be done by passing the mask of suitable
+DMA-channels either directly in the dw_dma_slave structure instance or as
+a fifth cell of the DMA DT-property. If mask is zero or not provided, then
+there is no limitation on the channels allocation.
 
-However if this function is called in parallel with __usb_hcd_giveback_urb
-processing a URB on the anchor, the latter may call the completer
-callback after usb_kill_anchored_urbs() returns. This can lead to a
-kernel panic due to use after release of memory in interrupt context.
+For instance Baikal-T1 SoC is equipped with a DW DMAC engine, which first
+two channels are synthesized with max burst length of 16, while the rest
+of the channels have been created with max-burst-len=4. It would seem that
+the first two channels must be faster than the others and should be more
+preferable for the time-critical DMA slave devices. In practice it turned
+out that the situation is quite the opposite. The channels with
+max-burst-len=4 demonstrated a better performance than the channels with
+max-burst-len=16 even when they both had been initialized with the same
+settings. The performance drop of the first two DMA-channels made them
+unsuitable for the DW APB SSI slave device. No matter what settings they
+are configured with, full-duplex SPI transfers occasionally experience the
+Rx FIFO overflow. It means that the DMA-engine doesn't keep up with
+incoming data pace even though the SPI-bus is enabled with speed of 25MHz
+while the DW DMA controller is clocked with 50MHz signal. There is no such
+problem has been noticed for the channels synthesized with
+max-burst-len=4.
 
-The race condition is that __usb_hcd_giveback_urb() first unanchors the URB
-and then makes the completer callback. Such URB is hence invisible to
-usb_kill_anchored_urbs(), allowing it to return before the completer has
-been called, since the anchor's urb_list is empty.
-
-Even worse, if the racing completer callback resubmits the URB, it may
-remain in the system long after usb_kill_anchored_urbs() returns.
-
-Hence list_empty(&anchor->urb_list), which is used in the existing
-while-loop, doesn't reliably ensure that all URBs of the anchor are gone.
-
-A similar problem exists with usb_poison_anchored_urbs() and
-usb_scuttle_anchored_urbs().
-
-This patch adds an external do-while loop, which ensures that all URBs
-are indeed handled before these three functions return. This change has
-no effect at all unless the race condition occurs, in which case the
-loop will busy-wait until the racing completer callback has finished.
-This is a rare condition, so the CPU waste of this spinning is
-negligible.
-
-The additional do-while loop relies on usb_anchor_check_wakeup(), which
-returns true iff the anchor list is empty, and there is no
-__usb_hcd_giveback_urb() in the system that is in the middle of the
-unanchor-before-complete phase. The @suspend_wakeups member of
-struct usb_anchor is used for this purpose, which was introduced to solve
-another problem which the same race condition causes, in commit
-6ec4147e7bdb ("usb-anchor: Delay usb_wait_anchor_empty_timeout wake up
-till completion is done").
-
-The surely_empty variable is necessary, because usb_anchor_check_wakeup()
-must be called with the lock held to prevent races. However the spinlock
-must be released and reacquired if the outer loop spins with an empty
-URB list while waiting for the unanchor-before-complete passage to finish:
-The completer callback may very well attempt to take the very same lock.
-
-To summarize, using usb_anchor_check_wakeup() means that the patched
-functions can return only when the anchor's list is empty, and there is
-no invisible URB being processed. Since the inner while loop finishes on
-the empty list condition, the new do-while loop will terminate as well,
-except for when the said race condition occurs.
-
-Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200731054650.30644-1-eli.billauer@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20200731200826.9292-6-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/urb.c | 89 +++++++++++++++++++++++++-----------------
- 1 file changed, 54 insertions(+), 35 deletions(-)
+ drivers/dma/dw/core.c                | 4 ++++
+ drivers/dma/dw/of.c                  | 7 +++++--
+ include/linux/platform_data/dma-dw.h | 2 ++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
-index da923ec176122..31ca5abb4c12a 100644
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -772,11 +772,12 @@ void usb_block_urb(struct urb *urb)
- EXPORT_SYMBOL_GPL(usb_block_urb);
+diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
+index a1b56f52db2f2..5e7fdc0b6e3db 100644
+--- a/drivers/dma/dw/core.c
++++ b/drivers/dma/dw/core.c
+@@ -772,6 +772,10 @@ bool dw_dma_filter(struct dma_chan *chan, void *param)
+ 	if (dws->dma_dev != chan->device->dev)
+ 		return false;
  
- /**
-- * usb_kill_anchored_urbs - cancel transfer requests en masse
-+ * usb_kill_anchored_urbs - kill all URBs associated with an anchor
-  * @anchor: anchor the requests are bound to
-  *
-- * this allows all outstanding URBs to be killed starting
-- * from the back of the queue
-+ * This kills all outstanding URBs starting from the back of the queue,
-+ * with guarantee that no completer callbacks will take place from the
-+ * anchor after this function returns.
-  *
-  * This routine should not be called by a driver after its disconnect
-  * method has returned.
-@@ -784,20 +785,26 @@ EXPORT_SYMBOL_GPL(usb_block_urb);
- void usb_kill_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
-+	int surely_empty;
- 
--	spin_lock_irq(&anchor->lock);
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		/* we must make sure the URB isn't freed before we kill it*/
--		usb_get_urb(victim);
--		spin_unlock_irq(&anchor->lock);
--		/* this will unanchor the URB */
--		usb_kill_urb(victim);
--		usb_put_urb(victim);
-+	do {
- 		spin_lock_irq(&anchor->lock);
--	}
--	spin_unlock_irq(&anchor->lock);
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			/* make sure the URB isn't freed before we kill it */
-+			usb_get_urb(victim);
-+			spin_unlock_irq(&anchor->lock);
-+			/* this will unanchor the URB */
-+			usb_kill_urb(victim);
-+			usb_put_urb(victim);
-+			spin_lock_irq(&anchor->lock);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
++	/* permit channels in accordance with the channels mask */
++	if (dws->channels && !(dws->channels & dwc->mask))
++		return false;
 +
-+		spin_unlock_irq(&anchor->lock);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
- EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
+ 	/* We have to copy data since dws can be temporary storage */
+ 	memcpy(&dwc->dws, dws, sizeof(struct dw_dma_slave));
  
-@@ -816,21 +823,27 @@ EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
- void usb_poison_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
-+	int surely_empty;
+diff --git a/drivers/dma/dw/of.c b/drivers/dma/dw/of.c
+index 9e27831dee324..43e975fb67142 100644
+--- a/drivers/dma/dw/of.c
++++ b/drivers/dma/dw/of.c
+@@ -22,18 +22,21 @@ static struct dma_chan *dw_dma_of_xlate(struct of_phandle_args *dma_spec,
+ 	};
+ 	dma_cap_mask_t cap;
  
--	spin_lock_irq(&anchor->lock);
--	anchor->poisoned = 1;
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		/* we must make sure the URB isn't freed before we kill it*/
--		usb_get_urb(victim);
--		spin_unlock_irq(&anchor->lock);
--		/* this will unanchor the URB */
--		usb_poison_urb(victim);
--		usb_put_urb(victim);
-+	do {
- 		spin_lock_irq(&anchor->lock);
--	}
--	spin_unlock_irq(&anchor->lock);
-+		anchor->poisoned = 1;
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			/* make sure the URB isn't freed before we kill it */
-+			usb_get_urb(victim);
-+			spin_unlock_irq(&anchor->lock);
-+			/* this will unanchor the URB */
-+			usb_poison_urb(victim);
-+			usb_put_urb(victim);
-+			spin_lock_irq(&anchor->lock);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
-+
-+		spin_unlock_irq(&anchor->lock);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
- EXPORT_SYMBOL_GPL(usb_poison_anchored_urbs);
+-	if (dma_spec->args_count != 3)
++	if (dma_spec->args_count < 3 || dma_spec->args_count > 4)
+ 		return NULL;
  
-@@ -970,14 +983,20 @@ void usb_scuttle_anchored_urbs(struct usb_anchor *anchor)
- {
- 	struct urb *victim;
- 	unsigned long flags;
-+	int surely_empty;
-+
-+	do {
-+		spin_lock_irqsave(&anchor->lock, flags);
-+		while (!list_empty(&anchor->urb_list)) {
-+			victim = list_entry(anchor->urb_list.prev,
-+					    struct urb, anchor_list);
-+			__usb_unanchor_urb(victim, anchor);
-+		}
-+		surely_empty = usb_anchor_check_wakeup(anchor);
+ 	slave.src_id = dma_spec->args[0];
+ 	slave.dst_id = dma_spec->args[0];
+ 	slave.m_master = dma_spec->args[1];
+ 	slave.p_master = dma_spec->args[2];
++	if (dma_spec->args_count >= 4)
++		slave.channels = dma_spec->args[3];
  
--	spin_lock_irqsave(&anchor->lock, flags);
--	while (!list_empty(&anchor->urb_list)) {
--		victim = list_entry(anchor->urb_list.prev, struct urb,
--				    anchor_list);
--		__usb_unanchor_urb(victim, anchor);
--	}
--	spin_unlock_irqrestore(&anchor->lock, flags);
-+		spin_unlock_irqrestore(&anchor->lock, flags);
-+		cpu_relax();
-+	} while (!surely_empty);
- }
+ 	if (WARN_ON(slave.src_id >= DW_DMA_MAX_NR_REQUESTS ||
+ 		    slave.dst_id >= DW_DMA_MAX_NR_REQUESTS ||
+ 		    slave.m_master >= dw->pdata->nr_masters ||
+-		    slave.p_master >= dw->pdata->nr_masters))
++		    slave.p_master >= dw->pdata->nr_masters ||
++		    slave.channels >= BIT(dw->pdata->nr_channels)))
+ 		return NULL;
  
- EXPORT_SYMBOL_GPL(usb_scuttle_anchored_urbs);
+ 	dma_cap_zero(cap);
+diff --git a/include/linux/platform_data/dma-dw.h b/include/linux/platform_data/dma-dw.h
+index f3eaf9ec00a1b..70078be166e3c 100644
+--- a/include/linux/platform_data/dma-dw.h
++++ b/include/linux/platform_data/dma-dw.h
+@@ -21,6 +21,7 @@
+  * @dst_id:	dst request line
+  * @m_master:	memory master for transfers on allocated channel
+  * @p_master:	peripheral master for transfers on allocated channel
++ * @channels:	mask of the channels permitted for allocation (zero value means any)
+  * @hs_polarity:set active low polarity of handshake interface
+  */
+ struct dw_dma_slave {
+@@ -29,6 +30,7 @@ struct dw_dma_slave {
+ 	u8			dst_id;
+ 	u8			m_master;
+ 	u8			p_master;
++	u8			channels;
+ 	bool			hs_polarity;
+ };
+ 
 -- 
 2.25.1
 
