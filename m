@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0AB299F3E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 262DF299F39
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438674AbgJ0AGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S2438669AbgJ0AGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438173AbgJ0AFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:05:15 -0400
+        id S2438176AbgJ0AFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:05:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E58B920754;
-        Tue, 27 Oct 2020 00:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20F28218AC;
+        Tue, 27 Oct 2020 00:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757114;
-        bh=KroqBTWuFE/FIU4Ub04bzD9JxDU4EHqGDf40Ug0EaCU=;
+        s=default; t=1603757115;
+        bh=9g0xJO2pHkWsEKDJ6Xyn/25xkcxvR4Y42iqmovWtZps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crawvrBSzCQR59YSC8wPR8jG7f6pO4YteB8Wi5tP343Z84W7sq3VzE8QZp7PGHuea
-         n/tcW96slme2TAkELTCYgz73rHIyP9Vc9k7rC65LAmA8iD1unqRknqH6mqkr3xs/6I
-         CYkQtkJ/EbhchEdJqiKTYp361dSGyB7lgQgXlFRU=
+        b=sVbOY1m9X5f13/+WhBs3NTANQYuMxpgCCR7q7XZ55YE/o/l+my12G1HTdIHEaAU+7
+         4TRRoKaYkMA1k3WAsZu/VfCeGM+FXBSebNb1k7kHMC14mWut8N/hJ5uvNK+7VP3xX8
+         WiSl//LakpA/fEFGy4m4od5rxzRSGH6hVhYEEXuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 50/60] gfs2: add validation checks for size of superblock
-Date:   Mon, 26 Oct 2020 20:04:05 -0400
-Message-Id: <20201027000415.1026364-50-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.19 51/60] cifs: handle -EINTR in cifs_setattr
+Date:   Mon, 26 Oct 2020 20:04:06 -0400
+Message-Id: <20201027000415.1026364-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
 References: <20201027000415.1026364-1-sashal@kernel.org>
@@ -44,60 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
+[ Upstream commit c6cc4c5a72505a0ecefc9b413f16bec512f38078 ]
 
-In gfs2_check_sb(), no validation checks are performed with regards to
-the size of the superblock.
-syzkaller detected a slab-out-of-bounds bug that was primarily caused
-because the block size for a superblock was set to zero.
-A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
-Performing validation checks and ensuring that the size of the superblock
-is valid fixes this bug.
+RHBZ: 1848178
 
-Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Suggested-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-[Minor code reordering.]
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Some calls that set attributes, like utimensat(), are not supposed to return
+-EINTR and thus do not have handlers for this in glibc which causes us
+to leak -EINTR to the applications which are also unprepared to handle it.
+
+For example tar will break if utimensat() return -EINTR and abort unpacking
+the archive. Other applications may break too.
+
+To handle this we add checks, and retry, for -EINTR in cifs_setattr()
+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ fs/cifs/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 9448c8461e576..17001f4e9f845 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -161,15 +161,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		return -EINVAL;
- 	}
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 4a38f16d944db..d30eb43506562 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2550,13 +2550,18 @@ cifs_setattr(struct dentry *direntry, struct iattr *attrs)
+ {
+ 	struct cifs_sb_info *cifs_sb = CIFS_SB(direntry->d_sb);
+ 	struct cifs_tcon *pTcon = cifs_sb_master_tcon(cifs_sb);
++	int rc, retries = 0;
  
--	/*  If format numbers match exactly, we're done.  */
+-	if (pTcon->unix_ext)
+-		return cifs_setattr_unix(direntry, attrs);
 -
--	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
--	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
--		return 0;
-+	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
-+	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
-+		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+		return -EINVAL;
-+	}
+-	return cifs_setattr_nounix(direntry, attrs);
++	do {
++		if (pTcon->unix_ext)
++			rc = cifs_setattr_unix(direntry, attrs);
++		else
++			rc = cifs_setattr_nounix(direntry, attrs);
++		retries++;
++	} while (is_retryable_error(rc) && retries < 2);
  
--	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
-+	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
-+		pr_warn("Invalid superblock size\n");
-+		return -EINVAL;
-+	}
- 
--	return -EINVAL;
-+	return 0;
+ 	/* BB: add cifs_setattr_legacy for really old servers */
++	return rc;
  }
  
- static void end_bio_io_page(struct bio *bio)
+ #if 0
 -- 
 2.25.1
 
