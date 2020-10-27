@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35FDC29C68B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B94029C659
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826324AbgJ0STH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
+        id S1826102AbgJ0SQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:16:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439545AbgJ0OD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:03:56 -0400
+        id S1756222AbgJ0OMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:12:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E1C2222C;
-        Tue, 27 Oct 2020 14:03:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3910B22202;
+        Tue, 27 Oct 2020 14:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807436;
-        bh=Qd/wKYO2gcVa6caZ3XArfydHWdwoJZScAHZ6m7bB77U=;
+        s=default; t=1603807923;
+        bh=5EFZ7UiGEd0C5xhLQEBHGIKueJO0jvZT1OxPnZ6CPQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOmIKmqj4q22IccsPt5XY7jsEulDfAz9cY+6pB40T2nDzHmNVS62f3tLKuq5MaVMF
-         508M8MNQ15rQCBtZeAeNqvAnWiD3HPlicxXAaMsXJi2/NxVkXQQ+zN25olctKDyVcz
-         q0s6Z4D+mg91VkI4cz9w2cy8lM5N+Xl1xxgag6HQ=
+        b=cSTgKovLAfCPqC59G/RloDZMlZrtFjmns9gJ+dei/bNUCY4S43hUpmcQou6ethNQH
+         D/9ALFkPDh1/Nro89QrDBWvtBhhWPp7zJx7DBo+0CGOaGIrYtFEvkjabiHkOu/z+Cj
+         JaOFCRdbSTrEWwqLS/T9zYg3sdiC5i65LQmv/eKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/139] nl80211: fix non-split wiphy information
+Subject: [PATCH 4.14 091/191] ARM: 9007/1: l2c: fix prefetch bits init in L2X0_AUX_CTRL using DT values
 Date:   Tue, 27 Oct 2020 14:49:06 +0100
-Message-Id: <20201027134904.600750387@linuxfoundation.org>
+Message-Id: <20201027134914.066110186@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit ab10c22bc3b2024f0c9eafa463899a071eac8d97 ]
+[ Upstream commit 8e007b367a59bcdf484c81f6df9bd5a4cc179ca6 ]
 
-When dumping wiphy information, we try to split the data into
-many submessages, but for old userspace we still support the
-old mode where this doesn't happen.
+The L310_PREFETCH_CTRL register bits 28 and 29 to enable data and
+instruction prefetch respectively can also be accessed via the
+L2X0_AUX_CTRL register.  They appear to be actually wired together in
+hardware between the registers.  Changing them in the prefetch
+register only will get undone when restoring the aux control register
+later on.  For this reason, set these bits in both registers during
+initialisation according to the devicetree property values.
 
-However, in this case we were not resetting our state correctly
-and dumping multiple messages for each wiphy, which would have
-broken such older userspace.
+Link: https://lore.kernel.org/lkml/76f2f3ad5e77e356e0a5b99ceee1e774a2842c25.1597061474.git.guillaume.tucker@collabora.com/
 
-This was broken pretty much immediately afterwards because it
-only worked in the original commit where non-split dumps didn't
-have any more data than split dumps...
-
-Fixes: fe1abafd942f ("nl80211: re-add channel width and extended capa advertising")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200928130717.3e6d9c6bada2.Ie0f151a8d0d00a8e1e18f6a8c9244dd02496af67@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: ec3bd0e68a67 ("ARM: 8391/1: l2c: add options to overwrite prefetching behavior")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/mm/cache-l2x0.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 1eb77161d5e64..5bd89f536720d 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -1749,7 +1749,10 @@ static int nl80211_send_wiphy(struct cfg80211_registered_device *rdev,
- 		 * case we'll continue with more data in the next round,
- 		 * but break unconditionally so unsplit data stops here.
- 		 */
--		state->split_start++;
-+		if (state->split)
-+			state->split_start++;
-+		else
-+			state->split_start = 0;
- 		break;
- 	case 9:
- 		if (rdev->wiphy.extended_capabilities &&
+diff --git a/arch/arm/mm/cache-l2x0.c b/arch/arm/mm/cache-l2x0.c
+index 808efbb89b88c..02f613def40dc 100644
+--- a/arch/arm/mm/cache-l2x0.c
++++ b/arch/arm/mm/cache-l2x0.c
+@@ -1261,20 +1261,28 @@ static void __init l2c310_of_parse(const struct device_node *np,
+ 
+ 	ret = of_property_read_u32(np, "prefetch-data", &val);
+ 	if (ret == 0) {
+-		if (val)
++		if (val) {
+ 			prefetch |= L310_PREFETCH_CTRL_DATA_PREFETCH;
+-		else
++			*aux_val |= L310_PREFETCH_CTRL_DATA_PREFETCH;
++		} else {
+ 			prefetch &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
++			*aux_val &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
++		}
++		*aux_mask &= ~L310_PREFETCH_CTRL_DATA_PREFETCH;
+ 	} else if (ret != -EINVAL) {
+ 		pr_err("L2C-310 OF prefetch-data property value is missing\n");
+ 	}
+ 
+ 	ret = of_property_read_u32(np, "prefetch-instr", &val);
+ 	if (ret == 0) {
+-		if (val)
++		if (val) {
+ 			prefetch |= L310_PREFETCH_CTRL_INSTR_PREFETCH;
+-		else
++			*aux_val |= L310_PREFETCH_CTRL_INSTR_PREFETCH;
++		} else {
+ 			prefetch &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
++			*aux_val &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
++		}
++		*aux_mask &= ~L310_PREFETCH_CTRL_INSTR_PREFETCH;
+ 	} else if (ret != -EINVAL) {
+ 		pr_err("L2C-310 OF prefetch-instr property value is missing\n");
+ 	}
 -- 
 2.25.1
 
