@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EC429B1AD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF9D29B1AF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2902371AbgJ0Oc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:32:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
+        id S1759197AbgJ0Oc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:32:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2902367AbgJ0Ocy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:54 -0400
+        id S2902372AbgJ0Oc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:32:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAA8420725;
-        Tue, 27 Oct 2020 14:32:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8420720709;
+        Tue, 27 Oct 2020 14:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809174;
-        bh=YLXIVoUUsD7oLtHfedDeIn2EIULEmfZqsrfd4FKJ/4Q=;
+        s=default; t=1603809177;
+        bh=YqtLuZQZPmRkC5QNozAQcF6nEFU1MFaMOGR/B2pblzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6Y3WEoKMtGTL/+YAu6NwTKAMNwsijkJmEsSk0BazAJapAsS1QUCnpGEfi0TlYt25
-         rixayYK46rSS8/NKZs4noaQri4PDxUXcvZsV29i2a+gn9bAevIW5idXeYc/U3A5vqj
-         6HjCLhpvg++q6ATpN3WRQF8UfEjb1zSisw9DxRmU=
+        b=Gvera7Vc3qmu/lWG3CtnptsMAjCu2V4XzQ4BRkV6hxqwrAZ991gaV0y6Moh8WPr6k
+         KxpUzG4Uo0hX+1yyp6xORfajcCizISkoMCbvNnWh2a2T6kOYw75ArSnAKhLq/Zc/CD
+         tAiSiGQ3frZKxTSA6I4wlhwcKoceKqR4NjO8Ut6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yang <yang.yang@vivo.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Markus Theil <markus.theil@tu-ilmenau.de>,
+        John Deere <24601deerej@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/408] blk-mq: move cancel of hctx->run_work to the front of blk_exit_queue
-Date:   Tue, 27 Oct 2020 14:50:40 +0100
-Message-Id: <20201027135459.829784146@linuxfoundation.org>
+Subject: [PATCH 5.4 103/408] ath10k: provide survey info as accumulated data
+Date:   Tue, 27 Oct 2020 14:50:41 +0100
+Message-Id: <20201027135459.879588055@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,59 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yang <yang.yang@vivo.com>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit 47ce030b7ac5a5259a9a5919f230b52497afc31a ]
+[ Upstream commit 720e5c03e5cb26d33d97f55192b791bb48478aa5 ]
 
-blk_exit_queue will free elevator_data, while blk_mq_run_work_fn
-will access it. Move cancel of hctx->run_work to the front of
-blk_exit_queue to avoid use-after-free.
+It is expected that the returned counters by .get_survey are monotonic
+increasing. But the data from ath10k gets reset to zero regularly. Channel
+active/busy time are then showing incorrect values (less than previous or
+sometimes zero) for the currently active channel during successive survey
+dump commands.
 
-Fixes: 1b97871b501f ("blk-mq: move cancel of hctx->run_work into blk_mq_hw_sysfs_release")
-Signed-off-by: Yang Yang <yang.yang@vivo.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+example:
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            54995 ms
+  	channel busy time:              432 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          59 ms
+  ...
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            32592 ms
+  	channel busy time:              254 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          0 ms
+  ...
+
+The correct way to handle this is to use the non-clearing
+WMI_BSS_SURVEY_REQ_TYPE_READ wmi_bss_survey_req_type. The firmware will
+then accumulate the survey data and handle wrap arounds.
+
+Tested-on: QCA9984 hw1.0 10.4-3.5.3-00057
+Tested-on: QCA988X hw2.0 10.2.4-1.0-00047
+Tested-on: QCA9888 hw2.0 10.4-3.9.0.2-00024
+Tested-on: QCA4019 hw1.0 10.4-3.6-00140
+
+Fixes: fa7937e3d5c2 ("ath10k: update bss channel survey information")
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Tested-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Tested-by: John Deere <24601deerej@gmail.com>
+[sven@narfation.org: adjust commit message]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1592232686-28712-1-git-send-email-kvalo@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 2 --
- block/blk-sysfs.c    | 9 ++++++++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index a09ab0c3d074d..5dafd7a8ec913 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -36,8 +36,6 @@ static void blk_mq_hw_sysfs_release(struct kobject *kobj)
- 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
- 						  kobj);
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index d373602a80145..915ba2a7f7448 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -7131,7 +7131,7 @@ ath10k_mac_update_bss_chan_survey(struct ath10k *ar,
+ 				  struct ieee80211_channel *channel)
+ {
+ 	int ret;
+-	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ_CLEAR;
++	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ;
  
--	cancel_delayed_work_sync(&hctx->run_work);
--
- 	if (hctx->flags & BLK_MQ_F_BLOCKING)
- 		cleanup_srcu_struct(hctx->srcu);
- 	blk_free_flush_queue(hctx->fq);
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 46f5198be0173..bf33570da5ac7 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -891,9 +891,16 @@ static void __blk_release_queue(struct work_struct *work)
+ 	lockdep_assert_held(&ar->conf_mutex);
  
- 	blk_free_queue_stats(q->stats);
- 
--	if (queue_is_mq(q))
-+	if (queue_is_mq(q)) {
-+		struct blk_mq_hw_ctx *hctx;
-+		int i;
-+
- 		cancel_delayed_work_sync(&q->requeue_work);
- 
-+		queue_for_each_hw_ctx(q, hctx, i)
-+			cancel_delayed_work_sync(&hctx->run_work);
-+	}
-+
- 	blk_exit_queue(q);
- 
- 	blk_queue_free_zone_bitmaps(q);
 -- 
 2.25.1
 
