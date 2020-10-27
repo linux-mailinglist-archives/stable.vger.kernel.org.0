@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D8929C569
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4625129C56C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757121AbgJ0OQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38362 "EHLO mail.kernel.org"
+        id S1825065AbgJ0SIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:08:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2507091AbgJ0OQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:19 -0400
+        id S2508860AbgJ0OQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:16:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 913D92072D;
-        Tue, 27 Oct 2020 14:16:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 572CF2076A;
+        Tue, 27 Oct 2020 14:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808179;
-        bh=EaVGLOqosdDnuoqnp9KvdgBjE13iAV5BuKEcTCxeSgA=;
+        s=default; t=1603808181;
+        bh=amTksholHYaP6V3+fRmuESgR76MxgK1BjgKQ7sYOYLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdZsobpZy049o2QHtAYi8ibNEbe8tOPGGIwQ91OvUgP2o7EmYJA41ZtteKgyMchCT
-         ejgOkQEUfs49N2tvIyyxn3e186vaQBgBQsXLdUiXiJdWy4l6Opgu4GX5bAYpcFQvBF
-         0LWfYhwfaNU51gvbfKVZQCwuF3rk4/0CmcB4o420=
+        b=UnuIgXFyJC8EqEr/zf68glCU1wG5WFL+qFMSeEecVMHWZaV+e5+thbI0hD06hQFOn
+         wp7yVcdOu8uBSBF2gTlj/0QRvT/d1sJ3zo1EfdkxdGB1X/qBG9kZkDFsteOA7HpeEh
+         uzw9W6wJFYOf/tYAvG/GYMwudUEmGaRnfwWAXXTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 186/191] net: korina: cast KSEG0 address to pointer in kfree
-Date:   Tue, 27 Oct 2020 14:50:41 +0100
-Message-Id: <20201027134918.675220906@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>
+Subject: [PATCH 4.14 187/191] tty: serial: fsl_lpuart: fix lpuart32_poll_get_char
+Date:   Tue, 27 Oct 2020 14:50:42 +0100
+Message-Id: <20201027134918.715220865@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -44,48 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 3bd57b90554b4bb82dce638e0668ef9dc95d3e96 ]
+commit 29788ab1d2bf26c130de8f44f9553ee78a27e8d5 upstream.
 
-Fixes gcc warning:
+The watermark is set to 1, so we need to input two chars to trigger RDRF
+using the original logic. With the new logic, we could always get the
+char when there is data in FIFO.
 
-passing argument 1 of 'kfree' makes pointer from integer without a cast
+Suggested-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20200929095509.21680-1-peng.fan@nxp.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 3af5f0f5c74e ("net: korina: fix kfree of rx/tx descriptor array")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Link: https://lore.kernel.org/r/20201018184255.28989-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/korina.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index 1357d464e8c43..1eccdbaa9a515 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -1188,7 +1188,7 @@ static int korina_probe(struct platform_device *pdev)
- 	return rc;
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -567,7 +567,7 @@ static void lpuart32_poll_put_char(struc
  
- probe_err_register:
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
- probe_err_td_ring:
- 	iounmap(lp->tx_dma_regs);
- probe_err_dma_tx:
-@@ -1208,7 +1208,7 @@ static int korina_remove(struct platform_device *pdev)
- 	iounmap(lp->eth_regs);
- 	iounmap(lp->rx_dma_regs);
- 	iounmap(lp->tx_dma_regs);
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
+ static int lpuart32_poll_get_char(struct uart_port *port)
+ {
+-	if (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_RDRF))
++	if (!(lpuart32_read(port, UARTWATER) >> UARTWATER_RXCNT_OFF))
+ 		return NO_POLL_CHAR;
  
- 	unregister_netdev(bif->dev);
- 	free_netdev(bif->dev);
--- 
-2.25.1
-
+ 	return lpuart32_read(port, UARTDATA);
 
 
