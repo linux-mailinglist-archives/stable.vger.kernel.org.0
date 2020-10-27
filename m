@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 470FA29BE45
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 051CC29BCB1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794528AbgJ0PMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:12:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48456 "EHLO mail.kernel.org"
+        id S1811000AbgJ0Qgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:36:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794521AbgJ0PMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:12:15 -0400
+        id S1764560AbgJ0PrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:47:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CC9F22202;
-        Tue, 27 Oct 2020 15:12:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 172C920575;
+        Tue, 27 Oct 2020 15:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811534;
-        bh=gBG8HRmTkIY7Xdd2tBhde16tVJEDMwdYi/078A6T8sM=;
+        s=default; t=1603813643;
+        bh=aGWb6TazCrp4N4kSL+nv/YnlpLXLLZSBY2kRmolS5IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktW8Dr22aO8PO5hsPTdxvP7NTJSCRnYk9+FxidTBdiXR9DdT+hS8nB2Bm9ya5+osF
-         lKsaZRQopFs3/7tWN6ytwhTSwWtLUsJ5/dYebauogXAtgxQNbZIhhc8sP5NKZBrJJO
-         peIpS3crR1KzLLQeQWMYvyiIoZFyRCFipU7Mp6lw=
+        b=GEXtvfeAwht0USP4vzuVMY//PtA3B5ZBW/EX2ktY/cutC/lQzvMIymJUXz8w1oGwp
+         8s5EAnNT9DKfLautCedIvja3zRrAOteeK7ZFNEguS7NlAjg5Va2ARMsfHJ/CiqmrOc
+         t3dqB/GN+zGTXI8Sh1AWzVWMZjwsOLmYrTxcR7n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Patrick Delaunay <patrick.delaunay@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 528/633] block: ratelimit handle_bad_sector() message
-Date:   Tue, 27 Oct 2020 14:54:31 +0100
-Message-Id: <20201027135547.548187986@linuxfoundation.org>
+Subject: [PATCH 5.9 622/757] ARM: dts: stm32: Fix DH PDK2 display PWM channel
+Date:   Tue, 27 Oct 2020 14:54:32 +0100
+Message-Id: <20201027135519.720566569@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f4ac712e4fe009635344b9af5d890fe25fcc8c0d ]
+[ Upstream commit 57592d2a98dbc3bde3ddc062e91a8486bdcb211e ]
 
-syzbot is reporting unkillable task [1], for the caller is failing to
-handle a corrupted filesystem image which attempts to access beyond
-the end of the device. While we need to fix the caller, flooding the
-console with handle_bad_sector() message is unlikely useful.
+The display PWM channel is number 3 (PWM2 CH4), make it so.
 
-[1] https://syzkaller.appspot.com/bug?id=f1f49fb971d7a3e01bd8ab8cff2ff4572ccf3092
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Patrick Delaunay <patrick.delaunay@st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 619a3dcd3f5e7..8d6435b731186 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -798,11 +798,10 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
- {
- 	char b[BDEVNAME_SIZE];
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+index 9cf6d90fbf69f..e4e3c92eb30d3 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+@@ -25,7 +25,7 @@ clk_ext_audio_codec: clock-codec {
  
--	printk(KERN_INFO "attempt to access beyond end of device\n");
--	printk(KERN_INFO "%s: rw=%d, want=%Lu, limit=%Lu\n",
--			bio_devname(bio, b), bio->bi_opf,
--			(unsigned long long)bio_end_sector(bio),
--			(long long)maxsector);
-+	pr_info_ratelimited("attempt to access beyond end of device\n"
-+			    "%s: rw=%d, want=%llu, limit=%llu\n",
-+			    bio_devname(bio, b), bio->bi_opf,
-+			    bio_end_sector(bio), maxsector);
- }
- 
- #ifdef CONFIG_FAIL_MAKE_REQUEST
+ 	display_bl: display-bl {
+ 		compatible = "pwm-backlight";
+-		pwms = <&pwm2 0 500000 PWM_POLARITY_INVERTED>;
++		pwms = <&pwm2 3 500000 PWM_POLARITY_INVERTED>;
+ 		brightness-levels = <0 16 22 30 40 55 75 102 138 188 255>;
+ 		default-brightness-level = <8>;
+ 		enable-gpios = <&gpioi 0 GPIO_ACTIVE_HIGH>;
 -- 
 2.25.1
 
