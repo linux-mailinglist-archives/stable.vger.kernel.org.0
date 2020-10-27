@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9397929C50C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1E729C50A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1824110AbgJ0SDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:03:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S1824112AbgJ0SDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757187AbgJ0OTf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:19:35 -0400
+        id S1757453AbgJ0OTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:19:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35EE3206F7;
-        Tue, 27 Oct 2020 14:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B4A9206F7;
+        Tue, 27 Oct 2020 14:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808374;
-        bh=JHuQh426ffxL9A00q9oWzkce1BVIOMCHBKGG3d8P0GA=;
+        s=default; t=1603808377;
+        bh=OvyAEcjmGRXi4EIo5m0OaiYKZDLv2M2HFcYz5ObsZtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W67rCQQDdOu1YqLhKJTUVaoIza+25IxFxoRorVnAVRiZDMpnFf5P1zjHbHDx2dJT4
-         JivEzNin6rbbiLunySr3pFDkPUKLHwuDl5LigYq043GrR83ZCoHy/REe1pT2nRtTUr
-         7Rle8pCDXfxlZx3YBQKeksqINoaJO/BgwaUs90P4=
+        b=YJcP2eeUq2wLqKdDBfxjrsar5VtgurbBgigkUBbci3/UBpWnqQmoXaj9T5BR8ngXQ
+         lzmPNIGIL8vLHu85lWqoK//xxgyCxF6SADjyhnuk1nDoJ7CW8/ogrjjkTFYT63o5QB
+         I6gs6yociQ5U6hT6ZabURFr3OUUjHnfpVBfrg5a0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/264] Bluetooth: hci_uart: Cancel init work before unregistering
-Date:   Tue, 27 Oct 2020 14:52:05 +0100
-Message-Id: <20201027135433.833150561@linuxfoundation.org>
+Subject: [PATCH 4.19 068/264] ath6kl: prevent potential array overflow in ath6kl_add_new_sta()
+Date:   Tue, 27 Oct 2020 14:52:06 +0100
+Message-Id: <20201027135433.881627038@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,49 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3b799254cf6f481460719023d7a18f46651e5e7f ]
+[ Upstream commit 54f9ab7b870934b70e5a21786d951fbcf663970f ]
 
-If hci_uart_tty_close() or hci_uart_unregister_device() is called while
-hu->init_ready is scheduled, hci_register_dev() could be called after
-the hci_uart is torn down. Avoid this by ensuring the work is complete
-or canceled before checking the HCI_UART_REGISTERED flag.
+The value for "aid" comes from skb->data so Smatch marks it as
+untrusted.  If it's invalid then it can result in an out of bounds array
+access in ath6kl_add_new_sta().
 
-Fixes: 9f2aee848fe6 ("Bluetooth: Add delayed init sequence support for UART controllers")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 572e27c00c9d ("ath6kl: Fix AP mode connect event parsing and TIM updates")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200813141315.GB457408@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_ldisc.c  | 1 +
- drivers/bluetooth/hci_serdev.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/wireless/ath/ath6kl/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-index efeb8137ec67f..48560e646e53e 100644
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -545,6 +545,7 @@ static void hci_uart_tty_close(struct tty_struct *tty)
- 		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
- 		percpu_up_write(&hu->proto_lock);
+diff --git a/drivers/net/wireless/ath/ath6kl/main.c b/drivers/net/wireless/ath/ath6kl/main.c
+index 0c61dbaa62a41..702c4761006ca 100644
+--- a/drivers/net/wireless/ath/ath6kl/main.c
++++ b/drivers/net/wireless/ath/ath6kl/main.c
+@@ -429,6 +429,9 @@ void ath6kl_connect_ap_mode_sta(struct ath6kl_vif *vif, u16 aid, u8 *mac_addr,
  
-+		cancel_work_sync(&hu->init_ready);
- 		cancel_work_sync(&hu->write_work);
+ 	ath6kl_dbg(ATH6KL_DBG_TRC, "new station %pM aid=%d\n", mac_addr, aid);
  
- 		if (hdev) {
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index d3fb0d657fa52..7b3aade431e5e 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -369,6 +369,8 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 	struct hci_dev *hdev = hu->hdev;
- 
- 	clear_bit(HCI_UART_PROTO_READY, &hu->flags);
++	if (aid < 1 || aid > AP_MAX_NUM_STA)
++		return;
 +
-+	cancel_work_sync(&hu->init_ready);
- 	if (test_bit(HCI_UART_REGISTERED, &hu->flags))
- 		hci_unregister_dev(hdev);
- 	hci_free_dev(hdev);
+ 	if (assoc_req_len > sizeof(struct ieee80211_hdr_3addr)) {
+ 		struct ieee80211_mgmt *mgmt =
+ 			(struct ieee80211_mgmt *) assoc_info;
 -- 
 2.25.1
 
