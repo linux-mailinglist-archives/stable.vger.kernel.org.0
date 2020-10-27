@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DF229BF5F
+	by mail.lfdr.de (Postfix) with ESMTP id 409D529BF5E
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793734AbgJ0PIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1789761AbgJ0PIE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 11:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40172 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1791009AbgJ0PFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:05:55 -0400
+        id S1791012AbgJ0PF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:05:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FFB321707;
-        Tue, 27 Oct 2020 15:05:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 559ED21D24;
+        Tue, 27 Oct 2020 15:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811152;
-        bh=v1TWsyl9QkVJ3ilSlyOLFTJV5GSW46ODBKPlzPkHzno=;
+        s=default; t=1603811154;
+        bh=FP7FLeubJNaww4tHlqH6jE3IMVDpinLGpMcSKY7TakA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSQEe6XbEXcRY7oDF/rybZNLq6a4B7O+a3hPdgS1W+zX5j01rSntbmBNxAfpT3Vp4
-         LcpAfNP3z4HDA9M1xrkLliMOHoDHrJilGDCcXxNhNmbz34q+7JxU7rMvX3hEoSL/WA
-         RtXmyuixZ+veAEQ6xs+dAak+YqHvjU3ago93ON0o=
+        b=CgHLAqt9MK4JzuJXFR1DZdte5Z2cM1pOgiLFOHtEbFefZIPAlOCeRKX1q/XfwLp8O
+         LhiwcacHgQ6S9YbQL+kSf4n0dbOadNF64YgUfyTtDsft3/ydhIOOW+2ficnXVUpKFw
+         NTjlXWlCiOzhlcxNYWvtlpEa8RssxBXqMU+IQl10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        Chuanhong Guo <gch981213@gmail.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 392/633] mtd: spinand: gigadevice: Add QE Bit
-Date:   Tue, 27 Oct 2020 14:52:15 +0100
-Message-Id: <20201027135541.092570579@linuxfoundation.org>
+Subject: [PATCH 5.8 393/633] mtd: rawnand: ams-delta: Fix non-OF build warning
+Date:   Tue, 27 Oct 2020 14:52:16 +0100
+Message-Id: <20201027135541.143139839@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,78 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hauke Mehrtens <hauke@hauke-m.de>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit aea7687e77bebce5b67fab9d03347bd8df7933c7 ]
+[ Upstream commit 6d11178762f7c8338a028b428198383b8978b280 ]
 
-The following GigaDevice chips have the QE BIT in the feature flags, I
-checked the datasheets, but did not try this.
-* GD5F1GQ4xExxG
-* GD5F1GQ4xFxxG
-* GD5F1GQ4UAYIG
-* GD5F4GQ4UAYIG
+Commit 7c2f66a960fc ("mtd: rawnand: ams-delta: Add module device
+tables") introduced an OF module device table but wrapped a reference
+to it with of_match_ptr() which resolves to NULL in non-OF configs.
+That resulted in a clang compiler warning on unused variable in non-OF
+builds.  Fix it.
 
-The Quad operations like 0xEB mention that the QE bit has to be set.
+drivers/mtd/nand/raw/ams-delta.c:373:34: warning: unused variable 'gpio_nand_of_id_table' [-Wunused-const-variable]
+   static const struct of_device_id gpio_nand_of_id_table[] = {
+                                    ^
+   1 warning generated.
 
-Fixes: c93c613214ac ("mtd: spinand: add support for GigaDevice GD5FxGQ4xA")
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Tested-by: Chuanhong Guo <gch981213@gmail.com>
+Fixes: 7c2f66a960fc ("mtd: rawnand: ams-delta: Add module device tables")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200820165121.3192-3-hauke@hauke-m.de
+Link: https://lore.kernel.org/linux-mtd/20200919080403.17520-1-jmkrzyszt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/gigadevice.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/raw/ams-delta.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mtd/nand/spi/gigadevice.c b/drivers/mtd/nand/spi/gigadevice.c
-index 679d3c43e15aa..0b7667e60780f 100644
---- a/drivers/mtd/nand/spi/gigadevice.c
-+++ b/drivers/mtd/nand/spi/gigadevice.c
-@@ -202,7 +202,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
--		     0,
-+		     SPINAND_HAS_QE_BIT,
- 		     SPINAND_ECCINFO(&gd5fxgq4xa_ooblayout,
- 				     gd5fxgq4xa_ecc_get_status)),
- 	SPINAND_INFO("GD5F2GQ4xA",
-@@ -212,7 +212,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
--		     0,
-+		     SPINAND_HAS_QE_BIT,
- 		     SPINAND_ECCINFO(&gd5fxgq4xa_ooblayout,
- 				     gd5fxgq4xa_ecc_get_status)),
- 	SPINAND_INFO("GD5F4GQ4xA",
-@@ -222,7 +222,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
--		     0,
-+		     SPINAND_HAS_QE_BIT,
- 		     SPINAND_ECCINFO(&gd5fxgq4xa_ooblayout,
- 				     gd5fxgq4xa_ecc_get_status)),
- 	SPINAND_INFO("GD5F1GQ4UExxG",
-@@ -232,7 +232,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
--		     0,
-+		     SPINAND_HAS_QE_BIT,
- 		     SPINAND_ECCINFO(&gd5fxgq4_variant2_ooblayout,
- 				     gd5fxgq4uexxg_ecc_get_status)),
- 	SPINAND_INFO("GD5F1GQ4UFxxG",
-@@ -242,7 +242,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants_f,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
--		     0,
-+		     SPINAND_HAS_QE_BIT,
- 		     SPINAND_ECCINFO(&gd5fxgq4_variant2_ooblayout,
- 				     gd5fxgq4ufxxg_ecc_get_status)),
+diff --git a/drivers/mtd/nand/raw/ams-delta.c b/drivers/mtd/nand/raw/ams-delta.c
+index 3711e7a0436cd..b3390028c6bfb 100644
+--- a/drivers/mtd/nand/raw/ams-delta.c
++++ b/drivers/mtd/nand/raw/ams-delta.c
+@@ -400,12 +400,14 @@ static int gpio_nand_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
+ static const struct of_device_id gpio_nand_of_id_table[] = {
+ 	{
+ 		/* sentinel */
+ 	},
  };
+ MODULE_DEVICE_TABLE(of, gpio_nand_of_id_table);
++#endif
+ 
+ static const struct platform_device_id gpio_nand_plat_id_table[] = {
+ 	{
 -- 
 2.25.1
 
