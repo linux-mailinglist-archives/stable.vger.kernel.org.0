@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F7629C314
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4228E29C37B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1821359AbgJ0RnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
+        id S1786151AbgJ0Rqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S460200AbgJ0OcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:14 -0400
+        id S2902135AbgJ0Oaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:30:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 373B7206DC;
-        Tue, 27 Oct 2020 14:32:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC0AB20780;
+        Tue, 27 Oct 2020 14:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809133;
-        bh=1w0oQyMXds3QqX1ImPhu8MvaCOFm/wNUw+Zi0Nml0vA=;
+        s=default; t=1603809045;
+        bh=WCcS1pBqHKD+lmU3SS7a/YGub/MWDpRMO7EyQ3RKzGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpYDIwQ9OgqambH9VxNZRzDVGbDw5vh0FlvcHZEpqUiEX26qocy3MuYWI8Ih2cL8m
-         3f2olS0KlAJYEtjj7U7T2EXtfxANsyVPkCT3gEVeoXt3mpkCtW2edBzzQOv7DyKzqQ
-         ea/1Oy7+m2n0edSV257it5ifp0MoZRD5paw9TZCA=
+        b=ehI+MH2NhEH6uEpf0u+S0t0lDeHjy22brJ+XoHxodHdPMJdzP2oni9T2eAGPbyIle
+         tPROqA1tjpJ4iASqJ5ZCdJryXndxXSGzWJ0ZyjxgbBvxZVjgSU1KuT+PKyOA4UMUet
+         xlORPHv4hvw6HGKYCvvDJV+EHHrvtW0Ru4/Mvvu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 047/408] SMB3: Resolve data corruption of TCP server info fields
-Date:   Tue, 27 Oct 2020 14:49:45 +0100
-Message-Id: <20201027135457.243746254@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 048/408] KVM: nVMX: Reset the segment cache when stuffing guest segs
+Date:   Tue, 27 Oct 2020 14:49:46 +0100
+Message-Id: <20201027135457.294173409@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,77 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohith Surabattula <rohiths@microsoft.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 62593011247c8a8cfeb0c86aff84688b196727c2 upstream.
+commit fc387d8daf3960c5e1bc18fa353768056f4fd394 upstream.
 
-TCP server info field server->total_read is modified in parallel by
-demultiplex thread and decrypt offload worker thread. server->total_read
-is used in calculation to discard the remaining data of PDU which is
-not read into memory.
+Explicitly reset the segment cache after stuffing guest segment regs in
+prepare_vmcs02_rare().  Although the cache is reset when switching to
+vmcs02, there is nothing that prevents KVM from re-populating the cache
+prior to writing vmcs02 with vmcs12's values.  E.g. if the vCPU is
+preempted after switching to vmcs02 but before prepare_vmcs02_rare(),
+kvm_arch_vcpu_put() will dereference GUEST_SS_AR_BYTES via .get_cpl()
+and cache the stale vmcs02 value.  While the current code base only
+caches stale data in the preemption case, it's theoretically possible
+future code could read a segment register during the nested flow itself,
+i.e. this isn't technically illegal behavior in kvm_arch_vcpu_put(),
+although it did introduce the bug.
 
-Because of parallel modification, server->total_read can get corrupted
-and can result in discarding the valid data of next PDU.
+This manifests as an unexpected nested VM-Enter failure when running
+with unrestricted guest disabled if the above preemption case coincides
+with L1 switching L2's CPL, e.g. when switching from a L2 vCPU at CPL3
+to to a L2 vCPU at CPL0.  stack_segment_valid() will see the new SS_SEL
+but the old SS_AR_BYTES and incorrectly mark the guest state as invalid
+due to SS.dpl != SS.rpl.
 
-Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org> #5.4+
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Don't bother updating the cache even though prepare_vmcs02_rare() writes
+every segment.  With unrestricted guest, guest segments are almost never
+read, let alone L2 guest segments.  On the other hand, populating the
+cache requires a large number of memory writes, i.e. it's unlikely to be
+a net win.  Updating the cache would be a win when unrestricted guest is
+not supported, as guest_state_valid() will immediately cache all segment
+registers.  But, nested virtualization without unrestricted guest is
+dirt slow, saving some VMREADs won't change that, and every CPU
+manufactured in the last decade supports unrestricted guest.  In other
+words, the extra (minor) complexity isn't worth the trouble.
+
+Note, kvm_arch_vcpu_put() may see stale data when querying guest CPL
+depending on when preemption occurs.  This is "ok" in that the usage is
+imperfect by nature, i.e. it's used heuristically to improve performance
+but doesn't affect functionality.  kvm_arch_vcpu_put() could be "fixed"
+by also disabling preemption while loading segments, but that's
+pointless and misleading as reading state from kvm_sched_{in,out}() is
+guaranteed to see stale data in one form or another.  E.g. even if all
+the usage of regs_avail is fixed to call kvm_register_mark_available()
+after the associated state is set, the individual state might still be
+stale with respect to the overall vCPU state.  I.e. making functional
+decisions in an asynchronous hook is doomed from the get go.  Thankfully
+KVM doesn't do that.
+
+Fixes: de63ad4cf4973 ("KVM: X86: implement the logic for spinlock optimization")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923184452.980-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3886,7 +3886,8 @@ smb3_is_transform_hdr(void *buf)
- static int
- decrypt_raw_data(struct TCP_Server_Info *server, char *buf,
- 		 unsigned int buf_data_size, struct page **pages,
--		 unsigned int npages, unsigned int page_data_size)
-+		 unsigned int npages, unsigned int page_data_size,
-+		 bool is_offloaded)
- {
- 	struct kvec iov[2];
- 	struct smb_rqst rqst = {NULL};
-@@ -3912,7 +3913,8 @@ decrypt_raw_data(struct TCP_Server_Info
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2231,6 +2231,8 @@ static void prepare_vmcs02_rare(struct v
+ 		vmcs_writel(GUEST_TR_BASE, vmcs12->guest_tr_base);
+ 		vmcs_writel(GUEST_GDTR_BASE, vmcs12->guest_gdtr_base);
+ 		vmcs_writel(GUEST_IDTR_BASE, vmcs12->guest_idtr_base);
++
++		vmx->segment_cache.bitmask = 0;
+ 	}
  
- 	memmove(buf, iov[1].iov_base, buf_data_size);
- 
--	server->total_read = buf_data_size + page_data_size;
-+	if (!is_offloaded)
-+		server->total_read = buf_data_size + page_data_size;
- 
- 	return rc;
- }
-@@ -4126,7 +4128,7 @@ static void smb2_decrypt_offload(struct
- 	struct mid_q_entry *mid;
- 
- 	rc = decrypt_raw_data(dw->server, dw->buf, dw->server->vals->read_rsp_size,
--			      dw->ppages, dw->npages, dw->len);
-+			      dw->ppages, dw->npages, dw->len, true);
- 	if (rc) {
- 		cifs_dbg(VFS, "error decrypting rc=%d\n", rc);
- 		goto free_pages;
-@@ -4232,7 +4234,7 @@ receive_encrypted_read(struct TCP_Server
- 
- non_offloaded_decrypt:
- 	rc = decrypt_raw_data(server, buf, server->vals->read_rsp_size,
--			      pages, npages, len);
-+			      pages, npages, len, false);
- 	if (rc)
- 		goto free_pages;
- 
-@@ -4288,7 +4290,7 @@ receive_encrypted_standard(struct TCP_Se
- 	server->total_read += length;
- 
- 	buf_size = pdu_length - sizeof(struct smb2_transform_hdr);
--	length = decrypt_raw_data(server, buf, buf_size, NULL, 0, 0);
-+	length = decrypt_raw_data(server, buf, buf_size, NULL, 0, 0, false);
- 	if (length)
- 		return length;
- 
+ 	if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
 
 
