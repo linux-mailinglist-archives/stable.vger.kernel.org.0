@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AACE929B4F9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F7129B50B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793634AbgJ0PHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
+        id S1793702AbgJ0PHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1790958AbgJ0PFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:05:13 -0400
+        id S1790984AbgJ0PFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:05:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF6FE21D24;
-        Tue, 27 Oct 2020 15:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C146221707;
+        Tue, 27 Oct 2020 15:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811112;
-        bh=JK12HcBdyjs0CSV9uBupvXaVWc5Y/eNkJhOs5uksRRE=;
+        s=default; t=1603811135;
+        bh=7Pi2iXOC2BpCmsxbMkpE9+ZDVx1F96+q2hL3GkwWOVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9D5PmTa5NXgn+f8jT3Kc0iTHywQly+YN10FmzTZI1GkMDNfPx5AANRm1X2gsADxz
-         VlBtDal8lf+OnTXcgi9LcoygrmtwrvXzasM46Yj0c99OrNPxDzLYtU/7QHIDjpUiRR
-         a+qOBG2V+p1/tsQjOid8nTehz4YxH6MYwwY6zRlc=
+        b=LfpVIYaixsb11xpIafqzhXDndXocy6LfW0HLjuai3h8t9WjkDa0+z6Jr10Jt1LBik
+         85Gr/UtjH/ycNKOZtyCq+c5ApbkOyOs/mVmqrEstLo445j1oFPXjC0RdnZhuXOXWDP
+         nvFDkOKywTHYGryaIyH4t0neNv/C+ROsrW2EBuUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 376/633] RDMA/qedr: Fix resource leak in qedr_create_qp
-Date:   Tue, 27 Oct 2020 14:51:59 +0100
-Message-Id: <20201027135540.343119887@linuxfoundation.org>
+Subject: [PATCH 5.8 378/633] RDMA/mlx5: Use set_mkc_access_pd_addr_fields() in reg_create()
+Date:   Tue, 27 Oct 2020 14:52:01 +0100
+Message-Id: <20201027135540.438644569@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,112 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 3e45410fe3c202ffb619f301beff0644f717e132 ]
+[ Upstream commit 1c97ca3da0d12e0156a177f48ed3184c3f202002 ]
 
-When xa_insert() fails, the acquired resource in qedr_create_qp should
-also be freed. However, current implementation does not handle the error.
+reg_create() open codes this helper, use the shared code.
 
-Fix this by adding a new goto label that calls qedr_free_qp_resources.
-
-Fixes: 1212767e23bb ("qedr: Add wrapping generic structure for qpidr and adjust idr routines.")
-Link: https://lore.kernel.org/r/20200911125159.4577-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
+Link: https://lore.kernel.org/r/20200914112653.345244-3-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 52 ++++++++++++++++--------------
- 1 file changed, 27 insertions(+), 25 deletions(-)
+ drivers/infiniband/hw/mlx5/mr.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 820e351277d1b..41813e9d771ff 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -2113,6 +2113,28 @@ static int qedr_create_kernel_qp(struct qedr_dev *dev,
- 	return rc;
- }
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 44683073be0c4..8d975c4d93060 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1190,29 +1190,16 @@ static struct mlx5_ib_mr *reg_create(struct ib_mr *ibmr, struct ib_pd *pd,
+ 	MLX5_SET(create_mkey_in, in, pg_access, !!(pg_cap));
  
-+static int qedr_free_qp_resources(struct qedr_dev *dev, struct qedr_qp *qp,
-+				  struct ib_udata *udata)
-+{
-+	struct qedr_ucontext *ctx =
-+		rdma_udata_to_drv_context(udata, struct qedr_ucontext,
-+					  ibucontext);
-+	int rc;
-+
-+	if (qp->qp_type != IB_QPT_GSI) {
-+		rc = dev->ops->rdma_destroy_qp(dev->rdma_ctx, qp->qed_qp);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	if (qp->create_type == QEDR_QP_CREATE_USER)
-+		qedr_cleanup_user(dev, ctx, qp);
-+	else
-+		qedr_cleanup_kernel(dev, qp);
-+
-+	return 0;
-+}
-+
- struct ib_qp *qedr_create_qp(struct ib_pd *ibpd,
- 			     struct ib_qp_init_attr *attrs,
- 			     struct ib_udata *udata)
-@@ -2159,19 +2181,21 @@ struct ib_qp *qedr_create_qp(struct ib_pd *ibpd,
- 		rc = qedr_create_kernel_qp(dev, qp, ibpd, attrs);
+ 	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
++	set_mkc_access_pd_addr_fields(mkc, access_flags, virt_addr, pd);
+ 	MLX5_SET(mkc, mkc, free, !populate);
+ 	MLX5_SET(mkc, mkc, access_mode_1_0, MLX5_MKC_ACCESS_MODE_MTT);
+-	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_write))
+-		MLX5_SET(mkc, mkc, relaxed_ordering_write,
+-			 !!(access_flags & IB_ACCESS_RELAXED_ORDERING));
+-	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_read))
+-		MLX5_SET(mkc, mkc, relaxed_ordering_read,
+-			 !!(access_flags & IB_ACCESS_RELAXED_ORDERING));
+-	MLX5_SET(mkc, mkc, a, !!(access_flags & IB_ACCESS_REMOTE_ATOMIC));
+-	MLX5_SET(mkc, mkc, rw, !!(access_flags & IB_ACCESS_REMOTE_WRITE));
+-	MLX5_SET(mkc, mkc, rr, !!(access_flags & IB_ACCESS_REMOTE_READ));
+-	MLX5_SET(mkc, mkc, lw, !!(access_flags & IB_ACCESS_LOCAL_WRITE));
+-	MLX5_SET(mkc, mkc, lr, 1);
+ 	MLX5_SET(mkc, mkc, umr_en, 1);
  
- 	if (rc)
--		goto err;
-+		goto out_free_qp;
- 
- 	qp->ibqp.qp_num = qp->qp_id;
- 
- 	if (rdma_protocol_iwarp(&dev->ibdev, 1)) {
- 		rc = xa_insert(&dev->qps, qp->qp_id, qp, GFP_KERNEL);
- 		if (rc)
--			goto err;
-+			goto out_free_qp_resources;
- 	}
- 
- 	return &qp->ibqp;
- 
--err:
-+out_free_qp_resources:
-+	qedr_free_qp_resources(dev, qp, udata);
-+out_free_qp:
- 	kfree(qp);
- 
- 	return ERR_PTR(-EFAULT);
-@@ -2672,28 +2696,6 @@ int qedr_query_qp(struct ib_qp *ibqp,
- 	return rc;
- }
- 
--static int qedr_free_qp_resources(struct qedr_dev *dev, struct qedr_qp *qp,
--				  struct ib_udata *udata)
--{
--	struct qedr_ucontext *ctx =
--		rdma_udata_to_drv_context(udata, struct qedr_ucontext,
--					  ibucontext);
--	int rc;
--
--	if (qp->qp_type != IB_QPT_GSI) {
--		rc = dev->ops->rdma_destroy_qp(dev->rdma_ctx, qp->qed_qp);
--		if (rc)
--			return rc;
--	}
--
--	if (qp->create_type == QEDR_QP_CREATE_USER)
--		qedr_cleanup_user(dev, ctx, qp);
--	else
--		qedr_cleanup_kernel(dev, qp);
--
--	return 0;
--}
--
- int qedr_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
- {
- 	struct qedr_qp *qp = get_qedr_qp(ibqp);
+-	MLX5_SET64(mkc, mkc, start_addr, virt_addr);
+ 	MLX5_SET64(mkc, mkc, len, length);
+-	MLX5_SET(mkc, mkc, pd, to_mpd(pd)->pdn);
+ 	MLX5_SET(mkc, mkc, bsf_octword_size, 0);
+ 	MLX5_SET(mkc, mkc, translations_octword_size,
+ 		 get_octo_len(virt_addr, length, page_shift));
+ 	MLX5_SET(mkc, mkc, log_page_size, page_shift);
+-	MLX5_SET(mkc, mkc, qpn, 0xffffff);
+ 	if (populate) {
+ 		MLX5_SET(create_mkey_in, in, translations_octword_actual_size,
+ 			 get_octo_len(virt_addr, length, page_shift));
 -- 
 2.25.1
 
