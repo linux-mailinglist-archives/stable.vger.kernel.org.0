@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D3B29B3B0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DE3B29B3B2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900720AbgJ0OyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50718 "EHLO mail.kernel.org"
+        id S1751922AbgJ0Oy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773110AbgJ0OvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:19 -0400
+        id S1773119AbgJ0Ov2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A686206E5;
-        Tue, 27 Oct 2020 14:51:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43A33206E5;
+        Tue, 27 Oct 2020 14:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810278;
-        bh=vivV3xKPzAQjtPZH6nSfZfJGcVRD2ycs4JVZSA+belE=;
+        s=default; t=1603810285;
+        bh=umgnazMM2+hsWUIgo63fu0bPJ5MrrCfaTwB0dvoL8jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AovgoX+mRypPewulBjs1LFr6eJecFM2i608fGsOmt+ldkt3Hf1r1eq2mVo3q4D5U7
-         ReWZvjinutnkwX0rZRY+uEEwUQ+UZffuMPgz4sXmwNyRomL+EYjpK/+S4hTrQUG2H0
-         EuB2JJ2VAqVGlvyP8hnbkOd4fLquw32ReUGjod8Y=
+        b=qj3bDsD1nposbD4rSfs05Y7VSC692A5DuqtSCNTcWZ00FT/3droRnEEr2yYRxuAth
+         p1Ea8jIQku0khsc3JZJkc73kFlsleX4drQeLGRd+CNVwhTRVgtv0cI70a1nKZ7vUA9
+         7TppgEJLUQAD4FE7gXUl8PA7wG2KmiJx0Jx/yezc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Tero Kristo <t-kristo@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 084/633] EDAC/ti: Fix handling of platform_get_irq() error
-Date:   Tue, 27 Oct 2020 14:47:07 +0100
-Message-Id: <20201027135526.627309664@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 086/633] x86/fpu: Allow multiple bits in clearcpuid= parameter
+Date:   Tue, 27 Oct 2020 14:47:09 +0100
+Message-Id: <20201027135526.724563114@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,40 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 66077adb70a2a9e92540155b2ace33ec98299c90 ]
+[ Upstream commit 0a4bb5e5507a585532cc413125b921c8546fc39f ]
 
-platform_get_irq() returns a negative error number on error. In such a
-case, comparison to 0 would pass the check therefore check the return
-value properly, whether it is negative.
+Commit
 
- [ bp: Massage commit message. ]
+  0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
 
-Fixes: 86a18ee21e5e ("EDAC, ti: Add support for TI keystone and DRA7xx EDAC")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+changed clearcpuid parsing from __setup() to cmdline_find_option().
+While the __setup() function would have been called for each clearcpuid=
+parameter on the command line, cmdline_find_option() will only return
+the last one, so the change effectively made it impossible to disable
+more than one bit.
+
+Allow a comma-separated list of bit numbers as the argument for
+clearcpuid to allow multiple bits to be disabled again. Log the bits
+being disabled for informational purposes.
+
+Also fix the check on the return value of cmdline_find_option(). It
+returns -1 when the option is not found, so testing as a boolean is
+incorrect.
+
+Fixes: 0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lkml.kernel.org/r/20200827070743.26628-2-krzk@kernel.org
+Link: https://lkml.kernel.org/r/20200907213919.2423441-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ti_edac.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../admin-guide/kernel-parameters.txt         |  2 +-
+ arch/x86/kernel/fpu/init.c                    | 30 ++++++++++++++-----
+ 2 files changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
-index 8be3e89a510e4..d7419a90a2f5b 100644
---- a/drivers/edac/ti_edac.c
-+++ b/drivers/edac/ti_edac.c
-@@ -278,7 +278,8 @@ static int ti_edac_probe(struct platform_device *pdev)
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index fb95fad81c79a..6746f91ebc490 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -577,7 +577,7 @@
+ 			loops can be debugged more effectively on production
+ 			systems.
  
- 	/* add EMIF ECC error handler */
- 	error_irq = platform_get_irq(pdev, 0);
--	if (!error_irq) {
-+	if (error_irq < 0) {
-+		ret = error_irq;
- 		edac_printk(KERN_ERR, EDAC_MOD_NAME,
- 			    "EMIF irq number not defined.\n");
- 		goto err;
+-	clearcpuid=BITNUM [X86]
++	clearcpuid=BITNUM[,BITNUM...] [X86]
+ 			Disable CPUID feature X for the kernel. See
+ 			arch/x86/include/asm/cpufeatures.h for the valid bit
+ 			numbers. Note the Linux specific bits are not necessarily
+diff --git a/arch/x86/kernel/fpu/init.c b/arch/x86/kernel/fpu/init.c
+index 61ddc3a5e5c2b..f8ff895aaf7e1 100644
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -243,9 +243,9 @@ static void __init fpu__init_system_ctx_switch(void)
+  */
+ static void __init fpu__init_parse_early_param(void)
+ {
+-	char arg[32];
++	char arg[128];
+ 	char *argptr = arg;
+-	int bit;
++	int arglen, res, bit;
+ 
+ #ifdef CONFIG_X86_32
+ 	if (cmdline_find_option_bool(boot_command_line, "no387"))
+@@ -268,12 +268,26 @@ static void __init fpu__init_parse_early_param(void)
+ 	if (cmdline_find_option_bool(boot_command_line, "noxsaves"))
+ 		setup_clear_cpu_cap(X86_FEATURE_XSAVES);
+ 
+-	if (cmdline_find_option(boot_command_line, "clearcpuid", arg,
+-				sizeof(arg)) &&
+-	    get_option(&argptr, &bit) &&
+-	    bit >= 0 &&
+-	    bit < NCAPINTS * 32)
+-		setup_clear_cpu_cap(bit);
++	arglen = cmdline_find_option(boot_command_line, "clearcpuid", arg, sizeof(arg));
++	if (arglen <= 0)
++		return;
++
++	pr_info("Clearing CPUID bits:");
++	do {
++		res = get_option(&argptr, &bit);
++		if (res == 0 || res == 3)
++			break;
++
++		/* If the argument was too long, the last bit may be cut off */
++		if (res == 1 && arglen >= sizeof(arg))
++			break;
++
++		if (bit >= 0 && bit < NCAPINTS * 32) {
++			pr_cont(" " X86_CAP_FMT, x86_cap_flag(bit));
++			setup_clear_cpu_cap(bit);
++		}
++	} while (res == 2);
++	pr_cont("\n");
+ }
+ 
+ /*
 -- 
 2.25.1
 
