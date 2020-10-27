@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC2829B5D1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E5629B5DB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793897AbgJ0PQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:16:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52206 "EHLO mail.kernel.org"
+        id S1796272AbgJ0PRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:17:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1795410AbgJ0PPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:14 -0400
+        id S1795887AbgJ0PPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F5C720728;
-        Tue, 27 Oct 2020 15:15:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2E0721D41;
+        Tue, 27 Oct 2020 15:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811713;
-        bh=iAKMmmo2UIV2K5mbKh5jkSZVSfNfDZ+2/OXIVJR2CkE=;
+        s=default; t=1603811724;
+        bh=ccfMSBtyYsuJVMxC+7PNxuOzjyfmMrrqCrfQSwg9WK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0a31YTRZ1NJzuZEi2x3j9R1VMiEeFPZR24YTIJjNZI41uzw4jc/QdtHyhHCPoL2mM
-         psW5mT4Q+yn0JysO48KagViF/1whtQDfzA4iS3m7/LBamQBhMps/ZwbjYb56ObmTed
-         wTCiuzLeOeWYaUyNLLqWhETGzdw5Ma/t8+J6BHiE=
+        b=K0lOppnMHpbmTk/SkfDUn5lf9O44VP78NG6k5GHMdMDWd0d2xlvHB3HlqIcSZXr+c
+         kJiSX6nmGdQ4fo/AzGz3huPSs10WccmIlSQis3YUlxA5UFXjoN/lGIKOPDbOC9iSQy
+         40fWxcHHPQ93JlZUQIneeMs8LzIADir+NUOrf/e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
-        Manish Mandlik <mmandlik@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
+        Arun Easi <aeasi@marvell.com>, Daniel Wagner <dwagner@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 591/633] Bluetooth: Only mark socket zapped after unlocking
-Date:   Tue, 27 Oct 2020 14:55:34 +0100
-Message-Id: <20201027135550.540979953@linuxfoundation.org>
+Subject: [PATCH 5.8 595/633] scsi: qla2xxx: Warn if done() or free() are called on an already freed srb
+Date:   Tue, 27 Oct 2020 14:55:38 +0100
+Message-Id: <20201027135550.732167402@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,71 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
+[ Upstream commit c0014f94218ea3a312f6235febea0d626c5f2154 ]
 
-Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
-setting the socket as zapped, it could potentially race with
-l2cap_sock_release which frees the socket. Thus, wait until the cleanup
-is complete before marking the socket as zapped.
+Emit a warning when ->done or ->free are called on an already freed
+srb. There is a hidden use-after-free bug in the driver which corrupts
+the srb memory pool which originates from the cleanup callbacks.
 
-This race was reproduced on a JBL GO speaker after the remote device
-rejected L2CAP connection due to resource unavailability.
+An extensive search didn't bring any lights on the real problem. The
+initial fix was to set both pointers to NULL and try to catch invalid
+accesses. But instead the memory corruption was gone and the driver
+didn't crash. Since not all calling places check for NULL pointer, add
+explicitly default handlers. With this we workaround the memory
+corruption and add a debug help.
 
-Here is a dmesg log with debug logs from a repro of this bug:
-[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
-[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
-[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
-[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
-[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
-[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
-[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
-[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
-[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
-[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
-[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
-[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
-[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
-[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
-[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-[ 3465.430332] Causing a watchdog bite!
-
-Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
-Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20200908081516.8561-2-dwagner@suse.de
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c   | 10 ++++++++++
+ drivers/scsi/qla2xxx/qla_inline.h |  5 +++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index c7fc28a465fdb..fa66e27b73635 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1521,8 +1521,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
- 
- 	parent = bt_sk(sk)->parent;
- 
--	sock_set_flag(sk, SOCK_ZAPPED);
--
- 	switch (chan->state) {
- 	case BT_OPEN:
- 	case BT_BOUND:
-@@ -1549,8 +1547,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
- 
- 		break;
- 	}
--
- 	release_sock(sk);
-+
-+	/* Only zap after cleanup to avoid use after free race */
-+	sock_set_flag(sk, SOCK_ZAPPED);
-+
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 2861c636dd651..f17ab22ad0e4a 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -63,6 +63,16 @@ void qla2x00_sp_free(srb_t *sp)
+ 	qla2x00_rel_sp(sp);
  }
  
- static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
++void qla2xxx_rel_done_warning(srb_t *sp, int res)
++{
++	WARN_ONCE(1, "Calling done() of an already freed srb %p object\n", sp);
++}
++
++void qla2xxx_rel_free_warning(srb_t *sp)
++{
++	WARN_ONCE(1, "Calling free() of an already freed srb %p object\n", sp);
++}
++
+ /* Asynchronous Login/Logout Routines -------------------------------------- */
+ 
+ unsigned long
+diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
+index 1fb6ccac07ccd..26d9c78d4c52c 100644
+--- a/drivers/scsi/qla2xxx/qla_inline.h
++++ b/drivers/scsi/qla2xxx/qla_inline.h
+@@ -207,10 +207,15 @@ qla2xxx_get_qpair_sp(scsi_qla_host_t *vha, struct qla_qpair *qpair,
+ 	return sp;
+ }
+ 
++void qla2xxx_rel_done_warning(srb_t *sp, int res);
++void qla2xxx_rel_free_warning(srb_t *sp);
++
+ static inline void
+ qla2xxx_rel_qpair_sp(struct qla_qpair *qpair, srb_t *sp)
+ {
+ 	sp->qpair = NULL;
++	sp->done = qla2xxx_rel_done_warning;
++	sp->free = qla2xxx_rel_free_warning;
+ 	mempool_free(sp, qpair->srb_mempool);
+ 	QLA_QPAIR_MARK_NOT_BUSY(qpair);
+ }
 -- 
 2.25.1
 
