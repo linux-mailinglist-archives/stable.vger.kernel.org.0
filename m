@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB7D29B88F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C51B329B83B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368682AbgJ0Plq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54014 "EHLO mail.kernel.org"
+        id S368811AbgJ0PeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800262AbgJ0Pfd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:35:33 -0400
+        id S368704AbgJ0PeF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:34:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DE502225E;
-        Tue, 27 Oct 2020 15:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA7B822202;
+        Tue, 27 Oct 2020 15:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812930;
-        bh=iIPeypKGuBiTZuxOXSusBcE8SBSXvwlqkpPk4sIc56U=;
+        s=default; t=1603812843;
+        bh=db3idX7P0RIhbEKjulac1pFFOKXO6hrNb9E0DQGDb9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmi9K4miG6hXEOhhP5bzPr4DYORh9461ZF8MNdTdf9WlfEv/fVvAUg/xjaQyAROt4
-         Rb8gzDZnA9JAv96Fhse8BxMO/TgpMGoiQZDrqN9I+uD5blVsoNKHOjbIkwPEXh0YRs
-         EBGfR+HGeuaXWkbEDc5Vj+m6lOcdsS5VgYoAgkLo=
+        b=oOIXD/7OeCnkkKXvpZWHZCMtZ2OHsstEEl5NsHB+thPlrbXwW7HYmbrJW4inoR+Uk
+         AzTA8KPjEkoMf8u2ma4hb+pMTXatUGinIE5WA0tfovyBhhn4vwTWNK12pzTSvn5zhp
+         LthlhqdmyykvsIgatnx5mjizJd4KQyjAeWQnmEnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 349/757] net: enic: Cure the enic api locking trainwreck
-Date:   Tue, 27 Oct 2020 14:49:59 +0100
-Message-Id: <20201027135506.939237237@linuxfoundation.org>
+Subject: [PATCH 5.9 350/757] selftests/bpf: Fix endianness issues in sk_lookup/ctx_narrow_access
+Date:   Tue, 27 Oct 2020 14:50:00 +0100
+Message-Id: <20201027135506.987837008@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,155 +43,309 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit a53b59ece86c86d16d12ccdaa1ad0c78250a9d96 ]
+[ Upstream commit 6458bde368cee77e798d05cccd2316db4d748c41 ]
 
-enic_dev_wait() has a BUG_ON(in_interrupt()).
+This test makes a lot of narrow load checks while assuming little
+endian architecture, and therefore fails on s390.
 
-Chasing the callers of enic_dev_wait() revealed the gems of enic_reset()
-and enic_tx_hang_reset() which are both invoked through work queues in
-order to be able to call rtnl_lock(). So far so good.
+Fix by introducing LSB and LSW macros and using them to perform narrow
+loads.
 
-After locking rtnl both functions acquire enic::enic_api_lock which
-serializes against the (ab)use from infiniband. This is where the
-trainwreck starts.
-
-enic::enic_api_lock is a spin_lock() which implicitly disables preemption,
-but both functions invoke a ton of functions under that lock which can
-sleep. The BUG_ON(in_interrupt()) does not trigger in that case because it
-can't detect the preempt disabled condition.
-
-This clearly has never been tested with any of the mandatory debug options
-for 7+ years, which would have caught that for sure.
-
-Cure it by adding a enic_api_busy member to struct enic, which is modified
-and evaluated with enic::enic_api_lock held.
-
-If enic_api_devcmd_proxy_by_index() observes enic::enic_api_busy as true,
-it drops enic::enic_api_lock and busy waits for enic::enic_api_busy to
-become false.
-
-It would be smarter to wait for a completion of that busy period, but
-enic_api_devcmd_proxy_by_index() is called with other spin locks held which
-obviously can't sleep.
-
-Remove the BUG_ON(in_interrupt()) check as well because it's incomplete and
-with proper debugging enabled the problem would have been caught from the
-debug checks in schedule_timeout().
-
-Fixes: 0b038566c0ea ("drivers/net: enic: Add an interface for USNIC to interact with firmware")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200929201814.44360-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cisco/enic/enic.h      |  1 +
- drivers/net/ethernet/cisco/enic/enic_api.c  |  6 +++++
- drivers/net/ethernet/cisco/enic/enic_main.c | 27 ++++++++++++++++-----
- 3 files changed, 28 insertions(+), 6 deletions(-)
+ .../selftests/bpf/progs/test_sk_lookup.c      | 216 ++++++++----------
+ 1 file changed, 101 insertions(+), 115 deletions(-)
 
-diff --git a/drivers/net/ethernet/cisco/enic/enic.h b/drivers/net/ethernet/cisco/enic/enic.h
-index 18f3aeb88f22a..c67a16a48d624 100644
---- a/drivers/net/ethernet/cisco/enic/enic.h
-+++ b/drivers/net/ethernet/cisco/enic/enic.h
-@@ -169,6 +169,7 @@ struct enic {
- 	u16 num_vfs;
- #endif
- 	spinlock_t enic_api_lock;
-+	bool enic_api_busy;
- 	struct enic_port_profile *pp;
+diff --git a/tools/testing/selftests/bpf/progs/test_sk_lookup.c b/tools/testing/selftests/bpf/progs/test_sk_lookup.c
+index bbf8296f4d663..1032b292af5b7 100644
+--- a/tools/testing/selftests/bpf/progs/test_sk_lookup.c
++++ b/tools/testing/selftests/bpf/progs/test_sk_lookup.c
+@@ -19,6 +19,17 @@
+ #define IP6(aaaa, bbbb, cccc, dddd)			\
+ 	{ bpf_htonl(aaaa), bpf_htonl(bbbb), bpf_htonl(cccc), bpf_htonl(dddd) }
  
- 	/* work queue cache line section */
-diff --git a/drivers/net/ethernet/cisco/enic/enic_api.c b/drivers/net/ethernet/cisco/enic/enic_api.c
-index b161f24522b87..b028ea2dec2b9 100644
---- a/drivers/net/ethernet/cisco/enic/enic_api.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_api.c
-@@ -34,6 +34,12 @@ int enic_api_devcmd_proxy_by_index(struct net_device *netdev, int vf,
- 	struct vnic_dev *vdev = enic->vdev;
- 
- 	spin_lock(&enic->enic_api_lock);
-+	while (enic->enic_api_busy) {
-+		spin_unlock(&enic->enic_api_lock);
-+		cpu_relax();
-+		spin_lock(&enic->enic_api_lock);
-+	}
++/* Macros for least-significant byte and word accesses. */
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++#define LSE_INDEX(index, size) (index)
++#else
++#define LSE_INDEX(index, size) ((size) - (index) - 1)
++#endif
++#define LSB(value, index)				\
++	(((__u8 *)&(value))[LSE_INDEX((index), sizeof(value))])
++#define LSW(value, index)				\
++	(((__u16 *)&(value))[LSE_INDEX((index), sizeof(value) / 2)])
 +
- 	spin_lock_bh(&enic->devcmd_lock);
+ #define MAX_SOCKS 32
  
- 	vnic_dev_cmd_proxy_by_index_start(vdev, vf);
-diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
-index 552d89fdf54a5..988c0a72e6836 100644
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -2106,8 +2106,6 @@ static int enic_dev_wait(struct vnic_dev *vdev,
- 	int done;
- 	int err;
- 
--	BUG_ON(in_interrupt());
--
- 	err = start(vdev, arg);
- 	if (err)
- 		return err;
-@@ -2295,6 +2293,13 @@ static int enic_set_rss_nic_cfg(struct enic *enic)
- 		rss_hash_bits, rss_base_cpu, rss_enable);
- }
- 
-+static void enic_set_api_busy(struct enic *enic, bool busy)
-+{
-+	spin_lock(&enic->enic_api_lock);
-+	enic->enic_api_busy = busy;
-+	spin_unlock(&enic->enic_api_lock);
-+}
-+
- static void enic_reset(struct work_struct *work)
+ struct {
+@@ -369,171 +380,146 @@ int ctx_narrow_access(struct bpf_sk_lookup *ctx)
  {
- 	struct enic *enic = container_of(work, struct enic, reset);
-@@ -2304,7 +2309,9 @@ static void enic_reset(struct work_struct *work)
+ 	struct bpf_sock *sk;
+ 	int err, family;
+-	__u16 *half;
+-	__u8 *byte;
+ 	bool v4;
  
- 	rtnl_lock();
+ 	v4 = (ctx->family == AF_INET);
  
--	spin_lock(&enic->enic_api_lock);
-+	/* Stop any activity from infiniband */
-+	enic_set_api_busy(enic, true);
-+
- 	enic_stop(enic->netdev);
- 	enic_dev_soft_reset(enic);
- 	enic_reset_addr_lists(enic);
-@@ -2312,7 +2319,10 @@ static void enic_reset(struct work_struct *work)
- 	enic_set_rss_nic_cfg(enic);
- 	enic_dev_set_ig_vlan_rewrite_mode(enic);
- 	enic_open(enic->netdev);
--	spin_unlock(&enic->enic_api_lock);
-+
-+	/* Allow infiniband to fiddle with the device again */
-+	enic_set_api_busy(enic, false);
-+
- 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 	/* Narrow loads from family field */
+-	byte = (__u8 *)&ctx->family;
+-	half = (__u16 *)&ctx->family;
+-	if (byte[0] != (v4 ? AF_INET : AF_INET6) ||
+-	    byte[1] != 0 || byte[2] != 0 || byte[3] != 0)
++	if (LSB(ctx->family, 0) != (v4 ? AF_INET : AF_INET6) ||
++	    LSB(ctx->family, 1) != 0 || LSB(ctx->family, 2) != 0 || LSB(ctx->family, 3) != 0)
+ 		return SK_DROP;
+-	if (half[0] != (v4 ? AF_INET : AF_INET6))
++	if (LSW(ctx->family, 0) != (v4 ? AF_INET : AF_INET6))
+ 		return SK_DROP;
  
- 	rtnl_unlock();
-@@ -2324,7 +2334,9 @@ static void enic_tx_hang_reset(struct work_struct *work)
+-	byte = (__u8 *)&ctx->protocol;
+-	if (byte[0] != IPPROTO_TCP ||
+-	    byte[1] != 0 || byte[2] != 0 || byte[3] != 0)
++	/* Narrow loads from protocol field */
++	if (LSB(ctx->protocol, 0) != IPPROTO_TCP ||
++	    LSB(ctx->protocol, 1) != 0 || LSB(ctx->protocol, 2) != 0 || LSB(ctx->protocol, 3) != 0)
+ 		return SK_DROP;
+-	half = (__u16 *)&ctx->protocol;
+-	if (half[0] != IPPROTO_TCP)
++	if (LSW(ctx->protocol, 0) != IPPROTO_TCP)
+ 		return SK_DROP;
  
- 	rtnl_lock();
+ 	/* Narrow loads from remote_port field. Expect non-0 value. */
+-	byte = (__u8 *)&ctx->remote_port;
+-	if (byte[0] == 0 && byte[1] == 0 && byte[2] == 0 && byte[3] == 0)
++	if (LSB(ctx->remote_port, 0) == 0 && LSB(ctx->remote_port, 1) == 0 &&
++	    LSB(ctx->remote_port, 2) == 0 && LSB(ctx->remote_port, 3) == 0)
+ 		return SK_DROP;
+-	half = (__u16 *)&ctx->remote_port;
+-	if (half[0] == 0)
++	if (LSW(ctx->remote_port, 0) == 0)
+ 		return SK_DROP;
  
--	spin_lock(&enic->enic_api_lock);
-+	/* Stop any activity from infiniband */
-+	enic_set_api_busy(enic, true);
-+
- 	enic_dev_hang_notify(enic);
- 	enic_stop(enic->netdev);
- 	enic_dev_hang_reset(enic);
-@@ -2333,7 +2345,10 @@ static void enic_tx_hang_reset(struct work_struct *work)
- 	enic_set_rss_nic_cfg(enic);
- 	enic_dev_set_ig_vlan_rewrite_mode(enic);
- 	enic_open(enic->netdev);
--	spin_unlock(&enic->enic_api_lock);
-+
-+	/* Allow infiniband to fiddle with the device again */
-+	enic_set_api_busy(enic, false);
-+
- 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 	/* Narrow loads from local_port field. Expect DST_PORT. */
+-	byte = (__u8 *)&ctx->local_port;
+-	if (byte[0] != ((DST_PORT >> 0) & 0xff) ||
+-	    byte[1] != ((DST_PORT >> 8) & 0xff) ||
+-	    byte[2] != 0 || byte[3] != 0)
++	if (LSB(ctx->local_port, 0) != ((DST_PORT >> 0) & 0xff) ||
++	    LSB(ctx->local_port, 1) != ((DST_PORT >> 8) & 0xff) ||
++	    LSB(ctx->local_port, 2) != 0 || LSB(ctx->local_port, 3) != 0)
+ 		return SK_DROP;
+-	half = (__u16 *)&ctx->local_port;
+-	if (half[0] != DST_PORT)
++	if (LSW(ctx->local_port, 0) != DST_PORT)
+ 		return SK_DROP;
  
- 	rtnl_unlock();
+ 	/* Narrow loads from IPv4 fields */
+ 	if (v4) {
+ 		/* Expect non-0.0.0.0 in remote_ip4 */
+-		byte = (__u8 *)&ctx->remote_ip4;
+-		if (byte[0] == 0 && byte[1] == 0 &&
+-		    byte[2] == 0 && byte[3] == 0)
++		if (LSB(ctx->remote_ip4, 0) == 0 && LSB(ctx->remote_ip4, 1) == 0 &&
++		    LSB(ctx->remote_ip4, 2) == 0 && LSB(ctx->remote_ip4, 3) == 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->remote_ip4;
+-		if (half[0] == 0 && half[1] == 0)
++		if (LSW(ctx->remote_ip4, 0) == 0 && LSW(ctx->remote_ip4, 1) == 0)
+ 			return SK_DROP;
+ 
+ 		/* Expect DST_IP4 in local_ip4 */
+-		byte = (__u8 *)&ctx->local_ip4;
+-		if (byte[0] != ((DST_IP4 >>  0) & 0xff) ||
+-		    byte[1] != ((DST_IP4 >>  8) & 0xff) ||
+-		    byte[2] != ((DST_IP4 >> 16) & 0xff) ||
+-		    byte[3] != ((DST_IP4 >> 24) & 0xff))
++		if (LSB(ctx->local_ip4, 0) != ((DST_IP4 >> 0) & 0xff) ||
++		    LSB(ctx->local_ip4, 1) != ((DST_IP4 >> 8) & 0xff) ||
++		    LSB(ctx->local_ip4, 2) != ((DST_IP4 >> 16) & 0xff) ||
++		    LSB(ctx->local_ip4, 3) != ((DST_IP4 >> 24) & 0xff))
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->local_ip4;
+-		if (half[0] != ((DST_IP4 >>  0) & 0xffff) ||
+-		    half[1] != ((DST_IP4 >> 16) & 0xffff))
++		if (LSW(ctx->local_ip4, 0) != ((DST_IP4 >> 0) & 0xffff) ||
++		    LSW(ctx->local_ip4, 1) != ((DST_IP4 >> 16) & 0xffff))
+ 			return SK_DROP;
+ 	} else {
+ 		/* Expect 0.0.0.0 IPs when family != AF_INET */
+-		byte = (__u8 *)&ctx->remote_ip4;
+-		if (byte[0] != 0 || byte[1] != 0 &&
+-		    byte[2] != 0 || byte[3] != 0)
++		if (LSB(ctx->remote_ip4, 0) != 0 || LSB(ctx->remote_ip4, 1) != 0 ||
++		    LSB(ctx->remote_ip4, 2) != 0 || LSB(ctx->remote_ip4, 3) != 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->remote_ip4;
+-		if (half[0] != 0 || half[1] != 0)
++		if (LSW(ctx->remote_ip4, 0) != 0 || LSW(ctx->remote_ip4, 1) != 0)
+ 			return SK_DROP;
+ 
+-		byte = (__u8 *)&ctx->local_ip4;
+-		if (byte[0] != 0 || byte[1] != 0 &&
+-		    byte[2] != 0 || byte[3] != 0)
++		if (LSB(ctx->local_ip4, 0) != 0 || LSB(ctx->local_ip4, 1) != 0 ||
++		    LSB(ctx->local_ip4, 2) != 0 || LSB(ctx->local_ip4, 3) != 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->local_ip4;
+-		if (half[0] != 0 || half[1] != 0)
++		if (LSW(ctx->local_ip4, 0) != 0 || LSW(ctx->local_ip4, 1) != 0)
+ 			return SK_DROP;
+ 	}
+ 
+ 	/* Narrow loads from IPv6 fields */
+ 	if (!v4) {
+-		/* Expenct non-:: IP in remote_ip6 */
+-		byte = (__u8 *)&ctx->remote_ip6;
+-		if (byte[0] == 0 && byte[1] == 0 &&
+-		    byte[2] == 0 && byte[3] == 0 &&
+-		    byte[4] == 0 && byte[5] == 0 &&
+-		    byte[6] == 0 && byte[7] == 0 &&
+-		    byte[8] == 0 && byte[9] == 0 &&
+-		    byte[10] == 0 && byte[11] == 0 &&
+-		    byte[12] == 0 && byte[13] == 0 &&
+-		    byte[14] == 0 && byte[15] == 0)
++		/* Expect non-:: IP in remote_ip6 */
++		if (LSB(ctx->remote_ip6[0], 0) == 0 && LSB(ctx->remote_ip6[0], 1) == 0 &&
++		    LSB(ctx->remote_ip6[0], 2) == 0 && LSB(ctx->remote_ip6[0], 3) == 0 &&
++		    LSB(ctx->remote_ip6[1], 0) == 0 && LSB(ctx->remote_ip6[1], 1) == 0 &&
++		    LSB(ctx->remote_ip6[1], 2) == 0 && LSB(ctx->remote_ip6[1], 3) == 0 &&
++		    LSB(ctx->remote_ip6[2], 0) == 0 && LSB(ctx->remote_ip6[2], 1) == 0 &&
++		    LSB(ctx->remote_ip6[2], 2) == 0 && LSB(ctx->remote_ip6[2], 3) == 0 &&
++		    LSB(ctx->remote_ip6[3], 0) == 0 && LSB(ctx->remote_ip6[3], 1) == 0 &&
++		    LSB(ctx->remote_ip6[3], 2) == 0 && LSB(ctx->remote_ip6[3], 3) == 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->remote_ip6;
+-		if (half[0] == 0 && half[1] == 0 &&
+-		    half[2] == 0 && half[3] == 0 &&
+-		    half[4] == 0 && half[5] == 0 &&
+-		    half[6] == 0 && half[7] == 0)
++		if (LSW(ctx->remote_ip6[0], 0) == 0 && LSW(ctx->remote_ip6[0], 1) == 0 &&
++		    LSW(ctx->remote_ip6[1], 0) == 0 && LSW(ctx->remote_ip6[1], 1) == 0 &&
++		    LSW(ctx->remote_ip6[2], 0) == 0 && LSW(ctx->remote_ip6[2], 1) == 0 &&
++		    LSW(ctx->remote_ip6[3], 0) == 0 && LSW(ctx->remote_ip6[3], 1) == 0)
+ 			return SK_DROP;
+-
+ 		/* Expect DST_IP6 in local_ip6 */
+-		byte = (__u8 *)&ctx->local_ip6;
+-		if (byte[0] != ((DST_IP6[0] >>  0) & 0xff) ||
+-		    byte[1] != ((DST_IP6[0] >>  8) & 0xff) ||
+-		    byte[2] != ((DST_IP6[0] >> 16) & 0xff) ||
+-		    byte[3] != ((DST_IP6[0] >> 24) & 0xff) ||
+-		    byte[4] != ((DST_IP6[1] >>  0) & 0xff) ||
+-		    byte[5] != ((DST_IP6[1] >>  8) & 0xff) ||
+-		    byte[6] != ((DST_IP6[1] >> 16) & 0xff) ||
+-		    byte[7] != ((DST_IP6[1] >> 24) & 0xff) ||
+-		    byte[8] != ((DST_IP6[2] >>  0) & 0xff) ||
+-		    byte[9] != ((DST_IP6[2] >>  8) & 0xff) ||
+-		    byte[10] != ((DST_IP6[2] >> 16) & 0xff) ||
+-		    byte[11] != ((DST_IP6[2] >> 24) & 0xff) ||
+-		    byte[12] != ((DST_IP6[3] >>  0) & 0xff) ||
+-		    byte[13] != ((DST_IP6[3] >>  8) & 0xff) ||
+-		    byte[14] != ((DST_IP6[3] >> 16) & 0xff) ||
+-		    byte[15] != ((DST_IP6[3] >> 24) & 0xff))
++		if (LSB(ctx->local_ip6[0], 0) != ((DST_IP6[0] >> 0) & 0xff) ||
++		    LSB(ctx->local_ip6[0], 1) != ((DST_IP6[0] >> 8) & 0xff) ||
++		    LSB(ctx->local_ip6[0], 2) != ((DST_IP6[0] >> 16) & 0xff) ||
++		    LSB(ctx->local_ip6[0], 3) != ((DST_IP6[0] >> 24) & 0xff) ||
++		    LSB(ctx->local_ip6[1], 0) != ((DST_IP6[1] >> 0) & 0xff) ||
++		    LSB(ctx->local_ip6[1], 1) != ((DST_IP6[1] >> 8) & 0xff) ||
++		    LSB(ctx->local_ip6[1], 2) != ((DST_IP6[1] >> 16) & 0xff) ||
++		    LSB(ctx->local_ip6[1], 3) != ((DST_IP6[1] >> 24) & 0xff) ||
++		    LSB(ctx->local_ip6[2], 0) != ((DST_IP6[2] >> 0) & 0xff) ||
++		    LSB(ctx->local_ip6[2], 1) != ((DST_IP6[2] >> 8) & 0xff) ||
++		    LSB(ctx->local_ip6[2], 2) != ((DST_IP6[2] >> 16) & 0xff) ||
++		    LSB(ctx->local_ip6[2], 3) != ((DST_IP6[2] >> 24) & 0xff) ||
++		    LSB(ctx->local_ip6[3], 0) != ((DST_IP6[3] >> 0) & 0xff) ||
++		    LSB(ctx->local_ip6[3], 1) != ((DST_IP6[3] >> 8) & 0xff) ||
++		    LSB(ctx->local_ip6[3], 2) != ((DST_IP6[3] >> 16) & 0xff) ||
++		    LSB(ctx->local_ip6[3], 3) != ((DST_IP6[3] >> 24) & 0xff))
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->local_ip6;
+-		if (half[0] != ((DST_IP6[0] >>  0) & 0xffff) ||
+-		    half[1] != ((DST_IP6[0] >> 16) & 0xffff) ||
+-		    half[2] != ((DST_IP6[1] >>  0) & 0xffff) ||
+-		    half[3] != ((DST_IP6[1] >> 16) & 0xffff) ||
+-		    half[4] != ((DST_IP6[2] >>  0) & 0xffff) ||
+-		    half[5] != ((DST_IP6[2] >> 16) & 0xffff) ||
+-		    half[6] != ((DST_IP6[3] >>  0) & 0xffff) ||
+-		    half[7] != ((DST_IP6[3] >> 16) & 0xffff))
++		if (LSW(ctx->local_ip6[0], 0) != ((DST_IP6[0] >> 0) & 0xffff) ||
++		    LSW(ctx->local_ip6[0], 1) != ((DST_IP6[0] >> 16) & 0xffff) ||
++		    LSW(ctx->local_ip6[1], 0) != ((DST_IP6[1] >> 0) & 0xffff) ||
++		    LSW(ctx->local_ip6[1], 1) != ((DST_IP6[1] >> 16) & 0xffff) ||
++		    LSW(ctx->local_ip6[2], 0) != ((DST_IP6[2] >> 0) & 0xffff) ||
++		    LSW(ctx->local_ip6[2], 1) != ((DST_IP6[2] >> 16) & 0xffff) ||
++		    LSW(ctx->local_ip6[3], 0) != ((DST_IP6[3] >> 0) & 0xffff) ||
++		    LSW(ctx->local_ip6[3], 1) != ((DST_IP6[3] >> 16) & 0xffff))
+ 			return SK_DROP;
+ 	} else {
+ 		/* Expect :: IPs when family != AF_INET6 */
+-		byte = (__u8 *)&ctx->remote_ip6;
+-		if (byte[0] != 0 || byte[1] != 0 ||
+-		    byte[2] != 0 || byte[3] != 0 ||
+-		    byte[4] != 0 || byte[5] != 0 ||
+-		    byte[6] != 0 || byte[7] != 0 ||
+-		    byte[8] != 0 || byte[9] != 0 ||
+-		    byte[10] != 0 || byte[11] != 0 ||
+-		    byte[12] != 0 || byte[13] != 0 ||
+-		    byte[14] != 0 || byte[15] != 0)
++		if (LSB(ctx->remote_ip6[0], 0) != 0 || LSB(ctx->remote_ip6[0], 1) != 0 ||
++		    LSB(ctx->remote_ip6[0], 2) != 0 || LSB(ctx->remote_ip6[0], 3) != 0 ||
++		    LSB(ctx->remote_ip6[1], 0) != 0 || LSB(ctx->remote_ip6[1], 1) != 0 ||
++		    LSB(ctx->remote_ip6[1], 2) != 0 || LSB(ctx->remote_ip6[1], 3) != 0 ||
++		    LSB(ctx->remote_ip6[2], 0) != 0 || LSB(ctx->remote_ip6[2], 1) != 0 ||
++		    LSB(ctx->remote_ip6[2], 2) != 0 || LSB(ctx->remote_ip6[2], 3) != 0 ||
++		    LSB(ctx->remote_ip6[3], 0) != 0 || LSB(ctx->remote_ip6[3], 1) != 0 ||
++		    LSB(ctx->remote_ip6[3], 2) != 0 || LSB(ctx->remote_ip6[3], 3) != 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->remote_ip6;
+-		if (half[0] != 0 || half[1] != 0 ||
+-		    half[2] != 0 || half[3] != 0 ||
+-		    half[4] != 0 || half[5] != 0 ||
+-		    half[6] != 0 || half[7] != 0)
++		if (LSW(ctx->remote_ip6[0], 0) != 0 || LSW(ctx->remote_ip6[0], 1) != 0 ||
++		    LSW(ctx->remote_ip6[1], 0) != 0 || LSW(ctx->remote_ip6[1], 1) != 0 ||
++		    LSW(ctx->remote_ip6[2], 0) != 0 || LSW(ctx->remote_ip6[2], 1) != 0 ||
++		    LSW(ctx->remote_ip6[3], 0) != 0 || LSW(ctx->remote_ip6[3], 1) != 0)
+ 			return SK_DROP;
+ 
+-		byte = (__u8 *)&ctx->local_ip6;
+-		if (byte[0] != 0 || byte[1] != 0 ||
+-		    byte[2] != 0 || byte[3] != 0 ||
+-		    byte[4] != 0 || byte[5] != 0 ||
+-		    byte[6] != 0 || byte[7] != 0 ||
+-		    byte[8] != 0 || byte[9] != 0 ||
+-		    byte[10] != 0 || byte[11] != 0 ||
+-		    byte[12] != 0 || byte[13] != 0 ||
+-		    byte[14] != 0 || byte[15] != 0)
++		if (LSB(ctx->local_ip6[0], 0) != 0 || LSB(ctx->local_ip6[0], 1) != 0 ||
++		    LSB(ctx->local_ip6[0], 2) != 0 || LSB(ctx->local_ip6[0], 3) != 0 ||
++		    LSB(ctx->local_ip6[1], 0) != 0 || LSB(ctx->local_ip6[1], 1) != 0 ||
++		    LSB(ctx->local_ip6[1], 2) != 0 || LSB(ctx->local_ip6[1], 3) != 0 ||
++		    LSB(ctx->local_ip6[2], 0) != 0 || LSB(ctx->local_ip6[2], 1) != 0 ||
++		    LSB(ctx->local_ip6[2], 2) != 0 || LSB(ctx->local_ip6[2], 3) != 0 ||
++		    LSB(ctx->local_ip6[3], 0) != 0 || LSB(ctx->local_ip6[3], 1) != 0 ||
++		    LSB(ctx->local_ip6[3], 2) != 0 || LSB(ctx->local_ip6[3], 3) != 0)
+ 			return SK_DROP;
+-		half = (__u16 *)&ctx->local_ip6;
+-		if (half[0] != 0 || half[1] != 0 ||
+-		    half[2] != 0 || half[3] != 0 ||
+-		    half[4] != 0 || half[5] != 0 ||
+-		    half[6] != 0 || half[7] != 0)
++		if (LSW(ctx->remote_ip6[0], 0) != 0 || LSW(ctx->remote_ip6[0], 1) != 0 ||
++		    LSW(ctx->remote_ip6[1], 0) != 0 || LSW(ctx->remote_ip6[1], 1) != 0 ||
++		    LSW(ctx->remote_ip6[2], 0) != 0 || LSW(ctx->remote_ip6[2], 1) != 0 ||
++		    LSW(ctx->remote_ip6[3], 0) != 0 || LSW(ctx->remote_ip6[3], 1) != 0)
+ 			return SK_DROP;
+ 	}
+ 
 -- 
 2.25.1
 
