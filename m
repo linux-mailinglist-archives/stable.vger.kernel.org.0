@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C17629B3A3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9C329B2D0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:46:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780250AbgJ0OyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45244 "EHLO mail.kernel.org"
+        id S1763989AbgJ0Opx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:45:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1763868AbgJ0OpT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:45:19 -0400
+        id S1763985AbgJ0Opv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:45:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37D8206B2;
-        Tue, 27 Oct 2020 14:45:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3082220773;
+        Tue, 27 Oct 2020 14:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809918;
-        bh=v1Z+kyM00XJqxJX/GQ2PGnu5D3WwgfqCSvSBlCHzPZw=;
+        s=default; t=1603809949;
+        bh=nCDXuJ8QS5hM+gIDi2XeymGN25m1pU86CVegkbydedc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTlSWSoH1XAqg2maPlqVMkZVkcT7jd/NRb78xNVeZeQncQN632y7T2LtD+BgG3qLe
-         76bz3e28ahJ5iVJ2QT7IFMAMVms2sh7dnUqqxqW2GAVYFgJRLBKdQFMIXiGoCCRdeS
-         dm8jCxm5/3w/PF/JIdMg4rW+AQuzgTEnfSoDBOK8=
+        b=Gb6EI0twfJ0GcKx6rahi/o+6yVwozxMOBdpOnQfHkXgfcj9RL7N6ZlLDm9yBEksi0
+         jdwFZRUxhv5aUshrqlC/n9S4D0M8L7LDfd3rhfOL3EdOJBOw1vAvzSaXQdkQNxlF2Z
+         1vBdrx1hNYMtPQXRuok7jNW/VEKHTBFy6c8ZTVH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 348/408] ntfs: add check for mft record size in superblock
-Date:   Tue, 27 Oct 2020 14:54:46 +0100
-Message-Id: <20201027135511.159364177@linuxfoundation.org>
+        stable@vger.kernel.org, William Tu <u9012063@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 349/408] ip_gre: set dev->hard_header_len and dev->needed_headroom properly
+Date:   Tue, 27 Oct 2020 14:54:47 +0100
+Message-Id: <20201027135511.205180498@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -47,44 +47,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
+[ Upstream commit fdafed459998e2be0e877e6189b24cb7a0183224 ]
 
-Number of bytes allocated for mft record should be equal to the mft record
-size stored in ntfs superblock as reported by syzbot, userspace might
-trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
+GRE tunnel has its own header_ops, ipgre_header_ops, and sets it
+conditionally. When it is set, it assumes the outer IP header is
+already created before ipgre_xmit().
 
-Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
-Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This is not true when we send packets through a raw packet socket,
+where L2 headers are supposed to be constructed by user. Packet
+socket calls dev_validate_header() to validate the header. But
+GRE tunnel does not set dev->hard_header_len, so that check can
+be simply bypassed, therefore uninit memory could be passed down
+to ipgre_xmit(). Similar for dev->needed_headroom.
+
+dev->hard_header_len is supposed to be the length of the header
+created by dev->header_ops->create(), so it should be used whenever
+header_ops is set, and dev->needed_headroom should be used when it
+is not set.
+
+Reported-and-tested-by: syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
+Cc: William Tu <u9012063@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/ip_gre.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index d4359a1df3d5e..84933a0af49b6 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1809,6 +1809,12 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		brelse(bh);
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 85ba1453ba5ca..fedad3a3e61b8 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -603,9 +603,7 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
  	}
  
-+	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
-+		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
-+				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
-+		goto err_out;
-+	}
+ 	if (dev->header_ops) {
+-		/* Need space for new headers */
+-		if (skb_cow_head(skb, dev->needed_headroom -
+-				      (tunnel->hlen + sizeof(struct iphdr))))
++		if (skb_cow_head(skb, 0))
+ 			goto free_skb;
+ 
+ 		tnl_params = (const struct iphdr *)skb->data;
+@@ -723,7 +721,11 @@ static void ipgre_link_update(struct net_device *dev, bool set_mtu)
+ 	len = tunnel->tun_hlen - len;
+ 	tunnel->hlen = tunnel->hlen + len;
+ 
+-	dev->needed_headroom = dev->needed_headroom + len;
++	if (dev->header_ops)
++		dev->hard_header_len += len;
++	else
++		dev->needed_headroom += len;
 +
- 	/* Apply the mst fixups. */
- 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
- 		/* FIXME: Try to use the $MFTMirr now. */
+ 	if (set_mtu)
+ 		dev->mtu = max_t(int, dev->mtu - len, 68);
+ 
+@@ -926,6 +928,7 @@ static void __gre_tunnel_init(struct net_device *dev)
+ 	tunnel->parms.iph.protocol = IPPROTO_GRE;
+ 
+ 	tunnel->hlen = tunnel->tun_hlen + tunnel->encap_hlen;
++	dev->needed_headroom = tunnel->hlen + sizeof(tunnel->parms.iph);
+ 
+ 	dev->features		|= GRE_FEATURES;
+ 	dev->hw_features	|= GRE_FEATURES;
+@@ -969,10 +972,14 @@ static int ipgre_tunnel_init(struct net_device *dev)
+ 				return -EINVAL;
+ 			dev->flags = IFF_BROADCAST;
+ 			dev->header_ops = &ipgre_header_ops;
++			dev->hard_header_len = tunnel->hlen + sizeof(*iph);
++			dev->needed_headroom = 0;
+ 		}
+ #endif
+ 	} else if (!tunnel->collect_md) {
+ 		dev->header_ops = &ipgre_header_ops;
++		dev->hard_header_len = tunnel->hlen + sizeof(*iph);
++		dev->needed_headroom = 0;
+ 	}
+ 
+ 	return ip_tunnel_init(dev);
 -- 
 2.25.1
 
