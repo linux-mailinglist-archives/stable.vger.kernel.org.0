@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 168AB29B71B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 012D829B6FB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798611AbgJ0P3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:29:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
+        id S1798498AbgJ0P2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901377AbgJ0P1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:27:30 -0400
+        id S1798146AbgJ0PZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:25:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10F202224A;
-        Tue, 27 Oct 2020 15:27:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B58B220728;
+        Tue, 27 Oct 2020 15:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812449;
-        bh=8aAidsEKBvSKJ+eRVz/YNjTZm0lLkaRZt+LE+1BICXw=;
+        s=default; t=1603812358;
+        bh=mK95Y5EpJLO5QnvBvmW3V/40l56fS/jzkZVuuRNb4VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gooI1TLpPXqxrvAUXYSDXnqQuBtCZiWNv+PIoPRIm5yM1pNoqsotm0V0lj85Eq1CO
-         07Wk79pkmoQvm6zBI+4XwR1jrXB6/+KQnQtLZSyLmRoMUiIp6cV1yJjvy5jph1Ri9+
-         BT/qgrkIyrrcQRaQGcHVxtKS/r7AJE3E4Ka2NS6g=
+        b=ZWYujmAx/cDKpN4iQN6RgvpIT/6mp0I6cdS+AjKtpwxAIgy6S/FWHKGg/xhdTTric
+         QDIg/72XVfJ+f149UpOG28FIcWWRoUAtrXE+3y05IiNynT8yh+MlrHYQm2NDsFEgQa
+         5wulf2FbKUyf1JuIsnUM/ArTo6XsvI8NdaUh1H0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 173/757] regulator: resolve supply after creating regulator
-Date:   Tue, 27 Oct 2020 14:47:03 +0100
-Message-Id: <20201027135458.709756525@linuxfoundation.org>
+Subject: [PATCH 5.9 174/757] pinctrl: bcm: fix kconfig dependency warning when !GPIOLIB
+Date:   Tue, 27 Oct 2020 14:47:04 +0100
+Message-Id: <20201027135458.754721456@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,62 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit aea6cb99703e17019e025aa71643b4d3e0a24413 ]
+[ Upstream commit 513034d8b089b9a49dab57845aee70e830fe7334 ]
 
-When creating a new regulator its supply cannot create the sysfs link
-because the device is not yet published. Remove early supply resolving
-since it will be done later anyway. This makes the following error
-disappear and the symlinks get created instead.
+When PINCTRL_BCM2835 is enabled and GPIOLIB is disabled, it results in the
+following Kbuild warning:
 
-  DCDC_REG1: supplied by VSYS
-  VSYS: could not add device link regulator.3 err -2
+WARNING: unmet direct dependencies detected for GPIOLIB_IRQCHIP
+  Depends on [n]: GPIOLIB [=n]
+  Selected by [y]:
+  - PINCTRL_BCM2835 [=y] && PINCTRL [=y] && OF [=y] && (ARCH_BCM2835 [=n] || ARCH_BRCMSTB [=n] || COMPILE_TEST [=y])
 
-Note: It doesn't fix the problem for bypassed regulators, though.
+The reason is that PINCTRL_BCM2835 selects GPIOLIB_IRQCHIP without
+depending on or selecting GPIOLIB while GPIOLIB_IRQCHIP is subordinate to
+GPIOLIB.
 
-Fixes: 45389c47526d ("regulator: core: Add early supply resolution for regulators")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/ba09e0a8617ffeeb25cb4affffe6f3149319cef8.1601155770.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: 85ae9e512f43 ("pinctrl: bcm2835: switch to GPIOLIB_IRQCHIP")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://lore.kernel.org/r/20200914144025.371370-1-fazilyildiran@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/pinctrl/bcm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 7ff507ec875a8..4859cf84c0b2f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5256,15 +5256,20 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	else if (regulator_desc->supply_name)
- 		rdev->supply_name = regulator_desc->supply_name;
- 
--	/*
--	 * Attempt to resolve the regulator supply, if specified,
--	 * but don't return an error if we fail because we will try
--	 * to resolve it again later as more regulators are added.
--	 */
--	if (regulator_resolve_supply(rdev))
--		rdev_dbg(rdev, "unable to resolve supply\n");
--
- 	ret = set_machine_constraints(rdev, constraints);
-+	if (ret == -EPROBE_DEFER) {
-+		/* Regulator might be in bypass mode and so needs its supply
-+		 * to set the constraints */
-+		/* FIXME: this currently triggers a chicken-and-egg problem
-+		 * when creating -SUPPLY symlink in sysfs to a regulator
-+		 * that is just being created */
-+		ret = regulator_resolve_supply(rdev);
-+		if (!ret)
-+			ret = set_machine_constraints(rdev, constraints);
-+		else
-+			rdev_dbg(rdev, "unable to resolve supply early: %pe\n",
-+				 ERR_PTR(ret));
-+	}
- 	if (ret < 0)
- 		goto wash;
- 
+diff --git a/drivers/pinctrl/bcm/Kconfig b/drivers/pinctrl/bcm/Kconfig
+index dcf7df797af75..0ed14de0134cf 100644
+--- a/drivers/pinctrl/bcm/Kconfig
++++ b/drivers/pinctrl/bcm/Kconfig
+@@ -23,6 +23,7 @@ config PINCTRL_BCM2835
+ 	select PINMUX
+ 	select PINCONF
+ 	select GENERIC_PINCONF
++	select GPIOLIB
+ 	select GPIOLIB_IRQCHIP
+ 	default ARCH_BCM2835 || ARCH_BRCMSTB
+ 	help
 -- 
 2.25.1
 
