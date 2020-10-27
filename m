@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B1F29AE4A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEAB29AE4B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753175AbgJ0N6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
+        id S2409735AbgJ0N6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:58:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753160AbgJ0N6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:42 -0400
+        id S1753169AbgJ0N6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E18A2068D;
-        Tue, 27 Oct 2020 13:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1164E2068D;
+        Tue, 27 Oct 2020 13:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807121;
-        bh=jaeXt/FkLDFITwi/Nn+Sla2SjRx+LBWUihU6Cd0kae4=;
+        s=default; t=1603807124;
+        bh=KosNPV72kowdq3WJsyQKyMqfTD132vjbfFitmoWx/4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f07dlIvBHXFmyQdnWYYRcTl8zj7FlFWhEJH7y5aprgZ3rJ0cV6v6NhvUjZ1RyHdjS
-         XrKfs0+1ZEFpGovSdkPDQc+HxnWfvC3E6MbJtS6ldOlVfieKpdFV7F0MQYK4vMJeLU
-         ITdo5pQ2HIocaZHqXLqb5anO5idy9SMVoYZt9N5U=
+        b=i4LiQyKyhXm0sx7CLmJqD9ZoEBSFm+eMSrUjJb9L813nqOZaXYw3UztSfxz4ZgLQh
+         F+/Yg9AS01Go0ULRqZ7+NCDv6NVSxaDVIecfOWWAtqcL/WPYW8a0VXfIlcFaQ+qfQz
+         J+TrnRD5reXJIHHzfU4y+mOzHi93+FxRTANeezBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 050/112] nl80211: fix non-split wiphy information
-Date:   Tue, 27 Oct 2020 14:49:20 +0100
-Message-Id: <20201027134902.931924164@linuxfoundation.org>
+Subject: [PATCH 4.4 051/112] mwifiex: fix double free
+Date:   Tue, 27 Oct 2020 14:49:21 +0100
+Message-Id: <20201027134902.981414532@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -42,47 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit ab10c22bc3b2024f0c9eafa463899a071eac8d97 ]
+[ Upstream commit 53708f4fd9cfe389beab5c8daa763bcd0e0b4aef ]
 
-When dumping wiphy information, we try to split the data into
-many submessages, but for old userspace we still support the
-old mode where this doesn't happen.
+clang static analysis reports this problem:
 
-However, in this case we were not resetting our state correctly
-and dumping multiple messages for each wiphy, which would have
-broken such older userspace.
+sdio.c:2403:3: warning: Attempt to free released memory
+        kfree(card->mpa_rx.buf);
+        ^~~~~~~~~~~~~~~~~~~~~~~
 
-This was broken pretty much immediately afterwards because it
-only worked in the original commit where non-split dumps didn't
-have any more data than split dumps...
+When mwifiex_init_sdio() fails in its first call to
+mwifiex_alloc_sdio_mpa_buffer, it falls back to calling it
+again.  If the second alloc of mpa_tx.buf fails, the error
+handler will try to free the old, previously freed mpa_rx.buf.
+Reviewing the code, it looks like a second double free would
+happen with mwifiex_cleanup_sdio().
 
-Fixes: fe1abafd942f ("nl80211: re-add channel width and extended capa advertising")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200928130717.3e6d9c6bada2.Ie0f151a8d0d00a8e1e18f6a8c9244dd02496af67@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+So set both pointers to NULL when they are freed.
+
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201004131931.29782-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mwifiex/sdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 95366e35ab134..7748d674677c9 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -1672,7 +1672,10 @@ static int nl80211_send_wiphy(struct cfg80211_registered_device *rdev,
- 		 * case we'll continue with more data in the next round,
- 		 * but break unconditionally so unsplit data stops here.
- 		 */
--		state->split_start++;
-+		if (state->split)
-+			state->split_start++;
-+		else
-+			state->split_start = 0;
- 		break;
- 	case 9:
- 		if (rdev->wiphy.extended_capabilities &&
+diff --git a/drivers/net/wireless/mwifiex/sdio.c b/drivers/net/wireless/mwifiex/sdio.c
+index 78a8474e1a3dc..abfe4e8700ed3 100644
+--- a/drivers/net/wireless/mwifiex/sdio.c
++++ b/drivers/net/wireless/mwifiex/sdio.c
+@@ -1928,6 +1928,8 @@ static int mwifiex_alloc_sdio_mpa_buffers(struct mwifiex_adapter *adapter,
+ 		kfree(card->mpa_rx.buf);
+ 		card->mpa_tx.buf_size = 0;
+ 		card->mpa_rx.buf_size = 0;
++		card->mpa_tx.buf = NULL;
++		card->mpa_rx.buf = NULL;
+ 	}
+ 
+ 	return ret;
 -- 
 2.25.1
 
