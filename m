@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590C829C677
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 876A229C673
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826236AbgJ0SRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60676 "EHLO mail.kernel.org"
+        id S1826214AbgJ0SRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756115AbgJ0OLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:11:24 -0400
+        id S1756137AbgJ0OLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:11:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 256D922202;
-        Tue, 27 Oct 2020 14:11:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 095C922263;
+        Tue, 27 Oct 2020 14:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807883;
-        bh=PM2dthYK7xifipoivOqETOraQQVTdcywJXTnIu7RzPs=;
+        s=default; t=1603807886;
+        bh=R5WwB35OSvpOm+puuGbuhDqJWKmkDRTyYpbiwGVu/2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAQJpaheH50hrofvmKX0+yTxshdd+neMudzXZFybgtRrbS/IyoiKsI99kfOHnIqG3
-         hEjsZo+/rwXHVQSjoLXqE2/Lw7f4RYHsQF0+WbzB3B9B59b1ZgnPG1H/s1vEH5wQ4C
-         kt8WzYzjWDauz7pbVqq+HN9DQbeapb1GttfyB/x8=
+        b=b9Xf4F14R1bA0cigcs5IHXO5cesRtR3ItzWnE7hHJQyCNGyGdyWOR0dwY7V4uyrWt
+         yXbNdh+BZ53GDwiNJbVQhncAkQejDkrR9JtDhCh3pt9x0eH6ViTwIXTe+ieaHAW28V
+         JAFM6VtCRG1vRM96ey9tWR6KXPXdPt0QI5td+tXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/191] usb: gadget: u_ether: enable qmult on SuperSpeed Plus as well
-Date:   Tue, 27 Oct 2020 14:48:52 +0100
-Message-Id: <20201027134913.404821399@linuxfoundation.org>
+Subject: [PATCH 4.14 078/191] nl80211: fix non-split wiphy information
+Date:   Tue, 27 Oct 2020 14:48:53 +0100
+Message-Id: <20201027134913.446900943@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -45,51 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Colitti <lorenzo@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4eea21dc67b0c6ba15ae41b1defa113a680a858e ]
+[ Upstream commit ab10c22bc3b2024f0c9eafa463899a071eac8d97 ]
 
-The u_ether driver has a qmult setting that multiplies the
-transmit queue length (which by default is 2).
+When dumping wiphy information, we try to split the data into
+many submessages, but for old userspace we still support the
+old mode where this doesn't happen.
 
-The intent is that it should be enabled at high/super speed, but
-because the code does not explicitly check for USB_SUPER_PLUS,
-it is disabled at that speed.
+However, in this case we were not resetting our state correctly
+and dumping multiple messages for each wiphy, which would have
+broken such older userspace.
 
-Fix this by ensuring that the queue multiplier is enabled for any
-wired link at high speed or above. Using >= for USB_SPEED_*
-constants seems correct because it is what the gadget_is_xxxspeed
-functions do.
+This was broken pretty much immediately afterwards because it
+only worked in the original commit where non-split dumps didn't
+have any more data than split dumps...
 
-The queue multiplier substantially helps performance at higher
-speeds. On a direct SuperSpeed Plus link to a Linux laptop,
-iperf3 single TCP stream:
-
-Before (qmult=1): 1.3 Gbps
-After  (qmult=5): 3.2 Gbps
-
-Fixes: 04617db7aa68 ("usb: gadget: add SS descriptors to Ethernet gadget")
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: fe1abafd942f ("nl80211: re-add channel width and extended capa advertising")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200928130717.3e6d9c6bada2.Ie0f151a8d0d00a8e1e18f6a8c9244dd02496af67@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/nl80211.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 81d84e0c3c6cd..716edd593a994 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -97,7 +97,7 @@ struct eth_dev {
- static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
- {
- 	if (gadget_is_dualspeed(gadget) && (gadget->speed == USB_SPEED_HIGH ||
--					    gadget->speed == USB_SPEED_SUPER))
-+					    gadget->speed >= USB_SPEED_SUPER))
- 		return qmult * DEFAULT_QLEN;
- 	else
- 		return DEFAULT_QLEN;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index bf3caa376f9fe..6bd4f6c8fc2ef 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -1784,7 +1784,10 @@ static int nl80211_send_wiphy(struct cfg80211_registered_device *rdev,
+ 		 * case we'll continue with more data in the next round,
+ 		 * but break unconditionally so unsplit data stops here.
+ 		 */
+-		state->split_start++;
++		if (state->split)
++			state->split_start++;
++		else
++			state->split_start = 0;
+ 		break;
+ 	case 9:
+ 		if (rdev->wiphy.extended_capabilities &&
 -- 
 2.25.1
 
