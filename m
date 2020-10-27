@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 366CD29BCAD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ADA529BE3A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1810988AbgJ0Qgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S1794253AbgJ0PKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801894AbgJ0Po6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:44:58 -0400
+        id S368015AbgJ0PJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:09:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE78B22400;
-        Tue, 27 Oct 2020 15:44:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 678D620657;
+        Tue, 27 Oct 2020 15:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813482;
-        bh=hg5dNERNp39E82siiRmg5UI3KvzKjddXU4Hf7fOLtG4=;
+        s=default; t=1603811386;
+        bh=sJdj1y2IIrk/4e9GcM3TwcMPmA8GTSIhJ/jnAqLCPvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0URN1wnY0RS7cr3QaTdm6JFsmvQsYkZZQRTvlqMj1sf+SyfNARO2oqVP6mWIkP3f
-         mIRF7VBFCknBB01yPdMeMcHOQiR0TOZ0EZpX0EhLdfI3Cy1wEVgSEX31+CK8ezloJq
-         22HKisM+V89W8G63dXwEG25xrjXwtket53A+zK9U=
+        b=gSHr0eC9KYSWkE/9066Rx7FpyNx8GLP48b38VJ53qx0WooGWO/JnCeqH3yXhqelwj
+         2688FMQJop9rxiKPhq4Y51p+GB9720ugNCFOYvtKRM2IKDSMu04h4MSdr+bUqIw/PK
+         zqLZn1+I7G4RNa+ai+eJD/PouYSElvUP5z5xkJTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 566/757] Input: omap4-keypad - fix handling of platform_get_irq() error
-Date:   Tue, 27 Oct 2020 14:53:36 +0100
-Message-Id: <20201027135517.055123868@linuxfoundation.org>
+Subject: [PATCH 5.8 474/633] scsi: bfa: Fix error return in bfad_pci_init()
+Date:   Tue, 27 Oct 2020 14:53:37 +0100
+Message-Id: <20201027135544.974347007@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 4738dd1992fa13acfbbd71800c71c612f466fa44 ]
+[ Upstream commit f0f6c3a4fcb80fcbcce4ff6739996dd98c228afd ]
 
-platform_get_irq() returns -ERRNO on error.  In such case comparison
-to 0 would pass the check.
+Fix to return error code -ENODEV from the error handling case instead of 0.
 
-Fixes: f3a1ba60dbdb ("Input: omap4-keypad - use platform device helpers")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20200828145744.3636-2-krzk@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200925062423.161504-1-jingxiangfeng@huawei.com
+Fixes: 11ea3824140c ("scsi: bfa: fix calls to dma_set_mask_and_coherent()")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/omap4-keypad.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/bfa/bfad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 94c94d7f5155f..d6c924032aaa8 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -240,10 +240,8 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+diff --git a/drivers/scsi/bfa/bfad.c b/drivers/scsi/bfa/bfad.c
+index bc5d84f87d8fc..440ef32be048f 100644
+--- a/drivers/scsi/bfa/bfad.c
++++ b/drivers/scsi/bfa/bfad.c
+@@ -749,6 +749,7 @@ bfad_pci_init(struct pci_dev *pdev, struct bfad_s *bfad)
+ 
+ 	if (bfad->pci_bar0_kva == NULL) {
+ 		printk(KERN_ERR "Fail to map bar0\n");
++		rc = -ENODEV;
+ 		goto out_release_region;
  	}
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "no keyboard irq assigned\n");
--		return -EINVAL;
--	}
-+	if (irq < 0)
-+		return irq;
- 
- 	keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
- 	if (!keypad_data) {
 -- 
 2.25.1
 
