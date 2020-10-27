@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E3929B5AE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36EB029B5B3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794948AbgJ0POd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
+        id S1794986AbgJ0POp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:14:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794941AbgJ0POb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:14:31 -0400
+        id S1794981AbgJ0POn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:14:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2DE120728;
-        Tue, 27 Oct 2020 15:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4151521D41;
+        Tue, 27 Oct 2020 15:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811670;
-        bh=qAnh+vrLGPL7KCrI1zAkhrziG/CFv+LUFxKOfyozpLw=;
+        s=default; t=1603811681;
+        bh=BDNwQRwoRfZPxJGVVrsS9A5kA4VPUPUBVwYYvkvLSsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lzu0oF6YiPWKPhwyM7izkmC43/sEJNCUeQg0vj7KZYEbjNlKY94JYw7JWcqmWJb5Z
-         9pHLheZD02Qw2P4ThWliJJ80ZpyMxkczBLuFSCuEdIWanH7RbUHkmdaAZxBgkkW3nj
-         aEPqf+UCX+Neq+qraYLxQ69uw5CSMsdNnotyzpas=
+        b=h9AvZJvOZxlR6GrM5gdhVCQhbRj6COyFo7JjEBrCRqm1YsgBpaKQA7QMJA0HIvl6t
+         flsFDkvIayJCRSAs3k9HWMGsRdxQI3thFx11k0Jvgf5tP5uVZ6vwyk9FkKoRjetXC7
+         BZX6VpQwlsE93Cn6oZGHbfvnx9iYZSzAz87iP/W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 575/633] USB: cdc-acm: handle broken union descriptors
-Date:   Tue, 27 Oct 2020 14:55:18 +0100
-Message-Id: <20201027135549.779268971@linuxfoundation.org>
+Subject: [PATCH 5.8 578/633] can: flexcan: flexcan_chip_stop(): add error handling and propagate error value
+Date:   Tue, 27 Oct 2020 14:55:21 +0100
+Message-Id: <20201027135549.926563710@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,59 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
+[ Upstream commit 9ad02c7f4f279504bdd38ab706fdc97d5f2b2a9c ]
 
-Handle broken union functional descriptors where the master-interface
-doesn't exist or where its class is of neither Communication or Data
-type (as required by the specification) by falling back to
-"combined-interface" probing.
+This patch implements error handling and propagates the error value of
+flexcan_chip_stop(). This function will be called from flexcan_suspend()
+in an upcoming patch in some SoCs which support LPSR mode.
 
-Note that this still allows for handling union descriptors with switched
-interfaces.
+Add a new function flexcan_chip_stop_disable_on_error() that tries to
+disable the chip even in case of errors.
 
-This specifically makes the Whistler radio scanners TRX series devices
-work with the driver without adding further quirks to the device-id
-table.
-
-Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+[mkl: introduce flexcan_chip_stop_disable_on_error() and use it in flexcan_close()]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20200922144429.2613631-11-mkl@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/can/flexcan.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 7499ba118665a..c02488d469185 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1243,9 +1243,21 @@ static int acm_probe(struct usb_interface *intf,
- 			}
- 		}
- 	} else {
-+		int class = -1;
-+
- 		data_intf_num = union_header->bSlaveInterface0;
- 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
- 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
-+
-+		if (control_interface)
-+			class = control_interface->cur_altsetting->desc.bInterfaceClass;
-+
-+		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
-+			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
-+			combined_interfaces = 1;
-+			control_interface = data_interface = intf;
-+			goto look_for_collapsed_interface;
-+		}
- 	}
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 94d10ec954a05..2ac7a667bde35 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1260,18 +1260,23 @@ static int flexcan_chip_start(struct net_device *dev)
+ 	return err;
+ }
  
- 	if (!control_interface || !data_interface) {
+-/* flexcan_chip_stop
++/* __flexcan_chip_stop
+  *
+- * this functions is entered with clocks enabled
++ * this function is entered with clocks enabled
+  */
+-static void flexcan_chip_stop(struct net_device *dev)
++static int __flexcan_chip_stop(struct net_device *dev, bool disable_on_error)
+ {
+ 	struct flexcan_priv *priv = netdev_priv(dev);
+ 	struct flexcan_regs __iomem *regs = priv->regs;
++	int err;
+ 
+ 	/* freeze + disable module */
+-	flexcan_chip_freeze(priv);
+-	flexcan_chip_disable(priv);
++	err = flexcan_chip_freeze(priv);
++	if (err && !disable_on_error)
++		return err;
++	err = flexcan_chip_disable(priv);
++	if (err && !disable_on_error)
++		goto out_chip_unfreeze;
+ 
+ 	/* Disable all interrupts */
+ 	priv->write(0, &regs->imask2);
+@@ -1281,6 +1286,23 @@ static void flexcan_chip_stop(struct net_device *dev)
+ 
+ 	flexcan_transceiver_disable(priv);
+ 	priv->can.state = CAN_STATE_STOPPED;
++
++	return 0;
++
++ out_chip_unfreeze:
++	flexcan_chip_unfreeze(priv);
++
++	return err;
++}
++
++static inline int flexcan_chip_stop_disable_on_error(struct net_device *dev)
++{
++	return __flexcan_chip_stop(dev, true);
++}
++
++static inline int flexcan_chip_stop(struct net_device *dev)
++{
++	return __flexcan_chip_stop(dev, false);
+ }
+ 
+ static int flexcan_open(struct net_device *dev)
+@@ -1362,7 +1384,7 @@ static int flexcan_close(struct net_device *dev)
+ 
+ 	netif_stop_queue(dev);
+ 	can_rx_offload_disable(&priv->offload);
+-	flexcan_chip_stop(dev);
++	flexcan_chip_stop_disable_on_error(dev);
+ 
+ 	can_rx_offload_del(&priv->offload);
+ 	free_irq(dev->irq, dev);
 -- 
 2.25.1
 
