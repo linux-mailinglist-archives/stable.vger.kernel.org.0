@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E6E29B958
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E573E29B7D5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1766896AbgJ0Pry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
+        id S1796547AbgJ0PTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796483AbgJ0PS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:58 -0400
+        id S1796544AbgJ0PTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:19:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ABE920657;
-        Tue, 27 Oct 2020 15:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2936021527;
+        Tue, 27 Oct 2020 15:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811937;
-        bh=lMBRtfN+x0fEfJw097aAfZfK9fpuRHja5PaQFINeo9w=;
+        s=default; t=1603811957;
+        bh=R5Ah/Z4m1Y4HfCobwLE2cMeMwWKUGcMx0fkl35sJ05U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvRi4nKuXwXxzP1HXZ+bqSAYjGnmSXqBAaN97xahmcsRqxUpjcno7Zj2sOhnIxB6q
-         bjxhv59jjXRWV+uU71tOh2Tb+veQgZoroUSjBT17B9Yd44Tz6LRrfwIfsFNbuqBUkQ
-         x6yBezKhowxOiFCBCKBhvvKT99WrnzI1FnrnmH2s=
+        b=h3Ob7HBIbE8t/Ba7MardaMJ3Ihz7HMREUtHUDi7DbQzeCEFzygZ8zvACMMq2w7LqO
+         Rl+FgKkCkhFLRFKQCN911xGMoO8XVGQC5YgORZgtpd2r2aYilTX7yxnSRdtZDtkAR9
+         tHbxyxyprWPZqSQwTacdEPh+rRsmXR9M8/mVpW94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Vasily Averin <vvs@virtuozzo.com>, Yonghong Song <yhs@fb.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 008/757] net: dsa: microchip: fix race condition
-Date:   Tue, 27 Oct 2020 14:44:18 +0100
-Message-Id: <20201027135450.919986318@linuxfoundation.org>
+Subject: [PATCH 5.9 011/757] net: fix pos incrementment in ipv6_route_seq_next
+Date:   Tue, 27 Oct 2020 14:44:21 +0100
+Message-Id: <20201027135451.058382477@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,112 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 8098bd69bc4e925070313b1b95d03510f4f24738 ]
+[ Upstream commit 6617dfd440149e42ce4d2be615eb31a4755f4d30 ]
 
-Between queuing the delayed work and finishing the setup of the dsa
-ports, the process may sleep in request_module() (via
-phy_device_create()) and the queued work may be executed prior to the
-switch net devices being registered. In ksz_mib_read_work(), a NULL
-dereference will happen within netof_carrier_ok(dp->slave).
+Commit 4fc427e05158 ("ipv6_route_seq_next should increase position index")
+tried to fix the issue where seq_file pos is not increased
+if a NULL element is returned with seq_ops->next(). See bug
+  https://bugzilla.kernel.org/show_bug.cgi?id=206283
+The commit effectively does:
+  - increase pos for all seq_ops->start()
+  - increase pos for all seq_ops->next()
 
-Not queuing the delayed work in ksz_init_mib_timer() makes things even
-worse because the work will now be queued for immediate execution
-(instead of 2000 ms) in ksz_mac_link_down() via
-dsa_port_link_register_of().
+For ipv6_route, increasing pos for all seq_ops->next() is correct.
+But increasing pos for seq_ops->start() is not correct
+since pos is used to determine how many items to skip during
+seq_ops->start():
+  iter->skip = *pos;
+seq_ops->start() just fetches the *current* pos item.
+The item can be skipped only after seq_ops->show() which essentially
+is the beginning of seq_ops->next().
 
-Call tree:
-ksz9477_i2c_probe()
-\--ksz9477_switch_register()
-   \--ksz_switch_register()
-      +--dsa_register_switch()
-      |  \--dsa_switch_probe()
-      |     \--dsa_tree_setup()
-      |        \--dsa_tree_setup_switches()
-      |           +--dsa_switch_setup()
-      |           |  +--ksz9477_setup()
-      |           |  |  \--ksz_init_mib_timer()
-      |           |  |     |--/* Start the timer 2 seconds later. */
-      |           |  |     \--schedule_delayed_work(&dev->mib_read, msecs_to_jiffies(2000));
-      |           |  \--__mdiobus_register()
-      |           |     \--mdiobus_scan()
-      |           |        \--get_phy_device()
-      |           |           +--get_phy_id()
-      |           |           \--phy_device_create()
-      |           |              |--/* sleeping, ksz_mib_read_work() can be called meanwhile */
-      |           |              \--request_module()
-      |           |
-      |           \--dsa_port_setup()
-      |              +--/* Called for non-CPU ports */
-      |              +--dsa_slave_create()
-      |              |  +--/* Too late, ksz_mib_read_work() may be called beforehand */
-      |              |  \--port->slave = ...
-      |             ...
-      |              +--Called for CPU port */
-      |              \--dsa_port_link_register_of()
-      |                 \--ksz_mac_link_down()
-      |                    +--/* mib_read must be initialized here */
-      |                    +--/* work is already scheduled, so it will be executed after 2000 ms */
-      |                    \--schedule_delayed_work(&dev->mib_read, 0);
-      \-- /* here port->slave is setup properly, scheduling the delayed work should be safe */
+For example, I have 7 ipv6 route entries,
+  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=4096
+  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
+  fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0
+  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
+  00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo
+  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
+  ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000004 00000000 00000001     eth0
+  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
+  0+1 records in
+  0+1 records out
+  1050 bytes (1.0 kB, 1.0 KiB) copied, 0.00707908 s, 148 kB/s
+  root@arch-fb-vm1:~/net-next
 
-Solution:
-1. Do not queue (only initialize) delayed work in ksz_init_mib_timer().
-2. Only queue delayed work in ksz_mac_link_down() if init is completed.
-3. Queue work once in ksz_switch_register(), after dsa_register_switch()
-has completed.
+In the above, I specify buffer size 4096, so all records can be returned
+to user space with a single trip to the kernel.
 
-Fixes: 7c6ff470aa86 ("net: dsa: microchip: add MIB counter reading support")
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+If I use buffer size 128, since each record size is 149, internally
+kernel seq_read() will read 149 into its internal buffer and return the data
+to user space in two read() syscalls. Then user read() syscall will trigger
+next seq_ops->start(). Since the current implementation increased pos even
+for seq_ops->start(), it will skip record #2, #4 and #6, assuming the first
+record is #1.
+
+  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=128
+  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
+  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
+  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
+  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
+4+1 records in
+4+1 records out
+600 bytes copied, 0.00127758 s, 470 kB/s
+
+To fix the problem, create a fake pos pointer so seq_ops->start()
+won't actually increase seq_file pos. With this fix, the
+above `dd` command with `bs=128` will show correct result.
+
+Fixes: 4fc427e05158 ("ipv6_route_seq_next should increase position index")
+Cc: Alexei Starovoitov <ast@kernel.org>
+Suggested-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/microchip/ksz_common.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/ipv6/ip6_fib.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/microchip/ksz_common.c
-+++ b/drivers/net/dsa/microchip/ksz_common.c
-@@ -103,14 +103,8 @@ void ksz_init_mib_timer(struct ksz_devic
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -2618,8 +2618,10 @@ static void *ipv6_route_seq_start(struct
+ 	iter->skip = *pos;
  
- 	INIT_DELAYED_WORK(&dev->mib_read, ksz_mib_read_work);
- 
--	/* Read MIB counters every 30 seconds to avoid overflow. */
--	dev->mib_read_interval = msecs_to_jiffies(30000);
--
- 	for (i = 0; i < dev->mib_port_cnt; i++)
- 		dev->dev_ops->port_init_cnt(dev, i);
--
--	/* Start the timer 2 seconds later. */
--	schedule_delayed_work(&dev->mib_read, msecs_to_jiffies(2000));
- }
- EXPORT_SYMBOL_GPL(ksz_init_mib_timer);
- 
-@@ -143,7 +137,9 @@ void ksz_mac_link_down(struct dsa_switch
- 
- 	/* Read all MIB counters when the link is going down. */
- 	p->read = true;
--	schedule_delayed_work(&dev->mib_read, 0);
-+	/* timer started */
-+	if (dev->mib_read_interval)
-+		schedule_delayed_work(&dev->mib_read, 0);
- }
- EXPORT_SYMBOL_GPL(ksz_mac_link_down);
- 
-@@ -450,6 +446,12 @@ int ksz_switch_register(struct ksz_devic
- 		return ret;
+ 	if (iter->tbl) {
++		loff_t p = 0;
++
+ 		ipv6_route_seq_setup_walk(iter, net);
+-		return ipv6_route_seq_next(seq, NULL, pos);
++		return ipv6_route_seq_next(seq, NULL, &p);
+ 	} else {
+ 		return NULL;
  	}
- 
-+	/* Read MIB counters every 30 seconds to avoid overflow. */
-+	dev->mib_read_interval = msecs_to_jiffies(30000);
-+
-+	/* Start the MIB timer. */
-+	schedule_delayed_work(&dev->mib_read, 0);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(ksz_switch_register);
 
 
