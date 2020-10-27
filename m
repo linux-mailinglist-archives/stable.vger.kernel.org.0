@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E574D29B6B3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0075129B6B5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797549AbgJ0PYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:24:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39362 "EHLO mail.kernel.org"
+        id S1797557AbgJ0PYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:24:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797544AbgJ0PYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:24:11 -0400
+        id S1797553AbgJ0PYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:24:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 091222064B;
-        Tue, 27 Oct 2020 15:24:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC40A2076D;
+        Tue, 27 Oct 2020 15:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812250;
-        bh=VitCNCnm2PdOaN+4NNPWrEppCPm9mOX6qz7NXtaDPgE=;
+        s=default; t=1603812253;
+        bh=EtXc800yDwp/VrsePCCRwRCBnP1AGikrAF3ru1DVMMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8GX5HdvMUAJIh7Chnv2qjIl72QeORSXRx6+BlcZ/sZGBAjQDWVdgiEzGk0kY9KwQ
-         4xox0NBzTU8oW2dv/CM4MqbFoc4daRhW5pTNKB0wbVNY1hGq8kfZjnf3vaobrSC32D
-         ppfEfZEhHB4kMWmivGNNQMDuUp2ulw98cNCgJ4Rs=
+        b=NbhIRE8d56JMZXjd5huoTOPyqjXcRpBLTeJl6o2S19g00D/lD+113EyyqJDDtgdMu
+         rGgoSk8GaETWkjDSQuqgmQZX4CQmgooMc2ZEgadK3zg5BNwWXLqyR/O7kxmpia8b0L
+         tfezeqoj4vw+SvycnW25sl53SmAamDjUKmHyzaMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maulik Shah <mkshah@codeaurora.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kim Phillips <kim.phillips@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 112/757] pinctrl: qcom: Use return value from irq_set_wake() call
-Date:   Tue, 27 Oct 2020 14:46:02 +0100
-Message-Id: <20201027135455.823853632@linuxfoundation.org>
+Subject: [PATCH 5.9 113/757] perf/x86: Fix n_pair for cancelled txn
+Date:   Tue, 27 Oct 2020 14:46:03 +0100
+Message-Id: <20201027135455.870200974@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,56 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maulik Shah <mkshah@codeaurora.org>
+[ Upstream commit 871a93b0aad65a7f44ee25f2d17932ef6d559850 ]
 
-[ Upstream commit f41aaca593377a4fe3984459fd4539481263b4cd ]
+Kan reported that n_metric gets corrupted for cancelled transactions;
+a similar issue exists for n_pair for AMD's Large Increment thing.
 
-msmgpio irqchip was not using return value of irq_set_irq_wake() callback
-since previously GIC-v3 irqchip neither had IRQCHIP_SKIP_SET_WAKE flag nor
-it implemented .irq_set_wake callback. This lead to irq_set_irq_wake()
-return error -ENXIO.
+The problem was confirmed and confirmed fixed by Kim using:
 
-However from 'commit 4110b5cbb014 ("irqchip/gic-v3: Allow interrupt to be
-configured as wake-up sources")' GIC irqchip has IRQCHIP_SKIP_SET_WAKE
-flag.
+  sudo perf stat -e "{cycles,cycles,cycles,cycles}:D" -a sleep 10 &
 
-Use return value from irq_set_irq_wake() and irq_chip_set_wake_parent()
-instead of always returning success.
+  # should succeed:
+  sudo perf stat -e "{fp_ret_sse_avx_ops.all}:D" -a workload
 
-Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
-Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/1601267524-20199-3-git-send-email-mkshah@codeaurora.org
+  # should fail:
+  sudo perf stat -e "{fp_ret_sse_avx_ops.all,fp_ret_sse_avx_ops.all,cycles}:D" -a workload
+
+  # previously failed, now succeeds with this patch:
+  sudo perf stat -e "{fp_ret_sse_avx_ops.all}:D" -a workload
+
+Fixes: 5738891229a2 ("perf/x86/amd: Add support for Large Increment per Cycle Events")
+Reported-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lkml.kernel.org/r/20201005082516.GG2628@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-msm.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/x86/events/core.c       | 6 +++++-
+ arch/x86/events/perf_event.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
-index 1c23f5c88fdd4..1df232266f63a 100644
---- a/drivers/pinctrl/qcom/pinctrl-msm.c
-+++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-@@ -1077,12 +1077,10 @@ static int msm_gpio_irq_set_wake(struct irq_data *d, unsigned int on)
- 	 * when TLMM is powered on. To allow that, enable the GPIO
- 	 * summary line to be wakeup capable at GIC.
- 	 */
--	if (d->parent_data)
--		irq_chip_set_wake_parent(d, on);
--
--	irq_set_irq_wake(pctrl->irq, on);
-+	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
-+		return irq_chip_set_wake_parent(d, on);
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index 1cbf57dc2ac89..11bbc6590f904 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -1087,8 +1087,10 @@ static int collect_events(struct cpu_hw_events *cpuc, struct perf_event *leader,
  
--	return 0;
-+	return irq_set_irq_wake(pctrl->irq, on);
+ 		cpuc->event_list[n] = event;
+ 		n++;
+-		if (is_counter_pair(&event->hw))
++		if (is_counter_pair(&event->hw)) {
+ 			cpuc->n_pair++;
++			cpuc->n_txn_pair++;
++		}
+ 	}
+ 	return n;
+ }
+@@ -1962,6 +1964,7 @@ static void x86_pmu_start_txn(struct pmu *pmu, unsigned int txn_flags)
+ 
+ 	perf_pmu_disable(pmu);
+ 	__this_cpu_write(cpu_hw_events.n_txn, 0);
++	__this_cpu_write(cpu_hw_events.n_txn_pair, 0);
  }
  
- static int msm_gpio_irq_reqres(struct irq_data *d)
+ /*
+@@ -1987,6 +1990,7 @@ static void x86_pmu_cancel_txn(struct pmu *pmu)
+ 	 */
+ 	__this_cpu_sub(cpu_hw_events.n_added, __this_cpu_read(cpu_hw_events.n_txn));
+ 	__this_cpu_sub(cpu_hw_events.n_events, __this_cpu_read(cpu_hw_events.n_txn));
++	__this_cpu_sub(cpu_hw_events.n_pair, __this_cpu_read(cpu_hw_events.n_txn_pair));
+ 	perf_pmu_enable(pmu);
+ }
+ 
+diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
+index 7b68ab5f19e76..0e74235cdac9e 100644
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -210,6 +210,7 @@ struct cpu_hw_events {
+ 					     they've never been enabled yet */
+ 	int			n_txn;    /* the # last events in the below arrays;
+ 					     added in the current transaction */
++	int			n_txn_pair;
+ 	int			assign[X86_PMC_IDX_MAX]; /* event to counter assignment */
+ 	u64			tags[X86_PMC_IDX_MAX];
+ 
 -- 
 2.25.1
 
