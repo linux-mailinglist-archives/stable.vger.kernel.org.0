@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C13729C698
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 690A229C59A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827110AbgJ0SVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51302 "EHLO mail.kernel.org"
+        id S1753759AbgJ0OCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753947AbgJ0ODK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:03:10 -0400
+        id S1753756AbgJ0OCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC8B2222C;
-        Tue, 27 Oct 2020 14:03:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BF2B2224A;
+        Tue, 27 Oct 2020 14:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807390;
-        bh=sfL6G2Y/z9x8rEL+SjrEfC/mODkBAD3Iysx7cVHV0YQ=;
+        s=default; t=1603807319;
+        bh=/WsUa2OOojRGBDJy0pe3KbdMoZWkhv7tK3wKYYFBhBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ongHX3xi5VLiGoTrCrmeQ82u/W97HRkrMXP4kGH2dweE8z0uShTnfhWU7I8Tko/dL
-         WX1Wvd+GEZPA+kwcsdgA2vRVqW15KR/aZ8Kuba+JIhEAacX9Ehe8f7ndxeW76agPI6
-         Mve/zWCtr0RkaFwAjhO+b8JdJuozrCMx/BK77TtI=
+        b=eDPjjOXLq0UtexBSTMfZCWrqUIPEtLdUifr/UIFEIeNrf+JvtJwHCN0Uh0MDFq480
+         jQgd2t2hV7yEoSUIRnkXjxfGgb1NwI1uw2TADTecCWsleURJuTJ0dd2Dqd8cwqe3Sh
+         SITsAWMnrldNMrD2M/acWON43UxVYH2bzO5aYvUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 006/139] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
-Date:   Tue, 27 Oct 2020 14:48:20 +0100
-Message-Id: <20201027134902.454609983@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 010/139] icmp: randomize the global rate limiter
+Date:   Tue, 27 Oct 2020 14:48:24 +0100
+Message-Id: <20201027134902.630158041@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -43,56 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
+[ Upstream commit b38e7819cae946e2edf869e604af1e65a5d241c5 ]
 
-The hdlc_rcv function is used as hdlc_packet_type.func to process any
-skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
-The purpose of this function is to provide second-stage processing for
-skbs not assigned a "real" L3 skb->protocol value in the first stage.
+Keyu Man reported that the ICMP rate limiter could be used
+by attackers to get useful signal. Details will be provided
+in an upcoming academic publication.
 
-This function assumes the device from which the skb is received is an
-HDLC device (a device created by this module). It assumes that
-netdev_priv(dev) returns a pointer to "struct hdlc_device".
+Our solution is to add some noise, so that the attackers
+no longer can get help from the predictable token bucket limiter.
 
-However, it is possible that some driver in the kernel (not necessarily
-in our control) submits a received skb with skb->protocol ==
-htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
-still be received by hdlc_rcv. This will cause problems.
-
-hdlc_rcv should be able to recognize and drop invalid skbs. It should
-first make sure "dev" is actually an HDLC device, before starting its
-processing. This patch adds this check to hdlc_rcv.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
+Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ Documentation/networking/ip-sysctl.txt |    4 +++-
+ net/ipv4/icmp.c                        |    7 +++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wan/hdlc.c
-+++ b/drivers/net/wan/hdlc.c
-@@ -57,7 +57,15 @@ int hdlc_change_mtu(struct net_device *d
- static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
- 		    struct packet_type *p, struct net_device *orig_dev)
- {
--	struct hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct hdlc_device *hdlc;
-+
-+	/* First make sure "dev" is an HDLC device */
-+	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
-+		kfree_skb(skb);
-+		return NET_RX_SUCCESS;
-+	}
-+
-+	hdlc = dev_to_hdlc(dev);
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -887,12 +887,14 @@ icmp_ratelimit - INTEGER
+ icmp_msgs_per_sec - INTEGER
+ 	Limit maximal number of ICMP packets sent per second from this host.
+ 	Only messages whose type matches icmp_ratemask (see below) are
+-	controlled by this limit.
++	controlled by this limit. For security reasons, the precise count
++	of messages per second is randomized.
+ 	Default: 1000
  
- 	if (!net_eq(dev_net(dev), &init_net)) {
- 		kfree_skb(skb);
+ icmp_msgs_burst - INTEGER
+ 	icmp_msgs_per_sec controls number of ICMP packets sent per second,
+ 	while icmp_msgs_burst controls the burst size of these packets.
++	For security reasons, the precise burst size is randomized.
+ 	Default: 50
+ 
+ icmp_ratemask - INTEGER
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -246,7 +246,7 @@ static struct {
+ /**
+  * icmp_global_allow - Are we allowed to send one more ICMP message ?
+  *
+- * Uses a token bucket to limit our ICMP messages to sysctl_icmp_msgs_per_sec.
++ * Uses a token bucket to limit our ICMP messages to ~sysctl_icmp_msgs_per_sec.
+  * Returns false if we reached the limit and can not send another packet.
+  * Note: called with BH disabled
+  */
+@@ -274,7 +274,10 @@ bool icmp_global_allow(void)
+ 	}
+ 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
+ 	if (credit) {
+-		credit--;
++		/* We want to use a credit of one in average, but need to randomize
++		 * it for security reasons.
++		 */
++		credit = max_t(int, credit - prandom_u32_max(3), 0);
+ 		rc = true;
+ 	}
+ 	WRITE_ONCE(icmp_global.credit, credit);
 
 
