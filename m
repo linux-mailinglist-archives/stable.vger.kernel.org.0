@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 943C329BDD5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0F929BC73
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1801538AbgJ0QrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:47:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
+        id S1802505AbgJ0Qcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794937AbgJ0PO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:14:28 -0400
+        id S1802495AbgJ0Ptm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:49:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDA4420657;
-        Tue, 27 Oct 2020 15:14:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1E4D2065C;
+        Tue, 27 Oct 2020 15:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811667;
-        bh=/VH/Uh4ppG8CqszpVW7ftboKw3ENRADID/FSq+mRDz4=;
+        s=default; t=1603813781;
+        bh=+m6xu3aGhCkPp0WNGUiov9exqKq/HXvY0saNarZFAsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yC1S8QGCKxJN0jxzTa+CRdMmsKsCsIjsuwlfDtYetpGQay904hQ9070bQRRjDxYcP
-         QYNQZ69mCRGxlncYjRjcNQIVAbTwSOuSpAl9QDnuKCyUiQFlpuIqcDTKDxhpCFdFHn
-         BDvbKBuowKvZj0oV+3hvYYmvKxbRkKzDLdiLbdmg=
+        b=S5klYYxbznFLEn/3S4xNL0xELm/2Lh3z9sZOE0g0GCbEwiPcVfkRul0XiXHN/S17G
+         kB6ajr9hHnpRjCrecApYeVdknA9q5x3fJiVIZnjpfhjL79FaHGVgB/S1RmOZWRBiMy
+         H0fsrI+K2F4P/1EBjm06w6FZRna0na5COv7ejVd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Maguire <alan.maguire@oracle.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Vikash Garodia <vgarodia@codeaurora.org>,
+        Fritz Koenig <frkoenig@chromium.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 574/633] selftests/bpf: Fix overflow tests to reflect iter size increase
-Date:   Tue, 27 Oct 2020 14:55:17 +0100
-Message-Id: <20201027135549.734594680@linuxfoundation.org>
+Subject: [PATCH 5.9 668/757] media: venus: fixes for list corruption
+Date:   Tue, 27 Oct 2020 14:55:18 +0100
+Message-Id: <20201027135521.881108348@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Vikash Garodia <vgarodia@codeaurora.org>
 
-[ Upstream commit eb58bbf2e5c7917aa30bf8818761f26bbeeb2290 ]
+[ Upstream commit e1c69c4eef61ffe295b747992c6fd849e6cd747d ]
 
-bpf iter size increase to PAGE_SIZE << 3 means overflow tests assuming
-page size need to be bumped also.
+There are few list handling issues while adding and deleting
+node in the registered buf list in the driver.
+1. list addition - buffer added into the list during buf_init
+while not deleted during cleanup.
+2. list deletion - In capture streamoff, the list was reinitialized.
+As a result, if any node was present in the list, it would
+lead to issue while cleaning up that node during buf_cleanup.
 
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/1601292670-1616-7-git-send-email-alan.maguire@oracle.com
+Corresponding call traces below:
+[  165.751014] Call trace:
+[  165.753541]  __list_add_valid+0x58/0x88
+[  165.757532]  venus_helper_vb2_buf_init+0x74/0xa8 [venus_core]
+[  165.763450]  vdec_buf_init+0x34/0xb4 [venus_dec]
+[  165.768271]  __buf_prepare+0x598/0x8a0 [videobuf2_common]
+[  165.773820]  vb2_core_qbuf+0xb4/0x334 [videobuf2_common]
+[  165.779298]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
+[  165.784053]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
+[  165.789067]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
+[  165.794624]  v4l_qbuf+0x48/0x58
+
+[ 1797.556001] Call trace:
+[ 1797.558516]  __list_del_entry_valid+0x88/0x9c
+[ 1797.562989]  vdec_buf_cleanup+0x54/0x228 [venus_dec]
+[ 1797.568088]  __buf_prepare+0x270/0x8a0 [videobuf2_common]
+[ 1797.573625]  vb2_core_qbuf+0xb4/0x338 [videobuf2_common]
+[ 1797.579082]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
+[ 1797.583830]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
+[ 1797.588843]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
+[ 1797.594389]  v4l_qbuf+0x48/0x58
+
+Signed-off-by: Vikash Garodia <vgarodia@codeaurora.org>
+Reviewed-by: Fritz Koenig <frkoenig@chromium.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/bpf_iter.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/media/platform/qcom/venus/vdec.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-index 87c29dde1cf96..669f195de2fa0 100644
---- a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-+++ b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-@@ -249,7 +249,7 @@ static void test_overflow(bool test_e2big_overflow, bool ret1)
- 	struct bpf_map_info map_info = {};
- 	struct bpf_iter_test_kern4 *skel;
- 	struct bpf_link *link;
--	__u32 page_size;
-+	__u32 iter_size;
- 	char *buf;
+diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
+index 7c4c483d54389..76be14efbfb09 100644
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -1088,8 +1088,6 @@ static int vdec_stop_capture(struct venus_inst *inst)
+ 		break;
+ 	}
  
- 	skel = bpf_iter_test_kern4__open();
-@@ -271,19 +271,19 @@ static void test_overflow(bool test_e2big_overflow, bool ret1)
- 		  "map_creation failed: %s\n", strerror(errno)))
- 		goto free_map1;
+-	INIT_LIST_HEAD(&inst->registeredbufs);
+-
+ 	return ret;
+ }
  
--	/* bpf_seq_printf kernel buffer is one page, so one map
-+	/* bpf_seq_printf kernel buffer is 8 pages, so one map
- 	 * bpf_seq_write will mostly fill it, and the other map
- 	 * will partially fill and then trigger overflow and need
- 	 * bpf_seq_read restart.
- 	 */
--	page_size = sysconf(_SC_PAGE_SIZE);
-+	iter_size = sysconf(_SC_PAGE_SIZE) << 3;
+@@ -1189,6 +1187,14 @@ static int vdec_buf_init(struct vb2_buffer *vb)
+ static void vdec_buf_cleanup(struct vb2_buffer *vb)
+ {
+ 	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
++	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
++	struct venus_buffer *buf = to_venus_buffer(vbuf);
++
++	mutex_lock(&inst->lock);
++	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
++		if (!list_empty(&inst->registeredbufs))
++			list_del_init(&buf->reg_list);
++	mutex_unlock(&inst->lock);
  
- 	if (test_e2big_overflow) {
--		skel->rodata->print_len = (page_size + 8) / 8;
--		expected_read_len = 2 * (page_size + 8);
-+		skel->rodata->print_len = (iter_size + 8) / 8;
-+		expected_read_len = 2 * (iter_size + 8);
- 	} else if (!ret1) {
--		skel->rodata->print_len = (page_size - 8) / 8;
--		expected_read_len = 2 * (page_size - 8);
-+		skel->rodata->print_len = (iter_size - 8) / 8;
-+		expected_read_len = 2 * (iter_size - 8);
- 	} else {
- 		skel->rodata->print_len = 1;
- 		expected_read_len = 2 * 8;
+ 	inst->buf_count--;
+ 	if (!inst->buf_count)
 -- 
 2.25.1
 
