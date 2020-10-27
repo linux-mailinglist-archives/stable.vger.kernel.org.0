@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DB329C2B1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:39:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3DBB29C2AB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1807686AbgJ0Rih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
+        id S1760337AbgJ0Oel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:34:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753718AbgJ0Oeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:34:36 -0400
+        id S1760327AbgJ0Oek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:34:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BDCD20709;
-        Tue, 27 Oct 2020 14:34:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E91207BB;
+        Tue, 27 Oct 2020 14:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809276;
-        bh=fy9N58wjZup82r/EkguW3PAFikuqfdGSsjTn1IAuGoY=;
+        s=default; t=1603809278;
+        bh=uNmru5R0McIAqb9hfvtQsK/oLYb6tyNGhNhQux/IUJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FgJm/7n1KWMW+c0/ooHWy7giK20Dz/0DCuWAyZA9ARcbQxyipCUdy0V+bjfpdtntn
-         mvhjiCSkrM/pNNuOE5iSzo3NiJ/FiGUf9auxJnBI0gG6izd6BDxBzZpFavC9XlUTLx
-         191ieqbzquOkD9ZrOLwjBBsV7q1B7iksD6u0bezQ=
+        b=IXGnIyOsCpBBOWhjGXqKLFOMBBZzuGuerQvP04sx+JkuOtRlSejbhdyVylibtkfIn
+         iId81kWnLa7Keonnbxi5+hkPEGqJDp4sG116svpFt7aPgmKFUpK0gu1yXhNIC1Oc01
+         Z8u9nJ1WkDDqHem16e5FtSlD0SWGluiXZezUVgcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 138/408] ASoC: fsl: imx-es8328: add missing put_device() call in imx_es8328_probe()
-Date:   Tue, 27 Oct 2020 14:51:16 +0100
-Message-Id: <20201027135501.501890393@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 139/408] HID: roccat: add bounds checking in kone_sysfs_write_settings()
+Date:   Tue, 27 Oct 2020 14:51:17 +0100
+Message-Id: <20201027135501.548173207@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,72 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e525db7e4b44c5b2b5aac0dad24e23cb58c54d22 ]
+[ Upstream commit d4f98dbfe717490e771b6e701904bfcf4b4557f0 ]
 
-if of_find_device_by_node() succeed, imx_es8328_probe() doesn't have
-a corresponding put_device(). Thus add a jump target to fix the exception
-handling for this function implementation.
+This code doesn't check if "settings->startup_profile" is within bounds
+and that could result in an out of bounds array access.  What the code
+does do is it checks if the settings can be written to the firmware, so
+it's possible that the firmware has a bounds check?  It's safer and
+easier to verify when the bounds checking is done in the kernel.
 
-Fixes: 7e7292dba215 ("ASoC: fsl: add imx-es8328 machine driver")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20200825130224.1488694-1-yukuai3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 14bf62cde794 ("HID: add driver for Roccat Kone gaming mouse")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-es8328.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/hid/hid-roccat-kone.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-es8328.c b/sound/soc/fsl/imx-es8328.c
-index 15a27a2cd0cae..fad1eb6253d53 100644
---- a/sound/soc/fsl/imx-es8328.c
-+++ b/sound/soc/fsl/imx-es8328.c
-@@ -145,13 +145,13 @@ static int imx_es8328_probe(struct platform_device *pdev)
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
- 	}
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 1a6e600197d0b..509b9bb1362cb 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -294,31 +294,40 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
+ 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 	int retval = 0, difference, old_profile;
++	struct kone_settings *settings = (struct kone_settings *)buf;
  
- 	comp = devm_kzalloc(dev, 3 * sizeof(*comp), GFP_KERNEL);
- 	if (!comp) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
- 	}
+ 	/* I need to get my data in one piece */
+ 	if (off != 0 || count != sizeof(struct kone_settings))
+ 		return -EINVAL;
  
- 	data->dev = dev;
-@@ -182,12 +182,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
- 	ret = snd_soc_of_parse_card_name(&data->card, "model");
- 	if (ret) {
- 		dev_err(dev, "Unable to parse card name\n");
--		goto fail;
-+		goto put_device;
- 	}
- 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
- 	if (ret) {
- 		dev_err(dev, "Unable to parse routing: %d\n", ret);
--		goto fail;
-+		goto put_device;
- 	}
- 	data->card.num_links = 1;
- 	data->card.owner = THIS_MODULE;
-@@ -196,10 +196,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
- 	ret = snd_soc_register_card(&data->card);
- 	if (ret) {
- 		dev_err(dev, "Unable to register: %d\n", ret);
--		goto fail;
-+		goto put_device;
- 	}
+ 	mutex_lock(&kone->kone_lock);
+-	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
++	difference = memcmp(settings, &kone->settings,
++			    sizeof(struct kone_settings));
+ 	if (difference) {
+-		retval = kone_set_settings(usb_dev,
+-				(struct kone_settings const *)buf);
+-		if (retval) {
+-			mutex_unlock(&kone->kone_lock);
+-			return retval;
++		if (settings->startup_profile < 1 ||
++		    settings->startup_profile > 5) {
++			retval = -EINVAL;
++			goto unlock;
+ 		}
  
- 	platform_set_drvdata(pdev, data);
-+put_device:
-+	put_device(&ssi_pdev->dev);
- fail:
- 	of_node_put(ssi_np);
- 	of_node_put(codec_np);
++		retval = kone_set_settings(usb_dev, settings);
++		if (retval)
++			goto unlock;
++
+ 		old_profile = kone->settings.startup_profile;
+-		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
++		memcpy(&kone->settings, settings, sizeof(struct kone_settings));
+ 
+ 		kone_profile_activated(kone, kone->settings.startup_profile);
+ 
+ 		if (kone->settings.startup_profile != old_profile)
+ 			kone_profile_report(kone, kone->settings.startup_profile);
+ 	}
++unlock:
+ 	mutex_unlock(&kone->kone_lock);
+ 
++	if (retval)
++		return retval;
++
+ 	return sizeof(struct kone_settings);
+ }
+ static BIN_ATTR(settings, 0660, kone_sysfs_read_settings,
 -- 
 2.25.1
 
