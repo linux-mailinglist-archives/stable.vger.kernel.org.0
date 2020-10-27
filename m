@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E55929B03B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:17:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0388029B061
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900898AbgJ0ORQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:17:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40274 "EHLO mail.kernel.org"
+        id S1757348AbgJ0OSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:18:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900893AbgJ0ORP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:17:15 -0400
+        id S1757342AbgJ0OSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:18:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 482D02076A;
-        Tue, 27 Oct 2020 14:17:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49EE8206D4;
+        Tue, 27 Oct 2020 14:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808234;
-        bh=U6o2dg07eIMKaLwgIP31/h+VUJoIv+q7JlaXVIgaJcM=;
+        s=default; t=1603808328;
+        bh=LqVkzf69qubHUf5cgRzQHh9MSUlF8AQiryzmyhdvoSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2Cbnv9cR6qB20NZe9Gmj8V7HFsugLHES6xssbmoZwaoT8hw/vPW/VxaVtjyn/0PE
-         tOqKmqQqXj8l3f9Pn7Kkg9MN4v+ocisM4nGSK6Kh8GDNJjhmN7MRZM8G/90+4Ms+N1
-         l+wZ2gUnHWsqzP7PHguon/zmrREmiBdAlVRxaKBY=
+        b=nuke7cK93ZVzIqQUsM290L2HT6WJgzBErNkvwSxHY6VUHZurhZfAqecouIRjjARp0
+         BftJEnZDaWz18/rqE9AMRzrvL21rTMiMl9/XNeXYxcNqrvzyEn3YIgVKLJy9cJ3Dkg
+         D3dTWTglYZ3XgSN2VZLiAIXZfLXdqWdkA6Xt8dzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Vasily Averin <vvs@virtuozzo.com>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 007/264] net: fix pos incrementment in ipv6_route_seq_next
-Date:   Tue, 27 Oct 2020 14:51:05 +0100
-Message-Id: <20201027135431.000640968@linuxfoundation.org>
+Subject: [PATCH 4.19 009/264] net: usb: qmi_wwan: add Cellient MPL200 card
+Date:   Tue, 27 Oct 2020 14:51:07 +0100
+Message-Id: <20201027135431.095642089@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,90 +44,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
 
-[ Upstream commit 6617dfd440149e42ce4d2be615eb31a4755f4d30 ]
+[ Upstream commit 28802e7c0c9954218d1830f7507edc9d49b03a00 ]
 
-Commit 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-tried to fix the issue where seq_file pos is not increased
-if a NULL element is returned with seq_ops->next(). See bug
-  https://bugzilla.kernel.org/show_bug.cgi?id=206283
-The commit effectively does:
-  - increase pos for all seq_ops->start()
-  - increase pos for all seq_ops->next()
+Add usb ids of the Cellient MPL200 card.
 
-For ipv6_route, increasing pos for all seq_ops->next() is correct.
-But increasing pos for seq_ops->start() is not correct
-since pos is used to determine how many items to skip during
-seq_ops->start():
-  iter->skip = *pos;
-seq_ops->start() just fetches the *current* pos item.
-The item can be skipped only after seq_ops->show() which essentially
-is the beginning of seq_ops->next().
-
-For example, I have 7 ipv6 route entries,
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=4096
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000004 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  0+1 records in
-  0+1 records out
-  1050 bytes (1.0 kB, 1.0 KiB) copied, 0.00707908 s, 148 kB/s
-  root@arch-fb-vm1:~/net-next
-
-In the above, I specify buffer size 4096, so all records can be returned
-to user space with a single trip to the kernel.
-
-If I use buffer size 128, since each record size is 149, internally
-kernel seq_read() will read 149 into its internal buffer and return the data
-to user space in two read() syscalls. Then user read() syscall will trigger
-next seq_ops->start(). Since the current implementation increased pos even
-for seq_ops->start(), it will skip record #2, #4 and #6, assuming the first
-record is #1.
-
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=128
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-4+1 records in
-4+1 records out
-600 bytes copied, 0.00127758 s, 470 kB/s
-
-To fix the problem, create a fake pos pointer so seq_ops->start()
-won't actually increase seq_file pos. With this fix, the
-above `dd` command with `bs=128` will show correct result.
-
-Fixes: 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-Cc: Alexei Starovoitov <ast@kernel.org>
-Suggested-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+Acked-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_fib.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2417,8 +2417,10 @@ static void *ipv6_route_seq_start(struct
- 	iter->skip = *pos;
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1312,6 +1312,7 @@ static const struct usb_device_id produc
+ 	{QMI_QUIRK_SET_DTR(0x2cb7, 0x0104, 4)},	/* Fibocom NL678 series */
+ 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
+ 	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
++	{QMI_FIXED_INTF(0x2692, 0x9025, 4)},    /* Cellient MPL200 (rebranded Qualcomm 05c6:9025) */
  
- 	if (iter->tbl) {
-+		loff_t p = 0;
-+
- 		ipv6_route_seq_setup_walk(iter, net);
--		return ipv6_route_seq_next(seq, NULL, pos);
-+		return ipv6_route_seq_next(seq, NULL, &p);
- 	} else {
- 		return NULL;
- 	}
+ 	/* 4. Gobi 1000 devices */
+ 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
 
 
