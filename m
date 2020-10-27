@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C159B29B560
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 611C729B585
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794365AbgJ0PL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:11:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47294 "EHLO mail.kernel.org"
+        id S1794674AbgJ0PNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794361AbgJ0PL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:11:28 -0400
+        id S1794667AbgJ0PM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:12:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E916421D24;
-        Tue, 27 Oct 2020 15:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EABB62224A;
+        Tue, 27 Oct 2020 15:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811487;
-        bh=NY6zUWyp4Q9m1nxkUjRJHZSZytY4h0qUVzUefWcCByo=;
+        s=default; t=1603811577;
+        bh=YHc76Sm6/V24RzPRL7Ym1ZxnoEKtFxRkIKqvne4wozY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4uhN1K2g9x0JyRc7yODcE/0VXg3/FRl99xAyDJHmqkFZwMtBT72p2My0iFZzAcGn
-         qQGJf7QSiEMtOHLdNzkpvq3tYShgEX+5mVliNtF9yhwrHlYDDhWGM59hlNG/B7slXr
-         T8ii7pob+rnwzNWLVbdvYEFT8QGdUNF92Qj1EGtc=
+        b=M/NKa/OkrVZsyeIMSowhswDhz8CwitkdnxZcDkP7y+uK8AimteNHiMjKk48BzAKD4
+         l9eRRB1zljtIY6++yNOZiodLh+0G8I/pS0tqvHAQAlTYFvQpn0kzvHMHW4LJ8ETwVu
+         klBE8x9ZH0+nc7Buc3w6YT8accyfuZsm5Pwr67ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Patrick Delaunay <patrick.delaunay@st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 509/633] ARM: dts: stm32: Move ethernet PHY into DH SoM DT
-Date:   Tue, 27 Oct 2020 14:54:12 +0100
-Message-Id: <20201027135546.613545750@linuxfoundation.org>
+Subject: [PATCH 5.8 515/633] arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
+Date:   Tue, 27 Oct 2020 14:54:18 +0100
+Message-Id: <20201027135546.912998575@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,146 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit b0a07f609600b6fa4c30f783db50c38456804485 ]
+[ Upstream commit 35292518cb0a626fcdcabf739aed75060a018ab5 ]
 
-The PHY and the VIO regulator is populated on the SoM, move it
-into the SoM DT.
+DT binding permits only one compatible string which was decribed in past by
+commit 63cab195bf49 ("i2c: removed work arounds in i2c driver for Zynq
+Ultrascale+ MPSoC").
+The commit aea37006e183 ("dt-bindings: i2c: cadence: Migrate i2c-cadence
+documentation to YAML") has converted binding to yaml and the following
+issues is reported:
+...: i2c@ff030000: compatible: Additional items are not allowed
+('cdns,i2c-r1p10' was unexpected)
+	From schema:
+.../Documentation/devicetree/bindings/i2c/cdns,i2c-r1p10.yaml fds
+...: i2c@ff030000: compatible: ['cdns,i2c-r1p14', 'cdns,i2c-r1p10'] is too
+long
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>
-Cc: Patrick Delaunay <patrick.delaunay@st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+The commit c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+has added the second compatible string but without removing origin one.
+The patch is only keeping one compatible string "cdns,i2c-r1p14".
+
+Fixes: c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/cc294ae1a79ef845af6809ddb4049f0c0f5bb87a.1598259551.git.michal.simek@xilinx.com
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 33 -----------------
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi  | 36 +++++++++++++++++++
- 2 files changed, 36 insertions(+), 33 deletions(-)
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index 7c4bd615b3115..9cf6d90fbf69f 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -11,7 +11,6 @@ aliases {
- 		serial0 = &uart4;
- 		serial1 = &usart3;
- 		serial2 = &uart8;
--		ethernet0 = &ethernet0;
- 	};
- 
- 	chosen {
-@@ -33,16 +32,6 @@ display_bl: display-bl {
- 		status = "okay";
- 	};
- 
--	ethernet_vio: vioregulator {
--		compatible = "regulator-fixed";
--		regulator-name = "vio";
--		regulator-min-microvolt = <3300000>;
--		regulator-max-microvolt = <3300000>;
--		gpio = <&gpiog 3 GPIO_ACTIVE_LOW>;
--		regulator-always-on;
--		regulator-boot-on;
--	};
--
- 	gpio-keys-polled {
- 		compatible = "gpio-keys-polled";
- 		#size-cells = <0>;
-@@ -141,28 +130,6 @@ &cec {
- 	status = "okay";
- };
- 
--&ethernet0 {
--	status = "okay";
--	pinctrl-0 = <&ethernet0_rmii_pins_a>;
--	pinctrl-1 = <&ethernet0_rmii_sleep_pins_a>;
--	pinctrl-names = "default", "sleep";
--	phy-mode = "rmii";
--	max-speed = <100>;
--	phy-handle = <&phy0>;
--	st,eth-ref-clk-sel;
--	phy-reset-gpios = <&gpioh 15 GPIO_ACTIVE_LOW>;
--
--	mdio0 {
--		#address-cells = <1>;
--		#size-cells = <0>;
--		compatible = "snps,dwmac-mdio";
--
--		phy0: ethernet-phy@1 {
--			reg = <1>;
--		};
--	};
--};
--
- &i2c2 {	/* Header X22 */
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c2_pins_a>;
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index ba905196fb549..d30a3c60da9b0 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -9,6 +9,10 @@
- #include <dt-bindings/mfd/st,stpmic1.h>
- 
- / {
-+	aliases {
-+		ethernet0 = &ethernet0;
-+	};
-+
- 	memory@c0000000 {
- 		device_type = "memory";
- 		reg = <0xC0000000 0x40000000>;
-@@ -55,6 +59,16 @@ retram: retram@38000000 {
- 			no-map;
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index 9174ddc76bdc3..b8d04c5748bf3 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -500,7 +500,7 @@ gpio: gpio@ff0a0000 {
  		};
- 	};
-+
-+	ethernet_vio: vioregulator {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vio";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		gpio = <&gpiog 3 GPIO_ACTIVE_LOW>;
-+		regulator-always-on;
-+		regulator-boot-on;
-+	};
- };
  
- &adc {
-@@ -94,6 +108,28 @@ &dts {
- 	status = "okay";
- };
+ 		i2c0: i2c@ff020000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 17 4>;
+@@ -511,7 +511,7 @@ i2c0: i2c@ff020000 {
+ 		};
  
-+&ethernet0 {
-+	status = "okay";
-+	pinctrl-0 = <&ethernet0_rmii_pins_a>;
-+	pinctrl-1 = <&ethernet0_rmii_sleep_pins_a>;
-+	pinctrl-names = "default", "sleep";
-+	phy-mode = "rmii";
-+	max-speed = <100>;
-+	phy-handle = <&phy0>;
-+	st,eth-ref-clk-sel;
-+	phy-reset-gpios = <&gpioh 15 GPIO_ACTIVE_LOW>;
-+
-+	mdio0 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,dwmac-mdio";
-+
-+		phy0: ethernet-phy@1 {
-+			reg = <1>;
-+		};
-+	};
-+};
-+
- &i2c4 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c4_pins_a>;
+ 		i2c1: i2c@ff030000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 18 4>;
 -- 
 2.25.1
 
