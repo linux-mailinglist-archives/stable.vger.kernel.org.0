@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9325B29B10D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6679029B111
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901771AbgJ0O0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:26:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
+        id S1758938AbgJ0O0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901767AbgJ0O0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:26:21 -0400
+        id S1758933AbgJ0O0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:26:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02F2420780;
-        Tue, 27 Oct 2020 14:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8DA22264;
+        Tue, 27 Oct 2020 14:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808781;
-        bh=IM4R2jkcH/ab5xP+juABRDNyOLsIs9Nn0nnzMjGRMvw=;
+        s=default; t=1603808792;
+        bh=kL3mHtvkjdVI/1qd0rJa0p8tK+xfTgXhxpSVFK5HJho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zm7zgMPn86FV7Ho63WlkjswCgqcld5taaDktxxj/fZaD8PolA330zeOxRJZuasgIx
-         uzQY+GcRAyDi9ymOQxK+TJqeYbgekCNbGhlWRPuSTzaEEO9cnqFWuEony0xaP+HXn2
-         AnuTXUiASmOj5Vf3DqbFk4SAEOxXB5HZrxFCIUBw=
+        b=0Ye04fwHD6f8E0cijCXJBlYN2Gszu6USFnZ/BXAGNSGXUgs9p9h2DGzQmkdNoer05
+         hVEQ/CdmLXSnY7fifIlomHm2EOh2J+uF1EgRtWvJcNNO6iM++cR9BpX8W5IqLeQSZm
+         5JfND+1sW4gTl5lNdVC+KkE6DyXS0o0psUzheZF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 222/264] media: saa7134: avoid a shift overflow
-Date:   Tue, 27 Oct 2020 14:54:40 +0100
-Message-Id: <20201027135441.100785822@linuxfoundation.org>
+        stable@vger.kernel.org, William Tu <u9012063@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 226/264] ip_gre: set dev->hard_header_len and dev->needed_headroom properly
+Date:   Tue, 27 Oct 2020 14:54:44 +0100
+Message-Id: <20201027135441.275427382@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,37 +47,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 15a36aae1ec1c1f17149b6113b92631791830740 ]
+[ Upstream commit fdafed459998e2be0e877e6189b24cb7a0183224 ]
 
-As reported by smatch:
-	drivers/media/pci/saa7134//saa7134-tvaudio.c:686 saa_dsp_writel() warn: should 'reg << 2' be a 64 bit type?
+GRE tunnel has its own header_ops, ipgre_header_ops, and sets it
+conditionally. When it is set, it assumes the outer IP header is
+already created before ipgre_xmit().
 
-On a 64-bits Kernel, the shift might be bigger than 32 bits.
+This is not true when we send packets through a raw packet socket,
+where L2 headers are supposed to be constructed by user. Packet
+socket calls dev_validate_header() to validate the header. But
+GRE tunnel does not set dev->hard_header_len, so that check can
+be simply bypassed, therefore uninit memory could be passed down
+to ipgre_xmit(). Similar for dev->needed_headroom.
 
-In real, this should never happen, but let's shut up the warning.
+dev->hard_header_len is supposed to be the length of the header
+created by dev->header_ops->create(), so it should be used whenever
+header_ops is set, and dev->needed_headroom should be used when it
+is not set.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-and-tested-by: syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
+Cc: William Tu <u9012063@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7134/saa7134-tvaudio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/ip_gre.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/pci/saa7134/saa7134-tvaudio.c b/drivers/media/pci/saa7134/saa7134-tvaudio.c
-index 68d400e1e240e..8c3da6f7a60f1 100644
---- a/drivers/media/pci/saa7134/saa7134-tvaudio.c
-+++ b/drivers/media/pci/saa7134/saa7134-tvaudio.c
-@@ -693,7 +693,8 @@ int saa_dsp_writel(struct saa7134_dev *dev, int reg, u32 value)
- {
- 	int err;
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index ffcb5983107db..de6f89511a216 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -680,9 +680,7 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
+ 	}
  
--	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n", reg << 2, value);
-+	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n",
-+		  (reg << 2) & 0xffffffff, value);
- 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_WRR);
- 	if (err < 0)
- 		return err;
+ 	if (dev->header_ops) {
+-		/* Need space for new headers */
+-		if (skb_cow_head(skb, dev->needed_headroom -
+-				      (tunnel->hlen + sizeof(struct iphdr))))
++		if (skb_cow_head(skb, 0))
+ 			goto free_skb;
+ 
+ 		tnl_params = (const struct iphdr *)skb->data;
+@@ -800,7 +798,11 @@ static void ipgre_link_update(struct net_device *dev, bool set_mtu)
+ 	len = tunnel->tun_hlen - len;
+ 	tunnel->hlen = tunnel->hlen + len;
+ 
+-	dev->needed_headroom = dev->needed_headroom + len;
++	if (dev->header_ops)
++		dev->hard_header_len += len;
++	else
++		dev->needed_headroom += len;
++
+ 	if (set_mtu)
+ 		dev->mtu = max_t(int, dev->mtu - len, 68);
+ 
+@@ -1003,6 +1005,7 @@ static void __gre_tunnel_init(struct net_device *dev)
+ 	tunnel->parms.iph.protocol = IPPROTO_GRE;
+ 
+ 	tunnel->hlen = tunnel->tun_hlen + tunnel->encap_hlen;
++	dev->needed_headroom = tunnel->hlen + sizeof(tunnel->parms.iph);
+ 
+ 	dev->features		|= GRE_FEATURES;
+ 	dev->hw_features	|= GRE_FEATURES;
+@@ -1046,10 +1049,14 @@ static int ipgre_tunnel_init(struct net_device *dev)
+ 				return -EINVAL;
+ 			dev->flags = IFF_BROADCAST;
+ 			dev->header_ops = &ipgre_header_ops;
++			dev->hard_header_len = tunnel->hlen + sizeof(*iph);
++			dev->needed_headroom = 0;
+ 		}
+ #endif
+ 	} else if (!tunnel->collect_md) {
+ 		dev->header_ops = &ipgre_header_ops;
++		dev->hard_header_len = tunnel->hlen + sizeof(*iph);
++		dev->needed_headroom = 0;
+ 	}
+ 
+ 	return ip_tunnel_init(dev);
 -- 
 2.25.1
 
