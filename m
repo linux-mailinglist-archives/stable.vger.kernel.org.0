@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B248F29C5AC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C13729C698
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756165AbgJ0OLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
+        id S1827110AbgJ0SVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755447AbgJ0OJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:09:59 -0400
+        id S1753947AbgJ0ODK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16C5822202;
-        Tue, 27 Oct 2020 14:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBC8B2222C;
+        Tue, 27 Oct 2020 14:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807797;
-        bh=Xhcs8SBWoWV3GRvTt/t4YeFkuaMAt2z2OiI8tYJiHAg=;
+        s=default; t=1603807390;
+        bh=sfL6G2Y/z9x8rEL+SjrEfC/mODkBAD3Iysx7cVHV0YQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAmRy3t4zrWz+zwXMDn+xjCAjOPHShADHr0M6qfopHI4f1CE1rmhH4aXj7XKA+BOe
-         0N/fzctx7/Pkjh1GPm1aWlS9f7k2AppB9cozerjayNQheOjvRLTpyDQRcIYJJNPPIX
-         oNO0+jWKO2ySGlFcT5i6KLXvQ/hG2eKiF3r25sY4=
+        b=ongHX3xi5VLiGoTrCrmeQ82u/W97HRkrMXP4kGH2dweE8z0uShTnfhWU7I8Tko/dL
+         WX1Wvd+GEZPA+kwcsdgA2vRVqW15KR/aZ8Kuba+JIhEAacX9Ehe8f7ndxeW76agPI6
+         Mve/zWCtr0RkaFwAjhO+b8JdJuozrCMx/BK77TtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/191] wcn36xx: Fix reported 802.11n rx_highest rate wcn3660/wcn3680
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 006/139] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
 Date:   Tue, 27 Oct 2020 14:48:20 +0100
-Message-Id: <20201027134911.897076180@linuxfoundation.org>
+Message-Id: <20201027134902.454609983@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 3b9fb6791e7113679b1eb472e6ce1659e80f5797 ]
+[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
 
-Qualcomm's document "80-WL007-1 Rev. J" states that the highest rx rate for
-the WCN3660 and WCN3680 on MCS 7 is 150 Mbps not the 72 Mbps stated here.
+The hdlc_rcv function is used as hdlc_packet_type.func to process any
+skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
+The purpose of this function is to provide second-stage processing for
+skbs not assigned a "real" L3 skb->protocol value in the first stage.
 
-This patch fixes the data-rate declared in the 5GHz table.
+This function assumes the device from which the skb is received is an
+HDLC device (a device created by this module). It assumes that
+netdev_priv(dev) returns a pointer to "struct hdlc_device".
 
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680
-hardware")
+However, it is possible that some driver in the kernel (not necessarily
+in our control) submits a received skb with skb->protocol ==
+htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
+still be received by hdlc_rcv. This will cause problems.
 
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200802004824.1307124-1-bryan.odonoghue@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+hdlc_rcv should be able to recognize and drop invalid skbs. It should
+first make sure "dev" is actually an HDLC device, before starting its
+processing. This patch adds this check to hdlc_rcv.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/hdlc.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
-index 688152bcfc15c..2450f5f7f79f3 100644
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -162,7 +162,7 @@ static struct ieee80211_supported_band wcn_band_5ghz = {
- 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
- 		.mcs = {
- 			.rx_mask = { 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
--			.rx_highest = cpu_to_le16(72),
-+			.rx_highest = cpu_to_le16(150),
- 			.tx_params = IEEE80211_HT_MCS_TX_DEFINED,
- 		}
- 	}
--- 
-2.25.1
-
+--- a/drivers/net/wan/hdlc.c
++++ b/drivers/net/wan/hdlc.c
+@@ -57,7 +57,15 @@ int hdlc_change_mtu(struct net_device *d
+ static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
+ 		    struct packet_type *p, struct net_device *orig_dev)
+ {
+-	struct hdlc_device *hdlc = dev_to_hdlc(dev);
++	struct hdlc_device *hdlc;
++
++	/* First make sure "dev" is an HDLC device */
++	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
++		kfree_skb(skb);
++		return NET_RX_SUCCESS;
++	}
++
++	hdlc = dev_to_hdlc(dev);
+ 
+ 	if (!net_eq(dev_net(dev), &init_net)) {
+ 		kfree_skb(skb);
 
 
