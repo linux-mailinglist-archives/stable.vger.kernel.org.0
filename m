@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582DE29C3D3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32E629C215
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758905AbgJ0OZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50610 "EHLO mail.kernel.org"
+        id S2410988AbgJ0Rb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758868AbgJ0OZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:25:14 -0400
+        id S1750097AbgJ0OmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCD1C2072D;
-        Tue, 27 Oct 2020 14:25:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BB6E206B2;
+        Tue, 27 Oct 2020 14:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808713;
-        bh=uYOvb+mnm72C9FgmThGRydaHgrEO61Ay5Q2HIDTdziA=;
+        s=default; t=1603809731;
+        bh=Z9uZAnmgGHJ32INYeOTMkXQS5l4BzWuMqHFivHWStm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k324XEFpwbwJMkVhFjl4ei62hCdTbwAX2F5C3AB5xYBK5jxawNsqG8KRzmORS6Wp5
-         Ptonk9SV713xY5IlUYTFpPP4TGCYXaBayI3MEEmkUlRi8Cn/qYbs8OzB2+HzB9+i5P
-         q/jxhPT08MpRUPpYWeIxyHvHHIsZJ360A0Oijz3A=
+        b=QFWVYYFvX4A0psqjYTGaj7zBJytDuLjtqr4znqCx1ZI1sbSJGvCB5a2if+gZ5kBEA
+         bAUZUmTRmnYyMpxQ2x6Uk+qXeUH8/0SIPjhRkUrSidqr1PcfsbR4VYog/EuxjGf3hk
+         wViXhSeXF3/4OqF+dh401KC/v8zEBq6+drHZn3W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 178/264] ext4: limit entries returned when counting fsmap records
-Date:   Tue, 27 Oct 2020 14:53:56 +0100
-Message-Id: <20201027135439.043219389@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 299/408] ARM: dts: sun8i: r40: bananapi-m2-ultra: Fix dcdc1 regulator
+Date:   Tue, 27 Oct 2020 14:53:57 +0100
+Message-Id: <20201027135508.904503104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit af8c53c8bc087459b1aadd4c94805d8272358d79 ]
+[ Upstream commit 3658a2b7f3e16c7053eb8d70657b94bb62c5a0f4 ]
 
-If userspace asked fsmap to try to count the number of entries, we cannot
-return more than UINT_MAX entries because fmh_entries is u32.
-Therefore, stop counting if we hit this limit or else we will waste time
-to return truncated results.
+DCDC1 regulator powers many different subsystems. While some of them can
+work at 3.0 V, some of them can not. For example, VCC-HDMI can only work
+between 3.24 V and 3.36 V. According to OS images provided by the board
+manufacturer this regulator should be set to 3.3 V.
 
-Fixes: 0c9ec4beecac ("ext4: support GETFSMAP ioctls")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Link: https://lore.kernel.org/r/20201001222148.GA49520@magnolia
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Set DCDC1 and DCDC1SW to 3.3 V in order to fix this.
+
+Fixes: da7ac948fa93 ("ARM: dts: sun8i: Add board dts file for Banana Pi M2 Ultra")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20200824193649.978197-1-jernej.skrabec@siol.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fsmap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ext4/fsmap.c b/fs/ext4/fsmap.c
-index 4b99e2db95b8b..6f3f245f3a803 100644
---- a/fs/ext4/fsmap.c
-+++ b/fs/ext4/fsmap.c
-@@ -108,6 +108,9 @@ static int ext4_getfsmap_helper(struct super_block *sb,
+diff --git a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
+index 42d62d1ba1dc7..ea15073f0c79c 100644
+--- a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
++++ b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
+@@ -223,16 +223,16 @@ &reg_aldo3 {
+ };
  
- 	/* Are we just counting mappings? */
- 	if (info->gfi_head->fmh_count == 0) {
-+		if (info->gfi_head->fmh_entries == UINT_MAX)
-+			return EXT4_QUERY_RANGE_ABORT;
-+
- 		if (rec_fsblk > info->gfi_next_fsblk)
- 			info->gfi_head->fmh_entries++;
+ &reg_dc1sw {
+-	regulator-min-microvolt = <3000000>;
+-	regulator-max-microvolt = <3000000>;
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
+ 	regulator-name = "vcc-gmac-phy";
+ };
  
+ &reg_dcdc1 {
+ 	regulator-always-on;
+-	regulator-min-microvolt = <3000000>;
+-	regulator-max-microvolt = <3000000>;
+-	regulator-name = "vcc-3v0";
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "vcc-3v3";
+ };
+ 
+ &reg_dcdc2 {
 -- 
 2.25.1
 
