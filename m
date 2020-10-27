@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F66E29BC66
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10E4629BC61
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1781705AbgJ0QcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51232 "EHLO mail.kernel.org"
+        id S1766866AbgJ0Qbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:31:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802538AbgJ0Pt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:49:57 -0400
+        id S1802549AbgJ0PuA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90DE22072C;
-        Tue, 27 Oct 2020 15:49:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DA592065C;
+        Tue, 27 Oct 2020 15:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813797;
-        bh=uMiewmmEqIP9o+WBAyBsct7iMPd6w8XJY4CYwUbB3zc=;
+        s=default; t=1603813800;
+        bh=j0LIKN0AGws6i/FKT7AeuxpkYYH9yjFN2mAKrtet9CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeAt1TM5oGlSto7xLnB1IFaa58I/xNkNMcwSWJ2cx+eFHp2rKmc+FepmEdjwb3A5P
-         ApVGlPKXWXIXO/yvKthV4efSAkBURC6eV2uaVCXi/owaJt79T+97nG4Km9B7ym+5Qn
-         r/EyXR2gawFF9/ykpinOjBGyW5weKzcRu8zO7V0k=
+        b=c4fj5hX+ceJQig7FU7q0m5t3SK2kJr6Ed94MhSyjkF8C/5C8T+2+Cbq0VMqkeXquv
+         lAffkytlVLGJ3XBUDSISa6pEAOL4VNmbnawdqOoysSv3L2X/AV8Tb0pIN3Vj/qmLn/
+         7x6b1v5AA8OwL3J6MVFpPgu+SPGlmG3OSPBsg9kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
+        Rustam Kovhaev <rkovhaev@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 672/757] media: venus: core: Fix runtime PM imbalance in venus_probe
-Date:   Tue, 27 Oct 2020 14:55:22 +0100
-Message-Id: <20201027135522.061927217@linuxfoundation.org>
+Subject: [PATCH 5.9 673/757] ntfs: add check for mft record size in superblock
+Date:   Tue, 27 Oct 2020 14:55:23 +0100
+Message-Id: <20201027135522.096590308@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,51 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit bbe516e976fce538db96bd2b7287df942faa14a3 ]
+[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code. Thus a pairing decrement is needed on
-the error handling path to keep the counter balanced. For other error
-paths after this call, things are the same.
+Number of bytes allocated for mft record should be equal to the mft record
+size stored in ntfs superblock as reported by syzbot, userspace might
+trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
 
-Fix this by adding pm_runtime_put_noidle() after 'err_runtime_disable'
-label. But in this case, the error path after pm_runtime_put_sync()
-will decrease PM usage counter twice. Thus add an extra
-pm_runtime_get_noresume() in this path to balance PM counter.
-
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
+Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ntfs/inode.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
-index bfcaba37d60fe..321ad77cb6cf4 100644
---- a/drivers/media/platform/qcom/venus/core.c
-+++ b/drivers/media/platform/qcom/venus/core.c
-@@ -289,8 +289,10 @@ static int venus_probe(struct platform_device *pdev)
- 		goto err_core_deinit;
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index 9bb9f0952b186..caf563981532b 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1810,6 +1810,12 @@ int ntfs_read_inode_mount(struct inode *vi)
+ 		brelse(bh);
+ 	}
  
- 	ret = pm_runtime_put_sync(dev);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_get_noresume(dev);
- 		goto err_dev_unregister;
++	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
++		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
++				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
++		goto err_out;
 +	}
- 
- 	return 0;
- 
-@@ -301,6 +303,7 @@ static int venus_probe(struct platform_device *pdev)
- err_venus_shutdown:
- 	venus_shutdown(core);
- err_runtime_disable:
-+	pm_runtime_put_noidle(dev);
- 	pm_runtime_set_suspended(dev);
- 	pm_runtime_disable(dev);
- 	hfi_destroy(core);
++
+ 	/* Apply the mst fixups. */
+ 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
+ 		/* FIXME: Try to use the $MFTMirr now. */
 -- 
 2.25.1
 
