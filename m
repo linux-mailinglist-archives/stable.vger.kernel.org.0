@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D132B299F0E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:20:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B05D3299F43
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438811AbgJ0AGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54238 "EHLO mail.kernel.org"
+        id S2438691AbgJ0AGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:06:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438201AbgJ0AFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:05:19 -0400
+        id S2438220AbgJ0AFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:05:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AECE420754;
-        Tue, 27 Oct 2020 00:05:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE0A321D7B;
+        Tue, 27 Oct 2020 00:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757119;
-        bh=gy9TH29jE1BKpOXyep7XefnWiDQJJ1UUc7DUTuEY9MY=;
+        s=default; t=1603757120;
+        bh=eARWYIoK6YAheoi5ini4cMDamQq4WzNOqq62Tc7YuAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdBt/pnB2QQDcdiK3WWtOvI+ISyBvhbt5bzGGrnteUe5HtnUXS23HXv8sO2ZE5kA6
-         OvBO1l3eIMO4Cmy3B11qTvwuSbTngd2p4uQMb5IfNO4kvychOQsiVgIolYRnwfvpxS
-         s80+VBRp5UOYRQn9JJquC/66oNIqQCiEQEO/80lY=
+        b=KCc4FUbmSvTLCnwvoQB9gwTwPfK3P1VVEGA7gSyA8PYV2lf6vjg6//dj+yD6edNoK
+         IfO3WG8L4rHJX0yFdGyS5gpyKM/mZUWYwiFGb/Wi9YwCqzfEGvn7jmZ+GhUDfcfXYd
+         lHUCv+arvSCYOH4LXH3f+LMBbSgDGEwkgSbK1tk8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 54/60] memory: emif: Remove bogus debugfs error handling
-Date:   Mon, 26 Oct 2020 20:04:09 -0400
-Message-Id: <20201027000415.1026364-54-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 55/60] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
+Date:   Mon, 26 Oct 2020 20:04:10 -0400
+Message-Id: <20201027000415.1026364-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
 References: <20201027000415.1026364-1-sashal@kernel.org>
@@ -43,73 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit fd22781648080cc400772b3c68aa6b059d2d5420 ]
+[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
 
-Callers are generally not supposed to check the return values from
-debugfs functions.  Debugfs functions never return NULL so this error
-handling will never trigger.  (Historically debugfs functions used to
-return a mix of NULL and error pointers but it was eventually deemed too
-complicated for something which wasn't intended to be used in normal
-situations).
+There is no need to keep DMA controller nodes under AMBA bus node.
+Remove the "amba" node to fix dtschema warnings like:
 
-Delete all the error handling.
+  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Link: https://lore.kernel.org/r/20200826113759.GF393664@mwanda
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/emif.c | 33 +++++----------------------------
- 1 file changed, 5 insertions(+), 28 deletions(-)
+ arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
-index 2f214440008c3..1c6b2cc6269ad 100644
---- a/drivers/memory/emif.c
-+++ b/drivers/memory/emif.c
-@@ -165,35 +165,12 @@ static const struct file_operations emif_mr4_fops = {
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 67358562a6ea2..67f70683a2c45 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -126,35 +126,28 @@ wakeup-interrupt-controller {
+ 			};
+ 		};
  
- static int __init_or_module emif_debugfs_init(struct emif_data *emif)
- {
--	struct dentry	*dentry;
--	int		ret;
+-		amba {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges;
 -
--	dentry = debugfs_create_dir(dev_name(emif->dev), NULL);
--	if (!dentry) {
--		ret = -ENOMEM;
--		goto err0;
--	}
--	emif->debugfs_root = dentry;
--
--	dentry = debugfs_create_file("regcache_dump", S_IRUGO,
--			emif->debugfs_root, emif, &emif_regdump_fops);
--	if (!dentry) {
--		ret = -ENOMEM;
--		goto err1;
--	}
--
--	dentry = debugfs_create_file("mr4", S_IRUGO,
--			emif->debugfs_root, emif, &emif_mr4_fops);
--	if (!dentry) {
--		ret = -ENOMEM;
--		goto err1;
--	}
--
-+	emif->debugfs_root = debugfs_create_dir(dev_name(emif->dev), NULL);
-+	debugfs_create_file("regcache_dump", S_IRUGO, emif->debugfs_root, emif,
-+			    &emif_regdump_fops);
-+	debugfs_create_file("mr4", S_IRUGO, emif->debugfs_root, emif,
-+			    &emif_mr4_fops);
- 	return 0;
--err1:
--	debugfs_remove_recursive(emif->debugfs_root);
--err0:
--	return ret;
- }
+-			pdma0: dma@e0900000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0900000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <19>;
+-				clocks = <&clocks CLK_PDMA0>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma0: dma@e0900000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0900000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <19>;
++			clocks = <&clocks CLK_PDMA0>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
++		};
  
- static void __exit emif_debugfs_exit(struct emif_data *emif)
+-			pdma1: dma@e0a00000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0a00000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <20>;
+-				clocks = <&clocks CLK_PDMA1>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma1: dma@e0a00000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0a00000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <20>;
++			clocks = <&clocks CLK_PDMA1>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
+ 		};
+ 
+ 		spi0: spi@e1300000 {
 -- 
 2.25.1
 
