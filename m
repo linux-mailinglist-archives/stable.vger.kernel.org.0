@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E49029B6D8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00BF729B6E2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368739AbgJ0P1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:27:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39646 "EHLO mail.kernel.org"
+        id S368757AbgJ0P1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:27:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797576AbgJ0PYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:24:23 -0400
+        id S1797391AbgJ0PXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:23:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D1312064B;
-        Tue, 27 Oct 2020 15:24:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56CB820728;
+        Tue, 27 Oct 2020 15:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812262;
-        bh=IThQl/2c2N9ZZJOytL6ykPfkR4ntlf2unL2zDi4d/9M=;
+        s=default; t=1603812195;
+        bh=LtHlKlO1w6/1RhyxtCP/uZoykyCsCOzAeBKr5hXX2tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMkeGq54phivr1GuCg4QHPo2QfOgh6OGCAvk8iqTw1T6duZnChG1hfAqgFxSQX06F
-         hKKIOO5D6rTkgP/ax5uLKkZWzGCzYtcYEMIpFel5Caki1vo8SJ8bx+Y4WQcnZqKdal
-         FRt1Jn10c252EKUBprhNTy9C0BD4kIZeL6ybMBE0=
+        b=DmpTQTubD2OO8n8zb188BUKPiyDnSmkC4FnndqAUZHmA/jON1RemDoaswdZf1ysJ6
+         PsU377CGe/AIojZ8QWoVvUfpuJzjAMy49xr0W1ZYOxM3NYzBAj/8e0b1ANDHcfafEm
+         IP7Z6YC+s0oFzRYrC1ek6COaNVM2rGY84xMgDs9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 106/757] perf/x86/intel/uncore: Reduce the number of CBOX counters
-Date:   Tue, 27 Oct 2020 14:45:56 +0100
-Message-Id: <20201027135455.522871782@linuxfoundation.org>
+Subject: [PATCH 5.9 108/757] perf/x86/intel/uncore: Fix the scale of the IMC free-running events
+Date:   Tue, 27 Oct 2020 14:45:58 +0100
+Message-Id: <20201027135455.620627514@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,43 +45,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit ee139385432e919f4d1f59b80edbc073cdae1391 ]
+[ Upstream commit 8191016a026b8dfbb14dea64efc8e723ee99fe65 ]
 
-An oops is triggered by the fuzzy test.
+The "MiB" result of the IMC free-running bandwidth events,
+uncore_imc_free_running/read/ and uncore_imc_free_running/write/ are 16
+times too small.
 
-[  327.853081] unchecked MSR access error: RDMSR from 0x70c at rIP:
-0xffffffffc082c820 (uncore_msr_read_counter+0x10/0x50 [intel_uncore])
-[  327.853083] Call Trace:
-[  327.853085]  <IRQ>
-[  327.853089]  uncore_pmu_event_start+0x85/0x170 [intel_uncore]
-[  327.853093]  uncore_pmu_event_add+0x1a4/0x410 [intel_uncore]
-[  327.853097]  ? event_sched_in.isra.118+0xca/0x240
+The "MiB" value equals the raw IMC free-running bandwidth counter value
+times a "scale" which is inaccurate.
 
-There are 2 GP counters for each CBOX, but the current code claims 4
-counters. Accessing the invalid registers triggers the oops.
+The IMC free-running bandwidth events should be incremented per 64B
+cache line, not DWs (4 bytes). The "scale" should be 6.103515625e-5.
+Fix the "scale" for both Snow Ridge and Ice Lake.
 
-Fixes: 6e394376ee89 ("perf/x86/intel/uncore: Add Intel Icelake uncore support")
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
 Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200925134905.8839-3-kan.liang@linux.intel.com
+Link: https://lkml.kernel.org/r/20200928133240.12977-1-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snbep.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index e2c683fe42645..4aa735694e030 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -325,7 +325,7 @@ static struct intel_uncore_ops icl_uncore_msr_ops = {
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index ccfa1d6b6aa0d..4f5e78a4003be 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -4754,10 +4754,10 @@ static struct uncore_event_desc snr_uncore_imc_freerunning_events[] = {
+ 	INTEL_UNCORE_EVENT_DESC(dclk,		"event=0xff,umask=0x10"),
  
- static struct intel_uncore_type icl_uncore_cbox = {
- 	.name		= "cbox",
--	.num_counters   = 4,
-+	.num_counters   = 2,
- 	.perf_ctr_bits	= 44,
- 	.perf_ctr	= ICL_UNC_CBO_0_PER_CTR0,
- 	.event_ctl	= SNB_UNC_CBO_0_PERFEVTSEL0,
+ 	INTEL_UNCORE_EVENT_DESC(read,		"event=0xff,umask=0x20"),
+-	INTEL_UNCORE_EVENT_DESC(read.scale,	"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(read.scale,	"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(read.unit,	"MiB"),
+ 	INTEL_UNCORE_EVENT_DESC(write,		"event=0xff,umask=0x21"),
+-	INTEL_UNCORE_EVENT_DESC(write.scale,	"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(write.scale,	"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(write.unit,	"MiB"),
+ 	{ /* end: all zeroes */ },
+ };
+@@ -5215,17 +5215,17 @@ static struct uncore_event_desc icx_uncore_imc_freerunning_events[] = {
+ 	INTEL_UNCORE_EVENT_DESC(dclk,			"event=0xff,umask=0x10"),
+ 
+ 	INTEL_UNCORE_EVENT_DESC(read,			"event=0xff,umask=0x20"),
+-	INTEL_UNCORE_EVENT_DESC(read.scale,		"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(read.scale,		"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(read.unit,		"MiB"),
+ 	INTEL_UNCORE_EVENT_DESC(write,			"event=0xff,umask=0x21"),
+-	INTEL_UNCORE_EVENT_DESC(write.scale,		"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(write.scale,		"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(write.unit,		"MiB"),
+ 
+ 	INTEL_UNCORE_EVENT_DESC(ddrt_read,		"event=0xff,umask=0x30"),
+-	INTEL_UNCORE_EVENT_DESC(ddrt_read.scale,	"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(ddrt_read.scale,	"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(ddrt_read.unit,		"MiB"),
+ 	INTEL_UNCORE_EVENT_DESC(ddrt_write,		"event=0xff,umask=0x31"),
+-	INTEL_UNCORE_EVENT_DESC(ddrt_write.scale,	"3.814697266e-6"),
++	INTEL_UNCORE_EVENT_DESC(ddrt_write.scale,	"6.103515625e-5"),
+ 	INTEL_UNCORE_EVENT_DESC(ddrt_write.unit,	"MiB"),
+ 	{ /* end: all zeroes */ },
+ };
 -- 
 2.25.1
 
