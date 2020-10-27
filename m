@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75AB729C629
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7395329C5BF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825782AbgJ0SN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35218 "EHLO mail.kernel.org"
+        id S2900868AbgJ0OM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756497AbgJ0ONp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:13:45 -0400
+        id S1754474AbgJ0OFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 259802072D;
-        Tue, 27 Oct 2020 14:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 918632222C;
+        Tue, 27 Oct 2020 14:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808024;
-        bh=HwUuahVVz+v+/I0GKpaKHm3sTTNlpr2Sqr5XZsGQTak=;
+        s=default; t=1603807539;
+        bh=vdRF+n8FPKystMTO0J2qTG77A+2/Gqa6IqVIF3sU2Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzdkvumJOPz3Lw2Kh2G0xUxnQikDMDdyhfVM+d3ZDytC7wOoCTLwOWIB9yWbCjhPc
-         i0yTrhj9ZmnYEAf04dvYnbrAmC4o174JviL30jBqugKAWoX8vLbAeQzv0qRaFJPP03
-         UzHOJ/jvzhQBwhQ1M2ozj38vrSTVVhQCvnvogCzg=
+        b=NtEfSQjY31dtisnGTZC/kxiSO28Zg+QwnxGnknYV435RflxqYuIFh98dJhHgU1WiZ
+         aS2bnrlGZpuXc7eM40bjXJkvSko0asnNR04Q9dnPYVca5AdgVElJBQ4QZeaOeI1m8t
+         BG0VI7mVVYlxZySgK2cN9zLnYrXzTqhQHJ2GQ94g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 128/191] arm64: dts: qcom: msm8916: Fix MDP/DSI interrupts
+Subject: [PATCH 4.9 089/139] arm64: dts: qcom: msm8916: Fix MDP/DSI interrupts
 Date:   Tue, 27 Oct 2020 14:49:43 +0100
-Message-Id: <20201027134915.859844840@linuxfoundation.org>
+Message-Id: <20201027134906.357795645@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 3cc449425a038..02b7a44f790b5 100644
+index 08b88f6791beb..fb5001a6879c7 100644
 --- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
 +++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -818,7 +818,7 @@ mdp: mdp@1a01000 {
+@@ -715,7 +715,7 @@ mdp: mdp@1a01000 {
  				reg-names = "mdp_phys";
  
  				interrupt-parent = <&mdss>;
@@ -80,7 +80,7 @@ index 3cc449425a038..02b7a44f790b5 100644
  
  				clocks = <&gcc GCC_MDSS_AHB_CLK>,
  					 <&gcc GCC_MDSS_AXI_CLK>,
-@@ -850,7 +850,7 @@ dsi0: dsi@1a98000 {
+@@ -745,7 +745,7 @@ dsi0: dsi@1a98000 {
  				reg-names = "dsi_ctrl";
  
  				interrupt-parent = <&mdss>;
