@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E58F29AFB6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A71AD29AFBF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1743972AbgJ0OMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59532 "EHLO mail.kernel.org"
+        id S2507386AbgJ0OMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755732AbgJ0OKo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:44 -0400
+        id S1755905AbgJ0OKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:10:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D3D2072D;
-        Tue, 27 Oct 2020 14:10:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A319D218AC;
+        Tue, 27 Oct 2020 14:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807843;
-        bh=gs572yzi9DtUTqIEsOp/fXLzap33LPim28JRC4DjSJ8=;
+        s=default; t=1603807851;
+        bh=hVObMkP4w4Evwr+FFTtiTi63sgwcJ8Cg+PrCq/AqQto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpdCfDGuVdygjmn0h6B5g1KsWrW2dZ0wMYyQ1+yAPwe2QItjeWfZtGRo9ktyUUjiK
-         nWyAmEh0+3n7je3Hpvpjlkgp7pbMjCH2J+xmCQX/nL+zEhJF5n9VoPKe/oH/Srz6sb
-         Ik1h06qdjoxuS0F9Fdu1FSY5Vr/3UWLQM69gGKx8=
+        b=LswAHEYf8lFfe6ZssPtYt7gLNaz0dnyvM9CjdwYcIBu4aS93IOcbWGHNGiQbSj0/X
+         bqkz9EDIoubK5s/ks/buzbUBF+naM90aIaPwCKHZFn/Ic5xBZRjzKYYlKp/zLRWxsb
+         gyc6qksrRas79SKkxexZlk+/fkpwRM87FZuvlLNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 061/191] video: fbdev: vga16fb: fix setting of pixclock because a pass-by-value error
-Date:   Tue, 27 Oct 2020 14:48:36 +0100
-Message-Id: <20201027134912.665890201@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 063/191] HID: roccat: add bounds checking in kone_sysfs_write_settings()
+Date:   Tue, 27 Oct 2020 14:48:38 +0100
+Message-Id: <20201027134912.765283233@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -45,84 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c72fab81ceaa54408b827a2f0486d9a0f4be34cf ]
+[ Upstream commit d4f98dbfe717490e771b6e701904bfcf4b4557f0 ]
 
-The pixclock is being set locally because it is being passed as a
-pass-by-value argument rather than pass-by-reference, so the computed
-pixclock is never being set in var->pixclock. Fix this by passing
-by reference.
+This code doesn't check if "settings->startup_profile" is within bounds
+and that could result in an out of bounds array access.  What the code
+does do is it checks if the settings can be written to the firmware, so
+it's possible that the firmware has a bounds check?  It's safer and
+easier to verify when the bounds checking is done in the kernel.
 
-[This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git ]
-
-Addresses-Coverity: ("Unused value")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jani Nikula <jani.nikula@intel.com>
-[b.zolnierkie: minor patch summary fixup]
-[b.zolnierkie: removed "Fixes:" tag (not in upstream tree)]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200723170227.996229-1-colin.king@canonical.com
+Fixes: 14bf62cde794 ("HID: add driver for Roccat Kone gaming mouse")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vga16fb.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/hid/hid-roccat-kone.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index ee6957a799bb6..aea8fd85cbf70 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -243,7 +243,7 @@ static void vga16fb_update_fix(struct fb_info *info)
- }
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index bf4675a273965..9be8c31f613fd 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -297,31 +297,40 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
+ 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 	int retval = 0, difference, old_profile;
++	struct kone_settings *settings = (struct kone_settings *)buf;
  
- static void vga16fb_clock_chip(struct vga16fb_par *par,
--			       unsigned int pixclock,
-+			       unsigned int *pixclock,
- 			       const struct fb_info *info,
- 			       int mul, int div)
- {
-@@ -259,14 +259,14 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
- 		{     0 /* bad */,    0x00, 0x00}};
- 	int err;
+ 	/* I need to get my data in one piece */
+ 	if (off != 0 || count != sizeof(struct kone_settings))
+ 		return -EINVAL;
  
--	pixclock = (pixclock * mul) / div;
-+	*pixclock = (*pixclock * mul) / div;
- 	best = vgaclocks;
--	err = pixclock - best->pixclock;
-+	err = *pixclock - best->pixclock;
- 	if (err < 0) err = -err;
- 	for (ptr = vgaclocks + 1; ptr->pixclock; ptr++) {
- 		int tmp;
+ 	mutex_lock(&kone->kone_lock);
+-	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
++	difference = memcmp(settings, &kone->settings,
++			    sizeof(struct kone_settings));
+ 	if (difference) {
+-		retval = kone_set_settings(usb_dev,
+-				(struct kone_settings const *)buf);
+-		if (retval) {
+-			mutex_unlock(&kone->kone_lock);
+-			return retval;
++		if (settings->startup_profile < 1 ||
++		    settings->startup_profile > 5) {
++			retval = -EINVAL;
++			goto unlock;
+ 		}
  
--		tmp = pixclock - ptr->pixclock;
-+		tmp = *pixclock - ptr->pixclock;
- 		if (tmp < 0) tmp = -tmp;
- 		if (tmp < err) {
- 			err = tmp;
-@@ -275,7 +275,7 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
++		retval = kone_set_settings(usb_dev, settings);
++		if (retval)
++			goto unlock;
++
+ 		old_profile = kone->settings.startup_profile;
+-		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
++		memcpy(&kone->settings, settings, sizeof(struct kone_settings));
+ 
+ 		kone_profile_activated(kone, kone->settings.startup_profile);
+ 
+ 		if (kone->settings.startup_profile != old_profile)
+ 			kone_profile_report(kone, kone->settings.startup_profile);
  	}
- 	par->misc |= best->misc;
- 	par->clkdiv = best->seq_clock_mode;
--	pixclock = (best->pixclock * div) / mul;		
-+	*pixclock = (best->pixclock * div) / mul;
- }
- 			       
- #define FAIL(X) return -EINVAL
-@@ -497,10 +497,10 @@ static int vga16fb_check_var(struct fb_var_screeninfo *var,
++unlock:
+ 	mutex_unlock(&kone->kone_lock);
  
- 	if (mode & MODE_8BPP)
- 		/* pixel clock == vga clock / 2 */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 2);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 2);
- 	else
- 		/* pixel clock == vga clock */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 1);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 1);
- 	
- 	var->red.offset = var->green.offset = var->blue.offset = 
- 	var->transp.offset = 0;
++	if (retval)
++		return retval;
++
+ 	return sizeof(struct kone_settings);
+ }
+ static BIN_ATTR(settings, 0660, kone_sysfs_read_settings,
 -- 
 2.25.1
 
