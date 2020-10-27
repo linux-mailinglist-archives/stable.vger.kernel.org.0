@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 533E229C0DB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1163E29C091
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818029AbgJ0RQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
+        id S1818034AbgJ0RQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1771544AbgJ0Oz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1771581AbgJ0Oz3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Oct 2020 10:55:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90CF422283;
-        Tue, 27 Oct 2020 14:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5593B222EA;
+        Tue, 27 Oct 2020 14:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810525;
-        bh=R+RYBK03w0OUfe0H54+RYEYme2JX99282g9zz9D1oFE=;
+        s=default; t=1603810527;
+        bh=SLhEyF3hgDlogsJ6Uca8qPk92jkYmsXIc7BMuHkNdsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4FToSO/+lp66AvZ4QxO5VqeYLtPDjFSja3bER69IDhdDNFNANVHXo+FjxIxtUPeC
-         OJrUZyNoHtE80rw/WuDSmxh6hjW7q1c98K15h5uC3ade592Fua7Iub64B3tHoqxvIy
-         GPy5wfFEjIoBEk+QSMdnS2RPV/yg8J0OYxvGSo+o=
+        b=ZScKkKelBU8AAPvp6T/EMYQXWQecjTbaEdgolO/atuk+6I220oSF+DBiTYleKe1dN
+         QpfXVq/qvCfqC4MzDMlYjJGs+s0nO9vOS2t1bQQl2Cc0YKOu85UCNAKCSAqbpXd2t/
+         FgseyybHleXCAbUdE796MbmsAolJ0PIlPoUC//0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 169/633] mwifiex: Do not use GFP_KERNEL in atomic context
-Date:   Tue, 27 Oct 2020 14:48:32 +0100
-Message-Id: <20201027135530.600539628@linuxfoundation.org>
+Subject: [PATCH 5.8 170/633] staging: rtl8192u: Do not use GFP_KERNEL in atomic context
+Date:   Tue, 27 Oct 2020 14:48:33 +0100
+Message-Id: <20201027135530.647714740@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,47 +45,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d2ab7f00f4321370a8ee14e5630d4349fdacc42e ]
+[ Upstream commit acac75bb451fd39344eb54fad6602dfc9482e970 ]
 
-A possible call chain is as follow:
-  mwifiex_sdio_interrupt                            (sdio.c)
-    --> mwifiex_main_process                        (main.c)
-      --> mwifiex_process_cmdresp                   (cmdevt.c)
-        --> mwifiex_process_sta_cmdresp             (sta_cmdresp.c)
-          --> mwifiex_ret_802_11_scan               (scan.c)
-            --> mwifiex_parse_single_response_buf   (scan.c)
+'rtl8192_irq_rx_tasklet()' is a tasklet initialized in
+'rtl8192_init_priv_task()'.
+>From this function it is possible to allocate some memory with the
+GFP_KERNEL flag, which is not allowed in the atomic context of a tasklet.
 
-'mwifiex_sdio_interrupt()' is an interrupt function.
+Use GFP_ATOMIC instead.
 
-Also note that 'mwifiex_ret_802_11_scan()' already uses GFP_ATOMIC.
+The call chain is:
+  rtl8192_irq_rx_tasklet            (in r8192U_core.c)
+    --> rtl8192_rx_nomal            (in r8192U_core.c)
+      --> ieee80211_rx              (in ieee80211/ieee80211_rx.c)
+        --> RxReorderIndicatePacket (in ieee80211/ieee80211_rx.c)
 
-So use GFP_ATOMIC instead of GFP_KERNEL when memory is allocated in
-'mwifiex_parse_single_response_buf()'.
-
-Fixes: 7c6fa2a843c5 ("mwifiex: use cfg80211 dynamic scan table and cfg80211_get_bss API")
-or
-Fixes: 601216e12c65e ("mwifiex: process RX packets in SDIO IRQ thread directly")
+Fixes: 79a5ccd97209 ("staging: rtl8192u: fix large frame size compiler warning")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200809092906.744621-1-christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20200813173458.758284-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c | 2 +-
+ drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
-index ff932627a46c1..2fb69a590bd8e 100644
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1889,7 +1889,7 @@ mwifiex_parse_single_response_buf(struct mwifiex_private *priv, u8 **bss_info,
- 					    chan, CFG80211_BSS_FTYPE_UNKNOWN,
- 					    bssid, timestamp,
- 					    cap_info_bitmap, beacon_period,
--					    ie_buf, ie_len, rssi, GFP_KERNEL);
-+					    ie_buf, ie_len, rssi, GFP_ATOMIC);
- 			if (bss) {
- 				bss_priv = (struct mwifiex_bss_priv *)bss->priv;
- 				bss_priv->band = band;
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+index 195d963c4fbb4..b6fee7230ce05 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+@@ -597,7 +597,7 @@ static void RxReorderIndicatePacket(struct ieee80211_device *ieee,
+ 
+ 	prxbIndicateArray = kmalloc_array(REORDER_WIN_SIZE,
+ 					  sizeof(struct ieee80211_rxb *),
+-					  GFP_KERNEL);
++					  GFP_ATOMIC);
+ 	if (!prxbIndicateArray)
+ 		return;
+ 
 -- 
 2.25.1
 
