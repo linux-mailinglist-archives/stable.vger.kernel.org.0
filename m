@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9080429BD48
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FC029BC70
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794976AbgJ0POl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:14:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51720 "EHLO mail.kernel.org"
+        id S1809971AbgJ0Qcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794969AbgJ0POk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:14:40 -0400
+        id S1802505AbgJ0Pts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:49:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85D5820657;
-        Tue, 27 Oct 2020 15:14:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9EBB2072C;
+        Tue, 27 Oct 2020 15:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811679;
-        bh=vTaxP/Ekyc5Pa8UyF7ePf+/WcBxBH/HKiBPLA17whKc=;
+        s=default; t=1603813787;
+        bh=a+BJ7GJFIleTVPFL9oPqI9yETMNmCOB+dSc4uY2elB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwzDnR+iJJgNtKuff3sIY2JVbQGPVJjj6AJh1uNS89pNYXKlWUhwMCxAtdEe7Riq3
-         sZc/m6TdO0gp1nCLKXVTWtAztVYPDoeryx5KSlv9s3CfEiXFzR6IYMXiJIX7t6rDQs
-         kBn77FzKdmIR9cDdf/DHHZ0mcmfD5PUPFtNrdPmc=
+        b=y9v3VFu+3/aIpC+ywt+O+onSumK1QjnziTaty+2TpHNjJCLc9WVST3qD2H+7tMgxw
+         xejEDwm87STkpy10hfm9uqhTQ8IlnzOQR2RwCISepg970CdwlPzTA6mbI+MVz29vo/
+         3/oEkDyUeTrMmN510KllaVE9eIGiQdUrL7xyseCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 577/633] habanalabs: cast to u64 before shift > 31 bits
+Subject: [PATCH 5.9 670/757] fs: dlm: fix configfs memory leak
 Date:   Tue, 27 Oct 2020 14:55:20 +0100
-Message-Id: <20201027135549.878325296@linuxfoundation.org>
+Message-Id: <20201027135521.971208514@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <oded.gabbay@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit f763946aefe67b3ea58696b75a930ba1ed886a83 ]
+[ Upstream commit 3d2825c8c6105b0f36f3ff72760799fa2e71420e ]
 
-When shifting a boolean variable by more than 31 bits and putting the
-result into a u64 variable, we need to cast the boolean into unsigned 64
-bits to prevent possible overflow.
+This patch fixes the following memory detected by kmemleak and umount
+gfs2 filesystem which removed the last lockspace:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+unreferenced object 0xffff9264f482f600 (size 192):
+  comm "dlm_controld", pid 325, jiffies 4294690276 (age 48.136s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 6e 6f 64 65 73 00 00 00  ........nodes...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000060481d7>] make_space+0x41/0x130
+    [<000000008d905d46>] configfs_mkdir+0x1a2/0x5f0
+    [<00000000729502cf>] vfs_mkdir+0x155/0x210
+    [<000000000369bcf1>] do_mkdirat+0x6d/0x110
+    [<00000000cc478a33>] do_syscall_64+0x33/0x40
+    [<00000000ce9ccf01>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The patch just remembers the "nodes" entry pointer in space as I think
+it's created as subdirectory when parent "spaces" is created. In
+function drop_space() we will lost the pointer reference to nds because
+configfs_remove_default_groups(). However as this subdirectory is always
+available when "spaces" exists it will just be freed when "spaces" will be
+freed.
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 8 +++++---
- drivers/misc/habanalabs/goya/goya.c   | 8 +++++---
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ fs/dlm/config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index ca183733847b6..bcc45bf7af2c8 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -6285,7 +6285,7 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 47f0b98b707f8..f33a7e4ae917b 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -221,6 +221,7 @@ struct dlm_space {
+ 	struct list_head members;
+ 	struct mutex members_lock;
+ 	int members_count;
++	struct dlm_nodes *nds;
+ };
  
- 		if (mask)
--			*mask |= !is_eng_idle <<
-+			*mask |= ((u64) !is_eng_idle) <<
- 					(GAUDI_ENGINE_ID_DMA_0 + dma_id);
- 		if (s)
- 			seq_printf(s, fmt, dma_id,
-@@ -6308,7 +6308,8 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+ struct dlm_comms {
+@@ -430,6 +431,7 @@ static struct config_group *make_space(struct config_group *g, const char *name)
+ 	INIT_LIST_HEAD(&sp->members);
+ 	mutex_init(&sp->members_lock);
+ 	sp->members_count = 0;
++	sp->nds = nds;
+ 	return &sp->group;
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GAUDI_ENGINE_ID_TPC_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GAUDI_ENGINE_ID_TPC_0 + i);
- 		if (s)
- 			seq_printf(s, fmt, i,
- 				is_eng_idle ? "Y" : "N",
-@@ -6336,7 +6337,8 @@ static bool gaudi_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
+  fail:
+@@ -451,6 +453,7 @@ static void drop_space(struct config_group *g, struct config_item *i)
+ static void release_space(struct config_item *i)
+ {
+ 	struct dlm_space *sp = config_item_to_space(i);
++	kfree(sp->nds);
+ 	kfree(sp);
+ }
  
- 		if (mask)
--			*mask |= !is_eng_idle << (GAUDI_ENGINE_ID_MME_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GAUDI_ENGINE_ID_MME_0 + i);
- 		if (s) {
- 			if (!is_slave)
- 				seq_printf(s, fmt, i,
-diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
-index c179085ced7b8..a8041a39fae31 100644
---- a/drivers/misc/habanalabs/goya/goya.c
-+++ b/drivers/misc/habanalabs/goya/goya.c
-@@ -5098,7 +5098,8 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
- 
- 		if (mask)
--			*mask |= !is_eng_idle << (GOYA_ENGINE_ID_DMA_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GOYA_ENGINE_ID_DMA_0 + i);
- 		if (s)
- 			seq_printf(s, dma_fmt, i, is_eng_idle ? "Y" : "N",
- 					qm_glbl_sts0, dma_core_sts0);
-@@ -5121,7 +5122,8 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 		is_idle &= is_eng_idle;
- 
- 		if (mask)
--			*mask |= !is_eng_idle << (GOYA_ENGINE_ID_TPC_0 + i);
-+			*mask |= ((u64) !is_eng_idle) <<
-+						(GOYA_ENGINE_ID_TPC_0 + i);
- 		if (s)
- 			seq_printf(s, fmt, i, is_eng_idle ? "Y" : "N",
- 				qm_glbl_sts0, cmdq_glbl_sts0, tpc_cfg_sts);
-@@ -5141,7 +5143,7 @@ static bool goya_is_device_idle(struct hl_device *hdev, u32 *mask,
- 	is_idle &= is_eng_idle;
- 
- 	if (mask)
--		*mask |= !is_eng_idle << GOYA_ENGINE_ID_MME_0;
-+		*mask |= ((u64) !is_eng_idle) << GOYA_ENGINE_ID_MME_0;
- 	if (s) {
- 		seq_printf(s, fmt, 0, is_eng_idle ? "Y" : "N", qm_glbl_sts0,
- 				cmdq_glbl_sts0, mme_arch_sts);
 -- 
 2.25.1
 
