@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E060A299EB9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3BA299E62
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:16:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439225AbgJ0AKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59328 "EHLO mail.kernel.org"
+        id S2439233AbgJ0AK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439220AbgJ0AKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:25 -0400
+        id S2394807AbgJ0AK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A539720882;
-        Tue, 27 Oct 2020 00:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E51E4217A0;
+        Tue, 27 Oct 2020 00:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757424;
-        bh=/A4Rvmd19B8URv1h/6TnEs9yhcS4+ipaCX3exhWdHPA=;
+        s=default; t=1603757425;
+        bh=XybQFfIDHZ//jyCK9OkTtlBQWlpQPKQezx0o3w3QdeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8B2K9a9fBEUSajFEn3aqpERR+nm+hXc5DheNohfxHRM4vttxPxEClp9bGJ77nwo4
-         JspjsvEWkaq1A2M04MqJE23NloUvRSn1zhRpQZiFcS9G578WtvNAw1+L9unIj7OZjc
-         VczumydEuAXNJKM94caP4y37Cm7hlefJOuIsQ4eA=
+        b=hZKbbZAueJHXZ7LjzFkV+nfm7bwqpbET884PjiKpb/l5NvWr3P9oA8M0goHufEj8O
+         WuO9wPqIZ7+ai0qrWw83Udb/l8DRC6snFIFqR9D9Z8XCRMM+Wraqr6J4I/jVYL/b4a
+         kEUatEQKJK92i1nEY8GtQn5ynGua1QTsnitlklwY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 32/46] bnxt_en: Log unknown link speed appropriately.
-Date:   Mon, 26 Oct 2020 20:09:31 -0400
-Message-Id: <20201027000946.1026923-32-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>, Dan Murphy <dmurphy@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 33/46] clk: ti: clockdomain: fix static checker warning
+Date:   Mon, 26 Oct 2020 20:09:32 -0400
+Message-Id: <20201027000946.1026923-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000946.1026923-1-sashal@kernel.org>
 References: <20201027000946.1026923-1-sashal@kernel.org>
@@ -44,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 8eddb3e7ce124dd6375d3664f1aae13873318b0f ]
+[ Upstream commit b7a7943fe291b983b104bcbd2f16e8e896f56590 ]
 
-If the VF virtual link is set to always enabled, the speed may be
-unknown when the physical link is down.  The driver currently logs
-the link speed as 4294967295 Mbps which is SPEED_UNKNOWN.  Modify
-the link up log message as "speed unknown" which makes more sense.
+Fix a memory leak induced by not calling clk_put after doing of_clk_get.
 
-Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1602493854-29283-7-git-send-email-michael.chan@broadcom.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907082600.454-3-t-kristo@ti.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/clk/ti/clockdomain.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index a03239ba1a323..e146f6a1fa80d 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -5780,6 +5780,11 @@ static void bnxt_report_link(struct bnxt *bp)
- 		u16 fec;
+diff --git a/drivers/clk/ti/clockdomain.c b/drivers/clk/ti/clockdomain.c
+index 07a805125e98c..11d92311e162f 100644
+--- a/drivers/clk/ti/clockdomain.c
++++ b/drivers/clk/ti/clockdomain.c
+@@ -146,10 +146,12 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
+ 		if (clk_hw_get_flags(clk_hw) & CLK_IS_BASIC) {
+ 			pr_warn("can't setup clkdm for basic clk %s\n",
+ 				__clk_get_name(clk));
++			clk_put(clk);
+ 			continue;
+ 		}
+ 		to_clk_hw_omap(clk_hw)->clkdm_name = clkdm_name;
+ 		omap2_init_clk_clkdm(clk_hw);
++		clk_put(clk);
+ 	}
+ }
  
- 		netif_carrier_on(bp->dev);
-+		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
-+		if (speed == SPEED_UNKNOWN) {
-+			netdev_info(bp->dev, "NIC Link is Up, speed unknown\n");
-+			return;
-+		}
- 		if (bp->link_info.duplex == BNXT_LINK_DUPLEX_FULL)
- 			duplex = "full";
- 		else
-@@ -5792,7 +5797,6 @@ static void bnxt_report_link(struct bnxt *bp)
- 			flow_ctrl = "ON - receive";
- 		else
- 			flow_ctrl = "none";
--		speed = bnxt_fw_to_ethtool_speed(bp->link_info.link_speed);
- 		netdev_info(bp->dev, "NIC Link is Up, %u Mbps %s duplex, Flow control: %s\n",
- 			    speed, duplex, flow_ctrl);
- 		if (bp->flags & BNXT_FLAG_EEE_CAP)
 -- 
 2.25.1
 
