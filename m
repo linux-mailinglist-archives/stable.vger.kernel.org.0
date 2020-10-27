@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52A2929BBB1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:30:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C5E29BBAF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901649AbgJ0Q0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53446 "EHLO mail.kernel.org"
+        id S2504521AbgJ0Q0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:26:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802897AbgJ0Pvz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:51:55 -0400
+        id S1802953AbgJ0PwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:52:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A1EE2225E;
-        Tue, 27 Oct 2020 15:51:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67FA92065C;
+        Tue, 27 Oct 2020 15:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813914;
-        bh=MkgMDcccSHwun46vYipogs2oopYDY7nk+d6mYmDSuyM=;
+        s=default; t=1603813918;
+        bh=e9gFAd3d1UGX/iB+qJTkyB+hli31VQmIr5s1g7wzTAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUzXzjDNhi+K5uVsxuNPqa8dnYTq+cKwxoYaR3GDuO434A0E7r+2suftzGWVKcEvK
-         ZkCeaCcm0Q/Hwxf/sY4PIS40cL/kH6YitakbrttoE3a6PJAltXcHQFp39iTVn3L9LH
-         92K25VdsbkKFGx0HR4SxJb4HEZkIVOn2Ib/1I1YE=
+        b=UGC9zfrdZ09zPH6WHM6WXDxg/DE9Uls19Hhh5mGjM65SX+SKdD3GQ+FFFvl+kUy8m
+         BsU8ffxQi8upON9JZOQsDW7FVvSQvp2ARzwo9CQD2rfM4w6qZKrOsDY/is41Dbx9br
+         yF/Hb+4QiNVHGuGh+ahe5FeDVKIbMWx8MgyHjDFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
         Joakim Zhang <qiangqing.zhang@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 682/757] mic: vop: copy data to kernel space then write to io memory
-Date:   Tue, 27 Oct 2020 14:55:32 +0100
-Message-Id: <20201027135522.530841798@linuxfoundation.org>
+Subject: [PATCH 5.9 683/757] misc: vop: add round_up(x,4) for vring_size to avoid kernel panic
+Date:   Tue, 27 Oct 2020 14:55:33 +0100
+Message-Id: <20201027135522.579183319@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,59 +45,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 675f0ad4046946e80412896436164d172cd92238 ]
+[ Upstream commit cc1a2679865a94b83804822996eed010a50a7c1d ]
 
-Read and write io memory should address align on ARCH ARM. Change to use
-memcpy_toio to avoid kernel panic caused by the address un-align issue.
+Since struct _mic_vring_info and vring are allocated together and follow
+vring, if the vring_size() is not four bytes aligned, which will cause
+the start address of struct _mic_vring_info is not four byte aligned.
+For example, when vring entries is 128, the vring_size() will be 5126
+bytes. The _mic_vring_info struct layout in ddr looks like:
+0x90002400:  00000000 00390000 EE010000 0000C0FF
+Here 0x39 is the avail_idx member, and 0xC0FFEE01 is the magic member.
+
+When EP use ioread32(magic) to reads the magic in RC's share memory, it
+will cause kernel panic on ARM64 platform due to the cross-byte io read.
+Here read magic in user space use le32toh(vr0->info->magic) will meet
+the same issue.
+So add round_up(x,4) for vring_size, then the struct _mic_vring_info
+will store in this way:
+0x90002400:  00000000 00000000 00000039 C0FFEE01
+Which will avoid kernel panic when read magic in struct _mic_vring_info.
 
 Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
 Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20200929091106.24624-5-sherry.sun@nxp.com
+Link: https://lore.kernel.org/r/20200929091106.24624-4-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/vop/vop_vringh.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/misc/mic/vop/vop_main.c   | 2 +-
+ drivers/misc/mic/vop/vop_vringh.c | 4 ++--
+ samples/mic/mpssd/mpssd.c         | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
+index 55e7f21e51f44..6722c726b2590 100644
+--- a/drivers/misc/mic/vop/vop_main.c
++++ b/drivers/misc/mic/vop/vop_main.c
+@@ -320,7 +320,7 @@ static struct virtqueue *vop_find_vq(struct virtio_device *dev,
+ 	/* First assign the vring's allocated in host memory */
+ 	vqconfig = _vop_vq_config(vdev->desc) + index;
+ 	memcpy_fromio(&config, vqconfig, sizeof(config));
+-	_vr_size = vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN);
++	_vr_size = round_up(vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN), 4);
+ 	vr_size = PAGE_ALIGN(_vr_size + sizeof(struct _mic_vring_info));
+ 	va = vpdev->hw_ops->remap(vpdev, le64_to_cpu(config.address), vr_size);
+ 	if (!va)
 diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
-index 30eac172f0170..d069947b09345 100644
+index d069947b09345..7014ffe88632e 100644
 --- a/drivers/misc/mic/vop/vop_vringh.c
 +++ b/drivers/misc/mic/vop/vop_vringh.c
-@@ -602,6 +602,7 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
- 	size_t partlen;
- 	bool dma = VOP_USE_DMA && vi->dma_ch;
- 	int err = 0;
-+	size_t offset = 0;
+@@ -296,7 +296,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
  
- 	if (dma) {
- 		dma_alignment = 1 << vi->dma_ch->device->copy_align;
-@@ -655,13 +656,20 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
- 	 * We are copying to IO below and should ideally use something
- 	 * like copy_from_user_toio(..) if it existed.
- 	 */
--	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
--		err = -EFAULT;
--		dev_err(vop_dev(vdev), "%s %d err %d\n",
--			__func__, __LINE__, err);
--		goto err;
-+	while (len) {
-+		partlen = min_t(size_t, len, VOP_INT_DMA_BUF_SIZE);
-+
-+		if (copy_from_user(vvr->buf, ubuf + offset, partlen)) {
-+			err = -EFAULT;
-+			dev_err(vop_dev(vdev), "%s %d err %d\n",
-+				__func__, __LINE__, err);
-+			goto err;
-+		}
-+		memcpy_toio(dbuf + offset, vvr->buf, partlen);
-+		offset += partlen;
-+		vdev->out_bytes += partlen;
-+		len -= partlen;
- 	}
--	vdev->out_bytes += len;
- 	err = 0;
- err:
- 	vpdev->hw_ops->unmap(vpdev, dbuf);
+ 		num = le16_to_cpu(vqconfig[i].num);
+ 		mutex_init(&vvr->vr_mutex);
+-		vr_size = PAGE_ALIGN(vring_size(num, MIC_VIRTIO_RING_ALIGN) +
++		vr_size = PAGE_ALIGN(round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4) +
+ 			sizeof(struct _mic_vring_info));
+ 		vr->va = (void *)
+ 			__get_free_pages(GFP_KERNEL | __GFP_ZERO,
+@@ -308,7 +308,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
+ 			goto err;
+ 		}
+ 		vr->len = vr_size;
+-		vr->info = vr->va + vring_size(num, MIC_VIRTIO_RING_ALIGN);
++		vr->info = vr->va + round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4);
+ 		vr->info->magic = cpu_to_le32(MIC_MAGIC + vdev->virtio_id + i);
+ 		vr_addr = dma_map_single(&vpdev->dev, vr->va, vr_size,
+ 					 DMA_BIDIRECTIONAL);
+diff --git a/samples/mic/mpssd/mpssd.c b/samples/mic/mpssd/mpssd.c
+index a11bf6c5b53b4..cd3f16a6f5caf 100644
+--- a/samples/mic/mpssd/mpssd.c
++++ b/samples/mic/mpssd/mpssd.c
+@@ -403,9 +403,9 @@ mic_virtio_copy(struct mic_info *mic, int fd,
+ 
+ static inline unsigned _vring_size(unsigned int num, unsigned long align)
+ {
+-	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
++	return _ALIGN_UP(((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
+ 				+ align - 1) & ~(align - 1))
+-		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
++		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num, 4);
+ }
+ 
+ /*
 -- 
 2.25.1
 
