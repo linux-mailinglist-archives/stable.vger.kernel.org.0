@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4EF29B38D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3CB129B2ED
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:47:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900538AbgJ0Ox0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47044 "EHLO mail.kernel.org"
+        id S1764622AbgJ0OrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1764640AbgJ0OrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:47:11 -0400
+        id S1764711AbgJ0OrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:47:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4F132222C;
-        Tue, 27 Oct 2020 14:47:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DDD521D7B;
+        Tue, 27 Oct 2020 14:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810029;
-        bh=vGFptaVtGjNFIOy+y1m69FptUj3BD1rOXFNRPngPKy4=;
+        s=default; t=1603810032;
+        bh=iyMsPoeqfLD7Bze7bB14UtH5je5zdl3IIQwf2ExxCUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2dVOT6ekxhy18ok8XiYrBwFS3L1lgl0Zdl3XwQqGuxT4unU18en6ahALDTQMBTkd
-         94sKBwyX2BCn24oFvprIeBcmIhjXQLFzEfoor3Anu/rrcP9C8JsNB5Vlq6clVnS70s
-         DEdOLRP8LzuAlniI8+MMoo/5Qhu3hu5M+kk565qA=
+        b=aaYlPJn0E+JRVfIe3lqFUT4Yrkk+IApAUe31BhC7PLHFfow0UXMlbUzuCdWG6D5Xa
+         ObHcXW1nAEAEM5EKJUx5kT+CB07+UVhPlRdbFKrjO0DfVcnwOsu3mfsYpvsLxPi9oy
+         cFw15mP1PZB7T/de2ipbpnkTUJen8LjuxSw/19IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Subject: [PATCH 5.4 404/408] usb: cdc-acm: add quirk to blacklist ETAS ES58X devices
-Date:   Tue, 27 Oct 2020 14:55:42 +0100
-Message-Id: <20201027135513.744262872@linuxfoundation.org>
+        syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Oliver Neukum <oneukum@suse.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.4 405/408] USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
+Date:   Tue, 27 Oct 2020 14:55:43 +0100
+Message-Id: <20201027135513.794979556@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -42,340 +45,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit a4f88430af896bf34ec25a7a5f0e053fb3d928e0 upstream.
+commit 37d2a36394d954413a495da61da1b2a51ecd28ab upstream.
 
-The ES58X devices has a CDC ACM interface (used for debug
-purpose). During probing, the device is thus recognized as USB Modem
-(CDC ACM), preventing the etas-es58x module to load:
-  usbcore: registered new interface driver etas_es58x
-  usb 1-1.1: new full-speed USB device number 14 using xhci_hcd
-  usb 1-1.1: New USB device found, idVendor=108c, idProduct=0159, bcdDevice= 1.00
-  usb 1-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
-  usb 1-1.1: Product: ES581.4
-  usb 1-1.1: Manufacturer: ETAS GmbH
-  usb 1-1.1: SerialNumber: 2204355
-  cdc_acm 1-1.1:1.0: No union descriptor, testing for castrated device
-  cdc_acm 1-1.1:1.0: ttyACM0: USB ACM device
+syzbot is reporting hung task at wdm_flush() [1], for there is a circular
+dependency that wdm_flush() from flip_close() for /dev/cdc-wdm0 forever
+waits for /dev/raw-gadget to be closed while close() for /dev/raw-gadget
+cannot be called unless close() for /dev/cdc-wdm0 completes.
 
-Thus, these have been added to the ignore list in
-drivers/usb/class/cdc-acm.c
+Tetsuo Handa considered that such circular dependency is an usage error [2]
+which corresponds to an unresponding broken hardware [3]. But Alan Stern
+responded that we should be prepared for such hardware [4]. Therefore,
+this patch changes wdm_flush() to use wait_event_interruptible_timeout()
+which gives up after 30 seconds, for hardware that remains silent must be
+ignored. The 30 seconds are coming out of thin air.
 
-N.B. Future firmware release of the ES58X will remove the CDC-ACM
-interface.
+Changing wait_event() to wait_event_interruptible_timeout() makes error
+reporting from close() syscall less reliable. To compensate it, this patch
+also implements wdm_fsync() which does not use timeout. Those who want to
+be very sure that data has gone out to the device are now advised to call
+fsync(), with a caveat that fsync() can return -EINVAL when running on
+older kernels which do not implement wdm_fsync().
 
-`lsusb -v` of the three devices variant (ES581.4, ES582.1 and
-ES584.1):
+This patch also fixes three more problems (listed below) found during
+exhaustive discussion and testing.
 
-  Bus 001 Device 011: ID 108c:0159 Robert Bosch GmbH ES581.4
-  Device Descriptor:
-    bLength                18
-    bDescriptorType         1
-    bcdUSB               1.10
-    bDeviceClass            2 Communications
-    bDeviceSubClass         0
-    bDeviceProtocol         0
-    bMaxPacketSize0        64
-    idVendor           0x108c Robert Bosch GmbH
-    idProduct          0x0159
-    bcdDevice            1.00
-    iManufacturer           1 ETAS GmbH
-    iProduct                2 ES581.4
-    iSerial                 3 2204355
-    bNumConfigurations      1
-    Configuration Descriptor:
-      bLength                 9
-      bDescriptorType         2
-      wTotalLength       0x0035
-      bNumInterfaces          1
-      bConfigurationValue     1
-      iConfiguration          5 Bus Powered Configuration
-      bmAttributes         0x80
-        (Bus Powered)
-      MaxPower              100mA
-      Interface Descriptor:
-        bLength                 9
-        bDescriptorType         4
-        bInterfaceNumber        0
-        bAlternateSetting       0
-        bNumEndpoints           3
-        bInterfaceClass         2 Communications
-        bInterfaceSubClass      2 Abstract (modem)
-        bInterfaceProtocol      0
-        iInterface              4 ACM Control Interface
-        CDC Header:
-          bcdCDC               1.10
-        CDC Call Management:
-          bmCapabilities       0x01
-            call management
-          bDataInterface          0
-        CDC ACM:
-          bmCapabilities       0x06
-            sends break
-            line coding and serial state
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x81  EP 1 IN
-          bmAttributes            3
-            Transfer Type            Interrupt
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0010  1x 16 bytes
-          bInterval              10
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x82  EP 2 IN
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0040  1x 64 bytes
-          bInterval               0
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x03  EP 3 OUT
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0040  1x 64 bytes
-          bInterval               0
-  Device Status:     0x0000
-    (Bus Powered)
+  Since multiple threads can concurrently call wdm_write()/wdm_flush(),
+  we need to use wake_up_all() whenever clearing WDM_IN_USE in order to
+  make sure that all waiters are woken up. Also, error reporting needs
+  to use fetch-and-clear approach in order not to report same error for
+  multiple times.
 
-  Bus 001 Device 012: ID 108c:0168 Robert Bosch GmbH ES582
-  Device Descriptor:
-    bLength                18
-    bDescriptorType         1
-    bcdUSB               2.00
-    bDeviceClass            2 Communications
-    bDeviceSubClass         0
-    bDeviceProtocol         0
-    bMaxPacketSize0        64
-    idVendor           0x108c Robert Bosch GmbH
-    idProduct          0x0168
-    bcdDevice            1.00
-    iManufacturer           1 ETAS GmbH
-    iProduct                2 ES582
-    iSerial                 3 0108933
-    bNumConfigurations      1
-    Configuration Descriptor:
-      bLength                 9
-      bDescriptorType         2
-      wTotalLength       0x0043
-      bNumInterfaces          2
-      bConfigurationValue     1
-      iConfiguration          0
-      bmAttributes         0x80
-        (Bus Powered)
-      MaxPower              500mA
-      Interface Descriptor:
-        bLength                 9
-        bDescriptorType         4
-        bInterfaceNumber        0
-        bAlternateSetting       0
-        bNumEndpoints           1
-        bInterfaceClass         2 Communications
-        bInterfaceSubClass      2 Abstract (modem)
-        bInterfaceProtocol      1 AT-commands (v.25ter)
-        iInterface              0
-        CDC Header:
-          bcdCDC               1.10
-        CDC ACM:
-          bmCapabilities       0x02
-            line coding and serial state
-        CDC Union:
-          bMasterInterface        0
-          bSlaveInterface         1
-        CDC Call Management:
-          bmCapabilities       0x03
-            call management
-            use DataInterface
-          bDataInterface          1
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x83  EP 3 IN
-          bmAttributes            3
-            Transfer Type            Interrupt
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0040  1x 64 bytes
-          bInterval              16
-      Interface Descriptor:
-        bLength                 9
-        bDescriptorType         4
-        bInterfaceNumber        1
-        bAlternateSetting       0
-        bNumEndpoints           2
-        bInterfaceClass        10 CDC Data
-        bInterfaceSubClass      0
-        bInterfaceProtocol      0
-        iInterface              0
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x81  EP 1 IN
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0200  1x 512 bytes
-          bInterval               0
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x02  EP 2 OUT
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0200  1x 512 bytes
-          bInterval               0
-  Device Qualifier (for other device speed):
-    bLength                10
-    bDescriptorType         6
-    bcdUSB               2.00
-    bDeviceClass            2 Communications
-    bDeviceSubClass         0
-    bDeviceProtocol         0
-    bMaxPacketSize0        64
-    bNumConfigurations      1
-  Device Status:     0x0000
-    (Bus Powered)
+  Since wdm_flush() checks WDM_DISCONNECTING, wdm_write() should as well
+  check WDM_DISCONNECTING.
 
-  Bus 001 Device 013: ID 108c:0169 Robert Bosch GmbH ES584.1
-  Device Descriptor:
-    bLength                18
-    bDescriptorType         1
-    bcdUSB               2.00
-    bDeviceClass            2 Communications
-    bDeviceSubClass         0
-    bDeviceProtocol         0
-    bMaxPacketSize0        64
-    idVendor           0x108c Robert Bosch GmbH
-    idProduct          0x0169
-    bcdDevice            1.00
-    iManufacturer           1 ETAS GmbH
-    iProduct                2 ES584.1
-    iSerial                 3 0100320
-    bNumConfigurations      1
-    Configuration Descriptor:
-      bLength                 9
-      bDescriptorType         2
-      wTotalLength       0x0043
-      bNumInterfaces          2
-      bConfigurationValue     1
-      iConfiguration          0
-      bmAttributes         0x80
-        (Bus Powered)
-      MaxPower              500mA
-      Interface Descriptor:
-        bLength                 9
-        bDescriptorType         4
-        bInterfaceNumber        0
-        bAlternateSetting       0
-        bNumEndpoints           1
-        bInterfaceClass         2 Communications
-        bInterfaceSubClass      2 Abstract (modem)
-        bInterfaceProtocol      1 AT-commands (v.25ter)
-        iInterface              0
-        CDC Header:
-          bcdCDC               1.10
-        CDC ACM:
-          bmCapabilities       0x02
-            line coding and serial state
-        CDC Union:
-          bMasterInterface        0
-          bSlaveInterface         1
-        CDC Call Management:
-          bmCapabilities       0x03
-            call management
-            use DataInterface
-          bDataInterface          1
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x83  EP 3 IN
-          bmAttributes            3
-            Transfer Type            Interrupt
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0040  1x 64 bytes
-          bInterval              16
-      Interface Descriptor:
-        bLength                 9
-        bDescriptorType         4
-        bInterfaceNumber        1
-        bAlternateSetting       0
-        bNumEndpoints           2
-        bInterfaceClass        10 CDC Data
-        bInterfaceSubClass      0
-        bInterfaceProtocol      0
-        iInterface              0
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x81  EP 1 IN
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0200  1x 512 bytes
-          bInterval               0
-        Endpoint Descriptor:
-          bLength                 7
-          bDescriptorType         5
-          bEndpointAddress     0x02  EP 2 OUT
-          bmAttributes            2
-            Transfer Type            Bulk
-            Synch Type               None
-            Usage Type               Data
-          wMaxPacketSize     0x0200  1x 512 bytes
-          bInterval               0
-  Device Qualifier (for other device speed):
-    bLength                10
-    bDescriptorType         6
-    bcdUSB               2.00
-    bDeviceClass            2 Communications
-    bDeviceSubClass         0
-    bDeviceProtocol         0
-    bMaxPacketSize0        64
-    bNumConfigurations      1
-  Device Status:     0x0000
-    (Bus Powered)
+  In wdm_flush(), since locks are not held, it is not safe to dereference
+  desc->intf after checking that WDM_DISCONNECTING is not set [5]. Thus,
+  remove dev_err() from wdm_flush().
 
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+[1] https://syzkaller.appspot.com/bug?id=e7b761593b23eb50855b9ea31e3be5472b711186
+[2] https://lkml.kernel.org/r/27b7545e-8f41-10b8-7c02-e35a08eb1611@i-love.sakura.ne.jp
+[3] https://lkml.kernel.org/r/79ba410f-e0ef-2465-b94f-6b9a4a82adf5@i-love.sakura.ne.jp
+[4] https://lkml.kernel.org/r/20200530011040.GB12419@rowland.harvard.edu
+[5] https://lkml.kernel.org/r/c85331fc-874c-6e46-a77f-0ef1dc075308@i-love.sakura.ne.jp
+
+Reported-by: syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201002154219.4887-8-mailhol.vincent@wanadoo.fr
+Co-developed-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200928141755.3476-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/class/cdc-acm.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1912,6 +1912,17 @@ static const struct usb_device_id acm_id
- 	.driver_info = IGNORE_DEVICE,
- 	},
+---
+ drivers/usb/class/cdc-wdm.c |   70 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 54 insertions(+), 16 deletions(-)
+
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -58,6 +58,9 @@ MODULE_DEVICE_TABLE (usb, wdm_ids);
  
-+	/* Exclude ETAS ES58x */
-+	{ USB_DEVICE(0x108c, 0x0159), /* ES581.4 */
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+	{ USB_DEVICE(0x108c, 0x0168), /* ES582.1 */
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+	{ USB_DEVICE(0x108c, 0x0169), /* ES584.1 */
-+	.driver_info = IGNORE_DEVICE,
-+	},
+ #define WDM_MAX			16
+ 
++/* we cannot wait forever at flush() */
++#define WDM_FLUSH_TIMEOUT	(30 * HZ)
 +
- 	{ USB_DEVICE(0x1bc7, 0x0021), /* Telit 3G ACM only composition */
- 	.driver_info = SEND_ZERO_PACKET,
- 	},
+ /* CDC-WMC r1.1 requires wMaxCommand to be "at least 256 decimal (0x100)" */
+ #define WDM_DEFAULT_BUFSIZE	256
+ 
+@@ -151,7 +154,7 @@ static void wdm_out_callback(struct urb
+ 	kfree(desc->outbuf);
+ 	desc->outbuf = NULL;
+ 	clear_bit(WDM_IN_USE, &desc->flags);
+-	wake_up(&desc->wait);
++	wake_up_all(&desc->wait);
+ }
+ 
+ static void wdm_in_callback(struct urb *urb)
+@@ -393,6 +396,9 @@ static ssize_t wdm_write
+ 	if (test_bit(WDM_RESETTING, &desc->flags))
+ 		r = -EIO;
+ 
++	if (test_bit(WDM_DISCONNECTING, &desc->flags))
++		r = -ENODEV;
++
+ 	if (r < 0) {
+ 		rv = r;
+ 		goto out_free_mem_pm;
+@@ -424,6 +430,7 @@ static ssize_t wdm_write
+ 	if (rv < 0) {
+ 		desc->outbuf = NULL;
+ 		clear_bit(WDM_IN_USE, &desc->flags);
++		wake_up_all(&desc->wait); /* for wdm_wait_for_response() */
+ 		dev_err(&desc->intf->dev, "Tx URB error: %d\n", rv);
+ 		rv = usb_translate_errors(rv);
+ 		goto out_free_mem_pm;
+@@ -583,28 +590,58 @@ err:
+ 	return rv;
+ }
+ 
+-static int wdm_flush(struct file *file, fl_owner_t id)
++static int wdm_wait_for_response(struct file *file, long timeout)
+ {
+ 	struct wdm_device *desc = file->private_data;
++	long rv; /* Use long here because (int) MAX_SCHEDULE_TIMEOUT < 0. */
+ 
+-	wait_event(desc->wait,
+-			/*
+-			 * needs both flags. We cannot do with one
+-			 * because resetting it would cause a race
+-			 * with write() yet we need to signal
+-			 * a disconnect
+-			 */
+-			!test_bit(WDM_IN_USE, &desc->flags) ||
+-			test_bit(WDM_DISCONNECTING, &desc->flags));
++	/*
++	 * Needs both flags. We cannot do with one because resetting it would
++	 * cause a race with write() yet we need to signal a disconnect.
++	 */
++	rv = wait_event_interruptible_timeout(desc->wait,
++			      !test_bit(WDM_IN_USE, &desc->flags) ||
++			      test_bit(WDM_DISCONNECTING, &desc->flags),
++			      timeout);
+ 
+-	/* cannot dereference desc->intf if WDM_DISCONNECTING */
++	/*
++	 * To report the correct error. This is best effort.
++	 * We are inevitably racing with the hardware.
++	 */
+ 	if (test_bit(WDM_DISCONNECTING, &desc->flags))
+ 		return -ENODEV;
+-	if (desc->werr < 0)
+-		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
+-			desc->werr);
++	if (!rv)
++		return -EIO;
++	if (rv < 0)
++		return -EINTR;
++
++	spin_lock_irq(&desc->iuspin);
++	rv = desc->werr;
++	desc->werr = 0;
++	spin_unlock_irq(&desc->iuspin);
+ 
+-	return usb_translate_errors(desc->werr);
++	return usb_translate_errors(rv);
++
++}
++
++/*
++ * You need to send a signal when you react to malicious or defective hardware.
++ * Also, don't abort when fsync() returned -EINVAL, for older kernels which do
++ * not implement wdm_flush() will return -EINVAL.
++ */
++static int wdm_fsync(struct file *file, loff_t start, loff_t end, int datasync)
++{
++	return wdm_wait_for_response(file, MAX_SCHEDULE_TIMEOUT);
++}
++
++/*
++ * Same with wdm_fsync(), except it uses finite timeout in order to react to
++ * malicious or defective hardware which ceased communication after close() was
++ * implicitly called due to process termination.
++ */
++static int wdm_flush(struct file *file, fl_owner_t id)
++{
++	return wdm_wait_for_response(file, WDM_FLUSH_TIMEOUT);
+ }
+ 
+ static __poll_t wdm_poll(struct file *file, struct poll_table_struct *wait)
+@@ -729,6 +766,7 @@ static const struct file_operations wdm_
+ 	.owner =	THIS_MODULE,
+ 	.read =		wdm_read,
+ 	.write =	wdm_write,
++	.fsync =	wdm_fsync,
+ 	.open =		wdm_open,
+ 	.flush =	wdm_flush,
+ 	.release =	wdm_release,
 
 
