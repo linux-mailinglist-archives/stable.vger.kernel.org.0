@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E21829BC89
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F3329BC85
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1810097AbgJ0Qdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        id S1810073AbgJ0Qd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802477AbgJ0PtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:49:12 -0400
+        id S1802479AbgJ0PtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:49:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C8F52231B;
-        Tue, 27 Oct 2020 15:49:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D63D22384;
+        Tue, 27 Oct 2020 15:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813749;
-        bh=flb3bwQ1gDVKXGaaMS3Pa/biqu4CqGQ82jZk66Pid8Q=;
+        s=default; t=1603813752;
+        bh=vu7pTNAvw9+u1v2MqLtoBgxPJCu1Jl1H6ad4i3niq+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kga86yXffq8WJNP972qkirzGL4eteYeIMY8bRdub6cgZlgdu38YY6Ie49MOO0ZTZl
-         6JWYL2JU6AKd7WAKjFFMsQeW6CWqUH0lAo9RLTzw6uXYC8KOBOEgVaMBcmHWna9pwC
-         20kYwmBhiHpF5pSSBWDK8nElI8fOebqOo6BkjZ1Q=
+        b=MZlR71wPgcbQ4n/Y3aXDIDmD1ibjT+BCJFiBZGnjm/aisItqERxwOe/n76z7tO+SN
+         z3301wNax/U8Uruw8BHPlgSkT/BeB7Bt18w6ex8Lry5C5daD8dvumAs8d7B+DPSt38
+         lHHGapu3vurW9t7TNfIS2TrMgTIxgBye0UEcX9YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 658/757] media: media/pci: prevent memory leak in bttv_probe
-Date:   Tue, 27 Oct 2020 14:55:08 +0100
-Message-Id: <20201027135521.396670603@linuxfoundation.org>
+Subject: [PATCH 5.9 659/757] x86/mce: Annotate mce_rd/wrmsrl() with noinstr
+Date:   Tue, 27 Oct 2020 14:55:09 +0100
+Message-Id: <20201027135521.445794425@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,63 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 7b817585b730665126b45df5508dd69526448bc8 ]
+[ Upstream commit e100777016fdf6ec3a9d7c1773b15a2b5eca6c55 ]
 
-In bttv_probe if some functions such as pci_enable_device,
-pci_set_dma_mask and request_mem_region fails the allocated
- memory for btv should be released.
+They do get called from the #MC handler which is already marked
+"noinstr".
 
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Commit
+
+  e2def7d49d08 ("x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR")
+
+already got rid of the instrumentation in the MSR accessors, fix the
+annotation now too, in order to get rid of:
+
+  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200915194020.28807-1-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/bt8xx/bttv-driver.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 9144f795fb933..b721720f9845a 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -4013,11 +4013,13 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	btv->id  = dev->device;
- 	if (pci_enable_device(dev)) {
- 		pr_warn("%d: Can't enable device\n", btv->c.nr);
--		return -EIO;
-+		result = -EIO;
-+		goto free_mem;
- 	}
- 	if (pci_set_dma_mask(dev, DMA_BIT_MASK(32))) {
- 		pr_warn("%d: No suitable DMA available\n", btv->c.nr);
--		return -EIO;
-+		result = -EIO;
-+		goto free_mem;
- 	}
- 	if (!request_mem_region(pci_resource_start(dev,0),
- 				pci_resource_len(dev,0),
-@@ -4025,7 +4027,8 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 		pr_warn("%d: can't request iomem (0x%llx)\n",
- 			btv->c.nr,
- 			(unsigned long long)pci_resource_start(dev, 0));
--		return -EBUSY;
-+		result = -EBUSY;
-+		goto free_mem;
- 	}
- 	pci_set_master(dev);
- 	pci_set_command(dev);
-@@ -4211,6 +4214,10 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	release_mem_region(pci_resource_start(btv->c.pci,0),
- 			   pci_resource_len(btv->c.pci,0));
- 	pci_disable_device(btv->c.pci);
-+
-+free_mem:
-+	bttvs[btv->c.nr] = NULL;
-+	kfree(btv);
- 	return result;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index fc4f8c04bdb56..4288645425f15 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -374,16 +374,25 @@ static int msr_to_offset(u32 msr)
  }
  
+ /* MSR access wrappers used for error injection */
+-static u64 mce_rdmsrl(u32 msr)
++static noinstr u64 mce_rdmsrl(u32 msr)
+ {
+ 	u64 v;
+ 
+ 	if (__this_cpu_read(injectm.finished)) {
+-		int offset = msr_to_offset(msr);
++		int offset;
++		u64 ret;
+ 
++		instrumentation_begin();
++
++		offset = msr_to_offset(msr);
+ 		if (offset < 0)
+-			return 0;
+-		return *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
++			ret = 0;
++		else
++			ret = *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
++
++		instrumentation_end();
++
++		return ret;
+ 	}
+ 
+ 	if (rdmsrl_safe(msr, &v)) {
+@@ -399,13 +408,19 @@ static u64 mce_rdmsrl(u32 msr)
+ 	return v;
+ }
+ 
+-static void mce_wrmsrl(u32 msr, u64 v)
++static noinstr void mce_wrmsrl(u32 msr, u64 v)
+ {
+ 	if (__this_cpu_read(injectm.finished)) {
+-		int offset = msr_to_offset(msr);
++		int offset;
+ 
++		instrumentation_begin();
++
++		offset = msr_to_offset(msr);
+ 		if (offset >= 0)
+ 			*(u64 *)((char *)this_cpu_ptr(&injectm) + offset) = v;
++
++		instrumentation_end();
++
+ 		return;
+ 	}
+ 	wrmsrl(msr, v);
 -- 
 2.25.1
 
