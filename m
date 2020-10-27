@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB26F29C669
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D261229C693
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826165AbgJ0SQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32940 "EHLO mail.kernel.org"
+        id S1826349AbgJ0ST0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2507282AbgJ0OLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:11:53 -0400
+        id S2393563AbgJ0ODk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAC03222C8;
-        Tue, 27 Oct 2020 14:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7999E2222C;
+        Tue, 27 Oct 2020 14:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807904;
-        bh=4/xdcCUDhuxtXptoKkH/FTVVOeKUwYTCuNrTpyrsvxg=;
+        s=default; t=1603807420;
+        bh=5uujSNEjrcS7EpXKjxkYyUzDHLbOjK2pug37pf/PNRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRso5rKtIHFXjiOYw9mXWwcriI41DSoozGx7FnVGIN5/szocgM6XLGrdOGzk9zkpN
-         /Ukmkciy74zItCEhtqhPUvQ93spmhN6VQL+/eDG9I7I30fMHZzQhs8qmwQskc7whU5
-         zbH0egQYaRjUrWxh4JShhA8hzLuxJLPiB9Zhb2eI=
+        b=YblyvqODSxBg6BxpO77ksrKd6B5RpiWvtZ151n+yCseXhhGaFfHOM2ALsaAr/gPRx
+         gEtoRyVK7ifwX2JOaZMncUsXxeGhU2QlHEHNq9R/GS3Q9F55vH3QObGS8RTuS+/FqV
+         yEXngIJOvJTL1YCSSPMszFCHXmHgi0FqgXOU+pgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/191] IB/mlx4: Fix starvation in paravirt mux/demux
-Date:   Tue, 27 Oct 2020 14:49:00 +0100
-Message-Id: <20201027134913.780284233@linuxfoundation.org>
+Subject: [PATCH 4.9 047/139] net: enic: Cure the enic api locking trainwreck
+Date:   Tue, 27 Oct 2020 14:49:01 +0100
+Message-Id: <20201027134904.366202910@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,176 +43,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 7fd1507df7cee9c533f38152fcd1dd769fcac6ce ]
+[ Upstream commit a53b59ece86c86d16d12ccdaa1ad0c78250a9d96 ]
 
-The mlx4 driver will proxy MAD packets through the PF driver. A VM or an
-instantiated VF will send its MAD packets to the PF driver using
-loop-back. The PF driver will be informed by an interrupt, but defer the
-handling and polling of CQEs to a worker thread running on an ordered
-work-queue.
+enic_dev_wait() has a BUG_ON(in_interrupt()).
 
-Consider the following scenario: the VMs will in short proximity in time,
-for example due to a network event, send many MAD packets to the PF
-driver. Lets say there are K VMs, each sending N packets.
+Chasing the callers of enic_dev_wait() revealed the gems of enic_reset()
+and enic_tx_hang_reset() which are both invoked through work queues in
+order to be able to call rtnl_lock(). So far so good.
 
-The interrupt from the first VM will start the worker thread, which will
-poll N CQEs. A common case here is where the PF driver will multiplex the
-packets received from the VMs out on the wire QP.
+After locking rtnl both functions acquire enic::enic_api_lock which
+serializes against the (ab)use from infiniband. This is where the
+trainwreck starts.
 
-But before the wire QP has returned a send CQE and associated interrupt,
-the other K - 1 VMs have sent their N packets as well.
+enic::enic_api_lock is a spin_lock() which implicitly disables preemption,
+but both functions invoke a ton of functions under that lock which can
+sleep. The BUG_ON(in_interrupt()) does not trigger in that case because it
+can't detect the preempt disabled condition.
 
-The PF driver has to multiplex K * N packets out on the wire QP. But the
-send-queue on the wire QP has a finite capacity.
+This clearly has never been tested with any of the mandatory debug options
+for 7+ years, which would have caught that for sure.
 
-So, in this scenario, if K * N is larger than the send-queue capacity of
-the wire QP, we will get MAD packets dropped on the floor with this
-dynamic debug message:
+Cure it by adding a enic_api_busy member to struct enic, which is modified
+and evaluated with enic::enic_api_lock held.
 
-mlx4_ib_multiplex_mad: failed sending GSI to wire on behalf of slave 2 (-11)
+If enic_api_devcmd_proxy_by_index() observes enic::enic_api_busy as true,
+it drops enic::enic_api_lock and busy waits for enic::enic_api_busy to
+become false.
 
-and this despite the fact that the wire send-queue could have capacity,
-but the PF driver isn't aware, because the wire send CQEs have not yet
-been polled.
+It would be smarter to wait for a completion of that busy period, but
+enic_api_devcmd_proxy_by_index() is called with other spin locks held which
+obviously can't sleep.
 
-We can also have a similar scenario inbound, with a wire recv-queue larger
-than the tunnel QP's send-queue. If many remote peers send MAD packets to
-the very same VM, the tunnel send-queue destined to the VM could allegedly
-be construed to be full by the PF driver.
+Remove the BUG_ON(in_interrupt()) check as well because it's incomplete and
+with proper debugging enabled the problem would have been caught from the
+debug checks in schedule_timeout().
 
-This starvation is fixed by introducing separate work queues for the wire
-QPs vs. the tunnel QPs.
-
-With this fix, using a dual ported HCA, 8 VFs instantiated, we could run
-cmtime on each of the 18 interfaces towards a similar configured peer,
-each cmtime instance with 800 QPs (all in all 14400 QPs) without a single
-CM packet getting lost.
-
-Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
-Link: https://lore.kernel.org/r/20200803061941.1139994-5-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 0b038566c0ea ("drivers/net: enic: Add an interface for USNIC to interact with firmware")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/mad.c     | 34 +++++++++++++++++++++++++---
- drivers/infiniband/hw/mlx4/mlx4_ib.h |  2 ++
- 2 files changed, 33 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/cisco/enic/enic.h      |  1 +
+ drivers/net/ethernet/cisco/enic/enic_api.c  |  6 +++++
+ drivers/net/ethernet/cisco/enic/enic_main.c | 27 ++++++++++++++++-----
+ 3 files changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
-index c69158ccab822..60d4f2c9c24d8 100644
---- a/drivers/infiniband/hw/mlx4/mad.c
-+++ b/drivers/infiniband/hw/mlx4/mad.c
-@@ -1305,6 +1305,18 @@ static void mlx4_ib_tunnel_comp_handler(struct ib_cq *cq, void *arg)
- 	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
- }
+diff --git a/drivers/net/ethernet/cisco/enic/enic.h b/drivers/net/ethernet/cisco/enic/enic.h
+index 130f910e47854..b6ebcee40a0d4 100644
+--- a/drivers/net/ethernet/cisco/enic/enic.h
++++ b/drivers/net/ethernet/cisco/enic/enic.h
+@@ -163,6 +163,7 @@ struct enic {
+ 	u16 num_vfs;
+ #endif
+ 	spinlock_t enic_api_lock;
++	bool enic_api_busy;
+ 	struct enic_port_profile *pp;
  
-+static void mlx4_ib_wire_comp_handler(struct ib_cq *cq, void *arg)
-+{
-+	unsigned long flags;
-+	struct mlx4_ib_demux_pv_ctx *ctx = cq->cq_context;
-+	struct mlx4_ib_dev *dev = to_mdev(ctx->ib_dev);
-+
-+	spin_lock_irqsave(&dev->sriov.going_down_lock, flags);
-+	if (!dev->sriov.is_going_down && ctx->state == DEMUX_PV_STATE_ACTIVE)
-+		queue_work(ctx->wi_wq, &ctx->work);
-+	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
-+}
-+
- static int mlx4_ib_post_pv_qp_buf(struct mlx4_ib_demux_pv_ctx *ctx,
- 				  struct mlx4_ib_demux_pv_qp *tun_qp,
- 				  int index)
-@@ -2012,7 +2024,8 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
- 		cq_size *= 2;
+ 	/* work queue cache line section */
+diff --git a/drivers/net/ethernet/cisco/enic/enic_api.c b/drivers/net/ethernet/cisco/enic/enic_api.c
+index b161f24522b87..b028ea2dec2b9 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_api.c
++++ b/drivers/net/ethernet/cisco/enic/enic_api.c
+@@ -34,6 +34,12 @@ int enic_api_devcmd_proxy_by_index(struct net_device *netdev, int vf,
+ 	struct vnic_dev *vdev = enic->vdev;
  
- 	cq_attr.cqe = cq_size;
--	ctx->cq = ib_create_cq(ctx->ib_dev, mlx4_ib_tunnel_comp_handler,
-+	ctx->cq = ib_create_cq(ctx->ib_dev,
-+			       create_tun ? mlx4_ib_tunnel_comp_handler : mlx4_ib_wire_comp_handler,
- 			       NULL, ctx, &cq_attr);
- 	if (IS_ERR(ctx->cq)) {
- 		ret = PTR_ERR(ctx->cq);
-@@ -2049,6 +2062,7 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
- 		INIT_WORK(&ctx->work, mlx4_ib_sqp_comp_worker);
- 
- 	ctx->wq = to_mdev(ibdev)->sriov.demux[port - 1].wq;
-+	ctx->wi_wq = to_mdev(ibdev)->sriov.demux[port - 1].wi_wq;
- 
- 	ret = ib_req_notify_cq(ctx->cq, IB_CQ_NEXT_COMP);
- 	if (ret) {
-@@ -2192,7 +2206,7 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 		goto err_mcg;
- 	}
- 
--	snprintf(name, sizeof name, "mlx4_ibt%d", port);
-+	snprintf(name, sizeof(name), "mlx4_ibt%d", port);
- 	ctx->wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
- 	if (!ctx->wq) {
- 		pr_err("Failed to create tunnelling WQ for port %d\n", port);
-@@ -2200,7 +2214,15 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 		goto err_wq;
- 	}
- 
--	snprintf(name, sizeof name, "mlx4_ibud%d", port);
-+	snprintf(name, sizeof(name), "mlx4_ibwi%d", port);
-+	ctx->wi_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
-+	if (!ctx->wi_wq) {
-+		pr_err("Failed to create wire WQ for port %d\n", port);
-+		ret = -ENOMEM;
-+		goto err_wiwq;
+ 	spin_lock(&enic->enic_api_lock);
++	while (enic->enic_api_busy) {
++		spin_unlock(&enic->enic_api_lock);
++		cpu_relax();
++		spin_lock(&enic->enic_api_lock);
 +	}
 +
-+	snprintf(name, sizeof(name), "mlx4_ibud%d", port);
- 	ctx->ud_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
- 	if (!ctx->ud_wq) {
- 		pr_err("Failed to create up/down WQ for port %d\n", port);
-@@ -2211,6 +2233,10 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 	return 0;
+ 	spin_lock_bh(&enic->devcmd_lock);
  
- err_udwq:
-+	destroy_workqueue(ctx->wi_wq);
-+	ctx->wi_wq = NULL;
-+
-+err_wiwq:
- 	destroy_workqueue(ctx->wq);
- 	ctx->wq = NULL;
+ 	vnic_dev_cmd_proxy_by_index_start(vdev, vf);
+diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
+index 96290b83dfde9..3a3f3a7d7a75f 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_main.c
++++ b/drivers/net/ethernet/cisco/enic/enic_main.c
+@@ -1938,8 +1938,6 @@ static int enic_dev_wait(struct vnic_dev *vdev,
+ 	int done;
+ 	int err;
  
-@@ -2258,12 +2284,14 @@ static void mlx4_ib_free_demux_ctx(struct mlx4_ib_demux_ctx *ctx)
- 				ctx->tun[i]->state = DEMUX_PV_STATE_DOWNING;
- 		}
- 		flush_workqueue(ctx->wq);
-+		flush_workqueue(ctx->wi_wq);
- 		for (i = 0; i < dev->dev->caps.sqp_demux; i++) {
- 			destroy_pv_resources(dev, i, ctx->port, ctx->tun[i], 0);
- 			free_pv_object(dev, i, ctx->port);
- 		}
- 		kfree(ctx->tun);
- 		destroy_workqueue(ctx->ud_wq);
-+		destroy_workqueue(ctx->wi_wq);
- 		destroy_workqueue(ctx->wq);
- 	}
+-	BUG_ON(in_interrupt());
+-
+ 	err = start(vdev, arg);
+ 	if (err)
+ 		return err;
+@@ -2116,6 +2114,13 @@ static int enic_set_rss_nic_cfg(struct enic *enic)
+ 		rss_hash_bits, rss_base_cpu, rss_enable);
  }
-diff --git a/drivers/infiniband/hw/mlx4/mlx4_ib.h b/drivers/infiniband/hw/mlx4/mlx4_ib.h
-index 1fa19820355af..ed72c09080c1d 100644
---- a/drivers/infiniband/hw/mlx4/mlx4_ib.h
-+++ b/drivers/infiniband/hw/mlx4/mlx4_ib.h
-@@ -463,6 +463,7 @@ struct mlx4_ib_demux_pv_ctx {
- 	struct ib_pd *pd;
- 	struct work_struct work;
- 	struct workqueue_struct *wq;
-+	struct workqueue_struct *wi_wq;
- 	struct mlx4_ib_demux_pv_qp qp[2];
- };
  
-@@ -470,6 +471,7 @@ struct mlx4_ib_demux_ctx {
- 	struct ib_device *ib_dev;
- 	int port;
- 	struct workqueue_struct *wq;
-+	struct workqueue_struct *wi_wq;
- 	struct workqueue_struct *ud_wq;
- 	spinlock_t ud_lock;
- 	atomic64_t subnet_prefix;
++static void enic_set_api_busy(struct enic *enic, bool busy)
++{
++	spin_lock(&enic->enic_api_lock);
++	enic->enic_api_busy = busy;
++	spin_unlock(&enic->enic_api_lock);
++}
++
+ static void enic_reset(struct work_struct *work)
+ {
+ 	struct enic *enic = container_of(work, struct enic, reset);
+@@ -2125,7 +2130,9 @@ static void enic_reset(struct work_struct *work)
+ 
+ 	rtnl_lock();
+ 
+-	spin_lock(&enic->enic_api_lock);
++	/* Stop any activity from infiniband */
++	enic_set_api_busy(enic, true);
++
+ 	enic_stop(enic->netdev);
+ 	enic_dev_soft_reset(enic);
+ 	enic_reset_addr_lists(enic);
+@@ -2133,7 +2140,10 @@ static void enic_reset(struct work_struct *work)
+ 	enic_set_rss_nic_cfg(enic);
+ 	enic_dev_set_ig_vlan_rewrite_mode(enic);
+ 	enic_open(enic->netdev);
+-	spin_unlock(&enic->enic_api_lock);
++
++	/* Allow infiniband to fiddle with the device again */
++	enic_set_api_busy(enic, false);
++
+ 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 
+ 	rtnl_unlock();
+@@ -2145,7 +2155,9 @@ static void enic_tx_hang_reset(struct work_struct *work)
+ 
+ 	rtnl_lock();
+ 
+-	spin_lock(&enic->enic_api_lock);
++	/* Stop any activity from infiniband */
++	enic_set_api_busy(enic, true);
++
+ 	enic_dev_hang_notify(enic);
+ 	enic_stop(enic->netdev);
+ 	enic_dev_hang_reset(enic);
+@@ -2154,7 +2166,10 @@ static void enic_tx_hang_reset(struct work_struct *work)
+ 	enic_set_rss_nic_cfg(enic);
+ 	enic_dev_set_ig_vlan_rewrite_mode(enic);
+ 	enic_open(enic->netdev);
+-	spin_unlock(&enic->enic_api_lock);
++
++	/* Allow infiniband to fiddle with the device again */
++	enic_set_api_busy(enic, false);
++
+ 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 
+ 	rtnl_unlock();
 -- 
 2.25.1
 
