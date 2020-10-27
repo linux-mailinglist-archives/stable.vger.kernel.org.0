@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E80CD29B9A9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6132C29B9AA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802689AbgJ0Pux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S1802693AbgJ0Puy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802354AbgJ0PqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:46:22 -0400
+        id S1802357AbgJ0PqZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:46:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7C7E21D42;
-        Tue, 27 Oct 2020 15:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8170B22202;
+        Tue, 27 Oct 2020 15:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813582;
-        bh=fiPxW/hHS4W0olmhI36Fiy6gwSxjpfh6zYxlbyd2moo=;
+        s=default; t=1603813585;
+        bh=bi9rG11d6SB90sUXYBcymSyH0bBautnFLxSOcAwTd+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yrm+uNJz9+BInEm5UqRhTEhxsOpR1j/DDdmRDR7T3uKAAkZsQegwth547R72G6b8K
-         ledszL7RSum3DUvDJ4EL3M8P5v905NT2NYe1dXjTBfeO4/OwZyyqQ5N7fMuYx+0Zxu
-         IgNN0PKHlXT7IkcXel4ljVhmfrvjJ9cvDfqQO0E4=
+        b=X1+RACNKXf4B8YiII55zPLXK2X+Jf9JrMOeoPJnDP9cpiCp4E4knNLVgh3RvFxVrZ
+         KWqICwmvs+9Ufn4xK/2mhEW5N3L+C3/T8oQ0v7HZs82MYJFDmKrpYcnU3KLDsvOKui
+         Ml61tImePWxI6heao83ggTr/0Roe6n18f2Q4yEyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 600/757] dmaengine: ti: k3-udma-glue: Fix parameters for rx ring pair request
-Date:   Tue, 27 Oct 2020 14:54:10 +0100
-Message-Id: <20201027135518.689269252@linuxfoundation.org>
+Subject: [PATCH 5.9 601/757] arm64: dts: imx8mq: Add missing interrupts to GPC
+Date:   Tue, 27 Oct 2020 14:54:11 +0100
+Message-Id: <20201027135518.737276724@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,37 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 6259c8441c4de3f1727a0db61465a8dc8f340c05 ]
+[ Upstream commit 791619f66843a213784efb2f171be98933bad991 ]
 
-The original commit mixed up the forward and completion ring IDs for the
-rx flow configuration.
+The i.MX General Power Controller v2 device node was missing interrupts
+property necessary to route its interrupt to GIC.  This also fixes the
+dbts_check warnings like:
 
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Fixes: 4927b1ab2047 ("dmaengine: ti: k3-udma: Switch to k3_ringacc_request_rings_pair")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+  arch/arm64/boot/dts/freescale/imx8mq-evk.dt.yaml: gpc@303a0000:
+    {'compatible': ... '$nodename': ['gpc@303a0000']} is not valid under any of the given schemas
+  arch/arm64/boot/dts/freescale/imx8mq-evk.dt.yaml: gpc@303a0000: 'interrupts' is a required property
+
+Fixes: fdbcc04da246 ("arm64: dts: imx8mq: add GPC power domains")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma-glue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/ti/k3-udma-glue.c b/drivers/dma/ti/k3-udma-glue.c
-index 42c8ad10d75eb..a367584f0d7b3 100644
---- a/drivers/dma/ti/k3-udma-glue.c
-+++ b/drivers/dma/ti/k3-udma-glue.c
-@@ -573,8 +573,8 @@ static int k3_udma_glue_cfg_rx_flow(struct k3_udma_glue_rx_channel *rx_chn,
- 
- 	/* request and cfg rings */
- 	ret =  k3_ringacc_request_rings_pair(rx_chn->common.ringacc,
--					     flow_cfg->ring_rxq_id,
- 					     flow_cfg->ring_rxfdq0_id,
-+					     flow_cfg->ring_rxq_id,
- 					     &flow->ringrxfdq,
- 					     &flow->ringrx);
- 	if (ret) {
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+index 561fa792fe5a9..58c08398d4ba7 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+@@ -617,6 +617,7 @@ src: reset-controller@30390000 {
+ 			gpc: gpc@303a0000 {
+ 				compatible = "fsl,imx8mq-gpc";
+ 				reg = <0x303a0000 0x10000>;
++				interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
+ 				interrupt-parent = <&gic>;
+ 				interrupt-controller;
+ 				#interrupt-cells = <3>;
 -- 
 2.25.1
 
