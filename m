@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5614429BFA0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4B629BF94
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1815671AbgJ0RED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
+        id S1815589AbgJ0RD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:03:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793611AbgJ0PH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:07:26 -0400
+        id S1793624AbgJ0PHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:07:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C82C206F4;
-        Tue, 27 Oct 2020 15:07:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D673520657;
+        Tue, 27 Oct 2020 15:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811246;
-        bh=g6dP+BPrfb98trzPWGgjmNStse5pQDADMfVlHwEzsko=;
+        s=default; t=1603811249;
+        bh=M0OJmUh0ZueDjKO/Js14+ErovrMkBFP1oIS5jY5bKps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsWkGahyLgSVKT7L4IX/BOuOzquIxGtzbIq+tnjTPx9LawZvtg9xZ8s8oGRuREP6D
-         LV19AGEDZsS2lvOAbheTxW9NG31i/fr5kobLAOYwm99kl4+eSuSXE9j+2vTFgnCLzH
-         ZCWJXBFZHUOZ1/SO7kiA6ICYDHGTaWsPDo3w132s=
+        b=myTCJVi/omY0GFvA0IZtKlVsA0RYDlfMlW812XzalOQTo6mIw/RutOYJW+gXbcTuc
+         Lzqg5wawUXDVGiuWU9gNRhFgIzKgOAqexkktr7a5HWc5OL6Ph7EI3sE70yXw0L0GC2
+         LgM7OjqmKwFkI1sukMyz8FhKv7Uzo7nI3jn7PW6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 426/633] rtc: ds1307: Clear OSF flag on DS1388 when setting time
-Date:   Tue, 27 Oct 2020 14:52:49 +0100
-Message-Id: <20201027135542.702283988@linuxfoundation.org>
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Andy Lowe <andy_lowe@mentor.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 427/633] i2c: rcar: Auto select RESET_CONTROLLER
+Date:   Tue, 27 Oct 2020 14:52:50 +0100
+Message-Id: <20201027135542.751697771@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,36 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Dirk Behme <dirk.behme@de.bosch.com>
 
-[ Upstream commit f471b05f76e4b1b6ba07ebc7681920a5c5b97c5d ]
+[ Upstream commit 5b9bacf28a973a6b16510493416baeefa2c06289 ]
 
-Ensure the OSF flag is cleared on the DS1388 when the clock is set.
+The i2c-rcar driver utilizes the Generic Reset Controller kernel
+feature, so select the RESET_CONTROLLER option when the I2C_RCAR
+option is selected with a Gen3 SoC.
 
-Fixes: df11b323b16f ("rtc: ds1307: handle oscillator failure flags for ds1388 variant")
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200818013543.4283-1-chris.packham@alliedtelesis.co.nz
+Fixes: 2b16fd63059ab9 ("i2c: rcar: handle RXDMA HW behaviour on Gen3")
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Andy Lowe <andy_lowe@mentor.com>
+[erosca: Add "if ARCH_RCAR_GEN3" per Wolfram's request]
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1307.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 49702942bb086..70b198423deba 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -352,6 +352,10 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 		regmap_update_bits(ds1307->regmap, DS1340_REG_FLAG,
- 				   DS1340_BIT_OSF, 0);
- 		break;
-+	case ds_1388:
-+		regmap_update_bits(ds1307->regmap, DS1388_REG_FLAG,
-+				   DS1388_BIT_OSF, 0);
-+		break;
- 	case mcp794xx:
- 		/*
- 		 * these bits were cleared when preparing the date/time
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 735bf31a3fdff..6546d6cf3c24c 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1191,6 +1191,7 @@ config I2C_RCAR
+ 	tristate "Renesas R-Car I2C Controller"
+ 	depends on ARCH_RENESAS || COMPILE_TEST
+ 	select I2C_SLAVE
++	select RESET_CONTROLLER if ARCH_RCAR_GEN3
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  R-Car I2C controller.
 -- 
 2.25.1
 
