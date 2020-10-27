@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B78729B275
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 627BF29B22E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:39:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762203AbgJ0Ol1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38070 "EHLO mail.kernel.org"
+        id S1761303AbgJ0Oiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:38:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761284AbgJ0Ois (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:38:48 -0400
+        id S1761300AbgJ0Oiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:38:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C1E1206B2;
-        Tue, 27 Oct 2020 14:38:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71664207BB;
+        Tue, 27 Oct 2020 14:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809527;
-        bh=LN/V0HsMz3lBA21Fgm1khuui5yc4y2k/d5hAyAs3iB8=;
+        s=default; t=1603809530;
+        bh=qTAJKcr5QfV7qdmRojt05ZdjWrzjGb4muDon/pNya5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxTdVTW3vkGrLkoBEyJqm5GP/tZrQQJ2xmI7eFyf5Aon/8bBQF8oe3SoN3tuTNr/8
-         AyRMm/9IwkEE0lJP0JKazSb+l5F4oSDcRCBwULvckEOSOVq5UTR2pL61+Jx2HDPZZr
-         Dr/8tJIfbB5vxtIkZIMiVWncuEMRjj4NuHjnI850=
+        b=Ghl80N/1s1TFE+8PN26L9NTCWUtYQGzphG19nD+rbrsoK7SwiQl5l31ZWuzrSqLDk
+         G46ZjqmTncR9sxVWLuQHVlOpHIXBuVzbSDIOP/Dy70DZwrdZqvIjCcl8Uk9tJlpcJn
+         CMo8JnCfum0a08z0xqdEQwf8FLmSCqm1fUWoY4fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/408] powerpc/64s/radix: Fix mm_cpumask trimming race vs kthread_use_mm
-Date:   Tue, 27 Oct 2020 14:52:46 +0100
-Message-Id: <20201027135505.640293488@linuxfoundation.org>
+Subject: [PATCH 5.4 229/408] RDMA/cma: Remove dead code for kernel rdmacm multicast
+Date:   Tue, 27 Oct 2020 14:52:47 +0100
+Message-Id: <20201027135505.691605272@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,114 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit a665eec0a22e11cdde708c1c256a465ebe768047 ]
+[ Upstream commit 1bb5091def706732c749df9aae45fbca003696f2 ]
 
-Commit 0cef77c7798a7 ("powerpc/64s/radix: flush remote CPUs out of
-single-threaded mm_cpumask") added a mechanism to trim the mm_cpumask of
-a process under certain conditions. One of the assumptions is that
-mm_users would not be incremented via a reference outside the process
-context with mmget_not_zero() then go on to kthread_use_mm() via that
-reference.
+There is no kernel user of RDMA CM multicast so this code managing the
+multicast subscription of the kernel-only internal QP is dead. Remove it.
 
-That invariant was broken by io_uring code (see previous sparc64 fix),
-but I'll point Fixes: to the original powerpc commit because we are
-changing that assumption going forward, so this will make backports
-match up.
+This makes the bug fixes in the next patches much simpler.
 
-Fix this by no longer relying on that assumption, but by having each CPU
-check the mm is not being used, and clearing their own bit from the mask
-only if it hasn't been switched-to by the time the IPI is processed.
-
-This relies on commit 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB
-invalidate") and ARCH_WANT_IRQS_OFF_ACTIVATE_MM to disable irqs over mm
-switch sequences.
-
-Fixes: 0cef77c7798a7 ("powerpc/64s/radix: flush remote CPUs out of single-threaded mm_cpumask")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
-Depends-on: 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB invalidate")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-5-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20200902081122.745412-7-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/tlb.h       | 13 -------------
- arch/powerpc/mm/book3s64/radix_tlb.c | 23 ++++++++++++++++-------
- 2 files changed, 16 insertions(+), 20 deletions(-)
+ drivers/infiniband/core/cma.c | 19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/tlb.h b/arch/powerpc/include/asm/tlb.h
-index 7f3a8b9023254..02a1c18cdba3d 100644
---- a/arch/powerpc/include/asm/tlb.h
-+++ b/arch/powerpc/include/asm/tlb.h
-@@ -67,19 +67,6 @@ static inline int mm_is_thread_local(struct mm_struct *mm)
- 		return false;
- 	return cpumask_test_cpu(smp_processor_id(), mm_cpumask(mm));
- }
--static inline void mm_reset_thread_local(struct mm_struct *mm)
--{
--	WARN_ON(atomic_read(&mm->context.copros) > 0);
--	/*
--	 * It's possible for mm_access to take a reference on mm_users to
--	 * access the remote mm from another thread, but it's not allowed
--	 * to set mm_cpumask, so mm_users may be > 1 here.
--	 */
--	WARN_ON(current->mm != mm);
--	atomic_set(&mm->context.active_cpus, 1);
--	cpumask_clear(mm_cpumask(mm));
--	cpumask_set_cpu(smp_processor_id(), mm_cpumask(mm));
--}
- #else /* CONFIG_PPC_BOOK3S_64 */
- static inline int mm_is_thread_local(struct mm_struct *mm)
- {
-diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-index 67af871190c6d..b0f240afffa22 100644
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -639,19 +639,29 @@ static void do_exit_flush_lazy_tlb(void *arg)
- 	struct mm_struct *mm = arg;
- 	unsigned long pid = mm->context.id;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index e3cd9d2b0dd2b..10525c91cac6c 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -4182,16 +4182,6 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
+ 	else
+ 		pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to join multicast. status %d\n",
+ 				     status);
+-	mutex_lock(&id_priv->qp_mutex);
+-	if (!status && id_priv->id.qp) {
+-		status = ib_attach_mcast(id_priv->id.qp, &multicast->rec.mgid,
+-					 be16_to_cpu(multicast->rec.mlid));
+-		if (status)
+-			pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to attach QP. status %d\n",
+-					     status);
+-	}
+-	mutex_unlock(&id_priv->qp_mutex);
+-
+ 	event.status = status;
+ 	event.param.ud.private_data = mc->context;
+ 	if (!status) {
+@@ -4446,6 +4436,10 @@ int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
+ 	struct cma_multicast *mc;
+ 	int ret;
  
-+	/*
-+	 * A kthread could have done a mmget_not_zero() after the flushing CPU
-+	 * checked mm_is_singlethreaded, and be in the process of
-+	 * kthread_use_mm when interrupted here. In that case, current->mm will
-+	 * be set to mm, because kthread_use_mm() setting ->mm and switching to
-+	 * the mm is done with interrupts off.
-+	 */
- 	if (current->mm == mm)
--		return; /* Local CPU */
-+		goto out_flush;
- 
- 	if (current->active_mm == mm) {
--		/*
--		 * Must be a kernel thread because sender is single-threaded.
--		 */
--		BUG_ON(current->mm);
-+		WARN_ON_ONCE(current->mm != NULL);
-+		/* Is a kernel thread and is using mm as the lazy tlb */
- 		mmgrab(&init_mm);
--		switch_mm(mm, &init_mm, current);
- 		current->active_mm = &init_mm;
-+		switch_mm_irqs_off(mm, &init_mm, current);
- 		mmdrop(mm);
- 	}
++	/* Not supported for kernel QPs */
++	if (WARN_ON(id->qp))
++		return -EINVAL;
 +
-+	atomic_dec(&mm->context.active_cpus);
-+	cpumask_clear_cpu(smp_processor_id(), mm_cpumask(mm));
-+
-+out_flush:
- 	_tlbiel_pid(pid, RIC_FLUSH_ALL);
- }
+ 	if (!id->device)
+ 		return -EINVAL;
  
-@@ -666,7 +676,6 @@ static void exit_flush_lazy_tlbs(struct mm_struct *mm)
- 	 */
- 	smp_call_function_many(mm_cpumask(mm), do_exit_flush_lazy_tlb,
- 				(void *)mm, 1);
--	mm_reset_thread_local(mm);
- }
+@@ -4500,11 +4494,6 @@ void rdma_leave_multicast(struct rdma_cm_id *id, struct sockaddr *addr)
+ 			list_del(&mc->list);
+ 			spin_unlock_irq(&id_priv->lock);
  
- void radix__flush_tlb_mm(struct mm_struct *mm)
+-			if (id->qp)
+-				ib_detach_mcast(id->qp,
+-						&mc->multicast.ib->rec.mgid,
+-						be16_to_cpu(mc->multicast.ib->rec.mlid));
+-
+ 			BUG_ON(id_priv->cma_dev->device != id->device);
+ 
+ 			if (rdma_cap_ib_mcast(id->device, id->port_num)) {
 -- 
 2.25.1
 
