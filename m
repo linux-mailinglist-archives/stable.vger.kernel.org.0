@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1281A29BB66
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9E929BA70
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368857AbgJ0QB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54452 "EHLO mail.kernel.org"
+        id S1789444AbgJ0QBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:01:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803416AbgJ0Pwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:49 -0400
+        id S1803436AbgJ0Pwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:52:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 668D1204EF;
-        Tue, 27 Oct 2020 15:52:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53C4520657;
+        Tue, 27 Oct 2020 15:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813969;
-        bh=dXX67ugBaay3YEwWMjuBSOIs7iMiA2XdkQBHJ0q0d94=;
+        s=default; t=1603813972;
+        bh=+18Rmy1rZb4EA8ZKVxJUrwxKrhYtc4JVUL89try4Ahc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3PyrU4cnGGp+Rs0jyI2+rTN9a9LzyTjLdjotirpc/DT+QyjDzIh4N3YnUaVZpuiC
-         OWYm45bVZQgVEsMfFefCpSsGrt8p2aem8s7wnb/OT3rtY8E5CP7YnQPOsgKXvh40iJ
-         eZju87SMOvWNvcEoFW97r6g6RlQxok5TXFko0Yug=
+        b=H1Z3inN03x2p/zRRfr5IqjLhujK5TdwfU9ZyGfbOs5gRkYwaa+50CLylj5knGCdoC
+         Y03g6blUBPlXscaZ2eHYC8rJw6rddSR7WuGFvBJv96KybH84KfKObcIpHR00NriU0r
+         f20PewP1wanBTxYjwSeU6q6onMHLI3Mjt1eyAJ3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+dc4127f950da51639216@syzkaller.appspotmail.com>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 731/757] mwifiex: dont call del_timer_sync() on uninitialized timer
-Date:   Tue, 27 Oct 2020 14:56:21 +0100
-Message-Id: <20201027135524.794988190@linuxfoundation.org>
+        stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 732/757] ALSA: hda/ca0132 - Add AE-7 microphone selection commands.
+Date:   Tue, 27 Oct 2020 14:56:22 +0100
+Message-Id: <20201027135524.842494771@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,52 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Connor McAdams <conmanx360@gmail.com>
 
-[ Upstream commit 621a3a8b1c0ecf16e1e5667ea5756a76a082b738 ]
+[ Upstream commit ed93f9750c6c2ed371347d0aac3dcd31cb9cf256 ]
 
-syzbot is reporting that del_timer_sync() is called from
-mwifiex_usb_cleanup_tx_aggr() from mwifiex_unregister_dev() without
-checking timer_setup() from mwifiex_usb_tx_init() was called [1].
+Add AE-7 quirk data for setting of microphone. The AE-7 has no front
+panel connector, so only rear-mic/line-in have new commands.
 
-Ganapathi Bhat proposed a possibly cleaner fix, but it seems that
-that fix was forgotten [2].
-
-"grep -FrB1 'del_timer' drivers/ | grep -FA1 '.function)'" says that
-currently there are 28 locations which call del_timer[_sync]() only if
-that timer's function field was initialized (because timer_setup() sets
-that timer's function field). Therefore, let's use same approach here.
-
-[1] https://syzkaller.appspot.com/bug?id=26525f643f454dd7be0078423e3cdb0d57744959
-[2] https://lkml.kernel.org/r/CA+ASDXMHt2gq9Hy+iP_BYkWXsSreWdp3_bAfMkNcuqJ3K+-jbQ@mail.gmail.com
-
-Reported-by: syzbot <syzbot+dc4127f950da51639216@syzkaller.appspotmail.com>
-Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Cc: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200821082720.7716-1-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Connor McAdams <conmanx360@gmail.com>
+Link: https://lore.kernel.org/r/20200825201040.30339-19-conmanx360@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index 6f3cfde4654cc..426e39d4ccf0f 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -1353,7 +1353,8 @@ static void mwifiex_usb_cleanup_tx_aggr(struct mwifiex_adapter *adapter)
- 				skb_dequeue(&port->tx_aggr.aggr_list)))
- 				mwifiex_write_data_complete(adapter, skb_tmp,
- 							    0, -1);
--		del_timer_sync(&port->tx_aggr.timer_cnxt.hold_timer);
-+		if (port->tx_aggr.timer_cnxt.hold_timer.function)
-+			del_timer_sync(&port->tx_aggr.timer_cnxt.hold_timer);
- 		port->tx_aggr.timer_cnxt.is_hold_timer_set = false;
- 		port->tx_aggr.timer_cnxt.hold_tmo_msecs = 0;
- 	}
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index b7dbf2e7f77af..c68669911de0a 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -4675,6 +4675,15 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
+ 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
+ 			tmp = FLOAT_THREE;
+ 			break;
++		case QUIRK_AE7:
++			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
++			tmp = FLOAT_THREE;
++			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
++					SR_96_000);
++			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
++					SR_96_000);
++			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
++			break;
+ 		default:
+ 			tmp = FLOAT_ONE;
+ 			break;
+@@ -4720,6 +4729,14 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
+ 		case QUIRK_AE5:
+ 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
+ 			break;
++		case QUIRK_AE7:
++			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x3f);
++			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
++					SR_96_000);
++			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
++					SR_96_000);
++			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -4729,7 +4746,10 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
+ 		if (ca0132_quirk(spec) == QUIRK_R3DI)
+ 			chipio_set_conn_rate(codec, 0x0F, SR_96_000);
+ 
+-		tmp = FLOAT_ZERO;
++		if (ca0132_quirk(spec) == QUIRK_AE7)
++			tmp = FLOAT_THREE;
++		else
++			tmp = FLOAT_ZERO;
+ 		dspio_set_uint_param(codec, 0x80, 0x00, tmp);
+ 
+ 		switch (ca0132_quirk(spec)) {
 -- 
 2.25.1
 
