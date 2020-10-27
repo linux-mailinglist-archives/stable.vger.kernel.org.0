@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E32A029B9B4
+	by mail.lfdr.de (Postfix) with ESMTP id 755C029B9B3
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802738AbgJ0PvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S1802736AbgJ0PvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802144AbgJ0Ppp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:45:45 -0400
+        id S1802157AbgJ0Pps (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:45:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA1EF22403;
-        Tue, 27 Oct 2020 15:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC03D2231B;
+        Tue, 27 Oct 2020 15:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813544;
-        bh=Z9uZAnmgGHJ32INYeOTMkXQS5l4BzWuMqHFivHWStm4=;
+        s=default; t=1603813547;
+        bh=M+9KacV3iDbbRM/KL3prW74hLAsrm+ZAJh777mPn3cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAoqdBr6gSh5IsqLL+BUi+sFwIBuTpI0vKVUu5LP+tOnz/vWd5VVco9SWfgQBqgW2
-         iGoud1T5mY4P6AwIfChrRoNbre/KlBpNCUy5bCjgQPrFG76BHmQmOKS1KlQPwsAXJ2
-         aTgSMEPIOJ8qmDS6mUMV7CTKgdiMFeB69G9GkwiM=
+        b=2RNPrEdCMDcH9Q3+eOt8LjVxYHMGtOEjCxo+7xeuhBLE6/dIOM7setDB1q6LsEQLN
+         id4QsVzsCLfPpeRnp191pQYXJNqwC+koVLa0oHFREnqj3pSB42hT/ckbEde1v5DBcY
+         PsMaeXIS9IBK3WM2GpVn+37fHyvCUfTNGIQDjd7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        stable@vger.kernel.org, Qiang Yu <yuq825@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 588/757] ARM: dts: sun8i: r40: bananapi-m2-ultra: Fix dcdc1 regulator
-Date:   Tue, 27 Oct 2020 14:53:58 +0100
-Message-Id: <20201027135518.114064405@linuxfoundation.org>
+Subject: [PATCH 5.9 589/757] arm64: dts: allwinner: h5: remove Mali GPU PMU module
+Date:   Tue, 27 Oct 2020 14:53:59 +0100
+Message-Id: <20201027135518.162938566@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,52 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Qiang Yu <yuq825@gmail.com>
 
-[ Upstream commit 3658a2b7f3e16c7053eb8d70657b94bb62c5a0f4 ]
+[ Upstream commit 2933bf3528007f834fb7f5eab033f9c5b0683f91 ]
 
-DCDC1 regulator powers many different subsystems. While some of them can
-work at 3.0 V, some of them can not. For example, VCC-HDMI can only work
-between 3.24 V and 3.36 V. According to OS images provided by the board
-manufacturer this regulator should be set to 3.3 V.
+H5's Mali GPU PMU is not present or working corretly although
+H5 datasheet record its interrupt vector.
 
-Set DCDC1 and DCDC1SW to 3.3 V in order to fix this.
+Adding this module will miss lead lima driver try to shutdown
+it and get waiting timeout. This problem is not exposed before
+lima runtime PM support is added.
 
-Fixes: da7ac948fa93 ("ARM: dts: sun8i: Add board dts file for Banana Pi M2 Ultra")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: bb39ed07e55b ("arm64: dts: allwinner: h5: Add device node for Mali-450 GPU")
+Signed-off-by: Qiang Yu <yuq825@gmail.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20200824193649.978197-1-jernej.skrabec@siol.net
+Link: https://lore.kernel.org/r/20200822062755.534761-1-yuq825@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-index 42d62d1ba1dc7..ea15073f0c79c 100644
---- a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-+++ b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-@@ -223,16 +223,16 @@ &reg_aldo3 {
- };
- 
- &reg_dc1sw {
--	regulator-min-microvolt = <3000000>;
--	regulator-max-microvolt = <3000000>;
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
- 	regulator-name = "vcc-gmac-phy";
- };
- 
- &reg_dcdc1 {
- 	regulator-always-on;
--	regulator-min-microvolt = <3000000>;
--	regulator-max-microvolt = <3000000>;
--	regulator-name = "vcc-3v0";
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-3v3";
- };
- 
- &reg_dcdc2 {
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
+index 6735e316a39c3..6c6053a18413d 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
+@@ -139,8 +139,7 @@ mali: gpu@1e80000 {
+ 				     <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 106 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
++				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "gp",
+ 					  "gpmmu",
+ 					  "pp",
+@@ -151,8 +150,7 @@ mali: gpu@1e80000 {
+ 					  "pp2",
+ 					  "ppmmu2",
+ 					  "pp3",
+-					  "ppmmu3",
+-					  "pmu";
++					  "ppmmu3";
+ 			clocks = <&ccu CLK_BUS_GPU>, <&ccu CLK_GPU>;
+ 			clock-names = "bus", "core";
+ 			resets = <&ccu RST_BUS_GPU>;
 -- 
 2.25.1
 
