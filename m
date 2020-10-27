@@ -2,101 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A35FE29A6F0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 09:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C854229A735
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 10:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2509478AbgJ0IvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 04:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52770 "EHLO mail.kernel.org"
+        id S2408132AbgJ0JDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 05:03:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2509468AbgJ0IvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 04:51:18 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        id S2408143AbgJ0JDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 05:03:37 -0400
+Received: from saruman (88-113-213-94.elisa-laajakaista.fi [88.113.213.94])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC80B207DE;
-        Tue, 27 Oct 2020 08:51:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 581A3206DC;
+        Tue, 27 Oct 2020 09:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603788678;
-        bh=8dUViDF5AY6tlMc5Zv1B0uvXiJWKjdjrfSA2hyJnu28=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=waBWXHTqt80D98RIveVBsQt6EJGt9YZqLHtwaRK9rAclMOx08LZIK9YMmqSaqOtvH
-         YjA/f8lhEIZG3jfMjd74abkaEl4Cp49JUn/1zfsGXdBVEpABFHKaAI/ukFV+EM6TGk
-         omphyMaLuYEjNhCsXtta74oQ9l+Z7bSCz4RQ9MnY=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94)
-        (envelope-from <maz@kernel.org>)
-        id 1kXKhH-004cXA-IH; Tue, 27 Oct 2020 08:51:15 +0000
+        s=default; t=1603789417;
+        bh=+88N+jaf6zFgt8gBGY6GxL5Kq0Ie4Xujwte+ErsZbrg=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=UL33vr29j+dVAhlRaFzJ/uPlfCEPQwT/+SG2eygmGjo5z/siQ+27w3v+iXnOL8YYq
+         c+nh4h+BWxMv3dL59qQiAYmdFb0snTxaaivi6oDjHoqhSE5/WieZGeEgkFxOCSHogu
+         R2Y5dHMoof54GJZsVotOhz2JWrek9M3OyQecylZc=
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Peter Chen <peter.chen@nxp.com>, pawell@cadence.com, rogerq@ti.com
+Cc:     linux-usb@vger.kernel.org, linux-imx@nxp.com,
+        gregkh@linuxfoundation.org, jun.li@nxp.com,
+        Peter Chen <peter.chen@nxp.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] usb: cdns3: gadget: suspicious implicit sign extension
+In-Reply-To: <20201016101659.29482-2-peter.chen@nxp.com>
+References: <20201016101659.29482-1-peter.chen@nxp.com>
+ <20201016101659.29482-2-peter.chen@nxp.com>
+Date:   Tue, 27 Oct 2020 11:03:29 +0200
+Message-ID: <871rhkdori.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Tue, 27 Oct 2020 08:51:15 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Zhen Lei <thunder.leizhen@huawei.com>
-Subject: Re: [PATCH AUTOSEL 5.9 087/147] genirq: Add stub for set_handle_irq()
- when !GENERIC_IRQ_MULTI_HANDLER
-In-Reply-To: <20201026234905.1022767-87-sashal@kernel.org>
-References: <20201026234905.1022767-1-sashal@kernel.org>
- <20201026234905.1022767-87-sashal@kernel.org>
-User-Agent: Roundcube Webmail/1.4.9
-Message-ID: <afd454bc23c458d4561378907f95a0aa@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: sashal@kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, thunder.leizhen@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-10-26 23:48, Sasha Levin wrote:
-> From: Zhen Lei <thunder.leizhen@huawei.com>
-> 
-> [ Upstream commit ea0c80d1764449acf2f70fdb25aec33800cd0348 ]
-> 
-> In order to avoid compilation errors when a driver references 
-> set_handle_irq(),
-> but that the architecture doesn't select GENERIC_IRQ_MULTI_HANDLER,
-> add a stub function that will just WARN_ON_ONCE() if ever used.
-> 
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-> [maz: commit message]
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Link: 
-> https://lore.kernel.org/r/20200924071754.4509-2-thunder.leizhen@huawei.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+
+Hi,
+
+Peter Chen <peter.chen@nxp.com> writes:
+> For code:
+> trb->length =3D cpu_to_le32(TRB_BURST_LEN(priv_ep->trb_burst_size)
+> 	       	| TRB_LEN(length));
+>
+> TRB_BURST_LEN(priv_ep->trb_burst_size) may be overflow for int 32 if
+> priv_ep->trb_burst_size is equal or larger than 0x80;
+>
+> Below is the Coverity warning:
+> sign_extension: Suspicious implicit sign extension: priv_ep->trb_burst_si=
+ze
+> with type u8 (8 bits, unsigned) is promoted in priv_ep->trb_burst_size <<=
+ 24
+> to type int (32 bits, signed), then sign-extended to type unsigned long
+> (64 bits, unsigned). If priv_ep->trb_burst_size << 24 is greater than 0x7=
+FFFFFFF,
+> the upper bits of the result will all be 1.
+
+looks like a false positive...
+
+> Cc: <stable@vger.kernel.org> #v5.8+
+> Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+> Signed-off-by: Peter Chen <peter.chen@nxp.com>
 > ---
->  include/linux/irq.h | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/include/linux/irq.h b/include/linux/irq.h
-> index 1b7f4dfee35b3..b167baef88c0b 100644
-> --- a/include/linux/irq.h
-> +++ b/include/linux/irq.h
-> @@ -1252,6 +1252,12 @@ int __init set_handle_irq(void
-> (*handle_irq)(struct pt_regs *));
->   * top-level IRQ handler.
->   */
->  extern void (*handle_arch_irq)(struct pt_regs *) __ro_after_init;
-> +#else
-> +#define set_handle_irq(handle_irq)		\
-> +	do {					\
-> +		(void)handle_irq;		\
-> +		WARN_ON(1);			\
-> +	} while (0)
->  #endif
-> 
->  #endif /* _LINUX_IRQ_H */
+>  drivers/usb/cdns3/gadget.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/usb/cdns3/gadget.h b/drivers/usb/cdns3/gadget.h
+> index 1ccecd237530..020936cb9897 100644
+> --- a/drivers/usb/cdns3/gadget.h
+> +++ b/drivers/usb/cdns3/gadget.h
+> @@ -1072,7 +1072,7 @@ struct cdns3_trb {
+>  #define TRB_TDL_SS_SIZE_GET(p)	(((p) & GENMASK(23, 17)) >> 17)
+>=20=20
+>  /* transfer_len bitmasks - bits 31:24 */
+> -#define TRB_BURST_LEN(p)	(((p) << 24) & GENMASK(31, 24))
+> +#define TRB_BURST_LEN(p)	(unsigned int)(((p) << 24) & GENMASK(31, 24))
 
-What is the reason for this backport? The only user is a driver that
-isn't getting backported (d59f7d159891 and following patches).
+... because TRB_BURST_LEN() is used to intialize a __le32 type. Even if
+it ends up being sign extended, the top 32-bits will be ignored.
 
-Thanks,
+I'll apply, but it looks like a pointless fix. We shouldn't need it for sta=
+ble
 
-         M.
--- 
-Jazz is not dead. It just smells funny...
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAl+X4mERHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQa8Ug/9GY0hScyIyCfZE4ugHeECPPIsjd1xC2ac
+PpKkhf88Lb1BLLsNOXXEXwMeAza3B2pxt2MQWhZhSNiSU5WOa4P9E1F6nXpcjp46
+RwDTk4mzyWVjfFqQYcF5ZDwT/6+49YKif0TO9OQQg5CGMaa+VK9+o8jLxKl/TYHG
+dKnjfhIwkbA3NPMbfm0d445JT1evMDHCK7qt487eK+ifNRXdv6IWMuB/JHMe+ny/
+V7Ygc7IKSnoo0CaAyj3/oQchsTyW+cleT3TXPYXUQIHjXuGJDvv1E5thVva0D4zF
+yjMKFe+0TIW0SqMflg2ufV9MBQoqNqmzJGWB5N0+nhp4XFBWYts5JEHDejZyVosT
+glhhROCFEMMAieqHb1XwcoPNRmNGvWKdRMhaANyUhBPxMe6Kf50FLbja7cgGay4K
+aRqKlYnw8GbS4de6ZCYj8AZpQPFvHFnX6S2rNSo4hrWrbR5+/rmPVuWwf2tejt21
+Ko7ch82bTNKCdYnu5THByGmOfnckZiTk1fLu8P7ygqcrnfSO8xeKjiARSN98EAgf
+kYqacE90zCysiF7tthEw7cmWaWODBm+JUw/4pgAJingYX9a2Saib/9ZbQ4aFiZhh
+ToHIMovA4z2M9/g/g4IbWsiJEhXDNRI4fpgDDTyxmGRyWgeBnW8JaMSorJt6y8AU
+YQpldMS6fP8=
+=W+KT
+-----END PGP SIGNATURE-----
+--=-=-=--
