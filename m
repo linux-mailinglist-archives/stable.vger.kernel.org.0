@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C93629C6F4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CBFB29C5B9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1823637AbgJ0S03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
+        id S1756279AbgJ0OMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504321AbgJ0OAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:00:39 -0400
+        id S1754347AbgJ0OFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA9CC221F8;
-        Tue, 27 Oct 2020 14:00:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A32E2222C;
+        Tue, 27 Oct 2020 14:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807239;
-        bh=kLqIkf1/SE8r4Wp0lP0UfuPx18W515CGoNhTtTNwxRQ=;
+        s=default; t=1603807509;
+        bh=fzAmJZium6sHhYqQYpWS7o43Szdn/Fhx9uOHjJ0kNys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdAn1RqTjjfX1ZHINkxDtPfp3iBJR0rSn42ju9uvkXLQ+nxKrPktO09Lb4ebS8b6L
-         Lpp1eY9XV78fIGbxm3Pc08KHL4V+ENlhNMx9ahGCVcAgvFvq+O6hU8liJMa4BVCJRS
-         MgbCw0L3TySOa7DhmkVVn5obzO+LOHwbhtmNYYck=
+        b=FtYMg2Sof96c79D9eUpbgHb9U26BGGBCYAnPxfJMUk8e7F0ILm8Y6isq2reFz5UWz
+         VcwSdMUiayRcuH/ye5tM3iMJVxwvUWJjsCL7O/ZSfTE5qayKUM+ySkhbogaPX/fqte
+         ENUUZ2BHFEHsX74VIaL+yPcVzBSGPvj0vq7HyDuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 063/112] kdb: Fix pager search for multi-line strings
+Subject: [PATCH 4.9 079/139] clk: bcm2835: add missing release if devm_clk_hw_register fails
 Date:   Tue, 27 Oct 2020 14:49:33 +0100
-Message-Id: <20201027134903.552351943@linuxfoundation.org>
+Message-Id: <20201027134905.885001322@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit d081a6e353168f15e63eb9e9334757f20343319f ]
+[ Upstream commit f6c992ca7dd4f49042eec61f3fb426c94d901675 ]
 
-Currently using forward search doesn't handle multi-line strings correctly.
-The search routine replaces line breaks with \0 during the search and, for
-regular searches ("help | grep Common\n"), there is code after the line
-has been discarded or printed to replace the break character.
+In the implementation of bcm2835_register_pll(), the allocated pll is
+leaked if devm_clk_hw_register() fails to register hw. Release pll if
+devm_clk_hw_register() fails.
 
-However during a pager search ("help\n" followed by "/Common\n") when the
-string is matched we will immediately return to normal output and the code
-that should restore the \n becomes unreachable. Fix this by restoring the
-replaced character when we disable the search mode and update the comment
-accordingly.
-
-Fixes: fb6daa7520f9d ("kdb: Provide forward search at more prompt")
-Link: https://lore.kernel.org/r/20200909141708.338273-1-daniel.thompson@linaro.org
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Link: https://lore.kernel.org/r/20200809231202.15811-1-navid.emamdoost@gmail.com
+Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/debug/kdb/kdb_io.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/debug/kdb/kdb_io.c b/kernel/debug/kdb/kdb_io.c
-index cc892a9e109d8..ae39b014b7d6c 100644
---- a/kernel/debug/kdb/kdb_io.c
-+++ b/kernel/debug/kdb/kdb_io.c
-@@ -683,12 +683,16 @@ int vkdb_printf(enum kdb_msgsrc src, const char *fmt, va_list ap)
- 			size_avail = sizeof(kdb_buffer) - len;
- 			goto kdb_print_out;
- 		}
--		if (kdb_grepping_flag >= KDB_GREPPING_FLAG_SEARCH)
-+		if (kdb_grepping_flag >= KDB_GREPPING_FLAG_SEARCH) {
- 			/*
- 			 * This was a interactive search (using '/' at more
--			 * prompt) and it has completed. Clear the flag.
-+			 * prompt) and it has completed. Replace the \0 with
-+			 * its original value to ensure multi-line strings
-+			 * are handled properly, and return to normal mode.
- 			 */
-+			*cphold = replaced_byte;
- 			kdb_grepping_flag = 0;
-+		}
- 		/*
- 		 * at this point the string is a full line and
- 		 * should be printed, up to the null.
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 2b5075298cdc0..3f16b553982d1 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1177,8 +1177,10 @@ static struct clk_hw *bcm2835_register_pll(struct bcm2835_cprman *cprman,
+ 	pll->hw.init = &init;
+ 
+ 	ret = devm_clk_hw_register(cprman->dev, &pll->hw);
+-	if (ret)
++	if (ret) {
++		kfree(pll);
+ 		return NULL;
++	}
+ 	return &pll->hw;
+ }
+ 
 -- 
 2.25.1
 
