@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A3529C492
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA6029C516
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756555AbgJ0OSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42060 "EHLO mail.kernel.org"
+        id S1824175AbgJ0SDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755699AbgJ0OSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:18:30 -0400
+        id S1757355AbgJ0OSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:18:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB359206FA;
-        Tue, 27 Oct 2020 14:18:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB612206FA;
+        Tue, 27 Oct 2020 14:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808310;
-        bh=nI4jZUvTn5zfgKWaRrwFtLzGgvtf4/cDwkCh7WLCMTI=;
+        s=default; t=1603808331;
+        bh=xjI0/qaFra9wN704axgQOlYHLOg73a6tBTMXSHmDYyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaaFwGxEuuv0F1tZ3dROTmDrNBOV8JIj6TZHcPR9K9IhBvKib3lRpvpIXg7xaQBh0
-         HEtddJ2THLrcCIn7yhiqmONLsrYiW8aGEcRida2/M2pk5k7auKWs/prj6awc/eePQa
-         OmDsf/dN58T6HOb4TP/Tr63VOOQfYjFI73zidOTA=
+        b=wcxWhhDRGAC0R6TSZdXvN1GhRz9pKxe+6aKOTh7ztxSr0iBLQpK7ODeu5e13iF2/I
+         HyC6sFD5zeOBLCF3L7u2UbQr/4GJq+VQGmbjyRQcT98IG46o0oWvK7/uBD6rpIVhFd
+         t/DLbiXPwmyYPzQTdZECN+oUnlA6B6+bJXyOmsog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Jamie Iles <jamie@jamieiles.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/264] crypto: picoxcell - Fix potential race condition bug
-Date:   Tue, 27 Oct 2020 14:51:40 +0100
-Message-Id: <20201027135432.646966687@linuxfoundation.org>
+Subject: [PATCH 4.19 044/264] media: Revert "media: exynos4-is: Add missed check for pinctrl_lookup_state()"
+Date:   Tue, 27 Oct 2020 14:51:42 +0100
+Message-Id: <20201027135432.745491231@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,53 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 64f4a62e3b17f1e473f971127c2924cae42afc82 ]
+[ Upstream commit 00d21f325d58567d81d9172096692d0a9ea7f725 ]
 
-engine->stat_irq_thresh was initialized after device_create_file() in
-the probe function, the initialization may race with call to
-spacc_stat_irq_thresh_store() which updates engine->stat_irq_thresh,
-therefore initialize it before creating the file in probe function.
+The "idle" pinctrl state is optional as documented in the DT binding.
+The change introduced by the commit being reverted makes that pinctrl state
+mandatory and breaks initialization of the whole media driver, since the
+"idle" state is not specified in any mainline dts.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This reverts commit 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+to fix the regression.
 
-Fixes: ce92136843cb ("crypto: picoxcell - add support for the...")
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Acked-by: Jamie Iles <jamie@jamieiles.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/picoxcell_crypto.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/picoxcell_crypto.c b/drivers/crypto/picoxcell_crypto.c
-index e2491754c468f..1ef47f7208b92 100644
---- a/drivers/crypto/picoxcell_crypto.c
-+++ b/drivers/crypto/picoxcell_crypto.c
-@@ -1701,11 +1701,6 @@ static int spacc_probe(struct platform_device *pdev)
- 		goto err_clk_put;
- 	}
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 2d25a197dc657..f5fca01f3248e 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1257,11 +1257,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
+ 	if (IS_ERR(pctl->state_default))
+ 		return PTR_ERR(pctl->state_default);
  
--	ret = device_create_file(&pdev->dev, &dev_attr_stat_irq_thresh);
--	if (ret)
--		goto err_clk_disable;
++	/* PINCTRL_STATE_IDLE is optional */
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
+-	if (IS_ERR(pctl->state_idle))
+-		return PTR_ERR(pctl->state_idle);
 -
--
- 	/*
- 	 * Use an IRQ threshold of 50% as a default. This seems to be a
- 	 * reasonable trade off of latency against throughput but can be
-@@ -1713,6 +1708,10 @@ static int spacc_probe(struct platform_device *pdev)
- 	 */
- 	engine->stat_irq_thresh = (engine->fifo_sz / 2);
+ 	return 0;
+ }
  
-+	ret = device_create_file(&pdev->dev, &dev_attr_stat_irq_thresh);
-+	if (ret)
-+		goto err_clk_disable;
-+
- 	/*
- 	 * Configure the interrupts. We only use the STAT_CNT interrupt as we
- 	 * only submit a new packet for processing when we complete another in
 -- 
 2.25.1
 
