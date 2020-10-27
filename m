@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D5129B5D8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 003B429B5FA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794477AbgJ0PQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52588 "EHLO mail.kernel.org"
+        id S1796446AbgJ0PSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:18:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796131AbgJ0PPv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:51 -0400
+        id S1796144AbgJ0PP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48B6420728;
-        Tue, 27 Oct 2020 15:15:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2103220657;
+        Tue, 27 Oct 2020 15:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811750;
-        bh=DdtyPGVSGHvtTEvYrlcZowAJNLm2m8h3kmrGWS+IKvs=;
+        s=default; t=1603811755;
+        bh=gso6STyjOqktB9BpQ65BQqrnebgWWcHpYowKIcR6/BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BM75A++R05yUksyFl5hGPSM3SJ5PuhDP9bm9QsBVkdOmC3S8FZIoEfAcSAwqDcg2I
-         4zfVl+aQ2pgPG5AZTioxeNWQu9P4tRXAj+ru48Aku91wa1Ubx+Dj1UQ/ZjstCZcWPq
-         gC8Q3xgliHWhrRn+EFPO1AA3T098yLyemJw4bOHs=
+        b=YtK3Sd+O3JL9iI2/T4bZwahyqAdwOHR9O+4t3BvTIiKB5+rO/35UjIYQq+xpYl0qe
+         Zeek3AbjVrm44JVZteINdI6tUj77bQ6lpm9guslkC0e4XckZiQIAAHkdLKCwmz8Ypg
+         UYjMdTMLY1bDFVoKczH4OZEuYvQafCCmJ1naFjvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Dhaval Giani <dhaval.giani@oracle.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 603/633] scsi: qedi: Protect active command list to avoid list corruption
-Date:   Tue, 27 Oct 2020 14:55:46 +0100
-Message-Id: <20201027135551.102660096@linuxfoundation.org>
+Subject: [PATCH 5.8 605/633] fbmem: add margin check to fb_check_caps()
+Date:   Tue, 27 Oct 2020 14:55:48 +0100
+Message-Id: <20201027135551.195819272@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,106 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit c0650e28448d606c84f76c34333dba30f61de993 ]
+[ Upstream commit a49145acfb975d921464b84fe00279f99827d816 ]
 
-Protect active command list for non-I/O commands like login response,
-logout response, text response, and recovery cleanup of active list to
-avoid list corruption.
+A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
+or yres setting in struct fb_var_screeninfo will result in a
+KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
+the margins are being cleared. The margins are cleared in
+chunks and if the xres setting or yres setting is a value of
+zero upto the chunk size, the failure will occur.
 
-Link: https://lore.kernel.org/r/20200908095657.26821-5-mrangankar@marvell.com
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Add a margin check to validate xres and yres settings.
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dhaval Giani <dhaval.giani@oracle.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c    | 8 ++++++++
- drivers/scsi/qedi/qedi_iscsi.c | 2 ++
- 2 files changed, 10 insertions(+)
+ drivers/video/fbdev/core/fbmem.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index 946cebc4c9322..32586800620bd 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -59,6 +59,7 @@ static void qedi_process_logout_resp(struct qedi_ctx *qedi,
- 		  "Freeing tid=0x%x for cid=0x%x\n",
- 		  cmd->task_id, qedi_conn->iscsi_conn_id);
- 
-+	spin_lock(&qedi_conn->list_lock);
- 	if (likely(cmd->io_cmd_in_list)) {
- 		cmd->io_cmd_in_list = false;
- 		list_del_init(&cmd->io_cmd);
-@@ -69,6 +70,7 @@ static void qedi_process_logout_resp(struct qedi_ctx *qedi,
- 			  cmd->task_id, qedi_conn->iscsi_conn_id,
- 			  &cmd->io_cmd);
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index da7c88ffaa6a8..1136b569ccb7c 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1006,6 +1006,10 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
+ 		return 0;
  	}
-+	spin_unlock(&qedi_conn->list_lock);
  
- 	cmd->state = RESPONSE_RECEIVED;
- 	qedi_clear_task_idx(qedi, cmd->task_id);
-@@ -122,6 +124,7 @@ static void qedi_process_text_resp(struct qedi_ctx *qedi,
- 		  "Freeing tid=0x%x for cid=0x%x\n",
- 		  cmd->task_id, qedi_conn->iscsi_conn_id);
++	/* bitfill_aligned() assumes that it's at least 8x8 */
++	if (var->xres < 8 || var->yres < 8)
++		return -EINVAL;
++
+ 	ret = info->fbops->fb_check_var(var, info);
  
-+	spin_lock(&qedi_conn->list_lock);
- 	if (likely(cmd->io_cmd_in_list)) {
- 		cmd->io_cmd_in_list = false;
- 		list_del_init(&cmd->io_cmd);
-@@ -132,6 +135,7 @@ static void qedi_process_text_resp(struct qedi_ctx *qedi,
- 			  cmd->task_id, qedi_conn->iscsi_conn_id,
- 			  &cmd->io_cmd);
- 	}
-+	spin_unlock(&qedi_conn->list_lock);
- 
- 	cmd->state = RESPONSE_RECEIVED;
- 	qedi_clear_task_idx(qedi, cmd->task_id);
-@@ -222,11 +226,13 @@ static void qedi_process_tmf_resp(struct qedi_ctx *qedi,
- 
- 	tmf_hdr = (struct iscsi_tm *)qedi_cmd->task->hdr;
- 
-+	spin_lock(&qedi_conn->list_lock);
- 	if (likely(qedi_cmd->io_cmd_in_list)) {
- 		qedi_cmd->io_cmd_in_list = false;
- 		list_del_init(&qedi_cmd->io_cmd);
- 		qedi_conn->active_cmd_count--;
- 	}
-+	spin_unlock(&qedi_conn->list_lock);
- 
- 	if (((tmf_hdr->flags & ISCSI_FLAG_TM_FUNC_MASK) ==
- 	      ISCSI_TM_FUNC_LOGICAL_UNIT_RESET) ||
-@@ -288,11 +294,13 @@ static void qedi_process_login_resp(struct qedi_ctx *qedi,
- 		  ISCSI_LOGIN_RESPONSE_HDR_DATA_SEG_LEN_MASK;
- 	qedi_conn->gen_pdu.resp_wr_ptr = qedi_conn->gen_pdu.resp_buf + pld_len;
- 
-+	spin_lock(&qedi_conn->list_lock);
- 	if (likely(cmd->io_cmd_in_list)) {
- 		cmd->io_cmd_in_list = false;
- 		list_del_init(&cmd->io_cmd);
- 		qedi_conn->active_cmd_count--;
- 	}
-+	spin_unlock(&qedi_conn->list_lock);
- 
- 	memset(task_ctx, '\0', sizeof(*task_ctx));
- 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 425e665ec08b2..6e92625df4b7c 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -975,11 +975,13 @@ static void qedi_cleanup_active_cmd_list(struct qedi_conn *qedi_conn)
- {
- 	struct qedi_cmd *cmd, *cmd_tmp;
- 
-+	spin_lock(&qedi_conn->list_lock);
- 	list_for_each_entry_safe(cmd, cmd_tmp, &qedi_conn->active_cmd_list,
- 				 io_cmd) {
- 		list_del_init(&cmd->io_cmd);
- 		qedi_conn->active_cmd_count--;
- 	}
-+	spin_unlock(&qedi_conn->list_lock);
- }
- 
- static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	if (ret)
 -- 
 2.25.1
 
