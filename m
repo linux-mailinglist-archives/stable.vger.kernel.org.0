@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D4C29B4EF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA2B429B48F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793595AbgJ0PHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37848 "EHLO mail.kernel.org"
+        id S1790060AbgJ0PDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:03:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789997AbgJ0PD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:03:27 -0400
+        id S1790054AbgJ0PDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:03:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A0121D24;
-        Tue, 27 Oct 2020 15:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9189B206E5;
+        Tue, 27 Oct 2020 15:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811006;
-        bh=62ZtA7TQDipStyuwJcXhjbJ/lE4TxlCxvEcYeMXIql8=;
+        s=default; t=1603811020;
+        bh=ozxkbFFenR9Y7zzU2twX5o755Tjx9+u4UuqQpLoXqVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ca9D2snpMSEbNoMY5KSBSPvEd2LeeGltRbXAoESnr9sMrnj8NpaN9IOgiWpUXfWmk
-         I1pNsEtWRjk1ApNbMWEZIQflOgFwjT9H3/LM0Kb5N0Zrm1b19LWO79qzhjNMo8uJLp
-         rsR+37eiUCSo/CfD67BQWR8odjvm49mXl4CIV0dw=
+        b=2VEzJPUHYUqY9XXDVtgziP8lKlQYltaez3qQNupchc8jXAOArvN5kusCNU90IM5Ii
+         X86DBL+EPUnG0EvmFtXcShmXy1bA/zFyVtLWZo+O77JcVdK24eV/Zzarb9Qdo10cdw
+         5/pumsmgzrhHwH9reSzrbLDhs/pY5vsRaY2wgNRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 313/633] bpf, sockmap: Remove skb_orphan and let normal skb_kfree do cleanup
-Date:   Tue, 27 Oct 2020 14:50:56 +0100
-Message-Id: <20201027135537.359737382@linuxfoundation.org>
+Subject: [PATCH 5.8 314/633] net: korina: fix kfree of rx/tx descriptor array
+Date:   Tue, 27 Oct 2020 14:50:57 +0100
+Message-Id: <20201027135537.406884535@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,64 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit 10d58d006356a075a7b056e0f6502db416d1a261 ]
+[ Upstream commit 3af5f0f5c74ecbaf757ef06c3f80d56751277637 ]
 
-Calling skb_orphan() is unnecessary in the strp rcv handler because the skb
-is from a skb_clone() in __strp_recv. So it never has a destructor or a
-sk assigned. Plus its confusing to read because it might hint to the reader
-that the skb could have an sk assigned which is not true. Even if we did
-have an sk assigned it would be cleaner to simply wait for the upcoming
-kfree_skb().
+kmalloc returns KSEG0 addresses so convert back from KSEG1
+in kfree. Also make sure array is freed when the driver is
+unloaded from the kernel.
 
-Additionally, move the comment about strparser clone up so its closer to
-the logic it is describing and add to it so that it is more complete.
-
-Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/160226865548.5692.9098315689984599579.stgit@john-Precision-5820-Tower
+Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/korina.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 6a32a1fd34f8c..053472c48354b 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -662,15 +662,16 @@ static int sk_psock_bpf_run(struct sk_psock *psock, struct bpf_prog *prog,
- {
- 	int ret;
+diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
+index 03e034918d147..af441d699a57a 100644
+--- a/drivers/net/ethernet/korina.c
++++ b/drivers/net/ethernet/korina.c
+@@ -1113,7 +1113,7 @@ static int korina_probe(struct platform_device *pdev)
+ 	return rc;
  
-+	/* strparser clones the skb before handing it to a upper layer,
-+	 * meaning we have the same data, but sk is NULL. We do want an
-+	 * sk pointer though when we run the BPF program. So we set it
-+	 * here and then NULL it to ensure we don't trigger a BUG_ON()
-+	 * in skb/sk operations later if kfree_skb is called with a
-+	 * valid skb->sk pointer and no destructor assigned.
-+	 */
- 	skb->sk = psock->sk;
- 	bpf_compute_data_end_sk_skb(skb);
- 	ret = bpf_prog_run_pin_on_cpu(prog, skb);
--	/* strparser clones the skb before handing it to a upper layer,
--	 * meaning skb_orphan has been called. We NULL sk on the way out
--	 * to ensure we don't trigger a BUG_ON() in skb/sk operations
--	 * later and because we are not charging the memory of this skb
--	 * to any socket yet.
--	 */
- 	skb->sk = NULL;
- 	return ret;
- }
-@@ -795,7 +796,6 @@ static void sk_psock_strp_read(struct strparser *strp, struct sk_buff *skb)
- 	}
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
--		skb_orphan(skb);
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
- 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
+ probe_err_register:
+-	kfree(lp->td_ring);
++	kfree(KSEG0ADDR(lp->td_ring));
+ probe_err_td_ring:
+ 	iounmap(lp->tx_dma_regs);
+ probe_err_dma_tx:
+@@ -1133,6 +1133,7 @@ static int korina_remove(struct platform_device *pdev)
+ 	iounmap(lp->eth_regs);
+ 	iounmap(lp->rx_dma_regs);
+ 	iounmap(lp->tx_dma_regs);
++	kfree(KSEG0ADDR(lp->td_ring));
+ 
+ 	unregister_netdev(bif->dev);
+ 	free_netdev(bif->dev);
 -- 
 2.25.1
 
