@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540C629C116
+	by mail.lfdr.de (Postfix) with ESMTP id C099A29C117
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368511AbgJ0Oy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        id S368290AbgJ0Oyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1766449AbgJ0OtD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:49:03 -0400
+        id S1766568AbgJ0OtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:49:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 040A8206E5;
-        Tue, 27 Oct 2020 14:49:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B04E5206E5;
+        Tue, 27 Oct 2020 14:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810142;
-        bh=l6PdRIk2q9kQkm+pHSYC9bMdJ4FHIN5XHDF1uNwVZbc=;
+        s=default; t=1603810159;
+        bh=plV74ACRqJ0VnjFZjAIsVTWYzSWS5YeylkC4Puqi540=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHKQBxC5W22PXXrs7Tg4DP0CX1VmVQMjw7oFYkkegEr5WbITIIHzbjJPW0wSqUM/N
-         xNVDii/IZlmG6V+TwVwIPQ/sWZSrlhBGgNz/qE/Om+5IzSA0vJoKSYrZhxjKo/EuJ2
-         o230SHaGNdL4jatjNT/6KQGQhFebZkVEKGSkTQ9U=
+        b=vsGEejswlIECJe7KxogtbEB8NmkpoRZ+EeHdsOU8zIwHA3fJU3Isa9Qcku+AtT1Pl
+         K2RiIUErhjye7JOcQPjSIxHr19KlLyY19dT1hxFwyMYwtBP+ecD4ySOq/wnShz4UEk
+         hV14LE6yuQp8z+GKf/Qu5nfASQS4jbuQaxwcESoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Venkatesh Ellapu <venkatesh.e@chelsio.com>,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        stable@vger.kernel.org, Geliang Tang <geliangtang@gmail.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 035/633] chelsio/chtls: Fix panic when listen on multiadapter
-Date:   Tue, 27 Oct 2020 14:46:18 +0100
-Message-Id: <20201027135524.343801775@linuxfoundation.org>
+Subject: [PATCH 5.8 040/633] mptcp: initialize mptcp_options_receiveds ahmac
+Date:   Tue, 27 Oct 2020 14:46:23 +0100
+Message-Id: <20201027135524.574858427@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,53 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Geliang Tang <geliangtang@gmail.com>
 
-[ Upstream commit 9819f22c410b4bf6589d3126e8bc3952db507cbf ]
+[ Upstream commit fe2d9b1a0e7805384770ec0ddd34c9f1e9fe6fa8 ]
 
-Add the logic to compare net_device returned by ip_dev_find()
-with the net_device list in cdev->ports[] array and return
-net_device if matched else NULL.
+Initialize mptcp_options_received's ahmac to zero, otherwise it
+will be a random number when receiving ADD_ADDR suboption with echo-flag=1.
 
-Fixes: 6abde0b24122 ("crypto/chtls: IPv6 support for inline TLS")
-Signed-off-by: Venkatesh Ellapu <venkatesh.e@chelsio.com>
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Fixes: 3df523ab582c5 ("mptcp: Add ADD_ADDR handling")
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/mptcp/options.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/crypto/chelsio/chtls/chtls_cm.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -92,11 +92,13 @@ static void chtls_sock_release(struct kr
- static struct net_device *chtls_find_netdev(struct chtls_dev *cdev,
- 					    struct sock *sk)
- {
-+	struct adapter *adap = pci_get_drvdata(cdev->pdev);
- 	struct net_device *ndev = cdev->ports[0];
- #if IS_ENABLED(CONFIG_IPV6)
- 	struct net_device *temp;
- 	int addr_type;
- #endif
-+	int i;
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -296,6 +296,7 @@ void mptcp_get_options(const struct sk_b
+ 	mp_opt->mp_capable = 0;
+ 	mp_opt->mp_join = 0;
+ 	mp_opt->add_addr = 0;
++	mp_opt->ahmac = 0;
+ 	mp_opt->rm_addr = 0;
+ 	mp_opt->dss = 0;
  
- 	switch (sk->sk_family) {
- 	case PF_INET:
-@@ -127,8 +129,12 @@ static struct net_device *chtls_find_net
- 		return NULL;
- 
- 	if (is_vlan_dev(ndev))
--		return vlan_dev_real_dev(ndev);
--	return ndev;
-+		ndev = vlan_dev_real_dev(ndev);
-+
-+	for_each_port(adap, i)
-+		if (cdev->ports[i] == ndev)
-+			return ndev;
-+	return NULL;
- }
- 
- static void assign_rxopt(struct sock *sk, unsigned int opt)
 
 
