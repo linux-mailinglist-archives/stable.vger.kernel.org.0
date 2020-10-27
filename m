@@ -2,130 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC7B29BC12
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8B629BD89
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1764217AbgJ0QbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:31:23 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47810 "EHLO mx2.suse.de"
+        id S1811787AbgJ0Qmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:42:31 -0400
+Received: from aposti.net ([89.234.176.197]:47456 "EHLO aposti.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1763851AbgJ0QbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 12:31:20 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 9EACBAFF2;
-        Tue, 27 Oct 2020 16:31:17 +0000 (UTC)
-To:     Laurent Dufour <ldufour@linux.ibm.com>,
-        Michal Hocko <mhocko@suse.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-References: <20201027140926.276-1-ldufour@linux.ibm.com>
- <20201027142421.GW20500@dhcp22.suse.cz>
- <11bdd295-3ef8-fbeb-2c76-2a109fa26f19@linux.ibm.com>
- <20201027150350.GZ20500@dhcp22.suse.cz>
- <e2cea72f-d8fa-0ac7-e48d-63cc41414ed2@linux.ibm.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH] mm/slub: fix panic in slab_alloc_node()
-Message-ID: <7ef64e75-2150-01a9-074d-a754348683b3@suse.cz>
-Date:   Tue, 27 Oct 2020 17:31:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.3
+        id S1801863AbgJ0Qma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 12:42:30 -0400
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Bin Liu <b-liu@ti.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tony Lindgren <tony@atomide.com>, od@zcrc.me,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
+Subject: [RESEND PATCH 1/4] usb: musb: Fix runtime PM race in musb_queue_resume_work
+Date:   Tue, 27 Oct 2020 16:41:57 +0000
+Message-Id: <20201027164200.18602-2-paul@crapouillou.net>
+In-Reply-To: <20201027164200.18602-1-paul@crapouillou.net>
+References: <20201027164200.18602-1-paul@crapouillou.net>
 MIME-Version: 1.0
-In-Reply-To: <e2cea72f-d8fa-0ac7-e48d-63cc41414ed2@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/27/20 4:12 PM, Laurent Dufour wrote:
-> Le 27/10/2020 à 16:03, Michal Hocko a écrit :
->> On Tue 27-10-20 15:39:46, Laurent Dufour wrote:
->>> Le 27/10/2020 à 15:24, Michal Hocko a écrit :
->>>> [Cc Vlastimil]
->>>>
->>>> On Tue 27-10-20 15:09:26, Laurent Dufour wrote:
->>>>
->>>> Could you be more specific? I am especially confused how the memory
->>>> hotplug is involved here. What kind of flush are we talking about?
->>>
->>> This happens when flush_cpu_slab() is called when a memory block is about to
->>> be offlined, see slab_mem_going_offline_callback() called by the
->>> MEM_GOING_OFFLINE's callback triggered by offline_pages().
->> 
->> This would be a very valuable information for the changelog. I have to
->> admit that a more detailed description would help somebody not really
->> familiar with slub internals like me.
+musb_queue_resume_work() would call the provided callback if the runtime
+PM status was 'active'. Otherwise, it would enqueue the request if the
+hardware was still suspended (musb->is_runtime_suspended is true).
 
-Agreed, please include that.
+This causes a race with the runtime PM handlers, as it is possible to be
+in the case where the runtime PM status is not yet 'active', but the
+hardware has been awaken (PM resume function has been called).
 
->> I still fail to see why do we get an inconsistent state though. I
->> thought that no object is associated with an offlined page so how come
->> we have an object without any page?
-> 
-> The inconsistent state came from the IPI interrupt calling flush_cpu_slab()
-> being taken between reading c->freelist and c->page.
+When hitting the race, the resume work was not enqueued, which probably
+triggered other bugs further down the stack. For instance, a telnet
+connection on Ingenic SoCs would result in a 50/50 chance of a
+segmentation fault somewhere in the musb code.
 
-Yes; also good to state explicitly.
+Rework the code so that either we call the callback directly if
+(musb->is_runtime_suspended == 0), or enqueue the query otherwise.
 
->> How does this allocation path synchronizes with the offline callback?
-> 
-> My understanding is that this is done by the call to this_cpu_cmpxchg_double()
-> done later, but I would let the slub experts detail that point.
+Fixes: ea2f35c01d5e ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
+Cc: stable@vger.kernel.org # v4.9
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/usb/musb/musb_core.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-Yes, cmpxchg will detect that c->freelist changed. If we managed to read both 
-c->freelist and c->page before the interrupt (and thus not crash), 
-cmpxchg_double will fail on the s->cpu_slab->tid part as flush_slab() will also 
-bump the tid.
-
->>>>> In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
->>>>> node_match()") check on the page pointer has been removed assuming that
->>>>> page is always valid when it is called. It happens that this is not true in
->>>>> that particular case, so check for page before calling node_match() here.
->>>>>
->>>>> Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
->>>>> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-
-With the expanded changelog,
-
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Thanks!
-
->>>>> Cc: Christoph Lameter <cl@linux.com>
->>>>> Cc: Pekka Enberg <penberg@kernel.org>
->>>>> Cc: David Rientjes <rientjes@google.com>
->>>>> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
->>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>>>> Cc: stable@vger.kernel.org
->>>>> ---
->>>>>    mm/slub.c | 2 +-
->>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/mm/slub.c b/mm/slub.c
->>>>> index 8f66de8a5ab3..7dc5c6aaf4b7 100644
->>>>> --- a/mm/slub.c
->>>>> +++ b/mm/slub.c
->>>>> @@ -2852,7 +2852,7 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
->>>>>    	object = c->freelist;
->>>>>    	page = c->page;
->>>>> -	if (unlikely(!object || !node_match(page, node))) {
->>>>> +	if (unlikely(!object || !page || !node_match(page, node))) {
->>>>>    		object = __slab_alloc(s, gfpflags, node, addr, c);
->>>>>    	} else {
->>>>>    		void *next_object = get_freepointer_safe(s, object);
->>>>> -- 
->>>>> 2.29.1
->>>>>
->>>>
->>>
->> 
-> 
-> 
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 849e0b770130..1cd87729ba60 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2240,32 +2240,35 @@ int musb_queue_resume_work(struct musb *musb,
+ {
+ 	struct musb_pending_work *w;
+ 	unsigned long flags;
++	bool is_suspended;
+ 	int error;
+ 
+ 	if (WARN_ON(!callback))
+ 		return -EINVAL;
+ 
+-	if (pm_runtime_active(musb->controller))
+-		return callback(musb, data);
++	spin_lock_irqsave(&musb->list_lock, flags);
++	is_suspended = musb->is_runtime_suspended;
++
++	if (is_suspended) {
++		w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
++		if (!w) {
++			error = -ENOMEM;
++			goto out_unlock;
++		}
+ 
+-	w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
+-	if (!w)
+-		return -ENOMEM;
++		w->callback = callback;
++		w->data = data;
+ 
+-	w->callback = callback;
+-	w->data = data;
+-	spin_lock_irqsave(&musb->list_lock, flags);
+-	if (musb->is_runtime_suspended) {
+ 		list_add_tail(&w->node, &musb->pending_list);
+ 		error = 0;
+-	} else {
+-		dev_err(musb->controller, "could not add resume work %p\n",
+-			callback);
+-		devm_kfree(musb->controller, w);
+-		error = -EINPROGRESS;
+ 	}
++
++out_unlock:
+ 	spin_unlock_irqrestore(&musb->list_lock, flags);
+ 
++	if (!is_suspended)
++		error = callback(musb, data);
++
+ 	return error;
+ }
+ EXPORT_SYMBOL_GPL(musb_queue_resume_work);
+-- 
+2.28.0
 
