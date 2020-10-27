@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B10129B917
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF3429B7FB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802192AbgJ0Pp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44914 "EHLO mail.kernel.org"
+        id S1798623AbgJ0P3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798554AbgJ0P24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:28:56 -0400
+        id S1798555AbgJ0P2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:28:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6230E20728;
-        Tue, 27 Oct 2020 15:28:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A86922202;
+        Tue, 27 Oct 2020 15:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812518;
-        bh=qdq0E/jGIruANVQF+VFYNqx9xPDbKDwAH9Ni7hWWuyM=;
+        s=default; t=1603812520;
+        bh=djeQK07WAzOym9cflaDxntvqZ9F2/pMB0SsJzli+NP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaZ4OU4QWGrqQ0jBGetXqW1tCxClAkclDgudFgW3kxjkEfKRyb9wYahRoWVbu/YOt
-         By6m9TF7v9KCVwcdod8V58T7SRPL9DetJ/GyuiJraetPX9pUpm6KSHBwNJN5Ehw4Lv
-         7sLe+u7cs7VorfjLEj6MgXF8wTmXczqejcl03MNA=
+        b=kWIgONYTcTgrHfhtlrqzX/276IBvoBLBAggKkFL4lFzgtzfSz5VJMVLk6ebs0uOc/
+         xJaHetu5oDYBjGDWWbpT9N9Hd+UKZd5qb9PHzqt3YW9sBTCUhuXUutNsBfbF+SZxGw
+         kAU5YTKGqR4Is3aP5Yl8tK23f8gXrYw2+Gb4VhlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        John Hubbard <jhubbard@nvidia.com>,
+        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 236/757] drivers/virt/fsl_hypervisor: Fix error handling path
-Date:   Tue, 27 Oct 2020 14:48:06 +0100
-Message-Id: <20201027135501.658519219@linuxfoundation.org>
+Subject: [PATCH 5.9 237/757] sfc: dont double-down() filters in ef100_reset()
+Date:   Tue, 27 Oct 2020 14:48:07 +0100
+Message-Id: <20201027135501.706610738@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,97 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder <jrdr.linux@gmail.com>
+From: Edward Cree <ecree@solarflare.com>
 
-[ Upstream commit 7f360bec37857bfd5a48cef21d86f58a09a3df63 ]
+[ Upstream commit 7dcc9d8a40f85cbd76acdebcc45ccdfe4a84337f ]
 
-First, when memory allocation for sg_list_unaligned failed, there
-is a bug of calling put_pages() as we haven't pinned any pages.
+dev_close(), by way of ef100_net_stop(), already brings down the filter
+ table, so there's no need to do it again (which just causes lots of
+ WARN_ONs).
+Similarly, don't bring it up ourselves, as dev_open() -> ef100_net_open()
+ will do it, and will fail if it's already been brought up.
 
-Second, if get_user_pages_fast() failed we should unpin num_pinned
-pages.
-
-This will address both.
-
-As part of these changes, minor update in documentation.
-
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
-Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Link: https://lore.kernel.org/r/1598995271-6755-1-git-send-email-jrdr.linux@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a9dc3d5612ce ("sfc_ef100: RX filter table management and related gubbins")
+Signed-off-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/fsl_hypervisor.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/sfc/ef100_nic.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
-index 1b0b11b55d2a0..46ee0a0998b6f 100644
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -157,7 +157,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+diff --git a/drivers/net/ethernet/sfc/ef100_nic.c b/drivers/net/ethernet/sfc/ef100_nic.c
+index 19fe86b3b3169..9cf5b8f8fab9a 100644
+--- a/drivers/net/ethernet/sfc/ef100_nic.c
++++ b/drivers/net/ethernet/sfc/ef100_nic.c
+@@ -428,24 +428,12 @@ static int ef100_reset(struct efx_nic *efx, enum reset_type reset_type)
+ 		__clear_bit(reset_type, &efx->reset_pending);
+ 		rc = dev_open(efx->net_dev, NULL);
+ 	} else if (reset_type == RESET_TYPE_ALL) {
+-		/* A RESET_TYPE_ALL will cause filters to be removed, so we remove filters
+-		 * and reprobe after reset to avoid removing filters twice
+-		 */
+-		down_write(&efx->filter_sem);
+-		ef100_filter_table_down(efx);
+-		up_write(&efx->filter_sem);
+ 		rc = efx_mcdi_reset(efx, reset_type);
+ 		if (rc)
+ 			return rc;
  
- 	unsigned int i;
- 	long ret = 0;
--	int num_pinned; /* return value from get_user_pages() */
-+	int num_pinned = 0; /* return value from get_user_pages_fast() */
- 	phys_addr_t remote_paddr; /* The next address in the remote buffer */
- 	uint32_t count; /* The number of bytes left to copy */
+ 		netif_device_attach(efx->net_dev);
  
-@@ -174,7 +174,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 		return -EINVAL;
- 
- 	/*
--	 * The array of pages returned by get_user_pages() covers only
-+	 * The array of pages returned by get_user_pages_fast() covers only
- 	 * page-aligned memory.  Since the user buffer is probably not
- 	 * page-aligned, we need to handle the discrepancy.
- 	 *
-@@ -224,7 +224,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 
- 	/*
- 	 * 'pages' is an array of struct page pointers that's initialized by
--	 * get_user_pages().
-+	 * get_user_pages_fast().
- 	 */
- 	pages = kcalloc(num_pages, sizeof(struct page *), GFP_KERNEL);
- 	if (!pages) {
-@@ -241,7 +241,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 	if (!sg_list_unaligned) {
- 		pr_debug("fsl-hv: could not allocate S/G list\n");
- 		ret = -ENOMEM;
--		goto exit;
-+		goto free_pages;
- 	}
- 	sg_list = PTR_ALIGN(sg_list_unaligned, sizeof(struct fh_sg_list));
- 
-@@ -250,7 +250,6 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 		num_pages, param.source != -1 ? FOLL_WRITE : 0, pages);
- 
- 	if (num_pinned != num_pages) {
--		/* get_user_pages() failed */
- 		pr_debug("fsl-hv: could not lock source buffer\n");
- 		ret = (num_pinned < 0) ? num_pinned : -EFAULT;
- 		goto exit;
-@@ -292,13 +291,13 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 		virt_to_phys(sg_list), num_pages);
- 
- exit:
--	if (pages) {
--		for (i = 0; i < num_pages; i++)
--			if (pages[i])
--				put_page(pages[i]);
-+	if (pages && (num_pinned > 0)) {
-+		for (i = 0; i < num_pinned; i++)
-+			put_page(pages[i]);
- 	}
- 
- 	kfree(sg_list_unaligned);
-+free_pages:
- 	kfree(pages);
- 
- 	if (!ret)
+-		down_write(&efx->filter_sem);
+-		rc = ef100_filter_table_up(efx);
+-		up_write(&efx->filter_sem);
+-		if (rc)
+-			return rc;
+-
+ 		rc = dev_open(efx->net_dev, NULL);
+ 	} else {
+ 		rc = 1;	/* Leave the device closed */
 -- 
 2.25.1
 
