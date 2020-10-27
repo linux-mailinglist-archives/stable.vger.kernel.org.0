@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E7129B962
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 847E229B95D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802431AbgJ0Pse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
+        id S1763755AbgJ0PsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901017AbgJ0PSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:24 -0400
+        id S1796438AbgJ0PSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:18:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63D742064B;
-        Tue, 27 Oct 2020 15:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17AA421527;
+        Tue, 27 Oct 2020 15:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811904;
-        bh=c/9wlfARBEJpTCpm3PS07TAi8NtXw+RfVjcsG7o0TFQ=;
+        s=default; t=1603811917;
+        bh=ut9N+OmsvbIHESstE6XU/4GkaFMn6IZsf57cot6reX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tem1KIf8/J1zRaqlfFytUX0om6Ivn0D6jjEyL1Wy1By4jsfgh7lITU5a5aG9U6gB4
-         gb7AWTV77AmoKm3zjBrleNun6NirrY4PgbUs5JbR+zImGRT8CnI8k8N7+elBi3tJC3
-         sjW0zQMBngLeVZeQ3igs7seASt6h8C4oUqx7QHbk=
+        b=WX50W/L4Aiw9vjwknukWz26Y/hkK5daEL5QhTJhUMax0yGysFgK6RRsFBKePJT33D
+         JHbkoUCHtnlgNCTXnuhyLatwmNdF8TAJoxeG6Hu4yxiroHBEvY4rUlPgh2c+bOZefm
+         fVa1bH56S/dbVX7JEAq3CoKGq7stUsu3G94ZYoig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.9 024/757] net: j1939: j1939_session_fresh_new(): fix missing initialization of skbcnt
-Date:   Tue, 27 Oct 2020 14:44:34 +0100
-Message-Id: <20201027135451.656263232@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 028/757] ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close
+Date:   Tue, 27 Oct 2020 14:44:38 +0100
+Message-Id: <20201027135451.842708890@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,33 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 13ba4c434422837d7c8c163f9c8d854e67bf3c99 ]
+commit ce1558c285f9ad04c03b46833a028230771cc0a7 upstream.
 
-This patch add the initialization of skbcnt, similar to:
+A race exists between closing a PCM and update of ELD data. In
+hdmi_pcm_close(), hinfo->nid value is modified without taking
+spec->pcm_lock. If this happens concurrently while processing an ELD
+update in hdmi_pcm_setup_pin(), converter assignment may be done
+incorrectly.
 
-    e009f95b1543 can: j1935: j1939_tp_tx_dat_new(): fix missing initialization of skbcnt
+This bug was found by hitting a WARN_ON in snd_hda_spdif_ctls_assign()
+in a HDMI receiver connection stress test:
 
-Let's play save and initialize this skbcnt as well.
+[2739.684569] WARNING: CPU: 5 PID: 2090 at sound/pci/hda/patch_hdmi.c:1898 check_non_pcm_per_cvt+0x41/0x50 [snd_hda_codec_hdmi]
+...
+[2739.684707] Call Trace:
+[2739.684720]  update_eld+0x121/0x5a0 [snd_hda_codec_hdmi]
+[2739.684736]  hdmi_present_sense+0x21e/0x3b0 [snd_hda_codec_hdmi]
+[2739.684750]  check_presence_and_report+0x81/0xd0 [snd_hda_codec_hdmi]
+[2739.684842]  intel_audio_codec_enable+0x122/0x190 [i915]
 
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 42b2987079ec ("ALSA: hda - hdmi playback without monitor in dynamic pcm bind mode")
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201013152628.920764-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/can/j1939/transport.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1488,6 +1488,7 @@ j1939_session *j1939_session_fresh_new(s
- 	skb->dev = priv->ndev;
- 	can_skb_reserve(skb);
- 	can_skb_prv(skb)->ifindex = priv->ndev->ifindex;
-+	can_skb_prv(skb)->skbcnt = 0;
- 	skcb = j1939_skb_to_cb(skb);
- 	memcpy(skcb, rel_skcb, sizeof(*skcb));
+---
+ sound/pci/hda/patch_hdmi.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2046,22 +2046,25 @@ static int hdmi_pcm_close(struct hda_pcm
+ 	int pinctl;
+ 	int err = 0;
+ 
++	mutex_lock(&spec->pcm_lock);
+ 	if (hinfo->nid) {
+ 		pcm_idx = hinfo_to_pcm_index(codec, hinfo);
+-		if (snd_BUG_ON(pcm_idx < 0))
+-			return -EINVAL;
++		if (snd_BUG_ON(pcm_idx < 0)) {
++			err = -EINVAL;
++			goto unlock;
++		}
+ 		cvt_idx = cvt_nid_to_cvt_index(codec, hinfo->nid);
+-		if (snd_BUG_ON(cvt_idx < 0))
+-			return -EINVAL;
++		if (snd_BUG_ON(cvt_idx < 0)) {
++			err = -EINVAL;
++			goto unlock;
++		}
+ 		per_cvt = get_cvt(spec, cvt_idx);
+-
+ 		snd_BUG_ON(!per_cvt->assigned);
+ 		per_cvt->assigned = 0;
+ 		hinfo->nid = 0;
+ 
+ 		azx_stream(get_azx_dev(substream))->stripe = 0;
+ 
+-		mutex_lock(&spec->pcm_lock);
+ 		snd_hda_spdif_ctls_unassign(codec, pcm_idx);
+ 		clear_bit(pcm_idx, &spec->pcm_in_use);
+ 		pin_idx = hinfo_to_pin_index(codec, hinfo);
+@@ -2091,10 +2094,11 @@ static int hdmi_pcm_close(struct hda_pcm
+ 		per_pin->setup = false;
+ 		per_pin->channels = 0;
+ 		mutex_unlock(&per_pin->lock);
+-	unlock:
+-		mutex_unlock(&spec->pcm_lock);
+ 	}
+ 
++unlock:
++	mutex_unlock(&spec->pcm_lock);
++
+ 	return err;
+ }
  
 
 
