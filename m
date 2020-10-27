@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F88729C066
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 341F829C0F4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1783058AbgJ0O5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58892 "EHLO mail.kernel.org"
+        id S1817951AbgJ0RQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1783041AbgJ0O5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:57:47 -0400
+        id S1783062AbgJ0O5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:57:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01805206F4;
-        Tue, 27 Oct 2020 14:57:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCD06204FD;
+        Tue, 27 Oct 2020 14:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810666;
-        bh=DjhRzW5XfOtwP0yQSjpNXslIJWOVWBT27b+JKCQ4Jd0=;
+        s=default; t=1603810669;
+        bh=bspOKSrUGSo8AnXtBdhJask40ndEeZ/DSxXRch7Q8r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n46HHXvVwNvWwEsCSTYxL2OmKhifduJ0whDca8hE3tVzsn3rlnadOfArWyA9Jtawq
-         m4wC6oxcJCakTnXnDlxuZ9DTW/t1zwlyUwU8t2sLp/zNEo0OPgy1q4CxSAt7rlt0pi
-         GbL1YVGz+klXy887N6qVV/IVlDfpVwAKtG0/XxJo=
+        b=CxA99vXgF/dA6Pk3uQLoYYkFn53HjO8/e/HzLGKaNE1V40V5F5GERF5hz3pHtsED3
+         9v2KbwbEqWo19q7deA8fEnnqlHFNi76z5h/lfe5qQtLTNZUSp+ZQIFAGcTsaEIlFkX
+         kvXPXn6/b08Bu1OGtdDfeZ13Fmd/yqKftWR+3HzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 221/633] net: stmmac: use netif_tx_start|stop_all_queues() function
-Date:   Tue, 27 Oct 2020 14:49:24 +0100
-Message-Id: <20201027135533.050586518@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 222/633] xfs: force the log after remapping a synchronous-writes file
+Date:   Tue, 27 Oct 2020 14:49:25 +0100
+Message-Id: <20201027135533.094198077@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,99 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 9f19306d166688a73356aa636c62e698bf2063cc ]
+[ Upstream commit 5ffce3cc22a0e89813ed0c7162a68b639aef9ab6 ]
 
-The current implementation of stmmac_stop_all_queues() and
-stmmac_start_all_queues() will not work correctly when the value of
-tx_queues_to_use is changed through ethtool -L DEVNAME rx N tx M command.
+Commit 5833112df7e9 tried to make it so that a remap operation would
+force the log out to disk if the filesystem is mounted with mandatory
+synchronous writes.  Unfortunately, that commit failed to handle the
+case where the inode or the file descriptor require mandatory
+synchronous writes.
 
-Also, netif_tx_start|stop_all_queues() are only needed in driver open()
-and close() only.
+Refactor the check into into a helper that will look for all three
+conditions, and now we can treat reflink just like any other synchronous
+write.
 
-Fixes: c22a3f48 net: stmmac: adding multiple napi mechanism
-
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5833112df7e9 ("xfs: reflink should force the log out if mounted with wsync")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_main.c | 33 +------------------
- 1 file changed, 1 insertion(+), 32 deletions(-)
+ fs/xfs/xfs_file.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 44ceba8ceae1a..d4be2559bb73d 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -176,32 +176,6 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
- 	}
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index 4d7385426149c..3ebc73ccc1337 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -1005,6 +1005,21 @@ xfs_file_fadvise(
+ 	return ret;
  }
  
--/**
-- * stmmac_stop_all_queues - Stop all queues
-- * @priv: driver private structure
-- */
--static void stmmac_stop_all_queues(struct stmmac_priv *priv)
--{
--	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
--	u32 queue;
--
--	for (queue = 0; queue < tx_queues_cnt; queue++)
--		netif_tx_stop_queue(netdev_get_tx_queue(priv->dev, queue));
--}
--
--/**
-- * stmmac_start_all_queues - Start all queues
-- * @priv: driver private structure
-- */
--static void stmmac_start_all_queues(struct stmmac_priv *priv)
--{
--	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
--	u32 queue;
--
--	for (queue = 0; queue < tx_queues_cnt; queue++)
--		netif_tx_start_queue(netdev_get_tx_queue(priv->dev, queue));
--}
--
- static void stmmac_service_event_schedule(struct stmmac_priv *priv)
- {
- 	if (!test_bit(STMMAC_DOWN, &priv->state) &&
-@@ -2866,7 +2840,7 @@ static int stmmac_open(struct net_device *dev)
- 	}
++/* Does this file, inode, or mount want synchronous writes? */
++static inline bool xfs_file_sync_writes(struct file *filp)
++{
++	struct xfs_inode	*ip = XFS_I(file_inode(filp));
++
++	if (ip->i_mount->m_flags & XFS_MOUNT_WSYNC)
++		return true;
++	if (filp->f_flags & (__O_SYNC | O_DSYNC))
++		return true;
++	if (IS_SYNC(file_inode(filp)))
++		return true;
++
++	return false;
++}
++
+ STATIC loff_t
+ xfs_file_remap_range(
+ 	struct file		*file_in,
+@@ -1062,7 +1077,7 @@ xfs_file_remap_range(
+ 	if (ret)
+ 		goto out_unlock;
  
- 	stmmac_enable_all_queues(priv);
--	stmmac_start_all_queues(priv);
-+	netif_tx_start_all_queues(priv->dev);
- 
- 	return 0;
- 
-@@ -2907,8 +2881,6 @@ static int stmmac_release(struct net_device *dev)
- 	phylink_stop(priv->phylink);
- 	phylink_disconnect_phy(priv->phylink);
- 
--	stmmac_stop_all_queues(priv);
--
- 	stmmac_disable_all_queues(priv);
- 
- 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
-@@ -5078,7 +5050,6 @@ int stmmac_suspend(struct device *dev)
- 	mutex_lock(&priv->lock);
- 
- 	netif_device_detach(ndev);
--	stmmac_stop_all_queues(priv);
- 
- 	stmmac_disable_all_queues(priv);
- 
-@@ -5203,8 +5174,6 @@ int stmmac_resume(struct device *dev)
- 
- 	stmmac_enable_all_queues(priv);
- 
--	stmmac_start_all_queues(priv);
--
- 	mutex_unlock(&priv->lock);
- 
- 	if (!device_may_wakeup(priv->device)) {
+-	if (mp->m_flags & XFS_MOUNT_WSYNC)
++	if (xfs_file_sync_writes(file_in) || xfs_file_sync_writes(file_out))
+ 		xfs_log_force_inode(dest);
+ out_unlock:
+ 	xfs_reflink_remap_unlock(file_in, file_out);
 -- 
 2.25.1
 
