@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6738929AE73
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE54D29AE72
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394740AbgJ0OAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:00:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
+        id S1728997AbgJ0OA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753160AbgJ0N6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:50 -0400
+        id S1753202AbgJ0N66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 851702068D;
-        Tue, 27 Oct 2020 13:58:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45331218AC;
+        Tue, 27 Oct 2020 13:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807130;
-        bh=+jtZlyJvi3nEmWK4CY+5CuE/tPR+kSen5eO4hy8agZw=;
+        s=default; t=1603807137;
+        bh=tKQMJJwDXpMZnW9cdlkALEdVFSaEaABQEBTHHsTXEZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oQ1a8gXFcMKDnooxtaab0ZtFEgoGo1r2yDAMjrGdBM3mSJnEIiKtsZaEUlDMrDZ2
-         Q2CVErlnL+yWbGs9sEwlWjmhvN7TJ6yulqOpKlrkAMkhdHNDqOZ9BBKEHCC6iUEcwD
-         cF7zks+xJtmjr4DlJUGy5dNvkLJ33nuTRPBx8BQY=
+        b=qwOapAApvK4SvDjJyDK14f6+xap66Yhc4yPT2cmXuYztN738ddT7/f6802/azxv+s
+         wtB1dX8kECcAT2OkAhePSYrbhdl/itnyjrvoYl1/yseUtgl57e/4LE+e5bDQSjlDPJ
+         5KpXsLF3slI3yZic73440YiIJyPbI7q1sWkajCBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 053/112] IB/mlx4: Adjust delayed work when a dup is observed
-Date:   Tue, 27 Oct 2020 14:49:23 +0100
-Message-Id: <20201027134903.080571425@linuxfoundation.org>
+Subject: [PATCH 4.4 055/112] powerpc/icp-hv: Fix missing of_node_put() in success path
+Date:   Tue, 27 Oct 2020 14:49:25 +0100
+Message-Id: <20201027134903.167585361@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -44,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Nicholas Mc Guire <hofrat@osadl.org>
 
-[ Upstream commit 785167a114855c5aa75efca97000e405c2cc85bf ]
+[ Upstream commit d3e669f31ec35856f5e85df9224ede5bdbf1bc7b ]
 
-When scheduling delayed work to clean up the cache, if the entry already
-has been scheduled for deletion, we adjust the delay.
+Both of_find_compatible_node() and of_find_node_by_type() will return
+a refcounted node on success - thus for the success path the node must
+be explicitly released with a of_node_put().
 
-Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
-Link: https://lore.kernel.org/r/20200803061941.1139994-7-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 0b05ac6e2480 ("powerpc/xics: Rewrite XICS driver")
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1530691407-3991-1-git-send-email-hofrat@osadl.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/cm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/sysdev/xics/icp-hv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/mlx4/cm.c b/drivers/infiniband/hw/mlx4/cm.c
-index 5dc920fe13269..c8c586c78d071 100644
---- a/drivers/infiniband/hw/mlx4/cm.c
-+++ b/drivers/infiniband/hw/mlx4/cm.c
-@@ -309,6 +309,9 @@ static void schedule_delayed(struct ib_device *ibdev, struct id_map_entry *id)
- 	if (!sriov->is_going_down) {
- 		id->scheduled_delete = 1;
- 		schedule_delayed_work(&id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
-+	} else if (id->scheduled_delete) {
-+		/* Adjust timeout if already scheduled */
-+		mod_delayed_work(system_wq, &id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
- 	}
- 	spin_unlock_irqrestore(&sriov->going_down_lock, flags);
- 	spin_unlock(&sriov->id_map_lock);
+diff --git a/arch/powerpc/sysdev/xics/icp-hv.c b/arch/powerpc/sysdev/xics/icp-hv.c
+index c1917cf67c3de..3205e64c452bd 100644
+--- a/arch/powerpc/sysdev/xics/icp-hv.c
++++ b/arch/powerpc/sysdev/xics/icp-hv.c
+@@ -179,6 +179,7 @@ int icp_hv_init(void)
+ 
+ 	icp_ops = &icp_hv_ops;
+ 
++	of_node_put(np);
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
