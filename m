@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D34829C063
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D8B829C07D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1783248AbgJ0O6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59168 "EHLO mail.kernel.org"
+        id S1817981AbgJ0RQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1783233AbgJ0O6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:58:01 -0400
+        id S1783362AbgJ0O6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:58:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66C2020780;
-        Tue, 27 Oct 2020 14:57:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C08AD22264;
+        Tue, 27 Oct 2020 14:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810680;
-        bh=DCgQ9rO8eT5AKp6LgqlnZWOe584uEltQyBx8h0ap0CA=;
+        s=default; t=1603810691;
+        bh=mxTtjBdDCL5Fu19dvu/iNnYyJicnEW2tSvLV73rRPVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RfeGH9knrC68sVqnyf2zK2s9wpNm8/xbxKbERcIr8JUSnJzPMC5U5kB1EJYKzwAaF
-         AGIcKBnEExq1wenkzIm14XC9npsdqDNMqih7sYOZ7oXiROtIu9g/zJL5NfKTJ4lSik
-         bssZ1elN0FuYWqLK9w4sbU8l+A7rcUmS4fmTuG7k=
+        b=156Dk3gV5gwCMzA4TuI0EVp65seFZsb11oF9e1GxkkeaE290ly/rq5VjRYHJ1cVpK
+         iOfNbC3pNEhLknt2hIbTpki8KJmNSmJpnLCmijIBcAg693X152QfEeSOAg9RDLGUw6
+         C78wywoYuHnKhCSi5v/OdfJZrqcxG9DGsiD0wOvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Jaska Uimonen <jaska.uimonen@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ruediger Oertel <ro@suse.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mian Yousaf Kaukab <ykaukab@suse.de>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 226/633] ASoC: topology: disable size checks for bytes_ext controls if needed
-Date:   Tue, 27 Oct 2020 14:49:29 +0100
-Message-Id: <20201027135533.284609954@linuxfoundation.org>
+Subject: [PATCH 5.8 229/633] coresight: fix offset by one error in counting ports
+Date:   Tue, 27 Oct 2020 14:49:32 +0100
+Message-Id: <20201027135533.422390833@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -48,68 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit 6788fc1a66a0c1d1cec7a0f84f94b517eae8611c ]
+[ Upstream commit 9554c3551ed35d79b029e5e69383ae33117d9765 ]
 
-When CONFIG_SND_CTL_VALIDATION is set, accesses to extended bytes
-control generate spurious error messages when the size exceeds 512
-bytes, such as
+Since port-numbers start from 0, add 1 to port-number to get the port
+count.
 
-[ 11.224223] sof_sdw sof_sdw: control 2:0:0:EQIIR5.0 eqiir_coef_5:0:
-invalid count 1024
+Fix following crash when Coresight is enabled on ACPI based systems:
 
-In addition the error check returns -EINVAL which has the nasty side
-effect of preventing applications accessing controls from working,
-e.g.
+[   61.061736] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+...
+[   61.135494] pc : acpi_coresight_parse_graph+0x1c4/0x37c
+[   61.140705] lr : acpi_coresight_parse_graph+0x160/0x37c
+[   61.145915] sp : ffff800012f4ba40
+[   61.145917] x29: ffff800012f4ba40 x28: ffff00becce62f98
+[   61.159896] x27: 0000000000000005 x26: ffff00becd8a7c88
+[   61.165195] x25: ffff00becd8a7d88 x24: ffff00becce62f80
+[   61.170492] x23: ffff800011ef99c0 x22: ffff009efb8bc010
+[   61.175790] x21: 0000000000000018 x20: 0000000000000005
+[   61.181087] x19: ffff00becce62e80 x18: 0000000000000020
+[   61.186385] x17: 0000000000000001 x16: 00000000000002a8
+[   61.191682] x15: ffff000838648550 x14: ffffffffffffffff
+[   61.196980] x13: 0000000000000000 x12: ffff00becce62d87
+[   61.202277] x11: 00000000ffffff76 x10: 000000000000002e
+[   61.207575] x9 : ffff8000107e1a68 x8 : ffff00becce63000
+[   61.212873] x7 : 0000000000000018 x6 : 000000000000003f
+[   61.218170] x5 : 0000000000000000 x4 : 0000000000000000
+[   61.223467] x3 : 0000000000000000 x2 : 0000000000000000
+[   61.228764] x1 : ffff00becce62f80 x0 : 0000000000000000
+[   61.234062] Call trace:
+[   61.236497]  acpi_coresight_parse_graph+0x1c4/0x37c
+[   61.241361]  coresight_get_platform_data+0xdc/0x130
+[   61.246225]  tmc_probe+0x138/0x2dc
+[   61.246227]  amba_probe+0xdc/0x220
+[   61.255779]  really_probe+0xe8/0x49c
+[   61.255781]  driver_probe_device+0xec/0x140
+[   61.255782]  device_driver_attach+0xc8/0xd0
+[   61.255785]  __driver_attach+0xac/0x180
+[   61.265857]  bus_for_each_dev+0x78/0xcc
+[   61.265859]  driver_attach+0x2c/0x40
+[   61.265861]  bus_add_driver+0x150/0x244
+[   61.265863]  driver_register+0x80/0x13c
+[   61.273591]  amba_driver_register+0x60/0x70
+[   61.273594]  tmc_driver_init+0x20/0x2c
+[   61.281582]  do_one_initcall+0x50/0x230
+[   61.281585]  do_initcalls+0x104/0x144
+[   61.291831]  kernel_init_freeable+0x168/0x1dc
+[   61.291834]  kernel_init+0x1c/0x120
+[   61.299215]  ret_from_fork+0x10/0x18
+[   61.299219] Code: b9400022 f9400660 9b277c42 8b020000 (f9400404)
+[   61.307381] ---[ end trace 63c6c3d7ec6a9b7c ]---
+[   61.315225] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
 
-root@plb:~# alsamixer
-cannot load mixer controls: Invalid argument
-
-It's agreed that the control interface has been abused since 2014, but
-forcing a check should not prevent existing solutions from working.
-
-This patch skips the checks conditionally if CONFIG_SND_CTL_VALIDATION
-is set and the byte array provided by topology is > 512. This
-preserves the checks for all other cases.
-
-Fixes: 1a3232d2f61d2 ('ASoC: topology: Add support for TLV bytes controls')
-BugLink: https://github.com/thesofproject/linux/issues/2430
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Jaska Uimonen <jaska.uimonen@intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200917103912.2565907-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d375b356e687 ("coresight: Fix support for sparsely populated ports")
+Reported-by: Ruediger Oertel <ro@suse.com>
+Tested-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200916191737.4001561-4-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/hwtracing/coresight/coresight-platform.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 6eaa00c210117..a5460155b3f64 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -592,6 +592,17 @@ static int soc_tplg_kcontrol_bind_io(struct snd_soc_tplg_ctl_hdr *hdr,
- 		k->info = snd_soc_bytes_info_ext;
- 		k->tlv.c = snd_soc_bytes_tlv_callback;
+diff --git a/drivers/hwtracing/coresight/coresight-platform.c b/drivers/hwtracing/coresight/coresight-platform.c
+index e4912abda3aa2..85a6c099ddeb1 100644
+--- a/drivers/hwtracing/coresight/coresight-platform.c
++++ b/drivers/hwtracing/coresight/coresight-platform.c
+@@ -712,11 +712,11 @@ static int acpi_coresight_parse_graph(struct acpi_device *adev,
+ 			return dir;
  
-+		/*
-+		 * When a topology-based implementation abuses the
-+		 * control interface and uses bytes_ext controls of
-+		 * more than 512 bytes, we need to disable the size
-+		 * checks, otherwise accesses to such controls will
-+		 * return an -EINVAL error and prevent the card from
-+		 * being configured.
-+		 */
-+		if (IS_ENABLED(CONFIG_SND_CTL_VALIDATION) && sbe->max > 512)
-+			k->access |= SNDRV_CTL_ELEM_ACCESS_SKIP_CHECK;
-+
- 		ext_ops = tplg->bytes_ext_ops;
- 		num_ops = tplg->bytes_ext_ops_count;
- 		for (i = 0; i < num_ops; i++) {
+ 		if (dir == ACPI_CORESIGHT_LINK_MASTER) {
+-			if (ptr->outport > pdata->nr_outport)
+-				pdata->nr_outport = ptr->outport;
++			if (ptr->outport >= pdata->nr_outport)
++				pdata->nr_outport = ptr->outport + 1;
+ 			ptr++;
+ 		} else {
+-			WARN_ON(pdata->nr_inport == ptr->child_port);
++			WARN_ON(pdata->nr_inport == ptr->child_port + 1);
+ 			/*
+ 			 * We do not track input port connections for a device.
+ 			 * However we need the highest port number described,
+@@ -724,8 +724,8 @@ static int acpi_coresight_parse_graph(struct acpi_device *adev,
+ 			 * record for an output connection. Hence, do not move
+ 			 * the ptr for input connections
+ 			 */
+-			if (ptr->child_port > pdata->nr_inport)
+-				pdata->nr_inport = ptr->child_port;
++			if (ptr->child_port >= pdata->nr_inport)
++				pdata->nr_inport = ptr->child_port + 1;
+ 		}
+ 	}
+ 
 -- 
 2.25.1
 
