@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B6129C1F8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1719E29C3B6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761704AbgJ0OmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
+        id S2901684AbgJ0OZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762347AbgJ0OmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:42:17 -0400
+        id S2387516AbgJ0OZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:25:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3406822264;
-        Tue, 27 Oct 2020 14:42:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C309207BB;
+        Tue, 27 Oct 2020 14:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809736;
-        bh=smbYIs9dT+l/QoU+EsqfoScVZ3k5VgqRrfkSuCKbtvU=;
+        s=default; t=1603808758;
+        bh=nPHdpLG4vTzwkBzDIX3yEsCKS3SBxT+RCHU/3IC5vj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0K1fokSC24aCj23JM76nRGEZk+8VfskmnxPgj58ITjFydFXY9OR7e6a3w8UQmc+7
-         +w/44UYcT7nrrRJTWJ+e6qrKnxflR1TKghK7p1zh614whwY1ZLQFjKEvM8NFoMro1e
-         zz4HSm6/n3VIixWPm1Ovb8zN5UkMGFyzc19+C72E=
+        b=FbIegMswSKoBD/jewoxzwTggJ07F+Ctob5vpQcLllUhEAUrYPcqN+AyiHSWkebjfM
+         zZXMKJ3LX/pYgmDrkqcqU7vmH+eyVFeDUC8OPQisXshnkJ9+Z5kl3f7sPJqq+/JuRf
+         oAPz8LZZoeVi7/1kHAWYOTBJLfq+Suk7q2T+afAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Roger Quadros <rogerq@ti.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 301/408] memory: omap-gpmc: Fix a couple off by ones
-Date:   Tue, 27 Oct 2020 14:53:59 +0100
-Message-Id: <20201027135508.991805699@linuxfoundation.org>
+Subject: [PATCH 4.19 182/264] Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
+Date:   Tue, 27 Oct 2020 14:54:00 +0100
+Message-Id: <20201027135439.216801277@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +45,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4c54228ac8fd55044195825873c50a524131fa53 ]
+[ Upstream commit 30df23c5ecdfb8da5b0bc17ceef67eff9e1b0957 ]
 
-These comparisons should be >= instead of > to prevent reading one
-element beyond the end of the gpmc_cs[] array.
+If imx6ul_tsc_init() fails then we need to clean up the clocks.
 
-Fixes: cdd6928c589a ("ARM: OMAP2+: Add device-tree support for NOR flash")
-Fixes: f37e4580c409 ("ARM: OMAP2: Dynamic allocator for GPMC memory space")
+I reversed the "if (input_dev->users) {" condition to make the code a
+bit simpler.
+
+Fixes: 6cc527b05847 ("Input: imx6ul_tsc - propagate the errors")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Roger Quadros <rogerq@ti.com>
-Link: https://lore.kernel.org/r/20200825104707.GB278587@mwanda
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200905124942.GC183976@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/omap-gpmc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/imx6ul_tsc.c | 27 +++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/memory/omap-gpmc.c b/drivers/memory/omap-gpmc.c
-index eff26c1b13940..b5055577843a2 100644
---- a/drivers/memory/omap-gpmc.c
-+++ b/drivers/memory/omap-gpmc.c
-@@ -949,7 +949,7 @@ static int gpmc_cs_remap(int cs, u32 base)
- 	int ret;
- 	u32 old_base, size;
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+index c10fc594f94d9..6bfe42a11452a 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -538,20 +538,25 @@ static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
  
--	if (cs > gpmc_cs_num) {
-+	if (cs >= gpmc_cs_num) {
- 		pr_err("%s: requested chip-select is disabled\n", __func__);
- 		return -ENODEV;
- 	}
-@@ -984,7 +984,7 @@ int gpmc_cs_request(int cs, unsigned long size, unsigned long *base)
- 	struct resource *res = &gpmc->mem;
- 	int r = -1;
+ 	mutex_lock(&input_dev->mutex);
  
--	if (cs > gpmc_cs_num) {
-+	if (cs >= gpmc_cs_num) {
- 		pr_err("%s: requested chip-select is disabled\n", __func__);
- 		return -ENODEV;
+-	if (input_dev->users) {
+-		retval = clk_prepare_enable(tsc->adc_clk);
+-		if (retval)
+-			goto out;
+-
+-		retval = clk_prepare_enable(tsc->tsc_clk);
+-		if (retval) {
+-			clk_disable_unprepare(tsc->adc_clk);
+-			goto out;
+-		}
++	if (!input_dev->users)
++		goto out;
+ 
+-		retval = imx6ul_tsc_init(tsc);
++	retval = clk_prepare_enable(tsc->adc_clk);
++	if (retval)
++		goto out;
++
++	retval = clk_prepare_enable(tsc->tsc_clk);
++	if (retval) {
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
  	}
+ 
++	retval = imx6ul_tsc_init(tsc);
++	if (retval) {
++		clk_disable_unprepare(tsc->tsc_clk);
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
++	}
+ out:
+ 	mutex_unlock(&input_dev->mutex);
+ 	return retval;
 -- 
 2.25.1
 
