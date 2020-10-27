@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 965F929B437
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373B329B43A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1784655AbgJ0O7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60992 "EHLO mail.kernel.org"
+        id S1784705AbgJ0O7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:59:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1784633AbgJ0O7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:59:22 -0400
+        id S1784696AbgJ0O7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:59:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EB2522281;
-        Tue, 27 Oct 2020 14:59:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E1D22281;
+        Tue, 27 Oct 2020 14:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810761;
-        bh=g5HYlZAFR8vdmZXgm+EELCOCg9TihOKXkvdXaIJmOJE=;
+        s=default; t=1603810772;
+        bh=9cAxKDDdBHgdQxLa10YFLtrt7HHtzL5GsjTkmHuEHUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4PgUONLysLrySIP2YvKsSnSMEiZGlQxH8ANiIUxVfT7sYWjHrkkTU7q52o/PG+Q1
-         etvUJDjC/ccNQ+3cc7WdX8ZMreAL7Z0j3d5nmMjt39+cmKmMyZYuyKuiJxbqSuQv7h
-         bn1V80gCWvOsLd9Juex3fi0eaSWacJ/rfC4ZO4RQ=
+        b=G8D4ZwHKcssAZLGN9fGb9SwAEmp+4UE+oDO9T4hF5D4yLt0bBd9iQxv3g4M3g+PUs
+         6XnioDHP7qxWkV7rPr0bUMio8dPOXZHYOhTu3nOz3vRkofwU1I9c/0lJF49canv8a9
+         JXAxD29vt+gY6fSxFirL9KKI5biUq/n/T5ZzDZ5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo YU <tsu.yubo@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 255/633] ath11k: Add checked value for ath11k_ahb_remove
-Date:   Tue, 27 Oct 2020 14:49:58 +0100
-Message-Id: <20201027135534.626700379@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 259/633] dmaengine: dmatest: Check list for emptiness before access its last entry
+Date:   Tue, 27 Oct 2020 14:50:02 +0100
+Message-Id: <20201027135534.811124460@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,47 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo YU <tsu.yubo@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 80b892fc8a90e91498babf0f6817139e5ec64b5c ]
+[ Upstream commit b28de385b71abf31ce68ec0387638bee26ae9024 ]
 
-Return value form wait_for_completion_timeout should to be checked.
+After writing a garbage to the channel we get an Oops in dmatest_chan_set()
+due to access to last entry in the empty list.
 
-This is detected by Coverity: #CID:1464479 (CHECKED_RETURN)
+[  212.670672] BUG: unable to handle page fault for address: fffffff000000020
+[  212.677562] #PF: supervisor read access in kernel mode
+[  212.682702] #PF: error_code(0x0000) - not-present page
+...
+[  212.710074] RIP: 0010:dmatest_chan_set+0x149/0x2d0 [dmatest]
+[  212.715739] Code: e8 cc f9 ff ff 48 8b 1d 0d 55 00 00 48 83 7b 10 00 0f 84 63 01 00 00 48 c7 c7 d0 65 4d c0 e8 ee 4a f5 e1 48 89 c6 48 8b 43 10 <48> 8b 40 20 48 8b 78 58 48 85 ff 0f 84 f5 00 00 00 e8 b1 41 f5 e1
 
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Bo YU <tsu.yubo@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200621095136.7xdbzkthoxuw2qow@debian.debian-2
+Fix this by checking list for emptiness before accessing its last entry.
+
+Fixes: d53513d5dc28 ("dmaengine: dmatest: Add support for multi channel testing")
+Cc: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200922115847.30100-2-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/ahb.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/dma/dmatest.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
-index 30092841ac464..a0314c1c84653 100644
---- a/drivers/net/wireless/ath/ath11k/ahb.c
-+++ b/drivers/net/wireless/ath/ath11k/ahb.c
-@@ -981,12 +981,16 @@ static int ath11k_ahb_probe(struct platform_device *pdev)
- static int ath11k_ahb_remove(struct platform_device *pdev)
- {
- 	struct ath11k_base *ab = platform_get_drvdata(pdev);
-+	unsigned long left;
+diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
+index 323822372b4ce..7480fc1042093 100644
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -1240,15 +1240,14 @@ static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
+ 	add_threaded_test(info);
  
- 	reinit_completion(&ab->driver_recovery);
- 
--	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags))
--		wait_for_completion_timeout(&ab->driver_recovery,
--					    ATH11K_AHB_RECOVERY_TIMEOUT);
-+	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags)) {
-+		left = wait_for_completion_timeout(&ab->driver_recovery,
-+						   ATH11K_AHB_RECOVERY_TIMEOUT);
-+		if (!left)
-+			ath11k_warn(ab, "failed to receive recovery response completion\n");
-+	}
- 
- 	set_bit(ATH11K_FLAG_UNREGISTERING, &ab->dev_flags);
- 	cancel_work_sync(&ab->restart_work);
+ 	/* Check if channel was added successfully */
+-	dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
+-
+-	if (dtc->chan) {
++	if (!list_empty(&info->channels)) {
+ 		/*
+ 		 * if new channel was not successfully added, revert the
+ 		 * "test_channel" string to the name of the last successfully
+ 		 * added channel. exception for when users issues empty string
+ 		 * to channel parameter.
+ 		 */
++		dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
+ 		if ((strcmp(dma_chan_name(dtc->chan), strim(test_channel)) != 0)
+ 		    && (strcmp("", strim(test_channel)) != 0)) {
+ 			ret = -EINVAL;
 -- 
 2.25.1
 
