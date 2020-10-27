@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70EE629C29B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D64829C2D5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1820741AbgJ0Rht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34046 "EHLO mail.kernel.org"
+        id S1821106AbgJ0Rka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760585AbgJ0OfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:35:18 -0400
+        id S2902468AbgJ0Ods (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:33:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78A9622202;
-        Tue, 27 Oct 2020 14:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EBBB20773;
+        Tue, 27 Oct 2020 14:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809318;
-        bh=hadelxIbODUlJfTnBBpblC19rz6RmRwvvnUY11Qrtss=;
+        s=default; t=1603809228;
+        bh=ykvyhW/ve4gwugZ7NKpp1QA6N4hz+Ae24fTqa7dAQJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0s0hrH5jK7w8Cj4oLTSH9o3UH9KYh150h25vUKZMC5s3U/c2PW9mvPgk0+a43Nvn
-         c3Vrk7TYscpdUy1GUAGRROMDtyLfoPikmLylG1nm+0H7dk0Xwh6MD1SV5sRqvM+Rk6
-         YRzkMrPS9FJqjgi9hgk6Vsf7vYsiCQxxn3lHoaJ8=
+        b=DE8joX2970YWHLKowSyaeo5paQzdR+EfF4mK5PvpkuNwoFF7WSZg+hyN6js5BFazl
+         s9/FkCsC/4r+VWyTcZjA35m78WEv7j6SSRUaeeVa0HltEaZ36DvZra5JZhMDALfKTC
+         N+8LxRUwJbZymofEDJXgJsJZd8M+6TTAb9ssNNYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit kumar <rohitkr@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/408] ASoC: qcom: lpass-cpu: fix concurrency issue
-Date:   Tue, 27 Oct 2020 14:50:51 +0100
-Message-Id: <20201027135500.344992671@linuxfoundation.org>
+Subject: [PATCH 5.4 114/408] brcmfmac: check ndev pointer
+Date:   Tue, 27 Oct 2020 14:50:52 +0100
+Message-Id: <20201027135500.392022349@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,60 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit kumar <rohitkr@codeaurora.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 753a6e17942f6f425ca622e1610625998312ad89 ]
+[ Upstream commit 9c9f015bc9f8839831c7ba0a6d731a3853c464e2 ]
 
-i2sctl register value is set to 0 during hw_free(). This
-impacts any ongoing concurrent session on the same i2s
-port. As trigger() stop already resets enable bit to 0,
-there is no need of explicit hw_free. Removing it to
-fix the issue.
+Clang static analysis reports this error
 
-Fixes: 80beab8e1d86 ("ASoC: qcom: Add LPASS CPU DAI driver")
-Signed-off-by: Rohit kumar <rohitkr@codeaurora.org>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/1597402388-14112-7-git-send-email-rohitkr@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+brcmfmac/core.c:490:4: warning: Dereference of null pointer
+        (*ifp)->ndev->stats.rx_errors++;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this block of code
+
+	if (ret || !(*ifp) || !(*ifp)->ndev) {
+		if (ret != -ENODATA && *ifp)
+			(*ifp)->ndev->stats.rx_errors++;
+		brcmu_pkt_buf_free_skb(skb);
+		return -ENODATA;
+	}
+
+(*ifp)->ndev being NULL is caught as an error
+But then it is used to report the error.
+
+So add a check before using it.
+
+Fixes: 91b632803ee4 ("brcmfmac: Use net_device_stats from struct net_device")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200802161804.6126-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index dbce7e92baf3c..c5d6952a4a33f 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -174,21 +174,6 @@ static int lpass_cpu_daiops_hw_params(struct snd_pcm_substream *substream,
- 	return 0;
- }
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 85cf96461ddeb..e9bb8dbdc9aa8 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -483,7 +483,7 @@ static int brcmf_rx_hdrpull(struct brcmf_pub *drvr, struct sk_buff *skb,
+ 	ret = brcmf_proto_hdrpull(drvr, true, skb, ifp);
  
--static int lpass_cpu_daiops_hw_free(struct snd_pcm_substream *substream,
--		struct snd_soc_dai *dai)
--{
--	struct lpass_data *drvdata = snd_soc_dai_get_drvdata(dai);
--	int ret;
--
--	ret = regmap_write(drvdata->lpaif_map,
--			   LPAIF_I2SCTL_REG(drvdata->variant, dai->driver->id),
--			   0);
--	if (ret)
--		dev_err(dai->dev, "error writing to i2sctl reg: %d\n", ret);
--
--	return ret;
--}
--
- static int lpass_cpu_daiops_prepare(struct snd_pcm_substream *substream,
- 		struct snd_soc_dai *dai)
- {
-@@ -269,7 +254,6 @@ const struct snd_soc_dai_ops asoc_qcom_lpass_cpu_dai_ops = {
- 	.startup	= lpass_cpu_daiops_startup,
- 	.shutdown	= lpass_cpu_daiops_shutdown,
- 	.hw_params	= lpass_cpu_daiops_hw_params,
--	.hw_free	= lpass_cpu_daiops_hw_free,
- 	.prepare	= lpass_cpu_daiops_prepare,
- 	.trigger	= lpass_cpu_daiops_trigger,
- };
+ 	if (ret || !(*ifp) || !(*ifp)->ndev) {
+-		if (ret != -ENODATA && *ifp)
++		if (ret != -ENODATA && *ifp && (*ifp)->ndev)
+ 			(*ifp)->ndev->stats.rx_errors++;
+ 		brcmu_pkt_buf_free_skb(skb);
+ 		return -ENODATA;
 -- 
 2.25.1
 
