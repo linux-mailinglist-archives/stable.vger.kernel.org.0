@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B50629B5EA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33CC929B5E8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796366AbgJ0PRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54942 "EHLO mail.kernel.org"
+        id S1796353AbgJ0PRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:17:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895300AbgJ0PRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:17:33 -0400
+        id S1796344AbgJ0PRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5EF420657;
-        Tue, 27 Oct 2020 15:17:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FB202064B;
+        Tue, 27 Oct 2020 15:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811852;
-        bh=X3yF2WEk7jjodg1N+eVjY14Uiapn2eIHGyzVg1Pa178=;
+        s=default; t=1603811854;
+        bh=og7teVhvN4vcGvdScK1wcCLZyTGXDMzKSJjn00EVR/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiteDd9DP7e0qPAtWuE37kj8/S3/XUeHQSKTMWNo4OohTt4uR/vo/5a7JF7C7chZq
-         GCY4GkLVdLLA7iT9aShp/KMJ2rl/9EPOXhIGBtJZ+bFTGvLtk4qu4MVSlLWljcIZ+D
-         dszBIWzwNV05N1DvfYTBCUwTb5T4FTXgDgghvwG0=
+        b=EtTD27nb3Owk3/h7ITZn/JpPnKzbE0gt/oDGHUfsvBworym7wTQYzRGw9f8/5fZHx
+         oCi9FibxNB7GuIGiz0Wqwrz55VBs8OLI8Gwt3CC6Dp1+4pYU5wttTsdE8OPGUlcHqN
+         qjX7iJ6aOMQrvxj1kxfNTUUvqWEN3CEe06j2MZ38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 622/633] dmaengine: dw: Activate FIFO-mode for memory peripherals only
-Date:   Tue, 27 Oct 2020 14:56:05 +0100
-Message-Id: <20201027135552.000527267@linuxfoundation.org>
+        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 623/633] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
+Date:   Tue, 27 Oct 2020 14:56:06 +0100
+Message-Id: <20201027135552.043448471@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,63 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 6d9459d04081c796fc67c2bb771f4e4ebb5744c4 ]
+[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
 
-CFGx.FIFO_MODE field controls a DMA-controller "FIFO readiness" criterion.
-In other words it determines when to start pushing data out of a DW
-DMAC channel FIFO to a destination peripheral or from a source
-peripheral to the DW DMAC channel FIFO. Currently FIFO-mode is set to one
-for all DW DMAC channels. It means they are tuned to flush data out of
-FIFO (to a memory peripheral or by accepting the burst transaction
-requests) when FIFO is at least half-full (except at the end of the block
-transfer, when FIFO-flush mode is activated) and are configured to get
-data to the FIFO when it's at least half-empty.
+The idx in __ath10k_htt_rx_ring_fill_n function lives in
+consistent dma region writable by the device. Malfunctional
+or malicious device could manipulate such idx to have a OOB
+write. Either by
+    htt->rx_ring.netbufs_ring[idx] = skb;
+or by
+    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
 
-Such configuration is a good choice when there is no slave device involved
-in the DMA transfers. In that case the number of bursts per block is less
-than when CFGx.FIFO_MODE = 0 and, hence, the bus utilization will improve.
-But the latency of DMA transfers may increase when CFGx.FIFO_MODE = 1,
-since DW DMAC will wait for the channel FIFO contents to be either
-half-full or half-empty depending on having the destination or the source
-transfers. Such latencies might be dangerous in case if the DMA transfers
-are expected to be performed from/to a slave device. Since normally
-peripheral devices keep data in internal FIFOs, any latency at some
-critical moment may cause one being overflown and consequently losing
-data. This especially concerns a case when either a peripheral device is
-relatively fast or the DW DMAC engine is relatively slow with respect to
-the incoming data pace.
+The idx can also be negative as it's signed, giving a large
+memory space to write to.
 
-In order to solve problems, which might be caused by the latencies
-described above, let's enable the FIFO half-full/half-empty "FIFO
-readiness" criterion only for DMA transfers with no slave device involved.
-Thanks to the commit 99ba8b9b0d97 ("dmaengine: dw: Initialize channel
-before each transfer") we can freely do that in the generic
-dw_dma_initialize_chan() method.
+It's possibly exploitable by corruptting a legit pointer with
+a skb pointer. And then fill skb with payload as rougue object.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200731200826.9292-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Part of the log here. Sometimes it appears as UAF when writing
+to a freed memory by chance.
+
+ [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
+ [   15.595483] #PF: supervisor write access in kernel mode
+ [   15.596250] #PF: error_code(0x0002) - not-present page
+ [   15.597013] PGD 0 P4D 0
+ [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
+ [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
+ [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+ BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
+ [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
+ (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
+
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/dw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/dma/dw/dw.c b/drivers/dma/dw/dw.c
-index 7a085b3c1854c..d9810980920a1 100644
---- a/drivers/dma/dw/dw.c
-+++ b/drivers/dma/dw/dw.c
-@@ -14,7 +14,7 @@
- static void dw_dma_initialize_chan(struct dw_dma_chan *dwc)
- {
- 	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
--	u32 cfghi = DWC_CFGH_FIFO_MODE;
-+	u32 cfghi = is_slave_direction(dwc->direction) ? 0 : DWC_CFGH_FIFO_MODE;
- 	u32 cfglo = DWC_CFGL_CH_PRIOR(dwc->priority);
- 	bool hs_polarity = dwc->dws.hs_polarity;
+diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
+index d787cbead56ab..215ade6faf328 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -142,6 +142,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
+ 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
  
+ 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
++
++	if (idx < 0 || idx >= htt->rx_ring.size) {
++		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
++		idx &= htt->rx_ring.size_mask;
++		ret = -ENOMEM;
++		goto fail;
++	}
++
+ 	while (num > 0) {
+ 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
+ 		if (!skb) {
 -- 
 2.25.1
 
