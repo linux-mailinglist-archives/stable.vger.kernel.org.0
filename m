@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4DF299F2E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5637E299F35
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389506AbgJ0AF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53934 "EHLO mail.kernel.org"
+        id S2391627AbgJ0AF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438129AbgJ0AFE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:05:04 -0400
+        id S2438135AbgJ0AFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:05:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 532162087C;
-        Tue, 27 Oct 2020 00:05:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 996AD20791;
+        Tue, 27 Oct 2020 00:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757104;
-        bh=zW4vx8Z/ihWOBWx+tUKY5/hL3tuVa2QCgqmlbsp/0bI=;
+        s=default; t=1603757105;
+        bh=gEb+H1BIg8FCQEJHSeJMAF1UYJI6WKJ7OI5Kva1uWcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIqTwFaBT9k6KIgq1gA/HUKrr9Z1yb8GkqpI0LaAHB0Q4IGwPIKsyQ1o7ZWR4VGed
-         4pNN/aXnso91067K9YZnrnO/7yReFuC45CmeUiVNkg0JyYvqUGm6SmCy2SZeDgq6Dd
-         INNG7hq+a2aNkbW2cDZVQ8fE27jk9NGl+0fHwzFY=
+        b=RzIFBLKdi69uFJxbJOKkf+fm2oGNaWPuj1BLeVm9NOTpWX3+6irxJ2C9UcjUOgtX0
+         Q/KO54N7uHeFG6oPlt1DQ4j2y67VfOSpSsgslEO7yyUw4Gaz2EbsH47fmkMHcCo7Iw
+         c2Ivqx+HJN8GdncIfAWmYaropWC7j13GwhPE3ghU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fangzhi Zuo <Jerry.Zuo@amd.com>, Hersen Wu <hersenxs.wu@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 41/60] drm/amd/display: HDMI remote sink need mode validation for Linux
-Date:   Mon, 26 Oct 2020 20:03:56 -0400
-Message-Id: <20201027000415.1026364-41-sashal@kernel.org>
+Cc:     Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 42/60] btrfs: fix replace of seed device
+Date:   Mon, 26 Oct 2020 20:03:57 -0400
+Message-Id: <20201027000415.1026364-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
 References: <20201027000415.1026364-1-sashal@kernel.org>
@@ -44,47 +42,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangzhi Zuo <Jerry.Zuo@amd.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 95d620adb48f7728e67d82f56f756e8d451cf8d2 ]
+[ Upstream commit c6a5d954950c5031444173ad2195efc163afcac9 ]
 
-[Why]
-Currently mode validation is bypassed if remote sink exists. That
-leads to mode set issue when a BW bottle neck exists in the link path,
-e.g., a DP-to-HDMI converter that only supports HDMI 1.4.
+If you replace a seed device in a sprouted fs, it appears to have
+successfully replaced the seed device, but if you look closely, it
+didn't.  Here is an example.
 
-Any invalid mode passed to Linux user space will cause the modeset
-failure due to limitation of Linux user space implementation.
+  $ mkfs.btrfs /dev/sda
+  $ btrfstune -S1 /dev/sda
+  $ mount /dev/sda /btrfs
+  $ btrfs device add /dev/sdb /btrfs
+  $ umount /btrfs
+  $ btrfs device scan --forget
+  $ mount -o device=/dev/sda /dev/sdb /btrfs
+  $ btrfs replace start -f /dev/sda /dev/sdc /btrfs
+  $ echo $?
+  0
 
-[How]
-Mode validation is skipped only if in edid override. For real remote
-sink, clock limit check should be done for HDMI remote sink.
+  BTRFS info (device sdb): dev_replace from /dev/sda (devid 1) to /dev/sdc started
+  BTRFS info (device sdb): dev_replace from /dev/sda (devid 1) to /dev/sdc finished
 
-Have HDMI related remote sink going through mode validation to
-elimiate modes which pixel clock exceeds BW limitation.
+  $ btrfs fi show
+  Label: none  uuid: ab2c88b7-be81-4a7e-9849-c3666e7f9f4f
+	  Total devices 2 FS bytes used 256.00KiB
+	  devid    1 size 3.00GiB used 520.00MiB path /dev/sdc
+	  devid    2 size 3.00GiB used 896.00MiB path /dev/sdb
 
-Signed-off-by: Fangzhi Zuo <Jerry.Zuo@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  Label: none  uuid: 10bd3202-0415-43af-96a8-d5409f310a7e
+	  Total devices 1 FS bytes used 128.00KiB
+	  devid    1 size 3.00GiB used 536.00MiB path /dev/sda
+
+So as per the replace start command and kernel log replace was successful.
+Now let's try to clean mount.
+
+  $ umount /btrfs
+  $ btrfs device scan --forget
+
+  $ mount -o device=/dev/sdc /dev/sdb /btrfs
+  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/sdb, missing codepage or helper program, or other error.
+
+  [  636.157517] BTRFS error (device sdc): failed to read chunk tree: -2
+  [  636.180177] BTRFS error (device sdc): open_ctree failed
+
+That's because per dev items it is still looking for the original seed
+device.
+
+ $ btrfs inspect-internal dump-tree -d /dev/sdb
+
+	item 0 key (DEV_ITEMS DEV_ITEM 1) itemoff 16185 itemsize 98
+		devid 1 total_bytes 3221225472 bytes_used 545259520
+		io_align 4096 io_width 4096 sector_size 4096 type 0
+		generation 6 start_offset 0 dev_group 0
+		seek_speed 0 bandwidth 0
+		uuid 59368f50-9af2-4b17-91da-8a783cc418d4  <--- seed uuid
+		fsid 10bd3202-0415-43af-96a8-d5409f310a7e  <--- seed fsid
+	item 1 key (DEV_ITEMS DEV_ITEM 2) itemoff 16087 itemsize 98
+		devid 2 total_bytes 3221225472 bytes_used 939524096
+		io_align 4096 io_width 4096 sector_size 4096 type 0
+		generation 0 start_offset 0 dev_group 0
+		seek_speed 0 bandwidth 0
+		uuid 56a0a6bc-4630-4998-8daf-3c3030c4256a  <- sprout uuid
+		fsid ab2c88b7-be81-4a7e-9849-c3666e7f9f4f <- sprout fsid
+
+But the replaced target has the following uuid+fsid in its superblock
+which doesn't match with the expected uuid+fsid in its devitem.
+
+  $ btrfs in dump-super /dev/sdc | egrep '^generation|dev_item.uuid|dev_item.fsid|devid'
+  generation	20
+  dev_item.uuid	59368f50-9af2-4b17-91da-8a783cc418d4
+  dev_item.fsid	ab2c88b7-be81-4a7e-9849-c3666e7f9f4f [match]
+  dev_item.devid	1
+
+So if you provide the original seed device the mount shall be
+successful.  Which so long happening in the test case btrfs/163.
+
+  $ btrfs device scan --forget
+  $ mount -o device=/dev/sda /dev/sdb /btrfs
+
+Fix in this patch:
+If a seed is not sprouted then there is no replacement of it, because of
+its read-only filesystem with a read-only device. Similarly, in the case
+of a sprouted filesystem, the seed device is still read only. So, mark
+it as you can't replace a seed device, you can only add a new device and
+then delete the seed device. If replace is attempted then returns
+-EINVAL.
+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 2 +-
+ fs/btrfs/dev-replace.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 2fb2c683ad54b..fa0e6c8e2447c 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -2009,7 +2009,7 @@ enum dc_status dc_link_validate_mode_timing(
- 	/* A hack to avoid failing any modes for EDID override feature on
- 	 * topology change such as lower quality cable for DP or different dongle
- 	 */
--	if (link->remote_sinks[0])
-+	if (link->remote_sinks[0] && link->remote_sinks[0]->sink_signal == SIGNAL_TYPE_VIRTUAL)
- 		return DC_OK;
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index 1b9c8ffb038ff..36c0490156ac5 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -190,7 +190,7 @@ static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,
+ 	int ret = 0;
  
- 	/* Passive Dongle */
+ 	*device_out = NULL;
+-	if (fs_info->fs_devices->seeding) {
++	if (srcdev->fs_devices->seeding) {
+ 		btrfs_err(fs_info, "the filesystem is a seed filesystem!");
+ 		return -EINVAL;
+ 	}
 -- 
 2.25.1
 
