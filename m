@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A083C299DEE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A16B299DEF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411627AbgJ0AKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
+        id S2411634AbgJ0AKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411621AbgJ0AKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:52 -0400
+        id S2411626AbgJ0AKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63C9F2087C;
-        Tue, 27 Oct 2020 00:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9123C216FD;
+        Tue, 27 Oct 2020 00:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757452;
-        bh=g40zkydSDXaTARrGzvvEbUNSrIYH8ahCAthWL2BEgQM=;
+        s=default; t=1603757453;
+        bh=iyIij0sUfHWqwtTR5tq68DkJ/medJihSopCzw4si2J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7zpuvbwY6+V1V5/kDJuyL4E+dZXIDByO0/dTenhgFykpUIEOGyX1kbhHq8XqAQSi
-         sWSCuGrOaLAFVZbNylVlrepdETvWUzbYoGjfUPFIeqvg9ywE3r/cjxQAWtrAdUPm+0
-         67QAzAdSjHV642azZsvYUBO/BJIyWG7AAMhadE4w=
+        b=w/n9vr1lLM+yPfUkcyaevnMeREu5XGBSHvc2tPIiiaV4Je7Fr5JUJ4ekt/sB8cb/w
+         DtXtpkLaypaPAnEIU5fyLTsMarDANsUqGrUMEhlgdVluKYAb9v3eVMhjRTlgeAS5S7
+         awOV13DgVdyj8EQgsMGBnrGDEi2Q4Mo3n6ftMXhk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Will Deacon <will@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 06/30] ARM: 8997/2: hw_breakpoint: Handle inexact watchpoint addresses
-Date:   Mon, 26 Oct 2020 20:10:20 -0400
-Message-Id: <20201027001044.1027349-6-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/30] xfs: fix realtime bitmap/summary file truncation when growing rt volume
+Date:   Mon, 26 Oct 2020 20:10:21 -0400
+Message-Id: <20201027001044.1027349-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027001044.1027349-1-sashal@kernel.org>
 References: <20201027001044.1027349-1-sashal@kernel.org>
@@ -45,186 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 22c9e58299e5f18274788ce54c03d4fb761e3c5d ]
+[ Upstream commit f4c32e87de7d66074d5612567c5eac7325024428 ]
 
-This is commit fdfeff0f9e3d ("arm64: hw_breakpoint: Handle inexact
-watchpoint addresses") but ported to arm32, which has the same
-problem.
+The realtime bitmap and summary files are regular files that are hidden
+away from the directory tree.  Since they're regular files, inode
+inactivation will try to purge what it thinks are speculative
+preallocations beyond the incore size of the file.  Unfortunately,
+xfs_growfs_rt forgets to update the incore size when it resizes the
+inodes, with the result that inactivating the rt inodes at unmount time
+will cause their contents to be truncated.
 
-This problem was found by Android CTS tests, notably the
-"watchpoint_imprecise" test [1].  I tested locally against a copycat
-(simplified) version of the test though.
+Fix this by updating the incore size when we change the ondisk size as
+part of updating the superblock.  Note that we don't do this when we're
+allocating blocks to the rt inodes because we actually want those blocks
+to get purged if the growfs fails.
 
-[1] https://android.googlesource.com/platform/bionic/+/master/tests/sys_ptrace_test.cpp
+This fixes corruption complaints from the online rtsummary checker when
+running xfs/233.  Since that test requires rmap, one can also trigger
+this by growing an rt volume, cycling the mount, and creating rt files.
 
-Link: https://lkml.kernel.org/r/20191019111216.1.I82eae759ca6dc28a245b043f485ca490e3015321@changeid
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/hw_breakpoint.c | 100 +++++++++++++++++++++++---------
- 1 file changed, 72 insertions(+), 28 deletions(-)
+ fs/xfs/xfs_rtalloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
-index 283084f6286d9..671dbc28e5d46 100644
---- a/arch/arm/kernel/hw_breakpoint.c
-+++ b/arch/arm/kernel/hw_breakpoint.c
-@@ -688,6 +688,40 @@ static void disable_single_step(struct perf_event *bp)
- 	arch_install_hw_breakpoint(bp);
- }
- 
-+/*
-+ * Arm32 hardware does not always report a watchpoint hit address that matches
-+ * one of the watchpoints set. It can also report an address "near" the
-+ * watchpoint if a single instruction access both watched and unwatched
-+ * addresses. There is no straight-forward way, short of disassembling the
-+ * offending instruction, to map that address back to the watchpoint. This
-+ * function computes the distance of the memory access from the watchpoint as a
-+ * heuristic for the likelyhood that a given access triggered the watchpoint.
-+ *
-+ * See this same function in the arm64 platform code, which has the same
-+ * problem.
-+ *
-+ * The function returns the distance of the address from the bytes watched by
-+ * the watchpoint. In case of an exact match, it returns 0.
-+ */
-+static u32 get_distance_from_watchpoint(unsigned long addr, u32 val,
-+					struct arch_hw_breakpoint_ctrl *ctrl)
-+{
-+	u32 wp_low, wp_high;
-+	u32 lens, lene;
-+
-+	lens = __ffs(ctrl->len);
-+	lene = __fls(ctrl->len);
-+
-+	wp_low = val + lens;
-+	wp_high = val + lene;
-+	if (addr < wp_low)
-+		return wp_low - addr;
-+	else if (addr > wp_high)
-+		return addr - wp_high;
-+	else
-+		return 0;
-+}
-+
- static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
- 				       struct arch_hw_breakpoint *info)
- {
-@@ -697,23 +731,25 @@ static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
- static void watchpoint_handler(unsigned long addr, unsigned int fsr,
- 			       struct pt_regs *regs)
- {
--	int i, access;
--	u32 val, ctrl_reg, alignment_mask;
-+	int i, access, closest_match = 0;
-+	u32 min_dist = -1, dist;
-+	u32 val, ctrl_reg;
- 	struct perf_event *wp, **slots;
- 	struct arch_hw_breakpoint *info;
- 	struct arch_hw_breakpoint_ctrl ctrl;
- 
- 	slots = this_cpu_ptr(wp_on_reg);
- 
-+	/*
-+	 * Find all watchpoints that match the reported address. If no exact
-+	 * match is found. Attribute the hit to the closest watchpoint.
-+	 */
-+	rcu_read_lock();
- 	for (i = 0; i < core_num_wrps; ++i) {
--		rcu_read_lock();
--
- 		wp = slots[i];
--
- 		if (wp == NULL)
--			goto unlock;
-+			continue;
- 
--		info = counter_arch_bp(wp);
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 0d93d3c10fcc4..a2ff79856f853 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1003,10 +1003,13 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
  		/*
- 		 * The DFAR is an unknown value on debug architectures prior
- 		 * to 7.1. Since we only allow a single watchpoint on these
-@@ -722,33 +758,31 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+-		 * Update the bitmap inode's size.
++		 * Update the bitmap inode's size ondisk and incore.  We need
++		 * to update the incore size so that inode inactivation won't
++		 * punch what it thinks are "posteof" blocks.
  		 */
- 		if (debug_arch < ARM_DEBUG_ARCH_V7_1) {
- 			BUG_ON(i > 0);
-+			info = counter_arch_bp(wp);
- 			info->trigger = wp->attr.bp_addr;
- 		} else {
--			if (info->ctrl.len == ARM_BREAKPOINT_LEN_8)
--				alignment_mask = 0x7;
--			else
--				alignment_mask = 0x3;
--
--			/* Check if the watchpoint value matches. */
--			val = read_wb_reg(ARM_BASE_WVR + i);
--			if (val != (addr & ~alignment_mask))
--				goto unlock;
--
--			/* Possible match, check the byte address select. */
--			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
--			decode_ctrl_reg(ctrl_reg, &ctrl);
--			if (!((1 << (addr & alignment_mask)) & ctrl.len))
--				goto unlock;
--
- 			/* Check that the access type matches. */
- 			if (debug_exception_updates_fsr()) {
- 				access = (fsr & ARM_FSR_ACCESS_MASK) ?
- 					  HW_BREAKPOINT_W : HW_BREAKPOINT_R;
- 				if (!(access & hw_breakpoint_type(wp)))
--					goto unlock;
-+					continue;
- 			}
- 
-+			val = read_wb_reg(ARM_BASE_WVR + i);
-+			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
-+			decode_ctrl_reg(ctrl_reg, &ctrl);
-+			dist = get_distance_from_watchpoint(addr, val, &ctrl);
-+			if (dist < min_dist) {
-+				min_dist = dist;
-+				closest_match = i;
-+			}
-+			/* Is this an exact match? */
-+			if (dist != 0)
-+				continue;
-+
- 			/* We have a winner. */
-+			info = counter_arch_bp(wp);
- 			info->trigger = addr;
- 		}
- 
-@@ -770,13 +804,23 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
- 		 * we can single-step over the watchpoint trigger.
+ 		mp->m_rbmip->i_d.di_size =
+ 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
++		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Get the summary inode into the transaction.
+@@ -1014,9 +1017,12 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the summary inode's size.
++		 * Update the summary inode's size.  We need to update the
++		 * incore size so that inode inactivation won't punch what it
++		 * thinks are "posteof" blocks.
  		 */
- 		if (!is_default_overflow_handler(wp))
--			goto unlock;
--
-+			continue;
- step:
- 		enable_single_step(wp, instruction_pointer(regs));
--unlock:
--		rcu_read_unlock();
- 	}
-+
-+	if (min_dist > 0 && min_dist != -1) {
-+		/* No exact match found. */
-+		wp = slots[closest_match];
-+		info = counter_arch_bp(wp);
-+		info->trigger = addr;
-+		pr_debug("watchpoint fired: address = 0x%x\n", info->trigger);
-+		perf_bp_event(wp, regs);
-+		if (is_default_overflow_handler(wp))
-+			enable_single_step(wp, instruction_pointer(regs));
-+	}
-+
-+	rcu_read_unlock();
- }
- 
- static void watchpoint_single_step_handler(unsigned long pc)
+ 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
++		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Copy summary data from old to new sizes.
 -- 
 2.25.1
 
