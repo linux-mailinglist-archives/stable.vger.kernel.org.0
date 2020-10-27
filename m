@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A39329B6E1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 415A529B69C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2902001AbgJ0P1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:27:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
+        id S1797402AbgJ0PXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797380AbgJ0PXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:23:11 -0400
+        id S1797399AbgJ0PXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:23:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B004E2064B;
-        Tue, 27 Oct 2020 15:23:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A40F20657;
+        Tue, 27 Oct 2020 15:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812190;
-        bh=1Gr1VumVpL/J3/Rg8pZcI647T5nB3p5ZEscPdFL9Po4=;
+        s=default; t=1603812199;
+        bh=16jPuAAJbVkS6S0piZRoKInnOQvNinQFd/PbSMxA4L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9BzupCTiA6kLyZioTnV65ATuGKAKcTugbGyuSY6frEkwOUO80EJXuDfc923SbJ7s
-         a45hvXd98WnS3uUv7Yg4zW3sVKfUSri1Aihh/WTHGLel3LFyvknt5hZePA2qdn+X0M
-         JKNK9llSYk9qa0yJzDvTct8UZdM86vCMkhxs2cHU=
+        b=fFPyR7be79cdHmGVdFTki5m+nUH5oEmXSFxBMLX1Q2HYlgfZ4MVaP3AiXnXCQpfTy
+         S4ElKSfy9WHtMZwUDMsn5lx34npS+Ry/6t7qUqmi7py4blCwR/vDUC2V0AUIHVV/gV
+         KbqTBwf/SGx7aN+WxQF2H8FjlWL2Eu9YzILfbUXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 124/757] media: tuner-simple: fix regression in simple_set_radio_freq
-Date:   Tue, 27 Oct 2020 14:46:14 +0100
-Message-Id: <20201027135456.397394959@linuxfoundation.org>
+Subject: [PATCH 5.9 126/757] media: Revert "media: exynos4-is: Add missed check for pinctrl_lookup_state()"
+Date:   Tue, 27 Oct 2020 14:46:16 +0100
+Message-Id: <20201027135456.488347474@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,64 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 505bfc2a142f12ce7bc7a878b44abc3496f2e747 ]
+[ Upstream commit 00d21f325d58567d81d9172096692d0a9ea7f725 ]
 
-clang static analysis reports this problem
+The "idle" pinctrl state is optional as documented in the DT binding.
+The change introduced by the commit being reverted makes that pinctrl state
+mandatory and breaks initialization of the whole media driver, since the
+"idle" state is not specified in any mainline dts.
 
-tuner-simple.c:714:13: warning: Assigned value is
-  garbage or undefined
-        buffer[1] = buffer[3];
-                  ^ ~~~~~~~~~
-In simple_set_radio_freq buffer[3] used to be done
-in-function with a switch of tuner type, now done
-by a call to simple_radio_bandswitch which has this case
+This reverts commit 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+to fix the regression.
 
-	case TUNER_TENA_9533_DI:
-	case TUNER_YMEC_TVF_5533MF:
-		tuner_dbg("This tuner doesn't ...
-		return 0;
-
-which does not set buffer[3].  In the old logic, this case
-would have returned 0 from simple_set_radio_freq.
-
-Recover this old behavior by returning an error for this
-codition. Since the old simple_set_radio_freq behavior
-returned a 0, do the same.
-
-Fixes: c7a9f3aa1e1b ("V4L/DVB (7129): tuner-simple: move device-specific code into three separate functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
+Fixes: 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/tuner-simple.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/tuners/tuner-simple.c b/drivers/media/tuners/tuner-simple.c
-index b6e70fada3fb2..8fb186b25d6af 100644
---- a/drivers/media/tuners/tuner-simple.c
-+++ b/drivers/media/tuners/tuner-simple.c
-@@ -500,7 +500,7 @@ static int simple_radio_bandswitch(struct dvb_frontend *fe, u8 *buffer)
- 	case TUNER_TENA_9533_DI:
- 	case TUNER_YMEC_TVF_5533MF:
- 		tuner_dbg("This tuner doesn't have FM. Most cards have a TEA5767 for FM\n");
--		return 0;
-+		return -EINVAL;
- 	case TUNER_PHILIPS_FM1216ME_MK3:
- 	case TUNER_PHILIPS_FM1236_MK3:
- 	case TUNER_PHILIPS_FMD1216ME_MK3:
-@@ -702,7 +702,8 @@ static int simple_set_radio_freq(struct dvb_frontend *fe,
- 		    TUNER_RATIO_SELECT_50; /* 50 kHz step */
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 16dd660137a8d..9a575233e4c1e 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1268,11 +1268,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
+ 	if (IS_ERR(pctl->state_default))
+ 		return PTR_ERR(pctl->state_default);
  
- 	/* Bandswitch byte */
--	simple_radio_bandswitch(fe, &buffer[0]);
-+	if (simple_radio_bandswitch(fe, &buffer[0]))
-+		return 0;
++	/* PINCTRL_STATE_IDLE is optional */
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
+-	if (IS_ERR(pctl->state_idle))
+-		return PTR_ERR(pctl->state_idle);
+-
+ 	return 0;
+ }
  
- 	/* Convert from 1/16 kHz V4L steps to 1/20 MHz (=50 kHz) PLL steps
- 	   freq * (1 Mhz / 16000 V4L steps) * (20 PLL steps / 1 MHz) =
 -- 
 2.25.1
 
