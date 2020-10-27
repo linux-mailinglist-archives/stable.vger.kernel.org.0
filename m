@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6466329B0CC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6ECA29B0CF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901451AbgJ0OXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:23:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
+        id S2901501AbgJ0OYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901439AbgJ0OXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:23:48 -0400
+        id S2901492AbgJ0OX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:23:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A75F2072D;
-        Tue, 27 Oct 2020 14:23:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC52921D42;
+        Tue, 27 Oct 2020 14:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808627;
-        bh=yZCN1zWt+EOsOEH9do1Yu25eQJ98pM3OpKqQUBzaL2A=;
+        s=default; t=1603808638;
+        bh=ApMy92L19cwrfUNVjApTOSZu9vfjCfDlGpsRskCQwpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kldFhf3s0XE48mO3+dD21VW0xmoIQgS0sECjExJiIs6cmftsmZr9b3WS50nreYb37
-         6awK0gG8d2EDcqTMKTl3jZVisrPEyhVNQOTtlij0lnk0JscMJzs2+xzVTaTHmjYhXo
-         91OteXAfjBcH1mynrjWGAHcDXt5h9a6OokmiQenw=
+        b=KDC0o11039CaS7UhsXhFEMvhc16nMTyew/bteW0yymc377AxXpaKxLHvoDKOoxB4Q
+         qbCGYySi3KWEj4TeMZSAjIr8dhtghw8WMwlqQZMYOZ80OxgkAVmdYnBuYMr/wZ16cA
+         c5YQUY4IzmOP3xKw018IKWTTjpJpunIBpScQ7XDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 163/264] ramfs: fix nommu mmap with gaps in the page cache
-Date:   Tue, 27 Oct 2020 14:53:41 +0100
-Message-Id: <20201027135438.337776272@linuxfoundation.org>
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Andy Lowe <andy_lowe@mentor.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 167/264] i2c: rcar: Auto select RESET_CONTROLLER
+Date:   Tue, 27 Oct 2020 14:53:45 +0100
+Message-Id: <20201027135438.532246203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -46,40 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Dirk Behme <dirk.behme@de.bosch.com>
 
-[ Upstream commit 50b7d85680086126d7bd91dae81d57d4cb1ab6b7 ]
+[ Upstream commit 5b9bacf28a973a6b16510493416baeefa2c06289 ]
 
-ramfs needs to check that pages are both physically contiguous and
-contiguous in the file.  If the page cache happens to have, eg, page A for
-index 0 of the file, no page for index 1, and page A+1 for index 2, then
-an mmap of the first two pages of the file will succeed when it should
-fail.
+The i2c-rcar driver utilizes the Generic Reset Controller kernel
+feature, so select the RESET_CONTROLLER option when the I2C_RCAR
+option is selected with a Gen3 SoC.
 
-Fixes: 642fb4d1f1dd ("[PATCH] NOMMU: Provide shared-writable mmap support on ramfs")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Howells <dhowells@redhat.com>
-Link: https://lkml.kernel.org/r/20200914122239.GO6583@casper.infradead.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2b16fd63059ab9 ("i2c: rcar: handle RXDMA HW behaviour on Gen3")
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Andy Lowe <andy_lowe@mentor.com>
+[erosca: Add "if ARCH_RCAR_GEN3" per Wolfram's request]
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ramfs/file-nommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ramfs/file-nommu.c b/fs/ramfs/file-nommu.c
-index 3ac1f23870837..5e1ebbe639ebf 100644
---- a/fs/ramfs/file-nommu.c
-+++ b/fs/ramfs/file-nommu.c
-@@ -228,7 +228,7 @@ static unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
- 	if (!pages)
- 		goto out_free;
- 
--	nr = find_get_pages(inode->i_mapping, &pgoff, lpages, pages);
-+	nr = find_get_pages_contig(inode->i_mapping, pgoff, lpages, pages);
- 	if (nr != lpages)
- 		goto out_free_pages; /* leave if some pages were missing */
- 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index ee6dd1b84fac8..017aec34a238d 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1117,6 +1117,7 @@ config I2C_RCAR
+ 	tristate "Renesas R-Car I2C Controller"
+ 	depends on ARCH_RENESAS || COMPILE_TEST
+ 	select I2C_SLAVE
++	select RESET_CONTROLLER if ARCH_RCAR_GEN3
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  R-Car I2C controller.
 -- 
 2.25.1
 
