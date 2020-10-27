@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF4429B4F5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A55F29B4AD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:06:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793617AbgJ0PH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37422 "EHLO mail.kernel.org"
+        id S1789828AbgJ0PDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789824AbgJ0PDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:03:04 -0400
+        id S1753874AbgJ0PDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:03:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7C73206E5;
-        Tue, 27 Oct 2020 15:03:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E8021707;
+        Tue, 27 Oct 2020 15:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810984;
-        bh=9eyIh/eEivJFYg7sKk/aeU7uy2yB9dzcxGoK1RgxLgY=;
+        s=default; t=1603810987;
+        bh=00VfQAyHIhYkNU+oPuPIMFUTURpy2UggZAz4orAQ9dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUPGkdOl6NZy7ZqScSfxN95/5qgQ5L/btGeFUMqnW3SKFzhSDGcGiC+yyYlSKXwAh
-         EsEC+hsdIv6Qr0PpPvZoiJoddBZb8Yh6F5OndgdN0DIoJ1bINozED7drgyzEeaFHqU
-         OhfyJd4DkZtb0/jwJjSR7HoQ9TmaFXmwHA2m3IHM=
+        b=I8i4WKYF38GUGh+GA24OmvwXr5+yhuQfJY7fhzl/hS9ue9qVykRBlAe/wXn8D3I0W
+         IaazXkQPGTwdrq/INXN8YnefcWhELShqnucTZknQC2S/Y1FguNX66V+o4dH9eNZva+
+         IHSvH34eqjX2Cwa6XaRlpc9dPR/sMdeTcpq7AfKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 332/633] RDMA/hns: Add a check for current state before modifying QP
-Date:   Tue, 27 Oct 2020 14:51:15 +0100
-Message-Id: <20201027135538.257132440@linuxfoundation.org>
+Subject: [PATCH 5.8 333/633] RDMA/umem: Fix signature of stub ib_umem_find_best_pgsz()
+Date:   Tue, 27 Oct 2020 14:51:16 +0100
+Message-Id: <20201027135538.304085260@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,43 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Cheng <chenglang@huawei.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit e0ef0f68c4c0d85b1eb63f38d5d10324361280e8 ]
+[ Upstream commit 61690d01db32eb1f94adc9ac2b8bb741d34e4671 ]
 
-It should be considered an illegal operation if the ULP attempts to modify
-a QP from another state to the current hardware state. Otherwise, the ULP
-can modify some fields of QPC at any time. For example, for a QP in state
-of RTS, modify it from RTR to RTS can change the PSN, which is always not
-as expected.
+The original function returns unsigned long and 0 on failure.
 
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/1598353674-24270-1-git-send-email-liweihang@huawei.com
-Signed-off-by: Lang Cheng <chenglang@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
+Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+Link: https://lore.kernel.org/r/0-v1-982a13cc5c6d+501ae-fix_best_pgsz_stub_jgg@nvidia.com
+Reviewed-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/rdma/ib_umem.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 4edea397b6b80..4486c9b7c3e43 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -1171,8 +1171,10 @@ int hns_roce_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+diff --git a/include/rdma/ib_umem.h b/include/rdma/ib_umem.h
+index e3518fd6b95b1..9353910915d41 100644
+--- a/include/rdma/ib_umem.h
++++ b/include/rdma/ib_umem.h
+@@ -95,10 +95,11 @@ static inline int ib_umem_copy_from(void *dst, struct ib_umem *umem, size_t offs
+ 		      		    size_t length) {
+ 	return -EINVAL;
+ }
+-static inline int ib_umem_find_best_pgsz(struct ib_umem *umem,
+-					 unsigned long pgsz_bitmap,
+-					 unsigned long virt) {
+-	return -EINVAL;
++static inline unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
++						   unsigned long pgsz_bitmap,
++						   unsigned long virt)
++{
++	return 0;
+ }
  
- 	mutex_lock(&hr_qp->mutex);
- 
--	cur_state = attr_mask & IB_QP_CUR_STATE ?
--		    attr->cur_qp_state : (enum ib_qp_state)hr_qp->state;
-+	if (attr_mask & IB_QP_CUR_STATE && attr->cur_qp_state != hr_qp->state)
-+		goto out;
-+
-+	cur_state = hr_qp->state;
- 	new_state = attr_mask & IB_QP_STATE ? attr->qp_state : cur_state;
- 
- 	if (ibqp->uobject &&
+ #endif /* CONFIG_INFINIBAND_USER_MEM */
 -- 
 2.25.1
 
