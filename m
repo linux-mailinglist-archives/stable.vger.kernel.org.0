@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C340B29C498
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C7E29C560
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757338AbgJ0OSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
+        id S1824765AbgJ0SFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757337AbgJ0OSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:18:46 -0400
+        id S2900902AbgJ0OR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97F60206D4;
-        Tue, 27 Oct 2020 14:18:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5D16206FA;
+        Tue, 27 Oct 2020 14:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808326;
-        bh=s4HhutJ7GBYO40cNmW6cPL7BjTXimIXpfL6vkdYyAvA=;
+        s=default; t=1603808245;
+        bh=Gi9xAWMjEtClV20W/NLcZ676yflt9sTIaWwn+GeQ66g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjBOgGA20VQqfrGYxJccdW++vpuRadg35cUhQDg4jHremEWxFG3F03gwvcBWDO1v+
-         08CcJ8xRuIuK6DUwu2F/ekO1oCb/ZRoXBI3NmPA93P9Rse1B0Z2S0LbiX8PTctr00/
-         RznfxwUb455jJ+j3ocxzVJCPWZJYLIUHxQZgkzNI=
+        b=ztR4gZUgbL1qrASasUWPiaa0ksTyfpGdHF1ONsv/IJCFb6b95hscKxZvT+pSQsbOK
+         abwZGWLIE1femdvK3BFh8TzBa589gdC1WPebKs/85O5deetbHU5ypYb815IawIDzlt
+         eKes/leOS8CtQcyn6JO85RPmvrhIDIm0XJjGH5vU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 018/264] chelsio/chtls: correct function return and return type
-Date:   Tue, 27 Oct 2020 14:51:16 +0100
-Message-Id: <20201027135431.522408687@linuxfoundation.org>
+Subject: [PATCH 4.19 019/264] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
+Date:   Tue, 27 Oct 2020 14:51:17 +0100
+Message-Id: <20201027135431.570000754@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,34 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 8580a61aede28d441e1c80588803411ee86aa299 ]
+[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
 
-csk_mem_free() should return true if send buffer is available,
-false otherwise.
+The hdlc_rcv function is used as hdlc_packet_type.func to process any
+skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
+The purpose of this function is to provide second-stage processing for
+skbs not assigned a "real" L3 skb->protocol value in the first stage.
 
-Fixes: 3b8305f5c844 ("crypto: chtls - wait for memory sendmsg, sendpage")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+This function assumes the device from which the skb is received is an
+HDLC device (a device created by this module). It assumes that
+netdev_priv(dev) returns a pointer to "struct hdlc_device".
+
+However, it is possible that some driver in the kernel (not necessarily
+in our control) submits a received skb with skb->protocol ==
+htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
+still be received by hdlc_rcv. This will cause problems.
+
+hdlc_rcv should be able to recognize and drop invalid skbs. It should
+first make sure "dev" is actually an HDLC device, before starting its
+processing. This patch adds this check to hdlc_rcv.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_io.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_io.c
-@@ -914,9 +914,9 @@ static int tls_header_read(struct tls_hd
- 	return (__force int)cpu_to_be16(thdr->length);
- }
- 
--static int csk_mem_free(struct chtls_dev *cdev, struct sock *sk)
-+static bool csk_mem_free(struct chtls_dev *cdev, struct sock *sk)
+--- a/drivers/net/wan/hdlc.c
++++ b/drivers/net/wan/hdlc.c
+@@ -49,7 +49,15 @@ static struct hdlc_proto *first_proto;
+ static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
+ 		    struct packet_type *p, struct net_device *orig_dev)
  {
--	return (cdev->max_host_sndbuf - sk->sk_wmem_queued);
-+	return (cdev->max_host_sndbuf - sk->sk_wmem_queued > 0);
- }
+-	struct hdlc_device *hdlc = dev_to_hdlc(dev);
++	struct hdlc_device *hdlc;
++
++	/* First make sure "dev" is an HDLC device */
++	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
++		kfree_skb(skb);
++		return NET_RX_SUCCESS;
++	}
++
++	hdlc = dev_to_hdlc(dev);
  
- static int csk_wait_memory(struct chtls_dev *cdev,
+ 	if (!net_eq(dev_net(dev), &init_net)) {
+ 		kfree_skb(skb);
 
 
