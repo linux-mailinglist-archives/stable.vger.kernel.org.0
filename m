@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D7129B481
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF4429B4F5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1789817AbgJ0PDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:03:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37288 "EHLO mail.kernel.org"
+        id S1793617AbgJ0PH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789814AbgJ0PC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:02:59 -0400
+        id S1789824AbgJ0PDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:03:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B898206E5;
-        Tue, 27 Oct 2020 15:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C73206E5;
+        Tue, 27 Oct 2020 15:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810979;
-        bh=n71vcehzr33cJetW1tpQ/ln9xHyg2YYy/j1Cqs+ZkE8=;
+        s=default; t=1603810984;
+        bh=9eyIh/eEivJFYg7sKk/aeU7uy2yB9dzcxGoK1RgxLgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aw/zOLvboxTzL8NaHFCMb3q/XW7llVPmTzJISBu4HC5qicpnrSC0DE10woHdex6OQ
-         m+L6pKDqY4bon88NSjOvU9qQs/EMgWmO9hpTaHxDNa3khwgwWQUXTv/W9whFVM5v1a
-         Rd7bhD/iK8ZqPzCfAsA8WsR+Oewd6yRAgCU7oF9I=
+        b=aUPGkdOl6NZy7ZqScSfxN95/5qgQ5L/btGeFUMqnW3SKFzhSDGcGiC+yyYlSKXwAh
+         EsEC+hsdIv6Qr0PpPvZoiJoddBZb8Yh6F5OndgdN0DIoJ1bINozED7drgyzEeaFHqU
+         OhfyJd4DkZtb0/jwJjSR7HoQ9TmaFXmwHA2m3IHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 330/633] RDMA/ucma: Add missing locking around rdma_leave_multicast()
-Date:   Tue, 27 Oct 2020 14:51:13 +0100
-Message-Id: <20201027135538.160781057@linuxfoundation.org>
+Subject: [PATCH 5.8 332/633] RDMA/hns: Add a check for current state before modifying QP
+Date:   Tue, 27 Oct 2020 14:51:15 +0100
+Message-Id: <20201027135538.257132440@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,36 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit 38e03d092699891c3237b5aee9e8029d4ede0956 ]
+[ Upstream commit e0ef0f68c4c0d85b1eb63f38d5d10324361280e8 ]
 
-All entry points to the rdma_cm from a ULP must be single threaded,
-even this error unwinds. Add the missing locking.
+It should be considered an illegal operation if the ULP attempts to modify
+a QP from another state to the current hardware state. Otherwise, the ULP
+can modify some fields of QPC at any time. For example, for a QP in state
+of RTS, modify it from RTR to RTS can change the PSN, which is always not
+as expected.
 
-Fixes: 7c11910783a1 ("RDMA/ucma: Put a lock around every call to the rdma_cm layer")
-Link: https://lore.kernel.org/r/20200818120526.702120-11-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
+Link: https://lore.kernel.org/r/1598353674-24270-1-git-send-email-liweihang@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/ucma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
-index cf283b70bf877..2643d5dbe1da8 100644
---- a/drivers/infiniband/core/ucma.c
-+++ b/drivers/infiniband/core/ucma.c
-@@ -1512,7 +1512,9 @@ static ssize_t ucma_process_join(struct ucma_file *file,
- 	return 0;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 4edea397b6b80..4486c9b7c3e43 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -1171,8 +1171,10 @@ int hns_roce_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
  
- err3:
-+	mutex_lock(&ctx->mutex);
- 	rdma_leave_multicast(ctx->cm_id, (struct sockaddr *) &mc->addr);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_cleanup_mc_events(mc);
- err2:
- 	xa_erase(&multicast_table, mc->id);
+ 	mutex_lock(&hr_qp->mutex);
+ 
+-	cur_state = attr_mask & IB_QP_CUR_STATE ?
+-		    attr->cur_qp_state : (enum ib_qp_state)hr_qp->state;
++	if (attr_mask & IB_QP_CUR_STATE && attr->cur_qp_state != hr_qp->state)
++		goto out;
++
++	cur_state = hr_qp->state;
+ 	new_state = attr_mask & IB_QP_STATE ? attr->qp_state : cur_state;
+ 
+ 	if (ibqp->uobject &&
 -- 
 2.25.1
 
