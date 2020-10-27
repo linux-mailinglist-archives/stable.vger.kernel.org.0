@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B130329B82E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5FF29B8C5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799813AbgJ0Pda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51010 "EHLO mail.kernel.org"
+        id S1801936AbgJ0PpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799810AbgJ0Pda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:33:30 -0400
+        id S1799818AbgJ0Pdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:33:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC4122202;
-        Tue, 27 Oct 2020 15:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6659C20728;
+        Tue, 27 Oct 2020 15:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812809;
-        bh=lYUp449ciVxWABJUS0qNqp8LFh74I5hUsRLkOVEEjJY=;
+        s=default; t=1603812812;
+        bh=+i3BGoxjVCqCb0gEy5xTlqSvHEIsYk8F5FOJZD8JAUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ukxPYXDRZH3HRO7NTS/YevPM9o0ea5JCf1TexIdDEZjW4NIYwIIGyIjopsv34szT
-         rEhpKFNMimSfR5EjAvZekIs91OJApHHW3xgk7E+bEz4OnSMQI+23VLLHHRhCPdNImy
-         ZKPpHs0owjLrvomq+gKyH2sBOexa6RXCC0Dw568o=
+        b=k2pAwa6nKOFLyFMbElT2mGZ1vPQdt8B7B5GDGVABVZuOX+YOYiTVhkVThWL97HRNQ
+         6bHkdsXdnjKlKNWShJjMu0J47y3722GC8PkiiKVt/rijkckKt4lh9eSh0KU3byuGmO
+         AmzILUkKcJSp1j0NrOaFc66mXfYj7C0lIgLCjjq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rajkumar Manoharan <rmanohar@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 336/757] nl80211: fix OBSS PD min and max offset validation
-Date:   Tue, 27 Oct 2020 14:49:46 +0100
-Message-Id: <20201027135506.323474631@linuxfoundation.org>
+Subject: [PATCH 5.9 337/757] iomap: Use kzalloc to allocate iomap_page
+Date:   Tue, 27 Oct 2020 14:49:47 +0100
+Message-Id: <20201027135506.371067728@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,54 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajkumar Manoharan <rmanohar@codeaurora.org>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 6c8b6e4a5f745ec49286ac0a3f1d591a34818f82 ]
+[ Upstream commit a6901d4d148dcbad7efb3174afbdf68c995618c2 ]
 
-The SRG min and max offset won't present when SRG Information Present of
-SR control field of Spatial Reuse Parameter Set element set to 0. Per
-spec. IEEE802.11ax D7.0, SRG OBSS PD Min Offset ≤ SRG OBSS PD Max
-Offset. Hence fix the constrain check to allow same values in both
-offset and also call appropriate nla_get function to read the values.
+We can skip most of the initialisation, although spinlocks still
+need explicit initialisation as architectures may use a non-zero
+value to indicate unlocked.  The comment is no longer useful as
+attach_page_private() handles the refcount now.
 
-Fixes: 796e90f42b7e ("cfg80211: add support for parsing OBBS_PD attributes")
-Signed-off-by: Rajkumar Manoharan <rmanohar@codeaurora.org>
-Link: https://lore.kernel.org/r/1601278091-20313-1-git-send-email-rmanohar@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ fs/iomap/buffered-io.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 7fd45f6ddb058..764151e89d0e9 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -4683,16 +4683,14 @@ static int nl80211_parse_he_obss_pd(struct nlattr *attrs,
- 	if (err)
- 		return err;
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index 897ab9a26a74c..b115e7d47fcec 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -49,16 +49,8 @@ iomap_page_create(struct inode *inode, struct page *page)
+ 	if (iop || i_blocksize(inode) == PAGE_SIZE)
+ 		return iop;
  
--	if (!tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET] ||
--	    !tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET])
--		return -EINVAL;
+-	iop = kmalloc(sizeof(*iop), GFP_NOFS | __GFP_NOFAIL);
+-	atomic_set(&iop->read_count, 0);
+-	atomic_set(&iop->write_count, 0);
++	iop = kzalloc(sizeof(*iop), GFP_NOFS | __GFP_NOFAIL);
+ 	spin_lock_init(&iop->uptodate_lock);
+-	bitmap_zero(iop->uptodate, PAGE_SIZE / SECTOR_SIZE);
 -
--	he_obss_pd->min_offset =
--		nla_get_u32(tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET]);
--	he_obss_pd->max_offset =
--		nla_get_u32(tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET]);
--
--	if (he_obss_pd->min_offset >= he_obss_pd->max_offset)
-+	if (tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET])
-+		he_obss_pd->min_offset =
-+			nla_get_u8(tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET]);
-+	if (tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET])
-+		he_obss_pd->max_offset =
-+			nla_get_u8(tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET]);
-+
-+	if (he_obss_pd->min_offset > he_obss_pd->max_offset)
- 		return -EINVAL;
- 
- 	he_obss_pd->enable = true;
+-	/*
+-	 * migrate_page_move_mapping() assumes that pages with private data have
+-	 * their count elevated by 1.
+-	 */
+ 	attach_page_private(page, iop);
+ 	return iop;
+ }
 -- 
 2.25.1
 
