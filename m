@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8297229B6CE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75AFE29B6D0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797399AbgJ0P0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:26:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
+        id S1759348AbgJ0P0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797711AbgJ0PYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:24:51 -0400
+        id S1797725AbgJ0PYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:24:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0CCA2224A;
-        Tue, 27 Oct 2020 15:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8901620657;
+        Tue, 27 Oct 2020 15:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812291;
-        bh=OpLbOhOpLkgVcWBbkxBCA/veGdYFoU8WNyf0u5A4wjg=;
+        s=default; t=1603812294;
+        bh=Oky0kQbUmdVT7RxWFVQPDpHpT3abUf6UOiboywpHHQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJ2zzLBat03tLjxMBzXuVEHAP1TX9QFhrYt/DRD6J1ZSR7FImP8UI8c3SUYs6YB4U
-         w6t/TRbzzZL9J/N5VjCM9046RhLQy8GU1LMcZR+pV/TpeIdb/3m7Dy4JoHdF6uCMMZ
-         sCBXx7LpfHfrWPsD1Faeilt6flJckH30FMELCjjY=
+        b=pSyiVUABaxJtBXYDzeGCtS/QC8QB4mEURPZoeniqTSLzLkW5s97M3T295cq0qeDuW
+         sw4fQ6LW9OruhF5P3kfPKZeFyJc0NTP916+DgaUtFeuRn+LCltlIs3S33IooXuLABV
+         vh6uUnS4dq6LB0GMxtt+mzEA00kEKa4aRlpylAao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        Xiaoliang Pang <dawning.pang@gmail.com>,
+        stable@vger.kernel.org,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 158/757] cypto: mediatek - fix leaks in mtk_desc_ring_alloc
-Date:   Tue, 27 Oct 2020 14:46:48 +0100
-Message-Id: <20201027135458.018331586@linuxfoundation.org>
+Subject: [PATCH 5.9 159/757] crypto: stm32/crc32 - Avoid lock if hardware is already used
+Date:   Tue, 27 Oct 2020 14:46:49 +0100
+Message-Id: <20201027135458.057161747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,43 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoliang Pang <dawning.pang@gmail.com>
+From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
 
-[ Upstream commit 228d284aac61283cde508a925d666f854b57af63 ]
+[ Upstream commit bbf2cb1ea1e1428589d7f4d652bed15b265ce92d ]
 
-In the init loop, if an error occurs in function 'dma_alloc_coherent',
-then goto the err_cleanup section, after run i--,
-in the array ring, the struct mtk_ring with index i will not be released,
-causing memory leaks
+If STM32 CRC device is already in use, calculate CRC by software.
 
-Fixes: 785e5c616c849 ("crypto: mediatek - Add crypto driver support for some MediaTek chips")
-Cc: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Xiaoliang Pang <dawning.pang@gmail.com>
+This will release CPU constraint for a concurrent access to the
+hardware, and avoid masking irqs during the whole block processing.
+
+Fixes: 7795c0baf5ac ("crypto: stm32/crc32 - protect from concurrent accesses")
+
+Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mediatek/mtk-platform.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/stm32/Kconfig       |  1 +
+ drivers/crypto/stm32/stm32-crc32.c | 15 ++++++++++++---
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/mediatek/mtk-platform.c b/drivers/crypto/mediatek/mtk-platform.c
-index ef4339e84d034..efce3a83b35a8 100644
---- a/drivers/crypto/mediatek/mtk-platform.c
-+++ b/drivers/crypto/mediatek/mtk-platform.c
-@@ -469,13 +469,13 @@ static int mtk_desc_ring_alloc(struct mtk_cryp *cryp)
- 	return 0;
+diff --git a/drivers/crypto/stm32/Kconfig b/drivers/crypto/stm32/Kconfig
+index 4ef3eb11361c2..4a4c3284ae1f3 100644
+--- a/drivers/crypto/stm32/Kconfig
++++ b/drivers/crypto/stm32/Kconfig
+@@ -3,6 +3,7 @@ config CRYPTO_DEV_STM32_CRC
+ 	tristate "Support for STM32 crc accelerators"
+ 	depends on ARCH_STM32
+ 	select CRYPTO_HASH
++	select CRC32
+ 	help
+ 	  This enables support for the CRC32 hw accelerator which can be found
+ 	  on STMicroelectronics STM32 SOC.
+diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
+index 3ba41148c2a46..2c13f5214d2cf 100644
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -6,6 +6,7 @@
  
- err_cleanup:
--	for (; i--; ) {
-+	do {
- 		dma_free_coherent(cryp->dev, MTK_DESC_RING_SZ,
- 				  ring[i]->res_base, ring[i]->res_dma);
- 		dma_free_coherent(cryp->dev, MTK_DESC_RING_SZ,
- 				  ring[i]->cmd_base, ring[i]->cmd_dma);
- 		kfree(ring[i]);
--	}
-+	} while (i--);
- 	return -ENOMEM;
- }
+ #include <linux/bitrev.h>
+ #include <linux/clk.h>
++#include <linux/crc32.h>
+ #include <linux/crc32poly.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
+@@ -147,7 +148,6 @@ static int burst_update(struct shash_desc *desc, const u8 *d8,
+ 	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
+ 	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
+ 	struct stm32_crc *crc;
+-	unsigned long flags;
+ 
+ 	crc = stm32_crc_get_next_crc();
+ 	if (!crc)
+@@ -155,7 +155,15 @@ static int burst_update(struct shash_desc *desc, const u8 *d8,
+ 
+ 	pm_runtime_get_sync(crc->dev);
+ 
+-	spin_lock_irqsave(&crc->lock, flags);
++	if (!spin_trylock(&crc->lock)) {
++		/* Hardware is busy, calculate crc32 by software */
++		if (mctx->poly == CRC32_POLY_LE)
++			ctx->partial = crc32_le(ctx->partial, d8, length);
++		else
++			ctx->partial = __crc32c_le(ctx->partial, d8, length);
++
++		goto pm_out;
++	}
+ 
+ 	/*
+ 	 * Restore previously calculated CRC for this context as init value
+@@ -195,8 +203,9 @@ static int burst_update(struct shash_desc *desc, const u8 *d8,
+ 	/* Store partial result */
+ 	ctx->partial = readl_relaxed(crc->regs + CRC_DR);
+ 
+-	spin_unlock_irqrestore(&crc->lock, flags);
++	spin_unlock(&crc->lock);
+ 
++pm_out:
+ 	pm_runtime_mark_last_busy(crc->dev);
+ 	pm_runtime_put_autosuspend(crc->dev);
  
 -- 
 2.25.1
