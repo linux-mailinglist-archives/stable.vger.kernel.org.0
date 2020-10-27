@@ -2,145 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C6A29AB5B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 13:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73EFD29ABBD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 13:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1750452AbgJ0MBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 08:01:41 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:36827 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750376AbgJ0MBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 08:01:41 -0400
-Received: by mail-wr1-f68.google.com with SMTP id x7so1602993wrl.3
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 05:01:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=kbxs+J5sPfu6cPuS3bXcQQmO/u3bwvvK/wU+a8aqxLo=;
-        b=mls1NZW71oioqb2nuOh2F/GFo3uEwBxjMt7ybKLTnhGYCRk867h6Vi1sueXbwnZ8XK
-         Xx52OPkrLIMWzTT/zWUO5sM6xmW8Ho/ZFaxmE4K+hob+1Wk3DuaQE1ECnJAU2wYkc1J1
-         X3dJ1keYQpjri19sucvQwOz82/bNiAft2DFrec8JMnyvRyy4Qgc7qJfrv82Wn41lVW7F
-         2Cf7lRBowjgqjejzvreQtbiwR4ah2MfD4rvCaH6doOKN6OtFX2w5lF6v8qTH76CEa+d2
-         haBXHCdTCnY8x0JXBCx6Fe9e+Su2BVhBndpogdL/uRxtTfOZ/aSA4dzdRbejv3rzmLjc
-         NPkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=kbxs+J5sPfu6cPuS3bXcQQmO/u3bwvvK/wU+a8aqxLo=;
-        b=cvhztLy0/UHODAVbeBZqx6kVOstEEzkvo1xRwWmchgMiUSww1BjzbfIVvcjsIA1Mik
-         AM4pZ7H+kW+WuV62W99HUllIdtdIm2PakpA/b5J2d4K5A3p6zgMQP8KD0SrUz+DT58EO
-         cNC2B34odxx5HCNGf+kZvjJd7f8N1MtmirsrTLANO9RvfMbtXtp+XlH5VA8bJRpngrqB
-         B55rZllTp7GizG6l7T9UlkuQMYuUhs1XfqjIIySmJv31tTFhUDMcQPybOW/3eos5iSSf
-         SeNMWLhBuOZjFaoWFD4hF1CyGka9+vE0CAHOBgEx46tXDN/W32BZJS9X7uSWrOpQHs5N
-         Hifg==
-X-Gm-Message-State: AOAM530W2XxH9Hvo1AcmwZJVBHF+9WIvOH7V3fowdFDz1qq6y437aWjf
-        r/ZHAj1w4RDcXNJO0HDgp+Z68vwZSknTVQ==
-X-Google-Smtp-Source: ABdhPJwQKqwdc9xILOo6w72PaDVewOm5U5rvFiS5jqZ7niiRh5OCGOr29/crlnX7Tea/DzdXL8SuBg==
-X-Received: by 2002:a05:6000:1005:: with SMTP id a5mr2593352wrx.360.1603800099305;
-        Tue, 27 Oct 2020 05:01:39 -0700 (PDT)
-Received: from holly.lan (cpc141216-aztw34-2-0-cust174.18-1.cable.virginm.net. [80.7.220.175])
-        by smtp.gmail.com with ESMTPSA id n5sm1703378wrm.2.2020.10.27.05.01.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2020 05:01:37 -0700 (PDT)
-Date:   Tue, 27 Oct 2020 12:01:34 +0000
-From:   Daniel Thompson <daniel.thompson@linaro.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [PATCH AUTOSEL 5.4 31/80] kgdb: Make "kgdbcon" work properly
- with "kgdb_earlycon"
-Message-ID: <20201027120134.iq44uw6bftumkivh@holly.lan>
-References: <20201026235516.1025100-1-sashal@kernel.org>
- <20201026235516.1025100-31-sashal@kernel.org>
+        id S1750992AbgJ0MSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 08:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750981AbgJ0MSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 08:18:12 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 063A622202;
+        Tue, 27 Oct 2020 12:18:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603801091;
+        bh=q8yStVDEuOGuGDO3Hgspo0XZ98se1YDC0xJIfeGRWLs=;
+        h=Subject:To:From:Date:From;
+        b=Gy4mJo8SdUoIijLuo0f/ZN4fDRfaRq9TOCgzXQdEhWni5g9AmgSMu+Wnj5WOk9mSN
+         VygrCPQo8LOemrhgE2BcEjQu0B0dSt+/oNAMQQvqlZktrzVfiYo7i2Rz1MyyCAf0n5
+         Cd1H1/FH8VrgvchiapfQM3zILZzCLgMeH5Z1JUTg=
+Subject: patch "staging: octeon: repair "fixed-link" support" added to staging-linus
+To:     alexander.sverdlin@nokia.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 27 Oct 2020 13:19:05 +0100
+Message-ID: <16038011451865@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201026235516.1025100-31-sashal@kernel.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 26, 2020 at 07:54:27PM -0400, Sasha Levin wrote:
-> From: Douglas Anderson <dianders@chromium.org>
-> 
-> [ Upstream commit b18b099e04f450cdc77bec72acefcde7042bd1f3 ]
-> 
-> On my system the kernel processes the "kgdb_earlycon" parameter before
-> the "kgdbcon" parameter.  When we setup "kgdb_earlycon" we'll end up
-> in kgdb_register_callbacks() and "kgdb_use_con" won't have been set
-> yet so we'll never get around to starting "kgdbcon".  Let's remedy
-> this by detecting that the IO module was already registered when
-> setting "kgdb_use_con" and registering the console then.
-> 
-> As part of this, to avoid pre-declaring things, move the handling of
-> the "kgdbcon" further down in the file.
-> 
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> Link: https://lore.kernel.org/r/20200630151422.1.I4aa062751ff5e281f5116655c976dff545c09a46@changeid
-> Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-kgdb[oc]_earlycon was a new feature introduced in v5.8 so, based on the
-summary above, this fix does not obviously apply to older kernels.
+This is a note to let you know that I've just added the patch titled
 
-However after looking closely...
+    staging: octeon: repair "fixed-link" support
 
-I think the issue described above would also occur if kgdbdbgp (an
-incomprehensible sequence consonants that translates to "present
-debugger via USB EHCI debug") were used in conjunction with kgdbcon
-meaning backporting does make sense.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-Daniel.
+From 179f5dc36b0a1aa31538d7d8823deb65c39847b3 Mon Sep 17 00:00:00 2001
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Date: Fri, 16 Oct 2020 12:18:57 +0200
+Subject: staging: octeon: repair "fixed-link" support
+
+The PHYs must be registered once in device probe function, not in device
+open callback because it's only possible to register them once.
+
+Fixes: a25e278020bf ("staging: octeon: support fixed-link phys")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201016101858.11374-1-alexander.sverdlin@nokia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/octeon/ethernet-mdio.c | 6 ------
+ drivers/staging/octeon/ethernet.c      | 9 +++++++++
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/octeon/ethernet-mdio.c b/drivers/staging/octeon/ethernet-mdio.c
+index cfb673a52b25..0bf545849b11 100644
+--- a/drivers/staging/octeon/ethernet-mdio.c
++++ b/drivers/staging/octeon/ethernet-mdio.c
+@@ -147,12 +147,6 @@ int cvm_oct_phy_setup_device(struct net_device *dev)
+ 
+ 	phy_node = of_parse_phandle(priv->of_node, "phy-handle", 0);
+ 	if (!phy_node && of_phy_is_fixed_link(priv->of_node)) {
+-		int rc;
+-
+-		rc = of_phy_register_fixed_link(priv->of_node);
+-		if (rc)
+-			return rc;
+-
+ 		phy_node = of_node_get(priv->of_node);
+ 	}
+ 	if (!phy_node)
+diff --git a/drivers/staging/octeon/ethernet.c b/drivers/staging/octeon/ethernet.c
+index 204f0b1e2739..5dea6e96ec90 100644
+--- a/drivers/staging/octeon/ethernet.c
++++ b/drivers/staging/octeon/ethernet.c
+@@ -13,6 +13,7 @@
+ #include <linux/phy.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
++#include <linux/of_mdio.h>
+ #include <linux/of_net.h>
+ #include <linux/if_ether.h>
+ #include <linux/if_vlan.h>
+@@ -892,6 +893,14 @@ static int cvm_oct_probe(struct platform_device *pdev)
+ 				break;
+ 			}
+ 
++			if (priv->of_node && of_phy_is_fixed_link(priv->of_node)) {
++				if (of_phy_register_fixed_link(priv->of_node)) {
++					netdev_err(dev, "Failed to register fixed link for interface %d, port %d\n",
++						   interface, priv->port);
++					dev->netdev_ops = NULL;
++				}
++			}
++
+ 			if (!dev->netdev_ops) {
+ 				free_netdev(dev);
+ 			} else if (register_netdev(dev) < 0) {
+-- 
+2.29.1
 
 
-> ---
->  kernel/debug/debug_core.c | 22 ++++++++++++++--------
->  1 file changed, 14 insertions(+), 8 deletions(-)
-> 
-> diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-> index 2222f3225e53d..097ab02989f92 100644
-> --- a/kernel/debug/debug_core.c
-> +++ b/kernel/debug/debug_core.c
-> @@ -96,14 +96,6 @@ int dbg_switch_cpu;
->  /* Use kdb or gdbserver mode */
->  int dbg_kdb_mode = 1;
->  
-> -static int __init opt_kgdb_con(char *str)
-> -{
-> -	kgdb_use_con = 1;
-> -	return 0;
-> -}
-> -
-> -early_param("kgdbcon", opt_kgdb_con);
-> -
->  module_param(kgdb_use_con, int, 0644);
->  module_param(kgdbreboot, int, 0644);
->  
-> @@ -876,6 +868,20 @@ static struct console kgdbcons = {
->  	.index		= -1,
->  };
->  
-> +static int __init opt_kgdb_con(char *str)
-> +{
-> +	kgdb_use_con = 1;
-> +
-> +	if (kgdb_io_module_registered && !kgdb_con_registered) {
-> +		register_console(&kgdbcons);
-> +		kgdb_con_registered = 1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +early_param("kgdbcon", opt_kgdb_con);
-> +
->  #ifdef CONFIG_MAGIC_SYSRQ
->  static void sysrq_handle_dbg(int key)
->  {
-> -- 
-> 2.25.1
-> 
