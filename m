@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA6029C516
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C30729C501
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1824175AbgJ0SDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
+        id S1814692AbgJ0SCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757355AbgJ0OSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:18:52 -0400
+        id S1757609AbgJ0OTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:19:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB612206FA;
-        Tue, 27 Oct 2020 14:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25606206F7;
+        Tue, 27 Oct 2020 14:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808331;
-        bh=xjI0/qaFra9wN704axgQOlYHLOg73a6tBTMXSHmDYyg=;
+        s=default; t=1603808390;
+        bh=iyP0gQBHcNYb8zjOSjoeuVpWcvdMV1cP4U7E/BOAFaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wcxWhhDRGAC0R6TSZdXvN1GhRz9pKxe+6aKOTh7ztxSr0iBLQpK7ODeu5e13iF2/I
-         HyC6sFD5zeOBLCF3L7u2UbQr/4GJq+VQGmbjyRQcT98IG46o0oWvK7/uBD6rpIVhFd
-         t/DLbiXPwmyYPzQTdZECN+oUnlA6B6+bJXyOmsog=
+        b=ohd0mdTDP3YynehNzONNSOktdLkLMSVbfUh8A6txWbJ3ogvXpVK1p3/T2BflFMvmI
+         3VyPuIL1owecRXFaxGwC4M5Qr8SGZklEEr5onf53YHiUJJ4UOrphLb3Lx3FXv5m3YY
+         RnFP3mHX1G3KD6BMVN2EsDrKEBRVuqxh/q3PqBck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 044/264] media: Revert "media: exynos4-is: Add missed check for pinctrl_lookup_state()"
-Date:   Tue, 27 Oct 2020 14:51:42 +0100
-Message-Id: <20201027135432.745491231@linuxfoundation.org>
+Subject: [PATCH 4.19 046/264] media: uvcvideo: Set media controller entity functions
+Date:   Tue, 27 Oct 2020 14:51:44 +0100
+Message-Id: <20201027135432.841115380@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,43 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Nawrocki <s.nawrocki@samsung.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 00d21f325d58567d81d9172096692d0a9ea7f725 ]
+[ Upstream commit d6834b4b58d110814aaf3469e7fd87d34ae5ae81 ]
 
-The "idle" pinctrl state is optional as documented in the DT binding.
-The change introduced by the commit being reverted makes that pinctrl state
-mandatory and breaks initialization of the whole media driver, since the
-"idle" state is not specified in any mainline dts.
+The media controller core prints a warning when an entity is registered
+without a function being set. This affects the uvcvideo driver, as the
+warning was added without first addressing the issue in existing
+drivers. The problem is harmless, but unnecessarily worries users. Fix
+it by mapping UVC entity types to MC entity functions as accurately as
+possible using the existing functions.
 
-This reverts commit 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
-to fix the regression.
-
-Fixes: 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: b50bde4e476d ("[media] v4l2-subdev: use MEDIA_ENT_T_UNKNOWN for new subdevs")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/media/usb/uvc/uvc_entity.c | 35 ++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index 2d25a197dc657..f5fca01f3248e 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1257,11 +1257,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
- 	if (IS_ERR(pctl->state_default))
- 		return PTR_ERR(pctl->state_default);
+diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
+index 554063c07d7a2..f2457953f27c6 100644
+--- a/drivers/media/usb/uvc/uvc_entity.c
++++ b/drivers/media/usb/uvc/uvc_entity.c
+@@ -78,10 +78,45 @@ static int uvc_mc_init_entity(struct uvc_video_chain *chain,
+ 	int ret;
  
-+	/* PINCTRL_STATE_IDLE is optional */
- 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
- 					PINCTRL_STATE_IDLE);
--	if (IS_ERR(pctl->state_idle))
--		return PTR_ERR(pctl->state_idle);
--
- 	return 0;
- }
+ 	if (UVC_ENTITY_TYPE(entity) != UVC_TT_STREAMING) {
++		u32 function;
++
+ 		v4l2_subdev_init(&entity->subdev, &uvc_subdev_ops);
+ 		strlcpy(entity->subdev.name, entity->name,
+ 			sizeof(entity->subdev.name));
+ 
++		switch (UVC_ENTITY_TYPE(entity)) {
++		case UVC_VC_SELECTOR_UNIT:
++			function = MEDIA_ENT_F_VID_MUX;
++			break;
++		case UVC_VC_PROCESSING_UNIT:
++		case UVC_VC_EXTENSION_UNIT:
++			/* For lack of a better option. */
++			function = MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER;
++			break;
++		case UVC_COMPOSITE_CONNECTOR:
++		case UVC_COMPONENT_CONNECTOR:
++			function = MEDIA_ENT_F_CONN_COMPOSITE;
++			break;
++		case UVC_SVIDEO_CONNECTOR:
++			function = MEDIA_ENT_F_CONN_SVIDEO;
++			break;
++		case UVC_ITT_CAMERA:
++			function = MEDIA_ENT_F_CAM_SENSOR;
++			break;
++		case UVC_TT_VENDOR_SPECIFIC:
++		case UVC_ITT_VENDOR_SPECIFIC:
++		case UVC_ITT_MEDIA_TRANSPORT_INPUT:
++		case UVC_OTT_VENDOR_SPECIFIC:
++		case UVC_OTT_DISPLAY:
++		case UVC_OTT_MEDIA_TRANSPORT_OUTPUT:
++		case UVC_EXTERNAL_VENDOR_SPECIFIC:
++		default:
++			function = MEDIA_ENT_F_V4L2_SUBDEV_UNKNOWN;
++			break;
++		}
++
++		entity->subdev.entity.function = function;
++
+ 		ret = media_entity_pads_init(&entity->subdev.entity,
+ 					entity->num_pads, entity->pads);
  
 -- 
 2.25.1
