@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D88F829B73A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D6729B720
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799260AbgJ0Paf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
+        id S1798635AbgJ0P3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799249AbgJ0Pae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:30:34 -0400
+        id S1798622AbgJ0P3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 674E022265;
-        Tue, 27 Oct 2020 15:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E31CB22202;
+        Tue, 27 Oct 2020 15:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812634;
-        bh=0f13yScvXC2xvmQdoHaI0DBKwtAdDrFoMcDQEpZ9IA0=;
+        s=default; t=1603812557;
+        bh=+oDV1cDTE0CXq2Ecxk6Ss5XcQr1jVoGwFy11UzW+Qu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T66ptQRu7N79MmpnP6EoGPJXPNcE/VCeCzwDbyTE5XYQo2FlY+fd3IJTTxYCLT4KB
-         XN4O2OCfJrSot3D7WiECGkhadJmgBuDr4Q+EgBo6uxMuXW+4YdICM+AT/k0mazp9Ui
-         NEFBzTLmj8pQ+TljkYEOb+NvoUu2FFDJLpCF/8Pw=
+        b=B1vkHQHMQ7IG8I32sZY2w5RYBsmcg+Lm4D3EO5R2DZNkU5dDhdaMoCPdAk9YLsQg0
+         tjyeRD2MERwV95vtY4afotXXi3vkJGPfwrt3ukCYB1oAi6tuR+QJ01LPjNc0dJvxda
+         a8OGDMmhmG2sGZITsTdlzADnisxi3AZQ9g2drAHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <abhinavk@codeaurora.org>,
-        Jeykumar Sankaran <jsanka@codeaurora.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 247/757] drm/msm: Avoid div-by-zero in dpu_crtc_atomic_check()
-Date:   Tue, 27 Oct 2020 14:48:17 +0100
-Message-Id: <20201027135502.171686496@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f7f6e564f4202d8601c6@syzkaller.appspotmail.com
+Subject: [PATCH 5.9 252/757] Bluetooth: Fix memory leak in read_adv_mon_features()
+Date:   Tue, 27 Oct 2020 14:48:22 +0100
+Message-Id: <20201027135502.388692690@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -48,81 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 22f760941844dbcee6ee446e1896532f6dff01ef ]
+[ Upstream commit cafd472a10ff3bccd8afd25a69f20a491cd8d7b8 ]
 
-The cstate->num_mixers member is only set to a non-zero value once
-dpu_encoder_virt_mode_set() is called, but the atomic check function can
-be called by userspace before that. Let's avoid the div-by-zero here and
-inside _dpu_crtc_setup_lm_bounds() by skipping this part of the atomic
-check if dpu_encoder_virt_mode_set() hasn't been called yet. This fixes
-an UBSAN warning:
+read_adv_mon_features() is leaking memory. Free `rp` before returning.
 
- UBSAN: Undefined behaviour in drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c:860:31
- division by zero
- CPU: 7 PID: 409 Comm: frecon Tainted: G S                5.4.31 #128
- Hardware name: Google Trogdor (rev0) (DT)
- Call trace:
-  dump_backtrace+0x0/0x14c
-  show_stack+0x20/0x2c
-  dump_stack+0xa0/0xd8
-  __ubsan_handle_divrem_overflow+0xec/0x110
-  dpu_crtc_atomic_check+0x97c/0x9d4
-  drm_atomic_helper_check_planes+0x160/0x1c8
-  drm_atomic_helper_check+0x54/0xbc
-  drm_atomic_check_only+0x6a8/0x880
-  drm_atomic_commit+0x20/0x5c
-  drm_atomic_helper_set_config+0x98/0xa0
-  drm_mode_setcrtc+0x308/0x5dc
-  drm_ioctl_kernel+0x9c/0x114
-  drm_ioctl+0x2ac/0x4b0
-  drm_compat_ioctl+0xe8/0x13c
-  __arm64_compat_sys_ioctl+0x184/0x324
-  el0_svc_common+0xa4/0x154
-  el0_svc_compat_handler+0x
-
-Cc: Abhinav Kumar <abhinavk@codeaurora.org>
-Cc: Jeykumar Sankaran <jsanka@codeaurora.org>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Sean Paul <seanpaul@chromium.org>
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: e5e1e7fd470c ("Bluetooth: Add handler of MGMT_OP_READ_ADV_MONITOR_FEATURES")
+Reported-and-tested-by: syzbot+f7f6e564f4202d8601c6@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=f7f6e564f4202d8601c6
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/bluetooth/mgmt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index c2729f71e2fa7..f9cb1e0da1a59 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -881,7 +881,7 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
- 	struct drm_plane *plane;
- 	struct drm_display_mode *mode;
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 5758ccb524ef7..12a7cc9840b4d 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -4162,7 +4162,7 @@ static int read_adv_mon_features(struct sock *sk, struct hci_dev *hdev,
+ {
+ 	struct adv_monitor *monitor = NULL;
+ 	struct mgmt_rp_read_adv_monitor_features *rp = NULL;
+-	int handle;
++	int handle, err;
+ 	size_t rp_size = 0;
+ 	__u32 supported = 0;
+ 	__u16 num_handles = 0;
+@@ -4197,9 +4197,13 @@ static int read_adv_mon_features(struct sock *sk, struct hci_dev *hdev,
+ 	if (num_handles)
+ 		memcpy(&rp->handles, &handles, (num_handles * sizeof(u16)));
  
--	int cnt = 0, rc = 0, mixer_width, i, z_pos;
-+	int cnt = 0, rc = 0, mixer_width = 0, i, z_pos;
+-	return mgmt_cmd_complete(sk, hdev->id,
+-				 MGMT_OP_READ_ADV_MONITOR_FEATURES,
+-				 MGMT_STATUS_SUCCESS, rp, rp_size);
++	err = mgmt_cmd_complete(sk, hdev->id,
++				MGMT_OP_READ_ADV_MONITOR_FEATURES,
++				MGMT_STATUS_SUCCESS, rp, rp_size);
++
++	kfree(rp);
++
++	return err;
+ }
  
- 	struct dpu_multirect_plane_states multirect_plane[DPU_STAGE_MAX * 2];
- 	int multirect_count = 0;
-@@ -914,9 +914,11 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
- 
- 	memset(pipe_staged, 0, sizeof(pipe_staged));
- 
--	mixer_width = mode->hdisplay / cstate->num_mixers;
-+	if (cstate->num_mixers) {
-+		mixer_width = mode->hdisplay / cstate->num_mixers;
- 
--	_dpu_crtc_setup_lm_bounds(crtc, state);
-+		_dpu_crtc_setup_lm_bounds(crtc, state);
-+	}
- 
- 	crtc_rect.x2 = mode->hdisplay;
- 	crtc_rect.y2 = mode->vdisplay;
+ static int add_adv_patterns_monitor(struct sock *sk, struct hci_dev *hdev,
 -- 
 2.25.1
 
