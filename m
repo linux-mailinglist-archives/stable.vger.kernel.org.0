@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A1929AEB0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C9C29AF99
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753950AbgJ0ODL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
+        id S1756142AbgJ0OLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753906AbgJ0ODG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:03:06 -0400
+        id S1755370AbgJ0OJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:09:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB6C222263;
-        Tue, 27 Oct 2020 14:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E67922202;
+        Tue, 27 Oct 2020 14:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807385;
-        bh=AwIqrR08XZeiOYKq4p3tDQegPMbeCUZtlGY0lMiBjxk=;
+        s=default; t=1603807792;
+        bh=u9O5ObKmFfCguUL/ZEod1TjXFMrufcLhe+P6NZkSS9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdY2OEa6dawKbfGicBW5C5YH6MBMCZmoNZs7/QxHT3yTHFFP0nx6IXPy2mKEhxoQ9
-         0bOTlAhHuuw1rn6Cogw+aSImzypK/0KryX6FGZXboLxFoJGtmQyBrSgMOodOU74ke3
-         6Wx0FzYr9chGH+cBFWVCppP2TpPeSxF9ZhrXGH90=
+        b=mHDxfooCjlUWZSG9WK6O4GBJTYcGYK4YRnZp9sRLAYR8uFEGxjaD6kyaOSuoogD/m
+         UCjOqU3goUGUb/0g1Pm5vg5W2DEBjmEh23HnDPFobhPRqXgiT86liG8KRqnVqgplzz
+         L4M9F/HNN/gBYKFzSvAdgIKMMO2Adnc84bMgcegw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Tesarik <ptesarik@suse.cz>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 4.9 004/139] r8169: fix data corruption issue on RTL8402
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 043/191] ath6kl: prevent potential array overflow in ath6kl_add_new_sta()
 Date:   Tue, 27 Oct 2020 14:48:18 +0100
-Message-Id: <20201027134902.354788375@linuxfoundation.org>
+Message-Id: <20201027134911.801172753@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,154 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ef9da46ddef071e1bbb943afbbe9b38771855554 ]
+[ Upstream commit 54f9ab7b870934b70e5a21786d951fbcf663970f ]
 
-Petr reported that after resume from suspend RTL8402 partially
-truncates incoming packets, and re-initializing register RxConfig
-before the actual chip re-initialization sequence is needed to avoid
-the issue.
+The value for "aid" comes from skb->data so Smatch marks it as
+untrusted.  If it's invalid then it can result in an out of bounds array
+access in ath6kl_add_new_sta().
 
-Reported-by: Petr Tesarik <ptesarik@suse.cz>
-Proposed-by: Petr Tesarik <ptesarik@suse.cz>
-Tested-by: Petr Tesarik <ptesarik@suse.cz>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 572e27c00c9d ("ath6kl: Fix AP mode connect event parsing and TIM updates")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200813141315.GB457408@mwanda
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169.c |  108 ++++++++++++++++++-----------------
- 1 file changed, 56 insertions(+), 52 deletions(-)
+ drivers/net/wireless/ath/ath6kl/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/realtek/r8169.c
-+++ b/drivers/net/ethernet/realtek/r8169.c
-@@ -4476,6 +4476,58 @@ static void rtl_rar_set(struct rtl8169_p
- 	rtl_unlock_work(tp);
- }
+diff --git a/drivers/net/wireless/ath/ath6kl/main.c b/drivers/net/wireless/ath/ath6kl/main.c
+index b90c77ef792ef..1c542cf0fd058 100644
+--- a/drivers/net/wireless/ath/ath6kl/main.c
++++ b/drivers/net/wireless/ath/ath6kl/main.c
+@@ -430,6 +430,9 @@ void ath6kl_connect_ap_mode_sta(struct ath6kl_vif *vif, u16 aid, u8 *mac_addr,
  
-+static void rtl_init_rxcfg(struct rtl8169_private *tp)
-+{
-+	void __iomem *ioaddr = tp->mmio_addr;
+ 	ath6kl_dbg(ATH6KL_DBG_TRC, "new station %pM aid=%d\n", mac_addr, aid);
+ 
++	if (aid < 1 || aid > AP_MAX_NUM_STA)
++		return;
 +
-+	switch (tp->mac_version) {
-+	case RTL_GIGA_MAC_VER_01:
-+	case RTL_GIGA_MAC_VER_02:
-+	case RTL_GIGA_MAC_VER_03:
-+	case RTL_GIGA_MAC_VER_04:
-+	case RTL_GIGA_MAC_VER_05:
-+	case RTL_GIGA_MAC_VER_06:
-+	case RTL_GIGA_MAC_VER_10:
-+	case RTL_GIGA_MAC_VER_11:
-+	case RTL_GIGA_MAC_VER_12:
-+	case RTL_GIGA_MAC_VER_13:
-+	case RTL_GIGA_MAC_VER_14:
-+	case RTL_GIGA_MAC_VER_15:
-+	case RTL_GIGA_MAC_VER_16:
-+	case RTL_GIGA_MAC_VER_17:
-+		RTL_W32(RxConfig, RX_FIFO_THRESH | RX_DMA_BURST);
-+		break;
-+	case RTL_GIGA_MAC_VER_18:
-+	case RTL_GIGA_MAC_VER_19:
-+	case RTL_GIGA_MAC_VER_20:
-+	case RTL_GIGA_MAC_VER_21:
-+	case RTL_GIGA_MAC_VER_22:
-+	case RTL_GIGA_MAC_VER_23:
-+	case RTL_GIGA_MAC_VER_24:
-+	case RTL_GIGA_MAC_VER_34:
-+	case RTL_GIGA_MAC_VER_35:
-+		RTL_W32(RxConfig, RX128_INT_EN | RX_MULTI_EN | RX_DMA_BURST);
-+		break;
-+	case RTL_GIGA_MAC_VER_40:
-+	case RTL_GIGA_MAC_VER_41:
-+	case RTL_GIGA_MAC_VER_42:
-+	case RTL_GIGA_MAC_VER_43:
-+	case RTL_GIGA_MAC_VER_44:
-+	case RTL_GIGA_MAC_VER_45:
-+	case RTL_GIGA_MAC_VER_46:
-+	case RTL_GIGA_MAC_VER_47:
-+	case RTL_GIGA_MAC_VER_48:
-+	case RTL_GIGA_MAC_VER_49:
-+	case RTL_GIGA_MAC_VER_50:
-+	case RTL_GIGA_MAC_VER_51:
-+		RTL_W32(RxConfig, RX128_INT_EN | RX_MULTI_EN | RX_DMA_BURST | RX_EARLY_OFF);
-+		break;
-+	default:
-+		RTL_W32(RxConfig, RX128_INT_EN | RX_DMA_BURST);
-+		break;
-+	}
-+}
-+
- static int rtl_set_mac_address(struct net_device *dev, void *p)
- {
- 	struct rtl8169_private *tp = netdev_priv(dev);
-@@ -4494,6 +4546,10 @@ static int rtl_set_mac_address(struct ne
- 
- 	pm_runtime_put_noidle(d);
- 
-+	/* Reportedly at least Asus X453MA truncates packets otherwise */
-+	if (tp->mac_version == RTL_GIGA_MAC_VER_37)
-+		rtl_init_rxcfg(tp);
-+
- 	return 0;
- }
- 
-@@ -4930,58 +4986,6 @@ static void rtl_init_pll_power_ops(struc
- 		break;
- 	}
- }
--
--static void rtl_init_rxcfg(struct rtl8169_private *tp)
--{
--	void __iomem *ioaddr = tp->mmio_addr;
--
--	switch (tp->mac_version) {
--	case RTL_GIGA_MAC_VER_01:
--	case RTL_GIGA_MAC_VER_02:
--	case RTL_GIGA_MAC_VER_03:
--	case RTL_GIGA_MAC_VER_04:
--	case RTL_GIGA_MAC_VER_05:
--	case RTL_GIGA_MAC_VER_06:
--	case RTL_GIGA_MAC_VER_10:
--	case RTL_GIGA_MAC_VER_11:
--	case RTL_GIGA_MAC_VER_12:
--	case RTL_GIGA_MAC_VER_13:
--	case RTL_GIGA_MAC_VER_14:
--	case RTL_GIGA_MAC_VER_15:
--	case RTL_GIGA_MAC_VER_16:
--	case RTL_GIGA_MAC_VER_17:
--		RTL_W32(RxConfig, RX_FIFO_THRESH | RX_DMA_BURST);
--		break;
--	case RTL_GIGA_MAC_VER_18:
--	case RTL_GIGA_MAC_VER_19:
--	case RTL_GIGA_MAC_VER_20:
--	case RTL_GIGA_MAC_VER_21:
--	case RTL_GIGA_MAC_VER_22:
--	case RTL_GIGA_MAC_VER_23:
--	case RTL_GIGA_MAC_VER_24:
--	case RTL_GIGA_MAC_VER_34:
--	case RTL_GIGA_MAC_VER_35:
--		RTL_W32(RxConfig, RX128_INT_EN | RX_MULTI_EN | RX_DMA_BURST);
--		break;
--	case RTL_GIGA_MAC_VER_40:
--	case RTL_GIGA_MAC_VER_41:
--	case RTL_GIGA_MAC_VER_42:
--	case RTL_GIGA_MAC_VER_43:
--	case RTL_GIGA_MAC_VER_44:
--	case RTL_GIGA_MAC_VER_45:
--	case RTL_GIGA_MAC_VER_46:
--	case RTL_GIGA_MAC_VER_47:
--	case RTL_GIGA_MAC_VER_48:
--	case RTL_GIGA_MAC_VER_49:
--	case RTL_GIGA_MAC_VER_50:
--	case RTL_GIGA_MAC_VER_51:
--		RTL_W32(RxConfig, RX128_INT_EN | RX_MULTI_EN | RX_DMA_BURST | RX_EARLY_OFF);
--		break;
--	default:
--		RTL_W32(RxConfig, RX128_INT_EN | RX_DMA_BURST);
--		break;
--	}
--}
- 
- static void rtl8169_init_ring_indexes(struct rtl8169_private *tp)
- {
+ 	if (assoc_req_len > sizeof(struct ieee80211_hdr_3addr)) {
+ 		struct ieee80211_mgmt *mgmt =
+ 			(struct ieee80211_mgmt *) assoc_info;
+-- 
+2.25.1
+
 
 
