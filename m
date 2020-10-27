@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C6D29AEDE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A876B29AF5B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754166AbgJ0OE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53280 "EHLO mail.kernel.org"
+        id S2503922AbgJ0OFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754298AbgJ0OE7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:04:59 -0400
+        id S1754306AbgJ0OFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E54352222C;
-        Tue, 27 Oct 2020 14:04:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6082E2222C;
+        Tue, 27 Oct 2020 14:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807498;
-        bh=nRcfUxnUN9DlPYpmBb76VJsQC8z/205CpuoyTVw5puc=;
+        s=default; t=1603807501;
+        bh=tl7rw2OhvttOeo+cfon+RQGx/YuoL9geLZ+es66ky+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKmjBW7FEyAlMFaIce8jEDbIWKTSs9drFZnTHg1aUMj4HFPHwD5XoddrKgmk6yVXR
-         uaE3FOjm35x/lZDpWMqorxcyznvorq/EGWEdOrSDntaz064geaReSxmv0IqSGwYP2t
-         BeijltAiPQaXGVzQbuygdbaX2SSQjTM3fFUTTyek=
+        b=Cdom5CMud69BUALvAmKMzE8hBJhpuYZsI7bljxROmZsilpU2dFzHxLeNPRjLxnNcf
+         gcCboOvxDVbnXFKZjr8XyRZIeyHfOZwsQ+Bph/OtA4369u41I3elu9aIAyz6wap5w7
+         IS7yi+lWymE7Y3zYjnACRuKeivmWrQZiXdikskxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Jordan <kernel@cdqe.de>,
+        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/139] lib/crc32.c: fix trivial typo in preprocessor condition
-Date:   Tue, 27 Oct 2020 14:49:29 +0100
-Message-Id: <20201027134905.687138813@linuxfoundation.org>
+Subject: [PATCH 4.9 076/139] rapidio: fix error handling path
+Date:   Tue, 27 Oct 2020 14:49:30 +0100
+Message-Id: <20201027134905.737377014@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -47,43 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Jordan <kernel@cdqe.de>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit 904542dc56524f921a6bab0639ff6249c01e775f ]
+[ Upstream commit fa63f083b3492b5ed5332b8d7c90b03b5ef24a1d ]
 
-Whether crc32_be needs a lookup table is chosen based on CRC_LE_BITS.
-Obviously, the _be function should be governed by the _BE_ define.
+rio_dma_transfer() attempts to clamp the return value of
+pin_user_pages_fast() to be >= 0.  However, the attempt fails because
+nr_pages is overridden a few lines later, and restored to the undesirable
+-ERRNO value.
 
-This probably never pops up as it's hard to come up with a configuration
-where CRC_BE_BITS isn't the same as CRC_LE_BITS and as nobody is using
-bitwise CRC anyway.
+The return value is ultimately stored in nr_pages, which in turn is passed
+to unpin_user_pages(), which expects nr_pages >= 0, else, disaster.
 
-Fixes: 46c5801eaf86 ("crc32: bolt on crc32c")
-Signed-off-by: Tobias Jordan <kernel@cdqe.de>
+Fix this by fixing the nesting of the assignment to nr_pages: nr_pages
+should be clamped to zero if pin_user_pages_fast() returns -ERRNO, or set
+to the return value of pin_user_pages_fast(), otherwise.
+
+[jhubbard@nvidia.com: new changelog]
+
+Fixes: e8de370188d09 ("rapidio: add mport char device driver")
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lkml.kernel.org/r/20200923182122.GA3338@agrajag.zerfleddert.de
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lkml.kernel.org/r/1600227737-20785-1-git-send-email-jrdr.linux@gmail.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/crc32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/lib/crc32.c b/lib/crc32.c
-index 7fbd1a112b9d2..0d450462b0bd5 100644
---- a/lib/crc32.c
-+++ b/lib/crc32.c
-@@ -327,7 +327,7 @@ static inline u32 __pure crc32_be_generic(u32 crc, unsigned char const *p,
- 	return crc;
- }
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index ebe8e8dc46770..21d0dd1617e27 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -901,15 +901,16 @@ rio_dma_transfer(struct file *filp, u32 transfer_mode,
+ 			if (pinned < 0) {
+ 				rmcd_error("get_user_pages err=%ld", pinned);
+ 				nr_pages = 0;
+-			} else
++			} else {
+ 				rmcd_error("pinned %ld out of %ld pages",
+ 					   pinned, nr_pages);
++				/*
++				 * Set nr_pages up to mean "how many pages to unpin, in
++				 * the error handler:
++				 */
++				nr_pages = pinned;
++			}
+ 			ret = -EFAULT;
+-			/*
+-			 * Set nr_pages up to mean "how many pages to unpin, in
+-			 * the error handler:
+-			 */
+-			nr_pages = pinned;
+ 			goto err_pg;
+ 		}
  
--#if CRC_LE_BITS == 1
-+#if CRC_BE_BITS == 1
- u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
- {
- 	return crc32_be_generic(crc, p, len, NULL, CRCPOLY_BE);
 -- 
 2.25.1
 
