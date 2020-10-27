@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5F929C277
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65AB029C27C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:36:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1820586AbgJ0RgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:36:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
+        id S1760832AbgJ0Rgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760782AbgJ0Og1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:27 -0400
+        id S1760804AbgJ0Ogd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EAD32222C;
-        Tue, 27 Oct 2020 14:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A731C2222C;
+        Tue, 27 Oct 2020 14:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809386;
-        bh=CopuDhuL86Nrupnmspe8rSwxbQZd0/MCegIrIsAZbNo=;
+        s=default; t=1603809392;
+        bh=hZ7gd0AfcfRYq0EOQUsHs1ZqsOn6ncwDMHF6lQ2LrWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mAPS9Wlm7R7IcvdZt/QyZ0vuHxaq9LltoswL7+qzWW1PaBViLAcDi9I2WRUu0hJZN
-         HPEV/IOmzWIr9rBxmnXWbqD1UAF9lXxDxftAKLDGJU+vlwufvCkxM5oFeDT3QgapxB
-         4tGq9wiBfcoZKpJnWEO23MgEp47sTUs2wmIAvEkM=
+        b=RytIUMCBnIl8Ip4n7wTYZF2WTBO9v25C2RvUUuxo8bL74+diTSXAjVka8+tN2d1ML
+         2MUiIvklkjGcFj089lpr99kduqElbnDiybPJiKLJh28XGLe8lr4S7wTOfmaAHRkS9a
+         AMyPpqNftyPzcSkJlEPdZ4FtCzNOaFcglwjZVgiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/408] net: enic: Cure the enic api locking trainwreck
-Date:   Tue, 27 Oct 2020 14:51:54 +0100
-Message-Id: <20201027135503.260247044@linuxfoundation.org>
+Subject: [PATCH 5.4 178/408] iwlwifi: mvm: split a print to avoid a WARNING in ROC
+Date:   Tue, 27 Oct 2020 14:51:56 +0100
+Message-Id: <20201027135503.358943552@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,155 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit a53b59ece86c86d16d12ccdaa1ad0c78250a9d96 ]
+[ Upstream commit 903b3f9badf1d54f77b468b96706dab679b45b14 ]
 
-enic_dev_wait() has a BUG_ON(in_interrupt()).
+A print in the remain on channel code was too long and caused
+a WARNING, split it.
 
-Chasing the callers of enic_dev_wait() revealed the gems of enic_reset()
-and enic_tx_hang_reset() which are both invoked through work queues in
-order to be able to call rtnl_lock(). So far so good.
-
-After locking rtnl both functions acquire enic::enic_api_lock which
-serializes against the (ab)use from infiniband. This is where the
-trainwreck starts.
-
-enic::enic_api_lock is a spin_lock() which implicitly disables preemption,
-but both functions invoke a ton of functions under that lock which can
-sleep. The BUG_ON(in_interrupt()) does not trigger in that case because it
-can't detect the preempt disabled condition.
-
-This clearly has never been tested with any of the mandatory debug options
-for 7+ years, which would have caught that for sure.
-
-Cure it by adding a enic_api_busy member to struct enic, which is modified
-and evaluated with enic::enic_api_lock held.
-
-If enic_api_devcmd_proxy_by_index() observes enic::enic_api_busy as true,
-it drops enic::enic_api_lock and busy waits for enic::enic_api_busy to
-become false.
-
-It would be smarter to wait for a completion of that busy period, but
-enic_api_devcmd_proxy_by_index() is called with other spin locks held which
-obviously can't sleep.
-
-Remove the BUG_ON(in_interrupt()) check as well because it's incomplete and
-with proper debugging enabled the problem would have been caught from the
-debug checks in schedule_timeout().
-
-Fixes: 0b038566c0ea ("drivers/net: enic: Add an interface for USNIC to interact with firmware")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Fixes: dc28e12f2125 ("iwlwifi: mvm: ROC: Extend the ROC max delay duration & limit ROC duration")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200930102759.58d57c0bdc68.Ib06008665e7bf1199c360aa92691d9c74fb84990@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cisco/enic/enic.h      |  1 +
- drivers/net/ethernet/cisco/enic/enic_api.c  |  6 +++++
- drivers/net/ethernet/cisco/enic/enic_main.c | 27 ++++++++++++++++-----
- 3 files changed, 28 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cisco/enic/enic.h b/drivers/net/ethernet/cisco/enic/enic.h
-index 0dd64acd2a3fb..08cac1bfacafb 100644
---- a/drivers/net/ethernet/cisco/enic/enic.h
-+++ b/drivers/net/ethernet/cisco/enic/enic.h
-@@ -171,6 +171,7 @@ struct enic {
- 	u16 num_vfs;
- #endif
- 	spinlock_t enic_api_lock;
-+	bool enic_api_busy;
- 	struct enic_port_profile *pp;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index ed92a8e8cd519..01b26b3327b01 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3650,9 +3650,12 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
+ 	tail->apply_time_max_delay = cpu_to_le32(delay);
  
- 	/* work queue cache line section */
-diff --git a/drivers/net/ethernet/cisco/enic/enic_api.c b/drivers/net/ethernet/cisco/enic/enic_api.c
-index b161f24522b87..b028ea2dec2b9 100644
---- a/drivers/net/ethernet/cisco/enic/enic_api.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_api.c
-@@ -34,6 +34,12 @@ int enic_api_devcmd_proxy_by_index(struct net_device *netdev, int vf,
- 	struct vnic_dev *vdev = enic->vdev;
- 
- 	spin_lock(&enic->enic_api_lock);
-+	while (enic->enic_api_busy) {
-+		spin_unlock(&enic->enic_api_lock);
-+		cpu_relax();
-+		spin_lock(&enic->enic_api_lock);
-+	}
+ 	IWL_DEBUG_TE(mvm,
+-		     "ROC: Requesting to remain on channel %u for %ums (requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
+-		     channel->hw_value, req_dur, duration, delay,
+-		     dtim_interval);
++		     "ROC: Requesting to remain on channel %u for %ums\n",
++		     channel->hw_value, req_dur);
++	IWL_DEBUG_TE(mvm,
++		     "\t(requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
++		     duration, delay, dtim_interval);
 +
- 	spin_lock_bh(&enic->devcmd_lock);
+ 	/* Set the node address */
+ 	memcpy(tail->node_addr, vif->addr, ETH_ALEN);
  
- 	vnic_dev_cmd_proxy_by_index_start(vdev, vf);
-diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
-index 6e2ab10ad2e6f..8314102002b0f 100644
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -2142,8 +2142,6 @@ static int enic_dev_wait(struct vnic_dev *vdev,
- 	int done;
- 	int err;
- 
--	BUG_ON(in_interrupt());
--
- 	err = start(vdev, arg);
- 	if (err)
- 		return err;
-@@ -2331,6 +2329,13 @@ static int enic_set_rss_nic_cfg(struct enic *enic)
- 		rss_hash_bits, rss_base_cpu, rss_enable);
- }
- 
-+static void enic_set_api_busy(struct enic *enic, bool busy)
-+{
-+	spin_lock(&enic->enic_api_lock);
-+	enic->enic_api_busy = busy;
-+	spin_unlock(&enic->enic_api_lock);
-+}
-+
- static void enic_reset(struct work_struct *work)
- {
- 	struct enic *enic = container_of(work, struct enic, reset);
-@@ -2340,7 +2345,9 @@ static void enic_reset(struct work_struct *work)
- 
- 	rtnl_lock();
- 
--	spin_lock(&enic->enic_api_lock);
-+	/* Stop any activity from infiniband */
-+	enic_set_api_busy(enic, true);
-+
- 	enic_stop(enic->netdev);
- 	enic_dev_soft_reset(enic);
- 	enic_reset_addr_lists(enic);
-@@ -2348,7 +2355,10 @@ static void enic_reset(struct work_struct *work)
- 	enic_set_rss_nic_cfg(enic);
- 	enic_dev_set_ig_vlan_rewrite_mode(enic);
- 	enic_open(enic->netdev);
--	spin_unlock(&enic->enic_api_lock);
-+
-+	/* Allow infiniband to fiddle with the device again */
-+	enic_set_api_busy(enic, false);
-+
- 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
- 
- 	rtnl_unlock();
-@@ -2360,7 +2370,9 @@ static void enic_tx_hang_reset(struct work_struct *work)
- 
- 	rtnl_lock();
- 
--	spin_lock(&enic->enic_api_lock);
-+	/* Stop any activity from infiniband */
-+	enic_set_api_busy(enic, true);
-+
- 	enic_dev_hang_notify(enic);
- 	enic_stop(enic->netdev);
- 	enic_dev_hang_reset(enic);
-@@ -2369,7 +2381,10 @@ static void enic_tx_hang_reset(struct work_struct *work)
- 	enic_set_rss_nic_cfg(enic);
- 	enic_dev_set_ig_vlan_rewrite_mode(enic);
- 	enic_open(enic->netdev);
--	spin_unlock(&enic->enic_api_lock);
-+
-+	/* Allow infiniband to fiddle with the device again */
-+	enic_set_api_busy(enic, false);
-+
- 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
- 
- 	rtnl_unlock();
 -- 
 2.25.1
 
