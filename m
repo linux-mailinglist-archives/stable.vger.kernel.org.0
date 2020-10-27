@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C2F29C28F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:37:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF3229C28D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:37:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1820707AbgJ0RhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:37:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34336 "EHLO mail.kernel.org"
+        id S1820704AbgJ0RhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:37:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760632AbgJ0Off (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:35:35 -0400
+        id S1760641AbgJ0Ofi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:35:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9239522202;
-        Tue, 27 Oct 2020 14:35:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 737D5207BB;
+        Tue, 27 Oct 2020 14:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809335;
-        bh=t9MUxy/rvnVfzKKnd3MZ5V2Z0P31u7O5/ODZCAwCwuY=;
+        s=default; t=1603809338;
+        bh=UJOXzxwR7uIKKD7XUluyCH7FmzcC8xmpVxeanzm1l3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkqKPEH9MWiMDVDOgVdZslfD5TpKOAgZRMKEWNUI5nF9YDq1Ah/Q2DbojOIlcBHk3
-         60CW+EyfywMPkqvUb4heaIUpxF1m53U+9awvfX0FVLMyphQH2Nzk0sl5cxcaY6kaLI
-         miYWdQ+2FFx6TVGpkpSBFu5rnf3kd3pLD3L4r/Lo=
+        b=bEGMo7Nq/Zqn8rdMNUd69As+xIePVW7fiH30fWaINsdqlVWF1wf43fhxptLP4YERz
+         1WflhTevn00OyUN0o8vnRwK3xW4kSigNvp6dBD7gG8exUxjMh25jxBPiaLGXzZBo3i
+         YOySU4lK0+sU4Z62iJ+afIWZy8+v0/g3fFPXmCiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 160/408] dmaengine: dmatest: Check list for emptiness before access its last entry
-Date:   Tue, 27 Oct 2020 14:51:38 +0100
-Message-Id: <20201027135502.516950261@linuxfoundation.org>
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 161/408] misc: mic: scif: Fix error handling path
+Date:   Tue, 27 Oct 2020 14:51:39 +0100
+Message-Id: <20201027135502.564549397@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,55 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit b28de385b71abf31ce68ec0387638bee26ae9024 ]
+[ Upstream commit a81072a9c0ae734b7889929b0bc070fe3f353f0e ]
 
-After writing a garbage to the channel we get an Oops in dmatest_chan_set()
-due to access to last entry in the empty list.
+Inside __scif_pin_pages(), when map_flags != SCIF_MAP_KERNEL it
+will call pin_user_pages_fast() to map nr_pages. However,
+pin_user_pages_fast() might fail with a return value -ERRNO.
 
-[  212.670672] BUG: unable to handle page fault for address: fffffff000000020
-[  212.677562] #PF: supervisor read access in kernel mode
-[  212.682702] #PF: error_code(0x0000) - not-present page
-...
-[  212.710074] RIP: 0010:dmatest_chan_set+0x149/0x2d0 [dmatest]
-[  212.715739] Code: e8 cc f9 ff ff 48 8b 1d 0d 55 00 00 48 83 7b 10 00 0f 84 63 01 00 00 48 c7 c7 d0 65 4d c0 e8 ee 4a f5 e1 48 89 c6 48 8b 43 10 <48> 8b 40 20 48 8b 78 58 48 85 ff 0f 84 f5 00 00 00 e8 b1 41 f5 e1
+The return value is stored in pinned_pages->nr_pages. which in
+turn is passed to unpin_user_pages(), which expects
+pinned_pages->nr_pages >=0, else disaster.
 
-Fix this by checking list for emptiness before accessing its last entry.
+Fix this by assigning pinned_pages->nr_pages to 0 if
+pin_user_pages_fast() returns -ERRNO.
 
-Fixes: d53513d5dc28 ("dmaengine: dmatest: Add support for multi channel testing")
-Cc: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200922115847.30100-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: ba612aa8b487 ("misc: mic: SCIF memory registration and unregistration")
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Link: https://lore.kernel.org/r/1600570295-29546-1-git-send-email-jrdr.linux@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dmatest.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/misc/mic/scif/scif_rma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
-index 62d9825a49e9d..238936e2dfe2d 100644
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -1218,15 +1218,14 @@ static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
- 	add_threaded_test(info);
+diff --git a/drivers/misc/mic/scif/scif_rma.c b/drivers/misc/mic/scif/scif_rma.c
+index 01e27682ea303..a486c6c7f4077 100644
+--- a/drivers/misc/mic/scif/scif_rma.c
++++ b/drivers/misc/mic/scif/scif_rma.c
+@@ -1381,6 +1381,8 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
+ 				(prot & SCIF_PROT_WRITE) ? FOLL_WRITE : 0,
+ 				pinned_pages->pages);
+ 		if (nr_pages != pinned_pages->nr_pages) {
++			if (pinned_pages->nr_pages < 0)
++				pinned_pages->nr_pages = 0;
+ 			if (try_upgrade) {
+ 				if (ulimit)
+ 					__scif_dec_pinned_vm_lock(mm, nr_pages);
+@@ -1400,7 +1402,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
  
- 	/* Check if channel was added successfully */
--	dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
--
--	if (dtc->chan) {
-+	if (!list_empty(&info->channels)) {
- 		/*
- 		 * if new channel was not successfully added, revert the
- 		 * "test_channel" string to the name of the last successfully
- 		 * added channel. exception for when users issues empty string
- 		 * to channel parameter.
- 		 */
-+		dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
- 		if ((strcmp(dma_chan_name(dtc->chan), strim(test_channel)) != 0)
- 		    && (strcmp("", strim(test_channel)) != 0)) {
- 			ret = -EINVAL;
+ 	if (pinned_pages->nr_pages < nr_pages) {
+ 		err = -EFAULT;
+-		pinned_pages->nr_pages = nr_pages;
+ 		goto dec_pinned;
+ 	}
+ 
+@@ -1413,7 +1414,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
+ 		__scif_dec_pinned_vm_lock(mm, nr_pages);
+ 	/* Something went wrong! Rollback */
+ error_unmap:
+-	pinned_pages->nr_pages = nr_pages;
+ 	scif_destroy_pinned_pages(pinned_pages);
+ 	*pages = NULL;
+ 	dev_dbg(scif_info.mdev.this_device,
 -- 
 2.25.1
 
