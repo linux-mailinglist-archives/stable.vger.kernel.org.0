@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E6629C128
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C3B29C126
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780362AbgJ0Oyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
+        id S1780321AbgJ0Oyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762711AbgJ0OoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:44:12 -0400
+        id S1762775AbgJ0Oo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:44:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8283206B2;
-        Tue, 27 Oct 2020 14:44:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 196C2206B2;
+        Tue, 27 Oct 2020 14:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809850;
-        bh=IPBo/Bxj09puXFIl59GtLe4cG85zd4UoaUO4FnwU42s=;
+        s=default; t=1603809864;
+        bh=DpHT2fIvQDFMTl3zA2tlrlnamB5l7Vg/t12RcV/70NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bcf/lYs2xLQOdpXIOnRZZosW3XZgiiMCd1fx2rqJNK0CO/4m76HFAdsijd1gByudU
-         k7KkaFrsFhzILLScvg8YFmtghe234tGf3+Cue6djMJXHVsIpnbXK63KFoH0SCwZmhD
-         tk9XgiD9d5MmYkFl6A7TkulNm+CCIRiwZ+qSCDAQ=
+        b=LMyoCofBXQBuItLXuSJML6HZjGZ76cvw1/mpcLw/MDcC7F2a1ijN55Ju7l60CKf/G
+         SLl8lsab/t0qYNP1zIGRNfUes96aSiT1cBq6tVPx92HusCZVfLBMlajGoQANnHeByF
+         93CIwRuX0MyvAmSCpIUA65FX7smj1UjjnTD7FpKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Vikash Garodia <vgarodia@codeaurora.org>,
+        Fritz Koenig <frkoenig@chromium.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 341/408] x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR
-Date:   Tue, 27 Oct 2020 14:54:39 +0100
-Message-Id: <20201027135510.844967668@linuxfoundation.org>
+Subject: [PATCH 5.4 345/408] media: venus: fixes for list corruption
+Date:   Tue, 27 Oct 2020 14:54:43 +0100
+Message-Id: <20201027135511.029778204@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,176 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Vikash Garodia <vgarodia@codeaurora.org>
 
-[ Upstream commit e2def7d49d0812ea40a224161b2001b2e815dce2 ]
+[ Upstream commit e1c69c4eef61ffe295b747992c6fd849e6cd747d ]
 
-If an exception needs to be handled while reading an MSR - which is in
-most of the cases caused by a #GP on a non-existent MSR - then this
-is most likely the incarnation of a BIOS or a hardware bug. Such bug
-violates the architectural guarantee that MCA banks are present with all
-MSRs belonging to them.
+There are few list handling issues while adding and deleting
+node in the registered buf list in the driver.
+1. list addition - buffer added into the list during buf_init
+while not deleted during cleanup.
+2. list deletion - In capture streamoff, the list was reinitialized.
+As a result, if any node was present in the list, it would
+lead to issue while cleaning up that node during buf_cleanup.
 
-The proper fix belongs in the hardware/firmware - not in the kernel.
+Corresponding call traces below:
+[  165.751014] Call trace:
+[  165.753541]  __list_add_valid+0x58/0x88
+[  165.757532]  venus_helper_vb2_buf_init+0x74/0xa8 [venus_core]
+[  165.763450]  vdec_buf_init+0x34/0xb4 [venus_dec]
+[  165.768271]  __buf_prepare+0x598/0x8a0 [videobuf2_common]
+[  165.773820]  vb2_core_qbuf+0xb4/0x334 [videobuf2_common]
+[  165.779298]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
+[  165.784053]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
+[  165.789067]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
+[  165.794624]  v4l_qbuf+0x48/0x58
 
-Handling an #MC exception which is raised while an NMI is being handled
-would cause the nasty NMI nesting issue because of the shortcoming of
-IRET of reenabling NMIs when executed. And the machine is in an #MC
-context already so <Deity> be at its side.
+[ 1797.556001] Call trace:
+[ 1797.558516]  __list_del_entry_valid+0x88/0x9c
+[ 1797.562989]  vdec_buf_cleanup+0x54/0x228 [venus_dec]
+[ 1797.568088]  __buf_prepare+0x270/0x8a0 [videobuf2_common]
+[ 1797.573625]  vb2_core_qbuf+0xb4/0x338 [videobuf2_common]
+[ 1797.579082]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
+[ 1797.583830]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
+[ 1797.588843]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
+[ 1797.594389]  v4l_qbuf+0x48/0x58
 
-Tracing MSR accesses while in #MC is another no-no due to tracing being
-inherently a bad idea in atomic context:
-
-  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
-
-so remove all that "additional" functionality from mce_rdmsrl() and
-provide it with a special exception handler which panics the machine
-when that MSR is not accessible.
-
-The exception handler prints a human-readable message explaining what
-the panic reason is but, what is more, it panics while in the #GP
-handler and latter won't have executed an IRET, thus opening the NMI
-nesting issue in the case when the #MC has happened while handling
-an NMI. (#MC itself won't be reenabled until MCG_STATUS hasn't been
-cleared).
-
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-[ Add missing prototypes for ex_handler_* ]
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20200906212130.GA28456@zn.tnic
+Signed-off-by: Vikash Garodia <vgarodia@codeaurora.org>
+Reviewed-by: Fritz Koenig <frkoenig@chromium.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c     | 72 +++++++++++++++++++++++++-----
- arch/x86/kernel/cpu/mce/internal.h | 10 +++++
- 2 files changed, 70 insertions(+), 12 deletions(-)
+ drivers/media/platform/qcom/venus/vdec.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index fd76e3733dd3d..92331de16d70e 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -388,10 +388,28 @@ static int msr_to_offset(u32 msr)
- 	return -1;
- }
- 
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, regs->ip, (void *)regs->ip);
-+
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
-+}
-+
- /* MSR access wrappers used for error injection */
- static u64 mce_rdmsrl(u32 msr)
- {
--	u64 v;
-+	DECLARE_ARGS(val, low, high);
- 
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset = msr_to_offset(msr);
-@@ -401,21 +419,43 @@ static u64 mce_rdmsrl(u32 msr)
- 		return *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
+diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
+index 05b80a66e80ed..658825b4c4e8d 100644
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -993,8 +993,6 @@ static int vdec_stop_capture(struct venus_inst *inst)
+ 		break;
  	}
  
--	if (rdmsrl_safe(msr, &v)) {
--		WARN_ONCE(1, "mce: Unable to read MSR 0x%x!\n", msr);
--		/*
--		 * Return zero in case the access faulted. This should
--		 * not happen normally but can happen if the CPU does
--		 * something weird, or if the code is buggy.
--		 */
--		v = 0;
--	}
-+	/*
-+	 * RDMSR on MCA MSRs should not fault. If they do, this is very much an
-+	 * architectural violation and needs to be reported to hw vendor. Panic
-+	 * the box to not allow any further progress.
-+	 */
-+	asm volatile("1: rdmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_rdmsr_fault)
-+		     : EAX_EDX_RET(val, low, high) : "c" (msr));
- 
--	return v;
-+
-+	return EAX_EDX_VAL(val, low, high);
-+}
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, (unsigned int)regs->dx, (unsigned int)regs->ax,
-+		  regs->ip, (void *)regs->ip);
-+
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
+-	INIT_LIST_HEAD(&inst->registeredbufs);
+-
+ 	return ret;
  }
  
- static void mce_wrmsrl(u32 msr, u64 v)
+@@ -1091,6 +1089,14 @@ static int vdec_buf_init(struct vb2_buffer *vb)
+ static void vdec_buf_cleanup(struct vb2_buffer *vb)
  {
-+	u32 low, high;
+ 	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
++	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
++	struct venus_buffer *buf = to_venus_buffer(vbuf);
 +
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset = msr_to_offset(msr);
++	mutex_lock(&inst->lock);
++	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
++		if (!list_empty(&inst->registeredbufs))
++			list_del_init(&buf->reg_list);
++	mutex_unlock(&inst->lock);
  
-@@ -423,7 +463,15 @@ static void mce_wrmsrl(u32 msr, u64 v)
- 			*(u64 *)((char *)this_cpu_ptr(&injectm) + offset) = v;
- 		return;
- 	}
--	wrmsrl(msr, v);
-+
-+	low  = (u32)v;
-+	high = (u32)(v >> 32);
-+
-+	/* See comment in mce_rdmsrl() */
-+	asm volatile("1: wrmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_wrmsr_fault)
-+		     : : "c" (msr), "a"(low), "d" (high) : "memory");
- }
- 
- /*
-diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
-index 43031db429d24..231954fe5b4e6 100644
---- a/arch/x86/kernel/cpu/mce/internal.h
-+++ b/arch/x86/kernel/cpu/mce/internal.h
-@@ -172,4 +172,14 @@ extern bool amd_filter_mce(struct mce *m);
- static inline bool amd_filter_mce(struct mce *m)			{ return false; };
- #endif
- 
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
- #endif /* __X86_MCE_INTERNAL_H__ */
+ 	inst->buf_count--;
+ 	if (!inst->buf_count)
 -- 
 2.25.1
 
