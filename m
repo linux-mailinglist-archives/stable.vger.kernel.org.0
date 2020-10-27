@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64EAC29B774
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D84FF29B77A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799788AbgJ0PdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50804 "EHLO mail.kernel.org"
+        id S1798432AbgJ0Pdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799783AbgJ0PdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:33:21 -0400
+        id S1761420AbgJ0Pdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:33:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E21D220728;
-        Tue, 27 Oct 2020 15:33:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20AF72225E;
+        Tue, 27 Oct 2020 15:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812800;
-        bh=fu3uDtQ4JNhx8SeeO5viHDKh1uc61fwGi5AYR1NFENI=;
+        s=default; t=1603812817;
+        bh=V6WCZhbYK8PM3SlyYU26MRyCWmQLC97n29Y1qJ48Kkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnDDf/fAb1dO9WBAzNrzfShMAXE4QLRyDt1Kt+KxrMxKELdKGsDEDHxc0dGG4wTzH
-         F0HBGw5vdoR7GcjZ8amQIzgwJUho/Sd0y1yc7PfNp5uMG7CeldsWvSnPGWYjaHc//G
-         lycycPwFkD4l0cdwO3CgOU3v3TNxNsjMJ8SkV0pg=
+        b=Yu7foEcFrL7VuEl74uW1pQh5oYO5Yqseni5YyKXQosM20rxyJIuITlYTdpMwZfTA/
+         GeeUHWauZU4jPY+NBcY4vVj9+MRkM/6gzyPJSKvhgZ4HnrP3m6NBXBd/yknOKorgN1
+         V9bzqucu8Fzui6hwFnQ4m/Kxhb/oBf8MTGT0W1X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
+        stable@vger.kernel.org, Tingwei Zhang <tingwei@codeaurora.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 334/757] nvmem: core: fix possibly memleak when use nvmem_cell_info_to_nvmem_cell()
-Date:   Tue, 27 Oct 2020 14:49:44 +0100
-Message-Id: <20201027135506.225319473@linuxfoundation.org>
+Subject: [PATCH 5.9 339/757] coresight: cti: Fix remove sysfs link error
+Date:   Tue, 27 Oct 2020 14:49:49 +0100
+Message-Id: <20201027135506.473379537@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,112 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadym Kochan <vadym.kochan@plvision.eu>
+From: Mike Leach <mike.leach@linaro.org>
 
-[ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
+[ Upstream commit 1cce921bce7dcf6fef9bdfa4dcc9406383274408 ]
 
-Fix missing 'kfree_const(cell->name)' when call to
-nvmem_cell_info_to_nvmem_cell() in several places:
+CTI code to remove sysfs link to other devices on shutdown, incorrectly
+tries to remove a single ended link when these are all double ended. This
+implementation leaves elements in the link info structure undefined which
+results in a crash in recent tests for driver module unload.
 
-     * after nvmem_cell_info_to_nvmem_cell() failed during
-       nvmem_add_cells()
+This patch corrects the link removal code.
 
-     * during nvmem_device_cell_{read,write} when cell->name is
-       kstrdup'ed() without calling kfree_const() at the end, but
-       really there is no reason to do that 'dup, because the cell
-       instance is allocated on the stack for some short period to be
-       read/write without exposing it to the caller.
-
-So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
-which is used to convert cell_info -> cell without name duplication as
-a lighweight version of nvmem_cell_info_to_nvmem_cell().
-
-Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Link: https://lore.kernel.org/r/20200923204456.14032-1-vadym.kochan@plvision.eu
+Fixes: 73274abb6557 ("coresight: cti: Add in sysfs links to other coresight devices")
+Reported-by: Tingwei Zhang <tingwei@codeaurora.org>
+Signed-off-by: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200928163513.70169-18-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/hwtracing/coresight/coresight-cti.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 204a515d8bc5d..29a51cd795609 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -361,16 +361,14 @@ static void nvmem_cell_add(struct nvmem_cell *cell)
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_CELL_ADD, cell);
+diff --git a/drivers/hwtracing/coresight/coresight-cti.c b/drivers/hwtracing/coresight/coresight-cti.c
+index 47f3c9abae303..92aa535f9e134 100644
+--- a/drivers/hwtracing/coresight/coresight-cti.c
++++ b/drivers/hwtracing/coresight/coresight-cti.c
+@@ -494,12 +494,15 @@ static bool cti_add_sysfs_link(struct cti_drvdata *drvdata,
+ 	return !link_err;
  }
  
--static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
--				   const struct nvmem_cell_info *info,
--				   struct nvmem_cell *cell)
-+static int nvmem_cell_info_to_nvmem_cell_nodup(struct nvmem_device *nvmem,
-+					const struct nvmem_cell_info *info,
-+					struct nvmem_cell *cell)
+-static void cti_remove_sysfs_link(struct cti_trig_con *tc)
++static void cti_remove_sysfs_link(struct cti_drvdata *drvdata,
++				  struct cti_trig_con *tc)
  {
- 	cell->nvmem = nvmem;
- 	cell->offset = info->offset;
- 	cell->bytes = info->bytes;
--	cell->name = kstrdup_const(info->name, GFP_KERNEL);
--	if (!cell->name)
--		return -ENOMEM;
-+	cell->name = info->name;
+ 	struct coresight_sysfs_link link_info;
  
- 	cell->bit_offset = info->bit_offset;
- 	cell->nbits = info->nbits;
-@@ -382,13 +380,30 @@ static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
- 	if (!IS_ALIGNED(cell->offset, nvmem->stride)) {
- 		dev_err(&nvmem->dev,
- 			"cell %s unaligned to nvmem stride %d\n",
--			cell->name, nvmem->stride);
-+			cell->name ?: "<unknown>", nvmem->stride);
- 		return -EINVAL;
- 	}
- 
- 	return 0;
++	link_info.orig = drvdata->csdev;
+ 	link_info.orig_name = tc->con_dev_name;
+ 	link_info.target = tc->con_dev;
++	link_info.target_name = dev_name(&drvdata->csdev->dev);
+ 	coresight_remove_sysfs_link(&link_info);
  }
  
-+static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-+				const struct nvmem_cell_info *info,
-+				struct nvmem_cell *cell)
-+{
-+	int err;
-+
-+	err = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, cell);
-+	if (err)
-+		return err;
-+
-+	cell->name = kstrdup_const(info->name, GFP_KERNEL);
-+	if (!cell->name)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
- /**
-  * nvmem_add_cells() - Add cell information to an nvmem device
-  *
-@@ -1463,7 +1478,7 @@ ssize_t nvmem_device_cell_read(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
-@@ -1493,7 +1508,7 @@ int nvmem_device_cell_write(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
+@@ -590,7 +593,7 @@ void cti_remove_assoc_from_csdev(struct coresight_device *csdev)
+ 		ctidev = &ctidrv->ctidev;
+ 		list_for_each_entry(tc, &ctidev->trig_cons, node) {
+ 			if (tc->con_dev == csdev->ect_dev) {
+-				cti_remove_sysfs_link(tc);
++				cti_remove_sysfs_link(ctidrv, tc);
+ 				tc->con_dev = NULL;
+ 				break;
+ 			}
+@@ -634,7 +637,7 @@ static void cti_remove_conn_xrefs(struct cti_drvdata *drvdata)
+ 		if (tc->con_dev) {
+ 			coresight_set_assoc_ectdev_mutex(tc->con_dev,
+ 							 NULL);
+-			cti_remove_sysfs_link(tc);
++			cti_remove_sysfs_link(drvdata, tc);
+ 			tc->con_dev = NULL;
+ 		}
+ 	}
 -- 
 2.25.1
 
