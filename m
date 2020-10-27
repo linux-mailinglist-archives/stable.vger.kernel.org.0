@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F59D29C053
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:14:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F1129C051
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:14:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1817163AbgJ0ROA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:14:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
+        id S1784489AbgJ0RNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:13:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1784257AbgJ0O65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:58:57 -0400
+        id S1784310AbgJ0O7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:59:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B411620714;
-        Tue, 27 Oct 2020 14:58:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 746A820715;
+        Tue, 27 Oct 2020 14:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810736;
-        bh=2GXsWv3u+CnnKwmSR0Du/wAlsTjI2jl9lwOwAbqZOpA=;
+        s=default; t=1603810742;
+        bh=XWLCR1jHUnBLZmGz/xWiUmbIYr0LjSd4mV9PuT4LUTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I57ApFZUGIYzOR0nyUESCcVPmJt2Brx0q54Z2q5WugswNnhxx1Im3Uw7dYwOIdNqB
-         tMh9+wcN3rPn1cQXdJZYlUG+WvlhrUQswDrUWrYbT1LFziZM3Hi+kJ5WAOd4OHmp9E
-         bo224exzD4SNerMdUe2JMIrFyos3ffpy9hPvMSds=
+        b=1o5ESpHy18HdOse815vK+s6dJqKY24XWyS0lct5oT8J/p8SEEph/0FedKeAd4mr4F
+         Zzq8PTrun+P7sOWpRA1SbiukIGxAYG9uiHPGTR1gxLM4gMNv9RQdXaSCd6nbE2OY8g
+         VFUJlnHz4UI6IPG2/87RrE6TI2jFLaWjx78kTubQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Preston <thomas.preston@codethink.co.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 214/633] pinctrl: mcp23s08: Fix mcp23x17 precious range
-Date:   Tue, 27 Oct 2020 14:49:17 +0100
-Message-Id: <20201027135532.720290816@linuxfoundation.org>
+Subject: [PATCH 5.8 216/633] drm/msm/adreno: fix probe without iommu
+Date:   Tue, 27 Oct 2020 14:49:19 +0100
+Message-Id: <20201027135532.813939636@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,39 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Preston <thomas.preston@codethink.co.uk>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit b9b7fb29433b906635231d0a111224efa009198c ]
+[ Upstream commit 0a48db562c6264da2ae8013491efd6e8dc780520 ]
 
-On page 23 of the datasheet [0] it says "The register remains unchanged
-until the interrupt is cleared via a read of INTCAP or GPIO." Include
-INTCAPA and INTCAPB registers in precious range, so that they aren't
-accidentally cleared when we read via debugfs.
+The function iommu_domain_alloc returns NULL on platforms without IOMMU
+such as msm8974. This resulted in PTR_ERR(-ENODEV) being assigned to
+gpu->aspace so the correct code path wasn't taken.
 
-[0] https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf
-
-Fixes: 8f38910ba4f6 ("pinctrl: mcp23s08: switch to regmap caching")
-Signed-off-by: Thomas Preston <thomas.preston@codethink.co.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20200828213226.1734264-3-thomas.preston@codethink.co.uk
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: ccac7ce373c1 ("drm/msm: Refactor address space initialization")
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
-index 5641df67bcf55..235a141182bf6 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -109,7 +109,7 @@ static const struct regmap_access_table mcp23x17_volatile_table = {
- };
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index a74ccc5b8220d..5b5809c0e44b3 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -189,10 +189,16 @@ struct msm_gem_address_space *
+ adreno_iommu_create_address_space(struct msm_gpu *gpu,
+ 		struct platform_device *pdev)
+ {
+-	struct iommu_domain *iommu = iommu_domain_alloc(&platform_bus_type);
+-	struct msm_mmu *mmu = msm_iommu_new(&pdev->dev, iommu);
++	struct iommu_domain *iommu;
++	struct msm_mmu *mmu;
+ 	struct msm_gem_address_space *aspace;
  
- static const struct regmap_range mcp23x17_precious_range = {
--	.range_min = MCP_GPIO << 1,
-+	.range_min = MCP_INTCAP << 1,
- 	.range_max = MCP_GPIO << 1,
- };
++	iommu = iommu_domain_alloc(&platform_bus_type);
++	if (!iommu)
++		return NULL;
++
++	mmu = msm_iommu_new(&pdev->dev, iommu);
++
+ 	aspace = msm_gem_address_space_create(mmu, "gpu", SZ_16M,
+ 		0xffffffff - SZ_16M);
  
 -- 
 2.25.1
