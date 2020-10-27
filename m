@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA6E29B977
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C89B429B993
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794233AbgJ0Ptj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53960 "EHLO mail.kernel.org"
+        id S1802612AbgJ0Pu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794340AbgJ0PQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:16:42 -0400
+        id S1795199AbgJ0PPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43ADC20728;
-        Tue, 27 Oct 2020 15:16:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 239A521D41;
+        Tue, 27 Oct 2020 15:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811801;
-        bh=1/zcvT49Z0HRAXBRD5R7Zp7EgSGSNvitNfefz2WUyTM=;
+        s=default; t=1603811707;
+        bh=ntGs+necpS3D8VcETvW96bdW1Z+vD8P3JvUYLYzXTpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLc+R1f8vkvxrFv7O5XzZPMjojxzCnlmyWTD5dMZWR79v6UK97YnGWbRJ2yqSqVk0
-         DygC1jQu/DKKekXJdbdFzUK8P1MZQVbKC0MYsvHpOjPAClHftHQZMv9t2Pn0K4dPPZ
-         xDGaAK7GxDeKsg4nwyXSVV8wZA15BV+Vy2NUvHvY=
+        b=qFy1GS+XsMSWBqI/tW7Z3zmiVaLuSJosyRaQ2YzU3ded06XVbHO6F4MsCDYRDdU1f
+         2pUqqpRWTSiyi6IMVPuL/TUWKUAq35DON2RGuU9uW2Fyui4IjPlhWXSJpRXhcnI6NJ
+         VU4ujXD8ZFGALA8LBRXeCjyvvocoebZSjTRLFklU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com,
-        Brooke Basile <brookebasile@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 580/633] ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()
-Date:   Tue, 27 Oct 2020 14:55:23 +0100
-Message-Id: <20201027135550.018646575@linuxfoundation.org>
+Subject: [PATCH 5.8 581/633] drm/panfrost: add Amlogic GPU integration quirks
+Date:   Tue, 27 Oct 2020 14:55:24 +0100
+Message-Id: <20201027135550.067439338@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,89 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brooke Basile <brookebasile@gmail.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 03fb92a432ea5abe5909bca1455b7e44a9380480 ]
+[ Upstream commit afcd0c7d3d4c22afc8befcfc906db6ce3058d3ee ]
 
-Calls to usb_kill_anchored_urbs() after usb_kill_urb() on multiprocessor
-systems create a race condition in which usb_kill_anchored_urbs() deallocates
-the URB before the completer callback is called in usb_kill_urb(), resulting
-in a use-after-free.
-To fix this, add proper lock protection to usb_kill_urb() calls that can
-possibly run concurrently with usb_kill_anchored_urbs().
+This adds the required GPU quirks, including the quirk in the PWR
+registers at the GPU reset time and the IOMMU quirk for shareability
+issues observed on G52 in Amlogic G12B SoCs.
 
-Reported-by: syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=cabffad18eb74197f84871802fd2c5117b61febf
-Signed-off-by: Brooke Basile <brookebasile@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200911071427.32354-1-brookebasile@gmail.com
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916150147.25753-4-narmstrong@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_drv.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 3f563e02d17da..2ed98aaed6fb5 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -449,10 +449,19 @@ static void hif_usb_stop(void *hif_handle)
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index 882fecc33fdb1..6e11a73e81aa3 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -667,7 +667,18 @@ static const struct panfrost_compatible default_data = {
+ 	.pm_domain_names = NULL,
+ };
  
- 	/* The pending URBs have to be canceled. */
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
-+		list_del(&tx_buf->list);
-+		usb_free_urb(tx_buf->urb);
-+		kfree(tx_buf->buf);
-+		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
-@@ -762,27 +771,37 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
- 	struct tx_buf *tx_buf = NULL, *tx_buf_tmp = NULL;
- 	unsigned long flags;
- 
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_buf, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	hif_dev->tx.flags |= HIF_USB_TX_FLUSH;
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
++static const struct panfrost_compatible amlogic_data = {
++	.num_supplies = ARRAY_SIZE(default_supplies),
++	.supply_names = default_supplies,
++	.vendor_quirk = panfrost_gpu_amlogic_quirk,
++};
++
+ static const struct of_device_id dt_match[] = {
++	/* Set first to probe before the generic compatibles */
++	{ .compatible = "amlogic,meson-gxm-mali",
++	  .data = &amlogic_data, },
++	{ .compatible = "amlogic,meson-g12a-mali",
++	  .data = &amlogic_data, },
+ 	{ .compatible = "arm,mali-t604", .data = &default_data, },
+ 	{ .compatible = "arm,mali-t624", .data = &default_data, },
+ 	{ .compatible = "arm,mali-t628", .data = &default_data, },
 -- 
 2.25.1
 
