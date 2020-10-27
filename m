@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9882B29C702
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 041A429C57F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389214AbgJ0S04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47762 "EHLO mail.kernel.org"
+        id S1825130AbgJ0SI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753576AbgJ0OAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:00:23 -0400
+        id S1757014AbgJ0OPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:15:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A2F921D7B;
-        Tue, 27 Oct 2020 14:00:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD2C02076A;
+        Tue, 27 Oct 2020 14:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807222;
-        bh=qr5IBMUcnmL6i6o7msUoTodHVxH92J3rwPTt3mSQ8hE=;
+        s=default; t=1603808144;
+        bh=lPNcCPvlcDIw/agzBZau7S3subA3E/eo6VEsA244Lao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVbz4zUqmhkUhKLcQlrE1qTjr+UkoTJOolCM6FIqxyoHHx+IjKF3bvuhk8I19Qxzq
-         JJn+8M1fKx8hqQqJXRUyvqoumzrqaIjDfex7/Dtp4QuHJhSYSWOklbGgGMRXNBA3VC
-         F4KdDmCUtMIwP3WcpFVguLJtMNuslGnMdSaN6V04=
+        b=KWyI9CNUNbl3TRaCSa+Iwih+JJZF2jJt7E1pa7w/cD/ucnSn2NYYLSF0lnWZ845fP
+         KiXGPrurF3yD1x7+WTO78ofZsjPVrqIaNeE4EJGpIidWZD74R++I7QilziCBjkLEgR
+         36ip+fcTGFD7TVWdA0ISQ1pMM/xG3q7VEGJDoTnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 087/112] ntfs: add check for mft record size in superblock
+Subject: [PATCH 4.14 142/191] media: exynos4-is: Fix a reference count leak due to pm_runtime_get_sync
 Date:   Tue, 27 Oct 2020 14:49:57 +0100
-Message-Id: <20201027134904.659373069@linuxfoundation.org>
+Message-Id: <20201027134916.531109900@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
+[ Upstream commit c47f7c779ef0458a58583f00c9ed71b7f5a4d0a2 ]
 
-Number of bytes allocated for mft record should be equal to the mft record
-size stored in ntfs superblock as reported by syzbot, userspace might
-trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
-Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index d284f07eda775..38260c07de8b5 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1844,6 +1844,12 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		brelse(bh);
- 	}
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index d313f9078e714..24fb0f4b95e18 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -479,8 +479,10 @@ static int fimc_md_register_sensor_entities(struct fimc_md *fmd)
+ 		return -ENXIO;
  
-+	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
-+		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
-+				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
-+		goto err_out;
+ 	ret = pm_runtime_get_sync(fmd->pmf);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(fmd->pmf);
+ 		return ret;
 +	}
-+
- 	/* Apply the mst fixups. */
- 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
- 		/* FIXME: Try to use the $MFTMirr now. */
+ 
+ 	fmd->num_sensors = 0;
+ 
 -- 
 2.25.1
 
