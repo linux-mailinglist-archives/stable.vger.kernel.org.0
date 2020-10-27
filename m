@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6509D29B1A6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8CF29B1BC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760095AbgJ0OcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S1760161AbgJ0Odk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760073AbgJ0OcS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:18 -0400
+        id S1760158AbgJ0Odk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:33:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAD8A20754;
-        Tue, 27 Oct 2020 14:32:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB2B207BB;
+        Tue, 27 Oct 2020 14:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809136;
-        bh=2KDM5giWTkpSl0vThZqdIFOFtpRLWpZM41aUFH9zGmU=;
+        s=default; t=1603809219;
+        bh=6M+fV2azjk6ZCueVUTsz98HzYVcl55bUqhdL8/pzaQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCswkk/Nbynm93t1NxxWyfsBSDhheuYbypoZYX4hfdsqgmYszE0GicHC/wqOSW3+m
-         8rwIim6rnS6ghR554o86PK/uqSO+yiU+7FEf7MzSWLCbx5yimQq2dDclluNWc7w1rl
-         Of7Xb/3NiK5x4FQeL6gRMai/eId4d+QhTPlexsbM=
+        b=jpBoHZpeg7oLK1XGE/C9q+fiShR4+w8bpy07Rq852apdetxce2aCTESx+vn6bMg7g
+         79yRTTcou9oWCci8qWc7DxR0sMGjy87dXDylra0eqUM6MJrK4Cr/8GqMgHoxr9QVIC
+         k3QQ1USiqxFdKxv9bEvCrTARgqC9IKMOtxy0o80o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Fabio Estevam <festevam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/408] media: i2c: ov5640: Enable data pins on poweron for DVP mode
-Date:   Tue, 27 Oct 2020 14:50:19 +0100
-Message-Id: <20201027135458.821278055@linuxfoundation.org>
+Subject: [PATCH 5.4 088/408] media: mx2_emmaprp: Fix memleak in emmaprp_probe
+Date:   Tue, 27 Oct 2020 14:50:26 +0100
+Message-Id: <20201027135459.159685305@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -47,139 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 576f5d4ba8f672953513280510abf9a736b015cc ]
+[ Upstream commit 21d387b8d372f859d9e87fdcc7c3b4a432737f4d ]
 
-During testing this sensor on iW-RainboW-G21D-Qseven platform in 8-bit DVP
-mode with rcar-vin bridge noticed the capture worked fine for the first run
-(with yavta), but for subsequent runs the bridge driver waited for the
-frame to be captured. Debugging further noticed the data lines were
-enabled/disabled in stream on/off callback and dumping the register
-contents 0x3017/0x3018 in ov5640_set_stream_dvp() reported the correct
-values, but yet frame capturing failed.
+When platform_get_irq() fails, we should release
+vfd and unregister pcdev->v4l2_dev just like the
+subsequent error paths.
 
-To get around this issue data lines are enabled in s_power callback.
-(Also the sensor remains in power down mode if not streaming so power
-consumption shouldn't be affected)
-
-Fixes: f22996db44e2d ("media: ov5640: add support of DVP parallel interface")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Tested-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: d4e192cc44914 ("media: mx2_emmaprp: Check for platform_get_irq() error")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 73 +++++++++++++++++++++-----------------
- 1 file changed, 40 insertions(+), 33 deletions(-)
+ drivers/media/platform/mx2_emmaprp.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 3c6ad2dd9c0e1..be6c882dd1d54 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -274,8 +274,7 @@ static inline struct v4l2_subdev *ctrl_to_sd(struct v4l2_ctrl *ctrl)
- /* YUV422 UYVY VGA@30fps */
- static const struct reg_value ov5640_init_setting_30fps_VGA[] = {
- 	{0x3103, 0x11, 0, 0}, {0x3008, 0x82, 0, 5}, {0x3008, 0x42, 0, 0},
--	{0x3103, 0x03, 0, 0}, {0x3017, 0x00, 0, 0}, {0x3018, 0x00, 0, 0},
--	{0x3630, 0x36, 0, 0},
-+	{0x3103, 0x03, 0, 0}, {0x3630, 0x36, 0, 0},
- 	{0x3631, 0x0e, 0, 0}, {0x3632, 0xe2, 0, 0}, {0x3633, 0x12, 0, 0},
- 	{0x3621, 0xe0, 0, 0}, {0x3704, 0xa0, 0, 0}, {0x3703, 0x5a, 0, 0},
- 	{0x3715, 0x78, 0, 0}, {0x3717, 0x01, 0, 0}, {0x370b, 0x60, 0, 0},
-@@ -1272,33 +1271,6 @@ static int ov5640_set_stream_dvp(struct ov5640_dev *sensor, bool on)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/media/platform/mx2_emmaprp.c b/drivers/media/platform/mx2_emmaprp.c
+index 27779b75df543..ac112cf06ab31 100644
+--- a/drivers/media/platform/mx2_emmaprp.c
++++ b/drivers/media/platform/mx2_emmaprp.c
+@@ -852,8 +852,11 @@ static int emmaprp_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, pcdev);
  
--	/*
--	 * enable VSYNC/HREF/PCLK DVP control lines
--	 * & D[9:6] DVP data lines
--	 *
--	 * PAD OUTPUT ENABLE 01
--	 * - 6:		VSYNC output enable
--	 * - 5:		HREF output enable
--	 * - 4:		PCLK output enable
--	 * - [3:0]:	D[9:6] output enable
--	 */
--	ret = ov5640_write_reg(sensor,
--			       OV5640_REG_PAD_OUTPUT_ENABLE01,
--			       on ? 0x7f : 0);
--	if (ret)
--		return ret;
--
--	/*
--	 * enable D[5:0] DVP data lines
--	 *
--	 * PAD OUTPUT ENABLE 02
--	 * - [7:2]:	D[5:0] output enable
--	 */
--	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02,
--			       on ? 0xfc : 0);
--	if (ret)
--		return ret;
--
- 	return ov5640_write_reg(sensor, OV5640_REG_SYS_CTRL0, on ?
- 				OV5640_REG_SYS_CTRL0_SW_PWUP :
- 				OV5640_REG_SYS_CTRL0_SW_PWDN);
-@@ -2055,6 +2027,40 @@ static int ov5640_set_power_mipi(struct ov5640_dev *sensor, bool on)
- 	return 0;
- }
- 
-+static int ov5640_set_power_dvp(struct ov5640_dev *sensor, bool on)
-+{
-+	int ret;
-+
-+	if (!on) {
-+		/* Reset settings to their default values. */
-+		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x00);
-+		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0x00);
-+		return 0;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
++	if (irq < 0) {
++		ret = irq;
++		goto rel_vdev;
 +	}
 +
-+	/*
-+	 * enable VSYNC/HREF/PCLK DVP control lines
-+	 * & D[9:6] DVP data lines
-+	 *
-+	 * PAD OUTPUT ENABLE 01
-+	 * - 6:		VSYNC output enable
-+	 * - 5:		HREF output enable
-+	 * - 4:		PCLK output enable
-+	 * - [3:0]:	D[9:6] output enable
-+	 */
-+	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x7f);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * enable D[5:0] DVP data lines
-+	 *
-+	 * PAD OUTPUT ENABLE 02
-+	 * - [7:2]:	D[5:0] output enable
-+	 */
-+	return ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0xfc);
-+}
-+
- static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
- {
- 	int ret = 0;
-@@ -2069,11 +2075,12 @@ static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
- 			goto power_off;
- 	}
- 
--	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
-+	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY)
- 		ret = ov5640_set_power_mipi(sensor, on);
--		if (ret)
--			goto power_off;
--	}
-+	else
-+		ret = ov5640_set_power_dvp(sensor, on);
-+	if (ret)
-+		goto power_off;
- 
- 	if (!on)
- 		ov5640_set_power_off(sensor);
+ 	ret = devm_request_irq(&pdev->dev, irq, emmaprp_irq, 0,
+ 			       dev_name(&pdev->dev), pcdev);
+ 	if (ret)
 -- 
 2.25.1
 
