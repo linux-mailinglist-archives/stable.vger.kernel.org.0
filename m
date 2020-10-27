@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F0C29BE77
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE95E29BCDC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794938AbgJ0Qqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33784 "EHLO mail.kernel.org"
+        id S1811121AbgJ0QhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:37:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368820AbgJ0Plp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:41:45 -0400
+        id S1801840AbgJ0Pob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:44:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7B7F22400;
-        Tue, 27 Oct 2020 15:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77B5A2242B;
+        Tue, 27 Oct 2020 15:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813303;
-        bh=5t9QDxblpJ8geg63n7LhYS2FNWEyr94Znyehb6jAWLA=;
+        s=default; t=1603813426;
+        bh=kXWvaPpbY0zyttfeQh5mM+kkie+AfaljUhSRsq2Un7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVVnl34FWH/KxK/8/JMY8IoRip5mgcgfO+A2q9XSiemJz2f4zjMDhuZDjWaTe5Ny+
-         i+Z7kH3Kb7zNd7NWxpFuqLARNB6aonLGicHrJ66wdnbDw1XLyBduqus3LXyeqOY4bN
-         4jeG2K1ss8uSMUH9sSwbILGk8qpYt/L6xjEnvcjY=
+        b=c2M5uIKlvZ1tzyavX+k4cWHq4LlhRwhzbpGVFPc/1eGg67v8NN8pOlQa71fdQbbXU
+         8VUrL1P4N+2a59oaBT2b4EBN8GDoilcNNY8PGOo0E7pPonTJoNXKAoGNZC0rCaAHB4
+         9Wf0SVEb8vZNhCk8GtgBLOjPkEwnvwDJQyquplYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b994ecf2b023f14832c1@syzkaller.appspotmail.com,
-        syzbot+0e0db88e1eb44a91ae8d@syzkaller.appspotmail.com,
-        syzbot+2d0585e5efcd43d113c2@syzkaller.appspotmail.com,
-        syzbot+1ecc2f9d3387f1d79d42@syzkaller.appspotmail.com,
-        syzbot+18d51774588492bf3f69@syzkaller.appspotmail.com,
-        syzbot+a5e4946b04d6ca8fa5f3@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 505/757] afs: Fix cell removal
-Date:   Tue, 27 Oct 2020 14:52:35 +0100
-Message-Id: <20201027135514.139910764@linuxfoundation.org>
+Subject: [PATCH 5.9 506/757] RDMA/rxe: Handle skb_clone() failure in rxe_recv.c
+Date:   Tue, 27 Oct 2020 14:52:36 +0100
+Message-Id: <20201027135514.191879934@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -50,102 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 1d0e850a49a5b56f8f3cb51e74a11e2fedb96be6 ]
+[ Upstream commit 71abf20b28ff87fee6951ec2218d5ce7969c4e87 ]
 
-Fix cell removal by inserting a more final state than AFS_CELL_FAILED that
-indicates that the cell has been unpublished in case the manager is already
-requeued and will go through again.  The new AFS_CELL_REMOVED state will
-just immediately leave the manager function.
+If skb_clone() is unable to allocate memory for a new sk_buff this is not
+detected by the current code.
 
-Going through a second time in the AFS_CELL_FAILED state will cause it to
-try to remove the cell again, potentially leading to the proc list being
-removed.
+Check for a NULL return and continue. This is similar to other errors in
+this loop over QPs attached to the multicast address and consistent with
+the unreliable UD transport.
 
-Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
-Reported-by: syzbot+b994ecf2b023f14832c1@syzkaller.appspotmail.com
-Reported-by: syzbot+0e0db88e1eb44a91ae8d@syzkaller.appspotmail.com
-Reported-by: syzbot+2d0585e5efcd43d113c2@syzkaller.appspotmail.com
-Reported-by: syzbot+1ecc2f9d3387f1d79d42@syzkaller.appspotmail.com
-Reported-by: syzbot+18d51774588492bf3f69@syzkaller.appspotmail.com
-Reported-by: syzbot+a5e4946b04d6ca8fa5f3@syzkaller.appspotmail.com
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Hillf Danton <hdanton@sina.com>
+Fixes: e7ec96fc7932f ("RDMA/rxe: Fix skb lifetime in rxe_rcv_mcast_pkt()")
+Addresses-Coverity-ID: 1497804: Null pointer dereferences (NULL_RETURNS)
+Link: https://lore.kernel.org/r/20201013184236.5231-1-rpearson@hpe.com
+Signed-off-by: Bob Pearson <rpearson@hpe.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/cell.c     | 16 ++++++++++------
- fs/afs/internal.h |  1 +
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_recv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/afs/cell.c b/fs/afs/cell.c
-index 1944be78e9b0d..bc7ed46aaca9f 100644
---- a/fs/afs/cell.c
-+++ b/fs/afs/cell.c
-@@ -291,11 +291,11 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
- 	wait_var_event(&cell->state,
- 		       ({
- 			       state = smp_load_acquire(&cell->state); /* vs error */
--			       state == AFS_CELL_ACTIVE || state == AFS_CELL_FAILED;
-+			       state == AFS_CELL_ACTIVE || state == AFS_CELL_REMOVED;
- 		       }));
+diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
+index 967ee8e1699cd..2da4187db80c9 100644
+--- a/drivers/infiniband/sw/rxe/rxe_recv.c
++++ b/drivers/infiniband/sw/rxe/rxe_recv.c
+@@ -298,6 +298,9 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
+ 		else
+ 			per_qp_skb = skb;
  
- 	/* Check the state obtained from the wait check. */
--	if (state == AFS_CELL_FAILED) {
-+	if (state == AFS_CELL_REMOVED) {
- 		ret = cell->error;
- 		goto error;
- 	}
-@@ -700,7 +700,6 @@ static void afs_deactivate_cell(struct afs_net *net, struct afs_cell *cell)
- static void afs_manage_cell(struct afs_cell *cell)
- {
- 	struct afs_net *net = cell->net;
--	bool deleted;
- 	int ret, active;
- 
- 	_enter("%s", cell->name);
-@@ -712,13 +711,15 @@ static void afs_manage_cell(struct afs_cell *cell)
- 	case AFS_CELL_FAILED:
- 		down_write(&net->cells_lock);
- 		active = 1;
--		deleted = atomic_try_cmpxchg_relaxed(&cell->active, &active, 0);
--		if (deleted) {
-+		if (atomic_try_cmpxchg_relaxed(&cell->active, &active, 0)) {
- 			rb_erase(&cell->net_node, &net->cells);
-+			smp_store_release(&cell->state, AFS_CELL_REMOVED);
- 		}
- 		up_write(&net->cells_lock);
--		if (deleted)
-+		if (cell->state == AFS_CELL_REMOVED) {
-+			wake_up_var(&cell->state);
- 			goto final_destruction;
-+		}
- 		if (cell->state == AFS_CELL_FAILED)
- 			goto done;
- 		smp_store_release(&cell->state, AFS_CELL_UNSET);
-@@ -760,6 +761,9 @@ static void afs_manage_cell(struct afs_cell *cell)
- 		wake_up_var(&cell->state);
- 		goto again;
- 
-+	case AFS_CELL_REMOVED:
-+		goto done;
++		if (unlikely(!per_qp_skb))
++			continue;
 +
- 	default:
- 		break;
- 	}
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 0363511290c8d..06e617ee4cd1e 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -326,6 +326,7 @@ enum afs_cell_state {
- 	AFS_CELL_DEACTIVATING,
- 	AFS_CELL_INACTIVE,
- 	AFS_CELL_FAILED,
-+	AFS_CELL_REMOVED,
- };
- 
- /*
+ 		per_qp_pkt = SKB_TO_PKT(per_qp_skb);
+ 		per_qp_pkt->qp = qp;
+ 		rxe_add_ref(qp);
 -- 
 2.25.1
 
