@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E49E129C635
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2DA929C6EF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901042AbgJ0SO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:14:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34682 "EHLO mail.kernel.org"
+        id S1752520AbgJ0OAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2507085AbgJ0ONU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:13:20 -0400
+        id S2504367AbgJ0OAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:00:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F7EF2076A;
-        Tue, 27 Oct 2020 14:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60AC32068D;
+        Tue, 27 Oct 2020 14:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808000;
-        bh=uccbjVnIjVgigrqIjbS79OPTjDa+TLQTDs3MNrwqrh0=;
+        s=default; t=1603807244;
+        bh=fYOSCIP8zxkfuMuUrdpVgvK1kacTalWOaZtAxrp7EUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1Nz1281jASlx8BEPLncQZmjPl+GGAaiVc99ykdoiOR+lrrYTa6E/1gEX7egUjAXw
-         pYOiXYeB3zSNMtTNFNnPJY42olpCtg/Uy9q6BwL1sWSGg6SjqOD3tmzxO+ipWeCswM
-         Z0py3bzqHVqVEB4elPGyVZQ5k2IMCyta3jfUWPLM=
+        b=ueWyuBQ+G1o6eIs/4aewxYcIxyY2nhX2Ypx4rloBSSGeausysfstWnLTnFKJIVitm
+         hUi1nYKdazVT5BlgE2pqXLqS76HyYN+UhCEeOmeayJ7v0+f+EjA7+xvjXVMwxcZtvT
+         u3+r6KMumil7EBETjoaB46T5Z4WCIb6F13jpPyJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/191] Input: stmfts - fix a & vs && typo
+Subject: [PATCH 4.4 065/112] cpufreq: powernv: Fix frame-size-overflow in powernv_cpufreq_reboot_notifier
 Date:   Tue, 27 Oct 2020 14:49:35 +0100
-Message-Id: <20201027134915.470663205@linuxfoundation.org>
+Message-Id: <20201027134903.642260635@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit d04afe14b23651e7a8bc89727a759e982a8458e4 ]
+[ Upstream commit a2d0230b91f7e23ceb5d8fb6a9799f30517ec33a ]
 
-In stmfts_sysfs_hover_enable_write(), we should check value and
-sdata->hover_enabled is all true.
+The patch avoids allocating cpufreq_policy on stack hence fixing frame
+size overflow in 'powernv_cpufreq_reboot_notifier':
 
-Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20200916141941.16684-1-yuehaibing@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  drivers/cpufreq/powernv-cpufreq.c: In function powernv_cpufreq_reboot_notifier:
+  drivers/cpufreq/powernv-cpufreq.c:906:1: error: the frame size of 2064 bytes is larger than 2048 bytes
+
+Fixes: cf30af76 ("cpufreq: powernv: Set the cpus to nominal frequency during reboot/kexec")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200922080254.41497-1-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/stmfts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/powernv-cpufreq.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index c72662c979e79..d9e93dabbca21 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -484,7 +484,7 @@ static ssize_t stmfts_sysfs_hover_enable_write(struct device *dev,
+diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
+index 57e6c45724e73..1930a1d1a1892 100644
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -410,12 +410,15 @@ static int powernv_cpufreq_reboot_notifier(struct notifier_block *nb,
+ 				unsigned long action, void *unused)
+ {
+ 	int cpu;
+-	struct cpufreq_policy cpu_policy;
++	struct cpufreq_policy *cpu_policy;
  
- 	mutex_lock(&sdata->mutex);
+ 	rebooting = true;
+ 	for_each_online_cpu(cpu) {
+-		cpufreq_get_policy(&cpu_policy, cpu);
+-		powernv_cpufreq_target_index(&cpu_policy, get_nominal_index());
++		cpu_policy = cpufreq_cpu_get(cpu);
++		if (!cpu_policy)
++			continue;
++		powernv_cpufreq_target_index(cpu_policy, get_nominal_index());
++		cpufreq_cpu_put(cpu_policy);
+ 	}
  
--	if (value & sdata->hover_enabled)
-+	if (value && sdata->hover_enabled)
- 		goto out;
- 
- 	if (sdata->running)
+ 	return NOTIFY_DONE;
 -- 
 2.25.1
 
