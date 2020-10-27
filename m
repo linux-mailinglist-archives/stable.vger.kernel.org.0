@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C186229B65A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 646BF29B3FF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797394AbgJ0PXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38176 "EHLO mail.kernel.org"
+        id S2901071AbgJ0Oyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796997AbgJ0PXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:23:13 -0400
+        id S1773334AbgJ0Ov5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BB3A20657;
-        Tue, 27 Oct 2020 15:23:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA4DF20773;
+        Tue, 27 Oct 2020 14:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812193;
-        bh=9wKS+bOD5X6wF0z12+Q03h5eBqJKEhOTM9h6X8XjQEo=;
+        s=default; t=1603810316;
+        bh=8xO6donlWuaYx3A3j8ilplaJ2DqNwh8NLzOUZ7XGuyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJKVhJ8gwLEf6vUFFGIEPakX4WYJN0Pzo+JhqUUGhs3DcHBG/V0uRWDVRm7b3brUs
-         GxFjPHKYbemesShy0nbQ/RJdrObEi6zeQ35cBy1lRDfQnRwc+T2Rmv1XX1LH2vs3dY
-         na3+fSjD3G2f5dEKQMDgsyTp2RQSvD/LcbToDu7I=
+        b=BuWwPrSe9fS0fOlUeCjJTK6RTq3j7z/xQIp+RdAtHUv3kO5QGqkE+6nDBWROxKD6r
+         I3WOlaJulwsA7gIaLjYUfD/ePoM+E6rPL6pwc7SYlqoj1R1L1QuVbsAlHtb6eurcR6
+         OyWxitUVwdjxi7GB/7gQlktD6RqIBss7bL6kHxb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Libing Zhou <libing.zhou@nokia-sbell.com>,
+        Borislav Petkov <bp@suse.de>,
+        Changbin Du <changbin.du@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 125/757] crypto: ccree - fix runtime PM imbalance on error
-Date:   Tue, 27 Oct 2020 14:46:15 +0100
-Message-Id: <20201027135456.447588212@linuxfoundation.org>
+Subject: [PATCH 5.8 096/633] x86/nmi: Fix nmi_handle() duration miscalculation
+Date:   Tue, 27 Oct 2020 14:47:19 +0100
+Message-Id: <20201027135527.204805198@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dinghao.liu@zju.edu.cn <dinghao.liu@zju.edu.cn>
+From: Libing Zhou <libing.zhou@nokia-sbell.com>
 
-[ Upstream commit b7b57a5643c2ae45afe6aa5e73363b553cacd14b ]
+[ Upstream commit f94c91f7ba3ba7de2bc8aa31be28e1abb22f849e ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter
-even when it returns an error code. However, users of cc_pm_get(),
-a direct wrapper of pm_runtime_get_sync(), assume that PM usage
-counter will not change on error. Thus a pairing decrement is needed
-on the error handling path to keep the counter balanced.
+When nmi_check_duration() is checking the time an NMI handler took to
+execute, the whole_msecs value used should be read from the @duration
+argument, not from the ->max_duration, the latter being used to store
+the current maximal duration.
 
-Fixes: 8c7849a30255c ("crypto: ccree - simplify Runtime PM handling")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+ [ bp: Rewrite commit message. ]
+
+Fixes: 248ed51048c4 ("x86/nmi: Remove irq_work from the long duration NMI handler")
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Libing Zhou <libing.zhou@nokia-sbell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Changbin Du <changbin.du@gmail.com>
+Link: https://lkml.kernel.org/r/20200820025641.44075-1-libing.zhou@nokia-sbell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_pm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/nmi.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
-index d39e1664fc7ed..3c65bf070c908 100644
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -65,8 +65,12 @@ const struct dev_pm_ops ccree_pm = {
- int cc_pm_get(struct device *dev)
- {
- 	int rc = pm_runtime_get_sync(dev);
-+	if (rc < 0) {
-+		pm_runtime_put_noidle(dev);
-+		return rc;
-+	}
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index d7c5e44b26f73..091752c3a19e2 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -102,7 +102,6 @@ fs_initcall(nmi_warning_debugfs);
  
--	return (rc == 1 ? 0 : rc);
-+	return 0;
+ static void nmi_check_duration(struct nmiaction *action, u64 duration)
+ {
+-	u64 whole_msecs = READ_ONCE(action->max_duration);
+ 	int remainder_ns, decimal_msecs;
+ 
+ 	if (duration < nmi_longest_ns || duration < action->max_duration)
+@@ -110,12 +109,12 @@ static void nmi_check_duration(struct nmiaction *action, u64 duration)
+ 
+ 	action->max_duration = duration;
+ 
+-	remainder_ns = do_div(whole_msecs, (1000 * 1000));
++	remainder_ns = do_div(duration, (1000 * 1000));
+ 	decimal_msecs = remainder_ns / 1000;
+ 
+ 	printk_ratelimited(KERN_INFO
+ 		"INFO: NMI handler (%ps) took too long to run: %lld.%03d msecs\n",
+-		action->handler, whole_msecs, decimal_msecs);
++		action->handler, duration, decimal_msecs);
  }
  
- void cc_pm_put_suspend(struct device *dev)
+ static int nmi_handle(unsigned int type, struct pt_regs *regs)
 -- 
 2.25.1
 
