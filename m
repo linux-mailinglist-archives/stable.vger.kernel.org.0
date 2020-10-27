@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CC529AFB1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B1F329AE9C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756251AbgJ0OMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59372 "EHLO mail.kernel.org"
+        id S1753808AbgJ0OCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:02:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755559AbgJ0OK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:27 -0400
+        id S2443171AbgJ0OCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FB77218AC;
-        Tue, 27 Oct 2020 14:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569F4221F8;
+        Tue, 27 Oct 2020 14:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807826;
-        bh=n/H2X7ovizuy9GElOkj98urwXiizx2p+3sye27riHs0=;
+        s=default; t=1603807336;
+        bh=9T3fmhDP9fbRpis3gFZIYBHFkl8wcQipp3vu7Aci1Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+you88siZ9+6iyuqs7A/bZBcEs0tdnW+OKuJk98WsYVCctdBOBXaMRMCK/hQGH/h
-         ujYLvPQwZZCvkX2ZX11IUuVTO9AakkR2PV3ARDRadD7rqBFrcyHU67R9ZNYA/DmNau
-         cHVm0awq+bo4X5IoLBnd7D1jIjY3wRfhtR7KEMDc=
+        b=ml7Q26j2Xht/k9touAcVIvihEUAHcGiTnURCsCIMnB7JmqvYKnX6GKFzSzc0a8pB9
+         7yvmrqOaFun4c3plqM/tqmbsg7q/hSuLufXwOrAADaX81733WypRl/f/fDEH1RWnXg
+         +em0nDfQ6Y/n8Ge6vX5cnakBqGJEbPBIX7ohmmxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 055/191] tty: serial: earlycon dependency
+Subject: [PATCH 4.9 016/139] crypto: ixp4xx - Fix the size used in a dma_free_coherent() call
 Date:   Tue, 27 Oct 2020 14:48:30 +0100
-Message-Id: <20201027134912.376562483@linuxfoundation.org>
+Message-Id: <20201027134902.918555052@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 0fb9342d06b0f667b915ba58bfefc030e534a218 ]
+[ Upstream commit f7ade9aaf66bd5599690acf0597df2c0f6cd825a ]
 
-parse_options() in drivers/tty/serial/earlycon.c calls uart_parse_earlycon
-in drivers/tty/serial/serial_core.c therefore selecting SERIAL_EARLYCON
-should automatically select SERIAL_CORE, otherwise will result in symbol
-not found error during linking if SERIAL_CORE is not configured as builtin
+Update the size used in 'dma_free_coherent()' in order to match the one
+used in the corresponding 'dma_alloc_coherent()', in 'setup_crypt_desc()'.
 
-Fixes: 9aac5887595b ("tty/serial: add generic serial earlycon")
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20200828123949.2642-1-ztong0001@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 81bef0150074 ("crypto: ixp4xx - Hardware crypto support for IXP4xx CPUs")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/ixp4xx_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
-index b788fee54249d..3628d37773034 100644
---- a/drivers/tty/serial/Kconfig
-+++ b/drivers/tty/serial/Kconfig
-@@ -9,6 +9,7 @@ menu "Serial drivers"
+diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
+index b54af97a20bb3..a54de1299e9ef 100644
+--- a/drivers/crypto/ixp4xx_crypto.c
++++ b/drivers/crypto/ixp4xx_crypto.c
+@@ -532,7 +532,7 @@ static void release_ixp_crypto(struct device *dev)
  
- config SERIAL_EARLYCON
- 	bool
-+	depends on SERIAL_CORE
- 	help
- 	  Support for early consoles with the earlycon parameter. This enables
- 	  the console before standard serial driver is probed. The console is
+ 	if (crypt_virt) {
+ 		dma_free_coherent(dev,
+-			NPE_QLEN_TOTAL * sizeof( struct crypt_ctl),
++			NPE_QLEN * sizeof(struct crypt_ctl),
+ 			crypt_virt, crypt_phys);
+ 	}
+ 	return;
 -- 
 2.25.1
 
