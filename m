@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8174129B125
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA8F29B146
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759034AbgJ0O1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:27:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
+        id S2901861AbgJ0O2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:28:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758961AbgJ0O1R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:27:17 -0400
+        id S1759269AbgJ0O2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:28:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBDD520780;
-        Tue, 27 Oct 2020 14:27:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4A92206DC;
+        Tue, 27 Oct 2020 14:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808836;
-        bh=f+GTbl0pKb9hkZ+SMutdzDj8ZJsIrhD8MfsYjapkD1Y=;
+        s=default; t=1603808915;
+        bh=BhmB85sSTHgA7dJ4S1xIhwi69wi2rmpqgGXkE+QtNE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWGfO8rQpSU9vrWakmXH1PKB0ZYWWbR0/RhAivpxxrYDDGo25v3kIRa2J8dueDQoZ
-         i8goUDQdF6B2uefFRYq76lz/rnKKhrFs4wpEt6xH3vWhFwEH3JvGw2mh4cSnMlCZyw
-         N6GRS889V1+pD3cBLUy81wxra8fl3Him3gjp3bvk=
+        b=lPiI6WSvw7LPMeWHW84wQjwLZm9730QP21x2uDt9grxcRi450NKjqDipMwi5tENlS
+         3yg8PJGId3bKbkWdcm3YU0iCXjbLG9Urz025zXnuSI5DAE3JPyFaw5HYDoj/3rVGBb
+         9GDBm1DmEgKSYnFhTyky1wbzcsq1SfkRB5AuTp9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 241/264] reiserfs: only call unlock_new_inode() if I_NEW
-Date:   Tue, 27 Oct 2020 14:54:59 +0100
-Message-Id: <20201027135441.972416812@linuxfoundation.org>
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 242/264] xfs: make sure the rt allocator doesnt run off the end
+Date:   Tue, 27 Oct 2020 14:55:00 +0100
+Message-Id: <20201027135442.023796273@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 8859bf2b1278d064a139e3031451524a49a56bd0 ]
+[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
 
-unlock_new_inode() is only meant to be called after a new inode has
-already been inserted into the hash table.  But reiserfs_new_inode() can
-call it even before it has inserted the inode, triggering the WARNING in
-unlock_new_inode().  Fix this by only calling unlock_new_inode() if the
-inode has the I_NEW flag set, indicating that it's in the table.
+There's an overflow bug in the realtime allocator.  If the rt volume is
+large enough to handle a single allocation request that is larger than
+the maximum bmap extent length and the rt bitmap ends exactly on a
+bitmap block boundary, it's possible that the near allocator will try to
+check the freeness of a range that extends past the end of the bitmap.
+This fails with a corruption error and shuts down the fs.
 
-This addresses the syzbot report "WARNING in unlock_new_inode"
-(https://syzkaller.appspot.com/bug?extid=187510916eb6a14598f7).
+Therefore, constrain maxlen so that the range scan cannot run off the
+end of the rt bitmap.
 
-Link: https://lore.kernel.org/r/20200628070057.820213-1-ebiggers@kernel.org
-Reported-by: syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_rtalloc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 70387650436cf..ac35ddf0dd603 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -2161,7 +2161,8 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
- out_inserted_sd:
- 	clear_nlink(inode);
- 	th->t_trans_id = 0;	/* so the caller can't use this handle later */
--	unlock_new_inode(inode); /* OK to do even if we hadn't locked it */
-+	if (inode->i_state & I_NEW)
-+		unlock_new_inode(inode);
- 	iput(inode);
- 	return err;
- }
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 484eb0adcefb2..08da48b662358 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -245,6 +245,9 @@ xfs_rtallocate_extent_block(
+ 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
+ 	     i <= end;
+ 	     i++) {
++		/* Make sure we don't scan off the end of the rt volume. */
++		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
++
+ 		/*
+ 		 * See if there's a free extent of maxlen starting at i.
+ 		 * If it's not so then next will contain the first non-free.
+@@ -440,6 +443,14 @@ xfs_rtallocate_extent_near(
+ 	 */
+ 	if (bno >= mp->m_sb.sb_rextents)
+ 		bno = mp->m_sb.sb_rextents - 1;
++
++	/* Make sure we don't run off the end of the rt volume. */
++	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
++	if (maxlen < minlen) {
++		*rtblock = NULLRTBLOCK;
++		return 0;
++	}
++
+ 	/*
+ 	 * Try the exact allocation first.
+ 	 */
 -- 
 2.25.1
 
