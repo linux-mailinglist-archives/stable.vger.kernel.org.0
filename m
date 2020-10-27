@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D974829C1D9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0115329C220
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760897AbgJ0Og6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35830 "EHLO mail.kernel.org"
+        id S1819968AbgJ0Rbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760890AbgJ0Og6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:58 -0400
+        id S2437581AbgJ0Oh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:37:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67BCE207BB;
-        Tue, 27 Oct 2020 14:36:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B57D0206B2;
+        Tue, 27 Oct 2020 14:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809417;
-        bh=GuRof7UemjKwMckMqBGPC3r/wH0n1swkFXl7GccUEgM=;
+        s=default; t=1603809448;
+        bh=XGAHm2fvUb1YlETffOmPceCEPtrIMojl24P0Bu8uhgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSj/X6DQgpumsYINrEsmaJZA6UY7IatDo6+2zq9v1IjxhEXYTizdfTuz9cn0XQDmA
-         xhKkv1ptFicc8OR5q5yXAVzfqqG9fQf27SAEHoR0n/radNUuWa2M0NldYYQfN2uNw1
-         +ZZahxrXD2Yf5EoXF59w+E1nBpje/M8oKBocN4nU=
+        b=zND+GzQ0HfylSkItQ1qrIuPvj9NBg/aDBxcEgPrvho75S21FTg5im3zYqpWLXeGFq
+         HIWwamMvK5GJLNE3AUAU6F048wjoIQadunwxAi2gWK7YX0jijewp13mszskWju93db
+         3NBGLuKeIkDaL7abYZGnxtRAeP7JQbcS0JZl4ZoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/408] nl80211: fix non-split wiphy information
-Date:   Tue, 27 Oct 2020 14:51:59 +0100
-Message-Id: <20201027135503.495262354@linuxfoundation.org>
+Subject: [PATCH 5.4 182/408] usb: dwc2: Fix INTR OUT transfers in DDMA mode.
+Date:   Tue, 27 Oct 2020 14:52:00 +0100
+Message-Id: <20201027135503.540123209@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -42,47 +43,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-[ Upstream commit ab10c22bc3b2024f0c9eafa463899a071eac8d97 ]
+[ Upstream commit b2c586eb07efab982419f32b7c3bd96829bc8bcd ]
 
-When dumping wiphy information, we try to split the data into
-many submessages, but for old userspace we still support the
-old mode where this doesn't happen.
+In DDMA mode if INTR OUT transfers mps not multiple of 4 then single packet
+corresponds to single descriptor.
 
-However, in this case we were not resetting our state correctly
-and dumping multiple messages for each wiphy, which would have
-broken such older userspace.
+Descriptor limit set to mps and desc chain limit set to mps *
+MAX_DMA_DESC_NUM_GENERIC. On that descriptors complete, to calculate
+transfer size should be considered correction value for each descriptor.
 
-This was broken pretty much immediately afterwards because it
-only worked in the original commit where non-split dumps didn't
-have any more data than split dumps...
+In start request function, if "continue" is true then dma buffer address
+should be incremmented by offset for all type of transfers, not only for
+Control DATA_OUT transfers.
 
-Fixes: fe1abafd942f ("nl80211: re-add channel width and extended capa advertising")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200928130717.3e6d9c6bada2.Ie0f151a8d0d00a8e1e18f6a8c9244dd02496af67@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: cf77b5fb9b394 ("usb: dwc2: gadget: Transfer length limit checking for DDMA")
+Fixes: e02f9aa6119e0 ("usb: dwc2: gadget: EP 0 specific DDMA programming")
+Fixes: aa3e8bc81311e ("usb: dwc2: gadget: DDMA transfer start and complete")
+
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c | 40 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 33 insertions(+), 7 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 3faad3b147376..672b70730e898 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -2227,7 +2227,10 @@ static int nl80211_send_wiphy(struct cfg80211_registered_device *rdev,
- 		 * case we'll continue with more data in the next round,
- 		 * but break unconditionally so unsplit data stops here.
- 		 */
--		state->split_start++;
-+		if (state->split)
-+			state->split_start++;
-+		else
-+			state->split_start = 0;
- 		break;
- 	case 9:
- 		if (rdev->wiphy.extended_capabilities &&
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index f7528f732b2aa..70ac47a341ac2 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -712,8 +712,11 @@ static u32 dwc2_hsotg_read_frameno(struct dwc2_hsotg *hsotg)
+  */
+ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
+ {
++	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
+ 	int is_isoc = hs_ep->isochronous;
+ 	unsigned int maxsize;
++	u32 mps = hs_ep->ep.maxpacket;
++	int dir_in = hs_ep->dir_in;
+ 
+ 	if (is_isoc)
+ 		maxsize = (hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
+@@ -722,6 +725,11 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
+ 	else
+ 		maxsize = DEV_DMA_NBYTES_LIMIT * MAX_DMA_DESC_NUM_GENERIC;
+ 
++	/* Interrupt OUT EP with mps not multiple of 4 */
++	if (hs_ep->index)
++		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4))
++			maxsize = mps * MAX_DMA_DESC_NUM_GENERIC;
++
+ 	return maxsize;
+ }
+ 
+@@ -737,11 +745,14 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
+  * Isochronous - descriptor rx/tx bytes bitfield limit,
+  * Control In/Bulk/Interrupt - multiple of mps. This will allow to not
+  * have concatenations from various descriptors within one packet.
++ * Interrupt OUT - if mps not multiple of 4 then a single packet corresponds
++ * to a single descriptor.
+  *
+  * Selects corresponding mask for RX/TX bytes as well.
+  */
+ static u32 dwc2_gadget_get_desc_params(struct dwc2_hsotg_ep *hs_ep, u32 *mask)
+ {
++	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
+ 	u32 mps = hs_ep->ep.maxpacket;
+ 	int dir_in = hs_ep->dir_in;
+ 	u32 desc_size = 0;
+@@ -765,6 +776,13 @@ static u32 dwc2_gadget_get_desc_params(struct dwc2_hsotg_ep *hs_ep, u32 *mask)
+ 		desc_size -= desc_size % mps;
+ 	}
+ 
++	/* Interrupt OUT EP with mps not multiple of 4 */
++	if (hs_ep->index)
++		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4)) {
++			desc_size = mps;
++			*mask = DEV_DMA_NBYTES_MASK;
++		}
++
+ 	return desc_size;
+ }
+ 
+@@ -1123,13 +1141,7 @@ static void dwc2_hsotg_start_req(struct dwc2_hsotg *hsotg,
+ 				length += (mps - (length % mps));
+ 		}
+ 
+-		/*
+-		 * If more data to send, adjust DMA for EP0 out data stage.
+-		 * ureq->dma stays unchanged, hence increment it by already
+-		 * passed passed data count before starting new transaction.
+-		 */
+-		if (!index && hsotg->ep0_state == DWC2_EP0_DATA_OUT &&
+-		    continuing)
++		if (continuing)
+ 			offset = ureq->actual;
+ 
+ 		/* Fill DDMA chain entries */
+@@ -2319,22 +2331,36 @@ static void dwc2_hsotg_change_ep_iso_parity(struct dwc2_hsotg *hsotg,
+  */
+ static unsigned int dwc2_gadget_get_xfersize_ddma(struct dwc2_hsotg_ep *hs_ep)
+ {
++	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
+ 	struct dwc2_hsotg *hsotg = hs_ep->parent;
+ 	unsigned int bytes_rem = 0;
++	unsigned int bytes_rem_correction = 0;
+ 	struct dwc2_dma_desc *desc = hs_ep->desc_list;
+ 	int i;
+ 	u32 status;
++	u32 mps = hs_ep->ep.maxpacket;
++	int dir_in = hs_ep->dir_in;
+ 
+ 	if (!desc)
+ 		return -EINVAL;
+ 
++	/* Interrupt OUT EP with mps not multiple of 4 */
++	if (hs_ep->index)
++		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4))
++			bytes_rem_correction = 4 - (mps % 4);
++
+ 	for (i = 0; i < hs_ep->desc_count; ++i) {
+ 		status = desc->status;
+ 		bytes_rem += status & DEV_DMA_NBYTES_MASK;
++		bytes_rem -= bytes_rem_correction;
+ 
+ 		if (status & DEV_DMA_STS_MASK)
+ 			dev_err(hsotg->dev, "descriptor %d closed with %x\n",
+ 				i, status & DEV_DMA_STS_MASK);
++
++		if (status & DEV_DMA_L)
++			break;
++
+ 		desc++;
+ 	}
+ 
 -- 
 2.25.1
 
