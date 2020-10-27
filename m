@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B28A829B153
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A62829AEC4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900851AbgJ0O3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:29:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
+        id S2410244AbgJ0ODw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901903AbgJ0O3C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:29:02 -0400
+        id S1754043AbgJ0ODv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CFE220754;
-        Tue, 27 Oct 2020 14:29:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8206B22282;
+        Tue, 27 Oct 2020 14:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808942;
-        bh=TEWIBudczpCOBl0G5gMPuALnOdzy8Cg4biZJQ5yDtuw=;
+        s=default; t=1603807431;
+        bh=/baYraJi+Pht6vpdWJf47jOweaIOgbrOL5aPIbqatZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coLFoKrL0AapRkUHCu0QigyeDKyDxesiVunaTq4nIqHaCjLCLtPvqqfCamYw3OnoA
-         +NVuRbfggAfnfdsNZIgppqV1WUyQz0v0I58ZkGfWgTDKjN+/41EwYHkwuEOBS9Mp79
-         lZfzcOiLxGwCT8jm82exaSEJQMfwR9gmtNL/axeI=
+        b=2l6f+pVoJbeTcf+b8lFyCgno25bVWw7yrSrYparDmRi0d8Vg5a5RZ1uGzM5gr5iqN
+         WYpwsARZE+iSHyYpRzUcaiwabl0QqvgNLZEc5f6TUuduni6VQHFUfnCY631ybuKwPU
+         BWmXlnR5e7u9G3DhK6w7v3LZk7EJvFV8pwWi6MQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Vasily Averin <vvs@virtuozzo.com>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 007/408] net: fix pos incrementment in ipv6_route_seq_next
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 051/139] usb: gadget: u_ether: enable qmult on SuperSpeed Plus as well
 Date:   Tue, 27 Oct 2020 14:49:05 +0100
-Message-Id: <20201027135455.387710428@linuxfoundation.org>
+Message-Id: <20201027134904.552035241@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,90 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit 6617dfd440149e42ce4d2be615eb31a4755f4d30 ]
+[ Upstream commit 4eea21dc67b0c6ba15ae41b1defa113a680a858e ]
 
-Commit 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-tried to fix the issue where seq_file pos is not increased
-if a NULL element is returned with seq_ops->next(). See bug
-  https://bugzilla.kernel.org/show_bug.cgi?id=206283
-The commit effectively does:
-  - increase pos for all seq_ops->start()
-  - increase pos for all seq_ops->next()
+The u_ether driver has a qmult setting that multiplies the
+transmit queue length (which by default is 2).
 
-For ipv6_route, increasing pos for all seq_ops->next() is correct.
-But increasing pos for seq_ops->start() is not correct
-since pos is used to determine how many items to skip during
-seq_ops->start():
-  iter->skip = *pos;
-seq_ops->start() just fetches the *current* pos item.
-The item can be skipped only after seq_ops->show() which essentially
-is the beginning of seq_ops->next().
+The intent is that it should be enabled at high/super speed, but
+because the code does not explicitly check for USB_SUPER_PLUS,
+it is disabled at that speed.
 
-For example, I have 7 ipv6 route entries,
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=4096
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000004 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  0+1 records in
-  0+1 records out
-  1050 bytes (1.0 kB, 1.0 KiB) copied, 0.00707908 s, 148 kB/s
-  root@arch-fb-vm1:~/net-next
+Fix this by ensuring that the queue multiplier is enabled for any
+wired link at high speed or above. Using >= for USB_SPEED_*
+constants seems correct because it is what the gadget_is_xxxspeed
+functions do.
 
-In the above, I specify buffer size 4096, so all records can be returned
-to user space with a single trip to the kernel.
+The queue multiplier substantially helps performance at higher
+speeds. On a direct SuperSpeed Plus link to a Linux laptop,
+iperf3 single TCP stream:
 
-If I use buffer size 128, since each record size is 149, internally
-kernel seq_read() will read 149 into its internal buffer and return the data
-to user space in two read() syscalls. Then user read() syscall will trigger
-next seq_ops->start(). Since the current implementation increased pos even
-for seq_ops->start(), it will skip record #2, #4 and #6, assuming the first
-record is #1.
+Before (qmult=1): 1.3 Gbps
+After  (qmult=5): 3.2 Gbps
 
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=128
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-4+1 records in
-4+1 records out
-600 bytes copied, 0.00127758 s, 470 kB/s
-
-To fix the problem, create a fake pos pointer so seq_ops->start()
-won't actually increase seq_file pos. With this fix, the
-above `dd` command with `bs=128` will show correct result.
-
-Fixes: 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-Cc: Alexei Starovoitov <ast@kernel.org>
-Suggested-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 04617db7aa68 ("usb: gadget: add SS descriptors to Ethernet gadget")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_fib.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_ether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2519,8 +2519,10 @@ static void *ipv6_route_seq_start(struct
- 	iter->skip = *pos;
- 
- 	if (iter->tbl) {
-+		loff_t p = 0;
-+
- 		ipv6_route_seq_setup_walk(iter, net);
--		return ipv6_route_seq_next(seq, NULL, pos);
-+		return ipv6_route_seq_next(seq, NULL, &p);
- 	} else {
- 		return NULL;
- 	}
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index d5fbc2352029b..589d1f5fb575a 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -97,7 +97,7 @@ struct eth_dev {
+ static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
+ {
+ 	if (gadget_is_dualspeed(gadget) && (gadget->speed == USB_SPEED_HIGH ||
+-					    gadget->speed == USB_SPEED_SUPER))
++					    gadget->speed >= USB_SPEED_SUPER))
+ 		return qmult * DEFAULT_QLEN;
+ 	else
+ 		return DEFAULT_QLEN;
+-- 
+2.25.1
+
 
 
