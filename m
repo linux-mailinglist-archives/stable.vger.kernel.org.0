@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFEFE29BC52
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F52529BDD7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802383AbgJ0PsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:48:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58996 "EHLO mail.kernel.org"
+        id S1812973AbgJ0QrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801314AbgJ0Pjd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:39:33 -0400
+        id S1812771AbgJ0QqE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 12:46:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BBB922282;
-        Tue, 27 Oct 2020 15:39:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C16C221D24;
+        Tue, 27 Oct 2020 16:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813172;
-        bh=AP98eGp6/MNg4qzcE/UqUqXX9goOWOIK5CYUL5+Ux/g=;
+        s=default; t=1603817161;
+        bh=AGgnT3VU0tN8PRDUNoErXd27EhQQyLJIBXAuLpLnuXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYG68TO4L/MAbUWWNA1KcKeAkISyuXEcNLcPcrRSL7qnxRT+tKkO1ljZol+0XiKQ9
-         z5ipoGgb+FCIRpbWP1VbIXpeHUWSOmuUM9vlzmD4v4iG0bS4Tj1gZar0pP+OKddleD
-         nOrHd/78unPpZMm4VMWbmyaPx+9q9NFvq0CyxUFc=
+        b=UtP0FJAwFJhd2WnEqylf24OTAYnq4O2XsdQiUYlj3UFF3px9I5LLWMKAoV+JZrW6a
+         WnYtVltcJIfhrtDWh2DOdF3WcP6IcCPn0x1kSLYo9whE+EjQJZTwhciKTSfC+3VZ3i
+         sYrCuvRwSNvrStajfldOG1b5Gq/opQCGNS0RCeIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Kamal Heib <kheib@redhat.com>,
+        "Sindhu, Devale" <sindhu.devale@intel.com>,
+        "Shiraz, Saleem" <shiraz.saleem@intel.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 461/757] RDMA/mlx5: Make mkeys always owned by the kernels PD when not enabled
-Date:   Tue, 27 Oct 2020 14:51:51 +0100
-Message-Id: <20201027135512.140903645@linuxfoundation.org>
+Subject: [PATCH 5.9 463/757] i40iw: Add support to make destroy QP synchronous
+Date:   Tue, 27 Oct 2020 14:51:53 +0100
+Message-Id: <20201027135512.231972746@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,117 +45,406 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Sindhu, Devale <sindhu.devale@intel.com>
 
-[ Upstream commit 5eb29f0d13a66502b91954597270003c90fb66c5 ]
+[ Upstream commit f2334964e969762e266a616acf9377f6046470a2 ]
 
-Any mkey that is not enabled and assigned to userspace should have the PD
-set to a kernel owned PD.
+Occasionally ib_write_bw crash is seen due to access of a pd object in
+i40iw_sc_qp_destroy after it is freed. Destroy qp is not synchronous in
+i40iw and thus the iwqp object could be referencing a pd object that is
+freed by ib core as a result of successful return from i40iw_destroy_qp.
 
-When cache entries are created for the first time the PDN is set to 0,
-which is probably a kernel PD, but be explicit.
+Wait in i40iw_destroy_qp till all QP references are released and destroy
+the QP and its associated resources before returning.  Switch to use the
+refcount API vs atomic API for lifetime management of the qp.
 
-When a MR is registered using the hybrid reg_create with UMR xlt & enable
-the disabled mkey is pointing at the user PD, keep it pointing at the
-kernel until a UMR enables it and sets the user PD.
+ RIP: 0010:i40iw_sc_qp_destroy+0x4b/0x120 [i40iw]
+ [...]
+ RSP: 0018:ffffb4a7042e3ba8 EFLAGS: 00010002
+ RAX: 0000000000000000 RBX: 0000000000000001 RCX: dead000000000122
+ RDX: ffffb4a7042e3bac RSI: ffff8b7ef9b1e940 RDI: ffff8b7efbf09080
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
+ R10: 8080808080808080 R11: 0000000000000010 R12: ffff8b7efbf08050
+ R13: 0000000000000001 R14: ffff8b7f15042928 R15: ffff8b7ef9b1e940
+ FS:  0000000000000000(0000) GS:ffff8b7f2fa00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000400 CR3: 000000020d60a006 CR4: 00000000001606e0
+ Call Trace:
+  i40iw_exec_cqp_cmd+0x4d3/0x5c0 [i40iw]
+  ? try_to_wake_up+0x1ea/0x5d0
+  ? __switch_to_asm+0x40/0x70
+  i40iw_process_cqp_cmd+0x95/0xa0 [i40iw]
+  i40iw_handle_cqp_op+0x42/0x1a0 [i40iw]
+  ? cm_event_handler+0x13c/0x1f0 [iw_cm]
+  i40iw_rem_ref+0xa0/0xf0 [i40iw]
+  cm_work_handler+0x99c/0xd10 [iw_cm]
+  process_one_work+0x1a1/0x360
+  worker_thread+0x30/0x380
+  ? process_one_work+0x360/0x360
+  kthread+0x10c/0x130
+  ? kthread_park+0x80/0x80
+  ret_from_fork+0x35/0x40
 
-Fixes: 9ec4483a3f0f ("IB/mlx5: Move MRs to a kernel PD when freeing them to the MR cache")
-Link: https://lore.kernel.org/r/20200914112653.345244-4-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+Link: https://lore.kernel.org/r/20200916131811.2077-1-shiraz.saleem@intel.com
+Reported-by: Kamal Heib <kheib@redhat.com>
+Signed-off-by: Sindhu, Devale <sindhu.devale@intel.com>
+Signed-off-by: Shiraz, Saleem <shiraz.saleem@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 51 +++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ drivers/infiniband/hw/i40iw/i40iw.h       |  9 ++--
+ drivers/infiniband/hw/i40iw/i40iw_cm.c    | 10 ++--
+ drivers/infiniband/hw/i40iw/i40iw_hw.c    |  4 +-
+ drivers/infiniband/hw/i40iw/i40iw_utils.c | 59 ++++-------------------
+ drivers/infiniband/hw/i40iw/i40iw_verbs.c | 31 ++++++++----
+ drivers/infiniband/hw/i40iw/i40iw_verbs.h |  3 +-
+ 6 files changed, 45 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index 8f5d36f32529e..6eb40b33e1ea8 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -50,6 +50,29 @@ enum {
- static void
- create_mkey_callback(int status, struct mlx5_async_work *context);
+diff --git a/drivers/infiniband/hw/i40iw/i40iw.h b/drivers/infiniband/hw/i40iw/i40iw.h
+index 25747b85a79c7..832b80de004fb 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw.h
++++ b/drivers/infiniband/hw/i40iw/i40iw.h
+@@ -409,8 +409,8 @@ static inline struct i40iw_qp *to_iwqp(struct ib_qp *ibqp)
+ }
  
-+static void set_mkc_access_pd_addr_fields(void *mkc, int acc, u64 start_addr,
-+					  struct ib_pd *pd)
-+{
-+	struct mlx5_ib_dev *dev = to_mdev(pd->device);
-+
-+	MLX5_SET(mkc, mkc, a, !!(acc & IB_ACCESS_REMOTE_ATOMIC));
-+	MLX5_SET(mkc, mkc, rw, !!(acc & IB_ACCESS_REMOTE_WRITE));
-+	MLX5_SET(mkc, mkc, rr, !!(acc & IB_ACCESS_REMOTE_READ));
-+	MLX5_SET(mkc, mkc, lw, !!(acc & IB_ACCESS_LOCAL_WRITE));
-+	MLX5_SET(mkc, mkc, lr, 1);
-+
-+	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_write))
-+		MLX5_SET(mkc, mkc, relaxed_ordering_write,
-+			 !!(acc & IB_ACCESS_RELAXED_ORDERING));
-+	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_read))
-+		MLX5_SET(mkc, mkc, relaxed_ordering_read,
-+			 !!(acc & IB_ACCESS_RELAXED_ORDERING));
-+
-+	MLX5_SET(mkc, mkc, pd, to_mpd(pd)->pdn);
-+	MLX5_SET(mkc, mkc, qpn, 0xffffff);
-+	MLX5_SET64(mkc, mkc, start_addr, start_addr);
-+}
-+
- static void
- assign_mkey_variant(struct mlx5_ib_dev *dev, struct mlx5_core_mkey *mkey,
- 		    u32 *in)
-@@ -152,12 +175,12 @@ static struct mlx5_ib_mr *alloc_cache_mr(struct mlx5_cache_ent *ent, void *mkc)
- 	mr->cache_ent = ent;
- 	mr->dev = ent->dev;
+ /* i40iw.c */
+-void i40iw_add_ref(struct ib_qp *);
+-void i40iw_rem_ref(struct ib_qp *);
++void i40iw_qp_add_ref(struct ib_qp *ibqp);
++void i40iw_qp_rem_ref(struct ib_qp *ibqp);
+ struct ib_qp *i40iw_get_qp(struct ib_device *, int);
  
-+	set_mkc_access_pd_addr_fields(mkc, 0, 0, ent->dev->umrc.pd);
- 	MLX5_SET(mkc, mkc, free, 1);
- 	MLX5_SET(mkc, mkc, umr_en, 1);
- 	MLX5_SET(mkc, mkc, access_mode_1_0, ent->access_mode & 0x3);
- 	MLX5_SET(mkc, mkc, access_mode_4_2, (ent->access_mode >> 2) & 0x7);
+ void i40iw_flush_wqes(struct i40iw_device *iwdev,
+@@ -554,9 +554,8 @@ enum i40iw_status_code i40iw_manage_qhash(struct i40iw_device *iwdev,
+ 					  bool wait);
+ void i40iw_receive_ilq(struct i40iw_sc_vsi *vsi, struct i40iw_puda_buf *rbuf);
+ void i40iw_free_sqbuf(struct i40iw_sc_vsi *vsi, void *bufp);
+-void i40iw_free_qp_resources(struct i40iw_device *iwdev,
+-			     struct i40iw_qp *iwqp,
+-			     u32 qp_num);
++void i40iw_free_qp_resources(struct i40iw_qp *iwqp);
++
+ enum i40iw_status_code i40iw_obj_aligned_mem(struct i40iw_device *iwdev,
+ 					     struct i40iw_dma_mem *memptr,
+ 					     u32 size, u32 mask);
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+index a3b95805c154e..3053c345a5a34 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+@@ -2322,7 +2322,7 @@ static void i40iw_rem_ref_cm_node(struct i40iw_cm_node *cm_node)
+ 	iwqp = cm_node->iwqp;
+ 	if (iwqp) {
+ 		iwqp->cm_node = NULL;
+-		i40iw_rem_ref(&iwqp->ibqp);
++		i40iw_qp_rem_ref(&iwqp->ibqp);
+ 		cm_node->iwqp = NULL;
+ 	} else if (cm_node->qhash_set) {
+ 		i40iw_get_addr_info(cm_node, &nfo);
+@@ -3452,7 +3452,7 @@ void i40iw_cm_disconn(struct i40iw_qp *iwqp)
+ 		kfree(work);
+ 		return;
+ 	}
+-	i40iw_add_ref(&iwqp->ibqp);
++	i40iw_qp_add_ref(&iwqp->ibqp);
+ 	spin_unlock_irqrestore(&iwdev->qptable_lock, flags);
  
--	MLX5_SET(mkc, mkc, qpn, 0xffffff);
- 	MLX5_SET(mkc, mkc, translations_octword_size, ent->xlt);
- 	MLX5_SET(mkc, mkc, log_page_size, ent->page);
- 	return mr;
-@@ -774,29 +797,6 @@ int mlx5_mr_cache_cleanup(struct mlx5_ib_dev *dev)
+ 	work->iwqp = iwqp;
+@@ -3623,7 +3623,7 @@ static void i40iw_disconnect_worker(struct work_struct *work)
+ 
+ 	kfree(dwork);
+ 	i40iw_cm_disconn_true(iwqp);
+-	i40iw_rem_ref(&iwqp->ibqp);
++	i40iw_qp_rem_ref(&iwqp->ibqp);
+ }
+ 
+ /**
+@@ -3745,7 +3745,7 @@ int i40iw_accept(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
+ 	cm_node->lsmm_size = accept.size + conn_param->private_data_len;
+ 	i40iw_cm_init_tsa_conn(iwqp, cm_node);
+ 	cm_id->add_ref(cm_id);
+-	i40iw_add_ref(&iwqp->ibqp);
++	i40iw_qp_add_ref(&iwqp->ibqp);
+ 
+ 	attr.qp_state = IB_QPS_RTS;
+ 	cm_node->qhash_set = false;
+@@ -3908,7 +3908,7 @@ int i40iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
+ 	iwqp->cm_node = cm_node;
+ 	cm_node->iwqp = iwqp;
+ 	iwqp->cm_id = cm_id;
+-	i40iw_add_ref(&iwqp->ibqp);
++	i40iw_qp_add_ref(&iwqp->ibqp);
+ 
+ 	if (cm_node->state != I40IW_CM_STATE_OFFLOADED) {
+ 		cm_node->state = I40IW_CM_STATE_SYN_SENT;
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_hw.c b/drivers/infiniband/hw/i40iw/i40iw_hw.c
+index e1085634b8d9d..56fdc161f6f8e 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_hw.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_hw.c
+@@ -313,7 +313,7 @@ void i40iw_process_aeq(struct i40iw_device *iwdev)
+ 					    __func__, info->qp_cq_id);
+ 				continue;
+ 			}
+-			i40iw_add_ref(&iwqp->ibqp);
++			i40iw_qp_add_ref(&iwqp->ibqp);
+ 			spin_unlock_irqrestore(&iwdev->qptable_lock, flags);
+ 			qp = &iwqp->sc_qp;
+ 			spin_lock_irqsave(&iwqp->lock, flags);
+@@ -426,7 +426,7 @@ void i40iw_process_aeq(struct i40iw_device *iwdev)
+ 			break;
+ 		}
+ 		if (info->qp)
+-			i40iw_rem_ref(&iwqp->ibqp);
++			i40iw_qp_rem_ref(&iwqp->ibqp);
+ 	} while (1);
+ 
+ 	if (aeqcnt)
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_utils.c b/drivers/infiniband/hw/i40iw/i40iw_utils.c
+index e07fb37af0865..5e196bd49a583 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_utils.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_utils.c
+@@ -477,25 +477,6 @@ void i40iw_cleanup_pending_cqp_op(struct i40iw_device *iwdev)
+ 	}
+ }
+ 
+-/**
+- * i40iw_free_qp - callback after destroy cqp completes
+- * @cqp_request: cqp request for destroy qp
+- * @num: not used
+- */
+-static void i40iw_free_qp(struct i40iw_cqp_request *cqp_request, u32 num)
+-{
+-	struct i40iw_sc_qp *qp = (struct i40iw_sc_qp *)cqp_request->param;
+-	struct i40iw_qp *iwqp = (struct i40iw_qp *)qp->back_qp;
+-	struct i40iw_device *iwdev;
+-	u32 qp_num = iwqp->ibqp.qp_num;
+-
+-	iwdev = iwqp->iwdev;
+-
+-	i40iw_rem_pdusecount(iwqp->iwpd, iwdev);
+-	i40iw_free_qp_resources(iwdev, iwqp, qp_num);
+-	i40iw_rem_devusecount(iwdev);
+-}
+-
+ /**
+  * i40iw_wait_event - wait for completion
+  * @iwdev: iwarp device
+@@ -616,26 +597,23 @@ void i40iw_rem_pdusecount(struct i40iw_pd *iwpd, struct i40iw_device *iwdev)
+ }
+ 
+ /**
+- * i40iw_add_ref - add refcount for qp
++ * i40iw_qp_add_ref - add refcount for qp
+  * @ibqp: iqarp qp
+  */
+-void i40iw_add_ref(struct ib_qp *ibqp)
++void i40iw_qp_add_ref(struct ib_qp *ibqp)
+ {
+ 	struct i40iw_qp *iwqp = (struct i40iw_qp *)ibqp;
+ 
+-	atomic_inc(&iwqp->refcount);
++	refcount_inc(&iwqp->refcount);
+ }
+ 
+ /**
+- * i40iw_rem_ref - rem refcount for qp and free if 0
++ * i40iw_qp_rem_ref - rem refcount for qp and free if 0
+  * @ibqp: iqarp qp
+  */
+-void i40iw_rem_ref(struct ib_qp *ibqp)
++void i40iw_qp_rem_ref(struct ib_qp *ibqp)
+ {
+ 	struct i40iw_qp *iwqp;
+-	enum i40iw_status_code status;
+-	struct i40iw_cqp_request *cqp_request;
+-	struct cqp_commands_info *cqp_info;
+ 	struct i40iw_device *iwdev;
+ 	u32 qp_num;
+ 	unsigned long flags;
+@@ -643,7 +621,7 @@ void i40iw_rem_ref(struct ib_qp *ibqp)
+ 	iwqp = to_iwqp(ibqp);
+ 	iwdev = iwqp->iwdev;
+ 	spin_lock_irqsave(&iwdev->qptable_lock, flags);
+-	if (!atomic_dec_and_test(&iwqp->refcount)) {
++	if (!refcount_dec_and_test(&iwqp->refcount)) {
+ 		spin_unlock_irqrestore(&iwdev->qptable_lock, flags);
+ 		return;
+ 	}
+@@ -651,25 +629,8 @@ void i40iw_rem_ref(struct ib_qp *ibqp)
+ 	qp_num = iwqp->ibqp.qp_num;
+ 	iwdev->qp_table[qp_num] = NULL;
+ 	spin_unlock_irqrestore(&iwdev->qptable_lock, flags);
+-	cqp_request = i40iw_get_cqp_request(&iwdev->cqp, false);
+-	if (!cqp_request)
+-		return;
+-
+-	cqp_request->callback_fcn = i40iw_free_qp;
+-	cqp_request->param = (void *)&iwqp->sc_qp;
+-	cqp_info = &cqp_request->info;
+-	cqp_info->cqp_cmd = OP_QP_DESTROY;
+-	cqp_info->post_sq = 1;
+-	cqp_info->in.u.qp_destroy.qp = &iwqp->sc_qp;
+-	cqp_info->in.u.qp_destroy.scratch = (uintptr_t)cqp_request;
+-	cqp_info->in.u.qp_destroy.remove_hash_idx = true;
+-	status = i40iw_handle_cqp_op(iwdev, cqp_request);
+-	if (!status)
+-		return;
++	complete(&iwqp->free_qp);
+ 
+-	i40iw_rem_pdusecount(iwqp->iwpd, iwdev);
+-	i40iw_free_qp_resources(iwdev, iwqp, qp_num);
+-	i40iw_rem_devusecount(iwdev);
+ }
+ 
+ /**
+@@ -936,7 +897,7 @@ static void i40iw_terminate_timeout(struct timer_list *t)
+ 	struct i40iw_sc_qp *qp = (struct i40iw_sc_qp *)&iwqp->sc_qp;
+ 
+ 	i40iw_terminate_done(qp, 1);
+-	i40iw_rem_ref(&iwqp->ibqp);
++	i40iw_qp_rem_ref(&iwqp->ibqp);
+ }
+ 
+ /**
+@@ -948,7 +909,7 @@ void i40iw_terminate_start_timer(struct i40iw_sc_qp *qp)
+ 	struct i40iw_qp *iwqp;
+ 
+ 	iwqp = (struct i40iw_qp *)qp->back_qp;
+-	i40iw_add_ref(&iwqp->ibqp);
++	i40iw_qp_add_ref(&iwqp->ibqp);
+ 	timer_setup(&iwqp->terminate_timer, i40iw_terminate_timeout, 0);
+ 	iwqp->terminate_timer.expires = jiffies + HZ;
+ 	add_timer(&iwqp->terminate_timer);
+@@ -964,7 +925,7 @@ void i40iw_terminate_del_timer(struct i40iw_sc_qp *qp)
+ 
+ 	iwqp = (struct i40iw_qp *)qp->back_qp;
+ 	if (del_timer(&iwqp->terminate_timer))
+-		i40iw_rem_ref(&iwqp->ibqp);
++		i40iw_qp_rem_ref(&iwqp->ibqp);
+ }
+ 
+ /**
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+index 1321e3a36491b..09caad228aa4f 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -363,11 +363,11 @@ static struct i40iw_pbl *i40iw_get_pbl(unsigned long va,
+  * @iwqp: qp ptr (user or kernel)
+  * @qp_num: qp number assigned
+  */
+-void i40iw_free_qp_resources(struct i40iw_device *iwdev,
+-			     struct i40iw_qp *iwqp,
+-			     u32 qp_num)
++void i40iw_free_qp_resources(struct i40iw_qp *iwqp)
+ {
+ 	struct i40iw_pbl *iwpbl = &iwqp->iwpbl;
++	struct i40iw_device *iwdev = iwqp->iwdev;
++	u32 qp_num = iwqp->ibqp.qp_num;
+ 
+ 	i40iw_ieq_cleanup_qp(iwdev->vsi.ieq, &iwqp->sc_qp);
+ 	i40iw_dealloc_push_page(iwdev, &iwqp->sc_qp);
+@@ -401,6 +401,10 @@ static void i40iw_clean_cqes(struct i40iw_qp *iwqp, struct i40iw_cq *iwcq)
+ static int i40iw_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
+ {
+ 	struct i40iw_qp *iwqp = to_iwqp(ibqp);
++	struct ib_qp_attr attr;
++	struct i40iw_device *iwdev = iwqp->iwdev;
++
++	memset(&attr, 0, sizeof(attr));
+ 
+ 	iwqp->destroyed = 1;
+ 
+@@ -415,7 +419,15 @@ static int i40iw_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
+ 		}
+ 	}
+ 
+-	i40iw_rem_ref(&iwqp->ibqp);
++	attr.qp_state = IB_QPS_ERR;
++	i40iw_modify_qp(&iwqp->ibqp, &attr, IB_QP_STATE, NULL);
++	i40iw_qp_rem_ref(&iwqp->ibqp);
++	wait_for_completion(&iwqp->free_qp);
++	i40iw_cqp_qp_destroy_cmd(&iwdev->sc_dev, &iwqp->sc_qp);
++	i40iw_rem_pdusecount(iwqp->iwpd, iwdev);
++	i40iw_free_qp_resources(iwqp);
++	i40iw_rem_devusecount(iwdev);
++
  	return 0;
  }
  
--static void set_mkc_access_pd_addr_fields(void *mkc, int acc, u64 start_addr,
--					  struct ib_pd *pd)
--{
--	struct mlx5_ib_dev *dev = to_mdev(pd->device);
--
--	MLX5_SET(mkc, mkc, a, !!(acc & IB_ACCESS_REMOTE_ATOMIC));
--	MLX5_SET(mkc, mkc, rw, !!(acc & IB_ACCESS_REMOTE_WRITE));
--	MLX5_SET(mkc, mkc, rr, !!(acc & IB_ACCESS_REMOTE_READ));
--	MLX5_SET(mkc, mkc, lw, !!(acc & IB_ACCESS_LOCAL_WRITE));
--	MLX5_SET(mkc, mkc, lr, 1);
--
--	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_write))
--		MLX5_SET(mkc, mkc, relaxed_ordering_write,
--			 !!(acc & IB_ACCESS_RELAXED_ORDERING));
--	if (MLX5_CAP_GEN(dev->mdev, relaxed_ordering_read))
--		MLX5_SET(mkc, mkc, relaxed_ordering_read,
--			 !!(acc & IB_ACCESS_RELAXED_ORDERING));
--
--	MLX5_SET(mkc, mkc, pd, to_mpd(pd)->pdn);
--	MLX5_SET(mkc, mkc, qpn, 0xffffff);
--	MLX5_SET64(mkc, mkc, start_addr, start_addr);
--}
--
- struct ib_mr *mlx5_ib_get_dma_mr(struct ib_pd *pd, int acc)
- {
- 	struct mlx5_ib_dev *dev = to_mdev(pd->device);
-@@ -1190,7 +1190,8 @@ static struct mlx5_ib_mr *reg_create(struct ib_mr *ibmr, struct ib_pd *pd,
- 	MLX5_SET(create_mkey_in, in, pg_access, !!(pg_cap));
+@@ -576,6 +588,7 @@ static struct ib_qp *i40iw_create_qp(struct ib_pd *ibpd,
+ 	qp->back_qp = (void *)iwqp;
+ 	qp->push_idx = I40IW_INVALID_PUSH_PAGE_INDEX;
  
- 	mkc = MLX5_ADDR_OF(create_mkey_in, in, memory_key_mkey_entry);
--	set_mkc_access_pd_addr_fields(mkc, access_flags, virt_addr, pd);
-+	set_mkc_access_pd_addr_fields(mkc, access_flags, virt_addr,
-+				      populate ? pd : dev->umrc.pd);
- 	MLX5_SET(mkc, mkc, free, !populate);
- 	MLX5_SET(mkc, mkc, access_mode_1_0, MLX5_MKC_ACCESS_MODE_MTT);
- 	MLX5_SET(mkc, mkc, umr_en, 1);
++	iwqp->iwdev = iwdev;
+ 	iwqp->ctx_info.iwarp_info = &iwqp->iwarp_info;
+ 
+ 	if (i40iw_allocate_dma_mem(dev->hw,
+@@ -600,7 +613,6 @@ static struct ib_qp *i40iw_create_qp(struct ib_pd *ibpd,
+ 		goto error;
+ 	}
+ 
+-	iwqp->iwdev = iwdev;
+ 	iwqp->iwpd = iwpd;
+ 	iwqp->ibqp.qp_num = qp_num;
+ 	qp = &iwqp->sc_qp;
+@@ -714,7 +726,7 @@ static struct ib_qp *i40iw_create_qp(struct ib_pd *ibpd,
+ 		goto error;
+ 	}
+ 
+-	i40iw_add_ref(&iwqp->ibqp);
++	refcount_set(&iwqp->refcount, 1);
+ 	spin_lock_init(&iwqp->lock);
+ 	iwqp->sig_all = (init_attr->sq_sig_type == IB_SIGNAL_ALL_WR) ? 1 : 0;
+ 	iwdev->qp_table[qp_num] = iwqp;
+@@ -736,10 +748,11 @@ static struct ib_qp *i40iw_create_qp(struct ib_pd *ibpd,
+ 	}
+ 	init_completion(&iwqp->sq_drained);
+ 	init_completion(&iwqp->rq_drained);
++	init_completion(&iwqp->free_qp);
+ 
+ 	return &iwqp->ibqp;
+ error:
+-	i40iw_free_qp_resources(iwdev, iwqp, qp_num);
++	i40iw_free_qp_resources(iwqp);
+ 	return ERR_PTR(err_code);
+ }
+ 
+@@ -2637,13 +2650,13 @@ static const struct ib_device_ops i40iw_dev_ops = {
+ 	.get_hw_stats = i40iw_get_hw_stats,
+ 	.get_port_immutable = i40iw_port_immutable,
+ 	.iw_accept = i40iw_accept,
+-	.iw_add_ref = i40iw_add_ref,
++	.iw_add_ref = i40iw_qp_add_ref,
+ 	.iw_connect = i40iw_connect,
+ 	.iw_create_listen = i40iw_create_listen,
+ 	.iw_destroy_listen = i40iw_destroy_listen,
+ 	.iw_get_qp = i40iw_get_qp,
+ 	.iw_reject = i40iw_reject,
+-	.iw_rem_ref = i40iw_rem_ref,
++	.iw_rem_ref = i40iw_qp_rem_ref,
+ 	.map_mr_sg = i40iw_map_mr_sg,
+ 	.mmap = i40iw_mmap,
+ 	.modify_qp = i40iw_modify_qp,
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.h b/drivers/infiniband/hw/i40iw/i40iw_verbs.h
+index 331bc21cbcc73..bab71f3e56374 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.h
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.h
+@@ -139,7 +139,7 @@ struct i40iw_qp {
+ 	struct i40iw_qp_host_ctx_info ctx_info;
+ 	struct i40iwarp_offload_info iwarp_info;
+ 	void *allocated_buffer;
+-	atomic_t refcount;
++	refcount_t refcount;
+ 	struct iw_cm_id *cm_id;
+ 	void *cm_node;
+ 	struct ib_mr *lsmm_mr;
+@@ -174,5 +174,6 @@ struct i40iw_qp {
+ 	struct i40iw_dma_mem ietf_mem;
+ 	struct completion sq_drained;
+ 	struct completion rq_drained;
++	struct completion free_qp;
+ };
+ #endif
 -- 
 2.25.1
 
