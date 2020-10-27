@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF43529C5FD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1996829C6AE
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825588AbgJ0SLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
+        id S1827175AbgJ0SV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756874AbgJ0OOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:52 -0400
+        id S2438662AbgJ0OBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 534482076A;
-        Tue, 27 Oct 2020 14:14:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85105221F8;
+        Tue, 27 Oct 2020 14:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808091;
-        bh=wwcSHnEGzPMRuAF0NbOb9fwXJ3eDhP46kueuiqZkXOc=;
+        s=default; t=1603807311;
+        bh=SBkxYVyJD6g5LSEeSgtiHjd3WiPlaeyAddD+i1RKgXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/lsuRtKQlDWOlMiW5P67DaX7wD6C49jBxzS27zUAdzdq+3qpDR4v/P0ZDyikr5aS
-         BpFptiiHx6VGUGePphs0fd1vMMi0dIkPJSpf96oXt6eRrhEV5ZQH2gQLtHRfhqoaCj
-         iUld0j6KJagsu1tA6VDMYpEQRHbq8gMg0rbt0te0=
+        b=qG5LaAfihf4iXQAekV/ShmUMUEJIp+31Csibo7e/L64u+MY8Owg6Pde9Mj2ZXQsk/
+         qR9D8ZE9PFLJ2DOkaYHkfViwv8pA4jfLCNOH1OK8Sj4IUarrjVmp1BhPYYlOU3i4Fj
+         GMGefhHkrx/2sIOS7W+b3jK6+8FnepLzx4EwHsiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 154/191] ntfs: add check for mft record size in superblock
-Date:   Tue, 27 Oct 2020 14:50:09 +0100
-Message-Id: <20201027134917.112230135@linuxfoundation.org>
+Subject: [PATCH 4.4 100/112] scsi: ibmvfc: Fix error return in ibmvfc_probe()
+Date:   Tue, 27 Oct 2020 14:50:10 +0100
+Message-Id: <20201027134905.273216624@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
+[ Upstream commit 5e48a084f4e824e1b624d3fd7ddcf53d2ba69e53 ]
 
-Number of bytes allocated for mft record should be equal to the mft record
-size stored in ntfs superblock as reported by syzbot, userspace might
-trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
+Fix to return error code PTR_ERR() from the error handling case instead of
+0.
 
-Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
-Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20200907083949.154251-1-jingxiangfeng@huawei.com
+Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index 7c410f8794124..2aa073b82d30f 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1844,6 +1844,12 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		brelse(bh);
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index 0526a47e30a3f..db80ab8335dfb 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -4790,6 +4790,7 @@ static int ibmvfc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 	if (IS_ERR(vhost->work_thread)) {
+ 		dev_err(dev, "Couldn't create kernel thread: %ld\n",
+ 			PTR_ERR(vhost->work_thread));
++		rc = PTR_ERR(vhost->work_thread);
+ 		goto free_host_mem;
  	}
  
-+	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
-+		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
-+				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
-+		goto err_out;
-+	}
-+
- 	/* Apply the mst fixups. */
- 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
- 		/* FIXME: Try to use the $MFTMirr now. */
 -- 
 2.25.1
 
