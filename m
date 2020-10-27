@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EAE299D54
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:06:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA086299F29
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:21:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388454AbgJ0AFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388587AbgJ0AFx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Oct 2020 20:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53804 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437977AbgJ0AE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:04:57 -0400
+        id S2438009AbgJ0AE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:04:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E985F20791;
-        Tue, 27 Oct 2020 00:04:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11FEF217A0;
+        Tue, 27 Oct 2020 00:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757096;
-        bh=2j/b6mqE21o2lEqB9iutum6WbvTtnPHA/8iRdy7Fbys=;
+        s=default; t=1603757097;
+        bh=enY7JVLpF4ILTIjaBugz5o/RjfpPcWGkpgiAfoxAgw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gn0andU8LsaRxb8QtwmyIWq0hNg1GXaaUQrGoCYnIk4PwwZfNcIJBik8H7V/uFqXK
-         PI5TKPqwm5HTr/NyWPM77/c3qOz/4C1Mt0tuz5w/QqpCnT20I1sRZ88tJ2yRbwDuYv
-         ZP+J/buecfRF6VOKWulimFEI6k77QP20j24eiuFI=
+        b=TrnRy7NnH8f4ajDhztlh20Ma1Hh1QgtIsille8xI/uBQOpCb89jVBc/+8s2MjWrg6
+         FrCCu3xiULC4Pt7CzjipM+iRHlmbiYUlqedUbMFtP08lG5U7Kr72hxow43sfw2EkpD
+         a1oPExGWO+clgRrcy7qYzO6Mexl6tke3rnx1IMpg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 34/60] xfs: don't free rt blocks when we're doing a REMAP bunmapi call
-Date:   Mon, 26 Oct 2020 20:03:49 -0400
-Message-Id: <20201027000415.1026364-34-sashal@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 35/60] ACPI: Add out of bounds and numa_off protections to pxm_to_node()
+Date:   Mon, 26 Oct 2020 20:03:50 -0400
+Message-Id: <20201027000415.1026364-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
 References: <20201027000415.1026364-1-sashal@kernel.org>
@@ -43,61 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 8df0fa39bdd86ca81a8d706a6ed9d33cc65ca625 ]
+[ Upstream commit 8a3decac087aa897df5af04358c2089e52e70ac4 ]
 
-When callers pass XFS_BMAPI_REMAP into xfs_bunmapi, they want the extent
-to be unmapped from the given file fork without the extent being freed.
-We do this for non-rt files, but we forgot to do this for realtime
-files.  So far this isn't a big deal since nobody makes a bunmapi call
-to a rt file with the REMAP flag set, but don't leave a logic bomb.
+The function should check the validity of the pxm value before using
+it to index the pxm_to_node_map[] array.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Whilst hardening this code may be good in general, the main intent
+here is to enable following patches that use this function to replace
+acpi_map_pxm_to_node() for non SRAT usecases which should return
+NO_NUMA_NODE for PXM entries not matching with those in SRAT.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Barry Song <song.bao.hua@hisilicon.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/acpi/numa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index f35e1801f1c90..fc9950a505e62 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -4920,20 +4920,25 @@ xfs_bmap_del_extent_real(
+diff --git a/drivers/acpi/numa.c b/drivers/acpi/numa.c
+index 0da58f0bf7e59..a28ff3cfbc296 100644
+--- a/drivers/acpi/numa.c
++++ b/drivers/acpi/numa.c
+@@ -46,7 +46,7 @@ int acpi_numa __initdata;
  
- 	flags = XFS_ILOG_CORE;
- 	if (whichfork == XFS_DATA_FORK && XFS_IS_REALTIME_INODE(ip)) {
--		xfs_fsblock_t	bno;
- 		xfs_filblks_t	len;
- 		xfs_extlen_t	mod;
- 
--		bno = div_u64_rem(del->br_startblock, mp->m_sb.sb_rextsize,
--				  &mod);
--		ASSERT(mod == 0);
- 		len = div_u64_rem(del->br_blockcount, mp->m_sb.sb_rextsize,
- 				  &mod);
- 		ASSERT(mod == 0);
- 
--		error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
--		if (error)
--			goto done;
-+		if (!(bflags & XFS_BMAPI_REMAP)) {
-+			xfs_fsblock_t	bno;
-+
-+			bno = div_u64_rem(del->br_startblock,
-+					mp->m_sb.sb_rextsize, &mod);
-+			ASSERT(mod == 0);
-+
-+			error = xfs_rtfree_extent(tp, bno, (xfs_extlen_t)len);
-+			if (error)
-+				goto done;
-+		}
-+
- 		do_fx = 0;
- 		nblks = len * mp->m_sb.sb_rextsize;
- 		qfield = XFS_TRANS_DQ_RTBCOUNT;
+ int pxm_to_node(int pxm)
+ {
+-	if (pxm < 0)
++	if (pxm < 0 || pxm >= MAX_PXM_DOMAINS || numa_off)
+ 		return NUMA_NO_NODE;
+ 	return pxm_to_node_map[pxm];
+ }
 -- 
 2.25.1
 
