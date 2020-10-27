@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1163E29C091
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F57029C100
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818034AbgJ0RQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
+        id S1818021AbgJ0RQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1771581AbgJ0Oz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:55:29 -0400
+        id S1781302AbgJ0Ozd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:55:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5593B222EA;
-        Tue, 27 Oct 2020 14:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0B7E2071A;
+        Tue, 27 Oct 2020 14:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810527;
-        bh=SLhEyF3hgDlogsJ6Uca8qPk92jkYmsXIc7BMuHkNdsI=;
+        s=default; t=1603810533;
+        bh=K3jEGwLrdgANAaMUzoUcu2fC9MxVd3UElz8G4lSMyPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZScKkKelBU8AAPvp6T/EMYQXWQecjTbaEdgolO/atuk+6I220oSF+DBiTYleKe1dN
-         QpfXVq/qvCfqC4MzDMlYjJGs+s0nO9vOS2t1bQQl2Cc0YKOu85UCNAKCSAqbpXd2t/
-         FgseyybHleXCAbUdE796MbmsAolJ0PIlPoUC//0s=
+        b=Hp5UVEJSNqcvSh8EY3DYMtbpzlvx3cQ7tFiMVrV+rGSUsENlemjnXg4oSRJiJ5lZj
+         i+RpGJ6yg8Zdl6OB7ZoEE6HU6dd3pK/tP/IKv0Ba6tdtN4ieYKOObbJWf2PKtaIs+j
+         XEDFz1Qyixq0sJ6SYKx/X+3TJ3Xwzw1nm1wXIouk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 170/633] staging: rtl8192u: Do not use GFP_KERNEL in atomic context
-Date:   Tue, 27 Oct 2020 14:48:33 +0100
-Message-Id: <20201027135530.647714740@linuxfoundation.org>
+Subject: [PATCH 5.8 171/633] drm/amd/display: fix potential integer overflow when shifting 32 bit variable bl_pwm
+Date:   Tue, 27 Oct 2020 14:48:34 +0100
+Message-Id: <20201027135530.696278783@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,45 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit acac75bb451fd39344eb54fad6602dfc9482e970 ]
+[ Upstream commit 1d5503331b12a76266049289747dfd94f1643fde ]
 
-'rtl8192_irq_rx_tasklet()' is a tasklet initialized in
-'rtl8192_init_priv_task()'.
->From this function it is possible to allocate some memory with the
-GFP_KERNEL flag, which is not allowed in the atomic context of a tasklet.
+The 32 bit unsigned integer bl_pwm is being shifted using 32 bit arithmetic
+and then being assigned to a 64 bit unsigned integer.  There is a potential
+for a 32 bit overflow so cast bl_pwm to enforce a 64 bit shift operation
+to avoid this.
 
-Use GFP_ATOMIC instead.
-
-The call chain is:
-  rtl8192_irq_rx_tasklet            (in r8192U_core.c)
-    --> rtl8192_rx_nomal            (in r8192U_core.c)
-      --> ieee80211_rx              (in ieee80211/ieee80211_rx.c)
-        --> RxReorderIndicatePacket (in ieee80211/ieee80211_rx.c)
-
-Fixes: 79a5ccd97209 ("staging: rtl8192u: fix large frame size compiler warning")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20200813173458.758284-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("unintentional integer overflow")
+Fixes: 3ba01817365c ("drm/amd/display: Move panel_cntl specific register from abm to panel_cntl.")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 2 +-
+ drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-index 195d963c4fbb4..b6fee7230ce05 100644
---- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-+++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-@@ -597,7 +597,7 @@ static void RxReorderIndicatePacket(struct ieee80211_device *ieee,
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.c b/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.c
+index ebff9b1e312e5..124c081a0f2ca 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.c
+@@ -75,7 +75,7 @@ static unsigned int calculate_16_bit_backlight_from_pwm(struct dce_panel_cntl *d
+ 	else
+ 		bl_pwm &= 0xFFFF;
  
- 	prxbIndicateArray = kmalloc_array(REORDER_WIN_SIZE,
- 					  sizeof(struct ieee80211_rxb *),
--					  GFP_KERNEL);
-+					  GFP_ATOMIC);
- 	if (!prxbIndicateArray)
- 		return;
+-	current_backlight = bl_pwm << (1 + bl_int_count);
++	current_backlight = (uint64_t)bl_pwm << (1 + bl_int_count);
  
+ 	if (bl_period == 0)
+ 		bl_period = 0xFFFF;
 -- 
 2.25.1
 
