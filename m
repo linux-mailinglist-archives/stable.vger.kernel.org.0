@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CBF29B23B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7E329B239
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761356AbgJ0OjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:39:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38434 "EHLO mail.kernel.org"
+        id S1761373AbgJ0OjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761369AbgJ0OjK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:39:10 -0400
+        id S1761371AbgJ0OjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:39:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95834206B2;
-        Tue, 27 Oct 2020 14:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49A16207BB;
+        Tue, 27 Oct 2020 14:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809549;
-        bh=IvND95GBLZEuAHJ61yF4+ncQOUBoXxn2dVgElRHcMeE=;
+        s=default; t=1603809551;
+        bh=TD40MBMZ2sX+lcUHuoTWd/myMM6oP2GIizb978InVx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpAVDz16U+t0aIJpMWpNfNeuqri+CiR9FClm8wFUzsKe2M91gldElKB33hWfq+SKT
-         AJLvY5Ja8H99rvJqLr4s1Hl0fnxPWfljx5bWUvKhIdeGTH+9KK8tZLcs2QRQmDnT+G
-         L1g/MEWakDdL1qQGLgc7Wj1RhqumD6A8jlEUg3WE=
+        b=Q2CRSiY1+7CgxgPhPcw/zEgGIJ2kaXvDC6XWQPp6I7L/XaALCB4LX6/IjdtWz+/sE
+         ymkLhqM3w7lgAXdpIoKFWhrTg8NrYbHvba95dVdYnc6L/7xfsZqKtIBoK0QebkQzEm
+         NdQRpekMfRQAun5KdlHmDsmRfZwFYDpTi8WpXCoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 235/408] perf stat: Skip duration_time in setup_system_wide
-Date:   Tue, 27 Oct 2020 14:52:53 +0100
-Message-Id: <20201027135505.960416652@linuxfoundation.org>
+Subject: [PATCH 5.4 236/408] RDMA/hns: Fix the wrong value of rnr_retry when querying qp
+Date:   Tue, 27 Oct 2020 14:52:54 +0100
+Message-Id: <20201027135506.001607909@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -48,73 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Wenpeng Liang <liangwenpeng@huawei.com>
 
-[ Upstream commit 002a3d690f95804bdef6b70b26154103518e13d9 ]
+[ Upstream commit 99fcf82521d91468ee6115a3c253aa032dc63cbc ]
 
-Some metrics (such as DRAM_BW_Use) consists of uncore events and
-duration_time. For uncore events, counter->core.system_wide is true. But
-for duration_time, counter->core.system_wide is false so
-target.system_wide is set to false.
+The rnr_retry returned to the user is not correct, it should be got from
+another fields in QPC.
 
-Then 'enable_on_exec' is set in perf_event_attr of uncore event.  Kernel
-will return error when trying to open the uncore event.
-
-This patch skips the duration_time in setup_system_wide then
-target.system_wide will be set to true for the evlist of uncore events +
-duration_time.
-
-Before (tested on skylake desktop):
-
-  # perf stat -M DRAM_BW_Use -- sleep 1
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (arb/event=0x84,umask=0x1/).
-  /bin/dmesg | grep -i perf may provide additional information.
-
-After:
-
-  # perf stat -M DRAM_BW_Use -- sleep 1
-
-   Performance counter stats for 'system wide':
-
-                169      arb/event=0x84,umask=0x1/ #     0.00 DRAM_BW_Use
-             40,427      arb/event=0x81,umask=0x1/
-      1,000,902,197 ns   duration_time
-
-        1.000902197 seconds time elapsed
-
-Fixes: e3ba76deef23064f ("perf tools: Force uncore events to system wide monitoring")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200922015004.30114-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: bfe860351e31 ("RDMA/hns: Fix cast from or to restricted __le32 for driver")
+Link: https://lore.kernel.org/r/1600509802-44382-7-git-send-email-liweihang@huawei.com
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 4 +++-
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index ac2feddc75fdd..ea183922c4ef1 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -1671,8 +1671,10 @@ static void setup_system_wide(int forks)
- 		struct evsel *counter;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 0502c90c83edd..def266626223a 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4616,7 +4616,9 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
+ 	qp_attr->retry_cnt = roce_get_field(context.byte_212_lsn,
+ 					    V2_QPC_BYTE_212_RETRY_CNT_M,
+ 					    V2_QPC_BYTE_212_RETRY_CNT_S);
+-	qp_attr->rnr_retry = le32_to_cpu(context.rq_rnr_timer);
++	qp_attr->rnr_retry = roce_get_field(context.byte_244_rnr_rxack,
++					    V2_QPC_BYTE_244_RNR_CNT_M,
++					    V2_QPC_BYTE_244_RNR_CNT_S);
  
- 		evlist__for_each_entry(evsel_list, counter) {
--			if (!counter->core.system_wide)
-+			if (!counter->core.system_wide &&
-+			    strcmp(counter->name, "duration_time")) {
- 				return;
-+			}
- 		}
- 
- 		if (evsel_list->core.nr_entries)
+ done:
+ 	qp_attr->cur_qp_state = qp_attr->qp_state;
 -- 
 2.25.1
 
