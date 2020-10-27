@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2888329BBED
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7A529BE3F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802678AbgJ0Puw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43312 "EHLO mail.kernel.org"
+        id S1789664AbgJ0PLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802288AbgJ0PqI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:46:08 -0400
+        id S1794319AbgJ0PLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:11:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9F8E22265;
-        Tue, 27 Oct 2020 15:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E81F222EA;
+        Tue, 27 Oct 2020 15:11:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813567;
-        bh=P+rvPUgbEwcdDyz9Pbrlt1PkHnz47D0R2R74gg+qizA=;
+        s=default; t=1603811470;
+        bh=swjl4p7RllGljrdM008F8gqHzyP1dgi3X4kHCB5vjAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+WurZP2xWAfIEJpFuXR1hS0g/QcHerlTQIp1C3j7z6MXRLOiZWAsb3SicMiZ3pAZ
-         wFT7SKSPWNAG5jSOibSNQh/eZp6egzzxCd9RP65AZ0xncxPRsuFaC2xG/ZxkyErL+K
-         gh5MSldg/JQSBywRwucShnYn1gRydW+TrhNrdsMY=
+        b=1ZEYXtDxwb25He2/0Mz79VC1uXEgLvEaUqEz8rKOIk9MMH/wEALJBcTT4hPtxWjAh
+         97mhkpdOgTG6fbWGjQO+sc+Vb+kM+6TKaatbRMoR/TgW/EMBAdqr8XbLcZho+z9NDy
+         fMSDsOaTYU6s6GY+RTFbmDbvG0uAdmJP6ZPLOeio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 595/757] arm64: dts: qcom: sc7180: Fix the LLCC base register size
-Date:   Tue, 27 Oct 2020 14:54:05 +0100
-Message-Id: <20201027135518.448387763@linuxfoundation.org>
+Subject: [PATCH 5.8 504/633] ARM: dts: owl-s500: Fix incorrect PPI interrupt specifiers
+Date:   Tue, 27 Oct 2020 14:54:07 +0100
+Message-Id: <20201027135546.374063560@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit efe788361f72914017515223414d3f20abe4b403 ]
+[ Upstream commit 55f6c9931f7c32f19cf221211f099dfd8dab3af9 ]
 
-There is one LLCC logical bank(LLCC0) on SC7180 SoC and the
-size of the LLCC0 base is 0x50000(320KB) not 2MB, so correct
-the size and fix copy paste mistake carried over from SDM845.
+The PPI interrupts for cortex-a9 were incorrectly specified, fix them.
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Fixes: 7cee5c742899 ("arm64: dts: qcom: sc7180: Fix node order")
-Fixes: c831fa299996 ("arm64: dts: qcom: sc7180: Add Last level cache controller node")
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Link: https://lore.kernel.org/r/20200818145514.16262-1-saiprakash.ranjan@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: fdfe7f4f9d85 ("ARM: dts: Add Actions Semi S500 and LeMaker Guitar")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Peter Korsgaard <peter@korsgaard.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/owl-s500.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-index d46b3833e52fd..e875f6c3b6639 100644
---- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-@@ -2618,7 +2618,7 @@ dc_noc: interconnect@9160000 {
- 
- 		system-cache-controller@9200000 {
- 			compatible = "qcom,sc7180-llcc";
--			reg = <0 0x09200000 0 0x200000>, <0 0x09600000 0 0x50000>;
-+			reg = <0 0x09200000 0 0x50000>, <0 0x09600000 0 0x50000>;
- 			reg-names = "llcc_base", "llcc_broadcast_base";
- 			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/arch/arm/boot/dts/owl-s500.dtsi b/arch/arm/boot/dts/owl-s500.dtsi
+index 5ceb6cc4451d2..1dbe4e8b38ac7 100644
+--- a/arch/arm/boot/dts/owl-s500.dtsi
++++ b/arch/arm/boot/dts/owl-s500.dtsi
+@@ -84,21 +84,21 @@ scu: scu@b0020000 {
+ 		global_timer: timer@b0020200 {
+ 			compatible = "arm,cortex-a9-global-timer";
+ 			reg = <0xb0020200 0x100>;
+-			interrupts = <GIC_PPI 0 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
  		};
+ 
+ 		twd_timer: timer@b0020600 {
+ 			compatible = "arm,cortex-a9-twd-timer";
+ 			reg = <0xb0020600 0x20>;
+-			interrupts = <GIC_PPI 2 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
+ 		};
+ 
+ 		twd_wdt: wdt@b0020620 {
+ 			compatible = "arm,cortex-a9-twd-wdt";
+ 			reg = <0xb0020620 0xe0>;
+-			interrupts = <GIC_PPI 3 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.25.1
 
