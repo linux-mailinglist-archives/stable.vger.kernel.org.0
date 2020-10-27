@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E152129AEF3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B7C29AFE8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754520AbgJ0OGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54318 "EHLO mail.kernel.org"
+        id S1756552AbgJ0OOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:14:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754559AbgJ0OF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:59 -0400
+        id S1756548AbgJ0OOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1922522264;
-        Tue, 27 Oct 2020 14:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D9B2072D;
+        Tue, 27 Oct 2020 14:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807558;
-        bh=3BpnqO3HAOZZuIA352xBin6HwuuJeAgKkuyK8XOP52w=;
+        s=default; t=1603808043;
+        bh=7SUS70GJEZwnwKJafFVVsx4lhLtPP4fRAGwyWt3H+Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5pUl9RSj4cZAstqykAGl6p120atG2KwVfoyLuMmJFObRRUoUw3rq2Gs6tDYRYm/Z
-         D8UHQiLcK7RHRAwJxqiDNIIa22Ss46c+/pwkNa+o4Q/JcoHvWsJGv93miNhCqiIOnU
-         cgLBZv56r10sw0b7LFAkOIIdGRuv+uU97pdfIT9U=
+        b=djyaWfZCKN3rclGezPpo7c1jRn35949ogEIVbHbZxz8HNY2dyejV1156vmUMOqvQ+
+         yOjedln7dAv7ItwaToNowwifQW/nmsDd6fbaHY0p/Xas69qGmCA5W9czC6pPrmxIoM
+         Hh0cpyrNQ7klO+w+s6y6XXNB/XT8Fx9dri/52bT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Al Grant <al.grant@foss.arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 095/139] media: firewire: fix memory leak
+Subject: [PATCH 4.14 134/191] perf: correct SNOOPX field offset
 Date:   Tue, 27 Oct 2020 14:49:49 +0100
-Message-Id: <20201027134906.644012192@linuxfoundation.org>
+Message-Id: <20201027134916.146416665@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
+From: Al Grant <al.grant@foss.arm.com>
 
-[ Upstream commit b28e32798c78a346788d412f1958f36bb760ec03 ]
+[ Upstream commit f3d301c1f2f5676465cdf3259737ea19cc82731f ]
 
-Fix memory leak in node_probe.
+perf_event.h has macros that define the field offsets in the
+data_src bitmask in perf records. The SNOOPX and REMOTE offsets
+were both 37. These are distinct fields, and the bitfield layout
+in perf_mem_data_src confirms that SNOOPX should be at offset 38.
 
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 52839e653b5629bd ("perf tools: Add support for printing new mem_info encodings")
+Signed-off-by: Al Grant <al.grant@foss.arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Link: https://lkml.kernel.org/r/4ac9f5cc-4388-b34a-9999-418a4099415d@foss.arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/firewire/firedtv-fw.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/uapi/linux/perf_event.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
-index 5d634706a7eaa..382f290c3f4d5 100644
---- a/drivers/media/firewire/firedtv-fw.c
-+++ b/drivers/media/firewire/firedtv-fw.c
-@@ -271,8 +271,10 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
+diff --git a/include/uapi/linux/perf_event.h b/include/uapi/linux/perf_event.h
+index 362493a2f950b..fc72a3839c9dc 100644
+--- a/include/uapi/linux/perf_event.h
++++ b/include/uapi/linux/perf_event.h
+@@ -1033,7 +1033,7 @@ union perf_mem_data_src {
  
- 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
- 				 name, sizeof(name));
--	if (name_len < 0)
--		return name_len;
-+	if (name_len < 0) {
-+		err = name_len;
-+		goto fail_free;
-+	}
- 	for (i = ARRAY_SIZE(model_names); --i; )
- 		if (strlen(model_names[i]) <= name_len &&
- 		    strncmp(name, model_names[i], name_len) == 0)
+ #define PERF_MEM_SNOOPX_FWD	0x01 /* forward */
+ /* 1 free */
+-#define PERF_MEM_SNOOPX_SHIFT	37
++#define PERF_MEM_SNOOPX_SHIFT  38
+ 
+ /* locked instruction */
+ #define PERF_MEM_LOCK_NA	0x01 /* not available */
 -- 
 2.25.1
 
