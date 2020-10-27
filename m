@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 585C829B6FE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E460729B6F0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798518AbgJ0P21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35630 "EHLO mail.kernel.org"
+        id S368796AbgJ0P1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:27:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797010AbgJ0PVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:21:07 -0400
+        id S1797197AbgJ0PWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0508A20728;
-        Tue, 27 Oct 2020 15:21:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C17E62064B;
+        Tue, 27 Oct 2020 15:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812066;
-        bh=rVdKP+uVMcmaUHUp4w6nJd8X3DkUSVN77DWoudoN7S4=;
+        s=default; t=1603812129;
+        bh=lYpwbHxaRmTQJ7jeGSQa7wzRpTRhbsZU+H2+e6SE/QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiJoZ6f4CHuqMAGJ9akW8UHVBxNI6NRPeC9K3y5k1xXl3FV9OKK+RUbH6CGllp8v6
-         0mqLK5o1XiUWXSq3TZ5h4mGLVKEMMk67cgi7YpOIqdgIf2itu1p9zVIx+curE4da2t
-         RqIW7O1JiIMPX4OiJy99Dky1FWYmNtE02cWhwYGw=
+        b=uplIfOJGZCnEd1QobAVcUj5QrHsb1zI4yMkSOqZ+PatzO2Zc+TuIorSsmHOLM9eHE
+         yC6tSEIaaZGTb15B2sXalgegnNmVDR2BMGWXHfFglg1tzfNQWNX47pkZYOrflfm+iZ
+         YQu8xsf6LCNzrobkncWOsJfuy/PfFHIcLD0kOnHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liran Alon <liran.alon@oracle.com>,
+        stable@vger.kernel.org, Dan Cross <dcross@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.9 073/757] KVM: nVMX: Morph notification vector IRQ on nested VM-Enter to pending PI
-Date:   Tue, 27 Oct 2020 14:45:23 +0100
-Message-Id: <20201027135453.972997662@linuxfoundation.org>
+Subject: [PATCH 5.9 075/757] KVM: nVMX: Reload vmcs01 if getting vmcs12s pages fails
+Date:   Tue, 27 Oct 2020 14:45:25 +0100
+Message-Id: <20201027135454.063790863@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,94 +47,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 25bb2cf97139f81e3bb8910d26016a529019528e upstream.
+commit b89d5ad00e789967a5e2c5335f75c48755bebd88 upstream.
 
-On successful nested VM-Enter, check for pending interrupts and convert
-the highest priority interrupt to a pending posted interrupt if it
-matches L2's notification vector.  If the vCPU receives a notification
-interrupt before nested VM-Enter (assuming L1 disables IRQs before doing
-VM-Enter), the pending interrupt (for L1) should be recognized and
-processed as a posted interrupt when interrupts become unblocked after
-VM-Enter to L2.
+Reload vmcs01 when bailing from nested_vmx_enter_non_root_mode() as KVM
+expects vmcs01 to be loaded when is_guest_mode() is false.
 
-This fixes a bug where L1/L2 will get stuck in an infinite loop if L1 is
-trying to inject an interrupt into L2 by setting the appropriate bit in
-L2's PIR and sending a self-IPI prior to VM-Enter (as opposed to KVM's
-method of manually moving the vector from PIR->vIRR/RVI).  KVM will
-observe the IPI while the vCPU is in L1 context and so won't immediately
-morph it to a posted interrupt for L2.  The pending interrupt will be
-seen by vmx_check_nested_events(), cause KVM to force an immediate exit
-after nested VM-Enter, and eventually be reflected to L1 as a VM-Exit.
-After handling the VM-Exit, L1 will see that L2 has a pending interrupt
-in PIR, send another IPI, and repeat until L2 is killed.
-
-Note, posted interrupts require virtual interrupt deliveriy, and virtual
-interrupt delivery requires exit-on-interrupt, ergo interrupts will be
-unconditionally unmasked on VM-Enter if posted interrupts are enabled.
-
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
+Fixes: 671ddc700fd08 ("KVM: nVMX: Don't leak L1 MMIO regions to L2")
 Cc: stable@vger.kernel.org
-Cc: Liran Alon <liran.alon@oracle.com>
+Cc: Dan Cross <dcross@google.com>
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Peter Shier <pshier@google.com>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200812175129.12172-1-sean.j.christopherson@intel.com>
+Message-Id: <20200923184452.980-3-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/lapic.c      |    7 +++++++
- arch/x86/kvm/lapic.h      |    1 +
- arch/x86/kvm/vmx/nested.c |    8 ++++++++
- 3 files changed, 16 insertions(+)
+ arch/x86/kvm/vmx/nested.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -488,6 +488,12 @@ static inline void apic_clear_irr(int ve
- 	}
- }
- 
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec)
-+{
-+	apic_clear_irr(vec, vcpu->arch.apic);
-+}
-+EXPORT_SYMBOL_GPL(kvm_apic_clear_irr);
-+
- static inline void apic_set_isr(int vec, struct kvm_lapic *apic)
- {
- 	struct kvm_vcpu *vcpu;
-@@ -2461,6 +2467,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	__apic_update_ppr(apic, &ppr);
- 	return apic_has_interrupt_for_ppr(apic, ppr);
- }
-+EXPORT_SYMBOL_GPL(kvm_apic_has_interrupt);
- 
- int kvm_apic_accept_pic_intr(struct kvm_vcpu *vcpu)
- {
---- a/arch/x86/kvm/lapic.h
-+++ b/arch/x86/kvm/lapic.h
-@@ -89,6 +89,7 @@ int kvm_lapic_reg_read(struct kvm_lapic
- bool kvm_apic_match_dest(struct kvm_vcpu *vcpu, struct kvm_lapic *source,
- 			   int shorthand, unsigned int dest, int dest_mode);
- int kvm_apic_compare_prio(struct kvm_vcpu *vcpu1, struct kvm_vcpu *vcpu2);
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec);
- bool __kvm_apic_update_irr(u32 *pir, void *regs, int *max_irr);
- bool kvm_apic_update_irr(struct kvm_vcpu *vcpu, u32 *pir, int *max_irr);
- void kvm_apic_update_ppr(struct kvm_vcpu *vcpu);
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -3528,6 +3528,14 @@ static int nested_vmx_run(struct kvm_vcp
- 	if (unlikely(status != NVMX_VMENTRY_SUCCESS))
- 		goto vmentry_failed;
+@@ -3346,8 +3346,10 @@ enum nvmx_vmentry_status nested_vmx_ente
+ 	prepare_vmcs02_early(vmx, vmcs12);
  
-+	/* Emulate processing of posted interrupts on VM-Enter. */
-+	if (nested_cpu_has_posted_intr(vmcs12) &&
-+	    kvm_apic_has_interrupt(vcpu) == vmx->nested.posted_intr_nv) {
-+		vmx->nested.pi_pending = true;
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_apic_clear_irr(vcpu, vmx->nested.posted_intr_nv);
-+	}
-+
- 	/* Hide L1D cache contents from the nested guest.  */
- 	vmx->vcpu.arch.l1tf_flush_l1d = true;
+ 	if (from_vmentry) {
+-		if (unlikely(!nested_get_vmcs12_pages(vcpu)))
++		if (unlikely(!nested_get_vmcs12_pages(vcpu))) {
++			vmx_switch_vmcs(vcpu, &vmx->vmcs01);
+ 			return NVMX_VMENTRY_KVM_INTERNAL_ERROR;
++		}
  
+ 		if (nested_vmx_check_vmentry_hw(vcpu)) {
+ 			vmx_switch_vmcs(vcpu, &vmx->vmcs01);
 
 
