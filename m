@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B3129B650
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 629C829B656
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797328AbgJ0PWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:22:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
+        id S1797370AbgJ0PXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797323AbgJ0PWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:22:53 -0400
+        id S1797361AbgJ0PXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:23:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E1B220657;
-        Tue, 27 Oct 2020 15:22:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F276F2076D;
+        Tue, 27 Oct 2020 15:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812173;
-        bh=7uyB9atqs1ASUhJEUJ6KUZQMtbf7sTKSZGFbcU0r53E=;
+        s=default; t=1603812184;
+        bh=jQOhFd0YiHCpqr5i8OVHdq8eT3h7Aw9M5qjwmy2iSio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+TR+r4RtTEkyETaCGdVWyVWKCFA3c/hERA2lNTwzb/1K+S437EF0I2Td8AcN9L31
-         ORWMzmeeTd7bWt0zIVcHcUeKWLdgfONGkiZRs8fq/ZGkSHHRm9d68WA6SqZVvdmLgi
-         xmqQRPFKffjUpiH1KVAhKfVEHKzGZFt6gXKAC8u0=
+        b=aMak1tSZdr2Zb7fEVHInrJEAPAeO21xdE/ImeoCNR3oTDfua3MX/d0HGAQGYIQznD
+         MsozLJ3y0l1hZoZ85iMt1xVzflI1oJ6uhFR7o3dK0z6wdVm2+oDB1bh+JtfMEckvgn
+         h/Rl6KpGIDxUUzn7gTHq5DajFvy2C8MH/NfN8YKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Jamie Iles <jamie@jamieiles.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 118/757] regulator: set of_node for qcom vbus regulator
-Date:   Tue, 27 Oct 2020 14:46:08 +0100
-Message-Id: <20201027135456.110742616@linuxfoundation.org>
+Subject: [PATCH 5.9 122/757] crypto: picoxcell - Fix potential race condition bug
+Date:   Tue, 27 Oct 2020 14:46:12 +0100
+Message-Id: <20201027135456.298440440@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,34 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 66c3b96a7bd042427d2e0eaa8704536828f8235f ]
+[ Upstream commit 64f4a62e3b17f1e473f971127c2924cae42afc82 ]
 
-This allows the regulator to be found by devm_regulator_get().
+engine->stat_irq_thresh was initialized after device_create_file() in
+the probe function, the initialization may race with call to
+spacc_stat_irq_thresh_store() which updates engine->stat_irq_thresh,
+therefore initialize it before creating the file in probe function.
 
-Fixes: 4fe66d5a62fb ("regulator: Add support for QCOM PMIC VBUS booster")
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20200818162508.5246-1-jonathan@marek.ca
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the...")
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Acked-by: Jamie Iles <jamie@jamieiles.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom_usb_vbus-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/picoxcell_crypto.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/regulator/qcom_usb_vbus-regulator.c b/drivers/regulator/qcom_usb_vbus-regulator.c
-index 8ba947f3585f5..457788b505720 100644
---- a/drivers/regulator/qcom_usb_vbus-regulator.c
-+++ b/drivers/regulator/qcom_usb_vbus-regulator.c
-@@ -63,6 +63,7 @@ static int qcom_usb_vbus_regulator_probe(struct platform_device *pdev)
- 	qcom_usb_vbus_rdesc.enable_mask = OTG_EN;
- 	config.dev = dev;
- 	config.init_data = init_data;
-+	config.of_node = dev->of_node;
- 	config.regmap = regmap;
+diff --git a/drivers/crypto/picoxcell_crypto.c b/drivers/crypto/picoxcell_crypto.c
+index dac6eb37fff93..fb34bf92861d1 100644
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1685,11 +1685,6 @@ static int spacc_probe(struct platform_device *pdev)
+ 		goto err_clk_put;
+ 	}
  
- 	rdev = devm_regulator_register(dev, &qcom_usb_vbus_rdesc, &config);
+-	ret = device_create_file(&pdev->dev, &dev_attr_stat_irq_thresh);
+-	if (ret)
+-		goto err_clk_disable;
+-
+-
+ 	/*
+ 	 * Use an IRQ threshold of 50% as a default. This seems to be a
+ 	 * reasonable trade off of latency against throughput but can be
+@@ -1697,6 +1692,10 @@ static int spacc_probe(struct platform_device *pdev)
+ 	 */
+ 	engine->stat_irq_thresh = (engine->fifo_sz / 2);
+ 
++	ret = device_create_file(&pdev->dev, &dev_attr_stat_irq_thresh);
++	if (ret)
++		goto err_clk_disable;
++
+ 	/*
+ 	 * Configure the interrupts. We only use the STAT_CNT interrupt as we
+ 	 * only submit a new packet for processing when we complete another in
 -- 
 2.25.1
 
