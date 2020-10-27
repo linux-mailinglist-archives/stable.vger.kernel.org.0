@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D87E129AE4C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6738929AE73
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753184AbgJ0N6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46158 "EHLO mail.kernel.org"
+        id S2394740AbgJ0OAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753150AbgJ0N6r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:47 -0400
+        id S1753160AbgJ0N6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B52A3206D4;
-        Tue, 27 Oct 2020 13:58:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 851702068D;
+        Tue, 27 Oct 2020 13:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807127;
-        bh=8B3owS/e2tltkU8ks4r/tsVhfXZQXWtNInk5utamHEw=;
+        s=default; t=1603807130;
+        bh=+jtZlyJvi3nEmWK4CY+5CuE/tPR+kSen5eO4hy8agZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ftoi4rDWKkZvI3H2Tj9bg1hjkPKTolfpd6ipBLEXQE4j6Lc3iv/W6nfdwbGc4vMX3
-         QMN5j9rOpQwVqAMROxsTW8bE2kbAN9n8H58rEbhqbzoWURTjHEmM488t5UC13fZBSv
-         O7vXY/2IUVCKaVw7NqoAiHjLxVbBZgobeigh90V8=
+        b=2oQ1a8gXFcMKDnooxtaab0ZtFEgoGo1r2yDAMjrGdBM3mSJnEIiKtsZaEUlDMrDZ2
+         Q2CVErlnL+yWbGs9sEwlWjmhvN7TJ6yulqOpKlrkAMkhdHNDqOZ9BBKEHCC6iUEcwD
+         cF7zks+xJtmjr4DlJUGy5dNvkLJ33nuTRPBx8BQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 052/112] net: korina: fix kfree of rx/tx descriptor array
-Date:   Tue, 27 Oct 2020 14:49:22 +0100
-Message-Id: <20201027134903.030935110@linuxfoundation.org>
+Subject: [PATCH 4.4 053/112] IB/mlx4: Adjust delayed work when a dup is observed
+Date:   Tue, 27 Oct 2020 14:49:23 +0100
+Message-Id: <20201027134903.080571425@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -45,44 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit 3af5f0f5c74ecbaf757ef06c3f80d56751277637 ]
+[ Upstream commit 785167a114855c5aa75efca97000e405c2cc85bf ]
 
-kmalloc returns KSEG0 addresses so convert back from KSEG1
-in kfree. Also make sure array is freed when the driver is
-unloaded from the kernel.
+When scheduling delayed work to clean up the cache, if the entry already
+has been scheduled for deletion, we adjust the delay.
 
-Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
+Link: https://lore.kernel.org/r/20200803061941.1139994-7-haakon.bugge@oracle.com
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/korina.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/cm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index 07eabf72c480c..3954c80f70fcb 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -1188,7 +1188,7 @@ static int korina_probe(struct platform_device *pdev)
- 	return rc;
- 
- probe_err_register:
--	kfree(lp->td_ring);
-+	kfree(KSEG0ADDR(lp->td_ring));
- probe_err_td_ring:
- 	iounmap(lp->tx_dma_regs);
- probe_err_dma_tx:
-@@ -1208,6 +1208,7 @@ static int korina_remove(struct platform_device *pdev)
- 	iounmap(lp->eth_regs);
- 	iounmap(lp->rx_dma_regs);
- 	iounmap(lp->tx_dma_regs);
-+	kfree(KSEG0ADDR(lp->td_ring));
- 
- 	unregister_netdev(bif->dev);
- 	free_netdev(bif->dev);
+diff --git a/drivers/infiniband/hw/mlx4/cm.c b/drivers/infiniband/hw/mlx4/cm.c
+index 5dc920fe13269..c8c586c78d071 100644
+--- a/drivers/infiniband/hw/mlx4/cm.c
++++ b/drivers/infiniband/hw/mlx4/cm.c
+@@ -309,6 +309,9 @@ static void schedule_delayed(struct ib_device *ibdev, struct id_map_entry *id)
+ 	if (!sriov->is_going_down) {
+ 		id->scheduled_delete = 1;
+ 		schedule_delayed_work(&id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
++	} else if (id->scheduled_delete) {
++		/* Adjust timeout if already scheduled */
++		mod_delayed_work(system_wq, &id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
+ 	}
+ 	spin_unlock_irqrestore(&sriov->going_down_lock, flags);
+ 	spin_unlock(&sriov->id_map_lock);
 -- 
 2.25.1
 
