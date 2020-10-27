@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC5529B435
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965F929B437
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1784602AbgJ0O7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:59:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60874 "EHLO mail.kernel.org"
+        id S1784655AbgJ0O7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1784585AbgJ0O7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:59:16 -0400
+        id S1784633AbgJ0O7W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:59:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 615D520714;
-        Tue, 27 Oct 2020 14:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB2522281;
+        Tue, 27 Oct 2020 14:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810756;
-        bh=CZGrA1IfK0TadZ9bTfmryHnGI1j7nqYWh/K5qz9Cmdg=;
+        s=default; t=1603810761;
+        bh=g5HYlZAFR8vdmZXgm+EELCOCg9TihOKXkvdXaIJmOJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0oBrBQOUJz079b6heoflM/gKyoJysOpXq/sukmFtyKPRBm1JXv9FbXhnNoAaItXj
-         98j2i/kiHloV64AYBC1zOLFqZXhDkZfbVK9j27HIP+IiRSo++fG+xoYA2oh3XolzMV
-         VkY18U4moqlbBrbuj6E8h5apfqlOpY8fyDrmo3Cw=
+        b=d4PgUONLysLrySIP2YvKsSnSMEiZGlQxH8ANiIUxVfT7sYWjHrkkTU7q52o/PG+Q1
+         etvUJDjC/ccNQ+3cc7WdX8ZMreAL7Z0j3d5nmMjt39+cmKmMyZYuyKuiJxbqSuQv7h
+         bn1V80gCWvOsLd9Juex3fi0eaSWacJ/rfC4ZO4RQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Bo YU <tsu.yubo@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 253/633] ASoC: tas2770: Fix unbalanced calls to pm_runtime
-Date:   Tue, 27 Oct 2020 14:49:56 +0100
-Message-Id: <20201027135534.535154925@linuxfoundation.org>
+Subject: [PATCH 5.8 255/633] ath11k: Add checked value for ath11k_ahb_remove
+Date:   Tue, 27 Oct 2020 14:49:58 +0100
+Message-Id: <20201027135534.626700379@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,57 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Murphy <dmurphy@ti.com>
+From: Bo YU <tsu.yubo@gmail.com>
 
-[ Upstream commit d3d71c99b541040da198f43da3bbd85d8e9598cb ]
+[ Upstream commit 80b892fc8a90e91498babf0f6817139e5ec64b5c ]
 
-Fix the unbalanced call to the pm_runtime_disable when removing the
-module.  pm_runtime_enable is not called nor is the pm_runtime setup in
-the code.  Remove the i2c_remove function and the pm_runtime_disable.
+Return value form wait_for_completion_timeout should to be checked.
 
-Fixes: 1a476abc723e6 ("tas2770: add tas2770 smart PA kernel driver")
-Signed-off-by: Dan Murphy <dmurphy@ti.com>
-Link: https://lore.kernel.org/r/20200918190548.12598-5-dmurphy@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This is detected by Coverity: #CID:1464479 (CHECKED_RETURN)
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Bo YU <tsu.yubo@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200621095136.7xdbzkthoxuw2qow@debian.debian-2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2770.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/net/wireless/ath/ath11k/ahb.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/tas2770.c b/sound/soc/codecs/tas2770.c
-index 8d88ed5578ddd..531bf32043813 100644
---- a/sound/soc/codecs/tas2770.c
-+++ b/sound/soc/codecs/tas2770.c
-@@ -16,7 +16,6 @@
- #include <linux/i2c.h>
- #include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
--#include <linux/pm_runtime.h>
- #include <linux/regulator/consumer.h>
- #include <linux/firmware.h>
- #include <linux/regmap.h>
-@@ -780,13 +779,6 @@ static int tas2770_i2c_probe(struct i2c_client *client,
- 	return result;
- }
+diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
+index 30092841ac464..a0314c1c84653 100644
+--- a/drivers/net/wireless/ath/ath11k/ahb.c
++++ b/drivers/net/wireless/ath/ath11k/ahb.c
+@@ -981,12 +981,16 @@ static int ath11k_ahb_probe(struct platform_device *pdev)
+ static int ath11k_ahb_remove(struct platform_device *pdev)
+ {
+ 	struct ath11k_base *ab = platform_get_drvdata(pdev);
++	unsigned long left;
  
--static int tas2770_i2c_remove(struct i2c_client *client)
--{
--	pm_runtime_disable(&client->dev);
--	return 0;
--}
--
--
- static const struct i2c_device_id tas2770_i2c_id[] = {
- 	{ "tas2770", 0},
- 	{ }
-@@ -807,7 +799,6 @@ static struct i2c_driver tas2770_i2c_driver = {
- 		.of_match_table = of_match_ptr(tas2770_of_match),
- 	},
- 	.probe      = tas2770_i2c_probe,
--	.remove     = tas2770_i2c_remove,
- 	.id_table   = tas2770_i2c_id,
- };
+ 	reinit_completion(&ab->driver_recovery);
  
+-	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags))
+-		wait_for_completion_timeout(&ab->driver_recovery,
+-					    ATH11K_AHB_RECOVERY_TIMEOUT);
++	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags)) {
++		left = wait_for_completion_timeout(&ab->driver_recovery,
++						   ATH11K_AHB_RECOVERY_TIMEOUT);
++		if (!left)
++			ath11k_warn(ab, "failed to receive recovery response completion\n");
++	}
+ 
+ 	set_bit(ATH11K_FLAG_UNREGISTERING, &ab->dev_flags);
+ 	cancel_work_sync(&ab->restart_work);
 -- 
 2.25.1
 
