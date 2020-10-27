@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE0C29B622
+	by mail.lfdr.de (Postfix) with ESMTP id A881929B623
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796906AbgJ0PUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34990 "EHLO mail.kernel.org"
+        id S1796344AbgJ0PUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796900AbgJ0PUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:32 -0400
+        id S1796927AbgJ0PUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:20:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB8420728;
-        Tue, 27 Oct 2020 15:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54C4520728;
+        Tue, 27 Oct 2020 15:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812032;
-        bh=WBbHUVQGXBSWVaE3D7vrI7mGNlxXERNlFaGv5KDdKq4=;
+        s=default; t=1603812038;
+        bh=mSVbc8urRtrPQ1aAI0yJgu1QY2COMvNP2PyLBX9ttlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wP2U4hYetKwM8T5xyO+Y2MzF3+ZwH7mpjfKGaYcLaIA1dvjb68xA0HGhE8Z/71QaS
-         HS8sbXO4JuHqWoRuw4csHf1zNBoudk/V6yUgbmordjYJh9aBEYNru4WBGuA+L/hWeS
-         EUQp87pHrSJayq0OinTiQw0tguw99zOgmgX4cdKg=
+        b=PNIUDDc8PacX6GfD/1aQcMjbVZM6l3xXEW13DlmteWAXkkDFtW8A0lTfW0aMfIgOC
+         uJV25nT8D0yg+ivr4+X4uh7GTNb6v3Sm41k7FHDsvzdAKR+IsDz9ABaGAodY5IfnLP
+         yNGodUMoiqdEQXZ0kvK05ii3wZuzHmXrW0Kh5lnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.9 068/757] SMB3: Resolve data corruption of TCP server info fields
-Date:   Tue, 27 Oct 2020 14:45:18 +0100
-Message-Id: <20201027135453.731754545@linuxfoundation.org>
+Subject: [PATCH 5.9 069/757] SMB3.1.1: Fix ids returned in POSIX query dir
+Date:   Tue, 27 Oct 2020 14:45:19 +0100
+Message-Id: <20201027135453.781484145@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,77 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohith Surabattula <rohiths@microsoft.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 62593011247c8a8cfeb0c86aff84688b196727c2 upstream.
+commit 9934430e2178d5164eb1ac91a9b092f9e7e64745 upstream.
 
-TCP server info field server->total_read is modified in parallel by
-demultiplex thread and decrypt offload worker thread. server->total_read
-is used in calculation to discard the remaining data of PDU which is
-not read into memory.
+We were setting the uid/gid to the default in each dir entry
+in the parsing of the POSIX query dir response, rather
+than attempting to map the user and group SIDs returned by
+the server to well known SIDs (or upcall if not found).
 
-Because of parallel modification, server->total_read can get corrupted
-and can result in discarding the valid data of next PDU.
-
-Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
 Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org> #5.4+
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/cifs/cifsacl.c   |    5 +++--
+ fs/cifs/cifsproto.h |    2 ++
+ fs/cifs/readdir.c   |    5 ++---
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4103,7 +4103,8 @@ smb3_is_transform_hdr(void *buf)
- static int
- decrypt_raw_data(struct TCP_Server_Info *server, char *buf,
- 		 unsigned int buf_data_size, struct page **pages,
--		 unsigned int npages, unsigned int page_data_size)
-+		 unsigned int npages, unsigned int page_data_size,
-+		 bool is_offloaded)
- {
- 	struct kvec iov[2];
- 	struct smb_rqst rqst = {NULL};
-@@ -4129,7 +4130,8 @@ decrypt_raw_data(struct TCP_Server_Info
- 
- 	memmove(buf, iov[1].iov_base, buf_data_size);
- 
--	server->total_read = buf_data_size + page_data_size;
-+	if (!is_offloaded)
-+		server->total_read = buf_data_size + page_data_size;
- 
- 	return rc;
+--- a/fs/cifs/cifsacl.c
++++ b/fs/cifs/cifsacl.c
+@@ -338,7 +338,7 @@ invalidate_key:
+ 	goto out_key_put;
  }
-@@ -4342,7 +4344,7 @@ static void smb2_decrypt_offload(struct
- 	struct mid_q_entry *mid;
  
- 	rc = decrypt_raw_data(dw->server, dw->buf, dw->server->vals->read_rsp_size,
--			      dw->ppages, dw->npages, dw->len);
-+			      dw->ppages, dw->npages, dw->len, true);
- 	if (rc) {
- 		cifs_dbg(VFS, "error decrypting rc=%d\n", rc);
- 		goto free_pages;
-@@ -4448,7 +4450,7 @@ receive_encrypted_read(struct TCP_Server
+-static int
++int
+ sid_to_id(struct cifs_sb_info *cifs_sb, struct cifs_sid *psid,
+ 		struct cifs_fattr *fattr, uint sidtype)
+ {
+@@ -359,7 +359,8 @@ sid_to_id(struct cifs_sb_info *cifs_sb,
+ 		return -EIO;
+ 	}
  
- non_offloaded_decrypt:
- 	rc = decrypt_raw_data(server, buf, server->vals->read_rsp_size,
--			      pages, npages, len);
-+			      pages, npages, len, false);
- 	if (rc)
- 		goto free_pages;
+-	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_UID_FROM_ACL) {
++	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_UID_FROM_ACL) ||
++	    (cifs_sb_master_tcon(cifs_sb)->posix_extensions)) {
+ 		uint32_t unix_id;
+ 		bool is_group;
  
-@@ -4504,7 +4506,7 @@ receive_encrypted_standard(struct TCP_Se
- 	server->total_read += length;
+--- a/fs/cifs/cifsproto.h
++++ b/fs/cifs/cifsproto.h
+@@ -209,6 +209,8 @@ extern int cifs_set_file_info(struct ino
+ extern int cifs_rename_pending_delete(const char *full_path,
+ 				      struct dentry *dentry,
+ 				      const unsigned int xid);
++extern int sid_to_id(struct cifs_sb_info *cifs_sb, struct cifs_sid *psid,
++				struct cifs_fattr *fattr, uint sidtype);
+ extern int cifs_acl_to_fattr(struct cifs_sb_info *cifs_sb,
+ 			      struct cifs_fattr *fattr, struct inode *inode,
+ 			      bool get_mode_from_special_sid,
+--- a/fs/cifs/readdir.c
++++ b/fs/cifs/readdir.c
+@@ -267,9 +267,8 @@ cifs_posix_to_fattr(struct cifs_fattr *f
+ 	if (reparse_file_needs_reval(fattr))
+ 		fattr->cf_flags |= CIFS_FATTR_NEED_REVAL;
  
- 	buf_size = pdu_length - sizeof(struct smb2_transform_hdr);
--	length = decrypt_raw_data(server, buf, buf_size, NULL, 0, 0);
-+	length = decrypt_raw_data(server, buf, buf_size, NULL, 0, 0, false);
- 	if (length)
- 		return length;
+-	/* TODO map SIDs */
+-	fattr->cf_uid = cifs_sb->mnt_uid;
+-	fattr->cf_gid = cifs_sb->mnt_gid;
++	sid_to_id(cifs_sb, &parsed.owner, fattr, SIDOWNER);
++	sid_to_id(cifs_sb, &parsed.group, fattr, SIDGROUP);
+ }
  
+ static void __dir_info_to_fattr(struct cifs_fattr *fattr, const void *info)
 
 
