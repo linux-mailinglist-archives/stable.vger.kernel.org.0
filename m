@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C02F299E31
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B65A299E29
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411834AbgJ0ALx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33870 "EHLO mail.kernel.org"
+        id S2411843AbgJ0ALy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411831AbgJ0ALx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:11:53 -0400
+        id S2411836AbgJ0ALy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:11:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59B0020709;
-        Tue, 27 Oct 2020 00:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4FBB218AC;
+        Tue, 27 Oct 2020 00:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757512;
-        bh=qLvmBJkm7pNipv8UemS7QoIH2Dp3l599ylsEGcnSB8I=;
+        s=default; t=1603757513;
+        bh=Q4lW0ZRY8m5v+ndh1u8zXIFNEpqNF45mteLJI1IeK+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQ1YKYSeX0omAgaI6HKMRdhxfv6jjxdFGkiEylZbn/EPovao5XZqg1/AsjlGdSuru
-         9BNCsh6kSEBH7gepLkr8SafVcZOS1vIYq963ZlfVNQuTWTY4/cIOCTcZuEri+Y6aBg
-         1ZKd3ACU12cx86iK0viOobY6sRLBHR1k7zi5xZi4=
+        b=ca5QkGUgc8K+0m/aymagrm/Ud5noiyKDYSM7z+ZG0xEiPgJI/w8FsxraQ8SKL+UNw
+         ZeBnwnpwPdWwaPOhVaZHeOhWk/xsvp/DAx4wuO3xnILifGHWt3qDoQ5BGI9axvZ1S6
+         d8BKIySOkuRbvQ0NNyd5jpVoG4ASMLirJGI1G8pk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.4 22/25] gfs2: add validation checks for size of superblock
-Date:   Mon, 26 Oct 2020 20:11:20 -0400
-Message-Id: <20201027001123.1027642-22-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 23/25] memory: emif: Remove bogus debugfs error handling
+Date:   Mon, 26 Oct 2020 20:11:21 -0400
+Message-Id: <20201027001123.1027642-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027001123.1027642-1-sashal@kernel.org>
 References: <20201027001123.1027642-1-sashal@kernel.org>
@@ -44,60 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
+[ Upstream commit fd22781648080cc400772b3c68aa6b059d2d5420 ]
 
-In gfs2_check_sb(), no validation checks are performed with regards to
-the size of the superblock.
-syzkaller detected a slab-out-of-bounds bug that was primarily caused
-because the block size for a superblock was set to zero.
-A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
-Performing validation checks and ensuring that the size of the superblock
-is valid fixes this bug.
+Callers are generally not supposed to check the return values from
+debugfs functions.  Debugfs functions never return NULL so this error
+handling will never trigger.  (Historically debugfs functions used to
+return a mix of NULL and error pointers but it was eventually deemed too
+complicated for something which wasn't intended to be used in normal
+situations).
 
-Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Suggested-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-[Minor code reordering.]
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Delete all the error handling.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Link: https://lore.kernel.org/r/20200826113759.GF393664@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/memory/emif.c | 33 +++++----------------------------
+ 1 file changed, 5 insertions(+), 28 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index b7b43d00cc6d7..8ed2b1a716376 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -160,15 +160,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
+index 04644e7b42b12..88c32b8dc88a1 100644
+--- a/drivers/memory/emif.c
++++ b/drivers/memory/emif.c
+@@ -165,35 +165,12 @@ static const struct file_operations emif_mr4_fops = {
  
--	/*  If format numbers match exactly, we're done.  */
+ static int __init_or_module emif_debugfs_init(struct emif_data *emif)
+ {
+-	struct dentry	*dentry;
+-	int		ret;
 -
--	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
--	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
--		return 0;
-+	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
-+	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
-+		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+		return -EINVAL;
-+	}
- 
--	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
-+	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
-+		pr_warn("Invalid superblock size\n");
-+		return -EINVAL;
-+	}
- 
--	return -EINVAL;
-+	return 0;
+-	dentry = debugfs_create_dir(dev_name(emif->dev), NULL);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err0;
+-	}
+-	emif->debugfs_root = dentry;
+-
+-	dentry = debugfs_create_file("regcache_dump", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_regdump_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
+-	dentry = debugfs_create_file("mr4", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_mr4_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
++	emif->debugfs_root = debugfs_create_dir(dev_name(emif->dev), NULL);
++	debugfs_create_file("regcache_dump", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_regdump_fops);
++	debugfs_create_file("mr4", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_mr4_fops);
+ 	return 0;
+-err1:
+-	debugfs_remove_recursive(emif->debugfs_root);
+-err0:
+-	return ret;
  }
  
- static void end_bio_io_page(struct bio *bio)
+ static void __exit emif_debugfs_exit(struct emif_data *emif)
 -- 
 2.25.1
 
