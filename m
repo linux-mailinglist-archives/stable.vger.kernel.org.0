@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ABD929BE6B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 632B129BE69
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1812913AbgJ0Qqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
+        id S1812909AbgJ0Qqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:46:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368869AbgJ0PmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:42:15 -0400
+        id S368876AbgJ0PmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:42:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05818223B0;
-        Tue, 27 Oct 2020 15:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D5C22403;
+        Tue, 27 Oct 2020 15:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813333;
-        bh=RMnaOxwYEr/eXmQc5u4PaNwMou8OoSdDCGRmA/BkiaI=;
+        s=default; t=1603813336;
+        bh=0eeB7qKmmbGRKV34fM5M6+cN10gAzIBlle4uu8UJFik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+C+uNvxVUFRSj+vCdYlqx5AzEA6oqGwaUV/qQBqbvWuiRh/owD164jGfXSIGaBg6
-         GzZRubas3rNp7XbHt/Lfxbk3WQwSMGrhLvZeKK2x0QPsGlXBC+C9cQGAn4PdOzt9tZ
-         dqcPA8TJuxMm1EB+aB1wqPWBqvN9OArG2njBhXCU=
+        b=fPX4xRbxCc25edbojaoVGMLrWm2THuKfw+PRf7SgKroGltGEB/SPn+zgEO+Xoe64A
+         22IZQP5/YN9smAZMa4kJeTh4NtDPhsI8CzuDXwhH/IqSuHkfDDxJ/YQEHATSyio2eD
+         tbUDAR6WDOXEYBgJaag8KH0V8OTjM7ybR6traNeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Andy Lowe <andy_lowe@mentor.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 517/757] i2c: rcar: Auto select RESET_CONTROLLER
-Date:   Tue, 27 Oct 2020 14:52:47 +0100
-Message-Id: <20201027135514.729742788@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 518/757] clk: meson: g12a: mark fclk_div2 as critical
+Date:   Tue, 27 Oct 2020 14:52:48 +0100
+Message-Id: <20201027135514.777322145@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,37 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit 5b9bacf28a973a6b16510493416baeefa2c06289 ]
+[ Upstream commit 2c4e80e06790cb49ad2603855d30c5aac2209c47 ]
 
-The i2c-rcar driver utilizes the Generic Reset Controller kernel
-feature, so select the RESET_CONTROLLER option when the I2C_RCAR
-option is selected with a Gen3 SoC.
+On Amlogic Meson G12b platform, similar to fclk_div3, the fclk_div2
+seems to be necessary for the system to operate correctly as well.
 
-Fixes: 2b16fd63059ab9 ("i2c: rcar: handle RXDMA HW behaviour on Gen3")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Andy Lowe <andy_lowe@mentor.com>
-[erosca: Add "if ARCH_RCAR_GEN3" per Wolfram's request]
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Typically, the clock also gets chosen by the eMMC peripheral. This
+probably masked the problem so far. However, when booting from a SD
+card the clock seems to get disabled which leads to a system freeze.
+
+Let's mark this clock as critical, fixing boot from SD card on G12b
+platforms.
+
+Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Tested-by: Anand Moon <linux.amoon@gmail.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/577e0129e8ee93972d92f13187ff4e4286182f67.1598629915.git.stefan@agner.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/meson/g12a.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 293e7a0760e77..7ccbfbcb02e9a 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1181,6 +1181,7 @@ config I2C_RCAR
- 	tristate "Renesas R-Car I2C Controller"
- 	depends on ARCH_RENESAS || COMPILE_TEST
- 	select I2C_SLAVE
-+	select RESET_CONTROLLER if ARCH_RCAR_GEN3
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  R-Car I2C controller.
+diff --git a/drivers/clk/meson/g12a.c b/drivers/clk/meson/g12a.c
+index 9803d44bb1578..b814d44917a5d 100644
+--- a/drivers/clk/meson/g12a.c
++++ b/drivers/clk/meson/g12a.c
+@@ -298,6 +298,17 @@ static struct clk_regmap g12a_fclk_div2 = {
+ 			&g12a_fclk_div2_div.hw
+ 		},
+ 		.num_parents = 1,
++		/*
++		 * Similar to fclk_div3, it seems that this clock is used by
++		 * the resident firmware and is required by the platform to
++		 * operate correctly.
++		 * Until the following condition are met, we need this clock to
++		 * be marked as critical:
++		 * a) Mark the clock used by a firmware resource, if possible
++		 * b) CCF has a clock hand-off mechanism to make the sure the
++		 *    clock stays on until the proper driver comes along
++		 */
++		.flags = CLK_IS_CRITICAL,
+ 	},
+ };
+ 
 -- 
 2.25.1
 
