@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 755C029B9B3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8D229BAEE
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802736AbgJ0PvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42898 "EHLO mail.kernel.org"
+        id S1802728AbgJ0PvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802157AbgJ0Pps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:45:48 -0400
+        id S1802165AbgJ0Ppu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:45:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC03D2231B;
-        Tue, 27 Oct 2020 15:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87C1A21D42;
+        Tue, 27 Oct 2020 15:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813547;
-        bh=M+9KacV3iDbbRM/KL3prW74hLAsrm+ZAJh777mPn3cQ=;
+        s=default; t=1603813550;
+        bh=EMkcT2i5uOjrTgGJ4EVBaMOozDKG5DGNbRy6bs4IlK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2RNPrEdCMDcH9Q3+eOt8LjVxYHMGtOEjCxo+7xeuhBLE6/dIOM7setDB1q6LsEQLN
-         id4QsVzsCLfPpeRnp191pQYXJNqwC+koVLa0oHFREnqj3pSB42hT/ckbEde1v5DBcY
-         PsMaeXIS9IBK3WM2GpVn+37fHyvCUfTNGIQDjd7U=
+        b=OwgGta7lCWrq17RpdJySFcyni+r/bMjdbJlp4+7fO9How4UtNDoFHh479XZbCZmPH
+         x1iq4C+FhhnFm6vFWCcry/1BjHd/dit2wOdzhawxsdg+X9rbvcT0eq9pZ0jy+0MTTQ
+         RIubVHjbJCtUCGmjwl7JDXX8ILaIFmn06ddun5y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiang Yu <yuq825@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Roger Quadros <rogerq@ti.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 589/757] arm64: dts: allwinner: h5: remove Mali GPU PMU module
-Date:   Tue, 27 Oct 2020 14:53:59 +0100
-Message-Id: <20201027135518.162938566@linuxfoundation.org>
+Subject: [PATCH 5.9 590/757] memory: omap-gpmc: Fix a couple off by ones
+Date:   Tue, 27 Oct 2020 14:54:00 +0100
+Message-Id: <20201027135518.215764206@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,50 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <yuq825@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2933bf3528007f834fb7f5eab033f9c5b0683f91 ]
+[ Upstream commit 4c54228ac8fd55044195825873c50a524131fa53 ]
 
-H5's Mali GPU PMU is not present or working corretly although
-H5 datasheet record its interrupt vector.
+These comparisons should be >= instead of > to prevent reading one
+element beyond the end of the gpmc_cs[] array.
 
-Adding this module will miss lead lima driver try to shutdown
-it and get waiting timeout. This problem is not exposed before
-lima runtime PM support is added.
-
-Fixes: bb39ed07e55b ("arm64: dts: allwinner: h5: Add device node for Mali-450 GPU")
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20200822062755.534761-1-yuq825@gmail.com
+Fixes: cdd6928c589a ("ARM: OMAP2+: Add device-tree support for NOR flash")
+Fixes: f37e4580c409 ("ARM: OMAP2: Dynamic allocator for GPMC memory space")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Roger Quadros <rogerq@ti.com>
+Link: https://lore.kernel.org/r/20200825104707.GB278587@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/memory/omap-gpmc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-index 6735e316a39c3..6c6053a18413d 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-@@ -139,8 +139,7 @@ mali: gpu@1e80000 {
- 				     <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 106 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-+				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "gp",
- 					  "gpmmu",
- 					  "pp",
-@@ -151,8 +150,7 @@ mali: gpu@1e80000 {
- 					  "pp2",
- 					  "ppmmu2",
- 					  "pp3",
--					  "ppmmu3",
--					  "pmu";
-+					  "ppmmu3";
- 			clocks = <&ccu CLK_BUS_GPU>, <&ccu CLK_GPU>;
- 			clock-names = "bus", "core";
- 			resets = <&ccu RST_BUS_GPU>;
+diff --git a/drivers/memory/omap-gpmc.c b/drivers/memory/omap-gpmc.c
+index ca0097664b125..1e6d6e9434c8b 100644
+--- a/drivers/memory/omap-gpmc.c
++++ b/drivers/memory/omap-gpmc.c
+@@ -943,7 +943,7 @@ static int gpmc_cs_remap(int cs, u32 base)
+ 	int ret;
+ 	u32 old_base, size;
+ 
+-	if (cs > gpmc_cs_num) {
++	if (cs >= gpmc_cs_num) {
+ 		pr_err("%s: requested chip-select is disabled\n", __func__);
+ 		return -ENODEV;
+ 	}
+@@ -978,7 +978,7 @@ int gpmc_cs_request(int cs, unsigned long size, unsigned long *base)
+ 	struct resource *res = &gpmc->mem;
+ 	int r = -1;
+ 
+-	if (cs > gpmc_cs_num) {
++	if (cs >= gpmc_cs_num) {
+ 		pr_err("%s: requested chip-select is disabled\n", __func__);
+ 		return -ENODEV;
+ 	}
 -- 
 2.25.1
 
