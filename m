@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9138529C424
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C12329C1EB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2509871AbgJ0OXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48108 "EHLO mail.kernel.org"
+        id S1762178AbgJ0OlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758711AbgJ0OXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:23:16 -0400
+        id S1762089AbgJ0Okk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F3B72072D;
-        Tue, 27 Oct 2020 14:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FDEE20773;
+        Tue, 27 Oct 2020 14:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808595;
-        bh=oA28nrlXf/H3md+sDMgwMz6KSIgQXm0l/UiIqV2woLQ=;
+        s=default; t=1603809639;
+        bh=9Z0BV+pcPEXz15ht+CDhxkr4zW1ipdYLTDkJG9TligU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcPYcL2Hrm/Uck16ebBjfS8dt7jWZgVy1GBUUoRQ6GiCjPrAKRprDWeA6GBjkdpG6
-         eTaDBNwbsZzbrQ70ZQqaYV2PpHa0tsSw9BKxlZxT3qTqrUbQiNUnqUxc4bS9vpHLd0
-         pYJLZWN9RBU1OxjfnUntw1ELQ64wZzcRVKBQybDY=
+        b=Jw6R1Z62epuVHjFE5OY7KkCIe52WKVxAaP6J8SwGeyxQ7D2up5bvv1dbTVvXM69Ah
+         xagf0/paXzSo/npKHVdOk8EZZ/J2Z0ZYQjnbtXFquVsGSrqHjWk9DdoNsAx6zXCai2
+         rRZV/PxxmSt3jp53cIf57ZyQygaLIraf+HsZODwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Pavel Dubrova <pashadubrova@gmail.com>,
+        Konrad Dybcio <konradybcio@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/264] powerpc/tau: Use appropriate temperature sample interval
-Date:   Tue, 27 Oct 2020 14:53:22 +0100
-Message-Id: <20201027135437.455963546@linuxfoundation.org>
+Subject: [PATCH 5.4 267/408] clk: qcom: gcc-sdm660: Fix wrong parent_map
+Date:   Tue, 27 Oct 2020 14:53:25 +0100
+Message-Id: <20201027135507.430722310@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Konrad Dybcio <konradybcio@gmail.com>
 
-[ Upstream commit 66943005cc41f48e4d05614e8f76c0ca1812f0fd ]
+[ Upstream commit d46e5a39f9be9288f1ce2170c4c7f8098f4e7f68 ]
 
-According to the MPC750 Users Manual, the SITV value in Thermal
-Management Register 3 is 13 bits long. The present code calculates the
-SITV value as 60 * 500 cycles. This would overflow to give 10 us on
-a 500 MHz CPU rather than the intended 60 us. (But according to the
-Microprocessor Datasheet, there is also a factor of 266 that has to be
-applied to this value on certain parts i.e. speed sort above 266 MHz.)
-Always use the maximum cycle count, as recommended by the Datasheet.
+This was likely overlooked while porting the driver upstream.
 
-Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/896f542e5f0f1d6cf8218524c2b67d79f3d69b3c.1599260540.git.fthain@telegraphics.com.au
+Reported-by: Pavel Dubrova <pashadubrova@gmail.com>
+Signed-off-by: Konrad Dybcio <konradybcio@gmail.com>
+Link: https://lore.kernel.org/r/20200922120909.97203-1-konradybcio@gmail.com
+Fixes: f2a76a2955c0 ("clk: qcom: Add Global Clock controller (GCC) driver for SDM660")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/reg.h |  2 +-
- arch/powerpc/kernel/tau_6xx.c  | 12 ++++--------
- 2 files changed, 5 insertions(+), 9 deletions(-)
+ drivers/clk/qcom/gcc-sdm660.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/reg.h b/arch/powerpc/include/asm/reg.h
-index af99716615122..494b0283f2129 100644
---- a/arch/powerpc/include/asm/reg.h
-+++ b/arch/powerpc/include/asm/reg.h
-@@ -788,7 +788,7 @@
- #define THRM1_TIN	(1 << 31)
- #define THRM1_TIV	(1 << 30)
- #define THRM1_THRES(x)	((x&0x7f)<<23)
--#define THRM3_SITV(x)	((x&0x3fff)<<1)
-+#define THRM3_SITV(x)	((x & 0x1fff) << 1)
- #define THRM1_TID	(1<<2)
- #define THRM1_TIE	(1<<1)
- #define THRM1_V		(1<<0)
-diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
-index e2ab8a111b693..976d5bc1b5176 100644
---- a/arch/powerpc/kernel/tau_6xx.c
-+++ b/arch/powerpc/kernel/tau_6xx.c
-@@ -178,15 +178,11 @@ static void tau_timeout(void * info)
- 	 * complex sleep code needs to be added. One mtspr every time
- 	 * tau_timeout is called is probably not a big deal.
- 	 *
--	 * Enable thermal sensor and set up sample interval timer
--	 * need 20 us to do the compare.. until a nice 'cpu_speed' function
--	 * call is implemented, just assume a 500 mhz clock. It doesn't really
--	 * matter if we take too long for a compare since it's all interrupt
--	 * driven anyway.
--	 *
--	 * use a extra long time.. (60 us @ 500 mhz)
-+	 * The "PowerPC 740 and PowerPC 750 Microprocessor Datasheet"
-+	 * recommends that "the maximum value be set in THRM3 under all
-+	 * conditions."
- 	 */
--	mtspr(SPRN_THRM3, THRM3_SITV(500*60) | THRM3_E);
-+	mtspr(SPRN_THRM3, THRM3_SITV(0x1fff) | THRM3_E);
- 
- 	local_irq_restore(flags);
- }
+diff --git a/drivers/clk/qcom/gcc-sdm660.c b/drivers/clk/qcom/gcc-sdm660.c
+index c6fb57cd576f5..aa5c0c6ead017 100644
+--- a/drivers/clk/qcom/gcc-sdm660.c
++++ b/drivers/clk/qcom/gcc-sdm660.c
+@@ -666,7 +666,7 @@ static struct clk_rcg2 hmss_rbcpr_clk_src = {
+ 	.cmd_rcgr = 0x48044,
+ 	.mnd_width = 0,
+ 	.hid_width = 5,
+-	.parent_map = gcc_parent_map_xo_gpll0_gpll0_early_div,
++	.parent_map = gcc_parent_map_xo_gpll0,
+ 	.freq_tbl = ftbl_hmss_rbcpr_clk_src,
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "hmss_rbcpr_clk_src",
 -- 
 2.25.1
 
