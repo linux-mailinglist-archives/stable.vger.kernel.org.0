@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55C4829BC55
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F2A29BC53
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802417AbgJ0PsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:48:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55728 "EHLO mail.kernel.org"
+        id S1802390AbgJ0PsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796419AbgJ0PSW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:22 -0400
+        id S1796428AbgJ0PSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:18:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85CC420657;
-        Tue, 27 Oct 2020 15:18:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 723A62064B;
+        Tue, 27 Oct 2020 15:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811901;
-        bh=V7dREi8fC+dA9++ovT36KVgbZ66sB5aTseBMqv1pjpo=;
+        s=default; t=1603811915;
+        bh=r4ux3s2YQGqAgMubyAIOb8bGs7U6c/Ro5TdscGsB1qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGzUP8yCxNVXVqK6IfjyFPccAjktXPHmZzwddY3KzSyvyFmGkazHcqrc4vJIBPn6K
-         b1yPWAD83zTfVkoYvIr9YstZHJcikerE/J9+LmsBi065QPXDYtXU3RLncea14iK+dg
-         zW8814iDndgBFY6cLmRSKkkjyz8o3L4IOco5NygQ=
+        b=1K2yQla0+o7cdTew49y2T3CkPgsqBDRNMh43JhO/ts1G03sxgFt4t53CmhdDnHTEZ
+         RR1bdgoceNh1xgXoUhNWYh5FZT6/GAJwIwsAH9yHKkv7iDPN8vif7ZxPYsBDnBxc6U
+         n/MX4fAo6OEUmdM7rf5AdFYrTZpGL8mhpqRNOVTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin van der Gracht <robin@protonic.nl>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        syzbot+3f3837e61a48d32b495f@syzkaller.appspotmail.com
-Subject: [PATCH 5.9 023/757] can: j1935: j1939_tp_tx_dat_new(): fix missing initialization of skbcnt
-Date:   Tue, 27 Oct 2020 14:44:33 +0100
-Message-Id: <20201027135451.607741578@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 027/757] ALSA: hda: fix jack detection with Realtek codecs when in D3
+Date:   Tue, 27 Oct 2020 14:44:37 +0100
+Message-Id: <20201027135451.801220805@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,37 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit e009f95b1543e26606dca2f7e6e9f0f9174538e5 ]
+commit a6e7d0a4bdb02a7a3ffe0b44aaa8842b7efdd056 upstream.
 
-This fixes an uninit-value warning:
-BUG: KMSAN: uninit-value in can_receive+0x26b/0x630 net/can/af_can.c:650
+In case HDA controller becomes active, but codec is runtime suspended,
+jack detection is not successful and no interrupt is raised. This has
+been observed with multiple Realtek codecs and HDA controllers from
+different vendors. Bug does not occur if both codec and controller are
+active, or both are in suspend. Bug can be easily hit on desktop systems
+with no built-in speaker.
 
-Reported-and-tested-by: syzbot+3f3837e61a48d32b495f@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: Robin van der Gracht <robin@protonic.nl>
-Cc: Oleksij Rempel <linux@rempel-privat.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Link: https://lore.kernel.org/r/20201008061821.24663-1-xiyou.wangcong@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The problem can be fixed by powering up the codec once after every
+controller runtime resume. Even if codec goes back to suspend later, the
+jack detection will continue to work. Add a flag to 'hda_codec' to
+describe codecs that require this flow from the controller driver.
+Modify __azx_runtime_resume() to use pm_request_resume() to make the
+intent clearer.
+
+Mark all Realtek codecs with the new forced_resume flag.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209379
+Cc: Kailang Yang <kailang@realtek.com>
+Co-developed-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201012102704.794423-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/can/j1939/transport.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -580,6 +580,7 @@ sk_buff *j1939_tp_tx_dat_new(struct j193
- 	skb->dev = priv->ndev;
- 	can_skb_reserve(skb);
- 	can_skb_prv(skb)->ifindex = priv->ndev->ifindex;
-+	can_skb_prv(skb)->skbcnt = 0;
- 	/* reserve CAN header */
- 	skb_reserve(skb, offsetof(struct can_frame, data));
+---
+ include/sound/hda_codec.h     |    1 +
+ sound/pci/hda/hda_intel.c     |   14 ++++++++------
+ sound/pci/hda/patch_realtek.c |    1 +
+ 3 files changed, 10 insertions(+), 6 deletions(-)
+
+--- a/include/sound/hda_codec.h
++++ b/include/sound/hda_codec.h
+@@ -253,6 +253,7 @@ struct hda_codec {
+ 	unsigned int force_pin_prefix:1; /* Add location prefix */
+ 	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
+ 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
++	unsigned int forced_resume:1; /* forced resume for jack */
+ 	unsigned int mst_no_extra_pcms:1; /* no backup PCMs for DP-MST */
  
+ #ifdef CONFIG_PM
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1001,12 +1001,14 @@ static void __azx_runtime_resume(struct
+ 	azx_init_pci(chip);
+ 	hda_intel_init_chip(chip, true);
+ 
+-	if (status && from_rt) {
+-		list_for_each_codec(codec, &chip->bus)
+-			if (!codec->relaxed_resume &&
+-			    (status & (1 << codec->addr)))
+-				schedule_delayed_work(&codec->jackpoll_work,
+-						      codec->jackpoll_interval);
++	if (from_rt) {
++		list_for_each_codec(codec, &chip->bus) {
++			if (codec->relaxed_resume)
++				continue;
++
++			if (codec->forced_resume || (status & (1 << codec->addr)))
++				pm_request_resume(hda_codec_dev(codec));
++		}
+ 	}
+ 
+ 	/* power down again for link-controlled chips */
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1150,6 +1150,7 @@ static int alc_alloc_spec(struct hda_cod
+ 	codec->single_adc_amp = 1;
+ 	/* FIXME: do we need this for all Realtek codec models? */
+ 	codec->spdif_status_reset = 1;
++	codec->forced_resume = 1;
+ 	codec->patch_ops = alc_patch_ops;
+ 
+ 	err = alc_codec_rename_from_preset(codec);
 
 
