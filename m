@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 593F729BB1F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:29:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1034C29B7C4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1784385AbgJ0P5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53554 "EHLO mail.kernel.org"
+        id S1793898AbgJ0PQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803003AbgJ0PwD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:03 -0400
+        id S1795547AbgJ0PPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FB16204EF;
-        Tue, 27 Oct 2020 15:52:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 323EC21D41;
+        Tue, 27 Oct 2020 15:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813921;
-        bh=hq+5YAqLtF6uWsxy36cEdsM56xNLi/MvGLawAxAVDyQ=;
+        s=default; t=1603811715;
+        bh=nuqZbPGaVQvwnOYngLLEZ2+zo7gLgzoSpyjicX9nkQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWGeKZSmhBKCqQg2Yt3bWWWFoX0YP6QMTCtDrZBgNXY3TJ0ezMMYd4hqDKWX+3YK/
-         LOqhU04+otgX/rw44VW+WlG0nNzmHPjOK0OWSkhh6ImnLsihLhPO/kJXuGU+vySKx4
-         q/1P0tM2d4m7X960AgY5Wwml77bmMGPrsm6QA9PI=
+        b=Qjb4zFJpawQ/R+CJ2QQWAM3LoFPw8rNtvjxAtkBuZqM+VXGGeWcQRdNVFhqlxzaf6
+         xoeHQP7Z3gfm8MK0zYNBeH1U92iHVEIPAQ19EmGF5I/qlKFXp9M2DfsddBoRB1N4fo
+         KP4ROVtaWD3yvt+YCtB1tDVK668NYJeNRRiOJvLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Chen <chenyu56@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 684/757] usb: dwc3: Add splitdisable quirk for Hisilicon Kirin Soc
-Date:   Tue, 27 Oct 2020 14:55:34 +0100
-Message-Id: <20201027135522.625595678@linuxfoundation.org>
+Subject: [PATCH 5.8 592/633] drm/msm/a6xx: fix a potential overflow issue
+Date:   Tue, 27 Oct 2020 14:55:35 +0100
+Message-Id: <20201027135550.587870197@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,123 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Chen <chenyu56@huawei.com>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-[ Upstream commit f580170f135af14e287560d94045624d4242d712 ]
+[ Upstream commit 08d3ab4b46339bc6f97e83b54a3fb4f8bf8f4cd9 ]
 
-SPLIT_BOUNDARY_DISABLE should be set for DesignWare USB3 DRD Core
-of Hisilicon Kirin Soc when dwc3 core act as host.
+It's allocating an array of a6xx_gpu_state_obj structure rathor than
+its pointers.
 
-[mchehab: dropped a dev_dbg() as only traces are now allowwed on this driver]
+This patch fix it.
 
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 25 +++++++++++++++++++++++++
- drivers/usb/dwc3/core.h |  7 +++++++
- 2 files changed, 32 insertions(+)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index c8e0ef2c1db33..2f9f4ad562d4e 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -119,6 +119,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	struct dwc3 *dwc = work_to_dwc(work);
- 	unsigned long flags;
- 	int ret;
-+	u32 reg;
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
+index d6023ba8033c0..3bb567812b990 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
+@@ -864,7 +864,7 @@ static void a6xx_get_indexed_registers(struct msm_gpu *gpu,
+ 	int i;
  
- 	if (dwc->dr_mode != USB_DR_MODE_OTG)
+ 	a6xx_state->indexed_regs = state_kcalloc(a6xx_state, count,
+-		sizeof(a6xx_state->indexed_regs));
++		sizeof(*a6xx_state->indexed_regs));
+ 	if (!a6xx_state->indexed_regs)
  		return;
-@@ -172,6 +173,11 @@ static void __dwc3_set_mode(struct work_struct *work)
- 				otg_set_vbus(dwc->usb2_phy->otg, true);
- 			phy_set_mode(dwc->usb2_generic_phy, PHY_MODE_USB_HOST);
- 			phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
-+			if (dwc->dis_split_quirk) {
-+				reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
-+				reg |= DWC3_GUCTL3_SPLITDISABLE;
-+				dwc3_writel(dwc->regs, DWC3_GUCTL3, reg);
-+			}
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-@@ -1349,6 +1355,9 @@ static void dwc3_get_properties(struct dwc3 *dwc)
- 	dwc->dis_metastability_quirk = device_property_read_bool(dev,
- 				"snps,dis_metastability_quirk");
- 
-+	dwc->dis_split_quirk = device_property_read_bool(dev,
-+				"snps,dis-split-quirk");
-+
- 	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
- 	dwc->tx_de_emphasis = tx_de_emphasis;
- 
-@@ -1866,10 +1875,26 @@ static int dwc3_resume(struct device *dev)
- 
- 	return 0;
- }
-+
-+static void dwc3_complete(struct device *dev)
-+{
-+	struct dwc3	*dwc = dev_get_drvdata(dev);
-+	u32		reg;
-+
-+	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_HOST &&
-+			dwc->dis_split_quirk) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
-+		reg |= DWC3_GUCTL3_SPLITDISABLE;
-+		dwc3_writel(dwc->regs, DWC3_GUCTL3, reg);
-+	}
-+}
-+#else
-+#define dwc3_complete NULL
- #endif /* CONFIG_PM_SLEEP */
- 
- static const struct dev_pm_ops dwc3_dev_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(dwc3_suspend, dwc3_resume)
-+	.complete = dwc3_complete,
- 	SET_RUNTIME_PM_OPS(dwc3_runtime_suspend, dwc3_runtime_resume,
- 			dwc3_runtime_idle)
- };
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 2f04b3e42bf1c..ba0f743f35528 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -138,6 +138,7 @@
- #define DWC3_GEVNTCOUNT(n)	(0xc40c + ((n) * 0x10))
- 
- #define DWC3_GHWPARAMS8		0xc600
-+#define DWC3_GUCTL3		0xc60c
- #define DWC3_GFLADJ		0xc630
- 
- /* Device Registers */
-@@ -380,6 +381,9 @@
- /* Global User Control Register 2 */
- #define DWC3_GUCTL2_RST_ACTBITLATER		BIT(14)
- 
-+/* Global User Control Register 3 */
-+#define DWC3_GUCTL3_SPLITDISABLE		BIT(14)
-+
- /* Device Configuration Register */
- #define DWC3_DCFG_DEVADDR(addr)	((addr) << 3)
- #define DWC3_DCFG_DEVADDR_MASK	DWC3_DCFG_DEVADDR(0x7f)
-@@ -1052,6 +1056,7 @@ struct dwc3_scratchpad_array {
-  * 	2	- No de-emphasis
-  * 	3	- Reserved
-  * @dis_metastability_quirk: set to disable metastability quirk.
-+ * @dis_split_quirk: set to disable split boundary.
-  * @imod_interval: set the interrupt moderation interval in 250ns
-  *                 increments or 0 to disable.
-  */
-@@ -1245,6 +1250,8 @@ struct dwc3 {
- 
- 	unsigned		dis_metastability_quirk:1;
- 
-+	unsigned		dis_split_quirk:1;
-+
- 	u16			imod_interval;
- };
  
 -- 
 2.25.1
