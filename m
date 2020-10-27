@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E6DE29B171
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3052029B181
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901940AbgJ0O3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56348 "EHLO mail.kernel.org"
+        id S2896028AbgJ0Oaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759375AbgJ0O3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:29:40 -0400
+        id S2902010AbgJ0O3t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:29:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DC2B22202;
-        Tue, 27 Oct 2020 14:29:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAE6D22202;
+        Tue, 27 Oct 2020 14:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808979;
-        bh=ncTgAyadpEpWnpmCyZZ2DOBUM9msIpirBHCUFbUETvU=;
+        s=default; t=1603808988;
+        bh=bI/eNuQfeQJnX1eDN9y5UTC3AgV8bBNlMFuo2FawxY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjRxGwG52zL5GA5wxhmIGs2m0o9NA8gq++CpaJsvUTUoPdX+2xrXbYO2cICoawDV9
-         vpHisl9XkUhiu8AfQSH+XxhTg1A8TsVfN8xr5YWHGj0aXbU6OalqezIPh1DYaCIB9D
-         CkBjRdOc5Rs5yInDE/LYk6GdHTTKeTFR+O9Lqjl4=
+        b=Ii9TO/Nfrm3o++v3TjtePz1PG4XO/8mK9w9goofYwSibNqAs8hBt3cs+Qtl2vA3CO
+         jYn1tYLZYZYPobjAl9PpZhTCeUQHTYZJVO0YkCcYeq5+ujMFte/LdefP/sYLVVBNeS
+         2jBHY3bmbjiO/VNtNlLjlQ534piBOWZYOgYIguN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ji Li <jli@akamai.com>,
-        Ke Li <keli@akamai.com>, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        David Ahern <dsahern@gmail.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 032/408] net: Properly typecast int values to set sk_max_pacing_rate
-Date:   Tue, 27 Oct 2020 14:49:30 +0100
-Message-Id: <20201027135456.562135874@linuxfoundation.org>
+Subject: [PATCH 5.4 034/408] nexthop: Fix performance regression in nexthop deletion
+Date:   Tue, 27 Oct 2020 14:49:32 +0100
+Message-Id: <20201027135456.657514891@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,56 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ke Li <keli@akamai.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 700465fd338fe5df08a1b2e27fa16981f562547f ]
+[ Upstream commit df6afe2f7c19349de2ee560dc62ea4d9ad3ff889 ]
 
-In setsockopt(SO_MAX_PACING_RATE) on 64bit systems, sk_max_pacing_rate,
-after extended from 'u32' to 'unsigned long', takes unintentionally
-hiked value whenever assigned from an 'int' value with MSB=1, due to
-binary sign extension in promoting s32 to u64, e.g. 0x80000000 becomes
-0xFFFFFFFF80000000.
+While insertion of 16k nexthops all using the same netdev ('dummy10')
+takes less than a second, deletion takes about 130 seconds:
 
-Thus inflated sk_max_pacing_rate causes subsequent getsockopt to return
-~0U unexpectedly. It may also result in increased pacing rate.
+# time -p ip -b nexthop.batch
+real 0.29
+user 0.01
+sys 0.15
 
-Fix by explicitly casting the 'int' value to 'unsigned int' before
-assigning it to sk_max_pacing_rate, for zero extension to happen.
+# time -p ip link set dev dummy10 down
+real 131.03
+user 0.06
+sys 0.52
 
-Fixes: 76a9ebe811fb ("net: extend sk_pacing_rate to unsigned long")
-Signed-off-by: Ji Li <jli@akamai.com>
-Signed-off-by: Ke Li <keli@akamai.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201022064146.79873-1-keli@akamai.com
+This is because of repeated calls to synchronize_rcu() whenever a
+nexthop is removed from a nexthop group:
+
+# /usr/share/bcc/tools/offcputime -p `pgrep -nx ip` -K
+...
+    b'finish_task_switch'
+    b'schedule'
+    b'schedule_timeout'
+    b'wait_for_completion'
+    b'__wait_rcu_gp'
+    b'synchronize_rcu.part.0'
+    b'synchronize_rcu'
+    b'__remove_nexthop'
+    b'remove_nexthop'
+    b'nexthop_flush_dev'
+    b'nh_netdev_event'
+    b'raw_notifier_call_chain'
+    b'call_netdevice_notifiers_info'
+    b'__dev_notify_flags'
+    b'dev_change_flags'
+    b'do_setlink'
+    b'__rtnl_newlink'
+    b'rtnl_newlink'
+    b'rtnetlink_rcv_msg'
+    b'netlink_rcv_skb'
+    b'rtnetlink_rcv'
+    b'netlink_unicast'
+    b'netlink_sendmsg'
+    b'____sys_sendmsg'
+    b'___sys_sendmsg'
+    b'__sys_sendmsg'
+    b'__x64_sys_sendmsg'
+    b'do_syscall_64'
+    b'entry_SYSCALL_64_after_hwframe'
+    -                ip (277)
+        126554955
+
+Since nexthops are always deleted under RTNL, synchronize_net() can be
+used instead. It will call synchronize_rcu_expedited() which only blocks
+for several microseconds as opposed to multiple milliseconds like
+synchronize_rcu().
+
+With this patch deletion of 16k nexthops takes less than a second:
+
+# time -p ip link set dev dummy10 down
+real 0.12
+user 0.00
+sys 0.04
+
+Tested with fib_nexthops.sh which includes torture tests that prompted
+the initial change:
+
+# ./fib_nexthops.sh
+...
+Tests passed: 134
+Tests failed:   0
+
+Fixes: 90f33bffa382 ("nexthops: don't modify published nexthop groups")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20201016172914.643282-1-idosch@idosch.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    3 ++-
- net/core/sock.c   |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ net/ipv4/nexthop.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -4270,7 +4270,8 @@ BPF_CALL_5(bpf_setsockopt, struct bpf_so
- 				cmpxchg(&sk->sk_pacing_status,
- 					SK_PACING_NONE,
- 					SK_PACING_NEEDED);
--			sk->sk_max_pacing_rate = (val == ~0U) ? ~0UL : val;
-+			sk->sk_max_pacing_rate = (val == ~0U) ?
-+						 ~0UL : (unsigned int)val;
- 			sk->sk_pacing_rate = min(sk->sk_pacing_rate,
- 						 sk->sk_max_pacing_rate);
- 			break;
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1106,7 +1106,7 @@ set_rcvbuf:
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -763,7 +763,7 @@ static void remove_nexthop_from_groups(s
+ 		remove_nh_grp_entry(net, nhge, nlinfo);
  
- 	case SO_MAX_PACING_RATE:
- 		{
--		unsigned long ulval = (val == ~0U) ? ~0UL : val;
-+		unsigned long ulval = (val == ~0U) ? ~0UL : (unsigned int)val;
+ 	/* make sure all see the newly published array before releasing rtnl */
+-	synchronize_rcu();
++	synchronize_net();
+ }
  
- 		if (sizeof(ulval) != sizeof(val) &&
- 		    optlen >= sizeof(ulval) &&
+ static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
 
 
