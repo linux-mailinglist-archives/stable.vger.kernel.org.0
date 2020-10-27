@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 063C329B399
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9217F29B344
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780079AbgJ0Oxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45892 "EHLO mail.kernel.org"
+        id S1765953AbgJ0Oro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:47:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2899678AbgJ0Op7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:45:59 -0400
+        id S1765137AbgJ0Orn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:47:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9302F206E5;
-        Tue, 27 Oct 2020 14:45:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24835207DE;
+        Tue, 27 Oct 2020 14:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809958;
-        bh=mTY9y3pxS8i08iT2C0dGcNyVykiKc/+2kfaNjS4clTA=;
+        s=default; t=1603810062;
+        bh=XPxyetFb5/QDwKw/yv4CYnOI7oGby/kL3IvGqoCEE3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDfmZiRDxz1qOL/V96Ppqkk8EF39AjLvSfVWAjZbaiNuI2h2AUJWGR5uzN0Pe6ywO
-         Tzytzng774LhsWfXxuCKbWktIunI5l3m8dwnh1EeiW8WFO4WP0OQqxFJeBigOMR4AF
-         RMTZHgkidzYSMiMaqQrycjVeUFAuRmsD/DqqU6uI=
+        b=mbmQwkt/Z6VohrueHxAG7ASNaKxpnOJfKjM1uo7bR302Hq6c9hcYTbZeXOfJw+CLy
+         A+gwIguEpvDymDJeJ19vAkLwZ8uaIJJj5WvdID+ffk7T6imBUbc60rKSwZ7lczYuwK
+         RE1hbRldr01CiNTiQc4oKXTh5GPbXM9xEA75lk+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 378/408] brcmsmac: fix memory leak in wlc_phy_attach_lcnphy
-Date:   Tue, 27 Oct 2020 14:55:16 +0100
-Message-Id: <20201027135512.543275386@linuxfoundation.org>
+Subject: [PATCH 5.4 379/408] rtl8xxxu: prevent potential memory leak
+Date:   Tue, 27 Oct 2020 14:55:17 +0100
+Message-Id: <20201027135512.587545282@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,41 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Chris Chiu <chiu@endlessm.com>
 
-[ Upstream commit f4443293d741d1776b86ed1dd8c4e4285d0775fc ]
+[ Upstream commit 86279456a4d47782398d3cb8193f78f672e36cac ]
 
-When wlc_phy_txpwr_srom_read_lcnphy fails in wlc_phy_attach_lcnphy,
-the allocated pi->u.pi_lcnphy is leaked, since struct brcms_phy will be
-freed in the caller function.
+Free the skb if usb_submit_urb fails on rx_urb. And free the urb
+no matter usb_submit_urb succeeds or not in rtl8xxxu_submit_int_urb.
 
-Fix this by calling wlc_phy_detach_lcnphy in the error handler of
-wlc_phy_txpwr_srom_read_lcnphy before returning.
-
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200908121743.23108-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Link: https://lore.kernel.org/r/20200906040424.22022-1-chiu@endlessm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c    | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
-index 7ef36234a25dc..66797dc5e90d5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
-@@ -5065,8 +5065,10 @@ bool wlc_phy_attach_lcnphy(struct brcms_phy *pi)
- 	pi->pi_fptr.radioloftget = wlc_lcnphy_get_radio_loft;
- 	pi->pi_fptr.detach = wlc_phy_detach_lcnphy;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 3499b211dad51..048984ca81fdb 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5447,7 +5447,6 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
+ 	ret = usb_submit_urb(urb, GFP_KERNEL);
+ 	if (ret) {
+ 		usb_unanchor_urb(urb);
+-		usb_free_urb(urb);
+ 		goto error;
+ 	}
  
--	if (!wlc_phy_txpwr_srom_read_lcnphy(pi))
-+	if (!wlc_phy_txpwr_srom_read_lcnphy(pi)) {
-+		kfree(pi->u.pi_lcnphy);
- 		return false;
-+	}
+@@ -5456,6 +5455,7 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
+ 	rtl8xxxu_write32(priv, REG_USB_HIMR, val32);
  
- 	if (LCNREV_IS(pi->pubpi.phy_rev, 1)) {
- 		if (pi_lcn->lcnphy_tempsense_option == 3) {
+ error:
++	usb_free_urb(urb);
+ 	return ret;
+ }
+ 
+@@ -5781,6 +5781,7 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
+ 	struct rtl8xxxu_priv *priv = hw->priv;
+ 	struct rtl8xxxu_rx_urb *rx_urb;
+ 	struct rtl8xxxu_tx_urb *tx_urb;
++	struct sk_buff *skb;
+ 	unsigned long flags;
+ 	int ret, i;
+ 
+@@ -5831,6 +5832,13 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
+ 		rx_urb->hw = hw;
+ 
+ 		ret = rtl8xxxu_submit_rx_urb(priv, rx_urb);
++		if (ret) {
++			if (ret != -ENOMEM) {
++				skb = (struct sk_buff *)rx_urb->urb.context;
++				dev_kfree_skb(skb);
++			}
++			rtl8xxxu_queue_rx_urb(priv, rx_urb);
++		}
+ 	}
+ exit:
+ 	/*
 -- 
 2.25.1
 
