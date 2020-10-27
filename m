@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1490629AFFD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1DC29AE87
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756911AbgJ0OPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36988 "EHLO mail.kernel.org"
+        id S1753664AbgJ0OBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756906AbgJ0OPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:11 -0400
+        id S1753617AbgJ0OBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14AE1206F7;
-        Tue, 27 Oct 2020 14:15:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED0F722202;
+        Tue, 27 Oct 2020 14:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808110;
-        bh=c+hKADWJK/1wsGh/aViROL3bcWaIRh94iWjLK3xVe/c=;
+        s=default; t=1603807269;
+        bh=zhVexCYouzqfF0FkuFMX4oiB5PcQkoVYyq09XIzgkTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inU3ojZPLkZAlYpJO2Wl+izwcR+iRdeUInnw0RL9hZB1d64Maw69vpPUApjLHSgaE
-         4QfiLMe8GH8+D/MUm8gvBxlW3MMl2ET4iC9lnE0v5BKAChOTU+6KXvvVS4vJ020NRf
-         zu0DO/pfBYjfCy897ACpX7I5+eiX5Jbrmix2ssaA=
+        b=A3tkL0FkNckpQ7GaqYEQfteDD0nqW0K5qedSb0mM6ljaiK9NPpss40VKzhcBNXp7l
+         UiHrUUTayIYoupyR7nmZ84ZmpP77i8B99s2fINN91jY7wuod3OrbIN1lZOyJUjV3sO
+         PsokMmVEkdh5pgjxxl0OLTdMqT6Ybt9bap49M2AA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        stable@vger.kernel.org,
+        syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com,
+        Julian Anastasov <ja@ssi.bg>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/191] misc: vop: add round_up(x,4) for vring_size to avoid kernel panic
+Subject: [PATCH 4.4 105/112] ipvs: Fix uninit-value in do_ip_vs_set_ctl()
 Date:   Tue, 27 Oct 2020 14:50:15 +0100
-Message-Id: <20201027134917.411900072@linuxfoundation.org>
+Message-Id: <20201027134905.510490724@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit cc1a2679865a94b83804822996eed010a50a7c1d ]
+[ Upstream commit c5a8a8498eed1c164afc94f50a939c1a10abf8ad ]
 
-Since struct _mic_vring_info and vring are allocated together and follow
-vring, if the vring_size() is not four bytes aligned, which will cause
-the start address of struct _mic_vring_info is not four byte aligned.
-For example, when vring entries is 128, the vring_size() will be 5126
-bytes. The _mic_vring_info struct layout in ddr looks like:
-0x90002400:  00000000 00390000 EE010000 0000C0FF
-Here 0x39 is the avail_idx member, and 0xC0FFEE01 is the magic member.
+do_ip_vs_set_ctl() is referencing uninitialized stack value when `len` is
+zero. Fix it.
 
-When EP use ioread32(magic) to reads the magic in RC's share memory, it
-will cause kernel panic on ARM64 platform due to the cross-byte io read.
-Here read magic in user space use le32toh(vr0->info->magic) will meet
-the same issue.
-So add round_up(x,4) for vring_size, then the struct _mic_vring_info
-will store in this way:
-0x90002400:  00000000 00000000 00000039 C0FFEE01
-Which will avoid kernel panic when read magic in struct _mic_vring_info.
-
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20200929091106.24624-4-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=46ebfb92a8a812621a001ef04d90dfa459520fe2
+Suggested-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/vop/vop_main.c   | 2 +-
- drivers/misc/mic/vop/vop_vringh.c | 4 ++--
- samples/mic/mpssd/mpssd.c         | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index a341938c7e2c6..e7cb57f8ddfe2 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -301,7 +301,7 @@ static struct virtqueue *vop_find_vq(struct virtio_device *dev,
- 	/* First assign the vring's allocated in host memory */
- 	vqconfig = _vop_vq_config(vdev->desc) + index;
- 	memcpy_fromio(&config, vqconfig, sizeof(config));
--	_vr_size = vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN);
-+	_vr_size = round_up(vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN), 4);
- 	vr_size = PAGE_ALIGN(_vr_size + sizeof(struct _mic_vring_info));
- 	va = vpdev->hw_ops->ioremap(vpdev, le64_to_cpu(config.address),
- 			vr_size);
-diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
-index 99bde52a3a256..49e7a7240469c 100644
---- a/drivers/misc/mic/vop/vop_vringh.c
-+++ b/drivers/misc/mic/vop/vop_vringh.c
-@@ -308,7 +308,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index b176f76dfaa14..c7ee962a547b9 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -2383,6 +2383,10 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		/* Set timeout values for (tcp tcpfin udp) */
+ 		ret = ip_vs_set_timeout(ipvs, (struct ip_vs_timeout_user *)arg);
+ 		goto out_unlock;
++	} else if (!len) {
++		/* No more commands with len == 0 below */
++		ret = -EINVAL;
++		goto out_unlock;
+ 	}
  
- 		num = le16_to_cpu(vqconfig[i].num);
- 		mutex_init(&vvr->vr_mutex);
--		vr_size = PAGE_ALIGN(vring_size(num, MIC_VIRTIO_RING_ALIGN) +
-+		vr_size = PAGE_ALIGN(round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4) +
- 			sizeof(struct _mic_vring_info));
- 		vr->va = (void *)
- 			__get_free_pages(GFP_KERNEL | __GFP_ZERO,
-@@ -320,7 +320,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
- 			goto err;
- 		}
- 		vr->len = vr_size;
--		vr->info = vr->va + vring_size(num, MIC_VIRTIO_RING_ALIGN);
-+		vr->info = vr->va + round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4);
- 		vr->info->magic = cpu_to_le32(MIC_MAGIC + vdev->virtio_id + i);
- 		vr_addr = dma_map_single(&vpdev->dev, vr->va, vr_size,
- 					 DMA_BIDIRECTIONAL);
-diff --git a/samples/mic/mpssd/mpssd.c b/samples/mic/mpssd/mpssd.c
-index 49db1def1721c..84e583ab8fd0c 100644
---- a/samples/mic/mpssd/mpssd.c
-+++ b/samples/mic/mpssd/mpssd.c
-@@ -414,9 +414,9 @@ mic_virtio_copy(struct mic_info *mic, int fd,
+ 	usvc_compat = (struct ip_vs_service_user *)arg;
+@@ -2459,9 +2463,6 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
+ 	case IP_VS_SO_SET_DELDEST:
+ 		ret = ip_vs_del_dest(svc, &udest);
+-		break;
+-	default:
+-		ret = -EINVAL;
+ 	}
  
- static inline unsigned _vring_size(unsigned int num, unsigned long align)
- {
--	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
-+	return _ALIGN_UP(((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
- 				+ align - 1) & ~(align - 1))
--		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
-+		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num, 4);
- }
- 
- /*
+   out_unlock:
 -- 
 2.25.1
 
