@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C142429B258
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9A9629B25A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761422AbgJ0Oji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:39:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38892 "EHLO mail.kernel.org"
+        id S1761425AbgJ0Ojk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:39:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761416AbgJ0Ojf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:39:35 -0400
+        id S2899177AbgJ0Oji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:39:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41441207BB;
-        Tue, 27 Oct 2020 14:39:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C1BE21D7B;
+        Tue, 27 Oct 2020 14:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809574;
-        bh=emrf5UDSxYyt/+hB/f1698NU9wmvd0jrudNuvQZg7Lc=;
+        s=default; t=1603809577;
+        bh=xPTYDqcKFPNokPQ4YG2zVjKrCaVG4vsCuNK5PQRUCM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gevp7jLRUlE2cCj23mi50rRT0oFIZpnGecJ6TNto0h9mQfWTAR1nx7gfP8QAULnnc
-         CONkcEe6DgU1v9qCHp+meIdXnuQB29+Q4VCrE9mNQcZEqG0lfyhU+qQeYqyWEB7A/Q
-         Cs2HcbontYb1C61QRtyZXaCW0fKcqvgXpuqKFr90=
+        b=jqpNx4qD+jx6ZsjiKAnzO2x9LhCZ4OhVnvu6CBQaKkRb5GlJvErAxIez60Vx2u694
+         bCfY9/6z/lAncg6dKhujf8awow0DGCVPhWt4HKH94nm6+g4Y7YJL0NChZ2nKHyw5hn
+         ZaT9G/PrAH35nRa8u2ByM/5yFC68NzUyC07iXYaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 243/408] RDMA/ipoib: Set rtnl_link_ops for ipoib interfaces
-Date:   Tue, 27 Oct 2020 14:53:01 +0100
-Message-Id: <20201027135506.327777437@linuxfoundation.org>
+Subject: [PATCH 5.4 244/408] powerpc/perf: Exclude pmc5/6 from the irrelevant PMU group constraints
+Date:   Tue, 27 Oct 2020 14:53:02 +0100
+Message-Id: <20201027135506.367748657@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,82 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 5ce2dced8e95e76ff7439863a118a053a7fc6f91 ]
+[ Upstream commit 3b6c3adbb2fa42749c3d38cfc4d4d0b7e096bb7b ]
 
-Report the "ipoib pkey", "mode" and "umcast" netlink attributes for every
-IPoiB interface type, not just children created with 'ip link add'.
+PMU counter support functions enforces event constraints for group of
+events to check if all events in a group can be monitored. Incase of
+event codes using PMC5 and PMC6 ( 500fa and 600f4 respectively ), not
+all constraints are applicable, say the threshold or sample bits. But
+current code includes pmc5 and pmc6 in some group constraints (like
+IC_DC Qualifier bits) which is actually not applicable and hence
+results in those events not getting counted when scheduled along with
+group of other events. Patch fixes this by excluding PMC5/6 from
+constraints which are not relevant for it.
 
-After setting the rtnl_link_ops for the parent interface, implement the
-dellink() callback to block users from trying to remove it.
-
-Fixes: 862096a8bbf8 ("IB/ipoib: Add more rtnl_link_ops callbacks")
-Link: https://lore.kernel.org/r/20201004132948.26669-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 7ffd948 ("powerpc/perf: factor out power8 pmu functions")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1600672204-1610-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib_main.c    |  2 ++
- drivers/infiniband/ulp/ipoib/ipoib_netlink.c | 11 +++++++++++
- drivers/infiniband/ulp/ipoib/ipoib_vlan.c    |  2 ++
- 3 files changed, 15 insertions(+)
+ arch/powerpc/perf/isa207-common.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-index 044bcacad6e48..69ecf37053a81 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -2463,6 +2463,8 @@ static struct net_device *ipoib_add_port(const char *format,
- 	/* call event handler to ensure pkey in sync */
- 	queue_work(ipoib_workqueue, &priv->flush_heavy);
+diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
+index 4c86da5eb28ab..0b5c8f4fbdbfd 100644
+--- a/arch/powerpc/perf/isa207-common.c
++++ b/arch/powerpc/perf/isa207-common.c
+@@ -269,6 +269,15 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
  
-+	ndev->rtnl_link_ops = ipoib_get_link_ops();
+ 		mask  |= CNST_PMC_MASK(pmc);
+ 		value |= CNST_PMC_VAL(pmc);
 +
- 	result = register_netdev(ndev);
- 	if (result) {
- 		pr_warn("%s: couldn't register ipoib port %d; error %d\n",
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-index 38c984d16996d..d5a90a66b45cf 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-@@ -144,6 +144,16 @@ static int ipoib_new_child_link(struct net *src_net, struct net_device *dev,
- 	return 0;
- }
- 
-+static void ipoib_del_child_link(struct net_device *dev, struct list_head *head)
-+{
-+	struct ipoib_dev_priv *priv = ipoib_priv(dev);
-+
-+	if (!priv->parent)
-+		return;
-+
-+	unregister_netdevice_queue(dev, head);
-+}
-+
- static size_t ipoib_get_size(const struct net_device *dev)
- {
- 	return nla_total_size(2) +	/* IFLA_IPOIB_PKEY   */
-@@ -158,6 +168,7 @@ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
- 	.priv_size	= sizeof(struct ipoib_dev_priv),
- 	.setup		= ipoib_setup_common,
- 	.newlink	= ipoib_new_child_link,
-+	.dellink	= ipoib_del_child_link,
- 	.changelink	= ipoib_changelink,
- 	.get_size	= ipoib_get_size,
- 	.fill_info	= ipoib_fill_info,
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_vlan.c b/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
-index 8ac8e18fbe0c3..58ca5e9c6079c 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
-@@ -192,6 +192,8 @@ int ipoib_vlan_add(struct net_device *pdev, unsigned short pkey)
++		/*
++		 * PMC5 and PMC6 are used to count cycles and instructions and
++		 * they do not support most of the constraint bits. Add a check
++		 * to exclude PMC5/6 from most of the constraints except for
++		 * EBB/BHRB.
++		 */
++		if (pmc >= 5)
++			goto ebb_bhrb;
  	}
- 	priv = ipoib_priv(ndev);
  
-+	ndev->rtnl_link_ops = ipoib_get_link_ops();
-+
- 	result = __ipoib_vlan_add(ppriv, priv, pkey, IPOIB_LEGACY_CHILD);
+ 	if (pmc <= 4) {
+@@ -335,6 +344,7 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
+ 		}
+ 	}
  
- 	if (result && ndev->reg_state == NETREG_UNINITIALIZED)
++ebb_bhrb:
+ 	if (!pmc && ebb)
+ 		/* EBB events must specify the PMC */
+ 		return -1;
 -- 
 2.25.1
 
