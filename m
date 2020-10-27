@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9641229B93F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6BB29B944
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802276AbgJ0PqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1802278AbgJ0PqH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 11:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42088 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368716AbgJ0P1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:27:04 -0400
+        id S368719AbgJ0P1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:27:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62ABC22202;
-        Tue, 27 Oct 2020 15:27:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65A9E2064B;
+        Tue, 27 Oct 2020 15:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812424;
-        bh=l1kaWWINDqgYxtprcmfWxtaQ+1hArbtHtpIwUpQLm0w=;
+        s=default; t=1603812427;
+        bh=Lt84UTdkC1WkJjIf59v1sGWU3GFznaSsBGuMZ9T8b/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/4acK+pDrGmshO7SrWdPBqbzt2ADlkVnCfcTpO2WBwzcwxiA/t2HaoC8VKo5ZYGA
-         JmwZQF7r82VcD63rj/T0XaE5ZP74o0Lkla+JVEWY859SUHqAzc7SlU79V5LyLMIlRf
-         et+UgDOafDNvVA7Gnkd9HjT8yHARzfTJPE3IkU68=
+        b=OFVLDWz6UJdrw3+6JsuqKtxEwzYfAjmcnrpzM+HVYsf16K/e6YApAGWy3JSrN+C1K
+         Rkh2jXh4wcVu1xSZbC3dY0ku2SAvCnt+7uN2n+pMmXTVmyEzq7lJFBMpodEXtQQPHf
+         B4EnBYQq8rTkzWhlfSkAytLKU1ic56GVF39aIrmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 203/757] drm/gma500: fix error check
-Date:   Tue, 27 Oct 2020 14:47:33 +0100
-Message-Id: <20201027135500.125912360@linuxfoundation.org>
+Subject: [PATCH 5.9 204/757] scsi: qla4xxx: Fix an error handling path in qla4xxx_get_host_stats()
+Date:   Tue, 27 Oct 2020 14:47:34 +0100
+Message-Id: <20201027135500.174725634@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,52 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cdd296cdae1af2d27dae3fcfbdf12c5252ab78cf ]
+[ Upstream commit 574918e69720fe62ab3eb42ec3750230c8d16b06 ]
 
-Reviewing this block of code in cdv_intel_dp_init()
+Update the size used in 'dma_free_coherent()' in order to match the one
+used in the corresponding 'dma_alloc_coherent()'.
 
-ret = cdv_intel_dp_aux_native_read(gma_encoder, DP_DPCD_REV, ...
-
-cdv_intel_edp_panel_vdd_off(gma_encoder);
-if (ret == 0) {
-	/* if this fails, presume the device is a ghost */
-	DRM_INFO("failed to retrieve link info, disabling eDP\n");
-	drm_encoder_cleanup(encoder);
-	cdv_intel_dp_destroy(connector);
-	goto err_priv;
-} else {
-
-The (ret == 0) is not strict enough.
-cdv_intel_dp_aux_native_read() returns > 0 on success
-otherwise it is failure.
-
-So change to <=
-
-Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805205911.20927-1-trix@redhat.com
+Link: https://lore.kernel.org/r/20200802101527.676054-1-christophe.jaillet@wanadoo.fr
+Fixes: 4161cee52df8 ("[SCSI] qla4xxx: Add host statistics support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
+ drivers/scsi/qla4xxx/ql4_os.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-index f41cbb753bb46..720a767118c9c 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-@@ -2078,7 +2078,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
- 					       intel_dp->dpcd,
- 					       sizeof(intel_dp->dpcd));
- 		cdv_intel_edp_panel_vdd_off(gma_encoder);
--		if (ret == 0) {
-+		if (ret <= 0) {
- 			/* if this fails, presume the device is a ghost */
- 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
- 			drm_encoder_cleanup(encoder);
+diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
+index 676778cbc5509..4775baac43c29 100644
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -1254,7 +1254,7 @@ static int qla4xxx_get_host_stats(struct Scsi_Host *shost, char *buf, int len)
+ 			le64_to_cpu(ql_iscsi_stats->iscsi_sequence_error);
+ exit_host_stats:
+ 	if (ql_iscsi_stats)
+-		dma_free_coherent(&ha->pdev->dev, host_stats_size,
++		dma_free_coherent(&ha->pdev->dev, stats_size,
+ 				  ql_iscsi_stats, iscsi_stats_dma);
+ 
+ 	ql4_printk(KERN_INFO, ha, "%s: Get host stats done\n",
 -- 
 2.25.1
 
