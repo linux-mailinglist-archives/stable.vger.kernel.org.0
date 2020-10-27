@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C7F29BEA3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A35329BCC3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1813691AbgJ0Qxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48878 "EHLO mail.kernel.org"
+        id S1811067AbgJ0QhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:37:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794568AbgJ0PM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:12:29 -0400
+        id S1763869AbgJ0Prj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:47:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A92CC2225E;
-        Tue, 27 Oct 2020 15:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 520C72072C;
+        Tue, 27 Oct 2020 15:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811549;
-        bh=Q9CHD5Ou3bkw3/j9FIqWOLtSLv6yrwBRIhK/v9KYZrQ=;
+        s=default; t=1603813655;
+        bh=r3qMM+7kEx7oV8BxE5af5OJtnD9l4vZHU2aGFsJw2z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkEbwZj0gPs5gkEOQreGOkJP4EE6t8OKB+pYm0TgEWNHyfiwha+1RYelQAl2THU75
-         cr/9wHBGe3l1nenlpm4GZH1OC08r/z/axMZdFqXfGDDajz8SIx2En7rxIJk4WrRal+
-         v8R8ffe1jwJdQbhwsa6UZ4Q1scTSqn76p8Tfpyg8=
+        b=pqZLglXwAhO3ywDZ+JWJ/rxh8u8qSVqLjiqouFeS9d15hPoGvwwu/uzCBqE86Mxn5
+         7z3ZnR8XRdz7Bcii5lMOzEc72cwMdxtc6K2sX5i1yfCCo5q1AkhitmbORxxM5nMmFQ
+         VZz/L5ajuAnXv0ehmPTyI82Wek/fDwAfxyp0//Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youquan Song <youquan.song@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 532/633] x86/mce: Add Skylake quirk for patrol scrub reported errors
-Date:   Tue, 27 Oct 2020 14:54:35 +0100
-Message-Id: <20201027135547.732024977@linuxfoundation.org>
+Subject: [PATCH 5.9 626/757] arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
+Date:   Tue, 27 Oct 2020 14:54:36 +0100
+Message-Id: <20201027135519.913021172@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit fd258dc4442c5c1c069c6b5b42bfe7d10cddda95 ]
+[ Upstream commit 35292518cb0a626fcdcabf739aed75060a018ab5 ]
 
-The patrol scrubber in Skylake and Cascade Lake systems can be configured
-to report uncorrected errors using a special signature in the machine
-check bank and to signal using CMCI instead of machine check.
+DT binding permits only one compatible string which was decribed in past by
+commit 63cab195bf49 ("i2c: removed work arounds in i2c driver for Zynq
+Ultrascale+ MPSoC").
+The commit aea37006e183 ("dt-bindings: i2c: cadence: Migrate i2c-cadence
+documentation to YAML") has converted binding to yaml and the following
+issues is reported:
+...: i2c@ff030000: compatible: Additional items are not allowed
+('cdns,i2c-r1p10' was unexpected)
+	From schema:
+.../Documentation/devicetree/bindings/i2c/cdns,i2c-r1p10.yaml fds
+...: i2c@ff030000: compatible: ['cdns,i2c-r1p14', 'cdns,i2c-r1p10'] is too
+long
 
-Update the severity calculation mechanism to allow specifying the model,
-minimum stepping and range of machine check bank numbers.
+The commit c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+has added the second compatible string but without removing origin one.
+The patch is only keeping one compatible string "cdns,i2c-r1p14".
 
-Add a new rule to detect the special signature (on model 0x55, stepping
->=4 in any of the memory controller banks).
-
- [ bp: Rewrite it.
-   aegl: Productize it. ]
-
-Suggested-by: Youquan Song <youquan.song@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Co-developed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200930021313.31810-2-tony.luck@intel.com
+Fixes: c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/cc294ae1a79ef845af6809ddb4049f0c0f5bb87a.1598259551.git.michal.simek@xilinx.com
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/severity.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/severity.c b/arch/x86/kernel/cpu/mce/severity.c
-index e1da619add192..567ce09a02868 100644
---- a/arch/x86/kernel/cpu/mce/severity.c
-+++ b/arch/x86/kernel/cpu/mce/severity.c
-@@ -9,9 +9,11 @@
- #include <linux/seq_file.h>
- #include <linux/init.h>
- #include <linux/debugfs.h>
--#include <asm/mce.h>
- #include <linux/uaccess.h>
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index 3ec99f13c259e..a6d869727a92e 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -501,7 +501,7 @@ gpio: gpio@ff0a0000 {
+ 		};
  
-+#include <asm/mce.h>
-+#include <asm/intel-family.h>
-+
- #include "internal.h"
+ 		i2c0: i2c@ff020000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 17 4>;
+@@ -512,7 +512,7 @@ i2c0: i2c@ff020000 {
+ 		};
  
- /*
-@@ -40,9 +42,14 @@ static struct severity {
- 	unsigned char context;
- 	unsigned char excp;
- 	unsigned char covered;
-+	unsigned char cpu_model;
-+	unsigned char cpu_minstepping;
-+	unsigned char bank_lo, bank_hi;
- 	char *msg;
- } severities[] = {
- #define MCESEV(s, m, c...) { .sev = MCE_ ## s ## _SEVERITY, .msg = m, ## c }
-+#define BANK_RANGE(l, h) .bank_lo = l, .bank_hi = h
-+#define MODEL_STEPPING(m, s) .cpu_model = m, .cpu_minstepping = s
- #define  KERNEL		.context = IN_KERNEL
- #define  USER		.context = IN_USER
- #define  KERNEL_RECOV	.context = IN_KERNEL_RECOV
-@@ -97,7 +104,6 @@ static struct severity {
- 		KEEP, "Corrected error",
- 		NOSER, BITCLR(MCI_STATUS_UC)
- 		),
--
- 	/*
- 	 * known AO MCACODs reported via MCE or CMC:
- 	 *
-@@ -113,6 +119,18 @@ static struct severity {
- 		AO, "Action optional: last level cache writeback error",
- 		SER, MASK(MCI_UC_AR|MCACOD, MCI_STATUS_UC|MCACOD_L3WB)
- 		),
-+	/*
-+	 * Quirk for Skylake/Cascade Lake. Patrol scrubber may be configured
-+	 * to report uncorrected errors using CMCI with a special signature.
-+	 * UC=0, MSCOD=0x0010, MCACOD=binary(000X 0000 1100 XXXX) reported
-+	 * in one of the memory controller banks.
-+	 * Set severity to "AO" for same action as normal patrol scrub error.
-+	 */
-+	MCESEV(
-+		AO, "Uncorrected Patrol Scrub Error",
-+		SER, MASK(MCI_STATUS_UC|MCI_ADDR|0xffffeff0, MCI_ADDR|0x001000c0),
-+		MODEL_STEPPING(INTEL_FAM6_SKYLAKE_X, 4), BANK_RANGE(13, 18)
-+	),
- 
- 	/* ignore OVER for UCNA */
- 	MCESEV(
-@@ -324,6 +342,12 @@ static int mce_severity_intel(struct mce *m, int tolerant, char **msg, bool is_e
- 			continue;
- 		if (s->excp && excp != s->excp)
- 			continue;
-+		if (s->cpu_model && boot_cpu_data.x86_model != s->cpu_model)
-+			continue;
-+		if (s->cpu_minstepping && boot_cpu_data.x86_stepping < s->cpu_minstepping)
-+			continue;
-+		if (s->bank_lo && (m->bank < s->bank_lo || m->bank > s->bank_hi))
-+			continue;
- 		if (msg)
- 			*msg = s->msg;
- 		s->covered = 1;
+ 		i2c1: i2c@ff030000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 18 4>;
 -- 
 2.25.1
 
