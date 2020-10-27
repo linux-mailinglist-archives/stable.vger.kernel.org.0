@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE4F29C3CF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CB529C1E9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2509119AbgJ0OYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
+        id S2410939AbgJ0OlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758871AbgJ0OYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:24:42 -0400
+        id S1761969AbgJ0Ok0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79FF12072D;
-        Tue, 27 Oct 2020 14:24:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F401E20773;
+        Tue, 27 Oct 2020 14:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808681;
-        bh=WEf79vf/0nc9xYlODIVbqu8QMJq+zP7Kk1w0QgPmCVg=;
+        s=default; t=1603809625;
+        bh=ekaUfaLgUd14251slWgKtcDgNOCVS+EsHLnmkbH1ybw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZArsfe/1Mp6/EjKNnVU/CMrds3STVRaC3tVWSvo5/1jHvq3S5st38YSz3UQ1UKTP
-         iK5kxu+i0LzPo6K4nshIahcga2UMYrwyAXeVz91BCL8MJ0QTXbIIDHgMwsT1pJJPB6
-         m7KoBQCUCm9n01oVf1N82kU0iWnaO5ABNTYAgbz4=
+        b=1BwDw37Ui51l9aHSBVQpuerVNRTYcCYj6l/0BWXlGUht7Zmtsp+8O4f72p2J8jBk7
+         qMSaxzXMaOl9PPZ+ijxeNipYpB0rqJUBtLSQIn3mtGTcTekSPvplD6mB934zNS/7Rg
+         LiuCGke1oIZwuqeNk/3rRGwGyonw3RTMW+DwqpIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/264] RDMA/qedr: Fix inline size returned for iWARP
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Ray Jui <ray.jui@broadcom.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 263/408] PCI: iproc: Set affinity mask on MSI interrupts
 Date:   Tue, 27 Oct 2020 14:53:21 +0100
-Message-Id: <20201027135437.406645330@linuxfoundation.org>
+Message-Id: <20201027135507.250558407@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Kalderon <michal.kalderon@marvell.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit fbf58026b2256e9cd5f241a4801d79d3b2b7b89d ]
+[ Upstream commit eb7eacaa5b9e4f665bd08d416c8f88e63d2f123c ]
 
-commit 59e8970b3798 ("RDMA/qedr: Return max inline data in QP query
-result") changed query_qp max_inline size to return the max roce inline
-size.  When iwarp was introduced, this should have been modified to return
-the max inline size based on protocol.  This size is cached in the device
-attributes
+The core interrupt code expects the irq_set_affinity call to update the
+effective affinity for the interrupt. This was not being done, so update
+iproc_msi_irq_set_affinity() to do so.
 
-Fixes: 69ad0e7fe845 ("RDMA/qedr: Add support for iWARP in user space")
-Link: https://lore.kernel.org/r/20200902165741.8355-8-michal.kalderon@marvell.com
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20200803035241.7737-1-mark.tomlinson@alliedtelesis.co.nz
+Fixes: 3bc2b2348835 ("PCI: iproc: Add iProc PCIe MSI support")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pcie-iproc-msi.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 7b26afc7fef35..f847f0a9f204d 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -2522,7 +2522,7 @@ int qedr_query_qp(struct ib_qp *ibqp,
- 	qp_attr->cap.max_recv_wr = qp->rq.max_wr;
- 	qp_attr->cap.max_send_sge = qp->sq.max_sges;
- 	qp_attr->cap.max_recv_sge = qp->rq.max_sges;
--	qp_attr->cap.max_inline_data = ROCE_REQ_MAX_INLINE_DATA_SIZE;
-+	qp_attr->cap.max_inline_data = dev->attr.max_inline;
- 	qp_init_attr->cap = qp_attr->cap;
+diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
+index 0a3f61be5625b..a1298f6784ac9 100644
+--- a/drivers/pci/controller/pcie-iproc-msi.c
++++ b/drivers/pci/controller/pcie-iproc-msi.c
+@@ -209,15 +209,20 @@ static int iproc_msi_irq_set_affinity(struct irq_data *data,
+ 	struct iproc_msi *msi = irq_data_get_irq_chip_data(data);
+ 	int target_cpu = cpumask_first(mask);
+ 	int curr_cpu;
++	int ret;
  
- 	qp_attr->ah_attr.type = RDMA_AH_ATTR_TYPE_ROCE;
+ 	curr_cpu = hwirq_to_cpu(msi, data->hwirq);
+ 	if (curr_cpu == target_cpu)
+-		return IRQ_SET_MASK_OK_DONE;
++		ret = IRQ_SET_MASK_OK_DONE;
++	else {
++		/* steer MSI to the target CPU */
++		data->hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq) + target_cpu;
++		ret = IRQ_SET_MASK_OK;
++	}
+ 
+-	/* steer MSI to the target CPU */
+-	data->hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq) + target_cpu;
++	irq_data_update_effective_affinity(data, cpumask_of(target_cpu));
+ 
+-	return IRQ_SET_MASK_OK;
++	return ret;
+ }
+ 
+ static void iproc_msi_irq_compose_msi_msg(struct irq_data *data,
 -- 
 2.25.1
 
