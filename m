@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D58129BA2D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F5629BA4E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798563AbgJ0P5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:57:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55016 "EHLO mail.kernel.org"
+        id S369021AbgJ0P7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:59:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803660AbgJ0PxR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:53:17 -0400
+        id S1803695AbgJ0PxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:53:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F103120829;
-        Tue, 27 Oct 2020 15:53:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B781220829;
+        Tue, 27 Oct 2020 15:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813997;
-        bh=LIpUrziyljBAN1hf5DHqJwvFPUDd6olNxSS9xgWO450=;
+        s=default; t=1603814000;
+        bh=PIerFogCN3KjWeRdp/pZF5bPqZtgIpKAi25ssPmwOXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qpb48zYhB4dSlO0+ibmSHon4PHU9dLQ4aLD+DnL5n2A2VL1UhD5lPU8vrjchIz4JF
-         Ky53CxSAp7/NIEgMU640VFSv0uTbF1UPmjOxa9ZbTfYkSOuDlhJxTs/dMgkIIfC0ca
-         kObKrgb70ezcT+Ru7Rbvtm1tzeU/ZhPkEjES+cMc=
+        b=dU9xDryoKn/TrY0d9hIP/CNZAztNgLacKixLWmrmIi28HTerP/4p9q/io1QcBFkUe
+         ScWt1uKA7adgD0AuKjlKBV06U/BDyTqpFRRKCrKHkbWDCM0G3GpOMG2JNuhXdE4wpV
+         YFv/jqJpETEQmaB/P8ZEPBZJIgBEGFK26R8NpyoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongwu Su <hongwus@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 740/757] scsi: ufs: ufs-qcom: Fix race conditions caused by ufs_qcom_testbus_config()
-Date:   Tue, 27 Oct 2020 14:56:30 +0100
-Message-Id: <20201027135525.218310992@linuxfoundation.org>
+Subject: [PATCH 5.9 741/757] drm/amd/display: Screen corruption on dual displays (DP+USB-C)
+Date:   Tue, 27 Oct 2020 14:56:31 +0100
+Message-Id: <20201027135525.264238828@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,50 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Qingqing Zhuo <qingqing.zhuo@amd.com>
 
-[ Upstream commit 89dd87acd40a44de8ff3358138aedf8f73f4efc6 ]
+[ Upstream commit ce271b40a91f781af3dee985c39e841ac5148766 ]
 
-If ufs_qcom_dump_dbg_regs() calls ufs_qcom_testbus_config() from
-ufshcd_suspend/resume and/or clk gate/ungate context, pm_runtime_get_sync()
-and ufshcd_hold() will cause a race condition. Fix this by removing the
-unnecessary calls of pm_runtime_get_sync() and ufshcd_hold().
+[why]
+Current pipe merge and split logic only supports cases where new
+dc_state is allocated and relies on dc->current_state to gather
+information from previous dc_state.
 
-Link: https://lore.kernel.org/r/1596975355-39813-3-git-send-email-cang@codeaurora.org
-Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Calls to validate_bandwidth on UPDATE_TYPE_MED would cause an issue
+because there is no new dc_state allocated, and data in
+dc->current_state would be overwritten during pipe merge.
+
+[how]
+Only allow validate_bandwidth when new dc_state space is created.
+
+Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-qcom.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c              | 2 +-
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 3 +++
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 3 +++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-index d0d75527830e9..823eccfdd00af 100644
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -1614,9 +1614,6 @@ int ufs_qcom_testbus_config(struct ufs_qcom_host *host)
- 	 */
- 	}
- 	mask <<= offset;
--
--	pm_runtime_get_sync(host->hba->dev);
--	ufshcd_hold(host->hba, false);
- 	ufshcd_rmwl(host->hba, TEST_BUS_SEL,
- 		    (u32)host->testbus.select_major << 19,
- 		    REG_UFS_CFG1);
-@@ -1629,8 +1626,6 @@ int ufs_qcom_testbus_config(struct ufs_qcom_host *host)
- 	 * committed before returning.
- 	 */
- 	mb();
--	ufshcd_release(host->hba);
--	pm_runtime_put_sync(host->hba->dev);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 92eb1ca1634fc..22cbfda6ab338 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2621,7 +2621,7 @@ void dc_commit_updates_for_stream(struct dc *dc,
  
- 	return 0;
- }
+ 	copy_stream_update_to_stream(dc, context, stream, stream_update);
+ 
+-	if (update_type > UPDATE_TYPE_FAST) {
++	if (update_type >= UPDATE_TYPE_FULL) {
+ 		if (!dc->res_pool->funcs->validate_bandwidth(dc, context, false)) {
+ 			DC_ERROR("Mode validation failed for stream update!\n");
+ 			dc_release_state(context);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index f31f48dd0da29..aaf9a99f9f045 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -3209,6 +3209,9 @@ static noinline bool dcn20_validate_bandwidth_fp(struct dc *dc,
+ 	context->bw_ctx.dml.soc.allow_dram_clock_one_display_vactive =
+ 		dc->debug.enable_dram_clock_change_one_display_vactive;
+ 
++	/*Unsafe due to current pipe merge and split logic*/
++	ASSERT(context != dc->current_state);
++
+ 	if (fast_validate) {
+ 		return dcn20_validate_bandwidth_internal(dc, context, true);
+ 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index 88d41a385add8..a4f37d83d5cc9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -1184,6 +1184,9 @@ bool dcn21_validate_bandwidth(struct dc *dc, struct dc_state *context,
+ 
+ 	BW_VAL_TRACE_COUNT();
+ 
++	/*Unsafe due to current pipe merge and split logic*/
++	ASSERT(context != dc->current_state);
++
+ 	out = dcn20_fast_validate_bw(dc, context, pipes, &pipe_cnt, pipe_split_from, &vlevel);
+ 
+ 	if (pipe_cnt == 0)
 -- 
 2.25.1
 
