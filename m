@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8D529B374
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 164FA29B376
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1766866AbgJ0Ot3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:49:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49574 "EHLO mail.kernel.org"
+        id S1767624AbgJ0Otf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:49:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1766539AbgJ0Ot2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:49:28 -0400
+        id S1767017AbgJ0Ote (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:49:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D4E9207DE;
-        Tue, 27 Oct 2020 14:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9C3720709;
+        Tue, 27 Oct 2020 14:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810168;
-        bh=07fMfKYU6c0o/gMbRmGlXpokkcNIDhS9nbF01ONF268=;
+        s=default; t=1603810173;
+        bh=5a+DCJKtBG8G1Ol7P11ykdRfcDzfQXtZ8zNxZhg3XCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwx5MZ/CwVR5XZ22TeddEXbmeNi+7m5l+gvJ7gG4UtBJCjJWKZRYQBeWbZKvVye8G
-         rJYo3SaWGxmp46SgxfKIOnRTAfMbpQEeHMW4LqJIX+y8XO1O9kjZqeg33cV9ZTnPUS
-         PmXnUymKKlOz+9qnrpPIhin+HiJ98X4KtbkJSS/k=
+        b=Cvg6JHtBky1SkZDu+7c+mEox5Wii17z5EEAVpoKgIzhmlMPKVL06rvRuwYA9Fh2OT
+         3mdAoOILL1kTsd9Dxx4eM4CN4L+uEY+MnCRawoIN8Ye4RkTRjybIdG6FyJEARq7k8a
+         lTjt4uqPQ93Ebf0u3Aru99mwivlDzII3lFAfHVFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 013/633] net/smc: fix use-after-free of delayed events
-Date:   Tue, 27 Oct 2020 14:45:56 +0100
-Message-Id: <20201027135523.308963994@linuxfoundation.org>
+Subject: [PATCH 5.8 015/633] net/tls: sendfile fails with ktls offload
+Date:   Tue, 27 Oct 2020 14:45:58 +0100
+Message-Id: <20201027135523.406194216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,60 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Rohit Maheshwari <rohitm@chelsio.com>
 
-[ Upstream commit d535ca1367787ddc8bff22d679a11f864c8228bc ]
+[ Upstream commit ea1dd3e9d080c961b9a451130b61c72dc9a5397b ]
 
-When a delayed event is enqueued then the event worker will send this
-event the next time it is running and no other flow is currently
-active. The event handler is called for the delayed event, and the
-pointer to the event keeps set in lgr->delayed_event. This pointer is
-cleared later in the processing by smc_llc_flow_start().
-This can lead to a use-after-free condition when the processing does not
-reach smc_llc_flow_start(), but frees the event because of an error
-situation. Then the delayed_event pointer is still set but the event is
-freed.
-Fix this by always clearing the delayed event pointer when the event is
-provided to the event handler for processing, and remove the code to
-clear it in smc_llc_flow_start().
+At first when sendpage gets called, if there is more data, 'more' in
+tls_push_data() gets set which later sets pending_open_record_frags, but
+when there is no more data in file left, and last time tls_push_data()
+gets called, pending_open_record_frags doesn't get reset. And later when
+2 bytes of encrypted alert comes as sendmsg, it first checks for
+pending_open_record_frags, and since this is set, it creates a record with
+0 data bytes to encrypt, meaning record length is prepend_size + tag_size
+only, which causes problem.
+ We should set/reset pending_open_record_frags based on more bit.
 
-Fixes: 555da9af827d ("net/smc: add event-based llc_flow framework")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/smc_llc.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ net/tls/tls_device.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -233,8 +233,6 @@ static bool smc_llc_flow_start(struct sm
- 	default:
- 		flow->type = SMC_LLC_FLOW_NONE;
- 	}
--	if (qentry == lgr->delayed_event)
--		lgr->delayed_event = NULL;
- 	smc_llc_flow_qentry_set(flow, qentry);
- 	spin_unlock_bh(&lgr->llc_flow_lock);
- 	return true;
-@@ -1590,13 +1588,12 @@ static void smc_llc_event_work(struct wo
- 	struct smc_llc_qentry *qentry;
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -418,14 +418,14 @@ static int tls_push_data(struct sock *sk
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_prot_info *prot = &tls_ctx->prot_info;
+ 	struct tls_offload_context_tx *ctx = tls_offload_ctx_tx(tls_ctx);
+-	int more = flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE);
+ 	struct tls_record_info *record = ctx->open_record;
+ 	int tls_push_record_flags;
+ 	struct page_frag *pfrag;
+ 	size_t orig_size = size;
+ 	u32 max_open_record_len;
+-	int copy, rc = 0;
++	bool more = false;
+ 	bool done = false;
++	int copy, rc = 0;
+ 	long timeo;
  
- 	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
--		if (smc_link_usable(lgr->delayed_event->link)) {
--			smc_llc_event_handler(lgr->delayed_event);
--		} else {
--			qentry = lgr->delayed_event;
--			lgr->delayed_event = NULL;
-+		qentry = lgr->delayed_event;
-+		lgr->delayed_event = NULL;
-+		if (smc_link_usable(qentry->link))
-+			smc_llc_event_handler(qentry);
-+		else
- 			kfree(qentry);
--		}
- 	}
+ 	if (flags &
+@@ -492,9 +492,8 @@ handle_error:
+ 		if (!size) {
+ last_record:
+ 			tls_push_record_flags = flags;
+-			if (more) {
+-				tls_ctx->pending_open_record_frags =
+-						!!record->num_frags;
++			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
++				more = true;
+ 				break;
+ 			}
  
- again:
+@@ -526,6 +525,8 @@ last_record:
+ 		}
+ 	} while (!done);
+ 
++	tls_ctx->pending_open_record_frags = more;
++
+ 	if (orig_size - size > 0)
+ 		rc = orig_size - size;
+ 
 
 
