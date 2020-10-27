@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5193829AF6F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E01429AE81
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754778AbgJ0OHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55608 "EHLO mail.kernel.org"
+        id S1753619AbgJ0OBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754769AbgJ0OHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:07:01 -0400
+        id S1753611AbgJ0OBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56DF522263;
-        Tue, 27 Oct 2020 14:07:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 361B3221F8;
+        Tue, 27 Oct 2020 14:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807620;
-        bh=mpg2HUSFvohKzNRhXx9Ij/fVtBCR5yaCNXqozSTlQbE=;
+        s=default; t=1603807266;
+        bh=nE9sYJGW7Gd3tHtoSy/tIeKH2o8k6bvzAfO/B54u6P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9mnC4VGzNjQDXRbtGbkont5WR8B9jeT1iCgXjFXzn7/k51UeV2cL64Ong343eRH4
-         HxLS6illPKt6rjG8n1mXTWh0FsqMc1X7DRrD6xKupgKn25AjCYORNKB4YrxPOF7Z3b
-         F0YVrHe2kf75beas/WchdyOdPAw26uUcAzEImM4E=
+        b=Hxil8a2XLQlKJg4jMvGZnPQJnruiEx4CMxPIhHezYZS4ioD2zzWK0/T/UejrkvchB
+         1MLCXFz3EOMKsmHmthI3+o0xboT8XegxTh8VFPiLAs4FLKrDR59vrh3267mJQQPmz1
+         Qum61d2VEyXziBKBxWLre2ZFmUJSLONjXnJ515Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com,
-        Brooke Basile <brookebasile@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 119/139] ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()
-Date:   Tue, 27 Oct 2020 14:50:13 +0100
-Message-Id: <20201027134907.792498196@linuxfoundation.org>
+Subject: [PATCH 4.4 104/112] tty: ipwireless: fix error handling
+Date:   Tue, 27 Oct 2020 14:50:14 +0100
+Message-Id: <20201027134905.471042795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brooke Basile <brookebasile@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 03fb92a432ea5abe5909bca1455b7e44a9380480 ]
+[ Upstream commit db332356222d9429731ab9395c89cca403828460 ]
 
-Calls to usb_kill_anchored_urbs() after usb_kill_urb() on multiprocessor
-systems create a race condition in which usb_kill_anchored_urbs() deallocates
-the URB before the completer callback is called in usb_kill_urb(), resulting
-in a use-after-free.
-To fix this, add proper lock protection to usb_kill_urb() calls that can
-possibly run concurrently with usb_kill_anchored_urbs().
+ipwireless_send_packet() can only return 0 on success and -ENOMEM on
+error, the caller should check non zero for error condition
 
-Reported-by: syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=cabffad18eb74197f84871802fd2c5117b61febf
-Signed-off-by: Brooke Basile <brookebasile@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200911071427.32354-1-brookebasile@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Acked-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20200821161942.36589-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/tty/ipwireless/network.c | 4 ++--
+ drivers/tty/ipwireless/tty.c     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index fb5b7ce3d2c3d..7c409cd43b709 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -447,10 +447,19 @@ static void hif_usb_stop(void *hif_handle)
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	/* The pending URBs have to be canceled. */
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
-+		list_del(&tx_buf->list);
-+		usb_free_urb(tx_buf->urb);
-+		kfree(tx_buf->buf);
-+		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+diff --git a/drivers/tty/ipwireless/network.c b/drivers/tty/ipwireless/network.c
+index c0dfb642383b2..dc7f4eb18e0a7 100644
+--- a/drivers/tty/ipwireless/network.c
++++ b/drivers/tty/ipwireless/network.c
+@@ -116,7 +116,7 @@ static int ipwireless_ppp_start_xmit(struct ppp_channel *ppp_channel,
+ 					       skb->len,
+ 					       notify_packet_sent,
+ 					       network);
+-			if (ret == -1) {
++			if (ret < 0) {
+ 				skb_pull(skb, 2);
+ 				return 0;
+ 			}
+@@ -133,7 +133,7 @@ static int ipwireless_ppp_start_xmit(struct ppp_channel *ppp_channel,
+ 					       notify_packet_sent,
+ 					       network);
+ 			kfree(buf);
+-			if (ret == -1)
++			if (ret < 0)
+ 				return 0;
+ 		}
+ 		kfree_skb(skb);
+diff --git a/drivers/tty/ipwireless/tty.c b/drivers/tty/ipwireless/tty.c
+index 345cebb07ae79..0b06b1847450f 100644
+--- a/drivers/tty/ipwireless/tty.c
++++ b/drivers/tty/ipwireless/tty.c
+@@ -217,7 +217,7 @@ static int ipw_write(struct tty_struct *linux_tty,
+ 	ret = ipwireless_send_packet(tty->hardware, IPW_CHANNEL_RAS,
+ 			       buf, count,
+ 			       ipw_write_packet_sent_callback, tty);
+-	if (ret == -1) {
++	if (ret < 0) {
+ 		mutex_unlock(&tty->ipw_tty_mutex);
+ 		return 0;
  	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
-@@ -760,27 +769,37 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
- 	struct tx_buf *tx_buf = NULL, *tx_buf_tmp = NULL;
- 	unsigned long flags;
- 
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_buf, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	hif_dev->tx.flags |= HIF_USB_TX_FLUSH;
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
 -- 
 2.25.1
 
