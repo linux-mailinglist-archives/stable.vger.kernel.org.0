@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BCF629C5C1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBCF29C62F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2507354AbgJ0OMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
+        id S1825805AbgJ0SOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:14:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505459AbgJ0OFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:31 -0400
+        id S1756485AbgJ0ONg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:13:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55AAF22264;
-        Tue, 27 Oct 2020 14:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5DA7206F7;
+        Tue, 27 Oct 2020 14:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807531;
-        bh=WuhlOnq7nuMDRvFcdCB2t40RKz2DETuPFyqm2ZsoZr0=;
+        s=default; t=1603808016;
+        bh=wM0Wf3yPdy3kVc/aMeDh+4zxtEy0QFesEioMEaiYheM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXnBXLjaWme8cOBL8SNex0xoPPzdeowEUGWlELJIuzNLZ5yWq3ozvG18T37ux7+4u
-         XnZoEfuIRhHYjx6sQVFMnijbRhsQ6t+ai6Yq9ljHFcbshxjXs8uIVjbsv5RAG+6RUp
-         YEYDQM4LOqTKEpXyRtZjbjr3YODzenpFUPkY8asM=
+        b=M7yWkXSPf/w0O5G8E8nYaSs0WmyfMz8bSaxNxXFLZ0HZyD5oHbzhZ64/7HnZxithR
+         20hlBqIkneHq3sLKzIc1JBRbfRvG9+7G4mlmsxpVFDoH2kbeQmDiCnCiIsKUzCg1Za
+         PqAdtQpkyqci7W3F37gqATucYyaKr6H4HYN3RzsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 086/139] KVM: x86: emulating RDPID failure shall return #UD rather than #GP
+Subject: [PATCH 4.14 125/191] KVM: x86: emulating RDPID failure shall return #UD rather than #GP
 Date:   Tue, 27 Oct 2020 14:49:40 +0100
-Message-Id: <20201027134906.221265809@linuxfoundation.org>
+Message-Id: <20201027134915.707611758@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index da3cd734dee10..d455221d958fc 100644
+index 4cc8a4a6f1d00..46559812da24e 100644
 --- a/arch/x86/kvm/emulate.c
 +++ b/arch/x86/kvm/emulate.c
-@@ -3536,7 +3536,7 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
+@@ -3544,7 +3544,7 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
  	u64 tsc_aux = 0;
  
  	if (ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux))
