@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 690A229C59A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B05929C5AF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753759AbgJ0OCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:02:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S1756201AbgJ0OL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753756AbgJ0OCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:02:00 -0400
+        id S1755487AbgJ0OKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:10:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BF2B2224A;
-        Tue, 27 Oct 2020 14:01:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5834A2072D;
+        Tue, 27 Oct 2020 14:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807319;
-        bh=/WsUa2OOojRGBDJy0pe3KbdMoZWkhv7tK3wKYYFBhBg=;
+        s=default; t=1603807810;
+        bh=hhlNZSd18jXoaJsn/LJh8if3lsngdLGTRiTTCPpCh1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDPjjOXLq0UtexBSTMfZCWrqUIPEtLdUifr/UIFEIeNrf+JvtJwHCN0Uh0MDFq480
-         jQgd2t2hV7yEoSUIRnkXjxfGgb1NwI1uw2TADTecCWsleURJuTJ0dd2Dqd8cwqe3Sh
-         SITsAWMnrldNMrD2M/acWON43UxVYH2bzO5aYvUY=
+        b=GD9yQhVrKgfoWp7Vj9dMIswpjh8UNmx5WGQyroNUoBUJSTxvs2yQHbaWHq6hdBvge
+         TgFkVciVMRTb0HTwHCLV/nGHsiRITv8eUQa1KkZZ/14iiQmDtcd3qElVVrxKTr2/c0
+         5w7UDjI2CgBSbZsLfi36Pz8nO1bsiOg/PPmHps2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 010/139] icmp: randomize the global rate limiter
-Date:   Tue, 27 Oct 2020 14:48:24 +0100
-Message-Id: <20201027134902.630158041@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 050/191] drm/gma500: fix error check
+Date:   Tue, 27 Oct 2020 14:48:25 +0100
+Message-Id: <20201027134912.140686794@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit b38e7819cae946e2edf869e604af1e65a5d241c5 ]
+[ Upstream commit cdd296cdae1af2d27dae3fcfbdf12c5252ab78cf ]
 
-Keyu Man reported that the ICMP rate limiter could be used
-by attackers to get useful signal. Details will be provided
-in an upcoming academic publication.
+Reviewing this block of code in cdv_intel_dp_init()
 
-Our solution is to add some noise, so that the attackers
-no longer can get help from the predictable token bucket limiter.
+ret = cdv_intel_dp_aux_native_read(gma_encoder, DP_DPCD_REV, ...
 
-Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cdv_intel_edp_panel_vdd_off(gma_encoder);
+if (ret == 0) {
+	/* if this fails, presume the device is a ghost */
+	DRM_INFO("failed to retrieve link info, disabling eDP\n");
+	drm_encoder_cleanup(encoder);
+	cdv_intel_dp_destroy(connector);
+	goto err_priv;
+} else {
+
+The (ret == 0) is not strict enough.
+cdv_intel_dp_aux_native_read() returns > 0 on success
+otherwise it is failure.
+
+So change to <=
+
+Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200805205911.20927-1-trix@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt |    4 +++-
- net/ipv4/icmp.c                        |    7 +++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -887,12 +887,14 @@ icmp_ratelimit - INTEGER
- icmp_msgs_per_sec - INTEGER
- 	Limit maximal number of ICMP packets sent per second from this host.
- 	Only messages whose type matches icmp_ratemask (see below) are
--	controlled by this limit.
-+	controlled by this limit. For security reasons, the precise count
-+	of messages per second is randomized.
- 	Default: 1000
- 
- icmp_msgs_burst - INTEGER
- 	icmp_msgs_per_sec controls number of ICMP packets sent per second,
- 	while icmp_msgs_burst controls the burst size of these packets.
-+	For security reasons, the precise burst size is randomized.
- 	Default: 50
- 
- icmp_ratemask - INTEGER
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -246,7 +246,7 @@ static struct {
- /**
-  * icmp_global_allow - Are we allowed to send one more ICMP message ?
-  *
-- * Uses a token bucket to limit our ICMP messages to sysctl_icmp_msgs_per_sec.
-+ * Uses a token bucket to limit our ICMP messages to ~sysctl_icmp_msgs_per_sec.
-  * Returns false if we reached the limit and can not send another packet.
-  * Note: called with BH disabled
-  */
-@@ -274,7 +274,10 @@ bool icmp_global_allow(void)
- 	}
- 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
- 	if (credit) {
--		credit--;
-+		/* We want to use a credit of one in average, but need to randomize
-+		 * it for security reasons.
-+		 */
-+		credit = max_t(int, credit - prandom_u32_max(3), 0);
- 		rc = true;
- 	}
- 	WRITE_ONCE(icmp_global.credit, credit);
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+index c52f9adf5e04c..7ec4e3fbafd8c 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+@@ -2121,7 +2121,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
+ 					       intel_dp->dpcd,
+ 					       sizeof(intel_dp->dpcd));
+ 		cdv_intel_edp_panel_vdd_off(gma_encoder);
+-		if (ret == 0) {
++		if (ret <= 0) {
+ 			/* if this fails, presume the device is a ghost */
+ 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
+ 			cdv_intel_dp_encoder_destroy(encoder);
+-- 
+2.25.1
+
 
 
