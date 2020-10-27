@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5D129B24F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A9929B230
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761322AbgJ0Oi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
+        id S1761329AbgJ0Oi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761311AbgJ0Oix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:38:53 -0400
+        id S1761300AbgJ0Oi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:38:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42D76207BB;
-        Tue, 27 Oct 2020 14:38:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1B0221D7B;
+        Tue, 27 Oct 2020 14:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809532;
-        bh=eF+EKJ5C6rYnUyS32ry4OCUo7eXi0HAcwsgqhmA/lyc=;
+        s=default; t=1603809535;
+        bh=l/4l6gblQykdYy3Xl5pJQrSH4GELmg/imPXOp7la1EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7/YCZcn/BDhCg4aZyrzhCV4LhPvLIF9axgrO23PpH6VxUupOE9STA6fi2hRPolBB
-         E4tcXEgKRytW+3DuwZ3nxLRnXHuH/DXykBEvc8kB8E74hQF0ls9AZOdWi/OqyIqsIE
-         erHFLSAnDFUPVeDafTLUt85Xu8bnNAYakqqcccac=
+        b=1oph/1Qu+4tRjsycUBcTi+V9skSfgu8UsFIhxKh7xnsuPxQ4T+fy8CsrsC/OcM+DS
+         6VD9hjd7E0Yku09JyHhFd5LoK1mz29tOhm3E2mI6QUZi45nBIvWP8NvSQQ5tX1WKX8
+         NxAl30JitZGsZnAKytB/KUpF1bmduMhPybAFM0m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 230/408] RDMA/cma: Consolidate the destruction of a cma_multicast in one place
-Date:   Tue, 27 Oct 2020 14:52:48 +0100
-Message-Id: <20201027135505.732793418@linuxfoundation.org>
+Subject: [PATCH 5.4 231/408] perf intel-pt: Fix "context_switch event has no tid" error
+Date:   Tue, 27 Oct 2020 14:52:49 +0100
+Message-Id: <20201027135505.782828227@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,114 +45,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 3788d2997bc0150ea911a964d5b5a2e11808a936 ]
+[ Upstream commit 7d537a8d2e76bc4fc71e34545ceaa463ac2cd928 ]
 
-Two places were open coding this sequence, and also pull in
-cma_leave_roce_mc_group() which was called only once.
+A context_switch event can have no tid because pids can be detached from
+a task while the task is still running (in do_exit()). Note this won't
+happen with per-task contexts because then tracing stops at
+perf_event_exit_task()
 
-Link: https://lore.kernel.org/r/20200902081122.745412-8-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+If a task with no tid gets preempted, or a dying task gets preempted and
+its parent releases it, when it subsequently gets switched back in,
+Intel PT will not be able to determine what task is running and prints
+an error "context_switch event has no tid". However, it is not really an
+error because the task is in kernel space and the decoder can continue
+to decode successfully. Fix by changing the error to be only a logged
+message, and make allowance for tid == -1.
+
+Example:
+
+  Using 5.9-rc4 with Preemptible Kernel (Low-Latency Desktop) e.g.
+  $ uname -r
+  5.9.0-rc4
+  $ grep PREEMPT .config
+  # CONFIG_PREEMPT_NONE is not set
+  # CONFIG_PREEMPT_VOLUNTARY is not set
+  CONFIG_PREEMPT=y
+  CONFIG_PREEMPT_COUNT=y
+  CONFIG_PREEMPTION=y
+  CONFIG_PREEMPT_RCU=y
+  CONFIG_PREEMPT_NOTIFIERS=y
+  CONFIG_DRM_I915_PREEMPT_TIMEOUT=640
+  CONFIG_DEBUG_PREEMPT=y
+  # CONFIG_PREEMPT_TRACER is not set
+  # CONFIG_PREEMPTIRQ_DELAY_TEST is not set
+
+Before:
+
+  $ cat forkit.c
+
+  #include <sys/types.h>
+  #include <unistd.h>
+  #include <sys/wait.h>
+
+  int main()
+  {
+          pid_t child;
+          int status = 0;
+
+          child = fork();
+          if (child == 0)
+                  return 123;
+          wait(&status);
+          return 0;
+  }
+
+  $ gcc -o forkit forkit.c
+  $ sudo ~/bin/perf record --kcore -a -m,64M -e intel_pt/cyc/k &
+  [1] 11016
+  $ taskset 2 ./forkit
+  $ sudo pkill perf
+  $ [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 17.262 MB perf.data ]
+
+  [1]+  Terminated              sudo ~/bin/perf record --kcore -a -m,64M -e intel_pt/cyc/k
+  $ sudo ~/bin/perf script --show-task-events --show-switch-events --itrace=iqqe-o -C 1 --ns | grep -C 2 forkit
+  context_switch event has no tid
+           taskset 11019 [001] 66663.270045029:          1 instructions:k:  ffffffffb1d9f844 strnlen_user+0xb4 ([kernel.kallsyms])
+           taskset 11019 [001] 66663.270201816:          1 instructions:k:  ffffffffb1a83121 unmap_page_range+0x561 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270327553: PERF_RECORD_COMM exec: forkit:11019/11019
+            forkit 11019 [001] 66663.270420028:          1 instructions:k:  ffffffffb1db9537 __clear_user+0x27 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270648704:          1 instructions:k:  ffffffffb18829e6 do_user_addr_fault+0xf6 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270833163:          1 instructions:k:  ffffffffb230a825 irqentry_exit_to_user_mode+0x15 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271092359:          1 instructions:k:  ffffffffb1aea3d9 lock_page_memcg+0x9 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271207092: PERF_RECORD_FORK(11020:11020):(11019:11019)
+            forkit 11019 [001] 66663.271234775: PERF_RECORD_SWITCH_CPU_WIDE OUT          next pid/tid: 11020/11020
+            forkit 11020 [001] 66663.271238407: PERF_RECORD_SWITCH_CPU_WIDE IN           prev pid/tid: 11019/11019
+            forkit 11020 [001] 66663.271312066:          1 instructions:k:  ffffffffb1a88140 handle_mm_fault+0x10 ([kernel.kallsyms])
+            forkit 11020 [001] 66663.271476225: PERF_RECORD_EXIT(11020:11020):(11019:11019)
+            forkit 11020 [001] 66663.271497488: PERF_RECORD_SWITCH_CPU_WIDE OUT preempt  next pid/tid: 11019/11019
+            forkit 11019 [001] 66663.271500523: PERF_RECORD_SWITCH_CPU_WIDE IN           prev pid/tid: 11020/11020
+            forkit 11019 [001] 66663.271517241:          1 instructions:k:  ffffffffb24012cd error_entry+0x6d ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271664080: PERF_RECORD_EXIT(11019:11019):(1386:1386)
+
+After:
+
+  $ sudo ~/bin/perf script --show-task-events --show-switch-events --itrace=iqqe-o -C 1 --ns | grep -C 2 forkit
+           taskset 11019 [001] 66663.270045029:          1 instructions:k:  ffffffffb1d9f844 strnlen_user+0xb4 ([kernel.kallsyms])
+           taskset 11019 [001] 66663.270201816:          1 instructions:k:  ffffffffb1a83121 unmap_page_range+0x561 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270327553: PERF_RECORD_COMM exec: forkit:11019/11019
+            forkit 11019 [001] 66663.270420028:          1 instructions:k:  ffffffffb1db9537 __clear_user+0x27 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270648704:          1 instructions:k:  ffffffffb18829e6 do_user_addr_fault+0xf6 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.270833163:          1 instructions:k:  ffffffffb230a825 irqentry_exit_to_user_mode+0x15 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271092359:          1 instructions:k:  ffffffffb1aea3d9 lock_page_memcg+0x9 ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271207092: PERF_RECORD_FORK(11020:11020):(11019:11019)
+            forkit 11019 [001] 66663.271234775: PERF_RECORD_SWITCH_CPU_WIDE OUT          next pid/tid: 11020/11020
+            forkit 11020 [001] 66663.271238407: PERF_RECORD_SWITCH_CPU_WIDE IN           prev pid/tid: 11019/11019
+            forkit 11020 [001] 66663.271312066:          1 instructions:k:  ffffffffb1a88140 handle_mm_fault+0x10 ([kernel.kallsyms])
+            forkit 11020 [001] 66663.271476225: PERF_RECORD_EXIT(11020:11020):(11019:11019)
+            forkit 11020 [001] 66663.271497488: PERF_RECORD_SWITCH_CPU_WIDE OUT preempt  next pid/tid: 11019/11019
+            forkit 11019 [001] 66663.271500523: PERF_RECORD_SWITCH_CPU_WIDE IN           prev pid/tid: 11020/11020
+            forkit 11019 [001] 66663.271517241:          1 instructions:k:  ffffffffb24012cd error_entry+0x6d ([kernel.kallsyms])
+            forkit 11019 [001] 66663.271664080: PERF_RECORD_EXIT(11019:11019):(1386:1386)
+            forkit 11019 [001] 66663.271688752: PERF_RECORD_SWITCH_CPU_WIDE OUT          next pid/tid:    -1/-1
+               :-1    -1 [001] 66663.271692086: PERF_RECORD_SWITCH_CPU_WIDE IN           prev pid/tid: 11019/11019
+                :-1    -1 [001] 66663.271707466:          1 instructions:k:  ffffffffb18eb096 update_load_avg+0x306 ([kernel.kallsyms])
+
+Fixes: 86c2786994bd7c ("perf intel-pt: Add support for PERF_RECORD_SWITCH")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Yu-cheng Yu <yu-cheng.yu@intel.com>
+Link: http://lore.kernel.org/lkml/20200909084923.9096-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 63 +++++++++++++++++------------------
- 1 file changed, 31 insertions(+), 32 deletions(-)
+ tools/perf/util/intel-pt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 10525c91cac6c..98d2d74b96f78 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1803,19 +1803,30 @@ static void cma_release_port(struct rdma_id_private *id_priv)
- 	mutex_unlock(&lock);
- }
+diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
+index c5cce3a60476b..8aeaeba48a41f 100644
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -974,6 +974,8 @@ static void intel_pt_set_pid_tid_cpu(struct intel_pt *pt,
  
--static void cma_leave_roce_mc_group(struct rdma_id_private *id_priv,
--				    struct cma_multicast *mc)
-+static void destroy_mc(struct rdma_id_private *id_priv,
-+		       struct cma_multicast *mc)
- {
--	struct rdma_dev_addr *dev_addr = &id_priv->id.route.addr.dev_addr;
--	struct net_device *ndev = NULL;
-+	if (rdma_cap_ib_mcast(id_priv->id.device, id_priv->id.port_num)) {
-+		ib_sa_free_multicast(mc->multicast.ib);
-+		kfree(mc);
-+		return;
-+	}
- 
--	if (dev_addr->bound_dev_if)
--		ndev = dev_get_by_index(dev_addr->net, dev_addr->bound_dev_if);
--	if (ndev) {
--		cma_igmp_send(ndev, &mc->multicast.ib->rec.mgid, false);
--		dev_put(ndev);
-+	if (rdma_protocol_roce(id_priv->id.device,
-+				      id_priv->id.port_num)) {
-+		struct rdma_dev_addr *dev_addr =
-+			&id_priv->id.route.addr.dev_addr;
-+		struct net_device *ndev = NULL;
-+
-+		if (dev_addr->bound_dev_if)
-+			ndev = dev_get_by_index(dev_addr->net,
-+						dev_addr->bound_dev_if);
-+		if (ndev) {
-+			cma_igmp_send(ndev, &mc->multicast.ib->rec.mgid, false);
-+			dev_put(ndev);
-+		}
-+		kref_put(&mc->mcref, release_mc);
+ 	if (queue->tid == -1 || pt->have_sched_switch) {
+ 		ptq->tid = machine__get_current_tid(pt->machine, ptq->cpu);
++		if (ptq->tid == -1)
++			ptq->pid = -1;
+ 		thread__zput(ptq->thread);
  	}
--	kref_put(&mc->mcref, release_mc);
- }
  
- static void cma_leave_mc_groups(struct rdma_id_private *id_priv)
-@@ -1823,16 +1834,10 @@ static void cma_leave_mc_groups(struct rdma_id_private *id_priv)
- 	struct cma_multicast *mc;
- 
- 	while (!list_empty(&id_priv->mc_list)) {
--		mc = container_of(id_priv->mc_list.next,
--				  struct cma_multicast, list);
-+		mc = list_first_entry(&id_priv->mc_list, struct cma_multicast,
-+				      list);
- 		list_del(&mc->list);
--		if (rdma_cap_ib_mcast(id_priv->cma_dev->device,
--				      id_priv->id.port_num)) {
--			ib_sa_free_multicast(mc->multicast.ib);
--			kfree(mc);
--		} else {
--			cma_leave_roce_mc_group(id_priv, mc);
--		}
-+		destroy_mc(id_priv, mc);
+@@ -2488,10 +2490,8 @@ static int intel_pt_context_switch(struct intel_pt *pt, union perf_event *event,
+ 		tid = sample->tid;
  	}
- }
  
-@@ -4490,20 +4495,14 @@ void rdma_leave_multicast(struct rdma_cm_id *id, struct sockaddr *addr)
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	spin_lock_irq(&id_priv->lock);
- 	list_for_each_entry(mc, &id_priv->mc_list, list) {
--		if (!memcmp(&mc->addr, addr, rdma_addr_size(addr))) {
--			list_del(&mc->list);
--			spin_unlock_irq(&id_priv->lock);
--
--			BUG_ON(id_priv->cma_dev->device != id->device);
-+		if (memcmp(&mc->addr, addr, rdma_addr_size(addr)) != 0)
-+			continue;
-+		list_del(&mc->list);
-+		spin_unlock_irq(&id_priv->lock);
+-	if (tid == -1) {
+-		pr_err("context_switch event has no tid\n");
+-		return -EINVAL;
+-	}
++	if (tid == -1)
++		intel_pt_log("context_switch event has no tid\n");
  
--			if (rdma_cap_ib_mcast(id->device, id->port_num)) {
--				ib_sa_free_multicast(mc->multicast.ib);
--				kfree(mc);
--			} else if (rdma_protocol_roce(id->device, id->port_num)) {
--				cma_leave_roce_mc_group(id_priv, mc);
--			}
--			return;
--		}
-+		WARN_ON(id_priv->cma_dev->device != id->device);
-+		destroy_mc(id_priv, mc);
-+		return;
- 	}
- 	spin_unlock_irq(&id_priv->lock);
- }
+ 	intel_pt_log("context_switch: cpu %d pid %d tid %d time %"PRIu64" tsc %#"PRIx64"\n",
+ 		     cpu, pid, tid, sample->time, perf_time_to_tsc(sample->time,
 -- 
 2.25.1
 
