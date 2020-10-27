@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 018B129AEE6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1E329AFC1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754377AbgJ0OFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
+        id S2436785AbgJ0OMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754374AbgJ0OFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:15 -0400
+        id S1754380AbgJ0OFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3512B2222C;
-        Tue, 27 Oct 2020 14:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D79B822263;
+        Tue, 27 Oct 2020 14:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807514;
-        bh=OrrQLVR1kDUnlCzLjRgqW/nqMZGWN2iMOP7koZ04DfY=;
+        s=default; t=1603807517;
+        bh=Gm6quWG61QDKSQll4BJQfDy3dvG4rp4sAm9JUEJKn28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrTAwY2Gx/tkd+gDDytRgGuCpbaSIvsSknVZMbKukzbuauyX3HwI94vKRZb5eGQLS
-         jw1HLC/BBNxjgQvoZmjoccPzrfZ8wnjDmzpbhhQeyUJBFGlVmGBqhD0IsYEheqVPtT
-         bdL184+eJ8ObUnNS9CK/7SCQ4CJbDzfPtHil/B+Y=
+        b=poDixNhHDq7y1pBdoLOLhoFA+aIx5thnggDsWycIOZ3R18cxNeqXsmR+WSmvXe1p/
+         Rha8qtxNOQupuDegLPpEJJpTMXEDTBdXLwfngBtWLrxqX0OzbK68yJCYa/vET2Pbvj
+         1V8koZEXfWrUiZ9tUGLQkVYuE/RyOPQ1tP4/5zlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 081/139] Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
-Date:   Tue, 27 Oct 2020 14:49:35 +0100
-Message-Id: <20201027134905.975874141@linuxfoundation.org>
+Subject: [PATCH 4.9 082/139] Input: ep93xx_keypad - fix handling of platform_get_irq() error
+Date:   Tue, 27 Oct 2020 14:49:36 +0100
+Message-Id: <20201027134906.023495547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -43,65 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 30df23c5ecdfb8da5b0bc17ceef67eff9e1b0957 ]
+[ Upstream commit 7d50f6656dacf085a00beeedbc48b19a37d17881 ]
 
-If imx6ul_tsc_init() fails then we need to clean up the clocks.
+platform_get_irq() returns -ERRNO on error.  In such case comparison
+to 0 would pass the check.
 
-I reversed the "if (input_dev->users) {" condition to make the code a
-bit simpler.
-
-Fixes: 6cc527b05847 ("Input: imx6ul_tsc - propagate the errors")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200905124942.GC183976@mwanda
+Fixes: 60214f058f44 ("Input: ep93xx_keypad - update driver to new core support")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200828145744.3636-1-krzk@kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/imx6ul_tsc.c | 27 +++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
-index 8275267eac254..4be7ddc04af0f 100644
---- a/drivers/input/touchscreen/imx6ul_tsc.c
-+++ b/drivers/input/touchscreen/imx6ul_tsc.c
-@@ -490,20 +490,25 @@ static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
- 
- 	mutex_lock(&input_dev->mutex);
- 
--	if (input_dev->users) {
--		retval = clk_prepare_enable(tsc->adc_clk);
--		if (retval)
--			goto out;
--
--		retval = clk_prepare_enable(tsc->tsc_clk);
--		if (retval) {
--			clk_disable_unprepare(tsc->adc_clk);
--			goto out;
--		}
-+	if (!input_dev->users)
-+		goto out;
- 
--		retval = imx6ul_tsc_init(tsc);
-+	retval = clk_prepare_enable(tsc->adc_clk);
-+	if (retval)
-+		goto out;
-+
-+	retval = clk_prepare_enable(tsc->tsc_clk);
-+	if (retval) {
-+		clk_disable_unprepare(tsc->adc_clk);
-+		goto out;
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index f77b295e0123e..01788a78041b3 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
  	}
  
-+	retval = imx6ul_tsc_init(tsc);
-+	if (retval) {
-+		clk_disable_unprepare(tsc->tsc_clk);
-+		clk_disable_unprepare(tsc->adc_clk);
-+		goto out;
-+	}
- out:
- 	mutex_unlock(&input_dev->mutex);
- 	return retval;
+ 	keypad->irq = platform_get_irq(pdev, 0);
+-	if (!keypad->irq) {
+-		err = -ENXIO;
++	if (keypad->irq < 0) {
++		err = keypad->irq;
+ 		goto failed_free;
+ 	}
+ 
 -- 
 2.25.1
 
