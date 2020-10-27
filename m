@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925FF29B64E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B3129B650
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797303AbgJ0PWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
+        id S1797328AbgJ0PWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:22:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796875AbgJ0PWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:22:45 -0400
+        id S1797323AbgJ0PWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94CB820728;
-        Tue, 27 Oct 2020 15:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E1B220657;
+        Tue, 27 Oct 2020 15:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812164;
-        bh=Kga7vEfZO3kPRLsus9Py7qIoN3l60BwB1lXwXne9Ku8=;
+        s=default; t=1603812173;
+        bh=7uyB9atqs1ASUhJEUJ6KUZQMtbf7sTKSZGFbcU0r53E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiSkXMmxzT18/aWUcn2rg0J8LcbMfrshl2zWtmVFms9k90A3bIpyIiDchIfth7hBf
-         eEd3GcZK9gVKJ5upNeKfgpVjKnaS3eB/ZnXdevqThtmVCrvTtg0sbf/Y5RoIqxH8ps
-         loRscj8JC12HbKOD3YneAIS+xPtsoF79sJraM+Yo=
+        b=T+TR+r4RtTEkyETaCGdVWyVWKCFA3c/hERA2lNTwzb/1K+S437EF0I2Td8AcN9L31
+         ORWMzmeeTd7bWt0zIVcHcUeKWLdgfONGkiZRs8fq/ZGkSHHRm9d68WA6SqZVvdmLgi
+         xmqQRPFKffjUpiH1KVAhKfVEHKzGZFt6gXKAC8u0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Meyer <kyle.meyer@hpe.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexei Budankov <alexey.budankov@linux.intel.com>,
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 107/757] perf/x86/intel/uncore: Fix for iio mapping on Skylake Server
-Date:   Tue, 27 Oct 2020 14:45:57 +0100
-Message-Id: <20201027135455.571628328@linuxfoundation.org>
+Subject: [PATCH 5.9 118/757] regulator: set of_node for qcom vbus regulator
+Date:   Tue, 27 Oct 2020 14:46:08 +0100
+Message-Id: <20201027135456.110742616@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,59 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit f797f05d917ffef94249ee0aec4c14a5b50517b2 ]
+[ Upstream commit 66c3b96a7bd042427d2e0eaa8704536828f8235f ]
 
-Introduced early attributes /sys/devices/uncore_iio_<pmu_idx>/die* are
-initialized by skx_iio_set_mapping(), however, for example, for multiple
-segment platforms skx_iio_get_topology() returns -EPERM before a list of
-attributes in skx_iio_mapping_group will have been initialized.
-As a result the list is being NULL. Thus the warning
-"sysfs: (bin_)attrs not set by subsystem for group: uncore_iio_*/" appears
-and uncore_iio pmus are not available in sysfs. Clear IIO attr_update
-to properly handle the cases when topology information cannot be
-retrieved.
+This allows the regulator to be found by devm_regulator_get().
 
-Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
-Reported-by: Kyle Meyer <kyle.meyer@hpe.com>
-Suggested-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Alexei Budankov <alexey.budankov@linux.intel.com>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lkml.kernel.org/r/20200928102133.61041-1-alexander.antonov@linux.intel.com
+Fixes: 4fe66d5a62fb ("regulator: Add support for QCOM PMIC VBUS booster")
+
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Link: https://lore.kernel.org/r/20200818162508.5246-1-jonathan@marek.ca
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/regulator/qcom_usb_vbus-regulator.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 62e88ad919ffc..ccfa1d6b6aa0d 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3749,7 +3749,9 @@ static int skx_iio_set_mapping(struct intel_uncore_type *type)
+diff --git a/drivers/regulator/qcom_usb_vbus-regulator.c b/drivers/regulator/qcom_usb_vbus-regulator.c
+index 8ba947f3585f5..457788b505720 100644
+--- a/drivers/regulator/qcom_usb_vbus-regulator.c
++++ b/drivers/regulator/qcom_usb_vbus-regulator.c
+@@ -63,6 +63,7 @@ static int qcom_usb_vbus_regulator_probe(struct platform_device *pdev)
+ 	qcom_usb_vbus_rdesc.enable_mask = OTG_EN;
+ 	config.dev = dev;
+ 	config.init_data = init_data;
++	config.of_node = dev->of_node;
+ 	config.regmap = regmap;
  
- 	ret = skx_iio_get_topology(type);
- 	if (ret)
--		return ret;
-+		goto clear_attr_update;
-+
-+	ret = -ENOMEM;
- 
- 	/* One more for NULL. */
- 	attrs = kcalloc((uncore_max_dies() + 1), sizeof(*attrs), GFP_KERNEL);
-@@ -3781,8 +3783,9 @@ static int skx_iio_set_mapping(struct intel_uncore_type *type)
- 	kfree(eas);
- 	kfree(attrs);
- 	kfree(type->topology);
-+clear_attr_update:
- 	type->attr_update = NULL;
--	return -ENOMEM;
-+	return ret;
- }
- 
- static void skx_iio_cleanup_mapping(struct intel_uncore_type *type)
+ 	rdev = devm_regulator_register(dev, &qcom_usb_vbus_rdesc, &config);
 -- 
 2.25.1
 
