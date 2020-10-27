@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86FF29C655
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA1D29C653
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756248AbgJ0SQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S1826079AbgJ0SQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:16:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756236AbgJ0OMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:09 -0400
+        id S1756248AbgJ0OMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:12:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FD882072D;
-        Tue, 27 Oct 2020 14:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 482EF218AC;
+        Tue, 27 Oct 2020 14:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807929;
-        bh=JNX1b1s1S8/slQjwsPJ324lvjzzJASKZch41UK6bUss=;
+        s=default; t=1603807932;
+        bh=0PwGEYpf2+rOl5fs0/EGikixkqMcM8/NDGnXfSv46Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6AwSWZ6+aGw4ogLiB4noR134+LYtaUIJnGzAgCk/NVkxWC7iTS3V+6Rt2CKb4SmL
-         Epoayvlj/dN6RsoSL9iBfAqUWeYb6cz31Z/WGgv8MBUVwB7OfBwZZTq5cYKB+E9hAV
-         8ylRwt4u7AYwLuPgTR+94bTXGlWCOekmKnqygjiY=
+        b=Xx3uPvUFZuhRbS5bfmg81Q8F++bl7IJPcW9CrS6SO+ZnLQpG1tVkpevf6yL+i311Y
+         0u1JC/c7rSftjvkTOagvYQSxluzw7oWkjxeSGv86Ydbnvr3+1wL1mm134CRNfUIE9m
+         YcLmk4cRvax9tIDpHtVasfvziVVR0Ya9VlDsYInU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/191] xfs: limit entries returned when counting fsmap records
-Date:   Tue, 27 Oct 2020 14:49:08 +0100
-Message-Id: <20201027134914.166848771@linuxfoundation.org>
+Subject: [PATCH 4.14 094/191] RDMA/qedr: Fix use of uninitialized field
+Date:   Tue, 27 Oct 2020 14:49:09 +0100
+Message-Id: <20201027134914.216231814@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -45,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit acd1ac3aa22fd58803a12d26b1ab7f70232f8d8d ]
+[ Upstream commit a379ad54e55a12618cae7f6333fd1b3071de9606 ]
 
-If userspace asked fsmap to count the number of entries, we cannot
-return more than UINT_MAX entries because fmh_entries is u32.
-Therefore, stop counting if we hit this limit or else we will waste time
-to return truncated results.
+dev->attr.page_size_caps was used uninitialized when setting device
+attributes
 
-Fixes: e89c041338ed ("xfs: implement the GETFSMAP ioctl")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Fixes: ec72fce401c6 ("qedr: Add support for RoCE HW init")
+Link: https://lore.kernel.org/r/20200902165741.8355-4-michal.kalderon@marvell.com
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_fsmap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/qedr/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
-index 43cfc07996a43..e7622e0841868 100644
---- a/fs/xfs/xfs_fsmap.c
-+++ b/fs/xfs/xfs_fsmap.c
-@@ -273,6 +273,9 @@ xfs_getfsmap_helper(
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index 3e48ed64760b7..8c9e23d1f434e 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -548,7 +548,7 @@ static int qedr_set_device_attr(struct qedr_dev *dev)
+ 	qed_attr = dev->ops->rdma_query_device(dev->rdma_ctx);
  
- 	/* Are we just counting mappings? */
- 	if (info->head->fmh_count == 0) {
-+		if (info->head->fmh_entries == UINT_MAX)
-+			return -ECANCELED;
-+
- 		if (rec_daddr > info->next_daddr)
- 			info->head->fmh_entries++;
- 
+ 	/* Part 2 - check capabilities */
+-	page_size = ~dev->attr.page_size_caps + 1;
++	page_size = ~qed_attr->page_size_caps + 1;
+ 	if (page_size > PAGE_SIZE) {
+ 		DP_ERR(dev,
+ 		       "Kernel PAGE_SIZE is %ld which is smaller than minimum page size (%d) required by qedr\n",
 -- 
 2.25.1
 
