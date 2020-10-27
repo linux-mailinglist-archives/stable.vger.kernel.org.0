@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D9829B84C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 185D129B88D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799996AbgJ0Ped (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
+        id S1799339AbgJ0Plm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799990AbgJ0Pec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:34:32 -0400
+        id S1800120AbgJ0PfF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:35:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3646F22264;
-        Tue, 27 Oct 2020 15:34:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECD6D2225E;
+        Tue, 27 Oct 2020 15:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812871;
-        bh=zdijcNDmgfrvW9iubKBIm0xSxXEPGMKFlZgmPVyKHBU=;
+        s=default; t=1603812904;
+        bh=ZxkpQIgEWIQoiM8qTiWxMoB60zakyUYyXHGwt/vZj9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJufNkIlekFMOrw61DHp0shtEegmluZYnNVjzsdFnSY62jO3e6TTjap1ZRr40gj7l
-         WcyCDUXH+XVaWLZxKjuIOsLVc6mn4M2JDcLWW8542qACE8SBbyrVC4eKOEjR9my3o6
-         rITHnruAE04bRzPMyWgVC8srM1IEpRqyp932q+wA=
+        b=qpDa3OK30pERBS8rHaWnJhx6It1eThE3sPsnDJrzd+7U0CgUfO33FYvoXjtp8pYGX
+         JhTifNvK/oFGJafav7YKpoRhELGJVo+O+u11Vwivs6Fm4vuH9Gu0V+2WNTyMXsH4eO
+         ZIpMI13wiSmwm+onPKKPxQnfpSxM4BHtBwVLm5i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 342/757] ibmvnic: set up 200GBPS speed
-Date:   Tue, 27 Oct 2020 14:49:52 +0100
-Message-Id: <20201027135506.618352489@linuxfoundation.org>
+Subject: [PATCH 5.9 343/757] bpf: disallow attaching modify_return tracing functions to other BPF programs
+Date:   Tue, 27 Oct 2020 14:49:53 +0100
+Message-Id: <20201027135506.657819238@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,58 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit b9cd795b0e4860f482bf3741d12e1c8f3ec1cfc9 ]
+[ Upstream commit 1af9270e908cd50a4f5d815c9b6f794c7d57ed07 ]
 
-Set up the speed according to crq->query_phys_parms.rsp.speed.
-Fix IBMVNIC_10GBPS typo.
+>From the checks and commit messages for modify_return, it seems it was
+never the intention that it should be possible to attach a tracing program
+with expected_attach_type == BPF_MODIFY_RETURN to another BPF program.
+However, check_attach_modify_return() will only look at the function name,
+so if the target function starts with "security_", the attach will be
+allowed even for bpf2bpf attachment.
 
-Fixes: f8d6ae0d27ec ("ibmvnic: Report actual backing device speed and duplex values")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this oversight by also blocking the modification if a target program is
+supplied.
+
+Fixes: 18644cec714a ("bpf: Fix use-after-free in fmod_ret check")
+Fixes: 6ba43b761c41 ("bpf: Attachment verification for BPF_MODIFY_RETURN")
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 5 ++++-
- drivers/net/ethernet/ibm/ibmvnic.h | 2 +-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 4dd3625a4fbc8..3e0aab04d86fb 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4610,7 +4610,7 @@ static int handle_query_phys_parms_rsp(union ibmvnic_crq *crq,
- 	case IBMVNIC_1GBPS:
- 		adapter->speed = SPEED_1000;
- 		break;
--	case IBMVNIC_10GBP:
-+	case IBMVNIC_10GBPS:
- 		adapter->speed = SPEED_10000;
- 		break;
- 	case IBMVNIC_25GBPS:
-@@ -4625,6 +4625,9 @@ static int handle_query_phys_parms_rsp(union ibmvnic_crq *crq,
- 	case IBMVNIC_100GBPS:
- 		adapter->speed = SPEED_100000;
- 		break;
-+	case IBMVNIC_200GBPS:
-+		adapter->speed = SPEED_200000;
-+		break;
- 	default:
- 		if (netif_carrier_ok(netdev))
- 			netdev_warn(netdev, "Unknown speed 0x%08x\n", rspeed);
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.h b/drivers/net/ethernet/ibm/ibmvnic.h
-index f8416e1d4cf09..43feb96b0a68a 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.h
-+++ b/drivers/net/ethernet/ibm/ibmvnic.h
-@@ -373,7 +373,7 @@ struct ibmvnic_phys_parms {
- #define IBMVNIC_10MBPS		0x40000000
- #define IBMVNIC_100MBPS		0x20000000
- #define IBMVNIC_1GBPS		0x10000000
--#define IBMVNIC_10GBP		0x08000000
-+#define IBMVNIC_10GBPS		0x08000000
- #define IBMVNIC_40GBPS		0x04000000
- #define IBMVNIC_100GBPS		0x02000000
- #define IBMVNIC_25GBPS		0x01000000
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index fba52d9ec8fc4..5b9d2cf06fc6b 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11046,6 +11046,11 @@ static int check_attach_btf_id(struct bpf_verifier_env *env)
+ 		}
+ 
+ 		if (prog->expected_attach_type == BPF_MODIFY_RETURN) {
++			if (tgt_prog) {
++				verbose(env, "can't modify return codes of BPF programs\n");
++				ret = -EINVAL;
++				goto out;
++			}
+ 			ret = check_attach_modify_return(prog, addr);
+ 			if (ret)
+ 				verbose(env, "%s() is not modifiable\n",
 -- 
 2.25.1
 
