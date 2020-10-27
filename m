@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 278FB29C70D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7033729C5A3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409678AbgJ0N6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S1754086AbgJ0OEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753037AbgJ0N6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:13 -0400
+        id S1754082AbgJ0OEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:04:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 645B32068D;
-        Tue, 27 Oct 2020 13:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8156B22282;
+        Tue, 27 Oct 2020 14:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807091;
-        bh=0oD6PhTOeavVEdiL2JrbYcpS4bpz+YRJxwNii4zfHOY=;
+        s=default; t=1603807447;
+        bh=VgxF2QNfXRW6QrY3IZNXW8MRJL0l28w6H9RqN1OQ7iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZykBkuWX8Id83WXZGQNVkhm7YXq8wtJWhckajC92m0R5/URZI4kUbcHltGbF+AgS
-         RbqjxmpgXJixOrghzSmZpbKlRtQxwfaXTYFB3tdCRGIiQvNDtr93YpgpMG/6GxWpYU
-         aIO+bKoaPzPsrMZ0Jy6jkFIjb63Kfn8gCo+4C4t0=
+        b=bKnMK4onT3pAeZBVJzUZutOPySe/+uFMo7ml67M8wNHCryrWHPVsJh5CbK4dTBzU6
+         6C/uFxOX+2K8pHA4ScuOMXOMa1m6xYKjjQ8DNS0KPbZLfcyWOeOZ9PO7BPuGtS8Q2t
+         jiireBX4YCMWjODBo+tw/W0Z+KsgEmp0wZSLdCeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 040/112] video: fbdev: vga16fb: fix setting of pixclock because a pass-by-value error
+Subject: [PATCH 4.9 056/139] IB/mlx4: Fix starvation in paravirt mux/demux
 Date:   Tue, 27 Oct 2020 14:49:10 +0100
-Message-Id: <20201027134902.457540558@linuxfoundation.org>
+Message-Id: <20201027134904.788326995@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit c72fab81ceaa54408b827a2f0486d9a0f4be34cf ]
+[ Upstream commit 7fd1507df7cee9c533f38152fcd1dd769fcac6ce ]
 
-The pixclock is being set locally because it is being passed as a
-pass-by-value argument rather than pass-by-reference, so the computed
-pixclock is never being set in var->pixclock. Fix this by passing
-by reference.
+The mlx4 driver will proxy MAD packets through the PF driver. A VM or an
+instantiated VF will send its MAD packets to the PF driver using
+loop-back. The PF driver will be informed by an interrupt, but defer the
+handling and polling of CQEs to a worker thread running on an ordered
+work-queue.
 
-[This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git ]
+Consider the following scenario: the VMs will in short proximity in time,
+for example due to a network event, send many MAD packets to the PF
+driver. Lets say there are K VMs, each sending N packets.
 
-Addresses-Coverity: ("Unused value")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jani Nikula <jani.nikula@intel.com>
-[b.zolnierkie: minor patch summary fixup]
-[b.zolnierkie: removed "Fixes:" tag (not in upstream tree)]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200723170227.996229-1-colin.king@canonical.com
+The interrupt from the first VM will start the worker thread, which will
+poll N CQEs. A common case here is where the PF driver will multiplex the
+packets received from the VMs out on the wire QP.
+
+But before the wire QP has returned a send CQE and associated interrupt,
+the other K - 1 VMs have sent their N packets as well.
+
+The PF driver has to multiplex K * N packets out on the wire QP. But the
+send-queue on the wire QP has a finite capacity.
+
+So, in this scenario, if K * N is larger than the send-queue capacity of
+the wire QP, we will get MAD packets dropped on the floor with this
+dynamic debug message:
+
+mlx4_ib_multiplex_mad: failed sending GSI to wire on behalf of slave 2 (-11)
+
+and this despite the fact that the wire send-queue could have capacity,
+but the PF driver isn't aware, because the wire send CQEs have not yet
+been polled.
+
+We can also have a similar scenario inbound, with a wire recv-queue larger
+than the tunnel QP's send-queue. If many remote peers send MAD packets to
+the very same VM, the tunnel send-queue destined to the VM could allegedly
+be construed to be full by the PF driver.
+
+This starvation is fixed by introducing separate work queues for the wire
+QPs vs. the tunnel QPs.
+
+With this fix, using a dual ported HCA, 8 VFs instantiated, we could run
+cmtime on each of the 18 interfaces towards a similar configured peer,
+each cmtime instance with 800 QPs (all in all 14400 QPs) without a single
+CM packet getting lost.
+
+Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
+Link: https://lore.kernel.org/r/20200803061941.1139994-5-haakon.bugge@oracle.com
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vga16fb.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/mlx4/mad.c     | 34 +++++++++++++++++++++++++---
+ drivers/infiniband/hw/mlx4/mlx4_ib.h |  2 ++
+ 2 files changed, 33 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index 1acdb41a8a7c3..06cee2a40a9bf 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -243,7 +243,7 @@ static void vga16fb_update_fix(struct fb_info *info)
+diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
+index f32ffd74ec476..bf4e0d7a3ec21 100644
+--- a/drivers/infiniband/hw/mlx4/mad.c
++++ b/drivers/infiniband/hw/mlx4/mad.c
+@@ -1276,6 +1276,18 @@ static void mlx4_ib_tunnel_comp_handler(struct ib_cq *cq, void *arg)
+ 	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
  }
  
- static void vga16fb_clock_chip(struct vga16fb_par *par,
--			       unsigned int pixclock,
-+			       unsigned int *pixclock,
- 			       const struct fb_info *info,
- 			       int mul, int div)
- {
-@@ -259,14 +259,14 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
- 		{     0 /* bad */,    0x00, 0x00}};
- 	int err;
++static void mlx4_ib_wire_comp_handler(struct ib_cq *cq, void *arg)
++{
++	unsigned long flags;
++	struct mlx4_ib_demux_pv_ctx *ctx = cq->cq_context;
++	struct mlx4_ib_dev *dev = to_mdev(ctx->ib_dev);
++
++	spin_lock_irqsave(&dev->sriov.going_down_lock, flags);
++	if (!dev->sriov.is_going_down && ctx->state == DEMUX_PV_STATE_ACTIVE)
++		queue_work(ctx->wi_wq, &ctx->work);
++	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
++}
++
+ static int mlx4_ib_post_pv_qp_buf(struct mlx4_ib_demux_pv_ctx *ctx,
+ 				  struct mlx4_ib_demux_pv_qp *tun_qp,
+ 				  int index)
+@@ -1978,7 +1990,8 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
+ 		cq_size *= 2;
  
--	pixclock = (pixclock * mul) / div;
-+	*pixclock = (*pixclock * mul) / div;
- 	best = vgaclocks;
--	err = pixclock - best->pixclock;
-+	err = *pixclock - best->pixclock;
- 	if (err < 0) err = -err;
- 	for (ptr = vgaclocks + 1; ptr->pixclock; ptr++) {
- 		int tmp;
+ 	cq_attr.cqe = cq_size;
+-	ctx->cq = ib_create_cq(ctx->ib_dev, mlx4_ib_tunnel_comp_handler,
++	ctx->cq = ib_create_cq(ctx->ib_dev,
++			       create_tun ? mlx4_ib_tunnel_comp_handler : mlx4_ib_wire_comp_handler,
+ 			       NULL, ctx, &cq_attr);
+ 	if (IS_ERR(ctx->cq)) {
+ 		ret = PTR_ERR(ctx->cq);
+@@ -2015,6 +2028,7 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
+ 		INIT_WORK(&ctx->work, mlx4_ib_sqp_comp_worker);
  
--		tmp = pixclock - ptr->pixclock;
-+		tmp = *pixclock - ptr->pixclock;
- 		if (tmp < 0) tmp = -tmp;
- 		if (tmp < err) {
- 			err = tmp;
-@@ -275,7 +275,7 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
+ 	ctx->wq = to_mdev(ibdev)->sriov.demux[port - 1].wq;
++	ctx->wi_wq = to_mdev(ibdev)->sriov.demux[port - 1].wi_wq;
+ 
+ 	ret = ib_req_notify_cq(ctx->cq, IB_CQ_NEXT_COMP);
+ 	if (ret) {
+@@ -2158,7 +2172,7 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 		goto err_mcg;
  	}
- 	par->misc |= best->misc;
- 	par->clkdiv = best->seq_clock_mode;
--	pixclock = (best->pixclock * div) / mul;		
-+	*pixclock = (best->pixclock * div) / mul;
- }
- 			       
- #define FAIL(X) return -EINVAL
-@@ -497,10 +497,10 @@ static int vga16fb_check_var(struct fb_var_screeninfo *var,
  
- 	if (mode & MODE_8BPP)
- 		/* pixel clock == vga clock / 2 */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 2);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 2);
- 	else
- 		/* pixel clock == vga clock */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 1);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 1);
- 	
- 	var->red.offset = var->green.offset = var->blue.offset = 
- 	var->transp.offset = 0;
+-	snprintf(name, sizeof name, "mlx4_ibt%d", port);
++	snprintf(name, sizeof(name), "mlx4_ibt%d", port);
+ 	ctx->wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
+ 	if (!ctx->wq) {
+ 		pr_err("Failed to create tunnelling WQ for port %d\n", port);
+@@ -2166,7 +2180,15 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 		goto err_wq;
+ 	}
+ 
+-	snprintf(name, sizeof name, "mlx4_ibud%d", port);
++	snprintf(name, sizeof(name), "mlx4_ibwi%d", port);
++	ctx->wi_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
++	if (!ctx->wi_wq) {
++		pr_err("Failed to create wire WQ for port %d\n", port);
++		ret = -ENOMEM;
++		goto err_wiwq;
++	}
++
++	snprintf(name, sizeof(name), "mlx4_ibud%d", port);
+ 	ctx->ud_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
+ 	if (!ctx->ud_wq) {
+ 		pr_err("Failed to create up/down WQ for port %d\n", port);
+@@ -2177,6 +2199,10 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 	return 0;
+ 
+ err_udwq:
++	destroy_workqueue(ctx->wi_wq);
++	ctx->wi_wq = NULL;
++
++err_wiwq:
+ 	destroy_workqueue(ctx->wq);
+ 	ctx->wq = NULL;
+ 
+@@ -2224,12 +2250,14 @@ static void mlx4_ib_free_demux_ctx(struct mlx4_ib_demux_ctx *ctx)
+ 				ctx->tun[i]->state = DEMUX_PV_STATE_DOWNING;
+ 		}
+ 		flush_workqueue(ctx->wq);
++		flush_workqueue(ctx->wi_wq);
+ 		for (i = 0; i < dev->dev->caps.sqp_demux; i++) {
+ 			destroy_pv_resources(dev, i, ctx->port, ctx->tun[i], 0);
+ 			free_pv_object(dev, i, ctx->port);
+ 		}
+ 		kfree(ctx->tun);
+ 		destroy_workqueue(ctx->ud_wq);
++		destroy_workqueue(ctx->wi_wq);
+ 		destroy_workqueue(ctx->wq);
+ 	}
+ }
+diff --git a/drivers/infiniband/hw/mlx4/mlx4_ib.h b/drivers/infiniband/hw/mlx4/mlx4_ib.h
+index 35141f451e5c7..91c89ef6ce04f 100644
+--- a/drivers/infiniband/hw/mlx4/mlx4_ib.h
++++ b/drivers/infiniband/hw/mlx4/mlx4_ib.h
+@@ -439,6 +439,7 @@ struct mlx4_ib_demux_pv_ctx {
+ 	struct ib_pd *pd;
+ 	struct work_struct work;
+ 	struct workqueue_struct *wq;
++	struct workqueue_struct *wi_wq;
+ 	struct mlx4_ib_demux_pv_qp qp[2];
+ };
+ 
+@@ -446,6 +447,7 @@ struct mlx4_ib_demux_ctx {
+ 	struct ib_device *ib_dev;
+ 	int port;
+ 	struct workqueue_struct *wq;
++	struct workqueue_struct *wi_wq;
+ 	struct workqueue_struct *ud_wq;
+ 	spinlock_t ud_lock;
+ 	atomic64_t subnet_prefix;
 -- 
 2.25.1
 
