@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3810929C254
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D6329C477
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819999AbgJ0Rb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
+        id S1823035AbgJ0R44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:56:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761043AbgJ0Ohp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:37:45 -0400
+        id S2508853AbgJ0OUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:20:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82E6D206B2;
-        Tue, 27 Oct 2020 14:37:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFE7B206F7;
+        Tue, 27 Oct 2020 14:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809465;
-        bh=KF/UDFN541tOWKaEbgbA8uhvSIsFQsIdC5JcpEVfUsE=;
+        s=default; t=1603808430;
+        bh=ukGCmKdVlfLX/vv05S5i6v0UWlpxKaL8OxClYG3OUNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coevVYUSB0LyodNm/iO2LvSfcix/fCXgh96R+f1aIrds24qy91Hf1lTmVPjp8tF1w
-         zUz0p+X3yHrOLjVKdv8xK9whMToJmW0Iyb+B70oHJIwMXD0iJnMfzWIBMSPqBjdAyY
-         GloUUCi3LyTPDeniCOWn6KT0F1zfJcMjYaZbOIH4=
+        b=ApuHnDzM8Z7R2G4kpItZ1v/Z8jDRy5OWJDgb47Io3uF4fWbM6Tb+O+nEsDhrXOb3n
+         lHl83BEPu3jl//XI3+a3s3j0pjOiQnj4dFU71GchzQVRIYkXBsSM+PXJOsVQIbklyw
+         kePLfG8YM9nOR3b4V8HUR6qEl5AIRGG1lEVcr22E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 205/408] RDMA/umem: Fix signature of stub ib_umem_find_best_pgsz()
-Date:   Tue, 27 Oct 2020 14:52:23 +0100
-Message-Id: <20201027135504.611607748@linuxfoundation.org>
+Subject: [PATCH 4.19 089/264] video: fbdev: vga16fb: fix setting of pixclock because a pass-by-value error
+Date:   Tue, 27 Oct 2020 14:52:27 +0100
+Message-Id: <20201027135434.876935631@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 61690d01db32eb1f94adc9ac2b8bb741d34e4671 ]
+[ Upstream commit c72fab81ceaa54408b827a2f0486d9a0f4be34cf ]
 
-The original function returns unsigned long and 0 on failure.
+The pixclock is being set locally because it is being passed as a
+pass-by-value argument rather than pass-by-reference, so the computed
+pixclock is never being set in var->pixclock. Fix this by passing
+by reference.
 
-Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
-Link: https://lore.kernel.org/r/0-v1-982a13cc5c6d+501ae-fix_best_pgsz_stub_jgg@nvidia.com
-Reviewed-by: Gal Pressman <galpress@amazon.com>
-Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+[This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git ]
+
+Addresses-Coverity: ("Unused value")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jani Nikula <jani.nikula@intel.com>
+[b.zolnierkie: minor patch summary fixup]
+[b.zolnierkie: removed "Fixes:" tag (not in upstream tree)]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200723170227.996229-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/rdma/ib_umem.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/vga16fb.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/rdma/ib_umem.h b/include/rdma/ib_umem.h
-index a91b2af64ec47..8e94279af47df 100644
---- a/include/rdma/ib_umem.h
-+++ b/include/rdma/ib_umem.h
-@@ -95,10 +95,11 @@ static inline int ib_umem_copy_from(void *dst, struct ib_umem *umem, size_t offs
- 		      		    size_t length) {
- 	return -EINVAL;
- }
--static inline int ib_umem_find_best_pgsz(struct ib_umem *umem,
--					 unsigned long pgsz_bitmap,
--					 unsigned long virt) {
--	return -EINVAL;
-+static inline unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
-+						   unsigned long pgsz_bitmap,
-+						   unsigned long virt)
-+{
-+	return 0;
+diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
+index 4b83109202b1c..3c4d20618de4c 100644
+--- a/drivers/video/fbdev/vga16fb.c
++++ b/drivers/video/fbdev/vga16fb.c
+@@ -243,7 +243,7 @@ static void vga16fb_update_fix(struct fb_info *info)
  }
  
- #endif /* CONFIG_INFINIBAND_USER_MEM */
+ static void vga16fb_clock_chip(struct vga16fb_par *par,
+-			       unsigned int pixclock,
++			       unsigned int *pixclock,
+ 			       const struct fb_info *info,
+ 			       int mul, int div)
+ {
+@@ -259,14 +259,14 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
+ 		{     0 /* bad */,    0x00, 0x00}};
+ 	int err;
+ 
+-	pixclock = (pixclock * mul) / div;
++	*pixclock = (*pixclock * mul) / div;
+ 	best = vgaclocks;
+-	err = pixclock - best->pixclock;
++	err = *pixclock - best->pixclock;
+ 	if (err < 0) err = -err;
+ 	for (ptr = vgaclocks + 1; ptr->pixclock; ptr++) {
+ 		int tmp;
+ 
+-		tmp = pixclock - ptr->pixclock;
++		tmp = *pixclock - ptr->pixclock;
+ 		if (tmp < 0) tmp = -tmp;
+ 		if (tmp < err) {
+ 			err = tmp;
+@@ -275,7 +275,7 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
+ 	}
+ 	par->misc |= best->misc;
+ 	par->clkdiv = best->seq_clock_mode;
+-	pixclock = (best->pixclock * div) / mul;		
++	*pixclock = (best->pixclock * div) / mul;
+ }
+ 			       
+ #define FAIL(X) return -EINVAL
+@@ -497,10 +497,10 @@ static int vga16fb_check_var(struct fb_var_screeninfo *var,
+ 
+ 	if (mode & MODE_8BPP)
+ 		/* pixel clock == vga clock / 2 */
+-		vga16fb_clock_chip(par, var->pixclock, info, 1, 2);
++		vga16fb_clock_chip(par, &var->pixclock, info, 1, 2);
+ 	else
+ 		/* pixel clock == vga clock */
+-		vga16fb_clock_chip(par, var->pixclock, info, 1, 1);
++		vga16fb_clock_chip(par, &var->pixclock, info, 1, 1);
+ 	
+ 	var->red.offset = var->green.offset = var->blue.offset = 
+ 	var->transp.offset = 0;
 -- 
 2.25.1
 
