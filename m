@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FEE29B82D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B7429B8C6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799774AbgJ0PdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50718 "EHLO mail.kernel.org"
+        id S1801958AbgJ0PpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799771AbgJ0PdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:33:17 -0400
+        id S1799792AbgJ0PdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:33:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5644022400;
-        Tue, 27 Oct 2020 15:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3BD122202;
+        Tue, 27 Oct 2020 15:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812796;
-        bh=MpVFyXvmU22aMbT2nKeSrSIFiErrcqK8w80LEe4LQcA=;
+        s=default; t=1603812803;
+        bh=oey3az2tHcESgDRQcByndXxFAvhtrUWEW2qFCWdSyfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ld5qxJjo9xX2Emrpr8eerbcqtweskVu+YBVGWL1rsc0MhuG5XZBYXMY5UyilbleO0
-         Ue5Dhwtme8GQ0asgngCHEic9+N125zleTSpFNCZjSZxzdBKEUtAgLZf8RYE6uD7YiX
-         eeQ7HPJn8bioB4aLgKeEQWLGPDN5x9fhPAWBuzR8=
+        b=NABsqRco6erzhk09Mp3mZvL6tuba3d/Z5wSYwePJrYjkI6EqClO9hZAA6/b1N3EMD
+         g2Op+J/XAjORSe4O9T+GFM0vhi9IKnUlhFBGDafF8ZOQPrXuu2b72n4aT8/QNW6UVk
+         eiwxHbwQMakuEb1EaVU2dzfhuRjKpJf8o8Sxt+1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 333/757] tty: serial: imx: fix link error with CONFIG_SERIAL_CORE_CONSOLE=n
-Date:   Tue, 27 Oct 2020 14:49:43 +0100
-Message-Id: <20201027135506.175752907@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Mohammed Gamal <mgamal@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 335/757] hv: clocksource: Add notrace attribute to read_hv_sched_clock_*() functions
+Date:   Tue, 27 Oct 2020 14:49:45 +0100
+Message-Id: <20201027135506.272925061@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,39 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Mohammed Gamal <mgamal@redhat.com>
 
-[ Upstream commit 24c796926e2f88b383a76ddc871a7cdd62484f3a ]
+[ Upstream commit 1f3aed01473c41c9f896fbf4c30d330655e8aa7c ]
 
-aarch64-linux-gnu-ld: drivers/tty/serial/imx_earlycon.o: in function `imx_uart_console_early_write':
-imx_earlycon.c:(.text+0x84): undefined reference to `uart_console_write'
+When selecting function_graph tracer with the command:
+ # echo function_graph > /sys/kernel/debug/tracing/current_tracer
 
-The driver uses the uart_console_write(), but SERIAL_CORE_CONSOLE is not
-selected, so uart_console_write is not defined, then we get the error.
-Fix this by selecting SERIAL_CORE_CONSOLE.
+The kernel crashes with the following stack trace:
 
-Fixes: 699cc4dfd140 ("tty: serial: imx: add imx earlycon driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20200919063240.2754965-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[69703.122389] BUG: stack guard page was hit at 000000001056545c (stack is 00000000fa3f8fed..0000000005d39503)
+[69703.122403] kernel stack overflow (double-fault): 0000 [#1] SMP PTI
+[69703.122413] CPU: 0 PID: 16982 Comm: bash Kdump: loaded Not tainted 4.18.0-236.el8.x86_64 #1
+[69703.122420] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
+[69703.122433] RIP: 0010repare_ftrace_return+0xa/0x110
+[69703.122458] Code: 05 00 0f 0b 48 c7 c7 10 ca 69 ae 0f b6 f0 e8 4b 52 0c 00 31 c0 eb ca 66 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 56 41 55 41 54 <53> 48 83 ec 18 65 48 8b 04 25 28 00 00 00 48 89 45 d8 31 c0 48 85
+[69703.122467] RSP: 0018:ffffbd6d01118000 EFLAGS: 00010086
+[69703.122476] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000003
+[69703.122484] RDX: 0000000000000000 RSI: ffffbd6d011180d8 RDI: ffffffffadce7550
+[69703.122491] RBP: ffffbd6d01118018 R08: 0000000000000000 R09: ffff9d4b09266000
+[69703.122498] R10: ffff9d4b0fc04540 R11: ffff9d4b0fc20a00 R12: ffff9d4b6e42aa90
+[69703.122506] R13: ffff9d4b0fc20ab8 R14: 00000000000003e8 R15: ffffbd6d0111837c
+[69703.122514] FS:  00007fd5f2588740(0000) GS:ffff9d4b6e400000(0000) knlGS:0000000000000000
+[69703.122521] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[69703.122528] CR2: ffffbd6d01117ff8 CR3: 00000000565d8001 CR4: 00000000003606f0
+[69703.122538] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[69703.122545] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[69703.122552] Call Trace:
+[69703.122568]  ftrace_graph_caller+0x6b/0xa0
+[69703.122589]  ? read_hv_sched_clock_tsc+0x5/0x20
+[69703.122599]  read_hv_sched_clock_tsc+0x5/0x20
+[69703.122611]  sched_clock+0x5/0x10
+[69703.122621]  sched_clock_local+0x12/0x80
+[69703.122631]  sched_clock_cpu+0x8c/0xb0
+[69703.122644]  trace_clock_global+0x21/0x90
+[69703.122655]  ring_buffer_lock_reserve+0x100/0x3c0
+[69703.122671]  trace_buffer_lock_reserve+0x16/0x50
+[69703.122683]  __trace_graph_entry+0x28/0x90
+[69703.122695]  trace_graph_entry+0xfd/0x1a0
+[69703.122705]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122714]  ? sched_clock+0x5/0x10
+[69703.122723]  prepare_ftrace_return+0x99/0x110
+[69703.122734]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122743]  ? sched_clock+0x5/0x10
+[69703.122752]  ftrace_graph_caller+0x6b/0xa0
+[69703.122768]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122777]  ? sched_clock+0x5/0x10
+[69703.122786]  ? read_hv_sched_clock_tsc+0x5/0x20
+[69703.122796]  ? ring_buffer_unlock_commit+0x1d/0xa0
+[69703.122805]  read_hv_sched_clock_tsc+0x5/0x20
+[69703.122814]  ftrace_graph_caller+0xa0/0xa0
+[ ... recursion snipped ... ]
+
+Setting the notrace attribute for read_hv_sched_clock_msr() and
+read_hv_sched_clock_tsc() fixes it.
+
+Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
+Link: https://lore.kernel.org/r/20200924151117.767442-1-mgamal@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/hyperv_timer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
-index 54586c1aba60b..20b98a3ba0466 100644
---- a/drivers/tty/serial/Kconfig
-+++ b/drivers/tty/serial/Kconfig
-@@ -521,6 +521,7 @@ config SERIAL_IMX_EARLYCON
- 	depends on ARCH_MXC || COMPILE_TEST
- 	depends on OF
- 	select SERIAL_EARLYCON
-+	select SERIAL_CORE_CONSOLE
- 	help
- 	  If you have enabled the earlycon on the Freescale IMX
- 	  CPU you can make it the earlycon by answering Y to this option.
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index 09aa44cb8a91d..ba04cb381cd3f 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -341,7 +341,7 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
+ 	return read_hv_clock_tsc();
+ }
+ 
+-static u64 read_hv_sched_clock_tsc(void)
++static u64 notrace read_hv_sched_clock_tsc(void)
+ {
+ 	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
+@@ -404,7 +404,7 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
+ 	return read_hv_clock_msr();
+ }
+ 
+-static u64 read_hv_sched_clock_msr(void)
++static u64 notrace read_hv_sched_clock_msr(void)
+ {
+ 	return (read_hv_clock_msr() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
 -- 
 2.25.1
 
