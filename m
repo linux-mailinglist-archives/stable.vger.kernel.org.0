@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A8E29AE36
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EED429AE38
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503997AbgJ0N6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
+        id S1753031AbgJ0N6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:58:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753016AbgJ0N6H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:07 -0400
+        id S1753030AbgJ0N6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 398492068D;
-        Tue, 27 Oct 2020 13:58:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7FDC218AC;
+        Tue, 27 Oct 2020 13:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807086;
-        bh=TeV0Txlh83tBG+QN8IwUa4jEh0uWbHD+kGWnEEdWiqk=;
+        s=default; t=1603807089;
+        bh=fLIAthkQRyQShWKNCc2uM0qojVRdcOvOZuApWKcysDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAduVHkWjW3exh6pOcgxFNuwcr42aS3A0Jibsc5nYk4TmFSb+cnGkB7fEGD+S1Hja
-         8+7RJ8C0jXdjP55LIq1dDGJ9ziG1BVexr30PGfS5QFdEEYxW/vECbbKwT8oz+ZUL11
-         A+Q4nYrQlfT9WUKKPdmoJR6ytUqZZVP6l1Gj1nvc=
+        b=FxfkxDOcBQwXejeWhjH60YnF7yI+2PX4aldVbz2iIhEz54BBbiqLpTKpr1pVPu0N/
+         imZY/tJfZw09PL6A5UijqbaBE8GfBxSEIwCUU0JaBi/4LYOd96FX8KnlwbLSGFu2eS
+         vENmeuB6aBx2+SiyRW3rtFT+VaH0pyGBMQiocMFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artem Savkov <asavkov@redhat.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
+        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        John Hubbard <jhubbard@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 038/112] pty: do tty_flip_buffer_push without port->lock in pty_write
-Date:   Tue, 27 Oct 2020 14:49:08 +0100
-Message-Id: <20201027134902.360675185@linuxfoundation.org>
+Subject: [PATCH 4.4 039/112] drivers/virt/fsl_hypervisor: Fix error handling path
+Date:   Tue, 27 Oct 2020 14:49:09 +0100
+Message-Id: <20201027134902.408021810@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -43,138 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Savkov <asavkov@redhat.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit 71a174b39f10b4b93223d374722aa894b5d8a82e ]
+[ Upstream commit 7f360bec37857bfd5a48cef21d86f58a09a3df63 ]
 
-b6da31b2c07c "tty: Fix data race in tty_insert_flip_string_fixed_flag"
-puts tty_flip_buffer_push under port->lock introducing the following
-possible circular locking dependency:
+First, when memory allocation for sg_list_unaligned failed, there
+is a bug of calling put_pages() as we haven't pinned any pages.
 
-[30129.876566] ======================================================
-[30129.876566] WARNING: possible circular locking dependency detected
-[30129.876567] 5.9.0-rc2+ #3 Tainted: G S      W
-[30129.876568] ------------------------------------------------------
-[30129.876568] sysrq.sh/1222 is trying to acquire lock:
-[30129.876569] ffffffff92c39480 (console_owner){....}-{0:0}, at: console_unlock+0x3fe/0xa90
+Second, if get_user_pages_fast() failed we should unpin num_pinned
+pages.
 
-[30129.876572] but task is already holding lock:
-[30129.876572] ffff888107cb9018 (&pool->lock/1){-.-.}-{2:2}, at: show_workqueue_state.cold.55+0x15b/0x6ca
+This will address both.
 
-[30129.876576] which lock already depends on the new lock.
+As part of these changes, minor update in documentation.
 
-[30129.876577] the existing dependency chain (in reverse order) is:
-
-[30129.876578] -> #3 (&pool->lock/1){-.-.}-{2:2}:
-[30129.876581]        _raw_spin_lock+0x30/0x70
-[30129.876581]        __queue_work+0x1a3/0x10f0
-[30129.876582]        queue_work_on+0x78/0x80
-[30129.876582]        pty_write+0x165/0x1e0
-[30129.876583]        n_tty_write+0x47f/0xf00
-[30129.876583]        tty_write+0x3d6/0x8d0
-[30129.876584]        vfs_write+0x1a8/0x650
-
-[30129.876588] -> #2 (&port->lock#2){-.-.}-{2:2}:
-[30129.876590]        _raw_spin_lock_irqsave+0x3b/0x80
-[30129.876591]        tty_port_tty_get+0x1d/0xb0
-[30129.876592]        tty_port_default_wakeup+0xb/0x30
-[30129.876592]        serial8250_tx_chars+0x3d6/0x970
-[30129.876593]        serial8250_handle_irq.part.12+0x216/0x380
-[30129.876593]        serial8250_default_handle_irq+0x82/0xe0
-[30129.876594]        serial8250_interrupt+0xdd/0x1b0
-[30129.876595]        __handle_irq_event_percpu+0xfc/0x850
-
-[30129.876602] -> #1 (&port->lock){-.-.}-{2:2}:
-[30129.876605]        _raw_spin_lock_irqsave+0x3b/0x80
-[30129.876605]        serial8250_console_write+0x12d/0x900
-[30129.876606]        console_unlock+0x679/0xa90
-[30129.876606]        register_console+0x371/0x6e0
-[30129.876607]        univ8250_console_init+0x24/0x27
-[30129.876607]        console_init+0x2f9/0x45e
-
-[30129.876609] -> #0 (console_owner){....}-{0:0}:
-[30129.876611]        __lock_acquire+0x2f70/0x4e90
-[30129.876612]        lock_acquire+0x1ac/0xad0
-[30129.876612]        console_unlock+0x460/0xa90
-[30129.876613]        vprintk_emit+0x130/0x420
-[30129.876613]        printk+0x9f/0xc5
-[30129.876614]        show_pwq+0x154/0x618
-[30129.876615]        show_workqueue_state.cold.55+0x193/0x6ca
-[30129.876615]        __handle_sysrq+0x244/0x460
-[30129.876616]        write_sysrq_trigger+0x48/0x4a
-[30129.876616]        proc_reg_write+0x1a6/0x240
-[30129.876617]        vfs_write+0x1a8/0x650
-
-[30129.876619] other info that might help us debug this:
-
-[30129.876620] Chain exists of:
-[30129.876621]   console_owner --> &port->lock#2 --> &pool->lock/1
-
-[30129.876625]  Possible unsafe locking scenario:
-
-[30129.876626]        CPU0                    CPU1
-[30129.876626]        ----                    ----
-[30129.876627]   lock(&pool->lock/1);
-[30129.876628]                                lock(&port->lock#2);
-[30129.876630]                                lock(&pool->lock/1);
-[30129.876631]   lock(console_owner);
-
-[30129.876633]  *** DEADLOCK ***
-
-[30129.876634] 5 locks held by sysrq.sh/1222:
-[30129.876634]  #0: ffff8881d3ce0470 (sb_writers#3){.+.+}-{0:0}, at: vfs_write+0x359/0x650
-[30129.876637]  #1: ffffffff92c612c0 (rcu_read_lock){....}-{1:2}, at: __handle_sysrq+0x4d/0x460
-[30129.876640]  #2: ffffffff92c612c0 (rcu_read_lock){....}-{1:2}, at: show_workqueue_state+0x5/0xf0
-[30129.876642]  #3: ffff888107cb9018 (&pool->lock/1){-.-.}-{2:2}, at: show_workqueue_state.cold.55+0x15b/0x6ca
-[30129.876645]  #4: ffffffff92c39980 (console_lock){+.+.}-{0:0}, at: vprintk_emit+0x123/0x420
-
-[30129.876648] stack backtrace:
-[30129.876649] CPU: 3 PID: 1222 Comm: sysrq.sh Tainted: G S      W         5.9.0-rc2+ #3
-[30129.876649] Hardware name: Intel Corporation 2012 Client Platform/Emerald Lake 2, BIOS ACRVMBY1.86C.0078.P00.1201161002 01/16/2012
-[30129.876650] Call Trace:
-[30129.876650]  dump_stack+0x9d/0xe0
-[30129.876651]  check_noncircular+0x34f/0x410
-[30129.876653]  __lock_acquire+0x2f70/0x4e90
-[30129.876656]  lock_acquire+0x1ac/0xad0
-[30129.876658]  console_unlock+0x460/0xa90
-[30129.876660]  vprintk_emit+0x130/0x420
-[30129.876660]  printk+0x9f/0xc5
-[30129.876661]  show_pwq+0x154/0x618
-[30129.876662]  show_workqueue_state.cold.55+0x193/0x6ca
-[30129.876664]  __handle_sysrq+0x244/0x460
-[30129.876665]  write_sysrq_trigger+0x48/0x4a
-[30129.876665]  proc_reg_write+0x1a6/0x240
-[30129.876666]  vfs_write+0x1a8/0x650
-
-It looks like the commit was aimed to protect tty_insert_flip_string and
-there is no need for tty_flip_buffer_push to be under this lock.
-
-Fixes: b6da31b2c07c ("tty: Fix data race in tty_insert_flip_string_fixed_flag")
-Signed-off-by: Artem Savkov <asavkov@redhat.com>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20200902120045.3693075-1-asavkov@redhat.com
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Link: https://lore.kernel.org/r/1598995271-6755-1-git-send-email-jrdr.linux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/pty.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virt/fsl_hypervisor.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/tty/pty.c b/drivers/tty/pty.c
-index c8a2e5b0eff76..8ee146b14aae8 100644
---- a/drivers/tty/pty.c
-+++ b/drivers/tty/pty.c
-@@ -115,10 +115,10 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
- 		spin_lock_irqsave(&to->port->lock, flags);
- 		/* Stuff the data into the input queue of the other end */
- 		c = tty_insert_flip_string(to->port, buf, c);
-+		spin_unlock_irqrestore(&to->port->lock, flags);
- 		/* And shovel */
- 		if (c)
- 			tty_flip_buffer_push(to->port);
--		spin_unlock_irqrestore(&to->port->lock, flags);
+diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
+index 9f96c7e61387d..0d11b5043db53 100644
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -157,7 +157,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 
+ 	unsigned int i;
+ 	long ret = 0;
+-	int num_pinned; /* return value from get_user_pages() */
++	int num_pinned = 0; /* return value from get_user_pages_fast() */
+ 	phys_addr_t remote_paddr; /* The next address in the remote buffer */
+ 	uint32_t count; /* The number of bytes left to copy */
+ 
+@@ -174,7 +174,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * The array of pages returned by get_user_pages() covers only
++	 * The array of pages returned by get_user_pages_fast() covers only
+ 	 * page-aligned memory.  Since the user buffer is probably not
+ 	 * page-aligned, we need to handle the discrepancy.
+ 	 *
+@@ -224,7 +224,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 
+ 	/*
+ 	 * 'pages' is an array of struct page pointers that's initialized by
+-	 * get_user_pages().
++	 * get_user_pages_fast().
+ 	 */
+ 	pages = kzalloc(num_pages * sizeof(struct page *), GFP_KERNEL);
+ 	if (!pages) {
+@@ -241,7 +241,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 	if (!sg_list_unaligned) {
+ 		pr_debug("fsl-hv: could not allocate S/G list\n");
+ 		ret = -ENOMEM;
+-		goto exit;
++		goto free_pages;
  	}
- 	return c;
- }
+ 	sg_list = PTR_ALIGN(sg_list_unaligned, sizeof(struct fh_sg_list));
+ 
+@@ -254,7 +254,6 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 	up_read(&current->mm->mmap_sem);
+ 
+ 	if (num_pinned != num_pages) {
+-		/* get_user_pages() failed */
+ 		pr_debug("fsl-hv: could not lock source buffer\n");
+ 		ret = (num_pinned < 0) ? num_pinned : -EFAULT;
+ 		goto exit;
+@@ -296,13 +295,13 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 		virt_to_phys(sg_list), num_pages);
+ 
+ exit:
+-	if (pages) {
+-		for (i = 0; i < num_pages; i++)
+-			if (pages[i])
+-				put_page(pages[i]);
++	if (pages && (num_pinned > 0)) {
++		for (i = 0; i < num_pinned; i++)
++			put_page(pages[i]);
+ 	}
+ 
+ 	kfree(sg_list_unaligned);
++free_pages:
+ 	kfree(pages);
+ 
+ 	if (!ret)
 -- 
 2.25.1
 
