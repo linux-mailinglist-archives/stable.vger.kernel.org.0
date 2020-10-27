@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1A429B3C8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D3B29B3B0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752095AbgJ0OzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:55:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
+        id S2900720AbgJ0OyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1775351AbgJ0Owl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:52:41 -0400
+        id S1773110AbgJ0OvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 850E620732;
-        Tue, 27 Oct 2020 14:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A686206E5;
+        Tue, 27 Oct 2020 14:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810361;
-        bh=6M83Bp7CN6q9gAdkscBTEoyTQP1NK/STJR2yLE6JlhU=;
+        s=default; t=1603810278;
+        bh=vivV3xKPzAQjtPZH6nSfZfJGcVRD2ycs4JVZSA+belE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOD7m+Xm3VeXVdV/twPSwlgVDkVNp87ovxMa57fvgz5emzY1EW7HLLkmrHF0kTxdb
-         ybKzDe7F8hyXKfjRLY0YSCOgocAOERTUgbq1iu+67Ln5w6DjrkkrdaCbwzlZAOxhQ5
-         josvEBWOfrWBqGykShalnQKmfNfX+JlAZ8L6jR84=
+        b=AovgoX+mRypPewulBjs1LFr6eJecFM2i608fGsOmt+ldkt3Hf1r1eq2mVo3q4D5U7
+         ReWZvjinutnkwX0rZRY+uEEwUQ+UZffuMPgz4sXmwNyRomL+EYjpK/+S4hTrQUG2H0
+         EuB2JJ2VAqVGlvyP8hnbkOd4fLquw32ReUGjod8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Tero Kristo <t-kristo@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 081/633] microblaze: fix kbuild redundant file warning
-Date:   Tue, 27 Oct 2020 14:47:04 +0100
-Message-Id: <20201027135526.491361239@linuxfoundation.org>
+Subject: [PATCH 5.8 084/633] EDAC/ti: Fix handling of platform_get_irq() error
+Date:   Tue, 27 Oct 2020 14:47:07 +0100
+Message-Id: <20201027135526.627309664@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,40 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 4a17e8513376bb23f814d3e340a5692a12c69369 ]
+[ Upstream commit 66077adb70a2a9e92540155b2ace33ec98299c90 ]
 
-Fix build warning since this file is already listed in
-include/asm-generic/Kbuild.
+platform_get_irq() returns a negative error number on error. In such a
+case, comparison to 0 would pass the check therefore check the return
+value properly, whether it is negative.
 
-../scripts/Makefile.asm-generic:25: redundant generic-y found in arch/microblaze/include/asm/Kbuild: hw_irq.h
+ [ bp: Massage commit message. ]
 
-Fixes: 630f289b7114 ("asm-generic: make more kernel-space headers mandatory")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/4d992aee-8a69-1769-e622-8d6d6e316346@infradead.org
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Fixes: 86a18ee21e5e ("EDAC, ti: Add support for TI keystone and DRA7xx EDAC")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lkml.kernel.org/r/20200827070743.26628-2-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/microblaze/include/asm/Kbuild | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/edac/ti_edac.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
-index 2e87a9b6d312f..63bce836b9f10 100644
---- a/arch/microblaze/include/asm/Kbuild
-+++ b/arch/microblaze/include/asm/Kbuild
-@@ -1,7 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- generated-y += syscall_table.h
- generic-y += extable.h
--generic-y += hw_irq.h
- generic-y += kvm_para.h
- generic-y += local64.h
- generic-y += mcs_spinlock.h
+diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
+index 8be3e89a510e4..d7419a90a2f5b 100644
+--- a/drivers/edac/ti_edac.c
++++ b/drivers/edac/ti_edac.c
+@@ -278,7 +278,8 @@ static int ti_edac_probe(struct platform_device *pdev)
+ 
+ 	/* add EMIF ECC error handler */
+ 	error_irq = platform_get_irq(pdev, 0);
+-	if (!error_irq) {
++	if (error_irq < 0) {
++		ret = error_irq;
+ 		edac_printk(KERN_ERR, EDAC_MOD_NAME,
+ 			    "EMIF irq number not defined.\n");
+ 		goto err;
 -- 
 2.25.1
 
