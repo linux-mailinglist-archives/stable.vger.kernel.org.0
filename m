@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F6529C252
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8690B29C21F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819990AbgJ0Rbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40066 "EHLO mail.kernel.org"
+        id S1819357AbgJ0Rbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750079AbgJ0Okv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:40:51 -0400
+        id S1761993AbgJ0Oky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9413922275;
-        Tue, 27 Oct 2020 14:40:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 704E922258;
+        Tue, 27 Oct 2020 14:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809651;
-        bh=kEzXoJVr4ecL8CI8QM9codAQFPuEX+fkZ2VxEpBOD58=;
+        s=default; t=1603809654;
+        bh=imcWqHJhG0da0/94JatFcVSufvzDh/GcsjAX7lt7Cog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wdy2Uhn+xvw0CcDKi+f0bDRw/mQWGVDsnvRUMFHRsNC7mYVUHy/1JU/VlVfRSMa2K
-         JfFyrc60LARaEnfsZgmEu/tNTh8ThfEfzds35gMgc1klcDRCv4GXZN+2jzF4tZk+nw
-         sKVJ5xKLiA3Vxwpl4jHpE0jZ3MmM9MIKDxR/soN4=
+        b=lxjitohTI7JHoWFqeNAY5G5O2jZ3ex8aaL+O/bKNe3GJgjQHOBnP9siSW+vb6rqsv
+         AD39yV2wCFZwKfFEXKnRrVN+1Gvhx7aUNxLtNzRIPkx9vUj/RLfW1SrsLaw9O6bEUE
+         NPipmkfHaHLh5B3azVC3aAYdeLIvsTE3o0tEnFKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wendell Lin <wendell.lin@mediatek.com>,
-        Hanks Chen <hanks.chen@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 271/408] clk: mediatek: add UART0 clock support
-Date:   Tue, 27 Oct 2020 14:53:29 +0100
-Message-Id: <20201027135507.618961914@linuxfoundation.org>
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 272/408] module: statically initialize init section freeing data
+Date:   Tue, 27 Oct 2020 14:53:30 +0100
+Message-Id: <20201027135507.666147736@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,35 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanks Chen <hanks.chen@mediatek.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 804a892456b73604b7ecfb1b00a96a29f3d2aedf ]
+[ Upstream commit fdf09ab887829cd1b671e45d9549f8ec1ffda0fa ]
 
-Add MT6779 UART0 clock support.
+Corentin hit the following workqueue warning when running with
+CRYPTO_MANAGER_EXTRA_TESTS:
 
-Fixes: 710774e04861 ("clk: mediatek: Add MT6779 clock support")
-Signed-off-by: Wendell Lin <wendell.lin@mediatek.com>
-Signed-off-by: Hanks Chen <hanks.chen@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+  WARNING: CPU: 2 PID: 147 at kernel/workqueue.c:1473 __queue_work+0x3b8/0x3d0
+  Modules linked in: ghash_generic
+  CPU: 2 PID: 147 Comm: modprobe Not tainted
+      5.6.0-rc1-next-20200214-00068-g166c9264f0b1-dirty #545
+  Hardware name: Pine H64 model A (DT)
+  pc : __queue_work+0x3b8/0x3d0
+  Call trace:
+   __queue_work+0x3b8/0x3d0
+   queue_work_on+0x6c/0x90
+   do_init_module+0x188/0x1f0
+   load_module+0x1d00/0x22b0
+
+I wasn't able to reproduce on x86 or rpi 3b+.
+
+This is
+
+  WARN_ON(!list_empty(&work->entry))
+
+from __queue_work(), and it happens because the init_free_wq work item
+isn't initialized in time for a crypto test that requests the gcm
+module.  Some crypto tests were recently moved earlier in boot as
+explained in commit c4741b230597 ("crypto: run initcalls for generic
+implementations earlier"), which went into mainline less than two weeks
+before the Fixes commit.
+
+Avoid the warning by statically initializing init_free_wq and the
+corresponding llist.
+
+Link: https://lore.kernel.org/lkml/20200217204803.GA13479@Red/
+Fixes: 1a7b7d922081 ("modules: Use vmalloc special flag")
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-on: sun50i-h6-pine-h64
+Tested-on: imx8mn-ddr4-evk
+Tested-on: sun50i-a64-bananapi-m64
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-mt6779.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/module.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clk/mediatek/clk-mt6779.c b/drivers/clk/mediatek/clk-mt6779.c
-index 608a9a6621a37..00920182bbe63 100644
---- a/drivers/clk/mediatek/clk-mt6779.c
-+++ b/drivers/clk/mediatek/clk-mt6779.c
-@@ -919,6 +919,8 @@ static const struct mtk_gate infra_clks[] = {
- 		    "pwm_sel", 19),
- 	GATE_INFRA0(CLK_INFRA_PWM, "infra_pwm",
- 		    "pwm_sel", 21),
-+	GATE_INFRA0(CLK_INFRA_UART0, "infra_uart0",
-+		    "uart_sel", 22),
- 	GATE_INFRA0(CLK_INFRA_UART1, "infra_uart1",
- 		    "uart_sel", 23),
- 	GATE_INFRA0(CLK_INFRA_UART2, "infra_uart2",
+diff --git a/kernel/module.c b/kernel/module.c
+index 819c5d3b4c295..45513909b01d5 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -88,8 +88,9 @@ EXPORT_SYMBOL_GPL(module_mutex);
+ static LIST_HEAD(modules);
+ 
+ /* Work queue for freeing init sections in success case */
+-static struct work_struct init_free_wq;
+-static struct llist_head init_free_list;
++static void do_free_init(struct work_struct *w);
++static DECLARE_WORK(init_free_wq, do_free_init);
++static LLIST_HEAD(init_free_list);
+ 
+ #ifdef CONFIG_MODULES_TREE_LOOKUP
+ 
+@@ -3563,14 +3564,6 @@ static void do_free_init(struct work_struct *w)
+ 	}
+ }
+ 
+-static int __init modules_wq_init(void)
+-{
+-	INIT_WORK(&init_free_wq, do_free_init);
+-	init_llist_head(&init_free_list);
+-	return 0;
+-}
+-module_init(modules_wq_init);
+-
+ /*
+  * This is where the real work happens.
+  *
 -- 
 2.25.1
 
