@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ABA429C1C8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66EB329C143
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818922AbgJ0RZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:25:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
+        id S1818818AbgJ0RXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:23:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773006AbgJ0Owd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:52:33 -0400
+        id S2900801AbgJ0OyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:54:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C0A822264;
-        Tue, 27 Oct 2020 14:52:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5C4420679;
+        Tue, 27 Oct 2020 14:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810350;
-        bh=1Gr1VumVpL/J3/Rg8pZcI647T5nB3p5ZEscPdFL9Po4=;
+        s=default; t=1603810465;
+        bh=9wKS+bOD5X6wF0z12+Q03h5eBqJKEhOTM9h6X8XjQEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTuvVa1h9U06CZFZVHkDiqZySNxnNtjEKUkj7jkKlLoRoGqiYBuLjyxZV5qg0vnAA
-         FuILzZ5567yMXUku5NYHmHtMBVfHVWChQiNpGPNwEOozttSG7BJuCcGw/ukwYl1vpp
-         0cfSwQtZsQvoEA+DJRoA6gvFRt6noqYRudUie2nw=
+        b=s59HpwC+lCfOQY5Lbeuq3S613qbIhu0fdM8J1JohyN3UhFfxcpG78nfc+7bT0Hrrn
+         pFOFECVgzl9JpczYk/rJ4mrT6Lt2LeapPoo74VkNesIe2VqN99PkzuSgSNqrhq1jWz
+         v6RbZKMUtaplYbR8e3bXAlupmQAPVWYDitwV0S4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 107/633] media: tuner-simple: fix regression in simple_set_radio_freq
-Date:   Tue, 27 Oct 2020 14:47:30 +0100
-Message-Id: <20201027135527.698119907@linuxfoundation.org>
+Subject: [PATCH 5.8 108/633] crypto: ccree - fix runtime PM imbalance on error
+Date:   Tue, 27 Oct 2020 14:47:31 +0100
+Message-Id: <20201027135527.748297461@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,64 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: dinghao.liu@zju.edu.cn <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 505bfc2a142f12ce7bc7a878b44abc3496f2e747 ]
+[ Upstream commit b7b57a5643c2ae45afe6aa5e73363b553cacd14b ]
 
-clang static analysis reports this problem
+pm_runtime_get_sync() increments the runtime PM usage counter
+even when it returns an error code. However, users of cc_pm_get(),
+a direct wrapper of pm_runtime_get_sync(), assume that PM usage
+counter will not change on error. Thus a pairing decrement is needed
+on the error handling path to keep the counter balanced.
 
-tuner-simple.c:714:13: warning: Assigned value is
-  garbage or undefined
-        buffer[1] = buffer[3];
-                  ^ ~~~~~~~~~
-In simple_set_radio_freq buffer[3] used to be done
-in-function with a switch of tuner type, now done
-by a call to simple_radio_bandswitch which has this case
-
-	case TUNER_TENA_9533_DI:
-	case TUNER_YMEC_TVF_5533MF:
-		tuner_dbg("This tuner doesn't ...
-		return 0;
-
-which does not set buffer[3].  In the old logic, this case
-would have returned 0 from simple_set_radio_freq.
-
-Recover this old behavior by returning an error for this
-codition. Since the old simple_set_radio_freq behavior
-returned a 0, do the same.
-
-Fixes: c7a9f3aa1e1b ("V4L/DVB (7129): tuner-simple: move device-specific code into three separate functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 8c7849a30255c ("crypto: ccree - simplify Runtime PM handling")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/tuner-simple.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/ccree/cc_pm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/tuners/tuner-simple.c b/drivers/media/tuners/tuner-simple.c
-index b6e70fada3fb2..8fb186b25d6af 100644
---- a/drivers/media/tuners/tuner-simple.c
-+++ b/drivers/media/tuners/tuner-simple.c
-@@ -500,7 +500,7 @@ static int simple_radio_bandswitch(struct dvb_frontend *fe, u8 *buffer)
- 	case TUNER_TENA_9533_DI:
- 	case TUNER_YMEC_TVF_5533MF:
- 		tuner_dbg("This tuner doesn't have FM. Most cards have a TEA5767 for FM\n");
--		return 0;
-+		return -EINVAL;
- 	case TUNER_PHILIPS_FM1216ME_MK3:
- 	case TUNER_PHILIPS_FM1236_MK3:
- 	case TUNER_PHILIPS_FMD1216ME_MK3:
-@@ -702,7 +702,8 @@ static int simple_set_radio_freq(struct dvb_frontend *fe,
- 		    TUNER_RATIO_SELECT_50; /* 50 kHz step */
+diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
+index d39e1664fc7ed..3c65bf070c908 100644
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -65,8 +65,12 @@ const struct dev_pm_ops ccree_pm = {
+ int cc_pm_get(struct device *dev)
+ {
+ 	int rc = pm_runtime_get_sync(dev);
++	if (rc < 0) {
++		pm_runtime_put_noidle(dev);
++		return rc;
++	}
  
- 	/* Bandswitch byte */
--	simple_radio_bandswitch(fe, &buffer[0]);
-+	if (simple_radio_bandswitch(fe, &buffer[0]))
-+		return 0;
+-	return (rc == 1 ? 0 : rc);
++	return 0;
+ }
  
- 	/* Convert from 1/16 kHz V4L steps to 1/20 MHz (=50 kHz) PLL steps
- 	   freq * (1 Mhz / 16000 V4L steps) * (20 PLL steps / 1 MHz) =
+ void cc_pm_put_suspend(struct device *dev)
 -- 
 2.25.1
 
