@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8C129C5B5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1816829C6BB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756254AbgJ0OMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
+        id S1827201AbgJ0SWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754696AbgJ0OGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:06:34 -0400
+        id S1753715AbgJ0OBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22D1122284;
-        Tue, 27 Oct 2020 14:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9923F22258;
+        Tue, 27 Oct 2020 14:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807593;
-        bh=ixusXLZ0622zxJIC0QBU4XnVhfywpHExuB4ujs6RIvU=;
+        s=default; t=1603807297;
+        bh=O+IHjo24MmO5QxbAQXUaVG9tU1jK7u/IyWbU513gXiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t7/n+zpUdID1vgz7IpDiQwTxh7ljRhfAH3nkVYI4LSUAz+syLFJDOS8VrkDJ17sLA
-         w9S/lhlFPT3Fhx18L7aaLiEzZUKusbJgsSdRcIY8feQ7Oy4yvNUGclGlBIgvN+X8OJ
-         UVITQ9jDHWBZYXM5FMN51oaZxa9qkVOVe+hhugYA=
+        b=kiGRx6fdMg3GmLVo9NXSMX7PZ8i2XVVan8WcVV1k7Cwi5Fk+pR6/iWKXiaWbO+E/I
+         kYXaAH3omHkgO1PF+tJc/9NRuQ/EEDz7Kswn+xmhExDWs8q6mT+KjiyIbTkNlGgJpb
+         IAxguyvVCMihbxckUYPXVKfSbCvMGgn1rjaNvAY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 110/139] PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
-Date:   Tue, 27 Oct 2020 14:50:04 +0100
-Message-Id: <20201027134907.364052407@linuxfoundation.org>
+Subject: [PATCH 4.4 095/112] misc: rtsx: Fix memory leak in rtsx_pci_probe
+Date:   Tue, 27 Oct 2020 14:50:05 +0100
+Message-Id: <20201027134905.036072970@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 428805c0c5e76ef643b1fbc893edfb636b3d8aef ]
+[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
 
-get_gendisk grabs a reference on the disk and file operation, so this
-code will leak both of them while having absolutely no use for the
-gendisk itself.
+When mfd_add_devices() fail, pcr->slots should also be freed. However,
+the current implementation does not free the member, leading to a memory
+leak.
 
-This effectively reverts commit 2df83fa4bce421f ("PM / Hibernate: Use
-get_gendisk to verify partition if resume_file is integer format")
+Fix this by adding a new goto label that frees pcr->slots.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/hibernate.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/mfd/rtsx_pcr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index 3c775d6b7317f..7b393faf930f8 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -834,17 +834,6 @@ static int software_resume(void)
+diff --git a/drivers/mfd/rtsx_pcr.c b/drivers/mfd/rtsx_pcr.c
+index 98029ee0959e3..be61f8606a045 100644
+--- a/drivers/mfd/rtsx_pcr.c
++++ b/drivers/mfd/rtsx_pcr.c
+@@ -1255,12 +1255,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
+ 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
+ 	if (ret < 0)
+-		goto disable_irq;
++		goto free_slots;
  
- 	/* Check if the device is there */
- 	swsusp_resume_device = name_to_dev_t(resume_file);
--
--	/*
--	 * name_to_dev_t is ineffective to verify parition if resume_file is in
--	 * integer format. (e.g. major:minor)
--	 */
--	if (isdigit(resume_file[0]) && resume_wait) {
--		int partno;
--		while (!get_gendisk(swsusp_resume_device, &partno))
--			msleep(10);
--	}
--
- 	if (!swsusp_resume_device) {
- 		/*
- 		 * Some device discovery might still be in progress; we need
+ 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
+ 
+ 	return 0;
+ 
++free_slots:
++	kfree(pcr->slots);
+ disable_irq:
+ 	free_irq(pcr->irq, (void *)pcr);
+ disable_msi:
 -- 
 2.25.1
 
