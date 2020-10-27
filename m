@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6FA29C447
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F8E29C21C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758699AbgJ0OWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:22:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46806 "EHLO mail.kernel.org"
+        id S1819387AbgJ0Rbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758693AbgJ0OWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:22:19 -0400
+        id S1762172AbgJ0OlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:41:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17EB5206FA;
-        Tue, 27 Oct 2020 14:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053F5206B2;
+        Tue, 27 Oct 2020 14:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808537;
-        bh=N4KhWHOcruej/XDcCqkMCOxXuGCotj60Kchf/8/0GVo=;
+        s=default; t=1603809679;
+        bh=5o+yxZX1mU8gGvdDUupcWkARggDyA4/HHpz9PRZbCnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=per+CwKRhlRisC4RoATFl9duqGZ0lLcAGlnFuqSOnO0Ko0z2jON3EmGMqRiiQEciN
-         kDEo4E1B+jAbKb6Exds2FIaE/mNyvrHA3H26r++gweg9y0lYbJ6/CabrxObzysYeKj
-         FMSmXxaO7By8LUhW4CQfvyXfHxvXyPo6kcimYbLw=
+        b=uToemrbxKoDFGHic2UGVi5f4ru/0yArW2nB7mV3Flhyz88KkgQTAmYHK5ZntPeIcd
+         sTgsHya+G3/JxDXbg/+oR/NcaJDXczrNiHnZPHaJcxKNRH7pdQMCqdQ/mRawvCgHkE
+         /xRnXFq9emWLzbzL2nwLd4rdvWvVexdAGfojkx6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 129/264] IB/mlx4: Fix starvation in paravirt mux/demux
-Date:   Tue, 27 Oct 2020 14:53:07 +0100
-Message-Id: <20201027135436.740285535@linuxfoundation.org>
+Subject: [PATCH 5.4 250/408] maiblox: mediatek: Fix handling of platform_get_irq() error
+Date:   Tue, 27 Oct 2020 14:53:08 +0100
+Message-Id: <20201027135506.654187848@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,176 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 7fd1507df7cee9c533f38152fcd1dd769fcac6ce ]
+[ Upstream commit 558e4c36ec9f2722af4fe8ef84dc812bcdb5c43a ]
 
-The mlx4 driver will proxy MAD packets through the PF driver. A VM or an
-instantiated VF will send its MAD packets to the PF driver using
-loop-back. The PF driver will be informed by an interrupt, but defer the
-handling and polling of CQEs to a worker thread running on an ordered
-work-queue.
+platform_get_irq() returns -ERRNO on error.  In such case casting to u32
+and comparing to 0 would pass the check.
 
-Consider the following scenario: the VMs will in short proximity in time,
-for example due to a network event, send many MAD packets to the PF
-driver. Lets say there are K VMs, each sending N packets.
-
-The interrupt from the first VM will start the worker thread, which will
-poll N CQEs. A common case here is where the PF driver will multiplex the
-packets received from the VMs out on the wire QP.
-
-But before the wire QP has returned a send CQE and associated interrupt,
-the other K - 1 VMs have sent their N packets as well.
-
-The PF driver has to multiplex K * N packets out on the wire QP. But the
-send-queue on the wire QP has a finite capacity.
-
-So, in this scenario, if K * N is larger than the send-queue capacity of
-the wire QP, we will get MAD packets dropped on the floor with this
-dynamic debug message:
-
-mlx4_ib_multiplex_mad: failed sending GSI to wire on behalf of slave 2 (-11)
-
-and this despite the fact that the wire send-queue could have capacity,
-but the PF driver isn't aware, because the wire send CQEs have not yet
-been polled.
-
-We can also have a similar scenario inbound, with a wire recv-queue larger
-than the tunnel QP's send-queue. If many remote peers send MAD packets to
-the very same VM, the tunnel send-queue destined to the VM could allegedly
-be construed to be full by the PF driver.
-
-This starvation is fixed by introducing separate work queues for the wire
-QPs vs. the tunnel QPs.
-
-With this fix, using a dual ported HCA, 8 VFs instantiated, we could run
-cmtime on each of the 18 interfaces towards a similar configured peer,
-each cmtime instance with 800 QPs (all in all 14400 QPs) without a single
-CM packet getting lost.
-
-Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
-Link: https://lore.kernel.org/r/20200803061941.1139994-5-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/mad.c     | 34 +++++++++++++++++++++++++---
- drivers/infiniband/hw/mlx4/mlx4_ib.h |  2 ++
- 2 files changed, 33 insertions(+), 3 deletions(-)
+ drivers/mailbox/mtk-cmdq-mailbox.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
-index 5aaa2a6c431b6..418b9312fb2d7 100644
---- a/drivers/infiniband/hw/mlx4/mad.c
-+++ b/drivers/infiniband/hw/mlx4/mad.c
-@@ -1305,6 +1305,18 @@ static void mlx4_ib_tunnel_comp_handler(struct ib_cq *cq, void *arg)
- 	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
- }
- 
-+static void mlx4_ib_wire_comp_handler(struct ib_cq *cq, void *arg)
-+{
-+	unsigned long flags;
-+	struct mlx4_ib_demux_pv_ctx *ctx = cq->cq_context;
-+	struct mlx4_ib_dev *dev = to_mdev(ctx->ib_dev);
-+
-+	spin_lock_irqsave(&dev->sriov.going_down_lock, flags);
-+	if (!dev->sriov.is_going_down && ctx->state == DEMUX_PV_STATE_ACTIVE)
-+		queue_work(ctx->wi_wq, &ctx->work);
-+	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
-+}
-+
- static int mlx4_ib_post_pv_qp_buf(struct mlx4_ib_demux_pv_ctx *ctx,
- 				  struct mlx4_ib_demux_pv_qp *tun_qp,
- 				  int index)
-@@ -2000,7 +2012,8 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
- 		cq_size *= 2;
- 
- 	cq_attr.cqe = cq_size;
--	ctx->cq = ib_create_cq(ctx->ib_dev, mlx4_ib_tunnel_comp_handler,
-+	ctx->cq = ib_create_cq(ctx->ib_dev,
-+			       create_tun ? mlx4_ib_tunnel_comp_handler : mlx4_ib_wire_comp_handler,
- 			       NULL, ctx, &cq_attr);
- 	if (IS_ERR(ctx->cq)) {
- 		ret = PTR_ERR(ctx->cq);
-@@ -2037,6 +2050,7 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
- 		INIT_WORK(&ctx->work, mlx4_ib_sqp_comp_worker);
- 
- 	ctx->wq = to_mdev(ibdev)->sriov.demux[port - 1].wq;
-+	ctx->wi_wq = to_mdev(ibdev)->sriov.demux[port - 1].wi_wq;
- 
- 	ret = ib_req_notify_cq(ctx->cq, IB_CQ_NEXT_COMP);
- 	if (ret) {
-@@ -2180,7 +2194,7 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 		goto err_mcg;
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index 9a6ce9f5a7db5..3c8b365ce635a 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -70,7 +70,7 @@ struct cmdq_task {
+ struct cmdq {
+ 	struct mbox_controller	mbox;
+ 	void __iomem		*base;
+-	u32			irq;
++	int			irq;
+ 	u32			thread_nr;
+ 	u32			irq_mask;
+ 	struct cmdq_thread	*thread;
+@@ -474,10 +474,8 @@ static int cmdq_probe(struct platform_device *pdev)
  	}
  
--	snprintf(name, sizeof name, "mlx4_ibt%d", port);
-+	snprintf(name, sizeof(name), "mlx4_ibt%d", port);
- 	ctx->wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
- 	if (!ctx->wq) {
- 		pr_err("Failed to create tunnelling WQ for port %d\n", port);
-@@ -2188,7 +2202,15 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 		goto err_wq;
- 	}
+ 	cmdq->irq = platform_get_irq(pdev, 0);
+-	if (!cmdq->irq) {
+-		dev_err(dev, "failed to get irq\n");
+-		return -EINVAL;
+-	}
++	if (cmdq->irq < 0)
++		return cmdq->irq;
  
--	snprintf(name, sizeof name, "mlx4_ibud%d", port);
-+	snprintf(name, sizeof(name), "mlx4_ibwi%d", port);
-+	ctx->wi_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
-+	if (!ctx->wi_wq) {
-+		pr_err("Failed to create wire WQ for port %d\n", port);
-+		ret = -ENOMEM;
-+		goto err_wiwq;
-+	}
-+
-+	snprintf(name, sizeof(name), "mlx4_ibud%d", port);
- 	ctx->ud_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
- 	if (!ctx->ud_wq) {
- 		pr_err("Failed to create up/down WQ for port %d\n", port);
-@@ -2199,6 +2221,10 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
- 	return 0;
- 
- err_udwq:
-+	destroy_workqueue(ctx->wi_wq);
-+	ctx->wi_wq = NULL;
-+
-+err_wiwq:
- 	destroy_workqueue(ctx->wq);
- 	ctx->wq = NULL;
- 
-@@ -2246,12 +2272,14 @@ static void mlx4_ib_free_demux_ctx(struct mlx4_ib_demux_ctx *ctx)
- 				ctx->tun[i]->state = DEMUX_PV_STATE_DOWNING;
- 		}
- 		flush_workqueue(ctx->wq);
-+		flush_workqueue(ctx->wi_wq);
- 		for (i = 0; i < dev->dev->caps.sqp_demux; i++) {
- 			destroy_pv_resources(dev, i, ctx->port, ctx->tun[i], 0);
- 			free_pv_object(dev, i, ctx->port);
- 		}
- 		kfree(ctx->tun);
- 		destroy_workqueue(ctx->ud_wq);
-+		destroy_workqueue(ctx->wi_wq);
- 		destroy_workqueue(ctx->wq);
- 	}
- }
-diff --git a/drivers/infiniband/hw/mlx4/mlx4_ib.h b/drivers/infiniband/hw/mlx4/mlx4_ib.h
-index e10dccc7958f1..76ca67aa40158 100644
---- a/drivers/infiniband/hw/mlx4/mlx4_ib.h
-+++ b/drivers/infiniband/hw/mlx4/mlx4_ib.h
-@@ -464,6 +464,7 @@ struct mlx4_ib_demux_pv_ctx {
- 	struct ib_pd *pd;
- 	struct work_struct work;
- 	struct workqueue_struct *wq;
-+	struct workqueue_struct *wi_wq;
- 	struct mlx4_ib_demux_pv_qp qp[2];
- };
- 
-@@ -471,6 +472,7 @@ struct mlx4_ib_demux_ctx {
- 	struct ib_device *ib_dev;
- 	int port;
- 	struct workqueue_struct *wq;
-+	struct workqueue_struct *wi_wq;
- 	struct workqueue_struct *ud_wq;
- 	spinlock_t ud_lock;
- 	atomic64_t subnet_prefix;
+ 	cmdq->thread_nr = (u32)(unsigned long)of_device_get_match_data(dev);
+ 	cmdq->irq_mask = GENMASK(cmdq->thread_nr - 1, 0);
 -- 
 2.25.1
 
