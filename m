@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC99C29BC15
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD5C29BC0F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802591AbgJ0Pu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
+        id S1802606AbgJ0Pu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801354AbgJ0Pkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:40:42 -0400
+        id S1801365AbgJ0PlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:41:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE0922231B;
-        Tue, 27 Oct 2020 15:40:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A95223AB;
+        Tue, 27 Oct 2020 15:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813241;
-        bh=+ONdlGuJ8qmE/0m2/SWkqNs2ZXpUxblZ3hF5xaQxJhU=;
+        s=default; t=1603813259;
+        bh=vkcZ4ad6+FpfWpO3Y3LV2OvlLL+b1E9MMSne2jfsDiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxIRiQQ57nVktw2Pr7kaHx4C8/C3STm+m95LgNC3M3FRPuQOdfePbAr53BPIS/L4t
-         B59SSRnLCUFNMvjZrO/DwdfIs8ZqClEDpkKqU4lVCGK5nHCpTmjvXEwVBik6JYjD63
-         GdU3kbGHefZj4HFSZ9wsUBrzOeah6bM3k9svwnfU=
+        b=c6+H52BcBxsPKKSGbmQWpv9/b/KSJ1qIcmJ+LlVSyGoZ5i+HxnlJyCF7KGrpLbERr
+         MlZaomVYaIIu82ay2VznWSgWSzfwHy12YHbf0H2qvCp6x71/tbcOYLfJUOBAUfN9QD
+         czX+rAaQyWui8Ns/jdDYQ7+56N7oAGV7XJ9F3eFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 486/757] perf stat: Fix out of bounds CPU map access when handling armv8_pmu events
-Date:   Tue, 27 Oct 2020 14:52:16 +0100
-Message-Id: <20201027135513.273709619@linuxfoundation.org>
+Subject: [PATCH 5.9 492/757] IB/rdmavt: Fix sizeof mismatch
+Date:   Tue, 27 Oct 2020 14:52:22 +0100
+Message-Id: <20201027135513.552333419@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -50,67 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit bef69bd7cfc363ab94b84ea29102f3e913ed3c6c ]
+[ Upstream commit 8e71f694e0c819db39af2336f16eb9689f1ae53f ]
 
-It was reported that 'perf stat' crashed when using with armv8_pmu (CPU)
-events with the task mode.  As 'perf stat' uses an empty cpu map for
-task mode but armv8_pmu has its own cpu mask, it has confused which map
-it should use when accessing file descriptors and this causes segfaults:
+An incorrect sizeof is being used, struct rvt_ibport ** is not correct, it
+should be struct rvt_ibport *. Note that since ** is the same size as
+* this is not causing any issues.  Improve this fix by using
+sizeof(*rdi->ports) as this allows us to not even reference the type
+of the pointer.  Also remove line breaks as the entire statement can
+fit on one line.
 
-  (gdb) bt
-  #0  0x0000000000603fc8 in perf_evsel__close_fd_cpu (evsel=<optimized out>,
-      cpu=<optimized out>) at evsel.c:122
-  #1  perf_evsel__close_cpu (evsel=evsel@entry=0x716e950, cpu=7) at evsel.c:156
-  #2  0x00000000004d4718 in evlist__close (evlist=0x70a7cb0) at util/evlist.c:1242
-  #3  0x0000000000453404 in __run_perf_stat (argc=3, argc@entry=1, argv=0x30,
-      argv@entry=0xfffffaea2f90, run_idx=119, run_idx@entry=1701998435)
-      at builtin-stat.c:929
-  #4  0x0000000000455058 in run_perf_stat (run_idx=1701998435, argv=0xfffffaea2f90,
-      argc=1) at builtin-stat.c:947
-  #5  cmd_stat (argc=1, argv=0xfffffaea2f90) at builtin-stat.c:2357
-  #6  0x00000000004bb888 in run_builtin (p=p@entry=0x9764b8 <commands+288>,
-      argc=argc@entry=4, argv=argv@entry=0xfffffaea2f90) at perf.c:312
-  #7  0x00000000004bbb54 in handle_internal_command (argc=argc@entry=4,
-      argv=argv@entry=0xfffffaea2f90) at perf.c:364
-  #8  0x0000000000435378 in run_argv (argcp=<synthetic pointer>,
-      argv=<synthetic pointer>) at perf.c:408
-  #9  main (argc=4, argv=0xfffffaea2f90) at perf.c:538
-
-To fix this, I simply used the given cpu map unless the evsel actually
-is not a system-wide event (like uncore events).
-
-Fixes: 7736627b865d ("perf stat: Use affinity for closing file descriptors")
-Reported-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Tested-by: Barry Song <song.bao.hua@hisilicon.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20201007081311.1831003-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/20201008095204.82683-1-colin.king@canonical.com
+Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
+Fixes: ff6acd69518e ("IB/rdmavt: Add device structure allocation")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/perf/evlist.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/sw/rdmavt/vt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
-index 2208444ecb448..cfcdbd7be066e 100644
---- a/tools/lib/perf/evlist.c
-+++ b/tools/lib/perf/evlist.c
-@@ -45,6 +45,9 @@ static void __perf_evlist__propagate_maps(struct perf_evlist *evlist,
- 	if (!evsel->own_cpus || evlist->has_user_cpus) {
- 		perf_cpu_map__put(evsel->cpus);
- 		evsel->cpus = perf_cpu_map__get(evlist->cpus);
-+	} else if (!evsel->system_wide && perf_cpu_map__empty(evlist->cpus)) {
-+		perf_cpu_map__put(evsel->cpus);
-+		evsel->cpus = perf_cpu_map__get(evlist->cpus);
- 	} else if (evsel->cpus != evsel->own_cpus) {
- 		perf_cpu_map__put(evsel->cpus);
- 		evsel->cpus = perf_cpu_map__get(evsel->own_cpus);
+diff --git a/drivers/infiniband/sw/rdmavt/vt.c b/drivers/infiniband/sw/rdmavt/vt.c
+index f904bb34477ae..2d534c450f3c8 100644
+--- a/drivers/infiniband/sw/rdmavt/vt.c
++++ b/drivers/infiniband/sw/rdmavt/vt.c
+@@ -95,9 +95,7 @@ struct rvt_dev_info *rvt_alloc_device(size_t size, int nports)
+ 	if (!rdi)
+ 		return rdi;
+ 
+-	rdi->ports = kcalloc(nports,
+-			     sizeof(struct rvt_ibport **),
+-			     GFP_KERNEL);
++	rdi->ports = kcalloc(nports, sizeof(*rdi->ports), GFP_KERNEL);
+ 	if (!rdi->ports)
+ 		ib_dealloc_device(&rdi->ibdev);
+ 
 -- 
 2.25.1
 
