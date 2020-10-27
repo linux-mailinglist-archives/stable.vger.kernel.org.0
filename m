@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28DB029B8EA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8AF29B90C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802094AbgJ0Ppf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47496 "EHLO mail.kernel.org"
+        id S1802169AbgJ0Ppu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799273AbgJ0Pak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:30:40 -0400
+        id S1798604AbgJ0P3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40FB722202;
-        Tue, 27 Oct 2020 15:30:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61DD622282;
+        Tue, 27 Oct 2020 15:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812639;
-        bh=F9YLbQ7d6XA/72vF+miC17GBj9k7XMq2X/J7Q/+oMjg=;
+        s=default; t=1603812552;
+        bh=NEdFkFp1HTWa8b0HGnfZPUuQLWzTa0Fb2pVQZ0f0wFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rwIz0FRqv55d9uvPrIeT6ha+z0TqzuebLOPMPDEBBGHSRdVGd1MwAt1isnQjgMx5w
-         x/jrIGmTK2u6NLBptylq+HW8czzdG7+yJo1V4dX96KYFxWnFtX3fOwohRA4u8Fl35/
-         j+zztx+GrVYsAYLCRYQUke3XFjxGoSfWe1bF1vhU=
+        b=pe35qHJ++vSRjydYpjg/LDLDAYNySNAYdAna+Sotj+bO7xANJEbkfxurjpbeZwZdp
+         ILblRVL3YRdPvekLzAkPRotKZQ4ZfMGo01HHq6xz9U7eUlnJ6FznQqaYArit7zDgR5
+         Pab4fKDDflB+eLxVKmCm7eDsDD4xyxlyrpcyood8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 249/757] iomap: Clear page error before beginning a write
-Date:   Tue, 27 Oct 2020 14:48:19 +0100
-Message-Id: <20201027135502.265469870@linuxfoundation.org>
+Subject: [PATCH 5.9 250/757] iomap: Mark read blocks uptodate in write_begin
+Date:   Tue, 27 Oct 2020 14:48:20 +0100
+Message-Id: <20201027135502.304968827@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,24 +46,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit e6e7ca92623a43156100306861272e04d46385fc ]
+[ Upstream commit 14284fedf59f1647264f4603d64418cf1fcd3eb0 ]
 
-If we find a page in write_begin which is !Uptodate, we need
-to clear any error on the page before starting to read data
-into it.  This matches how filemap_fault(), do_read_cache_page()
-and generic_file_buffered_read() handle PageError on !Uptodate pages.
-When calling iomap_set_range_uptodate() in __iomap_write_begin(), blocks
-were not being marked as uptodate.
+When bringing (portions of) a page uptodate, we were marking blocks that
+were zeroed as being uptodate, but not blocks that were read from storage.
 
-This was found with generic/127 and a specially modified kernel which
-would fail (some) readahead I/Os.  The test read some bytes in a prior
-page which caused readahead to extend into page 0x34.  There was
-a subsequent write to page 0x34, followed by a read to page 0x34.
-Because the blocks were still marked as !Uptodate, the read caused all
-blocks to be re-read, overwriting the write.  With this change, and the
-next one, the bytes which were written are marked as being Uptodate, so
-even though the page is still marked as !Uptodate, the blocks containing
-the written data are not re-read from storage.
+Like the previous commit, this problem was found with generic/127 and
+a kernel which failed readahead I/Os.  This bug causes writes to be
+silently lost when working with flaky storage.
 
 Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
@@ -72,21 +62,42 @@ Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/iomap/buffered-io.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index bcfc288dba3fb..c95454784df48 100644
+index c95454784df48..897ab9a26a74c 100644
 --- a/fs/iomap/buffered-io.c
 +++ b/fs/iomap/buffered-io.c
-@@ -578,6 +578,7 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, int flags,
+@@ -574,7 +574,6 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, int flags,
+ 	loff_t block_start = pos & ~(block_size - 1);
+ 	loff_t block_end = (pos + len + block_size - 1) & ~(block_size - 1);
+ 	unsigned from = offset_in_page(pos), to = from + len, poff, plen;
+-	int status;
  
  	if (PageUptodate(page))
  		return 0;
-+	ClearPageError(page);
+@@ -595,14 +594,13 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, int flags,
+ 			if (WARN_ON_ONCE(flags & IOMAP_WRITE_F_UNSHARE))
+ 				return -EIO;
+ 			zero_user_segments(page, poff, from, to, poff + plen);
+-			iomap_set_range_uptodate(page, poff, plen);
+-			continue;
++		} else {
++			int status = iomap_read_page_sync(block_start, page,
++					poff, plen, srcmap);
++			if (status)
++				return status;
+ 		}
+-
+-		status = iomap_read_page_sync(block_start, page, poff, plen,
+-				srcmap);
+-		if (status)
+-			return status;
++		iomap_set_range_uptodate(page, poff, plen);
+ 	} while ((block_start += plen) < block_end);
  
- 	do {
- 		iomap_adjust_read_range(inode, iop, &block_start,
+ 	return 0;
 -- 
 2.25.1
 
