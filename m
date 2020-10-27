@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE3B29B3B2
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7AF29B3B3
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1751922AbgJ0Oy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
+        id S1752391AbgJ0Oy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773119AbgJ0Ov2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:28 -0400
+        id S1773134AbgJ0Ov3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43A33206E5;
-        Tue, 27 Oct 2020 14:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34EE421556;
+        Tue, 27 Oct 2020 14:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810285;
-        bh=umgnazMM2+hsWUIgo63fu0bPJ5MrrCfaTwB0dvoL8jc=;
+        s=default; t=1603810288;
+        bh=L3tuWgNJ+w2yoIZXbankqdJBTkOWWd83ZWGG9zgicOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qj3bDsD1nposbD4rSfs05Y7VSC692A5DuqtSCNTcWZ00FT/3droRnEEr2yYRxuAth
-         p1Ea8jIQku0khsc3JZJkc73kFlsleX4drQeLGRd+CNVwhTRVgtv0cI70a1nKZ7vUA9
-         7TppgEJLUQAD4FE7gXUl8PA7wG2KmiJx0Jx/yezc=
+        b=wLZQ14ny1aykAn3F3GCxmob/JgUddBr9p/w89tMNkWD5PMZWQz0VMnb6jqn89aRh3
+         VbT9IVDIzFHIvyZVInLRxTjxBzMUtzkSxstC+drx7vxja0vvLPA0UvJseCvv+O/Lek
+         VnDVLMA6BCs7+BXDDsbfBJwAYMiCkbPgldsABpdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 086/633] x86/fpu: Allow multiple bits in clearcpuid= parameter
-Date:   Tue, 27 Oct 2020 14:47:09 +0100
-Message-Id: <20201027135526.724563114@linuxfoundation.org>
+        stable@vger.kernel.org, Amit Daniel Kachhap <amit.kachhap@arm.com>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 087/633] arm64: kprobe: add checks for ARMv8.3-PAuth combined instructions
+Date:   Tue, 27 Oct 2020 14:47:10 +0100
+Message-Id: <20201027135526.771438586@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,100 +43,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Amit Daniel Kachhap <amit.kachhap@arm.com>
 
-[ Upstream commit 0a4bb5e5507a585532cc413125b921c8546fc39f ]
+[ Upstream commit 93396936ed0ce2c6f44140bd14728611d0bb065e ]
 
-Commit
+Currently the ARMv8.3-PAuth combined branch instructions (braa, retaa
+etc.) are not simulated for out-of-line execution with a handler. Hence the
+uprobe of such instructions leads to kernel warnings in a loop as they are
+not explicitly checked and fall into INSN_GOOD categories. Other combined
+instructions like LDRAA and LDRBB can be probed.
 
-  0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
+The issue of the combined branch instructions is fixed by adding
+group definitions of all such instructions and rejecting their probes.
+The instruction groups added are br_auth(braa, brab, braaz and brabz),
+blr_auth(blraa, blrab, blraaz and blrabz), ret_auth(retaa and retab) and
+eret_auth(eretaa and eretab).
 
-changed clearcpuid parsing from __setup() to cmdline_find_option().
-While the __setup() function would have been called for each clearcpuid=
-parameter on the command line, cmdline_find_option() will only return
-the last one, so the change effectively made it impossible to disable
-more than one bit.
+Warning log:
+ WARNING: CPU: 0 PID: 156 at arch/arm64/kernel/probes/uprobes.c:182 uprobe_single_step_handler+0x34/0x50
+ Modules linked in:
+ CPU: 0 PID: 156 Comm: func Not tainted 5.9.0-rc3 #188
+ Hardware name: Foundation-v8A (DT)
+ pstate: 804003c9 (Nzcv DAIF +PAN -UAO BTYPE=--)
+ pc : uprobe_single_step_handler+0x34/0x50
+ lr : single_step_handler+0x70/0xf8
+ sp : ffff800012af3e30
+ x29: ffff800012af3e30 x28: ffff000878723b00
+ x27: 0000000000000000 x26: 0000000000000000
+ x25: 0000000000000000 x24: 0000000000000000
+ x23: 0000000060001000 x22: 00000000cb000022
+ x21: ffff800012065ce8 x20: ffff800012af3ec0
+ x19: ffff800012068d50 x18: 0000000000000000
+ x17: 0000000000000000 x16: 0000000000000000
+ x15: 0000000000000000 x14: 0000000000000000
+ x13: 0000000000000000 x12: 0000000000000000
+ x11: 0000000000000000 x10: 0000000000000000
+ x9 : ffff800010085c90 x8 : 0000000000000000
+ x7 : 0000000000000000 x6 : ffff80001205a9c8
+ x5 : ffff80001205a000 x4 : ffff80001233db80
+ x3 : ffff8000100a7a60 x2 : 0020000000000003
+ x1 : 0000fffffffff008 x0 : ffff800012af3ec0
+ Call trace:
+  uprobe_single_step_handler+0x34/0x50
+  single_step_handler+0x70/0xf8
+  do_debug_exception+0xb8/0x130
+  el0_sync_handler+0x138/0x1b8
+  el0_sync+0x158/0x180
 
-Allow a comma-separated list of bit numbers as the argument for
-clearcpuid to allow multiple bits to be disabled again. Log the bits
-being disabled for informational purposes.
-
-Also fix the check on the return value of cmdline_find_option(). It
-returns -1 when the option is not found, so testing as a boolean is
-incorrect.
-
-Fixes: 0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200907213919.2423441-1-nivedita@alum.mit.edu
+Fixes: 74afda4016a7 ("arm64: compile the kernel with ptrauth return address signing")
+Fixes: 04ca3204fa09 ("arm64: enable pointer authentication")
+Signed-off-by: Amit Daniel Kachhap <amit.kachhap@arm.com>
+Reviewed-by: Dave Martin <Dave.Martin@arm.com>
+Link: https://lore.kernel.org/r/20200914083656.21428-2-amit.kachhap@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         |  2 +-
- arch/x86/kernel/fpu/init.c                    | 30 ++++++++++++++-----
- 2 files changed, 23 insertions(+), 9 deletions(-)
+ arch/arm64/include/asm/insn.h          | 4 ++++
+ arch/arm64/kernel/insn.c               | 5 ++++-
+ arch/arm64/kernel/probes/decode-insn.c | 3 ++-
+ 3 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index fb95fad81c79a..6746f91ebc490 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -577,7 +577,7 @@
- 			loops can be debugged more effectively on production
- 			systems.
+diff --git a/arch/arm64/include/asm/insn.h b/arch/arm64/include/asm/insn.h
+index 0bc46149e4917..4b39293d0f72d 100644
+--- a/arch/arm64/include/asm/insn.h
++++ b/arch/arm64/include/asm/insn.h
+@@ -359,9 +359,13 @@ __AARCH64_INSN_FUNCS(brk,	0xFFE0001F, 0xD4200000)
+ __AARCH64_INSN_FUNCS(exception,	0xFF000000, 0xD4000000)
+ __AARCH64_INSN_FUNCS(hint,	0xFFFFF01F, 0xD503201F)
+ __AARCH64_INSN_FUNCS(br,	0xFFFFFC1F, 0xD61F0000)
++__AARCH64_INSN_FUNCS(br_auth,	0xFEFFF800, 0xD61F0800)
+ __AARCH64_INSN_FUNCS(blr,	0xFFFFFC1F, 0xD63F0000)
++__AARCH64_INSN_FUNCS(blr_auth,	0xFEFFF800, 0xD63F0800)
+ __AARCH64_INSN_FUNCS(ret,	0xFFFFFC1F, 0xD65F0000)
++__AARCH64_INSN_FUNCS(ret_auth,	0xFFFFFBFF, 0xD65F0BFF)
+ __AARCH64_INSN_FUNCS(eret,	0xFFFFFFFF, 0xD69F03E0)
++__AARCH64_INSN_FUNCS(eret_auth,	0xFFFFFBFF, 0xD69F0BFF)
+ __AARCH64_INSN_FUNCS(mrs,	0xFFF00000, 0xD5300000)
+ __AARCH64_INSN_FUNCS(msr_imm,	0xFFF8F01F, 0xD500401F)
+ __AARCH64_INSN_FUNCS(msr_reg,	0xFFF00000, 0xD5100000)
+diff --git a/arch/arm64/kernel/insn.c b/arch/arm64/kernel/insn.c
+index a107375005bc9..ccc8c9e22b258 100644
+--- a/arch/arm64/kernel/insn.c
++++ b/arch/arm64/kernel/insn.c
+@@ -176,7 +176,7 @@ bool __kprobes aarch64_insn_uses_literal(u32 insn)
  
--	clearcpuid=BITNUM [X86]
-+	clearcpuid=BITNUM[,BITNUM...] [X86]
- 			Disable CPUID feature X for the kernel. See
- 			arch/x86/include/asm/cpufeatures.h for the valid bit
- 			numbers. Note the Linux specific bits are not necessarily
-diff --git a/arch/x86/kernel/fpu/init.c b/arch/x86/kernel/fpu/init.c
-index 61ddc3a5e5c2b..f8ff895aaf7e1 100644
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -243,9 +243,9 @@ static void __init fpu__init_system_ctx_switch(void)
-  */
- static void __init fpu__init_parse_early_param(void)
+ bool __kprobes aarch64_insn_is_branch(u32 insn)
  {
--	char arg[32];
-+	char arg[128];
- 	char *argptr = arg;
--	int bit;
-+	int arglen, res, bit;
+-	/* b, bl, cb*, tb*, b.cond, br, blr */
++	/* b, bl, cb*, tb*, ret*, b.cond, br*, blr* */
  
- #ifdef CONFIG_X86_32
- 	if (cmdline_find_option_bool(boot_command_line, "no387"))
-@@ -268,12 +268,26 @@ static void __init fpu__init_parse_early_param(void)
- 	if (cmdline_find_option_bool(boot_command_line, "noxsaves"))
- 		setup_clear_cpu_cap(X86_FEATURE_XSAVES);
- 
--	if (cmdline_find_option(boot_command_line, "clearcpuid", arg,
--				sizeof(arg)) &&
--	    get_option(&argptr, &bit) &&
--	    bit >= 0 &&
--	    bit < NCAPINTS * 32)
--		setup_clear_cpu_cap(bit);
-+	arglen = cmdline_find_option(boot_command_line, "clearcpuid", arg, sizeof(arg));
-+	if (arglen <= 0)
-+		return;
-+
-+	pr_info("Clearing CPUID bits:");
-+	do {
-+		res = get_option(&argptr, &bit);
-+		if (res == 0 || res == 3)
-+			break;
-+
-+		/* If the argument was too long, the last bit may be cut off */
-+		if (res == 1 && arglen >= sizeof(arg))
-+			break;
-+
-+		if (bit >= 0 && bit < NCAPINTS * 32) {
-+			pr_cont(" " X86_CAP_FMT, x86_cap_flag(bit));
-+			setup_clear_cpu_cap(bit);
-+		}
-+	} while (res == 2);
-+	pr_cont("\n");
+ 	return aarch64_insn_is_b(insn) ||
+ 		aarch64_insn_is_bl(insn) ||
+@@ -185,8 +185,11 @@ bool __kprobes aarch64_insn_is_branch(u32 insn)
+ 		aarch64_insn_is_tbz(insn) ||
+ 		aarch64_insn_is_tbnz(insn) ||
+ 		aarch64_insn_is_ret(insn) ||
++		aarch64_insn_is_ret_auth(insn) ||
+ 		aarch64_insn_is_br(insn) ||
++		aarch64_insn_is_br_auth(insn) ||
+ 		aarch64_insn_is_blr(insn) ||
++		aarch64_insn_is_blr_auth(insn) ||
+ 		aarch64_insn_is_bcond(insn);
  }
  
- /*
+diff --git a/arch/arm64/kernel/probes/decode-insn.c b/arch/arm64/kernel/probes/decode-insn.c
+index 263d5fba4c8a3..c541fb48886e3 100644
+--- a/arch/arm64/kernel/probes/decode-insn.c
++++ b/arch/arm64/kernel/probes/decode-insn.c
+@@ -29,7 +29,8 @@ static bool __kprobes aarch64_insn_is_steppable(u32 insn)
+ 		    aarch64_insn_is_msr_imm(insn) ||
+ 		    aarch64_insn_is_msr_reg(insn) ||
+ 		    aarch64_insn_is_exception(insn) ||
+-		    aarch64_insn_is_eret(insn))
++		    aarch64_insn_is_eret(insn) ||
++		    aarch64_insn_is_eret_auth(insn))
+ 			return false;
+ 
+ 		/*
 -- 
 2.25.1
 
