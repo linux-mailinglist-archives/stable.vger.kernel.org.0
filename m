@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2B629B7C2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B57229BA1E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2509202AbgJ0PQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52016 "EHLO mail.kernel.org"
+        id S368776AbgJ0P4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1795071AbgJ0PPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:02 -0400
+        id S1802581AbgJ0PuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25EA22224A;
-        Tue, 27 Oct 2020 15:15:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224712065C;
+        Tue, 27 Oct 2020 15:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811701;
-        bh=+8n3zIMFKJL0z8oTl5RIgi6vXA1uqJNn2INj3/z1hNM=;
+        s=default; t=1603813820;
+        bh=5sFYrGPp+FZ4rYEQ4JKr06Lgc3xopolgrCPJtFtuYWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZ+6bvcoZpkunqYPYDITzejR3i2QHOmaGQowsRMV8CcUVwxPxtaO0amFOz7kvgRw4
-         ueTYVFhQ86aIhzwbtxBe/x1Vr0NaTbBlbVR8KQ0RjpDWl4BI6ko4kHUdeWeJqx16oF
-         p6zCAucUpHz60KhmH9MGyzBItqSjyC4UAGN1Cuwg=
+        b=jy3RJ0f+ppuSbhQSgbTZwsMDPwV76vldjwJN+L1qjeOLYrCjsKPfAkM38XsslShCk
+         moMhxmZeK8N1CB3gTUjxRJod4R9cUqVOgEHQo0XuA35haesQcdiWxshZFVFnkPD93S
+         MyQfWp5voSA61jq1wSL6Kii5/bi2YU/eNS+uPpjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 555/633] media: venus: core: Fix error handling in probe
-Date:   Tue, 27 Oct 2020 14:54:58 +0100
-Message-Id: <20201027135548.844764280@linuxfoundation.org>
+Subject: [PATCH 5.9 651/757] media: exynos4-is: Fix several reference count leaks due to pm_runtime_get_sync
+Date:   Tue, 27 Oct 2020 14:55:01 +0100
+Message-Id: <20201027135521.078053795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@codeaurora.org>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 98cd831088c64aa8fe7e1d2a8bb94b6faba0462b ]
+[ Upstream commit 7ef64ceea0008c17e94a8a2c60c5d6d46f481996 ]
 
-Post a successful pm_ops->core_get, an error in probe
-should exit by doing a pm_ops->core_put which seems
-to be missing. So fix it.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/core.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-isp.c  | 4 +++-
+ drivers/media/platform/exynos4-is/fimc-lite.c | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
-index 203c6538044fb..bfcaba37d60fe 100644
---- a/drivers/media/platform/qcom/venus/core.c
-+++ b/drivers/media/platform/qcom/venus/core.c
-@@ -224,13 +224,15 @@ static int venus_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp.c b/drivers/media/platform/exynos4-is/fimc-isp.c
+index cde0d254ec1c4..a77c49b185115 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp.c
+@@ -305,8 +305,10 @@ static int fimc_isp_subdev_s_power(struct v4l2_subdev *sd, int on)
  
- 	ret = dma_set_mask_and_coherent(dev, core->res->dma_mask);
- 	if (ret)
--		return ret;
-+		goto err_core_put;
- 
- 	if (!dev->dma_parms) {
- 		dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms),
- 					      GFP_KERNEL);
--		if (!dev->dma_parms)
--			return -ENOMEM;
-+		if (!dev->dma_parms) {
-+			ret = -ENOMEM;
-+			goto err_core_put;
+ 	if (on) {
+ 		ret = pm_runtime_get_sync(&is->pdev->dev);
+-		if (ret < 0)
++		if (ret < 0) {
++			pm_runtime_put(&is->pdev->dev);
+ 			return ret;
 +		}
- 	}
- 	dma_set_max_seg_size(dev, DMA_BIT_MASK(32));
+ 		set_bit(IS_ST_PWR_ON, &is->state);
  
-@@ -242,11 +244,11 @@ static int venus_probe(struct platform_device *pdev)
- 					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
- 					"venus", core);
- 	if (ret)
--		return ret;
-+		goto err_core_put;
+ 		ret = fimc_is_start_firmware(is);
+diff --git a/drivers/media/platform/exynos4-is/fimc-lite.c b/drivers/media/platform/exynos4-is/fimc-lite.c
+index 9c666f663ab43..fdd0d369b1925 100644
+--- a/drivers/media/platform/exynos4-is/fimc-lite.c
++++ b/drivers/media/platform/exynos4-is/fimc-lite.c
+@@ -471,7 +471,7 @@ static int fimc_lite_open(struct file *file)
+ 	set_bit(ST_FLITE_IN_USE, &fimc->state);
+ 	ret = pm_runtime_get_sync(&fimc->pdev->dev);
+ 	if (ret < 0)
+-		goto unlock;
++		goto err_pm;
  
- 	ret = hfi_create(core, &venus_core_ops);
- 	if (ret)
--		return ret;
-+		goto err_core_put;
- 
- 	pm_runtime_enable(dev);
- 
-@@ -302,6 +304,9 @@ static int venus_probe(struct platform_device *pdev)
- 	pm_runtime_set_suspended(dev);
- 	pm_runtime_disable(dev);
- 	hfi_destroy(core);
-+err_core_put:
-+	if (core->pm_ops->core_put)
-+		core->pm_ops->core_put(dev);
- 	return ret;
- }
- 
+ 	ret = v4l2_fh_open(file);
+ 	if (ret < 0)
 -- 
 2.25.1
 
