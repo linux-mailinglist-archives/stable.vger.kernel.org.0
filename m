@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1132529C334
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:44:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E88929C35D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:46:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2902173AbgJ0ObM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54778 "EHLO mail.kernel.org"
+        id S1759088AbgJ0O1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759232AbgJ0O2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:28:25 -0400
+        id S1759083AbgJ0O1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:27:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 185F620754;
-        Tue, 27 Oct 2020 14:28:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D6F3206DC;
+        Tue, 27 Oct 2020 14:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808904;
-        bh=jkJLQI7d2108cS11HL9Xo2Bn62RBEW9CUm/9Tt2JW4M=;
+        s=default; t=1603808859;
+        bh=JC0Y0QPLd4dv2Chd2uSnFM6k2pNn9+xYOM4MwLSX+Ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DxGF9CtR5FOHqSsmlQfZGGGDTzt59Lznm5T8KvT4uqmpDU32rqI5DbwWBs3muGRbo
-         /BNtG7eQbB8vP1NBXWU5GiIy9ON0x4IxyFm1TpN8+GJzICK6xyR7nZ6d1H4ed5hnbV
-         ZGXf4w5eOwz6/wDv/wBnoGc6uqEWTcIN7mj1iXb4=
+        b=0PzfczwP+xlc3oojFSBnPoM8UCugTJpEuVBlVo+4Kao0aw7tSI71T+InHIZCie4Je
+         8rukqMX+SKzrGG0ZC8tu0xHSIaAm8wE5rzxqo5ZTanPeTfAF65lGBDDzTpOV5Gh2g9
+         +myNLqPhptpW8tDTNPTJsDolyngwCmS+kZWRAgPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Horn <doughorn@google.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com,
+        Julian Anastasov <ja@ssi.bg>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 248/264] Fix use after free in get_capset_info callback.
-Date:   Tue, 27 Oct 2020 14:55:06 +0100
-Message-Id: <20201027135442.297213360@linuxfoundation.org>
+Subject: [PATCH 4.19 252/264] ipvs: Fix uninit-value in do_ip_vs_set_ctl()
+Date:   Tue, 27 Oct 2020 14:55:10 +0100
+Message-Id: <20201027135442.485586340@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,59 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Horn <doughorn@google.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit e219688fc5c3d0d9136f8d29d7e0498388f01440 ]
+[ Upstream commit c5a8a8498eed1c164afc94f50a939c1a10abf8ad ]
 
-If a response to virtio_gpu_cmd_get_capset_info takes longer than
-five seconds to return, the callback will access freed kernel memory
-in vg->capsets.
+do_ip_vs_set_ctl() is referencing uninitialized stack value when `len` is
+zero. Fix it.
 
-Signed-off-by: Doug Horn <doughorn@google.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200902210847.2689-2-gurchetansingh@chromium.org
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reported-by: syzbot+23b5f9e7caf61d9a3898@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=46ebfb92a8a812621a001ef04d90dfa459520fe2
+Suggested-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c |  2 ++
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 10 +++++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 65060c08522d7..22397a23780c0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -113,8 +113,10 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
- 					 vgdev->capsets[i].id > 0, 5 * HZ);
- 		if (ret == 0) {
- 			DRM_ERROR("timed out waiting for cap set %d\n", i);
-+			spin_lock(&vgdev->display_info_lock);
- 			kfree(vgdev->capsets);
- 			vgdev->capsets = NULL;
-+			spin_unlock(&vgdev->display_info_lock);
- 			return;
- 		}
- 		DRM_INFO("cap set %d: id %d, max-version %d, max-size %d\n",
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 608906f06cedd..3e72c6dac0ffe 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -566,9 +566,13 @@ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
- 	int i = le32_to_cpu(cmd->capset_index);
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index c339b5e386b78..3ad1de081e3c7 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -2393,6 +2393,10 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		/* Set timeout values for (tcp tcpfin udp) */
+ 		ret = ip_vs_set_timeout(ipvs, (struct ip_vs_timeout_user *)arg);
+ 		goto out_unlock;
++	} else if (!len) {
++		/* No more commands with len == 0 below */
++		ret = -EINVAL;
++		goto out_unlock;
+ 	}
  
- 	spin_lock(&vgdev->display_info_lock);
--	vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
--	vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
--	vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
-+	if (vgdev->capsets) {
-+		vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
-+		vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
-+		vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
-+	} else {
-+		DRM_ERROR("invalid capset memory.");
-+	}
- 	spin_unlock(&vgdev->display_info_lock);
- 	wake_up(&vgdev->resp_wq);
- }
+ 	usvc_compat = (struct ip_vs_service_user *)arg;
+@@ -2469,9 +2473,6 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
+ 	case IP_VS_SO_SET_DELDEST:
+ 		ret = ip_vs_del_dest(svc, &udest);
+-		break;
+-	default:
+-		ret = -EINVAL;
+ 	}
+ 
+   out_unlock:
 -- 
 2.25.1
 
