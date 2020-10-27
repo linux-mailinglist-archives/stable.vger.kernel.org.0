@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2B829C26F
+	by mail.lfdr.de (Postfix) with ESMTP id B010029C270
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1750088AbgJ0Rfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35554 "EHLO mail.kernel.org"
+        id S1819427AbgJ0Rfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760826AbgJ0Ogi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:38 -0400
+        id S1760838AbgJ0Ogl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5D4222C8;
-        Tue, 27 Oct 2020 14:36:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E262022202;
+        Tue, 27 Oct 2020 14:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809397;
-        bh=n933nPjPhTwaAxa76XZlpZtEQm3PzxBaAMGkeZ3inPk=;
+        s=default; t=1603809400;
+        bh=Pe5YbfDqRYtws1UY41+F+jcJs3m1MgzoSq8p/FmeSNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yszeTTehc7r9mopXKQfy9hE4I34HWUY9C4gzly783klZQkKwKpzGYn2TrJiSGTIgr
-         tAxFu9wEmWwf/m4pMve9yXlg1Fn5sIYAMbc3VORG1zM41mxaT1ovdr62aBcfgBrc73
-         y7QgFWRmFulho9Iq6JMD45KJa7x7V+VQeRjFqRmk=
+        b=xeox2+fO0Vp/bFHmBkoWAnTaWVWxkDgxPZq/43WDsD4QLBVecNsVB/ndP15xsM6qq
+         d1yT8wy6MEaN9ALCJ0uTGEgMXCn89HoxHiX8EiU4NSFAbmzk/apctGI0Madm4Vwv/9
+         7Oya9U/4DrvPLiUAoSTJhXlwNOiZy3q2+yxSWzQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/408] coresight: etm4x: Handle unreachable sink in perf mode
-Date:   Tue, 27 Oct 2020 14:51:28 +0100
-Message-Id: <20201027135502.053471876@linuxfoundation.org>
+Subject: [PATCH 5.4 151/408] xhci: dont create endpoint debugfs entry before ring buffer is set.
+Date:   Tue, 27 Oct 2020 14:51:29 +0100
+Message-Id: <20201027135502.101268526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -46,118 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 859d510e58dac94f0b204b7b5cccafbc130d2291 ]
+[ Upstream commit 167657a1bb5fcde53ac304ce6c564bd90a2f9185 ]
 
-If the specified/hinted sink is not reachable from a subset of the CPUs,
-we could end up unable to trace the event on those CPUs. This
-is the best effort we could do until we support 1:1 configurations.
-Fail gracefully in such cases avoiding a WARN_ON, which can be easily
-triggered by the user on certain platforms (Arm N1SDP), with the following
-trace paths :
+Make sure xHC completes the configure endpoint command and xhci driver
+sets the ring pointers correctly before we create the user readable
+debugfs file.
 
- CPU0
-      \
-       -- Funnel0 --> ETF0 -->
-      /                        \
- CPU1                           \
-                                  MainFunnel
- CPU2                           /
-      \                        /
-       -- Funnel1 --> ETF1 -->
-      /
- CPU1
+In theory there was a small gap where a user could have read the
+debugfs file and cause a NULL pointer dereference error as ring
+pointer was not yet set, in practise we want this change to simplify
+the upcoming streams debugfs support.
 
-$ perf record --per-thread -e cs_etm/@ETF0/u -- <app>
-
-could trigger the following WARNING, when the event is scheduled
-on CPU2.
-
-[10919.513250] ------------[ cut here ]------------
-[10919.517861] WARNING: CPU: 2 PID: 24021 at
-drivers/hwtracing/coresight/coresight-etm-perf.c:316 etm_event_start+0xf8/0x100
-...
-
-[10919.564403] CPU: 2 PID: 24021 Comm: perf Not tainted 5.8.0+ #24
-[10919.570308] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
-[10919.575865] pc : etm_event_start+0xf8/0x100
-[10919.580034] lr : etm_event_start+0x80/0x100
-[10919.584202] sp : fffffe001932f940
-[10919.587502] x29: fffffe001932f940 x28: fffffc834995f800
-[10919.592799] x27: 0000000000000000 x26: fffffe0011f3ced0
-[10919.598095] x25: fffffc837fce244c x24: fffffc837fce2448
-[10919.603391] x23: 0000000000000002 x22: fffffc8353529c00
-[10919.608688] x21: fffffc835bb31000 x20: 0000000000000000
-[10919.613984] x19: fffffc837fcdcc70 x18: 0000000000000000
-[10919.619281] x17: 0000000000000000 x16: 0000000000000000
-[10919.624577] x15: 0000000000000000 x14: 00000000000009f8
-[10919.629874] x13: 00000000000009f8 x12: 0000000000000018
-[10919.635170] x11: 0000000000000000 x10: 0000000000000000
-[10919.640467] x9 : fffffe00108cd168 x8 : 0000000000000000
-[10919.645763] x7 : 0000000000000020 x6 : 0000000000000001
-[10919.651059] x5 : 0000000000000002 x4 : 0000000000000001
-[10919.656356] x3 : 0000000000000000 x2 : 0000000000000000
-[10919.661652] x1 : fffffe836eb40000 x0 : 0000000000000000
-[10919.666949] Call trace:
-[10919.669382]  etm_event_start+0xf8/0x100
-[10919.673203]  etm_event_add+0x40/0x60
-[10919.676765]  event_sched_in.isra.134+0xcc/0x210
-[10919.681281]  merge_sched_in+0xb0/0x2a8
-[10919.685017]  visit_groups_merge.constprop.140+0x15c/0x4b8
-[10919.690400]  ctx_sched_in+0x15c/0x170
-[10919.694048]  perf_event_sched_in+0x6c/0xa0
-[10919.698130]  ctx_resched+0x60/0xa0
-[10919.701517]  perf_event_exec+0x288/0x2f0
-[10919.705425]  begin_new_exec+0x4c8/0xf58
-[10919.709247]  load_elf_binary+0x66c/0xf30
-[10919.713155]  exec_binprm+0x15c/0x450
-[10919.716716]  __do_execve_file+0x508/0x748
-[10919.720711]  __arm64_sys_execve+0x40/0x50
-[10919.724707]  do_el0_svc+0xf4/0x1b8
-[10919.728095]  el0_sync_handler+0xf8/0x124
-[10919.732003]  el0_sync+0x140/0x180
-
-Even though we don't support using separate sinks for the ETMs yet (e.g,
-for 1:1 configurations), we should at least honor the user's choice and
-handle the limitations gracefully, by simply skipping the tracing on ETMs
-which can't reach the requested sink.
-
-Fixes: f9d81a657bb8 ("coresight: perf: Allow tracing on hotplugged CPUs")
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Reported-by: Jeremy Linton <jeremy.linton@arm.com>
-Tested-by: Jeremy Linton <jeremy.linton@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200916191737.4001561-11-mathieu.poirier@linaro.org
+Fixes: 02b6fdc2a153 ("usb: xhci: Add debugfs interface for xHCI driver")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200918131752.16488-10-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm-perf.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/host/xhci.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index 84f1dcb698272..c4b9898e28418 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -310,6 +310,16 @@ static void etm_event_start(struct perf_event *event, int flags)
- 	if (!event_data)
- 		goto fail;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index bad154f446f8d..0d10ede581cbd 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1915,8 +1915,6 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
+ 	ep_ctx = xhci_get_ep_ctx(xhci, virt_dev->in_ctx, ep_index);
+ 	trace_xhci_add_endpoint(ep_ctx);
  
-+	/*
-+	 * Check if this ETM is allowed to trace, as decided
-+	 * at etm_setup_aux(). This could be due to an unreachable
-+	 * sink from this ETM. We can't do much in this case if
-+	 * the sink was specified or hinted to the driver. For
-+	 * now, simply don't record anything on this ETM.
-+	 */
-+	if (!cpumask_test_cpu(cpu, &event_data->mask))
-+		goto fail_end_stop;
-+
- 	path = etm_event_cpu_path(event_data, cpu);
- 	/* We need a sink, no need to continue without one */
- 	sink = coresight_get_sink(path);
+-	xhci_debugfs_create_endpoint(xhci, virt_dev, ep_index);
+-
+ 	xhci_dbg(xhci, "add ep 0x%x, slot id %d, new drop flags = %#x, new add flags = %#x\n",
+ 			(unsigned int) ep->desc.bEndpointAddress,
+ 			udev->slot_id,
+@@ -2949,6 +2947,7 @@ static int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 		xhci_check_bw_drop_ep_streams(xhci, virt_dev, i);
+ 		virt_dev->eps[i].ring = virt_dev->eps[i].new_ring;
+ 		virt_dev->eps[i].new_ring = NULL;
++		xhci_debugfs_create_endpoint(xhci, virt_dev, i);
+ 	}
+ command_cleanup:
+ 	kfree(command->completion);
 -- 
 2.25.1
 
