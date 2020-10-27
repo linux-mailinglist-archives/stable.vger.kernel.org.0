@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC6C29B50E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC5529B435
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:03:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793713AbgJ0PH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33778 "EHLO mail.kernel.org"
+        id S1784602AbgJ0O7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:59:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1788898AbgJ0PAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:00:37 -0400
+        id S1784585AbgJ0O7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:59:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D065A22264;
-        Tue, 27 Oct 2020 15:00:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 615D520714;
+        Tue, 27 Oct 2020 14:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810837;
-        bh=wtM9RiJZaaOwbv9Y05S/GBQ7vjEd8vDsU43nSImxV74=;
+        s=default; t=1603810756;
+        bh=CZGrA1IfK0TadZ9bTfmryHnGI1j7nqYWh/K5qz9Cmdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1RyAycYt1AiQ1AkoYVd7N8Xy9Yxnx4OPluqwDZRWYAc9kYX3od2w2YBtmrXWY5FE
-         ntjJAjeSgQPU9OQ4bEw5j6vFYAvf50LCX+93d7TVmv96INKuOkbVFq5sePFwdk8LRb
-         zmN67tSd0/iqCwnJuhh0x7HcydajEgYhzweVE9Ws=
+        b=h0oBrBQOUJz079b6heoflM/gKyoJysOpXq/sukmFtyKPRBm1JXv9FbXhnNoAaItXj
+         98j2i/kiHloV64AYBC1zOLFqZXhDkZfbVK9j27HIP+IiRSo++fG+xoYA2oh3XolzMV
+         VkY18U4moqlbBrbuj6E8h5apfqlOpY8fyDrmo3Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 249/633] ASoC: tas2770: Fix error handling with update_bits
-Date:   Tue, 27 Oct 2020 14:49:52 +0100
-Message-Id: <20201027135534.360345280@linuxfoundation.org>
+Subject: [PATCH 5.8 253/633] ASoC: tas2770: Fix unbalanced calls to pm_runtime
+Date:   Tue, 27 Oct 2020 14:49:56 +0100
+Message-Id: <20201027135534.535154925@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,175 +45,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Murphy <dmurphy@ti.com>
 
-[ Upstream commit cadab0aefcbadf488b16caf2770430e69f4d7839 ]
+[ Upstream commit d3d71c99b541040da198f43da3bbd85d8e9598cb ]
 
-snd_soc_update_bits returns a 1 when the bit was successfully updated,
-returns a 0 is no update was needed and a negative if the call failed.
-The code is currently failing the case of a successful update by just
-checking for a non-zero number. Modify these checks and return the error
-code only if there is a negative.
+Fix the unbalanced call to the pm_runtime_disable when removing the
+module.  pm_runtime_enable is not called nor is the pm_runtime setup in
+the code.  Remove the i2c_remove function and the pm_runtime_disable.
 
 Fixes: 1a476abc723e6 ("tas2770: add tas2770 smart PA kernel driver")
 Signed-off-by: Dan Murphy <dmurphy@ti.com>
-Link: https://lore.kernel.org/r/20200918190548.12598-7-dmurphy@ti.com
+Link: https://lore.kernel.org/r/20200918190548.12598-5-dmurphy@ti.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2770.c | 52 ++++++++++++++++++--------------------
- 1 file changed, 24 insertions(+), 28 deletions(-)
+ sound/soc/codecs/tas2770.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
 diff --git a/sound/soc/codecs/tas2770.c b/sound/soc/codecs/tas2770.c
-index f6c3c5aaab653..8d88ed5578ddd 100644
+index 8d88ed5578ddd..531bf32043813 100644
 --- a/sound/soc/codecs/tas2770.c
 +++ b/sound/soc/codecs/tas2770.c
-@@ -140,23 +140,18 @@ static int tas2770_dac_event(struct snd_soc_dapm_widget *w,
- 			TAS2770_PWR_CTRL,
- 			TAS2770_PWR_CTRL_MASK,
- 			TAS2770_PWR_CTRL_MUTE);
--		if (ret)
--			goto end;
- 		break;
- 	case SND_SOC_DAPM_PRE_PMD:
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_PWR_CTRL,
- 			TAS2770_PWR_CTRL_MASK,
- 			TAS2770_PWR_CTRL_SHUTDOWN);
--		if (ret)
--			goto end;
- 		break;
- 	default:
- 		dev_err(tas2770->dev, "Not supported evevt\n");
- 		return -EINVAL;
- 	}
+@@ -16,7 +16,6 @@
+ #include <linux/i2c.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/consumer.h>
+-#include <linux/pm_runtime.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/firmware.h>
+ #include <linux/regmap.h>
+@@ -780,13 +779,6 @@ static int tas2770_i2c_probe(struct i2c_client *client,
+ 	return result;
+ }
  
--end:
- 	if (ret < 0)
- 		return ret;
- 
-@@ -248,6 +243,9 @@ static int tas2770_set_bitwidth(struct tas2770_priv *tas2770, int bitwidth)
- 		return -EINVAL;
- 	}
- 
-+	if (ret < 0)
-+		return ret;
-+
- 	tas2770->channel_size = bitwidth;
- 
- 	ret = snd_soc_component_update_bits(component,
-@@ -256,16 +254,15 @@ static int tas2770_set_bitwidth(struct tas2770_priv *tas2770, int bitwidth)
- 		TAS2770_TDM_CFG_REG5_50_MASK,
- 		TAS2770_TDM_CFG_REG5_VSNS_ENABLE |
- 		tas2770->v_sense_slot);
--	if (ret)
--		goto end;
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = snd_soc_component_update_bits(component,
- 		TAS2770_TDM_CFG_REG6,
- 		TAS2770_TDM_CFG_REG6_ISNS_MASK |
- 		TAS2770_TDM_CFG_REG6_50_MASK,
- 		TAS2770_TDM_CFG_REG6_ISNS_ENABLE |
- 		tas2770->i_sense_slot);
+-static int tas2770_i2c_remove(struct i2c_client *client)
+-{
+-	pm_runtime_disable(&client->dev);
+-	return 0;
+-}
 -
--end:
- 	if (ret < 0)
- 		return ret;
- 
-@@ -283,36 +280,35 @@ static int tas2770_set_samplerate(struct tas2770_priv *tas2770, int samplerate)
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_48KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
- 			TAS2770_TDM_CFG_REG0_31_44_1_48KHZ);
--		if (ret)
--			goto end;
- 		break;
- 	case 44100:
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_44_1KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
- 			TAS2770_TDM_CFG_REG0_31_44_1_48KHZ);
--		if (ret)
--			goto end;
- 		break;
- 	case 96000:
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_48KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
-@@ -323,8 +319,9 @@ static int tas2770_set_samplerate(struct tas2770_priv *tas2770, int samplerate)
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_44_1KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
-@@ -335,22 +332,22 @@ static int tas2770_set_samplerate(struct tas2770_priv *tas2770, int samplerate)
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_48KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
- 			TAS2770_TDM_CFG_REG0_31_176_4_192KHZ);
--		if (ret)
--			goto end;
- 		break;
- 	case 17640:
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_SMP_MASK,
- 			TAS2770_TDM_CFG_REG0_SMP_44_1KHZ);
--		if (ret)
--			goto end;
-+		if (ret < 0)
-+			return ret;
-+
- 		ret = snd_soc_component_update_bits(component,
- 			TAS2770_TDM_CFG_REG0,
- 			TAS2770_TDM_CFG_REG0_31_MASK,
-@@ -360,7 +357,6 @@ static int tas2770_set_samplerate(struct tas2770_priv *tas2770, int samplerate)
- 		ret = -EINVAL;
- 	}
- 
--end:
- 	if (ret < 0)
- 		return ret;
+-
+ static const struct i2c_device_id tas2770_i2c_id[] = {
+ 	{ "tas2770", 0},
+ 	{ }
+@@ -807,7 +799,6 @@ static struct i2c_driver tas2770_i2c_driver = {
+ 		.of_match_table = of_match_ptr(tas2770_of_match),
+ 	},
+ 	.probe      = tas2770_i2c_probe,
+-	.remove     = tas2770_i2c_remove,
+ 	.id_table   = tas2770_i2c_id,
+ };
  
 -- 
 2.25.1
