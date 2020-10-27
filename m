@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F8E29B4D2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B04A029B4E8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1790987AbgJ0PG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39552 "EHLO mail.kernel.org"
+        id S1793566AbgJ0PHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1790947AbgJ0PE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:04:56 -0400
+        id S1790948AbgJ0PE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:04:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1004720747;
-        Tue, 27 Oct 2020 15:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0730206E5;
+        Tue, 27 Oct 2020 15:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811095;
-        bh=W9QpIclGZ0WZ0Y6/YpKZ3tuzzlm414oatb6onhoQkyI=;
+        s=default; t=1603811098;
+        bh=ncD3PBBFcGdnc4UArfDn2gbd5VPHJzptVWrLP2d3xO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSMd0zP5Wb44Jjl68V6rgiXZr2twsmDSXFpewgOnRBL0ukMroeeMc/IvkXfAfwH53
-         RHcDZtZzwHXZ+l01CYPsx9xC0+UaWAqZDIoILuu4QSdQT5LirdK9cfkofYkfzQu18q
-         0mzqFTaI0UifBF17kHhv+8Fa24/HNG8A4/ddy7MY=
+        b=rETXi2/tI4YwGxZKN5a3ztCh/vdSBMrE4y+ljcbo8qUwPr4OmZjHhQuI1MtMGCECZ
+         4EsdY10K8Rdl8t4NNxvh/TkGObqGHZZsvUH6NnXStmEmbqcJKAgbcS7+8MPjYaVTwF
+         XKOW/ZibtvRt82S9fpLKCdQDB+8sbXTvIFliP/L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 371/633] RDMA/cma: Combine cma_ndev_work with cma_work
-Date:   Tue, 27 Oct 2020 14:51:54 +0100
-Message-Id: <20201027135540.106537983@linuxfoundation.org>
+Subject: [PATCH 5.8 372/633] RDMA/cma: Remove dead code for kernel rdmacm multicast
+Date:   Tue, 27 Oct 2020 14:51:55 +0100
+Message-Id: <20201027135540.153097197@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,96 +45,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 7e85bcda8bfe883f4244672ed79f81b7762a1a7e ]
+[ Upstream commit 1bb5091def706732c749df9aae45fbca003696f2 ]
 
-These are the same thing, except that cma_ndev_work doesn't have a state
-transition. Signal no state transition by setting old_state and new_state
-== 0.
+There is no kernel user of RDMA CM multicast so this code managing the
+multicast subscription of the kernel-only internal QP is dead. Remove it.
 
-In all cases the handler function should not be called once
-rdma_destroy_id() has progressed passed setting the state.
+This makes the bug fixes in the next patches much simpler.
 
-Link: https://lore.kernel.org/r/20200902081122.745412-6-leon@kernel.org
+Link: https://lore.kernel.org/r/20200902081122.745412-7-leon@kernel.org
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 38 +++++++----------------------------
- 1 file changed, 7 insertions(+), 31 deletions(-)
+ drivers/infiniband/core/cma.c | 19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 26de0dab60bbb..015b2fe509dca 100644
+index 015b2fe509dca..0c3c7b85c65df 100644
 --- a/drivers/infiniband/core/cma.c
 +++ b/drivers/infiniband/core/cma.c
-@@ -363,12 +363,6 @@ struct cma_work {
- 	struct rdma_cm_event	event;
- };
- 
--struct cma_ndev_work {
--	struct work_struct	work;
--	struct rdma_id_private	*id;
--	struct rdma_cm_event	event;
--};
+@@ -4289,16 +4289,6 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
+ 	else
+ 		pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to join multicast. status %d\n",
+ 				     status);
+-	mutex_lock(&id_priv->qp_mutex);
+-	if (!status && id_priv->id.qp) {
+-		status = ib_attach_mcast(id_priv->id.qp, &multicast->rec.mgid,
+-					 be16_to_cpu(multicast->rec.mlid));
+-		if (status)
+-			pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to attach QP. status %d\n",
+-					     status);
+-	}
+-	mutex_unlock(&id_priv->qp_mutex);
 -
- struct iboe_mcast_work {
- 	struct work_struct	 work;
- 	struct rdma_id_private	*id;
-@@ -2646,32 +2640,14 @@ static void cma_work_handler(struct work_struct *_work)
- 	struct rdma_id_private *id_priv = work->id;
+ 	event.status = status;
+ 	event.param.ud.private_data = mc->context;
+ 	if (!status) {
+@@ -4551,6 +4541,10 @@ int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
+ 	struct cma_multicast *mc;
+ 	int ret;
  
- 	mutex_lock(&id_priv->handler_mutex);
--	if (!cma_comp_exch(id_priv, work->old_state, work->new_state))
-+	if (READ_ONCE(id_priv->state) == RDMA_CM_DESTROYING ||
-+	    READ_ONCE(id_priv->state) == RDMA_CM_DEVICE_REMOVAL)
- 		goto out_unlock;
++	/* Not supported for kernel QPs */
++	if (WARN_ON(id->qp))
++		return -EINVAL;
++
+ 	if (!id->device)
+ 		return -EINVAL;
+ 
+@@ -4605,11 +4599,6 @@ void rdma_leave_multicast(struct rdma_cm_id *id, struct sockaddr *addr)
+ 			list_del(&mc->list);
+ 			spin_unlock_irq(&id_priv->lock);
+ 
+-			if (id->qp)
+-				ib_detach_mcast(id->qp,
+-						&mc->multicast.ib->rec.mgid,
+-						be16_to_cpu(mc->multicast.ib->rec.mlid));
 -
--	if (cma_cm_event_handler(id_priv, &work->event)) {
--		cma_id_put(id_priv);
--		destroy_id_handler_unlock(id_priv);
--		goto out_free;
-+	if (work->old_state != 0 || work->new_state != 0) {
-+		if (!cma_comp_exch(id_priv, work->old_state, work->new_state))
-+			goto out_unlock;
- 	}
+ 			BUG_ON(id_priv->cma_dev->device != id->device);
  
--out_unlock:
--	mutex_unlock(&id_priv->handler_mutex);
--	cma_id_put(id_priv);
--out_free:
--	kfree(work);
--}
--
--static void cma_ndev_work_handler(struct work_struct *_work)
--{
--	struct cma_ndev_work *work = container_of(_work, struct cma_ndev_work, work);
--	struct rdma_id_private *id_priv = work->id;
--
--	mutex_lock(&id_priv->handler_mutex);
--	if (id_priv->state == RDMA_CM_DESTROYING ||
--	    id_priv->state == RDMA_CM_DEVICE_REMOVAL)
--		goto out_unlock;
--
- 	if (cma_cm_event_handler(id_priv, &work->event)) {
- 		cma_id_put(id_priv);
- 		destroy_id_handler_unlock(id_priv);
-@@ -4652,7 +4628,7 @@ EXPORT_SYMBOL(rdma_leave_multicast);
- static int cma_netdev_change(struct net_device *ndev, struct rdma_id_private *id_priv)
- {
- 	struct rdma_dev_addr *dev_addr;
--	struct cma_ndev_work *work;
-+	struct cma_work *work;
- 
- 	dev_addr = &id_priv->id.route.addr.dev_addr;
- 
-@@ -4665,7 +4641,7 @@ static int cma_netdev_change(struct net_device *ndev, struct rdma_id_private *id
- 		if (!work)
- 			return -ENOMEM;
- 
--		INIT_WORK(&work->work, cma_ndev_work_handler);
-+		INIT_WORK(&work->work, cma_work_handler);
- 		work->id = id_priv;
- 		work->event.event = RDMA_CM_EVENT_ADDR_CHANGE;
- 		cma_id_get(id_priv);
+ 			if (rdma_cap_ib_mcast(id->device, id->port_num)) {
 -- 
 2.25.1
 
