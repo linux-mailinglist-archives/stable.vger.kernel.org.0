@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190F629AEE4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 018B129AEE6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754370AbgJ0OFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53506 "EHLO mail.kernel.org"
+        id S1754377AbgJ0OFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754362AbgJ0OFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:12 -0400
+        id S1754374AbgJ0OFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A3D522264;
-        Tue, 27 Oct 2020 14:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3512B2222C;
+        Tue, 27 Oct 2020 14:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807511;
-        bh=0jkClK8mVRrdFdEr2nOJ0GaA3EDBxXgPqMe58Z54eY0=;
+        s=default; t=1603807514;
+        bh=OrrQLVR1kDUnlCzLjRgqW/nqMZGWN2iMOP7koZ04DfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5dHFTLwtjvSvw0DmZBMzEAUEK7JwZH3AfFLlhMIfWQqahZKVV4bX4/8STb0ZekJH
-         uRg1RBKzPgh7p6RpBo8Q2Wvsmgvnv2XdiCY7PhXGwMdt24Y3mKeC7P8dz+dQv5t2xc
-         WvLfWwoTMycysni8qGA6Lcs9/4yT0kUNXDhVwe4s=
+        b=UrTAwY2Gx/tkd+gDDytRgGuCpbaSIvsSknVZMbKukzbuauyX3HwI94vKRZb5eGQLS
+         jw1HLC/BBNxjgQvoZmjoccPzrfZ8wnjDmzpbhhQeyUJBFGlVmGBqhD0IsYEheqVPtT
+         bdL184+eJ8ObUnNS9CK/7SCQ4CJbDzfPtHil/B+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, guomin chen <guomin_chen@sina.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 080/139] vfio/pci: Clear token on bypass registration failure
-Date:   Tue, 27 Oct 2020 14:49:34 +0100
-Message-Id: <20201027134905.927592778@linuxfoundation.org>
+Subject: [PATCH 4.9 081/139] Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
+Date:   Tue, 27 Oct 2020 14:49:35 +0100
+Message-Id: <20201027134905.975874141@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -43,45 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 852b1beecb6ff9326f7ca4bc0fe69ae860ebdb9e ]
+[ Upstream commit 30df23c5ecdfb8da5b0bc17ceef67eff9e1b0957 ]
 
-The eventfd context is used as our irqbypass token, therefore if an
-eventfd is re-used, our token is the same.  The irqbypass code will
-return an -EBUSY in this case, but we'll still attempt to unregister
-the producer, where if that duplicate token still exists, results in
-removing the wrong object.  Clear the token of failed producers so
-that they harmlessly fall out when unregistered.
+If imx6ul_tsc_init() fails then we need to clean up the clocks.
 
-Fixes: 6d7425f109d2 ("vfio: Register/unregister irq_bypass_producer")
-Reported-by: guomin chen <guomin_chen@sina.com>
-Tested-by: guomin chen <guomin_chen@sina.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+I reversed the "if (input_dev->users) {" condition to make the code a
+bit simpler.
+
+Fixes: 6cc527b05847 ("Input: imx6ul_tsc - propagate the errors")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200905124942.GC183976@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_intrs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/imx6ul_tsc.c | 27 +++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index bdfdd506bc588..c989f777bf771 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -355,11 +355,13 @@ static int vfio_msi_set_vector_signal(struct vfio_pci_device *vdev,
- 	vdev->ctx[vector].producer.token = trigger;
- 	vdev->ctx[vector].producer.irq = irq;
- 	ret = irq_bypass_register_producer(&vdev->ctx[vector].producer);
--	if (unlikely(ret))
-+	if (unlikely(ret)) {
- 		dev_info(&pdev->dev,
- 		"irq bypass producer (token %p) registration fails: %d\n",
- 		vdev->ctx[vector].producer.token, ret);
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+index 8275267eac254..4be7ddc04af0f 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -490,20 +490,25 @@ static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
  
-+		vdev->ctx[vector].producer.token = NULL;
+ 	mutex_lock(&input_dev->mutex);
+ 
+-	if (input_dev->users) {
+-		retval = clk_prepare_enable(tsc->adc_clk);
+-		if (retval)
+-			goto out;
+-
+-		retval = clk_prepare_enable(tsc->tsc_clk);
+-		if (retval) {
+-			clk_disable_unprepare(tsc->adc_clk);
+-			goto out;
+-		}
++	if (!input_dev->users)
++		goto out;
+ 
+-		retval = imx6ul_tsc_init(tsc);
++	retval = clk_prepare_enable(tsc->adc_clk);
++	if (retval)
++		goto out;
++
++	retval = clk_prepare_enable(tsc->tsc_clk);
++	if (retval) {
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
+ 	}
+ 
++	retval = imx6ul_tsc_init(tsc);
++	if (retval) {
++		clk_disable_unprepare(tsc->tsc_clk);
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
 +	}
- 	vdev->ctx[vector].trigger = trigger;
- 
- 	return 0;
+ out:
+ 	mutex_unlock(&input_dev->mutex);
+ 	return retval;
 -- 
 2.25.1
 
