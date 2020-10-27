@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E574C29C192
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9DE29C121
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780235AbgJ0Ox6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
+        id S2900799AbgJ0OyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773034AbgJ0Ou4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:50:56 -0400
+        id S1773048AbgJ0OvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7E3C207DE;
-        Tue, 27 Oct 2020 14:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B10DE21556;
+        Tue, 27 Oct 2020 14:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810256;
-        bh=MRqVeXbnIcwa+5zDFlUD2QANOZOi20DcVfB3RjFAVhA=;
+        s=default; t=1603810262;
+        bh=bYNbhbqM39yeoVrh7stHZh+bz3NNfwEA99baQdTdKyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFHLEDC7iS65UIn8W1KS2AEUcGs5c/XdKY6je0Wig7J034Ep5bQYFYHe43g68vyW6
-         00d+SCOYjmgF3wloaVTsn0q308GNjrMt5WJQh/MWLr49uQzPBzi2B1bQSRFDNmWqZ5
-         PWZrPyYchwcUueqACIBoVbU8VwT1ij3Xx2VnM7/I=
+        b=bGQ3aBcm/GgCPWX5NubEC/pse6FwBkueILP+R+NwjG8AzBMUKyeQ3mWs4FNTwuumG
+         rrNAhhQTDuLXPKpCjpyJIFnBAfvv/xe5rmYsZuJrn141S3EGkjQmlcsEEhqhDjsUTi
+         2+waSf3V37cHQfR6yokXFtdElGZ2o84FDIOrByoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Paul Blakey <paulb@nvidia.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        David Ahern <dsahern@gmail.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 045/633] net/sched: act_ct: Fix adding udp port mangle operation
-Date:   Tue, 27 Oct 2020 14:46:28 +0100
-Message-Id: <20201027135524.811333164@linuxfoundation.org>
+Subject: [PATCH 5.8 047/633] nexthop: Fix performance regression in nexthop deletion
+Date:   Tue, 27 Oct 2020 14:46:30 +0100
+Message-Id: <20201027135524.912736526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,37 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 47b5d2a107396ab05e83a4dfbd30b563ecbc83af ]
+[ Upstream commit df6afe2f7c19349de2ee560dc62ea4d9ad3ff889 ]
 
-Need to use the udp header type and not tcp.
+While insertion of 16k nexthops all using the same netdev ('dummy10')
+takes less than a second, deletion takes about 130 seconds:
 
-Fixes: 9c26ba9b1f45 ("net/sched: act_ct: Instantiate flow table entry actions")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Paul Blakey <paulb@nvidia.com>
-Link: https://lore.kernel.org/r/20201019090244.3015186-1-roid@nvidia.com
+# time -p ip -b nexthop.batch
+real 0.29
+user 0.01
+sys 0.15
+
+# time -p ip link set dev dummy10 down
+real 131.03
+user 0.06
+sys 0.52
+
+This is because of repeated calls to synchronize_rcu() whenever a
+nexthop is removed from a nexthop group:
+
+# /usr/share/bcc/tools/offcputime -p `pgrep -nx ip` -K
+...
+    b'finish_task_switch'
+    b'schedule'
+    b'schedule_timeout'
+    b'wait_for_completion'
+    b'__wait_rcu_gp'
+    b'synchronize_rcu.part.0'
+    b'synchronize_rcu'
+    b'__remove_nexthop'
+    b'remove_nexthop'
+    b'nexthop_flush_dev'
+    b'nh_netdev_event'
+    b'raw_notifier_call_chain'
+    b'call_netdevice_notifiers_info'
+    b'__dev_notify_flags'
+    b'dev_change_flags'
+    b'do_setlink'
+    b'__rtnl_newlink'
+    b'rtnl_newlink'
+    b'rtnetlink_rcv_msg'
+    b'netlink_rcv_skb'
+    b'rtnetlink_rcv'
+    b'netlink_unicast'
+    b'netlink_sendmsg'
+    b'____sys_sendmsg'
+    b'___sys_sendmsg'
+    b'__sys_sendmsg'
+    b'__x64_sys_sendmsg'
+    b'do_syscall_64'
+    b'entry_SYSCALL_64_after_hwframe'
+    -                ip (277)
+        126554955
+
+Since nexthops are always deleted under RTNL, synchronize_net() can be
+used instead. It will call synchronize_rcu_expedited() which only blocks
+for several microseconds as opposed to multiple milliseconds like
+synchronize_rcu().
+
+With this patch deletion of 16k nexthops takes less than a second:
+
+# time -p ip link set dev dummy10 down
+real 0.12
+user 0.00
+sys 0.04
+
+Tested with fib_nexthops.sh which includes torture tests that prompted
+the initial change:
+
+# ./fib_nexthops.sh
+...
+Tests passed: 134
+Tests failed:   0
+
+Fixes: 90f33bffa382 ("nexthops: don't modify published nexthop groups")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20201016172914.643282-1-idosch@idosch.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_ct.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/nexthop.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -156,11 +156,11 @@ tcf_ct_flow_table_add_action_nat_udp(con
- 	__be16 target_dst = target.dst.u.udp.port;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -842,7 +842,7 @@ static void remove_nexthop_from_groups(s
+ 		remove_nh_grp_entry(net, nhge, nlinfo);
  
- 	if (target_src != tuple->src.u.udp.port)
--		tcf_ct_add_mangle_action(action, FLOW_ACT_MANGLE_HDR_TYPE_TCP,
-+		tcf_ct_add_mangle_action(action, FLOW_ACT_MANGLE_HDR_TYPE_UDP,
- 					 offsetof(struct udphdr, source),
- 					 0xFFFF, be16_to_cpu(target_src));
- 	if (target_dst != tuple->dst.u.udp.port)
--		tcf_ct_add_mangle_action(action, FLOW_ACT_MANGLE_HDR_TYPE_TCP,
-+		tcf_ct_add_mangle_action(action, FLOW_ACT_MANGLE_HDR_TYPE_UDP,
- 					 offsetof(struct udphdr, dest),
- 					 0xFFFF, be16_to_cpu(target_dst));
+ 	/* make sure all see the newly published array before releasing rtnl */
+-	synchronize_rcu();
++	synchronize_net();
  }
+ 
+ static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
 
 
