@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A05729BEA5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CA129BC9C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1813703AbgJ0Qxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:53:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
+        id S1810176AbgJ0Qe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:34:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794566AbgJ0PM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:12:26 -0400
+        id S1802451AbgJ0Psq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:48:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE5A120728;
-        Tue, 27 Oct 2020 15:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D751621D42;
+        Tue, 27 Oct 2020 15:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811545;
-        bh=ppBP8NeK+QJpjNFGNwY4Nu9+bW3W5jXJtvjR3Zd8anI=;
+        s=default; t=1603813726;
+        bh=SALvipUyi/DTcpnTAlrDJ4xTwDPWeOVyPH4/y45TCuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hYrEu01LhMKXftzQ1SJHD3dVtuTZZiCVDPBWHUkfNlQknRlRgsA//YukqTjBgd22+
-         +NLUXg3om2DotwlzdrT+mdUgCRt3JmM3Xt9jVUEOLMy7z9zGUEXQcxAwYlRd5m8p97
-         RC2MEL3bbi4fszlMq8F8KwdxxXFJpxT3aimQSutA=
+        b=RXdQomSn3foQLIUmKWkcl7XjT9fBzn3MPs2f/NcRNsjTvwt/goOYaOvuixJyq6S2v
+         sgsQ/yATW3/4fVR+V/vKX/q9FmBMLOXkTj3TE+KJXOYwDlrKWTN92vnCAIwAU2dXVj
+         2pReXCw4UmUo3NXQEO2GhCh8KlpHNbJZxGUA1Fb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>,
-        Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 514/633] drm/mediatek: reduce clear event
-Date:   Tue, 27 Oct 2020 14:54:17 +0100
-Message-Id: <20201027135546.864482930@linuxfoundation.org>
+Subject: [PATCH 5.9 608/757] soc: qcom: apr: Fixup the error displayed on lookup failure
+Date:   Tue, 27 Oct 2020 14:54:18 +0100
+Message-Id: <20201027135519.074124011@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit bee1abc9cc021f50b90f22a589d9ddc816a80db0 ]
+[ Upstream commit ba34f977c333f96c8acd37ec30e232220399f5a5 ]
 
-No need to clear event again since event always clear before wait.
-This fix depend on patch:
-  "soc: mediatek: cmdq: add clear option in cmdq_pkt_wfe api"
+APR client incorrectly prints out "ret" variable on pdr_add_lookup failure,
+it should be printing the error value returned by the lookup instead.
 
-Fixes: 2f965be7f9008 ("drm/mediatek: apply CMDQ control flow")
-Signed-off-by: Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>
-Reviewed-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Acked-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Link: https://lore.kernel.org/r/1594136714-11650-10-git-send-email-dennis-yc.hsieh@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 8347356626028 ("soc: qcom: apr: Add avs/audio tracking functionality")
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200915154232.27523-1-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 2 +-
+ drivers/soc/qcom/apr.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index f64c83dc6644e..2d01a293aa782 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -485,7 +485,7 @@ static void mtk_drm_crtc_hw_config(struct mtk_drm_crtc *mtk_crtc)
- 		mbox_flush(mtk_crtc->cmdq_client->chan, 2000);
- 		cmdq_handle = cmdq_pkt_create(mtk_crtc->cmdq_client, PAGE_SIZE);
- 		cmdq_pkt_clear_event(cmdq_handle, mtk_crtc->cmdq_event);
--		cmdq_pkt_wfe(cmdq_handle, mtk_crtc->cmdq_event, true);
-+		cmdq_pkt_wfe(cmdq_handle, mtk_crtc->cmdq_event, false);
- 		mtk_crtc_ddp_config(crtc, cmdq_handle);
- 		cmdq_pkt_flush_async(cmdq_handle, ddp_cmdq_cb, cmdq_handle);
+diff --git a/drivers/soc/qcom/apr.c b/drivers/soc/qcom/apr.c
+index 1f35b097c6356..7abfc8c4fdc72 100644
+--- a/drivers/soc/qcom/apr.c
++++ b/drivers/soc/qcom/apr.c
+@@ -328,7 +328,7 @@ static int of_apr_add_pd_lookups(struct device *dev)
+ 
+ 		pds = pdr_add_lookup(apr->pdr, service_name, service_path);
+ 		if (IS_ERR(pds) && PTR_ERR(pds) != -EALREADY) {
+-			dev_err(dev, "pdr add lookup failed: %d\n", ret);
++			dev_err(dev, "pdr add lookup failed: %ld\n", PTR_ERR(pds));
+ 			return PTR_ERR(pds);
+ 		}
  	}
 -- 
 2.25.1
