@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C743C29B69B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A0F29B6E6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797337AbgJ0PW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37856 "EHLO mail.kernel.org"
+        id S368766AbgJ0P1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:27:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797332AbgJ0PW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:22:56 -0400
+        id S1797343AbgJ0PW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DE8F2064B;
-        Tue, 27 Oct 2020 15:22:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C3C2064B;
+        Tue, 27 Oct 2020 15:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812176;
-        bh=p7NNNZMBxNsyoTsqtcaif3w4G0jBrVdCgsFZHvNNmf0=;
+        s=default; t=1603812179;
+        bh=ZaVjIWVv8PtuZehReE4iWCq4c9wvjvXt8JCOgG+Mj0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQqlpaL7vRh0Lnrag6FISUB4gGsi8Mt3raPfwRv/OlJInTMWPo3d8E8wIeJ1F7Acs
-         gWGAeJnY3dRabZ9MEsviXPZygqNiLJyITP8vTp37tUzcWyexaeQW4pa2t1/ITQCQv4
-         yUb4xx4lLpLXoPPSMXbKVkt7TT29wBE3CTqYFzK8=
+        b=fZhSV21Vb7I6hQYx53A1c4wcE2cN5fjXs6wZI3+ZLwdBIPj1b2G3amQASzBbEYXS6
+         3FpZuzouU3An/f6jSiVpOKEg6Foc24kE6Rwh8CKmTK/8TP1pYP/l+NENwSBkIy3aeN
+         dWZmiSSIWhVxnrT0xp/0Nkd65RrAp6+p7mcNb7IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 119/757] crypto: algif_skcipher - EBUSY on aio should be an error
-Date:   Tue, 27 Oct 2020 14:46:09 +0100
-Message-Id: <20201027135456.158657092@linuxfoundation.org>
+Subject: [PATCH 5.9 120/757] crypto: mediatek - Fix wrong return value in mtk_desc_ring_alloc()
+Date:   Tue, 27 Oct 2020 14:46:10 +0100
+Message-Id: <20201027135456.206614356@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,35 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 2a05b029c1ee045b886ebf9efef9985ca23450de ]
+[ Upstream commit 8cbde6c6a6d2b1599ff90f932304aab7e32fce89 ]
 
-I removed the MAY_BACKLOG flag on the aio path a while ago but
-the error check still incorrectly interpreted EBUSY as success.
-This may cause the submitter to wait for a request that will never
-complete.
+In case of memory allocation failure, a negative error code should
+be returned.
 
-Fixes: dad419970637 ("crypto: algif_skcipher - Do not set...")
+Fixes: 785e5c616c849 ("crypto: mediatek - Add crypto driver support for some MediaTek chips")
+Cc: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algif_skcipher.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/mediatek/mtk-platform.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
-index 478f3b8f5bd52..ee8890ee8f332 100644
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -123,7 +123,7 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
- 			crypto_skcipher_decrypt(&areq->cra_u.skcipher_req);
+diff --git a/drivers/crypto/mediatek/mtk-platform.c b/drivers/crypto/mediatek/mtk-platform.c
+index 7e3ad085b5bdd..ef4339e84d034 100644
+--- a/drivers/crypto/mediatek/mtk-platform.c
++++ b/drivers/crypto/mediatek/mtk-platform.c
+@@ -442,7 +442,7 @@ static void mtk_desc_dma_free(struct mtk_cryp *cryp)
+ static int mtk_desc_ring_alloc(struct mtk_cryp *cryp)
+ {
+ 	struct mtk_ring **ring = cryp->ring;
+-	int i, err = ENOMEM;
++	int i;
  
- 		/* AIO operation in progress */
--		if (err == -EINPROGRESS || err == -EBUSY)
-+		if (err == -EINPROGRESS)
- 			return -EIOCBQUEUED;
+ 	for (i = 0; i < MTK_RING_MAX; i++) {
+ 		ring[i] = kzalloc(sizeof(**ring), GFP_KERNEL);
+@@ -476,7 +476,7 @@ static int mtk_desc_ring_alloc(struct mtk_cryp *cryp)
+ 				  ring[i]->cmd_base, ring[i]->cmd_dma);
+ 		kfree(ring[i]);
+ 	}
+-	return err;
++	return -ENOMEM;
+ }
  
- 		sock_put(sk);
+ static int mtk_crypto_probe(struct platform_device *pdev)
 -- 
 2.25.1
 
