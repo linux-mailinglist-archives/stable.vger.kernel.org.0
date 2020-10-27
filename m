@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4483C29C218
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6319929C260
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762290AbgJ0Rbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:31:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41438 "EHLO mail.kernel.org"
+        id S1762189AbgJ0Rbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750174AbgJ0Ol5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:41:57 -0400
+        id S2899416AbgJ0OmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46DC020773;
-        Tue, 27 Oct 2020 14:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1385420773;
+        Tue, 27 Oct 2020 14:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809716;
-        bh=IPQ6J/0Z68L7ldoHdUSr9CSyXHE5cjo8K1k/AFBW1tA=;
+        s=default; t=1603809719;
+        bh=95HFYb+janRGtB6F7zuGEo2ExcIBnvjQ2yxvuyWyvZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1oP/iIzzE6MTePxnAuRuDYaIOIf9HM6jZBy8/4K6/T5PqSm6RNj5TNZ9NIKuHRBF
-         lG2GhJDXQ+ycnyUjcjO4YA+T04f91Z7sYMGX6UusuXbw+Y9uAgcx9JHCdewfoA0g0e
-         8/7FMmnTRcZb3rH3nd4IQmBpKPa8mT/JjJL7e1PM=
+        b=A6ydMhLTbiuNq7TmyyzOQmB2mTYObSW99ZDLohpk69pt7LZmcXZ1aIBAIMLBjhlxI
+         zgTy/GS8FNsO2vyaPwKoFrhLjugtxrbIf0srSzRXXTIw9vq0towiPwLyuSjb/ApROE
+         Sy16FPCd/DPlQgzntG9ycTAreFqc6EJeX0kCcGdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 295/408] arm64: dts: meson: vim3: correct led polarity
-Date:   Tue, 27 Oct 2020 14:53:53 +0100
-Message-Id: <20201027135508.724445906@linuxfoundation.org>
+Subject: [PATCH 5.4 296/408] ARM: dts: imx6sl: fix rng node
+Date:   Tue, 27 Oct 2020 14:53:54 +0100
+Message-Id: <20201027135508.771652408@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,41 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit 1f9d87d08e4a2299e86f8a1600aedf87ecd3b636 ]
+[ Upstream commit 82ffb35c2ce63ef8e0325f75eb48022abcf8edbe ]
 
-The LEDs on the vim3 are active when the gpio is high, not low.
+rng DT node was added without a compatible string.
 
-Fixes: c6d29c66e582 ("arm64: dts: meson-g12b-khadas-vim3: add initial device-tree")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200803141850.172704-1-jbrunet@baylibre.com
+i.MX driver for RNGC (drivers/char/hw_random/imx-rngc.c) also claims
+support for RNGB, and is currently used for i.MX25.
+
+Let's use this driver also for RNGB block in i.MX6SL.
+
+Fixes: e29fe21cff96 ("ARM: dts: add device tree source for imx6sl SoC")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6sl.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-index 8647da7d6609b..f6694aad84db3 100644
---- a/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-khadas-vim3.dtsi
-@@ -43,13 +43,13 @@ leds {
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index 3a96b5538a2a1..540880f0413fd 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -936,8 +936,10 @@ memory-controller@21b0000 {
+ 			};
  
- 		white {
- 			label = "vim3:white:sys";
--			gpios = <&gpio_ao GPIOAO_4 GPIO_ACTIVE_LOW>;
-+			gpios = <&gpio_ao GPIOAO_4 GPIO_ACTIVE_HIGH>;
- 			linux,default-trigger = "heartbeat";
- 		};
+ 			rngb: rngb@21b4000 {
++				compatible = "fsl,imx6sl-rngb", "fsl,imx25-rngb";
+ 				reg = <0x021b4000 0x4000>;
+ 				interrupts = <0 5 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&clks IMX6SL_CLK_DUMMY>;
+ 			};
  
- 		red {
- 			label = "vim3:red";
--			gpios = <&gpio_expander 5 GPIO_ACTIVE_LOW>;
-+			gpios = <&gpio_expander 5 GPIO_ACTIVE_HIGH>;
- 		};
- 	};
- 
+ 			weim: weim@21b8000 {
 -- 
 2.25.1
 
