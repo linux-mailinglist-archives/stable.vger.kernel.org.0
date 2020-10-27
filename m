@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F0929C1F2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C7F29C445
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762234AbgJ0Ole (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40882 "EHLO mail.kernel.org"
+        id S2901321AbgJ0OWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762224AbgJ0Old (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:41:33 -0400
+        id S2901316AbgJ0OWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:22:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DFDA21D7B;
-        Tue, 27 Oct 2020 14:41:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19179206ED;
+        Tue, 27 Oct 2020 14:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809691;
-        bh=tIhuQwH7xnw1zH6uRoc74A1CX0+jdIg+BwCUhy5SXLs=;
+        s=default; t=1603808550;
+        bh=l0wlXzmt+brcohvnlZxCG4gHv9jy0GRR2wA79AH6/NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jF6j9y60bt/q0eqbskQnG8t4lgBW84V63QLeDp3T6Lc29oegz/iyjarFtNiv4z92
-         7CsgZuPx/l+FQ0PG86mRwQebOCbs536ZDoQB/PSmb0T/gAuGRrxbgmnRDzXWfDdH1h
-         UxXOkTLpWMzkBPknsS0+tpWTPXrvNTa0yArP8fWE=
+        b=0TLNFqg6mo+xqc4fTeq5yY3D7azZ3Y6l1yVPEkyq6Td9OFu/hB4NNCpnB0A8cvQHD
+         NM2t1wfGklilmrew2lssg8VsjpVhviPxEiy4ex99BkRrIUpCay4nlx6H8wi8lDeGyy
+         82OZEXkQ8iiaZHGtiaaIVqjunppEZNDmft/YolTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        SeongJae Park <sjpark@amazon.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 254/408] mm/page_owner: change split_page_owner to take a count
+Subject: [PATCH 4.19 134/264] RDMA/ucma: Add missing locking around rdma_leave_multicast()
 Date:   Tue, 27 Oct 2020 14:53:12 +0100
-Message-Id: <20201027135506.824352608@linuxfoundation.org>
+Message-Id: <20201027135436.980324055@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,104 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 8fb156c9ee2db94f7127c930c89917634a1a9f56 ]
+[ Upstream commit 38e03d092699891c3237b5aee9e8029d4ede0956 ]
 
-The implementation of split_page_owner() prefers a count rather than the
-old order of the page.  When we support a variable size THP, we won't
-have the order at this point, but we will have the number of pages.
-So change the interface to what the caller and callee would prefer.
+All entry points to the rdma_cm from a ULP must be single threaded,
+even this error unwinds. Add the missing locking.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: SeongJae Park <sjpark@amazon.de>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Link: https://lkml.kernel.org/r/20200908195539.25896-4-willy@infradead.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7c11910783a1 ("RDMA/ucma: Put a lock around every call to the rdma_cm layer")
+Link: https://lore.kernel.org/r/20200818120526.702120-11-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/page_owner.h | 6 +++---
- mm/huge_memory.c           | 2 +-
- mm/page_alloc.c            | 2 +-
- mm/page_owner.c            | 4 ++--
- 4 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/ucma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/page_owner.h b/include/linux/page_owner.h
-index 8679ccd722e89..3468794f83d23 100644
---- a/include/linux/page_owner.h
-+++ b/include/linux/page_owner.h
-@@ -11,7 +11,7 @@ extern struct page_ext_operations page_owner_ops;
- extern void __reset_page_owner(struct page *page, unsigned int order);
- extern void __set_page_owner(struct page *page,
- 			unsigned int order, gfp_t gfp_mask);
--extern void __split_page_owner(struct page *page, unsigned int order);
-+extern void __split_page_owner(struct page *page, unsigned int nr);
- extern void __copy_page_owner(struct page *oldpage, struct page *newpage);
- extern void __set_page_owner_migrate_reason(struct page *page, int reason);
- extern void __dump_page_owner(struct page *page);
-@@ -31,10 +31,10 @@ static inline void set_page_owner(struct page *page,
- 		__set_page_owner(page, order, gfp_mask);
- }
+diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
+index 0c095c8c0ac5b..01052de6bedbf 100644
+--- a/drivers/infiniband/core/ucma.c
++++ b/drivers/infiniband/core/ucma.c
+@@ -1476,7 +1476,9 @@ static ssize_t ucma_process_join(struct ucma_file *file,
+ 	return 0;
  
--static inline void split_page_owner(struct page *page, unsigned int order)
-+static inline void split_page_owner(struct page *page, unsigned int nr)
- {
- 	if (static_branch_unlikely(&page_owner_inited))
--		__split_page_owner(page, order);
-+		__split_page_owner(page, nr);
- }
- static inline void copy_page_owner(struct page *oldpage, struct page *newpage)
- {
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 873de55d93fb2..9295d9d70681e 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2569,7 +2569,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
- 
- 	ClearPageCompound(head);
- 
--	split_page_owner(head, HPAGE_PMD_ORDER);
-+	split_page_owner(head, HPAGE_PMD_NR);
- 
- 	/* See comment in __split_huge_page_tail() */
- 	if (PageAnon(head)) {
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 2640f67410044..c20e664866c33 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3130,7 +3130,7 @@ void split_page(struct page *page, unsigned int order)
- 
- 	for (i = 1; i < (1 << order); i++)
- 		set_page_refcounted(page + i);
--	split_page_owner(page, order);
-+	split_page_owner(page, 1 << order);
- }
- EXPORT_SYMBOL_GPL(split_page);
- 
-diff --git a/mm/page_owner.c b/mm/page_owner.c
-index 18ecde9f45b24..83d08943bcdee 100644
---- a/mm/page_owner.c
-+++ b/mm/page_owner.c
-@@ -204,7 +204,7 @@ void __set_page_owner_migrate_reason(struct page *page, int reason)
- 	page_owner->last_migrate_reason = reason;
- }
- 
--void __split_page_owner(struct page *page, unsigned int order)
-+void __split_page_owner(struct page *page, unsigned int nr)
- {
- 	int i;
- 	struct page_ext *page_ext = lookup_page_ext(page);
-@@ -213,7 +213,7 @@ void __split_page_owner(struct page *page, unsigned int order)
- 	if (unlikely(!page_ext))
- 		return;
- 
--	for (i = 0; i < (1 << order); i++) {
-+	for (i = 0; i < nr; i++) {
- 		page_owner = get_page_owner(page_ext);
- 		page_owner->order = 0;
- 		page_ext = page_ext_next(page_ext);
+ err3:
++	mutex_lock(&ctx->mutex);
+ 	rdma_leave_multicast(ctx->cm_id, (struct sockaddr *) &mc->addr);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_cleanup_mc_events(mc);
+ err2:
+ 	mutex_lock(&mut);
 -- 
 2.25.1
 
