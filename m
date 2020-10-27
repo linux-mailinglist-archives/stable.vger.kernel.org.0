@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC3729B16D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC18029B170
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759366AbgJ0O3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56222 "EHLO mail.kernel.org"
+        id S1759344AbgJ0O3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759362AbgJ0O3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:29:35 -0400
+        id S1759370AbgJ0O3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:29:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A09D2222C;
-        Tue, 27 Oct 2020 14:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF0B620754;
+        Tue, 27 Oct 2020 14:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808974;
-        bh=hMMjolOHhezTfEboHVT4V0QWkMrOOg2PC5xiFDOy9FI=;
+        s=default; t=1603808977;
+        bh=DXF48mq6FhP6yJuUDLkahPrjOE9J5yn6xuCS9tNPWvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6P4HF9QKkwzjyG4HvRNfc/djO+Th+QnqVwCLo16mUjTZ66JKwN9bR9eMOFbq1Ekl
-         cvnzRfIQh+GVglTPVv1k9UxHgHcgxmeUdtcz1uHNZjVq+k6n1cOCUzw7wR6eWFkKn7
-         IQBykfKTDQt+W6PsDrDiAxaX03Q2S2a2tbzK5dBo=
+        b=NbB6Mw4jpZ/zSddV2Y9NztXujU2oZaQ1Wws9JXlMtF6RO8SZRjqTyjmCDLBSubbdV
+         FD+kf5RExYnNkTaUfY23HqJe3q6aIVZnI49RfZpyr/24Sm49xz/OPX6soIIE7lnLZX
+         46zko75PICSehXw3JiHxYZcKM+7Ko19aifATfwRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        Krzysztof Halasa <khc@pm.waw.pl>,
         Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 030/408] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
-Date:   Tue, 27 Oct 2020 14:49:28 +0100
-Message-Id: <20201027135456.463019511@linuxfoundation.org>
+Subject: [PATCH 5.4 031/408] net: hdlc_raw_eth: Clear the IFF_TX_SKB_SHARING flag after calling ether_setup
+Date:   Tue, 27 Oct 2020 14:49:29 +0100
+Message-Id: <20201027135456.513238594@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,54 +46,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
+[ Upstream commit 5fce1e43e2d5bf2f7e3224d7b99b1c65ab2c26e2 ]
 
-The hdlc_rcv function is used as hdlc_packet_type.func to process any
-skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
-The purpose of this function is to provide second-stage processing for
-skbs not assigned a "real" L3 skb->protocol value in the first stage.
+This driver calls ether_setup to set up the network device.
+The ether_setup function would add the IFF_TX_SKB_SHARING flag to the
+device. This flag indicates that it is safe to transmit shared skbs to
+the device.
 
-This function assumes the device from which the skb is received is an
-HDLC device (a device created by this module). It assumes that
-netdev_priv(dev) returns a pointer to "struct hdlc_device".
+However, this is not true. This driver may pad the frame (in eth_tx)
+before transmission, so the skb may be modified.
 
-However, it is possible that some driver in the kernel (not necessarily
-in our control) submits a received skb with skb->protocol ==
-htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
-still be received by hdlc_rcv. This will cause problems.
-
-hdlc_rcv should be able to recognize and drop invalid skbs. It should
-first make sure "dev" is actually an HDLC device, before starting its
-processing. This patch adds this check to hdlc_rcv.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 550fd08c2ceb ("net: Audit drivers to identify those needing IFF_TX_SKB_SHARING cleared")
+Cc: Neil Horman <nhorman@tuxdriver.com>
 Cc: Krzysztof Halasa <khc@pm.waw.pl>
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
+Link: https://lore.kernel.org/r/20201020063420.187497-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wan/hdlc_raw_eth.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wan/hdlc.c
-+++ b/drivers/net/wan/hdlc.c
-@@ -46,7 +46,15 @@ static struct hdlc_proto *first_proto;
- static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
- 		    struct packet_type *p, struct net_device *orig_dev)
- {
--	struct hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct hdlc_device *hdlc;
-+
-+	/* First make sure "dev" is an HDLC device */
-+	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
-+		kfree_skb(skb);
-+		return NET_RX_SUCCESS;
-+	}
-+
-+	hdlc = dev_to_hdlc(dev);
- 
- 	if (!net_eq(dev_net(dev), &init_net)) {
- 		kfree_skb(skb);
+--- a/drivers/net/wan/hdlc_raw_eth.c
++++ b/drivers/net/wan/hdlc_raw_eth.c
+@@ -99,6 +99,7 @@ static int raw_eth_ioctl(struct net_devi
+ 		old_qlen = dev->tx_queue_len;
+ 		ether_setup(dev);
+ 		dev->tx_queue_len = old_qlen;
++		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 		eth_hw_addr_random(dev);
+ 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
+ 		netif_dormant_off(dev);
 
 
