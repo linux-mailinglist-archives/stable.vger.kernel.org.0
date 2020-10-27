@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3189829B687
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D9829B700
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796973AbgJ0PUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:20:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35374 "EHLO mail.kernel.org"
+        id S1798523AbgJ0P2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796970AbgJ0PUx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:53 -0400
+        id S1796987AbgJ0PU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8157121527;
-        Tue, 27 Oct 2020 15:20:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 437A12064B;
+        Tue, 27 Oct 2020 15:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812052;
-        bh=SDI7Zs8yVn9f+DJW/cqVTaPPvA7pBlO9lOOD5Mmkk+8=;
+        s=default; t=1603812058;
+        bh=bYNbhbqM39yeoVrh7stHZh+bz3NNfwEA99baQdTdKyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJpy8Vi8HfKvhmPyP3az28KX8TefLhGF95xqdL19ds3Ixv3hX3ZhJxE5tBVEY5m3B
-         lJSL8AijiyiuoB0cWgnvVFDC1Ylae+e//u2brBRa/fM8MCche1Gxw/hGfwAGxJ2bp7
-         cKOLxw/hQI14qqZBnT3beIXMfuyZC556P8oZIaKU=
+        b=dcTtiVEkNOkxwvNBXSnaJdwjS4/pY0oE5zCnBtDGStSY7mUf8V0LEphwiS568eTos
+         k007vhmy6nXP7cFJ9c/1tyn/hMltI7D61VyG/QqD90V7tMe56wtOYvx/gZHzB0I/eA
+         xEecuAVfTdCjLZJfaCO3gv68wdnGwtXZqesXU4Lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        David Ahern <dsahern@gmail.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 045/757] net/sched: act_tunnel_key: fix OOB write in case of IPv6 ERSPAN tunnels
-Date:   Tue, 27 Oct 2020 14:44:55 +0100
-Message-Id: <20201027135452.647472704@linuxfoundation.org>
+Subject: [PATCH 5.9 047/757] nexthop: Fix performance regression in nexthop deletion
+Date:   Tue, 27 Oct 2020 14:44:57 +0100
+Message-Id: <20201027135452.747433967@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,121 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit a7a12b5a0f950bc6b9f7153390634ea798738db9 ]
+[ Upstream commit df6afe2f7c19349de2ee560dc62ea4d9ad3ff889 ]
 
-the following command
+While insertion of 16k nexthops all using the same netdev ('dummy10')
+takes less than a second, deletion takes about 130 seconds:
 
- # tc action add action tunnel_key \
- > set src_ip 2001:db8::1 dst_ip 2001:db8::2 id 10 erspan_opts 1:6789:0:0
+# time -p ip -b nexthop.batch
+real 0.29
+user 0.01
+sys 0.15
 
-generates the following splat:
+# time -p ip link set dev dummy10 down
+real 131.03
+user 0.06
+sys 0.52
 
- BUG: KASAN: slab-out-of-bounds in tunnel_key_copy_opts+0xcc9/0x1010 [act_tunnel_key]
- Write of size 4 at addr ffff88813f5f1cc8 by task tc/873
+This is because of repeated calls to synchronize_rcu() whenever a
+nexthop is removed from a nexthop group:
 
- CPU: 2 PID: 873 Comm: tc Not tainted 5.9.0+ #282
- Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
- Call Trace:
-  dump_stack+0x99/0xcb
-  print_address_description.constprop.7+0x1e/0x230
-  kasan_report.cold.13+0x37/0x7c
-  tunnel_key_copy_opts+0xcc9/0x1010 [act_tunnel_key]
-  tunnel_key_init+0x160c/0x1f40 [act_tunnel_key]
-  tcf_action_init_1+0x5b5/0x850
-  tcf_action_init+0x15d/0x370
-  tcf_action_add+0xd9/0x2f0
-  tc_ctl_action+0x29b/0x3a0
-  rtnetlink_rcv_msg+0x341/0x8d0
-  netlink_rcv_skb+0x120/0x380
-  netlink_unicast+0x439/0x630
-  netlink_sendmsg+0x719/0xbf0
-  sock_sendmsg+0xe2/0x110
-  ____sys_sendmsg+0x5ba/0x890
-  ___sys_sendmsg+0xe9/0x160
-  __sys_sendmsg+0xd3/0x170
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7f872a96b338
- Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
- RSP: 002b:00007ffffe367518 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 000000005f8f5aed RCX: 00007f872a96b338
- RDX: 0000000000000000 RSI: 00007ffffe367580 RDI: 0000000000000003
- RBP: 0000000000000000 R08: 0000000000000001 R09: 000000000000001c
- R10: 000000000000000b R11: 0000000000000246 R12: 0000000000000001
- R13: 0000000000686760 R14: 0000000000000601 R15: 0000000000000000
+# /usr/share/bcc/tools/offcputime -p `pgrep -nx ip` -K
+...
+    b'finish_task_switch'
+    b'schedule'
+    b'schedule_timeout'
+    b'wait_for_completion'
+    b'__wait_rcu_gp'
+    b'synchronize_rcu.part.0'
+    b'synchronize_rcu'
+    b'__remove_nexthop'
+    b'remove_nexthop'
+    b'nexthop_flush_dev'
+    b'nh_netdev_event'
+    b'raw_notifier_call_chain'
+    b'call_netdevice_notifiers_info'
+    b'__dev_notify_flags'
+    b'dev_change_flags'
+    b'do_setlink'
+    b'__rtnl_newlink'
+    b'rtnl_newlink'
+    b'rtnetlink_rcv_msg'
+    b'netlink_rcv_skb'
+    b'rtnetlink_rcv'
+    b'netlink_unicast'
+    b'netlink_sendmsg'
+    b'____sys_sendmsg'
+    b'___sys_sendmsg'
+    b'__sys_sendmsg'
+    b'__x64_sys_sendmsg'
+    b'do_syscall_64'
+    b'entry_SYSCALL_64_after_hwframe'
+    -                ip (277)
+        126554955
 
- Allocated by task 873:
-  kasan_save_stack+0x19/0x40
-  __kasan_kmalloc.constprop.7+0xc1/0xd0
-  __kmalloc+0x151/0x310
-  metadata_dst_alloc+0x20/0x40
-  tunnel_key_init+0xfff/0x1f40 [act_tunnel_key]
-  tcf_action_init_1+0x5b5/0x850
-  tcf_action_init+0x15d/0x370
-  tcf_action_add+0xd9/0x2f0
-  tc_ctl_action+0x29b/0x3a0
-  rtnetlink_rcv_msg+0x341/0x8d0
-  netlink_rcv_skb+0x120/0x380
-  netlink_unicast+0x439/0x630
-  netlink_sendmsg+0x719/0xbf0
-  sock_sendmsg+0xe2/0x110
-  ____sys_sendmsg+0x5ba/0x890
-  ___sys_sendmsg+0xe9/0x160
-  __sys_sendmsg+0xd3/0x170
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Since nexthops are always deleted under RTNL, synchronize_net() can be
+used instead. It will call synchronize_rcu_expedited() which only blocks
+for several microseconds as opposed to multiple milliseconds like
+synchronize_rcu().
 
- The buggy address belongs to the object at ffff88813f5f1c00
-  which belongs to the cache kmalloc-256 of size 256
- The buggy address is located 200 bytes inside of
-  256-byte region [ffff88813f5f1c00, ffff88813f5f1d00)
- The buggy address belongs to the page:
- page:0000000011b48a19 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x13f5f0
- head:0000000011b48a19 order:1 compound_mapcount:0
- flags: 0x17ffffc0010200(slab|head)
- raw: 0017ffffc0010200 0000000000000000 0000000d00000001 ffff888107c43400
- raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
+With this patch deletion of 16k nexthops takes less than a second:
 
- Memory state around the buggy address:
-  ffff88813f5f1b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff88813f5f1c00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- >ffff88813f5f1c80: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
-                                               ^
-  ffff88813f5f1d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff88813f5f1d80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+# time -p ip link set dev dummy10 down
+real 0.12
+user 0.00
+sys 0.04
 
-using IPv6 tunnels, act_tunnel_key allocates a fixed amount of memory for
-the tunnel metadata, but then it expects additional bytes to store tunnel
-specific metadata with tunnel_key_copy_opts().
+Tested with fib_nexthops.sh which includes torture tests that prompted
+the initial change:
 
-Fix the arguments of __ipv6_tun_set_dst(), so that 'md_size' contains the
-size previously computed by tunnel_key_get_opts_len(), like it's done for
-IPv4 tunnels.
+# ./fib_nexthops.sh
+...
+Tests passed: 134
+Tests failed:   0
 
-Fixes: 0ed5269f9e41 ("net/sched: add tunnel option support to act_tunnel_key")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Link: https://lore.kernel.org/r/36ebe969f6d13ff59912d6464a4356fe6f103766.1603231100.git.dcaratti@redhat.com
+Fixes: 90f33bffa382 ("nexthops: don't modify published nexthop groups")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20201016172914.643282-1-idosch@idosch.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_tunnel_key.c |    2 +-
+ net/ipv4/nexthop.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/act_tunnel_key.c
-+++ b/net/sched/act_tunnel_key.c
-@@ -459,7 +459,7 @@ static int tunnel_key_init(struct net *n
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -842,7 +842,7 @@ static void remove_nexthop_from_groups(s
+ 		remove_nh_grp_entry(net, nhge, nlinfo);
  
- 			metadata = __ipv6_tun_set_dst(&saddr, &daddr, tos, ttl, dst_port,
- 						      0, flags,
--						      key_id, 0);
-+						      key_id, opts_len);
- 		} else {
- 			NL_SET_ERR_MSG(extack, "Missing either ipv4 or ipv6 src and dst");
- 			ret = -EINVAL;
+ 	/* make sure all see the newly published array before releasing rtnl */
+-	synchronize_rcu();
++	synchronize_net();
+ }
+ 
+ static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
 
 
