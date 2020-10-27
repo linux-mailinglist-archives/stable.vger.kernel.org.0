@@ -2,70 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA2329B13E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4035829B09A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901857AbgJ0O2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54490 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759181AbgJ0O2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:28:12 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D14220754;
-        Tue, 27 Oct 2020 14:28:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808891;
-        bh=Ndvajv7/az6UWkd/DmI6idAGK3bclTCf9c6SNZcMMeY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpEzQxVaWx9JmwbqMspbkl9Orh/8Bxfz1LdJ/JERo3ZOpbNC1+6os+j18iM7yo0g3
-         cZEVZIBPDXvp/jgLZs/NM2aP3+uNg9GcWtGMwBqNMfREvMDw9eBx9VHfjso3upysx3
-         6AxQgdqUE3QVJ92lacjwhQ5qj5db+0xxg5fXDZvU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>
-Subject: [PATCH 4.19 263/264] eeprom: at25: set minimum read/write access stride to 1
-Date:   Tue, 27 Oct 2020 14:55:21 +0100
-Message-Id: <20201027135443.001416611@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1757250AbgJ0OV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:21:27 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:59162 "EHLO
+        mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S460200AbgJ0OV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 10:21:26 -0400
+Received: from relay7-d.mail.gandi.net (unknown [217.70.183.200])
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id 6CB423A7CEE
+        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 14:02:49 +0000 (UTC)
+X-Originating-IP: 82.255.60.242
+Received: from [192.168.0.28] (lns-bzn-39-82-255-60-242.adsl.proxad.net [82.255.60.242])
+        (Authenticated sender: hadess@hadess.net)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 76F292000A;
+        Tue, 27 Oct 2020 14:02:23 +0000 (UTC)
+Message-ID: <4f367aba2f43b5e3807e0b01a5375e4a024ce765.camel@hadess.net>
+Subject: Re: [PATCH 1/2] usbcore: Check both id_table and match() when both
+ available
+From:   Bastien Nocera <hadess@hadess.net>
+To:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Date:   Tue, 27 Oct 2020 15:02:22 +0100
+In-Reply-To: <20201022135521.375211-2-m.v.b@runbox.com>
+References: <4cc0e162-c607-3fdf-30c9-1b3a77f6cf20@runbox.com>
+         <20201022135521.375211-1-m.v.b@runbox.com>
+         <20201022135521.375211-2-m.v.b@runbox.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.1 (3.38.1-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+On Thu, 2020-10-22 at 09:55 -0400, M. Vefa Bicakci wrote:
+> From: Bastien Nocera <hadess@hadess.net>
+> 
+> From: Bastien Nocera <hadess@hadess.net>
+> 
+> When a USB device driver has both an id_table and a match() function,
+> make
+> sure to check both to find a match, first matching the id_table, then
+> checking the match() function.
+> 
+> This makes it possible to have module autoloading done through the
+> id_table when devices are plugged in, before checking for further
+> device eligibility in the match() function.
+> 
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Cc: <stable@vger.kernel.org> # 5.8
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Alan Stern <stern@rowland.harvard.edu>
+> Co-developed-by: M. Vefa Bicakci <m.v.b@runbox.com>
+> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
 
-commit 284f52ac1c6cfa1b2e5c11b84653dd90e4e91de7 upstream.
-
-SPI eeproms are addressed by byte.
-
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200728092959.24600-1-ceggers@arri.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/misc/eeprom/at25.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -362,7 +362,7 @@ static int at25_probe(struct spi_device
- 	at25->nvmem_config.reg_read = at25_ee_read;
- 	at25->nvmem_config.reg_write = at25_ee_write;
- 	at25->nvmem_config.priv = at25;
--	at25->nvmem_config.stride = 4;
-+	at25->nvmem_config.stride = 1;
- 	at25->nvmem_config.word_size = 1;
- 	at25->nvmem_config.size = chip.byte_len;
- 
-
+You can also add my:
+Tested-by: Bastien Nocera <hadess@hadess.net>
 
