@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079A729B979
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF1829BA23
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802511AbgJ0Ptw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52894 "EHLO mail.kernel.org"
+        id S1783588AbgJ0P5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:57:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796264AbgJ0PQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:16:19 -0400
+        id S1802817AbgJ0Pvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:51:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CBA22224A;
-        Tue, 27 Oct 2020 15:16:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CB78207C3;
+        Tue, 27 Oct 2020 15:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811779;
-        bh=+4Rvx/4igygj3eEWflGXS7nSIwGctC1nLqeaaOxGn98=;
+        s=default; t=1603813897;
+        bh=DQjGKbpQTULMZhHuUu2Ys3nYEbPtZNpbo/JbdCotYps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcglUcruZAabHJcEHe8VWtq9tt6dsP2O9Xa8MCwZYdra1mNv6qjBoRPfS+dbIwW5Z
-         clkSnmYesvwhf3FwrrIhWlFFkrvF0ccrQmuKLu+12TXG4pVgfk6/5gATOLC2eGh2Le
-         0c27JEKbeue0CnAswgraie5TZO1Ty4LQWfpU/F9Q=
+        b=Ud85NeXij8+7fecF6/XV9Y7XMLUeWcBE263c+xRaAySYuBovADPMEtt7vXGnAVHKM
+         wE+RGx+83kAUNXKYY/6XWE5tHOAF4xPh99nakugTAsUP1DPfoePSkt8gTuRDHzFF7O
+         XeNO03clqBVBu99sjEL9d9V4uu+cq+3Q9FN7gbWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 612/633] ALSA: hda/ca0132 - Add AE-7 microphone selection commands.
-Date:   Tue, 27 Oct 2020 14:55:55 +0100
-Message-Id: <20201027135551.537244004@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 706/757] xfs: make sure the rt allocator doesnt run off the end
+Date:   Tue, 27 Oct 2020 14:55:56 +0100
+Message-Id: <20201027135523.621223082@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor McAdams <conmanx360@gmail.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit ed93f9750c6c2ed371347d0aac3dcd31cb9cf256 ]
+[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
 
-Add AE-7 quirk data for setting of microphone. The AE-7 has no front
-panel connector, so only rear-mic/line-in have new commands.
+There's an overflow bug in the realtime allocator.  If the rt volume is
+large enough to handle a single allocation request that is larger than
+the maximum bmap extent length and the rt bitmap ends exactly on a
+bitmap block boundary, it's possible that the near allocator will try to
+check the freeness of a range that extends past the end of the bitmap.
+This fails with a corruption error and shuts down the fs.
 
-Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Link: https://lore.kernel.org/r/20200825201040.30339-19-conmanx360@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Therefore, constrain maxlen so that the range scan cannot run off the
+end of the rt bitmap.
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_rtalloc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 6dfa864d3fe7b..62a9be5b827eb 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -4675,6 +4675,15 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
- 			tmp = FLOAT_THREE;
- 			break;
-+		case QUIRK_AE7:
-+			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
-+			tmp = FLOAT_THREE;
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
-+					SR_96_000);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
-+					SR_96_000);
-+			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
-+			break;
- 		default:
- 			tmp = FLOAT_ONE;
- 			break;
-@@ -4720,6 +4729,14 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 		case QUIRK_AE5:
- 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
- 			break;
-+		case QUIRK_AE7:
-+			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x3f);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
-+					SR_96_000);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
-+					SR_96_000);
-+			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -4729,7 +4746,10 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 		if (ca0132_quirk(spec) == QUIRK_R3DI)
- 			chipio_set_conn_rate(codec, 0x0F, SR_96_000);
- 
--		tmp = FLOAT_ZERO;
-+		if (ca0132_quirk(spec) == QUIRK_AE7)
-+			tmp = FLOAT_THREE;
-+		else
-+			tmp = FLOAT_ZERO;
- 		dspio_set_uint_param(codec, 0x80, 0x00, tmp);
- 
- 		switch (ca0132_quirk(spec)) {
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 6209e7b6b895b..86994d7f7cba3 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -247,6 +247,9 @@ xfs_rtallocate_extent_block(
+ 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
+ 	     i <= end;
+ 	     i++) {
++		/* Make sure we don't scan off the end of the rt volume. */
++		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
++
+ 		/*
+ 		 * See if there's a free extent of maxlen starting at i.
+ 		 * If it's not so then next will contain the first non-free.
+@@ -442,6 +445,14 @@ xfs_rtallocate_extent_near(
+ 	 */
+ 	if (bno >= mp->m_sb.sb_rextents)
+ 		bno = mp->m_sb.sb_rextents - 1;
++
++	/* Make sure we don't run off the end of the rt volume. */
++	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
++	if (maxlen < minlen) {
++		*rtblock = NULLRTBLOCK;
++		return 0;
++	}
++
+ 	/*
+ 	 * Try the exact allocation first.
+ 	 */
 -- 
 2.25.1
 
