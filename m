@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF2329BEA1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5F429BCB5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1813681AbgJ0Qx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:53:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49248 "EHLO mail.kernel.org"
+        id S1811011AbgJ0Qgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794625AbgJ0PMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:12:44 -0400
+        id S1766397AbgJ0Prv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:47:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B44BE2071A;
-        Tue, 27 Oct 2020 15:12:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D85204EF;
+        Tue, 27 Oct 2020 15:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811563;
-        bh=Buv2dVNq0Tkli/0x+OUC2acHwZGGA/Z5YDjL+nyPK8I=;
+        s=default; t=1603813670;
+        bh=t68tp8bSwHQXP2i7QZUSWg0VOmCsE5Ba5w1WVPnpz4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWQyjRCcVb04RGjb7UJjCcq8IXJSKt5W7UH7GQ4oFy9x4AlaN2L0cAun0SKItvJJP
-         KMKxHhwW3rbzSdjVBvI/OsFTnIgzeqthGkktl5emZBFTzS/mM/89GOVXipYrVkg0jH
-         EyUYMsJcofQvzYU+HSb1Op6fAI3jvLycS4jwtfeY=
+        b=CdunPZjPN0XLwZ3hE7Wp8Mvqeh6OUEWSAvzRH0PuevJ+HmTfinJYPCTKEn/aNK+IC
+         U9guwrGeX7U99y+UUeEb23uqgjNG/9u4jvNBqMkW4sUPr3OITGvmYsAbD60QRZglkm
+         qndyO8sJbo1ZpZD1J77q4rE+fPMYVf5te/A8Wfk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Jordan Niethe <jniethe5@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 537/633] media: exynos4-is: Fix several reference count leaks due to pm_runtime_get_sync
+Subject: [PATCH 5.9 630/757] powerpc/64s: Remove TM from Power10 features
 Date:   Tue, 27 Oct 2020 14:54:40 +0100
-Message-Id: <20201027135547.980556644@linuxfoundation.org>
+Message-Id: <20201027135520.095060879@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Jordan Niethe <jniethe5@gmail.com>
 
-[ Upstream commit 7ef64ceea0008c17e94a8a2c60c5d6d46f481996 ]
+[ Upstream commit ec613a57fa1d57381f890c3166175fe68cf43f12 ]
 
-On calling pm_runtime_get_sync() the reference count of the device
-is incremented. In case of failure, decrement the
-reference count before returning the error.
+ISA v3.1 removes transactional memory and hence it should not be present
+in cpu_features or cpu_user_features2. Remove CPU_FTR_TM_COMP from
+CPU_FTRS_POWER10. Remove PPC_FEATURE2_HTM_COMP and
+PPC_FEATURE2_HTM_NOSC_COMP from COMMON_USER2_POWER10.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: a3ea40d5c736 ("powerpc: Add POWER10 architected mode")
+Signed-off-by: Jordan Niethe <jniethe5@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200827035529.900-1-jniethe5@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-isp.c  | 4 +++-
- drivers/media/platform/exynos4-is/fimc-lite.c | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/cputable.h |  2 +-
+ arch/powerpc/kernel/cputable.c      | 13 ++++++++++---
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-isp.c b/drivers/media/platform/exynos4-is/fimc-isp.c
-index cde0d254ec1c4..a77c49b185115 100644
---- a/drivers/media/platform/exynos4-is/fimc-isp.c
-+++ b/drivers/media/platform/exynos4-is/fimc-isp.c
-@@ -305,8 +305,10 @@ static int fimc_isp_subdev_s_power(struct v4l2_subdev *sd, int on)
+diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
+index 32a15dc49e8ca..ade681c1d4095 100644
+--- a/arch/powerpc/include/asm/cputable.h
++++ b/arch/powerpc/include/asm/cputable.h
+@@ -483,7 +483,7 @@ static inline void cpu_feature_keys_init(void) { }
+ 	    CPU_FTR_STCX_CHECKS_ADDRESS | CPU_FTR_POPCNTB | CPU_FTR_POPCNTD | \
+ 	    CPU_FTR_CFAR | CPU_FTR_HVMODE | CPU_FTR_VMX_COPY | \
+ 	    CPU_FTR_DBELL | CPU_FTR_HAS_PPR | CPU_FTR_ARCH_207S | \
+-	    CPU_FTR_TM_COMP | CPU_FTR_ARCH_300 | CPU_FTR_ARCH_31 | \
++	    CPU_FTR_ARCH_300 | CPU_FTR_ARCH_31 | \
+ 	    CPU_FTR_DAWR | CPU_FTR_DAWR1)
+ #define CPU_FTRS_CELL	(CPU_FTR_LWSYNC | \
+ 	    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_CTRL | \
+diff --git a/arch/powerpc/kernel/cputable.c b/arch/powerpc/kernel/cputable.c
+index 2aa89c6b28967..0d704f1e07739 100644
+--- a/arch/powerpc/kernel/cputable.c
++++ b/arch/powerpc/kernel/cputable.c
+@@ -120,9 +120,16 @@ extern void __restore_cpu_e6500(void);
+ 				 PPC_FEATURE2_DARN | \
+ 				 PPC_FEATURE2_SCV)
+ #define COMMON_USER_POWER10	COMMON_USER_POWER9
+-#define COMMON_USER2_POWER10	(COMMON_USER2_POWER9 | \
+-				 PPC_FEATURE2_ARCH_3_1 | \
+-				 PPC_FEATURE2_MMA)
++#define COMMON_USER2_POWER10	(PPC_FEATURE2_ARCH_3_1 | \
++				 PPC_FEATURE2_MMA | \
++				 PPC_FEATURE2_ARCH_3_00 | \
++				 PPC_FEATURE2_HAS_IEEE128 | \
++				 PPC_FEATURE2_DARN | \
++				 PPC_FEATURE2_SCV | \
++				 PPC_FEATURE2_ARCH_2_07 | \
++				 PPC_FEATURE2_DSCR | \
++				 PPC_FEATURE2_ISEL | PPC_FEATURE2_TAR | \
++				 PPC_FEATURE2_VEC_CRYPTO)
  
- 	if (on) {
- 		ret = pm_runtime_get_sync(&is->pdev->dev);
--		if (ret < 0)
-+		if (ret < 0) {
-+			pm_runtime_put(&is->pdev->dev);
- 			return ret;
-+		}
- 		set_bit(IS_ST_PWR_ON, &is->state);
- 
- 		ret = fimc_is_start_firmware(is);
-diff --git a/drivers/media/platform/exynos4-is/fimc-lite.c b/drivers/media/platform/exynos4-is/fimc-lite.c
-index 394e0818f2d5c..92130d7791378 100644
---- a/drivers/media/platform/exynos4-is/fimc-lite.c
-+++ b/drivers/media/platform/exynos4-is/fimc-lite.c
-@@ -470,7 +470,7 @@ static int fimc_lite_open(struct file *file)
- 	set_bit(ST_FLITE_IN_USE, &fimc->state);
- 	ret = pm_runtime_get_sync(&fimc->pdev->dev);
- 	if (ret < 0)
--		goto unlock;
-+		goto err_pm;
- 
- 	ret = v4l2_fh_open(file);
- 	if (ret < 0)
+ #ifdef CONFIG_PPC_BOOK3E_64
+ #define COMMON_USER_BOOKE	(COMMON_USER_PPC64 | PPC_FEATURE_BOOKE)
 -- 
 2.25.1
 
