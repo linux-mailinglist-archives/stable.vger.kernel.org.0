@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBFB629B59B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C2129B59E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794797AbgJ0PNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50424 "EHLO mail.kernel.org"
+        id S1794812AbgJ0PNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794794AbgJ0PNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:13:38 -0400
+        id S1794806AbgJ0PNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E86620728;
-        Tue, 27 Oct 2020 15:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC04920728;
+        Tue, 27 Oct 2020 15:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811616;
-        bh=v1Z+kyM00XJqxJX/GQ2PGnu5D3WwgfqCSvSBlCHzPZw=;
+        s=default; t=1603811622;
+        bh=0Si8sYFictuo/anSAUU6Sehfcghwz4mryykeuuymkMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hy+2q2leV0rVsVwtzAsjennezfifGxKxyZzJrgEqQM1Uw1KiQkNMqaIh7EyOXhZ4P
-         bb6NEN+nAo2qYu4kVVQNQHg/UP2OxjG7YA9hBWKk9dhNBW/xblgg9LfVeHUWQa5qDm
-         OzsY680IUUHmS5WQLxBY4KO3SJmESD8Ozjx87DVA=
+        b=wuo+AquBJ+NHP/k5UiUMkmr8vsPyekCVxFxovOb2OgCsdxo4mcJjLnirrs9m4xj2s
+         s5Wy+H4arAu98YMqG8+sTRST0DmFviZTujPZXbNAthKSbsCQ+RrDnHsN5skvYKvzWU
+         F92r3yJqy4wvngasDHzZoOTtkZFm9LuuJzcqWelg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 557/633] ntfs: add check for mft record size in superblock
-Date:   Tue, 27 Oct 2020 14:55:00 +0100
-Message-Id: <20201027135548.941425792@linuxfoundation.org>
+Subject: [PATCH 5.8 559/633] mac80211: handle lack of sband->bitrates in rates
+Date:   Tue, 27 Oct 2020 14:55:02 +0100
+Message-Id: <20201027135549.029851608@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,44 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Thomas Pedersen <thomas@adapt-ip.com>
 
-[ Upstream commit 4f8c94022f0bc3babd0a124c0a7dcdd7547bd94e ]
+[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
 
-Number of bytes allocated for mft record should be equal to the mft record
-size stored in ntfs superblock as reported by syzbot, userspace might
-trigger out-of-bounds read by dereferencing ctx->attr in ntfs_attr_find()
+Even though a driver or mac80211 shouldn't produce a
+legacy bitrate if sband->bitrates doesn't exist, don't
+crash if that is the case either.
 
-Reported-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+aed06913f36eff9b544e@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Link: https://syzkaller.appspot.com/bug?extid=aed06913f36eff9b544e
-Link: https://lkml.kernel.org/r/20200824022804.226242-1-rkovhaev@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This fixes a kernel panic if station dump is run before
+last_rate can be updated with a data frame when
+sband->bitrates is missing (eg. in S1G bands).
+
+Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
+Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/mac80211/cfg.c      | 3 ++-
+ net/mac80211/sta_info.c | 4 ++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index d4359a1df3d5e..84933a0af49b6 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1809,6 +1809,12 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		brelse(bh);
- 	}
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 1079a07e43e49..d74cfec685477 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -709,7 +709,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
+ 		u16 brate;
  
-+	if (le32_to_cpu(m->bytes_allocated) != vol->mft_record_size) {
-+		ntfs_error(sb, "Incorrect mft record size %u in superblock, should be %u.",
-+				le32_to_cpu(m->bytes_allocated), vol->mft_record_size);
-+		goto err_out;
-+	}
+ 		sband = ieee80211_get_sband(sta->sdata);
+-		if (sband) {
++		WARN_ON_ONCE(sband && !sband->bitrates);
++		if (sband && sband->bitrates) {
+ 			brate = sband->bitrates[rate->idx].bitrate;
+ 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
+ 		}
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 05e966f1609e2..b93916c382cdb 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2122,6 +2122,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
+ 		int rate_idx = STA_STATS_GET(LEGACY_IDX, rate);
+ 
+ 		sband = local->hw.wiphy->bands[band];
 +
- 	/* Apply the mst fixups. */
- 	if (post_read_mst_fixup((NTFS_RECORD*)m, vol->mft_record_size)) {
- 		/* FIXME: Try to use the $MFTMirr now. */
++		if (WARN_ON_ONCE(!sband->bitrates))
++			break;
++
+ 		brate = sband->bitrates[rate_idx].bitrate;
+ 		if (rinfo->bw == RATE_INFO_BW_5)
+ 			shift = 2;
 -- 
 2.25.1
 
