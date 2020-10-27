@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C991F29B886
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4519229B889
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1801511AbgJ0Plc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53156 "EHLO mail.kernel.org"
+        id S1797593AbgJ0Plg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800070AbgJ0Peq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:34:46 -0400
+        id S1800078AbgJ0Pet (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:34:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 514192225E;
-        Tue, 27 Oct 2020 15:34:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4910F22275;
+        Tue, 27 Oct 2020 15:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812886;
-        bh=nnr1AyQR2Bgi+4JHwZOaJxpk6wMRuXzlbIHC56ihTXQ=;
+        s=default; t=1603812889;
+        bh=/tjv9XXeftNbeS+TgYPo9QlogmLSUzz/8u5bVbnUNPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUmWgaUo6Di6YDIguhs5WpYL82A9al67ZVKN2FH05sWYE/v1mBElct63WM/T2fRQj
-         H81mxMIRHvIX4/FMXnZGF39mo9RfaLbiecKoQWyuHyR2pT+3vHJExe9Uzjjim08LS9
-         CLYIy9rn1VP742rQBc88jbnsq/B6ZHv0FOxt0VvE=
+        b=WqKzrRuxDuQYIhN4uGY1Wk2N8xCir/J/tgwPRPk0w3scx5JZovVtz5AMuaOTVqHzg
+         eymWARmCVEm7gikmI3DmLql7nIzdsAf6jf717o+0ymGK+vZ+Vo2pndVjHlJx3F79+0
+         q4FnK4vyFHsm6nzF17H5vs5OBKmEcjWaZBuMMBrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 364/757] iwlwifi: dbg: run init_cfg function once per driver load
-Date:   Tue, 27 Oct 2020 14:50:14 +0100
-Message-Id: <20201027135507.643575064@linuxfoundation.org>
+Subject: [PATCH 5.9 365/757] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
+Date:   Tue, 27 Oct 2020 14:50:15 +0100
+Message-Id: <20201027135507.688221526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,38 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit 42f8a2735cc218b6b372134684d4cd3c1423f123 ]
+[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
 
-Every time we call init_cfg driver appends the enabled triggers
-to the active triggers while this should be done only once per
-driver load.
+Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
+in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
+assume 16 packets per microframe, and USB 3 and above no longer
+use microframes.
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: 14124b25780d ("iwlwifi: dbg_ini: implement monitor allocation flow")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200930161256.79bd622e604a.Ie0f79d2ea90ca5cdf363f56194ead81b0a2c6202@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Maximum speed is actually much higher. On a direct connection,
+theoretical throughput is at most 3.86 Gbps for gen1x1 and
+9.36 Gbps for gen2x1, and I have seen gadget->host iperf
+throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
+
+Unfortunately the ConnectionSpeedChange defined in the CDC spec
+only uses 32-bit values, so we can't report accurate numbers for
+10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
+roughly maximum theoretical performance) and 4.25Gbps for
+SuperSpeed Plus (which is close to the maximum that we can report
+in a 32-bit unsigned integer).
+
+This results in:
+
+[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
+[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
+
+on SuperSpeed and:
+
+[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
+[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
+
+on SuperSpeed Plus.
+
+Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_ncm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-index e575fc09d3fa4..83caaa3c60a95 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-@@ -1011,6 +1011,9 @@ static void iwl_dbg_tlv_init_cfg(struct iwl_fw_runtime *fwrt)
- 	enum iwl_fw_ini_buffer_location *ini_dest = &fwrt->trans->dbg.ini_dest;
- 	int ret, i;
- 
-+	if (*ini_dest != IWL_FW_INI_LOCATION_INVALID)
-+		return;
-+
- 	IWL_DEBUG_FW(fwrt,
- 		     "WRT: Generating active triggers list, domain 0x%x\n",
- 		     fwrt->trans->dbg.domains_bitmap);
+diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
+index 1f638759a9533..7672fa25085b0 100644
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -85,8 +85,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static inline unsigned ncm_bitrate(struct usb_gadget *g)
+ {
+-	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
++	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
 -- 
 2.25.1
 
