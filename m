@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDCF29B2F1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836EC29B5EF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1764789AbgJ0Or0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:47:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
+        id S1796392AbgJ0PSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440531AbgJ0OrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:47:21 -0400
+        id S1796355AbgJ0PRk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FA8E2222C;
-        Tue, 27 Oct 2020 14:47:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8F9E20657;
+        Tue, 27 Oct 2020 15:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810040;
-        bh=Tvu2p9Pi8z1YiEfClLPGGISIx6HNTdHeQPv//3cQMlE=;
+        s=default; t=1603811860;
+        bh=e/kq4bTTRlN/Yp+C428WMYYC2faor9rrUGJEjFvhGw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6QJBPAnW4MUGiofL04rExDVJlQy/HuJc7kOCezgwxvwUBMiVSr4NyQK3Kq/jGrhO
-         XtV+rpr79LrE8XELnKDENjocfAmXuNkllUDlvy28ZuspvuPsm6rUucVrtw7cQa9Iu+
-         N1+XIbfLNrIn0yPJJwMbQP2uconQhyByF4C07hQQ=
+        b=TXzAd0cETJxWdUcqs6rQfwSP6WXNsQskUjR207arfeVVVMAvylLbKUmjj+dednn3c
+         +PjhSMCaB+Xoyh8Ilfb/wbOS8/uUeV2Yq21ROqTGO1mEeitpJBVMBsBCN1lLSVxaAX
+         eEi0yWioPpAqnhhOjdO2tTGIE+XzuCyUjTGqIx6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 408/408] usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
-Date:   Tue, 27 Oct 2020 14:55:46 +0100
-Message-Id: <20201027135513.933149442@linuxfoundation.org>
+        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
+        Thomas Falcon <tlfalcon@linux.ibm.com>,
+        Cristobal Forno <cris.forno@ibm.com>,
+        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 001/757] ibmveth: Switch order of ibmveth_helper calls.
+Date:   Tue, 27 Oct 2020 14:44:11 +0100
+Message-Id: <20201027135450.579883578@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,40 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Colitti <lorenzo@google.com>
+From: David Wilder <dwilder@us.ibm.com>
 
-[ Upstream commit 7974ecd7d3c0f42a98566f281e44ea8573a2ad88 ]
+[ Upstream commit 5ce9ad815a296374ca21f43f3b1ab5083d202ee1 ]
 
-Currently, enabling f_ncm at SuperSpeed Plus speeds results in an
-oops in config_ep_by_speed because ncm_set_alt passes in NULL
-ssp_descriptors. Fix this by re-using the SuperSpeed descriptors.
-This is safe because usb_assign_descriptors calls
-usb_copy_descriptors.
+ibmveth_rx_csum_helper() must be called after ibmveth_rx_mss_helper()
+as ibmveth_rx_csum_helper() may alter ip and tcp checksum values.
 
-Tested: enabled f_ncm on a dwc3 gadget and 10Gbps link, ran iperf
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 66aa0678efc2 ("ibmveth: Support to enable LSO/CSO for Trunk VEA.")
+Signed-off-by: David Wilder <dwilder@us.ibm.com>
+Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
+Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmveth.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
-index 7672fa25085b0..92a7c3a839454 100644
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -1536,7 +1536,7 @@ static int ncm_bind(struct usb_configuration *c, struct usb_function *f)
- 		fs_ncm_notify_desc.bEndpointAddress;
+--- a/drivers/net/ethernet/ibm/ibmveth.c
++++ b/drivers/net/ethernet/ibm/ibmveth.c
+@@ -1385,16 +1385,16 @@ static int ibmveth_poll(struct napi_stru
+ 			skb_put(skb, length);
+ 			skb->protocol = eth_type_trans(skb, netdev);
  
- 	status = usb_assign_descriptors(f, ncm_fs_function, ncm_hs_function,
--			ncm_ss_function, NULL);
-+			ncm_ss_function, ncm_ss_function);
- 	if (status)
- 		goto fail;
+-			if (csum_good) {
+-				skb->ip_summed = CHECKSUM_UNNECESSARY;
+-				ibmveth_rx_csum_helper(skb, adapter);
+-			}
+-
+ 			if (length > netdev->mtu + ETH_HLEN) {
+ 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
+ 				adapter->rx_large_packets++;
+ 			}
  
--- 
-2.25.1
-
++			if (csum_good) {
++				skb->ip_summed = CHECKSUM_UNNECESSARY;
++				ibmveth_rx_csum_helper(skb, adapter);
++			}
++
+ 			napi_gro_receive(napi, skb);	/* send it up */
+ 
+ 			netdev->stats.rx_packets++;
 
 
