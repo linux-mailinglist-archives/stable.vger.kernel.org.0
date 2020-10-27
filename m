@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B198529B6F6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F8F29B6F3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798465AbgJ0P2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36382 "EHLO mail.kernel.org"
+        id S1798442AbgJ0P2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754000AbgJ0PVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:21:44 -0400
+        id S1797162AbgJ0PVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:21:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BFC220657;
-        Tue, 27 Oct 2020 15:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D7C820728;
+        Tue, 27 Oct 2020 15:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812103;
-        bh=vivV3xKPzAQjtPZH6nSfZfJGcVRD2ycs4JVZSA+belE=;
+        s=default; t=1603812114;
+        bh=ozyLgpXHqosmv35bnuQ3dUi+EEKOVW8d1oUoxx9+eOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHM8dyl5NfhnZGIKe0EBTQMnhkqNE2tB+82r6wk/4ARq4EFzJyCuQgGEgcxdn4vY9
-         YpbK9F+MfHDspq/zdW+an3NgFF7s1TRp8As0b+koTC1IU6XACLCTJ4IdLMtlGYByPt
-         5QachTKLk22mCZ3ZkgSv2Cp5H+J0tU4SxUlS9tjE=
+        b=wsolK2ihHDkm394GLg82y+CU+yqhzsKotk8JkyU1TcFSVGXDSvGe0/OqX2oVkY2cm
+         Ug8gZK2bEU0cE1lHVPcrjDmMzgRDRwCJO2AnTZzaDApte9uUWhGV4XuGtpJmo0jbYi
+         TX1PPYldKF4z2sJ+5fe1UMDtjwjth0j3+F+VwA6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Tero Kristo <t-kristo@ti.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 093/757] EDAC/ti: Fix handling of platform_get_irq() error
-Date:   Tue, 27 Oct 2020 14:45:43 +0100
-Message-Id: <20201027135454.908431359@linuxfoundation.org>
+Subject: [PATCH 5.9 097/757] irqchip/ti-sci-intr: Fix unsigned comparison to zero
+Date:   Tue, 27 Oct 2020 14:45:47 +0100
+Message-Id: <20201027135455.100196817@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,40 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 66077adb70a2a9e92540155b2ace33ec98299c90 ]
+[ Upstream commit 8ddf1905a904ca86d71ca1c435e4b0b2a0b70df8 ]
 
-platform_get_irq() returns a negative error number on error. In such a
-case, comparison to 0 would pass the check therefore check the return
-value properly, whether it is negative.
+ti_sci_intr_xlate_irq() return -ENOENT on fail, p_hwirq
+should be int type.
 
- [ bp: Massage commit message. ]
-
-Fixes: 86a18ee21e5e ("EDAC, ti: Add support for TI keystone and DRA7xx EDAC")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lkml.kernel.org/r/20200827070743.26628-2-krzk@kernel.org
+Fixes: a5b659bd4bc7 ("irqchip/ti-sci-intr: Add support for INTR being a parent to INTR")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Lokesh Vutla <lokeshvutla@ti.com>
+Link: https://lore.kernel.org/r/20200826035321.18620-1-yuehaibing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ti_edac.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-ti-sci-intr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
-index 8be3e89a510e4..d7419a90a2f5b 100644
---- a/drivers/edac/ti_edac.c
-+++ b/drivers/edac/ti_edac.c
-@@ -278,7 +278,8 @@ static int ti_edac_probe(struct platform_device *pdev)
+diff --git a/drivers/irqchip/irq-ti-sci-intr.c b/drivers/irqchip/irq-ti-sci-intr.c
+index cbc1758228d9e..85a72b56177cf 100644
+--- a/drivers/irqchip/irq-ti-sci-intr.c
++++ b/drivers/irqchip/irq-ti-sci-intr.c
+@@ -137,8 +137,8 @@ static int ti_sci_intr_alloc_parent_irq(struct irq_domain *domain,
+ 	struct ti_sci_intr_irq_domain *intr = domain->host_data;
+ 	struct device_node *parent_node;
+ 	struct irq_fwspec fwspec;
+-	u16 out_irq, p_hwirq;
+-	int err = 0;
++	int p_hwirq, err = 0;
++	u16 out_irq;
  
- 	/* add EMIF ECC error handler */
- 	error_irq = platform_get_irq(pdev, 0);
--	if (!error_irq) {
-+	if (error_irq < 0) {
-+		ret = error_irq;
- 		edac_printk(KERN_ERR, EDAC_MOD_NAME,
- 			    "EMIF irq number not defined.\n");
- 		goto err;
+ 	out_irq = ti_sci_get_free_resource(intr->out_irqs);
+ 	if (out_irq == TI_SCI_RESOURCE_NULL)
 -- 
 2.25.1
 
