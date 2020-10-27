@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319A129AFAA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A02829AFAF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756230AbgJ0OMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
+        id S1756245AbgJ0OMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755508AbgJ0OKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:16 -0400
+        id S1755510AbgJ0OKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:10:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F7E9218AC;
-        Tue, 27 Oct 2020 14:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0243D2072D;
+        Tue, 27 Oct 2020 14:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807816;
-        bh=FIYVyOL5qvRsAELMrA3j4pSEEqu8kK6dC8IE2kZ6MDE=;
+        s=default; t=1603807821;
+        bh=TqZIMtcPRGxicGhzsyZKtIsWlsRediNHd8EMURjpfJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlswwV5KtOP8g8uyCOB5vmtq0tc063aN25CrlROtk/U8F2EPjiX2Uv2XMTQYmnk/M
-         DR4bliesl9hTn65fV9VLiAgAVXqZHUbjqIMtBmgauQKPL6TWc+zVFe+mveAcJjHGhE
-         lJCseT500EXh5yqzAOJ1u8PkCrx/tOtyXn0iAqNs=
+        b=Slnvo02bYSI0kF7FXVUtdeAhPLNEQI7zlxhqZtEZlQBiyte0RBV9/4NM5ign4zhg3
+         Cz+HYDQLM8gUAQtYyTZ5GB4VymE03JiWuvIjX3kr4r+cP1wCwkEuLlD9dTBMWq8hen
+         9ZZ5jSk4nJRS8wj0IUoRsolpfJiaj6JiNoFWVdkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Praveen Madhavan <praveenm@chelsio.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/191] scsi: csiostor: Fix wrong return value in csio_hw_prep_fw()
-Date:   Tue, 27 Oct 2020 14:48:27 +0100
-Message-Id: <20201027134912.234903242@linuxfoundation.org>
+Subject: [PATCH 4.14 053/191] backlight: sky81452-backlight: Fix refcount imbalance on error
+Date:   Tue, 27 Oct 2020 14:48:28 +0100
+Message-Id: <20201027134912.287693433@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -44,35 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: dinghao.liu@zju.edu.cn <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 44f4daf8678ae5f08c93bbe70792f90cd88e4649 ]
+[ Upstream commit b7a4f80bc316a56d6ec8750e93e66f42431ed960 ]
 
-On an error exit path, a negative error code should be returned instead of
-a positive return value.
+When of_property_read_u32_array() returns an error code, a
+pairing refcount decrement is needed to keep np's refcount
+balanced.
 
-Link: https://lore.kernel.org/r/20200802111531.5065-1-tianjia.zhang@linux.alibaba.com
-Fixes: f40e74ffa3de ("csiostor:firmware upgrade fix")
-Cc: Praveen Madhavan <praveenm@chelsio.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f705806c9f355 ("backlight: Add support Skyworks SKY81452 backlight driver")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/csiostor/csio_hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/backlight/sky81452-backlight.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/csiostor/csio_hw.c b/drivers/scsi/csiostor/csio_hw.c
-index ab30db8c36c6f..bbcba3d08d495 100644
---- a/drivers/scsi/csiostor/csio_hw.c
-+++ b/drivers/scsi/csiostor/csio_hw.c
-@@ -1997,7 +1997,7 @@ static int csio_hw_prep_fw(struct csio_hw *hw, struct fw_info *fw_info,
- 			FW_HDR_FW_VER_MICRO_G(c), FW_HDR_FW_VER_BUILD_G(c),
- 			FW_HDR_FW_VER_MAJOR_G(k), FW_HDR_FW_VER_MINOR_G(k),
- 			FW_HDR_FW_VER_MICRO_G(k), FW_HDR_FW_VER_BUILD_G(k));
--		ret = EINVAL;
-+		ret = -EINVAL;
- 		goto bye;
- 	}
+diff --git a/drivers/video/backlight/sky81452-backlight.c b/drivers/video/backlight/sky81452-backlight.c
+index d414c7a3acf5a..a2f77625b7170 100644
+--- a/drivers/video/backlight/sky81452-backlight.c
++++ b/drivers/video/backlight/sky81452-backlight.c
+@@ -207,6 +207,7 @@ static struct sky81452_bl_platform_data *sky81452_bl_parse_dt(
+ 					num_entry);
+ 		if (ret < 0) {
+ 			dev_err(dev, "led-sources node is invalid.\n");
++			of_node_put(np);
+ 			return ERR_PTR(-EINVAL);
+ 		}
  
 -- 
 2.25.1
