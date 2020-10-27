@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C7E29C560
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DA729C54D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1824765AbgJ0SFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
+        id S1824895AbgJ0SGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900902AbgJ0OR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:17:26 -0400
+        id S2894657AbgJ0ORb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5D16206FA;
-        Tue, 27 Oct 2020 14:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10F4C206FA;
+        Tue, 27 Oct 2020 14:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808245;
-        bh=Gi9xAWMjEtClV20W/NLcZ676yflt9sTIaWwn+GeQ66g=;
+        s=default; t=1603808250;
+        bh=ezFQVV1nUSt6t+uBJs0Ya52Z+sEOmweY8PILro8+xTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztR4gZUgbL1qrASasUWPiaa0ksTyfpGdHF1ONsv/IJCFb6b95hscKxZvT+pSQsbOK
-         abwZGWLIE1femdvK3BFh8TzBa589gdC1WPebKs/85O5deetbHU5ypYb815IawIDzlt
-         eKes/leOS8CtQcyn6JO85RPmvrhIDIm0XJjGH5vU=
+        b=vznrID9u1pGpKnQcW34upjI+EoXodXL7IIxnAJ+fsjC7l46jjRsbOfaICM3v1/yfK
+         MLs4iAQg3xoLmtdVA9Vx+pI2uA8BuUIa5Xt2nFWlabwTdw+Pk5u0tMgm6bQ7urohza
+         Xsqz0cADOfiySDr9xdYRgCTT6dJhTFPZM9W9ut7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 019/264] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
-Date:   Tue, 27 Oct 2020 14:51:17 +0100
-Message-Id: <20201027135431.570000754@linuxfoundation.org>
+Subject: [PATCH 4.19 021/264] net/sched: act_tunnel_key: fix OOB write in case of IPv6 ERSPAN tunnels
+Date:   Tue, 27 Oct 2020 14:51:19 +0100
+Message-Id: <20201027135431.656741510@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,56 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
+[ Upstream commit a7a12b5a0f950bc6b9f7153390634ea798738db9 ]
 
-The hdlc_rcv function is used as hdlc_packet_type.func to process any
-skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
-The purpose of this function is to provide second-stage processing for
-skbs not assigned a "real" L3 skb->protocol value in the first stage.
+the following command
 
-This function assumes the device from which the skb is received is an
-HDLC device (a device created by this module). It assumes that
-netdev_priv(dev) returns a pointer to "struct hdlc_device".
+ # tc action add action tunnel_key \
+ > set src_ip 2001:db8::1 dst_ip 2001:db8::2 id 10 erspan_opts 1:6789:0:0
 
-However, it is possible that some driver in the kernel (not necessarily
-in our control) submits a received skb with skb->protocol ==
-htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
-still be received by hdlc_rcv. This will cause problems.
+generates the following splat:
 
-hdlc_rcv should be able to recognize and drop invalid skbs. It should
-first make sure "dev" is actually an HDLC device, before starting its
-processing. This patch adds this check to hdlc_rcv.
+ BUG: KASAN: slab-out-of-bounds in tunnel_key_copy_opts+0xcc9/0x1010 [act_tunnel_key]
+ Write of size 4 at addr ffff88813f5f1cc8 by task tc/873
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
+ CPU: 2 PID: 873 Comm: tc Not tainted 5.9.0+ #282
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ Call Trace:
+  dump_stack+0x99/0xcb
+  print_address_description.constprop.7+0x1e/0x230
+  kasan_report.cold.13+0x37/0x7c
+  tunnel_key_copy_opts+0xcc9/0x1010 [act_tunnel_key]
+  tunnel_key_init+0x160c/0x1f40 [act_tunnel_key]
+  tcf_action_init_1+0x5b5/0x850
+  tcf_action_init+0x15d/0x370
+  tcf_action_add+0xd9/0x2f0
+  tc_ctl_action+0x29b/0x3a0
+  rtnetlink_rcv_msg+0x341/0x8d0
+  netlink_rcv_skb+0x120/0x380
+  netlink_unicast+0x439/0x630
+  netlink_sendmsg+0x719/0xbf0
+  sock_sendmsg+0xe2/0x110
+  ____sys_sendmsg+0x5ba/0x890
+  ___sys_sendmsg+0xe9/0x160
+  __sys_sendmsg+0xd3/0x170
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7f872a96b338
+ Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
+ RSP: 002b:00007ffffe367518 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 000000005f8f5aed RCX: 00007f872a96b338
+ RDX: 0000000000000000 RSI: 00007ffffe367580 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 000000000000001c
+ R10: 000000000000000b R11: 0000000000000246 R12: 0000000000000001
+ R13: 0000000000686760 R14: 0000000000000601 R15: 0000000000000000
+
+ Allocated by task 873:
+  kasan_save_stack+0x19/0x40
+  __kasan_kmalloc.constprop.7+0xc1/0xd0
+  __kmalloc+0x151/0x310
+  metadata_dst_alloc+0x20/0x40
+  tunnel_key_init+0xfff/0x1f40 [act_tunnel_key]
+  tcf_action_init_1+0x5b5/0x850
+  tcf_action_init+0x15d/0x370
+  tcf_action_add+0xd9/0x2f0
+  tc_ctl_action+0x29b/0x3a0
+  rtnetlink_rcv_msg+0x341/0x8d0
+  netlink_rcv_skb+0x120/0x380
+  netlink_unicast+0x439/0x630
+  netlink_sendmsg+0x719/0xbf0
+  sock_sendmsg+0xe2/0x110
+  ____sys_sendmsg+0x5ba/0x890
+  ___sys_sendmsg+0xe9/0x160
+  __sys_sendmsg+0xd3/0x170
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ The buggy address belongs to the object at ffff88813f5f1c00
+  which belongs to the cache kmalloc-256 of size 256
+ The buggy address is located 200 bytes inside of
+  256-byte region [ffff88813f5f1c00, ffff88813f5f1d00)
+ The buggy address belongs to the page:
+ page:0000000011b48a19 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x13f5f0
+ head:0000000011b48a19 order:1 compound_mapcount:0
+ flags: 0x17ffffc0010200(slab|head)
+ raw: 0017ffffc0010200 0000000000000000 0000000d00000001 ffff888107c43400
+ raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff88813f5f1b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88813f5f1c00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ >ffff88813f5f1c80: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+                                               ^
+  ffff88813f5f1d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88813f5f1d80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+using IPv6 tunnels, act_tunnel_key allocates a fixed amount of memory for
+the tunnel metadata, but then it expects additional bytes to store tunnel
+specific metadata with tunnel_key_copy_opts().
+
+Fix the arguments of __ipv6_tun_set_dst(), so that 'md_size' contains the
+size previously computed by tunnel_key_get_opts_len(), like it's done for
+IPv4 tunnels.
+
+Fixes: 0ed5269f9e41 ("net/sched: add tunnel option support to act_tunnel_key")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Link: https://lore.kernel.org/r/36ebe969f6d13ff59912d6464a4356fe6f103766.1603231100.git.dcaratti@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/sched/act_tunnel_key.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wan/hdlc.c
-+++ b/drivers/net/wan/hdlc.c
-@@ -49,7 +49,15 @@ static struct hdlc_proto *first_proto;
- static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
- 		    struct packet_type *p, struct net_device *orig_dev)
- {
--	struct hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct hdlc_device *hdlc;
-+
-+	/* First make sure "dev" is an HDLC device */
-+	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
-+		kfree_skb(skb);
-+		return NET_RX_SUCCESS;
-+	}
-+
-+	hdlc = dev_to_hdlc(dev);
+--- a/net/sched/act_tunnel_key.c
++++ b/net/sched/act_tunnel_key.c
+@@ -314,7 +314,7 @@ static int tunnel_key_init(struct net *n
  
- 	if (!net_eq(dev_net(dev), &init_net)) {
- 		kfree_skb(skb);
+ 			metadata = __ipv6_tun_set_dst(&saddr, &daddr, tos, ttl, dst_port,
+ 						      0, flags,
+-						      key_id, 0);
++						      key_id, opts_len);
+ 		} else {
+ 			NL_SET_ERR_MSG(extack, "Missing either ipv4 or ipv6 src and dst");
+ 			ret = -EINVAL;
 
 
