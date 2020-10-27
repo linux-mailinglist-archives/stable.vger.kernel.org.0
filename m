@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4400829BA20
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 257AA29B7CF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760829AbgJ0P45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52246 "EHLO mail.kernel.org"
+        id S1796443AbgJ0PSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:18:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802671AbgJ0Pus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:48 -0400
+        id S1796081AbgJ0PPh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A6EC2065C;
-        Tue, 27 Oct 2020 15:50:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10CA120728;
+        Tue, 27 Oct 2020 15:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813847;
-        bh=bzQkU9Qz/bjx/6kjfzTUK0k/Vqf0K+PBXgMc+qXaGXA=;
+        s=default; t=1603811735;
+        bh=EX9xoOfFH5cE8BiaPZ2FGcfqnOALEpnFo0SSIXDYyQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhPhvJweFxjNAfMGuVfBa7Qk1TBSP/wCL4gIHf3o6+umQ0YE/jWQCaJrOA1QJAxEP
-         cjhrHZVWwmEKeOqICHhZON0vrhyIs44G5Agapry8/7hwqSm3I6Xqr7BmNXPXh+J2gV
-         FJgIn5KCsP3mnBitThTDc4xZJctnZ5cFvIQk3aVc=
+        b=Sqkr2FzRaPIro+qCed3Trxolwr2/IlXWHF/CpEhXb561f/LYhKfNPclIZCadgTiIE
+         BqZAB3D49takled3ZEASD5xzlWmoYmpNP2ro0oaaSttadlahabHLHWhe2ZREJ134Ba
+         hArtl0RzLCbccE5j6rvl767Xsswlgr32J+UWWU9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Doug Horn <doughorn@google.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 691/757] USB: cdc-acm: handle broken union descriptors
-Date:   Tue, 27 Oct 2020 14:55:41 +0100
-Message-Id: <20201027135522.939187646@linuxfoundation.org>
+Subject: [PATCH 5.8 599/633] Fix use after free in get_capset_info callback.
+Date:   Tue, 27 Oct 2020 14:55:42 +0100
+Message-Id: <20201027135550.904584113@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Doug Horn <doughorn@google.com>
 
-[ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
+[ Upstream commit e219688fc5c3d0d9136f8d29d7e0498388f01440 ]
 
-Handle broken union functional descriptors where the master-interface
-doesn't exist or where its class is of neither Communication or Data
-type (as required by the specification) by falling back to
-"combined-interface" probing.
+If a response to virtio_gpu_cmd_get_capset_info takes longer than
+five seconds to return, the callback will access freed kernel memory
+in vg->capsets.
 
-Note that this still allows for handling union descriptors with switched
-interfaces.
-
-This specifically makes the Whistler radio scanners TRX series devices
-work with the driver without adding further quirks to the device-id
-table.
-
-Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Doug Horn <doughorn@google.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200902210847.2689-2-gurchetansingh@chromium.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_kms.c |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 10 +++++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 7f6f3ab5b8a67..c8fb85a71c3ad 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1243,9 +1243,21 @@ static int acm_probe(struct usb_interface *intf,
- 			}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 0a5c8cf409fb8..dc8cb8dfce58e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -80,8 +80,10 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
+ 					 vgdev->capsets[i].id > 0, 5 * HZ);
+ 		if (ret == 0) {
+ 			DRM_ERROR("timed out waiting for cap set %d\n", i);
++			spin_lock(&vgdev->display_info_lock);
+ 			kfree(vgdev->capsets);
+ 			vgdev->capsets = NULL;
++			spin_unlock(&vgdev->display_info_lock);
+ 			return;
  		}
- 	} else {
-+		int class = -1;
-+
- 		data_intf_num = union_header->bSlaveInterface0;
- 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
- 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
-+
-+		if (control_interface)
-+			class = control_interface->cur_altsetting->desc.bInterfaceClass;
-+
-+		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
-+			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
-+			combined_interfaces = 1;
-+			control_interface = data_interface = intf;
-+			goto look_for_collapsed_interface;
-+		}
- 	}
+ 		DRM_INFO("cap set %d: id %d, max-version %d, max-size %d\n",
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 9e663a5d99526..2517450bf46ba 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -684,9 +684,13 @@ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
+ 	int i = le32_to_cpu(cmd->capset_index);
  
- 	if (!control_interface || !data_interface) {
+ 	spin_lock(&vgdev->display_info_lock);
+-	vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
+-	vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
+-	vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
++	if (vgdev->capsets) {
++		vgdev->capsets[i].id = le32_to_cpu(resp->capset_id);
++		vgdev->capsets[i].max_version = le32_to_cpu(resp->capset_max_version);
++		vgdev->capsets[i].max_size = le32_to_cpu(resp->capset_max_size);
++	} else {
++		DRM_ERROR("invalid capset memory.");
++	}
+ 	spin_unlock(&vgdev->display_info_lock);
+ 	wake_up(&vgdev->resp_wq);
+ }
 -- 
 2.25.1
 
