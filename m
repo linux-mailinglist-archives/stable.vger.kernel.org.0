@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EBF29B8D9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CCFD29B820
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802042AbgJ0Pp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49214 "EHLO mail.kernel.org"
+        id S1799567AbgJ0PcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799555AbgJ0PcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:32:07 -0400
+        id S1799561AbgJ0PcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:32:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 624AA2225E;
-        Tue, 27 Oct 2020 15:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4320920728;
+        Tue, 27 Oct 2020 15:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812727;
-        bh=lPLX86Ro39x7+XZhUq2XZLtFZl4XdcG0kDoiZVJXl2c=;
+        s=default; t=1603812729;
+        bh=v73Ta+ScJRWCFopas3K9azkdlpQ0DyatyfvApVT089E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMO7CzjJnEJ01b5Ep+rbfioV5WoW5YaGls8BS8DqeZ+MLsN9QGXKjHrl7qAVNfSrT
-         tEkA6BC4ezligci+5GNprGDcQZ1fSqNmuEJM53uEf0AOGJPoLyI9ia38AkBFuh4v2b
-         C1oDMdcxcIxAtN8/rnjMhmp5X5sWYiP7dz7d0THk=
+        b=Jmrgcyi24Ct87iwrPK1d/Gep22yRTbN/i4Qhdw9mIL/b87F4HqsozY1GGfYpcGU1R
+         33KzBzirU1wIduxPE9gxDp/LJxubyJaQSBgZ5CJYCsnRLqKkRYbpd5G6IldXK+Rr8n
+         ckAZTHwVTTjBUuux8sTou+W5TLqn/Dz2vpCD9KfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Jonathan Zhou <jonathan.zhouwen@huawei.com>,
+        stable@vger.kernel.org, Vadym Kochan <vadym.kochan@plvision.eu>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 279/757] coresight: etm4x: Fix issues on trcseqevr access
-Date:   Tue, 27 Oct 2020 14:48:49 +0100
-Message-Id: <20201027135503.670029580@linuxfoundation.org>
+Subject: [PATCH 5.9 280/757] nvmem: core: fix missing of_node_put() in of_nvmem_device_get()
+Date:   Tue, 27 Oct 2020 14:48:50 +0100
+Message-Id: <20201027135503.718376550@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,50 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Zhou <jonathan.zhouwen@huawei.com>
+From: Vadym Kochan <vadym.kochan@plvision.eu>
 
-[ Upstream commit 4cd83037cd957ad97756055355ab4ee63f259380 ]
+[ Upstream commit b1c194dcdb1425fa59eec61ab927cfff33096149 ]
 
-The TRCSEQEVR(3) is reserved, using '@nrseqstate - 1' instead to avoid
-accessing the reserved register.
+of_parse_phandle() returns device_node with incremented ref count
+which needs to be decremented by of_node_put() when device_node
+is not used.
 
-Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Jonathan Zhou <jonathan.zhouwen@huawei.com>
-[Fixed capital letter in title]
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200916191737.4001561-12-mathieu.poirier@linaro.org
+Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200917134437.16637-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvmem/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index 2bcc8d4a82c8e..944c7a7cc1d91 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -1193,7 +1193,7 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
- 	state->trcvdsacctlr = readl(drvdata->base + TRCVDSACCTLR);
- 	state->trcvdarcctlr = readl(drvdata->base + TRCVDARCCTLR);
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 6cd3edb2eaf65..204a515d8bc5d 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -835,6 +835,7 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
+ {
  
--	for (i = 0; i < drvdata->nrseqstate; i++)
-+	for (i = 0; i < drvdata->nrseqstate - 1; i++)
- 		state->trcseqevr[i] = readl(drvdata->base + TRCSEQEVRn(i));
+ 	struct device_node *nvmem_np;
++	struct nvmem_device *nvmem;
+ 	int index = 0;
  
- 	state->trcseqrstevr = readl(drvdata->base + TRCSEQRSTEVR);
-@@ -1298,7 +1298,7 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
- 	writel_relaxed(state->trcvdsacctlr, drvdata->base + TRCVDSACCTLR);
- 	writel_relaxed(state->trcvdarcctlr, drvdata->base + TRCVDARCCTLR);
+ 	if (id)
+@@ -844,7 +845,9 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
+ 	if (!nvmem_np)
+ 		return ERR_PTR(-ENOENT);
  
--	for (i = 0; i < drvdata->nrseqstate; i++)
-+	for (i = 0; i < drvdata->nrseqstate - 1; i++)
- 		writel_relaxed(state->trcseqevr[i],
- 			       drvdata->base + TRCSEQEVRn(i));
- 
+-	return __nvmem_device_get(nvmem_np, device_match_of_node);
++	nvmem = __nvmem_device_get(nvmem_np, device_match_of_node);
++	of_node_put(nvmem_np);
++	return nvmem;
+ }
+ EXPORT_SYMBOL_GPL(of_nvmem_device_get);
+ #endif
 -- 
 2.25.1
 
