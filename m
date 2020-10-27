@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D71129B7F7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5934429B7F3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798606AbgJ0P3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:29:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
+        id S2902436AbgJ0P3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798223AbgJ0P0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:26:41 -0400
+        id S1798308AbgJ0P0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:26:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A332E2064B;
-        Tue, 27 Oct 2020 15:26:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6915520657;
+        Tue, 27 Oct 2020 15:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812401;
-        bh=47XuXRUE5rmrBFlPABf4wvzHJhnotZEIQYbipEI3bKc=;
+        s=default; t=1603812404;
+        bh=7ZTEBiJnivOrooG7Btd7gzKnSddYnL4vYeWlsfZKq/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjqRE9AxubwzSz/YC4duo4fNBUkHa5i3Gy1815xK0R5lvt5ybI+s4/eo3CQwlP8Yf
-         /HPf0Z/0I9sYnz9Ekx8hvwrNEwa4cit7k0NDTpudrBAXJRseJxMqMweQi4MvUUJqOd
-         zvRxwui/lfVBSf6+FHrzop2pTzV0ntO21wwrgc+0=
+        b=uuFBrz+7YiDTZbBbOmOJgjUk/18BNhBdUI1T4aZEPC+M3EopxPT7v1EtukyPq6/tx
+         tIFTmICeNQYP3GyL2SncFsaqOCX4J8mirENCX0iKHiD9A+rKWMzHKvyYOo24etV9Kd
+         dElAcN3ntfR+3svLbgxVl5eqYJUwttnprZ/CMaew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Yufen <wangyufen@huawei.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 196/757] ath11k: Fix possible memleak in ath11k_qmi_init_service
-Date:   Tue, 27 Oct 2020 14:47:26 +0100
-Message-Id: <20201027135459.805356901@linuxfoundation.org>
+Subject: [PATCH 5.9 197/757] brcmfmac: check ndev pointer
+Date:   Tue, 27 Oct 2020 14:47:27 +0100
+Message-Id: <20201027135459.852965897@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,34 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 28f1632118818d9dccabf4c0fccfe49686742317 ]
+[ Upstream commit 9c9f015bc9f8839831c7ba0a6d731a3853c464e2 ]
 
-When qmi_add_lookup fail, we should destroy the workqueue
+Clang static analysis reports this error
 
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+brcmfmac/core.c:490:4: warning: Dereference of null pointer
+        (*ifp)->ndev->stats.rx_errors++;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this block of code
+
+	if (ret || !(*ifp) || !(*ifp)->ndev) {
+		if (ret != -ENODATA && *ifp)
+			(*ifp)->ndev->stats.rx_errors++;
+		brcmu_pkt_buf_free_skb(skb);
+		return -ENODATA;
+	}
+
+(*ifp)->ndev being NULL is caught as an error
+But then it is used to report the error.
+
+So add a check before using it.
+
+Fixes: 91b632803ee4 ("brcmfmac: Use net_device_stats from struct net_device")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1595237804-66297-1-git-send-email-wangyufen@huawei.com
+Link: https://lore.kernel.org/r/20200802161804.6126-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
-index c00a99ad8dbc1..497cff7e64cc5 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.c
-+++ b/drivers/net/wireless/ath/ath11k/qmi.c
-@@ -2419,6 +2419,7 @@ int ath11k_qmi_init_service(struct ath11k_base *ab)
- 			     ATH11K_QMI_WLFW_SERVICE_INS_ID_V01);
- 	if (ret < 0) {
- 		ath11k_warn(ab, "failed to add qmi lookup\n");
-+		destroy_workqueue(ab->qmi.event_wq);
- 		return ret;
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index f89010a81ffbe..aa9ced3c86fbd 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -486,7 +486,7 @@ static int brcmf_rx_hdrpull(struct brcmf_pub *drvr, struct sk_buff *skb,
+ 	ret = brcmf_proto_hdrpull(drvr, true, skb, ifp);
  
+ 	if (ret || !(*ifp) || !(*ifp)->ndev) {
+-		if (ret != -ENODATA && *ifp)
++		if (ret != -ENODATA && *ifp && (*ifp)->ndev)
+ 			(*ifp)->ndev->stats.rx_errors++;
+ 		brcmu_pkt_buf_free_skb(skb);
+ 		return -ENODATA;
 -- 
 2.25.1
 
