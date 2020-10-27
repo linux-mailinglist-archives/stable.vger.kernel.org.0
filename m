@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 701C429BFD5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0D929BFB4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1816450AbgJ0RGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:06:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33490 "EHLO mail.kernel.org"
+        id S1816446AbgJ0RGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:06:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1787423AbgJ0PAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:00:08 -0400
+        id S1787599AbgJ0PAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:00:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58FB920714;
-        Tue, 27 Oct 2020 15:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF8B520714;
+        Tue, 27 Oct 2020 15:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810808;
-        bh=FxsYMJh5GcWQ2EJ+/uAx3LwJ1jKoEX3seiWRCNptn3o=;
+        s=default; t=1603810813;
+        bh=09BtgDStkjmQQSw+UuaeyxieHWs44qv+TUAKa6HcKmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvFzX8gHjaRto8KhQ3RXfiFwHt9QE1mf0vSphcqWq5mcKNE+O32vCnoeFlS5IPcBP
-         MOhpln4wTXVKmtuzfef8gE+Cp3lSLLznSX7HSHgjdjp5aeC8Z2zYmNNTMB5Tn7XoX/
-         gf2N/Md7Vs8Gm52wuDatx8mM750NHHrkxCP9U47U=
+        b=Dfy3DNB0b3NXTSbM/GoHyfc7iOSXAJ1VevhhdRk0+CUPY3r0brLunp5Faw7fXWv/x
+         0j2EtgGUW82cDr6VsfQTtJ7umTc17s0jrsFdWqkOy3gTohZpikd5yZXZ29hK2yPNWd
+         BEboXt4oIyCkMigS5Dxsr8JKHFNnRpDdgboVN0+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 270/633] slimbus: core: check get_addr before removing laddr ida
-Date:   Tue, 27 Oct 2020 14:50:13 +0100
-Message-Id: <20201027135535.332630448@linuxfoundation.org>
+Subject: [PATCH 5.8 272/633] slimbus: qcom-ngd-ctrl: disable ngd in qmi server down callback
+Date:   Tue, 27 Oct 2020 14:50:15 +0100
+Message-Id: <20201027135535.427361599@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,38 +45,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit f97769fde678e111a1b7b165b380d8a3dfe54f4e ]
+[ Upstream commit 709ec3f7fc5773ac4aa6fb22c3f0ac8103c674db ]
 
-logical address can be either assigned by the SLIMBus controller or the core.
-Core uses IDA in cases where get_addr callback is not provided by the
-controller.
-Core already has this check while allocating IDR, however during absence
-reporting this is not checked. This patch fixes this issue.
+In QMI new server notification we enable the NGD however during
+delete server notification we do not disable the NGD.
 
-Fixes: 46a2bb5a7f7e ("slimbus: core: Add slim controllers support")
+This can lead to multiple instances of NGD being enabled, so make
+sure that we disable NGD in delete server callback to fix this issue!
+
+Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200925095520.27316-2-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20200925095520.27316-4-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/slimbus/core.c b/drivers/slimbus/core.c
-index ae1e248a8fb8a..58b63ae0e75a6 100644
---- a/drivers/slimbus/core.c
-+++ b/drivers/slimbus/core.c
-@@ -326,8 +326,8 @@ void slim_report_absent(struct slim_device *sbdev)
- 	mutex_lock(&ctrl->lock);
- 	sbdev->is_laddr_valid = false;
- 	mutex_unlock(&ctrl->lock);
--
--	ida_simple_remove(&ctrl->laddr_ida, sbdev->laddr);
-+	if (!ctrl->get_laddr)
-+		ida_simple_remove(&ctrl->laddr_ida, sbdev->laddr);
- 	slim_device_update_status(sbdev, SLIM_DEVICE_STATUS_DOWN);
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 743ee7b4e63f2..218aefc3531cd 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1277,9 +1277,13 @@ static void qcom_slim_ngd_qmi_del_server(struct qmi_handle *hdl,
+ {
+ 	struct qcom_slim_ngd_qmi *qmi =
+ 		container_of(hdl, struct qcom_slim_ngd_qmi, svc_event_hdl);
++	struct qcom_slim_ngd_ctrl *ctrl =
++		container_of(qmi, struct qcom_slim_ngd_ctrl, qmi);
+ 
+ 	qmi->svc_info.sq_node = 0;
+ 	qmi->svc_info.sq_port = 0;
++
++	qcom_slim_ngd_enable(ctrl, false);
  }
- EXPORT_SYMBOL_GPL(slim_report_absent);
+ 
+ static struct qmi_ops qcom_slim_ngd_qmi_svc_event_ops = {
 -- 
 2.25.1
 
