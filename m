@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C5AE29AF19
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEF929AE83
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754802AbgJ0OHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55754 "EHLO mail.kernel.org"
+        id S1753634AbgJ0OBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754795AbgJ0OHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:07:07 -0400
+        id S1753629AbgJ0OBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B24F422258;
-        Tue, 27 Oct 2020 14:07:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989B4221F8;
+        Tue, 27 Oct 2020 14:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807626;
-        bh=KDEjwspJyIH0+HO6uIy5jM5u5QAk6OY+cIrgJ+2DZJM=;
+        s=default; t=1603807272;
+        bh=4urMCYdTXLt4wCaEBuuT4e20rgwEIUjK9HnD1rTAkGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPpvmWZFhu43YNbbykguJth0aAojtGcf/9YMjHzuRNqi/XtwiP1t66IW0fhSlIj0t
-         3XW1sUtqqSEv2E1GlnsZq9AGphYvpBOoMc8Gmgd0d81pGWz0ZKwHHFaGzOXEB1CkeP
-         PAKvajXmWZUC0gY304No5SETj8t7LYCz2nBMN0+A=
+        b=BBh+7FIn3LMtndYN+aij12n7zSRonb9HUCup14r7uGzLeLGkqecGnCHpy9qvWqDB3
+         Rieo/BFJFByyOVXJl0fumZB9qFDdHfAuUFXgPxHIk/cJkS8fcLJEjkPc18sRS/xpwi
+         3QHF2+auwla6fFDVt8dIEmoo5Hzkf2EQnqfE9I8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 121/139] reiserfs: only call unlock_new_inode() if I_NEW
-Date:   Tue, 27 Oct 2020 14:50:15 +0100
-Message-Id: <20201027134907.890094564@linuxfoundation.org>
+        syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 106/112] reiserfs: Fix memory leak in reiserfs_parse_options()
+Date:   Tue, 27 Oct 2020 14:50:16 +0100
+Message-Id: <20201027134905.559879356@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 8859bf2b1278d064a139e3031451524a49a56bd0 ]
+[ Upstream commit e9d4709fcc26353df12070566970f080e651f0c9 ]
 
-unlock_new_inode() is only meant to be called after a new inode has
-already been inserted into the hash table.  But reiserfs_new_inode() can
-call it even before it has inserted the inode, triggering the WARNING in
-unlock_new_inode().  Fix this by only calling unlock_new_inode() if the
-inode has the I_NEW flag set, indicating that it's in the table.
+When a usrjquota or grpjquota mount option is used multiple times, we
+will leak memory allocated for the file name. Make sure the last setting
+is used and all the previous ones are properly freed.
 
-This addresses the syzbot report "WARNING in unlock_new_inode"
-(https://syzkaller.appspot.com/bug?extid=187510916eb6a14598f7).
-
-Link: https://lore.kernel.org/r/20200628070057.820213-1-ebiggers@kernel.org
-Reported-by: syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reported-by: syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/reiserfs/super.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 897154e993800..f28999f717761 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -2166,7 +2166,8 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
- out_inserted_sd:
- 	clear_nlink(inode);
- 	th->t_trans_id = 0;	/* so the caller can't use this handle later */
--	unlock_new_inode(inode); /* OK to do even if we hadn't locked it */
-+	if (inode->i_state & I_NEW)
-+		unlock_new_inode(inode);
- 	iput(inode);
- 	return err;
- }
+diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+index f9796fd515315..503d8c06e0d93 100644
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -1232,6 +1232,10 @@ static int reiserfs_parse_options(struct super_block *s,
+ 						 "turned on.");
+ 				return 0;
+ 			}
++			if (qf_names[qtype] !=
++			    REISERFS_SB(s)->s_qf_names[qtype])
++				kfree(qf_names[qtype]);
++			qf_names[qtype] = NULL;
+ 			if (*arg) {	/* Some filename specified? */
+ 				if (REISERFS_SB(s)->s_qf_names[qtype]
+ 				    && strcmp(REISERFS_SB(s)->s_qf_names[qtype],
+@@ -1261,10 +1265,6 @@ static int reiserfs_parse_options(struct super_block *s,
+ 				else
+ 					*mount_options |= 1 << REISERFS_GRPQUOTA;
+ 			} else {
+-				if (qf_names[qtype] !=
+-				    REISERFS_SB(s)->s_qf_names[qtype])
+-					kfree(qf_names[qtype]);
+-				qf_names[qtype] = NULL;
+ 				if (qtype == USRQUOTA)
+ 					*mount_options &= ~(1 << REISERFS_USRQUOTA);
+ 				else
 -- 
 2.25.1
 
