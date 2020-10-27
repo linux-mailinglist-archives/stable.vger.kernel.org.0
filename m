@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEE629B271
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CDD29B243
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762188AbgJ0OlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37322 "EHLO mail.kernel.org"
+        id S1761165AbgJ0OiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:38:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761146AbgJ0OiL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:38:11 -0400
+        id S1761154AbgJ0OiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:38:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AA23206B2;
-        Tue, 27 Oct 2020 14:38:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA728207BB;
+        Tue, 27 Oct 2020 14:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809490;
-        bh=aSw54oaDqKzer7m5dsAtXLJBoKEtZpE3k3yBXhPAoy4=;
+        s=default; t=1603809493;
+        bh=oecFvKAy6hw4veuir3jzX3L9OcRpPw2OEucGpkYBOtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3KzvuDbzjkzYgU3dgALzP/adR0GcScjfLG5SwIdqgfBeAsdGwV2yiVGriHLFsjMW
-         wkd1j9U72u2VUgQu95QsZjCnWo3kB/kpZjtXfwrtL667UhpaJofTtI60ZOCIoKeZm3
-         Dgf90Ur+htaHaevP9h3H4udMbCDmS+qb80jukeco=
+        b=MAisBk5rJNx+A8Z3EjDe+GORk5xvXx+9rOMPKS2q8Z7B5TtRmfmejGBq/0iKlDQGu
+         ypA/YnxnCQNcaV76BXl1CY9wWfcWXBwpVlMnwX1W2doPpswGhcgVNYMgR7T4D33Sqt
+         Pt4hhYygo8l8ztySMiVi5QFVud45tajXye0iQs9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 184/408] scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()
-Date:   Tue, 27 Oct 2020 14:52:02 +0100
-Message-Id: <20201027135503.625880240@linuxfoundation.org>
+Subject: [PATCH 5.4 185/408] ipmi_si: Fix wrong return value in try_smi_init()
+Date:   Tue, 27 Oct 2020 14:52:03 +0100
+Message-Id: <20201027135503.675096339@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,60 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 38b2db564d9ab7797192ef15d7aade30633ceeae ]
+[ Upstream commit 8fe7990ceda8597e407d06bffc4bdbe835a93ece ]
 
-The be_fill_queue() function can only fail when "eq_vaddress" is NULL and
-since it's non-NULL here that means the function call can't fail.  But
-imagine if it could, then in that situation we would want to store the
-"paddr" so that dma memory can be released.
+On an error exit path, a negative error code should be returned
+instead of a positive return value.
 
-Link: https://lore.kernel.org/r/20200928091300.GD377727@mwanda
-Fixes: bfead3b2cb46 ("[SCSI] be2iscsi: Adding msix and mcc_rings V3")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 90b2d4f15ff7 ("ipmi_si: Remove hacks for adding a dummy platform devices")
+Cc: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Message-Id: <20201005145212.84435-1-tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/ipmi/ipmi_si_intf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 0760d0bd8a10b..0fa455357594e 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -3020,6 +3020,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
- 			goto create_eq_error;
- 		}
+diff --git a/drivers/char/ipmi/ipmi_si_intf.c b/drivers/char/ipmi/ipmi_si_intf.c
+index 6b9a0593d2eb7..b6e7df9e88503 100644
+--- a/drivers/char/ipmi/ipmi_si_intf.c
++++ b/drivers/char/ipmi/ipmi_si_intf.c
+@@ -1977,7 +1977,7 @@ static int try_smi_init(struct smi_info *new_smi)
+ 	/* Do this early so it's available for logs. */
+ 	if (!new_smi->io.dev) {
+ 		pr_err("IPMI interface added with no device\n");
+-		rv = EIO;
++		rv = -EIO;
+ 		goto out_err;
+ 	}
  
-+		mem->dma = paddr;
- 		mem->va = eq_vaddress;
- 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
- 				    sizeof(struct be_eq_entry), eq_vaddress);
-@@ -3029,7 +3030,6 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
- 			goto create_eq_error;
- 		}
- 
--		mem->dma = paddr;
- 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
- 					    BEISCSI_EQ_DELAY_DEF);
- 		if (ret) {
-@@ -3086,6 +3086,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
- 			goto create_cq_error;
- 		}
- 
-+		mem->dma = paddr;
- 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
- 				    sizeof(struct sol_cqe), cq_vaddress);
- 		if (ret) {
-@@ -3095,7 +3096,6 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
- 			goto create_cq_error;
- 		}
- 
--		mem->dma = paddr;
- 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
- 					    false, 0);
- 		if (ret) {
 -- 
 2.25.1
 
