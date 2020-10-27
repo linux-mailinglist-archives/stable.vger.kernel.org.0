@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503B9299EA5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13602299EC8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440657AbgJ0AQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60006 "EHLO mail.kernel.org"
+        id S2440663AbgJ0AQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411610AbgJ0AKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:50 -0400
+        id S2411617AbgJ0AKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D04C218AC;
-        Tue, 27 Oct 2020 00:10:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C03A20791;
+        Tue, 27 Oct 2020 00:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757449;
-        bh=2VHM0s3UGyJ1I4JvIiHynEIil4VKfhimv7JJCAe7QMo=;
+        s=default; t=1603757450;
+        bh=K2UUaSLNQyBICP48dxxnV3Rzi+dMsSPNYnRRZ736Fns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTvDtOMuHjEW7vBxKP+tIquEodTwV/8Bj8DlcjgXskaErVe7D5aSM+u+T7aJc9K9I
-         8eP+ppXZU6crpM9BvHUVL25OSRP8s/kk6jlZOe1jTCU7b5ugwm4rQ5Dzura9p5XDQQ
-         k9qPugg30urfXTQ79Z9YlAbXLjlOpCCwgHXNj048=
+        b=Fwn3NabpeVW9obYWeHr0itdLtNeARGjy2FNURXNWnqhtBuCtFhyEA/ITLXWGhU20O
+         0WwT1x26sArEjlA8MniW3psTXXUdAucNjLr4K6+ErOz2wCKiBAV/+ImtXiMcMK4XDy
+         dwNnUpkVRtGJRKBaDmetJwnqOaFsFQclmCcLEsfU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>,
-        syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 04/30] f2fs: fix to check segment boundary during SIT page readahead
-Date:   Mon, 26 Oct 2020 20:10:18 -0400
-Message-Id: <20201027001044.1027349-4-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 05/30] um: change sigio_spinlock to a mutex
+Date:   Mon, 26 Oct 2020 20:10:19 -0400
+Message-Id: <20201027001044.1027349-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027001044.1027349-1-sashal@kernel.org>
 References: <20201027001044.1027349-1-sashal@kernel.org>
@@ -44,58 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 6a257471fa42c8c9c04a875cd3a2a22db148e0f0 ]
+[ Upstream commit f2d05059e15af3f70502074f4e3a504530af504a ]
 
-As syzbot reported:
+Lockdep complains at boot:
 
-kernel BUG at fs/f2fs/segment.h:657!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 16220 Comm: syz-executor.0 Not tainted 5.9.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:f2fs_ra_meta_pages+0xa51/0xdc0 fs/f2fs/segment.h:657
+=============================
+[ BUG: Invalid wait context ]
+5.7.0-05093-g46d91ecd597b #98 Not tainted
+-----------------------------
+swapper/1 is trying to lock:
+0000000060931b98 (&desc[i].request_mutex){+.+.}-{3:3}, at: __setup_irq+0x11d/0x623
+other info that might help us debug this:
+context-{4:4}
+1 lock held by swapper/1:
+ #0: 000000006074fed8 (sigio_spinlock){+.+.}-{2:2}, at: sigio_lock+0x1a/0x1c
+stack backtrace:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0-05093-g46d91ecd597b #98
+Stack:
+ 7fa4fab0 6028dfd1 0000002a 6008bea5
+ 7fa50700 7fa50040 7fa4fac0 6028e016
+ 7fa4fb50 6007f6da 60959c18 00000000
 Call Trace:
- build_sit_entries fs/f2fs/segment.c:4195 [inline]
- f2fs_build_segment_manager+0x4b8a/0xa3c0 fs/f2fs/segment.c:4779
- f2fs_fill_super+0x377d/0x6b80 fs/f2fs/super.c:3633
- mount_bdev+0x32e/0x3f0 fs/super.c:1417
- legacy_get_tree+0x105/0x220 fs/fs_context.c:592
- vfs_get_tree+0x89/0x2f0 fs/super.c:1547
- do_new_mount fs/namespace.c:2875 [inline]
- path_mount+0x1387/0x2070 fs/namespace.c:3192
- do_mount fs/namespace.c:3205 [inline]
- __do_sys_mount fs/namespace.c:3413 [inline]
- __se_sys_mount fs/namespace.c:3390 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ [<60023a0e>] show_stack+0x13b/0x155
+ [<6028e016>] dump_stack+0x2a/0x2c
+ [<6007f6da>] __lock_acquire+0x515/0x15f2
+ [<6007eb50>] lock_acquire+0x245/0x273
+ [<6050d9f1>] __mutex_lock+0xbd/0x325
+ [<6050dc76>] mutex_lock_nested+0x1d/0x1f
+ [<6008e27e>] __setup_irq+0x11d/0x623
+ [<6008e8ed>] request_threaded_irq+0x169/0x1a6
+ [<60021eb0>] um_request_irq+0x1ee/0x24b
+ [<600234ee>] write_sigio_irq+0x3b/0x76
+ [<600383ca>] sigio_broken+0x146/0x2e4
+ [<60020bd8>] do_one_initcall+0xde/0x281
 
-@blkno in f2fs_ra_meta_pages could exceed max segment count, causing panic
-in following sanity check in current_sit_addr(), add check condition to
-avoid this issue.
+Because we hold sigio_spinlock and then get into requesting
+an interrupt with a mutex.
 
-Reported-by: syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Change the spinlock to a mutex to avoid that.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/um/kernel/sigio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index c1b24d7aa6ef1..5e9f8ec8251d3 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -201,6 +201,8 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages,
- 					blkno * NAT_ENTRY_PER_BLOCK);
- 			break;
- 		case META_SIT:
-+			if (unlikely(blkno >= TOTAL_SEGS(sbi)))
-+				goto out;
- 			/* get sit block addr */
- 			fio.new_blkaddr = current_sit_addr(sbi,
- 					blkno * SIT_ENTRY_PER_BLOCK);
+diff --git a/arch/um/kernel/sigio.c b/arch/um/kernel/sigio.c
+index b5e0cbb343828..476ded92affac 100644
+--- a/arch/um/kernel/sigio.c
++++ b/arch/um/kernel/sigio.c
+@@ -36,14 +36,14 @@ int write_sigio_irq(int fd)
+ }
+ 
+ /* These are called from os-Linux/sigio.c to protect its pollfds arrays. */
+-static DEFINE_SPINLOCK(sigio_spinlock);
++static DEFINE_MUTEX(sigio_mutex);
+ 
+ void sigio_lock(void)
+ {
+-	spin_lock(&sigio_spinlock);
++	mutex_lock(&sigio_mutex);
+ }
+ 
+ void sigio_unlock(void)
+ {
+-	spin_unlock(&sigio_spinlock);
++	mutex_unlock(&sigio_mutex);
+ }
 -- 
 2.25.1
 
