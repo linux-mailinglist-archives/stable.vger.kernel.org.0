@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE0F29C2CE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C883A29C2CC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1820854AbgJ0RjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        id S1820845AbgJ0RjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760227AbgJ0OeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:34:06 -0400
+        id S2898420AbgJ0OeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:34:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C03322202;
-        Tue, 27 Oct 2020 14:34:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3283320709;
+        Tue, 27 Oct 2020 14:34:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809244;
-        bh=0Q3DlSByGyGSQ0dpJiZgz9W/y0e+sl8/RMS0gGeyX9U=;
+        s=default; t=1603809250;
+        bh=oqFJHYCHJDAmonOunTiIlV9+jTO/MRQsZuPFjEx01d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FvITfj44P61UqZcwGaVtBRqFpV6mSF9El355xvJ/hP5AFK7scDQbEZJD5ZhNNLhQ9
-         NPDbZSe/W3xS6KrTzsuWO8zjE0dNHTZLY2aDL9q03W5FMrtk0QfuiYZ6xuLM/HYxRR
-         r1wCC+mx7sQUwNUESQ/hYWIYLGrcuT4G1fL4KnY4=
+        b=o/YcTbGKqtDdCEfcWcsF9h8QpcxiPtJeYh76diZ3v2D3AUCkIxwHQaTdDILTC+tp4
+         RGH/ogWDP1ctK3NhsLdGyEaHs2FmJBtlX5mU+haZxncRsT8elBR1dzjTscn7dgzvSv
+         7EwIynwV+GnHi80DZz0Ar58MlvNFcqVu+hwIIh44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e113a0b970b7b3f394ba@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 128/408] binder: Remove bogus warning on failed same-process transaction
-Date:   Tue, 27 Oct 2020 14:51:06 +0100
-Message-Id: <20201027135501.031727637@linuxfoundation.org>
+Subject: [PATCH 5.4 130/408] tty: hvcs: Dont NULL tty->driver_data until hvcs_cleanup()
+Date:   Tue, 27 Oct 2020 14:51:08 +0100
+Message-Id: <20201027135501.120893326@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,45 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit e8b8ae7ce32e17a5c29f0289e9e2a39c7dcaa1b8 ]
+[ Upstream commit 63ffcbdad738e3d1c857027789a2273df3337624 ]
 
-While binder transactions with the same binder_proc as sender and recipient
-are forbidden, transactions with the same task_struct as sender and
-recipient are possible (even though currently there is a weird check in
-binder_transaction() that rejects them in the target==0 case).
-Therefore, task_struct identities can't be used to distinguish whether
-the caller is running in the context of the sender or the recipient.
+The code currently NULLs tty->driver_data in hvcs_close() with the
+intent of informing the next call to hvcs_open() that device needs to be
+reconfigured. However, when hvcs_cleanup() is called we copy hvcsd from
+tty->driver_data which was previoulsy NULLed by hvcs_close() and our
+call to tty_port_put(&hvcsd->port) doesn't actually do anything since
+&hvcsd->port ends up translating to NULL by chance. This has the side
+effect that when hvcs_remove() is called we have one too many port
+references preventing hvcs_destuct_port() from ever being called. This
+also prevents us from reusing the /dev/hvcsX node in a future
+hvcs_probe() and we can eventually run out of /dev/hvcsX devices.
 
-Since I see no easy way to make this WARN_ON() useful and correct, let's
-just remove it.
+Fix this by waiting to NULL tty->driver_data in hvcs_cleanup().
 
-Fixes: 44d8047f1d87 ("binder: use standard functions to allocate fds")
-Reported-by: syzbot+e113a0b970b7b3f394ba@syzkaller.appspotmail.com
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/r/20200806165359.2381483-1-jannh@google.com
+Fixes: 27bf7c43a19c ("TTY: hvcs, add tty install")
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200820234643.70412-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/tty/hvc/hvcs.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 0f56a82615389..b62b1ab6bb699 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2326,8 +2326,6 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
- 			 * file is done when the transaction is torn
- 			 * down.
- 			 */
--			WARN_ON(failed_at &&
--				proc->tsk == current->group_leader);
- 		} break;
- 		case BINDER_TYPE_PTR:
- 			/*
+diff --git a/drivers/tty/hvc/hvcs.c b/drivers/tty/hvc/hvcs.c
+index ee0604cd9c6b2..0c498b20d8cb5 100644
+--- a/drivers/tty/hvc/hvcs.c
++++ b/drivers/tty/hvc/hvcs.c
+@@ -1218,13 +1218,6 @@ static void hvcs_close(struct tty_struct *tty, struct file *filp)
+ 
+ 		tty_wait_until_sent(tty, HVCS_CLOSE_WAIT);
+ 
+-		/*
+-		 * This line is important because it tells hvcs_open that this
+-		 * device needs to be re-configured the next time hvcs_open is
+-		 * called.
+-		 */
+-		tty->driver_data = NULL;
+-
+ 		free_irq(irq, hvcsd);
+ 		return;
+ 	} else if (hvcsd->port.count < 0) {
+@@ -1239,6 +1232,13 @@ static void hvcs_cleanup(struct tty_struct * tty)
+ {
+ 	struct hvcs_struct *hvcsd = tty->driver_data;
+ 
++	/*
++	 * This line is important because it tells hvcs_open that this
++	 * device needs to be re-configured the next time hvcs_open is
++	 * called.
++	 */
++	tty->driver_data = NULL;
++
+ 	tty_port_put(&hvcsd->port);
+ }
+ 
 -- 
 2.25.1
 
