@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE1E29C52E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B0C29C55E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757245AbgJ0SFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:05:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
+        id S1757236AbgJ0SFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757238AbgJ0OQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:59 -0400
+        id S1757255AbgJ0ORE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B301222263;
-        Tue, 27 Oct 2020 14:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B778C22281;
+        Tue, 27 Oct 2020 14:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808219;
-        bh=RoVvdFcNETWCUPePSmyeQEpHXBqEBaEqkar10EMHUYM=;
+        s=default; t=1603808224;
+        bh=IxEYLQ2RA04ar3zKNWqO8HwfKUB9iEBc9HX0PRTW/ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+T8I8aF8RGKfEk0hkiWiB/8gtU3c8G5e7BNy1EWDg62Rb4InewfoScBB3NnKJzkA
-         hjy01YQMxY+L8u5/8MYfdEloJFt0QMp/5NyY7QbVz1JyE7VOr3yxKtzh6Jsm3B35U8
-         HJHGpf5tKxzAxGoPnarQHK4ok6lQRuT/wbgpK1d0=
+        b=Dpo5Eirz1SEL3Duf29pfNh/HIe8XqbeGcbTxr6Wp3HvrKWv1UU75umO/axbOyXApX
+         Utf5+FKZMKkQiqgC8cdHyQ5SQ9femNKo3X8gPhNuzcMcZTkMlIjKXw66okui6lXvng
+         tH3i7I23wjgwauVEJ8dPausIj1HoFS3wGIMhvSpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Cristobal Forno <cris.forno@ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 001/264] ibmveth: Switch order of ibmveth_helper calls.
-Date:   Tue, 27 Oct 2020 14:50:59 +0100
-Message-Id: <20201027135430.709803936@linuxfoundation.org>
+Subject: [PATCH 4.19 003/264] ipv4: Restore flowi4_oif update before call to xfrm_lookup_route
+Date:   Tue, 27 Oct 2020 14:51:01 +0100
+Message-Id: <20201027135430.809154211@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,48 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wilder <dwilder@us.ibm.com>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit 5ce9ad815a296374ca21f43f3b1ab5083d202ee1 ]
+[ Upstream commit 874fb9e2ca949b443cc419a4f2227cafd4381d39 ]
 
-ibmveth_rx_csum_helper() must be called after ibmveth_rx_mss_helper()
-as ibmveth_rx_csum_helper() may alter ip and tcp checksum values.
+Tobias reported regressions in IPsec tests following the patch
+referenced by the Fixes tag below. The root cause is dropping the
+reset of the flowi4_oif after the fib_lookup. Apparently it is
+needed for xfrm cases, so restore the oif update to ip_route_output_flow
+right before the call to xfrm_lookup_route.
 
-Fixes: 66aa0678efc2 ("ibmveth: Support to enable LSO/CSO for Trunk VEA.")
-Signed-off-by: David Wilder <dwilder@us.ibm.com>
-Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
-Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
+Fixes: 2fbc6e89b2f1 ("ipv4: Update exception handling for multipath routes via same device")
+Reported-by: Tobias Brunner <tobias@strongswan.org>
+Signed-off-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmveth.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/ipv4/route.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1366,16 +1366,16 @@ static int ibmveth_poll(struct napi_stru
- 			skb_put(skb, length);
- 			skb->protocol = eth_type_trans(skb, netdev);
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2634,10 +2634,12 @@ struct rtable *ip_route_output_flow(stru
+ 	if (IS_ERR(rt))
+ 		return rt;
  
--			if (csum_good) {
--				skb->ip_summed = CHECKSUM_UNNECESSARY;
--				ibmveth_rx_csum_helper(skb, adapter);
--			}
--
- 			if (length > netdev->mtu + ETH_HLEN) {
- 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
- 				adapter->rx_large_packets++;
- 			}
+-	if (flp4->flowi4_proto)
++	if (flp4->flowi4_proto) {
++		flp4->flowi4_oif = rt->dst.dev->ifindex;
+ 		rt = (struct rtable *)xfrm_lookup_route(net, &rt->dst,
+ 							flowi4_to_flowi(flp4),
+ 							sk, 0);
++	}
  
-+			if (csum_good) {
-+				skb->ip_summed = CHECKSUM_UNNECESSARY;
-+				ibmveth_rx_csum_helper(skb, adapter);
-+			}
-+
- 			napi_gro_receive(napi, skb);	/* send it up */
- 
- 			netdev->stats.rx_packets++;
+ 	return rt;
+ }
 
 
