@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B117629BC58
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9AA29BC57
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802504AbgJ0Ptr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54098 "EHLO mail.kernel.org"
+        id S1752725AbgJ0Pt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794492AbgJ0PQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:16:48 -0400
+        id S1796266AbgJ0PQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:16:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26C9A2225C;
-        Tue, 27 Oct 2020 15:16:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7506A2224A;
+        Tue, 27 Oct 2020 15:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811807;
-        bh=mvWg4IhqfAwZBzqWYavKsPtC4gLUHKt7kNxlw7KdVQQ=;
+        s=default; t=1603811819;
+        bh=rozxnVf81Em0tR+ad5yS6RN+XWIJ4mwYZE4do9mDHPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guuLGCeaUpvz4P9I4zqvVMJK6nP+3LzgihnHsNY8rJ13ZtVUq5mLdYl54YEBahiqu
-         hZuYi2jCZOljLswRAceYjufBXrOwQMCDEvBkpLjZI7utyGax470x/lUmeOWzLDVbIA
-         PYYYkXlrMsCu6yzKzdCdmztHc5gI/HNrODC/RNPM=
+        b=ux/rxVVB8600nqsKZ8ZvgrPGqtoF6kwZv7WptQ3yGsHR6Ex8YFCLeruRf3whKCNxK
+         idqRQwzsxzkMx/wAe4fMo3tB7E3/vSW2nRxzSaBmJEFtMWopHpWoSVCahml4LOkXzm
+         G3jbmMe4UpoFizxXEm64WWQr6VGGZJgfvQx/MRVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 624/633] net: korina: cast KSEG0 address to pointer in kfree
-Date:   Tue, 27 Oct 2020 14:56:07 +0100
-Message-Id: <20201027135552.091139464@linuxfoundation.org>
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.8 628/633] usb: gadget: bcm63xx_udc: fix up the error of undeclared usb_debug_root
+Date:   Tue, 27 Oct 2020 14:56:11 +0100
+Message-Id: <20201027135552.275746108@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,48 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 3bd57b90554b4bb82dce638e0668ef9dc95d3e96 ]
+commit 5b35dd1a5a666329192a9616ec21098591259058 upstream.
 
-Fixes gcc warning:
+Fix up the build error caused by undeclared usb_debug_root
 
-passing argument 1 of 'kfree' makes pointer from integer without a cast
-
-Fixes: 3af5f0f5c74e ("net: korina: fix kfree of rx/tx descriptor array")
+Cc: stable <stable@vger.kernel.org>
+Fixes: a66ada4f241c ("usb: gadget: bcm63xx_udc: create debugfs directory under usb root")
 Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Link: https://lore.kernel.org/r/20201018184255.28989-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/korina.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/bcm63xx_udc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index af441d699a57a..bf48f0ded9c7d 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -1113,7 +1113,7 @@ static int korina_probe(struct platform_device *pdev)
- 	return rc;
- 
- probe_err_register:
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
- probe_err_td_ring:
- 	iounmap(lp->tx_dma_regs);
- probe_err_dma_tx:
-@@ -1133,7 +1133,7 @@ static int korina_remove(struct platform_device *pdev)
- 	iounmap(lp->eth_regs);
- 	iounmap(lp->rx_dma_regs);
- 	iounmap(lp->tx_dma_regs);
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
- 
- 	unregister_netdev(bif->dev);
- 	free_netdev(bif->dev);
--- 
-2.25.1
-
+--- a/drivers/usb/gadget/udc/bcm63xx_udc.c
++++ b/drivers/usb/gadget/udc/bcm63xx_udc.c
+@@ -26,6 +26,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/slab.h>
+ #include <linux/timer.h>
++#include <linux/usb.h>
+ #include <linux/usb/ch9.h>
+ #include <linux/usb/gadget.h>
+ #include <linux/workqueue.h>
 
 
