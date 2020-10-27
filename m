@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A095529C6AD
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFE229C6AC
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827172AbgJ0SVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
+        id S1753810AbgJ0SVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753763AbgJ0OCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:02:02 -0400
+        id S1753773AbgJ0OCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 613632225C;
-        Tue, 27 Oct 2020 14:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27AB8221F8;
+        Tue, 27 Oct 2020 14:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807321;
-        bh=/NlU0/3d84vVPG+nHAIZydHM6HSVzfZ3j8P+/gBXXl8=;
+        s=default; t=1603807324;
+        bh=pCRbuIopMcDcPIMchsocM0msKNjv8DaFn3/+U1r/VZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvQVH32T8rWF7sn4IEsNGHFc913/SZvxUoUq3f6Z3ARFUfTN359sijJ9Dq5/XPzUC
-         ijvs1JhIMjt67DgbgeECx5kFEAYpkBtvo5iE098c22YvJCpFNahxvLTAdeeBoxc4DU
-         W4bktSIC/GVCihFbGjR75Yp1E7MNpI1ivGlKt2PM=
+        b=fLNXOsM/2UDYwg6LfB731OzPvYFVzCNMnxhJB3BowDqceubppiLBsPxUCM8b6Zbkf
+         pOG392fOi7Adoy9dTHKZH7Em8CU86PgYTbjX+EZSvh6WB06ZZSEXSvLqQlgmT19gOq
+         14uIPxwg4rO/TuHQuky/pm8rNeIiPHme9m9+akas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dominik Maier <dmaier@sect.tu-berlin.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.9 011/139] cifs: remove bogus debug code
-Date:   Tue, 27 Oct 2020 14:48:25 +0100
-Message-Id: <20201027134902.677707100@linuxfoundation.org>
+        stable@vger.kernel.org, Junaid Shahid <junaids@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 012/139] KVM: x86/mmu: Commit zap of remaining invalid pages when recovering lpages
+Date:   Tue, 27 Oct 2020 14:48:26 +0100
+Message-Id: <20201027134902.727311405@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -43,72 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit d367cb960ce88914898cbfa43645c2e43ede9465 upstream.
+commit e89505698c9f70125651060547da4ff5046124fc upstream.
 
-The "end" pointer is either NULL or it points to the next byte to parse.
-If there isn't a next byte then dereferencing "end" is an off-by-one out
-of bounds error.  And, of course, if it's NULL that leads to an Oops.
-Printing "*end" doesn't seem very useful so let's delete this code.
+Call kvm_mmu_commit_zap_page() after exiting the "prepare zap" loop in
+kvm_recover_nx_lpages() to finish zapping pages in the unlikely event
+that the loop exited due to lpage_disallowed_mmu_pages being empty.
+Because the recovery thread drops mmu_lock() when rescheduling, it's
+possible that lpage_disallowed_mmu_pages could be emptied by a different
+thread without to_zap reaching zero despite to_zap being derived from
+the number of disallowed lpages.
 
-Also for the last debug statement, I noticed that it should be printing
-"sequence_end" instead of "end" so fix that as well.
-
-Reported-by: Dominik Maier <dmaier@sect.tu-berlin.de>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 1aa9b9572b105 ("kvm: x86: mmu: Recovery of shattered NX large pages")
+Cc: Junaid Shahid <junaids@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923183735.584-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/asn1.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kvm/mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/asn1.c
-+++ b/fs/cifs/asn1.c
-@@ -541,8 +541,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
- 		   || (tag != ASN1_EOC)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
-+			 cls, con, tag, end);
- 		return 0;
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -5321,6 +5321,7 @@ static void kvm_recover_nx_lpages(struct
+ 				cond_resched_lock(&kvm->mmu_lock);
+ 		}
  	}
++	kvm_mmu_commit_zap_page(kvm, &invalid_list);
  
-@@ -552,8 +552,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
- 		   || (tag != ASN1_SEQ)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 1\n",
-+			 cls, con, tag, end);
- 		return 0;
- 	}
- 
-@@ -563,8 +563,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
- 		   || (tag != ASN1_EOC)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
-+			 cls, con, tag, end);
- 		return 0;
- 	}
- 
-@@ -575,8 +575,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
- 		   || (tag != ASN1_SEQ)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d sequence_end = %p exit 1\n",
-+			 cls, con, tag, sequence_end);
- 		return 0;
- 	}
- 
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
 
 
