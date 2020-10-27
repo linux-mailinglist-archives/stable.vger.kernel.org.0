@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50E3729B463
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7870029B505
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1783304AbgJ0PBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
+        id S1793684AbgJ0PHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1788970AbgJ0PB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:01:29 -0400
+        id S1788954AbgJ0PBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:01:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01AFB22264;
-        Tue, 27 Oct 2020 15:01:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B35D020714;
+        Tue, 27 Oct 2020 15:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810888;
-        bh=4pUed4VROy9nOj/9XsiIeRnGe9h+xTjtWlpgp4aG6bY=;
+        s=default; t=1603810891;
+        bh=KwQVP6idZI3sOEzjKdmZNiIVexsuZ20Ywy6l5KikilY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxEnebD3R4oHPpiwHBdpkbDu1eOtRYrddHsbwSVxk1FZddTuOSQmN1iEy3NHmoqXt
-         GvmMa/ZBqHXK5XN8dxsc/Qza0JGXYP8rjxtDKIvdBVOe/4bM/xyWRT4wmLBlxUXyVT
-         LUKwtTLWrOCADQql/eQg6Nx86HzpyrH5LXF632vs=
+        b=E6qm6e9GM4TzOqWb0jSmxkWEZgw+k0eGHvukSS/eM56Ebzv2hmnRUqiL74orYmavf
+         2MS3qIwYt1cm5BuhK3G3plq9TGNO3PGEa6EpYSZRVNPaozU/5vIodagMWTDIFA93cR
+         5gTcMTNpRDzKWpDKUweO6zks1WkFXySloU/rrtPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Linh Phung <linh.phung.jy@renesas.com>,
-        Tam Nguyen <tam.nguyen.xa@renesas.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 298/633] usb: gadget: u_serial: clear suspended flag when disconnecting
-Date:   Tue, 27 Oct 2020 14:50:41 +0100
-Message-Id: <20201027135536.650544510@linuxfoundation.org>
+Subject: [PATCH 5.8 299/633] usb: gadget: u_ether: enable qmult on SuperSpeed Plus as well
+Date:   Tue, 27 Oct 2020 14:50:42 +0100
+Message-Id: <20201027135536.696635760@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,39 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit d98ef43bfb65b5201e1afe36aaf8c4f9d71b4307 ]
+[ Upstream commit 4eea21dc67b0c6ba15ae41b1defa113a680a858e ]
 
-The commit aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume
-callbacks") set/cleared the suspended flag in USB bus suspend/resume
-only. But, when a USB cable is disconnected in the suspend, since some
-controllers will not detect USB bus resume, the suspended flag is not
-cleared. After that, user cannot send any data. To fix the issue,
-clears the suspended flag in the gserial_disconnect().
+The u_ether driver has a qmult setting that multiplies the
+transmit queue length (which by default is 2).
 
-Fixes: aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume callbacks")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Linh Phung <linh.phung.jy@renesas.com>
-Tested-by: Tam Nguyen <tam.nguyen.xa@renesas.com>
+The intent is that it should be enabled at high/super speed, but
+because the code does not explicitly check for USB_SUPER_PLUS,
+it is disabled at that speed.
+
+Fix this by ensuring that the queue multiplier is enabled for any
+wired link at high speed or above. Using >= for USB_SPEED_*
+constants seems correct because it is what the gadget_is_xxxspeed
+functions do.
+
+The queue multiplier substantially helps performance at higher
+speeds. On a direct SuperSpeed Plus link to a Linux laptop,
+iperf3 single TCP stream:
+
+Before (qmult=1): 1.3 Gbps
+After  (qmult=5): 3.2 Gbps
+
+Fixes: 04617db7aa68 ("usb: gadget: add SS descriptors to Ethernet gadget")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_serial.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/u_ether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
-index 3cfc6e2eba71a..e0e3cb2f6f3bc 100644
---- a/drivers/usb/gadget/function/u_serial.c
-+++ b/drivers/usb/gadget/function/u_serial.c
-@@ -1391,6 +1391,7 @@ void gserial_disconnect(struct gserial *gser)
- 		if (port->port.tty)
- 			tty_hangup(port->port.tty);
- 	}
-+	port->suspended = false;
- 	spin_unlock_irqrestore(&port->port_lock, flags);
- 
- 	/* disable endpoints, aborting down any active I/O */
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index fbe96ef1ac7a4..891e9f7f40d59 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -93,7 +93,7 @@ struct eth_dev {
+ static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
+ {
+ 	if (gadget_is_dualspeed(gadget) && (gadget->speed == USB_SPEED_HIGH ||
+-					    gadget->speed == USB_SPEED_SUPER))
++					    gadget->speed >= USB_SPEED_SUPER))
+ 		return qmult * DEFAULT_QLEN;
+ 	else
+ 		return DEFAULT_QLEN;
 -- 
 2.25.1
 
