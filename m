@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE77E29C736
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D2929C696
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368152AbgJ0N5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
+        id S1827106AbgJ0SVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368149AbgJ0N5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:10 -0400
+        id S1753981AbgJ0ODY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E270218AC;
-        Tue, 27 Oct 2020 13:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E8B62225E;
+        Tue, 27 Oct 2020 14:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807029;
-        bh=/NlU0/3d84vVPG+nHAIZydHM6HSVzfZ3j8P+/gBXXl8=;
+        s=default; t=1603807403;
+        bh=3TadBh0ChBLdE/OoitLzKEq7k8MBSDGCCFHdu6BOMfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnhG7WPwYO8DvWjTcM5ZOVVSRD47HfeWALeoDsieyeafb4aiXIcT2nw4KOIKrPYig
-         eiBzt2H/3m8MdGM/CA4W5KLL5PuldpHzDzkI3PwJ/2maHFBqf7CXQzvGD54ZD/Gq7y
-         hiZrcGrcE/qj6gCnJkrUj7eivozwymzKn4/4vtY4=
+        b=K4KUsGVhagMSWqgfeimJ0pWjR9ecn1wmRabQz95kL3mVklheHXpVQHL1rR5lvYQ7J
+         I0y0cTzMsTmyoz7d9bFT6z3DQrC8oi6hMiLnOiErwhkjSAr8HbygZtPg898AwbLg6w
+         2iXhtXF+8rwRTTl3filTdzGBmsBNMKL6eo2pFhaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dominik Maier <dmaier@sect.tu-berlin.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.4 017/112] cifs: remove bogus debug code
+        stable@vger.kernel.org, Praveen Madhavan <praveenm@chelsio.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 033/139] scsi: csiostor: Fix wrong return value in csio_hw_prep_fw()
 Date:   Tue, 27 Oct 2020 14:48:47 +0100
-Message-Id: <20201027134901.383747842@linuxfoundation.org>
+Message-Id: <20201027134903.714275348@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-commit d367cb960ce88914898cbfa43645c2e43ede9465 upstream.
+[ Upstream commit 44f4daf8678ae5f08c93bbe70792f90cd88e4649 ]
 
-The "end" pointer is either NULL or it points to the next byte to parse.
-If there isn't a next byte then dereferencing "end" is an off-by-one out
-of bounds error.  And, of course, if it's NULL that leads to an Oops.
-Printing "*end" doesn't seem very useful so let's delete this code.
+On an error exit path, a negative error code should be returned instead of
+a positive return value.
 
-Also for the last debug statement, I noticed that it should be printing
-"sequence_end" instead of "end" so fix that as well.
-
-Reported-by: Dominik Maier <dmaier@sect.tu-berlin.de>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200802111531.5065-1-tianjia.zhang@linux.alibaba.com
+Fixes: f40e74ffa3de ("csiostor:firmware upgrade fix")
+Cc: Praveen Madhavan <praveenm@chelsio.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/asn1.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/scsi/csiostor/csio_hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/asn1.c
-+++ b/fs/cifs/asn1.c
-@@ -541,8 +541,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
- 		   || (tag != ASN1_EOC)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
-+			 cls, con, tag, end);
- 		return 0;
+diff --git a/drivers/scsi/csiostor/csio_hw.c b/drivers/scsi/csiostor/csio_hw.c
+index dab195f04da78..06ca0495f3e8e 100644
+--- a/drivers/scsi/csiostor/csio_hw.c
++++ b/drivers/scsi/csiostor/csio_hw.c
+@@ -1973,7 +1973,7 @@ static int csio_hw_prep_fw(struct csio_hw *hw, struct fw_info *fw_info,
+ 			FW_HDR_FW_VER_MICRO_G(c), FW_HDR_FW_VER_BUILD_G(c),
+ 			FW_HDR_FW_VER_MAJOR_G(k), FW_HDR_FW_VER_MINOR_G(k),
+ 			FW_HDR_FW_VER_MICRO_G(k), FW_HDR_FW_VER_BUILD_G(k));
+-		ret = EINVAL;
++		ret = -EINVAL;
+ 		goto bye;
  	}
  
-@@ -552,8 +552,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
- 		   || (tag != ASN1_SEQ)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 1\n",
-+			 cls, con, tag, end);
- 		return 0;
- 	}
- 
-@@ -563,8 +563,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
- 		   || (tag != ASN1_EOC)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
-+			 cls, con, tag, end);
- 		return 0;
- 	}
- 
-@@ -575,8 +575,8 @@ decode_negTokenInit(unsigned char *secur
- 		return 0;
- 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
- 		   || (tag != ASN1_SEQ)) {
--		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
--			 cls, con, tag, end, *end);
-+		cifs_dbg(FYI, "cls = %d con = %d tag = %d sequence_end = %p exit 1\n",
-+			 cls, con, tag, sequence_end);
- 		return 0;
- 	}
- 
+-- 
+2.25.1
+
 
 
