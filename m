@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63AC529B461
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E3729B463
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1788956AbgJ0PB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:01:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35268 "EHLO mail.kernel.org"
+        id S1783304AbgJ0PBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:01:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1788945AbgJ0PB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:01:26 -0400
+        id S1788970AbgJ0PB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:01:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 239F622284;
-        Tue, 27 Oct 2020 15:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01AFB22264;
+        Tue, 27 Oct 2020 15:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810885;
-        bh=/tjv9XXeftNbeS+TgYPo9QlogmLSUzz/8u5bVbnUNPY=;
+        s=default; t=1603810888;
+        bh=4pUed4VROy9nOj/9XsiIeRnGe9h+xTjtWlpgp4aG6bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhR84d1yKJ2YaPr6qpuEmCPl+MGgi6fQQNv/dQ8miOZl1EA51sKnbZgs+xKtBsTko
-         tWAVcm0isnCgW4OFXS5twQA4fCs6p225bo9jehqC3CULPjBHEp913D9yI+3xQ22wHa
-         udiII3s8EWqPmmDePTBR6u3dq+Vuq/Uh8eHA6gPU=
+        b=FxEnebD3R4oHPpiwHBdpkbDu1eOtRYrddHsbwSVxk1FZddTuOSQmN1iEy3NHmoqXt
+         GvmMa/ZBqHXK5XN8dxsc/Qza0JGXYP8rjxtDKIvdBVOe/4bM/xyWRT4wmLBlxUXyVT
+         LUKwtTLWrOCADQql/eQg6Nx86HzpyrH5LXF632vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Lorenzo Colitti <lorenzo@google.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Linh Phung <linh.phung.jy@renesas.com>,
+        Tam Nguyen <tam.nguyen.xa@renesas.com>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 297/633] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
-Date:   Tue, 27 Oct 2020 14:50:40 +0100
-Message-Id: <20201027135536.605024899@linuxfoundation.org>
+Subject: [PATCH 5.8 298/633] usb: gadget: u_serial: clear suspended flag when disconnecting
+Date:   Tue, 27 Oct 2020 14:50:41 +0100
+Message-Id: <20201027135536.650544510@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,65 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Colitti <lorenzo@google.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
+[ Upstream commit d98ef43bfb65b5201e1afe36aaf8c4f9d71b4307 ]
 
-Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
-in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
-assume 16 packets per microframe, and USB 3 and above no longer
-use microframes.
+The commit aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume
+callbacks") set/cleared the suspended flag in USB bus suspend/resume
+only. But, when a USB cable is disconnected in the suspend, since some
+controllers will not detect USB bus resume, the suspended flag is not
+cleared. After that, user cannot send any data. To fix the issue,
+clears the suspended flag in the gserial_disconnect().
 
-Maximum speed is actually much higher. On a direct connection,
-theoretical throughput is at most 3.86 Gbps for gen1x1 and
-9.36 Gbps for gen2x1, and I have seen gadget->host iperf
-throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
-
-Unfortunately the ConnectionSpeedChange defined in the CDC spec
-only uses 32-bit values, so we can't report accurate numbers for
-10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
-roughly maximum theoretical performance) and 4.25Gbps for
-SuperSpeed Plus (which is close to the maximum that we can report
-in a 32-bit unsigned integer).
-
-This results in:
-
-[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
-[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
-
-on SuperSpeed and:
-
-[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
-[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
-
-on SuperSpeed Plus.
-
-Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Fixes: aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume callbacks")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Linh Phung <linh.phung.jy@renesas.com>
+Tested-by: Tam Nguyen <tam.nguyen.xa@renesas.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ncm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/u_serial.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
-index 1f638759a9533..7672fa25085b0 100644
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -85,8 +85,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
- /* peak (theoretical) bulk transfer rate in bits-per-second */
- static inline unsigned ncm_bitrate(struct usb_gadget *g)
- {
--	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
--		return 13 * 1024 * 8 * 1000 * 8;
-+	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
-+		return 4250000000U;
-+	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
-+		return 3750000000U;
- 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
- 		return 13 * 512 * 8 * 1000 * 8;
- 	else
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index 3cfc6e2eba71a..e0e3cb2f6f3bc 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -1391,6 +1391,7 @@ void gserial_disconnect(struct gserial *gser)
+ 		if (port->port.tty)
+ 			tty_hangup(port->port.tty);
+ 	}
++	port->suspended = false;
+ 	spin_unlock_irqrestore(&port->port_lock, flags);
+ 
+ 	/* disable endpoints, aborting down any active I/O */
 -- 
 2.25.1
 
