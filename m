@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF49629C3D6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AAD29C3D8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822583AbgJ0Rug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1822579AbgJ0Rug (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 13:50:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368364AbgJ0OZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:25:19 -0400
+        id S2901604AbgJ0OZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:25:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 226BB2072D;
-        Tue, 27 Oct 2020 14:25:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B559B2072D;
+        Tue, 27 Oct 2020 14:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808718;
-        bh=ff8Y5P4MnFRyF+qoEYbcQF6vhYtqa5sX0jGeZnROf0M=;
+        s=default; t=1603808721;
+        bh=Q0z4FUfpXIV8BLXeTRDS0EgQj8KQxj7AN4N+Hb4o09U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Olg4smPl/zS6bB06sMjXbiBuc+NT+IMYYRRgdLTkGWbF65tB/10As0d0uhUSkKMml
-         RrE79uG+qugHp5XxZcFqPZNxoK6DBPZtYBwp58dRfoK82tr+vdNhtK8ZgZBcvLmhKa
-         E+hWtToi6Bv9ba8yWVVhXMRUaLUg8ZA4B23azRMk=
+        b=M4APj6e/0WwHb/Ntw4LGxX7bxzIq/3c49WnjjApRzpJKeE8GpnO+pkKLgfzL6lntn
+         gNt7aqOKOqj8m/vvkDc8GogBfSR7zOwqqREgOU4s56WcHigbOPhxBvNrR4ELeyoYTD
+         2f0ILTIG20SSkEPpwLhnXyOzYxMa7hUt72lVakrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/264] arm64: dts: qcom: msm8916: Fix MDP/DSI interrupts
-Date:   Tue, 27 Oct 2020 14:54:15 +0100
-Message-Id: <20201027135439.925040794@linuxfoundation.org>
+Subject: [PATCH 4.19 198/264] ARM: dts: owl-s500: Fix incorrect PPI interrupt specifiers
+Date:   Tue, 27 Oct 2020 14:54:16 +0100
+Message-Id: <20201027135439.972566703@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,52 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit 027cca9eb5b450c3f6bb916ba999144c2ec23cb7 ]
+[ Upstream commit 55f6c9931f7c32f19cf221211f099dfd8dab3af9 ]
 
-The mdss node sets #interrupt-cells = <1>, so its interrupts
-should be referenced using a single cell (in this case: only the
-interrupt number).
+The PPI interrupts for cortex-a9 were incorrectly specified, fix them.
 
-However, right now the mdp/dsi node both have two interrupt cells
-set, e.g. interrupts = <4 0>. The 0 is probably meant to say
-IRQ_TYPE_NONE (= 0), but with #interrupt-cells = <1> this is
-actually interpreted as a second interrupt line.
-
-Remove the IRQ flags from both interrupts to fix this.
-
-Fixes: 305410ffd1b2 ("arm64: dts: msm8916: Add display support")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200915071221.72895-5-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: fdfe7f4f9d85 ("ARM: dts: Add Actions Semi S500 and LeMaker Guitar")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Peter Korsgaard <peter@korsgaard.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/owl-s500.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 8011e564a234b..2c5193ae20277 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -877,7 +877,7 @@ mdp: mdp@1a01000 {
- 				reg-names = "mdp_phys";
+diff --git a/arch/arm/boot/dts/owl-s500.dtsi b/arch/arm/boot/dts/owl-s500.dtsi
+index 43c9980a4260c..75a76842c2700 100644
+--- a/arch/arm/boot/dts/owl-s500.dtsi
++++ b/arch/arm/boot/dts/owl-s500.dtsi
+@@ -85,21 +85,21 @@ scu: scu@b0020000 {
+ 		global_timer: timer@b0020200 {
+ 			compatible = "arm,cortex-a9-global-timer";
+ 			reg = <0xb0020200 0x100>;
+-			interrupts = <GIC_PPI 0 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
+ 		};
  
- 				interrupt-parent = <&mdss>;
--				interrupts = <0 0>;
-+				interrupts = <0>;
+ 		twd_timer: timer@b0020600 {
+ 			compatible = "arm,cortex-a9-twd-timer";
+ 			reg = <0xb0020600 0x20>;
+-			interrupts = <GIC_PPI 2 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
+ 		};
  
- 				clocks = <&gcc GCC_MDSS_AHB_CLK>,
- 					 <&gcc GCC_MDSS_AXI_CLK>,
-@@ -909,7 +909,7 @@ dsi0: dsi@1a98000 {
- 				reg-names = "dsi_ctrl";
+ 		twd_wdt: wdt@b0020620 {
+ 			compatible = "arm,cortex-a9-twd-wdt";
+ 			reg = <0xb0020620 0xe0>;
+-			interrupts = <GIC_PPI 3 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++			interrupts = <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+ 			status = "disabled";
+ 		};
  
- 				interrupt-parent = <&mdss>;
--				interrupts = <4 0>;
-+				interrupts = <4>;
- 
- 				assigned-clocks = <&gcc BYTE0_CLK_SRC>,
- 						  <&gcc PCLK0_CLK_SRC>;
 -- 
 2.25.1
 
