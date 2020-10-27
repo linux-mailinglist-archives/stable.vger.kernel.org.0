@@ -2,42 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5388229B898
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1847129B899
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368867AbgJ0PmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S368874AbgJ0PmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800525AbgJ0PgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:36:12 -0400
+        id S1800526AbgJ0PgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:36:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02CC422264;
-        Tue, 27 Oct 2020 15:36:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE2ED2225E;
+        Tue, 27 Oct 2020 15:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812971;
-        bh=G0WQuRLxXzFU4uOyQTdkr80X88kBuiyFy8XYBj1cn+U=;
+        s=default; t=1603812974;
+        bh=qh4WecyvnQhU0FYL+/ki1WiF6MfXwAwcWC2dD7pKSYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aahH+OHrLZV0PhLWIFtSSlPnC1m6vdALxujdAW8HC3BwwdP8dZJc82yt7jqDrG7F+
-         GlyhQNg3MsYO/7/hBRBc7kVq5aMfPp0UuzJ1ILmfwI0woSWLUzsHSfDwQQpG0ZLNe4
-         Orgj1NdwMYnFrBuBKtD20xWdy1wgYPKM9NBLmFOM=
+        b=nX+7HZoZo/B2/VNR8+5XG/1JyhR4lgPLZEPdnqSBNSZ1LphJTOppZVsYeR4chjLWa
+         0VimOuGhAurZs00DTfvVzsNQiedSEEYqf39A8apAvN9CdAkcCq3MVCizJv8Yg6CaIW
+         tgKnw58/oMGsEltPyxsonwrUdyOrawaApkOakYok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Nick Piggin <npiggin@gmail.com>,
-        Hugh Dickins <hughd@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Christian Kellner <christian@kellner.me>,
+        Adrian Reber <areber@redhat.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alexey Gladkov <gladkov.alexey@gmail.com>,
+        Michel Lespinasse <walken@google.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        John Johansen <john.johansen@canonical.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 393/757] mm/page_alloc.c: fix freeing non-compound pages
-Date:   Tue, 27 Oct 2020 14:50:43 +0100
-Message-Id: <20201027135508.992424257@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Minchan Kim <minchan@kernel.org>
+Subject: [PATCH 5.9 394/757] mm, oom_adj: dont loop through tasks in __set_oom_adj when not necessary
+Date:   Tue, 27 Oct 2020 14:50:44 +0100
+Message-Id: <20201027135509.045450780@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -49,144 +67,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Suren Baghdasaryan <surenb@google.com>
 
-[ Upstream commit e320d3012d25b1fb5f3df4edb7bd44a1c362ec10 ]
+[ Upstream commit 67197a4f28d28d0b073ab0427b03cb2ee5382578 ]
 
-Here is a very rare race which leaks memory:
+Currently __set_oom_adj loops through all processes in the system to keep
+oom_score_adj and oom_score_adj_min in sync between processes sharing
+their mm.  This is done for any task with more that one mm_users, which
+includes processes with multiple threads (sharing mm and signals).
+However for such processes the loop is unnecessary because their signal
+structure is shared as well.
 
-Page P0 is allocated to the page cache.  Page P1 is free.
+Android updates oom_score_adj whenever a tasks changes its role
+(background/foreground/...) or binds to/unbinds from a service, making it
+more/less important.  Such operation can happen frequently.  We noticed
+that updates to oom_score_adj became more expensive and after further
+investigation found out that the patch mentioned in "Fixes" introduced a
+regression.  Using Pixel 4 with a typical Android workload, write time to
+oom_score_adj increased from ~3.57us to ~362us.  Moreover this regression
+linearly depends on the number of multi-threaded processes running on the
+system.
 
-Thread A                Thread B                Thread C
-find_get_entry():
-xas_load() returns P0
-						Removes P0 from page cache
-						P0 finds its buddy P1
-			alloc_pages(GFP_KERNEL, 1) returns P0
-			P0 has refcount 1
-page_cache_get_speculative(P0)
-P0 has refcount 2
-			__free_pages(P0)
-			P0 has refcount 1
-put_page(P0)
-P1 is not freed
+Mark the mm with a new MMF_MULTIPROCESS flag bit when task is created with
+(CLONE_VM && !CLONE_THREAD && !CLONE_VFORK).  Change __set_oom_adj to use
+MMF_MULTIPROCESS instead of mm_users to decide whether oom_score_adj
+update should be synchronized between multiple processes.  To prevent
+races between clone() and __set_oom_adj(), when oom_score_adj of the
+process being cloned might be modified from userspace, we use
+oom_adj_mutex.  Its scope is changed to global.
 
-Fix this by freeing all the pages in __free_pages() that won't be freed
-by the call to put_page().  It's usually not a good idea to split a page,
-but this is a very unlikely scenario.
+The combination of (CLONE_VM && !CLONE_THREAD) is rarely used except for
+the case of vfork().  To prevent performance regressions of vfork(), we
+skip taking oom_adj_mutex and setting MMF_MULTIPROCESS when CLONE_VFORK is
+specified.  Clearing the MMF_MULTIPROCESS flag (when the last process
+sharing the mm exits) is left out of this patch to keep it simple and
+because it is believed that this threading model is rare.  Should there
+ever be a need for optimizing that case as well, it can be done by hooking
+into the exit path, likely following the mm_update_next_owner pattern.
 
-Fixes: e286781d5f2e ("mm: speculative page references")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+With the combination of (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK) being
+quite rare, the regression is gone after the change is applied.
+
+[surenb@google.com: v3]
+  Link: https://lkml.kernel.org/r/20200902012558.2335613-1-surenb@google.com
+
+Fixes: 44a70adec910 ("mm, oom_adj: make sure processes sharing mm have same view of oom_score_adj")
+Reported-by: Tim Murray <timmurray@google.com>
+Suggested-by: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Nick Piggin <npiggin@gmail.com>
-Cc: Hugh Dickins <hughd@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200926213919.26642-1-willy@infradead.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Eugene Syromiatnikov <esyr@redhat.com>
+Cc: Christian Kellner <christian@kellner.me>
+Cc: Adrian Reber <areber@redhat.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alexey Gladkov <gladkov.alexey@gmail.com>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc: John Johansen <john.johansen@canonical.com>
+Cc: Yafang Shao <laoar.shao@gmail.com>
+Link: https://lkml.kernel.org/r/20200824153036.3201505-1-surenb@google.com
+Debugged-by: Minchan Kim <minchan@kernel.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug     |  9 +++++++++
- lib/Makefile          |  1 +
- lib/test_free_pages.c | 42 ++++++++++++++++++++++++++++++++++++++++++
- mm/page_alloc.c       |  3 +++
- 4 files changed, 55 insertions(+)
- create mode 100644 lib/test_free_pages.c
+ fs/proc/base.c                 |  3 +--
+ include/linux/oom.h            |  1 +
+ include/linux/sched/coredump.h |  1 +
+ kernel/fork.c                  | 21 +++++++++++++++++++++
+ mm/oom_kill.c                  |  2 ++
+ 5 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 0c781f912f9f0..491789a793ae5 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -2367,6 +2367,15 @@ config TEST_HMM
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 617db4e0faa09..aa69c35d904ca 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1055,7 +1055,6 @@ static ssize_t oom_adj_read(struct file *file, char __user *buf, size_t count,
  
- 	  If unsure, say N.
- 
-+config TEST_FREE_PAGES
-+	tristate "Test freeing pages"
-+	help
-+	  Test that a memory leak does not occur due to a race between
-+	  freeing a block of pages and a speculative page reference.
-+	  Loading this module is safe if your kernel has the bug fixed.
-+	  If the bug is not fixed, it will leak gigabytes of memory and
-+	  probably OOM your system.
-+
- config TEST_FPU
- 	tristate "Test floating point operations in kernel space"
- 	depends on X86 && !KCOV_INSTRUMENT_ALL
-diff --git a/lib/Makefile b/lib/Makefile
-index a4a4c6864f518..071b687b7363f 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -99,6 +99,7 @@ obj-$(CONFIG_TEST_BLACKHOLE_DEV) += test_blackhole_dev.o
- obj-$(CONFIG_TEST_MEMINIT) += test_meminit.o
- obj-$(CONFIG_TEST_LOCKUP) += test_lockup.o
- obj-$(CONFIG_TEST_HMM) += test_hmm.o
-+obj-$(CONFIG_TEST_FREE_PAGES) += test_free_pages.o
- 
- #
- # CFLAGS for compiling floating point code inside the kernel. x86/Makefile turns
-diff --git a/lib/test_free_pages.c b/lib/test_free_pages.c
-new file mode 100644
-index 0000000000000..074e76bd76b2b
---- /dev/null
-+++ b/lib/test_free_pages.c
-@@ -0,0 +1,42 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * test_free_pages.c: Check that free_pages() doesn't leak memory
-+ * Copyright (c) 2020 Oracle
-+ * Author: Matthew Wilcox <willy@infradead.org>
-+ */
-+
-+#include <linux/gfp.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+
-+static void test_free_pages(gfp_t gfp)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < 1000 * 1000; i++) {
-+		unsigned long addr = __get_free_pages(gfp, 3);
-+		struct page *page = virt_to_page(addr);
-+
-+		/* Simulate page cache getting a speculative reference */
-+		get_page(page);
-+		free_pages(addr, 3);
-+		put_page(page);
-+	}
-+}
-+
-+static int m_in(void)
-+{
-+	test_free_pages(GFP_KERNEL);
-+	test_free_pages(GFP_KERNEL | __GFP_COMP);
-+
-+	return 0;
-+}
-+
-+static void m_ex(void)
-+{
-+}
-+
-+module_init(m_in);
-+module_exit(m_ex);
-+MODULE_AUTHOR("Matthew Wilcox <willy@infradead.org>");
-+MODULE_LICENSE("GPL");
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index c449d74f55842..d99c2db7f254f 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4961,6 +4961,9 @@ void __free_pages(struct page *page, unsigned int order)
+ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
  {
- 	if (put_page_testzero(page))
- 		free_the_page(page, order);
-+	else if (!PageHead(page))
-+		while (order-- > 0)
-+			free_the_page(page + (1 << order), order);
- }
- EXPORT_SYMBOL(__free_pages);
+-	static DEFINE_MUTEX(oom_adj_mutex);
+ 	struct mm_struct *mm = NULL;
+ 	struct task_struct *task;
+ 	int err = 0;
+@@ -1095,7 +1094,7 @@ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
+ 		struct task_struct *p = find_lock_task_mm(task);
  
+ 		if (p) {
+-			if (atomic_read(&p->mm->mm_users) > 1) {
++			if (test_bit(MMF_MULTIPROCESS, &p->mm->flags)) {
+ 				mm = p->mm;
+ 				mmgrab(mm);
+ 			}
+diff --git a/include/linux/oom.h b/include/linux/oom.h
+index f022f581ac29d..2db9a14325112 100644
+--- a/include/linux/oom.h
++++ b/include/linux/oom.h
+@@ -55,6 +55,7 @@ struct oom_control {
+ };
+ 
+ extern struct mutex oom_lock;
++extern struct mutex oom_adj_mutex;
+ 
+ static inline void set_current_oom_origin(void)
+ {
+diff --git a/include/linux/sched/coredump.h b/include/linux/sched/coredump.h
+index ecdc6542070f1..dfd82eab29025 100644
+--- a/include/linux/sched/coredump.h
++++ b/include/linux/sched/coredump.h
+@@ -72,6 +72,7 @@ static inline int get_dumpable(struct mm_struct *mm)
+ #define MMF_DISABLE_THP		24	/* disable THP for all VMAs */
+ #define MMF_OOM_VICTIM		25	/* mm is the oom victim */
+ #define MMF_OOM_REAP_QUEUED	26	/* mm was queued for oom_reaper */
++#define MMF_MULTIPROCESS	27	/* mm is shared between processes */
+ #define MMF_DISABLE_THP_MASK	(1 << MMF_DISABLE_THP)
+ 
+ #define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+diff --git a/kernel/fork.c b/kernel/fork.c
+index da8d360fb0326..a9ce750578cae 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1810,6 +1810,25 @@ static __always_inline void delayed_free_task(struct task_struct *tsk)
+ 		free_task(tsk);
+ }
+ 
++static void copy_oom_score_adj(u64 clone_flags, struct task_struct *tsk)
++{
++	/* Skip if kernel thread */
++	if (!tsk->mm)
++		return;
++
++	/* Skip if spawning a thread or using vfork */
++	if ((clone_flags & (CLONE_VM | CLONE_THREAD | CLONE_VFORK)) != CLONE_VM)
++		return;
++
++	/* We need to synchronize with __set_oom_adj */
++	mutex_lock(&oom_adj_mutex);
++	set_bit(MMF_MULTIPROCESS, &tsk->mm->flags);
++	/* Update the values in case they were changed after copy_signal */
++	tsk->signal->oom_score_adj = current->signal->oom_score_adj;
++	tsk->signal->oom_score_adj_min = current->signal->oom_score_adj_min;
++	mutex_unlock(&oom_adj_mutex);
++}
++
+ /*
+  * This creates a new process as a copy of the old one,
+  * but does not actually start it yet.
+@@ -2282,6 +2301,8 @@ static __latent_entropy struct task_struct *copy_process(
+ 	trace_task_newtask(p, clone_flags);
+ 	uprobe_copy_process(p, clone_flags);
+ 
++	copy_oom_score_adj(clone_flags, p);
++
+ 	return p;
+ 
+ bad_fork_cancel_cgroup:
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index e90f25d6385d7..8b84661a64109 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -64,6 +64,8 @@ int sysctl_oom_dump_tasks = 1;
+  * and mark_oom_victim
+  */
+ DEFINE_MUTEX(oom_lock);
++/* Serializes oom_score_adj and oom_score_adj_min updates */
++DEFINE_MUTEX(oom_adj_mutex);
+ 
+ static inline bool is_memcg_oom(struct oom_control *oc)
+ {
 -- 
 2.25.1
 
