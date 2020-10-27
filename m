@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 768D429BBF2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E11829BBF0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759247AbgJ0Q34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1759190AbgJ0Q34 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 12:29:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52192 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802663AbgJ0Pup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:45 -0400
+        id S1802674AbgJ0Puu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F87204EF;
-        Tue, 27 Oct 2020 15:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC762204EF;
+        Tue, 27 Oct 2020 15:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813844;
-        bh=GrcLZmrxFXVHJ35eCaG1Z3riYNFmVNR5GkU39zw4gXw=;
+        s=default; t=1603813850;
+        bh=Il9Br0hKPkszm54/JVjOqIIyHlDSaKWZbOXM3vOFJvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuM+WV0IL0F+9bqd3z8ti1dU8qICNoRlNd/PgFl77QKY+BkjPaSdxQd4D0m08RE23
-         1bmx9j5r7jpWdmqVz1TTiCV958XbELLk51aOPIubjmLBXU/D7WyBBzr2eXIBDC/0V6
-         qNMkja2fTnrvKS5q+WvAFV90gmvXKfYBqhDXn8kk=
+        b=K8t9vqxp3OsetbpacbZwQz+DNzS0OtdzoNuLnclorDlboY2yPCmKfM2iUMGZ55d55
+         H0jyXO2Vo3pSQPj9ejowmPZvM4kWpbtq0V77a3jb76uczwKWKMZOPsCdGZpRnOhK9J
+         ixO3Zaz3sXC0ZzaqD3hSb5LemJ4WnkHe/cskBCho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Maguire <alan.maguire@oracle.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 690/757] selftests/bpf: Fix overflow tests to reflect iter size increase
-Date:   Tue, 27 Oct 2020 14:55:40 +0100
-Message-Id: <20201027135522.900612597@linuxfoundation.org>
+Subject: [PATCH 5.9 692/757] mt76: mt7915: do not do any work in napi poll after calling napi_complete_done()
+Date:   Tue, 27 Oct 2020 14:55:42 +0100
+Message-Id: <20201027135522.983863838@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,60 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit eb58bbf2e5c7917aa30bf8818761f26bbeeb2290 ]
+[ Upstream commit 38b04398c532e9bb9aa90fc07846ad0b0845fe94 ]
 
-bpf iter size increase to PAGE_SIZE << 3 means overflow tests assuming
-page size need to be bumped also.
+Fixes a race condition where multiple tx cleanup or sta poll tasks could run
+in parallel.
 
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/1601292670-1616-7-git-send-email-alan.maguire@oracle.com
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/bpf_iter.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/dma.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-index 7375d9a6d2427..a8924cbc7509d 100644
---- a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-+++ b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-@@ -331,7 +331,7 @@ static void test_overflow(bool test_e2big_overflow, bool ret1)
- 	struct bpf_map_info map_info = {};
- 	struct bpf_iter_test_kern4 *skel;
- 	struct bpf_link *link;
--	__u32 page_size;
-+	__u32 iter_size;
- 	char *buf;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+index a8832c5e60041..8a1ae08d9572e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+@@ -95,16 +95,13 @@ static int mt7915_poll_tx(struct napi_struct *napi, int budget)
+ 	dev = container_of(napi, struct mt7915_dev, mt76.tx_napi);
  
- 	skel = bpf_iter_test_kern4__open();
-@@ -353,19 +353,19 @@ static void test_overflow(bool test_e2big_overflow, bool ret1)
- 		  "map_creation failed: %s\n", strerror(errno)))
- 		goto free_map1;
+ 	mt7915_tx_cleanup(dev);
+-
+-	if (napi_complete_done(napi, 0))
+-		mt7915_irq_enable(dev, MT_INT_TX_DONE_ALL);
+-
+-	mt7915_tx_cleanup(dev);
+-
+ 	mt7915_mac_sta_poll(dev);
  
--	/* bpf_seq_printf kernel buffer is one page, so one map
-+	/* bpf_seq_printf kernel buffer is 8 pages, so one map
- 	 * bpf_seq_write will mostly fill it, and the other map
- 	 * will partially fill and then trigger overflow and need
- 	 * bpf_seq_read restart.
- 	 */
--	page_size = sysconf(_SC_PAGE_SIZE);
-+	iter_size = sysconf(_SC_PAGE_SIZE) << 3;
+ 	tasklet_schedule(&dev->mt76.tx_tasklet);
  
- 	if (test_e2big_overflow) {
--		skel->rodata->print_len = (page_size + 8) / 8;
--		expected_read_len = 2 * (page_size + 8);
-+		skel->rodata->print_len = (iter_size + 8) / 8;
-+		expected_read_len = 2 * (iter_size + 8);
- 	} else if (!ret1) {
--		skel->rodata->print_len = (page_size - 8) / 8;
--		expected_read_len = 2 * (page_size - 8);
-+		skel->rodata->print_len = (iter_size - 8) / 8;
-+		expected_read_len = 2 * (iter_size - 8);
- 	} else {
- 		skel->rodata->print_len = 1;
- 		expected_read_len = 2 * 8;
++	if (napi_complete_done(napi, 0))
++		mt7915_irq_enable(dev, MT_INT_TX_DONE_ALL);
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
