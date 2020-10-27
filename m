@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 415A529B69C
+	by mail.lfdr.de (Postfix) with ESMTP id AF9B929B69D
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797402AbgJ0PXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38336 "EHLO mail.kernel.org"
+        id S1797420AbgJ0PX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797399AbgJ0PXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:23:19 -0400
+        id S1797415AbgJ0PXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:23:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A40F20657;
-        Tue, 27 Oct 2020 15:23:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5921D20657;
+        Tue, 27 Oct 2020 15:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812199;
-        bh=16jPuAAJbVkS6S0piZRoKInnOQvNinQFd/PbSMxA4L8=;
+        s=default; t=1603812204;
+        bh=09+5vYYQ4VIhQpcPJ4r5qDo7EYsbc7Nl1ZKk6wAVCkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFPyR7be79cdHmGVdFTki5m+nUH5oEmXSFxBMLX1Q2HYlgfZ4MVaP3AiXnXCQpfTy
-         S4ElKSfy9WHtMZwUDMsn5lx34npS+Ry/6t7qUqmi7py4blCwR/vDUC2V0AUIHVV/gV
-         KbqTBwf/SGx7aN+WxQF2H8FjlWL2Eu9YzILfbUXs=
+        b=WTsr67oo5v9SNePnSrzPUwwDY/yKCA2oOCBtoYGccxZsXopBqR8L79On7XpknAhQJ
+         qqaSaU1PbD4CoP0F6DPZ+IoTJVOWn8cvbyKI5g3GwQBsbRZsfrfaoqxNEoID6eif4R
+         Dkl2cwksmemSwXumuEpm52p+oX0OAbnwwXeIFCVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 126/757] media: Revert "media: exynos4-is: Add missed check for pinctrl_lookup_state()"
-Date:   Tue, 27 Oct 2020 14:46:16 +0100
-Message-Id: <20201027135456.488347474@linuxfoundation.org>
+Subject: [PATCH 5.9 128/757] media: hantro: postproc: Fix motion vector space allocation
+Date:   Tue, 27 Oct 2020 14:46:18 +0100
+Message-Id: <20201027135456.584526513@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,44 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Nawrocki <s.nawrocki@samsung.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 00d21f325d58567d81d9172096692d0a9ea7f725 ]
+[ Upstream commit 669ccf19ed2059b9d517664a2dbbf6bde87e1414 ]
 
-The "idle" pinctrl state is optional as documented in the DT binding.
-The change introduced by the commit being reverted makes that pinctrl state
-mandatory and breaks initialization of the whole media driver, since the
-"idle" state is not specified in any mainline dts.
+When the post-processor is enabled, the driver allocates
+"shadow buffers" which are used for the decoder core,
+and exposes the post-processed buffers to userspace.
 
-This reverts commit 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
-to fix the regression.
+For this reason, extra motion vector space has to
+be allocated on the shadow buffers, which the driver
+wasn't doing. Fix it.
 
-Fixes: 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+This fix should address artifacts on high profile bitstreams.
+
+Fixes: 8c2d66b036c77 ("media: hantro: Support color conversion via post-processing")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/staging/media/hantro/hantro_postproc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index 16dd660137a8d..9a575233e4c1e 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1268,11 +1268,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
- 	if (IS_ERR(pctl->state_default))
- 		return PTR_ERR(pctl->state_default);
+diff --git a/drivers/staging/media/hantro/hantro_postproc.c b/drivers/staging/media/hantro/hantro_postproc.c
+index 44062ffceaea7..6d2a8f2a8f0bb 100644
+--- a/drivers/staging/media/hantro/hantro_postproc.c
++++ b/drivers/staging/media/hantro/hantro_postproc.c
+@@ -118,7 +118,9 @@ int hantro_postproc_alloc(struct hantro_ctx *ctx)
+ 	unsigned int num_buffers = cap_queue->num_buffers;
+ 	unsigned int i, buf_size;
  
-+	/* PINCTRL_STATE_IDLE is optional */
- 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
- 					PINCTRL_STATE_IDLE);
--	if (IS_ERR(pctl->state_idle))
--		return PTR_ERR(pctl->state_idle);
--
- 	return 0;
- }
+-	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage;
++	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage +
++		   hantro_h264_mv_size(ctx->dst_fmt.width,
++				       ctx->dst_fmt.height);
  
+ 	for (i = 0; i < num_buffers; ++i) {
+ 		struct hantro_aux_buf *priv = &ctx->postproc.dec_q[i];
 -- 
 2.25.1
 
