@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8725729BCBB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795EC29BE99
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811045AbgJ0Qgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
+        id S1794772AbgJ0Qwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:52:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802415AbgJ0PsX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:48:23 -0400
+        id S1794781AbgJ0PNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D15D2231B;
-        Tue, 27 Oct 2020 15:48:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6B5C20728;
+        Tue, 27 Oct 2020 15:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813702;
-        bh=B0tLwBuVoTvMWxZvF0r6Atg520r9t2hCM2scppDUIdw=;
+        s=default; t=1603811611;
+        bh=nDTdg9vkigXJJd1FTB/cHEAatr2cCXwcOARRfxBsD1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmobtU4DWTAYz/qqKE0GN7PguJSp26BQ6+eLjcHORdIg3vssgZszfdy5HBj0asRrh
-         E+DWUpSjOJyXVOKSXq5XT+iHynQqOtFikisK4UNnwOkIbrC5MfykYaJHyArNWrBjL8
-         7EkBY3npLKWNXU1Y74ZBGHRPwE2uheCujfVOrVpo=
+        b=kxNXLU/DMkMw1hJ+gzDHSYQ7HU2Gu963q0LK11W1SMaLVo26ezq79nTXzw8ulMFF4
+         I+YY1JU3kaAN2kg4gPEk6dDSqOMOVdydXpPNGKIZnSrr3VPNaP99aCNnS5PwyQ/4gQ
+         mNXEC66rnQ8EjNf0UuEb5n246lQC/o6i9NC3I2vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rainer Finke <rainer@finke.cc>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 640/757] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
+        stable@vger.kernel.org, Brad Bishop <bradleyb@fuzziesquirrel.com>,
+        Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 547/633] spi: fsi: Fix clock running too fast
 Date:   Tue, 27 Oct 2020 14:54:50 +0100
-Message-Id: <20201027135520.579610031@linuxfoundation.org>
+Message-Id: <20201027135548.452584804@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Brad Bishop <bradleyb@fuzziesquirrel.com>
 
-[ Upstream commit 8058d69905058ec8f467a120b5ec5bb831ea67f3 ]
+[ Upstream commit 0b546bbe9474ff23e6843916ad6d567f703b2396 ]
 
-Commit 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler()
-before i2c_acpi_register_devices()")'s intention was to only move the
-acpi_install_address_space_handler() call to the point before where
-the ACPI declared i2c-children of the adapter where instantiated by
-i2c_acpi_register_devices().
+Use a clock divider tuned to a 200MHz FSI bus frequency (the maximum). Use
+of the previous divider at 200MHz results in corrupt data from endpoint
+devices. Ideally the clock divider would be calculated from the FSI clock,
+but that would require some significant work on the FSI driver. With FSI
+frequencies slower than 200MHz, the SPI clock will simply run slower, but
+safely.
 
-But i2c_acpi_install_space_handler() had a call to
-acpi_walk_dep_device_list() hidden (that is I missed it) at the end
-of it, so as an unwanted side-effect now acpi_walk_dep_device_list()
-was also being called before i2c_acpi_register_devices().
-
-Move the acpi_walk_dep_device_list() call to the end of
-i2c_acpi_register_devices(), so that it is once again called *after*
-the i2c_client-s hanging of the adapter have been created.
-
-This fixes the Microsoft Surface Go 2 hanging at boot.
-
-Fixes: 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209627
-Reported-by: Rainer Finke <rainer@finke.cc>
-Reported-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Suggested-by: Maximilian Luz <luzmaximilian@gmail.com>
-Tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20200909222857.28653-3-eajames@linux.ibm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-acpi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/spi/spi-fsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index e627d7b2790f7..37c510d9347a7 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -264,6 +264,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
- void i2c_acpi_register_devices(struct i2c_adapter *adap)
- {
- 	acpi_status status;
-+	acpi_handle handle;
+diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
+index ef5e0826a53c3..a702e9d7d68c0 100644
+--- a/drivers/spi/spi-fsi.c
++++ b/drivers/spi/spi-fsi.c
+@@ -403,7 +403,7 @@ static int fsi_spi_transfer_init(struct fsi_spi *ctx)
+ 	u64 status = 0ULL;
+ 	u64 wanted_clock_cfg = SPI_FSI_CLOCK_CFG_ECC_DISABLE |
+ 		SPI_FSI_CLOCK_CFG_SCK_NO_DEL |
+-		FIELD_PREP(SPI_FSI_CLOCK_CFG_SCK_DIV, 4);
++		FIELD_PREP(SPI_FSI_CLOCK_CFG_SCK_DIV, 19);
  
- 	if (!has_acpi_companion(&adap->dev))
- 		return;
-@@ -274,6 +275,15 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
- 				     adap, NULL);
- 	if (ACPI_FAILURE(status))
- 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
-+
-+	if (!adap->dev.parent)
-+		return;
-+
-+	handle = ACPI_HANDLE(adap->dev.parent);
-+	if (!handle)
-+		return;
-+
-+	acpi_walk_dep_device_list(handle);
- }
- 
- static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
-@@ -719,7 +729,6 @@ int i2c_acpi_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
- 	}
- 
--	acpi_walk_dep_device_list(handle);
- 	return 0;
- }
- 
+ 	end = jiffies + msecs_to_jiffies(SPI_FSI_INIT_TIMEOUT_MS);
+ 	do {
 -- 
 2.25.1
 
