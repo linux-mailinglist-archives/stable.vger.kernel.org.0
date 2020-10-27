@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A3729B261
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A9C29B249
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1749921AbgJ0Oko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:40:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39170 "EHLO mail.kernel.org"
+        id S1761241AbgJ0Oih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:38:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761466AbgJ0Ojz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:39:55 -0400
+        id S460379AbgJ0Oie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:38:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E25D2206B2;
-        Tue, 27 Oct 2020 14:39:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 893C0206B2;
+        Tue, 27 Oct 2020 14:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809594;
-        bh=1BcVye8HRxyDPFVEqpme3Hjykoavb1YY5uMUVusMe8A=;
+        s=default; t=1603809513;
+        bh=ubs5dbW8ANBVTvqvuujXK/aBDQM5Sg7M4MLSGcm8dJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEXaTHX9R2SujslLq0fkYzZmc9/QtYYQT82u/DbFNuQzL/bTCg+Wg7SRrIg2FiOxW
-         IAjbdefD8zRn0uvLS/hZcxYA7SToEIwf40Lwf3mhZ7bsdo7o8CP2uQx05COPRtdLx3
-         x7jVAZxWU64OXQtMFecCgSox3dGOA7+UP/aijg/8=
+        b=eface/HgkGtWQF1L49N81So9wD9RGcNSNNNeNO8Vr89pHl8L8k0Novg2Ltx2fzjEE
+         g6k8XEdpD4seKGMadvVbu5dNDX8u2DEXtJjPgM7z7xuSjP0tRaORLGRU9vhchbg8Hv
+         AH0L9PGCL3olOgI3BMRUuzeA3jdZdxh81ALcfJ2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 222/408] powerpc/book3s64/hash/4k: Support large linear mapping range with 4K
-Date:   Tue, 27 Oct 2020 14:52:40 +0100
-Message-Id: <20201027135505.379479621@linuxfoundation.org>
+Subject: [PATCH 5.4 223/408] powerpc/tau: Use appropriate temperature sample interval
+Date:   Tue, 27 Oct 2020 14:52:41 +0100
+Message-Id: <20201027135505.426804587@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,72 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 7746406baa3bc9e23fdd7b7da2f04d86e25ab837 ]
+[ Upstream commit 66943005cc41f48e4d05614e8f76c0ca1812f0fd ]
 
-With commit: 0034d395f89d ("powerpc/mm/hash64: Map all the kernel
-regions in the same 0xc range"), we now split the 64TB address range
-into 4 contexts each of 16TB. That implies we can do only 16TB linear
-mapping.
+According to the MPC750 Users Manual, the SITV value in Thermal
+Management Register 3 is 13 bits long. The present code calculates the
+SITV value as 60 * 500 cycles. This would overflow to give 10 us on
+a 500 MHz CPU rather than the intended 60 us. (But according to the
+Microprocessor Datasheet, there is also a factor of 266 that has to be
+applied to this value on certain parts i.e. speed sort above 266 MHz.)
+Always use the maximum cycle count, as recommended by the Datasheet.
 
-On some systems, eg. Power9, memory attached to nodes > 0 will appear
-above 16TB in the linear mapping. This resulted in kernel crash when
-we boot such systems in hash translation mode with 4K PAGE_SIZE.
-
-This patch updates the kernel mapping such that we now start supporting upto
-61TB of memory with 4K. The kernel mapping now looks like below 4K PAGE_SIZE
-and hash translation.
-
-    vmalloc start     = 0xc0003d0000000000
-    IO start          = 0xc0003e0000000000
-    vmemmap start     = 0xc0003f0000000000
-
-Our MAX_PHYSMEM_BITS for 4K is still 64TB even though we can only map 61TB.
-We prevent bolt mapping anything outside 61TB range by checking against
-H_VMALLOC_START.
-
-Fixes: 0034d395f89d ("powerpc/mm/hash64: Map all the kernel regions in the same 0xc range")
-Reported-by: Cameron Berkenpas <cam@neo-zeon.de>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200608070904.387440-3-aneesh.kumar@linux.ibm.com
+Link: https://lore.kernel.org/r/896f542e5f0f1d6cf8218524c2b67d79f3d69b3c.1599260540.git.fthain@telegraphics.com.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/hash-4k.h | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/reg.h |  2 +-
+ arch/powerpc/kernel/tau_6xx.c  | 12 ++++--------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/hash-4k.h b/arch/powerpc/include/asm/book3s/64/hash-4k.h
-index 3f9ae3585ab98..80c9534148821 100644
---- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
-@@ -13,20 +13,19 @@
-  */
- #define MAX_EA_BITS_PER_CONTEXT		46
+diff --git a/arch/powerpc/include/asm/reg.h b/arch/powerpc/include/asm/reg.h
+index b3cbb1136bce0..34d08ff21b988 100644
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -796,7 +796,7 @@
+ #define THRM1_TIN	(1 << 31)
+ #define THRM1_TIV	(1 << 30)
+ #define THRM1_THRES(x)	((x&0x7f)<<23)
+-#define THRM3_SITV(x)	((x&0x3fff)<<1)
++#define THRM3_SITV(x)	((x & 0x1fff) << 1)
+ #define THRM1_TID	(1<<2)
+ #define THRM1_TIE	(1<<1)
+ #define THRM1_V		(1<<0)
+diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
+index e2ab8a111b693..976d5bc1b5176 100644
+--- a/arch/powerpc/kernel/tau_6xx.c
++++ b/arch/powerpc/kernel/tau_6xx.c
+@@ -178,15 +178,11 @@ static void tau_timeout(void * info)
+ 	 * complex sleep code needs to be added. One mtspr every time
+ 	 * tau_timeout is called is probably not a big deal.
+ 	 *
+-	 * Enable thermal sensor and set up sample interval timer
+-	 * need 20 us to do the compare.. until a nice 'cpu_speed' function
+-	 * call is implemented, just assume a 500 mhz clock. It doesn't really
+-	 * matter if we take too long for a compare since it's all interrupt
+-	 * driven anyway.
+-	 *
+-	 * use a extra long time.. (60 us @ 500 mhz)
++	 * The "PowerPC 740 and PowerPC 750 Microprocessor Datasheet"
++	 * recommends that "the maximum value be set in THRM3 under all
++	 * conditions."
+ 	 */
+-	mtspr(SPRN_THRM3, THRM3_SITV(500*60) | THRM3_E);
++	mtspr(SPRN_THRM3, THRM3_SITV(0x1fff) | THRM3_E);
  
--#define REGION_SHIFT		(MAX_EA_BITS_PER_CONTEXT - 2)
- 
- /*
-- * Our page table limit us to 64TB. Hence for the kernel mapping,
-- * each MAP area is limited to 16 TB.
-- * The four map areas are:  linear mapping, vmap, IO and vmemmap
-+ * Our page table limit us to 64TB. For 64TB physical memory, we only need 64GB
-+ * of vmemmap space. To better support sparse memory layout, we use 61TB
-+ * linear map range, 1TB of vmalloc, 1TB of I/O and 1TB of vmememmap.
-  */
-+#define REGION_SHIFT		(40)
- #define H_KERN_MAP_SIZE		(ASM_CONST(1) << REGION_SHIFT)
- 
- /*
-- * Define the address range of the kernel non-linear virtual area
-- * 16TB
-+ * Define the address range of the kernel non-linear virtual area (61TB)
-  */
--#define H_KERN_VIRT_START	ASM_CONST(0xc000100000000000)
-+#define H_KERN_VIRT_START	ASM_CONST(0xc0003d0000000000)
- 
- #ifndef __ASSEMBLY__
- #define H_PTE_TABLE_SIZE	(sizeof(pte_t) << H_PTE_INDEX_SIZE)
+ 	local_irq_restore(flags);
+ }
 -- 
 2.25.1
 
