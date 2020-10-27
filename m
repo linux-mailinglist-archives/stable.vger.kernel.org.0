@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0001C29C268
+	by mail.lfdr.de (Postfix) with ESMTP id 8679B29C267
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819948AbgJ0Rfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35694 "EHLO mail.kernel.org"
+        id S1819954AbgJ0Rfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:35:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760863AbgJ0Ogt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:49 -0400
+        id S1760869AbgJ0Ogw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E1DE207BB;
-        Tue, 27 Oct 2020 14:36:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F011222202;
+        Tue, 27 Oct 2020 14:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809408;
-        bh=cq/XuqQTrvdr9EMhVUhZzusgJN+WzsKAYXLB+TUeYEg=;
+        s=default; t=1603809411;
+        bh=DqiViFNtSv7KqLucE5CFrs2lvwbMEbizkAcu7AiGdE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/yf0k7fOvv6p3IQynArNt2l7XTYe+W2bAg1/MVxaoZx88yBGssQRsqBnIwSi0BPH
-         JyrPTCdd10FJaSvrFOx6ZrTIqct4JQExWWFt90S5dpnJuzQRhi9LhNsRLjEw/eNhZR
-         p7/kxWn0t7SiWrwbuM1lnfhoMmkWSLF8dx/0g42c=
+        b=akGIrQ1Psz7b3NhUPgMlXE3ZWAFINxXylP/vjMe5vnbj+S+xrRlQw55XNBUL7jES4
+         9jNx4VUkuivOcS7bhKjzBTt1H42T5B/xCa3oimeEPhpxVn6BAEVNOXuJ3JJXAjMYWT
+         VttbRisVD8YyiWf1AL3djfGseNFqUe7TFq55Fr7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Huang Guobin <huangguobin4@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/408] net: dsa: rtl8366: Skip PVID setting if not requested
-Date:   Tue, 27 Oct 2020 14:51:32 +0100
-Message-Id: <20201027135502.228474575@linuxfoundation.org>
+Subject: [PATCH 5.4 155/408] net: wilc1000: clean up resource in error path of init mon interface
+Date:   Tue, 27 Oct 2020 14:51:33 +0100
+Message-Id: <20201027135502.275369436@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,36 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Huang Guobin <huangguobin4@huawei.com>
 
-[ Upstream commit 3dfe8dde093a07e82fa472c0f8c29a7f6a2006a5 ]
+[ Upstream commit 55bd149978679742374c800e56e8f6bc74378bbe ]
 
-We go to lengths to determine whether the PVID should be set
-for this port or not, and then fail to take it into account.
-Fix this oversight.
+The wilc_wfi_init_mon_int() forgets to clean up resource when
+register_netdevice() failed. Add the missed call to fix it.
+And the return value of netdev_priv can't be NULL, so remove
+the unnecessary error handling.
 
-Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 588713006ea4 ("staging: wilc1000: avoid the use of 'wilc_wfi_mon' static variable")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200917123019.206382-1-huangguobin4@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/rtl8366.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/wilc1000/wilc_mon.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/rtl8366.c b/drivers/net/dsa/rtl8366.c
-index b941d45edd641..49c626a336803 100644
---- a/drivers/net/dsa/rtl8366.c
-+++ b/drivers/net/dsa/rtl8366.c
-@@ -436,6 +436,9 @@ void rtl8366_vlan_add(struct dsa_switch *ds, int port,
- 				"failed to set up VLAN %04x",
- 				vid);
+diff --git a/drivers/staging/wilc1000/wilc_mon.c b/drivers/staging/wilc1000/wilc_mon.c
+index d6f14f69ad64e..017e8e91334f1 100644
+--- a/drivers/staging/wilc1000/wilc_mon.c
++++ b/drivers/staging/wilc1000/wilc_mon.c
+@@ -236,11 +236,10 @@ struct net_device *wilc_wfi_init_mon_interface(struct wilc *wl,
  
-+		if (!pvid)
-+			continue;
-+
- 		ret = rtl8366_set_pvid(smi, port, vid);
- 		if (ret)
- 			dev_err(smi->dev,
+ 	if (register_netdevice(wl->monitor_dev)) {
+ 		netdev_err(real_dev, "register_netdevice failed\n");
++		free_netdev(wl->monitor_dev);
+ 		return NULL;
+ 	}
+ 	priv = netdev_priv(wl->monitor_dev);
+-	if (!priv)
+-		return NULL;
+ 
+ 	priv->real_ndev = real_dev;
+ 
 -- 
 2.25.1
 
