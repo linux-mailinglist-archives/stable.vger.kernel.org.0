@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 127DC29AE1F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD6D29AE25
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368136AbgJ0N5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:57:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43552 "EHLO mail.kernel.org"
+        id S2409495AbgJ0N5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368131AbgJ0N5E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:04 -0400
+        id S368183AbgJ0N5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:57:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF5D121655;
-        Tue, 27 Oct 2020 13:57:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B91921D41;
+        Tue, 27 Oct 2020 13:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807024;
-        bh=nxEgdVTu0E+yKW62PBo15UAWW61PbOMX7JfAGiPFXLQ=;
+        s=default; t=1603807042;
+        bh=FUWGOvcgF8CxKp2eOI162AUHqIMLMtEWwU9BRJDzHgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zg5MFiOXOSngwOkUI/P88FTJ016zgnbfWrQwSXw8JYpp6qjDArgC0GU1P6oxYwsK9
-         dV0AJw+2w3QIKn8ZZ+xCWasopOo2OyYnuLjfYcQ0C2c+iwkY5AfOLnY4ymvPI6ZzJk
-         UUgNJl25w/jowgd5vwkfeeMRlWMsF0PGd9/TR8BY=
+        b=eyaQgfL8erqWbuWZRA2Vv8RNYouvShrt6i9esLeeFKlmuo9QWc97iH2G92f2pU5Nc
+         qrfLJ+0mBxS1djAjQ7YAjTcgAqOIvxb4EoPD9tGoho2G+GSdDEMMzLQSmPq0mTm97y
+         Am7epBMm6+d3rMvXuk+YqfwFYm4ZP9CjVbvVIaPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Apollon Oikonomopoulos <apoikos@dmesg.gr>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 015/112] tcp: fix to update snd_wl1 in bulk receiver fast path
-Date:   Tue, 27 Oct 2020 14:48:45 +0100
-Message-Id: <20201027134901.284182135@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 021/112] media: Revert "media: exynos4-is: Add missed check for pinctrl_lookup_state()"
+Date:   Tue, 27 Oct 2020 14:48:51 +0100
+Message-Id: <20201027134901.578412367@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -46,65 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 18ded910b589839e38a51623a179837ab4cc3789 ]
+[ Upstream commit 00d21f325d58567d81d9172096692d0a9ea7f725 ]
 
-In the header prediction fast path for a bulk data receiver, if no
-data is newly acknowledged then we do not call tcp_ack() and do not
-call tcp_ack_update_window(). This means that a bulk receiver that
-receives large amounts of data can have the incoming sequence numbers
-wrap, so that the check in tcp_may_update_window fails:
-   after(ack_seq, tp->snd_wl1)
+The "idle" pinctrl state is optional as documented in the DT binding.
+The change introduced by the commit being reverted makes that pinctrl state
+mandatory and breaks initialization of the whole media driver, since the
+"idle" state is not specified in any mainline dts.
 
-If the incoming receive windows are zero in this state, and then the
-connection that was a bulk data receiver later wants to send data,
-that connection can find itself persistently rejecting the window
-updates in incoming ACKs. This means the connection can persistently
-fail to discover that the receive window has opened, which in turn
-means that the connection is unable to send anything, and the
-connection's sending process can get permanently "stuck".
+This reverts commit 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+to fix the regression.
 
-The fix is to update snd_wl1 in the header prediction fast path for a
-bulk data receiver, so that it keeps up and does not see wrapping
-problems.
-
-This fix is based on a very nice and thorough analysis and diagnosis
-by Apollon Oikonomopoulos (see link below).
-
-This is a stable candidate but there is no Fixes tag here since the
-bug predates current git history. Just for fun: looks like the bug
-dates back to when header prediction was added in Linux v2.1.8 in Nov
-1996. In that version tcp_rcv_established() was added, and the code
-only updates snd_wl1 in tcp_ack(), and in the new "Bulk data transfer:
-receiver" code path it does not call tcp_ack(). This fix seems to
-apply cleanly at least as far back as v3.2.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reported-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Tested-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Link: https://www.spinics.net/lists/netdev/msg692430.html
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201022143331.1887495-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 18ffec750578 ("media: exynos4-is: Add missed check for pinctrl_lookup_state()")
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5531,6 +5531,8 @@ void tcp_rcv_established(struct sock *sk
- 				tcp_data_snd_check(sk);
- 				if (!inet_csk_ack_scheduled(sk))
- 					goto no_ack;
-+			} else {
-+				tcp_update_wl(tp, TCP_SKB_CB(skb)->seq);
- 			}
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 31cc7d94064e3..6bc3c8a2e1443 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1170,11 +1170,9 @@ static int fimc_md_get_pinctrl(struct fimc_md *fmd)
+ 	if (IS_ERR(pctl->state_default))
+ 		return PTR_ERR(pctl->state_default);
  
- 			__tcp_ack_snd_check(sk, 0);
++	/* PINCTRL_STATE_IDLE is optional */
+ 	pctl->state_idle = pinctrl_lookup_state(pctl->pinctrl,
+ 					PINCTRL_STATE_IDLE);
+-	if (IS_ERR(pctl->state_idle))
+-		return PTR_ERR(pctl->state_idle);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.25.1
+
 
 
