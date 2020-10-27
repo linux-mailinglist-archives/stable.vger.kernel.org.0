@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FDC29C06D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9CD29C06C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1782520AbgJ0O5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:57:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58072 "EHLO mail.kernel.org"
+        id S1763977AbgJ0O5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:57:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1782516AbgJ0O5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:57:10 -0400
+        id S1782522AbgJ0O5N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:57:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5592322281;
-        Tue, 27 Oct 2020 14:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0164022281;
+        Tue, 27 Oct 2020 14:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810629;
-        bh=uNmru5R0McIAqb9hfvtQsK/oLYb6tyNGhNhQux/IUJc=;
+        s=default; t=1603810632;
+        bh=/zPaqvUVD/LRMjcJKOs4UB/ea7JZtjeS02/Y1rx2+C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kl2zAPh1tnCuXbPhBvYDzoqYNVZCYTCZdoO0BKReYIsKtMGx3nWiA2VpzjlkshAGm
-         q/dullZRNFbN+NFhxs3/1d9iiqlq8cmLDC+2csyj4pvkDNoelt2tJPjgaYEApt0Qen
-         YBNCBEQq+POHEerq3PgTqstp0ZzTevULXURw7I4A=
+        b=arEyCl9azBzO2RY5e8FAO5/d7rt+Obf3YmST0O6+Q0BsXLQK5rLNhsIwZhWtgnUVn
+         0YM/YRbDoVPREn+KmkdjAEnA2R5j8VfxPzmLO2se2i6/Tn0SQTQ4glTPNzeLKKScWW
+         pYTUcOyrWAn9s2ZqS8PpeK7UGJKu99UScdb6qcgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 206/633] HID: roccat: add bounds checking in kone_sysfs_write_settings()
-Date:   Tue, 27 Oct 2020 14:49:09 +0100
-Message-Id: <20201027135532.346776302@linuxfoundation.org>
+        stable@vger.kernel.org, Abhinav Kumar <abhinavk@codeaurora.org>,
+        Jeykumar Sankaran <jsanka@codeaurora.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 207/633] drm/msm: Avoid div-by-zero in dpu_crtc_atomic_check()
+Date:   Tue, 27 Oct 2020 14:49:10 +0100
+Message-Id: <20201027135532.394623150@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,76 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit d4f98dbfe717490e771b6e701904bfcf4b4557f0 ]
+[ Upstream commit 22f760941844dbcee6ee446e1896532f6dff01ef ]
 
-This code doesn't check if "settings->startup_profile" is within bounds
-and that could result in an out of bounds array access.  What the code
-does do is it checks if the settings can be written to the firmware, so
-it's possible that the firmware has a bounds check?  It's safer and
-easier to verify when the bounds checking is done in the kernel.
+The cstate->num_mixers member is only set to a non-zero value once
+dpu_encoder_virt_mode_set() is called, but the atomic check function can
+be called by userspace before that. Let's avoid the div-by-zero here and
+inside _dpu_crtc_setup_lm_bounds() by skipping this part of the atomic
+check if dpu_encoder_virt_mode_set() hasn't been called yet. This fixes
+an UBSAN warning:
 
-Fixes: 14bf62cde794 ("HID: add driver for Roccat Kone gaming mouse")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+ UBSAN: Undefined behaviour in drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c:860:31
+ division by zero
+ CPU: 7 PID: 409 Comm: frecon Tainted: G S                5.4.31 #128
+ Hardware name: Google Trogdor (rev0) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x14c
+  show_stack+0x20/0x2c
+  dump_stack+0xa0/0xd8
+  __ubsan_handle_divrem_overflow+0xec/0x110
+  dpu_crtc_atomic_check+0x97c/0x9d4
+  drm_atomic_helper_check_planes+0x160/0x1c8
+  drm_atomic_helper_check+0x54/0xbc
+  drm_atomic_check_only+0x6a8/0x880
+  drm_atomic_commit+0x20/0x5c
+  drm_atomic_helper_set_config+0x98/0xa0
+  drm_mode_setcrtc+0x308/0x5dc
+  drm_ioctl_kernel+0x9c/0x114
+  drm_ioctl+0x2ac/0x4b0
+  drm_compat_ioctl+0xe8/0x13c
+  __arm64_compat_sys_ioctl+0x184/0x324
+  el0_svc_common+0xa4/0x154
+  el0_svc_compat_handler+0x
+
+Cc: Abhinav Kumar <abhinavk@codeaurora.org>
+Cc: Jeykumar Sankaran <jsanka@codeaurora.org>
+Cc: Jordan Crouse <jcrouse@codeaurora.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-roccat-kone.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index 1a6e600197d0b..509b9bb1362cb 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -294,31 +294,40 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
- 	int retval = 0, difference, old_profile;
-+	struct kone_settings *settings = (struct kone_settings *)buf;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+index 1026e1e5bec10..4d81a0c73616f 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+@@ -881,7 +881,7 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
+ 	struct drm_plane *plane;
+ 	struct drm_display_mode *mode;
  
- 	/* I need to get my data in one piece */
- 	if (off != 0 || count != sizeof(struct kone_settings))
- 		return -EINVAL;
+-	int cnt = 0, rc = 0, mixer_width, i, z_pos;
++	int cnt = 0, rc = 0, mixer_width = 0, i, z_pos;
  
- 	mutex_lock(&kone->kone_lock);
--	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
-+	difference = memcmp(settings, &kone->settings,
-+			    sizeof(struct kone_settings));
- 	if (difference) {
--		retval = kone_set_settings(usb_dev,
--				(struct kone_settings const *)buf);
--		if (retval) {
--			mutex_unlock(&kone->kone_lock);
--			return retval;
-+		if (settings->startup_profile < 1 ||
-+		    settings->startup_profile > 5) {
-+			retval = -EINVAL;
-+			goto unlock;
- 		}
+ 	struct dpu_multirect_plane_states multirect_plane[DPU_STAGE_MAX * 2];
+ 	int multirect_count = 0;
+@@ -914,9 +914,11 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
  
-+		retval = kone_set_settings(usb_dev, settings);
-+		if (retval)
-+			goto unlock;
-+
- 		old_profile = kone->settings.startup_profile;
--		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
-+		memcpy(&kone->settings, settings, sizeof(struct kone_settings));
+ 	memset(pipe_staged, 0, sizeof(pipe_staged));
  
- 		kone_profile_activated(kone, kone->settings.startup_profile);
+-	mixer_width = mode->hdisplay / cstate->num_mixers;
++	if (cstate->num_mixers) {
++		mixer_width = mode->hdisplay / cstate->num_mixers;
  
- 		if (kone->settings.startup_profile != old_profile)
- 			kone_profile_report(kone, kone->settings.startup_profile);
- 	}
-+unlock:
- 	mutex_unlock(&kone->kone_lock);
+-	_dpu_crtc_setup_lm_bounds(crtc, state);
++		_dpu_crtc_setup_lm_bounds(crtc, state);
++	}
  
-+	if (retval)
-+		return retval;
-+
- 	return sizeof(struct kone_settings);
- }
- static BIN_ATTR(settings, 0660, kone_sysfs_read_settings,
+ 	crtc_rect.x2 = mode->hdisplay;
+ 	crtc_rect.y2 = mode->vdisplay;
 -- 
 2.25.1
 
