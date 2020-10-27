@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A8A29B37B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76DFA29B3C2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762725AbgJ0Ow2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49824 "EHLO mail.kernel.org"
+        id S368505AbgJ0Oyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1768928AbgJ0Otp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:49:45 -0400
+        id S1768382AbgJ0Otr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:49:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A2A3206E5;
-        Tue, 27 Oct 2020 14:49:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7767206E5;
+        Tue, 27 Oct 2020 14:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810184;
-        bh=ABDJk1IgEQkgZTjKItFkQe7nMQHUcwiBYX3QUIwfmrY=;
+        s=default; t=1603810187;
+        bh=vIua93kvtFo6FbwlFNvkH5rwWe5WDCYlNBrQCJ7AneU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3+BmoNSo19n1xMQO7frOV4GkuxAW9lzK9Be3AMELSfc511jASq/ZE7fRxktw/z/1
-         snIT2Gmk43eCdldSxMkz2qXpnw1woJPSPo8IN0+sLmby83BnvgpqHV7booQRXxBAq1
-         i3ZR9WcdL/CZbznK2+piW3LEnXsBpNphKPzLXBuU=
+        b=PIQm0SA+npM5O5z26MDEoY2PJMsoCAGftQEcDiQ5ykkUv2ZJG+ronGe10acnslRnb
+         iol6VC+3mSdym7jYkumBUMeZyS/FhRnZWFVN+pqPz1LkqtY/1MOBHnvX8lLaI6oaVe
+         zFHdEg4INU2HGliWXl7ud8CDK14UT4N+PANiaRBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
+        Apollon Oikonomopoulos <apoikos@dmesg.gr>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 051/633] selftests: rtnetlink: load fou module for kci_test_encap_fou() test
-Date:   Tue, 27 Oct 2020 14:46:34 +0100
-Message-Id: <20201027135525.093652953@linuxfoundation.org>
+Subject: [PATCH 5.8 052/633] tcp: fix to update snd_wl1 in bulk receiver fast path
+Date:   Tue, 27 Oct 2020 14:46:35 +0100
+Message-Id: <20201027135525.140230466@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,50 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit 26ebd6fed9bb3aa480c7c0f147ac0e7b11000f65 ]
+[ Upstream commit 18ded910b589839e38a51623a179837ab4cc3789 ]
 
-The kci_test_encap_fou() test from kci_test_encap() in rtnetlink.sh
-needs the fou module to work. Otherwise it will fail with:
+In the header prediction fast path for a bulk data receiver, if no
+data is newly acknowledged then we do not call tcp_ack() and do not
+call tcp_ack_update_window(). This means that a bulk receiver that
+receives large amounts of data can have the incoming sequence numbers
+wrap, so that the check in tcp_may_update_window fails:
+   after(ack_seq, tp->snd_wl1)
 
-  $ ip netns exec "$testns" ip fou add port 7777 ipproto 47
-  RTNETLINK answers: No such file or directory
-  Error talking to the kernel
+If the incoming receive windows are zero in this state, and then the
+connection that was a bulk data receiver later wants to send data,
+that connection can find itself persistently rejecting the window
+updates in incoming ACKs. This means the connection can persistently
+fail to discover that the receive window has opened, which in turn
+means that the connection is unable to send anything, and the
+connection's sending process can get permanently "stuck".
 
-Add the CONFIG_NET_FOU into the config file as well. Which needs at
-least to be set as a loadable module.
+The fix is to update snd_wl1 in the header prediction fast path for a
+bulk data receiver, so that it keeps up and does not see wrapping
+problems.
 
-Fixes: 6227efc1a20b ("selftests: rtnetlink.sh: add vxlan and fou test cases")
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20201019030928.9859-1-po-hsu.lin@canonical.com
+This fix is based on a very nice and thorough analysis and diagnosis
+by Apollon Oikonomopoulos (see link below).
+
+This is a stable candidate but there is no Fixes tag here since the
+bug predates current git history. Just for fun: looks like the bug
+dates back to when header prediction was added in Linux v2.1.8 in Nov
+1996. In that version tcp_rcv_established() was added, and the code
+only updates snd_wl1 in tcp_ack(), and in the new "Bulk data transfer:
+receiver" code path it does not call tcp_ack(). This fix seems to
+apply cleanly at least as far back as v3.2.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Reported-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
+Tested-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
+Link: https://www.spinics.net/lists/netdev/msg692430.html
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20201022143331.1887495-1-ncardwell.kernel@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/config       |    1 +
- tools/testing/selftests/net/rtnetlink.sh |    5 +++++
- 2 files changed, 6 insertions(+)
+ net/ipv4/tcp_input.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/testing/selftests/net/config
-+++ b/tools/testing/selftests/net/config
-@@ -31,3 +31,4 @@ CONFIG_NET_SCH_ETF=m
- CONFIG_NET_SCH_NETEM=y
- CONFIG_TEST_BLACKHOLE_DEV=m
- CONFIG_KALLSYMS=y
-+CONFIG_NET_FOU=m
---- a/tools/testing/selftests/net/rtnetlink.sh
-+++ b/tools/testing/selftests/net/rtnetlink.sh
-@@ -521,6 +521,11 @@ kci_test_encap_fou()
- 		return $ksft_skip
- 	fi
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5716,6 +5716,8 @@ void tcp_rcv_established(struct sock *sk
+ 				tcp_data_snd_check(sk);
+ 				if (!inet_csk_ack_scheduled(sk))
+ 					goto no_ack;
++			} else {
++				tcp_update_wl(tp, TCP_SKB_CB(skb)->seq);
+ 			}
  
-+	if ! /sbin/modprobe -q -n fou; then
-+		echo "SKIP: module fou is not found"
-+		return $ksft_skip
-+	fi
-+	/sbin/modprobe -q fou
- 	ip -netns "$testns" fou add port 7777 ipproto 47 2>/dev/null
- 	if [ $? -ne 0 ];then
- 		echo "FAIL: can't add fou port 7777, skipping test"
+ 			__tcp_ack_snd_check(sk, 0);
 
 
