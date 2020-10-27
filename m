@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C51B329B83B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD19F29B83D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368811AbgJ0PeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51914 "EHLO mail.kernel.org"
+        id S1799918AbgJ0PeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:34:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368704AbgJ0PeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:34:05 -0400
+        id S368808AbgJ0PeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:34:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA7B822202;
-        Tue, 27 Oct 2020 15:34:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 920112225E;
+        Tue, 27 Oct 2020 15:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812843;
-        bh=db3idX7P0RIhbEKjulac1pFFOKXO6hrNb9E0DQGDb9k=;
+        s=default; t=1603812846;
+        bh=euCQJTDf+exXUOZoff9kk4oG/35H4TMwvNvwLFJ3Wpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOIXD/7OeCnkkKXvpZWHZCMtZ2OHsstEEl5NsHB+thPlrbXwW7HYmbrJW4inoR+Uk
-         AzTA8KPjEkoMf8u2ma4hb+pMTXatUGinIE5WA0tfovyBhhn4vwTWNK12pzTSvn5zhp
-         LthlhqdmyykvsIgatnx5mjizJd4KQyjAeWQnmEnc=
+        b=tHR5/dzXerPlp8k0of5QHMPi0SoVO8m8qF0HzJixMV6nfgE6mDwyMWF0IJ544pL9o
+         37Etb9gaSAEd4kEdNx1dt2P+W29lMsIYVOqACdcSyvDu8pmmtjIOboyLH+jkdlbJmA
+         Coh08WibRdGslra3tTztZcbTHTYswFBLo/fxG+xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 350/757] selftests/bpf: Fix endianness issues in sk_lookup/ctx_narrow_access
-Date:   Tue, 27 Oct 2020 14:50:00 +0100
-Message-Id: <20201027135506.987837008@linuxfoundation.org>
+Subject: [PATCH 5.9 351/757] pinctrl: tigerlake: Fix register offsets for TGL-H variant
+Date:   Tue, 27 Oct 2020 14:50:01 +0100
+Message-Id: <20201027135507.035773583@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,309 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 6458bde368cee77e798d05cccd2316db4d748c41 ]
+[ Upstream commit cb8cc18508fb0cad74929ffd080bebafe91609e2 ]
 
-This test makes a lot of narrow load checks while assuming little
-endian architecture, and therefore fails on s390.
+It appears that almost traditionally the H variants have some deviations
+in the register offsets in comparison to LP ones. This is the case for
+Intel Tiger Lake as well. Fix register offsets for TGL-H variant.
 
-Fix by introducing LSB and LSW macros and using them to perform narrow
-loads.
-
-Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200929201814.44360-1-iii@linux.ibm.com
+Fixes: 653d96455e1e ("pinctrl: tigerlake: Add support for Tiger Lake-H")
+Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20200929110306.40852-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/progs/test_sk_lookup.c      | 216 ++++++++----------
- 1 file changed, 101 insertions(+), 115 deletions(-)
+ drivers/pinctrl/intel/pinctrl-tigerlake.c | 42 ++++++++++++++---------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_sk_lookup.c b/tools/testing/selftests/bpf/progs/test_sk_lookup.c
-index bbf8296f4d663..1032b292af5b7 100644
---- a/tools/testing/selftests/bpf/progs/test_sk_lookup.c
-+++ b/tools/testing/selftests/bpf/progs/test_sk_lookup.c
-@@ -19,6 +19,17 @@
- #define IP6(aaaa, bbbb, cccc, dddd)			\
- 	{ bpf_htonl(aaaa), bpf_htonl(bbbb), bpf_htonl(cccc), bpf_htonl(dddd) }
+diff --git a/drivers/pinctrl/intel/pinctrl-tigerlake.c b/drivers/pinctrl/intel/pinctrl-tigerlake.c
+index 8c162dd5f5a10..3e354e02f4084 100644
+--- a/drivers/pinctrl/intel/pinctrl-tigerlake.c
++++ b/drivers/pinctrl/intel/pinctrl-tigerlake.c
+@@ -15,11 +15,13 @@
  
-+/* Macros for least-significant byte and word accesses. */
-+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-+#define LSE_INDEX(index, size) (index)
-+#else
-+#define LSE_INDEX(index, size) ((size) - (index) - 1)
-+#endif
-+#define LSB(value, index)				\
-+	(((__u8 *)&(value))[LSE_INDEX((index), sizeof(value))])
-+#define LSW(value, index)				\
-+	(((__u16 *)&(value))[LSE_INDEX((index), sizeof(value) / 2)])
+ #include "pinctrl-intel.h"
+ 
+-#define TGL_PAD_OWN	0x020
+-#define TGL_PADCFGLOCK	0x080
+-#define TGL_HOSTSW_OWN	0x0b0
+-#define TGL_GPI_IS	0x100
+-#define TGL_GPI_IE	0x120
++#define TGL_PAD_OWN		0x020
++#define TGL_LP_PADCFGLOCK	0x080
++#define TGL_H_PADCFGLOCK	0x090
++#define TGL_LP_HOSTSW_OWN	0x0b0
++#define TGL_H_HOSTSW_OWN	0x0c0
++#define TGL_GPI_IS		0x100
++#define TGL_GPI_IE		0x120
+ 
+ #define TGL_GPP(r, s, e, g)				\
+ 	{						\
+@@ -29,12 +31,12 @@
+ 		.gpio_base = (g),			\
+ 	}
+ 
+-#define TGL_COMMUNITY(b, s, e, g)			\
++#define TGL_COMMUNITY(b, s, e, pl, ho, g)		\
+ 	{						\
+ 		.barno = (b),				\
+ 		.padown_offset = TGL_PAD_OWN,		\
+-		.padcfglock_offset = TGL_PADCFGLOCK,	\
+-		.hostown_offset = TGL_HOSTSW_OWN,	\
++		.padcfglock_offset = (pl),		\
++		.hostown_offset = (ho),			\
+ 		.is_offset = TGL_GPI_IS,		\
+ 		.ie_offset = TGL_GPI_IE,		\
+ 		.pin_base = (s),			\
+@@ -43,6 +45,12 @@
+ 		.ngpps = ARRAY_SIZE(g),			\
+ 	}
+ 
++#define TGL_LP_COMMUNITY(b, s, e, g)			\
++	TGL_COMMUNITY(b, s, e, TGL_LP_PADCFGLOCK, TGL_LP_HOSTSW_OWN, g)
 +
- #define MAX_SOCKS 32
++#define TGL_H_COMMUNITY(b, s, e, g)			\
++	TGL_COMMUNITY(b, s, e, TGL_H_PADCFGLOCK, TGL_H_HOSTSW_OWN, g)
++
+ /* Tiger Lake-LP */
+ static const struct pinctrl_pin_desc tgllp_pins[] = {
+ 	/* GPP_B */
+@@ -367,10 +375,10 @@ static const struct intel_padgroup tgllp_community5_gpps[] = {
+ };
  
- struct {
-@@ -369,171 +380,146 @@ int ctx_narrow_access(struct bpf_sk_lookup *ctx)
- {
- 	struct bpf_sock *sk;
- 	int err, family;
--	__u16 *half;
--	__u8 *byte;
- 	bool v4;
+ static const struct intel_community tgllp_communities[] = {
+-	TGL_COMMUNITY(0, 0, 66, tgllp_community0_gpps),
+-	TGL_COMMUNITY(1, 67, 170, tgllp_community1_gpps),
+-	TGL_COMMUNITY(2, 171, 259, tgllp_community4_gpps),
+-	TGL_COMMUNITY(3, 260, 276, tgllp_community5_gpps),
++	TGL_LP_COMMUNITY(0, 0, 66, tgllp_community0_gpps),
++	TGL_LP_COMMUNITY(1, 67, 170, tgllp_community1_gpps),
++	TGL_LP_COMMUNITY(2, 171, 259, tgllp_community4_gpps),
++	TGL_LP_COMMUNITY(3, 260, 276, tgllp_community5_gpps),
+ };
  
- 	v4 = (ctx->family == AF_INET);
+ static const struct intel_pinctrl_soc_data tgllp_soc_data = {
+@@ -723,11 +731,11 @@ static const struct intel_padgroup tglh_community5_gpps[] = {
+ };
  
- 	/* Narrow loads from family field */
--	byte = (__u8 *)&ctx->family;
--	half = (__u16 *)&ctx->family;
--	if (byte[0] != (v4 ? AF_INET : AF_INET6) ||
--	    byte[1] != 0 || byte[2] != 0 || byte[3] != 0)
-+	if (LSB(ctx->family, 0) != (v4 ? AF_INET : AF_INET6) ||
-+	    LSB(ctx->family, 1) != 0 || LSB(ctx->family, 2) != 0 || LSB(ctx->family, 3) != 0)
- 		return SK_DROP;
--	if (half[0] != (v4 ? AF_INET : AF_INET6))
-+	if (LSW(ctx->family, 0) != (v4 ? AF_INET : AF_INET6))
- 		return SK_DROP;
+ static const struct intel_community tglh_communities[] = {
+-	TGL_COMMUNITY(0, 0, 78, tglh_community0_gpps),
+-	TGL_COMMUNITY(1, 79, 180, tglh_community1_gpps),
+-	TGL_COMMUNITY(2, 181, 217, tglh_community3_gpps),
+-	TGL_COMMUNITY(3, 218, 266, tglh_community4_gpps),
+-	TGL_COMMUNITY(4, 267, 290, tglh_community5_gpps),
++	TGL_H_COMMUNITY(0, 0, 78, tglh_community0_gpps),
++	TGL_H_COMMUNITY(1, 79, 180, tglh_community1_gpps),
++	TGL_H_COMMUNITY(2, 181, 217, tglh_community3_gpps),
++	TGL_H_COMMUNITY(3, 218, 266, tglh_community4_gpps),
++	TGL_H_COMMUNITY(4, 267, 290, tglh_community5_gpps),
+ };
  
--	byte = (__u8 *)&ctx->protocol;
--	if (byte[0] != IPPROTO_TCP ||
--	    byte[1] != 0 || byte[2] != 0 || byte[3] != 0)
-+	/* Narrow loads from protocol field */
-+	if (LSB(ctx->protocol, 0) != IPPROTO_TCP ||
-+	    LSB(ctx->protocol, 1) != 0 || LSB(ctx->protocol, 2) != 0 || LSB(ctx->protocol, 3) != 0)
- 		return SK_DROP;
--	half = (__u16 *)&ctx->protocol;
--	if (half[0] != IPPROTO_TCP)
-+	if (LSW(ctx->protocol, 0) != IPPROTO_TCP)
- 		return SK_DROP;
- 
- 	/* Narrow loads from remote_port field. Expect non-0 value. */
--	byte = (__u8 *)&ctx->remote_port;
--	if (byte[0] == 0 && byte[1] == 0 && byte[2] == 0 && byte[3] == 0)
-+	if (LSB(ctx->remote_port, 0) == 0 && LSB(ctx->remote_port, 1) == 0 &&
-+	    LSB(ctx->remote_port, 2) == 0 && LSB(ctx->remote_port, 3) == 0)
- 		return SK_DROP;
--	half = (__u16 *)&ctx->remote_port;
--	if (half[0] == 0)
-+	if (LSW(ctx->remote_port, 0) == 0)
- 		return SK_DROP;
- 
- 	/* Narrow loads from local_port field. Expect DST_PORT. */
--	byte = (__u8 *)&ctx->local_port;
--	if (byte[0] != ((DST_PORT >> 0) & 0xff) ||
--	    byte[1] != ((DST_PORT >> 8) & 0xff) ||
--	    byte[2] != 0 || byte[3] != 0)
-+	if (LSB(ctx->local_port, 0) != ((DST_PORT >> 0) & 0xff) ||
-+	    LSB(ctx->local_port, 1) != ((DST_PORT >> 8) & 0xff) ||
-+	    LSB(ctx->local_port, 2) != 0 || LSB(ctx->local_port, 3) != 0)
- 		return SK_DROP;
--	half = (__u16 *)&ctx->local_port;
--	if (half[0] != DST_PORT)
-+	if (LSW(ctx->local_port, 0) != DST_PORT)
- 		return SK_DROP;
- 
- 	/* Narrow loads from IPv4 fields */
- 	if (v4) {
- 		/* Expect non-0.0.0.0 in remote_ip4 */
--		byte = (__u8 *)&ctx->remote_ip4;
--		if (byte[0] == 0 && byte[1] == 0 &&
--		    byte[2] == 0 && byte[3] == 0)
-+		if (LSB(ctx->remote_ip4, 0) == 0 && LSB(ctx->remote_ip4, 1) == 0 &&
-+		    LSB(ctx->remote_ip4, 2) == 0 && LSB(ctx->remote_ip4, 3) == 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->remote_ip4;
--		if (half[0] == 0 && half[1] == 0)
-+		if (LSW(ctx->remote_ip4, 0) == 0 && LSW(ctx->remote_ip4, 1) == 0)
- 			return SK_DROP;
- 
- 		/* Expect DST_IP4 in local_ip4 */
--		byte = (__u8 *)&ctx->local_ip4;
--		if (byte[0] != ((DST_IP4 >>  0) & 0xff) ||
--		    byte[1] != ((DST_IP4 >>  8) & 0xff) ||
--		    byte[2] != ((DST_IP4 >> 16) & 0xff) ||
--		    byte[3] != ((DST_IP4 >> 24) & 0xff))
-+		if (LSB(ctx->local_ip4, 0) != ((DST_IP4 >> 0) & 0xff) ||
-+		    LSB(ctx->local_ip4, 1) != ((DST_IP4 >> 8) & 0xff) ||
-+		    LSB(ctx->local_ip4, 2) != ((DST_IP4 >> 16) & 0xff) ||
-+		    LSB(ctx->local_ip4, 3) != ((DST_IP4 >> 24) & 0xff))
- 			return SK_DROP;
--		half = (__u16 *)&ctx->local_ip4;
--		if (half[0] != ((DST_IP4 >>  0) & 0xffff) ||
--		    half[1] != ((DST_IP4 >> 16) & 0xffff))
-+		if (LSW(ctx->local_ip4, 0) != ((DST_IP4 >> 0) & 0xffff) ||
-+		    LSW(ctx->local_ip4, 1) != ((DST_IP4 >> 16) & 0xffff))
- 			return SK_DROP;
- 	} else {
- 		/* Expect 0.0.0.0 IPs when family != AF_INET */
--		byte = (__u8 *)&ctx->remote_ip4;
--		if (byte[0] != 0 || byte[1] != 0 &&
--		    byte[2] != 0 || byte[3] != 0)
-+		if (LSB(ctx->remote_ip4, 0) != 0 || LSB(ctx->remote_ip4, 1) != 0 ||
-+		    LSB(ctx->remote_ip4, 2) != 0 || LSB(ctx->remote_ip4, 3) != 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->remote_ip4;
--		if (half[0] != 0 || half[1] != 0)
-+		if (LSW(ctx->remote_ip4, 0) != 0 || LSW(ctx->remote_ip4, 1) != 0)
- 			return SK_DROP;
- 
--		byte = (__u8 *)&ctx->local_ip4;
--		if (byte[0] != 0 || byte[1] != 0 &&
--		    byte[2] != 0 || byte[3] != 0)
-+		if (LSB(ctx->local_ip4, 0) != 0 || LSB(ctx->local_ip4, 1) != 0 ||
-+		    LSB(ctx->local_ip4, 2) != 0 || LSB(ctx->local_ip4, 3) != 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->local_ip4;
--		if (half[0] != 0 || half[1] != 0)
-+		if (LSW(ctx->local_ip4, 0) != 0 || LSW(ctx->local_ip4, 1) != 0)
- 			return SK_DROP;
- 	}
- 
- 	/* Narrow loads from IPv6 fields */
- 	if (!v4) {
--		/* Expenct non-:: IP in remote_ip6 */
--		byte = (__u8 *)&ctx->remote_ip6;
--		if (byte[0] == 0 && byte[1] == 0 &&
--		    byte[2] == 0 && byte[3] == 0 &&
--		    byte[4] == 0 && byte[5] == 0 &&
--		    byte[6] == 0 && byte[7] == 0 &&
--		    byte[8] == 0 && byte[9] == 0 &&
--		    byte[10] == 0 && byte[11] == 0 &&
--		    byte[12] == 0 && byte[13] == 0 &&
--		    byte[14] == 0 && byte[15] == 0)
-+		/* Expect non-:: IP in remote_ip6 */
-+		if (LSB(ctx->remote_ip6[0], 0) == 0 && LSB(ctx->remote_ip6[0], 1) == 0 &&
-+		    LSB(ctx->remote_ip6[0], 2) == 0 && LSB(ctx->remote_ip6[0], 3) == 0 &&
-+		    LSB(ctx->remote_ip6[1], 0) == 0 && LSB(ctx->remote_ip6[1], 1) == 0 &&
-+		    LSB(ctx->remote_ip6[1], 2) == 0 && LSB(ctx->remote_ip6[1], 3) == 0 &&
-+		    LSB(ctx->remote_ip6[2], 0) == 0 && LSB(ctx->remote_ip6[2], 1) == 0 &&
-+		    LSB(ctx->remote_ip6[2], 2) == 0 && LSB(ctx->remote_ip6[2], 3) == 0 &&
-+		    LSB(ctx->remote_ip6[3], 0) == 0 && LSB(ctx->remote_ip6[3], 1) == 0 &&
-+		    LSB(ctx->remote_ip6[3], 2) == 0 && LSB(ctx->remote_ip6[3], 3) == 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->remote_ip6;
--		if (half[0] == 0 && half[1] == 0 &&
--		    half[2] == 0 && half[3] == 0 &&
--		    half[4] == 0 && half[5] == 0 &&
--		    half[6] == 0 && half[7] == 0)
-+		if (LSW(ctx->remote_ip6[0], 0) == 0 && LSW(ctx->remote_ip6[0], 1) == 0 &&
-+		    LSW(ctx->remote_ip6[1], 0) == 0 && LSW(ctx->remote_ip6[1], 1) == 0 &&
-+		    LSW(ctx->remote_ip6[2], 0) == 0 && LSW(ctx->remote_ip6[2], 1) == 0 &&
-+		    LSW(ctx->remote_ip6[3], 0) == 0 && LSW(ctx->remote_ip6[3], 1) == 0)
- 			return SK_DROP;
--
- 		/* Expect DST_IP6 in local_ip6 */
--		byte = (__u8 *)&ctx->local_ip6;
--		if (byte[0] != ((DST_IP6[0] >>  0) & 0xff) ||
--		    byte[1] != ((DST_IP6[0] >>  8) & 0xff) ||
--		    byte[2] != ((DST_IP6[0] >> 16) & 0xff) ||
--		    byte[3] != ((DST_IP6[0] >> 24) & 0xff) ||
--		    byte[4] != ((DST_IP6[1] >>  0) & 0xff) ||
--		    byte[5] != ((DST_IP6[1] >>  8) & 0xff) ||
--		    byte[6] != ((DST_IP6[1] >> 16) & 0xff) ||
--		    byte[7] != ((DST_IP6[1] >> 24) & 0xff) ||
--		    byte[8] != ((DST_IP6[2] >>  0) & 0xff) ||
--		    byte[9] != ((DST_IP6[2] >>  8) & 0xff) ||
--		    byte[10] != ((DST_IP6[2] >> 16) & 0xff) ||
--		    byte[11] != ((DST_IP6[2] >> 24) & 0xff) ||
--		    byte[12] != ((DST_IP6[3] >>  0) & 0xff) ||
--		    byte[13] != ((DST_IP6[3] >>  8) & 0xff) ||
--		    byte[14] != ((DST_IP6[3] >> 16) & 0xff) ||
--		    byte[15] != ((DST_IP6[3] >> 24) & 0xff))
-+		if (LSB(ctx->local_ip6[0], 0) != ((DST_IP6[0] >> 0) & 0xff) ||
-+		    LSB(ctx->local_ip6[0], 1) != ((DST_IP6[0] >> 8) & 0xff) ||
-+		    LSB(ctx->local_ip6[0], 2) != ((DST_IP6[0] >> 16) & 0xff) ||
-+		    LSB(ctx->local_ip6[0], 3) != ((DST_IP6[0] >> 24) & 0xff) ||
-+		    LSB(ctx->local_ip6[1], 0) != ((DST_IP6[1] >> 0) & 0xff) ||
-+		    LSB(ctx->local_ip6[1], 1) != ((DST_IP6[1] >> 8) & 0xff) ||
-+		    LSB(ctx->local_ip6[1], 2) != ((DST_IP6[1] >> 16) & 0xff) ||
-+		    LSB(ctx->local_ip6[1], 3) != ((DST_IP6[1] >> 24) & 0xff) ||
-+		    LSB(ctx->local_ip6[2], 0) != ((DST_IP6[2] >> 0) & 0xff) ||
-+		    LSB(ctx->local_ip6[2], 1) != ((DST_IP6[2] >> 8) & 0xff) ||
-+		    LSB(ctx->local_ip6[2], 2) != ((DST_IP6[2] >> 16) & 0xff) ||
-+		    LSB(ctx->local_ip6[2], 3) != ((DST_IP6[2] >> 24) & 0xff) ||
-+		    LSB(ctx->local_ip6[3], 0) != ((DST_IP6[3] >> 0) & 0xff) ||
-+		    LSB(ctx->local_ip6[3], 1) != ((DST_IP6[3] >> 8) & 0xff) ||
-+		    LSB(ctx->local_ip6[3], 2) != ((DST_IP6[3] >> 16) & 0xff) ||
-+		    LSB(ctx->local_ip6[3], 3) != ((DST_IP6[3] >> 24) & 0xff))
- 			return SK_DROP;
--		half = (__u16 *)&ctx->local_ip6;
--		if (half[0] != ((DST_IP6[0] >>  0) & 0xffff) ||
--		    half[1] != ((DST_IP6[0] >> 16) & 0xffff) ||
--		    half[2] != ((DST_IP6[1] >>  0) & 0xffff) ||
--		    half[3] != ((DST_IP6[1] >> 16) & 0xffff) ||
--		    half[4] != ((DST_IP6[2] >>  0) & 0xffff) ||
--		    half[5] != ((DST_IP6[2] >> 16) & 0xffff) ||
--		    half[6] != ((DST_IP6[3] >>  0) & 0xffff) ||
--		    half[7] != ((DST_IP6[3] >> 16) & 0xffff))
-+		if (LSW(ctx->local_ip6[0], 0) != ((DST_IP6[0] >> 0) & 0xffff) ||
-+		    LSW(ctx->local_ip6[0], 1) != ((DST_IP6[0] >> 16) & 0xffff) ||
-+		    LSW(ctx->local_ip6[1], 0) != ((DST_IP6[1] >> 0) & 0xffff) ||
-+		    LSW(ctx->local_ip6[1], 1) != ((DST_IP6[1] >> 16) & 0xffff) ||
-+		    LSW(ctx->local_ip6[2], 0) != ((DST_IP6[2] >> 0) & 0xffff) ||
-+		    LSW(ctx->local_ip6[2], 1) != ((DST_IP6[2] >> 16) & 0xffff) ||
-+		    LSW(ctx->local_ip6[3], 0) != ((DST_IP6[3] >> 0) & 0xffff) ||
-+		    LSW(ctx->local_ip6[3], 1) != ((DST_IP6[3] >> 16) & 0xffff))
- 			return SK_DROP;
- 	} else {
- 		/* Expect :: IPs when family != AF_INET6 */
--		byte = (__u8 *)&ctx->remote_ip6;
--		if (byte[0] != 0 || byte[1] != 0 ||
--		    byte[2] != 0 || byte[3] != 0 ||
--		    byte[4] != 0 || byte[5] != 0 ||
--		    byte[6] != 0 || byte[7] != 0 ||
--		    byte[8] != 0 || byte[9] != 0 ||
--		    byte[10] != 0 || byte[11] != 0 ||
--		    byte[12] != 0 || byte[13] != 0 ||
--		    byte[14] != 0 || byte[15] != 0)
-+		if (LSB(ctx->remote_ip6[0], 0) != 0 || LSB(ctx->remote_ip6[0], 1) != 0 ||
-+		    LSB(ctx->remote_ip6[0], 2) != 0 || LSB(ctx->remote_ip6[0], 3) != 0 ||
-+		    LSB(ctx->remote_ip6[1], 0) != 0 || LSB(ctx->remote_ip6[1], 1) != 0 ||
-+		    LSB(ctx->remote_ip6[1], 2) != 0 || LSB(ctx->remote_ip6[1], 3) != 0 ||
-+		    LSB(ctx->remote_ip6[2], 0) != 0 || LSB(ctx->remote_ip6[2], 1) != 0 ||
-+		    LSB(ctx->remote_ip6[2], 2) != 0 || LSB(ctx->remote_ip6[2], 3) != 0 ||
-+		    LSB(ctx->remote_ip6[3], 0) != 0 || LSB(ctx->remote_ip6[3], 1) != 0 ||
-+		    LSB(ctx->remote_ip6[3], 2) != 0 || LSB(ctx->remote_ip6[3], 3) != 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->remote_ip6;
--		if (half[0] != 0 || half[1] != 0 ||
--		    half[2] != 0 || half[3] != 0 ||
--		    half[4] != 0 || half[5] != 0 ||
--		    half[6] != 0 || half[7] != 0)
-+		if (LSW(ctx->remote_ip6[0], 0) != 0 || LSW(ctx->remote_ip6[0], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[1], 0) != 0 || LSW(ctx->remote_ip6[1], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[2], 0) != 0 || LSW(ctx->remote_ip6[2], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[3], 0) != 0 || LSW(ctx->remote_ip6[3], 1) != 0)
- 			return SK_DROP;
- 
--		byte = (__u8 *)&ctx->local_ip6;
--		if (byte[0] != 0 || byte[1] != 0 ||
--		    byte[2] != 0 || byte[3] != 0 ||
--		    byte[4] != 0 || byte[5] != 0 ||
--		    byte[6] != 0 || byte[7] != 0 ||
--		    byte[8] != 0 || byte[9] != 0 ||
--		    byte[10] != 0 || byte[11] != 0 ||
--		    byte[12] != 0 || byte[13] != 0 ||
--		    byte[14] != 0 || byte[15] != 0)
-+		if (LSB(ctx->local_ip6[0], 0) != 0 || LSB(ctx->local_ip6[0], 1) != 0 ||
-+		    LSB(ctx->local_ip6[0], 2) != 0 || LSB(ctx->local_ip6[0], 3) != 0 ||
-+		    LSB(ctx->local_ip6[1], 0) != 0 || LSB(ctx->local_ip6[1], 1) != 0 ||
-+		    LSB(ctx->local_ip6[1], 2) != 0 || LSB(ctx->local_ip6[1], 3) != 0 ||
-+		    LSB(ctx->local_ip6[2], 0) != 0 || LSB(ctx->local_ip6[2], 1) != 0 ||
-+		    LSB(ctx->local_ip6[2], 2) != 0 || LSB(ctx->local_ip6[2], 3) != 0 ||
-+		    LSB(ctx->local_ip6[3], 0) != 0 || LSB(ctx->local_ip6[3], 1) != 0 ||
-+		    LSB(ctx->local_ip6[3], 2) != 0 || LSB(ctx->local_ip6[3], 3) != 0)
- 			return SK_DROP;
--		half = (__u16 *)&ctx->local_ip6;
--		if (half[0] != 0 || half[1] != 0 ||
--		    half[2] != 0 || half[3] != 0 ||
--		    half[4] != 0 || half[5] != 0 ||
--		    half[6] != 0 || half[7] != 0)
-+		if (LSW(ctx->remote_ip6[0], 0) != 0 || LSW(ctx->remote_ip6[0], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[1], 0) != 0 || LSW(ctx->remote_ip6[1], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[2], 0) != 0 || LSW(ctx->remote_ip6[2], 1) != 0 ||
-+		    LSW(ctx->remote_ip6[3], 0) != 0 || LSW(ctx->remote_ip6[3], 1) != 0)
- 			return SK_DROP;
- 	}
- 
+ static const struct intel_pinctrl_soc_data tglh_soc_data = {
 -- 
 2.25.1
 
