@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E646229B919
+	by mail.lfdr.de (Postfix) with ESMTP id 0B10129B917
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802202AbgJ0Pp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        id S1802192AbgJ0Pp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798524AbgJ0P2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:28:32 -0400
+        id S1798554AbgJ0P24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:28:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 728B8206F4;
-        Tue, 27 Oct 2020 15:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6230E20728;
+        Tue, 27 Oct 2020 15:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812512;
-        bh=iY8+alkSPzYrj285BJl1b4U90y2HjaN/I9aouGCCXbI=;
+        s=default; t=1603812518;
+        bh=qdq0E/jGIruANVQF+VFYNqx9xPDbKDwAH9Ni7hWWuyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4DkImpY+pSSm6NtL8Mz5qwwr3gcfkFcLF+wz4Ut9F8WRp7Iumv4XjBkb+jgM1XKR
-         oQtgonO2Fu44kDxyYyyCkXxFep95B0x3DJG5EwT+EEol3oHY+d/EUUeHOp12kHGzDR
-         Io6/MgBnnNeK6nNFJxHfpMTupPgowzjMh3jscR5M=
+        b=AaZ4OU4QWGrqQ0jBGetXqW1tCxClAkclDgudFgW3kxjkEfKRyb9wYahRoWVbu/YOt
+         By6m9TF7v9KCVwcdod8V58T7SRPL9DetJ/GyuiJraetPX9pUpm6KSHBwNJN5Ehw4Lv
+         7sLe+u7cs7VorfjLEj6MgXF8wTmXczqejcl03MNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        John Hubbard <jhubbard@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 235/757] pwm: lpss: Add range limit check for the base_unit register value
-Date:   Tue, 27 Oct 2020 14:48:05 +0100
-Message-Id: <20201027135501.617162439@linuxfoundation.org>
+Subject: [PATCH 5.9 236/757] drivers/virt/fsl_hypervisor: Fix error handling path
+Date:   Tue, 27 Oct 2020 14:48:06 +0100
+Message-Id: <20201027135501.658519219@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,66 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit ef9f60daab309558c8bb3e086a9a11ee40bd6061 ]
+[ Upstream commit 7f360bec37857bfd5a48cef21d86f58a09a3df63 ]
 
-When the user requests a high enough period ns value, then the
-calculations in pwm_lpss_prepare() might result in a base_unit value of 0.
+First, when memory allocation for sg_list_unaligned failed, there
+is a bug of calling put_pages() as we haven't pinned any pages.
 
-But according to the data-sheet the way the PWM controller works is that
-each input clock-cycle the base_unit gets added to a N bit counter and
-that counter overflowing determines the PWM output frequency. Adding 0
-to the counter is a no-op. The data-sheet even explicitly states that
-writing 0 to the base_unit bits will result in the PWM outputting a
-continuous 0 signal.
+Second, if get_user_pages_fast() failed we should unpin num_pinned
+pages.
 
-When the user requestes a low enough period ns value, then the
-calculations in pwm_lpss_prepare() might result in a base_unit value
-which is bigger then base_unit_range - 1. Currently the codes for this
-deals with this by applying a mask:
+This will address both.
 
-	base_unit &= (base_unit_range - 1);
+As part of these changes, minor update in documentation.
 
-But this means that we let the value overflow the range, we throw away the
-higher bits and store whatever value is left in the lower bits into the
-register leading to a random output frequency, rather then clamping the
-output frequency to the highest frequency which the hardware can do.
-
-This commit fixes both issues by clamping the base_unit value to be
-between 1 and (base_unit_range - 1).
-
-Fixes: 684309e5043e ("pwm: lpss: Avoid potential overflow of base_unit")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200903112337.4113-5-hdegoede@redhat.com
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Link: https://lore.kernel.org/r/1598995271-6755-1-git-send-email-jrdr.linux@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/virt/fsl_hypervisor.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 43b1fc634af1a..da9bc3d10104a 100644
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -97,6 +97,8 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	freq *= base_unit_range;
+diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
+index 1b0b11b55d2a0..46ee0a0998b6f 100644
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -157,7 +157,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
  
- 	base_unit = DIV_ROUND_CLOSEST_ULL(freq, c);
-+	/* base_unit must not be 0 and we also want to avoid overflowing it */
-+	base_unit = clamp_val(base_unit, 1, base_unit_range - 1);
+ 	unsigned int i;
+ 	long ret = 0;
+-	int num_pinned; /* return value from get_user_pages() */
++	int num_pinned = 0; /* return value from get_user_pages_fast() */
+ 	phys_addr_t remote_paddr; /* The next address in the remote buffer */
+ 	uint32_t count; /* The number of bytes left to copy */
  
- 	on_time_div = 255ULL * duty_ns;
- 	do_div(on_time_div, period_ns);
-@@ -105,7 +107,6 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	orig_ctrl = ctrl = pwm_lpss_read(pwm);
- 	ctrl &= ~PWM_ON_TIME_DIV_MASK;
- 	ctrl &= ~((base_unit_range - 1) << PWM_BASE_UNIT_SHIFT);
--	base_unit &= (base_unit_range - 1);
- 	ctrl |= (u32) base_unit << PWM_BASE_UNIT_SHIFT;
- 	ctrl |= on_time_div;
+@@ -174,7 +174,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 		return -EINVAL;
  
+ 	/*
+-	 * The array of pages returned by get_user_pages() covers only
++	 * The array of pages returned by get_user_pages_fast() covers only
+ 	 * page-aligned memory.  Since the user buffer is probably not
+ 	 * page-aligned, we need to handle the discrepancy.
+ 	 *
+@@ -224,7 +224,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 
+ 	/*
+ 	 * 'pages' is an array of struct page pointers that's initialized by
+-	 * get_user_pages().
++	 * get_user_pages_fast().
+ 	 */
+ 	pages = kcalloc(num_pages, sizeof(struct page *), GFP_KERNEL);
+ 	if (!pages) {
+@@ -241,7 +241,7 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 	if (!sg_list_unaligned) {
+ 		pr_debug("fsl-hv: could not allocate S/G list\n");
+ 		ret = -ENOMEM;
+-		goto exit;
++		goto free_pages;
+ 	}
+ 	sg_list = PTR_ALIGN(sg_list_unaligned, sizeof(struct fh_sg_list));
+ 
+@@ -250,7 +250,6 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 		num_pages, param.source != -1 ? FOLL_WRITE : 0, pages);
+ 
+ 	if (num_pinned != num_pages) {
+-		/* get_user_pages() failed */
+ 		pr_debug("fsl-hv: could not lock source buffer\n");
+ 		ret = (num_pinned < 0) ? num_pinned : -EFAULT;
+ 		goto exit;
+@@ -292,13 +291,13 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
+ 		virt_to_phys(sg_list), num_pages);
+ 
+ exit:
+-	if (pages) {
+-		for (i = 0; i < num_pages; i++)
+-			if (pages[i])
+-				put_page(pages[i]);
++	if (pages && (num_pinned > 0)) {
++		for (i = 0; i < num_pinned; i++)
++			put_page(pages[i]);
+ 	}
+ 
+ 	kfree(sg_list_unaligned);
++free_pages:
+ 	kfree(pages);
+ 
+ 	if (!ret)
 -- 
 2.25.1
 
