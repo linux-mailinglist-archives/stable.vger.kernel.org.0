@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC3A29B718
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A39329B6E1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798603AbgJ0P3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37976 "EHLO mail.kernel.org"
+        id S2902001AbgJ0P1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:27:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797355AbgJ0PXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:23:02 -0400
+        id S1797380AbgJ0PXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:23:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49A0D20657;
-        Tue, 27 Oct 2020 15:23:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B004E2064B;
+        Tue, 27 Oct 2020 15:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812181;
-        bh=L1qcReigcYLiiibF9/3bZ4tIfG0GRywfqylLns8188Y=;
+        s=default; t=1603812190;
+        bh=1Gr1VumVpL/J3/Rg8pZcI647T5nB3p5ZEscPdFL9Po4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBIQe4d7bXuJA4yv+CFqTE1yro2Dlrjm8tCb5pXPuvPcbpA+pVmPPZ7Y5DyMFToZt
-         Pg9RAiuWGxCf0byHyeTEuGAAcC6kb8UI2I0ECRrpmtmv4vSYrzoCdDMRFa4vvfnhDv
-         jBtG8fSvTuSDvCUC1e2mP6yfU+j4zA7za0d/w9N8=
+        b=F9BzupCTiA6kLyZioTnV65ATuGKAKcTugbGyuSY6frEkwOUO80EJXuDfc923SbJ7s
+         a45hvXd98WnS3uUv7Yg4zW3sVKfUSri1Aihh/WTHGLel3LFyvknt5hZePA2qdn+X0M
+         JKNK9llSYk9qa0yJzDvTct8UZdM86vCMkhxs2cHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 121/757] crypto: ixp4xx - Fix the size used in a dma_free_coherent() call
-Date:   Tue, 27 Oct 2020 14:46:11 +0100
-Message-Id: <20201027135456.251612356@linuxfoundation.org>
+Subject: [PATCH 5.9 124/757] media: tuner-simple: fix regression in simple_set_radio_freq
+Date:   Tue, 27 Oct 2020 14:46:14 +0100
+Message-Id: <20201027135456.397394959@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,34 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit f7ade9aaf66bd5599690acf0597df2c0f6cd825a ]
+[ Upstream commit 505bfc2a142f12ce7bc7a878b44abc3496f2e747 ]
 
-Update the size used in 'dma_free_coherent()' in order to match the one
-used in the corresponding 'dma_alloc_coherent()', in 'setup_crypt_desc()'.
+clang static analysis reports this problem
 
-Fixes: 81bef0150074 ("crypto: ixp4xx - Hardware crypto support for IXP4xx CPUs")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+tuner-simple.c:714:13: warning: Assigned value is
+  garbage or undefined
+        buffer[1] = buffer[3];
+                  ^ ~~~~~~~~~
+In simple_set_radio_freq buffer[3] used to be done
+in-function with a switch of tuner type, now done
+by a call to simple_radio_bandswitch which has this case
+
+	case TUNER_TENA_9533_DI:
+	case TUNER_YMEC_TVF_5533MF:
+		tuner_dbg("This tuner doesn't ...
+		return 0;
+
+which does not set buffer[3].  In the old logic, this case
+would have returned 0 from simple_set_radio_freq.
+
+Recover this old behavior by returning an error for this
+codition. Since the old simple_set_radio_freq behavior
+returned a 0, do the same.
+
+Fixes: c7a9f3aa1e1b ("V4L/DVB (7129): tuner-simple: move device-specific code into three separate functions")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ixp4xx_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/tuners/tuner-simple.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
-index f478bb0a566af..276012e7c482f 100644
---- a/drivers/crypto/ixp4xx_crypto.c
-+++ b/drivers/crypto/ixp4xx_crypto.c
-@@ -528,7 +528,7 @@ static void release_ixp_crypto(struct device *dev)
+diff --git a/drivers/media/tuners/tuner-simple.c b/drivers/media/tuners/tuner-simple.c
+index b6e70fada3fb2..8fb186b25d6af 100644
+--- a/drivers/media/tuners/tuner-simple.c
++++ b/drivers/media/tuners/tuner-simple.c
+@@ -500,7 +500,7 @@ static int simple_radio_bandswitch(struct dvb_frontend *fe, u8 *buffer)
+ 	case TUNER_TENA_9533_DI:
+ 	case TUNER_YMEC_TVF_5533MF:
+ 		tuner_dbg("This tuner doesn't have FM. Most cards have a TEA5767 for FM\n");
+-		return 0;
++		return -EINVAL;
+ 	case TUNER_PHILIPS_FM1216ME_MK3:
+ 	case TUNER_PHILIPS_FM1236_MK3:
+ 	case TUNER_PHILIPS_FMD1216ME_MK3:
+@@ -702,7 +702,8 @@ static int simple_set_radio_freq(struct dvb_frontend *fe,
+ 		    TUNER_RATIO_SELECT_50; /* 50 kHz step */
  
- 	if (crypt_virt) {
- 		dma_free_coherent(dev,
--			NPE_QLEN_TOTAL * sizeof( struct crypt_ctl),
-+			NPE_QLEN * sizeof(struct crypt_ctl),
- 			crypt_virt, crypt_phys);
- 	}
- }
+ 	/* Bandswitch byte */
+-	simple_radio_bandswitch(fe, &buffer[0]);
++	if (simple_radio_bandswitch(fe, &buffer[0]))
++		return 0;
+ 
+ 	/* Convert from 1/16 kHz V4L steps to 1/20 MHz (=50 kHz) PLL steps
+ 	   freq * (1 Mhz / 16000 V4L steps) * (20 PLL steps / 1 MHz) =
 -- 
 2.25.1
 
