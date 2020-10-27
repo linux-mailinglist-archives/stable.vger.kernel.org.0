@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D6329C477
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5BB29C1E2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1823035AbgJ0R44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S1761103AbgJ0Oh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2508853AbgJ0OUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:20:31 -0400
+        id S1761095AbgJ0Oh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:37:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE7B206F7;
-        Tue, 27 Oct 2020 14:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA944207BB;
+        Tue, 27 Oct 2020 14:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808430;
-        bh=ukGCmKdVlfLX/vv05S5i6v0UWlpxKaL8OxClYG3OUNI=;
+        s=default; t=1603809476;
+        bh=a7tWooIq1JwVf+nKvVRDjSP9fBHenH+DxoBQ0HKZLSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApuHnDzM8Z7R2G4kpItZ1v/Z8jDRy5OWJDgb47Io3uF4fWbM6Tb+O+nEsDhrXOb3n
-         lHl83BEPu3jl//XI3+a3s3j0pjOiQnj4dFU71GchzQVRIYkXBsSM+PXJOsVQIbklyw
-         kePLfG8YM9nOR3b4V8HUR6qEl5AIRGG1lEVcr22E=
+        b=oHXM2cgtz5S7rReCmwkN8Mtc6mClAeIlhye1w/rE+Tq4WkoYoFvc6iXprQ06TpMWL
+         SdlY1zu0Z1hzQuXx+V0gOG9gQHECwhZ3+1kFah3PB4yrGTGoBO85Ax7ApbR1UiwH3k
+         m0BeI9l2z1IgEFqyFgla9IMXHO4KUNiSn44Xam3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/264] video: fbdev: vga16fb: fix setting of pixclock because a pass-by-value error
+Subject: [PATCH 5.4 209/408] mtd: mtdoops: Dont write panic data twice
 Date:   Tue, 27 Oct 2020 14:52:27 +0100
-Message-Id: <20201027135434.876935631@linuxfoundation.org>
+Message-Id: <20201027135504.792874831@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit c72fab81ceaa54408b827a2f0486d9a0f4be34cf ]
+[ Upstream commit c1cf1d57d1492235309111ea6a900940213a9166 ]
 
-The pixclock is being set locally because it is being passed as a
-pass-by-value argument rather than pass-by-reference, so the computed
-pixclock is never being set in var->pixclock. Fix this by passing
-by reference.
+If calling mtdoops_write, don't also schedule work to be done later.
 
-[This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git ]
+Although this appears to not be causing an issue, possibly because the
+scheduled work will never get done, it is confusing.
 
-Addresses-Coverity: ("Unused value")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jani Nikula <jani.nikula@intel.com>
-[b.zolnierkie: minor patch summary fixup]
-[b.zolnierkie: removed "Fixes:" tag (not in upstream tree)]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200723170227.996229-1-colin.king@canonical.com
+Fixes: 016c1291ce70 ("mtd: mtdoops: do not use mtd->panic_write directly")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200903034217.23079-1-mark.tomlinson@alliedtelesis.co.nz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vga16fb.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/mtd/mtdoops.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index 4b83109202b1c..3c4d20618de4c 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -243,7 +243,7 @@ static void vga16fb_update_fix(struct fb_info *info)
+diff --git a/drivers/mtd/mtdoops.c b/drivers/mtd/mtdoops.c
+index 4ced68be7ed7e..774970bfcf859 100644
+--- a/drivers/mtd/mtdoops.c
++++ b/drivers/mtd/mtdoops.c
+@@ -279,12 +279,13 @@ static void mtdoops_do_dump(struct kmsg_dumper *dumper,
+ 	kmsg_dump_get_buffer(dumper, true, cxt->oops_buf + MTDOOPS_HEADER_SIZE,
+ 			     record_size - MTDOOPS_HEADER_SIZE, NULL);
+ 
+-	/* Panics must be written immediately */
+-	if (reason != KMSG_DUMP_OOPS)
++	if (reason != KMSG_DUMP_OOPS) {
++		/* Panics must be written immediately */
+ 		mtdoops_write(cxt, 1);
+-
+-	/* For other cases, schedule work to write it "nicely" */
+-	schedule_work(&cxt->work_write);
++	} else {
++		/* For other cases, schedule work to write it "nicely" */
++		schedule_work(&cxt->work_write);
++	}
  }
  
- static void vga16fb_clock_chip(struct vga16fb_par *par,
--			       unsigned int pixclock,
-+			       unsigned int *pixclock,
- 			       const struct fb_info *info,
- 			       int mul, int div)
- {
-@@ -259,14 +259,14 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
- 		{     0 /* bad */,    0x00, 0x00}};
- 	int err;
- 
--	pixclock = (pixclock * mul) / div;
-+	*pixclock = (*pixclock * mul) / div;
- 	best = vgaclocks;
--	err = pixclock - best->pixclock;
-+	err = *pixclock - best->pixclock;
- 	if (err < 0) err = -err;
- 	for (ptr = vgaclocks + 1; ptr->pixclock; ptr++) {
- 		int tmp;
- 
--		tmp = pixclock - ptr->pixclock;
-+		tmp = *pixclock - ptr->pixclock;
- 		if (tmp < 0) tmp = -tmp;
- 		if (tmp < err) {
- 			err = tmp;
-@@ -275,7 +275,7 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
- 	}
- 	par->misc |= best->misc;
- 	par->clkdiv = best->seq_clock_mode;
--	pixclock = (best->pixclock * div) / mul;		
-+	*pixclock = (best->pixclock * div) / mul;
- }
- 			       
- #define FAIL(X) return -EINVAL
-@@ -497,10 +497,10 @@ static int vga16fb_check_var(struct fb_var_screeninfo *var,
- 
- 	if (mode & MODE_8BPP)
- 		/* pixel clock == vga clock / 2 */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 2);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 2);
- 	else
- 		/* pixel clock == vga clock */
--		vga16fb_clock_chip(par, var->pixclock, info, 1, 1);
-+		vga16fb_clock_chip(par, &var->pixclock, info, 1, 1);
- 	
- 	var->red.offset = var->green.offset = var->blue.offset = 
- 	var->transp.offset = 0;
+ static void mtdoops_notify_add(struct mtd_info *mtd)
 -- 
 2.25.1
 
