@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D668A29B390
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD88E29B392
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1776227AbgJ0Oxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
+        id S1776611AbgJ0Oxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1772943AbgJ0Ouk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:50:40 -0400
+        id S1772963AbgJ0Oun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:50:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF34621556;
-        Tue, 27 Oct 2020 14:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88FA20709;
+        Tue, 27 Oct 2020 14:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810239;
-        bh=m/T5nyzCStNhmcQrq3oiuc4IfQVKpD5kfOWhEGogN9s=;
+        s=default; t=1603810242;
+        bh=oR3UcfMO77je+N5vxlMNiLu7Lo3ugA2ptmm03gXx18s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2dQNUSy/PiowbeMm5hsn5Lw2BAKypeh12YP/YW3YGfQuvHHqgzgXQmYHeIORLDkM
-         pwqLztRVPjsPWbiQAtPtkXdNVKzUjOxBwdyw1GNJB/mblBhqg0dvdCGPza6FffUYdt
-         yYre8clEVGopd3TGu/HDzjM35VZANs3/djEbTht8=
+        b=AtDOf5+96znQHR2ycacWKrhKajEnN+UV8FkoWw9RRMX8DSGD/9pRilxG7IP1JNQaf
+         0SMzESTAMDe1YT0/G4XeCPuCLWz7yDAp/hBT7aAyPP24Y5a00wNt7tf/i1QeeSFIOE
+         mOuV5vyklA1Rx5ND8zOG+hux5+NBLtV25IRcZ7S4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liran Alon <liran.alon@oracle.com>,
+        stable@vger.kernel.org,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.8 069/633] KVM: nVMX: Morph notification vector IRQ on nested VM-Enter to pending PI
-Date:   Tue, 27 Oct 2020 14:46:52 +0100
-Message-Id: <20201027135525.938108275@linuxfoundation.org>
+Subject: [PATCH 5.8 070/633] KVM: nVMX: Reset the segment cache when stuffing guest segs
+Date:   Tue, 27 Oct 2020 14:46:53 +0100
+Message-Id: <20201027135525.986808442@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,94 +45,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 25bb2cf97139f81e3bb8910d26016a529019528e upstream.
+commit fc387d8daf3960c5e1bc18fa353768056f4fd394 upstream.
 
-On successful nested VM-Enter, check for pending interrupts and convert
-the highest priority interrupt to a pending posted interrupt if it
-matches L2's notification vector.  If the vCPU receives a notification
-interrupt before nested VM-Enter (assuming L1 disables IRQs before doing
-VM-Enter), the pending interrupt (for L1) should be recognized and
-processed as a posted interrupt when interrupts become unblocked after
-VM-Enter to L2.
+Explicitly reset the segment cache after stuffing guest segment regs in
+prepare_vmcs02_rare().  Although the cache is reset when switching to
+vmcs02, there is nothing that prevents KVM from re-populating the cache
+prior to writing vmcs02 with vmcs12's values.  E.g. if the vCPU is
+preempted after switching to vmcs02 but before prepare_vmcs02_rare(),
+kvm_arch_vcpu_put() will dereference GUEST_SS_AR_BYTES via .get_cpl()
+and cache the stale vmcs02 value.  While the current code base only
+caches stale data in the preemption case, it's theoretically possible
+future code could read a segment register during the nested flow itself,
+i.e. this isn't technically illegal behavior in kvm_arch_vcpu_put(),
+although it did introduce the bug.
 
-This fixes a bug where L1/L2 will get stuck in an infinite loop if L1 is
-trying to inject an interrupt into L2 by setting the appropriate bit in
-L2's PIR and sending a self-IPI prior to VM-Enter (as opposed to KVM's
-method of manually moving the vector from PIR->vIRR/RVI).  KVM will
-observe the IPI while the vCPU is in L1 context and so won't immediately
-morph it to a posted interrupt for L2.  The pending interrupt will be
-seen by vmx_check_nested_events(), cause KVM to force an immediate exit
-after nested VM-Enter, and eventually be reflected to L1 as a VM-Exit.
-After handling the VM-Exit, L1 will see that L2 has a pending interrupt
-in PIR, send another IPI, and repeat until L2 is killed.
+This manifests as an unexpected nested VM-Enter failure when running
+with unrestricted guest disabled if the above preemption case coincides
+with L1 switching L2's CPL, e.g. when switching from a L2 vCPU at CPL3
+to to a L2 vCPU at CPL0.  stack_segment_valid() will see the new SS_SEL
+but the old SS_AR_BYTES and incorrectly mark the guest state as invalid
+due to SS.dpl != SS.rpl.
 
-Note, posted interrupts require virtual interrupt deliveriy, and virtual
-interrupt delivery requires exit-on-interrupt, ergo interrupts will be
-unconditionally unmasked on VM-Enter if posted interrupts are enabled.
+Don't bother updating the cache even though prepare_vmcs02_rare() writes
+every segment.  With unrestricted guest, guest segments are almost never
+read, let alone L2 guest segments.  On the other hand, populating the
+cache requires a large number of memory writes, i.e. it's unlikely to be
+a net win.  Updating the cache would be a win when unrestricted guest is
+not supported, as guest_state_valid() will immediately cache all segment
+registers.  But, nested virtualization without unrestricted guest is
+dirt slow, saving some VMREADs won't change that, and every CPU
+manufactured in the last decade supports unrestricted guest.  In other
+words, the extra (minor) complexity isn't worth the trouble.
 
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
+Note, kvm_arch_vcpu_put() may see stale data when querying guest CPL
+depending on when preemption occurs.  This is "ok" in that the usage is
+imperfect by nature, i.e. it's used heuristically to improve performance
+but doesn't affect functionality.  kvm_arch_vcpu_put() could be "fixed"
+by also disabling preemption while loading segments, but that's
+pointless and misleading as reading state from kvm_sched_{in,out}() is
+guaranteed to see stale data in one form or another.  E.g. even if all
+the usage of regs_avail is fixed to call kvm_register_mark_available()
+after the associated state is set, the individual state might still be
+stale with respect to the overall vCPU state.  I.e. making functional
+decisions in an asynchronous hook is doomed from the get go.  Thankfully
+KVM doesn't do that.
+
+Fixes: de63ad4cf4973 ("KVM: X86: implement the logic for spinlock optimization")
 Cc: stable@vger.kernel.org
-Cc: Liran Alon <liran.alon@oracle.com>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200812175129.12172-1-sean.j.christopherson@intel.com>
+Message-Id: <20200923184452.980-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/lapic.c      |    7 +++++++
- arch/x86/kvm/lapic.h      |    1 +
- arch/x86/kvm/vmx/nested.c |    8 ++++++++
- 3 files changed, 16 insertions(+)
+ arch/x86/kvm/vmx/nested.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -490,6 +490,12 @@ static inline void apic_clear_irr(int ve
- 	}
- }
- 
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec)
-+{
-+	apic_clear_irr(vec, vcpu->arch.apic);
-+}
-+EXPORT_SYMBOL_GPL(kvm_apic_clear_irr);
-+
- static inline void apic_set_isr(int vec, struct kvm_lapic *apic)
- {
- 	struct kvm_vcpu *vcpu;
-@@ -2462,6 +2468,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	__apic_update_ppr(apic, &ppr);
- 	return apic_has_interrupt_for_ppr(apic, ppr);
- }
-+EXPORT_SYMBOL_GPL(kvm_apic_has_interrupt);
- 
- int kvm_apic_accept_pic_intr(struct kvm_vcpu *vcpu)
- {
---- a/arch/x86/kvm/lapic.h
-+++ b/arch/x86/kvm/lapic.h
-@@ -89,6 +89,7 @@ int kvm_lapic_reg_read(struct kvm_lapic
- bool kvm_apic_match_dest(struct kvm_vcpu *vcpu, struct kvm_lapic *source,
- 			   int shorthand, unsigned int dest, int dest_mode);
- int kvm_apic_compare_prio(struct kvm_vcpu *vcpu1, struct kvm_vcpu *vcpu2);
-+void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec);
- bool __kvm_apic_update_irr(u32 *pir, void *regs, int *max_irr);
- bool kvm_apic_update_irr(struct kvm_vcpu *vcpu, u32 *pir, int *max_irr);
- void kvm_apic_update_ppr(struct kvm_vcpu *vcpu);
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -3480,6 +3480,14 @@ static int nested_vmx_run(struct kvm_vcp
- 	if (unlikely(status != NVMX_VMENTRY_SUCCESS))
- 		goto vmentry_failed;
- 
-+	/* Emulate processing of posted interrupts on VM-Enter. */
-+	if (nested_cpu_has_posted_intr(vmcs12) &&
-+	    kvm_apic_has_interrupt(vcpu) == vmx->nested.posted_intr_nv) {
-+		vmx->nested.pi_pending = true;
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_apic_clear_irr(vcpu, vmx->nested.posted_intr_nv);
-+	}
+@@ -2402,6 +2402,8 @@ static void prepare_vmcs02_rare(struct v
+ 		vmcs_writel(GUEST_TR_BASE, vmcs12->guest_tr_base);
+ 		vmcs_writel(GUEST_GDTR_BASE, vmcs12->guest_gdtr_base);
+ 		vmcs_writel(GUEST_IDTR_BASE, vmcs12->guest_idtr_base);
 +
- 	/* Hide L1D cache contents from the nested guest.  */
- 	vmx->vcpu.arch.l1tf_flush_l1d = true;
++		vmx->segment_cache.bitmask = 0;
+ 	}
  
+ 	if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
 
 
