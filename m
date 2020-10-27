@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DD529B284
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:42:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8592629B295
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2899462AbgJ0OmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41714 "EHLO mail.kernel.org"
+        id S1762472AbgJ0OnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762330AbgJ0OmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:42:08 -0400
+        id S1761124AbgJ0Om4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9394B21D7B;
-        Tue, 27 Oct 2020 14:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9033420773;
+        Tue, 27 Oct 2020 14:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809728;
-        bh=yRM82I+6u7DGFMoDjo+E1l6C32AScqshhd5DqhVuvIg=;
+        s=default; t=1603809776;
+        bh=Aj3H/mllP3Z1Ndwy+73zR5D3CeWuFmetb4clh9ff4xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8SuN+BMDDuIVl/xuUxURv0BZcOn+ragxEOzzhFUKCRQ/56Yy5YgFKQsr6Z4LNkTV
-         2NKrUmgEpz183uhqmYdc9CH9NVRPfcTJ1ejZqaNslSVtylFEGpfEtcriToadlBoUgo
-         yUNpFNWSQ0l/HhTRzwiO559blaHaTZx0z/O6IKYA=
+        b=uRN8JRLtx5K9p5mdNJYDS2lsijJFr4NsDjefwlGDgw90HpGa47uw2KudUPY+s9lUH
+         4qJ1/dBEhNB0bAc/+cKa/NwP3JNYMXaasfvw6BgkOq303vBk6OkYCnTT04HkOcAt4t
+         kRc0JNryjPXCU90uxDSX95iUXZaOIUWHan59tPKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoyang Xu <xuxiaoyang2@huawei.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 281/408] vfio iommu type1: Fix memory leak in vfio_iommu_type1_pin_pages
-Date:   Tue, 27 Oct 2020 14:53:39 +0100
-Message-Id: <20201027135508.082675862@linuxfoundation.org>
+Subject: [PATCH 5.4 285/408] Input: stmfts - fix a & vs && typo
+Date:   Tue, 27 Oct 2020 14:53:43 +0100
+Message-Id: <20201027135508.267699830@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,37 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoyang Xu <xuxiaoyang2@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 2e6cfd496f5b57034cf2aec738799571b5a52124 ]
+[ Upstream commit d04afe14b23651e7a8bc89727a759e982a8458e4 ]
 
-pfn is not added to pfn_list when vfio_add_to_pfn_list fails.
-vfio_unpin_page_external will exit directly without calling
-vfio_iova_put_vfio_pfn.  This will lead to a memory leak.
+In stmfts_sysfs_hover_enable_write(), we should check value and
+sdata->hover_enabled is all true.
 
-Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
-Signed-off-by: Xiaoyang Xu <xuxiaoyang2@huawei.com>
-[aw: simplified logic, add Fixes]
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20200916141941.16684-1-yuehaibing@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_type1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/stmfts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index c6220f57fdf3e..3b31e83a92155 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -631,7 +631,8 @@ static int vfio_iommu_type1_pin_pages(void *iommu_data,
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index b6f95f20f9244..cd8805d71d977 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -479,7 +479,7 @@ static ssize_t stmfts_sysfs_hover_enable_write(struct device *dev,
  
- 		ret = vfio_add_to_pfn_list(dma, iova, phys_pfn[i]);
- 		if (ret) {
--			vfio_unpin_page_external(dma, iova, do_accounting);
-+			if (put_pfn(phys_pfn[i], dma->prot) && do_accounting)
-+				vfio_lock_acct(dma, -1, true);
- 			goto pin_unwind;
- 		}
- 	}
+ 	mutex_lock(&sdata->mutex);
+ 
+-	if (value & sdata->hover_enabled)
++	if (value && sdata->hover_enabled)
+ 		goto out;
+ 
+ 	if (sdata->running)
 -- 
 2.25.1
 
