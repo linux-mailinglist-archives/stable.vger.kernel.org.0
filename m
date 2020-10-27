@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9993129BF4A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5A429BF4E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793583AbgJ0PHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S1793646AbgJ0PHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1790953AbgJ0PFE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:05:04 -0400
+        id S1790964AbgJ0PFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:05:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B72E2071A;
-        Tue, 27 Oct 2020 15:05:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BE4E206E5;
+        Tue, 27 Oct 2020 15:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811104;
-        bh=3MF96z3/pPoGgH1L9zE3w8imvST2t6lftauu81oTr+g=;
+        s=default; t=1603811118;
+        bh=1zDucQGoAD1pm8vzUOYZPH3EoBjMcR0w9x6+T1q1hcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BE/sw9qVt32s8zwVf2lNHqzJQg7mrm8lKCu5/TXvPkFIMOuWoWsavOqOR0T7exzWZ
-         VDetRSWrsSGkTAA9YnrAM7tHEmmKid088qKjcZFNn8Idj4s+E/s/CPqYzvE3HJbaz4
-         OfIJpR0UAfbzd5NfLxHUT+ZOiF7MA5xCpegOJn58=
+        b=aoY0kBlFf2Td0q9nPuGnU6cljF93qxIaeXHtLRQhJS3B1fJ6BqhCFaXOOitflErVM
+         DARAyfDasFLjzOIE+s8EkkSM29uGHvp8PxYfU54jkmNtrOD4MvKEqjcSuPFnprtnDx
+         Ga6CLo74u4JxZU1Sc8+mdrkY3k2LuY4pnzcn3ihk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 347/633] nfs: add missing "posix" local_lock constant table definition
-Date:   Tue, 27 Oct 2020 14:51:30 +0100
-Message-Id: <20201027135538.960325128@linuxfoundation.org>
+Subject: [PATCH 5.8 349/633] RDMA/rtrs-srv: Incorporate ib_register_client into rtrs server init
+Date:   Tue, 27 Oct 2020 14:51:32 +0100
+Message-Id: <20201027135539.056345761@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,33 +46,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
 
-[ Upstream commit a2d24bcb97dc7b0be1cb891e60ae133bdf36c786 ]
+[ Upstream commit 558d52b2976b1db3098139aa83ceb9af9066a0e7 ]
 
-"mount -o local_lock=posix..." was broken by the mount API conversion
-due to the missing constant.
+The rnbd_server module's communication manager (cm) initialization depends
+on the registration of the "network namespace subsystem" of the RDMA CM
+agent module. As such, when the kernel is configured to load the
+rnbd_server and the RDMA cma module during initialization; and if the
+rnbd_server module is initialized before RDMA cma module, a null ptr
+dereference occurs during the RDMA bind operation.
 
-Fixes: e38bb238ed8c ("NFS: Convert mount option parsing to use functionality from fs_parser.h")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Call trace:
+
+  Call Trace:
+   ? xas_load+0xd/0x80
+   xa_load+0x47/0x80
+   cma_ps_find+0x44/0x70
+   rdma_bind_addr+0x782/0x8b0
+   ? get_random_bytes+0x35/0x40
+   rtrs_srv_cm_init+0x50/0x80
+   rtrs_srv_open+0x102/0x180
+   ? rnbd_client_init+0x6e/0x6e
+   rnbd_srv_init_module+0x34/0x84
+   ? rnbd_client_init+0x6e/0x6e
+   do_one_initcall+0x4a/0x200
+   kernel_init_freeable+0x1f1/0x26e
+   ? rest_init+0xb0/0xb0
+   kernel_init+0xe/0x100
+   ret_from_fork+0x22/0x30
+  Modules linked in:
+  CR2: 0000000000000015
+
+All this happens cause the cm init is in the call chain of the module
+init, which is not a preferred practice.
+
+So remove the call to rdma_create_id() from the module init call chain.
+Instead register rtrs-srv as an ib client, which makes sure that the
+rdma_create_id() is called only when an ib device is added.
+
+Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20200907103106.104530-1-haris.iqbal@cloud.ionos.com
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Signed-off-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/fs_context.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 76 +++++++++++++++++++++++++-
+ drivers/infiniband/ulp/rtrs/rtrs-srv.h |  7 +++
+ 2 files changed, 80 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
-index ccc88be88d6ae..a30b4bcb95a2c 100644
---- a/fs/nfs/fs_context.c
-+++ b/fs/nfs/fs_context.c
-@@ -94,6 +94,7 @@ enum {
- static const struct constant_table nfs_param_enums_local_lock[] = {
- 	{ "all",		Opt_local_lock_all },
- 	{ "flock",	Opt_local_lock_flock },
-+	{ "posix",	Opt_local_lock_posix },
- 	{ "none",		Opt_local_lock_none },
- 	{}
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index 28f6414dfa3dc..d6f93601712e4 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -16,6 +16,7 @@
+ #include "rtrs-srv.h"
+ #include "rtrs-log.h"
+ #include <rdma/ib_cm.h>
++#include <rdma/ib_verbs.h>
+ 
+ MODULE_DESCRIPTION("RDMA Transport Server");
+ MODULE_LICENSE("GPL");
+@@ -31,6 +32,7 @@ MODULE_LICENSE("GPL");
+ static struct rtrs_rdma_dev_pd dev_pd;
+ static mempool_t *chunk_pool;
+ struct class *rtrs_dev_class;
++static struct rtrs_srv_ib_ctx ib_ctx;
+ 
+ static int __read_mostly max_chunk_size = DEFAULT_MAX_CHUNK_SIZE;
+ static int __read_mostly sess_queue_depth = DEFAULT_SESS_QUEUE_DEPTH;
+@@ -2042,6 +2044,70 @@ static void free_srv_ctx(struct rtrs_srv_ctx *ctx)
+ 	kfree(ctx);
+ }
+ 
++static int rtrs_srv_add_one(struct ib_device *device)
++{
++	struct rtrs_srv_ctx *ctx;
++	int ret = 0;
++
++	mutex_lock(&ib_ctx.ib_dev_mutex);
++	if (ib_ctx.ib_dev_count)
++		goto out;
++
++	/*
++	 * Since our CM IDs are NOT bound to any ib device we will create them
++	 * only once
++	 */
++	ctx = ib_ctx.srv_ctx;
++	ret = rtrs_srv_rdma_init(ctx, ib_ctx.port);
++	if (ret) {
++		/*
++		 * We errored out here.
++		 * According to the ib code, if we encounter an error here then the
++		 * error code is ignored, and no more calls to our ops are made.
++		 */
++		pr_err("Failed to initialize RDMA connection");
++		goto err_out;
++	}
++
++out:
++	/*
++	 * Keep a track on the number of ib devices added
++	 */
++	ib_ctx.ib_dev_count++;
++
++err_out:
++	mutex_unlock(&ib_ctx.ib_dev_mutex);
++	return ret;
++}
++
++static void rtrs_srv_remove_one(struct ib_device *device, void *client_data)
++{
++	struct rtrs_srv_ctx *ctx;
++
++	mutex_lock(&ib_ctx.ib_dev_mutex);
++	ib_ctx.ib_dev_count--;
++
++	if (ib_ctx.ib_dev_count)
++		goto out;
++
++	/*
++	 * Since our CM IDs are NOT bound to any ib device we will remove them
++	 * only once, when the last device is removed
++	 */
++	ctx = ib_ctx.srv_ctx;
++	rdma_destroy_id(ctx->cm_id_ip);
++	rdma_destroy_id(ctx->cm_id_ib);
++
++out:
++	mutex_unlock(&ib_ctx.ib_dev_mutex);
++}
++
++static struct ib_client rtrs_srv_client = {
++	.name	= "rtrs_server",
++	.add	= rtrs_srv_add_one,
++	.remove	= rtrs_srv_remove_one
++};
++
+ /**
+  * rtrs_srv_open() - open RTRS server context
+  * @ops:		callback functions
+@@ -2060,7 +2126,11 @@ struct rtrs_srv_ctx *rtrs_srv_open(struct rtrs_srv_ops *ops, u16 port)
+ 	if (!ctx)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	err = rtrs_srv_rdma_init(ctx, port);
++	mutex_init(&ib_ctx.ib_dev_mutex);
++	ib_ctx.srv_ctx = ctx;
++	ib_ctx.port = port;
++
++	err = ib_register_client(&rtrs_srv_client);
+ 	if (err) {
+ 		free_srv_ctx(ctx);
+ 		return ERR_PTR(err);
+@@ -2099,8 +2169,8 @@ static void close_ctx(struct rtrs_srv_ctx *ctx)
+  */
+ void rtrs_srv_close(struct rtrs_srv_ctx *ctx)
+ {
+-	rdma_destroy_id(ctx->cm_id_ip);
+-	rdma_destroy_id(ctx->cm_id_ib);
++	ib_unregister_client(&rtrs_srv_client);
++	mutex_destroy(&ib_ctx.ib_dev_mutex);
+ 	close_ctx(ctx);
+ 	free_srv_ctx(ctx);
+ }
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.h b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
+index dc95b0932f0df..08b0b8a6eebe6 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
+@@ -118,6 +118,13 @@ struct rtrs_srv_ctx {
+ 	struct list_head srv_list;
  };
+ 
++struct rtrs_srv_ib_ctx {
++	struct rtrs_srv_ctx	*srv_ctx;
++	u16			port;
++	struct mutex            ib_dev_mutex;
++	int			ib_dev_count;
++};
++
+ extern struct class *rtrs_dev_class;
+ 
+ void close_sess(struct rtrs_srv_sess *sess);
 -- 
 2.25.1
 
