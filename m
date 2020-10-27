@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2258F29B70A
+	by mail.lfdr.de (Postfix) with ESMTP id 9226529B70B
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798546AbgJ0P2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S1798547AbgJ0P2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796837AbgJ0PUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:09 -0400
+        id S1796844AbgJ0PUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:20:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A61420657;
-        Tue, 27 Oct 2020 15:20:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F6FD2064B;
+        Tue, 27 Oct 2020 15:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812009;
-        bh=4fN70qPh73IdxfvPoMCro+1wxHu/zqje1ATOEuUx6hg=;
+        s=default; t=1603812012;
+        bh=np69AsM3udaKUpjwndbbBcSbkDZCkgDrrmooXS4GtxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4ylf1t/G5jES3GAEjg1DU+J9IoNYeT8uQB7YxWYDItBs28OE09V84pBshqFTXKK4
-         hFJ4aYKKtWXFd7b1xOsBmkto4EIn8ALtyjq2xfOWJuixP84zYc2bJPPUuMnrmi16pF
-         7nct8+nti7GBMjyV9glAYQMIGwaizAxem987tU5Q=
+        b=actZoe7xoYfuUvD38QCNw7jgTtMzjtaLuaEEJG1uKtyz5k199QmyMGgFKQY2+55sa
+         Ot5vxc8sM+DEp3I3bz9935uML9D4cTS49u/RLFCl6l1Zm/68/Lc1ni2TjRQu04gZSO
+         YLydGW+e6R+bi+d1WNcO2yv0PEzPmX0wB+8hMoJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.9 060/757] ALSA: hda - Fix the return value if cb func is already registered
-Date:   Tue, 27 Oct 2020 14:45:10 +0100
-Message-Id: <20201027135453.377763542@linuxfoundation.org>
+        stable@vger.kernel.org, Lukasz Halman <lukasz.halman@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 061/757] ALSA: usb-audio: Line6 Pod Go interface requires static clock rate quirk
+Date:   Tue, 27 Oct 2020 14:45:11 +0100
+Message-Id: <20201027135453.428964949@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,68 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Lukasz Halman <lukasz.halman@gmail.com>
 
-commit 033e4040d453f1f7111e5957a54f3019eb089cc6 upstream.
+commit 7da4c510abff8ad47eb2d7cc9a97def5a411947f upstream.
 
-If the cb function is already registered, should return the pointer
-of the structure hda_jack_callback which contains this cb func, but
-instead it returns the NULL.
+Recently released Line6 Pod Go requires static clock rate quirk to make
+its usb audio interface working. Added its usb id to the list of similar
+line6 devices.
 
-Now fix it by replacing func_is_already_in_callback_list() with
-find_callback_from_list().
-
-Fixes: f4794c6064a8 ("ALSA: hda - Don't register a cb func if it is registered already")
-Reported-and-suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lukasz Halman <lukasz.halman@gmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20201022030221.22393-1-hui.wang@canonical.com
+Link: https://lore.kernel.org/r/20201020061409.GA24382@TAG009442538903
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_jack.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ sound/usb/format.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_jack.c
-+++ b/sound/pci/hda/hda_jack.c
-@@ -275,16 +275,21 @@ int snd_hda_jack_detect_state_mst(struct
- }
- EXPORT_SYMBOL_GPL(snd_hda_jack_detect_state_mst);
- 
--static bool func_is_already_in_callback_list(struct hda_jack_tbl *jack,
--					     hda_jack_callback_fn func)
-+static struct hda_jack_callback *
-+find_callback_from_list(struct hda_jack_tbl *jack,
-+			hda_jack_callback_fn func)
- {
- 	struct hda_jack_callback *cb;
- 
-+	if (!func)
-+		return NULL;
-+
- 	for (cb = jack->callback; cb; cb = cb->next) {
- 		if (cb->func == func)
--			return true;
-+			return cb;
- 	}
--	return false;
-+
-+	return NULL;
- }
- 
- /**
-@@ -309,7 +314,10 @@ snd_hda_jack_detect_enable_callback_mst(
- 	jack = snd_hda_jack_tbl_new(codec, nid, dev_id);
- 	if (!jack)
- 		return ERR_PTR(-ENOMEM);
--	if (func && !func_is_already_in_callback_list(jack, func)) {
-+
-+	callback = find_callback_from_list(jack, func);
-+
-+	if (func && !callback) {
- 		callback = kzalloc(sizeof(*callback), GFP_KERNEL);
- 		if (!callback)
- 			return ERR_PTR(-ENOMEM);
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -406,6 +406,7 @@ static int line6_parse_audio_format_rate
+ 	case USB_ID(0x0e41, 0x4242): /* Line6 Helix Rack */
+ 	case USB_ID(0x0e41, 0x4244): /* Line6 Helix LT */
+ 	case USB_ID(0x0e41, 0x4246): /* Line6 HX-Stomp */
++	case USB_ID(0x0e41, 0x4247): /* Line6 Pod Go */
+ 	case USB_ID(0x0e41, 0x4248): /* Line6 Helix >= fw 2.82 */
+ 	case USB_ID(0x0e41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
+ 	case USB_ID(0x0e41, 0x424a): /* Line6 Helix LT >= fw 2.82 */
 
 
