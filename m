@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F096829C18E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 447ED29C1AB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1776224AbgJ0Oxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+        id S1819052AbgJ0R05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:26:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1772913AbgJ0Ouf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:50:35 -0400
+        id S1775460AbgJ0Owu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:52:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37CAC20709;
-        Tue, 27 Oct 2020 14:50:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2366A207DE;
+        Tue, 27 Oct 2020 14:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810233;
-        bh=fkpBxmfNOcwEsEY2B5f6l5JmMKKxZmeXpAnX27yXbj8=;
+        s=default; t=1603810369;
+        bh=G6sjFPSpnFl9sVmbWuuppn0Mwm534ZnHpRzoh1YpcxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYBJYLoLgEJfSgGN4bURswh5vz0nmCFKgNpgQqwLYcr3LuwOPw42euP17rf2nk44t
-         cSZwoDuxO+gkw1Dtqu4U7R5C2I7UrKQV0sTPOMbyiYNECwBy0ZfoOK/T5xPH8XDJmT
-         9htP5Ct7UUHEszEt0B7QAWN3lbX+v4zFdSlMbejQ=
+        b=2Z/l2HSeOjOjJShaSnsoCyP1Y1qew6iEc5azaiP8hmZAw2iM+JX4PHVy2+imzmN4t
+         Z+cu8pcbnIgq3OWZwLe6zyhvqC/mwF/yaxBE7FuctAzmbBi7VY9NUTEIleHvzK6F8R
+         qeS1YGrmD+GePWVRB8xBJUJFGC5ebcMVL0iiy8fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Shyam Prasad N <sprasad@microsoft.com>
-Subject: [PATCH 5.8 067/633] smb3: fix stat when special device file and mounted with modefromsid
-Date:   Tue, 27 Oct 2020 14:46:50 +0100
-Message-Id: <20201027135525.839372809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.8 074/633] KVM: SVM: Initialize prev_ga_tag before use
+Date:   Tue, 27 Oct 2020 14:46:57 +0100
+Message-Id: <20201027135526.165745210@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,45 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit 3c3317daef0afa0cd541fc9c1bfd6ce8bbf1129a upstream.
+commit f6426ab9c957e97418ac5b0466538792767b1738 upstream.
 
-When mounting with modefromsid mount option, it was possible to
-get the error on stat of a fifo or char or block device:
-        "cannot stat <filename>: Operation not supported"
+The function amd_ir_set_vcpu_affinity makes use of the parameter struct
+amd_iommu_pi_data.prev_ga_tag to determine if it should delete struct
+amd_iommu_pi_data from a list when not running in AVIC mode.
 
-Special devices can be stored as reparse points by some servers
-(e.g. Windows NFS server and when using the SMB3.1.1 POSIX
-Extensions) but when the modefromsid mount option is used
-the client attempts to get the ACL for the file which requires
-opening with OPEN_REPARSE_POINT create option.
+However, prev_ga_tag is initialized only when AVIC is enabled. The non-zero
+uninitialized value can cause unintended code path, which ends up making
+use of the struct vcpu_svm.ir_list and ir_list_lock without being
+initialized (since they are intended only for the AVIC case).
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+This triggers NULL pointer dereference bug in the function vm_ir_list_del
+with the following call trace:
+
+    svm_update_pi_irte+0x3c2/0x550 [kvm_amd]
+    ? proc_create_single_data+0x41/0x50
+    kvm_arch_irq_bypass_add_producer+0x40/0x60 [kvm]
+    __connect+0x5f/0xb0 [irqbypass]
+    irq_bypass_register_producer+0xf8/0x120 [irqbypass]
+    vfio_msi_set_vector_signal+0x1de/0x2d0 [vfio_pci]
+    vfio_msi_set_block+0x77/0xe0 [vfio_pci]
+    vfio_pci_set_msi_trigger+0x25c/0x2f0 [vfio_pci]
+    vfio_pci_set_irqs_ioctl+0x88/0xb0 [vfio_pci]
+    vfio_pci_ioctl+0x2ea/0xed0 [vfio_pci]
+    ? alloc_file_pseudo+0xa5/0x100
+    vfio_device_fops_unl_ioctl+0x26/0x30 [vfio]
+    ? vfio_device_fops_unl_ioctl+0x26/0x30 [vfio]
+    __x64_sys_ioctl+0x96/0xd0
+    do_syscall_64+0x37/0x80
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Therefore, initialize prev_ga_tag to zero before use. This should be safe
+because ga_tag value 0 is invalid (see function avic_vm_init).
+
+Fixes: dfa20099e26e ("KVM: SVM: Refactor AVIC vcpu initialization into avic_init_vcpu()")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Message-Id: <20201003232707.4662-1-suravee.suthikulpanit@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/avic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3072,7 +3072,12 @@ get_smb2_acl_by_path(struct cifs_sb_info
- 	oparms.tcon = tcon;
- 	oparms.desired_access = READ_CONTROL;
- 	oparms.disposition = FILE_OPEN;
--	oparms.create_options = cifs_create_options(cifs_sb, 0);
-+	/*
-+	 * When querying an ACL, even if the file is a symlink we want to open
-+	 * the source not the target, and so the protocol requires that the
-+	 * client specify this flag when opening a reparse point
-+	 */
-+	oparms.create_options = cifs_create_options(cifs_sb, 0) | OPEN_REPARSE_POINT;
- 	oparms.fid = &fid;
- 	oparms.reconnect = false;
+--- a/arch/x86/kvm/svm/avic.c
++++ b/arch/x86/kvm/svm/avic.c
+@@ -868,6 +868,7 @@ int svm_update_pi_irte(struct kvm *kvm,
+ 			 * - Tell IOMMU to use legacy mode for this interrupt.
+ 			 * - Retrieve ga_tag of prior interrupt remapping data.
+ 			 */
++			pi.prev_ga_tag = 0;
+ 			pi.is_guest_mode = false;
+ 			ret = irq_set_vcpu_affinity(host_irq, &pi);
  
 
 
