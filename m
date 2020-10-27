@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B05929C5AF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A095529C6AD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756201AbgJ0OL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:11:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59216 "EHLO mail.kernel.org"
+        id S1827172AbgJ0SVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:21:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755487AbgJ0OKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:11 -0400
+        id S1753763AbgJ0OCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5834A2072D;
-        Tue, 27 Oct 2020 14:10:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 613632225C;
+        Tue, 27 Oct 2020 14:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807810;
-        bh=hhlNZSd18jXoaJsn/LJh8if3lsngdLGTRiTTCPpCh1I=;
+        s=default; t=1603807321;
+        bh=/NlU0/3d84vVPG+nHAIZydHM6HSVzfZ3j8P+/gBXXl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GD9yQhVrKgfoWp7Vj9dMIswpjh8UNmx5WGQyroNUoBUJSTxvs2yQHbaWHq6hdBvge
-         TgFkVciVMRTb0HTwHCLV/nGHsiRITv8eUQa1KkZZ/14iiQmDtcd3qElVVrxKTr2/c0
-         5w7UDjI2CgBSbZsLfi36Pz8nO1bsiOg/PPmHps2k=
+        b=GvQVH32T8rWF7sn4IEsNGHFc913/SZvxUoUq3f6Z3ARFUfTN359sijJ9Dq5/XPzUC
+         ijvs1JhIMjt67DgbgeECx5kFEAYpkBtvo5iE098c22YvJCpFNahxvLTAdeeBoxc4DU
+         W4bktSIC/GVCihFbGjR75Yp1E7MNpI1ivGlKt2PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/191] drm/gma500: fix error check
+        stable@vger.kernel.org, Dominik Maier <dmaier@sect.tu-berlin.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 011/139] cifs: remove bogus debug code
 Date:   Tue, 27 Oct 2020 14:48:25 +0100
-Message-Id: <20201027134912.140686794@linuxfoundation.org>
+Message-Id: <20201027134902.677707100@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit cdd296cdae1af2d27dae3fcfbdf12c5252ab78cf ]
+commit d367cb960ce88914898cbfa43645c2e43ede9465 upstream.
 
-Reviewing this block of code in cdv_intel_dp_init()
+The "end" pointer is either NULL or it points to the next byte to parse.
+If there isn't a next byte then dereferencing "end" is an off-by-one out
+of bounds error.  And, of course, if it's NULL that leads to an Oops.
+Printing "*end" doesn't seem very useful so let's delete this code.
 
-ret = cdv_intel_dp_aux_native_read(gma_encoder, DP_DPCD_REV, ...
+Also for the last debug statement, I noticed that it should be printing
+"sequence_end" instead of "end" so fix that as well.
 
-cdv_intel_edp_panel_vdd_off(gma_encoder);
-if (ret == 0) {
-	/* if this fails, presume the device is a ghost */
-	DRM_INFO("failed to retrieve link info, disabling eDP\n");
-	drm_encoder_cleanup(encoder);
-	cdv_intel_dp_destroy(connector);
-	goto err_priv;
-} else {
+Reported-by: Dominik Maier <dmaier@sect.tu-berlin.de>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The (ret == 0) is not strict enough.
-cdv_intel_dp_aux_native_read() returns > 0 on success
-otherwise it is failure.
-
-So change to <=
-
-Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805205911.20927-1-trix@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/asn1.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-index c52f9adf5e04c..7ec4e3fbafd8c 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-@@ -2121,7 +2121,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
- 					       intel_dp->dpcd,
- 					       sizeof(intel_dp->dpcd));
- 		cdv_intel_edp_panel_vdd_off(gma_encoder);
--		if (ret == 0) {
-+		if (ret <= 0) {
- 			/* if this fails, presume the device is a ghost */
- 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
- 			cdv_intel_dp_encoder_destroy(encoder);
--- 
-2.25.1
-
+--- a/fs/cifs/asn1.c
++++ b/fs/cifs/asn1.c
+@@ -541,8 +541,8 @@ decode_negTokenInit(unsigned char *secur
+ 		return 0;
+ 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
+ 		   || (tag != ASN1_EOC)) {
+-		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
+-			 cls, con, tag, end, *end);
++		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
++			 cls, con, tag, end);
+ 		return 0;
+ 	}
+ 
+@@ -552,8 +552,8 @@ decode_negTokenInit(unsigned char *secur
+ 		return 0;
+ 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
+ 		   || (tag != ASN1_SEQ)) {
+-		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
+-			 cls, con, tag, end, *end);
++		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 1\n",
++			 cls, con, tag, end);
+ 		return 0;
+ 	}
+ 
+@@ -563,8 +563,8 @@ decode_negTokenInit(unsigned char *secur
+ 		return 0;
+ 	} else if ((cls != ASN1_CTX) || (con != ASN1_CON)
+ 		   || (tag != ASN1_EOC)) {
+-		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 0\n",
+-			 cls, con, tag, end, *end);
++		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p exit 0\n",
++			 cls, con, tag, end);
+ 		return 0;
+ 	}
+ 
+@@ -575,8 +575,8 @@ decode_negTokenInit(unsigned char *secur
+ 		return 0;
+ 	} else if ((cls != ASN1_UNI) || (con != ASN1_CON)
+ 		   || (tag != ASN1_SEQ)) {
+-		cifs_dbg(FYI, "cls = %d con = %d tag = %d end = %p (%d) exit 1\n",
+-			 cls, con, tag, end, *end);
++		cifs_dbg(FYI, "cls = %d con = %d tag = %d sequence_end = %p exit 1\n",
++			 cls, con, tag, sequence_end);
+ 		return 0;
+ 	}
+ 
 
 
