@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A93C729C72D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C6B29C64A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827828AbgJ0S22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:28:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
+        id S1826045AbgJ0SP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:15:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368165AbgJ0N5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:15 -0400
+        id S1756344AbgJ0OMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:12:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4309D21D7B;
-        Tue, 27 Oct 2020 13:57:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BB5C206F7;
+        Tue, 27 Oct 2020 14:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807034;
-        bh=5k4jKEzXkpTOJwJa1aWqwExMCq4YxvN7L5K90HjaWjo=;
+        s=default; t=1603807964;
+        bh=P9fKddTt4aUsHSAlAiK+TWz7phehQCxZR4u+wXc9qZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijrga37J1FCS4fkxalYL4HFbsTnHy/m4N3hksxUTVs/Jyfdm8YLQA7fEjowtzGdBr
-         r3Fx3WEC+htL9yw9E9rQwRrhWK3ssI2SA2LIaFIBgO3x0hKCA4Z1GZ2yp4TTEb7f8a
-         HjCQmY8+AKhpVQCq3RLJ1VJ1nMHfznDAPgfe/a0U=
+        b=MZxT52jer7rm6fANXjqDT+mjAeSU1PEHY9OblRNJa6moZE6Hey8ACp5y0ZSg6iBix
+         119u/k4ciyvydMWkvw+eAB01iI6H7brBeIi9oxXWnVaNdV/oSZYswiFssKpCmgcnVW
+         Uv8VxdaX/0IzZwQWNJAb//CDDTylOSTSpc74EhY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 019/112] EDAC/i5100: Fix error handling order in i5100_init_one()
-Date:   Tue, 27 Oct 2020 14:48:49 +0100
-Message-Id: <20201027134901.480954454@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 075/191] iwlwifi: mvm: split a print to avoid a WARNING in ROC
+Date:   Tue, 27 Oct 2020 14:48:50 +0100
+Message-Id: <20201027134913.317933788@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit 857a3139bd8be4f702c030c8ca06f3fd69c1741a ]
+[ Upstream commit 903b3f9badf1d54f77b468b96706dab679b45b14 ]
 
-When pci_get_device_func() fails, the driver doesn't need to execute
-pci_dev_put(). mci should still be freed, though, to prevent a memory
-leak. When pci_enable_device() fails, the error injection PCI device
-"einj" doesn't need to be disabled either.
+A print in the remain on channel code was too long and caused
+a WARNING, split it.
 
- [ bp: Massage commit message, rename label to "bail_mc_free". ]
-
-Fixes: 52608ba205461 ("i5100_edac: probe for device 19 function 0")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200826121437.31606-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Fixes: dc28e12f2125 ("iwlwifi: mvm: ROC: Extend the ROC max delay duration & limit ROC duration")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200930102759.58d57c0bdc68.Ib06008665e7bf1199c360aa92691d9c74fb84990@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/i5100_edac.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/edac/i5100_edac.c b/drivers/edac/i5100_edac.c
-index 40917775dca1c..59d10f48ed6ab 100644
---- a/drivers/edac/i5100_edac.c
-+++ b/drivers/edac/i5100_edac.c
-@@ -1075,16 +1075,15 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 				    PCI_DEVICE_ID_INTEL_5100_19, 0);
- 	if (!einj) {
- 		ret = -ENODEV;
--		goto bail_einj;
-+		goto bail_mc_free;
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index b86c7a36d3f17..ec2ecdd1cc4ec 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3198,9 +3198,12 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
+ 	aux_roc_req.apply_time_max_delay = cpu_to_le32(delay);
  
- 	rc = pci_enable_device(einj);
- 	if (rc < 0) {
- 		ret = rc;
--		goto bail_disable_einj;
-+		goto bail_einj;
- 	}
- 
--
- 	mci->pdev = &pdev->dev;
- 
- 	priv = mci->pvt_info;
-@@ -1151,14 +1150,14 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- bail_scrub:
- 	priv->scrub_enable = 0;
- 	cancel_delayed_work_sync(&(priv->i5100_scrubbing));
--	edac_mc_free(mci);
--
--bail_disable_einj:
- 	pci_disable_device(einj);
- 
- bail_einj:
- 	pci_dev_put(einj);
- 
-+bail_mc_free:
-+	edac_mc_free(mci);
+ 	IWL_DEBUG_TE(mvm,
+-		     "ROC: Requesting to remain on channel %u for %ums (requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
+-		     channel->hw_value, req_dur, duration, delay,
+-		     dtim_interval);
++		     "ROC: Requesting to remain on channel %u for %ums\n",
++		     channel->hw_value, req_dur);
++	IWL_DEBUG_TE(mvm,
++		     "\t(requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
++		     duration, delay, dtim_interval);
 +
- bail_disable_ch1:
- 	pci_disable_device(ch1mm);
+ 	/* Set the node address */
+ 	memcpy(aux_roc_req.node_addr, vif->addr, ETH_ALEN);
  
 -- 
 2.25.1
