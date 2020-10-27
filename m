@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084DD299EE6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0303299EE1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440527AbgJ0ASj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58846 "EHLO mail.kernel.org"
+        id S2439151AbgJ0AKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:10:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439141AbgJ0AKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:08 -0400
+        id S2439145AbgJ0AKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C32121D41;
-        Tue, 27 Oct 2020 00:10:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6254C20754;
+        Tue, 27 Oct 2020 00:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757408;
-        bh=r/ROrj0XymtyNSf2POZ4tOVB9JifXG/DuM1Vt5d/VNM=;
+        s=default; t=1603757409;
+        bh=cJlqnNoZ+lOXh6Ehrfbh940R/s2fJ9PsL+JU5evcM74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QC/Y0cuYDxD9KTWMObNLFM8wTJId9H8YWSlzKauRe5OgffRhjzHWA6AV9b2axTzeF
-         tCjqPagasZF0eekw9Kdf9EC7DG9BC0ksXqMyNSGvQTbGOoAXMTs8RhBMWCXiluORLq
-         Cb3BY07k6wqOo03ANinNj2RBVUZ/uUS0qbTp6CX0=
+        b=WYIAcNioiB0FuKY7M8ptRjlH9MxuyWx4hBqksTum6cE6OY6qMrmHFBrMzDb1ve/X+
+         cIXnoCCMhI/hvBVjfVxB3+3WeD8MohMz44rU+cGWwSFTjB1w8LEqBgzQihem/PoYsX
+         ozLmzVDi4e28IJ50jU1zOFT5V+QrJSCCSs9tDAjQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Rix <trix@redhat.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 17/46] media: tw5864: check status of tw5864_frameinterval_get
-Date:   Mon, 26 Oct 2020 20:09:16 -0400
-Message-Id: <20201027000946.1026923-17-sashal@kernel.org>
+Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 18/46] mmc: via-sdmmc: Fix data race bug
+Date:   Mon, 26 Oct 2020 20:09:17 -0400
+Message-Id: <20201027000946.1026923-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000946.1026923-1-sashal@kernel.org>
 References: <20201027000946.1026923-1-sashal@kernel.org>
@@ -43,61 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 780d815dcc9b34d93ae69385a8465c38d423ff0f ]
+[ Upstream commit 87d7ad089b318b4f319bf57f1daa64eb6d1d10ad ]
 
-clang static analysis reports this problem
+via_save_pcictrlreg() should be called with host->lock held
+as it writes to pm_pcictrl_reg, otherwise there can be a race
+condition between via_sd_suspend() and via_sdc_card_detect().
+The same pattern is used in the function via_reset_pcictrl()
+as well, where via_save_pcictrlreg() is called with host->lock
+held.
 
-tw5864-video.c:773:32: warning: The left expression of the compound
-  assignment is an uninitialized value.
-  The computed value will also be garbage
-        fintv->stepwise.max.numerator *= std_max_fps;
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+Found by Linux Driver Verification project (linuxtesting.org).
 
-stepwise.max is set with frameinterval, which comes from
-
-	ret = tw5864_frameinterval_get(input, &frameinterval);
-	fintv->stepwise.step = frameinterval;
-	fintv->stepwise.min = frameinterval;
-	fintv->stepwise.max = frameinterval;
-	fintv->stepwise.max.numerator *= std_max_fps;
-
-When tw5864_frameinterval_get() fails, frameinterval is not
-set. So check the status and fix another similar problem.
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200822061528.7035-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/tw5864/tw5864-video.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/host/via-sdmmc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/pci/tw5864/tw5864-video.c b/drivers/media/pci/tw5864/tw5864-video.c
-index ee1230440b397..02258685800a7 100644
---- a/drivers/media/pci/tw5864/tw5864-video.c
-+++ b/drivers/media/pci/tw5864/tw5864-video.c
-@@ -776,6 +776,9 @@ static int tw5864_enum_frameintervals(struct file *file, void *priv,
- 	fintv->type = V4L2_FRMIVAL_TYPE_STEPWISE;
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index a863a345fc59b..8c0e348c6053c 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -1275,11 +1275,14 @@ static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
+ static int via_sd_suspend(struct pci_dev *pcidev, pm_message_t state)
+ {
+ 	struct via_crdr_mmc_host *host;
++	unsigned long flags;
  
- 	ret = tw5864_frameinterval_get(input, &frameinterval);
-+	if (ret)
-+		return ret;
-+
- 	fintv->stepwise.step = frameinterval;
- 	fintv->stepwise.min = frameinterval;
- 	fintv->stepwise.max = frameinterval;
-@@ -794,6 +797,9 @@ static int tw5864_g_parm(struct file *file, void *priv,
- 	cp->capability = V4L2_CAP_TIMEPERFRAME;
+ 	host = pci_get_drvdata(pcidev);
  
- 	ret = tw5864_frameinterval_get(input, &cp->timeperframe);
-+	if (ret)
-+		return ret;
-+
- 	cp->timeperframe.numerator *= input->frame_interval;
- 	cp->capturemode = 0;
- 	cp->readbuffers = 2;
++	spin_lock_irqsave(&host->lock, flags);
+ 	via_save_pcictrlreg(host);
+ 	via_save_sdcreg(host);
++	spin_unlock_irqrestore(&host->lock, flags);
+ 
+ 	pci_save_state(pcidev);
+ 	pci_enable_wake(pcidev, pci_choose_state(pcidev, state), 0);
 -- 
 2.25.1
 
