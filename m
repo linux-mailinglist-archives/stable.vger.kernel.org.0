@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E92229AFDA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3D429AEFC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756459AbgJ0ONY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
+        id S1754648AbgJ0OGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:06:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756455AbgJ0ONX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:13:23 -0400
+        id S1754640AbgJ0OGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:06:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30A0D2222C;
-        Tue, 27 Oct 2020 14:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4220722258;
+        Tue, 27 Oct 2020 14:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808002;
-        bh=82GcXZDbIcivgRmlOwbWBv25JRjEbhFhmORh4A3grv4=;
+        s=default; t=1603807580;
+        bh=/a23eP5E5qcO4mbaoXnNWG7DOiI+CXBxMtBV/SjayAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTAiBmNGu33kuTth1mU7Nw7N21xGpXovDZPau9dePFSq9Pjivy43tETMlSwoThzwx
-         F6SHLriccI0G8a7eOLyc4s/+MIz36HMR5rTfJI4kSLsTeQpsJPkWJoGODXGOqMgh65
-         C04S7TjKUu6GteM8XxrZ/40c1+H/ukxOYg85W9bg=
+        b=o5vuF14vLqZd81vfuJ8xQEfKjSN20WMOj+LKKxbUsYhjZVAmu45MH7kwjU+mHsgBp
+         qUgTdFsIK9DK2agFDkjqU33Wxr0dmhL2H8RcQ1zuK1FI4SRcMiA+Y4JmoYlq8yaWlC
+         4gaTOHr1Kkr3QMbjMPhRuJ1hwEuqzNeWtzpKYYv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/191] powerpc/perf/hv-gpci: Fix starting index value
+Subject: [PATCH 4.9 064/139] powerpc/tau: Use appropriate temperature sample interval
 Date:   Tue, 27 Oct 2020 14:49:18 +0100
-Message-Id: <20201027134914.650304561@linuxfoundation.org>
+Message-Id: <20201027134905.157557453@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,74 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 0f9866f7e85765bbda86666df56c92f377c3bc10 ]
+[ Upstream commit 66943005cc41f48e4d05614e8f76c0ca1812f0fd ]
 
-Commit 9e9f60108423f ("powerpc/perf/{hv-gpci, hv-common}: generate
-requests with counters annotated") adds a framework for defining
-gpci counters.
-In this patch, they adds starting_index value as '0xffffffffffffffff'.
-which is wrong as starting_index is of size 32 bits.
+According to the MPC750 Users Manual, the SITV value in Thermal
+Management Register 3 is 13 bits long. The present code calculates the
+SITV value as 60 * 500 cycles. This would overflow to give 10 us on
+a 500 MHz CPU rather than the intended 60 us. (But according to the
+Microprocessor Datasheet, there is also a factor of 266 that has to be
+applied to this value on certain parts i.e. speed sort above 266 MHz.)
+Always use the maximum cycle count, as recommended by the Datasheet.
 
-Because of this, incase we try to run hv-gpci event we get error.
-
-In power9 machine:
-
-command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-          -C 0 -I 1000
-event syntax error: '..bie_count_and_time_tlbie_instructions_issued/'
-                                  \___ value too big for format, maximum is 4294967295
-
-This patch fix this issue and changes starting_index value to '0xffffffff'
-
-After this patch:
-
-command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/ -C 0 -I 1000
-     1.000085786              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     2.000287818              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     2.439113909             17,408      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-
-Fixes: 9e9f60108423 ("powerpc/perf/{hv-gpci, hv-common}: generate requests with counters annotated")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201003074943.338618-1-kjain@linux.ibm.com
+Link: https://lore.kernel.org/r/896f542e5f0f1d6cf8218524c2b67d79f3d69b3c.1599260540.git.fthain@telegraphics.com.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/hv-gpci-requests.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/reg.h |  2 +-
+ arch/powerpc/kernel/tau_6xx.c  | 12 ++++--------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/perf/hv-gpci-requests.h b/arch/powerpc/perf/hv-gpci-requests.h
-index e608f9db12ddc..8965b4463d433 100644
---- a/arch/powerpc/perf/hv-gpci-requests.h
-+++ b/arch/powerpc/perf/hv-gpci-requests.h
-@@ -95,7 +95,7 @@ REQUEST(__field(0,	8,	partition_id)
+diff --git a/arch/powerpc/include/asm/reg.h b/arch/powerpc/include/asm/reg.h
+index 26aeeaad32678..a36ef27155bc2 100644
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -683,7 +683,7 @@
+ #define THRM1_TIN	(1 << 31)
+ #define THRM1_TIV	(1 << 30)
+ #define THRM1_THRES(x)	((x&0x7f)<<23)
+-#define THRM3_SITV(x)	((x&0x3fff)<<1)
++#define THRM3_SITV(x)	((x & 0x1fff) << 1)
+ #define THRM1_TID	(1<<2)
+ #define THRM1_TIE	(1<<1)
+ #define THRM1_V		(1<<0)
+diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
+index a753b72efbc0c..1880481322880 100644
+--- a/arch/powerpc/kernel/tau_6xx.c
++++ b/arch/powerpc/kernel/tau_6xx.c
+@@ -174,15 +174,11 @@ static void tau_timeout(void * info)
+ 	 * complex sleep code needs to be added. One mtspr every time
+ 	 * tau_timeout is called is probably not a big deal.
+ 	 *
+-	 * Enable thermal sensor and set up sample interval timer
+-	 * need 20 us to do the compare.. until a nice 'cpu_speed' function
+-	 * call is implemented, just assume a 500 mhz clock. It doesn't really
+-	 * matter if we take too long for a compare since it's all interrupt
+-	 * driven anyway.
+-	 *
+-	 * use a extra long time.. (60 us @ 500 mhz)
++	 * The "PowerPC 740 and PowerPC 750 Microprocessor Datasheet"
++	 * recommends that "the maximum value be set in THRM3 under all
++	 * conditions."
+ 	 */
+-	mtspr(SPRN_THRM3, THRM3_SITV(500*60) | THRM3_E);
++	mtspr(SPRN_THRM3, THRM3_SITV(0x1fff) | THRM3_E);
  
- #define REQUEST_NAME system_performance_capabilities
- #define REQUEST_NUM 0x40
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__field(0,	1,	perf_collect_privileged)
- 	__field(0x1,	1,	capability_mask)
-@@ -223,7 +223,7 @@ REQUEST(__field(0,	2, partition_id)
- 
- #define REQUEST_NAME system_hypervisor_times
- #define REQUEST_NUM 0xF0
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
- 	__count(0x8,	8,	time_spent_processing_virtual_processor_timers)
-@@ -234,7 +234,7 @@ REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
- 
- #define REQUEST_NAME system_tlbie_count_and_time
- #define REQUEST_NUM 0xF4
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__count(0,	8,	tlbie_instructions_issued)
- 	/*
+ 	local_irq_restore(flags);
+ }
 -- 
 2.25.1
 
