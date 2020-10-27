@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD9829B5F1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD2929B5E3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796397AbgJ0PSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55050 "EHLO mail.kernel.org"
+        id S1796325AbgJ0PRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:17:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796351AbgJ0PRj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:17:39 -0400
+        id S1796304AbgJ0PRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F79D2064B;
-        Tue, 27 Oct 2020 15:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 507FE20728;
+        Tue, 27 Oct 2020 15:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811857;
-        bh=P53ED4BShvDlilS5vert2xbkgwQD01dU3Jv7kDeWyIM=;
+        s=default; t=1603811840;
+        bh=wgqkcKgNfn4mCoNz0n7493iaFkxtzSi97pPwnY+ZTiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNP//BiFagG3QLLNn6ZOLgLBGfVRgR/OVfw/9MwgT98FBq3JuyQmfHeEkywVorAdI
-         NT2RxFfbSqsIJN15zQQjBDLr0dCPOxW8VGwFjsJhHmCIu2wpRDXE9uc4cKa4T4z+SV
-         dmXw2O3yRYpDWalpsZ6ha0TQgEsq8UjVi1S1HkqA=
+        b=d1DP87RZebVeiQp5ljOiuivkj7al1fFyuB6gJRuOsbgd4RV77mFi/ZA6Bt5AeNM7e
+         WZnkJmjCCod7lojn/oduwPYdNp810oyvSjqw1kov/GuN2K/MyRqGkM9+dXrthOjrNm
+         q60FNM98z2IFXinnwT7a0gSP7Twtca4Dl+w35nHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 614/633] ASoC: SOF: Add topology filename override based on dmi data match
-Date:   Tue, 27 Oct 2020 14:55:57 +0100
-Message-Id: <20201027135551.630275536@linuxfoundation.org>
+Subject: [PATCH 5.8 618/633] usb: core: Solve race condition in anchor cleanup functions
+Date:   Tue, 27 Oct 2020 14:56:01 +0100
+Message-Id: <20201027135551.821708726@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,92 +44,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+From: Eli Billauer <eli.billauer@gmail.com>
 
-[ Upstream commit 5253a73d567dcd75e62834ff5f502ea9470e5722 ]
+[ Upstream commit fbc299437c06648afcc7891e6e2e6638dd48d4df ]
 
-Add topology filename override based on system DMI data matching,
-typically to account for a different hardware layout.
+usb_kill_anchored_urbs() is commonly used to cancel all URBs on an
+anchor just before releasing resources which the URBs rely on. By doing
+so, users of this function rely on that no completer callbacks will take
+place from any URB on the anchor after it returns.
 
-In ACPI based systems, the tplg_filename is pre-defined in an ACPI
-machine table. When a DMI quirk is detected, the
-sof_pdata->tplg_filename is not set with the hard-coded ACPI value,
-and instead is set with the DMI-specific filename.
+However if this function is called in parallel with __usb_hcd_giveback_urb
+processing a URB on the anchor, the latter may call the completer
+callback after usb_kill_anchored_urbs() returns. This can lead to a
+kernel panic due to use after release of memory in interrupt context.
 
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200821195603.215535-14-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The race condition is that __usb_hcd_giveback_urb() first unanchors the URB
+and then makes the completer callback. Such URB is hence invisible to
+usb_kill_anchored_urbs(), allowing it to return before the completer has
+been called, since the anchor's urb_list is empty.
+
+Even worse, if the racing completer callback resubmits the URB, it may
+remain in the system long after usb_kill_anchored_urbs() returns.
+
+Hence list_empty(&anchor->urb_list), which is used in the existing
+while-loop, doesn't reliably ensure that all URBs of the anchor are gone.
+
+A similar problem exists with usb_poison_anchored_urbs() and
+usb_scuttle_anchored_urbs().
+
+This patch adds an external do-while loop, which ensures that all URBs
+are indeed handled before these three functions return. This change has
+no effect at all unless the race condition occurs, in which case the
+loop will busy-wait until the racing completer callback has finished.
+This is a rare condition, so the CPU waste of this spinning is
+negligible.
+
+The additional do-while loop relies on usb_anchor_check_wakeup(), which
+returns true iff the anchor list is empty, and there is no
+__usb_hcd_giveback_urb() in the system that is in the middle of the
+unanchor-before-complete phase. The @suspend_wakeups member of
+struct usb_anchor is used for this purpose, which was introduced to solve
+another problem which the same race condition causes, in commit
+6ec4147e7bdb ("usb-anchor: Delay usb_wait_anchor_empty_timeout wake up
+till completion is done").
+
+The surely_empty variable is necessary, because usb_anchor_check_wakeup()
+must be called with the lock held to prevent races. However the spinlock
+must be released and reacquired if the outer loop spins with an empty
+URB list while waiting for the unanchor-before-complete passage to finish:
+The completer callback may very well attempt to take the very same lock.
+
+To summarize, using usb_anchor_check_wakeup() means that the patched
+functions can return only when the anchor's list is empty, and there is
+no invisible URB being processed. Since the inner while loop finishes on
+the empty list condition, the new do-while loop will terminate as well,
+except for when the said race condition occurs.
+
+Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200731054650.30644-1-eli.billauer@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c   |  8 +++++++-
- sound/soc/sof/sof-pci-dev.c | 24 ++++++++++++++++++++++++
- 2 files changed, 31 insertions(+), 1 deletion(-)
+ drivers/usb/core/urb.c | 89 +++++++++++++++++++++++++-----------------
+ 1 file changed, 54 insertions(+), 35 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 63ca920c8e6e0..7152e6d1cf673 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1179,7 +1179,13 @@ void hda_machine_select(struct snd_sof_dev *sdev)
+diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
+index da923ec176122..31ca5abb4c12a 100644
+--- a/drivers/usb/core/urb.c
++++ b/drivers/usb/core/urb.c
+@@ -772,11 +772,12 @@ void usb_block_urb(struct urb *urb)
+ EXPORT_SYMBOL_GPL(usb_block_urb);
  
- 	mach = snd_soc_acpi_find_machine(desc->machines);
- 	if (mach) {
--		sof_pdata->tplg_filename = mach->sof_tplg_filename;
-+		/*
-+		 * If tplg file name is overridden, use it instead of
-+		 * the one set in mach table
-+		 */
-+		if (!sof_pdata->tplg_filename)
-+			sof_pdata->tplg_filename = mach->sof_tplg_filename;
-+
- 		sof_pdata->machine = mach;
+ /**
+- * usb_kill_anchored_urbs - cancel transfer requests en masse
++ * usb_kill_anchored_urbs - kill all URBs associated with an anchor
+  * @anchor: anchor the requests are bound to
+  *
+- * this allows all outstanding URBs to be killed starting
+- * from the back of the queue
++ * This kills all outstanding URBs starting from the back of the queue,
++ * with guarantee that no completer callbacks will take place from the
++ * anchor after this function returns.
+  *
+  * This routine should not be called by a driver after its disconnect
+  * method has returned.
+@@ -784,20 +785,26 @@ EXPORT_SYMBOL_GPL(usb_block_urb);
+ void usb_kill_anchored_urbs(struct usb_anchor *anchor)
+ {
+ 	struct urb *victim;
++	int surely_empty;
  
- 		if (mach->link_mask) {
-diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
-index aa3532ba14349..f3a8140773db5 100644
---- a/sound/soc/sof/sof-pci-dev.c
-+++ b/sound/soc/sof/sof-pci-dev.c
-@@ -35,8 +35,28 @@ static int sof_pci_debug;
- module_param_named(sof_pci_debug, sof_pci_debug, int, 0444);
- MODULE_PARM_DESC(sof_pci_debug, "SOF PCI debug options (0x0 all off)");
+-	spin_lock_irq(&anchor->lock);
+-	while (!list_empty(&anchor->urb_list)) {
+-		victim = list_entry(anchor->urb_list.prev, struct urb,
+-				    anchor_list);
+-		/* we must make sure the URB isn't freed before we kill it*/
+-		usb_get_urb(victim);
+-		spin_unlock_irq(&anchor->lock);
+-		/* this will unanchor the URB */
+-		usb_kill_urb(victim);
+-		usb_put_urb(victim);
++	do {
+ 		spin_lock_irq(&anchor->lock);
+-	}
+-	spin_unlock_irq(&anchor->lock);
++		while (!list_empty(&anchor->urb_list)) {
++			victim = list_entry(anchor->urb_list.prev,
++					    struct urb, anchor_list);
++			/* make sure the URB isn't freed before we kill it */
++			usb_get_urb(victim);
++			spin_unlock_irq(&anchor->lock);
++			/* this will unanchor the URB */
++			usb_kill_urb(victim);
++			usb_put_urb(victim);
++			spin_lock_irq(&anchor->lock);
++		}
++		surely_empty = usb_anchor_check_wakeup(anchor);
++
++		spin_unlock_irq(&anchor->lock);
++		cpu_relax();
++	} while (!surely_empty);
+ }
+ EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
  
-+static const char *sof_override_tplg_name;
-+
- #define SOF_PCI_DISABLE_PM_RUNTIME BIT(0)
+@@ -816,21 +823,27 @@ EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
+ void usb_poison_anchored_urbs(struct usb_anchor *anchor)
+ {
+ 	struct urb *victim;
++	int surely_empty;
  
-+static int sof_tplg_cb(const struct dmi_system_id *id)
-+{
-+	sof_override_tplg_name = id->driver_data;
-+	return 1;
-+}
+-	spin_lock_irq(&anchor->lock);
+-	anchor->poisoned = 1;
+-	while (!list_empty(&anchor->urb_list)) {
+-		victim = list_entry(anchor->urb_list.prev, struct urb,
+-				    anchor_list);
+-		/* we must make sure the URB isn't freed before we kill it*/
+-		usb_get_urb(victim);
+-		spin_unlock_irq(&anchor->lock);
+-		/* this will unanchor the URB */
+-		usb_poison_urb(victim);
+-		usb_put_urb(victim);
++	do {
+ 		spin_lock_irq(&anchor->lock);
+-	}
+-	spin_unlock_irq(&anchor->lock);
++		anchor->poisoned = 1;
++		while (!list_empty(&anchor->urb_list)) {
++			victim = list_entry(anchor->urb_list.prev,
++					    struct urb, anchor_list);
++			/* make sure the URB isn't freed before we kill it */
++			usb_get_urb(victim);
++			spin_unlock_irq(&anchor->lock);
++			/* this will unanchor the URB */
++			usb_poison_urb(victim);
++			usb_put_urb(victim);
++			spin_lock_irq(&anchor->lock);
++		}
++		surely_empty = usb_anchor_check_wakeup(anchor);
 +
-+static const struct dmi_system_id sof_tplg_table[] = {
-+	{
-+		.callback = sof_tplg_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google_Volteer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Terrador"),
-+		},
-+		.driver_data = "sof-tgl-rt5682-ssp0-max98373-ssp2.tplg",
-+	},
-+	{}
-+};
-+
- static const struct dmi_system_id community_key_platforms[] = {
- 	{
- 		.ident = "Up Squared",
-@@ -347,6 +367,10 @@ static int sof_pci_probe(struct pci_dev *pci,
- 		sof_pdata->tplg_filename_prefix =
- 			sof_pdata->desc->default_tplg_path;
++		spin_unlock_irq(&anchor->lock);
++		cpu_relax();
++	} while (!surely_empty);
+ }
+ EXPORT_SYMBOL_GPL(usb_poison_anchored_urbs);
  
-+	dmi_check_system(sof_tplg_table);
-+	if (sof_override_tplg_name)
-+		sof_pdata->tplg_filename = sof_override_tplg_name;
+@@ -970,14 +983,20 @@ void usb_scuttle_anchored_urbs(struct usb_anchor *anchor)
+ {
+ 	struct urb *victim;
+ 	unsigned long flags;
++	int surely_empty;
 +
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
- 	/* set callback to enable runtime_pm */
- 	sof_pdata->sof_probe_complete = sof_pci_probe_complete;
++	do {
++		spin_lock_irqsave(&anchor->lock, flags);
++		while (!list_empty(&anchor->urb_list)) {
++			victim = list_entry(anchor->urb_list.prev,
++					    struct urb, anchor_list);
++			__usb_unanchor_urb(victim, anchor);
++		}
++		surely_empty = usb_anchor_check_wakeup(anchor);
+ 
+-	spin_lock_irqsave(&anchor->lock, flags);
+-	while (!list_empty(&anchor->urb_list)) {
+-		victim = list_entry(anchor->urb_list.prev, struct urb,
+-				    anchor_list);
+-		__usb_unanchor_urb(victim, anchor);
+-	}
+-	spin_unlock_irqrestore(&anchor->lock, flags);
++		spin_unlock_irqrestore(&anchor->lock, flags);
++		cpu_relax();
++	} while (!surely_empty);
+ }
+ 
+ EXPORT_SYMBOL_GPL(usb_scuttle_anchored_urbs);
 -- 
 2.25.1
 
