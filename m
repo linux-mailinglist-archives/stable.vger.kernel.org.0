@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF827299DB8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF5A299F06
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438852AbgJ0AGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54366 "EHLO mail.kernel.org"
+        id S2411493AbgJ0AJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:09:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438330AbgJ0AF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:05:26 -0400
+        id S2394887AbgJ0AJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:09:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE9ED2087C;
-        Tue, 27 Oct 2020 00:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCF582087C;
+        Tue, 27 Oct 2020 00:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757126;
-        bh=dMXYOAVrT9C7woDjjrtd/inAsdsUG4zjii2uorFUV8c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BTm6Pm1wdcf9GYcNzHqnEbtZ7RqZ7VnPYHzXev/tPiwCW7PJ79zgglJj14eqHB3g/
-         Fj4DvvA5y/NlgX9lMG2YjbW0OiqeZmwojk4uyHb8lSP67wYN/ijl/C/CYa9NGA2WEh
-         VYB/UBo/9SQN30kS6aYa7vZUpwm2epLfYnd8QLzU=
+        s=default; t=1603757388;
+        bh=2x/HIi+5GLozIVhkdYMZJt6Nw8eZEAmZyJmaxJ40kjc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=pkGZCmYiZOmux3NQTaKWd+eIQJjffAVgCC3hXdm+OczvUMKtJ5VDiLZu0O8MjO+pS
+         xLkLTgpgcB1/Tkn5dVaEo1R8KyZTwXaUjKR/e4jUndBROhxt+zJadPxpHRZ/sjh9+w
+         6yipJGqynsdvTA1FaZx58OKedT0a+ih8ION4ACdQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Leng <lengchao@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 60/60] nvme-rdma: fix crash when connect rejected
-Date:   Mon, 26 Oct 2020 20:04:15 -0400
-Message-Id: <20201027000415.1026364-60-sashal@kernel.org>
+Cc:     Oliver O'Halloran <oohall@gmail.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 01/46] powerpc/powernv/smp: Fix spurious DBG() warning
+Date:   Mon, 26 Oct 2020 20:09:00 -0400
+Message-Id: <20201027000946.1026923-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201027000415.1026364-1-sashal@kernel.org>
-References: <20201027000415.1026364-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,45 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 43efdb8e870ee0f58633fd579aa5b5185bf5d39e ]
+[ Upstream commit f6bac19cf65c5be21d14a0c9684c8f560f2096dd ]
 
-A crash can happened when a connect is rejected.   The host establishes
-the connection after received ConnectReply, and then continues to send
-the fabrics Connect command.  If the controller does not receive the
-ReadyToUse capsule, host may receive a ConnectReject reply.
+When building with W=1 we get the following warning:
 
-Call nvme_rdma_destroy_queue_ib after the host received the
-RDMA_CM_EVENT_REJECTED event.  Then when the fabrics Connect command
-times out, nvme_rdma_timeout calls nvme_rdma_complete_rq to fail the
-request.  A crash happenes due to use after free in
-nvme_rdma_complete_rq.
+ arch/powerpc/platforms/powernv/smp.c: In function ‘pnv_smp_cpu_kill_self’:
+ arch/powerpc/platforms/powernv/smp.c:276:16: error: suggest braces around
+ 	empty body in an ‘if’ statement [-Werror=empty-body]
+   276 |      cpu, srr1);
+       |                ^
+ cc1: all warnings being treated as errors
 
-nvme_rdma_destroy_queue_ib is redundant when handling the
-RDMA_CM_EVENT_REJECTED event as nvme_rdma_destroy_queue_ib is already
-called in connection failure handler.
+The full context is this block:
 
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+ if (srr1 && !generic_check_cpu_restart(cpu))
+ 	DBG("CPU%d Unexpected exit while offline srr1=%lx!\n",
+ 			cpu, srr1);
+
+When building with DEBUG undefined DBG() expands to nothing and GCC emits
+the warning due to the lack of braces around an empty statement.
+
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200804005410.146094-2-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/platforms/powernv/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 077c678166651..134e14e778f8e 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1640,7 +1640,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		complete(&queue->cm_done);
- 		return 0;
- 	case RDMA_CM_EVENT_REJECTED:
--		nvme_rdma_destroy_queue_ib(queue);
- 		cm_error = nvme_rdma_conn_rejected(queue, ev);
- 		break;
- 	case RDMA_CM_EVENT_ROUTE_ERROR:
+diff --git a/arch/powerpc/platforms/powernv/smp.c b/arch/powerpc/platforms/powernv/smp.c
+index c17f81e433f7d..11d8fde770c38 100644
+--- a/arch/powerpc/platforms/powernv/smp.c
++++ b/arch/powerpc/platforms/powernv/smp.c
+@@ -44,7 +44,7 @@
+ #include <asm/udbg.h>
+ #define DBG(fmt...) udbg_printf(fmt)
+ #else
+-#define DBG(fmt...)
++#define DBG(fmt...) do { } while (0)
+ #endif
+ 
+ static void pnv_smp_setup_cpu(int cpu)
 -- 
 2.25.1
 
