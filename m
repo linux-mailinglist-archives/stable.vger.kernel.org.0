@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B881129B8CB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5319529B82B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1801995AbgJ0PpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
+        id S1799750AbgJ0PdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799730AbgJ0PdD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:33:03 -0400
+        id S1799744AbgJ0PdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:33:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BBA322202;
-        Tue, 27 Oct 2020 15:33:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E778420728;
+        Tue, 27 Oct 2020 15:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812782;
-        bh=09BtgDStkjmQQSw+UuaeyxieHWs44qv+TUAKa6HcKmM=;
+        s=default; t=1603812788;
+        bh=13/GnTzYZUjhQrBNwuGyIgOcatlNf1iVHcRvGtwo36s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEVCvBEeDDbWGQLUo5X+Ie5VNVYef9pzcoUC2z/t09WZ9E8bNQ7ihix60ZSS+v1iq
-         rqRl311LPTDkbyuD/YVukxTds8haoz+1R40nF8xrvo1hw97TCQyRqemDDkzNQk7wsA
-         l5INpdajDgMIRoNJ9+nAWt9XnhxoTFnB9WaHE2CM=
+        b=d7W0Ne6mcxdIoUV83AEj97/lAcvcO3blrl1K1a2HkJbG4pDt0/tBEE0ILLwuNoruj
+         kyTnTpMlTNQWWtKbFgqgOaPu4kvc0tPzuEZBeb60i45O+eDLMZAb6QZ8ehreTEH7Pc
+         mSbD9ALgiOpS/qQpPipKqb+42X63Z7cgUDmhry+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 328/757] slimbus: qcom-ngd-ctrl: disable ngd in qmi server down callback
-Date:   Tue, 27 Oct 2020 14:49:38 +0100
-Message-Id: <20201027135505.929137502@linuxfoundation.org>
+Subject: [PATCH 5.9 330/757] ASoC: fsl_sai: Instantiate snd_soc_dai_driver
+Date:   Tue, 27 Oct 2020 14:49:40 +0100
+Message-Id: <20201027135506.026727180@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,43 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 709ec3f7fc5773ac4aa6fb22c3f0ac8103c674db ]
+[ Upstream commit 22a16145af824f91014d07f8664114859900b9e6 ]
 
-In QMI new server notification we enable the NGD however during
-delete server notification we do not disable the NGD.
+Instantiate snd_soc_dai_driver for independent symmetric control.
+Otherwise the symmetric setting may be overwritten by other
+instance.
 
-This can lead to multiple instances of NGD being enabled, so make
-sure that we disable NGD in delete server callback to fix this issue!
-
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200925095520.27316-4-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 08fdf65e37d5 ("ASoC: fsl_sai: Add asynchronous mode support")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1600424760-32071-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/fsl/fsl_sai.c | 19 +++++++++++--------
+ sound/soc/fsl/fsl_sai.h |  1 +
+ 2 files changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index 743ee7b4e63f2..218aefc3531cd 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1277,9 +1277,13 @@ static void qcom_slim_ngd_qmi_del_server(struct qmi_handle *hdl,
- {
- 	struct qcom_slim_ngd_qmi *qmi =
- 		container_of(hdl, struct qcom_slim_ngd_qmi, svc_event_hdl);
-+	struct qcom_slim_ngd_ctrl *ctrl =
-+		container_of(qmi, struct qcom_slim_ngd_ctrl, qmi);
- 
- 	qmi->svc_info.sq_node = 0;
- 	qmi->svc_info.sq_port = 0;
-+
-+	qcom_slim_ngd_enable(ctrl, false);
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index cdff739924e2e..2ea354dd5434f 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -694,7 +694,7 @@ static int fsl_sai_dai_probe(struct snd_soc_dai *cpu_dai)
+ 	return 0;
  }
  
- static struct qmi_ops qcom_slim_ngd_qmi_svc_event_ops = {
+-static struct snd_soc_dai_driver fsl_sai_dai = {
++static struct snd_soc_dai_driver fsl_sai_dai_template = {
+ 	.probe = fsl_sai_dai_probe,
+ 	.playback = {
+ 		.stream_name = "CPU-Playback",
+@@ -966,12 +966,15 @@ static int fsl_sai_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	memcpy(&sai->cpu_dai_drv, &fsl_sai_dai_template,
++	       sizeof(fsl_sai_dai_template));
++
+ 	/* Sync Tx with Rx as default by following old DT binding */
+ 	sai->synchronous[RX] = true;
+ 	sai->synchronous[TX] = false;
+-	fsl_sai_dai.symmetric_rates = 1;
+-	fsl_sai_dai.symmetric_channels = 1;
+-	fsl_sai_dai.symmetric_samplebits = 1;
++	sai->cpu_dai_drv.symmetric_rates = 1;
++	sai->cpu_dai_drv.symmetric_channels = 1;
++	sai->cpu_dai_drv.symmetric_samplebits = 1;
+ 
+ 	if (of_find_property(np, "fsl,sai-synchronous-rx", NULL) &&
+ 	    of_find_property(np, "fsl,sai-asynchronous", NULL)) {
+@@ -988,9 +991,9 @@ static int fsl_sai_probe(struct platform_device *pdev)
+ 		/* Discard all settings for asynchronous mode */
+ 		sai->synchronous[RX] = false;
+ 		sai->synchronous[TX] = false;
+-		fsl_sai_dai.symmetric_rates = 0;
+-		fsl_sai_dai.symmetric_channels = 0;
+-		fsl_sai_dai.symmetric_samplebits = 0;
++		sai->cpu_dai_drv.symmetric_rates = 0;
++		sai->cpu_dai_drv.symmetric_channels = 0;
++		sai->cpu_dai_drv.symmetric_samplebits = 0;
+ 	}
+ 
+ 	if (of_find_property(np, "fsl,sai-mclk-direction-output", NULL) &&
+@@ -1020,7 +1023,7 @@ static int fsl_sai_probe(struct platform_device *pdev)
+ 	regcache_cache_only(sai->regmap, true);
+ 
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &fsl_component,
+-			&fsl_sai_dai, 1);
++					      &sai->cpu_dai_drv, 1);
+ 	if (ret)
+ 		goto err_pm_disable;
+ 
+diff --git a/sound/soc/fsl/fsl_sai.h b/sound/soc/fsl/fsl_sai.h
+index 6aba7d28f5f34..677ecfc1ec68f 100644
+--- a/sound/soc/fsl/fsl_sai.h
++++ b/sound/soc/fsl/fsl_sai.h
+@@ -180,6 +180,7 @@ struct fsl_sai {
+ 	unsigned int bclk_ratio;
+ 
+ 	const struct fsl_sai_soc_data *soc_data;
++	struct snd_soc_dai_driver cpu_dai_drv;
+ 	struct snd_dmaengine_dai_dma_data dma_params_rx;
+ 	struct snd_dmaengine_dai_dma_data dma_params_tx;
+ };
 -- 
 2.25.1
 
