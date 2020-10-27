@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47BCC29B8A0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC7F29B8A2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368900AbgJ0PmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55366 "EHLO mail.kernel.org"
+        id S1799377AbgJ0PmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:42:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800536AbgJ0Pgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:36:32 -0400
+        id S1800537AbgJ0Pge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:36:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B4622282;
-        Tue, 27 Oct 2020 15:36:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4BBF2064B;
+        Tue, 27 Oct 2020 15:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812991;
-        bh=fx7nSc4+HAA+ZI3A8vS+yupNxWF316MaiDraXpmIKTA=;
+        s=default; t=1603812994;
+        bh=2lf4uteV6LmPGW8kJ4FDcqRiQ4UcrmxFVigvV/E+Bqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awfQqjM8CfLObsl5VUBs2B79JBUfQ/26OvB/pfMNxwBp+SVN7A1tLx0CFI6Is84pa
-         zd7uDzFvJn0YB+1WdXfUa7n5E151IrPJLXdsvTsfzyWQNDzqP+ecbBpooWETl4z3p+
-         xoiRamId8rHIm9DNvsI7r+eaUdv5TG3TbRaDIKJg=
+        b=wyI74Tm/lFAmKpgHBBpZH03WxsZEnus9YpQFQu7cwC3LYHCJv+HgleXk5q/XNBXvU
+         dveB2wVm+NeJfsVnCZkRDok4QF7ydyNmN6ExYrfAbSOyCyzJ2xWzxjVKcgH+8+wvm9
+         O6MeGMpUDw8iJDwGQBdMP++NHLr9TqhjtLSNFR2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 400/757] IB/mlx4: Adjust delayed work when a dup is observed
-Date:   Tue, 27 Oct 2020 14:50:50 +0100
-Message-Id: <20201027135509.340128055@linuxfoundation.org>
+Subject: [PATCH 5.9 401/757] powerpc/pseries: Fix missing of_node_put() in rng_init()
+Date:   Tue, 27 Oct 2020 14:50:51 +0100
+Message-Id: <20201027135509.388981807@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Nicholas Mc Guire <hofrat@osadl.org>
 
-[ Upstream commit 785167a114855c5aa75efca97000e405c2cc85bf ]
+[ Upstream commit 67c3e59443f5fc77be39e2ce0db75fbfa78c7965 ]
 
-When scheduling delayed work to clean up the cache, if the entry already
-has been scheduled for deletion, we adjust the delay.
+The call to of_find_compatible_node() returns a node pointer with
+refcount incremented thus it must be explicitly decremented here
+before returning.
 
-Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
-Link: https://lore.kernel.org/r/20200803061941.1139994-7-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1530522496-14816-1-git-send-email-hofrat@osadl.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/cm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/platforms/pseries/rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/mlx4/cm.c b/drivers/infiniband/hw/mlx4/cm.c
-index b591861934b3c..81d6a3460b55d 100644
---- a/drivers/infiniband/hw/mlx4/cm.c
-+++ b/drivers/infiniband/hw/mlx4/cm.c
-@@ -280,6 +280,9 @@ static void schedule_delayed(struct ib_device *ibdev, struct id_map_entry *id)
- 	if (!sriov->is_going_down && !id->scheduled_delete) {
- 		id->scheduled_delete = 1;
- 		schedule_delayed_work(&id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
-+	} else if (id->scheduled_delete) {
-+		/* Adjust timeout if already scheduled */
-+		mod_delayed_work(system_wq, &id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
- 	}
- 	spin_unlock_irqrestore(&sriov->going_down_lock, flags);
- 	spin_unlock(&sriov->id_map_lock);
+diff --git a/arch/powerpc/platforms/pseries/rng.c b/arch/powerpc/platforms/pseries/rng.c
+index bbb97169bf63e..6268545947b83 100644
+--- a/arch/powerpc/platforms/pseries/rng.c
++++ b/arch/powerpc/platforms/pseries/rng.c
+@@ -36,6 +36,7 @@ static __init int rng_init(void)
+ 
+ 	ppc_md.get_random_seed = pseries_get_random_long;
+ 
++	of_node_put(dn);
+ 	return 0;
+ }
+ machine_subsys_initcall(pseries, rng_init);
 -- 
 2.25.1
 
