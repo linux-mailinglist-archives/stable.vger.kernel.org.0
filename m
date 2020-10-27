@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2116529AF5C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E16C729AFD7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754324AbgJ0OFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
+        id S2507297AbgJ0ONN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:13:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754317AbgJ0OFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:05 -0400
+        id S1756432AbgJ0ONM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:13:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB28322258;
-        Tue, 27 Oct 2020 14:05:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17527206F7;
+        Tue, 27 Oct 2020 14:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807503;
-        bh=4z7Fe17YjFjR3zhcJKMFY4Z714wZSdwB1XoYaG+SsSA=;
+        s=default; t=1603807991;
+        bh=0jkClK8mVRrdFdEr2nOJ0GaA3EDBxXgPqMe58Z54eY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rlq0B+qQoTRLAv5pP21H+bDIEEOTHPoI09AJepAlP4s9X2IV0C7rDjLeHnKOoNE4z
-         ySxTWe7yEs2PJURlVoaS0enJiRYKpq+jzH7VT8vvAXUHOEXZl1kxpa/J9nX2z6op05
-         m2KSL36bYFO5EVewv4rw3ik0JNy2sJf7b4uSBsOQ=
+        b=el8rnUvreejbm0J3gbTuxULL6cQvnJhEF8K1vIzIHkL9bWnCm368Su0IRePTa7QzU
+         jEOfXjbgMqpqZULbEX8/5RymYAx3hT5I71GJfkA2YWWbo6JspikcngGWN7K1JGM4NC
+         dNCiwnOg+pdF6uSIfll6apb6dRMJMW4RwOqSzVVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Kees Cook <keescook@chromium.org>,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, guomin chen <guomin_chen@sina.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 077/139] rapidio: fix the missed put_device() for rio_mport_add_riodev
-Date:   Tue, 27 Oct 2020 14:49:31 +0100
-Message-Id: <20201027134905.785695736@linuxfoundation.org>
+Subject: [PATCH 4.14 117/191] vfio/pci: Clear token on bypass registration failure
+Date:   Tue, 27 Oct 2020 14:49:32 +0100
+Message-Id: <20201027134915.323592348@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,54 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 85094c05eeb47d195a74a25366a2db066f1c9d47 ]
+[ Upstream commit 852b1beecb6ff9326f7ca4bc0fe69ae860ebdb9e ]
 
-rio_mport_add_riodev() misses to call put_device() when the device already
-exists.  Add the missed function call to fix it.
+The eventfd context is used as our irqbypass token, therefore if an
+eventfd is re-used, our token is the same.  The irqbypass code will
+return an -EBUSY in this case, but we'll still attempt to unregister
+the producer, where if that duplicate token still exists, results in
+removing the wrong object.  Clear the token of failed producers so
+that they harmlessly fall out when unregistered.
 
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lkml.kernel.org/r/20200922072525.42330-1-jingxiangfeng@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6d7425f109d2 ("vfio: Register/unregister irq_bypass_producer")
+Reported-by: guomin chen <guomin_chen@sina.com>
+Tested-by: guomin chen <guomin_chen@sina.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci_intrs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 21d0dd1617e27..c246d3a2fc5f6 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1740,6 +1740,7 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 	struct rio_dev *rdev;
- 	struct rio_switch *rswitch = NULL;
- 	struct rio_mport *mport;
-+	struct device *dev;
- 	size_t size;
- 	u32 rval;
- 	u32 swpinfo = 0;
-@@ -1754,8 +1755,10 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 	rmcd_debug(RDEV, "name:%s ct:0x%x did:0x%x hc:0x%x", dev_info.name,
- 		   dev_info.comptag, dev_info.destid, dev_info.hopcount);
+diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
+index bdfdd506bc588..c989f777bf771 100644
+--- a/drivers/vfio/pci/vfio_pci_intrs.c
++++ b/drivers/vfio/pci/vfio_pci_intrs.c
+@@ -355,11 +355,13 @@ static int vfio_msi_set_vector_signal(struct vfio_pci_device *vdev,
+ 	vdev->ctx[vector].producer.token = trigger;
+ 	vdev->ctx[vector].producer.irq = irq;
+ 	ret = irq_bypass_register_producer(&vdev->ctx[vector].producer);
+-	if (unlikely(ret))
++	if (unlikely(ret)) {
+ 		dev_info(&pdev->dev,
+ 		"irq bypass producer (token %p) registration fails: %d\n",
+ 		vdev->ctx[vector].producer.token, ret);
  
--	if (bus_find_device_by_name(&rio_bus_type, NULL, dev_info.name)) {
-+	dev = bus_find_device_by_name(&rio_bus_type, NULL, dev_info.name);
-+	if (dev) {
- 		rmcd_debug(RDEV, "device %s already exists", dev_info.name);
-+		put_device(dev);
- 		return -EEXIST;
- 	}
++		vdev->ctx[vector].producer.token = NULL;
++	}
+ 	vdev->ctx[vector].trigger = trigger;
  
+ 	return 0;
 -- 
 2.25.1
 
