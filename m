@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AC729C3B7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:49:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B6129C1F8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901679AbgJ0OZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51524 "EHLO mail.kernel.org"
+        id S1761704AbgJ0OmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901674AbgJ0OZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:25:56 -0400
+        id S1762347AbgJ0OmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCA4D2072D;
-        Tue, 27 Oct 2020 14:25:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3406822264;
+        Tue, 27 Oct 2020 14:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808755;
-        bh=vuk7De3gB1zl84qZPE6NaDduTX67OTn7Ip/yqRMiBR0=;
+        s=default; t=1603809736;
+        bh=smbYIs9dT+l/QoU+EsqfoScVZ3k5VgqRrfkSuCKbtvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWfQX5M24/TZEKCjwWD8Kzvf8i/iQk+P5yLBeWV3ABfaOel13xskrGuR2C3ikl3n2
-         eeJfuwVW4D5qU6PXTxslXgZCCdTmn/QDSVlkgmp3z/l2xVcEqUdSClr2qUWXzPA6Aj
-         L5tmAmhih/CovWy+nA93lYIIXb2bIRDn5akEjfkQ=
+        b=L0K1fokSC24aCj23JM76nRGEZk+8VfskmnxPgj58ITjFydFXY9OR7e6a3w8UQmc+7
+         +w/44UYcT7nrrRJTWJ+e6qrKnxflR1TKghK7p1zh614whwY1ZLQFjKEvM8NFoMro1e
+         zz4HSm6/n3VIixWPm1Ovb8zN5UkMGFyzc19+C72E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Roger Quadros <rogerq@ti.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 181/264] SUNRPC: fix copying of multiple pages in gss_read_proxy_verf()
+Subject: [PATCH 5.4 301/408] memory: omap-gpmc: Fix a couple off by ones
 Date:   Tue, 27 Oct 2020 14:53:59 +0100
-Message-Id: <20201027135439.177745995@linuxfoundation.org>
+Message-Id: <20201027135508.991805699@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d48c8124749c9a5081fe68680f83605e272c984b ]
+[ Upstream commit 4c54228ac8fd55044195825873c50a524131fa53 ]
 
-When the passed token is longer than 4032 bytes, the remaining part
-of the token must be copied from the rqstp->rq_arg.pages. But the
-copy must make sure it happens in a consecutive way.
+These comparisons should be >= instead of > to prevent reading one
+element beyond the end of the gpmc_cs[] array.
 
-With the existing code, the first memcpy copies 'length' bytes from
-argv->iobase, but since the header is in front, this never fills the
-whole first page of in_token->pages.
-
-The mecpy in the loop copies the following bytes, but starts writing at
-the next page of in_token->pages.  This leaves the last bytes of page 0
-unwritten.
-
-Symptoms were that users with many groups were not able to access NFS
-exports, when using Active Directory as the KDC.
-
-Signed-off-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
-Fixes: 5866efa8cbfb "SUNRPC: Fix svcauth_gss_proxy_init()"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: cdd6928c589a ("ARM: OMAP2+: Add device-tree support for NOR flash")
+Fixes: f37e4580c409 ("ARM: OMAP2: Dynamic allocator for GPMC memory space")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Roger Quadros <rogerq@ti.com>
+Link: https://lore.kernel.org/r/20200825104707.GB278587@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/memory/omap-gpmc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index 68259eec6afd1..ab086081be9c7 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1079,9 +1079,9 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
- 			       struct gssp_in_token *in_token)
- {
- 	struct kvec *argv = &rqstp->rq_arg.head[0];
--	unsigned int page_base, length;
--	int pages, i, res;
--	size_t inlen;
-+	unsigned int length, pgto_offs, pgfrom_offs;
-+	int pages, i, res, pgto, pgfrom;
-+	size_t inlen, to_offs, from_offs;
+diff --git a/drivers/memory/omap-gpmc.c b/drivers/memory/omap-gpmc.c
+index eff26c1b13940..b5055577843a2 100644
+--- a/drivers/memory/omap-gpmc.c
++++ b/drivers/memory/omap-gpmc.c
+@@ -949,7 +949,7 @@ static int gpmc_cs_remap(int cs, u32 base)
+ 	int ret;
+ 	u32 old_base, size;
  
- 	res = gss_read_common_verf(gc, argv, authp, in_handle);
- 	if (res)
-@@ -1109,17 +1109,24 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
- 	memcpy(page_address(in_token->pages[0]), argv->iov_base, length);
- 	inlen -= length;
- 
--	i = 1;
--	page_base = rqstp->rq_arg.page_base;
-+	to_offs = length;
-+	from_offs = rqstp->rq_arg.page_base;
- 	while (inlen) {
--		length = min_t(unsigned int, inlen, PAGE_SIZE);
--		memcpy(page_address(in_token->pages[i]),
--		       page_address(rqstp->rq_arg.pages[i]) + page_base,
-+		pgto = to_offs >> PAGE_SHIFT;
-+		pgfrom = from_offs >> PAGE_SHIFT;
-+		pgto_offs = to_offs & ~PAGE_MASK;
-+		pgfrom_offs = from_offs & ~PAGE_MASK;
-+
-+		length = min_t(unsigned int, inlen,
-+			 min_t(unsigned int, PAGE_SIZE - pgto_offs,
-+			       PAGE_SIZE - pgfrom_offs));
-+		memcpy(page_address(in_token->pages[pgto]) + pgto_offs,
-+		       page_address(rqstp->rq_arg.pages[pgfrom]) + pgfrom_offs,
- 		       length);
- 
-+		to_offs += length;
-+		from_offs += length;
- 		inlen -= length;
--		page_base = 0;
--		i++;
+-	if (cs > gpmc_cs_num) {
++	if (cs >= gpmc_cs_num) {
+ 		pr_err("%s: requested chip-select is disabled\n", __func__);
+ 		return -ENODEV;
  	}
- 	return 0;
- }
+@@ -984,7 +984,7 @@ int gpmc_cs_request(int cs, unsigned long size, unsigned long *base)
+ 	struct resource *res = &gpmc->mem;
+ 	int r = -1;
+ 
+-	if (cs > gpmc_cs_num) {
++	if (cs >= gpmc_cs_num) {
+ 		pr_err("%s: requested chip-select is disabled\n", __func__);
+ 		return -ENODEV;
+ 	}
 -- 
 2.25.1
 
