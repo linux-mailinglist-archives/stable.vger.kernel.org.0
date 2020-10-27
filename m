@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 781DE29BEE0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A96C229BE9B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794385AbgJ0PLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:11:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47396 "EHLO mail.kernel.org"
+        id S1813647AbgJ0Qw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794380AbgJ0PLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:11:33 -0400
+        id S1794769AbgJ0PN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 111EC21D24;
-        Tue, 27 Oct 2020 15:11:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F05AB20657;
+        Tue, 27 Oct 2020 15:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811492;
-        bh=aGWb6TazCrp4N4kSL+nv/YnlpLXLLZSBY2kRmolS5IY=;
+        s=default; t=1603811608;
+        bh=LPqOlev/bUSQucDrLtmXED23AR4eWF+sSZ6rTK/mq80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0uIgmuvhP3ujVm9OtjyDzxq/e9nWVkWVj+mBFbezA7wREoLI4yMdpUZeT+8Cqv8h
-         kBLIDY43inOg0t00zb7YV4EXXiMmAzXGpWBkaTsbg5csndlhpyqU2bhSHyj9Sm6vFP
-         a5rqTSfPCJ0veg3QB8hIDCm8MzBfaQfvXytDzxG8=
+        b=HEWm8QTZ/WIoJ77QM8wg8HQuCfTrmhNhY0wJOt/iFCT11OLgi6+5v+C3Iz2NcUnFL
+         39XcNndYW/3Y8T633dUUEulRwqE81DYm9iSE8HgxgdQ5G+NDj4InhrTlrWJN0FUZq/
+         GZC6C4lckclr34soc3qLpUI8WW7nbbhiiPd3C0i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Patrick Delaunay <patrick.delaunay@st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 511/633] ARM: dts: stm32: Fix DH PDK2 display PWM channel
-Date:   Tue, 27 Oct 2020 14:54:14 +0100
-Message-Id: <20201027135546.713585700@linuxfoundation.org>
+Subject: [PATCH 5.8 512/633] ARM: dts: iwg20d-q7-common: Fix touch controller probe failure
+Date:   Tue, 27 Oct 2020 14:54:15 +0100
+Message-Id: <20201027135546.761501846@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,39 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 57592d2a98dbc3bde3ddc062e91a8486bdcb211e ]
+[ Upstream commit 08d7a73fffb6769b1cf2278bf697e692daba3abf ]
 
-The display PWM channel is number 3 (PWM2 CH4), make it so.
+As per the iWave RZ/G1M schematic, the signal LVDS_PPEN controls the
+supply voltage for the touch panel, LVDS receiver and RGB LCD panel. Add
+a regulator for these device nodes and remove the powerdown-gpios
+property from the lvds-receiver node as it results in a touch controller
+driver probe failure.
 
-Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>
-Cc: Patrick Delaunay <patrick.delaunay@st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Fixes: 6f89dd9e9325 ("ARM: dts: iwg20d-q7-common: Add LCD support")
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20200924080535.3641-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/iwg20d-q7-common.dtsi | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index 9cf6d90fbf69f..e4e3c92eb30d3 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -25,7 +25,7 @@ clk_ext_audio_codec: clock-codec {
+diff --git a/arch/arm/boot/dts/iwg20d-q7-common.dtsi b/arch/arm/boot/dts/iwg20d-q7-common.dtsi
+index ebbe1518ef8a6..63cafd220dba1 100644
+--- a/arch/arm/boot/dts/iwg20d-q7-common.dtsi
++++ b/arch/arm/boot/dts/iwg20d-q7-common.dtsi
+@@ -57,7 +57,7 @@ lcd_backlight: backlight {
  
- 	display_bl: display-bl {
- 		compatible = "pwm-backlight";
--		pwms = <&pwm2 0 500000 PWM_POLARITY_INVERTED>;
-+		pwms = <&pwm2 3 500000 PWM_POLARITY_INVERTED>;
- 		brightness-levels = <0 16 22 30 40 55 75 102 138 188 255>;
- 		default-brightness-level = <8>;
- 		enable-gpios = <&gpioi 0 GPIO_ACTIVE_HIGH>;
+ 	lvds-receiver {
+ 		compatible = "ti,ds90cf384a", "lvds-decoder";
+-		powerdown-gpios = <&gpio7 25 GPIO_ACTIVE_LOW>;
++		power-supply = <&vcc_3v3_tft1>;
+ 
+ 		ports {
+ 			#address-cells = <1>;
+@@ -81,6 +81,7 @@ lvds_receiver_out: endpoint {
+ 	panel {
+ 		compatible = "edt,etm0700g0dh6";
+ 		backlight = <&lcd_backlight>;
++		power-supply = <&vcc_3v3_tft1>;
+ 
+ 		port {
+ 			panel_in: endpoint {
+@@ -113,6 +114,17 @@ sndcodec: simple-audio-card,codec {
+ 		};
+ 	};
+ 
++	vcc_3v3_tft1: regulator-panel {
++		compatible = "regulator-fixed";
++
++		regulator-name = "vcc-3v3-tft1";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		enable-active-high;
++		startup-delay-us = <500>;
++		gpio = <&gpio7 25 GPIO_ACTIVE_HIGH>;
++	};
++
+ 	vcc_sdhi1: regulator-vcc-sdhi1 {
+ 		compatible = "regulator-fixed";
+ 
+@@ -207,6 +219,7 @@ touch: touchpanel@38 {
+ 		reg = <0x38>;
+ 		interrupt-parent = <&gpio2>;
+ 		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
++		vcc-supply = <&vcc_3v3_tft1>;
+ 	};
+ };
+ 
 -- 
 2.25.1
 
