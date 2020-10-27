@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1B229B27B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:42:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F09529B265
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762240AbgJ0Olg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40978 "EHLO mail.kernel.org"
+        id S1761407AbgJ0Okw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762231AbgJ0Olf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:41:35 -0400
+        id S1761566AbgJ0OkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 464C722275;
-        Tue, 27 Oct 2020 14:41:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86E90206B2;
+        Tue, 27 Oct 2020 14:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809693;
-        bh=82GcXZDbIcivgRmlOwbWBv25JRjEbhFhmORh4A3grv4=;
+        s=default; t=1603809600;
+        bh=lIXOfBfINf2wzSPboSFqNfQuP+/BvFDMm1SrkXYs+c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcQG2ngI7rv0B+iB7AX/rfxCp0EhBnfb3lYs28+yrMRhQBFBw6xT6Nhkcga+hm2u4
-         eO1nzNuo5p3RlfoKKyglxmsNWddnUMVaPNa1yETdznofLOvZauut4ns2mBT2VU2l5e
-         s94INJJDKsQCjDS4/1CjFMXea4UhRmemy42TLV0Y=
+        b=hrz6PbUvHzlL26dJ2RkLq3sRap9UXmLi7qZt8NU43EBknYJBx194+eTto7LZElcrX
+         5aiwP8DDZAAUHyemijhXyX/LDrrgzoHSn33n8vA8gKTN1xnZPbIiUl6yM+25Kp7kfD
+         bEHj+Jcm9AyNcJabw9OF2m4/BWbUratMY5ghx9gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 245/408] powerpc/perf/hv-gpci: Fix starting index value
-Date:   Tue, 27 Oct 2020 14:53:03 +0100
-Message-Id: <20201027135506.417557854@linuxfoundation.org>
+Subject: [PATCH 5.4 246/408] i3c: master: Fix error return in cdns_i3c_master_probe()
+Date:   Tue, 27 Oct 2020 14:53:04 +0100
+Message-Id: <20201027135506.466308641@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,74 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 0f9866f7e85765bbda86666df56c92f377c3bc10 ]
+[ Upstream commit abea14bfdebbe9bd02f2ad24a1f3a878ed21c8f0 ]
 
-Commit 9e9f60108423f ("powerpc/perf/{hv-gpci, hv-common}: generate
-requests with counters annotated") adds a framework for defining
-gpci counters.
-In this patch, they adds starting_index value as '0xffffffffffffffff'.
-which is wrong as starting_index is of size 32 bits.
+Fix to return negative error code -ENOMEM from the error handling
+case instead of 0.
 
-Because of this, incase we try to run hv-gpci event we get error.
-
-In power9 machine:
-
-command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-          -C 0 -I 1000
-event syntax error: '..bie_count_and_time_tlbie_instructions_issued/'
-                                  \___ value too big for format, maximum is 4294967295
-
-This patch fix this issue and changes starting_index value to '0xffffffff'
-
-After this patch:
-
-command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/ -C 0 -I 1000
-     1.000085786              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     2.000287818              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     2.439113909             17,408      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-
-Fixes: 9e9f60108423 ("powerpc/perf/{hv-gpci, hv-common}: generate requests with counters annotated")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201003074943.338618-1-kjain@linux.ibm.com
+Fixes: 603f2bee2c54 ("i3c: master: Add driver for Cadence IP")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://lore.kernel.org/linux-i3c/20200911033350.23904-1-jingxiangfeng@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/hv-gpci-requests.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i3c/master/i3c-master-cdns.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/hv-gpci-requests.h b/arch/powerpc/perf/hv-gpci-requests.h
-index e608f9db12ddc..8965b4463d433 100644
---- a/arch/powerpc/perf/hv-gpci-requests.h
-+++ b/arch/powerpc/perf/hv-gpci-requests.h
-@@ -95,7 +95,7 @@ REQUEST(__field(0,	8,	partition_id)
+diff --git a/drivers/i3c/master/i3c-master-cdns.c b/drivers/i3c/master/i3c-master-cdns.c
+index 10db0bf0655a9..6d5719cea9f53 100644
+--- a/drivers/i3c/master/i3c-master-cdns.c
++++ b/drivers/i3c/master/i3c-master-cdns.c
+@@ -1593,8 +1593,10 @@ static int cdns_i3c_master_probe(struct platform_device *pdev)
+ 	master->ibi.slots = devm_kcalloc(&pdev->dev, master->ibi.num_slots,
+ 					 sizeof(*master->ibi.slots),
+ 					 GFP_KERNEL);
+-	if (!master->ibi.slots)
++	if (!master->ibi.slots) {
++		ret = -ENOMEM;
+ 		goto err_disable_sysclk;
++	}
  
- #define REQUEST_NAME system_performance_capabilities
- #define REQUEST_NUM 0x40
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__field(0,	1,	perf_collect_privileged)
- 	__field(0x1,	1,	capability_mask)
-@@ -223,7 +223,7 @@ REQUEST(__field(0,	2, partition_id)
- 
- #define REQUEST_NAME system_hypervisor_times
- #define REQUEST_NUM 0xF0
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
- 	__count(0x8,	8,	time_spent_processing_virtual_processor_timers)
-@@ -234,7 +234,7 @@ REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
- 
- #define REQUEST_NAME system_tlbie_count_and_time
- #define REQUEST_NUM 0xF4
--#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
-+#define REQUEST_IDX_KIND "starting_index=0xffffffff"
- #include I(REQUEST_BEGIN)
- REQUEST(__count(0,	8,	tlbie_instructions_issued)
- 	/*
+ 	writel(IBIR_THR(1), master->regs + CMD_IBI_THR_CTRL);
+ 	writel(MST_INT_IBIR_THR, master->regs + MST_IER);
 -- 
 2.25.1
 
