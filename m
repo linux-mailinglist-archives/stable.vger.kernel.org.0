@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F5429AEEC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D99929AF0B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754466AbgJ0OFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
+        id S1754717AbgJ0OGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754440AbgJ0OFg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:36 -0400
+        id S1753287AbgJ0N7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:59:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9BB822264;
-        Tue, 27 Oct 2020 14:05:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B976D2068D;
+        Tue, 27 Oct 2020 13:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807536;
-        bh=jjS6gpwBsMOgk9XdqvV8I2tubcL3s4WxOtrB5dDK+3Y=;
+        s=default; t=1603807179;
+        bh=Cy42EPoULeSZsZ8sVYky8mByMq1EuOgF4SNBc7BbvB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrWa9V2n7xvrwPsibN0x8xsdmQfWSW3AAx9+YvKFe6wt7u/b6cxsCGZ4SAR36IUxV
-         oIaN60dJn+MVJKCUaP18C/QDldKYF4pngRcT5mgG9qyL96OYYlPkbZ6xaCYu5op4h9
-         oFv94HNlQRFDgQbVg54RGv9hovSYfy0T+TqnYdtQ=
+        b=ZQvZF+P6dKf13OCYJrPbDdI977Wpgbad1NXTNkapD2zTXVM0jqjkcMqkteR6EUkpQ
+         aK5du1Jb9qGnruVFi0x+R6mRCP3jY+EU4cbedXEZmKOz/DBvaCoA43PBDVKhy3nz3E
+         4NgR24/OTb5r/MboDxJtFm9qJ9jUVJA+TVjbrJ8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Robert Hoo <robert.hu@linux.intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 088/139] memory: fsl-corenet-cf: Fix handling of platform_get_irq() error
+Subject: [PATCH 4.4 072/112] KVM: x86: emulating RDPID failure shall return #UD rather than #GP
 Date:   Tue, 27 Oct 2020 14:49:42 +0100
-Message-Id: <20201027134906.309289530@linuxfoundation.org>
+Message-Id: <20201027134903.965222809@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Robert Hoo <robert.hu@linux.intel.com>
 
-[ Upstream commit dd85345abca60a8916617e8d75c0f9ce334336dd ]
+[ Upstream commit a9e2e0ae686094571378c72d8146b5a1a92d0652 ]
 
-platform_get_irq() returns -ERRNO on error.  In such case comparison
-to 0 would pass the check.
+Per Intel's SDM, RDPID takes a #UD if it is unsupported, which is more or
+less what KVM is emulating when MSR_TSC_AUX is not available.  In fact,
+there are no scenarios in which RDPID is supposed to #GP.
 
-Fixes: 54afbec0d57f ("memory: Freescale CoreNet Coherency Fabric error reporting driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20200827073315.29351-1-krzk@kernel.org
+Fixes: fb6d4d340e ("KVM: x86: emulate RDPID")
+Signed-off-by: Robert Hoo <robert.hu@linux.intel.com>
+Message-Id: <1598581422-76264-1-git-send-email-robert.hu@linux.intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl-corenet-cf.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/x86/kvm/emulate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/fsl-corenet-cf.c b/drivers/memory/fsl-corenet-cf.c
-index 662d050243bec..2fbf8d09af36b 100644
---- a/drivers/memory/fsl-corenet-cf.c
-+++ b/drivers/memory/fsl-corenet-cf.c
-@@ -215,10 +215,8 @@ static int ccf_probe(struct platform_device *pdev)
- 	dev_set_drvdata(&pdev->dev, ccf);
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 466028623e1a0..0c1e249a7ab69 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -3524,7 +3524,7 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
+ 	u64 tsc_aux = 0;
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "%s: no irq\n", __func__);
--		return -ENXIO;
--	}
-+	if (irq < 0)
-+		return irq;
- 
- 	ret = devm_request_irq(&pdev->dev, irq, ccf_irq, 0, pdev->name, ccf);
- 	if (ret) {
+ 	if (ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux))
+-		return emulate_gp(ctxt, 0);
++		return emulate_ud(ctxt);
+ 	ctxt->dst.val = tsc_aux;
+ 	return X86EMUL_CONTINUE;
+ }
 -- 
 2.25.1
 
