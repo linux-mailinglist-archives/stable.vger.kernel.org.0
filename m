@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD7029B226
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6B429B200
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761209AbgJ0Oi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
+        id S1760912AbgJ0OhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761206AbgJ0OiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:38:25 -0400
+        id S1760901AbgJ0OhB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:37:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC7D3207BB;
-        Tue, 27 Oct 2020 14:38:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FDB3207BB;
+        Tue, 27 Oct 2020 14:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809504;
-        bh=F8eUBlUZLZfvPMwO1QGBdYgE8jn3qlju0+011V3Bu54=;
+        s=default; t=1603809419;
+        bh=T/p1oJjCZKsJ0jjIhh7oW721eNYuaYGpn/SWSvKnsvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KR0snGAWdYOmRZdV1+mm9kjfwWl6MDV6aJ2OSa8P2p0OSjFTYHGUpGCbYYWu83Agx
-         2BxjtMH7KUxZLVlt3n/9WbxrDGwlEvRWWc72yRzcXF1dlcvGIe4WnwxFLxCAGSnfFU
-         HL6o1LHUY3VLsqEyDZv6R2EZnxMvbBedgnHKA5Z8=
+        b=YfXD4D6ULIiE11USBQhY4b9oHmC0/6dgNOo/XanqENY9Jz2iS2SsdFSuBd2CDEWDr
+         diPY3YwuPQNGVGDn6CQRemukzZAq3LJGnLJjrGOEXkSNwL/KtdMSvZ/z3VfQ3EI4wU
+         UadesTZ7iRTuoMrUHT3K+NnWvXr4HPqkqDxgVAD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 189/408] net: korina: fix kfree of rx/tx descriptor array
-Date:   Tue, 27 Oct 2020 14:52:07 +0100
-Message-Id: <20201027135503.857722853@linuxfoundation.org>
+Subject: [PATCH 5.4 190/408] netfilter: nf_log: missing vlan offload tag and proto
+Date:   Tue, 27 Oct 2020 14:52:08 +0100
+Message-Id: <20201027135503.903045602@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,44 +42,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 3af5f0f5c74ecbaf757ef06c3f80d56751277637 ]
+[ Upstream commit 0d9826bc18ce356e8909919ad681ad65d0a6061e ]
 
-kmalloc returns KSEG0 addresses so convert back from KSEG1
-in kfree. Also make sure array is freed when the driver is
-unloaded from the kernel.
+Dump vlan tag and proto for the usual vlan offload case if the
+NF_LOG_MACDECODE flag is set on. Without this information the logging is
+misleading as there is no reference to the VLAN header.
 
-Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[12716.993704] test: IN=veth0 OUT= MACSRC=86:6c:92:ea:d6:73 MACDST=0e:3b:eb:86:73:76 VPROTO=8100 VID=10 MACPROTO=0800 SRC=192.168.10.2 DST=172.217.168.163 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=2548 DF PROTO=TCP SPT=55848 DPT=80 WINDOW=501 RES=0x00 ACK FIN URGP=0
+[12721.157643] test: IN=veth0 OUT= MACSRC=86:6c:92:ea:d6:73 MACDST=0e:3b:eb:86:73:76 VPROTO=8100 VID=10 MACPROTO=0806 ARP HTYPE=1 PTYPE=0x0800 OPCODE=2 MACSRC=86:6c:92:ea:d6:73 IPSRC=192.168.10.2 MACDST=0e:3b:eb:86:73:76 IPDST=192.168.10.1
+
+Fixes: 83e96d443b37 ("netfilter: log: split family specific code to nf_log_{ip,ip6,common}.c files")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/korina.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/netfilter/nf_log.h   |  1 +
+ net/ipv4/netfilter/nf_log_arp.c  | 19 +++++++++++++++++--
+ net/ipv4/netfilter/nf_log_ipv4.c |  6 ++++--
+ net/ipv6/netfilter/nf_log_ipv6.c |  8 +++++---
+ net/netfilter/nf_log_common.c    | 12 ++++++++++++
+ 5 files changed, 39 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index ae195f8adff58..5bdff77c0ad10 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -1113,7 +1113,7 @@ static int korina_probe(struct platform_device *pdev)
- 	return rc;
+diff --git a/include/net/netfilter/nf_log.h b/include/net/netfilter/nf_log.h
+index 0d3920896d502..716db4a0fed89 100644
+--- a/include/net/netfilter/nf_log.h
++++ b/include/net/netfilter/nf_log.h
+@@ -108,6 +108,7 @@ int nf_log_dump_tcp_header(struct nf_log_buf *m, const struct sk_buff *skb,
+ 			   unsigned int logflags);
+ void nf_log_dump_sk_uid_gid(struct net *net, struct nf_log_buf *m,
+ 			    struct sock *sk);
++void nf_log_dump_vlan(struct nf_log_buf *m, const struct sk_buff *skb);
+ void nf_log_dump_packet_common(struct nf_log_buf *m, u_int8_t pf,
+ 			       unsigned int hooknum, const struct sk_buff *skb,
+ 			       const struct net_device *in,
+diff --git a/net/ipv4/netfilter/nf_log_arp.c b/net/ipv4/netfilter/nf_log_arp.c
+index 7a83f881efa9e..136030ad2e546 100644
+--- a/net/ipv4/netfilter/nf_log_arp.c
++++ b/net/ipv4/netfilter/nf_log_arp.c
+@@ -43,16 +43,31 @@ static void dump_arp_packet(struct nf_log_buf *m,
+ 			    const struct nf_loginfo *info,
+ 			    const struct sk_buff *skb, unsigned int nhoff)
+ {
+-	const struct arphdr *ah;
+-	struct arphdr _arph;
+ 	const struct arppayload *ap;
+ 	struct arppayload _arpp;
++	const struct arphdr *ah;
++	unsigned int logflags;
++	struct arphdr _arph;
  
- probe_err_register:
--	kfree(lp->td_ring);
-+	kfree(KSEG0ADDR(lp->td_ring));
- probe_err_td_ring:
- 	iounmap(lp->tx_dma_regs);
- probe_err_dma_tx:
-@@ -1133,6 +1133,7 @@ static int korina_remove(struct platform_device *pdev)
- 	iounmap(lp->eth_regs);
- 	iounmap(lp->rx_dma_regs);
- 	iounmap(lp->tx_dma_regs);
-+	kfree(KSEG0ADDR(lp->td_ring));
+ 	ah = skb_header_pointer(skb, 0, sizeof(_arph), &_arph);
+ 	if (ah == NULL) {
+ 		nf_log_buf_add(m, "TRUNCATED");
+ 		return;
+ 	}
++
++	if (info->type == NF_LOG_TYPE_LOG)
++		logflags = info->u.log.logflags;
++	else
++		logflags = NF_LOG_DEFAULT_MASK;
++
++	if (logflags & NF_LOG_MACDECODE) {
++		nf_log_buf_add(m, "MACSRC=%pM MACDST=%pM ",
++			       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest);
++		nf_log_dump_vlan(m, skb);
++		nf_log_buf_add(m, "MACPROTO=%04x ",
++			       ntohs(eth_hdr(skb)->h_proto));
++	}
++
+ 	nf_log_buf_add(m, "ARP HTYPE=%d PTYPE=0x%04x OPCODE=%d",
+ 		       ntohs(ah->ar_hrd), ntohs(ah->ar_pro), ntohs(ah->ar_op));
  
- 	unregister_netdev(bif->dev);
- 	free_netdev(bif->dev);
+diff --git a/net/ipv4/netfilter/nf_log_ipv4.c b/net/ipv4/netfilter/nf_log_ipv4.c
+index 4b2d49cc9f1a1..cb288ffbcfde2 100644
+--- a/net/ipv4/netfilter/nf_log_ipv4.c
++++ b/net/ipv4/netfilter/nf_log_ipv4.c
+@@ -284,8 +284,10 @@ static void dump_ipv4_mac_header(struct nf_log_buf *m,
+ 
+ 	switch (dev->type) {
+ 	case ARPHRD_ETHER:
+-		nf_log_buf_add(m, "MACSRC=%pM MACDST=%pM MACPROTO=%04x ",
+-			       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest,
++		nf_log_buf_add(m, "MACSRC=%pM MACDST=%pM ",
++			       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest);
++		nf_log_dump_vlan(m, skb);
++		nf_log_buf_add(m, "MACPROTO=%04x ",
+ 			       ntohs(eth_hdr(skb)->h_proto));
+ 		return;
+ 	default:
+diff --git a/net/ipv6/netfilter/nf_log_ipv6.c b/net/ipv6/netfilter/nf_log_ipv6.c
+index 22b80db6d8826..5b40258d3a5e9 100644
+--- a/net/ipv6/netfilter/nf_log_ipv6.c
++++ b/net/ipv6/netfilter/nf_log_ipv6.c
+@@ -297,9 +297,11 @@ static void dump_ipv6_mac_header(struct nf_log_buf *m,
+ 
+ 	switch (dev->type) {
+ 	case ARPHRD_ETHER:
+-		nf_log_buf_add(m, "MACSRC=%pM MACDST=%pM MACPROTO=%04x ",
+-		       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest,
+-		       ntohs(eth_hdr(skb)->h_proto));
++		nf_log_buf_add(m, "MACSRC=%pM MACDST=%pM ",
++			       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest);
++		nf_log_dump_vlan(m, skb);
++		nf_log_buf_add(m, "MACPROTO=%04x ",
++			       ntohs(eth_hdr(skb)->h_proto));
+ 		return;
+ 	default:
+ 		break;
+diff --git a/net/netfilter/nf_log_common.c b/net/netfilter/nf_log_common.c
+index ae5628ddbe6d7..fd7c5f0f5c25b 100644
+--- a/net/netfilter/nf_log_common.c
++++ b/net/netfilter/nf_log_common.c
+@@ -171,6 +171,18 @@ nf_log_dump_packet_common(struct nf_log_buf *m, u_int8_t pf,
+ }
+ EXPORT_SYMBOL_GPL(nf_log_dump_packet_common);
+ 
++void nf_log_dump_vlan(struct nf_log_buf *m, const struct sk_buff *skb)
++{
++	u16 vid;
++
++	if (!skb_vlan_tag_present(skb))
++		return;
++
++	vid = skb_vlan_tag_get(skb);
++	nf_log_buf_add(m, "VPROTO=%04x VID=%u ", ntohs(skb->vlan_proto), vid);
++}
++EXPORT_SYMBOL_GPL(nf_log_dump_vlan);
++
+ /* bridge and netdev logging families share this code. */
+ void nf_log_l2packet(struct net *net, u_int8_t pf,
+ 		     __be16 protocol,
 -- 
 2.25.1
 
