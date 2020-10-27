@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E92C629AEFF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589C829AFC5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753252AbgJ0N7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46822 "EHLO mail.kernel.org"
+        id S1756317AbgJ0OMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753242AbgJ0N7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:59:21 -0400
+        id S1756205AbgJ0OMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:12:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C904221F7;
-        Tue, 27 Oct 2020 13:59:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A51B223AB;
+        Tue, 27 Oct 2020 14:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807160;
-        bh=TqZIMtcPRGxicGhzsyZKtIsWlsRediNHd8EMURjpfJ0=;
+        s=default; t=1603807917;
+        bh=oj5HLCgTap0UE8B9NbqNauRQX8CuLpo1hR0Pot0m9Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rG53Wd3EnjrRm9m0tzuB9e5mUwCe3jHHgSVvT7uepbs2/yvsEg3Vd5u+2MtH4MUP9
-         DDUkKsNWADrOhU7l1FQdez7wiZhg9CNPq8AENrKSGO+t1378XpW7u/17P0v5g+jDk6
-         XWJ5k6v0x6DD1eHUwesgn/rF2XwulgmXSpwhQEvg=
+        b=P3peQ0gkQfRFxce51n28KAZX/B7+L3JgJ7pt/MZUP5EQLDwVtcomjCi4y36pQVU3P
+         ccyOco3rdcC+ZeNF3J/aZ+AUrjkhXRdw5+QrIbst2gSu+LZ7jzzGDuDqhlCf4k3xpa
+         n5ngiggnfp9ED6fHVHPnbKWzFn4RybAPUcKrAxRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 034/112] backlight: sky81452-backlight: Fix refcount imbalance on error
+Subject: [PATCH 4.14 089/191] mtd: lpddr: fix excessive stack usage with clang
 Date:   Tue, 27 Oct 2020 14:49:04 +0100
-Message-Id: <20201027134902.173666866@linuxfoundation.org>
+Message-Id: <20201027134913.976351668@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dinghao.liu@zju.edu.cn <dinghao.liu@zju.edu.cn>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b7a4f80bc316a56d6ec8750e93e66f42431ed960 ]
+[ Upstream commit 3e1b6469f8324bee5927b063e2aca30d3e56b907 ]
 
-When of_property_read_u32_array() returns an error code, a
-pairing refcount decrement is needed to keep np's refcount
-balanced.
+Building lpddr2_nvm with clang can result in a giant stack usage
+in one function:
 
-Fixes: f705806c9f355 ("backlight: Add support Skyworks SKY81452 backlight driver")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+drivers/mtd/lpddr/lpddr2_nvm.c:399:12: error: stack frame size of 1144 bytes in function 'lpddr2_nvm_probe' [-Werror,-Wframe-larger-than=]
+
+The problem is that clang decides to build a copy of the mtd_info
+structure on the stack and then do a memcpy() into the actual version. It
+shouldn't really do it that way, but it's not strictly a bug either.
+
+As a workaround, use a static const version of the structure to assign
+most of the members upfront and then only set the few members that
+require runtime knowledge at probe time.
+
+Fixes: 96ba9dd65788 ("mtd: lpddr: add driver for LPDDR2-NVM PCM memories")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200505140136.263461-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/sky81452-backlight.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/lpddr/lpddr2_nvm.c | 35 ++++++++++++++++++----------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/video/backlight/sky81452-backlight.c b/drivers/video/backlight/sky81452-backlight.c
-index d414c7a3acf5a..a2f77625b7170 100644
---- a/drivers/video/backlight/sky81452-backlight.c
-+++ b/drivers/video/backlight/sky81452-backlight.c
-@@ -207,6 +207,7 @@ static struct sky81452_bl_platform_data *sky81452_bl_parse_dt(
- 					num_entry);
- 		if (ret < 0) {
- 			dev_err(dev, "led-sources node is invalid.\n");
-+			of_node_put(np);
- 			return ERR_PTR(-EINVAL);
- 		}
+diff --git a/drivers/mtd/lpddr/lpddr2_nvm.c b/drivers/mtd/lpddr/lpddr2_nvm.c
+index 2342277c9bcb0..5e36366d9b36d 100644
+--- a/drivers/mtd/lpddr/lpddr2_nvm.c
++++ b/drivers/mtd/lpddr/lpddr2_nvm.c
+@@ -408,6 +408,17 @@ static int lpddr2_nvm_lock(struct mtd_info *mtd, loff_t start_add,
+ 	return lpddr2_nvm_do_block_op(mtd, start_add, len, LPDDR2_NVM_LOCK);
+ }
  
++static const struct mtd_info lpddr2_nvm_mtd_info = {
++	.type		= MTD_RAM,
++	.writesize	= 1,
++	.flags		= (MTD_CAP_NVRAM | MTD_POWERUP_LOCK),
++	._read		= lpddr2_nvm_read,
++	._write		= lpddr2_nvm_write,
++	._erase		= lpddr2_nvm_erase,
++	._unlock	= lpddr2_nvm_unlock,
++	._lock		= lpddr2_nvm_lock,
++};
++
+ /*
+  * lpddr2_nvm driver probe method
+  */
+@@ -448,6 +459,7 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
+ 		.pfow_base	= OW_BASE_ADDRESS,
+ 		.fldrv_priv	= pcm_data,
+ 	};
++
+ 	if (IS_ERR(map->virt))
+ 		return PTR_ERR(map->virt);
+ 
+@@ -459,22 +471,13 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
+ 		return PTR_ERR(pcm_data->ctl_regs);
+ 
+ 	/* Populate mtd_info data structure */
+-	*mtd = (struct mtd_info) {
+-		.dev		= { .parent = &pdev->dev },
+-		.name		= pdev->dev.init_name,
+-		.type		= MTD_RAM,
+-		.priv		= map,
+-		.size		= resource_size(add_range),
+-		.erasesize	= ERASE_BLOCKSIZE * pcm_data->bus_width,
+-		.writesize	= 1,
+-		.writebufsize	= WRITE_BUFFSIZE * pcm_data->bus_width,
+-		.flags		= (MTD_CAP_NVRAM | MTD_POWERUP_LOCK),
+-		._read		= lpddr2_nvm_read,
+-		._write		= lpddr2_nvm_write,
+-		._erase		= lpddr2_nvm_erase,
+-		._unlock	= lpddr2_nvm_unlock,
+-		._lock		= lpddr2_nvm_lock,
+-	};
++	*mtd = lpddr2_nvm_mtd_info;
++	mtd->dev.parent		= &pdev->dev;
++	mtd->name		= pdev->dev.init_name;
++	mtd->priv		= map;
++	mtd->size		= resource_size(add_range);
++	mtd->erasesize		= ERASE_BLOCKSIZE * pcm_data->bus_width;
++	mtd->writebufsize	= WRITE_BUFFSIZE * pcm_data->bus_width;
+ 
+ 	/* Verify the presence of the device looking for PFOW string */
+ 	if (!lpddr2_nvm_pfow_present(map)) {
 -- 
 2.25.1
 
