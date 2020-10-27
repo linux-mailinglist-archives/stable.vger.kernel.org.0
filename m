@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0637D29AFC2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA2629AEA4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900876AbgJ0OMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59678 "EHLO mail.kernel.org"
+        id S2443171AbgJ0OCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755981AbgJ0OKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:54 -0400
+        id S1753867AbgJ0OCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59C4D2072D;
-        Tue, 27 Oct 2020 14:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F18722264;
+        Tue, 27 Oct 2020 14:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807854;
-        bh=hhoxEyIEZZvefeQxJwP97kWrbU1FsUOEFaAp6bXSetI=;
+        s=default; t=1603807363;
+        bh=E5TS+HU95Vzm1dxDPh36Z9h7QIOv/TtBl8gfDA60/cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qhe4NuAT/SftHdjiMkPWs7gvr7osKQ3pkIt1R4r76M+oq8es8Q/bnwI2Hfyg3XeqQ
-         14RE9EFi6SCCCUl3RAXv8QN1LePr5KwGk4HmGCt/q1z6zOrX9XjBip9v3578Qi7PHp
-         jb+TGSCxkLi3YRuVsntGgk4AMXGl5x9VNYCRRd2U=
+        b=FEFMNrFZz5OgFmHJpHCPKDIihrgtqufB6ANPVHaOBICNsISSKEMnOzN8OYCSdPYqB
+         WYG903Kz0FOihomHNfB0aHm76CQTB8InuTfaWELV4r3VbZv9hpxbqAZXilafH95qJi
+         yEEIssj1qYKr95kO89D/d0lwnpLuA95tWhLylBIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thomas Preston <thomas.preston@codethink.co.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Markus Theil <markus.theil@tu-ilmenau.de>,
+        John Deere <24601deerej@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 064/191] pinctrl: mcp23s08: Fix mcp23x17_regmap initialiser
+Subject: [PATCH 4.9 025/139] ath10k: provide survey info as accumulated data
 Date:   Tue, 27 Oct 2020 14:48:39 +0100
-Message-Id: <20201027134912.814390967@linuxfoundation.org>
+Message-Id: <20201027134903.328561711@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Preston <thomas.preston@codethink.co.uk>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit b445f6237744df5e8d4f56f8733b2108c611220a ]
+[ Upstream commit 720e5c03e5cb26d33d97f55192b791bb48478aa5 ]
 
-The mcp23x17_regmap is initialised with structs named "mcp23x16".
-However, the mcp23s08 driver doesn't support the MCP23016 device yet, so
-this appears to be a typo.
+It is expected that the returned counters by .get_survey are monotonic
+increasing. But the data from ath10k gets reset to zero regularly. Channel
+active/busy time are then showing incorrect values (less than previous or
+sometimes zero) for the currently active channel during successive survey
+dump commands.
 
-Fixes: 8f38910ba4f6 ("pinctrl: mcp23s08: switch to regmap caching")
-Signed-off-by: Thomas Preston <thomas.preston@codethink.co.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20200828213226.1734264-2-thomas.preston@codethink.co.uk
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+example:
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            54995 ms
+  	channel busy time:              432 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          59 ms
+  ...
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            32592 ms
+  	channel busy time:              254 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          0 ms
+  ...
+
+The correct way to handle this is to use the non-clearing
+WMI_BSS_SURVEY_REQ_TYPE_READ wmi_bss_survey_req_type. The firmware will
+then accumulate the survey data and handle wrap arounds.
+
+Tested-on: QCA9984 hw1.0 10.4-3.5.3-00057
+Tested-on: QCA988X hw2.0 10.2.4-1.0-00047
+Tested-on: QCA9888 hw2.0 10.4-3.9.0.2-00024
+Tested-on: QCA4019 hw1.0 10.4-3.6-00140
+
+Fixes: fa7937e3d5c2 ("ath10k: update bss channel survey information")
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Tested-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Tested-by: John Deere <24601deerej@gmail.com>
+[sven@narfation.org: adjust commit message]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1592232686-28712-1-git-send-email-kvalo@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
-index 22558bf294246..12e7f7c54ffaa 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -119,7 +119,7 @@ static const struct regmap_config mcp23x08_regmap = {
- 	.max_register = MCP_OLAT,
- };
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 2294ba311c47a..8b3fe88d1c4e7 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -6579,7 +6579,7 @@ ath10k_mac_update_bss_chan_survey(struct ath10k *ar,
+ 				  struct ieee80211_channel *channel)
+ {
+ 	int ret;
+-	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ_CLEAR;
++	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ;
  
--static const struct reg_default mcp23x16_defaults[] = {
-+static const struct reg_default mcp23x17_defaults[] = {
- 	{.reg = MCP_IODIR << 1,		.def = 0xffff},
- 	{.reg = MCP_IPOL << 1,		.def = 0x0000},
- 	{.reg = MCP_GPINTEN << 1,	.def = 0x0000},
-@@ -130,23 +130,23 @@ static const struct reg_default mcp23x16_defaults[] = {
- 	{.reg = MCP_OLAT << 1,		.def = 0x0000},
- };
+ 	lockdep_assert_held(&ar->conf_mutex);
  
--static const struct regmap_range mcp23x16_volatile_range = {
-+static const struct regmap_range mcp23x17_volatile_range = {
- 	.range_min = MCP_INTF << 1,
- 	.range_max = MCP_GPIO << 1,
- };
- 
--static const struct regmap_access_table mcp23x16_volatile_table = {
--	.yes_ranges = &mcp23x16_volatile_range,
-+static const struct regmap_access_table mcp23x17_volatile_table = {
-+	.yes_ranges = &mcp23x17_volatile_range,
- 	.n_yes_ranges = 1,
- };
- 
--static const struct regmap_range mcp23x16_precious_range = {
-+static const struct regmap_range mcp23x17_precious_range = {
- 	.range_min = MCP_GPIO << 1,
- 	.range_max = MCP_GPIO << 1,
- };
- 
--static const struct regmap_access_table mcp23x16_precious_table = {
--	.yes_ranges = &mcp23x16_precious_range,
-+static const struct regmap_access_table mcp23x17_precious_table = {
-+	.yes_ranges = &mcp23x17_precious_range,
- 	.n_yes_ranges = 1,
- };
- 
-@@ -156,10 +156,10 @@ static const struct regmap_config mcp23x17_regmap = {
- 
- 	.reg_stride = 2,
- 	.max_register = MCP_OLAT << 1,
--	.volatile_table = &mcp23x16_volatile_table,
--	.precious_table = &mcp23x16_precious_table,
--	.reg_defaults = mcp23x16_defaults,
--	.num_reg_defaults = ARRAY_SIZE(mcp23x16_defaults),
-+	.volatile_table = &mcp23x17_volatile_table,
-+	.precious_table = &mcp23x17_precious_table,
-+	.reg_defaults = mcp23x17_defaults,
-+	.num_reg_defaults = ARRAY_SIZE(mcp23x17_defaults),
- 	.cache_type = REGCACHE_FLAT,
- 	.val_format_endian = REGMAP_ENDIAN_LITTLE,
- };
 -- 
 2.25.1
 
