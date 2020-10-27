@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EAE529B98B
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEF329B98C
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802586AbgJ0PuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60176 "EHLO mail.kernel.org"
+        id S1802589AbgJ0PuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801350AbgJ0Pki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:40:38 -0400
+        id S1801353AbgJ0Pkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:40:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 520F32231B;
-        Tue, 27 Oct 2020 15:40:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3032C223AB;
+        Tue, 27 Oct 2020 15:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813235;
-        bh=Dj5H2+M1xmO5foPxsnw6ahEU1I3acQraT7IqezV+Siw=;
+        s=default; t=1603813238;
+        bh=82GcXZDbIcivgRmlOwbWBv25JRjEbhFhmORh4A3grv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztsK9zzq6x60LP8guqMhd2O3QxA5Bv1gOqTS5Ykhu0aJfuoZAAWZjXY3MUd2DosGj
-         JEDsh+6ipLrrwx/vCXpCehW/x/o4Ld/abrSAJhqsJcvuvwWK064gD+wt+Un7VbQPlr
-         mBZj94W7dW5Z0I86Q3FLcuwqSn9hntHSANNipDLI=
+        b=S6nffowZhfAg6X9fmQAT++UVtwGY3507bi9aUOgkt1AtErXbq/Epq/UhGEiw1bIqt
+         7OHw9v4xoBoyH2tTx2BsJPwm8matTXxnqw7EMuXt7kNGJE5TpK5LxnF0DBPo2TEx0q
+         TS/hRIspomCj0itzG2cN7E0J7WbMpBBpouPYzVXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 484/757] powerpc/perf: Exclude pmc5/6 from the irrelevant PMU group constraints
-Date:   Tue, 27 Oct 2020 14:52:14 +0100
-Message-Id: <20201027135513.179723422@linuxfoundation.org>
+Subject: [PATCH 5.9 485/757] powerpc/perf/hv-gpci: Fix starting index value
+Date:   Tue, 27 Oct 2020 14:52:15 +0100
+Message-Id: <20201027135513.227434045@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,58 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 3b6c3adbb2fa42749c3d38cfc4d4d0b7e096bb7b ]
+[ Upstream commit 0f9866f7e85765bbda86666df56c92f377c3bc10 ]
 
-PMU counter support functions enforces event constraints for group of
-events to check if all events in a group can be monitored. Incase of
-event codes using PMC5 and PMC6 ( 500fa and 600f4 respectively ), not
-all constraints are applicable, say the threshold or sample bits. But
-current code includes pmc5 and pmc6 in some group constraints (like
-IC_DC Qualifier bits) which is actually not applicable and hence
-results in those events not getting counted when scheduled along with
-group of other events. Patch fixes this by excluding PMC5/6 from
-constraints which are not relevant for it.
+Commit 9e9f60108423f ("powerpc/perf/{hv-gpci, hv-common}: generate
+requests with counters annotated") adds a framework for defining
+gpci counters.
+In this patch, they adds starting_index value as '0xffffffffffffffff'.
+which is wrong as starting_index is of size 32 bits.
 
-Fixes: 7ffd948 ("powerpc/perf: factor out power8 pmu functions")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Because of this, incase we try to run hv-gpci event we get error.
+
+In power9 machine:
+
+command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+          -C 0 -I 1000
+event syntax error: '..bie_count_and_time_tlbie_instructions_issued/'
+                                  \___ value too big for format, maximum is 4294967295
+
+This patch fix this issue and changes starting_index value to '0xffffffff'
+
+After this patch:
+
+command#: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/ -C 0 -I 1000
+     1.000085786              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     2.000287818              1,024      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     2.439113909             17,408      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+
+Fixes: 9e9f60108423 ("powerpc/perf/{hv-gpci, hv-common}: generate requests with counters annotated")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1600672204-1610-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20201003074943.338618-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/perf/hv-gpci-requests.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index 964437adec185..2848904df6383 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -288,6 +288,15 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
+diff --git a/arch/powerpc/perf/hv-gpci-requests.h b/arch/powerpc/perf/hv-gpci-requests.h
+index e608f9db12ddc..8965b4463d433 100644
+--- a/arch/powerpc/perf/hv-gpci-requests.h
++++ b/arch/powerpc/perf/hv-gpci-requests.h
+@@ -95,7 +95,7 @@ REQUEST(__field(0,	8,	partition_id)
  
- 		mask  |= CNST_PMC_MASK(pmc);
- 		value |= CNST_PMC_VAL(pmc);
-+
-+		/*
-+		 * PMC5 and PMC6 are used to count cycles and instructions and
-+		 * they do not support most of the constraint bits. Add a check
-+		 * to exclude PMC5/6 from most of the constraints except for
-+		 * EBB/BHRB.
-+		 */
-+		if (pmc >= 5)
-+			goto ebb_bhrb;
- 	}
+ #define REQUEST_NAME system_performance_capabilities
+ #define REQUEST_NUM 0x40
+-#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
++#define REQUEST_IDX_KIND "starting_index=0xffffffff"
+ #include I(REQUEST_BEGIN)
+ REQUEST(__field(0,	1,	perf_collect_privileged)
+ 	__field(0x1,	1,	capability_mask)
+@@ -223,7 +223,7 @@ REQUEST(__field(0,	2, partition_id)
  
- 	if (pmc <= 4) {
-@@ -357,6 +366,7 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
- 		}
- 	}
+ #define REQUEST_NAME system_hypervisor_times
+ #define REQUEST_NUM 0xF0
+-#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
++#define REQUEST_IDX_KIND "starting_index=0xffffffff"
+ #include I(REQUEST_BEGIN)
+ REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
+ 	__count(0x8,	8,	time_spent_processing_virtual_processor_timers)
+@@ -234,7 +234,7 @@ REQUEST(__count(0,	8,	time_spent_to_dispatch_virtual_processors)
  
-+ebb_bhrb:
- 	if (!pmc && ebb)
- 		/* EBB events must specify the PMC */
- 		return -1;
+ #define REQUEST_NAME system_tlbie_count_and_time
+ #define REQUEST_NUM 0xF4
+-#define REQUEST_IDX_KIND "starting_index=0xffffffffffffffff"
++#define REQUEST_IDX_KIND "starting_index=0xffffffff"
+ #include I(REQUEST_BEGIN)
+ REQUEST(__count(0,	8,	tlbie_instructions_issued)
+ 	/*
 -- 
 2.25.1
 
