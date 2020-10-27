@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0B229C6A4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B8B29C67E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827143AbgJ0SVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
+        id S1826271AbgJ0SSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:18:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753143AbgJ0OC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:02:28 -0400
+        id S1754141AbgJ0OLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:11:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B6982222C;
-        Tue, 27 Oct 2020 14:02:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12B7422384;
+        Tue, 27 Oct 2020 14:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807347;
-        bh=Noym+lf8cZ47Ly+mv+s8DXWgLUwSiQZUDXTZQt2zu7A=;
+        s=default; t=1603807875;
+        bh=6nwMkp7AWLX6m+vIInrJJ/9opj19CuFuB8Axt5gn5m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsfO695P9Qw77A36GtKcSFJPBnfscrys34jFxZ76vba7yzEERX8r7oH0tjGBcQhCP
-         TwXDyVRrJtaiJocZTG5yVtWbEBmwcW+0tDIbXaSfPfu2bmHuAi7cxPZnKmoNtpqdeP
-         gg3q5q7Ds5FvGUCvrIwivtptb05c1oLs7oIA9jt8=
+        b=xyKWXgD+W/V5G32Qrkbu/w7MXtHISIgy2I1riZ2ygF6wrPL5o1NTe1/LWsIbwXm2u
+         VfxEFKomk1QuL1liPA8AvT5IjyQJw4hTgDPWt70Yos+eciId1vexrtYzAntMxSUko8
+         MFu0q6/JuwpcsSIAin52JsS5oacbygUpVZBt4DHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 002/139] tipc: fix the skb_unshare() in tipc_buf_append()
-Date:   Tue, 27 Oct 2020 14:48:16 +0100
-Message-Id: <20201027134902.258213611@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 042/191] Bluetooth: hci_uart: Cancel init work before unregistering
+Date:   Tue, 27 Oct 2020 14:48:17 +0100
+Message-Id: <20201027134911.762018213@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit ed42989eab57d619667d7e87dfbd8fe207db54fe ]
+[ Upstream commit 3b799254cf6f481460719023d7a18f46651e5e7f ]
 
-skb_unshare() drops a reference count on the old skb unconditionally,
-so in the failure case, we end up freeing the skb twice here.
-And because the skb is allocated in fclone and cloned by caller
-tipc_msg_reassemble(), the consequence is actually freeing the
-original skb too, thus triggered the UAF by syzbot.
+If hci_uart_tty_close() or hci_uart_unregister_device() is called while
+hu->init_ready is scheduled, hci_register_dev() could be called after
+the hci_uart is torn down. Avoid this by ensuring the work is complete
+or canceled before checking the HCI_UART_REGISTERED flag.
 
-Fix this by replacing this skb_unshare() with skb_cloned()+skb_copy().
-
-Fixes: ff48b6222e65 ("tipc: use skb_unshare() instead in tipc_buf_append()")
-Reported-and-tested-by: syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9f2aee848fe6 ("Bluetooth: Add delayed init sequence support for UART controllers")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/msg.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/hci_ldisc.c  | 1 +
+ drivers/bluetooth/hci_serdev.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -140,7 +140,8 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		frag = skb_unshare(frag, GFP_ATOMIC);
-+		if (skb_cloned(frag))
-+			frag = skb_copy(frag, GFP_ATOMIC);
- 		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
+diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
+index 43221def1d29f..f19606019eb01 100644
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -541,6 +541,7 @@ static void hci_uart_tty_close(struct tty_struct *tty)
+ 		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 		percpu_up_write(&hu->proto_lock);
+ 
++		cancel_work_sync(&hu->init_ready);
+ 		cancel_work_sync(&hu->write_work);
+ 
+ 		if (hdev) {
+diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
+index 72cf2d97b682c..196b046658ff4 100644
+--- a/drivers/bluetooth/hci_serdev.c
++++ b/drivers/bluetooth/hci_serdev.c
+@@ -361,6 +361,8 @@ void hci_uart_unregister_device(struct hci_uart *hu)
+ 	struct hci_dev *hdev = hu->hdev;
+ 
+ 	clear_bit(HCI_UART_PROTO_READY, &hu->flags);
++
++	cancel_work_sync(&hu->init_ready);
+ 	if (test_bit(HCI_UART_REGISTERED, &hu->flags))
+ 		hci_unregister_dev(hdev);
+ 	hci_free_dev(hdev);
+-- 
+2.25.1
+
 
 
