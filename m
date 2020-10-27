@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE2629B03F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C04629B05B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757281AbgJ0ORY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:17:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40432 "EHLO mail.kernel.org"
+        id S1756902AbgJ0OSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757278AbgJ0ORX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:17:23 -0400
+        id S1756593AbgJ0OSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:18:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3606C22202;
-        Tue, 27 Oct 2020 14:17:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BA0C206D4;
+        Tue, 27 Oct 2020 14:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808242;
-        bh=Noym+lf8cZ47Ly+mv+s8DXWgLUwSiQZUDXTZQt2zu7A=;
+        s=default; t=1603808312;
+        bh=WUbHRaoqJfCsnlYmdkmweJM2LnXWWp4F9r/tgGzHg4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8+OQgN5fFf23Nno3WwliRelTVtGEp6YI00DF0/cvxucNBn9lEljiopW5dAHic1Fz
-         KSDJSp4eI7EPLfgsrdF2h5KXFEF0/EyfUq9n8wMQCOCbwY5OjOM8P4bJz7kTJKlmSv
-         rFFbEHOh4CXn2+DllFrCDBdKIa/AtJVkUmezPtRA=
+        b=CG3nKmW212l8GVdy+NOOpsJNTDAFYTsAkkrYCRstZQZiHCPZdCcKvhrk8AX2Tcp47
+         HwNrZ3q9TcREzWitjQg03FQUh6k9hAyxge1B9mEK+/s9B8qQ8l9x6Vv5gcmYcrBTYI
+         aCmMrcdLwU7JSkuhttEMraL9uL4tWKI3KROaRI8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 010/264] tipc: fix the skb_unshare() in tipc_buf_append()
-Date:   Tue, 27 Oct 2020 14:51:08 +0100
-Message-Id: <20201027135431.143348471@linuxfoundation.org>
+        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 013/264] net/tls: sendfile fails with ktls offload
+Date:   Tue, 27 Oct 2020 14:51:11 +0100
+Message-Id: <20201027135431.286491589@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -46,41 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Rohit Maheshwari <rohitm@chelsio.com>
 
-[ Upstream commit ed42989eab57d619667d7e87dfbd8fe207db54fe ]
+[ Upstream commit ea1dd3e9d080c961b9a451130b61c72dc9a5397b ]
 
-skb_unshare() drops a reference count on the old skb unconditionally,
-so in the failure case, we end up freeing the skb twice here.
-And because the skb is allocated in fclone and cloned by caller
-tipc_msg_reassemble(), the consequence is actually freeing the
-original skb too, thus triggered the UAF by syzbot.
+At first when sendpage gets called, if there is more data, 'more' in
+tls_push_data() gets set which later sets pending_open_record_frags, but
+when there is no more data in file left, and last time tls_push_data()
+gets called, pending_open_record_frags doesn't get reset. And later when
+2 bytes of encrypted alert comes as sendmsg, it first checks for
+pending_open_record_frags, and since this is set, it creates a record with
+0 data bytes to encrypt, meaning record length is prepend_size + tag_size
+only, which causes problem.
+ We should set/reset pending_open_record_frags based on more bit.
 
-Fix this by replacing this skb_unshare() with skb_cloned()+skb_copy().
-
-Fixes: ff48b6222e65 ("tipc: use skb_unshare() instead in tipc_buf_append()")
-Reported-and-tested-by: syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/msg.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tls/tls_device.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -140,7 +140,8 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		frag = skb_unshare(frag, GFP_ATOMIC);
-+		if (skb_cloned(frag))
-+			frag = skb_copy(frag, GFP_ATOMIC);
- 		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -351,13 +351,13 @@ static int tls_push_data(struct sock *sk
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_offload_context_tx *ctx = tls_offload_ctx_tx(tls_ctx);
+ 	int tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
+-	int more = flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE);
+ 	struct tls_record_info *record = ctx->open_record;
+ 	struct page_frag *pfrag;
+ 	size_t orig_size = size;
+ 	u32 max_open_record_len;
+-	int copy, rc = 0;
++	bool more = false;
+ 	bool done = false;
++	int copy, rc = 0;
+ 	long timeo;
+ 
+ 	if (flags &
+@@ -422,9 +422,8 @@ handle_error:
+ 		if (!size) {
+ last_record:
+ 			tls_push_record_flags = flags;
+-			if (more) {
+-				tls_ctx->pending_open_record_frags =
+-						record->num_frags;
++			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
++				more = true;
+ 				break;
+ 			}
+ 
+@@ -445,6 +444,8 @@ last_record:
+ 		}
+ 	} while (!done);
+ 
++	tls_ctx->pending_open_record_frags = more;
++
+ 	if (orig_size - size > 0)
+ 		rc = orig_size - size;
+ 
 
 
