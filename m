@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7829D29B4F0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6607029B488
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793599AbgJ0PHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37776 "EHLO mail.kernel.org"
+        id S1789999AbgJ0PD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:03:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789883AbgJ0PDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:03:21 -0400
+        id S1754053AbgJ0PDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:03:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 225692225E;
-        Tue, 27 Oct 2020 15:03:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01C962071A;
+        Tue, 27 Oct 2020 15:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811000;
-        bh=8pHZC0dlnngOg1NRaN5KXQrJdtIA+PUtW76u4J7dN50=;
+        s=default; t=1603811003;
+        bh=SS8yA/AMq4P5nDSdwrhci907TBVO1ZY4lZd06q5fy6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKVGjik0wAWxkuoEU/eVacMP4tID+/Eb7eyMMfuC+ajblLaNnrT9JEo9YRSiP2xtq
-         qF2t0n23f/Xx7yOYDee8BZAKvkPdYsJrXUfC+oLvGp/Harq+qXuTT3Wt6OQ602XsyT
-         jHSnF4+28kJOylrQQnc2P0EU0Z5g3eEuS1ohkoq0=
+        b=aZ21hE8+y/5SAgYlycB9F4SHb0GA/meOa1YLms6sAq2VYkblkdw3nrEqwsP1JTIgl
+         7xpG5BiYK5RQCOYxEU5TjVdt6jKUQvORAlGS+89zli5LwZ9/Hy7eAEvzxNDW6Q6/Xs
+         cnw5R7fno9f0zdKS0AXU6/3CNk3Xu2nEf88g5VXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        stable@vger.kernel.org,
+        Alexei Budankov <alexey.budankov@linux.intel.com>,
         Namhyung Kim <namhyung@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 338/633] perf tools: Make GTK2 support opt-in
-Date:   Tue, 27 Oct 2020 14:51:21 +0100
-Message-Id: <20201027135538.541555082@linuxfoundation.org>
+Subject: [PATCH 5.8 339/633] tools feature: Add missing -lzstd to the fast path feature detection
+Date:   Tue, 27 Oct 2020 14:51:22 +0100
+Message-Id: <20201027135538.590056467@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,165 +49,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 4751bddd3f983af2004ec470ca38b42d7a8a53bc ]
+[ Upstream commit 6c014694b1d2702cdc736d17b60746e7b95ba664 ]
 
-This is bitrotting, nobody is stepping up to work on it, and since we
-treat warnings as errors, feature detection is failing in its main,
-faster test (tools/build/feature/test-all.c) because of the GTK+2
-infobar check.
+We were failing that due to GTK2+ and then for the ZSTD test, which made
+test-all.c, the fast path feature detection file to fail and thus
+trigger building all of the feature tests, slowing down the test.
 
-So make this opt-in, at some point ditch this if nobody volunteers to
-take care of this.
+Eventually the ZSTD test would be built and would succeed, since it had
+the needed -lzstd, avoiding:
 
+  $ cat /tmp/build/perf/feature/test-all.make.output
+  /usr/bin/ld: /tmp/ccRRJQ4u.o: in function `main_test_libzstd':
+  /home/acme/git/perf/tools/build/feature/test-libzstd.c:8: undefined reference to `ZSTD_createCStream'
+  /usr/bin/ld: /home/acme/git/perf/tools/build/feature/test-libzstd.c:9: undefined reference to `ZSTD_freeCStream'
+  collect2: error: ld returned 1 exit status
+  $
+
+Fix it by adding -lzstd to the test-all target.
+
+Now I need an entry to 'perf test' to make sure that
+/tmp/build/perf/feature/test-all.make.output is empty...
+
+Fixes: 3b1c5d9659718263 ("tools build: Implement libzstd feature check, LIBZSTD_DIR and NO_LIBZSTD defines")
+Reviewed-by: Alexei Budankov <alexey.budankov@linux.intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
 Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Ian Rogers <irogers@google.com>
 Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/20200904202611.GJ3753976@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Makefile.feature   |  5 ++---
- tools/build/feature/Makefile   |  2 +-
- tools/build/feature/test-all.c | 10 ----------
- tools/perf/Makefile.config     |  4 +++-
- tools/perf/Makefile.perf       |  6 +++---
- tools/perf/builtin-version.c   |  1 -
- 6 files changed, 9 insertions(+), 19 deletions(-)
+ tools/build/feature/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
-index e7818b44b48ee..6e5c907680b1a 100644
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -38,8 +38,6 @@ FEATURE_TESTS_BASIC :=                  \
-         get_current_dir_name            \
-         gettid				\
-         glibc                           \
--        gtk2                            \
--        gtk2-infobar                    \
-         libbfd                          \
-         libcap                          \
-         libelf                          \
-@@ -81,6 +79,8 @@ FEATURE_TESTS_EXTRA :=                  \
-          compile-32                     \
-          compile-x32                    \
-          cplus-demangle                 \
-+         gtk2                           \
-+         gtk2-infobar                   \
-          hello                          \
-          libbabeltrace                  \
-          libbfd-liberty                 \
-@@ -110,7 +110,6 @@ FEATURE_DISPLAY ?=              \
-          dwarf                  \
-          dwarf_getlocations     \
-          glibc                  \
--         gtk2                   \
-          libbfd                 \
-          libcap                 \
-          libelf                 \
 diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
-index 93b590d81209c..1796a09365f5d 100644
+index 1796a09365f5d..85d341e25eaec 100644
 --- a/tools/build/feature/Makefile
 +++ b/tools/build/feature/Makefile
 @@ -89,7 +89,7 @@ __BUILDXX = $(CXX) $(CXXFLAGS) -MD -Wall -Werror -o $@ $(patsubst %.bin,%.cpp,$(
  ###############################
  
  $(OUTPUT)test-all.bin:
--	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -I/usr/include/slang -lslang $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null) $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma
-+	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -I/usr/include/slang -lslang $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma
+-	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -I/usr/include/slang -lslang $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma
++	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -I/usr/include/slang -lslang $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma -lzstd
  
  $(OUTPUT)test-hello.bin:
  	$(BUILD)
-diff --git a/tools/build/feature/test-all.c b/tools/build/feature/test-all.c
-index 5479e543b1947..d2623992ccd61 100644
---- a/tools/build/feature/test-all.c
-+++ b/tools/build/feature/test-all.c
-@@ -78,14 +78,6 @@
- # include "test-libslang.c"
- #undef main
- 
--#define main main_test_gtk2
--# include "test-gtk2.c"
--#undef main
--
--#define main main_test_gtk2_infobar
--# include "test-gtk2-infobar.c"
--#undef main
--
- #define main main_test_libbfd
- # include "test-libbfd.c"
- #undef main
-@@ -205,8 +197,6 @@ int main(int argc, char *argv[])
- 	main_test_libelf_getshdrstrndx();
- 	main_test_libunwind();
- 	main_test_libslang();
--	main_test_gtk2(argc, argv);
--	main_test_gtk2_infobar(argc, argv);
- 	main_test_libbfd();
- 	main_test_backtrace();
- 	main_test_libnuma();
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 513633809c81e..ab6dbd8ef6cf6 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -716,12 +716,14 @@ ifndef NO_SLANG
-   endif
- endif
- 
--ifndef NO_GTK2
-+ifdef GTK2
-   FLAGS_GTK2=$(CFLAGS) $(LDFLAGS) $(EXTLIBS) $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null)
-+  $(call feature_check,gtk2)
-   ifneq ($(feature-gtk2), 1)
-     msg := $(warning GTK2 not found, disables GTK2 support. Please install gtk2-devel or libgtk2.0-dev);
-     NO_GTK2 := 1
-   else
-+    $(call feature_check,gtk2-infobar)
-     ifeq ($(feature-gtk2-infobar), 1)
-       GTK_CFLAGS := -DHAVE_GTK_INFO_BAR_SUPPORT
-     endif
-diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index 86dbb51bb2723..bc45b1a61d3a3 100644
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -48,7 +48,7 @@ include ../scripts/utilities.mak
- #
- # Define NO_SLANG if you do not want TUI support.
- #
--# Define NO_GTK2 if you do not want GTK+ GUI support.
-+# Define GTK2 if you want GTK+ GUI support.
- #
- # Define NO_DEMANGLE if you do not want C++ symbol demangling.
- #
-@@ -384,7 +384,7 @@ ifneq ($(OUTPUT),)
-   CFLAGS += -I$(OUTPUT)
- endif
- 
--ifndef NO_GTK2
-+ifdef GTK2
-   ALL_PROGRAMS += $(OUTPUT)libperf-gtk.so
-   GTK_IN := $(OUTPUT)gtk-in.o
- endif
-@@ -876,7 +876,7 @@ check: $(OUTPUT)common-cmds.h
- 
- ### Installation rules
- 
--ifndef NO_GTK2
-+ifdef GTK2
- install-gtk: $(OUTPUT)libperf-gtk.so
- 	$(call QUIET_INSTALL, 'GTK UI') \
- 		$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(libdir_SQ)'; \
-diff --git a/tools/perf/builtin-version.c b/tools/perf/builtin-version.c
-index 05cf2af9e2c27..d09ec2f030719 100644
---- a/tools/perf/builtin-version.c
-+++ b/tools/perf/builtin-version.c
-@@ -60,7 +60,6 @@ static void library_status(void)
- 	STATUS(HAVE_DWARF_SUPPORT, dwarf);
- 	STATUS(HAVE_DWARF_GETLOCATIONS_SUPPORT, dwarf_getlocations);
- 	STATUS(HAVE_GLIBC_SUPPORT, glibc);
--	STATUS(HAVE_GTK2_SUPPORT, gtk2);
- #ifndef HAVE_SYSCALL_TABLE_SUPPORT
- 	STATUS(HAVE_LIBAUDIT_SUPPORT, libaudit);
- #endif
 -- 
 2.25.1
 
