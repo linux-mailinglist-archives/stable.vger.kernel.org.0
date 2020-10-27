@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9ADB29BA1F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3B629B7C6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368903AbgJ0P4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52074 "EHLO mail.kernel.org"
+        id S1794534AbgJ0PQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802645AbgJ0Pul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:41 -0400
+        id S1795931AbgJ0PP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 419F92065C;
-        Tue, 27 Oct 2020 15:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A48C52224A;
+        Tue, 27 Oct 2020 15:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813838;
-        bh=My1jZhxrhaIwPxyYadbJWkFqJCp8iFABq5AI9LDc2wU=;
+        s=default; t=1603811727;
+        bh=D2rn82u9XBoGzM/QeR1D+rIp50ldv11A3HZpYHRRCSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cG6e5JTizHwC2EOxuCFd8tiiELRQaylvFGXxdXXTePj8G/IKv0VHMo6b0VPOcQ/GH
-         FKSu715g6tC5B4uAX+hzqt9y8UTvWEPrgyRsCtZFTj30+VhTJix1yUbTSbmXTAVT2W
-         5sjEo9D006ru3dMglm8WdSi+Q6sdwGQqEW/jYPgI=
+        b=xjmp+NcEpkWNRTJ7swwwKwH3YleOVR0Jj4y31jk0NxczcjhI1XH/cDWa12g7/KycX
+         1c7lDGYG+M9TRVaI5/AijBT70l+b1xw78QgWxJrFJY/imGHWjD76Udwb1HV5Ao0aIC
+         wcct5hf2V7iS8QalOJPShhTcSXw/D01goXiWxXZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 688/757] udf: Avoid accessing uninitialized data on failed inode read
-Date:   Tue, 27 Oct 2020 14:55:38 +0100
-Message-Id: <20201027135522.802116802@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 596/633] selftests/bpf: Fix test_sysctl_loop{1, 2} failure due to clang change
+Date:   Tue, 27 Oct 2020 14:55:39 +0100
+Message-Id: <20201027135550.778899631@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +44,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
+[ Upstream commit 7fb5eefd76394cfefb380724a87ca40b47d44405 ]
 
-When we fail to read inode, some data accessed in udf_evict_inode() may
-be uninitialized. Move the accesses to !is_bad_inode() branch.
+Andrii reported that with latest clang, when building selftests, we have
+error likes:
+  error: progs/test_sysctl_loop1.c:23:16: in function sysctl_tcp_mem i32 (%struct.bpf_sysctl*):
+  Looks like the BPF stack limit of 512 bytes is exceeded.
+  Please move large on stack variables into BPF per-cpu array map.
 
-Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+The error is triggered by the following LLVM patch:
+  https://reviews.llvm.org/D87134
+
+For example, the following code is from test_sysctl_loop1.c:
+  static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
+  {
+    volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+    ...
+  }
+Without the above LLVM patch, the compiler did optimization to load the string
+(59 bytes long) with 7 64bit loads, 1 8bit load and 1 16bit load,
+occupying 64 byte stack size.
+
+With the above LLVM patch, the compiler only uses 8bit loads, but subregister is 32bit.
+So stack requirements become 4 * 59 = 236 bytes. Together with other stuff on
+the stack, total stack size exceeds 512 bytes, hence compiler complains and quits.
+
+To fix the issue, removing "volatile" key word or changing "volatile" to
+"const"/"static const" does not work, the string is put in .rodata.str1.1 section,
+which libbpf did not process it and errors out with
+  libbpf: elf: skipping unrecognized data section(6) .rodata.str1.1
+  libbpf: prog 'sysctl_tcp_mem': bad map relo against '.L__const.is_tcp_mem.tcp_mem_name'
+          in section '.rodata.str1.1'
+
+Defining the string const as global variable can fix the issue as it puts the string constant
+in '.rodata' section which is recognized by libbpf. In the future, when libbpf can process
+'.rodata.str*.*' properly, the global definition can be changed back to local definition.
+
+Defining tcp_mem_name as a global, however, triggered a verifier failure.
+   ./test_progs -n 7/21
+  libbpf: load bpf program failed: Permission denied
+  libbpf: -- BEGIN DUMP LOG ---
+  libbpf:
+  invalid stack off=0 size=1
+  verification time 6975 usec
+  stack depth 160+64
+  processed 889 insns (limit 1000000) max_states_per_insn 4 total_states
+  14 peak_states 14 mark_read 10
+
+  libbpf: -- END LOG --
+  libbpf: failed to load program 'sysctl_tcp_mem'
+  libbpf: failed to load object 'test_sysctl_loop2.o'
+  test_bpf_verif_scale:FAIL:114
+  #7/21 test_sysctl_loop2.o:FAIL
+This actually exposed a bpf program bug. In test_sysctl_loop{1,2}, we have code
+like
+  const char tcp_mem_name[] = "<...long string...>";
+  ...
+  char name[64];
+  ...
+  for (i = 0; i < sizeof(tcp_mem_name); ++i)
+      if (name[i] != tcp_mem_name[i])
+          return 0;
+In the above code, if sizeof(tcp_mem_name) > 64, name[i] access may be
+out of bound. The sizeof(tcp_mem_name) is 59 for test_sysctl_loop1.c and
+79 for test_sysctl_loop2.c.
+
+Without promotion-to-global change, old compiler generates code where
+the overflowed stack access is actually filled with valid value, so hiding
+the bpf program bug. With promotion-to-global change, the code is different,
+more specifically, the previous loading constants to stack is gone, and
+"name" occupies stack[-64:0] and overflow access triggers a verifier error.
+To fix the issue, adjust "name" buffer size properly.
+
+Reported-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200909171542.3673449-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ tools/testing/selftests/bpf/progs/test_sysctl_loop1.c | 4 ++--
+ tools/testing/selftests/bpf/progs/test_sysctl_loop2.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index adaba8e8b326e..566118417e562 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -139,21 +139,24 @@ void udf_evict_inode(struct inode *inode)
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int want_delete = 0;
+diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
+index 458b0d69133e4..553a282d816ab 100644
+--- a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
++++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
+@@ -18,11 +18,11 @@
+ #define MAX_ULONG_STR_LEN 7
+ #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
  
--	if (!inode->i_nlink && !is_bad_inode(inode)) {
--		want_delete = 1;
--		udf_setsize(inode, 0);
--		udf_update_inode(inode, IS_SYNC(inode));
-+	if (!is_bad_inode(inode)) {
-+		if (!inode->i_nlink) {
-+			want_delete = 1;
-+			udf_setsize(inode, 0);
-+			udf_update_inode(inode, IS_SYNC(inode));
-+		}
-+		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
-+		    inode->i_size != iinfo->i_lenExtents) {
-+			udf_warn(inode->i_sb,
-+				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
-+				 inode->i_ino, inode->i_mode,
-+				 (unsigned long long)inode->i_size,
-+				 (unsigned long long)iinfo->i_lenExtents);
-+		}
- 	}
- 	truncate_inode_pages_final(&inode->i_data);
- 	invalidate_inode_buffers(inode);
- 	clear_inode(inode);
--	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
--	    inode->i_size != iinfo->i_lenExtents) {
--		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
--			 inode->i_ino, inode->i_mode,
--			 (unsigned long long)inode->i_size,
--			 (unsigned long long)iinfo->i_lenExtents);
--	}
- 	kfree(iinfo->i_ext.i_data);
- 	iinfo->i_ext.i_data = NULL;
- 	udf_clear_extent_cache(inode);
++const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+ static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
+ {
+-	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
+ 	unsigned char i;
+-	char name[64];
++	char name[sizeof(tcp_mem_name)];
+ 	int ret;
+ 
+ 	memset(name, 0, sizeof(name));
+diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
+index b2e6f9b0894d8..2b64bc563a12e 100644
+--- a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
++++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
+@@ -18,11 +18,11 @@
+ #define MAX_ULONG_STR_LEN 7
+ #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
+ 
++const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
+ static __attribute__((noinline)) int is_tcp_mem(struct bpf_sysctl *ctx)
+ {
+-	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
+ 	unsigned char i;
+-	char name[64];
++	char name[sizeof(tcp_mem_name)];
+ 	int ret;
+ 
+ 	memset(name, 0, sizeof(name));
 -- 
 2.25.1
 
