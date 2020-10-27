@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B76229B513
+	by mail.lfdr.de (Postfix) with ESMTP id 99CE729B514
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793728AbgJ0PIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:08:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40114 "EHLO mail.kernel.org"
+        id S1793731AbgJ0PID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1791005AbgJ0PFr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:05:47 -0400
+        id S1791008AbgJ0PFt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:05:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D04E422275;
-        Tue, 27 Oct 2020 15:05:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B23D122283;
+        Tue, 27 Oct 2020 15:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811146;
-        bh=M/kzpbcip4o+7zdV9ri29oK4Vwl6RhReR5vq50WidzE=;
+        s=default; t=1603811149;
+        bh=Zi/6Agu3AptgIO7mIFylc82hjZYgqO06v7ajIwnqxLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hy51uqXg7RgPElXn0SpJ0ytUPIew3wIiJQpwg6eveKCRhJBqgU/uOzDjrHvQnpXqf
-         pXcM0CW5qhHAUttMtRJ3AtR9oZkACVG0piLnr/PJvvVHfGtiCrNzhRdPgClGmk1F2U
-         sRNRy04UtkM68HttOENY+4bt2bE+ZufA4zF8RXsc=
+        b=xALiN2aoyxbRuHlorJiNbiD9Wi/7r32FrACCFVhSSVnz/4vmTB5Y3ecNPoR5N8rmv
+         gKNIQzoXAblRWBwePgHHvN7VBZg7oBQ63b3U78wKZAwTZ2lU4R5vOP0qA/fHY9zgWS
+         IjqRv6ItdBboJmB4nH5EkCcNOAaGOLzPOh5W3Yf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        Chuanhong Guo <gch981213@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 390/633] mtd: rawnand: vf610: disable clk on error handling path in probe
-Date:   Tue, 27 Oct 2020 14:52:13 +0100
-Message-Id: <20201027135540.998186746@linuxfoundation.org>
+Subject: [PATCH 5.8 391/633] mtd: spinand: gigadevice: Only one dummy byte in QUADIO
+Date:   Tue, 27 Oct 2020 14:52:14 +0100
+Message-Id: <20201027135541.045443926@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit cb7dc3178a9862614b1e7567d77f4679f027a074 ]
+[ Upstream commit 6387ad9caf8f09747a8569e5876086b72ee9382c ]
 
-vf610_nfc_probe() does not invoke clk_disable_unprepare() on one error
-handling path. The patch fixes that.
+The datasheet only lists one dummy byte in the 0xEH operation for the
+following chips:
+* GD5F1GQ4xExxG
+* GD5F1GQ4xFxxG
+* GD5F1GQ4UAYIG
+* GD5F4GQ4UAYIG
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 6f0ce4dfc5a3 ("mtd: rawnand: vf610: Avoid a potential NULL pointer dereference")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Fixes: c93c613214ac ("mtd: spinand: add support for GigaDevice GD5FxGQ4xA")
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Tested-by: Chuanhong Guo <gch981213@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200806072634.23528-1-novikov@ispras.ru
+Link: https://lore.kernel.org/linux-mtd/20200820165121.3192-2-hauke@hauke-m.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/vf610_nfc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/spi/gigadevice.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/vf610_nfc.c b/drivers/mtd/nand/raw/vf610_nfc.c
-index 7248c59011836..fcca45e2abe20 100644
---- a/drivers/mtd/nand/raw/vf610_nfc.c
-+++ b/drivers/mtd/nand/raw/vf610_nfc.c
-@@ -852,8 +852,10 @@ static int vf610_nfc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/mtd/nand/spi/gigadevice.c b/drivers/mtd/nand/spi/gigadevice.c
+index d219c970042a2..679d3c43e15aa 100644
+--- a/drivers/mtd/nand/spi/gigadevice.c
++++ b/drivers/mtd/nand/spi/gigadevice.c
+@@ -21,7 +21,7 @@
+ #define GD5FXGQ4UXFXXG_STATUS_ECC_UNCOR_ERROR	(7 << 4)
  
- 	of_id = of_match_device(vf610_nfc_dt_ids, &pdev->dev);
--	if (!of_id)
--		return -ENODEV;
-+	if (!of_id) {
-+		err = -ENODEV;
-+		goto err_disable_clk;
-+	}
+ static SPINAND_OP_VARIANTS(read_cache_variants,
+-		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 2, NULL, 0),
++		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_X4_OP(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OP(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_X2_OP(0, 1, NULL, 0),
+@@ -29,7 +29,7 @@ static SPINAND_OP_VARIANTS(read_cache_variants,
+ 		SPINAND_PAGE_READ_FROM_CACHE_OP(false, 0, 1, NULL, 0));
  
- 	nfc->variant = (enum vf610_nfc_variant)of_id->data;
- 
+ static SPINAND_OP_VARIANTS(read_cache_variants_f,
+-		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 2, NULL, 0),
++		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_X4_OP_3A(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OP(0, 1, NULL, 0),
+ 		SPINAND_PAGE_READ_FROM_CACHE_X2_OP_3A(0, 1, NULL, 0),
 -- 
 2.25.1
 
