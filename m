@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFA4D29C5D6
+	by mail.lfdr.de (Postfix) with ESMTP id 4262B29C5D5
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756604AbgJ0OOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1756606AbgJ0OOb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 10:14:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36054 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756601AbgJ0OO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:28 -0400
+        id S2508012AbgJ0OOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132562076A;
-        Tue, 27 Oct 2020 14:14:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6D34206F7;
+        Tue, 27 Oct 2020 14:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808067;
-        bh=ESmYsFwdjMvGzq6UJYwPaDKEGd2RRZovAo1COkQR6ZA=;
+        s=default; t=1603808070;
+        bh=SSRlL4f84kMrgd9oCMsZLq8cF/Dwc/cJu7lwmU1Wjew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aK0+tm7pf0jhMBkSe/JrKooaVpYKS/u4owzpVx36OAL3dehP49I2Tw8b24PcU8f6P
-         7LO4GQdWkvh0JYaQ3Eq/FslKLmiQoCwVsQPKd9Jy2l7KmF61T8uJaiR9kVAecp8KI+
-         nr1qV6EVhE0vKqChmjG1E/AuPhY2Qn4Q+9yVLiS0=
+        b=TxujCxk6srnMq57ULEcEUKi+KMik6vydLT4a9MEd5dFTOheagqO5SnRVpt77PEITq
+         V3vzZsjp8GifxePS/QbZoD64vf5w7rq6FKBC/Vyt+0NmoFbSCjsmsaQ10IsAN8/LXh
+         l2nrG35NIYWQE653QuSpvM3GpNR9iI9oPkQauExE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 145/191] media: platform: s3c-camif: Fix runtime PM imbalance on error
-Date:   Tue, 27 Oct 2020 14:50:00 +0100
-Message-Id: <20201027134916.679483561@linuxfoundation.org>
+Subject: [PATCH 4.14 146/191] media: platform: sti: hva: Fix runtime PM imbalance on error
+Date:   Tue, 27 Oct 2020 14:50:01 +0100
+Message-Id: <20201027134916.730436007@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -47,49 +46,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit dafa3605fe60d5a61239d670919b2a36e712481e ]
+[ Upstream commit d912a1d9e9afe69c6066c1ceb6bfc09063074075 ]
 
 pm_runtime_get_sync() increments the runtime PM usage counter even
 when it returns an error code. Thus a pairing decrement is needed on
 the error handling path to keep the counter balanced.
 
-Also, call pm_runtime_disable() when pm_runtime_get_sync() returns
-an error code.
-
 Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Sylwester Nawrocki <snawrocki@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s3c-camif/camif-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/platform/sti/hva/hva-hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s3c-camif/camif-core.c b/drivers/media/platform/s3c-camif/camif-core.c
-index c4ab63986c8f0..95b11f69555c3 100644
---- a/drivers/media/platform/s3c-camif/camif-core.c
-+++ b/drivers/media/platform/s3c-camif/camif-core.c
-@@ -475,7 +475,7 @@ static int s3c_camif_probe(struct platform_device *pdev)
- 
- 	ret = camif_media_dev_init(camif);
- 	if (ret < 0)
--		goto err_alloc;
+diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
+index 8dce2ccc551cb..1185f6b6721e9 100644
+--- a/drivers/media/platform/sti/hva/hva-hw.c
++++ b/drivers/media/platform/sti/hva/hva-hw.c
+@@ -393,7 +393,7 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
+-		goto err_clk;
 +		goto err_pm;
+ 	}
  
- 	ret = camif_register_sensor(camif);
- 	if (ret < 0)
-@@ -509,10 +509,9 @@ static int s3c_camif_probe(struct platform_device *pdev)
- 	media_device_unregister(&camif->media_dev);
- 	media_device_cleanup(&camif->media_dev);
- 	camif_unregister_media_entities(camif);
--err_alloc:
-+err_pm:
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
--err_pm:
- 	camif_clk_put(camif);
- err_clk:
- 	s3c_camif_unregister_subdev(camif);
+ 	/* check IP hardware version */
 -- 
 2.25.1
 
