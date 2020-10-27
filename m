@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E60929AFF9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:15:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D633429AFB0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1755732AbgJ0OPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36712 "EHLO mail.kernel.org"
+        id S1756247AbgJ0OML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754586AbgJ0OO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:58 -0400
+        id S1754756AbgJ0OGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:06:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA792076A;
-        Tue, 27 Oct 2020 14:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE12122264;
+        Tue, 27 Oct 2020 14:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808097;
-        bh=CjoBqnIUwU8OsjDiYAN4C8ltkaGbcwBB0IHARfU1d0I=;
+        s=default; t=1603807615;
+        bh=IfUmhhVWphszek19zEuuEJjDNCcOBUiwSfp4HynMrkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKBaq2LVx+pdMAo8yP6StsjtuEYTi5fxbPdM9lK9mtowN8vzx/aZif8TH7Oj7No+l
-         htlHc8ymZ2bzxuyUyNHWnAJxXvPuUX+n3QDfEhQWoO6erP1SsKotbQ66NvbbREGiyi
-         scHz1vuk9RTeOwq538j0VgKhK8jKAJ/26IG70Dt8=
+        b=BT2OkffW1OY9LVFNzCASP2Yo8TVrwmZsaJEouVo/ciWb+rhvSCWhaZQodG96lAhHW
+         OB3JKh9vtdvkMPVl4uO2b5YuvF/LaPvDAjKKCBvGhpxf74ErywGpemERKizL0Nw5+t
+         qeJQRARJ5kUGT0tODstmLz8pZStfkt6kfDXtyfcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 155/191] mac80211: handle lack of sband->bitrates in rates
-Date:   Tue, 27 Oct 2020 14:50:10 +0100
-Message-Id: <20201027134917.164877462@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 117/139] udf: Avoid accessing uninitialized data on failed inode read
+Date:   Tue, 27 Oct 2020 14:50:11 +0100
+Message-Id: <20201027134907.697375990@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
+[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
 
-Even though a driver or mac80211 shouldn't produce a
-legacy bitrate if sband->bitrates doesn't exist, don't
-crash if that is the case either.
+When we fail to read inode, some data accessed in udf_evict_inode() may
+be uninitialized. Move the accesses to !is_bad_inode() branch.
 
-This fixes a kernel panic if station dump is run before
-last_rate can be updated with a data frame when
-sband->bitrates is missing (eg. in S1G bands).
-
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c      | 3 ++-
- net/mac80211/sta_info.c | 4 ++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ fs/udf/inode.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index c883cb67b7311..0b82d8da4ab0a 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -661,7 +661,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
- 		u16 brate;
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 9e66d85021fcb..149baf5f3d195 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -140,21 +140,24 @@ void udf_evict_inode(struct inode *inode)
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	int want_delete = 0;
  
- 		sband = ieee80211_get_sband(sta->sdata);
--		if (sband) {
-+		WARN_ON_ONCE(sband && !sband->bitrates);
-+		if (sband && sband->bitrates) {
- 			brate = sband->bitrates[rate->idx].bitrate;
- 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
- 		}
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 6af5fda6461ce..2a18687019003 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -2004,6 +2004,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u16 rate,
- 
- 		rinfo->flags = 0;
- 		sband = local->hw.wiphy->bands[band];
-+
-+		if (WARN_ON_ONCE(!sband->bitrates))
-+			break;
-+
- 		brate = sband->bitrates[rate_idx].bitrate;
- 		if (rinfo->bw == RATE_INFO_BW_5)
- 			shift = 2;
+-	if (!inode->i_nlink && !is_bad_inode(inode)) {
+-		want_delete = 1;
+-		udf_setsize(inode, 0);
+-		udf_update_inode(inode, IS_SYNC(inode));
++	if (!is_bad_inode(inode)) {
++		if (!inode->i_nlink) {
++			want_delete = 1;
++			udf_setsize(inode, 0);
++			udf_update_inode(inode, IS_SYNC(inode));
++		}
++		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
++		    inode->i_size != iinfo->i_lenExtents) {
++			udf_warn(inode->i_sb,
++				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
++				 inode->i_ino, inode->i_mode,
++				 (unsigned long long)inode->i_size,
++				 (unsigned long long)iinfo->i_lenExtents);
++		}
+ 	}
+ 	truncate_inode_pages_final(&inode->i_data);
+ 	invalidate_inode_buffers(inode);
+ 	clear_inode(inode);
+-	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
+-	    inode->i_size != iinfo->i_lenExtents) {
+-		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
+-			 inode->i_ino, inode->i_mode,
+-			 (unsigned long long)inode->i_size,
+-			 (unsigned long long)iinfo->i_lenExtents);
+-	}
+ 	kfree(iinfo->i_ext.i_data);
+ 	iinfo->i_ext.i_data = NULL;
+ 	udf_clear_extent_cache(inode);
 -- 
 2.25.1
 
