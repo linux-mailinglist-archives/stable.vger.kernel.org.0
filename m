@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA38329C476
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A8F29C450
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1823033AbgJ0R4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S2901161AbgJ0OUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:20:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2509304AbgJ0OUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:20:36 -0400
+        id S2900977AbgJ0OUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:20:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199F4207BB;
-        Tue, 27 Oct 2020 14:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4D83206D4;
+        Tue, 27 Oct 2020 14:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808435;
-        bh=Lg9nesCkwTM+6Mga/RtjvgH/UBzxlL+hzniaY8+jo4w=;
+        s=default; t=1603808443;
+        bh=UEQFaJn2+T9NK2UFYfZPGSV0/MW1lon1MlUIPCOfDq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxAnLvnK92Wgra7EKX3BMrqJYoEqGC18pTE4vLy9k1cDhW+KvXQfW9ySgsUWJ2L44
-         fpWZ7FxxAO4vsNDxxvsxtRQf/v5GW/x8Cr74o/vHhRSu0V/fuK2xcGVhU4tHHjtikJ
-         DZyf3sSz1TxH/L0GbOs2YaiGYJn0bTUbaGOIYaKE=
+        b=Tg88JVPJ0T2nnV/2hxVUFbkve6m/rKYvRwjNqJ2vNvUnphmmgukMB6843foKM4GTm
+         uFrwYpExUMkIbdPvGf1gfqxCCDov8FsmzUW6YaFoONOCBM6PXpWD7HsU6sbo39UJ+n
+         ILBLknoxaEcSf056crzwAC7sxrUxbU+PrLA8eFUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Mathieu Malaterre <malat@debian.org>,
-        Kangjie Lu <kjlu@umn.edu>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org,
+        Thomas Preston <thomas.preston@codethink.co.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/264] video: fbdev: radeon: Fix memleak in radeonfb_pci_register
-Date:   Tue, 27 Oct 2020 14:52:29 +0100
-Message-Id: <20201027135434.974709383@linuxfoundation.org>
+Subject: [PATCH 4.19 094/264] pinctrl: mcp23s08: Fix mcp23x17 precious range
+Date:   Tue, 27 Oct 2020 14:52:32 +0100
+Message-Id: <20201027135435.110401927@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -46,38 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Thomas Preston <thomas.preston@codethink.co.uk>
 
-[ Upstream commit fe6c6a4af2be8c15bac77f7ea160f947c04840d1 ]
+[ Upstream commit b9b7fb29433b906635231d0a111224efa009198c ]
 
-When radeon_kick_out_firmware_fb() fails, info should be
-freed just like the subsequent error paths.
+On page 23 of the datasheet [0] it says "The register remains unchanged
+until the interrupt is cleared via a read of INTCAP or GPIO." Include
+INTCAPA and INTCAPB registers in precious range, so that they aren't
+accidentally cleared when we read via debugfs.
 
-Fixes: 069ee21a82344 ("fbdev: Fix loading of module radeonfb on PowerMac")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Mathieu Malaterre <malat@debian.org>
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200825062900.11210-1-dinghao.liu@zju.edu.cn
+[0] https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf
+
+Fixes: 8f38910ba4f6 ("pinctrl: mcp23s08: switch to regmap caching")
+Signed-off-by: Thomas Preston <thomas.preston@codethink.co.uk>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20200828213226.1734264-3-thomas.preston@codethink.co.uk
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/aty/radeon_base.c | 2 +-
+ drivers/pinctrl/pinctrl-mcp23s08.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/aty/radeon_base.c b/drivers/video/fbdev/aty/radeon_base.c
-index e8594bbaea609..c6109a385cac9 100644
---- a/drivers/video/fbdev/aty/radeon_base.c
-+++ b/drivers/video/fbdev/aty/radeon_base.c
-@@ -2327,7 +2327,7 @@ static int radeonfb_pci_register(struct pci_dev *pdev,
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
+index 5f0cea13bb5ce..5b5a4323ae63d 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -142,7 +142,7 @@ static const struct regmap_access_table mcp23x17_volatile_table = {
+ };
  
- 	ret = radeon_kick_out_firmware_fb(pdev);
- 	if (ret)
--		return ret;
-+		goto err_release_fb;
+ static const struct regmap_range mcp23x17_precious_range = {
+-	.range_min = MCP_GPIO << 1,
++	.range_min = MCP_INTCAP << 1,
+ 	.range_max = MCP_GPIO << 1,
+ };
  
- 	/* request the mem regions */
- 	ret = pci_request_region(pdev, 0, "radeonfb framebuffer");
 -- 
 2.25.1
 
