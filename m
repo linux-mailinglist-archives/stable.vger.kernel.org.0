@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C82729BB2C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE8529BA43
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1789322AbgJ0P6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:58:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55290 "EHLO mail.kernel.org"
+        id S368945AbgJ0P7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:59:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803886AbgJ0Pxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:53:33 -0400
+        id S1803944AbgJ0Pxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:53:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 823202225C;
-        Tue, 27 Oct 2020 15:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7955120657;
+        Tue, 27 Oct 2020 15:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603814012;
-        bh=D2rn82u9XBoGzM/QeR1D+rIp50ldv11A3HZpYHRRCSg=;
+        s=default; t=1603814015;
+        bh=3gTmu7De9jNcmJSQWiTbk0jKH4hNgGwvznF8vXujAlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3k9Nn0oE3Ox17NC45Q6cNpw1pMLK3/tviQQD5+Rc8TBvTrH8DgbqQULu7R8JRpfY
-         Sx8chJL2ZyHVQyNd6O+5ZnOFqBgJSUXJENERhpCj/idy+5YuSQlVJxyexCk1CrLZJM
-         6Reri56MlkqDuEPJNVN91UNif3PmOEaACG2MLZbg=
+        b=2LXGiYZ4AOYrx8Q6Ud9w+55k7+CTjmrL/FNbxk4bJMTajeLjm6XMPjmAaVFFo9vVE
+         HrkNgNlHk3lnOE2V6peZkCyN68krV7WSTpWXdQvH3rTrJg1NGwL2o0wXVaNUqfWYJ8
+         tTGCs8uQiO1m6M9upnT4hiy+eE3NRE7LSQXw32VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 715/757] selftests/bpf: Fix test_sysctl_loop{1, 2} failure due to clang change
-Date:   Tue, 27 Oct 2020 14:56:05 +0100
-Message-Id: <20201027135524.040107522@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Rander Wang <rander.wang@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 716/757] soundwire: cadence: fix race condition between suspend and Slave device alerts
+Date:   Tue, 27 Oct 2020 14:56:06 +0100
+Message-Id: <20201027135524.086632107@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,127 +47,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 7fb5eefd76394cfefb380724a87ca40b47d44405 ]
+[ Upstream commit d2068da5c85697b5880483dd7beaba98e0b62e02 ]
 
-Andrii reported that with latest clang, when building selftests, we have
-error likes:
-  error: progs/test_sysctl_loop1.c:23:16: in function sysctl_tcp_mem i32 (%struct.bpf_sysctl*):
-  Looks like the BPF stack limit of 512 bytes is exceeded.
-  Please move large on stack variables into BPF per-cpu array map.
+In system suspend stress cases, the SOF CI reports timeouts. The root
+cause is that an alert is generated while the system suspends. The
+interrupt handling generates transactions on the bus that will never
+be handled because the interrupts are disabled in parallel.
 
-The error is triggered by the following LLVM patch:
-  https://reviews.llvm.org/D87134
+As a result, the transaction never completes and times out on resume.
+This error doesn't seem too problematic since it happens in a work
+queue, and the system recovers without issues.
 
-For example, the following code is from test_sysctl_loop1.c:
-  static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
-  {
-    volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
-    ...
-  }
-Without the above LLVM patch, the compiler did optimization to load the string
-(59 bytes long) with 7 64bit loads, 1 8bit load and 1 16bit load,
-occupying 64 byte stack size.
+Nevertheless, this race condition should not happen. When doing a
+system suspend, or when disabling interrupts, we should make sure the
+current transaction can complete, and prevent new work from being
+queued.
 
-With the above LLVM patch, the compiler only uses 8bit loads, but subregister is 32bit.
-So stack requirements become 4 * 59 = 236 bytes. Together with other stuff on
-the stack, total stack size exceeds 512 bytes, hence compiler complains and quits.
-
-To fix the issue, removing "volatile" key word or changing "volatile" to
-"const"/"static const" does not work, the string is put in .rodata.str1.1 section,
-which libbpf did not process it and errors out with
-  libbpf: elf: skipping unrecognized data section(6) .rodata.str1.1
-  libbpf: prog 'sysctl_tcp_mem': bad map relo against '.L__const.is_tcp_mem.tcp_mem_name'
-          in section '.rodata.str1.1'
-
-Defining the string const as global variable can fix the issue as it puts the string constant
-in '.rodata' section which is recognized by libbpf. In the future, when libbpf can process
-'.rodata.str*.*' properly, the global definition can be changed back to local definition.
-
-Defining tcp_mem_name as a global, however, triggered a verifier failure.
-   ./test_progs -n 7/21
-  libbpf: load bpf program failed: Permission denied
-  libbpf: -- BEGIN DUMP LOG ---
-  libbpf:
-  invalid stack off=0 size=1
-  verification time 6975 usec
-  stack depth 160+64
-  processed 889 insns (limit 1000000) max_states_per_insn 4 total_states
-  14 peak_states 14 mark_read 10
-
-  libbpf: -- END LOG --
-  libbpf: failed to load program 'sysctl_tcp_mem'
-  libbpf: failed to load object 'test_sysctl_loop2.o'
-  test_bpf_verif_scale:FAIL:114
-  #7/21 test_sysctl_loop2.o:FAIL
-This actually exposed a bpf program bug. In test_sysctl_loop{1,2}, we have code
-like
-  const char tcp_mem_name[] = "<...long string...>";
-  ...
-  char name[64];
-  ...
-  for (i = 0; i < sizeof(tcp_mem_name); ++i)
-      if (name[i] != tcp_mem_name[i])
-          return 0;
-In the above code, if sizeof(tcp_mem_name) > 64, name[i] access may be
-out of bound. The sizeof(tcp_mem_name) is 59 for test_sysctl_loop1.c and
-79 for test_sysctl_loop2.c.
-
-Without promotion-to-global change, old compiler generates code where
-the overflowed stack access is actually filled with valid value, so hiding
-the bpf program bug. With promotion-to-global change, the code is different,
-more specifically, the previous loading constants to stack is gone, and
-"name" occupies stack[-64:0] and overflow access triggers a verifier error.
-To fix the issue, adjust "name" buffer size properly.
-
-Reported-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200909171542.3673449-1-yhs@fb.com
+BugLink: https://github.com/thesofproject/linux/issues/2344
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Acked-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20200817222340.18042-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/test_sysctl_loop1.c | 4 ++--
- tools/testing/selftests/bpf/progs/test_sysctl_loop2.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/soundwire/cadence_master.c | 24 +++++++++++++++++++++++-
+ drivers/soundwire/cadence_master.h |  1 +
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-index 458b0d69133e4..553a282d816ab 100644
---- a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-+++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-@@ -18,11 +18,11 @@
- #define MAX_ULONG_STR_LEN 7
- #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index 24eafe0aa1c3e..1330ffc475960 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -791,7 +791,16 @@ irqreturn_t sdw_cdns_irq(int irq, void *dev_id)
+ 			     CDNS_MCP_INT_SLAVE_MASK, 0);
  
-+const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
- static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
- {
--	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string";
- 	unsigned char i;
--	char name[64];
-+	char name[sizeof(tcp_mem_name)];
- 	int ret;
+ 		int_status &= ~CDNS_MCP_INT_SLAVE_MASK;
+-		schedule_work(&cdns->work);
++
++		/*
++		 * Deal with possible race condition between interrupt
++		 * handling and disabling interrupts on suspend.
++		 *
++		 * If the master is in the process of disabling
++		 * interrupts, don't schedule a workqueue
++		 */
++		if (cdns->interrupt_enabled)
++			schedule_work(&cdns->work);
+ 	}
  
- 	memset(name, 0, sizeof(name));
-diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
-index b2e6f9b0894d8..2b64bc563a12e 100644
---- a/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
-+++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop2.c
-@@ -18,11 +18,11 @@
- #define MAX_ULONG_STR_LEN 7
- #define MAX_VALUE_STR_LEN (TCP_MEM_LOOPS * MAX_ULONG_STR_LEN)
+ 	cdns_writel(cdns, CDNS_MCP_INTSTAT, int_status);
+@@ -924,6 +933,19 @@ int sdw_cdns_enable_interrupt(struct sdw_cdns *cdns, bool state)
+ 		slave_state = cdns_readl(cdns, CDNS_MCP_SLAVE_INTSTAT1);
+ 		cdns_writel(cdns, CDNS_MCP_SLAVE_INTSTAT1, slave_state);
+ 	}
++	cdns->interrupt_enabled = state;
++
++	/*
++	 * Complete any on-going status updates before updating masks,
++	 * and cancel queued status updates.
++	 *
++	 * There could be a race with a new interrupt thrown before
++	 * the 3 mask updates below are complete, so in the interrupt
++	 * we use the 'interrupt_enabled' status to prevent new work
++	 * from being queued.
++	 */
++	if (!state)
++		cancel_work_sync(&cdns->work);
  
-+const char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
- static __attribute__((noinline)) int is_tcp_mem(struct bpf_sysctl *ctx)
- {
--	volatile char tcp_mem_name[] = "net/ipv4/tcp_mem/very_very_very_very_long_pointless_string_to_stress_byte_loop";
- 	unsigned char i;
--	char name[64];
-+	char name[sizeof(tcp_mem_name)];
- 	int ret;
+ 	cdns_writel(cdns, CDNS_MCP_SLAVE_INTMASK0, slave_intmask0);
+ 	cdns_writel(cdns, CDNS_MCP_SLAVE_INTMASK1, slave_intmask1);
+diff --git a/drivers/soundwire/cadence_master.h b/drivers/soundwire/cadence_master.h
+index 7638858397df9..15b0834030866 100644
+--- a/drivers/soundwire/cadence_master.h
++++ b/drivers/soundwire/cadence_master.h
+@@ -129,6 +129,7 @@ struct sdw_cdns {
  
- 	memset(name, 0, sizeof(name));
+ 	bool link_up;
+ 	unsigned int msg_count;
++	bool interrupt_enabled;
+ 
+ 	struct work_struct work;
+ 
 -- 
 2.25.1
 
