@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B65829C170
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B9429C1A5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369856AbgJ0RZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53848 "EHLO mail.kernel.org"
+        id S1819039AbgJ0R0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441298AbgJ0Ox3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:53:29 -0400
+        id S1752049AbgJ0Oxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:53:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E87262071A;
-        Tue, 27 Oct 2020 14:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2FBA22265;
+        Tue, 27 Oct 2020 14:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810408;
-        bh=J4REINZOHT+mo5UJ7vS/fqY36s16U5xGSnBqpbisXW4=;
+        s=default; t=1603810411;
+        bh=1IGw4xfsi9bFj7FNqePBrV919CCINvk8nB+qwLrJbGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3H0SvFEF6jNz4RrDsTJhpdvNoHArbjkehGL20M22mB5QBAX+87RO6P4pzTZFFsXF
-         8LtOFMOZlFJtzM9OPS1xRyrFx4eevf6AROjqzJugO2DuGoOIGVRmKUIrSLWMopyt/z
-         ASfUm7FS4FtX/mVmN735UAWy0sP6HHJ6HKxHGiUc=
+        b=mFCDoP6U2H/PkPa1M0A1srybAzteculvnU57i39sjltSgPJqIrRcXYS1Vk+4vlX11
+         45bKVvZrmjTS3KuZOGPpkXSK+euhfE4ertCkKrH9X6ZjNjQ3H2x6NHf3UTJgk/0bqa
+         uZryTX7yBuDRkdUV5B5bM4S49sL3F/au6peC0UHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Jay Fang <f.fangjian@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 128/633] spi: dw-pci: free previously allocated IRQs if desc->setup() fails
-Date:   Tue, 27 Oct 2020 14:47:51 +0100
-Message-Id: <20201027135528.697875052@linuxfoundation.org>
+Subject: [PATCH 5.8 129/633] crypto: omap-sham - fix digcnt register handling with export/import
+Date:   Tue, 27 Oct 2020 14:47:52 +0100
+Message-Id: <20201027135528.741226161@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,63 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Fang <f.fangjian@huawei.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 9599f341889c87e56bb944659c32490d05e2532f ]
+[ Upstream commit 3faf757bad75f3fc1b2736f0431e295a073a7423 ]
 
-Free previously allocated IRQs when return an error code of desc->setup()
-which is not always successful. And simplify the code by adding a goto
-label.
+Running export/import for hashes in peculiar order (mostly done by
+openssl) can mess up the internal book keeping of the OMAP SHA core.
+Fix by forcibly writing the correct DIGCNT back to hardware. This issue
+was noticed while transitioning to openssl 1.1 support.
 
-Fixes: 8f5c285f3ef5 ("SPI: designware: pci: Switch over to MSI interrupts")
-CC: Felipe Balbi <felipe.balbi@linux.intel.com>
-Signed-off-by: Jay Fang <f.fangjian@huawei.com>
-Link: https://lore.kernel.org/r/1600132969-53037-1-git-send-email-f.fangjian@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 0d373d603202 ("crypto: omap-sham - Add OMAP4/AM33XX SHAM Support")
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-pci.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/crypto/omap-sham.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-dw-pci.c b/drivers/spi/spi-dw-pci.c
-index 2ea73809ca345..271839a8add0e 100644
---- a/drivers/spi/spi-dw-pci.c
-+++ b/drivers/spi/spi-dw-pci.c
-@@ -127,18 +127,16 @@ static int spi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		if (desc->setup) {
- 			ret = desc->setup(dws);
- 			if (ret)
--				return ret;
-+				goto err_free_irq_vectors;
- 		}
- 	} else {
--		pci_free_irq_vectors(pdev);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_free_irq_vectors;
- 	}
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index 82691a057d2a1..bc956dfb34de6 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -456,6 +456,9 @@ static void omap_sham_write_ctrl_omap4(struct omap_sham_dev *dd, size_t length,
+ 	struct omap_sham_reqctx *ctx = ahash_request_ctx(dd->req);
+ 	u32 val, mask;
  
- 	ret = dw_spi_add_host(&pdev->dev, dws);
--	if (ret) {
--		pci_free_irq_vectors(pdev);
--		return ret;
--	}
-+	if (ret)
-+		goto err_free_irq_vectors;
- 
- 	/* PCI hook and SPI hook use the same drv data */
- 	pci_set_drvdata(pdev, dws);
-@@ -152,6 +150,10 @@ static int spi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	pm_runtime_allow(&pdev->dev);
- 
- 	return 0;
++	if (likely(ctx->digcnt))
++		omap_sham_write(dd, SHA_REG_DIGCNT(dd), ctx->digcnt);
 +
-+err_free_irq_vectors:
-+	pci_free_irq_vectors(pdev);
-+	return ret;
- }
- 
- static void spi_pci_remove(struct pci_dev *pdev)
+ 	/*
+ 	 * Setting ALGO_CONST only for the first iteration and
+ 	 * CLOSE_HASH only for the last one. Note that flags mode bits
 -- 
 2.25.1
 
