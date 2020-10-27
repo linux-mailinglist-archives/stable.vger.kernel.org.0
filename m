@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7614529B900
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 749D129B8EF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802145AbgJ0Ppp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
+        id S1802101AbgJ0Pph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799204AbgJ0PaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:30:14 -0400
+        id S1760829AbgJ0Pa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:30:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EF8B2225E;
-        Tue, 27 Oct 2020 15:30:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CBF320728;
+        Tue, 27 Oct 2020 15:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812613;
-        bh=u6tmtFzoQhNJoYX9gYV+e9lb3rVX2mHMPLxiTP6Gkv8=;
+        s=default; t=1603812625;
+        bh=YxubElHCnHLxaw+s0cJTn88MBLKvWvKGAU+fkaTe9Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Mm6fdysWm2MMqM9xW75T5pLW1756Ls05fSkHzVsT+hmA8yeYsCgeenKuL8zEc0KP
-         SdhHvRFO36RyPopmclYYTDaWaISSXy+8pX3V/C7dyWxaWBFb2lyE+HihEA7ADhiZrx
-         MIFHUjs92w5gFOXWe7xD3fr9KC2rATGCpeooenmk=
+        b=E+rxdfyaztwnq9zlIWeVQ/D0LC6RU/+ls1NF7x0QPARYtP7sd4dWq2MuozG2odAgj
+         BqdZ1qA5PqoU7qF5ZA9H0vfw9H6cYWVKPE/T6BHmdlqDfBvZL4DIL1v0cFq6De+FAa
+         psuIsUOvLxrIGWirO1vff2cpQ1aejoKtvMwzHyCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 243/757] scsi: ufs: ufs-mediatek: Eliminate error message for unbound mphy
-Date:   Tue, 27 Oct 2020 14:48:13 +0100
-Message-Id: <20201027135501.990327635@linuxfoundation.org>
+Subject: [PATCH 5.9 244/757] scsi: ufs: ufs-mediatek: Fix HOST_PA_TACTIVATE quirk
+Date:   Tue, 27 Oct 2020 14:48:14 +0100
+Message-Id: <20201027135502.032457448@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,36 +45,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 30a90782c105fe498df74161392aa143796b6886 ]
+[ Upstream commit a3e40b80dc951057033dce86f0e675b2b822b513 ]
 
-Some MediaTek platforms does not have to bind MPHY so users shall not see
-any unnecessary logs. Simply remove logs for this case.
+Simply add HOST_PA_TACTIVATE quirk back since it was incorrectly removed
+before.
 
-Link: https://lore.kernel.org/r/20200908064507.30774-2-stanley.chu@mediatek.com
-Fixes: fc4983018fea ("scsi: ufs-mediatek: Allow unbound mphy")
+Link: https://lore.kernel.org/r/20200908064507.30774-3-stanley.chu@mediatek.com
+Fixes: 47d054580a75 ("scsi: ufs-mediatek: fix HOST_PA_TACTIVATE quirk for Samsung UFS Devices")
 Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufs-mediatek.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
 diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 1755dd6b04aec..0a50b95315f8f 100644
+index 0a50b95315f8f..6b661135c03b5 100644
 --- a/drivers/scsi/ufs/ufs-mediatek.c
 +++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -129,7 +129,10 @@ static int ufs_mtk_bind_mphy(struct ufs_hba *hba)
- 			__func__, err);
- 	} else if (IS_ERR(host->mphy)) {
- 		err = PTR_ERR(host->mphy);
--		dev_info(dev, "%s: PHY get failed %d\n", __func__, err);
-+		if (err != -ENODEV) {
-+			dev_info(dev, "%s: PHY get failed %d\n", __func__,
-+				 err);
-+		}
- 	}
+@@ -672,13 +672,7 @@ static int ufs_mtk_apply_dev_quirks(struct ufs_hba *hba)
  
- 	if (err)
+ static void ufs_mtk_fixup_dev_quirks(struct ufs_hba *hba)
+ {
+-	struct ufs_dev_info *dev_info = &hba->dev_info;
+-	u16 mid = dev_info->wmanufacturerid;
+-
+ 	ufshcd_fixup_dev_quirks(hba, ufs_mtk_dev_fixups);
+-
+-	if (mid == UFS_VENDOR_SAMSUNG)
+-		hba->dev_quirks &= ~UFS_DEVICE_QUIRK_HOST_PA_TACTIVATE;
+ }
+ 
+ /**
 -- 
 2.25.1
 
