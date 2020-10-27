@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4975729B085
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2351729B089
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2508484AbgJ0OU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
+        id S2895270AbgJ0OUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757688AbgJ0OTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:19:54 -0400
+        id S1758616AbgJ0OUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:20:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C303C206D4;
-        Tue, 27 Oct 2020 14:19:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA83F206F7;
+        Tue, 27 Oct 2020 14:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808393;
-        bh=lBkSbt/5r2Hk71TiUK3/rd4T0f4CaLTH6Zoq8zJyLps=;
+        s=default; t=1603808419;
+        bh=0v8Fu24+QRyx7jkDgm6T86sfyGxEGNkJoZOL5b0BRDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLVk7T3K2/LOprmNEHeZeJWAPzK8z7omZlNdY9tH+Kt+YLG2tFF9E5UrGE6i7Mskz
-         fo41h8k1etrs9kOEbURkjIzrbIuGm0u+8iFdwbXN/QxCwWAV3MYO1d9/qKKfZRBm0I
-         RnKjkkdp9kH0xyItniAx1o+an2RSZxDXgFNLnbX0=
+        b=UUuHR1Yd4I4zItT15tL3EW79pAAQuQvp2L+VI+wE4TD4ZLYpoXqQlVdQU2mqO085j
+         4he7wTVoyXPTcDLKSmKlDNYbCRMOY/ba5hkqXrsBY5Rr6jpgYD2GyEI2o8vatz7WBw
+         g8aiS5na8u4IxtEJuhP5rpzjZMWUqOByGtLrimpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit kumar <rohitkr@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/264] ASoC: qcom: lpass-cpu: fix concurrency issue
-Date:   Tue, 27 Oct 2020 14:52:11 +0100
-Message-Id: <20201027135434.129164279@linuxfoundation.org>
+Subject: [PATCH 4.19 077/264] drm/gma500: fix error check
+Date:   Tue, 27 Oct 2020 14:52:15 +0100
+Message-Id: <20201027135434.326130502@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,60 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit kumar <rohitkr@codeaurora.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 753a6e17942f6f425ca622e1610625998312ad89 ]
+[ Upstream commit cdd296cdae1af2d27dae3fcfbdf12c5252ab78cf ]
 
-i2sctl register value is set to 0 during hw_free(). This
-impacts any ongoing concurrent session on the same i2s
-port. As trigger() stop already resets enable bit to 0,
-there is no need of explicit hw_free. Removing it to
-fix the issue.
+Reviewing this block of code in cdv_intel_dp_init()
 
-Fixes: 80beab8e1d86 ("ASoC: qcom: Add LPASS CPU DAI driver")
-Signed-off-by: Rohit kumar <rohitkr@codeaurora.org>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/1597402388-14112-7-git-send-email-rohitkr@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ret = cdv_intel_dp_aux_native_read(gma_encoder, DP_DPCD_REV, ...
+
+cdv_intel_edp_panel_vdd_off(gma_encoder);
+if (ret == 0) {
+	/* if this fails, presume the device is a ghost */
+	DRM_INFO("failed to retrieve link info, disabling eDP\n");
+	drm_encoder_cleanup(encoder);
+	cdv_intel_dp_destroy(connector);
+	goto err_priv;
+} else {
+
+The (ret == 0) is not strict enough.
+cdv_intel_dp_aux_native_read() returns > 0 on success
+otherwise it is failure.
+
+So change to <=
+
+Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200805205911.20927-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index 292b103abada9..475579a9830a3 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -182,21 +182,6 @@ static int lpass_cpu_daiops_hw_params(struct snd_pcm_substream *substream,
- 	return 0;
- }
- 
--static int lpass_cpu_daiops_hw_free(struct snd_pcm_substream *substream,
--		struct snd_soc_dai *dai)
--{
--	struct lpass_data *drvdata = snd_soc_dai_get_drvdata(dai);
--	int ret;
--
--	ret = regmap_write(drvdata->lpaif_map,
--			   LPAIF_I2SCTL_REG(drvdata->variant, dai->driver->id),
--			   0);
--	if (ret)
--		dev_err(dai->dev, "error writing to i2sctl reg: %d\n", ret);
--
--	return ret;
--}
--
- static int lpass_cpu_daiops_prepare(struct snd_pcm_substream *substream,
- 		struct snd_soc_dai *dai)
- {
-@@ -277,7 +262,6 @@ const struct snd_soc_dai_ops asoc_qcom_lpass_cpu_dai_ops = {
- 	.startup	= lpass_cpu_daiops_startup,
- 	.shutdown	= lpass_cpu_daiops_shutdown,
- 	.hw_params	= lpass_cpu_daiops_hw_params,
--	.hw_free	= lpass_cpu_daiops_hw_free,
- 	.prepare	= lpass_cpu_daiops_prepare,
- 	.trigger	= lpass_cpu_daiops_trigger,
- };
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+index 90ed20083009f..05eba6dec5ebf 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+@@ -2119,7 +2119,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
+ 					       intel_dp->dpcd,
+ 					       sizeof(intel_dp->dpcd));
+ 		cdv_intel_edp_panel_vdd_off(gma_encoder);
+-		if (ret == 0) {
++		if (ret <= 0) {
+ 			/* if this fails, presume the device is a ghost */
+ 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
+ 			cdv_intel_dp_encoder_destroy(encoder);
 -- 
 2.25.1
 
