@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9DBF29B2C3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E4D29B3A6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1763846AbgJ0OpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44910 "EHLO mail.kernel.org"
+        id S1752088AbgJ0OyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1763841AbgJ0OpB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:45:01 -0400
+        id S1763843AbgJ0OpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:45:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A01F2222C;
-        Tue, 27 Oct 2020 14:45:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D2A206B2;
+        Tue, 27 Oct 2020 14:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809900;
-        bh=iC0jZdjoqn1Py7xJojtmdX9lti5RGCBfHf+sGISAEjY=;
+        s=default; t=1603809903;
+        bh=qAnh+vrLGPL7KCrI1zAkhrziG/CFv+LUFxKOfyozpLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nn4zgj1xhcvffq6/zwQDCWxEbX651Dbk7an/0coADtxpQzRun82wC2uYR4EQ9EzGd
-         f06qt4gG2pvFTBg4nElIKuKcCmdTjpWVX0csLGXzHqPKSj7AE43VvV6Flgj1ArCrez
-         JKocHAGJgPF0t7u/28itx82E6ECZTuAoIR8rj1P4=
+        b=v5wArRXeymzeST0V4a3vQBaMq4I1b0UUDeFqqQIJdeH6AYyXQD97OThphwniovEbn
+         DWySeng6KTZw8jPJHlX5ppGPSWZgAp2tX+v279AtXEkvdMF9paiM+3NaqPMuO9u3O9
+         0IdaW6milTSydAElKUpg9cKbldfokQUd3jeSGT50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzu-En Huang <tehuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 360/408] rtw88: increse the size of rx buffer size
-Date:   Tue, 27 Oct 2020 14:54:58 +0100
-Message-Id: <20201027135511.713576706@linuxfoundation.org>
+Subject: [PATCH 5.4 361/408] USB: cdc-acm: handle broken union descriptors
+Date:   Tue, 27 Oct 2020 14:54:59 +0100
+Message-Id: <20201027135511.763429862@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,37 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzu-En Huang <tehuang@realtek.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit ee755732b7a16af018daa77d9562d2493fb7092f ]
+[ Upstream commit 960c7339de27c6d6fec13b54880501c3576bb08d ]
 
-The vht capability of MAX_MPDU_LENGTH is 11454 in rtw88; however, the rx
-buffer size for each packet is 8192. When receiving packets that are
-larger than rx buffer size, it will leads to rx buffer ring overflow.
+Handle broken union functional descriptors where the master-interface
+doesn't exist or where its class is of neither Communication or Data
+type (as required by the specification) by falling back to
+"combined-interface" probing.
 
-Signed-off-by: Tzu-En Huang <tehuang@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200925061219.23754-2-tehuang@realtek.com
+Note that this still allows for handling union descriptors with switched
+interfaces.
+
+This specifically makes the Whistler radio scanners TRX series devices
+work with the driver without adding further quirks to the device-id
+table.
+
+Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200921135951.24045-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/pci.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.h b/drivers/net/wireless/realtek/rtw88/pci.h
-index 87824a4caba98..a47d871ae506a 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.h
-+++ b/drivers/net/wireless/realtek/rtw88/pci.h
-@@ -13,8 +13,8 @@
- #define RTK_BEQ_TX_DESC_NUM	256
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 7499ba118665a..c02488d469185 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1243,9 +1243,21 @@ static int acm_probe(struct usb_interface *intf,
+ 			}
+ 		}
+ 	} else {
++		int class = -1;
++
+ 		data_intf_num = union_header->bSlaveInterface0;
+ 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
+ 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
++
++		if (control_interface)
++			class = control_interface->cur_altsetting->desc.bInterfaceClass;
++
++		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
++			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
++			combined_interfaces = 1;
++			control_interface = data_interface = intf;
++			goto look_for_collapsed_interface;
++		}
+ 	}
  
- #define RTK_MAX_RX_DESC_NUM	512
--/* 8K + rx desc size */
--#define RTK_PCI_RX_BUF_SIZE	(8192 + 24)
-+/* 11K + rx desc size */
-+#define RTK_PCI_RX_BUF_SIZE	(11454 + 24)
- 
- #define RTK_PCI_CTRL		0x300
- #define BIT_RST_TRXDMA_INTF	BIT(20)
+ 	if (!control_interface || !data_interface) {
 -- 
 2.25.1
 
