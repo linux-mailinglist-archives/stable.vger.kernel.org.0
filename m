@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3054E29C44C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3810929C254
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758647AbgJ0OVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:21:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46024 "EHLO mail.kernel.org"
+        id S1819999AbgJ0Rb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757420AbgJ0OVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:21:42 -0400
+        id S1761043AbgJ0Ohp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:37:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51AEC206F7;
-        Tue, 27 Oct 2020 14:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82E6D206B2;
+        Tue, 27 Oct 2020 14:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808500;
-        bh=jIKBHCmwT/AG8jTKA8NCe7E3d1chye1UvbGpHn1E6cE=;
+        s=default; t=1603809465;
+        bh=KF/UDFN541tOWKaEbgbA8uhvSIsFQsIdC5JcpEVfUsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mB9L1moQJNtjYJJD30dlnacTiE6hdAACSJrRJvQePMM/FITa+xu+JeW6/zwhTGYiA
-         d5AQouDO6PERBRiwwDIpUzzW5W+aVqsl6a5UFxOI21nqaIORo5zyxuSHugv19oUweh
-         HDtc5LxfLFX8PSR+PRsn7kR+HLIil5Dk0Y9vqObo=
+        b=coevVYUSB0LyodNm/iO2LvSfcix/fCXgh96R+f1aIrds24qy91Hf1lTmVPjp8tF1w
+         zUz0p+X3yHrOLjVKdv8xK9whMToJmW0Iyb+B70oHJIwMXD0iJnMfzWIBMSPqBjdAyY
+         GloUUCi3LyTPDeniCOWn6KT0F1zfJcMjYaZbOIH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artem Savkov <asavkov@redhat.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/264] pty: do tty_flip_buffer_push without port->lock in pty_write
+Subject: [PATCH 5.4 205/408] RDMA/umem: Fix signature of stub ib_umem_find_best_pgsz()
 Date:   Tue, 27 Oct 2020 14:52:23 +0100
-Message-Id: <20201027135434.693870393@linuxfoundation.org>
+Message-Id: <20201027135504.611607748@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,138 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Savkov <asavkov@redhat.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 71a174b39f10b4b93223d374722aa894b5d8a82e ]
+[ Upstream commit 61690d01db32eb1f94adc9ac2b8bb741d34e4671 ]
 
-b6da31b2c07c "tty: Fix data race in tty_insert_flip_string_fixed_flag"
-puts tty_flip_buffer_push under port->lock introducing the following
-possible circular locking dependency:
+The original function returns unsigned long and 0 on failure.
 
-[30129.876566] ======================================================
-[30129.876566] WARNING: possible circular locking dependency detected
-[30129.876567] 5.9.0-rc2+ #3 Tainted: G S      W
-[30129.876568] ------------------------------------------------------
-[30129.876568] sysrq.sh/1222 is trying to acquire lock:
-[30129.876569] ffffffff92c39480 (console_owner){....}-{0:0}, at: console_unlock+0x3fe/0xa90
-
-[30129.876572] but task is already holding lock:
-[30129.876572] ffff888107cb9018 (&pool->lock/1){-.-.}-{2:2}, at: show_workqueue_state.cold.55+0x15b/0x6ca
-
-[30129.876576] which lock already depends on the new lock.
-
-[30129.876577] the existing dependency chain (in reverse order) is:
-
-[30129.876578] -> #3 (&pool->lock/1){-.-.}-{2:2}:
-[30129.876581]        _raw_spin_lock+0x30/0x70
-[30129.876581]        __queue_work+0x1a3/0x10f0
-[30129.876582]        queue_work_on+0x78/0x80
-[30129.876582]        pty_write+0x165/0x1e0
-[30129.876583]        n_tty_write+0x47f/0xf00
-[30129.876583]        tty_write+0x3d6/0x8d0
-[30129.876584]        vfs_write+0x1a8/0x650
-
-[30129.876588] -> #2 (&port->lock#2){-.-.}-{2:2}:
-[30129.876590]        _raw_spin_lock_irqsave+0x3b/0x80
-[30129.876591]        tty_port_tty_get+0x1d/0xb0
-[30129.876592]        tty_port_default_wakeup+0xb/0x30
-[30129.876592]        serial8250_tx_chars+0x3d6/0x970
-[30129.876593]        serial8250_handle_irq.part.12+0x216/0x380
-[30129.876593]        serial8250_default_handle_irq+0x82/0xe0
-[30129.876594]        serial8250_interrupt+0xdd/0x1b0
-[30129.876595]        __handle_irq_event_percpu+0xfc/0x850
-
-[30129.876602] -> #1 (&port->lock){-.-.}-{2:2}:
-[30129.876605]        _raw_spin_lock_irqsave+0x3b/0x80
-[30129.876605]        serial8250_console_write+0x12d/0x900
-[30129.876606]        console_unlock+0x679/0xa90
-[30129.876606]        register_console+0x371/0x6e0
-[30129.876607]        univ8250_console_init+0x24/0x27
-[30129.876607]        console_init+0x2f9/0x45e
-
-[30129.876609] -> #0 (console_owner){....}-{0:0}:
-[30129.876611]        __lock_acquire+0x2f70/0x4e90
-[30129.876612]        lock_acquire+0x1ac/0xad0
-[30129.876612]        console_unlock+0x460/0xa90
-[30129.876613]        vprintk_emit+0x130/0x420
-[30129.876613]        printk+0x9f/0xc5
-[30129.876614]        show_pwq+0x154/0x618
-[30129.876615]        show_workqueue_state.cold.55+0x193/0x6ca
-[30129.876615]        __handle_sysrq+0x244/0x460
-[30129.876616]        write_sysrq_trigger+0x48/0x4a
-[30129.876616]        proc_reg_write+0x1a6/0x240
-[30129.876617]        vfs_write+0x1a8/0x650
-
-[30129.876619] other info that might help us debug this:
-
-[30129.876620] Chain exists of:
-[30129.876621]   console_owner --> &port->lock#2 --> &pool->lock/1
-
-[30129.876625]  Possible unsafe locking scenario:
-
-[30129.876626]        CPU0                    CPU1
-[30129.876626]        ----                    ----
-[30129.876627]   lock(&pool->lock/1);
-[30129.876628]                                lock(&port->lock#2);
-[30129.876630]                                lock(&pool->lock/1);
-[30129.876631]   lock(console_owner);
-
-[30129.876633]  *** DEADLOCK ***
-
-[30129.876634] 5 locks held by sysrq.sh/1222:
-[30129.876634]  #0: ffff8881d3ce0470 (sb_writers#3){.+.+}-{0:0}, at: vfs_write+0x359/0x650
-[30129.876637]  #1: ffffffff92c612c0 (rcu_read_lock){....}-{1:2}, at: __handle_sysrq+0x4d/0x460
-[30129.876640]  #2: ffffffff92c612c0 (rcu_read_lock){....}-{1:2}, at: show_workqueue_state+0x5/0xf0
-[30129.876642]  #3: ffff888107cb9018 (&pool->lock/1){-.-.}-{2:2}, at: show_workqueue_state.cold.55+0x15b/0x6ca
-[30129.876645]  #4: ffffffff92c39980 (console_lock){+.+.}-{0:0}, at: vprintk_emit+0x123/0x420
-
-[30129.876648] stack backtrace:
-[30129.876649] CPU: 3 PID: 1222 Comm: sysrq.sh Tainted: G S      W         5.9.0-rc2+ #3
-[30129.876649] Hardware name: Intel Corporation 2012 Client Platform/Emerald Lake 2, BIOS ACRVMBY1.86C.0078.P00.1201161002 01/16/2012
-[30129.876650] Call Trace:
-[30129.876650]  dump_stack+0x9d/0xe0
-[30129.876651]  check_noncircular+0x34f/0x410
-[30129.876653]  __lock_acquire+0x2f70/0x4e90
-[30129.876656]  lock_acquire+0x1ac/0xad0
-[30129.876658]  console_unlock+0x460/0xa90
-[30129.876660]  vprintk_emit+0x130/0x420
-[30129.876660]  printk+0x9f/0xc5
-[30129.876661]  show_pwq+0x154/0x618
-[30129.876662]  show_workqueue_state.cold.55+0x193/0x6ca
-[30129.876664]  __handle_sysrq+0x244/0x460
-[30129.876665]  write_sysrq_trigger+0x48/0x4a
-[30129.876665]  proc_reg_write+0x1a6/0x240
-[30129.876666]  vfs_write+0x1a8/0x650
-
-It looks like the commit was aimed to protect tty_insert_flip_string and
-there is no need for tty_flip_buffer_push to be under this lock.
-
-Fixes: b6da31b2c07c ("tty: Fix data race in tty_insert_flip_string_fixed_flag")
-Signed-off-by: Artem Savkov <asavkov@redhat.com>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20200902120045.3693075-1-asavkov@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+Link: https://lore.kernel.org/r/0-v1-982a13cc5c6d+501ae-fix_best_pgsz_stub_jgg@nvidia.com
+Reviewed-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/pty.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/rdma/ib_umem.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/pty.c b/drivers/tty/pty.c
-index 00099a8439d21..c6a1d8c4e6894 100644
---- a/drivers/tty/pty.c
-+++ b/drivers/tty/pty.c
-@@ -120,10 +120,10 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
- 		spin_lock_irqsave(&to->port->lock, flags);
- 		/* Stuff the data into the input queue of the other end */
- 		c = tty_insert_flip_string(to->port, buf, c);
-+		spin_unlock_irqrestore(&to->port->lock, flags);
- 		/* And shovel */
- 		if (c)
- 			tty_flip_buffer_push(to->port);
--		spin_unlock_irqrestore(&to->port->lock, flags);
- 	}
- 	return c;
+diff --git a/include/rdma/ib_umem.h b/include/rdma/ib_umem.h
+index a91b2af64ec47..8e94279af47df 100644
+--- a/include/rdma/ib_umem.h
++++ b/include/rdma/ib_umem.h
+@@ -95,10 +95,11 @@ static inline int ib_umem_copy_from(void *dst, struct ib_umem *umem, size_t offs
+ 		      		    size_t length) {
+ 	return -EINVAL;
  }
+-static inline int ib_umem_find_best_pgsz(struct ib_umem *umem,
+-					 unsigned long pgsz_bitmap,
+-					 unsigned long virt) {
+-	return -EINVAL;
++static inline unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
++						   unsigned long pgsz_bitmap,
++						   unsigned long virt)
++{
++	return 0;
+ }
+ 
+ #endif /* CONFIG_INFINIBAND_USER_MEM */
 -- 
 2.25.1
 
