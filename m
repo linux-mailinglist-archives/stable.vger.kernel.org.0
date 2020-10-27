@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0913229AE3A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 602D029AE3D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504001AbgJ0N6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
+        id S1753062AbgJ0N6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753044AbgJ0N6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:15 -0400
+        id S2438765AbgJ0N6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A452206D4;
-        Tue, 27 Oct 2020 13:58:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B2872068D;
+        Tue, 27 Oct 2020 13:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807094;
-        bh=JZO0FMmtG4vn/Ir8BKBtAao/jx/uemYfhrNZ6ukyQ5c=;
+        s=default; t=1603807100;
+        bh=FAYDlh4UDchwxRBEbR/qrKS9Q//KaZBdDRB8ibREuWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfsAN6ijlyRcLdthg2N1FIf5oJgd2Na22Z2LY2s+gQmHrvOBmz2hVRPcafZoITFbe
-         mhSEsV3iMeeYj2plXBH9oSR9j7DTCPwxM+IGVErzDbjwd3+1fQOnAkY9FnALvBfkMn
-         SU5SKYUyxh2VRFm7aJBNO9qeoCYHLkRzJ488zwy8=
+        b=W5l4O71YVTSoIWr0JDukbIPHGiz0c7gP2DXrO1YniFHbKvmxD1fZCph7Y7KYSi0+Q
+         U6Fkll/ZsqIvhRzNMwSL+xr6TQnzYaF0ixVeR2YRF7+1LBNkDRZTr9SufKu/6SnhMx
+         Dc0RfW6s8HdvmRLJvT03bsxGSzVpn4flPu+ZdGwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Andrew Morton <akpm@osdl.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/112] video: fbdev: sis: fix null ptr dereference
-Date:   Tue, 27 Oct 2020 14:49:11 +0100
-Message-Id: <20201027134902.500435453@linuxfoundation.org>
+Subject: [PATCH 4.4 043/112] ath6kl: wmi: prevent a shift wrapping bug in ath6kl_wmi_delete_pstream_cmd()
+Date:   Tue, 27 Oct 2020 14:49:13 +0100
+Message-Id: <20201027134902.597238550@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -45,76 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ad6f93e9cd56f0b10e9b22e3e137d17a1a035242 ]
+[ Upstream commit 6a950755cec1a90ddaaff3e4acb5333617441c32 ]
 
-Clang static analysis reports this representative error
+The "tsid" is a user controlled u8 which comes from debugfs.  Values
+more than 15 are invalid because "active_tsids" is a 16 bit variable.
+If the value of "tsid" is more than 31 then that leads to a shift
+wrapping bug.
 
-init.c:2501:18: warning: Array access (from variable 'queuedata') results
-  in a null pointer dereference
-      templ |= ((queuedata[i] & 0xc0) << 3);
-
-This is the problem block of code
-
-   if(ModeNo > 0x13) {
-      ...
-      if(SiS_Pr->ChipType == SIS_730) {
-	 queuedata = &FQBQData730[0];
-      } else {
-	 queuedata = &FQBQData[0];
-      }
-   } else {
-
-   }
-
-queuedata is not set in the else block
-
-Reviewing the old code, the arrays FQBQData730 and FQBQData were
-used directly.
-
-So hoist the setting of queuedata out of the if-else block.
-
-Fixes: 544393fe584d ("[PATCH] sisfb update")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805145208.17727-1-trix@redhat.com
+Fixes: 8fffd9e5ec9e ("ath6kl: Implement support for QOS-enable and QOS-disable from userspace")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200918142732.GA909725@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sis/init.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/video/fbdev/sis/init.c b/drivers/video/fbdev/sis/init.c
-index dfe3eb769638b..fde27feae5d0c 100644
---- a/drivers/video/fbdev/sis/init.c
-+++ b/drivers/video/fbdev/sis/init.c
-@@ -2428,6 +2428,11 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index b2ec254f154e0..7e1010475cfb2 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -2644,6 +2644,11 @@ int ath6kl_wmi_delete_pstream_cmd(struct wmi *wmi, u8 if_idx, u8 traffic_class,
+ 		return -EINVAL;
+ 	}
  
-    i = 0;
- 
-+	if (SiS_Pr->ChipType == SIS_730)
-+		queuedata = &FQBQData730[0];
-+	else
-+		queuedata = &FQBQData[0];
++	if (tsid >= 16) {
++		ath6kl_err("invalid tsid: %d\n", tsid);
++		return -EINVAL;
++	}
 +
-    if(ModeNo > 0x13) {
- 
-       /* Get VCLK  */
-@@ -2445,12 +2450,6 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
-       /* Get half colordepth */
-       colorth = colortharray[(SiS_Pr->SiS_ModeType - ModeEGA)];
- 
--      if(SiS_Pr->ChipType == SIS_730) {
--	 queuedata = &FQBQData730[0];
--      } else {
--	 queuedata = &FQBQData[0];
--      }
--
-       do {
- 	 templ = SiS_CalcDelay2(SiS_Pr, queuedata[i]) * VCLK * colorth;
- 
+ 	skb = ath6kl_wmi_get_new_buf(sizeof(*cmd));
+ 	if (!skb)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
