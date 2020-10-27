@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF9629C36F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:47:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F5229C35C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759097AbgJ0O1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53972 "EHLO mail.kernel.org"
+        id S1759106AbgJ0O1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:27:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759089AbgJ0O1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:27:42 -0400
+        id S1759098AbgJ0O1p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:27:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2552206DC;
-        Tue, 27 Oct 2020 14:27:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E04B206DC;
+        Tue, 27 Oct 2020 14:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808862;
-        bh=7MCsq4VxHI473cgLQRa9zJgLTpwwUdH2X4EJgEHYAtE=;
+        s=default; t=1603808865;
+        bh=dEgo1FvU10wAANqVlVrxn/yTc2mxar0TZYuqSCpw1Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hULXTp31PhXcJzmQCkuENlGu7Q6e7kbTT6yF7SwrJ2rH+DAoBllx6arYxZOt25Ew8
-         XWzpA59ycWWPFkdz1ruPzlL+qSyDLihMyLFxBsxmybUdLmP9y38wJbpnYkE+QE45j9
-         AnVsQFYWzd4oDe//HZm+8yP+uoRvql6BOKHTRVfU=
+        b=Iaj8d7H0UINskPo2OADRZF01k7/Mu5TqAhnxpE4xM70bVNkIcdOL9n3dKc/+/UjZm
+         QQzDNPV1oh1MMkFIY6xAZiJ9JwpVihnFoolgVfzdEzOexZvvZa/HzVWQhv17metRqq
+         i5Aj6NwBFA9TfElmJqvWamJn+u5P2nBmE9g8Jpl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/264] reiserfs: Fix memory leak in reiserfs_parse_options()
-Date:   Tue, 27 Oct 2020 14:55:11 +0100
-Message-Id: <20201027135442.529732220@linuxfoundation.org>
+        syzbot <syzbot+dc4127f950da51639216@syzkaller.appspotmail.com>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 254/264] mwifiex: dont call del_timer_sync() on uninitialized timer
+Date:   Tue, 27 Oct 2020 14:55:12 +0100
+Message-Id: <20201027135442.575475973@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,47 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit e9d4709fcc26353df12070566970f080e651f0c9 ]
+[ Upstream commit 621a3a8b1c0ecf16e1e5667ea5756a76a082b738 ]
 
-When a usrjquota or grpjquota mount option is used multiple times, we
-will leak memory allocated for the file name. Make sure the last setting
-is used and all the previous ones are properly freed.
+syzbot is reporting that del_timer_sync() is called from
+mwifiex_usb_cleanup_tx_aggr() from mwifiex_unregister_dev() without
+checking timer_setup() from mwifiex_usb_tx_init() was called [1].
 
-Reported-by: syzbot+c9e294bbe0333a6b7640@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Ganapathi Bhat proposed a possibly cleaner fix, but it seems that
+that fix was forgotten [2].
+
+"grep -FrB1 'del_timer' drivers/ | grep -FA1 '.function)'" says that
+currently there are 28 locations which call del_timer[_sync]() only if
+that timer's function field was initialized (because timer_setup() sets
+that timer's function field). Therefore, let's use same approach here.
+
+[1] https://syzkaller.appspot.com/bug?id=26525f643f454dd7be0078423e3cdb0d57744959
+[2] https://lkml.kernel.org/r/CA+ASDXMHt2gq9Hy+iP_BYkWXsSreWdp3_bAfMkNcuqJ3K+-jbQ@mail.gmail.com
+
+Reported-by: syzbot <syzbot+dc4127f950da51639216@syzkaller.appspotmail.com>
+Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200821082720.7716-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index de5eda33c92a0..ec5716dd58c23 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1264,6 +1264,10 @@ static int reiserfs_parse_options(struct super_block *s,
- 						 "turned on.");
- 				return 0;
- 			}
-+			if (qf_names[qtype] !=
-+			    REISERFS_SB(s)->s_qf_names[qtype])
-+				kfree(qf_names[qtype]);
-+			qf_names[qtype] = NULL;
- 			if (*arg) {	/* Some filename specified? */
- 				if (REISERFS_SB(s)->s_qf_names[qtype]
- 				    && strcmp(REISERFS_SB(s)->s_qf_names[qtype],
-@@ -1293,10 +1297,6 @@ static int reiserfs_parse_options(struct super_block *s,
- 				else
- 					*mount_options |= 1 << REISERFS_GRPQUOTA;
- 			} else {
--				if (qf_names[qtype] !=
--				    REISERFS_SB(s)->s_qf_names[qtype])
--					kfree(qf_names[qtype]);
--				qf_names[qtype] = NULL;
- 				if (qtype == USRQUOTA)
- 					*mount_options &= ~(1 << REISERFS_USRQUOTA);
- 				else
+diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
+index d445acc4786b7..2a8d40ce463d5 100644
+--- a/drivers/net/wireless/marvell/mwifiex/usb.c
++++ b/drivers/net/wireless/marvell/mwifiex/usb.c
+@@ -1355,7 +1355,8 @@ static void mwifiex_usb_cleanup_tx_aggr(struct mwifiex_adapter *adapter)
+ 				skb_dequeue(&port->tx_aggr.aggr_list)))
+ 				mwifiex_write_data_complete(adapter, skb_tmp,
+ 							    0, -1);
+-		del_timer_sync(&port->tx_aggr.timer_cnxt.hold_timer);
++		if (port->tx_aggr.timer_cnxt.hold_timer.function)
++			del_timer_sync(&port->tx_aggr.timer_cnxt.hold_timer);
+ 		port->tx_aggr.timer_cnxt.is_hold_timer_set = false;
+ 		port->tx_aggr.timer_cnxt.hold_tmo_msecs = 0;
+ 	}
 -- 
 2.25.1
 
