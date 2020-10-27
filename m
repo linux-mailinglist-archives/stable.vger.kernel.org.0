@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF5D29AF11
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2024D29AE8E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754739AbgJ0OGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55262 "EHLO mail.kernel.org"
+        id S2395503AbgJ0OBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754718AbgJ0OGp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:06:45 -0400
+        id S1753733AbgJ0OBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E053B22264;
-        Tue, 27 Oct 2020 14:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EBE0221F8;
+        Tue, 27 Oct 2020 14:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807604;
-        bh=ZtUNsIeYrkvusPPiLeF+ZOqAu9BbhvoQn+/+kag1Xmg=;
+        s=default; t=1603807305;
+        bh=1FLgUbR5eKsXYDDLwvofUli0dXW97O8sLDhbkjbdx+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0zk1k/negt7oYQiyJWBA38h4Wzbaa/MEv6XOtJKWsm7TyhGQXAcs6i1qpEz2Ldh/d
-         KuSolkzYvmvdeVmCtBqwxYR2jSO2enm+RPTIGJ0wizGzsXHa+APGKEpf8VfOn6Bg66
-         dXzZ/Lrr/ZvT3c6ISPTWZF7TJSJv2fwVgqFuaiaA=
+        b=Q3XYv+RIUSug/CYr4xWxrq14wo8mqaa+rd611Rped6zzg747Rth/RghipgC5QsLVt
+         FkAwUcAnmO1QxwQ6Ap/A3TQaXCv5UU/qIztYazKpktXz6AyZNTU6htO9pUtwQEs/Wv
+         sYDksJZaNh0JsJULPV6w+17EVA8IUMkq88iF5GL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/139] misc: vop: add round_up(x,4) for vring_size to avoid kernel panic
+Subject: [PATCH 4.4 098/112] usb: ohci: Default to per-port over-current protection
 Date:   Tue, 27 Oct 2020 14:50:08 +0100
-Message-Id: <20201027134907.553306355@linuxfoundation.org>
+Message-Id: <20201027134905.180399076@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-[ Upstream commit cc1a2679865a94b83804822996eed010a50a7c1d ]
+[ Upstream commit b77d2a0a223bc139ee8904991b2922d215d02636 ]
 
-Since struct _mic_vring_info and vring are allocated together and follow
-vring, if the vring_size() is not four bytes aligned, which will cause
-the start address of struct _mic_vring_info is not four byte aligned.
-For example, when vring entries is 128, the vring_size() will be 5126
-bytes. The _mic_vring_info struct layout in ddr looks like:
-0x90002400:  00000000 00390000 EE010000 0000C0FF
-Here 0x39 is the avail_idx member, and 0xC0FFEE01 is the magic member.
+Some integrated OHCI controller hubs do not expose all ports of the hub
+to pins on the SoC. In some cases the unconnected ports generate
+spurious over-current events. For example the Broadcom 56060/Ranger 2 SoC
+contains a nominally 3 port hub but only the first port is wired.
 
-When EP use ioread32(magic) to reads the magic in RC's share memory, it
-will cause kernel panic on ARM64 platform due to the cross-byte io read.
-Here read magic in user space use le32toh(vr0->info->magic) will meet
-the same issue.
-So add round_up(x,4) for vring_size, then the struct _mic_vring_info
-will store in this way:
-0x90002400:  00000000 00000000 00000039 C0FFEE01
-Which will avoid kernel panic when read magic in struct _mic_vring_info.
+Default behaviour for ohci-platform driver is to use global over-current
+protection mode (AKA "ganged"). This leads to the spurious over-current
+events affecting all ports in the hub.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20200929091106.24624-4-sherry.sun@nxp.com
+We now alter the default to use per-port over-current protection.
+
+This patch results in the following configuration changes depending
+on quirks:
+- For quirk OHCI_QUIRK_SUPERIO no changes. These systems remain set up
+  for ganged power switching and no over-current protection.
+- For quirk OHCI_QUIRK_AMD756 or OHCI_QUIRK_HUB_POWER power switching
+  remains at none, while over-current protection is now guaranteed to be
+  set to per-port rather than the previous behaviour where it was either
+  none or global over-current protection depending on the value at
+  function entry.
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200910212512.16670-1-hamish.martin@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/vop/vop_main.c   | 2 +-
- drivers/misc/mic/vop/vop_vringh.c | 4 ++--
- samples/mic/mpssd/mpssd.c         | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/host/ohci-hcd.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index 1a2b67f3183d5..f9da3150f80a2 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -301,7 +301,7 @@ static struct virtqueue *vop_find_vq(struct virtio_device *dev,
- 	/* First assign the vring's allocated in host memory */
- 	vqconfig = _vop_vq_config(vdev->desc) + index;
- 	memcpy_fromio(&config, vqconfig, sizeof(config));
--	_vr_size = vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN);
-+	_vr_size = round_up(vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN), 4);
- 	vr_size = PAGE_ALIGN(_vr_size + sizeof(struct _mic_vring_info));
- 	va = vpdev->hw_ops->ioremap(vpdev, le64_to_cpu(config.address),
- 			vr_size);
-diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
-index 99bde52a3a256..49e7a7240469c 100644
---- a/drivers/misc/mic/vop/vop_vringh.c
-+++ b/drivers/misc/mic/vop/vop_vringh.c
-@@ -308,7 +308,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index 27bd3e49fe8e3..07d76d9d4ce1b 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -663,20 +663,24 @@ static int ohci_run (struct ohci_hcd *ohci)
  
- 		num = le16_to_cpu(vqconfig[i].num);
- 		mutex_init(&vvr->vr_mutex);
--		vr_size = PAGE_ALIGN(vring_size(num, MIC_VIRTIO_RING_ALIGN) +
-+		vr_size = PAGE_ALIGN(round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4) +
- 			sizeof(struct _mic_vring_info));
- 		vr->va = (void *)
- 			__get_free_pages(GFP_KERNEL | __GFP_ZERO,
-@@ -320,7 +320,7 @@ static int vop_virtio_add_device(struct vop_vdev *vdev,
- 			goto err;
- 		}
- 		vr->len = vr_size;
--		vr->info = vr->va + vring_size(num, MIC_VIRTIO_RING_ALIGN);
-+		vr->info = vr->va + round_up(vring_size(num, MIC_VIRTIO_RING_ALIGN), 4);
- 		vr->info->magic = cpu_to_le32(MIC_MAGIC + vdev->virtio_id + i);
- 		vr_addr = dma_map_single(&vpdev->dev, vr->va, vr_size,
- 					 DMA_BIDIRECTIONAL);
-diff --git a/samples/mic/mpssd/mpssd.c b/samples/mic/mpssd/mpssd.c
-index 49db1def1721c..84e583ab8fd0c 100644
---- a/samples/mic/mpssd/mpssd.c
-+++ b/samples/mic/mpssd/mpssd.c
-@@ -414,9 +414,9 @@ mic_virtio_copy(struct mic_info *mic, int fd,
- 
- static inline unsigned _vring_size(unsigned int num, unsigned long align)
- {
--	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
-+	return _ALIGN_UP(((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
- 				+ align - 1) & ~(align - 1))
--		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
-+		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num, 4);
- }
- 
- /*
+ 	/* handle root hub init quirks ... */
+ 	val = roothub_a (ohci);
+-	val &= ~(RH_A_PSM | RH_A_OCPM);
++	/* Configure for per-port over-current protection by default */
++	val &= ~RH_A_NOCP;
++	val |= RH_A_OCPM;
+ 	if (ohci->flags & OHCI_QUIRK_SUPERIO) {
+-		/* NSC 87560 and maybe others */
++		/* NSC 87560 and maybe others.
++		 * Ganged power switching, no over-current protection.
++		 */
+ 		val |= RH_A_NOCP;
+-		val &= ~(RH_A_POTPGT | RH_A_NPS);
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
++		val &= ~(RH_A_POTPGT | RH_A_NPS | RH_A_PSM | RH_A_OCPM);
+ 	} else if ((ohci->flags & OHCI_QUIRK_AMD756) ||
+ 			(ohci->flags & OHCI_QUIRK_HUB_POWER)) {
+ 		/* hub power always on; required for AMD-756 and some
+-		 * Mac platforms.  ganged overcurrent reporting, if any.
++		 * Mac platforms.
+ 		 */
+ 		val |= RH_A_NPS;
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
+ 	}
++	ohci_writel(ohci, val, &ohci->regs->roothub.a);
++
+ 	ohci_writel (ohci, RH_HS_LPSC, &ohci->regs->roothub.status);
+ 	ohci_writel (ohci, (val & RH_A_NPS) ? 0 : RH_B_PPCM,
+ 						&ohci->regs->roothub.b);
 -- 
 2.25.1
 
