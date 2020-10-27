@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE3229AF45
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:09:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7835529AF8C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1755217AbgJ0OIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:08:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
+        id S1755177AbgJ0OLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755209AbgJ0OIt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:08:49 -0400
+        id S1755304AbgJ0OJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:09:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20C0E218AC;
-        Tue, 27 Oct 2020 14:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B1D722202;
+        Tue, 27 Oct 2020 14:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807728;
-        bh=8U+TANC7bT8j4Xv3yj9o0yRB161qVMo01V9ACXwU/UM=;
+        s=default; t=1603807758;
+        bh=PtGfbtTFMFgjFc/XBeHgpda1ZtNlEE8DfzdWgAD87tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqgsNhO9qJIW752iKflt558E9dQ73gDSJB0kIzCEuwjwvVtPTVGyhzE6JNFILpY9M
-         5upCe/6NR0wHs8QFxwTbFezjCJE9u1ycnd7X1xEZxFe016B/8tJYSlacGAEf2VzJcW
-         TAkLPYp6l4vRURiLT0YIoMGdAd8rDmauY+31Kx+Y=
+        b=gvJlKbzWwOnBMRjqy2Zz1CX7q1C/+oRn6ljed9UmRzF4M2EvJMv32n6+F0iqg7PA0
+         wrpPTcM8I2m8AZxWREmVUk4Eadh+c0Q3ylwI6aOqeI4OdRhwUcmu7i+ZZSN9MHj0ne
+         fPGOyrNte7x1bsk+LZ/zGf0c4LbvYTOCsgXNjy7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Cristobal Forno <cris.forno@ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 002/191] ibmveth: Identify ingress large send packets.
-Date:   Tue, 27 Oct 2020 14:47:37 +0100
-Message-Id: <20201027134909.828139615@linuxfoundation.org>
+Subject: [PATCH 4.14 003/191] ipv4: Restore flowi4_oif update before call to xfrm_lookup_route
+Date:   Tue, 27 Oct 2020 14:47:38 +0100
+Message-Id: <20201027134909.880485611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -46,57 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wilder <dwilder@us.ibm.com>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit 413f142cc05cb03f2d1ea83388e40c1ddc0d74e9 ]
+[ Upstream commit 874fb9e2ca949b443cc419a4f2227cafd4381d39 ]
 
-Ingress large send packets are identified by either:
-The IBMVETH_RXQ_LRG_PKT flag in the receive buffer
-or with a -1 placed in the ip header checksum.
-The method used depends on firmware version. Frame
-geometry and sufficient header validation is performed by the
-hypervisor eliminating the need for further header checks here.
+Tobias reported regressions in IPsec tests following the patch
+referenced by the Fixes tag below. The root cause is dropping the
+reset of the flowi4_oif after the fib_lookup. Apparently it is
+needed for xfrm cases, so restore the oif update to ip_route_output_flow
+right before the call to xfrm_lookup_route.
 
-Fixes: 7b5967389f5a ("ibmveth: set correct gso_size and gso_type")
-Signed-off-by: David Wilder <dwilder@us.ibm.com>
-Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
-Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
+Fixes: 2fbc6e89b2f1 ("ipv4: Update exception handling for multipath routes via same device")
+Reported-by: Tobias Brunner <tobias@strongswan.org>
+Signed-off-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmveth.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ net/ipv4/route.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1330,6 +1330,7 @@ static int ibmveth_poll(struct napi_stru
- 			int offset = ibmveth_rxq_frame_offset(adapter);
- 			int csum_good = ibmveth_rxq_csum_good(adapter);
- 			int lrg_pkt = ibmveth_rxq_large_packet(adapter);
-+			__sum16 iph_check = 0;
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2603,10 +2603,12 @@ struct rtable *ip_route_output_flow(stru
+ 	if (IS_ERR(rt))
+ 		return rt;
  
- 			skb = ibmveth_rxq_get_buffer(adapter);
+-	if (flp4->flowi4_proto)
++	if (flp4->flowi4_proto) {
++		flp4->flowi4_oif = rt->dst.dev->ifindex;
+ 		rt = (struct rtable *)xfrm_lookup_route(net, &rt->dst,
+ 							flowi4_to_flowi(flp4),
+ 							sk, 0);
++	}
  
-@@ -1366,7 +1367,17 @@ static int ibmveth_poll(struct napi_stru
- 			skb_put(skb, length);
- 			skb->protocol = eth_type_trans(skb, netdev);
- 
--			if (length > netdev->mtu + ETH_HLEN) {
-+			/* PHYP without PLSO support places a -1 in the ip
-+			 * checksum for large send frames.
-+			 */
-+			if (skb->protocol == cpu_to_be16(ETH_P_IP)) {
-+				struct iphdr *iph = (struct iphdr *)skb->data;
-+
-+				iph_check = iph->check;
-+			}
-+
-+			if ((length > netdev->mtu + ETH_HLEN) ||
-+			    lrg_pkt || iph_check == 0xffff) {
- 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
- 				adapter->rx_large_packets++;
- 			}
+ 	return rt;
+ }
 
 
