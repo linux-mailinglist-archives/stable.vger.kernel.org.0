@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7A129B36B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D4ED29B372
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439398AbgJ0OtK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:49:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49262 "EHLO mail.kernel.org"
+        id S1766806AbgJ0Ot2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1766523AbgJ0OtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:49:08 -0400
+        id S1766643AbgJ0OtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:49:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B903D206E5;
-        Tue, 27 Oct 2020 14:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B0C3206E5;
+        Tue, 27 Oct 2020 14:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810148;
-        bh=tNOuoFirHFbfdgeALcftzRYsqIkM6zBpNoOzVJhJPVs=;
+        s=default; t=1603810165;
+        bh=jEW7s/7k33gfDgToggwyp/NaZie/j6ZoVy6IfV0C14w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWlaOvZ+4pigc5TsT2Q8TZbDgSHszUTTaOoOpUumiSaw5ohOjUZTuWTuweOQa7RTL
-         MdBwXAv8OBj9TxmttEIl1I0HGdnvabc535JsBpyWkBVBksOuggLzySSqv8mb7Z4GXP
-         QgHTWgNWrvwTVKeWA9XRVmOMc4UMyP61xlgpVGq4=
+        b=JHxtU6bxwF+kLvsIADBUdoaHfgWjxMvfXoioCu9oZEcN1EO/uNzFLbX7s91GgwGni
+         k7Z7BWb8EVWgDFnEPW85eTQ6wQKjRzWF/g8XyIOSJ/GdM3g2htEyQgdNlsg2FdSr4X
+         ecFbSwVKZfaDyIzlbuywbFgPOhNCqZuABfSBJdH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Alex Elder <elder@linaro.org>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 010/633] net: ipa: skip suspend/resume activities if not set up
-Date:   Tue, 27 Oct 2020 14:45:53 +0100
-Message-Id: <20201027135523.166371447@linuxfoundation.org>
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 012/633] net: sched: Fix suspicious RCU usage while accessing tcf_tunnel_info
+Date:   Tue, 27 Oct 2020 14:45:55 +0100
+Message-Id: <20201027135523.262517937@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,51 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit d1704382821032fede445b816f4296fd379baacf ]
+[ Upstream commit d086a1c65aabb5a4e1edc580ca583e2964c62b44 ]
 
-When processing a system suspend request we suspend modem endpoints
-if they are enabled, and call ipa_cmd_tag_process() (which issues
-IPA commands) to ensure the IPA pipeline is cleared.  It is an error
-to attempt to issue an IPA command before setup is complete, so this
-is clearly a bug.  But we also shouldn't suspend or resume any
-endpoints that have not been set up.
+The access of tcf_tunnel_info() produces the following splat, so fix it
+by dereferencing the tcf_tunnel_key_params pointer with marker that
+internal tcfa_liock is held.
 
-Have ipa_endpoint_suspend() and ipa_endpoint_resume() immediately
-return if setup hasn't completed, to avoid any attempt to configure
-endpoints or issue IPA commands in that case.
+ =============================
+ WARNING: suspicious RCU usage
+ 5.9.0+ #1 Not tainted
+ -----------------------------
+ include/net/tc_act/tc_tunnel_key.h:59 suspicious rcu_dereference_protected() usage!
+ other info that might help us debug this:
 
-Fixes: 84f9bd12d46d ("soc: qcom: ipa: IPA endpoints")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Alex Elder <elder@linaro.org>
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by tc/34839:
+  #0: ffff88828572c2a0 (&p->tcfa_lock){+...}-{2:2}, at: tc_setup_flow_action+0xb3/0x48b5
+ stack backtrace:
+ CPU: 1 PID: 34839 Comm: tc Not tainted 5.9.0+ #1
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  dump_stack+0x9a/0xd0
+  tc_setup_flow_action+0x14cb/0x48b5
+  fl_hw_replace_filter+0x347/0x690 [cls_flower]
+  fl_change+0x2bad/0x4875 [cls_flower]
+  tc_new_tfilter+0xf6f/0x1ba0
+  rtnetlink_rcv_msg+0x5f2/0x870
+  netlink_rcv_skb+0x124/0x350
+  netlink_unicast+0x433/0x700
+  netlink_sendmsg+0x6f1/0xbd0
+  sock_sendmsg+0xb0/0xe0
+  ____sys_sendmsg+0x4fa/0x6d0
+  ___sys_sendmsg+0x12e/0x1b0
+  __sys_sendmsg+0xa4/0x120
+  do_syscall_64+0x2d/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7f1f8cd4fe57
+ Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+ RSP: 002b:00007ffdc1e193b8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f1f8cd4fe57
+ RDX: 0000000000000000 RSI: 00007ffdc1e19420 RDI: 0000000000000003
+ RBP: 000000005f85aafa R08: 0000000000000001 R09: 00007ffdc1e1936c
+ R10: 000000000040522d R11: 0000000000000246 R12: 0000000000000001
+ R13: 0000000000000000 R14: 00007ffdc1e1d6f0 R15: 0000000000482420
+
+Fixes: 3ebaf6da0716 ("net: sched: Do not assume RTNL is held in tunnel key action helpers")
+Fixes: 7a47281439ba ("net: sched: lock action when translating it to flow_action infra")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_endpoint.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/tc_act/tc_tunnel_key.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1447,6 +1447,9 @@ void ipa_endpoint_resume_one(struct ipa_
- 
- void ipa_endpoint_suspend(struct ipa *ipa)
+--- a/include/net/tc_act/tc_tunnel_key.h
++++ b/include/net/tc_act/tc_tunnel_key.h
+@@ -56,7 +56,10 @@ static inline struct ip_tunnel_info *tcf
  {
-+	if (!ipa->setup_complete)
-+		return;
+ #ifdef CONFIG_NET_CLS_ACT
+ 	struct tcf_tunnel_key *t = to_tunnel_key(a);
+-	struct tcf_tunnel_key_params *params = rtnl_dereference(t->params);
++	struct tcf_tunnel_key_params *params;
 +
- 	if (ipa->modem_netdev)
- 		ipa_modem_suspend(ipa->modem_netdev);
++	params = rcu_dereference_protected(t->params,
++					   lockdep_is_held(&a->tcfa_lock));
  
-@@ -1458,6 +1461,9 @@ void ipa_endpoint_suspend(struct ipa *ip
- 
- void ipa_endpoint_resume(struct ipa *ipa)
- {
-+	if (!ipa->setup_complete)
-+		return;
-+
- 	ipa_endpoint_resume_one(ipa->name_map[IPA_ENDPOINT_AP_COMMAND_TX]);
- 	ipa_endpoint_resume_one(ipa->name_map[IPA_ENDPOINT_AP_LAN_RX]);
- 
+ 	return &params->tcft_enc_metadata->u.tun_info;
+ #else
 
 
