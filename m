@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAD129C5EF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9395729C6F3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825143AbgJ0SJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37270 "EHLO mail.kernel.org"
+        id S2411495AbgJ0OAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2508489AbgJ0OP0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:26 -0400
+        id S1753568AbgJ0OAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:00:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B24B8206F7;
-        Tue, 27 Oct 2020 14:15:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21B0321D42;
+        Tue, 27 Oct 2020 14:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808125;
-        bh=OCj/8NsSojQ0BxbpC31Yz318JM50e/36vBJazaoYzYk=;
+        s=default; t=1603807214;
+        bh=JjFAo99wLYDWX9mwBwYWun0+eXHqmGfCOhVzOD6lR3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Os6SbSZ53t+ar2a24KJnxg91pPJr7qHKOj9NtS1zha9L29Vs7/V+98+586hw2Ny7T
-         cACDGkDr4u+0SlGfpJ0GzWpKKVy0gC+QzMmtEGvEtojnOpjFE4N6LKvmmEJQVNahQi
-         6r42Y1vaewspFb2tD+TKMy7FfYqOKklTsErFKLPw=
+        b=QtBgGs/RFE3hP92QR753yeWRLw+Ecm3h0DJgLlqBhnfOlCDepGw0hKWToDHSp7JJ/
+         ar4SbieebUc3SJ3hvcEiPRR7cwoEyx00uO50AOAj9221opmjKvOS+wz5th8Y3YlLQd
+         3Um8brp30RRhaz6m2Smw635qdLObLQlVcDAJHZNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+998261c2ae5932458f6c@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Adam Goode <agoode@google.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/191] media: ati_remote: sanity check for both endpoints
-Date:   Tue, 27 Oct 2020 14:49:53 +0100
-Message-Id: <20201027134916.346698319@linuxfoundation.org>
+Subject: [PATCH 4.4 084/112] media: uvcvideo: Ensure all probed info is returned to v4l2
+Date:   Tue, 27 Oct 2020 14:49:54 +0100
+Message-Id: <20201027134904.516303348@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Adam Goode <agoode@google.com>
 
-[ Upstream commit a8be80053ea74bd9c3f9a3810e93b802236d6498 ]
+[ Upstream commit 8a652a17e3c005dcdae31b6c8fdf14382a29cbbe ]
 
-If you do sanity checks, you should do them for both endpoints.
-Hence introduce checking for endpoint type for the output
-endpoint, too.
+bFrameIndex and bFormatIndex can be negotiated by the camera during
+probing, resulting in the camera choosing a different format than
+expected. v4l2 can already accommodate such changes, but the code was
+not updating the proper fields.
 
-Reported-by: syzbot+998261c2ae5932458f6c@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Sean Young <sean@mess.org>
+Without such a change, v4l2 would potentially interpret the payload
+incorrectly, causing corrupted output. This was happening on the
+Elgato HD60 S+, which currently always renegotiates to format 1.
+
+As an aside, the Elgato firmware is buggy and should not be renegotating,
+but it is still a valid thing for the camera to do. Both macOS and Windows
+will properly probe and read uncorrupted images from this camera.
+
+With this change, both qv4l2 and chromium can now read uncorrupted video
+from the Elgato HD60 S+.
+
+[Add blank lines, remove periods at the of messages]
+
+Signed-off-by: Adam Goode <agoode@google.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ati_remote.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/usb/uvc/uvc_v4l2.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/media/rc/ati_remote.c b/drivers/media/rc/ati_remote.c
-index d0871d60a7231..8e3af398a6c4e 100644
---- a/drivers/media/rc/ati_remote.c
-+++ b/drivers/media/rc/ati_remote.c
-@@ -845,6 +845,10 @@ static int ati_remote_probe(struct usb_interface *interface,
- 		err("%s: endpoint_in message size==0? \n", __func__);
- 		return -ENODEV;
- 	}
-+	if (!usb_endpoint_is_int_out(endpoint_out)) {
-+		err("%s: Unexpected endpoint_out\n", __func__);
-+		return -ENODEV;
-+	}
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index 0e7d16fe84d42..a0a544628053d 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -242,11 +242,41 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
+ 	if (ret < 0)
+ 		goto done;
  
- 	ati_remote = kzalloc(sizeof (struct ati_remote), GFP_KERNEL);
- 	rc_dev = rc_allocate_device(RC_DRIVER_SCANCODE);
++	/* After the probe, update fmt with the values returned from
++	 * negotiation with the device.
++	 */
++	for (i = 0; i < stream->nformats; ++i) {
++		if (probe->bFormatIndex == stream->format[i].index) {
++			format = &stream->format[i];
++			break;
++		}
++	}
++
++	if (i == stream->nformats) {
++		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
++			  probe->bFormatIndex);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < format->nframes; ++i) {
++		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
++			frame = &format->frame[i];
++			break;
++		}
++	}
++
++	if (i == format->nframes) {
++		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
++			  probe->bFrameIndex);
++		return -EINVAL;
++	}
++
+ 	fmt->fmt.pix.width = frame->wWidth;
+ 	fmt->fmt.pix.height = frame->wHeight;
+ 	fmt->fmt.pix.field = V4L2_FIELD_NONE;
+ 	fmt->fmt.pix.bytesperline = format->bpp * frame->wWidth / 8;
+ 	fmt->fmt.pix.sizeimage = probe->dwMaxVideoFrameSize;
++	fmt->fmt.pix.pixelformat = format->fcc;
+ 	fmt->fmt.pix.colorspace = format->colorspace;
+ 	fmt->fmt.pix.priv = 0;
+ 
 -- 
 2.25.1
 
