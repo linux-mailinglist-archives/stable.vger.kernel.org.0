@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E098529B90E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D1F29B913
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802171AbgJ0Ppv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58264 "EHLO mail.kernel.org"
+        id S1802186AbgJ0Pp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801077AbgJ0Pi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:38:56 -0400
+        id S1801078AbgJ0Pi6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:38:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D941D207C4;
-        Tue, 27 Oct 2020 15:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B76C52225E;
+        Tue, 27 Oct 2020 15:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813135;
-        bh=K7mNbRF0g4IdT9K0ZSTP4S0wylNKN4jG/f0Q6cXyvoE=;
+        s=default; t=1603813138;
+        bh=YGz0kRvMp3a153du/qEtZ/uEOueWubCMhTSqda6JJSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDAX8XqNTQ8sPtoyVP36wfHFivWoyTnPddw9AOlqfdphHmzrdJiDLDxFWoyhHva4H
-         DQ+yxlta8h9oSA5CaKarmWaGDZCwNj0Y4UpkLvJdEqINVumTJEGtg79bHxM68WbY45
-         c0EZW3lFyWXghKmfMGVorSgFEfOsqLf38yEGsTuU=
+        b=QIwZwnIsnDL2VTdUTAz1IfOq9l9etNsmj9NbQD3Yvq4Qt351FdAt7W4eyb2nQ3EDu
+         oPjfEzqGtEkrrWvstydm1j57Uuu4qJG670Guyr92emBhh9difPxc1irPEuz+b8lBbF
+         1pHqt34Fnw3c+7mI05pSfS8jFg1s/sIICiEQfPzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Ira Weiny <ira.weiny@intel.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 450/757] powerpc/64s/radix: Fix mm_cpumask trimming race vs kthread_use_mm
-Date:   Tue, 27 Oct 2020 14:51:40 +0100
-Message-Id: <20201027135511.648865591@linuxfoundation.org>
+Subject: [PATCH 5.9 451/757] powerpc/papr_scm: Fix warning triggered by perf_stats_show()
+Date:   Tue, 27 Oct 2020 14:51:41 +0100
+Message-Id: <20201027135511.690664716@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,114 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit a665eec0a22e11cdde708c1c256a465ebe768047 ]
+[ Upstream commit ca78ef2f08ccfa29b711d644964cdf9d7ace15e5 ]
 
-Commit 0cef77c7798a7 ("powerpc/64s/radix: flush remote CPUs out of
-single-threaded mm_cpumask") added a mechanism to trim the mm_cpumask of
-a process under certain conditions. One of the assumptions is that
-mm_users would not be incremented via a reference outside the process
-context with mmget_not_zero() then go on to kthread_use_mm() via that
-reference.
+A warning is reported by the kernel in case perf_stats_show() returns
+an error code. The warning is of the form below:
 
-That invariant was broken by io_uring code (see previous sparc64 fix),
-but I'll point Fixes: to the original powerpc commit because we are
-changing that assumption going forward, so this will make backports
-match up.
+ papr_scm ibm,persistent-memory:ibm,pmemory@44100001:
+ 	  Failed to query performance stats, Err:-10
+ dev_attr_show: perf_stats_show+0x0/0x1c0 [papr_scm] returned bad count
+ fill_read_buffer: dev_attr_show+0x0/0xb0 returned bad count
 
-Fix this by no longer relying on that assumption, but by having each CPU
-check the mm is not being used, and clearing their own bit from the mask
-only if it hasn't been switched-to by the time the IPI is processed.
+On investigation it looks like that the compiler is silently
+truncating the return value of drc_pmem_query_stats() from 'long' to
+'int', since the variable used to store the return code 'rc' is an
+'int'. This truncated value is then returned back as a 'ssize_t' back
+from perf_stats_show() to 'dev_attr_show()' which thinks of it as a
+large unsigned number and triggers this warning..
 
-This relies on commit 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB
-invalidate") and ARCH_WANT_IRQS_OFF_ACTIVATE_MM to disable irqs over mm
-switch sequences.
+To fix this we update the type of variable 'rc' from 'int' to
+'ssize_t' that prevents the compiler from truncating the return value
+of drc_pmem_query_stats() and returning correct signed value back from
+perf_stats_show().
 
-Fixes: 0cef77c7798a7 ("powerpc/64s/radix: flush remote CPUs out of single-threaded mm_cpumask")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
-Depends-on: 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB invalidate")
+Fixes: 2d02bf835e57 ("powerpc/papr_scm: Fetch nvdimm performance stats from PHYP")
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-5-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20200912081451.66225-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/tlb.h       | 13 -------------
- arch/powerpc/mm/book3s64/radix_tlb.c | 23 ++++++++++++++++-------
- 2 files changed, 16 insertions(+), 20 deletions(-)
+ arch/powerpc/platforms/pseries/papr_scm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/tlb.h b/arch/powerpc/include/asm/tlb.h
-index fbc6f3002f236..d97f061fecac0 100644
---- a/arch/powerpc/include/asm/tlb.h
-+++ b/arch/powerpc/include/asm/tlb.h
-@@ -66,19 +66,6 @@ static inline int mm_is_thread_local(struct mm_struct *mm)
- 		return false;
- 	return cpumask_test_cpu(smp_processor_id(), mm_cpumask(mm));
- }
--static inline void mm_reset_thread_local(struct mm_struct *mm)
--{
--	WARN_ON(atomic_read(&mm->context.copros) > 0);
--	/*
--	 * It's possible for mm_access to take a reference on mm_users to
--	 * access the remote mm from another thread, but it's not allowed
--	 * to set mm_cpumask, so mm_users may be > 1 here.
--	 */
--	WARN_ON(current->mm != mm);
--	atomic_set(&mm->context.active_cpus, 1);
--	cpumask_clear(mm_cpumask(mm));
--	cpumask_set_cpu(smp_processor_id(), mm_cpumask(mm));
--}
- #else /* CONFIG_PPC_BOOK3S_64 */
- static inline int mm_is_thread_local(struct mm_struct *mm)
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index a88a707a608aa..5493bc847bd08 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -785,7 +785,8 @@ static int papr_scm_ndctl(struct nvdimm_bus_descriptor *nd_desc,
+ static ssize_t perf_stats_show(struct device *dev,
+ 			       struct device_attribute *attr, char *buf)
  {
-diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-index 0d233763441fd..143b4fd396f08 100644
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -645,19 +645,29 @@ static void do_exit_flush_lazy_tlb(void *arg)
- 	struct mm_struct *mm = arg;
- 	unsigned long pid = mm->context.id;
+-	int index, rc;
++	int index;
++	ssize_t rc;
+ 	struct seq_buf s;
+ 	struct papr_scm_perf_stat *stat;
+ 	struct papr_scm_perf_stats *stats;
+@@ -820,7 +821,7 @@ static ssize_t perf_stats_show(struct device *dev,
  
-+	/*
-+	 * A kthread could have done a mmget_not_zero() after the flushing CPU
-+	 * checked mm_is_singlethreaded, and be in the process of
-+	 * kthread_use_mm when interrupted here. In that case, current->mm will
-+	 * be set to mm, because kthread_use_mm() setting ->mm and switching to
-+	 * the mm is done with interrupts off.
-+	 */
- 	if (current->mm == mm)
--		return; /* Local CPU */
-+		goto out_flush;
- 
- 	if (current->active_mm == mm) {
--		/*
--		 * Must be a kernel thread because sender is single-threaded.
--		 */
--		BUG_ON(current->mm);
-+		WARN_ON_ONCE(current->mm != NULL);
-+		/* Is a kernel thread and is using mm as the lazy tlb */
- 		mmgrab(&init_mm);
--		switch_mm(mm, &init_mm, current);
- 		current->active_mm = &init_mm;
-+		switch_mm_irqs_off(mm, &init_mm, current);
- 		mmdrop(mm);
- 	}
-+
-+	atomic_dec(&mm->context.active_cpus);
-+	cpumask_clear_cpu(smp_processor_id(), mm_cpumask(mm));
-+
-+out_flush:
- 	_tlbiel_pid(pid, RIC_FLUSH_ALL);
+ free_stats:
+ 	kfree(stats);
+-	return rc ? rc : seq_buf_used(&s);
++	return rc ? rc : (ssize_t)seq_buf_used(&s);
  }
+ DEVICE_ATTR_ADMIN_RO(perf_stats);
  
-@@ -672,7 +682,6 @@ static void exit_flush_lazy_tlbs(struct mm_struct *mm)
- 	 */
- 	smp_call_function_many(mm_cpumask(mm), do_exit_flush_lazy_tlb,
- 				(void *)mm, 1);
--	mm_reset_thread_local(mm);
- }
- 
- void radix__flush_tlb_mm(struct mm_struct *mm)
 -- 
 2.25.1
 
