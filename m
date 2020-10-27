@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D23E529C727
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4BF29C647
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827805AbgJ0S2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:28:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44118 "EHLO mail.kernel.org"
+        id S1826027AbgJ0SPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368177AbgJ0N5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:20 -0400
+        id S1745903AbgJ0OMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:12:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C80F21D42;
-        Tue, 27 Oct 2020 13:57:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 081FB2072D;
+        Tue, 27 Oct 2020 14:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807040;
-        bh=9y+m+r1F1TV5hF00OHKbbN9tY2ZlfbSVeuXL32U4pI0=;
+        s=default; t=1603807967;
+        bh=d2vJnqc1igUd41tys1yFYhtr2g3demjzRaBzwvy58dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ECAJkZHPe8io6KgQSZ4GqwpNABEiGmAbAEREi9JC8Zvj5C78p3GoQ67G/qWKA5fTm
-         onzZoRXvm5EUcaCEdGfNqHnNIcr/Xc47wCfklheqAp2RJJIrJ/6J8QSf+W6zUNgBht
-         ZInm1WWxAH9l2SpijFAc/5M9sXTsiK+3YOSzhFd8=
+        b=JEVWYGsMgtGDiQ7Sp5TDJAzVXhg4fls32r6XfQBmDPSl63UIY90yc6F1Ge6GK4PjE
+         yxNzZwLq2COjgKcFTEDYBR3qVkRdQQurQqhGLVTyNueDQBvruYyyZWwvaaVJi2UvdI
+         Pk7VH0uz12ZtVA39Nca1E0tYZGMGtNe8Ml5yIkKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 020/112] crypto: ixp4xx - Fix the size used in a dma_free_coherent() call
-Date:   Tue, 27 Oct 2020 14:48:50 +0100
-Message-Id: <20201027134901.529686500@linuxfoundation.org>
+Subject: [PATCH 4.14 076/191] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
+Date:   Tue, 27 Oct 2020 14:48:51 +0100
+Message-Id: <20201027134913.365590192@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit f7ade9aaf66bd5599690acf0597df2c0f6cd825a ]
+[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
 
-Update the size used in 'dma_free_coherent()' in order to match the one
-used in the corresponding 'dma_alloc_coherent()', in 'setup_crypt_desc()'.
+Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
+in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
+assume 16 packets per microframe, and USB 3 and above no longer
+use microframes.
 
-Fixes: 81bef0150074 ("crypto: ixp4xx - Hardware crypto support for IXP4xx CPUs")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Maximum speed is actually much higher. On a direct connection,
+theoretical throughput is at most 3.86 Gbps for gen1x1 and
+9.36 Gbps for gen2x1, and I have seen gadget->host iperf
+throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
+
+Unfortunately the ConnectionSpeedChange defined in the CDC spec
+only uses 32-bit values, so we can't report accurate numbers for
+10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
+roughly maximum theoretical performance) and 4.25Gbps for
+SuperSpeed Plus (which is close to the maximum that we can report
+in a 32-bit unsigned integer).
+
+This results in:
+
+[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
+[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
+
+on SuperSpeed and:
+
+[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
+[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
+
+on SuperSpeed Plus.
+
+Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ixp4xx_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_ncm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
-index 8f27903532812..13657105cfb93 100644
---- a/drivers/crypto/ixp4xx_crypto.c
-+++ b/drivers/crypto/ixp4xx_crypto.c
-@@ -533,7 +533,7 @@ static void release_ixp_crypto(struct device *dev)
- 
- 	if (crypt_virt) {
- 		dma_free_coherent(dev,
--			NPE_QLEN_TOTAL * sizeof( struct crypt_ctl),
-+			NPE_QLEN * sizeof(struct crypt_ctl),
- 			crypt_virt, crypt_phys);
- 	}
- 	return;
+diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
+index f62cdf1238d77..fbf15ab700f49 100644
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -92,8 +92,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static inline unsigned ncm_bitrate(struct usb_gadget *g)
+ {
+-	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
++	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
 -- 
 2.25.1
 
