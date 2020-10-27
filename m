@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E71229B51F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A02729B520
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753874AbgJ0PIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:08:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43390 "EHLO mail.kernel.org"
+        id S1793793AbgJ0PIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:08:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793773AbgJ0PIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:08:15 -0400
+        id S1793787AbgJ0PIS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:08:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 141D7206E5;
-        Tue, 27 Oct 2020 15:08:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1893E206E5;
+        Tue, 27 Oct 2020 15:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811294;
-        bh=9Z0BV+pcPEXz15ht+CDhxkr4zW1ipdYLTDkJG9TligU=;
+        s=default; t=1603811297;
+        bh=L37jF1pQXJyx4qM5+JP2pFqFz3sAMDilyqYOXV7D4E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzePP7E37GFRWE1s3NXvk9rps+p6Dl8cWd5aTn2V6NIKyZsk+BK5+I7L2uOc1n80x
-         VCjN3Bh1KMKQKr5VJ5UIfH5c7NI8Ekevm9WZM95DPPhaPgNPkTIaVBiOlXJB4UQtPU
-         qTUP7OOKcKy52U5canPxxyr4TmAwRvmrYtA9gjOM=
+        b=Jan6Ss/UAzOzD8B2CMfr0r8u/+5IEw8WbEBHqEoYjdZcnroUO9WJ9x3qxsV4+dGgP
+         +/NjZe1M/vAfX6F7dUXg1MJIfViDsYqCEcn1TZ5u8kNxxMlJS6Q9h8ZnSTUfTarx4a
+         Wl60ukJKHLzRr80gW/ntn0AMPKUGoWJaPSr9HjZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Dubrova <pashadubrova@gmail.com>,
-        Konrad Dybcio <konradybcio@gmail.com>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Tero Kristo <t-kristo@ti.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 441/633] clk: qcom: gcc-sdm660: Fix wrong parent_map
-Date:   Tue, 27 Oct 2020 14:53:04 +0100
-Message-Id: <20201027135543.407232702@linuxfoundation.org>
+Subject: [PATCH 5.8 442/633] clk: keystone: sci-clk: fix parsing assigned-clock data during probe
+Date:   Tue, 27 Oct 2020 14:53:05 +0100
+Message-Id: <20201027135543.455349461@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,35 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konradybcio@gmail.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit d46e5a39f9be9288f1ce2170c4c7f8098f4e7f68 ]
+[ Upstream commit 2f05cced7307489faab873367fb20cd212e1d890 ]
 
-This was likely overlooked while porting the driver upstream.
+The DT clock probe loop incorrectly terminates after processing "clocks"
+only, fix this by re-starting the loop when all entries for current
+DT property have been parsed.
 
-Reported-by: Pavel Dubrova <pashadubrova@gmail.com>
-Signed-off-by: Konrad Dybcio <konradybcio@gmail.com>
-Link: https://lore.kernel.org/r/20200922120909.97203-1-konradybcio@gmail.com
-Fixes: f2a76a2955c0 ("clk: qcom: Add Global Clock controller (GCC) driver for SDM660")
+Fixes: 8e48b33f9def ("clk: keystone: sci-clk: probe clocks from DT instead of firmware")
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907085740.1083-2-t-kristo@ti.com
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sdm660.c | 2 +-
+ drivers/clk/keystone/sci-clk.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-sdm660.c b/drivers/clk/qcom/gcc-sdm660.c
-index c6fb57cd576f5..aa5c0c6ead017 100644
---- a/drivers/clk/qcom/gcc-sdm660.c
-+++ b/drivers/clk/qcom/gcc-sdm660.c
-@@ -666,7 +666,7 @@ static struct clk_rcg2 hmss_rbcpr_clk_src = {
- 	.cmd_rcgr = 0x48044,
- 	.mnd_width = 0,
- 	.hid_width = 5,
--	.parent_map = gcc_parent_map_xo_gpll0_gpll0_early_div,
-+	.parent_map = gcc_parent_map_xo_gpll0,
- 	.freq_tbl = ftbl_hmss_rbcpr_clk_src,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "hmss_rbcpr_clk_src",
+diff --git a/drivers/clk/keystone/sci-clk.c b/drivers/clk/keystone/sci-clk.c
+index 7edf8c8432b67..64ea895f1a7df 100644
+--- a/drivers/clk/keystone/sci-clk.c
++++ b/drivers/clk/keystone/sci-clk.c
+@@ -522,7 +522,7 @@ static int ti_sci_scan_clocks_from_dt(struct sci_clk_provider *provider)
+ 		np = of_find_node_with_property(np, *clk_name);
+ 		if (!np) {
+ 			clk_name++;
+-			break;
++			continue;
+ 		}
+ 
+ 		if (!of_device_is_available(np))
 -- 
 2.25.1
 
