@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 913BD29B08A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA9329B08B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900893AbgJ0OUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:20:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44186 "EHLO mail.kernel.org"
+        id S2900917AbgJ0OUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758640AbgJ0OUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:20:23 -0400
+        id S1758644AbgJ0OU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:20:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A904D206D4;
-        Tue, 27 Oct 2020 14:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A29F6206F7;
+        Tue, 27 Oct 2020 14:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808422;
-        bh=/CLhGNoOMb9IoWHwQk3snVjYwauyyh99vyyoj8zjzaM=;
+        s=default; t=1603808425;
+        bh=DUrXUBqEKUGWvSmhyupasCCNX7qF6SAzS4l+U/G6wnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DzH5XNU4IfxtV66tkXnUqfyb7w4rwXAqW5Nhm76ZbIJdy7/LkZnNlu2LWSwI069NJ
-         Hz1qWKmA4n1GbDCXUuIKqNv5PsUPUF5KLatx1Gf0CHyOvUXHJ3EXQeXWUf9uHWKPCo
-         tMqSsw8AjZQAGDjKc9qmalcF0eeYTjEc119U3pk0=
+        b=wrhZpN3UbK1DS/xLJ8s3OhsdVmrdDPROwITKWERf5vVKHujoyQJm8vNn7o5kiq5xE
+         TRZoc/BvAZMkp+sjfskSNVwTgaZdwEJlwK+dijux4z0eeyhT3NdM+7yM4iUj/2Iso/
+         JH695JRKNqZPPXgm5ZZA6KnZHTt2b9aDxL4pA5KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 086/264] pwm: lpss: Fix off by one error in base_unit math in pwm_lpss_prepare()
-Date:   Tue, 27 Oct 2020 14:52:24 +0100
-Message-Id: <20201027135434.740705006@linuxfoundation.org>
+Subject: [PATCH 4.19 087/264] pwm: lpss: Add range limit check for the base_unit register value
+Date:   Tue, 27 Oct 2020 14:52:25 +0100
+Message-Id: <20201027135434.786960571@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -49,57 +47,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 181f4d2f44463fe09fe4df02e03095cb87151c29 ]
+[ Upstream commit ef9f60daab309558c8bb3e086a9a11ee40bd6061 ]
 
-According to the data-sheet the way the PWM controller works is that
+When the user requests a high enough period ns value, then the
+calculations in pwm_lpss_prepare() might result in a base_unit value of 0.
+
+But according to the data-sheet the way the PWM controller works is that
 each input clock-cycle the base_unit gets added to a N bit counter and
-that counter overflowing determines the PWM output frequency.
+that counter overflowing determines the PWM output frequency. Adding 0
+to the counter is a no-op. The data-sheet even explicitly states that
+writing 0 to the base_unit bits will result in the PWM outputting a
+continuous 0 signal.
 
-So assuming e.g. a 16 bit counter this means that if base_unit is set to 1,
-after 65535 input clock-cycles the counter has been increased from 0 to
-65535 and it will overflow on the next cycle, so it will overflow after
-every 65536 clock cycles and thus the calculations done in
-pwm_lpss_prepare() should use 65536 and not 65535.
+When the user requestes a low enough period ns value, then the
+calculations in pwm_lpss_prepare() might result in a base_unit value
+which is bigger then base_unit_range - 1. Currently the codes for this
+deals with this by applying a mask:
 
-This commit fixes this. Note this also aligns the calculations in
-pwm_lpss_prepare() with those in pwm_lpss_get_state().
+	base_unit &= (base_unit_range - 1);
 
-Note this effectively reverts commit 684309e5043e ("pwm: lpss: Avoid
-potential overflow of base_unit"). The next patch in this series really
-fixes the potential overflow of the base_unit value.
+But this means that we let the value overflow the range, we throw away the
+higher bits and store whatever value is left in the lower bits into the
+register leading to a random output frequency, rather then clamping the
+output frequency to the highest frequency which the hardware can do.
+
+This commit fixes both issues by clamping the base_unit value to be
+between 1 and (base_unit_range - 1).
 
 Fixes: 684309e5043e ("pwm: lpss: Avoid potential overflow of base_unit")
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Acked-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200903112337.4113-4-hdegoede@redhat.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20200903112337.4113-5-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpss.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pwm/pwm-lpss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 7a4a6406cf69a..da63c029aa286 100644
+index da63c029aa286..69f8be065919e 100644
 --- a/drivers/pwm/pwm-lpss.c
 +++ b/drivers/pwm/pwm-lpss.c
-@@ -105,7 +105,7 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	 * The equation is:
- 	 * base_unit = round(base_unit_range * freq / c)
- 	 */
--	base_unit_range = BIT(lpwm->info->base_unit_bits) - 1;
-+	base_unit_range = BIT(lpwm->info->base_unit_bits);
+@@ -109,6 +109,8 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
  	freq *= base_unit_range;
  
  	base_unit = DIV_ROUND_CLOSEST_ULL(freq, c);
-@@ -116,8 +116,8 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
++	/* base_unit must not be 0 and we also want to avoid overflowing it */
++	base_unit = clamp_val(base_unit, 1, base_unit_range - 1);
  
+ 	on_time_div = 255ULL * duty_ns;
+ 	do_div(on_time_div, period_ns);
+@@ -117,7 +119,6 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
  	orig_ctrl = ctrl = pwm_lpss_read(pwm);
  	ctrl &= ~PWM_ON_TIME_DIV_MASK;
--	ctrl &= ~(base_unit_range << PWM_BASE_UNIT_SHIFT);
--	base_unit &= base_unit_range;
-+	ctrl &= ~((base_unit_range - 1) << PWM_BASE_UNIT_SHIFT);
-+	base_unit &= (base_unit_range - 1);
+ 	ctrl &= ~((base_unit_range - 1) << PWM_BASE_UNIT_SHIFT);
+-	base_unit &= (base_unit_range - 1);
  	ctrl |= (u32) base_unit << PWM_BASE_UNIT_SHIFT;
  	ctrl |= on_time_div;
  
