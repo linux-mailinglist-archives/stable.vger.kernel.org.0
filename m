@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E4F29BC5F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A91E229BE7A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1766490AbgJ0Qbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51424 "EHLO mail.kernel.org"
+        id S1812943AbgJ0Qqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802558AbgJ0PuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:06 -0400
+        id S1795052AbgJ0PO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:14:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81E3722281;
-        Tue, 27 Oct 2020 15:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 497AE20728;
+        Tue, 27 Oct 2020 15:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813806;
-        bh=Q9CHD5Ou3bkw3/j9FIqWOLtSLv6yrwBRIhK/v9KYZrQ=;
+        s=default; t=1603811698;
+        bh=yq0gWSECjPQM66kKtNub8gytoCMnqfIguqqQEgqvihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaVepu7Dkx5fxO9zxH+ejzzC9CTM2p1eTuIH7uGmzIchUSJIpF+cWcrSVerQ7l2N2
-         046ZA93xERBB4R5pPLl7WTG1jdX+0MUUUZa59dycNAGv5c4CUrdUC9sKNRrpQETnB/
-         VuTVzGoAp1BAE8oQHv9Q1uVWwoWemH5Nrd9kg6lU=
+        b=LmNr4JNeEcKE1ZCuChVS3yCQS02hC3IrpRP5skd0+d6XLsdjOQUrugvKBzOZJ0Tlq
+         hShAbPuhtVixLOGSOWUFlxyCEbRGl4MSIBV/+qFN/GhtoQDpItJob4MCMyotIza0sL
+         hPe9NdR9n674T4EqR0PrfWZ/ajUntPRmDYbdYhMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youquan Song <youquan.song@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 646/757] x86/mce: Add Skylake quirk for patrol scrub reported errors
-Date:   Tue, 27 Oct 2020 14:54:56 +0100
-Message-Id: <20201027135520.861844461@linuxfoundation.org>
+Subject: [PATCH 5.8 554/633] fs: dlm: fix configfs memory leak
+Date:   Tue, 27 Oct 2020 14:54:57 +0100
+Message-Id: <20201027135548.793197385@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit fd258dc4442c5c1c069c6b5b42bfe7d10cddda95 ]
+[ Upstream commit 3d2825c8c6105b0f36f3ff72760799fa2e71420e ]
 
-The patrol scrubber in Skylake and Cascade Lake systems can be configured
-to report uncorrected errors using a special signature in the machine
-check bank and to signal using CMCI instead of machine check.
+This patch fixes the following memory detected by kmemleak and umount
+gfs2 filesystem which removed the last lockspace:
 
-Update the severity calculation mechanism to allow specifying the model,
-minimum stepping and range of machine check bank numbers.
+unreferenced object 0xffff9264f482f600 (size 192):
+  comm "dlm_controld", pid 325, jiffies 4294690276 (age 48.136s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 6e 6f 64 65 73 00 00 00  ........nodes...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000060481d7>] make_space+0x41/0x130
+    [<000000008d905d46>] configfs_mkdir+0x1a2/0x5f0
+    [<00000000729502cf>] vfs_mkdir+0x155/0x210
+    [<000000000369bcf1>] do_mkdirat+0x6d/0x110
+    [<00000000cc478a33>] do_syscall_64+0x33/0x40
+    [<00000000ce9ccf01>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Add a new rule to detect the special signature (on model 0x55, stepping
->=4 in any of the memory controller banks).
+The patch just remembers the "nodes" entry pointer in space as I think
+it's created as subdirectory when parent "spaces" is created. In
+function drop_space() we will lost the pointer reference to nds because
+configfs_remove_default_groups(). However as this subdirectory is always
+available when "spaces" exists it will just be freed when "spaces" will be
+freed.
 
- [ bp: Rewrite it.
-   aegl: Productize it. ]
-
-Suggested-by: Youquan Song <youquan.song@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Co-developed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200930021313.31810-2-tony.luck@intel.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/severity.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ fs/dlm/config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mce/severity.c b/arch/x86/kernel/cpu/mce/severity.c
-index e1da619add192..567ce09a02868 100644
---- a/arch/x86/kernel/cpu/mce/severity.c
-+++ b/arch/x86/kernel/cpu/mce/severity.c
-@@ -9,9 +9,11 @@
- #include <linux/seq_file.h>
- #include <linux/init.h>
- #include <linux/debugfs.h>
--#include <asm/mce.h>
- #include <linux/uaccess.h>
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 3b21082e1b550..3b1012a3c4396 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -216,6 +216,7 @@ struct dlm_space {
+ 	struct list_head members;
+ 	struct mutex members_lock;
+ 	int members_count;
++	struct dlm_nodes *nds;
+ };
  
-+#include <asm/mce.h>
-+#include <asm/intel-family.h>
-+
- #include "internal.h"
+ struct dlm_comms {
+@@ -424,6 +425,7 @@ static struct config_group *make_space(struct config_group *g, const char *name)
+ 	INIT_LIST_HEAD(&sp->members);
+ 	mutex_init(&sp->members_lock);
+ 	sp->members_count = 0;
++	sp->nds = nds;
+ 	return &sp->group;
  
- /*
-@@ -40,9 +42,14 @@ static struct severity {
- 	unsigned char context;
- 	unsigned char excp;
- 	unsigned char covered;
-+	unsigned char cpu_model;
-+	unsigned char cpu_minstepping;
-+	unsigned char bank_lo, bank_hi;
- 	char *msg;
- } severities[] = {
- #define MCESEV(s, m, c...) { .sev = MCE_ ## s ## _SEVERITY, .msg = m, ## c }
-+#define BANK_RANGE(l, h) .bank_lo = l, .bank_hi = h
-+#define MODEL_STEPPING(m, s) .cpu_model = m, .cpu_minstepping = s
- #define  KERNEL		.context = IN_KERNEL
- #define  USER		.context = IN_USER
- #define  KERNEL_RECOV	.context = IN_KERNEL_RECOV
-@@ -97,7 +104,6 @@ static struct severity {
- 		KEEP, "Corrected error",
- 		NOSER, BITCLR(MCI_STATUS_UC)
- 		),
--
- 	/*
- 	 * known AO MCACODs reported via MCE or CMC:
- 	 *
-@@ -113,6 +119,18 @@ static struct severity {
- 		AO, "Action optional: last level cache writeback error",
- 		SER, MASK(MCI_UC_AR|MCACOD, MCI_STATUS_UC|MCACOD_L3WB)
- 		),
-+	/*
-+	 * Quirk for Skylake/Cascade Lake. Patrol scrubber may be configured
-+	 * to report uncorrected errors using CMCI with a special signature.
-+	 * UC=0, MSCOD=0x0010, MCACOD=binary(000X 0000 1100 XXXX) reported
-+	 * in one of the memory controller banks.
-+	 * Set severity to "AO" for same action as normal patrol scrub error.
-+	 */
-+	MCESEV(
-+		AO, "Uncorrected Patrol Scrub Error",
-+		SER, MASK(MCI_STATUS_UC|MCI_ADDR|0xffffeff0, MCI_ADDR|0x001000c0),
-+		MODEL_STEPPING(INTEL_FAM6_SKYLAKE_X, 4), BANK_RANGE(13, 18)
-+	),
+  fail:
+@@ -445,6 +447,7 @@ static void drop_space(struct config_group *g, struct config_item *i)
+ static void release_space(struct config_item *i)
+ {
+ 	struct dlm_space *sp = config_item_to_space(i);
++	kfree(sp->nds);
+ 	kfree(sp);
+ }
  
- 	/* ignore OVER for UCNA */
- 	MCESEV(
-@@ -324,6 +342,12 @@ static int mce_severity_intel(struct mce *m, int tolerant, char **msg, bool is_e
- 			continue;
- 		if (s->excp && excp != s->excp)
- 			continue;
-+		if (s->cpu_model && boot_cpu_data.x86_model != s->cpu_model)
-+			continue;
-+		if (s->cpu_minstepping && boot_cpu_data.x86_stepping < s->cpu_minstepping)
-+			continue;
-+		if (s->bank_lo && (m->bank < s->bank_lo || m->bank > s->bank_hi))
-+			continue;
- 		if (msg)
- 			*msg = s->msg;
- 		s->covered = 1;
 -- 
 2.25.1
 
