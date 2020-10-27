@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF1829BA23
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C4329B97A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1783588AbgJ0P5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
+        id S1802515AbgJ0Pty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802817AbgJ0Pvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:51:39 -0400
+        id S2901076AbgJ0PQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:16:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CB78207C3;
-        Tue, 27 Oct 2020 15:51:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25DC92225E;
+        Tue, 27 Oct 2020 15:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813897;
-        bh=DQjGKbpQTULMZhHuUu2Ys3nYEbPtZNpbo/JbdCotYps=;
+        s=default; t=1603811781;
+        bh=NpJaHbGeIIvE8rsE0MW0vmwhcN/eP4gt8C1Cw8J8JwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ud85NeXij8+7fecF6/XV9Y7XMLUeWcBE263c+xRaAySYuBovADPMEtt7vXGnAVHKM
-         wE+RGx+83kAUNXKYY/6XWE5tHOAF4xPh99nakugTAsUP1DPfoePSkt8gTuRDHzFF7O
-         XeNO03clqBVBu99sjEL9d9V4uu+cq+3Q9FN7gbWg=
+        b=tOymmholT/DcOnNUW4LUmpjqtV4WLQ8fclm34MZvvJVz3gpE+zN7qyzjnPTsbDhT6
+         xjy0WyzBgPeeMRzyh6GwBkg7kBR4pWiAwF6jVI0rxeer6Yg1TV7LkdaZjHG6abJHyt
+         iMlbitwpd9JS+D1JJ6gTt5inw/spdmnqQN36638w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 706/757] xfs: make sure the rt allocator doesnt run off the end
+        stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 613/633] ALSA: hda/ca0132 - Add new quirk ID for SoundBlaster AE-7.
 Date:   Tue, 27 Oct 2020 14:55:56 +0100
-Message-Id: <20201027135523.621223082@linuxfoundation.org>
+Message-Id: <20201027135551.585389601@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Connor McAdams <conmanx360@gmail.com>
 
-[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
+[ Upstream commit 620f08eea6d6961b789af3fa3ea86725c8c93ece ]
 
-There's an overflow bug in the realtime allocator.  If the rt volume is
-large enough to handle a single allocation request that is larger than
-the maximum bmap extent length and the rt bitmap ends exactly on a
-bitmap block boundary, it's possible that the near allocator will try to
-check the freeness of a range that extends past the end of the bitmap.
-This fails with a corruption error and shuts down the fs.
+Add a new PCI subsystem ID for the SoundBlaster AE-7 card.
 
-Therefore, constrain maxlen so that the range scan cannot run off the
-end of the rt bitmap.
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Connor McAdams <conmanx360@gmail.com>
+Link: https://lore.kernel.org/r/20200825201040.30339-11-conmanx360@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_ca0132.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 6209e7b6b895b..86994d7f7cba3 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -247,6 +247,9 @@ xfs_rtallocate_extent_block(
- 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
- 	     i <= end;
- 	     i++) {
-+		/* Make sure we don't scan off the end of the rt volume. */
-+		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
-+
- 		/*
- 		 * See if there's a free extent of maxlen starting at i.
- 		 * If it's not so then next will contain the first non-free.
-@@ -442,6 +445,14 @@ xfs_rtallocate_extent_near(
- 	 */
- 	if (bno >= mp->m_sb.sb_rextents)
- 		bno = mp->m_sb.sb_rextents - 1;
-+
-+	/* Make sure we don't run off the end of the rt volume. */
-+	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
-+	if (maxlen < minlen) {
-+		*rtblock = NULLRTBLOCK;
-+		return 0;
-+	}
-+
- 	/*
- 	 * Try the exact allocation first.
- 	 */
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index 62a9be5b827eb..a49c322bdbe9d 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1065,6 +1065,7 @@ enum {
+ 	QUIRK_R3DI,
+ 	QUIRK_R3D,
+ 	QUIRK_AE5,
++	QUIRK_AE7,
+ };
+ 
+ #ifdef CONFIG_PCI
+@@ -1184,6 +1185,7 @@ static const struct snd_pci_quirk ca0132_quirks[] = {
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
++	SND_PCI_QUIRK(0x1102, 0x0081, "Sound Blaster AE-7", QUIRK_AE7),
+ 	{}
+ };
+ 
 -- 
 2.25.1
 
