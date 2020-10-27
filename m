@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1042029C174
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:26:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABA429C1C8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818918AbgJ0RZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52250 "EHLO mail.kernel.org"
+        id S1818922AbgJ0RZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1771566AbgJ0Owd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1773006AbgJ0Owd (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 27 Oct 2020 10:52:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7EFC22258;
-        Tue, 27 Oct 2020 14:52:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C0A822264;
+        Tue, 27 Oct 2020 14:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810347;
-        bh=P/bk7xuVHHNBjoKf6h+7mas2/W2ecpQm5r52hVrm8qY=;
+        s=default; t=1603810350;
+        bh=1Gr1VumVpL/J3/Rg8pZcI647T5nB3p5ZEscPdFL9Po4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzL7EF4GMbGiagPm6mF88+55lcO3DQf454CRag/obHp08IemDXMkSrpmnOCxJcijJ
-         LuxcEWmgGOl4QzZ1lIDtwxBJyYUSZvfKE3WUXOLX+/zGYwnKAgBhZxQKlzJtPmjDVA
-         iFDINzllJpWDL4nhYVLhT1M+TQGUVD0ZR64VQAys=
+        b=bTuvVa1h9U06CZFZVHkDiqZySNxnNtjEKUkj7jkKlLoRoGqiYBuLjyxZV5qg0vnAA
+         FuILzZ5567yMXUku5NYHmHtMBVfHVWChQiNpGPNwEOozttSG7BJuCcGw/ukwYl1vpp
+         0cfSwQtZsQvoEA+DJRoA6gvFRt6noqYRudUie2nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+02d9172bf4c43104cd70@syzkaller.appspotmail.com
-Subject: [PATCH 5.8 106/633] media: vivid: Fix global-out-of-bounds read in precalculate_color()
-Date:   Tue, 27 Oct 2020 14:47:29 +0100
-Message-Id: <20201027135527.648933086@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 107/633] media: tuner-simple: fix regression in simple_set_radio_freq
+Date:   Tue, 27 Oct 2020 14:47:30 +0100
+Message-Id: <20201027135527.698119907@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,51 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit e3158a5e7e661786b3ab650c7e4d21024e8eff0f ]
+[ Upstream commit 505bfc2a142f12ce7bc7a878b44abc3496f2e747 ]
 
-vivid_meta_out_process() is setting `brightness`, `contrast`, `saturation`
-and `hue` using tpg_s_*(). This is wrong, since tpg_s_*() do not provide
-range checks. Using tpg_s_*() here also makes the control framework
-out-of-sync with the actual values. Use v4l2_ctrl_s_ctrl() instead.
+clang static analysis reports this problem
 
-This issue has been reported by syzbot as an out-of-bounds read bug in
-precalculate_color().
+tuner-simple.c:714:13: warning: Assigned value is
+  garbage or undefined
+        buffer[1] = buffer[3];
+                  ^ ~~~~~~~~~
+In simple_set_radio_freq buffer[3] used to be done
+in-function with a switch of tuner type, now done
+by a call to simple_radio_bandswitch which has this case
 
-Reported-and-tested-by: syzbot+02d9172bf4c43104cd70@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=02d9172bf4c43104cd70
+	case TUNER_TENA_9533_DI:
+	case TUNER_YMEC_TVF_5533MF:
+		tuner_dbg("This tuner doesn't ...
+		return 0;
 
-Fixes: 746facd39370 ("media: vivid: Add metadata output support")
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+which does not set buffer[3].  In the old logic, this case
+would have returned 0 from simple_set_radio_freq.
+
+Recover this old behavior by returning an error for this
+codition. Since the old simple_set_radio_freq behavior
+returned a 0, do the same.
+
+Fixes: c7a9f3aa1e1b ("V4L/DVB (7129): tuner-simple: move device-specific code into three separate functions")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/test-drivers/vivid/vivid-meta-out.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/tuners/tuner-simple.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/test-drivers/vivid/vivid-meta-out.c b/drivers/media/test-drivers/vivid/vivid-meta-out.c
-index ff8a039aba72e..95835b52b58fc 100644
---- a/drivers/media/test-drivers/vivid/vivid-meta-out.c
-+++ b/drivers/media/test-drivers/vivid/vivid-meta-out.c
-@@ -164,10 +164,11 @@ void vivid_meta_out_process(struct vivid_dev *dev,
- {
- 	struct vivid_meta_out_buf *meta = vb2_plane_vaddr(&buf->vb.vb2_buf, 0);
+diff --git a/drivers/media/tuners/tuner-simple.c b/drivers/media/tuners/tuner-simple.c
+index b6e70fada3fb2..8fb186b25d6af 100644
+--- a/drivers/media/tuners/tuner-simple.c
++++ b/drivers/media/tuners/tuner-simple.c
+@@ -500,7 +500,7 @@ static int simple_radio_bandswitch(struct dvb_frontend *fe, u8 *buffer)
+ 	case TUNER_TENA_9533_DI:
+ 	case TUNER_YMEC_TVF_5533MF:
+ 		tuner_dbg("This tuner doesn't have FM. Most cards have a TEA5767 for FM\n");
+-		return 0;
++		return -EINVAL;
+ 	case TUNER_PHILIPS_FM1216ME_MK3:
+ 	case TUNER_PHILIPS_FM1236_MK3:
+ 	case TUNER_PHILIPS_FMD1216ME_MK3:
+@@ -702,7 +702,8 @@ static int simple_set_radio_freq(struct dvb_frontend *fe,
+ 		    TUNER_RATIO_SELECT_50; /* 50 kHz step */
  
--	tpg_s_brightness(&dev->tpg, meta->brightness);
--	tpg_s_contrast(&dev->tpg, meta->contrast);
--	tpg_s_saturation(&dev->tpg, meta->saturation);
--	tpg_s_hue(&dev->tpg, meta->hue);
-+	v4l2_ctrl_s_ctrl(dev->brightness, meta->brightness);
-+	v4l2_ctrl_s_ctrl(dev->contrast, meta->contrast);
-+	v4l2_ctrl_s_ctrl(dev->saturation, meta->saturation);
-+	v4l2_ctrl_s_ctrl(dev->hue, meta->hue);
-+
- 	dprintk(dev, 2, " %s brightness %u contrast %u saturation %u hue %d\n",
- 		__func__, meta->brightness, meta->contrast,
- 		meta->saturation, meta->hue);
+ 	/* Bandswitch byte */
+-	simple_radio_bandswitch(fe, &buffer[0]);
++	if (simple_radio_bandswitch(fe, &buffer[0]))
++		return 0;
+ 
+ 	/* Convert from 1/16 kHz V4L steps to 1/20 MHz (=50 kHz) PLL steps
+ 	   freq * (1 Mhz / 16000 V4L steps) * (20 PLL steps / 1 MHz) =
 -- 
 2.25.1
 
