@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8566029C436
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A851329C431
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822920AbgJ0RyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47544 "EHLO mail.kernel.org"
+        id S1822890AbgJ0Rxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901358AbgJ0OWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:22:51 -0400
+        id S2901370AbgJ0OWy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:22:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C703B22265;
-        Tue, 27 Oct 2020 14:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91E492072D;
+        Tue, 27 Oct 2020 14:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808571;
-        bh=lTGcW0BQ92xe9tImYfeQuOQMIKd+1ytc5hmzA+7w6Fk=;
+        s=default; t=1603808574;
+        bh=ShjR72d+1wnr6v0rxTwHUziTu2XmR+9QAe3c8vz63tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8NVbXXmoI/iB6XHRaZN0a6AJL461sf6wx7XkKKTBKNOJzo6ex/Mmp199GJQwWT/d
-         6Oz75yOoRKdgYmnj/FPLtzY5ENb22FvHOQSiKxWb6erI+OtYJtsO3hj8EySO9C6rxD
-         VWStQR+URUJrK9AGFz9iQo7kXvxTp9RQRGf40UEU=
+        b=DgIm3Hg7+pSPclJC1KQyz+d5UfV7l4KAlHpPln1aaRNKvdWw0lWNOqcNrdkWKCepW
+         FhrkVWywQmNow32XcOYH/9cb/wKnKkKPq+BgOlOIBh38TCTh2PnMZ5VxXHIrkiZjom
+         A1Hv4uYr/cZzf243JkRaFGzNaPOU1yXdJUE7TlBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 141/264] xfs: fix high key handling in the rt allocators query_range function
-Date:   Tue, 27 Oct 2020 14:53:19 +0100
-Message-Id: <20201027135437.312233689@linuxfoundation.org>
+Subject: [PATCH 4.19 142/264] RDMA/qedr: Fix use of uninitialized field
+Date:   Tue, 27 Oct 2020 14:53:20 +0100
+Message-Id: <20201027135437.359734419@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,98 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit d88850bd5516a77c6f727e8b6cefb64e0cc929c7 ]
+[ Upstream commit a379ad54e55a12618cae7f6333fd1b3071de9606 ]
 
-Fix some off-by-one errors in xfs_rtalloc_query_range.  The highest key
-in the realtime bitmap is always one less than the number of rt extents,
-which means that the key clamp at the start of the function is wrong.
-The 4th argument to xfs_rtfind_forw is the highest rt extent that we
-want to probe, which means that passing 1 less than the high key is
-wrong.  Finally, drop the rem variable that controls the loop because we
-can compare the iteration point (rtstart) against the high key directly.
+dev->attr.page_size_caps was used uninitialized when setting device
+attributes
 
-The sordid history of this function is that the original commit (fb3c3)
-incorrectly passed (high_rec->ar_startblock - 1) as the 'limit' parameter
-to xfs_rtfind_forw.  This was wrong because the "high key" is supposed
-to be the largest key for which the caller wants result rows, not the
-key for the first row that could possibly be outside the range that the
-caller wants to see.
-
-A subsequent attempt (8ad56) to strengthen the parameter checking added
-incorrect clamping of the parameters to the number of rt blocks in the
-system (despite the bitmap functions all taking units of rt extents) to
-avoid querying ranges past the end of rt bitmap file but failed to fix
-the incorrect _rtfind_forw parameter.  The original _rtfind_forw
-parameter error then survived the conversion of the startblock and
-blockcount fields to rt extents (a0e5c), and the most recent off-by-one
-fix (a3a37) thought it was patching a problem when the end of the rt
-volume is not in use, but none of these fixes actually solved the
-original problem that the author was confused about the "limit" argument
-to xfs_rtfind_forw.
-
-Sadly, all four of these patches were written by this author and even
-his own usage of this function and rt testing were inadequate to get
-this fixed quickly.
-
-Original-problem: fb3c3de2f65c ("xfs: add a couple of queries to iterate free extents in the rtbitmap")
-Not-fixed-by: 8ad560d2565e ("xfs: strengthen rtalloc query range checks")
-Not-fixed-by: a0e5c435babd ("xfs: fix xfs_rtalloc_rec units")
-Fixes: a3a374bf1889 ("xfs: fix off-by-one error in xfs_rtalloc_query_range")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Fixes: ec72fce401c6 ("qedr: Add support for RoCE HW init")
+Link: https://lore.kernel.org/r/20200902165741.8355-4-michal.kalderon@marvell.com
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rtbitmap.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/qedr/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rtbitmap.c b/fs/xfs/libxfs/xfs_rtbitmap.c
-index b228c821bae68..fe7323032e785 100644
---- a/fs/xfs/libxfs/xfs_rtbitmap.c
-+++ b/fs/xfs/libxfs/xfs_rtbitmap.c
-@@ -1020,7 +1020,6 @@ xfs_rtalloc_query_range(
- 	struct xfs_mount		*mp = tp->t_mountp;
- 	xfs_rtblock_t			rtstart;
- 	xfs_rtblock_t			rtend;
--	xfs_rtblock_t			rem;
- 	int				is_free;
- 	int				error = 0;
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index d1680d3b58250..2a82661620fe7 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -604,7 +604,7 @@ static int qedr_set_device_attr(struct qedr_dev *dev)
+ 	qed_attr = dev->ops->rdma_query_device(dev->rdma_ctx);
  
-@@ -1029,13 +1028,12 @@ xfs_rtalloc_query_range(
- 	if (low_rec->ar_startext >= mp->m_sb.sb_rextents ||
- 	    low_rec->ar_startext == high_rec->ar_startext)
- 		return 0;
--	if (high_rec->ar_startext > mp->m_sb.sb_rextents)
--		high_rec->ar_startext = mp->m_sb.sb_rextents;
-+	high_rec->ar_startext = min(high_rec->ar_startext,
-+			mp->m_sb.sb_rextents - 1);
- 
- 	/* Iterate the bitmap, looking for discrepancies. */
- 	rtstart = low_rec->ar_startext;
--	rem = high_rec->ar_startext - rtstart;
--	while (rem) {
-+	while (rtstart <= high_rec->ar_startext) {
- 		/* Is the first block free? */
- 		error = xfs_rtcheck_range(mp, tp, rtstart, 1, 1, &rtend,
- 				&is_free);
-@@ -1044,7 +1042,7 @@ xfs_rtalloc_query_range(
- 
- 		/* How long does the extent go for? */
- 		error = xfs_rtfind_forw(mp, tp, rtstart,
--				high_rec->ar_startext - 1, &rtend);
-+				high_rec->ar_startext, &rtend);
- 		if (error)
- 			break;
- 
-@@ -1057,7 +1055,6 @@ xfs_rtalloc_query_range(
- 				break;
- 		}
- 
--		rem -= rtend - rtstart + 1;
- 		rtstart = rtend + 1;
- 	}
- 
+ 	/* Part 2 - check capabilities */
+-	page_size = ~dev->attr.page_size_caps + 1;
++	page_size = ~qed_attr->page_size_caps + 1;
+ 	if (page_size > PAGE_SIZE) {
+ 		DP_ERR(dev,
+ 		       "Kernel PAGE_SIZE is %ld which is smaller than minimum page size (%d) required by qedr\n",
 -- 
 2.25.1
 
