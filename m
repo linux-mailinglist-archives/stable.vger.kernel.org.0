@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E083029B96B
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDA329B96A
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802467AbgJ0PtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
+        id S1802465AbgJ0Psy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796410AbgJ0PSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:21 -0400
+        id S1796412AbgJ0PSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:18:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7342E22275;
-        Tue, 27 Oct 2020 15:18:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E571E222E9;
+        Tue, 27 Oct 2020 15:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811887;
-        bh=WfdT05M5ASBxeU9VIdB7eIjwd+5z3IIS5pHNdGtx2y8=;
+        s=default; t=1603811892;
+        bh=8AgK59QZ6Y+V+GpOCn8R6sQwifNuKVGsl3UtLc3qVIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnnwmdYtXge6ddbrt3Z3IKPbAhYXX+pt+pEG87JY4szayWN9YK4ZjK3rFA26WmH/q
-         kqpYxX2vqyDlUN5Fclx+mE5OpXENiy3mAeCF0xDM2uRUGkCTcUmw7Fi3biDqOC7hKd
-         F1/4cpF+enFn564XUnXP81LFiOL2rgfbN4u2r+kA=
+        b=hDqdRAiRbz0+RrNn74epUnWQ7zIiQf2yEDYrVmAbr8m2zB/FoVrmjI8Bww0D5Ela4
+         W4rVEB1fPJk41LXEIu6QSJzW1ZHvlV35UD6/HL1eFZ41EIszvXdWCveAc32mzVYafo
+         I4EHpeGHbtxfpEnbP5ifvZi6h8ygs4n57CiHSH6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Huu Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 018/757] tipc: fix NULL pointer dereference in tipc_named_rcv
-Date:   Tue, 27 Oct 2020 14:44:28 +0100
-Message-Id: <20201027135451.373210630@linuxfoundation.org>
+Subject: [PATCH 5.9 020/757] socket: fix option SO_TIMESTAMPING_NEW
+Date:   Tue, 27 Oct 2020 14:44:30 +0100
+Message-Id: <20201027135451.464532332@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,117 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Huu Le <hoang.h.le@dektech.com.au>
+From: Christian Eggers <ceggers@arri.de>
 
-[ Upstream commit 7b50ee3dad2581dc022b4e32e55964d4fcdccf20 ]
+[ Upstream commit 59e611a566e7cd48cf54b6777a11fe3f9c2f9db5 ]
 
-In the function node_lost_contact(), we call __skb_queue_purge() without
-grabbing the list->lock. This can cause to a race-condition why processing
-the list 'namedq' in calling path tipc_named_rcv()->tipc_named_dequeue().
+The comparison of optname with SO_TIMESTAMPING_NEW is wrong way around,
+so SOCK_TSTAMP_NEW will first be set and than reset again. Additionally
+move it out of the test for SOF_TIMESTAMPING_RX_SOFTWARE as this seems
+unrelated.
 
-    [] BUG: kernel NULL pointer dereference, address: 0000000000000000
-    [] #PF: supervisor read access in kernel mode
-    [] #PF: error_code(0x0000) - not-present page
-    [] PGD 7ca63067 P4D 7ca63067 PUD 6c553067 PMD 0
-    [] Oops: 0000 [#1] SMP NOPTI
-    [] CPU: 1 PID: 15 Comm: ksoftirqd/1 Tainted: G  O  5.9.0-rc6+ #2
-    [] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS [...]
-    [] RIP: 0010:tipc_named_rcv+0x103/0x320 [tipc]
-    [] Code: 41 89 44 24 10 49 8b 16 49 8b 46 08 49 c7 06 00 00 00 [...]
-    [] RSP: 0018:ffffc900000a7c58 EFLAGS: 00000282
-    [] RAX: 00000000000012ec RBX: 0000000000000000 RCX: ffff88807bde1270
-    [] RDX: 0000000000002c7c RSI: 0000000000002c7c RDI: ffff88807b38f1a8
-    [] RBP: ffff88807b006288 R08: ffff88806a367800 R09: ffff88806a367900
-    [] R10: ffff88806a367a00 R11: ffff88806a367b00 R12: ffff88807b006258
-    [] R13: ffff88807b00628a R14: ffff888069334d00 R15: ffff88806a434600
-    [] FS:  0000000000000000(0000) GS:ffff888079480000(0000) knlGS:0[...]
-    [] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [] CR2: 0000000000000000 CR3: 0000000077320000 CR4: 00000000000006e0
-    [] Call Trace:
-    []  ? tipc_bcast_rcv+0x9a/0x1a0 [tipc]
-    []  tipc_rcv+0x40d/0x670 [tipc]
-    []  ? _raw_spin_unlock+0xa/0x20
-    []  tipc_l2_rcv_msg+0x55/0x80 [tipc]
-    []  __netif_receive_skb_one_core+0x8c/0xa0
-    []  process_backlog+0x98/0x140
-    []  net_rx_action+0x13a/0x420
-    []  __do_softirq+0xdb/0x316
-    []  ? smpboot_thread_fn+0x2f/0x1e0
-    []  ? smpboot_thread_fn+0x74/0x1e0
-    []  ? smpboot_thread_fn+0x14e/0x1e0
-    []  run_ksoftirqd+0x1a/0x40
-    []  smpboot_thread_fn+0x149/0x1e0
-    []  ? sort_range+0x20/0x20
-    []  kthread+0x131/0x150
-    []  ? kthread_unuse_mm+0xa0/0xa0
-    []  ret_from_fork+0x22/0x30
-    [] Modules linked in: veth tipc(O) ip6_udp_tunnel udp_tunnel [...]
-    [] CR2: 0000000000000000
-    [] ---[ end trace 65c276a8e2e2f310 ]---
+This problem happens on 32 bit platforms were the libc has already
+switched to struct timespec64 (from SO_TIMExxx_OLD to SO_TIMExxx_NEW
+socket options). ptp4l complains with "missing timestamp on transmitted
+peer delay request" because the wrong format is received (and
+discarded).
 
-To fix this, we need to grab the lock of the 'namedq' list on both
-path calling.
-
-Fixes: cad2929dc432 ("tipc: update a binding service via broadcast")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Huu Le <hoang.h.le@dektech.com.au>
+Fixes: 9718475e6908 ("socket: Add SO_TIMESTAMPING_NEW")
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Reviewed-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Reviewed-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Deepa Dinamani <deepa.kernel@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/name_distr.c |   10 +++++++++-
- net/tipc/node.c       |    2 +-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ net/core/sock.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/net/tipc/name_distr.c
-+++ b/net/tipc/name_distr.c
-@@ -327,8 +327,13 @@ static struct sk_buff *tipc_named_dequeu
- 	struct tipc_msg *hdr;
- 	u16 seqno;
- 
-+	spin_lock_bh(&namedq->lock);
- 	skb_queue_walk_safe(namedq, skb, tmp) {
--		skb_linearize(skb);
-+		if (unlikely(skb_linearize(skb))) {
-+			__skb_unlink(skb, namedq);
-+			kfree_skb(skb);
-+			continue;
-+		}
- 		hdr = buf_msg(skb);
- 		seqno = msg_named_seqno(hdr);
- 		if (msg_is_last_bulk(hdr)) {
-@@ -338,12 +343,14 @@ static struct sk_buff *tipc_named_dequeu
- 
- 		if (msg_is_bulk(hdr) || msg_is_legacy(hdr)) {
- 			__skb_unlink(skb, namedq);
-+			spin_unlock_bh(&namedq->lock);
- 			return skb;
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1007,8 +1007,6 @@ set_sndbuf:
+ 		__sock_set_timestamps(sk, valbool, true, true);
+ 		break;
+ 	case SO_TIMESTAMPING_NEW:
+-		sock_set_flag(sk, SOCK_TSTAMP_NEW);
+-		fallthrough;
+ 	case SO_TIMESTAMPING_OLD:
+ 		if (val & ~SOF_TIMESTAMPING_MASK) {
+ 			ret = -EINVAL;
+@@ -1037,16 +1035,14 @@ set_sndbuf:
  		}
  
- 		if (*open && (*rcv_nxt == seqno)) {
- 			(*rcv_nxt)++;
- 			__skb_unlink(skb, namedq);
-+			spin_unlock_bh(&namedq->lock);
- 			return skb;
- 		}
+ 		sk->sk_tsflags = val;
++		sock_valbool_flag(sk, SOCK_TSTAMP_NEW, optname == SO_TIMESTAMPING_NEW);
++
+ 		if (val & SOF_TIMESTAMPING_RX_SOFTWARE)
+ 			sock_enable_timestamp(sk,
+ 					      SOCK_TIMESTAMPING_RX_SOFTWARE);
+-		else {
+-			if (optname == SO_TIMESTAMPING_NEW)
+-				sock_reset_flag(sk, SOCK_TSTAMP_NEW);
+-
++		else
+ 			sock_disable_timestamp(sk,
+ 					       (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE));
+-		}
+ 		break;
  
-@@ -353,6 +360,7 @@ static struct sk_buff *tipc_named_dequeu
- 			continue;
- 		}
- 	}
-+	spin_unlock_bh(&namedq->lock);
- 	return NULL;
- }
- 
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -1485,7 +1485,7 @@ static void node_lost_contact(struct tip
- 
- 	/* Clean up broadcast state */
- 	tipc_bcast_remove_peer(n->net, n->bc_entry.link);
--	__skb_queue_purge(&n->bc_entry.namedq);
-+	skb_queue_purge(&n->bc_entry.namedq);
- 
- 	/* Abort any ongoing link failover */
- 	for (i = 0; i < MAX_BEARERS; i++) {
+ 	case SO_RCVLOWAT:
 
 
