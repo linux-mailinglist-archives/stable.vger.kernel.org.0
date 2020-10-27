@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B6229C644
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2746F29C737
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826017AbgJ0SPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
+        id S368092AbgJ0N5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756361AbgJ0OMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:50 -0400
+        id S368116AbgJ0N47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:56:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B644A2076A;
-        Tue, 27 Oct 2020 14:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83C462074B;
+        Tue, 27 Oct 2020 13:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807970;
-        bh=2J6mySmFY3XBdGmC07zXWF/0AmGr+PLeMDMLR5N7YJ8=;
+        s=default; t=1603807019;
+        bh=Y0LEP7xtmW9aZ9+uKOXS1UM96fe9IIZEIvUNvxHAsuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iaq7u8Ni5bMbqsW/6B1wV6sGjLpS8PhYG43q6aY2xOvK8+jV3c0ZygYGKTzT/qNuE
-         +XwlkrQMyrUH6FfM0LAt9W9Yd9qPjMCx16uolTffLgnFmJyUw04pKw7Snuu2GxJ/62
-         tuO+9i6NXzgE441n6MC75g204+FwNxLAgOWNMgs4=
+        b=YDeIA9ErhYNxHWs5oZU7fvFxNvrPkpwOvurA0ID0R6lblV+yfNmLqsHCtrRpY9+Nq
+         CIhtcV4VuorRYAkS76+yByXyfIWHbskJeGVs6775F0GJmf7o+e5rOpBAsLEG7S9o6k
+         dCcMQUSYJg5ISTP+BYt0JXbTnER8uQgtsq5YUEr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 067/191] misc: mic: scif: Fix error handling path
-Date:   Tue, 27 Oct 2020 14:48:42 +0100
-Message-Id: <20201027134912.964916740@linuxfoundation.org>
+        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 013/112] net: hdlc_raw_eth: Clear the IFF_TX_SKB_SHARING flag after calling ether_setup
+Date:   Tue, 27 Oct 2020 14:48:43 +0100
+Message-Id: <20201027134901.188343674@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder <jrdr.linux@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit a81072a9c0ae734b7889929b0bc070fe3f353f0e ]
+[ Upstream commit 5fce1e43e2d5bf2f7e3224d7b99b1c65ab2c26e2 ]
 
-Inside __scif_pin_pages(), when map_flags != SCIF_MAP_KERNEL it
-will call pin_user_pages_fast() to map nr_pages. However,
-pin_user_pages_fast() might fail with a return value -ERRNO.
+This driver calls ether_setup to set up the network device.
+The ether_setup function would add the IFF_TX_SKB_SHARING flag to the
+device. This flag indicates that it is safe to transmit shared skbs to
+the device.
 
-The return value is stored in pinned_pages->nr_pages. which in
-turn is passed to unpin_user_pages(), which expects
-pinned_pages->nr_pages >=0, else disaster.
+However, this is not true. This driver may pad the frame (in eth_tx)
+before transmission, so the skb may be modified.
 
-Fix this by assigning pinned_pages->nr_pages to 0 if
-pin_user_pages_fast() returns -ERRNO.
-
-Fixes: ba612aa8b487 ("misc: mic: SCIF memory registration and unregistration")
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-Link: https://lore.kernel.org/r/1600570295-29546-1-git-send-email-jrdr.linux@gmail.com
+Fixes: 550fd08c2ceb ("net: Audit drivers to identify those needing IFF_TX_SKB_SHARING cleared")
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201020063420.187497-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/scif/scif_rma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc_raw_eth.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/mic/scif/scif_rma.c b/drivers/misc/mic/scif/scif_rma.c
-index 95745dc4e0ecf..f282c2eaab29b 100644
---- a/drivers/misc/mic/scif/scif_rma.c
-+++ b/drivers/misc/mic/scif/scif_rma.c
-@@ -1404,6 +1404,8 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
- 				NULL);
- 		up_write(&mm->mmap_sem);
- 		if (nr_pages != pinned_pages->nr_pages) {
-+			if (pinned_pages->nr_pages < 0)
-+				pinned_pages->nr_pages = 0;
- 			if (try_upgrade) {
- 				if (ulimit)
- 					__scif_dec_pinned_vm_lock(mm,
-@@ -1424,7 +1426,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
- 
- 	if (pinned_pages->nr_pages < nr_pages) {
- 		err = -EFAULT;
--		pinned_pages->nr_pages = nr_pages;
- 		goto dec_pinned;
- 	}
- 
-@@ -1437,7 +1438,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
- 		__scif_dec_pinned_vm_lock(mm, nr_pages, 0);
- 	/* Something went wrong! Rollback */
- error_unmap:
--	pinned_pages->nr_pages = nr_pages;
- 	scif_destroy_pinned_pages(pinned_pages);
- 	*pages = NULL;
- 	dev_dbg(scif_info.mdev.this_device,
--- 
-2.25.1
-
+--- a/drivers/net/wan/hdlc_raw_eth.c
++++ b/drivers/net/wan/hdlc_raw_eth.c
+@@ -101,6 +101,7 @@ static int raw_eth_ioctl(struct net_devi
+ 		old_qlen = dev->tx_queue_len;
+ 		ether_setup(dev);
+ 		dev->tx_queue_len = old_qlen;
++		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 		eth_hw_addr_random(dev);
+ 		netif_dormant_off(dev);
+ 		return 0;
 
 
