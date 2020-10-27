@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C589529BB20
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:29:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E98829B7C9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1784510AbgJ0P5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:57:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
+        id S1796281AbgJ0PRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803044AbgJ0PwG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:06 -0400
+        id S1796199AbgJ0PQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:16:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A36F12225E;
-        Tue, 27 Oct 2020 15:52:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD9C820657;
+        Tue, 27 Oct 2020 15:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813924;
-        bh=f3mIBaTX5UcmzkqFWcYCbEA40V1tAclHvuZfTWZ31vQ=;
+        s=default; t=1603811770;
+        bh=MIJdmlDPf/6a9ww6acyCu/XbTZ0zqwY1PWgU7Qwbn/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=auJLwNiYGDZhGJK6DqtgBohBVLPnE7Jyq/qaHp4jU+cPy1WyymlCbXSlWqMBcGGdQ
-         N0QPIE5yNOzY1D6DhsEdguSjLGPckUU2ubR4x2XYR48iG761O3NvNlEZ8fye2Qx2Ww
-         pFtkElE8Ir2Fsopv+Zf0vWWzx14S+cz3oLIcdLuM=
+        b=XPht8ezB7vZloAeS8Z+oOpRbkr+hOjXZOq0L7qcSF7OgrLJgYjAEzCOjF8LJortCG
+         gnNGEK6qHHzye2waMYSVM5IqC8V9CoMKcOHwOCM50rzcvdhsq403eBo4xs4GSmDvdf
+         ENHNYU9GwZG4BBIhtQng56Fr8s1jY5kthEsvHnFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 675/757] mac80211: handle lack of sband->bitrates in rates
-Date:   Tue, 27 Oct 2020 14:55:25 +0100
-Message-Id: <20201027135522.195991411@linuxfoundation.org>
+Subject: [PATCH 5.8 583/633] drm/panfrost: add support for vendor quirk
+Date:   Tue, 27 Oct 2020 14:55:26 +0100
+Message-Id: <20201027135550.162377992@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
+[ Upstream commit 91e89097b86f566636ea5a7329c79d5521be46d2 ]
 
-Even though a driver or mac80211 shouldn't produce a
-legacy bitrate if sband->bitrates doesn't exist, don't
-crash if that is the case either.
+The T820, G31 & G52 GPUs integrated by Amlogic in the respective GXM,
+G12A/SM1 & G12B SoCs needs a quirk in the PWR registers after each reset.
 
-This fixes a kernel panic if station dump is run before
-last_rate can be updated with a data frame when
-sband->bitrates is missing (eg. in S1G bands).
+This adds a callback in the device compatible struct of permit this.
 
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+[Steven: Fix typo in commit log]
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916150147.25753-2-narmstrong@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c      | 3 ++-
- net/mac80211/sta_info.c | 4 ++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/panfrost/panfrost_device.h | 3 +++
+ drivers/gpu/drm/panfrost/panfrost_gpu.c    | 4 ++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 87fddd84c621e..82d516d117385 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -709,7 +709,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
- 		u16 brate;
- 
- 		sband = ieee80211_get_sband(sta->sdata);
--		if (sband) {
-+		WARN_ON_ONCE(sband && !sband->bitrates);
-+		if (sband && sband->bitrates) {
- 			brate = sband->bitrates[rate->idx].bitrate;
- 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
- 		}
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index f2840d1d95cfb..fb4f2b9b294f0 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -2122,6 +2122,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
- 		int rate_idx = STA_STATS_GET(LEGACY_IDX, rate);
- 
- 		sband = local->hw.wiphy->bands[band];
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
+index c30c719a80594..3c4a85213c15f 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.h
++++ b/drivers/gpu/drm/panfrost/panfrost_device.h
+@@ -69,6 +69,9 @@ struct panfrost_compatible {
+ 	int num_pm_domains;
+ 	/* Only required if num_pm_domains > 1. */
+ 	const char * const *pm_domain_names;
 +
-+		if (WARN_ON_ONCE(!sband->bitrates))
-+			break;
++	/* Vendor implementation quirks callback */
++	void (*vendor_quirk)(struct panfrost_device *pfdev);
+ };
+ 
+ struct panfrost_device {
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gpu.c b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+index a9d08a2927aa3..165403878ad9b 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gpu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+@@ -146,6 +146,10 @@ static void panfrost_gpu_init_quirks(struct panfrost_device *pfdev)
+ 
+ 	if (quirks)
+ 		gpu_write(pfdev, GPU_JM_CONFIG, quirks);
 +
- 		brate = sband->bitrates[rate_idx].bitrate;
- 		if (rinfo->bw == RATE_INFO_BW_5)
- 			shift = 2;
++	/* Here goes platform specific quirks */
++	if (pfdev->comp->vendor_quirk)
++		pfdev->comp->vendor_quirk(pfdev);
+ }
+ 
+ #define MAX_HW_REVS 6
 -- 
 2.25.1
 
