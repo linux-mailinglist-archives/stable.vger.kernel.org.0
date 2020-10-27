@@ -2,63 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B92029C667
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B4929C690
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826161AbgJ0SQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:16:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32938 "EHLO mail.kernel.org"
+        id S1826351AbgJ0ST0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2507378AbgJ0OLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:11:54 -0400
+        id S1754010AbgJ0ODi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61AE52231B;
-        Tue, 27 Oct 2020 14:11:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B471522282;
+        Tue, 27 Oct 2020 14:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807901;
-        bh=ZQGLz47Jh/72iG3C4qM/e5cbQr4iLLTZjWzhri5XSuU=;
+        s=default; t=1603807417;
+        bh=jpHkEl9IzXWMmdArUtMlk9SrPcyNz9YY3A+4aHVDd7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jwq7/R5InvX8DmtB5hMUFGNF2gv0DBTHjsXNYQkoN/MRqXDdv7ZClzQw/lqfO7P2S
-         8r2X/NPX0zyljAavvbukDYN4Ww88Bjd6Mggi8RiuGZ8uJOCyfzd/8hE2qa15oShxXG
-         mathDE3wsk/1ocuZQ47CbaGWkZt8rhBYWwNe9YlE=
+        b=zrJJHf8eFEhFZvC606/pMlOw/W0Fcxwet+T5sqUSZBj2bH/zH305OV3oLesPRSMfi
+         Dzd03C8CuBGfCnbdvjL8Rs5pUekBpiSf1PUc+Z1sFK+ScpYdd6MNvZwFRXOKGUaTDo
+         yy+Y8X4hy8EL8MV5gEc2Ob3VPGKlJat/Sy5sxTxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Eugene Syromiatnikov <esyr@redhat.com>,
-        Christian Kellner <christian@kellner.me>,
-        Adrian Reber <areber@redhat.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Alexey Gladkov <gladkov.alexey@gmail.com>,
-        Michel Lespinasse <walken@google.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        John Johansen <john.johansen@canonical.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Minchan Kim <minchan@kernel.org>
-Subject: [PATCH 4.14 084/191] mm, oom_adj: dont loop through tasks in __set_oom_adj when not necessary
-Date:   Tue, 27 Oct 2020 14:48:59 +0100
-Message-Id: <20201027134913.728164449@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jan Kara <jack@suse.com>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 046/139] quota: clear padding in v2r1_mem2diskdqb()
+Date:   Tue, 27 Oct 2020 14:49:00 +0100
+Message-Id: <20201027134904.316593546@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,184 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 67197a4f28d28d0b073ab0427b03cb2ee5382578 ]
+[ Upstream commit 3d3dc274ce736227e3197868ff749cff2f175f63 ]
 
-Currently __set_oom_adj loops through all processes in the system to keep
-oom_score_adj and oom_score_adj_min in sync between processes sharing
-their mm.  This is done for any task with more that one mm_users, which
-includes processes with multiple threads (sharing mm and signals).
-However for such processes the loop is unnecessary because their signal
-structure is shared as well.
+Freshly allocated memory contains garbage, better make sure
+to init all struct v2r1_disk_dqblk fields to avoid KMSAN report:
 
-Android updates oom_score_adj whenever a tasks changes its role
-(background/foreground/...) or binds to/unbinds from a service, making it
-more/less important.  Such operation can happen frequently.  We noticed
-that updates to oom_score_adj became more expensive and after further
-investigation found out that the patch mentioned in "Fixes" introduced a
-regression.  Using Pixel 4 with a typical Android workload, write time to
-oom_score_adj increased from ~3.57us to ~362us.  Moreover this regression
-linearly depends on the number of multi-threaded processes running on the
-system.
+BUG: KMSAN: uninit-value in qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
+CPU: 0 PID: 23373 Comm: syz-executor.1 Not tainted 5.9.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:219
+ qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
+ v2r1_mem2diskdqb+0x43d/0x710 fs/quota/quota_v2.c:285
+ qtree_write_dquot+0x226/0x870 fs/quota/quota_tree.c:394
+ v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
+ dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
+ ext4_write_dquot fs/ext4/super.c:5934 [inline]
+ ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
+ mark_dquot_dirty fs/quota/dquot.c:347 [inline]
+ mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
+ dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
+ __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
+ ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
+ vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
+ do_tmpfile fs/namei.c:3316 [inline]
+ path_openat+0x4035/0x6a90 fs/namei.c:3359
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+RIP: 0023:0xf7ff4549
+Code: b8 01 10 06 03 74 b4 01 10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+RSP: 002b:00000000f55cd0cc EFLAGS: 00000296 ORIG_RAX: 0000000000000127
+RAX: ffffffffffffffda RBX: 00000000ffffff9c RCX: 0000000020000000
+RDX: 0000000000410481 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
 
-Mark the mm with a new MMF_MULTIPROCESS flag bit when task is created with
-(CLONE_VM && !CLONE_THREAD && !CLONE_VFORK).  Change __set_oom_adj to use
-MMF_MULTIPROCESS instead of mm_users to decide whether oom_score_adj
-update should be synchronized between multiple processes.  To prevent
-races between clone() and __set_oom_adj(), when oom_score_adj of the
-process being cloned might be modified from userspace, we use
-oom_adj_mutex.  Its scope is changed to global.
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:143 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:126
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:80
+ slab_alloc_node mm/slub.c:2907 [inline]
+ slab_alloc mm/slub.c:2916 [inline]
+ __kmalloc+0x2bb/0x4b0 mm/slub.c:3982
+ kmalloc include/linux/slab.h:559 [inline]
+ getdqbuf+0x56/0x150 fs/quota/quota_tree.c:52
+ qtree_write_dquot+0xf2/0x870 fs/quota/quota_tree.c:378
+ v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
+ dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
+ ext4_write_dquot fs/ext4/super.c:5934 [inline]
+ ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
+ mark_dquot_dirty fs/quota/dquot.c:347 [inline]
+ mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
+ dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
+ __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
+ ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
+ vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
+ do_tmpfile fs/namei.c:3316 [inline]
+ path_openat+0x4035/0x6a90 fs/namei.c:3359
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
-The combination of (CLONE_VM && !CLONE_THREAD) is rarely used except for
-the case of vfork().  To prevent performance regressions of vfork(), we
-skip taking oom_adj_mutex and setting MMF_MULTIPROCESS when CLONE_VFORK is
-specified.  Clearing the MMF_MULTIPROCESS flag (when the last process
-sharing the mm exits) is left out of this patch to keep it simple and
-because it is believed that this threading model is rare.  Should there
-ever be a need for optimizing that case as well, it can be done by hooking
-into the exit path, likely following the mm_update_next_owner pattern.
-
-With the combination of (CLONE_VM && !CLONE_THREAD && !CLONE_VFORK) being
-quite rare, the regression is gone after the change is applied.
-
-[surenb@google.com: v3]
-  Link: https://lkml.kernel.org/r/20200902012558.2335613-1-surenb@google.com
-
-Fixes: 44a70adec910 ("mm, oom_adj: make sure processes sharing mm have same view of oom_score_adj")
-Reported-by: Tim Murray <timmurray@google.com>
-Suggested-by: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: Christian Kellner <christian@kellner.me>
-Cc: Adrian Reber <areber@redhat.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Aleksa Sarai <cyphar@cyphar.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alexey Gladkov <gladkov.alexey@gmail.com>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Bernd Edlinger <bernd.edlinger@hotmail.de>
-Cc: John Johansen <john.johansen@canonical.com>
-Cc: Yafang Shao <laoar.shao@gmail.com>
-Link: https://lkml.kernel.org/r/20200824153036.3201505-1-surenb@google.com
-Debugged-by: Minchan Kim <minchan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 498c60153ebb ("quota: Implement quota format with 64-bit space and inode limits")
+Link: https://lore.kernel.org/r/20200924183619.4176790-1-edumazet@google.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jan Kara <jack@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/base.c                 |  3 +--
- include/linux/oom.h            |  1 +
- include/linux/sched/coredump.h |  1 +
- kernel/fork.c                  | 21 +++++++++++++++++++++
- mm/oom_kill.c                  |  2 ++
- 5 files changed, 26 insertions(+), 2 deletions(-)
+ fs/quota/quota_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 64695dcf89f3b..eeb81d9648c67 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1041,7 +1041,6 @@ static ssize_t oom_adj_read(struct file *file, char __user *buf, size_t count,
- 
- static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
- {
--	static DEFINE_MUTEX(oom_adj_mutex);
- 	struct mm_struct *mm = NULL;
- 	struct task_struct *task;
- 	int err = 0;
-@@ -1081,7 +1080,7 @@ static int __set_oom_adj(struct file *file, int oom_adj, bool legacy)
- 		struct task_struct *p = find_lock_task_mm(task);
- 
- 		if (p) {
--			if (atomic_read(&p->mm->mm_users) > 1) {
-+			if (test_bit(MMF_MULTIPROCESS, &p->mm->flags)) {
- 				mm = p->mm;
- 				mmgrab(mm);
- 			}
-diff --git a/include/linux/oom.h b/include/linux/oom.h
-index 6adac113e96d2..c84597595cb41 100644
---- a/include/linux/oom.h
-+++ b/include/linux/oom.h
-@@ -45,6 +45,7 @@ struct oom_control {
- };
- 
- extern struct mutex oom_lock;
-+extern struct mutex oom_adj_mutex;
- 
- static inline void set_current_oom_origin(void)
- {
-diff --git a/include/linux/sched/coredump.h b/include/linux/sched/coredump.h
-index ecdc6542070f1..dfd82eab29025 100644
---- a/include/linux/sched/coredump.h
-+++ b/include/linux/sched/coredump.h
-@@ -72,6 +72,7 @@ static inline int get_dumpable(struct mm_struct *mm)
- #define MMF_DISABLE_THP		24	/* disable THP for all VMAs */
- #define MMF_OOM_VICTIM		25	/* mm is the oom victim */
- #define MMF_OOM_REAP_QUEUED	26	/* mm was queued for oom_reaper */
-+#define MMF_MULTIPROCESS	27	/* mm is shared between processes */
- #define MMF_DISABLE_THP_MASK	(1 << MMF_DISABLE_THP)
- 
- #define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 0a328cf0cb136..535aeb7ca145c 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1544,6 +1544,25 @@ static __always_inline void delayed_free_task(struct task_struct *tsk)
- 		free_task(tsk);
+diff --git a/fs/quota/quota_v2.c b/fs/quota/quota_v2.c
+index ca71bf881ad1e..4a39bb98f8ab5 100644
+--- a/fs/quota/quota_v2.c
++++ b/fs/quota/quota_v2.c
+@@ -266,6 +266,7 @@ static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
+ 	d->dqb_curspace = cpu_to_le64(m->dqb_curspace);
+ 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
+ 	d->dqb_id = cpu_to_le32(from_kqid(&init_user_ns, dquot->dq_id));
++	d->dqb_pad = 0;
+ 	if (qtree_entry_unused(info, dp))
+ 		d->dqb_itime = cpu_to_le64(1);
  }
- 
-+static void copy_oom_score_adj(u64 clone_flags, struct task_struct *tsk)
-+{
-+	/* Skip if kernel thread */
-+	if (!tsk->mm)
-+		return;
-+
-+	/* Skip if spawning a thread or using vfork */
-+	if ((clone_flags & (CLONE_VM | CLONE_THREAD | CLONE_VFORK)) != CLONE_VM)
-+		return;
-+
-+	/* We need to synchronize with __set_oom_adj */
-+	mutex_lock(&oom_adj_mutex);
-+	set_bit(MMF_MULTIPROCESS, &tsk->mm->flags);
-+	/* Update the values in case they were changed after copy_signal */
-+	tsk->signal->oom_score_adj = current->signal->oom_score_adj;
-+	tsk->signal->oom_score_adj_min = current->signal->oom_score_adj_min;
-+	mutex_unlock(&oom_adj_mutex);
-+}
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-@@ -1952,6 +1971,8 @@ static __latent_entropy struct task_struct *copy_process(
- 	trace_task_newtask(p, clone_flags);
- 	uprobe_copy_process(p, clone_flags);
- 
-+	copy_oom_score_adj(clone_flags, p);
-+
- 	return p;
- 
- bad_fork_cancel_cgroup:
-diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-index 7a5c0b229c6ae..6482d743c5c88 100644
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -53,6 +53,8 @@ int sysctl_oom_kill_allocating_task;
- int sysctl_oom_dump_tasks = 1;
- 
- DEFINE_MUTEX(oom_lock);
-+/* Serializes oom_score_adj and oom_score_adj_min updates */
-+DEFINE_MUTEX(oom_adj_mutex);
- 
- #ifdef CONFIG_NUMA
- /**
 -- 
 2.25.1
 
