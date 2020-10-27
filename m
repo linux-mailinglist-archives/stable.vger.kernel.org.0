@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A452029AF94
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437C829AF7C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756121AbgJ0OLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57766 "EHLO mail.kernel.org"
+        id S1755197AbgJ0OIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:08:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755186AbgJ0OIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:08:41 -0400
+        id S1755173AbgJ0OIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:08:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 252B8218AC;
-        Tue, 27 Oct 2020 14:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEAFC22258;
+        Tue, 27 Oct 2020 14:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807720;
-        bh=5l5lXuRCwiPdnM4NcsyKvki6e8dons/QoolZTFgRdjc=;
+        s=default; t=1603807723;
+        bh=UsXuWPO3MVgIBZEvmfMajERhlXMjTnec0B+27+LY1sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7vtek0Cvj8peU3+NJGPU2jX4d9VAhIGNxeZVYLKcr1YDUJQsmGSxRwDbACLcJK1D
-         a2VGqpj7QdqrjeKGnVTaM9u9g9TTuQd2PVsFJG8VEzt3dUKPV2U+trJT8VFxLAoPE2
-         3ItCucaIj42nF6jOV7qNVAQuqrh8FfrhLgEpmpsY=
+        b=xvJV28AtrxcUqYvpIi5BWBCwxWHY4zL2Wz3Tp3FJ+nmKXL89BnKyifyiXjGh7SwrO
+         Lw//ffWZF5CaCrT2u23QUCUcaZqjeG22+0MGBxMk0O4ffOh3A82cYQxJPoBMvIh57l
+         RvnhTkxebqBPo7vlJc9ZpvKpK792eAdp8G3LqCfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 017/191] cifs: Return the error from crypt_message when enc/dec key not found.
-Date:   Tue, 27 Oct 2020 14:47:52 +0100
-Message-Id: <20201027134910.550559254@linuxfoundation.org>
+        stable@vger.kernel.org, Junaid Shahid <junaids@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 018/191] KVM: x86/mmu: Commit zap of remaining invalid pages when recovering lpages
+Date:   Tue, 27 Oct 2020 14:47:53 +0100
+Message-Id: <20201027134910.599243921@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -44,44 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 0bd294b55a5de442370c29fa53bab17aef3ff318 upstream.
+commit e89505698c9f70125651060547da4ff5046124fc upstream.
 
-In crypt_message, when smb2_get_enc_key returns error, we need to
-return the error back to the caller. If not, we end up processing
-the message further, causing a kernel oops due to unwarranted access
-of memory.
+Call kvm_mmu_commit_zap_page() after exiting the "prepare zap" loop in
+kvm_recover_nx_lpages() to finish zapping pages in the unlikely event
+that the loop exited due to lpage_disallowed_mmu_pages being empty.
+Because the recovery thread drops mmu_lock() when rescheduling, it's
+possible that lpage_disallowed_mmu_pages could be emptied by a different
+thread without to_zap reaching zero despite to_zap being derived from
+the number of disallowed lpages.
 
-Call Trace:
-smb3_receive_transform+0x120/0x870 [cifs]
-cifs_demultiplex_thread+0xb53/0xc20 [cifs]
-? cifs_handle_standard+0x190/0x190 [cifs]
-kthread+0x116/0x130
-? kthread_park+0x80/0x80
-ret_from_fork+0x1f/0x30
-
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 1aa9b9572b105 ("kvm: x86: mmu: Recovery of shattered NX large pages")
+Cc: Junaid Shahid <junaids@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923183735.584-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -2305,7 +2305,7 @@ crypt_message(struct TCP_Server_Info *se
- 	if (rc) {
- 		cifs_dbg(VFS, "%s: Could not get %scryption key\n", __func__,
- 			 enc ? "en" : "de");
--		return 0;
-+		return rc;
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -5846,6 +5846,7 @@ static void kvm_recover_nx_lpages(struct
+ 				cond_resched_lock(&kvm->mmu_lock);
+ 		}
  	}
++	kvm_mmu_commit_zap_page(kvm, &invalid_list);
  
- 	rc = smb3_crypto_aead_allocate(server);
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
 
 
