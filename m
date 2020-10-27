@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7689C29C45C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B5D29C43F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822985AbgJ0R4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S1822936AbgJ0RyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758689AbgJ0OWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:22:16 -0400
+        id S2509320AbgJ0OWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:22:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CE16206D4;
-        Tue, 27 Oct 2020 14:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23E16206D4;
+        Tue, 27 Oct 2020 14:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808535;
-        bh=fb4ISqxzpluhxqTom6ZW6OuCMjI2eWFtxJrCwA7bLks=;
+        s=default; t=1603808563;
+        bh=iJgp8UbdyD8SddwStakjDajGHTdOXop+sanZ/GbHMTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTU1rppPcVGtsFRAbL9NG3G8sA5RRycGA9eOgcNn3R80W34GmFRlX/f1LuT7x0VQi
-         s6hVm+63OD2PDmX6Zg7WYOt8r4OF6G4ZaYnxoctKKeZMzIZnVoAe87/o5XkgA3788n
-         GLNe1MYNU/uI+AeraxhT0EP6M/0OvQQTN6L7rD44=
+        b=lDZmcJj9kfUUalR/2agqpKw91JRdKPhWs0DOb+lkv75Yes0W6BC8p8Eqoz5ApJr01
+         ahzNWKSFe0k891XFAhnZgQhPOyogj4BJgidVauBI6Jdb6eun5UijcHkdKR65h5PDFo
+         AC+m1wSq7XSY2ENGkVb2cLfq+qAU5vi0EmxWrs44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/264] nvmem: core: fix possibly memleak when use nvmem_cell_info_to_nvmem_cell()
-Date:   Tue, 27 Oct 2020 14:52:49 +0100
-Message-Id: <20201027135435.887735842@linuxfoundation.org>
+Subject: [PATCH 4.19 112/264] qtnfmac: fix resource leaks on unsupported iftype error return path
+Date:   Tue, 27 Oct 2020 14:52:50 +0100
+Message-Id: <20201027135435.935584749@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,104 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadym Kochan <vadym.kochan@plvision.eu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
+[ Upstream commit 63f6982075d890d7563e2469643f05a37d193f01 ]
 
-Fix missing 'kfree_const(cell->name)' when call to
-nvmem_cell_info_to_nvmem_cell() in several places:
+Currently if an unsupported iftype is detected the error return path
+does not free the cmd_skb leading to a resource leak. Fix this by
+free'ing cmd_skb.
 
-     * after nvmem_cell_info_to_nvmem_cell() failed during
-       nvmem_add_cells()
-
-     * during nvmem_device_cell_{read,write} when cell->name is
-       kstrdup'ed() without calling kfree_const() at the end, but
-       really there is no reason to do that 'dup, because the cell
-       instance is allocated on the stack for some short period to be
-       read/write without exposing it to the caller.
-
-So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
-which is used to convert cell_info -> cell without name duplication as
-a lighweight version of nvmem_cell_info_to_nvmem_cell().
-
-Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Link: https://lore.kernel.org/r/20200923204456.14032-1-vadym.kochan@plvision.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Resource leak")
+Fixes: 805b28c05c8e ("qtnfmac: prepare for AP_VLAN interface type support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200925132224.21638-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ drivers/net/wireless/quantenna/qtnfmac/commands.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 30c040786fde2..54204d550fc22 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -326,9 +326,9 @@ static void nvmem_cell_add(struct nvmem_cell *cell)
- 	mutex_unlock(&nvmem_cells_mutex);
- }
- 
--static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
--				   const struct nvmem_cell_info *info,
--				   struct nvmem_cell *cell)
-+static int nvmem_cell_info_to_nvmem_cell_nodup(struct nvmem_device *nvmem,
-+					const struct nvmem_cell_info *info,
-+					struct nvmem_cell *cell)
- {
- 	cell->nvmem = nvmem;
- 	cell->offset = info->offset;
-@@ -345,13 +345,30 @@ static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
- 	if (!IS_ALIGNED(cell->offset, nvmem->stride)) {
- 		dev_err(&nvmem->dev,
- 			"cell %s unaligned to nvmem stride %d\n",
--			cell->name, nvmem->stride);
-+			cell->name ?: "<unknown>", nvmem->stride);
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/commands.c b/drivers/net/wireless/quantenna/qtnfmac/commands.c
+index 734844b34c266..dd473b206f123 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/commands.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/commands.c
+@@ -894,6 +894,7 @@ int qtnf_cmd_send_del_intf(struct qtnf_vif *vif)
+ 	default:
+ 		pr_warn("VIF%u.%u: unsupported iftype %d\n", vif->mac->macid,
+ 			vif->vifid, vif->wdev.iftype);
++		dev_kfree_skb(cmd_skb);
+ 		ret = -EINVAL;
+ 		goto out;
  	}
- 
- 	return 0;
- }
- 
-+static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-+				const struct nvmem_cell_info *info,
-+				struct nvmem_cell *cell)
-+{
-+	int err;
-+
-+	err = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, cell);
-+	if (err)
-+		return err;
-+
-+	cell->name = kstrdup_const(info->name, GFP_KERNEL);
-+	if (!cell->name)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
- /**
-  * nvmem_add_cells() - Add cell information to an nvmem device
-  *
-@@ -1265,7 +1282,7 @@ ssize_t nvmem_device_cell_read(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
-@@ -1295,7 +1312,7 @@ int nvmem_device_cell_write(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
+@@ -2212,6 +2213,7 @@ int qtnf_cmd_send_change_sta(struct qtnf_vif *vif, const u8 *mac,
+ 		break;
+ 	default:
+ 		pr_err("unsupported iftype %d\n", vif->wdev.iftype);
++		dev_kfree_skb(cmd_skb);
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
 2.25.1
 
