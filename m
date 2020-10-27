@@ -2,98 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E35029BB9A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B8629BAAD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1808766AbgJ0QWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:22:05 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:37638 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1804891AbgJ0P7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 11:59:50 -0400
-Received: by mail-ed1-f67.google.com with SMTP id o18so1989563edq.4
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 08:59:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares-net.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=CvPFb4kyBEugekUbJn2sOaqGP8u3RgKrWq2nBe9yDAE=;
-        b=MXfLiAZCOyDLmDCHAn3NmON7byOVbkAO2XDk5691T3mF2z1TGHIqQVSG9CPuBAchC4
-         hC6mvrhrm5JTs2ybM2JQwI0niqdSJ7bh/2C7fjmLZE1ik3rQI5uXqN1Eefun2hrLMyso
-         rtQ+xzzIQmhy9+2ZT2b1UbSC9m56eMpMKr9XuClwL0L7e26jJrvZ7Sp5XP7glfNnmXV7
-         aAFEfDGMTlhST29rc12CBpweVPHshXJTJ91jNs85OuNupGbwZJAeeBZvrh7FL6kOvf3v
-         0EATqhGZJXc6hA3sxxPslgayjnsfq19bL0yHaf5HWxNzaxqH6kh1B7K5cigk0KE9rrpc
-         Nw4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CvPFb4kyBEugekUbJn2sOaqGP8u3RgKrWq2nBe9yDAE=;
-        b=jiYn73kg1jF9u3z1F+pGrp8SX338nQjBYqwuatxeXm/Seo7reaXazHYQrohlHCKOI2
-         QXxIF1Cu6PJBWPgTw4AROYmKtyamlrF54sDXubHr+EFybfb4wpnLpdTEHx30yy2d+AtJ
-         BOsxzc4jFLbnokdjPaG7DckZvxn0bv5y9DsnhHrHtepMkf8q2z8saj1mFieKqUUNU6TK
-         O5nWyajL50M9UvHsTCiZFRPFYKpf5VsKToJqMx3096T0g97veUukYyTVUnNpcMcnuXE/
-         ImUl4DzSE/5A6wW8+WMcBHiHAew4XQYHjxDHe/mR3dwtP22fxYVxmqGSuqA3vKV/cvSB
-         Hpzg==
-X-Gm-Message-State: AOAM5333lhNqeAsQYTdivjq5fGFVprJTm+ehWlsRvbYM8QtELsuG8HFr
-        6+GloITw72FVCTP0o/YDFD4SWbKFt3uSmMJT
-X-Google-Smtp-Source: ABdhPJxuQbeMnOycxsv8oOumQFxdFJSIacf4CbhNGbLASp6ukbC7K8gLn0zvA/v/40DlrMasJ397NQ==
-X-Received: by 2002:a05:6402:395:: with SMTP id o21mr2904999edv.2.1603814387438;
-        Tue, 27 Oct 2020 08:59:47 -0700 (PDT)
-Received: from tsr-lap-08.nix.tessares.net ([2a02:578:85b0:e00:567:3dba:e4e9:3d61])
-        by smtp.gmail.com with ESMTPSA id q19sm1295053ejx.118.2020.10.27.08.59.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2020 08:59:46 -0700 (PDT)
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20201027135450.497324313@linuxfoundation.org>
- <20201027135517.727716271@linuxfoundation.org>
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: Re: [PATCH 5.9 580/757] selftests: mptcp: depends on built-in IPv6
-Message-ID: <3cdf310c-dcef-ad91-6f30-3cd48c6c47de@tessares.net>
-Date:   Tue, 27 Oct 2020 16:59:45 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.2
+        id S1804270AbgJ0QKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:10:06 -0400
+Received: from mga12.intel.com ([192.55.52.136]:61065 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1807323AbgJ0QJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 12:09:48 -0400
+IronPort-SDR: qwTXIQlC5wRfqDIl2OF4MP70HiYNxL0bxqQw3sfR2wZ+kN+FM6t0W/IkjE5F6XqhUgvtKxCA4c
+ riY1pOhREJYA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9787"; a="147395710"
+X-IronPort-AV: E=Sophos;i="5.77,424,1596524400"; 
+   d="scan'208";a="147395710"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2020 09:09:32 -0700
+IronPort-SDR: eXSjjl0VqlaVrD7vwH4StwWtbvpvoMReB7rzLlEwp9+UvW9ZsAJDCCeYrLEUe5eg0fQQBV3bUd
+ FrR9ykXqPqlA==
+X-IronPort-AV: E=Sophos;i="5.77,424,1596524400"; 
+   d="scan'208";a="535851232"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2020 09:09:30 -0700
+From:   Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     William Tseng <william.tseng@intel.com>,
+        Cooper Chiou <cooper.chiou@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Fix encoder lookup during PSR atomic check
+Date:   Tue, 27 Oct 2020 18:09:28 +0200
+Message-Id: <20201027160928.3665377-1-imre.deak@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20201027135517.727716271@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+The atomic check hooks must look up the encoder to be used with a
+connector from the connector's atomic state, and not assume that it's
+the connector's current attached encoder. The latter one can change
+under the atomic check func, or can be unset yet as in the case of MST
+connectors.
 
-On 27/10/2020 14:53, Greg Kroah-Hartman wrote:
-> From: Matthieu Baerts <matthieu.baerts@tessares.net>
-> 
-> [ Upstream commit 287d35405989cfe0090e3059f7788dc531879a8d ]
-> 
-> Recently, CONFIG_MPTCP_IPV6 no longer selects CONFIG_IPV6. As a
-> consequence, if CONFIG_MPTCP_IPV6=y is added to the kconfig, it will no
-> longer ensure CONFIG_IPV6=y. If it is not enabled, CONFIG_MPTCP_IPV6
-> will stay disabled and selftests will fail.
+This fixes
+[    7.940719] Oops: 0000 [#1] SMP NOPTI
+[    7.944407] CPU: 2 PID: 143 Comm: kworker/2:2 Not tainted 5.6.0-1023-oem #23-Ubuntu
+[    7.952102] Hardware name: Dell Inc. Latitude 7320/, BIOS 88.87.11 09/07/2020
+[    7.959278] Workqueue: events output_poll_execute [drm_kms_helper]
+[    7.965511] RIP: 0010:intel_psr_atomic_check+0x37/0xa0 [i915]
+[    7.971327] Code: 80 2d 06 00 00 20 74 42 80 b8 34 71 00 00 00 74 39 48 8b 72 08 48 85 f6 74 30 80 b8 f8 71 00 00 00 74 27 4c 8b 87 80 04 00 00 <41> 8b 78 78 83 ff 08 77 19 31 c9 83 ff 05 77 19 48 81 c1 20 01 00
+[    7.977541] input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input5
+[    7.990154] RSP: 0018:ffffb864c073fac8 EFLAGS: 00010202
+[    7.990155] RAX: ffff8c5d55ce0000 RBX: ffff8c5d54519000 RCX: 0000000000000000
+[    7.990155] RDX: ffff8c5d55cb30c0 RSI: ffff8c5d89a0c800 RDI: ffff8c5d55fcf800
+[    7.990156] RBP: ffffb864c073fac8 R08: 0000000000000000 R09: ffff8c5d55d9f3a0
+[    7.990156] R10: ffff8c5d55cb30c0 R11: 0000000000000009 R12: ffff8c5d55fcf800
+[    7.990156] R13: ffff8c5d55cb30c0 R14: ffff8c5d56989cc0 R15: ffff8c5d56989cc0
+[    7.990158] FS:  0000000000000000(0000) GS:ffff8c5d8e480000(0000) knlGS:0000000000000000
+[    8.047193] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.052970] CR2: 0000000000000078 CR3: 0000000856500005 CR4: 0000000000760ee0
+[    8.060137] PKRU: 55555554
+[    8.062867] Call Trace:
+[    8.065361]  intel_digital_connector_atomic_check+0x53/0x130 [i915]
+[    8.071703]  intel_dp_mst_atomic_check+0x5b/0x200 [i915]
+[    8.077074]  drm_atomic_helper_check_modeset+0x1db/0x790 [drm_kms_helper]
+[    8.083942]  intel_atomic_check+0x92/0xc50 [i915]
+[    8.088705]  ? drm_plane_check_pixel_format+0x4f/0xb0 [drm]
+[    8.094345]  ? drm_atomic_plane_check+0x7a/0x3a0 [drm]
+[    8.099548]  drm_atomic_check_only+0x2b1/0x450 [drm]
+[    8.104573]  drm_atomic_commit+0x18/0x50 [drm]
+[    8.109070]  drm_client_modeset_commit_atomic+0x1c9/0x200 [drm]
+[    8.115056]  drm_client_modeset_commit_force+0x55/0x160 [drm]
+[    8.120866]  drm_fb_helper_restore_fbdev_mode_unlocked+0x54/0xb0 [drm_kms_helper]
+[    8.128415]  drm_fb_helper_set_par+0x34/0x50 [drm_kms_helper]
+[    8.134225]  drm_fb_helper_hotplug_event.part.0+0xb4/0xe0 [drm_kms_helper]
+[    8.141150]  drm_fb_helper_hotplug_event+0x1c/0x30 [drm_kms_helper]
+[    8.147481]  intel_fbdev_output_poll_changed+0x6f/0xa0 [i915]
+[    8.153287]  drm_kms_helper_hotplug_event+0x2c/0x40 [drm_kms_helper]
+[    8.159709]  output_poll_execute+0x1aa/0x1c0 [drm_kms_helper]
+[    8.165506]  process_one_work+0x1e8/0x3b0
+[    8.169561]  worker_thread+0x4d/0x400
+[    8.173249]  kthread+0x104/0x140
+[    8.176515]  ? process_one_work+0x3b0/0x3b0
+[    8.180726]  ? kthread_park+0x90/0x90
+[    8.184416]  ret_from_fork+0x1f/0x40
 
-I think Sasha wanted to drop this patch [1]. But as I said earlier [2], 
-this patch is not wrong, it is just not needed in v5.9 because the 
-"Fixes" commit 010b430d5df5 ("mptcp: MPTCP_IPV6 should depend on IPV6 
-instead of selecting it") is not in v5.9.
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2361
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/2486
+Reported-by: William Tseng <william.tseng@intel.com>
+Reported-by: Cooper Chiou <cooper.chiou@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_psr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I guess it is certainly easier to keep it because it is not wrong and 
-doesn't hurt.
-
-[1] https://lore.kernel.org/stable/20201026142329.GJ4060117@sasha-vm/
-[2] 
-https://lore.kernel.org/stable/1de2bf78-4b47-21b0-9d56-3c8063cdf4bb@tessares.net/
-
-Cheers,
-Matt
+diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
+index b2544102e7b1..1576c3722d0b 100644
+--- a/drivers/gpu/drm/i915/display/intel_psr.c
++++ b/drivers/gpu/drm/i915/display/intel_psr.c
+@@ -1884,7 +1884,7 @@ void intel_psr_atomic_check(struct drm_connector *connector,
+ 		return;
+ 
+ 	intel_connector = to_intel_connector(connector);
+-	dig_port = enc_to_dig_port(intel_attached_encoder(intel_connector));
++	dig_port = enc_to_dig_port(to_intel_encoder(new_state->best_encoder));
+ 	if (dev_priv->psr.dp != &dig_port->dp)
+ 		return;
+ 
 -- 
-Tessares | Belgium | Hybrid Access Solutions
-www.tessares.net
+2.25.1
+
