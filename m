@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 301E029BCCE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F4629BE38
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811092AbgJ0QhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:37:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
+        id S1794176AbgJ0PKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801919AbgJ0PpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:45:02 -0400
+        id S1794172AbgJ0PKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:10:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B253A2231B;
-        Tue, 27 Oct 2020 15:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 404F62072E;
+        Tue, 27 Oct 2020 15:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813500;
-        bh=sJdj1y2IIrk/4e9GcM3TwcMPmA8GTSIhJ/jnAqLCPvg=;
+        s=default; t=1603811419;
+        bh=4PAuIjN1FN/FWAfc9cNvLawPlglgN7+2gDVZMIHbIOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVeVEx54XCcSeXZCOVkdetpmcwzOmZKACU+UysLoI5GXmuuGu/K6iHjShFyWVYQDL
-         4//WQTMQeIJssASQTAp+Q6Y+wLXeQf+tUtJhYOqjZKQq33hfnkJCbtKakR+WJYK5ti
-         LrtUf3OMdA254xxXUuAzuvNU57sEG6hdnmJJ2V0k=
+        b=0wkTOnJ1fOfDXfO+6AYjwGSckqn8HB2cXce7xPtqHtE5lTslsdtuI/Qy+rG5coNBl
+         JScIB9IbbqhfYtGi2O65BLpGjF3GCh4QmUz14Hodf6NPNm6clv/fPU4O2NFFMp/M5Z
+         S4z11QNlgmIQJXti1uWw4EcS7wZ9194w0mbLB11s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 571/757] scsi: bfa: Fix error return in bfad_pci_init()
-Date:   Tue, 27 Oct 2020 14:53:41 +0100
-Message-Id: <20201027135517.294174053@linuxfoundation.org>
+Subject: [PATCH 5.8 479/633] netfilter: nf_fwd_netdev: clear timestamp in forwarding path
+Date:   Tue, 27 Oct 2020 14:53:42 +0100
+Message-Id: <20201027135545.210230136@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit f0f6c3a4fcb80fcbcce4ff6739996dd98c228afd ]
+[ Upstream commit c77761c8a59405cb7aa44188b30fffe13fbdd02d ]
 
-Fix to return error code -ENODEV from the error handling case instead of 0.
+Similar to 7980d2eabde8 ("ipvs: clear skb->tstamp in forwarding path").
+fq qdisc requires tstamp to be cleared in forwarding path.
 
-Link: https://lore.kernel.org/r/20200925062423.161504-1-jingxiangfeng@huawei.com
-Fixes: 11ea3824140c ("scsi: bfa: fix calls to dma_set_mask_and_coherent()")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8203e2d844d3 ("net: clear skb->tstamp in forwarding paths")
+Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
+Fixes: 80b14dee2bea ("net: Add a new socket option for a future transmit time.")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bfa/bfad.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nf_dup_netdev.c  | 1 +
+ net/netfilter/nft_fwd_netdev.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/bfa/bfad.c b/drivers/scsi/bfa/bfad.c
-index bc5d84f87d8fc..440ef32be048f 100644
---- a/drivers/scsi/bfa/bfad.c
-+++ b/drivers/scsi/bfa/bfad.c
-@@ -749,6 +749,7 @@ bfad_pci_init(struct pci_dev *pdev, struct bfad_s *bfad)
+diff --git a/net/netfilter/nf_dup_netdev.c b/net/netfilter/nf_dup_netdev.c
+index 2b01a151eaa80..a579e59ee5c5e 100644
+--- a/net/netfilter/nf_dup_netdev.c
++++ b/net/netfilter/nf_dup_netdev.c
+@@ -19,6 +19,7 @@ static void nf_do_netdev_egress(struct sk_buff *skb, struct net_device *dev)
+ 		skb_push(skb, skb->mac_len);
  
- 	if (bfad->pci_bar0_kva == NULL) {
- 		printk(KERN_ERR "Fail to map bar0\n");
-+		rc = -ENODEV;
- 		goto out_release_region;
- 	}
+ 	skb->dev = dev;
++	skb->tstamp = 0;
+ 	dev_queue_xmit(skb);
+ }
  
+diff --git a/net/netfilter/nft_fwd_netdev.c b/net/netfilter/nft_fwd_netdev.c
+index 3087e23297dbf..b77985986b24e 100644
+--- a/net/netfilter/nft_fwd_netdev.c
++++ b/net/netfilter/nft_fwd_netdev.c
+@@ -138,6 +138,7 @@ static void nft_fwd_neigh_eval(const struct nft_expr *expr,
+ 		return;
+ 
+ 	skb->dev = dev;
++	skb->tstamp = 0;
+ 	neigh_xmit(neigh_table, dev, addr, skb);
+ out:
+ 	regs->verdict.code = verdict;
 -- 
 2.25.1
 
