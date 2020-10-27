@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C7D829AEEE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C08229AF0A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754490AbgJ0OFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
+        id S2506140AbgJ0OGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754484AbgJ0OFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:42 -0400
+        id S2504444AbgJ0N7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:59:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 895AE2222C;
-        Tue, 27 Oct 2020 14:05:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2632821D7B;
+        Tue, 27 Oct 2020 13:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807542;
-        bh=18DXnliRU0CryEHJZlhgz6yUC8T291J7K8spefSILdY=;
+        s=default; t=1603807187;
+        bh=8k8P1CBZ7l9nmmfBTx7mVO3QvfLJQN3ihl5pBC3LP5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiaVYZiAVN7RtjOo11dp1GRw9PtNsFY2wNueWXr0Ybl1r9Ofk1XFgYT5f9Vlg2JWC
-         7coY1fXbpPcTpDd1rjeHel31ebt0mqXr0HGQU1WC9oCaiSP9BZkjdR82No9YlcIWOz
-         fePpVD+J3BfgdkR2mh7ktilfD3R9pcZRIch18qEY=
+        b=VbNa1qA7/VLhCGsgwKy5V71IVpGpvAjQoRE7hUnmmwF47Ob59fD4BKHb4dmcNkzLa
+         scgbMw/85rxVdZLHpvUETXNaNByLghIiT1F2jftEcKH/3iAnLj2XGts/ofLGiK238u
+         kZ05knncqrYAxOdGm4TpJkhKAhIMAtf5n4dYAk0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 090/139] arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
-Date:   Tue, 27 Oct 2020 14:49:44 +0100
-Message-Id: <20201027134906.406350647@linuxfoundation.org>
+Subject: [PATCH 4.4 075/112] arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
+Date:   Tue, 27 Oct 2020 14:49:45 +0100
+Message-Id: <20201027134904.102286484@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,10 +74,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-index 54dc28351c8cb..b9ff697987338 100644
+index 172402cc1a0f5..ae2cbbdb634e4 100644
 --- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
 +++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-@@ -175,7 +175,7 @@ gpio: gpio@ff0a0000 {
+@@ -191,7 +191,7 @@ i2c_clk: i2c_clk {
  		};
  
  		i2c0: i2c@ff020000 {
@@ -86,7 +86,7 @@ index 54dc28351c8cb..b9ff697987338 100644
  			status = "disabled";
  			interrupt-parent = <&gic>;
  			interrupts = <0 17 4>;
-@@ -185,7 +185,7 @@ i2c0: i2c@ff020000 {
+@@ -202,7 +202,7 @@ i2c0: i2c@ff020000 {
  		};
  
  		i2c1: i2c@ff030000 {
