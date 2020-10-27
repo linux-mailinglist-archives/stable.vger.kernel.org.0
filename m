@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B66E229AF33
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E9529AF9C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1755058AbgJ0OIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57108 "EHLO mail.kernel.org"
+        id S1730543AbgJ0OLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755050AbgJ0OIJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:08:09 -0400
+        id S1755063AbgJ0OIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:08:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75604206D4;
-        Tue, 27 Oct 2020 14:08:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55E402072D;
+        Tue, 27 Oct 2020 14:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807688;
-        bh=FxXMV2zPC8HKxPTa2AS/Id3yZxZqWkLsTJoi3L3L10o=;
+        s=default; t=1603807691;
+        bh=LBnUMiWJHWRV4YeY+H4Jo2sueEeXj3vrLl2lM4eVAEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cS/PgJcVeR3JsLPpurnXHbcNFbyuf0Gmf3dTT3JKzhLBejsxJNZagXWE9H7nkEREt
-         8cZbQJKR9JrIt1huvs03xQ1DVWeyMsbVWOr1qLvSAHGNtXbVf8yYaF9IVBOc9ITAXi
-         Qd+3sHgsTQm/H2cgMStSJAlfEMnWPDuQrJRnRIaY=
+        b=ifzgtQjJ30wR5mEI3eydW9eFn3TFzOlL7EgFeuHia/15bdsL7jbTGmjXojLtcXMdH
+         dxO5KCkog06PSqkLefKLY7xd3FOvSAAB7nIVXF/R0UHIbZnklRjBnlM5Cl4s1yXotL
+         vENgL3GbtueYj9UTi6FFOcE5Uof5AWkgjDw+tNWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Oliver Neukum <oneukum@suse.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.9 137/139] USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
-Date:   Tue, 27 Oct 2020 14:50:31 +0100
-Message-Id: <20201027134908.667228805@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>
+Subject: [PATCH 4.9 138/139] eeprom: at25: set minimum read/write access stride to 1
+Date:   Tue, 27 Oct 2020 14:50:32 +0100
+Message-Id: <20201027134908.717034403@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -45,184 +41,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 37d2a36394d954413a495da61da1b2a51ecd28ab upstream.
+commit 284f52ac1c6cfa1b2e5c11b84653dd90e4e91de7 upstream.
 
-syzbot is reporting hung task at wdm_flush() [1], for there is a circular
-dependency that wdm_flush() from flip_close() for /dev/cdc-wdm0 forever
-waits for /dev/raw-gadget to be closed while close() for /dev/raw-gadget
-cannot be called unless close() for /dev/cdc-wdm0 completes.
+SPI eeproms are addressed by byte.
 
-Tetsuo Handa considered that such circular dependency is an usage error [2]
-which corresponds to an unresponding broken hardware [3]. But Alan Stern
-responded that we should be prepared for such hardware [4]. Therefore,
-this patch changes wdm_flush() to use wait_event_interruptible_timeout()
-which gives up after 30 seconds, for hardware that remains silent must be
-ignored. The 30 seconds are coming out of thin air.
-
-Changing wait_event() to wait_event_interruptible_timeout() makes error
-reporting from close() syscall less reliable. To compensate it, this patch
-also implements wdm_fsync() which does not use timeout. Those who want to
-be very sure that data has gone out to the device are now advised to call
-fsync(), with a caveat that fsync() can return -EINVAL when running on
-older kernels which do not implement wdm_fsync().
-
-This patch also fixes three more problems (listed below) found during
-exhaustive discussion and testing.
-
-  Since multiple threads can concurrently call wdm_write()/wdm_flush(),
-  we need to use wake_up_all() whenever clearing WDM_IN_USE in order to
-  make sure that all waiters are woken up. Also, error reporting needs
-  to use fetch-and-clear approach in order not to report same error for
-  multiple times.
-
-  Since wdm_flush() checks WDM_DISCONNECTING, wdm_write() should as well
-  check WDM_DISCONNECTING.
-
-  In wdm_flush(), since locks are not held, it is not safe to dereference
-  desc->intf after checking that WDM_DISCONNECTING is not set [5]. Thus,
-  remove dev_err() from wdm_flush().
-
-[1] https://syzkaller.appspot.com/bug?id=e7b761593b23eb50855b9ea31e3be5472b711186
-[2] https://lkml.kernel.org/r/27b7545e-8f41-10b8-7c02-e35a08eb1611@i-love.sakura.ne.jp
-[3] https://lkml.kernel.org/r/79ba410f-e0ef-2465-b94f-6b9a4a82adf5@i-love.sakura.ne.jp
-[4] https://lkml.kernel.org/r/20200530011040.GB12419@rowland.harvard.edu
-[5] https://lkml.kernel.org/r/c85331fc-874c-6e46-a77f-0ef1dc075308@i-love.sakura.ne.jp
-
-Reported-by: syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>
-Cc: stable <stable@vger.kernel.org>
-Co-developed-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200928141755.3476-1-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200728092959.24600-1-ceggers@arri.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-wdm.c |   70 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 54 insertions(+), 16 deletions(-)
+ drivers/misc/eeprom/at25.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -61,6 +61,9 @@ MODULE_DEVICE_TABLE (usb, wdm_ids);
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -355,7 +355,7 @@ static int at25_probe(struct spi_device
+ 	at25->nvmem_config.reg_read = at25_ee_read;
+ 	at25->nvmem_config.reg_write = at25_ee_write;
+ 	at25->nvmem_config.priv = at25;
+-	at25->nvmem_config.stride = 4;
++	at25->nvmem_config.stride = 1;
+ 	at25->nvmem_config.word_size = 1;
+ 	at25->nvmem_config.size = chip.byte_len;
  
- #define WDM_MAX			16
- 
-+/* we cannot wait forever at flush() */
-+#define WDM_FLUSH_TIMEOUT	(30 * HZ)
-+
- /* CDC-WMC r1.1 requires wMaxCommand to be "at least 256 decimal (0x100)" */
- #define WDM_DEFAULT_BUFSIZE	256
- 
-@@ -151,7 +154,7 @@ static void wdm_out_callback(struct urb
- 	kfree(desc->outbuf);
- 	desc->outbuf = NULL;
- 	clear_bit(WDM_IN_USE, &desc->flags);
--	wake_up(&desc->wait);
-+	wake_up_all(&desc->wait);
- }
- 
- /* forward declaration */
-@@ -402,6 +405,9 @@ static ssize_t wdm_write
- 	if (test_bit(WDM_RESETTING, &desc->flags))
- 		r = -EIO;
- 
-+	if (test_bit(WDM_DISCONNECTING, &desc->flags))
-+		r = -ENODEV;
-+
- 	if (r < 0) {
- 		rv = r;
- 		goto out_free_mem_pm;
-@@ -433,6 +439,7 @@ static ssize_t wdm_write
- 	if (rv < 0) {
- 		desc->outbuf = NULL;
- 		clear_bit(WDM_IN_USE, &desc->flags);
-+		wake_up_all(&desc->wait); /* for wdm_wait_for_response() */
- 		dev_err(&desc->intf->dev, "Tx URB error: %d\n", rv);
- 		rv = usb_translate_errors(rv);
- 		goto out_free_mem_pm;
-@@ -593,28 +600,58 @@ err:
- 	return rv;
- }
- 
--static int wdm_flush(struct file *file, fl_owner_t id)
-+static int wdm_wait_for_response(struct file *file, long timeout)
- {
- 	struct wdm_device *desc = file->private_data;
-+	long rv; /* Use long here because (int) MAX_SCHEDULE_TIMEOUT < 0. */
- 
--	wait_event(desc->wait,
--			/*
--			 * needs both flags. We cannot do with one
--			 * because resetting it would cause a race
--			 * with write() yet we need to signal
--			 * a disconnect
--			 */
--			!test_bit(WDM_IN_USE, &desc->flags) ||
--			test_bit(WDM_DISCONNECTING, &desc->flags));
-+	/*
-+	 * Needs both flags. We cannot do with one because resetting it would
-+	 * cause a race with write() yet we need to signal a disconnect.
-+	 */
-+	rv = wait_event_interruptible_timeout(desc->wait,
-+			      !test_bit(WDM_IN_USE, &desc->flags) ||
-+			      test_bit(WDM_DISCONNECTING, &desc->flags),
-+			      timeout);
- 
--	/* cannot dereference desc->intf if WDM_DISCONNECTING */
-+	/*
-+	 * To report the correct error. This is best effort.
-+	 * We are inevitably racing with the hardware.
-+	 */
- 	if (test_bit(WDM_DISCONNECTING, &desc->flags))
- 		return -ENODEV;
--	if (desc->werr < 0)
--		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
--			desc->werr);
-+	if (!rv)
-+		return -EIO;
-+	if (rv < 0)
-+		return -EINTR;
-+
-+	spin_lock_irq(&desc->iuspin);
-+	rv = desc->werr;
-+	desc->werr = 0;
-+	spin_unlock_irq(&desc->iuspin);
-+
-+	return usb_translate_errors(rv);
-+
-+}
- 
--	return usb_translate_errors(desc->werr);
-+/*
-+ * You need to send a signal when you react to malicious or defective hardware.
-+ * Also, don't abort when fsync() returned -EINVAL, for older kernels which do
-+ * not implement wdm_flush() will return -EINVAL.
-+ */
-+static int wdm_fsync(struct file *file, loff_t start, loff_t end, int datasync)
-+{
-+	return wdm_wait_for_response(file, MAX_SCHEDULE_TIMEOUT);
-+}
-+
-+/*
-+ * Same with wdm_fsync(), except it uses finite timeout in order to react to
-+ * malicious or defective hardware which ceased communication after close() was
-+ * implicitly called due to process termination.
-+ */
-+static int wdm_flush(struct file *file, fl_owner_t id)
-+{
-+	return wdm_wait_for_response(file, WDM_FLUSH_TIMEOUT);
- }
- 
- static unsigned int wdm_poll(struct file *file, struct poll_table_struct *wait)
-@@ -739,6 +776,7 @@ static const struct file_operations wdm_
- 	.owner =	THIS_MODULE,
- 	.read =		wdm_read,
- 	.write =	wdm_write,
-+	.fsync =	wdm_fsync,
- 	.open =		wdm_open,
- 	.flush =	wdm_flush,
- 	.release =	wdm_release,
 
 
