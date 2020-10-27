@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC63129B3C5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A938329B3C9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368544AbgJ0Oy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51318 "EHLO mail.kernel.org"
+        id S1744137AbgJ0OzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773467AbgJ0Ov7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:59 -0400
+        id S1775683AbgJ0OxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:53:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88D9B22258;
-        Tue, 27 Oct 2020 14:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22D062071A;
+        Tue, 27 Oct 2020 14:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810319;
-        bh=lcte25DQ0I5zKue9ZIyN70bxF85x8e2iVDHlwfavOmI=;
+        s=default; t=1603810384;
+        bh=WsO/3xgdooEX+IcSNZnLCeDHoNnU47gv7/UoTyrRZSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOndGmWcrh0HTKB75TRNmu2817d0BF0y6LxrfsXJVX867Ce+FMAXuiZw5qioFIpTF
-         zj8QeYSCngDJeHbyARX1ujua6poCmKBMqrSzrILt6SCtWrslshqCJmuVpKA50qnWVs
-         R/1IelAzuA18DwBdi8OivrylWHoZvtaP+dF2o4KY=
+        b=Li3gr4+5rrhYJfS64kjiDgmjhybLgiBJG7xi0G83nKfmsjHI/j7bxrqnzJ48nB06c
+         Q/qqBhCMJ4AxzxJCMJr+gDE5ECC/jnwE/w+BWoAIm0WEAbA5o9ViUlDDeEjYQjF53S
+         J1JA08YKKcDVn1L1rGuxFfTDfa1vLEirRmlxRtnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 097/633] x86/events/amd/iommu: Fix sizeof mismatch
-Date:   Tue, 27 Oct 2020 14:47:20 +0100
-Message-Id: <20201027135527.251698280@linuxfoundation.org>
+Subject: [PATCH 5.8 121/633] media: i2c: ov5640: Enable data pins on poweron for DVP mode
+Date:   Tue, 27 Oct 2020 14:47:44 +0100
+Message-Id: <20201027135528.380122412@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,38 +47,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 59d5396a4666195f89a67e118e9e627ddd6f53a1 ]
+[ Upstream commit 576f5d4ba8f672953513280510abf9a736b015cc ]
 
-An incorrect sizeof is being used, struct attribute ** is not correct,
-it should be struct attribute *. Note that since ** is the same size as
-* this is not causing any issues.  Improve this fix by using sizeof(*attrs)
-as this allows us to not even reference the type of the pointer.
+During testing this sensor on iW-RainboW-G21D-Qseven platform in 8-bit DVP
+mode with rcar-vin bridge noticed the capture worked fine for the first run
+(with yavta), but for subsequent runs the bridge driver waited for the
+frame to be captured. Debugging further noticed the data lines were
+enabled/disabled in stream on/off callback and dumping the register
+contents 0x3017/0x3018 in ov5640_set_stream_dvp() reported the correct
+values, but yet frame capturing failed.
 
-Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
-Fixes: 51686546304f ("x86/events/amd/iommu: Fix sysfs perf attribute groups")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201001113900.58889-1-colin.king@canonical.com
+To get around this issue data lines are enabled in s_power callback.
+(Also the sensor remains in power down mode if not streaming so power
+consumption shouldn't be affected)
+
+Fixes: f22996db44e2d ("media: ov5640: add support of DVP parallel interface")
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Tested-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/ov5640.c | 73 +++++++++++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 33 deletions(-)
 
-diff --git a/arch/x86/events/amd/iommu.c b/arch/x86/events/amd/iommu.c
-index fb616203ce427..be50ef8572cce 100644
---- a/arch/x86/events/amd/iommu.c
-+++ b/arch/x86/events/amd/iommu.c
-@@ -379,7 +379,7 @@ static __init int _init_events_attrs(void)
- 	while (amd_iommu_v2_event_descs[i].attr.attr.name)
- 		i++;
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 90db5443c4248..3a4268aa5f023 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -276,8 +276,7 @@ static inline struct v4l2_subdev *ctrl_to_sd(struct v4l2_ctrl *ctrl)
+ /* YUV422 UYVY VGA@30fps */
+ static const struct reg_value ov5640_init_setting_30fps_VGA[] = {
+ 	{0x3103, 0x11, 0, 0}, {0x3008, 0x82, 0, 5}, {0x3008, 0x42, 0, 0},
+-	{0x3103, 0x03, 0, 0}, {0x3017, 0x00, 0, 0}, {0x3018, 0x00, 0, 0},
+-	{0x3630, 0x36, 0, 0},
++	{0x3103, 0x03, 0, 0}, {0x3630, 0x36, 0, 0},
+ 	{0x3631, 0x0e, 0, 0}, {0x3632, 0xe2, 0, 0}, {0x3633, 0x12, 0, 0},
+ 	{0x3621, 0xe0, 0, 0}, {0x3704, 0xa0, 0, 0}, {0x3703, 0x5a, 0, 0},
+ 	{0x3715, 0x78, 0, 0}, {0x3717, 0x01, 0, 0}, {0x370b, 0x60, 0, 0},
+@@ -1283,33 +1282,6 @@ static int ov5640_set_stream_dvp(struct ov5640_dev *sensor, bool on)
+ 	if (ret)
+ 		return ret;
  
--	attrs = kcalloc(i + 1, sizeof(struct attribute **), GFP_KERNEL);
-+	attrs = kcalloc(i + 1, sizeof(*attrs), GFP_KERNEL);
- 	if (!attrs)
- 		return -ENOMEM;
+-	/*
+-	 * enable VSYNC/HREF/PCLK DVP control lines
+-	 * & D[9:6] DVP data lines
+-	 *
+-	 * PAD OUTPUT ENABLE 01
+-	 * - 6:		VSYNC output enable
+-	 * - 5:		HREF output enable
+-	 * - 4:		PCLK output enable
+-	 * - [3:0]:	D[9:6] output enable
+-	 */
+-	ret = ov5640_write_reg(sensor,
+-			       OV5640_REG_PAD_OUTPUT_ENABLE01,
+-			       on ? 0x7f : 0);
+-	if (ret)
+-		return ret;
+-
+-	/*
+-	 * enable D[5:0] DVP data lines
+-	 *
+-	 * PAD OUTPUT ENABLE 02
+-	 * - [7:2]:	D[5:0] output enable
+-	 */
+-	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02,
+-			       on ? 0xfc : 0);
+-	if (ret)
+-		return ret;
+-
+ 	return ov5640_write_reg(sensor, OV5640_REG_SYS_CTRL0, on ?
+ 				OV5640_REG_SYS_CTRL0_SW_PWUP :
+ 				OV5640_REG_SYS_CTRL0_SW_PWDN);
+@@ -2069,6 +2041,40 @@ static int ov5640_set_power_mipi(struct ov5640_dev *sensor, bool on)
+ 	return 0;
+ }
  
++static int ov5640_set_power_dvp(struct ov5640_dev *sensor, bool on)
++{
++	int ret;
++
++	if (!on) {
++		/* Reset settings to their default values. */
++		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x00);
++		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0x00);
++		return 0;
++	}
++
++	/*
++	 * enable VSYNC/HREF/PCLK DVP control lines
++	 * & D[9:6] DVP data lines
++	 *
++	 * PAD OUTPUT ENABLE 01
++	 * - 6:		VSYNC output enable
++	 * - 5:		HREF output enable
++	 * - 4:		PCLK output enable
++	 * - [3:0]:	D[9:6] output enable
++	 */
++	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x7f);
++	if (ret)
++		return ret;
++
++	/*
++	 * enable D[5:0] DVP data lines
++	 *
++	 * PAD OUTPUT ENABLE 02
++	 * - [7:2]:	D[5:0] output enable
++	 */
++	return ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0xfc);
++}
++
+ static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
+ {
+ 	int ret = 0;
+@@ -2083,11 +2089,12 @@ static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
+ 			goto power_off;
+ 	}
+ 
+-	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
++	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY)
+ 		ret = ov5640_set_power_mipi(sensor, on);
+-		if (ret)
+-			goto power_off;
+-	}
++	else
++		ret = ov5640_set_power_dvp(sensor, on);
++	if (ret)
++		goto power_off;
+ 
+ 	if (!on)
+ 		ov5640_set_power_off(sensor);
 -- 
 2.25.1
 
