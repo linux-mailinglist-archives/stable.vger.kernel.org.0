@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC6129B470
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E9E29B47F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1773109AbgJ0PCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
+        id S1784724AbgJ0PC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789367AbgJ0PCD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:02:03 -0400
+        id S1789795AbgJ0PC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:02:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32FB522264;
-        Tue, 27 Oct 2020 15:02:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C2A221707;
+        Tue, 27 Oct 2020 15:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810922;
-        bh=Soar+9iFU5zxuhxDG/8Q9NsPO1ihnEkKCV4/P53vNus=;
+        s=default; t=1603810976;
+        bh=+GNDN30lOh/MdJAAIorz11RsKrk08cYro+JV5n0Oz88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9NrcTYfc+isnIvI3gvQWMBlbuHpoDJltsta6DCjExMHZSizQqnHf8nbWlALlKIWv
-         SgtOrRMQke8ttN+SGXK3N9N7LdW64aCJmd9TFIlLRgYKvsvQq+xI9Nje/S1/lHvgCE
-         pn54b4Mn+U+50dPcGpd010NQNF717+GqGsXC9WHM=
+        b=TlI69d64O33eOOD0wTnxgEh4DNRXnV66F54lEaopMrm2j03AKaarqb5R7/g2C8Cg8
+         lDHHgBk+hFBnkaoMmImUZU+W5JlkjBOzLqiI4cR02r7oo2x5Ojv7sxONf6dTlvO4pk
+         GfM3gozj19GhMRNuGdDyR1W4tJ8D55YwH/tlfpU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Evgeny B <abt-admin@mail.ru>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 309/633] platform/x86: mlx-platform: Remove PSU EEPROM configuration
-Date:   Tue, 27 Oct 2020 14:50:52 +0100
-Message-Id: <20201027135537.173963709@linuxfoundation.org>
+Subject: [PATCH 5.8 312/633] ipvs: clear skb->tstamp in forwarding path
+Date:   Tue, 27 Oct 2020 14:50:55 +0100
+Message-Id: <20201027135537.312462364@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,69 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Julian Anastasov <ja@ssi.bg>
 
-[ Upstream commit c071afcea6ecf24a3c119f25ce9f71ffd55b5dc2 ]
+[ Upstream commit 7980d2eabde82be86c5be18aa3d07e88ec13c6a1 ]
 
-Remove PSU EEPROM configuration for systems class equipped with
-Mellanox chip Spectrume-2. Till now all the systems from this class
-used few types of power units, all equipped with EEPROM device with
-address space two bytes. Thus, all these devices have been handled by
-EEPROM driver "24c32".
-There is a new requirement is to support power unit replacement by "off
-the shelf" device, matching electrical required parameters. Such device
-could be equipped with different EEPROM type, which could be one byte
-address space addressing or even could be not equipped with EEPROM.
-In such case "24c32" will not work.
+fq qdisc requires tstamp to be cleared in forwarding path
 
-Fixes: 1bd42d94ccab ("platform/x86: mlx-platform: Add support for new 200G IB and Ethernet systems")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200923172053.26296-2-vadimp@nvidia.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Evgeny B <abt-admin@mail.ru>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209427
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: 8203e2d844d3 ("net: clear skb->tstamp in forwarding paths")
+Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
+Fixes: 80b14dee2bea ("net: Add a new socket option for a future transmit time.")
+Signed-off-by: Julian Anastasov <ja@ssi.bg>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/mlx-platform.c | 15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+ net/netfilter/ipvs/ip_vs_xmit.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
-index c27548fd386ac..0d2ed6d1f9c79 100644
---- a/drivers/platform/x86/mlx-platform.c
-+++ b/drivers/platform/x86/mlx-platform.c
-@@ -319,15 +319,6 @@ static struct i2c_board_info mlxplat_mlxcpld_psu[] = {
- 	},
- };
+diff --git a/net/netfilter/ipvs/ip_vs_xmit.c b/net/netfilter/ipvs/ip_vs_xmit.c
+index b00866d777fe0..d2e5a8f644b80 100644
+--- a/net/netfilter/ipvs/ip_vs_xmit.c
++++ b/net/netfilter/ipvs/ip_vs_xmit.c
+@@ -609,6 +609,8 @@ static inline int ip_vs_tunnel_xmit_prepare(struct sk_buff *skb,
+ 	if (ret == NF_ACCEPT) {
+ 		nf_reset_ct(skb);
+ 		skb_forward_csum(skb);
++		if (skb->dev)
++			skb->tstamp = 0;
+ 	}
+ 	return ret;
+ }
+@@ -649,6 +651,8 @@ static inline int ip_vs_nat_send_or_cont(int pf, struct sk_buff *skb,
  
--static struct i2c_board_info mlxplat_mlxcpld_ng_psu[] = {
--	{
--		I2C_BOARD_INFO("24c32", 0x51),
--	},
--	{
--		I2C_BOARD_INFO("24c32", 0x50),
--	},
--};
--
- static struct i2c_board_info mlxplat_mlxcpld_pwr[] = {
- 	{
- 		I2C_BOARD_INFO("dps460", 0x59),
-@@ -752,15 +743,13 @@ static struct mlxreg_core_data mlxplat_mlxcpld_default_ng_psu_items_data[] = {
- 		.label = "psu1",
- 		.reg = MLXPLAT_CPLD_LPC_REG_PSU_OFFSET,
- 		.mask = BIT(0),
--		.hpdev.brdinfo = &mlxplat_mlxcpld_ng_psu[0],
--		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR,
-+		.hpdev.nr = MLXPLAT_CPLD_NR_NONE,
- 	},
- 	{
- 		.label = "psu2",
- 		.reg = MLXPLAT_CPLD_LPC_REG_PSU_OFFSET,
- 		.mask = BIT(1),
--		.hpdev.brdinfo = &mlxplat_mlxcpld_ng_psu[1],
--		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR,
-+		.hpdev.nr = MLXPLAT_CPLD_NR_NONE,
- 	},
- };
- 
+ 	if (!local) {
+ 		skb_forward_csum(skb);
++		if (skb->dev)
++			skb->tstamp = 0;
+ 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
+ 			NULL, skb_dst(skb)->dev, dst_output);
+ 	} else
+@@ -669,6 +673,8 @@ static inline int ip_vs_send_or_cont(int pf, struct sk_buff *skb,
+ 	if (!local) {
+ 		ip_vs_drop_early_demux_sk(skb);
+ 		skb_forward_csum(skb);
++		if (skb->dev)
++			skb->tstamp = 0;
+ 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
+ 			NULL, skb_dst(skb)->dev, dst_output);
+ 	} else
 -- 
 2.25.1
 
