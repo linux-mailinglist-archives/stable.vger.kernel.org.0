@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA0D29C4B2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7D629C4AF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1823017AbgJ0R4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45694 "EHLO mail.kernel.org"
+        id S2901281AbgJ0R4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S460365AbgJ0OVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:21:25 -0400
+        id S1758616AbgJ0OV7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:21:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBC11222D9;
-        Tue, 27 Oct 2020 14:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FBBC206F7;
+        Tue, 27 Oct 2020 14:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808485;
-        bh=tYpM5KsiTqaEvdIsqyoojda8mhpHB/V5C8mGYe07Lw0=;
+        s=default; t=1603808519;
+        bh=uVlj2QS4ZmYStc0bNFiuZVa0mCI5AwUF7VFU9+emLAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMgqPaNngU8t1uSYhIRMabJkOrgC8c6IdcpsF728Lkjb8SyEMjWcDsbVm3QWZAPIL
-         A5fOm/GcFQn6lJsQZIJE/jNctTwC+a/t7uSVHkxtIJ3dH7lBbUJlMERAKNK2x2yA/G
-         VPZeZ2AsX97n4eSCTg9NskEXn+kq5eSq4J24FPno=
+        b=LG1jZEZm5wTYStjzAP0rygS8zyxQI4YMirfmLZ/ifoqCO2LOon63rImGsxRhc4jMr
+         u/zBzj+ADdzssKjMJaKpxUNOBIv3HZcZMjIdowcqjYjL3232lP0j1JE/9VWazNrUTG
+         UHATklycDFfFOybaaW63mhlr9f7NyA+HwiCArV5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/264] slimbus: core: do not enter to clock pause mode in core
-Date:   Tue, 27 Oct 2020 14:52:46 +0100
-Message-Id: <20201027135435.755645718@linuxfoundation.org>
+Subject: [PATCH 4.19 123/264] mwifiex: fix double free
+Date:   Tue, 27 Oct 2020 14:53:01 +0100
+Message-Id: <20201027135436.466209712@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit df2c471c4ae07e18a0396db670dca2ef867c5153 ]
+[ Upstream commit 53708f4fd9cfe389beab5c8daa763bcd0e0b4aef ]
 
-Let the controller logic decide when to enter into clock pause mode!
-Entering in to pause mode during unregistration does not really make
-sense as the controller is totally going down at that point in time.
+clang static analysis reports this problem:
 
-Fixes: 4b14e62ad3c9e ("slimbus: Add support for 'clock-pause' feature")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200925095520.27316-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+sdio.c:2403:3: warning: Attempt to free released memory
+        kfree(card->mpa_rx.buf);
+        ^~~~~~~~~~~~~~~~~~~~~~~
+
+When mwifiex_init_sdio() fails in its first call to
+mwifiex_alloc_sdio_mpa_buffer, it falls back to calling it
+again.  If the second alloc of mpa_tx.buf fails, the error
+handler will try to free the old, previously freed mpa_rx.buf.
+Reviewing the code, it looks like a second double free would
+happen with mwifiex_cleanup_sdio().
+
+So set both pointers to NULL when they are freed.
+
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201004131931.29782-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/core.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/sdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/slimbus/core.c b/drivers/slimbus/core.c
-index 6e690aaacad1e..3e63e4ce45b04 100644
---- a/drivers/slimbus/core.c
-+++ b/drivers/slimbus/core.c
-@@ -255,8 +255,6 @@ int slim_unregister_controller(struct slim_controller *ctrl)
- {
- 	/* Remove all clients */
- 	device_for_each_child(ctrl->dev, NULL, slim_ctrl_remove_device);
--	/* Enter Clock Pause */
--	slim_ctrl_clk_pause(ctrl, false, 0);
- 	ida_simple_remove(&ctrl_ida, ctrl->id);
+diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
+index bfbe3aa058d93..0773d81072aa1 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sdio.c
++++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
+@@ -1985,6 +1985,8 @@ static int mwifiex_alloc_sdio_mpa_buffers(struct mwifiex_adapter *adapter,
+ 		kfree(card->mpa_rx.buf);
+ 		card->mpa_tx.buf_size = 0;
+ 		card->mpa_rx.buf_size = 0;
++		card->mpa_tx.buf = NULL;
++		card->mpa_rx.buf = NULL;
+ 	}
  
- 	return 0;
+ 	return ret;
 -- 
 2.25.1
 
