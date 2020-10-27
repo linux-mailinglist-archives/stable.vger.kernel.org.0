@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6679029B111
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:27:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A422F29B116
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:27:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758938AbgJ0O0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52308 "EHLO mail.kernel.org"
+        id S1758988AbgJ0O0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758933AbgJ0O0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:26:33 -0400
+        id S1758981AbgJ0O0s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:26:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB8DA22264;
-        Tue, 27 Oct 2020 14:26:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A8F822202;
+        Tue, 27 Oct 2020 14:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808792;
-        bh=kL3mHtvkjdVI/1qd0rJa0p8tK+xfTgXhxpSVFK5HJho=;
+        s=default; t=1603808807;
+        bh=Ok08R2eNlE8lp2yCoXDuu+PvTdjRh//b2AcYHSTrgRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Ye04fwHD6f8E0cijCXJBlYN2Gszu6USFnZ/BXAGNSGXUgs9p9h2DGzQmkdNoer05
-         hVEQ/CdmLXSnY7fifIlomHm2EOh2J+uF1EgRtWvJcNNO6iM++cR9BpX8W5IqLeQSZm
-         5JfND+1sW4gTl5lNdVC+KkE6DyXS0o0psUzheZF4=
+        b=1xpKP4t10Forpb7mg1bwBbCnKOFgz0+yYlBPkXjfNuuCxpFev2HnCqQ+yyzNEm5lE
+         uex+GSGWriYD0sGVpVa8FIeJxFsc3lGkVgQM15nm4yneVngllSspOhNUUaXSV92e0Y
+         QMqtHi21H/oStOFIP8TI4vhdm5MMUFsmlDdnuE3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Tu <u9012063@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 226/264] ip_gre: set dev->hard_header_len and dev->needed_headroom properly
-Date:   Tue, 27 Oct 2020 14:54:44 +0100
-Message-Id: <20201027135441.275427382@linuxfoundation.org>
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 231/264] mic: vop: copy data to kernel space then write to io memory
+Date:   Tue, 27 Oct 2020 14:54:49 +0100
+Message-Id: <20201027135441.489887028@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -47,88 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit fdafed459998e2be0e877e6189b24cb7a0183224 ]
+[ Upstream commit 675f0ad4046946e80412896436164d172cd92238 ]
 
-GRE tunnel has its own header_ops, ipgre_header_ops, and sets it
-conditionally. When it is set, it assumes the outer IP header is
-already created before ipgre_xmit().
+Read and write io memory should address align on ARCH ARM. Change to use
+memcpy_toio to avoid kernel panic caused by the address un-align issue.
 
-This is not true when we send packets through a raw packet socket,
-where L2 headers are supposed to be constructed by user. Packet
-socket calls dev_validate_header() to validate the header. But
-GRE tunnel does not set dev->hard_header_len, so that check can
-be simply bypassed, therefore uninit memory could be passed down
-to ipgre_xmit(). Similar for dev->needed_headroom.
-
-dev->hard_header_len is supposed to be the length of the header
-created by dev->header_ops->create(), so it should be used whenever
-header_ops is set, and dev->needed_headroom should be used when it
-is not set.
-
-Reported-and-tested-by: syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
-Cc: William Tu <u9012063@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Link: https://lore.kernel.org/r/20200929091106.24624-5-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/misc/mic/vop/vop_vringh.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index ffcb5983107db..de6f89511a216 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -680,9 +680,7 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
- 	}
+diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
+index cbc8ebcff5cfe..3cc68b028cfae 100644
+--- a/drivers/misc/mic/vop/vop_vringh.c
++++ b/drivers/misc/mic/vop/vop_vringh.c
+@@ -611,6 +611,7 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
+ 	size_t partlen;
+ 	bool dma = VOP_USE_DMA;
+ 	int err = 0;
++	size_t offset = 0;
  
- 	if (dev->header_ops) {
--		/* Need space for new headers */
--		if (skb_cow_head(skb, dev->needed_headroom -
--				      (tunnel->hlen + sizeof(struct iphdr))))
-+		if (skb_cow_head(skb, 0))
- 			goto free_skb;
- 
- 		tnl_params = (const struct iphdr *)skb->data;
-@@ -800,7 +798,11 @@ static void ipgre_link_update(struct net_device *dev, bool set_mtu)
- 	len = tunnel->tun_hlen - len;
- 	tunnel->hlen = tunnel->hlen + len;
- 
--	dev->needed_headroom = dev->needed_headroom + len;
-+	if (dev->header_ops)
-+		dev->hard_header_len += len;
-+	else
-+		dev->needed_headroom += len;
+ 	if (daddr & (dma_alignment - 1)) {
+ 		vdev->tx_dst_unaligned += len;
+@@ -659,13 +660,20 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
+ 	 * We are copying to IO below and should ideally use something
+ 	 * like copy_from_user_toio(..) if it existed.
+ 	 */
+-	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
+-		err = -EFAULT;
+-		dev_err(vop_dev(vdev), "%s %d err %d\n",
+-			__func__, __LINE__, err);
+-		goto err;
++	while (len) {
++		partlen = min_t(size_t, len, VOP_INT_DMA_BUF_SIZE);
 +
- 	if (set_mtu)
- 		dev->mtu = max_t(int, dev->mtu - len, 68);
- 
-@@ -1003,6 +1005,7 @@ static void __gre_tunnel_init(struct net_device *dev)
- 	tunnel->parms.iph.protocol = IPPROTO_GRE;
- 
- 	tunnel->hlen = tunnel->tun_hlen + tunnel->encap_hlen;
-+	dev->needed_headroom = tunnel->hlen + sizeof(tunnel->parms.iph);
- 
- 	dev->features		|= GRE_FEATURES;
- 	dev->hw_features	|= GRE_FEATURES;
-@@ -1046,10 +1049,14 @@ static int ipgre_tunnel_init(struct net_device *dev)
- 				return -EINVAL;
- 			dev->flags = IFF_BROADCAST;
- 			dev->header_ops = &ipgre_header_ops;
-+			dev->hard_header_len = tunnel->hlen + sizeof(*iph);
-+			dev->needed_headroom = 0;
- 		}
- #endif
- 	} else if (!tunnel->collect_md) {
- 		dev->header_ops = &ipgre_header_ops;
-+		dev->hard_header_len = tunnel->hlen + sizeof(*iph);
-+		dev->needed_headroom = 0;
++		if (copy_from_user(vvr->buf, ubuf + offset, partlen)) {
++			err = -EFAULT;
++			dev_err(vop_dev(vdev), "%s %d err %d\n",
++				__func__, __LINE__, err);
++			goto err;
++		}
++		memcpy_toio(dbuf + offset, vvr->buf, partlen);
++		offset += partlen;
++		vdev->out_bytes += partlen;
++		len -= partlen;
  	}
- 
- 	return ip_tunnel_init(dev);
+-	vdev->out_bytes += len;
+ 	err = 0;
+ err:
+ 	vpdev->hw_ops->iounmap(vpdev, dbuf);
 -- 
 2.25.1
 
