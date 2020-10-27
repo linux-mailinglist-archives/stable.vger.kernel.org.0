@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5A629B9B6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBE729B9B8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802740AbgJ0PvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S1802744AbgJ0PvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802368AbgJ0Pq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:46:56 -0400
+        id S1802371AbgJ0Pq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:46:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BBBA21D42;
-        Tue, 27 Oct 2020 15:46:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D64C022202;
+        Tue, 27 Oct 2020 15:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813614;
-        bh=hh6NIyRlK4Wzwl+j76BIbzH/o10VR1Hj1qDhgVscnR4=;
+        s=default; t=1603813617;
+        bh=4PAuIjN1FN/FWAfc9cNvLawPlglgN7+2gDVZMIHbIOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL2xjU/n/f2LAg6aeHLLUgZQC4/qqo0OFPrIEb3eilbbMAbTygEvj4Jwz/EBcTCpS
-         ldo3Xba5NM2ObCijton3W3W4I3X04SeejYVtjFiRCDtdZlBKWoEbE9YgR1pK7fnVJr
-         DVGeHtPNF5pOQ2JP0t/QhLTuiAhkQKbEArsP5bfw=
+        b=K5M8BIUsKUTaVj0jJjx9qkjG7cr4qzYmfFpRNnvSmiPJqhqWVh+xaFDTv+sC+AVEW
+         p3MWWd002/nPMhxArMV9XRr93vk8OPStKAbjfFi9edutm4BLMLP1moPCDwYNpdeOye
+         zBcsEbncvDL3ULXZdH0JKa/hOsNAQOkMpnldaMzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 580/757] selftests: mptcp: depends on built-in IPv6
-Date:   Tue, 27 Oct 2020 14:53:50 +0100
-Message-Id: <20201027135517.727716271@linuxfoundation.org>
+Subject: [PATCH 5.9 581/757] netfilter: nf_fwd_netdev: clear timestamp in forwarding path
+Date:   Tue, 27 Oct 2020 14:53:51 +0100
+Message-Id: <20201027135517.777760359@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,47 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 287d35405989cfe0090e3059f7788dc531879a8d ]
+[ Upstream commit c77761c8a59405cb7aa44188b30fffe13fbdd02d ]
 
-Recently, CONFIG_MPTCP_IPV6 no longer selects CONFIG_IPV6. As a
-consequence, if CONFIG_MPTCP_IPV6=y is added to the kconfig, it will no
-longer ensure CONFIG_IPV6=y. If it is not enabled, CONFIG_MPTCP_IPV6
-will stay disabled and selftests will fail.
+Similar to 7980d2eabde8 ("ipvs: clear skb->tstamp in forwarding path").
+fq qdisc requires tstamp to be cleared in forwarding path.
 
-We also need CONFIG_IPV6 to be built-in. For more details, please see
-commit 0ed37ac586c0 ("mptcp: depends on IPV6 but not as a module").
-
-Note that 'make kselftest-merge' will take all 'config' files found in
-'tools/testsing/selftests'. Because some of them already set
-CONFIG_IPV6=y, MPTCP selftests were still passing. But they will fail if
-MPTCP selftests are launched manually after having executed this command
-to prepare the kernel config:
-
-  ./scripts/kconfig/merge_config.sh -m .config \
-      ./tools/testing/selftests/net/mptcp/config
-
-Fixes: 010b430d5df5 ("mptcp: MPTCP_IPV6 should depend on IPV6 instead of selecting it")
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Link: https://lore.kernel.org/r/20201021155549.933731-1-matthieu.baerts@tessares.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8203e2d844d3 ("net: clear skb->tstamp in forwarding paths")
+Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
+Fixes: 80b14dee2bea ("net: Add a new socket option for a future transmit time.")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/mptcp/config | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nf_dup_netdev.c  | 1 +
+ net/netfilter/nft_fwd_netdev.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/net/mptcp/config b/tools/testing/selftests/net/mptcp/config
-index 8df5cb8f71ff9..741a1c4f4ae8f 100644
---- a/tools/testing/selftests/net/mptcp/config
-+++ b/tools/testing/selftests/net/mptcp/config
-@@ -1,4 +1,5 @@
- CONFIG_MPTCP=y
-+CONFIG_IPV6=y
- CONFIG_MPTCP_IPV6=y
- CONFIG_INET_DIAG=m
- CONFIG_INET_MPTCP_DIAG=m
+diff --git a/net/netfilter/nf_dup_netdev.c b/net/netfilter/nf_dup_netdev.c
+index 2b01a151eaa80..a579e59ee5c5e 100644
+--- a/net/netfilter/nf_dup_netdev.c
++++ b/net/netfilter/nf_dup_netdev.c
+@@ -19,6 +19,7 @@ static void nf_do_netdev_egress(struct sk_buff *skb, struct net_device *dev)
+ 		skb_push(skb, skb->mac_len);
+ 
+ 	skb->dev = dev;
++	skb->tstamp = 0;
+ 	dev_queue_xmit(skb);
+ }
+ 
+diff --git a/net/netfilter/nft_fwd_netdev.c b/net/netfilter/nft_fwd_netdev.c
+index 3087e23297dbf..b77985986b24e 100644
+--- a/net/netfilter/nft_fwd_netdev.c
++++ b/net/netfilter/nft_fwd_netdev.c
+@@ -138,6 +138,7 @@ static void nft_fwd_neigh_eval(const struct nft_expr *expr,
+ 		return;
+ 
+ 	skb->dev = dev;
++	skb->tstamp = 0;
+ 	neigh_xmit(neigh_table, dev, addr, skb);
+ out:
+ 	regs->verdict.code = verdict;
 -- 
 2.25.1
 
