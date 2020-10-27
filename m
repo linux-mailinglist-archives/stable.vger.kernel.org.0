@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CF129B580
+	by mail.lfdr.de (Postfix) with ESMTP id 9241029B581
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794613AbgJ0PMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:12:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49124 "EHLO mail.kernel.org"
+        id S1794640AbgJ0PMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794604AbgJ0PMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:12:38 -0400
+        id S1794636AbgJ0PMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:12:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17CD02071A;
-        Tue, 27 Oct 2020 15:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77B6F21D41;
+        Tue, 27 Oct 2020 15:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811557;
-        bh=vJFXUUXbzdk6b30x0KD3inikwaRRFzDEaCtkhqDKtxk=;
+        s=default; t=1603811566;
+        bh=pEcuukP1EntrnDVa20u60O7w1UUKqI6OwYX4e7li4o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piB9J3wVnboYsJY2lBR0uNcKj/ustGzwYbEe0+8wnfY4W0ZUKZkVn7tyKJMcgZHqD
-         1Lv/kXS9NSL8WsrCAGfNOUHwe7ujrd36niiXnXwrgXs/6g0ATtL+X1dwbmXbvbynaj
-         uBbSik/xvw8jD+1GTYYuU1Oqhod6VBuanLl4xB8A=
+        b=Vw09uXR6LuuOKVTaWb1PDrSMdnV6hyN/7ctWN3biWlj8mhF+jECLm7itIkXN+ZwrM
+         nD/aw6G09QQ1WPo5/yEPF3Flo2gQ5dX+K3B7z+BThA8unFcoRmHrrxM3hxFMEFZ6B6
+         VVmFfDVqv9i+1QNDl7jFm0MGHSJPmSh5uCqqzguI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 535/633] media: st-delta: Fix reference count leak in delta_run_work
-Date:   Tue, 27 Oct 2020 14:54:38 +0100
-Message-Id: <20201027135547.880535614@linuxfoundation.org>
+Subject: [PATCH 5.8 538/633] media: exynos4-is: Fix a reference count leak due to pm_runtime_get_sync
+Date:   Tue, 27 Oct 2020 14:54:41 +0100
+Message-Id: <20201027135548.029375148@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,38 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 57cc666d36adc7b45e37ba4cd7bc4e44ec4c43d7 ]
+[ Upstream commit c47f7c779ef0458a58583f00c9ed71b7f5a4d0a2 ]
 
-delta_run_work() calls delta_get_sync() that increments
-the reference counter. In case of failure, decrement the reference
-count by calling delta_put_autosuspend().
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/delta/delta-v4l2.c | 4 +++-
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
-index 2503224eeee51..c691b3d81549d 100644
---- a/drivers/media/platform/sti/delta/delta-v4l2.c
-+++ b/drivers/media/platform/sti/delta/delta-v4l2.c
-@@ -954,8 +954,10 @@ static void delta_run_work(struct work_struct *work)
- 	/* enable the hardware */
- 	if (!dec->pm) {
- 		ret = delta_get_sync(ctx);
--		if (ret)
-+		if (ret) {
-+			delta_put_autosuspend(ctx);
- 			goto err;
-+		}
- 	}
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 2f90607c3797d..a07d796f63df0 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -484,8 +484,10 @@ static int fimc_md_register_sensor_entities(struct fimc_md *fmd)
+ 		return -ENXIO;
  
- 	/* decode this access unit */
+ 	ret = pm_runtime_get_sync(fmd->pmf);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(fmd->pmf);
+ 		return ret;
++	}
+ 
+ 	fmd->num_sensors = 0;
+ 
 -- 
 2.25.1
 
