@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E778029C711
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032F029C5A2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1808820AbgJ0S1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45210 "EHLO mail.kernel.org"
+        id S1754065AbgJ0OEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753002AbgJ0N6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:04 -0400
+        id S1754060AbgJ0OD7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59256206D4;
-        Tue, 27 Oct 2020 13:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60FBD22264;
+        Tue, 27 Oct 2020 14:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807084;
-        bh=FkHSQwyV1DG0Ipd5r7fKN+XoE/6iIwCGbUmZJw/vaPk=;
+        s=default; t=1603807439;
+        bh=6iMBtlQdRbJIag1x6++qJXPiPFHHnfdmxqQxp594tgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chc7rnM9scoirT1GDvRPOXGQLrD2wCAEXs4UT4/haBDnldqbbzkTkNwmIbvEs01wS
-         ntKLPaiNznuZBiuQCOOWKl7zAosdEdvjw4KYyoKwW98vENH2765Nxd9OyUGEfU/1wX
-         iZNHFe2hPT90blFy4l4b3ABHkxMU+U2d1u7W00Pg=
+        b=LfFEvjdOGHUzvF0QDVigA2R4e28cCQiTIAH7uEVJgmcBaM1u/XQV9ILXU7m6CBDEd
+         a2lpiW0vWBFfcIJbUgrjJtEkcFmXKxkQpxuzxGy25QMDiDunbcRRj8PJXnKm39zT/L
+         wzhVhGOGCV7BYnJUhZQdPUkYhcRGVkn4ZYHL1Oz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 037/112] tty: hvcs: Dont NULL tty->driver_data until hvcs_cleanup()
+Subject: [PATCH 4.9 053/139] scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()
 Date:   Tue, 27 Oct 2020 14:49:07 +0100
-Message-Id: <20201027134902.315863828@linuxfoundation.org>
+Message-Id: <20201027134904.649655057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 63ffcbdad738e3d1c857027789a2273df3337624 ]
+[ Upstream commit 38b2db564d9ab7797192ef15d7aade30633ceeae ]
 
-The code currently NULLs tty->driver_data in hvcs_close() with the
-intent of informing the next call to hvcs_open() that device needs to be
-reconfigured. However, when hvcs_cleanup() is called we copy hvcsd from
-tty->driver_data which was previoulsy NULLed by hvcs_close() and our
-call to tty_port_put(&hvcsd->port) doesn't actually do anything since
-&hvcsd->port ends up translating to NULL by chance. This has the side
-effect that when hvcs_remove() is called we have one too many port
-references preventing hvcs_destuct_port() from ever being called. This
-also prevents us from reusing the /dev/hvcsX node in a future
-hvcs_probe() and we can eventually run out of /dev/hvcsX devices.
+The be_fill_queue() function can only fail when "eq_vaddress" is NULL and
+since it's non-NULL here that means the function call can't fail.  But
+imagine if it could, then in that situation we would want to store the
+"paddr" so that dma memory can be released.
 
-Fix this by waiting to NULL tty->driver_data in hvcs_cleanup().
-
-Fixes: 27bf7c43a19c ("TTY: hvcs, add tty install")
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200820234643.70412-1-tyreld@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200928091300.GD377727@mwanda
+Fixes: bfead3b2cb46 ("[SCSI] be2iscsi: Adding msix and mcc_rings V3")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvcs.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/scsi/be2iscsi/be_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvcs.c b/drivers/tty/hvc/hvcs.c
-index 5997b17311113..cba662c50f919 100644
---- a/drivers/tty/hvc/hvcs.c
-+++ b/drivers/tty/hvc/hvcs.c
-@@ -1232,13 +1232,6 @@ static void hvcs_close(struct tty_struct *tty, struct file *filp)
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index 741cc96379cb7..04788e0b90236 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3052,6 +3052,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 		if (!eq_vaddress)
+ 			goto create_eq_error;
  
- 		tty_wait_until_sent(tty, HVCS_CLOSE_WAIT);
++		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3061,7 +3062,6 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 			goto create_eq_error;
+ 		}
  
--		/*
--		 * This line is important because it tells hvcs_open that this
--		 * device needs to be re-configured the next time hvcs_open is
--		 * called.
--		 */
--		tty->driver_data = NULL;
--
- 		free_irq(irq, hvcsd);
- 		return;
- 	} else if (hvcsd->port.count < 0) {
-@@ -1254,6 +1247,13 @@ static void hvcs_cleanup(struct tty_struct * tty)
- {
- 	struct hvcs_struct *hvcsd = tty->driver_data;
+-		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    phwi_context->cur_eqd);
+ 		if (ret) {
+@@ -3116,6 +3116,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 		if (!cq_vaddress)
+ 			goto create_cq_error;
  
-+	/*
-+	 * This line is important because it tells hvcs_open that this
-+	 * device needs to be re-configured the next time hvcs_open is
-+	 * called.
-+	 */
-+	tty->driver_data = NULL;
-+
- 	tty_port_put(&hvcsd->port);
- }
++		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3125,7 +3126,6 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 			goto create_cq_error;
+ 		}
  
+-		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
 -- 
 2.25.1
 
