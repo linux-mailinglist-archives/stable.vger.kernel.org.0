@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EEA229B58B
+	by mail.lfdr.de (Postfix) with ESMTP id 8F77A29B58C
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794731AbgJ0PNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
+        id S1794741AbgJ0PNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794721AbgJ0PNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:13:12 -0400
+        id S1794736AbgJ0PNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A58DB20728;
-        Tue, 27 Oct 2020 15:13:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C41D20728;
+        Tue, 27 Oct 2020 15:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811591;
-        bh=GOLPeakkjW6/gsGmqfNaaF+Z7TJdKCtnk2+xXxlfoK0=;
+        s=default; t=1603811596;
+        bh=TlzoQOTgJdo063lAP9IImjdEtkOQ5U8LxXHV/62dbH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LjAP9pZTOO6Sx8nl/EDf/5PBbtTV6124Ayb4NUFX+9YNgCtL01n93Lyw/fHBRNhZW
-         WC3MsDYfvT20HyKa7JXh29FTO2rbHqHIYjZ7T45LypmYHMHHwg0KfUQOB3Z25W9SqJ
-         toXfK+Jp4juAmaU0+Aiz2amJIrLK9wxgYklMDrbY=
+        b=0xm9jpyiBDnavhB75sXPaPIbFPB9L0cqo4FZO8tFxSOOEhFMla/FnR1s6KRO2uKiu
+         eAILTFaL8Gaa3KXBglT7ffTC0H5jVSLlIGHXvCGQHqE/CEjD+yRLZdGc+0Iul1rlZs
+         AgPMipTpfUODBJylSKDoXi/AeIqSA6gn3RNB3UqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thomas Graichen <thomas.graichen@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 516/633] ARM: dts: meson8: remove two invalid interrupt lines from the GPU node
-Date:   Tue, 27 Oct 2020 14:54:19 +0100
-Message-Id: <20201027135546.961479590@linuxfoundation.org>
+Subject: [PATCH 5.8 518/633] powerpc/powernv/dump: Fix race while processing OPAL dump
+Date:   Tue, 27 Oct 2020 14:54:21 +0100
+Message-Id: <20201027135547.061815110@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,68 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
 
-[ Upstream commit 737e7610b545cc901a9696083c1824a7104b8d1b ]
+[ Upstream commit 0a43ae3e2beb77e3481d812834d33abe270768ab ]
 
-The 3.10 vendor kernel defines the following GPU 20 interrupt lines:
-  #define INT_MALI_GP                 AM_IRQ(160)
-  #define INT_MALI_GP_MMU             AM_IRQ(161)
-  #define INT_MALI_PP                 AM_IRQ(162)
-  #define INT_MALI_PMU                AM_IRQ(163)
-  #define INT_MALI_PP0                AM_IRQ(164)
-  #define INT_MALI_PP0_MMU            AM_IRQ(165)
-  #define INT_MALI_PP1                AM_IRQ(166)
-  #define INT_MALI_PP1_MMU            AM_IRQ(167)
-  #define INT_MALI_PP2                AM_IRQ(168)
-  #define INT_MALI_PP2_MMU            AM_IRQ(169)
-  #define INT_MALI_PP3                AM_IRQ(170)
-  #define INT_MALI_PP3_MMU            AM_IRQ(171)
-  #define INT_MALI_PP4                AM_IRQ(172)
-  #define INT_MALI_PP4_MMU            AM_IRQ(173)
-  #define INT_MALI_PP5                AM_IRQ(174)
-  #define INT_MALI_PP5_MMU            AM_IRQ(175)
-  #define INT_MALI_PP6                AM_IRQ(176)
-  #define INT_MALI_PP6_MMU            AM_IRQ(177)
-  #define INT_MALI_PP7                AM_IRQ(178)
-  #define INT_MALI_PP7_MMU            AM_IRQ(179)
+Every dump reported by OPAL is exported to userspace through a sysfs
+interface and notified using kobject_uevent(). The userspace daemon
+(opal_errd) then reads the dump and acknowledges that the dump is
+saved safely to disk. Once acknowledged the kernel removes the
+respective sysfs file entry causing respective resources to be
+released including kobject.
 
-However, the driver from the 3.10 vendor kernel does not use the
-following four interrupt lines:
-- INT_MALI_PP3
-- INT_MALI_PP3_MMU
-- INT_MALI_PP7
-- INT_MALI_PP7_MMU
+However it's possible the userspace daemon may already be scanning
+dump entries when a new sysfs dump entry is created by the kernel.
+User daemon may read this new entry and ack it even before kernel can
+notify userspace about it through kobject_uevent() call. If that
+happens then we have a potential race between
+dump_ack_store->kobject_put() and kobject_uevent which can lead to
+use-after-free of a kernfs object resulting in a kernel crash.
 
-Drop the "pp3" and "ppmmu3" interrupt lines. This is also important
-because there is no matching entry in interrupt-names for it (meaning
-the "pp2" interrupt is actually assigned to the "pp3" interrupt line).
+This patch fixes this race by protecting the sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
 
-Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
-Reported-by: Thomas Graichen <thomas.graichen@gmail.com>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: thomas graichen <thomas.graichen@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200815181957.408649-1-martin.blumenstingl@googlemail.com
+The function create_dump_obj() returns the dump object which if used
+by caller function will end up in use-after-free problem again.
+However, the return value of create_dump_obj() function isn't being
+used today and there is no need as well. Hence change it to return
+void to make this fix complete.
+
+Fixes: c7e64b9ce04a ("powerpc/powernv Platform dump interface")
+Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201017164210.264619-1-hegdevasant@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8.dtsi | 2 --
- 1 file changed, 2 deletions(-)
+ arch/powerpc/platforms/powernv/opal-dump.c | 41 +++++++++++++++-------
+ 1 file changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
-index eedb92526968a..a4ab8b96d0eb6 100644
---- a/arch/arm/boot/dts/meson8.dtsi
-+++ b/arch/arm/boot/dts/meson8.dtsi
-@@ -239,8 +239,6 @@ mali: gpu@c0000 {
- 				     <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>,
+diff --git a/arch/powerpc/platforms/powernv/opal-dump.c b/arch/powerpc/platforms/powernv/opal-dump.c
+index 543c816fa99ef..0e6693bacb7e7 100644
+--- a/arch/powerpc/platforms/powernv/opal-dump.c
++++ b/arch/powerpc/platforms/powernv/opal-dump.c
+@@ -318,15 +318,14 @@ static ssize_t dump_attr_read(struct file *filep, struct kobject *kobj,
+ 	return count;
+ }
+ 
+-static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
+-					uint32_t type)
++static void create_dump_obj(uint32_t id, size_t size, uint32_t type)
+ {
+ 	struct dump_obj *dump;
+ 	int rc;
+ 
+ 	dump = kzalloc(sizeof(*dump), GFP_KERNEL);
+ 	if (!dump)
+-		return NULL;
++		return;
+ 
+ 	dump->kobj.kset = dump_kset;
+ 
+@@ -346,21 +345,39 @@ static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
+ 	rc = kobject_add(&dump->kobj, NULL, "0x%x-0x%x", type, id);
+ 	if (rc) {
+ 		kobject_put(&dump->kobj);
+-		return NULL;
++		return;
+ 	}
+ 
++	/*
++	 * As soon as the sysfs file for this dump is created/activated there is
++	 * a chance the opal_errd daemon (or any userspace) might read and
++	 * acknowledge the dump before kobject_uevent() is called. If that
++	 * happens then there is a potential race between
++	 * dump_ack_store->kobject_put() and kobject_uevent() which leads to a
++	 * use-after-free of a kernfs object resulting in a kernel crash.
++	 *
++	 * To avoid that, we need to take a reference on behalf of the bin file,
++	 * so that our reference remains valid while we call kobject_uevent().
++	 * We then drop our reference before exiting the function, leaving the
++	 * bin file to drop the last reference (if it hasn't already).
++	 */
++
++	/* Take a reference for the bin file */
++	kobject_get(&dump->kobj);
+ 	rc = sysfs_create_bin_file(&dump->kobj, &dump->dump_attr);
+-	if (rc) {
++	if (rc == 0) {
++		kobject_uevent(&dump->kobj, KOBJ_ADD);
++
++		pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
++			__func__, dump->id, dump->size);
++	} else {
++		/* Drop reference count taken for bin file */
+ 		kobject_put(&dump->kobj);
+-		return NULL;
+ 	}
+ 
+-	pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
+-		__func__, dump->id, dump->size);
+-
+-	kobject_uevent(&dump->kobj, KOBJ_ADD);
+-
+-	return dump;
++	/* Drop our reference */
++	kobject_put(&dump->kobj);
++	return;
+ }
+ 
+ static irqreturn_t process_dump(int irq, void *data)
 -- 
 2.25.1
 
