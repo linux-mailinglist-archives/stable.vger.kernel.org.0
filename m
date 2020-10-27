@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD5429B17D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:31:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AAD29B3EB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760001AbgJ0Oau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:30:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
+        id S1782207AbgJ0O4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759287AbgJ0O2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:28:49 -0400
+        id S1782175AbgJ0O4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:56:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30CE120754;
-        Tue, 27 Oct 2020 14:28:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 704242240C;
+        Tue, 27 Oct 2020 14:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808928;
-        bh=f3oZ6lt1048Bbse2Sgh8W9XGTvPRDZB4uRcJs7R8j4g=;
+        s=default; t=1603810604;
+        bh=iY8+alkSPzYrj285BJl1b4U90y2HjaN/I9aouGCCXbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DE0e83iJog+EhGbKeL0tTiN0XXV8Adhjw7aziZiCPbKzZs6OawUi4B4mezEn5RcOe
-         9U3LfAnQza3BXN7u5SoRJJfLILvffNqEG9jvKMMHNUJUKdnsY/axD/sNm8VHSg0QKV
-         vOvOjiaDXQ2IR+uGoVefPVTkd3eqnZCUMcRH+ATo=
+        b=0HtOJJw6PIMgkbtFOj3T5Hyn9Gl57szSkA4pcxGyM1QnXnazjoyivdc46fQyxL0m5
+         BDcDVN6xQFXGIIQwC0cMMBoqWTY+0ZblhKA4s8J198QSZTXlNPEPrKNAMxNR33nDA4
+         mwtBKnvpUjOOv+ZMwqUg3xPKYb6oWv0SF4rFE5wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Cristobal Forno <cris.forno@ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 002/408] ibmveth: Identify ingress large send packets.
-Date:   Tue, 27 Oct 2020 14:49:00 +0100
-Message-Id: <20201027135455.154994986@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 198/633] pwm: lpss: Add range limit check for the base_unit register value
+Date:   Tue, 27 Oct 2020 14:49:01 +0100
+Message-Id: <20201027135531.975094173@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wilder <dwilder@us.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 413f142cc05cb03f2d1ea83388e40c1ddc0d74e9 ]
+[ Upstream commit ef9f60daab309558c8bb3e086a9a11ee40bd6061 ]
 
-Ingress large send packets are identified by either:
-The IBMVETH_RXQ_LRG_PKT flag in the receive buffer
-or with a -1 placed in the ip header checksum.
-The method used depends on firmware version. Frame
-geometry and sufficient header validation is performed by the
-hypervisor eliminating the need for further header checks here.
+When the user requests a high enough period ns value, then the
+calculations in pwm_lpss_prepare() might result in a base_unit value of 0.
 
-Fixes: 7b5967389f5a ("ibmveth: set correct gso_size and gso_type")
-Signed-off-by: David Wilder <dwilder@us.ibm.com>
-Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
-Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But according to the data-sheet the way the PWM controller works is that
+each input clock-cycle the base_unit gets added to a N bit counter and
+that counter overflowing determines the PWM output frequency. Adding 0
+to the counter is a no-op. The data-sheet even explicitly states that
+writing 0 to the base_unit bits will result in the PWM outputting a
+continuous 0 signal.
+
+When the user requestes a low enough period ns value, then the
+calculations in pwm_lpss_prepare() might result in a base_unit value
+which is bigger then base_unit_range - 1. Currently the codes for this
+deals with this by applying a mask:
+
+	base_unit &= (base_unit_range - 1);
+
+But this means that we let the value overflow the range, we throw away the
+higher bits and store whatever value is left in the lower bits into the
+register leading to a random output frequency, rather then clamping the
+output frequency to the highest frequency which the hardware can do.
+
+This commit fixes both issues by clamping the base_unit value to be
+between 1 and (base_unit_range - 1).
+
+Fixes: 684309e5043e ("pwm: lpss: Avoid potential overflow of base_unit")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200903112337.4113-5-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmveth.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/pwm/pwm-lpss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1317,6 +1317,7 @@ static int ibmveth_poll(struct napi_stru
- 			int offset = ibmveth_rxq_frame_offset(adapter);
- 			int csum_good = ibmveth_rxq_csum_good(adapter);
- 			int lrg_pkt = ibmveth_rxq_large_packet(adapter);
-+			__sum16 iph_check = 0;
+diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
+index 43b1fc634af1a..da9bc3d10104a 100644
+--- a/drivers/pwm/pwm-lpss.c
++++ b/drivers/pwm/pwm-lpss.c
+@@ -97,6 +97,8 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
+ 	freq *= base_unit_range;
  
- 			skb = ibmveth_rxq_get_buffer(adapter);
+ 	base_unit = DIV_ROUND_CLOSEST_ULL(freq, c);
++	/* base_unit must not be 0 and we also want to avoid overflowing it */
++	base_unit = clamp_val(base_unit, 1, base_unit_range - 1);
  
-@@ -1353,7 +1354,17 @@ static int ibmveth_poll(struct napi_stru
- 			skb_put(skb, length);
- 			skb->protocol = eth_type_trans(skb, netdev);
+ 	on_time_div = 255ULL * duty_ns;
+ 	do_div(on_time_div, period_ns);
+@@ -105,7 +107,6 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
+ 	orig_ctrl = ctrl = pwm_lpss_read(pwm);
+ 	ctrl &= ~PWM_ON_TIME_DIV_MASK;
+ 	ctrl &= ~((base_unit_range - 1) << PWM_BASE_UNIT_SHIFT);
+-	base_unit &= (base_unit_range - 1);
+ 	ctrl |= (u32) base_unit << PWM_BASE_UNIT_SHIFT;
+ 	ctrl |= on_time_div;
  
--			if (length > netdev->mtu + ETH_HLEN) {
-+			/* PHYP without PLSO support places a -1 in the ip
-+			 * checksum for large send frames.
-+			 */
-+			if (skb->protocol == cpu_to_be16(ETH_P_IP)) {
-+				struct iphdr *iph = (struct iphdr *)skb->data;
-+
-+				iph_check = iph->check;
-+			}
-+
-+			if ((length > netdev->mtu + ETH_HLEN) ||
-+			    lrg_pkt || iph_check == 0xffff) {
- 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
- 				adapter->rx_large_packets++;
- 			}
+-- 
+2.25.1
+
 
 
