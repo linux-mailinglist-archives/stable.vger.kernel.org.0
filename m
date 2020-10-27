@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BAD329B7EA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D7E29B940
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798514AbgJ0P20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35566 "EHLO mail.kernel.org"
+        id S1802292AbgJ0PqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:46:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797006AbgJ0PVE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:21:04 -0400
+        id S1796598AbgJ0PTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:19:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1825921527;
-        Tue, 27 Oct 2020 15:21:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E992064B;
+        Tue, 27 Oct 2020 15:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812063;
-        bh=plV74ACRqJ0VnjFZjAIsVTWYzSWS5YeylkC4Puqi540=;
+        s=default; t=1603811983;
+        bh=XZ7rIa5DuVwkBrTk/BZ0eU7TQQYdRzSQ2xPrn5uyWzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvEOrPKgJ6PA11G0tTe8eiG4N9awEfX7iPTlstk2A0IASXUoD8edocJd57dCMyODe
-         ov2JozQ1uAzkALt7jdQlOcRUSEfsfskzi+vfwF+3EJQOMULktqZtjLj79G1D9YlW8k
-         MOSf/cDCMPwcASI25svsBgk3JucbgprZJp3KyPLU=
+        b=yOrIvO7vZPHbDKeb5mqSmcpcF+5dp+oLh0EGxcmbFbZisLKMMJF/zWov4ANb9lqnN
+         2DzfxzuTflFDzzNZCzELKfgrkD5Bu6EReNEg87CDyiLPGG/znFs0g3ficMdeQvKOVv
+         a8bnF+LBzh7tnT1Byly/pa9T+BsVlQzgUA/D4f9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliangtang@gmail.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
+        Apollon Oikonomopoulos <apoikos@dmesg.gr>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 039/757] mptcp: initialize mptcp_options_receiveds ahmac
-Date:   Tue, 27 Oct 2020 14:44:49 +0100
-Message-Id: <20201027135452.357685293@linuxfoundation.org>
+Subject: [PATCH 5.9 052/757] tcp: fix to update snd_wl1 in bulk receiver fast path
+Date:   Tue, 27 Oct 2020 14:45:02 +0100
+Message-Id: <20201027135452.997529528@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,31 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliangtang@gmail.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit fe2d9b1a0e7805384770ec0ddd34c9f1e9fe6fa8 ]
+[ Upstream commit 18ded910b589839e38a51623a179837ab4cc3789 ]
 
-Initialize mptcp_options_received's ahmac to zero, otherwise it
-will be a random number when receiving ADD_ADDR suboption with echo-flag=1.
+In the header prediction fast path for a bulk data receiver, if no
+data is newly acknowledged then we do not call tcp_ack() and do not
+call tcp_ack_update_window(). This means that a bulk receiver that
+receives large amounts of data can have the incoming sequence numbers
+wrap, so that the check in tcp_may_update_window fails:
+   after(ack_seq, tp->snd_wl1)
 
-Fixes: 3df523ab582c5 ("mptcp: Add ADD_ADDR handling")
-Signed-off-by: Geliang Tang <geliangtang@gmail.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+If the incoming receive windows are zero in this state, and then the
+connection that was a bulk data receiver later wants to send data,
+that connection can find itself persistently rejecting the window
+updates in incoming ACKs. This means the connection can persistently
+fail to discover that the receive window has opened, which in turn
+means that the connection is unable to send anything, and the
+connection's sending process can get permanently "stuck".
+
+The fix is to update snd_wl1 in the header prediction fast path for a
+bulk data receiver, so that it keeps up and does not see wrapping
+problems.
+
+This fix is based on a very nice and thorough analysis and diagnosis
+by Apollon Oikonomopoulos (see link below).
+
+This is a stable candidate but there is no Fixes tag here since the
+bug predates current git history. Just for fun: looks like the bug
+dates back to when header prediction was added in Linux v2.1.8 in Nov
+1996. In that version tcp_rcv_established() was added, and the code
+only updates snd_wl1 in tcp_ack(), and in the new "Bulk data transfer:
+receiver" code path it does not call tcp_ack(). This fix seems to
+apply cleanly at least as far back as v3.2.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Reported-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
+Tested-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
+Link: https://www.spinics.net/lists/netdev/msg692430.html
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20201022143331.1887495-1-ncardwell.kernel@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/options.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_input.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -296,6 +296,7 @@ void mptcp_get_options(const struct sk_b
- 	mp_opt->mp_capable = 0;
- 	mp_opt->mp_join = 0;
- 	mp_opt->add_addr = 0;
-+	mp_opt->ahmac = 0;
- 	mp_opt->rm_addr = 0;
- 	mp_opt->dss = 0;
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5766,6 +5766,8 @@ void tcp_rcv_established(struct sock *sk
+ 				tcp_data_snd_check(sk);
+ 				if (!inet_csk_ack_scheduled(sk))
+ 					goto no_ack;
++			} else {
++				tcp_update_wl(tp, TCP_SKB_CB(skb)->seq);
+ 			}
  
+ 			__tcp_ack_snd_check(sk, 0);
 
 
