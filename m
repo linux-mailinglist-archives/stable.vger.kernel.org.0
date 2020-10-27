@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B24C29BF73
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 452D329BF71
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793827AbgJ0RBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43676 "EHLO mail.kernel.org"
+        id S1815050AbgJ0RBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:01:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793816AbgJ0PI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:08:29 -0400
+        id S1793827AbgJ0PIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:08:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 757362072E;
-        Tue, 27 Oct 2020 15:08:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FEB020657;
+        Tue, 27 Oct 2020 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811309;
-        bh=vu6tQ4BPjHYNEBWKoF8+6r4eyeStegbWma9YjhNfaiI=;
+        s=default; t=1603811311;
+        bh=fHx7BqSEQSgwURzHFbfofNHRxUv8GxX2lB69b0Sp5qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVcxtNGkKbOhjhSfJvSmlkgOv8HKeRhoTF7IHyXhQAtFuv5oGDe59nfj0B/WFm3sS
-         0ka5jjoSe5nm75cyQjD78hUBrNaP9RY1mw+ayGz98jFZzeE4slT9FGvX9by9FBTyYI
-         Sd8AlBOryi8R1K7Rp8pSW0O3l9uJ7YE7up2dQspw=
+        b=RNX6ZrwRWqxxQ/p9Y8L1ret5QC9miWldayCbTpWiquKxmjVE09hN6YwLa4UO6bYCB
+         Zw8f7nk9+v0wmPyUCQcEfXl3EvsBjZpEG+wj6VGy/6bNkA8mcgSXfIvkgsgCAxf7Xa
+         vjHDmy5Ilt/EcgoLO4v09/UbCaupOGt9HK4G0/vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+b994ecf2b023f14832c1@syzkaller.appspotmail.com,
+        syzbot+0e0db88e1eb44a91ae8d@syzkaller.appspotmail.com,
+        syzbot+2d0585e5efcd43d113c2@syzkaller.appspotmail.com,
+        syzbot+1ecc2f9d3387f1d79d42@syzkaller.appspotmail.com,
+        syzbot+18d51774588492bf3f69@syzkaller.appspotmail.com,
+        syzbot+a5e4946b04d6ca8fa5f3@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 416/633] afs: Fix cell purging with aliases
-Date:   Tue, 27 Oct 2020 14:52:39 +0100
-Message-Id: <20201027135542.234599263@linuxfoundation.org>
+Subject: [PATCH 5.8 417/633] afs: Fix cell removal
+Date:   Tue, 27 Oct 2020 14:52:40 +0100
+Message-Id: <20201027135542.282271338@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,57 +52,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 286377f6bdf71568a4cf07104fe44006ae0dba6d ]
+[ Upstream commit 1d0e850a49a5b56f8f3cb51e74a11e2fedb96be6 ]
 
-When the afs module is removed, one of the things that has to be done is to
-purge the cell database.  afs_cell_purge() cancels the management timer and
-then starts the cell manager work item to do the purging.  This does a
-single run through and then assumes that all cells are now purged - but
-this is no longer the case.
+Fix cell removal by inserting a more final state than AFS_CELL_FAILED that
+indicates that the cell has been unpublished in case the manager is already
+requeued and will go through again.  The new AFS_CELL_REMOVED state will
+just immediately leave the manager function.
 
-With the introduction of alias detection, a later cell in the database can
-now be holding an active count on an earlier cell (cell->alias_of).  The
-purge scan passes by the earlier cell first, but this can't be got rid of
-until it has discarded the alias.  Ordinarily, afs_unuse_cell() would
-handle this by setting the management timer to trigger another pass - but
-afs_set_cell_timer() doesn't do anything if the namespace is being removed
-(net->live == false).  rmmod then hangs in the wait on cells_outstanding in
-afs_cell_purge().
+Going through a second time in the AFS_CELL_FAILED state will cause it to
+try to remove the cell again, potentially leading to the proc list being
+removed.
 
-Fix this by making afs_set_cell_timer() directly queue the cell manager if
-net->live is false.  This causes additional management passes.
-
-Queueing the cell manager increments cells_outstanding to make sure the
-wait won't complete until all cells are destroyed.
-
-Fixes: 8a070a964877 ("afs: Detect cell aliases 1 - Cells with root volumes")
+Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
+Reported-by: syzbot+b994ecf2b023f14832c1@syzkaller.appspotmail.com
+Reported-by: syzbot+0e0db88e1eb44a91ae8d@syzkaller.appspotmail.com
+Reported-by: syzbot+2d0585e5efcd43d113c2@syzkaller.appspotmail.com
+Reported-by: syzbot+1ecc2f9d3387f1d79d42@syzkaller.appspotmail.com
+Reported-by: syzbot+18d51774588492bf3f69@syzkaller.appspotmail.com
+Reported-by: syzbot+a5e4946b04d6ca8fa5f3@syzkaller.appspotmail.com
+Suggested-by: Hillf Danton <hdanton@sina.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Hillf Danton <hdanton@sina.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/cell.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/afs/cell.c     | 16 ++++++++++------
+ fs/afs/internal.h |  1 +
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
 diff --git a/fs/afs/cell.c b/fs/afs/cell.c
-index c906000b0ff84..1944be78e9b0d 100644
+index 1944be78e9b0d..bc7ed46aaca9f 100644
 --- a/fs/afs/cell.c
 +++ b/fs/afs/cell.c
-@@ -19,6 +19,7 @@ static unsigned __read_mostly afs_cell_gc_delay = 10;
- static unsigned __read_mostly afs_cell_min_ttl = 10 * 60;
- static unsigned __read_mostly afs_cell_max_ttl = 24 * 60 * 60;
+@@ -291,11 +291,11 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
+ 	wait_var_event(&cell->state,
+ 		       ({
+ 			       state = smp_load_acquire(&cell->state); /* vs error */
+-			       state == AFS_CELL_ACTIVE || state == AFS_CELL_FAILED;
++			       state == AFS_CELL_ACTIVE || state == AFS_CELL_REMOVED;
+ 		       }));
  
-+static void afs_queue_cell_manager(struct afs_net *);
- static void afs_manage_cell_work(struct work_struct *);
- 
- static void afs_dec_cells_outstanding(struct afs_net *net)
-@@ -37,6 +38,8 @@ static void afs_set_cell_timer(struct afs_net *net, time64_t delay)
- 		atomic_inc(&net->cells_outstanding);
- 		if (timer_reduce(&net->cells_timer, jiffies + delay * HZ))
- 			afs_dec_cells_outstanding(net);
-+	} else {
-+		afs_queue_cell_manager(net);
+ 	/* Check the state obtained from the wait check. */
+-	if (state == AFS_CELL_FAILED) {
++	if (state == AFS_CELL_REMOVED) {
+ 		ret = cell->error;
+ 		goto error;
  	}
- }
+@@ -700,7 +700,6 @@ static void afs_deactivate_cell(struct afs_net *net, struct afs_cell *cell)
+ static void afs_manage_cell(struct afs_cell *cell)
+ {
+ 	struct afs_net *net = cell->net;
+-	bool deleted;
+ 	int ret, active;
  
+ 	_enter("%s", cell->name);
+@@ -712,13 +711,15 @@ static void afs_manage_cell(struct afs_cell *cell)
+ 	case AFS_CELL_FAILED:
+ 		down_write(&net->cells_lock);
+ 		active = 1;
+-		deleted = atomic_try_cmpxchg_relaxed(&cell->active, &active, 0);
+-		if (deleted) {
++		if (atomic_try_cmpxchg_relaxed(&cell->active, &active, 0)) {
+ 			rb_erase(&cell->net_node, &net->cells);
++			smp_store_release(&cell->state, AFS_CELL_REMOVED);
+ 		}
+ 		up_write(&net->cells_lock);
+-		if (deleted)
++		if (cell->state == AFS_CELL_REMOVED) {
++			wake_up_var(&cell->state);
+ 			goto final_destruction;
++		}
+ 		if (cell->state == AFS_CELL_FAILED)
+ 			goto done;
+ 		smp_store_release(&cell->state, AFS_CELL_UNSET);
+@@ -760,6 +761,9 @@ static void afs_manage_cell(struct afs_cell *cell)
+ 		wake_up_var(&cell->state);
+ 		goto again;
+ 
++	case AFS_CELL_REMOVED:
++		goto done;
++
+ 	default:
+ 		break;
+ 	}
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 522597b401fec..7689f4535ef9c 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -326,6 +326,7 @@ enum afs_cell_state {
+ 	AFS_CELL_DEACTIVATING,
+ 	AFS_CELL_INACTIVE,
+ 	AFS_CELL_FAILED,
++	AFS_CELL_REMOVED,
+ };
+ 
+ /*
 -- 
 2.25.1
 
