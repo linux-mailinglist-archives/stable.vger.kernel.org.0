@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A1D29C5E8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3665129C555
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2508095AbgJ0OPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
+        id S1824777AbgJ0SFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:05:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2508020AbgJ0OPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:33 -0400
+        id S1757224AbgJ0OQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:16:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A3B3206F7;
-        Tue, 27 Oct 2020 14:15:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 114AC22265;
+        Tue, 27 Oct 2020 14:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808133;
-        bh=jaraSrj80zlYzpnw6JOPltVn8K5cA21AGwMQ4evNu7k=;
+        s=default; t=1603808216;
+        bh=kAHmD3REEo7pD5B4CPH3+kDd7e75hwALAHz76Bbpm/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1thK8ax7TYUq7SWalfEBcKQMpLdW88xUHTF7ZevStCMrW29VbSiBLsZxYTENoXZ6
-         JKIZjVgitypWPVxP6NrHZv3l3Q3eayNkYhVlv9y1UqUICU8w1n81tPbk874+aRDxpy
-         Vqg50P0TiOzxF8yZx/28RflTiENmBJ9/cMkjRpfs=
+        b=QhgfpNBCvKHZ69EC88V2tgbeKpNxbqDyt5/qm8hQUm/7vVQMviB7mwQKVGoT2fCiL
+         CndhDCecoQ3WMnPKH6TAYEU5+A5fyJ3c+TTVuhJn6H5qjhWcg9Bbza8cuPhccA/S0y
+         kHfIX1Oc2PVDiD/nHWtiJHymHBG5EbUWQc7OTXX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 167/191] misc: rtsx: Fix memory leak in rtsx_pci_probe
-Date:   Tue, 27 Oct 2020 14:50:22 +0100
-Message-Id: <20201027134917.750854044@linuxfoundation.org>
+Subject: [PATCH 4.14 168/191] reiserfs: only call unlock_new_inode() if I_NEW
+Date:   Tue, 27 Oct 2020 14:50:23 +0100
+Message-Id: <20201027134917.799576270@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -43,44 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
+[ Upstream commit 8859bf2b1278d064a139e3031451524a49a56bd0 ]
 
-When mfd_add_devices() fail, pcr->slots should also be freed. However,
-the current implementation does not free the member, leading to a memory
-leak.
+unlock_new_inode() is only meant to be called after a new inode has
+already been inserted into the hash table.  But reiserfs_new_inode() can
+call it even before it has inserted the inode, triggering the WARNING in
+unlock_new_inode().  Fix this by only calling unlock_new_inode() if the
+inode has the I_NEW flag set, indicating that it's in the table.
 
-Fix this by adding a new goto label that frees pcr->slots.
+This addresses the syzbot report "WARNING in unlock_new_inode"
+(https://syzkaller.appspot.com/bug?extid=187510916eb6a14598f7).
 
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200628070057.820213-1-ebiggers@kernel.org
+Reported-by: syzbot+187510916eb6a14598f7@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/rtsx_pcr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/reiserfs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/rtsx_pcr.c b/drivers/mfd/rtsx_pcr.c
-index 3cf69e5c57035..c9e45b6befacf 100644
---- a/drivers/mfd/rtsx_pcr.c
-+++ b/drivers/mfd/rtsx_pcr.c
-@@ -1268,12 +1268,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
- 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
- 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
- 	if (ret < 0)
--		goto disable_irq;
-+		goto free_slots;
- 
- 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
- 
- 	return 0;
- 
-+free_slots:
-+	kfree(pcr->slots);
- disable_irq:
- 	free_irq(pcr->irq, (void *)pcr);
- disable_msi:
+diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+index 4b0fed69e0330..06c4d376b0e39 100644
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -2160,7 +2160,8 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
+ out_inserted_sd:
+ 	clear_nlink(inode);
+ 	th->t_trans_id = 0;	/* so the caller can't use this handle later */
+-	unlock_new_inode(inode); /* OK to do even if we hadn't locked it */
++	if (inode->i_state & I_NEW)
++		unlock_new_inode(inode);
+ 	iput(inode);
+ 	return err;
+ }
 -- 
 2.25.1
 
