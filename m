@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3166229AFB5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3A229AFE4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:14:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2507081AbgJ0OMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54098 "EHLO mail.kernel.org"
+        id S1756530AbgJ0ON5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:13:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2508845AbgJ0OFp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:45 -0400
+        id S1756524AbgJ0ON4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:13:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F57C22258;
-        Tue, 27 Oct 2020 14:05:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38B9D2072D;
+        Tue, 27 Oct 2020 14:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807544;
+        s=default; t=1603808035;
         bh=QG/7ueEdEbsOxP7DxEbnpurwvC9xet4KgQ6y7mIGmCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYqbLct4nn8LP8U0J1+a8vfixncb8neUu5oHiXn6rjkfRzcnzleRHLeiM0Mhh7LL7
-         RnF19rPcS1J82kN+xon/3umJZ2eFlN5AlP2ljZmOqDdPdCtUkSuT2J2s3qgJsAW3yr
-         ieGYTdEd7N/vhDfmfo10J1X6ohh0Rq1fe/pihmU0=
+        b=Z5fRJwx0JPW3I8jMGJJOnqQmDC+vLkIaIzivDZ1MLvIS+i6Aks6Uf8gJhnNkiWbUp
+         4QcqP3X8nuDKjBZWl8Ci8vg3KTxIXSB68iD9M6Rbf9TjJC6ryf+C/sCIald0LFEpKF
+         Cn8xZ6vJkcmB7F9z6ptzpl/mnLSGu3EeUnoZj0AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 091/139] powerpc/powernv/dump: Fix race while processing OPAL dump
-Date:   Tue, 27 Oct 2020 14:49:45 +0100
-Message-Id: <20201027134906.454688257@linuxfoundation.org>
+Subject: [PATCH 4.14 131/191] powerpc/powernv/dump: Fix race while processing OPAL dump
+Date:   Tue, 27 Oct 2020 14:49:46 +0100
+Message-Id: <20201027134916.008149273@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
