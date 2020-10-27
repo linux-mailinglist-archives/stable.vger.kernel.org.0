@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C4D29B90F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3574229B7F9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802174AbgJ0Ppx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
+        id S1798616AbgJ0P3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1747858AbgJ0P3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:29:04 -0400
+        id S368765AbgJ0P1i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:27:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 288CC22202;
-        Tue, 27 Oct 2020 15:29:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AEE3206E9;
+        Tue, 27 Oct 2020 15:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812543;
-        bh=TMDJNU3prP1LHMZYXBj9NyDmrYuCB89SESxxYVidrnI=;
+        s=default; t=1603812457;
+        bh=U2L4TI+ODW1DfSENXpsKzJMS8rsBSGdviXkUOtLUq+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4oojQKCjDAba05mj33SD7gFI9QMUibN+tYjdlLCAfMQB4LCVEjwhoiNXFq8hRFhw
-         r/KQyIDPfv3shNJB2zcsD/4UlXFKf2luBHHL1o/0pRbHHjry3Xwh1HLpwST9r22Y1N
-         cxOXCkNzDFXw1N3jkZSszpeWu75QSh/Id4ck2tA0=
+        b=1YMKsu78p7qOI598IVACG3atJeS4QZxVDsbcNF/LHVXb1Rv00Aeer53mwaeJrc4gf
+         tSoWIOO9boSkUXBC+a8FTti04QedJ+OGiYAaPImECUnfkdeRy1EMWEbNi4utSEmX/6
+         mcFu7g/hycQ67BlhDSg7l7TAE+7EkxbU6u9W5nYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 215/757] staging: wfx: fix frame reordering
-Date:   Tue, 27 Oct 2020 14:47:45 +0100
-Message-Id: <20201027135500.698735473@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Dewar <alex.dewar90@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 217/757] VMCI: check return value of get_user_pages_fast() for errors
+Date:   Tue, 27 Oct 2020 14:47:47 +0100
+Message-Id: <20201027135500.794230646@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,56 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Alex Dewar <alex.dewar90@gmail.com>
 
-[ Upstream commit 7373f31c4b5e382e5117b71a6792e8005c45aa50 ]
+[ Upstream commit 90ca6333fd65f318c47bff425e1ea36c0a5539f6 ]
 
-When mac80211 debug is enabled, the trace below appears:
+In a couple of places in qp_host_get_user_memory(),
+get_user_pages_fast() is called without properly checking for errors. If
+e.g. -EFAULT is returned, this negative value will then be passed on to
+qp_release_pages(), which expects a u64 as input.
 
-    [60744.340037] wlan0: Rx A-MPDU request on aa:bb:cc:97:60:24 tid 0 result -524
+Fix this by only calling qp_release_pages() when we have a positive
+number returned.
 
-This imply that ___ieee80211_start_rx_ba_session will prematurely exit
-and frame reordering won't be enabled.
-
-Fixes: e5da5fbd77411 ("staging: wfx: fix CCMP/TKIP replay protection")
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20200825085828.399505-7-Jerome.Pouiller@silabs.com
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alex Dewar <alex.dewar90@gmail.com>
+Link: https://lore.kernel.org/r/20200825164522.412392-1-alex.dewar90@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/sta.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/wfx/sta.c b/drivers/staging/wfx/sta.c
-index 4e30ab17a93d4..7dace7c17bf5c 100644
---- a/drivers/staging/wfx/sta.c
-+++ b/drivers/staging/wfx/sta.c
-@@ -682,15 +682,16 @@ int wfx_ampdu_action(struct ieee80211_hw *hw,
- 		     struct ieee80211_vif *vif,
- 		     struct ieee80211_ampdu_params *params)
- {
--	/* Aggregation is implemented fully in firmware,
--	 * including block ack negotiation. Do not allow
--	 * mac80211 stack to do anything: it interferes with
--	 * the firmware.
--	 */
--
--	/* Note that we still need this function stubbed. */
--
--	return -ENOTSUPP;
-+	// Aggregation is implemented fully in firmware
-+	switch (params->action) {
-+	case IEEE80211_AMPDU_RX_START:
-+	case IEEE80211_AMPDU_RX_STOP:
-+		// Just acknowledge it to enable frame re-ordering
-+		return 0;
-+	default:
-+		// Leave the firmware doing its business for tx aggregation
-+		return -ENOTSUPP;
-+	}
- }
- 
- int wfx_add_chanctx(struct ieee80211_hw *hw,
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index 8531ae7811956..c49065887e8f5 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -657,8 +657,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)produce_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(produce) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(produce_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		err = VMCI_ERROR_NO_MEM;
+ 		goto out;
+ 	}
+@@ -670,8 +671,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)consume_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(consume) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(consume_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(consume_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+ 				 produce_q->kernel_if->num_pages, false);
+ 		err = VMCI_ERROR_NO_MEM;
 -- 
 2.25.1
 
