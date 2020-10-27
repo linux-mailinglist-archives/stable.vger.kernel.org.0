@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2E329B02B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032DE29B036
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756323AbgJ0OQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38648 "EHLO mail.kernel.org"
+        id S1757261AbgJ0ORG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757158AbgJ0OQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:32 -0400
+        id S1757250AbgJ0ORC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D0E2223B0;
-        Tue, 27 Oct 2020 14:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6300D2076A;
+        Tue, 27 Oct 2020 14:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808192;
-        bh=LBnUMiWJHWRV4YeY+H4Jo2sueEeXj3vrLl2lM4eVAEk=;
+        s=default; t=1603808221;
+        bh=8U+TANC7bT8j4Xv3yj9o0yRB161qVMo01V9ACXwU/UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTV/rwRNAAXLYaN6rBIrAFW28tI4L/B0Q/K6zPUKBq0cZvJZ7BdGqI97Tj7iDi7wg
-         qz258NYk9Q0NJD4g9tBdBhE4O16h55bVy+ixONAMZiF64q6d9scQFMKgknyQwzBmoN
-         EoVV9j+wxjQ3q5DxRaxattt+0Briz9ntyQ7Dp0Yk=
+        b=GxzDo/uDKdrYJGpwtpIyj8ttnNh08OL1AhehrAZIutBVeziIAhgd0spe6Lb3ZhP/U
+         rjOcXs166CVkUZk4IhQwb6jxvu6jgFr6M+XZUp5bY/0e+eI+WugyT5gjt/hLORNsEJ
+         iTFIfFZSnBOinYKkh70G5h07XHMA77LtrZbbyuU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>
-Subject: [PATCH 4.14 190/191] eeprom: at25: set minimum read/write access stride to 1
-Date:   Tue, 27 Oct 2020 14:50:45 +0100
-Message-Id: <20201027134918.862221045@linuxfoundation.org>
+        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
+        Thomas Falcon <tlfalcon@linux.ibm.com>,
+        Cristobal Forno <cris.forno@ibm.com>,
+        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 002/264] ibmveth: Identify ingress large send packets.
+Date:   Tue, 27 Oct 2020 14:51:00 +0100
+Message-Id: <20201027135430.758320579@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,31 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: David Wilder <dwilder@us.ibm.com>
 
-commit 284f52ac1c6cfa1b2e5c11b84653dd90e4e91de7 upstream.
+[ Upstream commit 413f142cc05cb03f2d1ea83388e40c1ddc0d74e9 ]
 
-SPI eeproms are addressed by byte.
+Ingress large send packets are identified by either:
+The IBMVETH_RXQ_LRG_PKT flag in the receive buffer
+or with a -1 placed in the ip header checksum.
+The method used depends on firmware version. Frame
+geometry and sufficient header validation is performed by the
+hypervisor eliminating the need for further header checks here.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200728092959.24600-1-ceggers@arri.de
+Fixes: 7b5967389f5a ("ibmveth: set correct gso_size and gso_type")
+Signed-off-by: David Wilder <dwilder@us.ibm.com>
+Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
+Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/misc/eeprom/at25.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmveth.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -355,7 +355,7 @@ static int at25_probe(struct spi_device
- 	at25->nvmem_config.reg_read = at25_ee_read;
- 	at25->nvmem_config.reg_write = at25_ee_write;
- 	at25->nvmem_config.priv = at25;
--	at25->nvmem_config.stride = 4;
-+	at25->nvmem_config.stride = 1;
- 	at25->nvmem_config.word_size = 1;
- 	at25->nvmem_config.size = chip.byte_len;
+--- a/drivers/net/ethernet/ibm/ibmveth.c
++++ b/drivers/net/ethernet/ibm/ibmveth.c
+@@ -1330,6 +1330,7 @@ static int ibmveth_poll(struct napi_stru
+ 			int offset = ibmveth_rxq_frame_offset(adapter);
+ 			int csum_good = ibmveth_rxq_csum_good(adapter);
+ 			int lrg_pkt = ibmveth_rxq_large_packet(adapter);
++			__sum16 iph_check = 0;
  
+ 			skb = ibmveth_rxq_get_buffer(adapter);
+ 
+@@ -1366,7 +1367,17 @@ static int ibmveth_poll(struct napi_stru
+ 			skb_put(skb, length);
+ 			skb->protocol = eth_type_trans(skb, netdev);
+ 
+-			if (length > netdev->mtu + ETH_HLEN) {
++			/* PHYP without PLSO support places a -1 in the ip
++			 * checksum for large send frames.
++			 */
++			if (skb->protocol == cpu_to_be16(ETH_P_IP)) {
++				struct iphdr *iph = (struct iphdr *)skb->data;
++
++				iph_check = iph->check;
++			}
++
++			if ((length > netdev->mtu + ETH_HLEN) ||
++			    lrg_pkt || iph_check == 0xffff) {
+ 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
+ 				adapter->rx_large_packets++;
+ 			}
 
 
