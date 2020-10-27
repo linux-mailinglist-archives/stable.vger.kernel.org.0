@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9340329B909
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A76929B906
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802162AbgJ0Ppt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45904 "EHLO mail.kernel.org"
+        id S1802154AbgJ0Ppr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798646AbgJ0P33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:29:29 -0400
+        id S1798650AbgJ0P3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2FE522202;
-        Tue, 27 Oct 2020 15:29:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 913D12225E;
+        Tue, 27 Oct 2020 15:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812568;
-        bh=t0IIFvNxgtXf2P2DTxOxttu6NInFUcfx3rT5AbaaOc8=;
+        s=default; t=1603812571;
+        bh=3moX06p79H8XExd+yu2Chq3rW1CjysgAOr6DOahlUSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtdPRfUrkaUQk5446Trwe0p+Q4ymCB21GODq1T2B7cXjY9aks/6o+pnKWHIG7SO5V
-         OApBL7d0mVkcqAaHy84NE8999Z3ZPFIOwCpPoUZt6C9N+7EXwwtlVBI+eBRWySMwr1
-         bMOipXXEuDDVYiPui/IA9vDWKnUp8gByAcr3I96Y=
+        b=WD1NDxA8OJpm3550zuSvDr7IeR2EkYuC/EIw5T+H1kDykrKfZ5zq0c4codafNqfZY
+         H3BWrLrwFG56ZH0eOF8OVxydPotg6mfgoMUnaUvj/550me+ZtL5qhCKTF0Z8Uky+6P
+         9Tm2H1rtmaE8h47XkaOH7b53r48gzzVf0KPmFEnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 256/757] pinctrl: devicetree: Keep deferring even on timeout
-Date:   Tue, 27 Oct 2020 14:48:26 +0100
-Message-Id: <20201027135502.581919427@linuxfoundation.org>
+Subject: [PATCH 5.9 257/757] drm/msm/adreno: fix probe without iommu
+Date:   Tue, 27 Oct 2020 14:48:27 +0100
+Message-Id: <20201027135502.629464305@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,49 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit 84f28fc38d2ff99e2ac623325ba37809da611b8e ]
+[ Upstream commit 0a48db562c6264da2ae8013491efd6e8dc780520 ]
 
-driver_deferred_probe_check_state() may return -ETIMEDOUT instead of
--EPROBE_DEFER after all built-in drivers have been probed. This can
-cause issues for built-in drivers that depend on resources provided by
-loadable modules.
+The function iommu_domain_alloc returns NULL on platforms without IOMMU
+such as msm8974. This resulted in PTR_ERR(-ENODEV) being assigned to
+gpu->aspace so the correct code path wasn't taken.
 
-One such case happens on Tegra where I2C controllers are used during
-early boot to set up the system PMIC, so the I2C driver needs to be a
-built-in driver. At the same time, some instances of the I2C controller
-depend on the DPAUX hardware for pinmuxing. Since the DPAUX is handled
-by the display driver, which is usually not built-in, the pin control
-states will not become available until after the root filesystem has
-been mounted and the display driver loaded from it.
-
-Fixes: bec6c0ecb243 ("pinctrl: Remove use of driver_deferred_probe_check_state_continue()")
-Suggested-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20200825143348.1358679-1-thierry.reding@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: ccac7ce373c1 ("drm/msm: Refactor address space initialization")
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/devicetree.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 5eff8c2965528..3fb2387147189 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -130,9 +130,8 @@ static int dt_to_map_one_config(struct pinctrl *p,
- 		if (!np_pctldev || of_node_is_root(np_pctldev)) {
- 			of_node_put(np_pctldev);
- 			ret = driver_deferred_probe_check_state(p->dev);
--			/* keep deferring if modules are enabled unless we've timed out */
--			if (IS_ENABLED(CONFIG_MODULES) && !allow_default &&
--			    (ret == -ENODEV))
-+			/* keep deferring if modules are enabled */
-+			if (IS_ENABLED(CONFIG_MODULES) && !allow_default && ret < 0)
- 				ret = -EPROBE_DEFER;
- 			return ret;
- 		}
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 862dd35b27d3d..6e8bef1a9ea25 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -189,10 +189,16 @@ struct msm_gem_address_space *
+ adreno_iommu_create_address_space(struct msm_gpu *gpu,
+ 		struct platform_device *pdev)
+ {
+-	struct iommu_domain *iommu = iommu_domain_alloc(&platform_bus_type);
+-	struct msm_mmu *mmu = msm_iommu_new(&pdev->dev, iommu);
++	struct iommu_domain *iommu;
++	struct msm_mmu *mmu;
+ 	struct msm_gem_address_space *aspace;
+ 
++	iommu = iommu_domain_alloc(&platform_bus_type);
++	if (!iommu)
++		return NULL;
++
++	mmu = msm_iommu_new(&pdev->dev, iommu);
++
+ 	aspace = msm_gem_address_space_create(mmu, "gpu", SZ_16M,
+ 		0xffffffff - SZ_16M);
+ 
 -- 
 2.25.1
 
