@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BBA629C573
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598CF29C6FD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757043AbgJ0OPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
+        id S2392351AbgJ0OAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:00:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757029AbgJ0OPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:52 -0400
+        id S1753546AbgJ0OAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:00:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA4B62072D;
-        Tue, 27 Oct 2020 14:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E45DF21D42;
+        Tue, 27 Oct 2020 14:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808152;
-        bh=gpFU+lUF9KiLddOa/wFhOjQHDpRA//8MaNSpW6Ob1c0=;
+        s=default; t=1603807206;
+        bh=/HqbitK00QkLIbbHhw5jTLcPPXOHnA8KQORgGAso0Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/rFN8WTF3pR37oHId90ZhlRKLotaTnmVp1dnnIYldvZthL2U6KYfKu2PXwz2ZVcd
-         H3lSQ28VxiYMbAy2mm6+jC5MvuQM/8uJf3Gnnsv0BbmBK1GShOrwx2oPl1c7ZKhQrc
-         FHmdiXQoNGBUo119jmVS4gzZTjHeSNylaCNbVvuE=
+        b=U4dXcdaNle75EUYmuZnbXbRGfhOrhlg3W7jgJHTqOHxhIeyBZeEFo0AhxUPaNsX/0
+         /JmQQT0gdg5PA0sQmxIcstcLkc5o0SE1W6Z9m1yi5DMvQpg9xvfp+vbyQZ48itVFi8
+         Zg70O0HSlecnY14uONdGlurtC59lZvNGx5+PKedE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rainer Finke <rainer@finke.cc>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/191] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
-Date:   Tue, 27 Oct 2020 14:49:50 +0100
-Message-Id: <20201027134916.194575053@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 081/112] media: exynos4-is: Fix a reference count leak
+Date:   Tue, 27 Oct 2020 14:49:51 +0100
+Message-Id: <20201027134904.380014586@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 8058d69905058ec8f467a120b5ec5bb831ea67f3 ]
+[ Upstream commit 64157b2cb1940449e7df2670e85781c690266588 ]
 
-Commit 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler()
-before i2c_acpi_register_devices()")'s intention was to only move the
-acpi_install_address_space_handler() call to the point before where
-the ACPI declared i2c-children of the adapter where instantiated by
-i2c_acpi_register_devices().
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
 
-But i2c_acpi_install_space_handler() had a call to
-acpi_walk_dep_device_list() hidden (that is I missed it) at the end
-of it, so as an unwanted side-effect now acpi_walk_dep_device_list()
-was also being called before i2c_acpi_register_devices().
-
-Move the acpi_walk_dep_device_list() call to the end of
-i2c_acpi_register_devices(), so that it is once again called *after*
-the i2c_client-s hanging of the adapter have been created.
-
-This fixes the Microsoft Surface Go 2 hanging at boot.
-
-Fixes: 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209627
-Reported-by: Rainer Finke <rainer@finke.cc>
-Reported-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Suggested-by: Maximilian Luz <luzmaximilian@gmail.com>
-Tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-acpi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/mipi-csis.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 0d4d5dcf94f39..52ae674ebf5bf 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -219,6 +219,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
- void i2c_acpi_register_devices(struct i2c_adapter *adap)
- {
- 	acpi_status status;
-+	acpi_handle handle;
- 
- 	if (!has_acpi_companion(&adap->dev))
- 		return;
-@@ -229,6 +230,15 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
- 				     adap, NULL);
- 	if (ACPI_FAILURE(status))
- 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
-+
-+	if (!adap->dev.parent)
-+		return;
-+
-+	handle = ACPI_HANDLE(adap->dev.parent);
-+	if (!handle)
-+		return;
-+
-+	acpi_walk_dep_device_list(handle);
- }
- 
- const struct acpi_device_id *
-@@ -684,7 +694,6 @@ int i2c_acpi_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
+diff --git a/drivers/media/platform/exynos4-is/mipi-csis.c b/drivers/media/platform/exynos4-is/mipi-csis.c
+index 4b85105dc159b..4f7a0f59f36c2 100644
+--- a/drivers/media/platform/exynos4-is/mipi-csis.c
++++ b/drivers/media/platform/exynos4-is/mipi-csis.c
+@@ -513,8 +513,10 @@ static int s5pcsis_s_stream(struct v4l2_subdev *sd, int enable)
+ 	if (enable) {
+ 		s5pcsis_clear_counters(state);
+ 		ret = pm_runtime_get_sync(&state->pdev->dev);
+-		if (ret && ret != 1)
++		if (ret && ret != 1) {
++			pm_runtime_put_noidle(&state->pdev->dev);
+ 			return ret;
++		}
  	}
  
--	acpi_walk_dep_device_list(handle);
- 	return 0;
- }
- 
+ 	mutex_lock(&state->lock);
 -- 
 2.25.1
 
