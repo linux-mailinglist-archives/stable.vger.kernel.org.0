@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9064B29BD72
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB7529BE6F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1810983AbgJ0Qgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S1812925AbgJ0Qqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801843AbgJ0Pob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:44:31 -0400
+        id S368866AbgJ0PmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:42:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EC1124199;
-        Tue, 27 Oct 2020 15:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF07E2231B;
+        Tue, 27 Oct 2020 15:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813423;
-        bh=ZA4gR0f7hku3bhQn7pematasi46a6JZ5/96TZT+UQ1M=;
+        s=default; t=1603813330;
+        bh=fU14C59hIr/5h8iM9Dm03dmItVdhjfvMAjCVCEFL36o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xi4E67tq+nAc9n4caHcthbOoDqx5kCoDotVv3rwLdV5FeBASpkeM//uf/gfZsakMU
-         HNiXsUcrfEVGX6+1VMAvhg3FawN+cUF/ZFLmF/yqqGMtjCmzH29vcUKLf7AEtodjLs
-         gsOrNvor/YEM8V/op1JhTuBpPDty3FBaCgZJFmtU=
+        b=mWgTLomC+CdpMapXSrlr6LDOmjOkDonUcDVHob8GcdrTrZokKehAI6Yi1/Up0C9tk
+         H6XiFqztrqF6wuMCsIFS/B1VzHxgxoovUUdELSW3q11v5ijrvs2qmqv1mNkDyyWg7n
+         renody0OgT/I/VweF0j8Rlkb7Z/1y8S6W3PwSwfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 515/757] clk: meson: axg-audio: separate axg and g12a regmap tables
-Date:   Tue, 27 Oct 2020 14:52:45 +0100
-Message-Id: <20201027135514.637221309@linuxfoundation.org>
+Subject: [PATCH 5.9 516/757] rtc: ds1307: Clear OSF flag on DS1388 when setting time
+Date:   Tue, 27 Oct 2020 14:52:46 +0100
+Message-Id: <20201027135514.680143882@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,175 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit cdabb1ffc7c2349b8930f752df1edcafc1d37cc1 ]
+[ Upstream commit f471b05f76e4b1b6ba07ebc7681920a5c5b97c5d ]
 
-There are more differences than what we initially thought.
-Let's keeps things clear and separate the axg and g12a regmap tables of the
-audio clock controller.
+Ensure the OSF flag is cleared on the DS1388 when the clock is set.
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200729154359.1983085-3-jbrunet@baylibre.com
+Fixes: df11b323b16f ("rtc: ds1307: handle oscillator failure flags for ds1388 variant")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20200818013543.4283-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/axg-audio.c | 135 ++++++++++++++++++++++++++++++++--
- 1 file changed, 127 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/meson/axg-audio.c b/drivers/clk/meson/axg-audio.c
-index 53715e36326c6..9918cb375de30 100644
---- a/drivers/clk/meson/axg-audio.c
-+++ b/drivers/clk/meson/axg-audio.c
-@@ -1209,13 +1209,132 @@ static struct clk_hw_onecell_data sm1_audio_hw_onecell_data = {
- };
- 
- 
--/* Convenience table to populate regmap in .probe()
-- * Note that this table is shared between both AXG and G12A,
-- * with spdifout_b clocks being exclusive to G12A. Since those
-- * clocks are not declared within the AXG onecell table, we do not
-- * feel the need to have separate AXG/G12A regmap tables.
-- */
-+/* Convenience table to populate regmap in .probe(). */
- static struct clk_regmap *const axg_clk_regmaps[] = {
-+	&ddr_arb,
-+	&pdm,
-+	&tdmin_a,
-+	&tdmin_b,
-+	&tdmin_c,
-+	&tdmin_lb,
-+	&tdmout_a,
-+	&tdmout_b,
-+	&tdmout_c,
-+	&frddr_a,
-+	&frddr_b,
-+	&frddr_c,
-+	&toddr_a,
-+	&toddr_b,
-+	&toddr_c,
-+	&loopback,
-+	&spdifin,
-+	&spdifout,
-+	&resample,
-+	&power_detect,
-+	&mst_a_mclk_sel,
-+	&mst_b_mclk_sel,
-+	&mst_c_mclk_sel,
-+	&mst_d_mclk_sel,
-+	&mst_e_mclk_sel,
-+	&mst_f_mclk_sel,
-+	&mst_a_mclk_div,
-+	&mst_b_mclk_div,
-+	&mst_c_mclk_div,
-+	&mst_d_mclk_div,
-+	&mst_e_mclk_div,
-+	&mst_f_mclk_div,
-+	&mst_a_mclk,
-+	&mst_b_mclk,
-+	&mst_c_mclk,
-+	&mst_d_mclk,
-+	&mst_e_mclk,
-+	&mst_f_mclk,
-+	&spdifout_clk_sel,
-+	&spdifout_clk_div,
-+	&spdifout_clk,
-+	&spdifin_clk_sel,
-+	&spdifin_clk_div,
-+	&spdifin_clk,
-+	&pdm_dclk_sel,
-+	&pdm_dclk_div,
-+	&pdm_dclk,
-+	&pdm_sysclk_sel,
-+	&pdm_sysclk_div,
-+	&pdm_sysclk,
-+	&mst_a_sclk_pre_en,
-+	&mst_b_sclk_pre_en,
-+	&mst_c_sclk_pre_en,
-+	&mst_d_sclk_pre_en,
-+	&mst_e_sclk_pre_en,
-+	&mst_f_sclk_pre_en,
-+	&mst_a_sclk_div,
-+	&mst_b_sclk_div,
-+	&mst_c_sclk_div,
-+	&mst_d_sclk_div,
-+	&mst_e_sclk_div,
-+	&mst_f_sclk_div,
-+	&mst_a_sclk_post_en,
-+	&mst_b_sclk_post_en,
-+	&mst_c_sclk_post_en,
-+	&mst_d_sclk_post_en,
-+	&mst_e_sclk_post_en,
-+	&mst_f_sclk_post_en,
-+	&mst_a_sclk,
-+	&mst_b_sclk,
-+	&mst_c_sclk,
-+	&mst_d_sclk,
-+	&mst_e_sclk,
-+	&mst_f_sclk,
-+	&mst_a_lrclk_div,
-+	&mst_b_lrclk_div,
-+	&mst_c_lrclk_div,
-+	&mst_d_lrclk_div,
-+	&mst_e_lrclk_div,
-+	&mst_f_lrclk_div,
-+	&mst_a_lrclk,
-+	&mst_b_lrclk,
-+	&mst_c_lrclk,
-+	&mst_d_lrclk,
-+	&mst_e_lrclk,
-+	&mst_f_lrclk,
-+	&tdmin_a_sclk_sel,
-+	&tdmin_b_sclk_sel,
-+	&tdmin_c_sclk_sel,
-+	&tdmin_lb_sclk_sel,
-+	&tdmout_a_sclk_sel,
-+	&tdmout_b_sclk_sel,
-+	&tdmout_c_sclk_sel,
-+	&tdmin_a_sclk_pre_en,
-+	&tdmin_b_sclk_pre_en,
-+	&tdmin_c_sclk_pre_en,
-+	&tdmin_lb_sclk_pre_en,
-+	&tdmout_a_sclk_pre_en,
-+	&tdmout_b_sclk_pre_en,
-+	&tdmout_c_sclk_pre_en,
-+	&tdmin_a_sclk_post_en,
-+	&tdmin_b_sclk_post_en,
-+	&tdmin_c_sclk_post_en,
-+	&tdmin_lb_sclk_post_en,
-+	&tdmout_a_sclk_post_en,
-+	&tdmout_b_sclk_post_en,
-+	&tdmout_c_sclk_post_en,
-+	&tdmin_a_sclk,
-+	&tdmin_b_sclk,
-+	&tdmin_c_sclk,
-+	&tdmin_lb_sclk,
-+	&tdmout_a_sclk,
-+	&tdmout_b_sclk,
-+	&tdmout_c_sclk,
-+	&tdmin_a_lrclk,
-+	&tdmin_b_lrclk,
-+	&tdmin_c_lrclk,
-+	&tdmin_lb_lrclk,
-+	&tdmout_a_lrclk,
-+	&tdmout_b_lrclk,
-+	&tdmout_c_lrclk,
-+};
-+
-+static struct clk_regmap *const g12a_clk_regmaps[] = {
- 	&ddr_arb,
- 	&pdm,
- 	&tdmin_a,
-@@ -1713,8 +1832,8 @@ static const struct audioclk_data axg_audioclk_data = {
- };
- 
- static const struct audioclk_data g12a_audioclk_data = {
--	.regmap_clks = axg_clk_regmaps,
--	.regmap_clk_num = ARRAY_SIZE(axg_clk_regmaps),
-+	.regmap_clks = g12a_clk_regmaps,
-+	.regmap_clk_num = ARRAY_SIZE(g12a_clk_regmaps),
- 	.hw_onecell_data = &g12a_audio_hw_onecell_data,
- 	.reset_offset = AUDIO_SW_RESET,
- 	.reset_num = 26,
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 54c85cdd019dd..c9c3de14bc62f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -352,6 +352,10 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		regmap_update_bits(ds1307->regmap, DS1340_REG_FLAG,
+ 				   DS1340_BIT_OSF, 0);
+ 		break;
++	case ds_1388:
++		regmap_update_bits(ds1307->regmap, DS1388_REG_FLAG,
++				   DS1388_BIT_OSF, 0);
++		break;
+ 	case mcp794xx:
+ 		/*
+ 		 * these bits were cleared when preparing the date/time
 -- 
 2.25.1
 
