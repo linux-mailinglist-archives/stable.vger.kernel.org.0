@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ABC29B90D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7614529B900
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802167AbgJ0Ppu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1802145AbgJ0Ppp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798596AbgJ0P3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:29:10 -0400
+        id S1799204AbgJ0PaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:30:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B404020728;
-        Tue, 27 Oct 2020 15:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EF8B2225E;
+        Tue, 27 Oct 2020 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812549;
-        bh=cKsQjm/Jxc4p0wWw/RoMqSrFVokuN7UcbLlS2G+kzJE=;
+        s=default; t=1603812613;
+        bh=u6tmtFzoQhNJoYX9gYV+e9lb3rVX2mHMPLxiTP6Gkv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsUMFFFF9d4aml0pnRLLLpdZOmKj5OoXiBvQYMo8peQTFR47xJcK2t2DLzIYKPhf7
-         yYohFcF7l8QvGJlwa/zgilDUTVZ8+ptGWcoIff3Tw5ID2LrJKE/kWu3vSKf03tTyFX
-         1CYYe1aGaXkhfrmCGrDtXpClREGQBssF25dw3Vvs=
+        b=2Mm6fdysWm2MMqM9xW75T5pLW1756Ls05fSkHzVsT+hmA8yeYsCgeenKuL8zEc0KP
+         SdhHvRFO36RyPopmclYYTDaWaISSXy+8pX3V/C7dyWxaWBFb2lyE+HihEA7ADhiZrx
+         MIFHUjs92w5gFOXWe7xD3fr9KC2rATGCpeooenmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Mathieu Malaterre <malat@debian.org>,
-        Kangjie Lu <kjlu@umn.edu>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 241/757] video: fbdev: radeon: Fix memleak in radeonfb_pci_register
-Date:   Tue, 27 Oct 2020 14:48:11 +0100
-Message-Id: <20201027135501.891842750@linuxfoundation.org>
+Subject: [PATCH 5.9 243/757] scsi: ufs: ufs-mediatek: Eliminate error message for unbound mphy
+Date:   Tue, 27 Oct 2020 14:48:13 +0100
+Message-Id: <20201027135501.990327635@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,38 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit fe6c6a4af2be8c15bac77f7ea160f947c04840d1 ]
+[ Upstream commit 30a90782c105fe498df74161392aa143796b6886 ]
 
-When radeon_kick_out_firmware_fb() fails, info should be
-freed just like the subsequent error paths.
+Some MediaTek platforms does not have to bind MPHY so users shall not see
+any unnecessary logs. Simply remove logs for this case.
 
-Fixes: 069ee21a82344 ("fbdev: Fix loading of module radeonfb on PowerMac")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Mathieu Malaterre <malat@debian.org>
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200825062900.11210-1-dinghao.liu@zju.edu.cn
+Link: https://lore.kernel.org/r/20200908064507.30774-2-stanley.chu@mediatek.com
+Fixes: fc4983018fea ("scsi: ufs-mediatek: Allow unbound mphy")
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/aty/radeon_base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufs-mediatek.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/aty/radeon_base.c b/drivers/video/fbdev/aty/radeon_base.c
-index 3fe509cb9b874..13bd2bd5c043a 100644
---- a/drivers/video/fbdev/aty/radeon_base.c
-+++ b/drivers/video/fbdev/aty/radeon_base.c
-@@ -2307,7 +2307,7 @@ static int radeonfb_pci_register(struct pci_dev *pdev,
+diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
+index 1755dd6b04aec..0a50b95315f8f 100644
+--- a/drivers/scsi/ufs/ufs-mediatek.c
++++ b/drivers/scsi/ufs/ufs-mediatek.c
+@@ -129,7 +129,10 @@ static int ufs_mtk_bind_mphy(struct ufs_hba *hba)
+ 			__func__, err);
+ 	} else if (IS_ERR(host->mphy)) {
+ 		err = PTR_ERR(host->mphy);
+-		dev_info(dev, "%s: PHY get failed %d\n", __func__, err);
++		if (err != -ENODEV) {
++			dev_info(dev, "%s: PHY get failed %d\n", __func__,
++				 err);
++		}
+ 	}
  
- 	ret = radeon_kick_out_firmware_fb(pdev);
- 	if (ret)
--		return ret;
-+		goto err_release_fb;
- 
- 	/* request the mem regions */
- 	ret = pci_request_region(pdev, 0, "radeonfb framebuffer");
+ 	if (err)
 -- 
 2.25.1
 
