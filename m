@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F144129B321
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DA129B3B8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762872AbgJ0Oog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:44:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44402 "EHLO mail.kernel.org"
+        id S1752541AbgJ0Oyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762837AbgJ0Ooe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:44:34 -0400
+        id S1762874AbgJ0Ooh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:44:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61BC4206E5;
-        Tue, 27 Oct 2020 14:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4155421527;
+        Tue, 27 Oct 2020 14:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809872;
-        bh=a59UGLAf0OyaSVywbiUaGfk6BofKsAlMctBtJi+9Qak=;
+        s=default; t=1603809875;
+        bh=ri3/j4O81BRM8Mr9mos8cWecgHH1LaP/CQcLfglo6sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2rGFClAp4SLOroYQpY1MrxrAFsu9n5VK9OrsUKyr7+Sd0lQzqMnEnFoq2GhbRAGl
-         OA/VIsPWei14pKCFQw/8JJnZc9U+nG9u8gzzEapPZQUmrc+W44p1Tvsn1qPzrAH1RX
-         SB1zu9YLDi7uzvF2OOjEVCo2q/OOALKC1h/cQVOI=
+        b=zY4IZbgaALxCsugId+ORiKhMo9rGa/5JiMLNENKoI7NCebj1kB8wT41mMkj3jv/1T
+         dg58+fpKZr5utTYZDL+0GqLPQFkukSs87VlpJTeyRy0j1X/ixZC8G+ql6qvmksFQIQ
+         RloL+6+8LdFfmT+gfaFbikF8guX3HPyjb7G+hcp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ganesh Goudar <ganeshgr@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 318/408] powerpc/pseries: Avoid using addr_to_pfn in real mode
-Date:   Tue, 27 Oct 2020 14:54:16 +0100
-Message-Id: <20201027135509.786229673@linuxfoundation.org>
+        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 319/408] nvmet: fix uninitialized work for zero kato
+Date:   Tue, 27 Oct 2020 14:54:17 +0100
+Message-Id: <20201027135509.835925964@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,217 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganesh Goudar <ganeshgr@linux.ibm.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
 
-[ Upstream commit 4ff753feab021242144818b9a3ba011238218145 ]
+[ Upstream commit 85bd23f3dc09a2ae9e56885420e52c54bf983713 ]
 
-When an UE or memory error exception is encountered the MCE handler
-tries to find the pfn using addr_to_pfn() which takes effective
-address as an argument, later pfn is used to poison the page where
-memory error occurred, recent rework in this area made addr_to_pfn
-to run in real mode, which can be fatal as it may try to access
-memory outside RMO region.
+When connecting a controller with a zero kato value using the following
+command line
 
-Have two helper functions to separate things to be done in real mode
-and virtual mode without changing any functionality. This also fixes
-the following error as the use of addr_to_pfn is now moved to virtual
-mode.
+   nvme connect -t tcp -n NQN -a ADDR -s PORT --keep-alive-tmo=0
 
-Without this change following kernel crash is seen on hitting UE.
+the warning below can be reproduced:
 
-[  485.128036] Oops: Kernel access of bad area, sig: 11 [#1]
-[  485.128040] LE SMP NR_CPUS=2048 NUMA pSeries
-[  485.128047] Modules linked in:
-[  485.128067] CPU: 15 PID: 6536 Comm: insmod Kdump: loaded Tainted: G OE 5.7.0 #22
-[  485.128074] NIP:  c00000000009b24c LR: c0000000000398d8 CTR: c000000000cd57c0
-[  485.128078] REGS: c000000003f1f970 TRAP: 0300   Tainted: G OE (5.7.0)
-[  485.128082] MSR:  8000000000001003 <SF,ME,RI,LE>  CR: 28008284  XER: 00000001
-[  485.128088] CFAR: c00000000009b190 DAR: c0000001fab00000 DSISR: 40000000 IRQMASK: 1
-[  485.128088] GPR00: 0000000000000001 c000000003f1fbf0 c000000001634300 0000b0fa01000000
-[  485.128088] GPR04: d000000002220000 0000000000000000 00000000fab00000 0000000000000022
-[  485.128088] GPR08: c0000001fab00000 0000000000000000 c0000001fab00000 c000000003f1fc14
-[  485.128088] GPR12: 0000000000000008 c000000003ff5880 d000000002100008 0000000000000000
-[  485.128088] GPR16: 000000000000ff20 000000000000fff1 000000000000fff2 d0000000021a1100
-[  485.128088] GPR20: d000000002200000 c00000015c893c50 c000000000d49b28 c00000015c893c50
-[  485.128088] GPR24: d0000000021a0d08 c0000000014e5da8 d0000000021a0818 000000000000000a
-[  485.128088] GPR28: 0000000000000008 000000000000000a c0000000017e2970 000000000000000a
-[  485.128125] NIP [c00000000009b24c] __find_linux_pte+0x11c/0x310
-[  485.128130] LR [c0000000000398d8] addr_to_pfn+0x138/0x170
-[  485.128133] Call Trace:
-[  485.128135] Instruction dump:
-[  485.128138] 3929ffff 7d4a3378 7c883c36 7d2907b4 794a1564 7d294038 794af082 3900ffff
-[  485.128144] 79291f24 790af00e 78e70020 7d095214 <7c69502a> 2fa30000 419e011c 70690040
-[  485.128152] ---[ end trace d34b27e29ae0e340 ]---
+WARNING: CPU: 1 PID: 241 at kernel/workqueue.c:1627 __queue_delayed_work+0x6d/0x90
+with trace:
+  mod_delayed_work_on+0x59/0x90
+  nvmet_update_cc+0xee/0x100 [nvmet]
+  nvmet_execute_prop_set+0x72/0x80 [nvmet]
+  nvmet_tcp_try_recv_pdu+0x2f7/0x770 [nvmet_tcp]
+  nvmet_tcp_io_work+0x63f/0xb2d [nvmet_tcp]
+  ...
 
-Fixes: 9ca766f9891d ("powerpc/64s/pseries: machine check convert to use common event code")
-Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200724063946.21378-1-ganeshgr@linux.ibm.com
+This is caused by queuing up an uninitialized work.  Althrough the
+keep-alive timer is disabled during allocating the controller (fixed in
+0d3b6a8d213a), ka_work still has a chance to run (called by
+nvmet_start_ctrl).
+
+Fixes: 0d3b6a8d213a ("nvmet: Disable keep-alive timer when kato is cleared to 0h")
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c | 118 ++++++++++++++++-----------
- 1 file changed, 69 insertions(+), 49 deletions(-)
+ drivers/nvme/target/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index b3c4848869e52..b658fa627a34b 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -494,18 +494,55 @@ int pSeries_system_reset_exception(struct pt_regs *regs)
- 	return 0; /* need to perform reset */
- }
- 
-+static int mce_handle_err_realmode(int disposition, u8 error_type)
-+{
-+#ifdef CONFIG_PPC_BOOK3S_64
-+	if (disposition == RTAS_DISP_NOT_RECOVERED) {
-+		switch (error_type) {
-+		case	MC_ERROR_TYPE_SLB:
-+		case	MC_ERROR_TYPE_ERAT:
-+			/*
-+			 * Store the old slb content in paca before flushing.
-+			 * Print this when we go to virtual mode.
-+			 * There are chances that we may hit MCE again if there
-+			 * is a parity error on the SLB entry we trying to read
-+			 * for saving. Hence limit the slb saving to single
-+			 * level of recursion.
-+			 */
-+			if (local_paca->in_mce == 1)
-+				slb_save_contents(local_paca->mce_faulty_slbs);
-+			flush_and_reload_slb();
-+			disposition = RTAS_DISP_FULLY_RECOVERED;
-+			break;
-+		default:
-+			break;
-+		}
-+	} else if (disposition == RTAS_DISP_LIMITED_RECOVERY) {
-+		/* Platform corrected itself but could be degraded */
-+		pr_err("MCE: limited recovery, system may be degraded\n");
-+		disposition = RTAS_DISP_FULLY_RECOVERED;
-+	}
-+#endif
-+	return disposition;
-+}
- 
--static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
-+static int mce_handle_err_virtmode(struct pt_regs *regs,
-+				   struct rtas_error_log *errp,
-+				   struct pseries_mc_errorlog *mce_log,
-+				   int disposition)
- {
- 	struct mce_error_info mce_err = { 0 };
--	unsigned long eaddr = 0, paddr = 0;
--	struct pseries_errorlog *pseries_log;
--	struct pseries_mc_errorlog *mce_log;
--	int disposition = rtas_error_disposition(errp);
- 	int initiator = rtas_error_initiator(errp);
- 	int severity = rtas_error_severity(errp);
-+	unsigned long eaddr = 0, paddr = 0;
- 	u8 error_type, err_sub_type;
- 
-+	if (!mce_log)
-+		goto out;
-+
-+	error_type = mce_log->error_type;
-+	err_sub_type = rtas_mc_error_sub_type(mce_log);
-+
- 	if (initiator == RTAS_INITIATOR_UNKNOWN)
- 		mce_err.initiator = MCE_INITIATOR_UNKNOWN;
- 	else if (initiator == RTAS_INITIATOR_CPU)
-@@ -544,18 +581,7 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
- 	mce_err.error_type = MCE_ERROR_TYPE_UNKNOWN;
- 	mce_err.error_class = MCE_ECLASS_UNKNOWN;
- 
--	if (!rtas_error_extended(errp))
--		goto out;
--
--	pseries_log = get_pseries_errorlog(errp, PSERIES_ELOG_SECT_ID_MCE);
--	if (pseries_log == NULL)
--		goto out;
--
--	mce_log = (struct pseries_mc_errorlog *)pseries_log->data;
--	error_type = mce_log->error_type;
--	err_sub_type = rtas_mc_error_sub_type(mce_log);
--
--	switch (mce_log->error_type) {
-+	switch (error_type) {
- 	case MC_ERROR_TYPE_UE:
- 		mce_err.error_type = MCE_ERROR_TYPE_UE;
- 		switch (err_sub_type) {
-@@ -652,37 +678,31 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
- 		mce_err.error_type = MCE_ERROR_TYPE_UNKNOWN;
- 		break;
- 	}
-+out:
-+	save_mce_event(regs, disposition == RTAS_DISP_FULLY_RECOVERED,
-+		       &mce_err, regs->nip, eaddr, paddr);
-+	return disposition;
-+}
- 
--#ifdef CONFIG_PPC_BOOK3S_64
--	if (disposition == RTAS_DISP_NOT_RECOVERED) {
--		switch (error_type) {
--		case	MC_ERROR_TYPE_SLB:
--		case	MC_ERROR_TYPE_ERAT:
--			/*
--			 * Store the old slb content in paca before flushing.
--			 * Print this when we go to virtual mode.
--			 * There are chances that we may hit MCE again if there
--			 * is a parity error on the SLB entry we trying to read
--			 * for saving. Hence limit the slb saving to single
--			 * level of recursion.
--			 */
--			if (local_paca->in_mce == 1)
--				slb_save_contents(local_paca->mce_faulty_slbs);
--			flush_and_reload_slb();
--			disposition = RTAS_DISP_FULLY_RECOVERED;
--			break;
--		default:
--			break;
--		}
--	} else if (disposition == RTAS_DISP_LIMITED_RECOVERY) {
--		/* Platform corrected itself but could be degraded */
--		printk(KERN_ERR "MCE: limited recovery, system may "
--		       "be degraded\n");
--		disposition = RTAS_DISP_FULLY_RECOVERED;
--	}
--#endif
-+static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
-+{
-+	struct pseries_errorlog *pseries_log;
-+	struct pseries_mc_errorlog *mce_log = NULL;
-+	int disposition = rtas_error_disposition(errp);
-+	u8 error_type;
-+
-+	if (!rtas_error_extended(errp))
-+		goto out;
-+
-+	pseries_log = get_pseries_errorlog(errp, PSERIES_ELOG_SECT_ID_MCE);
-+	if (!pseries_log)
-+		goto out;
-+
-+	mce_log = (struct pseries_mc_errorlog *)pseries_log->data;
-+	error_type = mce_log->error_type;
-+
-+	disposition = mce_handle_err_realmode(disposition, error_type);
- 
--out:
- 	/*
- 	 * Enable translation as we will be accessing per-cpu variables
- 	 * in save_mce_event() which may fall outside RMO region, also
-@@ -693,10 +713,10 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
- 	 * Note: All the realmode handling like flushing SLB entries for
- 	 *       SLB multihit is done by now.
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 7d7176369edf7..6b2f1e290fa73 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -1048,7 +1048,8 @@ static void nvmet_start_ctrl(struct nvmet_ctrl *ctrl)
+ 	 * in case a host died before it enabled the controller.  Hence, simply
+ 	 * reset the keep alive timer when the controller is enabled.
  	 */
-+out:
- 	mtmsr(mfmsr() | MSR_IR | MSR_DR);
--	save_mce_event(regs, disposition == RTAS_DISP_FULLY_RECOVERED,
--			&mce_err, regs->nip, eaddr, paddr);
--
-+	disposition = mce_handle_err_virtmode(regs, errp, mce_log,
-+					      disposition);
- 	return disposition;
+-	mod_delayed_work(system_wq, &ctrl->ka_work, ctrl->kato * HZ);
++	if (ctrl->kato)
++		mod_delayed_work(system_wq, &ctrl->ka_work, ctrl->kato * HZ);
  }
  
+ static void nvmet_clear_ctrl(struct nvmet_ctrl *ctrl)
 -- 
 2.25.1
 
