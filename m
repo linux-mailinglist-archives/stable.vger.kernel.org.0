@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 894E029B398
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6945829B39C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752262AbgJ0Oxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50352 "EHLO mail.kernel.org"
+        id S1780087AbgJ0Oxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1772997AbgJ0Ous (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:50:48 -0400
+        id S1773012AbgJ0Ouv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:50:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52DAF20709;
-        Tue, 27 Oct 2020 14:50:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01B5D207DE;
+        Tue, 27 Oct 2020 14:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810248;
-        bh=wAwUV958LU8bHx875DfGLCK3nKrFyDCPa9vQFyPV5ZA=;
+        s=default; t=1603810250;
+        bh=C1ayFxe0sZ0A3ghas3cZGBURR93wVfuJ7LUuAjENuNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fv3mRTg649YEsDjT7mUQQf0szoxapl40IN9fGt8Fy8YRfdDTwP8JBtZtt0u5CE+Wd
-         KTpVmsiloTQ9dhGSRCMFNmyyI55McwOnQtuOkD2pcddH15iMfYMS+Lxdh41V0HPSKX
-         /G9yFFhm1k3phJerQl+V36/W+gjFKZfw3wKODMxk=
+        b=Sw/cofHwVguc0wOa/JoI4rmKeCFwUrnrzLiTT6MT8zpPlbUF8HGuVRNBJJBVkbjha
+         prpLibQ2hgr5Iaref/2J9+680DR4v9pW47eQ1aWOVMqUSdQz/Pc0ZGR2vR6eW72Wz5
+         ZcPy/byPc6+1kH0RdJfF/hjrypllu1LvJP50ehqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Cross <dcross@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
+        stable@vger.kernel.org, Junaid Shahid <junaids@google.com>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.8 071/633] KVM: nVMX: Reload vmcs01 if getting vmcs12s pages fails
-Date:   Tue, 27 Oct 2020 14:46:54 +0100
-Message-Id: <20201027135526.034984129@linuxfoundation.org>
+Subject: [PATCH 5.8 072/633] KVM: x86/mmu: Commit zap of remaining invalid pages when recovering lpages
+Date:   Tue, 27 Oct 2020 14:46:55 +0100
+Message-Id: <20201027135526.081631580@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,38 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit b89d5ad00e789967a5e2c5335f75c48755bebd88 upstream.
+commit e89505698c9f70125651060547da4ff5046124fc upstream.
 
-Reload vmcs01 when bailing from nested_vmx_enter_non_root_mode() as KVM
-expects vmcs01 to be loaded when is_guest_mode() is false.
+Call kvm_mmu_commit_zap_page() after exiting the "prepare zap" loop in
+kvm_recover_nx_lpages() to finish zapping pages in the unlikely event
+that the loop exited due to lpage_disallowed_mmu_pages being empty.
+Because the recovery thread drops mmu_lock() when rescheduling, it's
+possible that lpage_disallowed_mmu_pages could be emptied by a different
+thread without to_zap reaching zero despite to_zap being derived from
+the number of disallowed lpages.
 
-Fixes: 671ddc700fd08 ("KVM: nVMX: Don't leak L1 MMIO regions to L2")
+Fixes: 1aa9b9572b105 ("kvm: x86: mmu: Recovery of shattered NX large pages")
+Cc: Junaid Shahid <junaids@google.com>
 Cc: stable@vger.kernel.org
-Cc: Dan Cross <dcross@google.com>
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Peter Shier <pshier@google.com>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923184452.980-3-sean.j.christopherson@intel.com>
+Message-Id: <20200923183735.584-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3297,8 +3297,10 @@ enum nvmx_vmentry_status nested_vmx_ente
- 	prepare_vmcs02_early(vmx, vmcs12);
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6341,6 +6341,7 @@ static void kvm_recover_nx_lpages(struct
+ 				cond_resched_lock(&kvm->mmu_lock);
+ 		}
+ 	}
++	kvm_mmu_commit_zap_page(kvm, &invalid_list);
  
- 	if (from_vmentry) {
--		if (unlikely(!nested_get_vmcs12_pages(vcpu)))
-+		if (unlikely(!nested_get_vmcs12_pages(vcpu))) {
-+			vmx_switch_vmcs(vcpu, &vmx->vmcs01);
- 			return NVMX_VMENTRY_KVM_INTERNAL_ERROR;
-+		}
- 
- 		if (nested_vmx_check_vmentry_hw(vcpu)) {
- 			vmx_switch_vmcs(vcpu, &vmx->vmcs01);
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
 
 
