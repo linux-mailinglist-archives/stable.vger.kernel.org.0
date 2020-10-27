@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5131329BA52
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7DE29B963
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1804878AbgJ0P7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:59:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S1802436AbgJ0Psh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803626AbgJ0PxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:53:12 -0400
+        id S1796333AbgJ0PR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D2A20678;
-        Tue, 27 Oct 2020 15:53:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB02C2064B;
+        Tue, 27 Oct 2020 15:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813991;
-        bh=Gk7Dcdr3qIZh/Hz9V0vphAF3SJqzWma+xLXxVQyVqmE=;
+        s=default; t=1603811846;
+        bh=9Tg+4chMTK8bm7A8vFRKU5re1bN2ZXXqKnAZdc/dvzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+CY9DywEIP0lUmlJCFF/kbBvEjEbFocrAdx3QweAvBL2fqF9C+OY0sPGS5LGk1tW
-         1w27L2ZuJYaP7oydKsnRt8jMEjpiaAx0GkIMGFeKc/WHYVlh0ljbODvyvFBMYJApzI
-         naIGLIGn0aGebMUDSfY+qpP2I0pj6KwH+OvaXziI=
+        b=eHQhqp2YkMOGbpTIdWn8fvP5IvDWe9SlDdb6GpBUn8RYECbDYBYrrsCimeiyHa0W+
+         UDtjQz5DmpDvKPDevs2B9dqeH1gTGG6yFoRNQuFO4qU82bMPKhjx0BHhJtmG2nUvac
+         ee57TkYTvt9QecbmUTWVYEFvvQ/vNOg3nMcOV0OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 712/757] iomap: fix WARN_ON_ONCE() from unprivileged users
-Date:   Tue, 27 Oct 2020 14:56:02 +0100
-Message-Id: <20201027135523.898400792@linuxfoundation.org>
+Subject: [PATCH 5.8 620/633] drm/amd/display: Screen corruption on dual displays (DP+USB-C)
+Date:   Tue, 27 Oct 2020 14:56:03 +0100
+Message-Id: <20201027135551.917984780@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Qingqing Zhuo <qingqing.zhuo@amd.com>
 
-[ Upstream commit a805c111650cdba6ee880f528abdd03c1af82089 ]
+[ Upstream commit ce271b40a91f781af3dee985c39e841ac5148766 ]
 
-It is trivial to trigger a WARN_ON_ONCE(1) in iomap_dio_actor() by
-unprivileged users which would taint the kernel, or worse - panic if
-panic_on_warn or panic_on_taint is set. Hence, just convert it to
-pr_warn_ratelimited() to let users know their workloads are racing.
-Thank Dave Chinner for the initial analysis of the racing reproducers.
+[why]
+Current pipe merge and split logic only supports cases where new
+dc_state is allocated and relies on dc->current_state to gather
+information from previous dc_state.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Calls to validate_bandwidth on UPDATE_TYPE_MED would cause an issue
+because there is no new dc_state allocated, and data in
+dc->current_state would be overwritten during pipe merge.
+
+[how]
+Only allow validate_bandwidth when new dc_state space is created.
+
+Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/direct-io.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c              | 2 +-
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 3 +++
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 3 +++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
-index c1aafb2ab9907..9519113ebc352 100644
---- a/fs/iomap/direct-io.c
-+++ b/fs/iomap/direct-io.c
-@@ -388,6 +388,16 @@ iomap_dio_actor(struct inode *inode, loff_t pos, loff_t length,
- 		return iomap_dio_bio_actor(inode, pos, length, dio, iomap);
- 	case IOMAP_INLINE:
- 		return iomap_dio_inline_actor(inode, pos, length, dio, iomap);
-+	case IOMAP_DELALLOC:
-+		/*
-+		 * DIO is not serialised against mmap() access at all, and so
-+		 * if the page_mkwrite occurs between the writeback and the
-+		 * iomap_apply() call in the DIO path, then it will see the
-+		 * DELALLOC block that the page-mkwrite allocated.
-+		 */
-+		pr_warn_ratelimited("Direct I/O collision with buffered writes! File: %pD4 Comm: %.20s\n",
-+				    dio->iocb->ki_filp, current->comm);
-+		return -EIO;
- 	default:
- 		WARN_ON_ONCE(1);
- 		return -EIO;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index d016f50e187c8..d261f425b80ec 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2538,7 +2538,7 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 
+ 	copy_stream_update_to_stream(dc, context, stream, stream_update);
+ 
+-	if (update_type > UPDATE_TYPE_FAST) {
++	if (update_type >= UPDATE_TYPE_FULL) {
+ 		if (!dc->res_pool->funcs->validate_bandwidth(dc, context, false)) {
+ 			DC_ERROR("Mode validation failed for stream update!\n");
+ 			dc_release_state(context);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index 20bdabebbc434..76cd4f3de4eaf 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -3165,6 +3165,9 @@ static noinline bool dcn20_validate_bandwidth_fp(struct dc *dc,
+ 	context->bw_ctx.dml.soc.allow_dram_clock_one_display_vactive =
+ 		dc->debug.enable_dram_clock_change_one_display_vactive;
+ 
++	/*Unsafe due to current pipe merge and split logic*/
++	ASSERT(context != dc->current_state);
++
+ 	if (fast_validate) {
+ 		return dcn20_validate_bandwidth_internal(dc, context, true);
+ 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index f00a568350848..c6ab3dee4fd69 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -1184,6 +1184,9 @@ bool dcn21_validate_bandwidth(struct dc *dc, struct dc_state *context,
+ 
+ 	BW_VAL_TRACE_COUNT();
+ 
++	/*Unsafe due to current pipe merge and split logic*/
++	ASSERT(context != dc->current_state);
++
+ 	out = dcn20_fast_validate_bw(dc, context, pipes, &pipe_cnt, pipe_split_from, &vlevel);
+ 
+ 	if (pipe_cnt == 0)
 -- 
 2.25.1
 
