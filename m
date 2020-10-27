@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F196C29B238
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B728A29B257
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761336AbgJ0OjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:39:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38332 "EHLO mail.kernel.org"
+        id S1749980AbgJ0Ojg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:39:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1749963AbgJ0OjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:39:02 -0400
+        id S1761407AbgJ0Ojd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:39:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC4B0206B2;
-        Tue, 27 Oct 2020 14:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F72206B2;
+        Tue, 27 Oct 2020 14:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809541;
-        bh=5E/dz+y9kKxoogTzPYly+g0+uDIvBT/3ejMgCfqNrCk=;
+        s=default; t=1603809571;
+        bh=p7Ao6xwiYPhTOoUygIuMFHW2Bq6Zrcv+vD1LUZqNAy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ry7ok/rRmcd8u3vlICDuM+/PrO6kBZKZ+7Us/M5mSUHpB8bfW5QLxi7j6XaqSgUyb
-         OJTXlTcRCeaF3oKp7xZvYhpOcn4EWMvN1vMmcTZDBKBN1eQJ2nSDNookPL5xFmG6YO
-         ZJlwXDGvUGvHZoUC8Ez/z44Hb1/Fu2rTevFYGV44=
+        b=xxNNCa6kZlmda2p7OL7W4quIqsgzQ2yxwof8ZH6JQIMgH50sde/w6eBUbSyxK56/b
+         xcEIV+L3j0bIMz2llFFD6uRGosvzx2Pb7fSJ/xShLGrNMX9skbeF0HhFCRpnjsfPIm
+         xZYxaDtMcfyEvl6gHUMQ2Ipgqfa98wBIhn0PwtQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 215/408] xfs: fix high key handling in the rt allocators query_range function
-Date:   Tue, 27 Oct 2020 14:52:33 +0100
-Message-Id: <20201027135505.066990273@linuxfoundation.org>
+Subject: [PATCH 5.4 216/408] RDMA/umem: Fix ib_umem_find_best_pgsz() for mappings that cross a page boundary
+Date:   Tue, 27 Oct 2020 14:52:34 +0100
+Message-Id: <20201027135505.113316605@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,97 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit d88850bd5516a77c6f727e8b6cefb64e0cc929c7 ]
+[ Upstream commit a40c20dabdf9045270767c75918feb67f0727c89 ]
 
-Fix some off-by-one errors in xfs_rtalloc_query_range.  The highest key
-in the realtime bitmap is always one less than the number of rt extents,
-which means that the key clamp at the start of the function is wrong.
-The 4th argument to xfs_rtfind_forw is the highest rt extent that we
-want to probe, which means that passing 1 less than the high key is
-wrong.  Finally, drop the rem variable that controls the loop because we
-can compare the iteration point (rtstart) against the high key directly.
+It is possible for a single SGL to span an aligned boundary, eg if the SGL
+is
 
-The sordid history of this function is that the original commit (fb3c3)
-incorrectly passed (high_rec->ar_startblock - 1) as the 'limit' parameter
-to xfs_rtfind_forw.  This was wrong because the "high key" is supposed
-to be the largest key for which the caller wants result rows, not the
-key for the first row that could possibly be outside the range that the
-caller wants to see.
+  61440 -> 90112
 
-A subsequent attempt (8ad56) to strengthen the parameter checking added
-incorrect clamping of the parameters to the number of rt blocks in the
-system (despite the bitmap functions all taking units of rt extents) to
-avoid querying ranges past the end of rt bitmap file but failed to fix
-the incorrect _rtfind_forw parameter.  The original _rtfind_forw
-parameter error then survived the conversion of the startblock and
-blockcount fields to rt extents (a0e5c), and the most recent off-by-one
-fix (a3a37) thought it was patching a problem when the end of the rt
-volume is not in use, but none of these fixes actually solved the
-original problem that the author was confused about the "limit" argument
-to xfs_rtfind_forw.
+Then the length is 28672, which currently limits the block size to
+32k. With a 32k page size the two covering blocks will be:
 
-Sadly, all four of these patches were written by this author and even
-his own usage of this function and rt testing were inadequate to get
-this fixed quickly.
+  32768->65536 and 65536->98304
 
-Original-problem: fb3c3de2f65c ("xfs: add a couple of queries to iterate free extents in the rtbitmap")
-Not-fixed-by: 8ad560d2565e ("xfs: strengthen rtalloc query range checks")
-Not-fixed-by: a0e5c435babd ("xfs: fix xfs_rtalloc_rec units")
-Fixes: a3a374bf1889 ("xfs: fix off-by-one error in xfs_rtalloc_query_range")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+However, the correct answer is a 128K block size which will span the whole
+28672 bytes in a single block.
+
+Instead of limiting based on length figure out which high IOVA bits don't
+change between the start and end addresses. That is the highest useful
+page size.
+
+Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+Link: https://lore.kernel.org/r/1-v2-270386b7e60b+28f4-umem_1_jgg@nvidia.com
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rtbitmap.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/umem.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rtbitmap.c b/fs/xfs/libxfs/xfs_rtbitmap.c
-index 8ea1efc97b41d..42085e70c01ac 100644
---- a/fs/xfs/libxfs/xfs_rtbitmap.c
-+++ b/fs/xfs/libxfs/xfs_rtbitmap.c
-@@ -1018,7 +1018,6 @@ xfs_rtalloc_query_range(
- 	struct xfs_mount		*mp = tp->t_mountp;
- 	xfs_rtblock_t			rtstart;
- 	xfs_rtblock_t			rtend;
--	xfs_rtblock_t			rem;
- 	int				is_free;
- 	int				error = 0;
- 
-@@ -1027,13 +1026,12 @@ xfs_rtalloc_query_range(
- 	if (low_rec->ar_startext >= mp->m_sb.sb_rextents ||
- 	    low_rec->ar_startext == high_rec->ar_startext)
+diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
+index 0d42ba8c0b696..9be8f6c622db0 100644
+--- a/drivers/infiniband/core/umem.c
++++ b/drivers/infiniband/core/umem.c
+@@ -156,8 +156,13 @@ unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
  		return 0;
--	if (high_rec->ar_startext > mp->m_sb.sb_rextents)
--		high_rec->ar_startext = mp->m_sb.sb_rextents;
-+	high_rec->ar_startext = min(high_rec->ar_startext,
-+			mp->m_sb.sb_rextents - 1);
  
- 	/* Iterate the bitmap, looking for discrepancies. */
- 	rtstart = low_rec->ar_startext;
--	rem = high_rec->ar_startext - rtstart;
--	while (rem) {
-+	while (rtstart <= high_rec->ar_startext) {
- 		/* Is the first block free? */
- 		error = xfs_rtcheck_range(mp, tp, rtstart, 1, 1, &rtend,
- 				&is_free);
-@@ -1042,7 +1040,7 @@ xfs_rtalloc_query_range(
- 
- 		/* How long does the extent go for? */
- 		error = xfs_rtfind_forw(mp, tp, rtstart,
--				high_rec->ar_startext - 1, &rtend);
-+				high_rec->ar_startext, &rtend);
- 		if (error)
- 			break;
- 
-@@ -1055,7 +1053,6 @@ xfs_rtalloc_query_range(
- 				break;
- 		}
- 
--		rem -= rtend - rtstart + 1;
- 		rtstart = rtend + 1;
- 	}
+ 	va = virt;
+-	/* max page size not to exceed MR length */
+-	mask = roundup_pow_of_two(umem->length);
++	/* The best result is the smallest page size that results in the minimum
++	 * number of required pages. Compute the largest page size that could
++	 * work based on VA address bits that don't change.
++	 */
++	mask = pgsz_bitmap &
++	       GENMASK(BITS_PER_LONG - 1,
++		       bits_per((umem->length - 1 + virt) ^ virt));
+ 	/* offset into first SGL */
+ 	pgoff = umem->address & ~PAGE_MASK;
  
 -- 
 2.25.1
