@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A79C29BF89
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF4C29BF79
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1815531AbgJ0RC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42528 "EHLO mail.kernel.org"
+        id S1815432AbgJ0RCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:02:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793660AbgJ0PHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:07:42 -0400
+        id S1793765AbgJ0PIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:08:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD2D22072E;
-        Tue, 27 Oct 2020 15:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 377AA206F4;
+        Tue, 27 Oct 2020 15:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811260;
-        bh=v8J1bSH27clyu/wnF1u4TowpQt3lPBYqNj9HUjrYVDY=;
+        s=default; t=1603811291;
+        bh=qJCaGh5do1HXab9I8jU6h5yOrZczbW7DNaswpywerYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/5EcdMHtinabxmM7H+k8gXefLAwzL+c+I5lqj1uPexEQQ/4lvXSgjNiKy4MQU2z4
-         BDtqo8VXaskPuHUiqelnfmbtnrxD1+lCMzWHUupIXlAGCWHd/aRiibTyqLtIgSUpeO
-         cIXtYJm39ktURCsdMGxryoXKU9CzoZVn6x0Lpw38=
+        b=bvVmK3ydYE4TT1FT/O8Cs+sjKFF7BI+vR0OXisQIdk5w3cWh2xt5UlTSV6TkhP91Y
+         H5d4P5++7Rm8fkZDcGgLZUAdpsvtj70xxbkUi7TlA6MT8i7HeQu0IMxaSZajGoOJc4
+         wxArNVV+9431hjP8GuLHfIZtywuYmCxY8Da7V2JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Chao Yu <chao@kernel.org>, Jamie Iles <jamie@nuviainc.com>,
-        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 413/633] f2fs: wait for sysfs kobject removal before freeing f2fs_sb_info
-Date:   Tue, 27 Oct 2020 14:52:36 +0100
-Message-Id: <20201027135542.096527194@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+459a5dce0b4cb70fd076@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Hillf Danton <hdanton@sina.com>,
+        syzkaller-bugs@googlegroups.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 414/633] afs: Fix rapid cell addition/removal by not using RCU on cells tree
+Date:   Tue, 27 Oct 2020 14:52:37 +0100
+Message-Id: <20201027135542.143134706@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,76 +45,392 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <jamie@nuviainc.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit ae284d87abade58c8db7760c808f311ef1ce693c ]
+[ Upstream commit 92e3cc91d8f51ce64a8b7c696377180953dd316e ]
 
-syzkaller found that with CONFIG_DEBUG_KOBJECT_RELEASE=y, unmounting an
-f2fs filesystem could result in the following splat:
+There are a number of problems that are being seen by the rapidly mounting
+and unmounting an afs dynamic root with an explicit cell and volume
+specified (which should probably be rejected, but that's a separate issue):
 
-  kobject: 'loop5' ((____ptrval____)): kobject_release, parent 0000000000000000 (delayed 250)
-  kobject: 'f2fs_xattr_entry-7:5' ((____ptrval____)): kobject_release, parent 0000000000000000 (delayed 750)
-  ------------[ cut here ]------------
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x98
-  WARNING: CPU: 0 PID: 699 at lib/debugobjects.c:485 debug_print_object+0x180/0x240
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 0 PID: 699 Comm: syz-executor.5 Tainted: G S                5.9.0-rc8+ #101
-  Hardware name: linux,dummy-virt (DT)
-  Call trace:
-   dump_backtrace+0x0/0x4d8
-   show_stack+0x34/0x48
-   dump_stack+0x174/0x1f8
-   panic+0x360/0x7a0
-   __warn+0x244/0x2ec
-   report_bug+0x240/0x398
-   bug_handler+0x50/0xc0
-   call_break_hook+0x160/0x1d8
-   brk_handler+0x30/0xc0
-   do_debug_exception+0x184/0x340
-   el1_dbg+0x48/0xb0
-   el1_sync_handler+0x170/0x1c8
-   el1_sync+0x80/0x100
-   debug_print_object+0x180/0x240
-   debug_check_no_obj_freed+0x200/0x430
-   slab_free_freelist_hook+0x190/0x210
-   kfree+0x13c/0x460
-   f2fs_put_super+0x624/0xa58
-   generic_shutdown_super+0x120/0x300
-   kill_block_super+0x94/0xf8
-   kill_f2fs_super+0x244/0x308
-   deactivate_locked_super+0x104/0x150
-   deactivate_super+0x118/0x148
-   cleanup_mnt+0x27c/0x3c0
-   __cleanup_mnt+0x28/0x38
-   task_work_run+0x10c/0x248
-   do_notify_resume+0x9d4/0x1188
-   work_pending+0x8/0x34c
+What the tests are doing is to look up/create a cell record for the name
+given and then tear it down again without actually using it to try to talk
+to a server.  This is repeated endlessly, very fast, and the new cell
+collides with the old one if it's not quick enough to reuse it.
 
-Like the error handling for f2fs_register_sysfs(), we need to wait for
-the kobject to be destroyed before returning to prevent a potential
-use-after-free.
+It appears (as suggested by Hillf Danton) that the search through the RB
+tree under a read_seqbegin_or_lock() under RCU conditions isn't safe and
+that it's not blocking the write_seqlock(), despite taking two passes at
+it.  He suggested that the code should take a ref on the cell it's
+attempting to look at - but this shouldn't be necessary until we've
+compared the cell names.  It's possible that I'm missing a barrier
+somewhere.
 
-Fixes: bf9e697ecd42 ("f2fs: expose features to sysfs entry")
-Cc: Jaegeuk Kim <jaegeuk@kernel.org>
-Cc: Chao Yu <chao@kernel.org>
-Signed-off-by: Jamie Iles <jamie@nuviainc.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+However, using an RCU search for this is overkill, really - we only need to
+access the cell name in a few places, and they're places where we're may
+end up sleeping anyway.
+
+Fix this by switching to an R/W semaphore instead.
+
+Additionally, draw the down_read() call inside the function (renamed to
+afs_find_cell()) since all the callers were taking the RCU read lock (or
+should've been[*]).
+
+[*] afs_probe_cell_name() should have been, but that doesn't appear to be
+involved in the bug reports.
+
+The symptoms of this look like:
+
+	general protection fault, probably for non-canonical address 0xf27d208691691fdb: 0000 [#1] PREEMPT SMP KASAN
+	KASAN: maybe wild-memory-access in range [0x93e924348b48fed8-0x93e924348b48fedf]
+	...
+	RIP: 0010:strncasecmp lib/string.c:52 [inline]
+	RIP: 0010:strncasecmp+0x5f/0x240 lib/string.c:43
+	 afs_lookup_cell_rcu+0x313/0x720 fs/afs/cell.c:88
+	 afs_lookup_cell+0x2ee/0x1440 fs/afs/cell.c:249
+	 afs_parse_source fs/afs/super.c:290 [inline]
+	...
+
+Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
+Reported-by: syzbot+459a5dce0b4cb70fd076@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Hillf Danton <hdanton@sina.com>
+cc: syzkaller-bugs@googlegroups.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/cell.c     | 131 ++++++++++++++++++++--------------------------
+ fs/afs/dynroot.c  |  21 +++-----
+ fs/afs/internal.h |   6 +--
+ fs/afs/main.c     |   2 +-
+ fs/afs/super.c    |   4 +-
+ 5 files changed, 71 insertions(+), 93 deletions(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index c5e32ceb94827..e186d3af61368 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -964,4 +964,5 @@ void f2fs_unregister_sysfs(struct f2fs_sb_info *sbi)
- 	}
- 	kobject_del(&sbi->s_kobj);
- 	kobject_put(&sbi->s_kobj);
-+	wait_for_completion(&sbi->s_kobj_unregister);
+diff --git a/fs/afs/cell.c b/fs/afs/cell.c
+index 5b79cdceefa0f..5da83e84952a2 100644
+--- a/fs/afs/cell.c
++++ b/fs/afs/cell.c
+@@ -41,15 +41,15 @@ static void afs_set_cell_timer(struct afs_net *net, time64_t delay)
  }
+ 
+ /*
+- * Look up and get an activation reference on a cell record under RCU
+- * conditions.  The caller must hold the RCU read lock.
++ * Look up and get an activation reference on a cell record.  The caller must
++ * hold net->cells_lock at least read-locked.
+  */
+-struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
+-				     const char *name, unsigned int namesz)
++static struct afs_cell *afs_find_cell_locked(struct afs_net *net,
++					     const char *name, unsigned int namesz)
+ {
+ 	struct afs_cell *cell = NULL;
+ 	struct rb_node *p;
+-	int n, seq = 0, ret = 0;
++	int n;
+ 
+ 	_enter("%*.*s", namesz, namesz, name);
+ 
+@@ -58,61 +58,48 @@ struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
+ 	if (namesz > AFS_MAXCELLNAME)
+ 		return ERR_PTR(-ENAMETOOLONG);
+ 
+-	do {
+-		/* Unfortunately, rbtree walking doesn't give reliable results
+-		 * under just the RCU read lock, so we have to check for
+-		 * changes.
+-		 */
+-		if (cell)
+-			afs_put_cell(net, cell);
+-		cell = NULL;
+-		ret = -ENOENT;
+-
+-		read_seqbegin_or_lock(&net->cells_lock, &seq);
+-
+-		if (!name) {
+-			cell = rcu_dereference_raw(net->ws_cell);
+-			if (cell) {
+-				afs_get_cell(cell);
+-				ret = 0;
+-				break;
+-			}
+-			ret = -EDESTADDRREQ;
+-			continue;
+-		}
++	if (!name) {
++		cell = net->ws_cell;
++		if (!cell)
++			return ERR_PTR(-EDESTADDRREQ);
++		afs_get_cell(cell);
++		return cell;
++	}
+ 
+-		p = rcu_dereference_raw(net->cells.rb_node);
+-		while (p) {
+-			cell = rb_entry(p, struct afs_cell, net_node);
+-
+-			n = strncasecmp(cell->name, name,
+-					min_t(size_t, cell->name_len, namesz));
+-			if (n == 0)
+-				n = cell->name_len - namesz;
+-			if (n < 0) {
+-				p = rcu_dereference_raw(p->rb_left);
+-			} else if (n > 0) {
+-				p = rcu_dereference_raw(p->rb_right);
+-			} else {
+-				if (atomic_inc_not_zero(&cell->usage)) {
+-					ret = 0;
+-					break;
+-				}
+-				/* We want to repeat the search, this time with
+-				 * the lock properly locked.
+-				 */
+-			}
+-			cell = NULL;
+-		}
++	p = net->cells.rb_node;
++	while (p) {
++		cell = rb_entry(p, struct afs_cell, net_node);
+ 
+-	} while (need_seqretry(&net->cells_lock, seq));
++		n = strncasecmp(cell->name, name,
++				min_t(size_t, cell->name_len, namesz));
++		if (n == 0)
++			n = cell->name_len - namesz;
++		if (n < 0)
++			p = p->rb_left;
++		else if (n > 0)
++			p = p->rb_right;
++		else
++			goto found;
++	}
++
++	return ERR_PTR(-ENOENT);
+ 
+-	done_seqretry(&net->cells_lock, seq);
++found:
++	if (!atomic_inc_not_zero(&cell->usage))
++		return ERR_PTR(-ENOENT);
+ 
+-	if (ret != 0 && cell)
+-		afs_put_cell(net, cell);
++	return cell;
++}
+ 
+-	return ret == 0 ? cell : ERR_PTR(ret);
++struct afs_cell *afs_find_cell(struct afs_net *net,
++			       const char *name, unsigned int namesz)
++{
++	struct afs_cell *cell;
++
++	down_read(&net->cells_lock);
++	cell = afs_find_cell_locked(net, name, namesz);
++	up_read(&net->cells_lock);
++	return cell;
+ }
+ 
+ /*
+@@ -245,9 +232,7 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
+ 	_enter("%s,%s", name, vllist);
+ 
+ 	if (!excl) {
+-		rcu_read_lock();
+-		cell = afs_lookup_cell_rcu(net, name, namesz);
+-		rcu_read_unlock();
++		cell = afs_find_cell(net, name, namesz);
+ 		if (!IS_ERR(cell))
+ 			goto wait_for_cell;
+ 	}
+@@ -268,7 +253,7 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
+ 	/* Find the insertion point and check to see if someone else added a
+ 	 * cell whilst we were allocating.
+ 	 */
+-	write_seqlock(&net->cells_lock);
++	down_write(&net->cells_lock);
+ 
+ 	pp = &net->cells.rb_node;
+ 	parent = NULL;
+@@ -293,7 +278,7 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
+ 	rb_link_node_rcu(&cell->net_node, parent, pp);
+ 	rb_insert_color(&cell->net_node, &net->cells);
+ 	atomic_inc(&net->cells_outstanding);
+-	write_sequnlock(&net->cells_lock);
++	up_write(&net->cells_lock);
+ 
+ 	queue_work(afs_wq, &cell->manager);
+ 
+@@ -323,7 +308,7 @@ struct afs_cell *afs_lookup_cell(struct afs_net *net,
+ 		afs_get_cell(cursor);
+ 		ret = 0;
+ 	}
+-	write_sequnlock(&net->cells_lock);
++	up_write(&net->cells_lock);
+ 	kfree(candidate);
+ 	if (ret == 0)
+ 		goto wait_for_cell;
+@@ -377,10 +362,10 @@ int afs_cell_init(struct afs_net *net, const char *rootcell)
+ 		afs_get_cell(new_root);
+ 
+ 	/* install the new cell */
+-	write_seqlock(&net->cells_lock);
+-	old_root = rcu_access_pointer(net->ws_cell);
+-	rcu_assign_pointer(net->ws_cell, new_root);
+-	write_sequnlock(&net->cells_lock);
++	down_write(&net->cells_lock);
++	old_root = net->ws_cell;
++	net->ws_cell = new_root;
++	up_write(&net->cells_lock);
+ 
+ 	afs_put_cell(net, old_root);
+ 	_leave(" = 0");
+@@ -674,12 +659,12 @@ static void afs_manage_cell(struct work_struct *work)
+ 	switch (cell->state) {
+ 	case AFS_CELL_INACTIVE:
+ 	case AFS_CELL_FAILED:
+-		write_seqlock(&net->cells_lock);
++		down_write(&net->cells_lock);
+ 		usage = 1;
+ 		deleted = atomic_try_cmpxchg_relaxed(&cell->usage, &usage, 0);
+ 		if (deleted)
+ 			rb_erase(&cell->net_node, &net->cells);
+-		write_sequnlock(&net->cells_lock);
++		up_write(&net->cells_lock);
+ 		if (deleted)
+ 			goto final_destruction;
+ 		if (cell->state == AFS_CELL_FAILED)
+@@ -779,7 +764,7 @@ void afs_manage_cells(struct work_struct *work)
+ 	 * lack of use and cells whose DNS results have expired and dispatch
+ 	 * their managers.
+ 	 */
+-	read_seqlock_excl(&net->cells_lock);
++	down_read(&net->cells_lock);
+ 
+ 	for (cursor = rb_first(&net->cells); cursor; cursor = rb_next(cursor)) {
+ 		struct afs_cell *cell =
+@@ -824,7 +809,7 @@ void afs_manage_cells(struct work_struct *work)
+ 			queue_work(afs_wq, &cell->manager);
+ 	}
+ 
+-	read_sequnlock_excl(&net->cells_lock);
++	up_read(&net->cells_lock);
+ 
+ 	/* Update the timer on the way out.  We have to pass an increment on
+ 	 * cells_outstanding in the namespace that we are in to the timer or
+@@ -854,10 +839,10 @@ void afs_cell_purge(struct afs_net *net)
+ 
+ 	_enter("");
+ 
+-	write_seqlock(&net->cells_lock);
+-	ws = rcu_access_pointer(net->ws_cell);
+-	RCU_INIT_POINTER(net->ws_cell, NULL);
+-	write_sequnlock(&net->cells_lock);
++	down_write(&net->cells_lock);
++	ws = net->ws_cell;
++	net->ws_cell = NULL;
++	up_write(&net->cells_lock);
+ 	afs_put_cell(net, ws);
+ 
+ 	_debug("del timer");
+diff --git a/fs/afs/dynroot.c b/fs/afs/dynroot.c
+index 7b784af604fd9..5b8de4fee6cda 100644
+--- a/fs/afs/dynroot.c
++++ b/fs/afs/dynroot.c
+@@ -123,7 +123,7 @@ static int afs_probe_cell_name(struct dentry *dentry)
+ 		len--;
+ 	}
+ 
+-	cell = afs_lookup_cell_rcu(net, name, len);
++	cell = afs_find_cell(net, name, len);
+ 	if (!IS_ERR(cell)) {
+ 		afs_put_cell(net, cell);
+ 		return 0;
+@@ -179,7 +179,6 @@ static struct dentry *afs_lookup_atcell(struct dentry *dentry)
+ 	struct afs_cell *cell;
+ 	struct afs_net *net = afs_d2net(dentry);
+ 	struct dentry *ret;
+-	unsigned int seq = 0;
+ 	char *name;
+ 	int len;
+ 
+@@ -191,17 +190,13 @@ static struct dentry *afs_lookup_atcell(struct dentry *dentry)
+ 	if (!name)
+ 		goto out_p;
+ 
+-	rcu_read_lock();
+-	do {
+-		read_seqbegin_or_lock(&net->cells_lock, &seq);
+-		cell = rcu_dereference_raw(net->ws_cell);
+-		if (cell) {
+-			len = cell->name_len;
+-			memcpy(name, cell->name, len + 1);
+-		}
+-	} while (need_seqretry(&net->cells_lock, seq));
+-	done_seqretry(&net->cells_lock, seq);
+-	rcu_read_unlock();
++	down_read(&net->cells_lock);
++	cell = net->ws_cell;
++	if (cell) {
++		len = cell->name_len;
++		memcpy(name, cell->name, len + 1);
++	}
++	up_read(&net->cells_lock);
+ 
+ 	ret = ERR_PTR(-ENOENT);
+ 	if (!cell)
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index e1ebead2e505a..3c28292c0cc70 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -263,11 +263,11 @@ struct afs_net {
+ 
+ 	/* Cell database */
+ 	struct rb_root		cells;
+-	struct afs_cell __rcu	*ws_cell;
++	struct afs_cell		*ws_cell;
+ 	struct work_struct	cells_manager;
+ 	struct timer_list	cells_timer;
+ 	atomic_t		cells_outstanding;
+-	seqlock_t		cells_lock;
++	struct rw_semaphore	cells_lock;
+ 	struct mutex		cells_alias_lock;
+ 
+ 	struct mutex		proc_cells_lock;
+@@ -915,7 +915,7 @@ static inline bool afs_cb_is_broken(unsigned int cb_break,
+  * cell.c
+  */
+ extern int afs_cell_init(struct afs_net *, const char *);
+-extern struct afs_cell *afs_lookup_cell_rcu(struct afs_net *, const char *, unsigned);
++extern struct afs_cell *afs_find_cell(struct afs_net *, const char *, unsigned);
+ extern struct afs_cell *afs_lookup_cell(struct afs_net *, const char *, unsigned,
+ 					const char *, bool);
+ extern struct afs_cell *afs_get_cell(struct afs_cell *);
+diff --git a/fs/afs/main.c b/fs/afs/main.c
+index 31b472f7c734c..accdd8970e7c0 100644
+--- a/fs/afs/main.c
++++ b/fs/afs/main.c
+@@ -78,7 +78,7 @@ static int __net_init afs_net_init(struct net *net_ns)
+ 	mutex_init(&net->socket_mutex);
+ 
+ 	net->cells = RB_ROOT;
+-	seqlock_init(&net->cells_lock);
++	init_rwsem(&net->cells_lock);
+ 	INIT_WORK(&net->cells_manager, afs_manage_cells);
+ 	timer_setup(&net->cells_timer, afs_cells_timer, 0);
+ 
+diff --git a/fs/afs/super.c b/fs/afs/super.c
+index b552357b1d137..0be99016ecfb9 100644
+--- a/fs/afs/super.c
++++ b/fs/afs/super.c
+@@ -634,9 +634,7 @@ static int afs_init_fs_context(struct fs_context *fc)
+ 	ctx->net = afs_net(fc->net_ns);
+ 
+ 	/* Default to the workstation cell. */
+-	rcu_read_lock();
+-	cell = afs_lookup_cell_rcu(ctx->net, NULL, 0);
+-	rcu_read_unlock();
++	cell = afs_find_cell(ctx->net, NULL, 0);
+ 	if (IS_ERR(cell))
+ 		cell = NULL;
+ 	ctx->cell = cell;
 -- 
 2.25.1
 
