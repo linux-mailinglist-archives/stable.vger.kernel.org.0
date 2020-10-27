@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4BF29C647
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB32729C725
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826027AbgJ0SPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:15:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
+        id S368198AbgJ0N50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1745903AbgJ0OMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:49 -0400
+        id S368195AbgJ0N5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:57:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 081FB2072D;
-        Tue, 27 Oct 2020 14:12:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E13B0206D4;
+        Tue, 27 Oct 2020 13:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807967;
-        bh=d2vJnqc1igUd41tys1yFYhtr2g3demjzRaBzwvy58dc=;
+        s=default; t=1603807045;
+        bh=pMKRrqfvOHy/fjp+nLtLt0VDbwaeqH+dpUPi9NlYpJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEVWYGsMgtGDiQ7Sp5TDJAzVXhg4fls32r6XfQBmDPSl63UIY90yc6F1Ge6GK4PjE
-         yxNzZwLq2COjgKcFTEDYBR3qVkRdQQurQqhGLVTyNueDQBvruYyyZWwvaaVJi2UvdI
-         Pk7VH0uz12ZtVA39Nca1E0tYZGMGtNe8Ml5yIkKg=
+        b=Ht+vHUVUbWB3aiH3Eth6nMy4IMOB3DB8eIR8FVJXylmwHf+atLMZZdIRwXW+ZX2ji
+         9ciYJMajc++mSZH5X/q+NBv+fw33PNxlgMAdwcfvJmMJ3OxTHM0vuZT7J3b6V17U/n
+         oPxMEiJpVh3qPLPErJBBjYGHKWuWMMV8CPcuBBNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 076/191] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
-Date:   Tue, 27 Oct 2020 14:48:51 +0100
-Message-Id: <20201027134913.365590192@linuxfoundation.org>
+Subject: [PATCH 4.4 022/112] media: m5mols: Check function pointer in m5mols_sensor_power
+Date:   Tue, 27 Oct 2020 14:48:52 +0100
+Message-Id: <20201027134901.615577686@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Colitti <lorenzo@google.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
+[ Upstream commit 52438c4463ac904d14bf3496765e67750766f3a6 ]
 
-Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
-in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
-assume 16 packets per microframe, and USB 3 and above no longer
-use microframes.
+clang static analysis reports this error
 
-Maximum speed is actually much higher. On a direct connection,
-theoretical throughput is at most 3.86 Gbps for gen1x1 and
-9.36 Gbps for gen2x1, and I have seen gadget->host iperf
-throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
+m5mols_core.c:767:4: warning: Called function pointer
+  is null (null dereference) [core.CallAndMessage]
+    info->set_power(&client->dev, 0);
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Unfortunately the ConnectionSpeedChange defined in the CDC spec
-only uses 32-bit values, so we can't report accurate numbers for
-10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
-roughly maximum theoretical performance) and 4.25Gbps for
-SuperSpeed Plus (which is close to the maximum that we can report
-in a 32-bit unsigned integer).
+In other places, the set_power ptr is checked.
+So add a check.
 
-This results in:
-
-[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
-[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
-
-on SuperSpeed and:
-
-[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
-[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
-
-on SuperSpeed Plus.
-
-Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ncm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/i2c/m5mols/m5mols_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
-index f62cdf1238d77..fbf15ab700f49 100644
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -92,8 +92,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
- /* peak (theoretical) bulk transfer rate in bits-per-second */
- static inline unsigned ncm_bitrate(struct usb_gadget *g)
- {
--	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
--		return 13 * 1024 * 8 * 1000 * 8;
-+	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
-+		return 4250000000U;
-+	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
-+		return 3750000000U;
- 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
- 		return 13 * 512 * 8 * 1000 * 8;
- 	else
+diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
+index 6404c0d93e7af..514267680dc96 100644
+--- a/drivers/media/i2c/m5mols/m5mols_core.c
++++ b/drivers/media/i2c/m5mols/m5mols_core.c
+@@ -754,7 +754,8 @@ static int m5mols_sensor_power(struct m5mols_info *info, bool enable)
+ 
+ 		ret = regulator_bulk_enable(ARRAY_SIZE(supplies), supplies);
+ 		if (ret) {
+-			info->set_power(&client->dev, 0);
++			if (info->set_power)
++				info->set_power(&client->dev, 0);
+ 			return ret;
+ 		}
+ 
 -- 
 2.25.1
 
