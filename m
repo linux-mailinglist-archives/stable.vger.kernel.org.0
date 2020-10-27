@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F39A29B93C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 529C629B938
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802274AbgJ0PqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:46:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41958 "EHLO mail.kernel.org"
+        id S1802257AbgJ0PqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368709AbgJ0P1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:27:02 -0400
+        id S368738AbgJ0P1Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:27:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DD6E22409;
-        Tue, 27 Oct 2020 15:27:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBFF62224A;
+        Tue, 27 Oct 2020 15:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812421;
-        bh=D3+jbUZCjsQ+43WgyJ8uB2n6YYOBr73LxOhhGw2uoaY=;
+        s=default; t=1603812432;
+        bh=iKwuqUxTdA+/O7yct0YnKnqBNWfc0YsfQK3RyIXI6H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAd0mT93CwmBjr3quNxbXlQ+wNGxTP/D+ABjfr7s2nQV0D0unnZR20+6kXaePlUte
-         aEEh9Uka9V7FZPl4wzs3btxaVF7q3jhuC+erLOPjJhjMMyTJ/rWRC/usBZ4xErSbEY
-         9VDm/DunJxL9gIIM9W/L+hNrmDAnSk95NL0FK/zI=
+        b=fJ6ytbdnRenEQCZ1i2ypjP2QMf0MGeQspMyb6C3ioA5TemNU3BPXltIT3lLOOTRZX
+         r2v0L7okGWIBppHT965fgU0dwQU5mMw3Hb6L/be4wBHQ5Z8y2KIyZ9cupMVw1myitd
+         DeG1wVq/pADjDBJwsLi6dtT9QSAArPZGH/RInlKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 176/757] spi: spi-s3c64xx: Check return values
-Date:   Tue, 27 Oct 2020 14:47:06 +0100
-Message-Id: <20201027135458.845372032@linuxfoundation.org>
+Subject: [PATCH 5.9 177/757] hwmon: (bt1-pvt) Test sensor power supply on probe
+Date:   Tue, 27 Oct 2020 14:47:07 +0100
+Message-Id: <20201027135458.895131092@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,178 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Stelmach <l.stelmach@samsung.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 2f4db6f705c5cba85d23836c19b44d9687dc1334 ]
+[ Upstream commit a6db1561291fc0f2f9aa23bf38f381adc63e7b14 ]
 
-Check return values in prepare_dma() and s3c64xx_spi_config() and
-propagate errors upwards.
+Baikal-T1 PVT sensor has got a dedicated power supply domain (feed up by
+the external GPVT/VPVT_18 pins). In case if it isn't powered up, the
+registers will be accessible, but the sensor conversion just won't happen.
+Due to that an attempt to read data from any PVT sensor will cause the
+task hanging up.  For instance that will happen if XP11 jumper isn't
+installed on the Baikal-T1-based BFK3.1 board. Let's at least test whether
+the conversion work on the device probe procedure. By doing so will make
+sure that the PVT sensor is powered up at least at boot time.
 
-Fixes: 788437273fa8 ("spi: s3c64xx: move to generic dmaengine API")
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
-Link: https://lore.kernel.org/r/20201002122243.26849-4-l.stelmach@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 87976ce2825d ("hwmon: Add Baikal-T1 PVT sensor driver")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20200920110924.19741-2-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-s3c64xx.c | 50 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 41 insertions(+), 9 deletions(-)
+ drivers/hwmon/bt1-pvt.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
-index 26c7cb79cd784..1f08e32a10fe2 100644
---- a/drivers/spi/spi-s3c64xx.c
-+++ b/drivers/spi/spi-s3c64xx.c
-@@ -122,6 +122,7 @@
- 
- struct s3c64xx_spi_dma_data {
- 	struct dma_chan *ch;
-+	dma_cookie_t cookie;
- 	enum dma_transfer_direction direction;
- };
- 
-@@ -271,12 +272,13 @@ static void s3c64xx_spi_dmacb(void *data)
- 	spin_unlock_irqrestore(&sdd->lock, flags);
- }
- 
--static void prepare_dma(struct s3c64xx_spi_dma_data *dma,
-+static int prepare_dma(struct s3c64xx_spi_dma_data *dma,
- 			struct sg_table *sgt)
- {
- 	struct s3c64xx_spi_driver_data *sdd;
- 	struct dma_slave_config config;
- 	struct dma_async_tx_descriptor *desc;
-+	int ret;
- 
- 	memset(&config, 0, sizeof(config));
- 
-@@ -300,12 +302,24 @@ static void prepare_dma(struct s3c64xx_spi_dma_data *dma,
- 
- 	desc = dmaengine_prep_slave_sg(dma->ch, sgt->sgl, sgt->nents,
- 				       dma->direction, DMA_PREP_INTERRUPT);
-+	if (!desc) {
-+		dev_err(&sdd->pdev->dev, "unable to prepare %s scatterlist",
-+			dma->direction == DMA_DEV_TO_MEM ? "rx" : "tx");
-+		return -ENOMEM;
-+	}
- 
- 	desc->callback = s3c64xx_spi_dmacb;
- 	desc->callback_param = dma;
- 
--	dmaengine_submit(desc);
-+	dma->cookie = dmaengine_submit(desc);
-+	ret = dma_submit_error(dma->cookie);
-+	if (ret) {
-+		dev_err(&sdd->pdev->dev, "DMA submission failed");
-+		return -EIO;
-+	}
-+
- 	dma_async_issue_pending(dma->ch);
-+	return 0;
- }
- 
- static void s3c64xx_spi_set_cs(struct spi_device *spi, bool enable)
-@@ -355,11 +369,12 @@ static bool s3c64xx_spi_can_dma(struct spi_master *master,
- 	return xfer->len > (FIFO_LVL_MASK(sdd) >> 1) + 1;
- }
- 
--static void s3c64xx_enable_datapath(struct s3c64xx_spi_driver_data *sdd,
-+static int s3c64xx_enable_datapath(struct s3c64xx_spi_driver_data *sdd,
- 				    struct spi_transfer *xfer, int dma_mode)
- {
- 	void __iomem *regs = sdd->regs;
- 	u32 modecfg, chcfg;
-+	int ret = 0;
- 
- 	modecfg = readl(regs + S3C64XX_SPI_MODE_CFG);
- 	modecfg &= ~(S3C64XX_SPI_MODE_TXDMA_ON | S3C64XX_SPI_MODE_RXDMA_ON);
-@@ -385,7 +400,7 @@ static void s3c64xx_enable_datapath(struct s3c64xx_spi_driver_data *sdd,
- 		chcfg |= S3C64XX_SPI_CH_TXCH_ON;
- 		if (dma_mode) {
- 			modecfg |= S3C64XX_SPI_MODE_TXDMA_ON;
--			prepare_dma(&sdd->tx_dma, &xfer->tx_sg);
-+			ret = prepare_dma(&sdd->tx_dma, &xfer->tx_sg);
- 		} else {
- 			switch (sdd->cur_bpw) {
- 			case 32:
-@@ -417,12 +432,17 @@ static void s3c64xx_enable_datapath(struct s3c64xx_spi_driver_data *sdd,
- 			writel(((xfer->len * 8 / sdd->cur_bpw) & 0xffff)
- 					| S3C64XX_SPI_PACKET_CNT_EN,
- 					regs + S3C64XX_SPI_PACKET_CNT);
--			prepare_dma(&sdd->rx_dma, &xfer->rx_sg);
-+			ret = prepare_dma(&sdd->rx_dma, &xfer->rx_sg);
- 		}
- 	}
- 
-+	if (ret)
-+		return ret;
-+
- 	writel(modecfg, regs + S3C64XX_SPI_MODE_CFG);
- 	writel(chcfg, regs + S3C64XX_SPI_CH_CFG);
-+
-+	return 0;
- }
- 
- static u32 s3c64xx_spi_wait_for_timeout(struct s3c64xx_spi_driver_data *sdd,
-@@ -555,9 +575,10 @@ static int s3c64xx_wait_for_pio(struct s3c64xx_spi_driver_data *sdd,
+diff --git a/drivers/hwmon/bt1-pvt.c b/drivers/hwmon/bt1-pvt.c
+index 94698cae04971..f4b7353c078a8 100644
+--- a/drivers/hwmon/bt1-pvt.c
++++ b/drivers/hwmon/bt1-pvt.c
+@@ -13,6 +13,7 @@
+ #include <linux/bitops.h>
+ #include <linux/clk.h>
+ #include <linux/completion.h>
++#include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/hwmon-sysfs.h>
+ #include <linux/hwmon.h>
+@@ -982,6 +983,41 @@ static int pvt_request_clks(struct pvt_hwmon *pvt)
  	return 0;
  }
  
--static void s3c64xx_spi_config(struct s3c64xx_spi_driver_data *sdd)
-+static int s3c64xx_spi_config(struct s3c64xx_spi_driver_data *sdd)
++static int pvt_check_pwr(struct pvt_hwmon *pvt)
++{
++	unsigned long tout;
++	int ret = 0;
++	u32 data;
++
++	/*
++	 * Test out the sensor conversion functionality. If it is not done on
++	 * time then the domain must have been unpowered and we won't be able
++	 * to use the device later in this driver.
++	 * Note If the power source is lost during the normal driver work the
++	 * data read procedure will either return -ETIMEDOUT (for the
++	 * alarm-less driver configuration) or just stop the repeated
++	 * conversion. In the later case alas we won't be able to detect the
++	 * problem.
++	 */
++	pvt_update(pvt->regs + PVT_INTR_MASK, PVT_INTR_ALL, PVT_INTR_ALL);
++	pvt_update(pvt->regs + PVT_CTRL, PVT_CTRL_EN, PVT_CTRL_EN);
++	pvt_set_tout(pvt, 0);
++	readl(pvt->regs + PVT_DATA);
++
++	tout = PVT_TOUT_MIN / NSEC_PER_USEC;
++	usleep_range(tout, 2 * tout);
++
++	data = readl(pvt->regs + PVT_DATA);
++	if (!(data & PVT_DATA_VALID)) {
++		ret = -ENODEV;
++		dev_err(pvt->dev, "Sensor is powered down\n");
++	}
++
++	pvt_update(pvt->regs + PVT_CTRL, PVT_CTRL_EN, 0);
++
++	return ret;
++}
++
+ static void pvt_init_iface(struct pvt_hwmon *pvt)
  {
- 	void __iomem *regs = sdd->regs;
-+	int ret;
- 	u32 val;
+ 	u32 trim, temp;
+@@ -1109,6 +1145,10 @@ static int pvt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
- 	/* Disable Clock */
-@@ -605,7 +626,9 @@ static void s3c64xx_spi_config(struct s3c64xx_spi_driver_data *sdd)
- 
- 	if (sdd->port_conf->clk_from_cmu) {
- 		/* The src_clk clock is divided internally by 2 */
--		clk_set_rate(sdd->src_clk, sdd->cur_speed * 2);
-+		ret = clk_set_rate(sdd->src_clk, sdd->cur_speed * 2);
-+		if (ret)
-+			return ret;
- 	} else {
- 		/* Configure Clock */
- 		val = readl(regs + S3C64XX_SPI_CLK_CFG);
-@@ -619,6 +642,8 @@ static void s3c64xx_spi_config(struct s3c64xx_spi_driver_data *sdd)
- 		val |= S3C64XX_SPI_ENCLK_ENABLE;
- 		writel(val, regs + S3C64XX_SPI_CLK_CFG);
- 	}
++	ret = pvt_check_pwr(pvt);
++	if (ret)
++		return ret;
 +
-+	return 0;
- }
+ 	pvt_init_iface(pvt);
  
- #define XFER_DMAADDR_INVALID DMA_BIT_MASK(32)
-@@ -661,7 +686,9 @@ static int s3c64xx_spi_transfer_one(struct spi_master *master,
- 		sdd->cur_bpw = bpw;
- 		sdd->cur_speed = speed;
- 		sdd->cur_mode = spi->mode;
--		s3c64xx_spi_config(sdd);
-+		status = s3c64xx_spi_config(sdd);
-+		if (status)
-+			return status;
- 	}
- 
- 	if (!is_polling(sdd) && (xfer->len > fifo_len) &&
-@@ -688,10 +715,15 @@ static int s3c64xx_spi_transfer_one(struct spi_master *master,
- 		/* Start the signals */
- 		s3c64xx_spi_set_cs(spi, true);
- 
--		s3c64xx_enable_datapath(sdd, xfer, use_dma);
-+		status = s3c64xx_enable_datapath(sdd, xfer, use_dma);
- 
- 		spin_unlock_irqrestore(&sdd->lock, flags);
- 
-+		if (status) {
-+			dev_err(&spi->dev, "failed to enable data path for transfer: %d\n", status);
-+			break;
-+		}
-+
- 		if (use_dma)
- 			status = s3c64xx_wait_for_dma(sdd, xfer);
- 		else
+ 	ret = pvt_request_irq(pvt);
 -- 
 2.25.1
 
