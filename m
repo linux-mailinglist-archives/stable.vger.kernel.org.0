@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21BF229BDC8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DFC29BD46
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1812953AbgJ0Qqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51014 "EHLO mail.kernel.org"
+        id S1794956AbgJ0POg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:14:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794870AbgJ0POD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:14:03 -0400
+        id S1794950AbgJ0POe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:14:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40FCE2224A;
-        Tue, 27 Oct 2020 15:14:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A45202225C;
+        Tue, 27 Oct 2020 15:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811641;
-        bh=qw3Vi2e2hKlFYN6n42eU43Ub6HBceSaWpe9Ma+pAkNg=;
+        s=default; t=1603811673;
+        bh=TPSg9F6aclc44MNfpeDtKYRLYQIcsA9t3mTkIqI3l/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOqPBpm2X8kTohKOdHObuopKPBS56iZznAU2I8iS2pkmo1ZeDBkfC5oik9AnrpYHs
-         anhVpKPeUkrfNSaQPl+SMEKX3dbXmdCrW/6I5rJ+iAwtuxJO6XE9XlkWMneIkQrlff
-         RWcWC75uHKKJltBKfsWw6wcUQUx/k9Mf28uXfOAw=
+        b=Ewtg/Ez2qEKCkFr+3kAGJ+Ll51wRq9QKoNcz6ELxncqfosvJBbxSSgndKuyf1Q5Om
+         JudaBn5CsIUU9Ww1+YGG82DZ2jU2hNTLrILw1fUb0bEzUbL1gDQOlHDAftt7/H+0cS
+         8tqMVYGJXo1AtQYjt43/0Fcvnq0uOBOGIBQbxLlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Adam Goode <agoode@google.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 548/633] x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR
-Date:   Tue, 27 Oct 2020 14:54:51 +0100
-Message-Id: <20201027135548.501096028@linuxfoundation.org>
+Subject: [PATCH 5.8 549/633] media: uvcvideo: Ensure all probed info is returned to v4l2
+Date:   Tue, 27 Oct 2020 14:54:52 +0100
+Message-Id: <20201027135548.549430648@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,176 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Adam Goode <agoode@google.com>
 
-[ Upstream commit e2def7d49d0812ea40a224161b2001b2e815dce2 ]
+[ Upstream commit 8a652a17e3c005dcdae31b6c8fdf14382a29cbbe ]
 
-If an exception needs to be handled while reading an MSR - which is in
-most of the cases caused by a #GP on a non-existent MSR - then this
-is most likely the incarnation of a BIOS or a hardware bug. Such bug
-violates the architectural guarantee that MCA banks are present with all
-MSRs belonging to them.
+bFrameIndex and bFormatIndex can be negotiated by the camera during
+probing, resulting in the camera choosing a different format than
+expected. v4l2 can already accommodate such changes, but the code was
+not updating the proper fields.
 
-The proper fix belongs in the hardware/firmware - not in the kernel.
+Without such a change, v4l2 would potentially interpret the payload
+incorrectly, causing corrupted output. This was happening on the
+Elgato HD60 S+, which currently always renegotiates to format 1.
 
-Handling an #MC exception which is raised while an NMI is being handled
-would cause the nasty NMI nesting issue because of the shortcoming of
-IRET of reenabling NMIs when executed. And the machine is in an #MC
-context already so <Deity> be at its side.
+As an aside, the Elgato firmware is buggy and should not be renegotating,
+but it is still a valid thing for the camera to do. Both macOS and Windows
+will properly probe and read uncorrupted images from this camera.
 
-Tracing MSR accesses while in #MC is another no-no due to tracing being
-inherently a bad idea in atomic context:
+With this change, both qv4l2 and chromium can now read uncorrupted video
+from the Elgato HD60 S+.
 
-  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
+[Add blank lines, remove periods at the of messages]
 
-so remove all that "additional" functionality from mce_rdmsrl() and
-provide it with a special exception handler which panics the machine
-when that MSR is not accessible.
-
-The exception handler prints a human-readable message explaining what
-the panic reason is but, what is more, it panics while in the #GP
-handler and latter won't have executed an IRET, thus opening the NMI
-nesting issue in the case when the #MC has happened while handling
-an NMI. (#MC itself won't be reenabled until MCG_STATUS hasn't been
-cleared).
-
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-[ Add missing prototypes for ex_handler_* ]
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20200906212130.GA28456@zn.tnic
+Signed-off-by: Adam Goode <agoode@google.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c     | 72 +++++++++++++++++++++++++-----
- arch/x86/kernel/cpu/mce/internal.h | 10 +++++
- 2 files changed, 70 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_v4l2.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index d8dca24feccbe..07673a034d39c 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -370,10 +370,28 @@ static int msr_to_offset(u32 msr)
- 	return -1;
- }
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index 0335e69b70abe..5e6f3153b5ff8 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -247,11 +247,41 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
+ 	if (ret < 0)
+ 		goto done;
  
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, regs->ip, (void *)regs->ip);
-+
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
-+}
-+
- /* MSR access wrappers used for error injection */
- static noinstr u64 mce_rdmsrl(u32 msr)
- {
--	u64 v;
-+	DECLARE_ARGS(val, low, high);
- 
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
-@@ -392,21 +410,43 @@ static noinstr u64 mce_rdmsrl(u32 msr)
- 		return ret;
- 	}
- 
--	if (rdmsrl_safe(msr, &v)) {
--		WARN_ONCE(1, "mce: Unable to read MSR 0x%x!\n", msr);
--		/*
--		 * Return zero in case the access faulted. This should
--		 * not happen normally but can happen if the CPU does
--		 * something weird, or if the code is buggy.
--		 */
--		v = 0;
--	}
-+	/*
-+	 * RDMSR on MCA MSRs should not fault. If they do, this is very much an
-+	 * architectural violation and needs to be reported to hw vendor. Panic
-+	 * the box to not allow any further progress.
++	/* After the probe, update fmt with the values returned from
++	 * negotiation with the device.
 +	 */
-+	asm volatile("1: rdmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_rdmsr_fault)
-+		     : EAX_EDX_RET(val, low, high) : "c" (msr));
++	for (i = 0; i < stream->nformats; ++i) {
++		if (probe->bFormatIndex == stream->format[i].index) {
++			format = &stream->format[i];
++			break;
++		}
++	}
++
++	if (i == stream->nformats) {
++		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
++			  probe->bFormatIndex);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < format->nframes; ++i) {
++		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
++			frame = &format->frame[i];
++			break;
++		}
++	}
++
++	if (i == format->nframes) {
++		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
++			  probe->bFrameIndex);
++		return -EINVAL;
++	}
++
+ 	fmt->fmt.pix.width = frame->wWidth;
+ 	fmt->fmt.pix.height = frame->wHeight;
+ 	fmt->fmt.pix.field = V4L2_FIELD_NONE;
+ 	fmt->fmt.pix.bytesperline = uvc_v4l2_get_bytesperline(format, frame);
+ 	fmt->fmt.pix.sizeimage = probe->dwMaxVideoFrameSize;
++	fmt->fmt.pix.pixelformat = format->fcc;
+ 	fmt->fmt.pix.colorspace = format->colorspace;
  
--	return v;
-+
-+	return EAX_EDX_VAL(val, low, high);
-+}
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr)
-+{
-+	pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
-+		 (unsigned int)regs->cx, (unsigned int)regs->dx, (unsigned int)regs->ax,
-+		  regs->ip, (void *)regs->ip);
-+
-+	show_stack_regs(regs);
-+
-+	panic("MCA architectural violation!\n");
-+
-+	while (true)
-+		cpu_relax();
-+
-+	return true;
- }
- 
- static noinstr void mce_wrmsrl(u32 msr, u64 v)
- {
-+	u32 low, high;
-+
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
- 
-@@ -420,7 +460,15 @@ static noinstr void mce_wrmsrl(u32 msr, u64 v)
- 
- 		return;
- 	}
--	wrmsrl(msr, v);
-+
-+	low  = (u32)v;
-+	high = (u32)(v >> 32);
-+
-+	/* See comment in mce_rdmsrl() */
-+	asm volatile("1: wrmsr\n"
-+		     "2:\n"
-+		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_wrmsr_fault)
-+		     : : "c" (msr), "a"(low), "d" (high) : "memory");
- }
- 
- /*
-diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
-index 6473070b5da49..b122610e9046a 100644
---- a/arch/x86/kernel/cpu/mce/internal.h
-+++ b/arch/x86/kernel/cpu/mce/internal.h
-@@ -185,4 +185,14 @@ extern bool amd_filter_mce(struct mce *m);
- static inline bool amd_filter_mce(struct mce *m)			{ return false; };
- #endif
- 
-+__visible bool ex_handler_rdmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
-+__visible bool ex_handler_wrmsr_fault(const struct exception_table_entry *fixup,
-+				      struct pt_regs *regs, int trapnr,
-+				      unsigned long error_code,
-+				      unsigned long fault_addr);
-+
- #endif /* __X86_MCE_INTERNAL_H__ */
+ 	if (uvc_format != NULL)
 -- 
 2.25.1
 
