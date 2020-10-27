@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C4329B97A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C3529BA24
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802515AbgJ0Pty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53032 "EHLO mail.kernel.org"
+        id S1784057AbgJ0P5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901076AbgJ0PQW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:16:22 -0400
+        id S1802820AbgJ0Pvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:51:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25DC92225E;
-        Tue, 27 Oct 2020 15:16:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6686F21D42;
+        Tue, 27 Oct 2020 15:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811781;
-        bh=NpJaHbGeIIvE8rsE0MW0vmwhcN/eP4gt8C1Cw8J8JwI=;
+        s=default; t=1603813900;
+        bh=FBqAX4Nlux7a4Uu4dXBl/qkcr0gRMHjl7qMm6n+y1Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOymmholT/DcOnNUW4LUmpjqtV4WLQ8fclm34MZvvJVz3gpE+zN7qyzjnPTsbDhT6
-         xjy0WyzBgPeeMRzyh6GwBkg7kBR4pWiAwF6jVI0rxeer6Yg1TV7LkdaZjHG6abJHyt
-         iMlbitwpd9JS+D1JJ6gTt5inw/spdmnqQN36638w=
+        b=ZFPk7GCusFRaCTrzXWGPkP9Vo98GPBwoaFVFpOIdSY2s/RgcC6l6rFqoP+XJP+qlm
+         8u3tQLaxlr7Q3E2sL0xihpVWWXKghnVunBL1zvcfWDho0fVudoTLCNtMhcmMQlAFy/
+         snCYMTtXJA+1zwErglioQ4839s7EDOIOoMeO7eDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 613/633] ALSA: hda/ca0132 - Add new quirk ID for SoundBlaster AE-7.
-Date:   Tue, 27 Oct 2020 14:55:56 +0100
-Message-Id: <20201027135551.585389601@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 707/757] usb: ohci: Default to per-port over-current protection
+Date:   Tue, 27 Oct 2020 14:55:57 +0100
+Message-Id: <20201027135523.662796763@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor McAdams <conmanx360@gmail.com>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-[ Upstream commit 620f08eea6d6961b789af3fa3ea86725c8c93ece ]
+[ Upstream commit b77d2a0a223bc139ee8904991b2922d215d02636 ]
 
-Add a new PCI subsystem ID for the SoundBlaster AE-7 card.
+Some integrated OHCI controller hubs do not expose all ports of the hub
+to pins on the SoC. In some cases the unconnected ports generate
+spurious over-current events. For example the Broadcom 56060/Ranger 2 SoC
+contains a nominally 3 port hub but only the first port is wired.
 
-Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Link: https://lore.kernel.org/r/20200825201040.30339-11-conmanx360@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Default behaviour for ohci-platform driver is to use global over-current
+protection mode (AKA "ganged"). This leads to the spurious over-current
+events affecting all ports in the hub.
+
+We now alter the default to use per-port over-current protection.
+
+This patch results in the following configuration changes depending
+on quirks:
+- For quirk OHCI_QUIRK_SUPERIO no changes. These systems remain set up
+  for ganged power switching and no over-current protection.
+- For quirk OHCI_QUIRK_AMD756 or OHCI_QUIRK_HUB_POWER power switching
+  remains at none, while over-current protection is now guaranteed to be
+  set to per-port rather than the previous behaviour where it was either
+  none or global over-current protection depending on the value at
+  function entry.
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200910212512.16670-1-hamish.martin@alliedtelesis.co.nz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/ohci-hcd.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 62a9be5b827eb..a49c322bdbe9d 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1065,6 +1065,7 @@ enum {
- 	QUIRK_R3DI,
- 	QUIRK_R3D,
- 	QUIRK_AE5,
-+	QUIRK_AE7,
- };
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index dd37e77dae001..2845ea328a064 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -673,20 +673,24 @@ static int ohci_run (struct ohci_hcd *ohci)
  
- #ifdef CONFIG_PCI
-@@ -1184,6 +1185,7 @@ static const struct snd_pci_quirk ca0132_quirks[] = {
- 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
-+	SND_PCI_QUIRK(0x1102, 0x0081, "Sound Blaster AE-7", QUIRK_AE7),
- 	{}
- };
- 
+ 	/* handle root hub init quirks ... */
+ 	val = roothub_a (ohci);
+-	val &= ~(RH_A_PSM | RH_A_OCPM);
++	/* Configure for per-port over-current protection by default */
++	val &= ~RH_A_NOCP;
++	val |= RH_A_OCPM;
+ 	if (ohci->flags & OHCI_QUIRK_SUPERIO) {
+-		/* NSC 87560 and maybe others */
++		/* NSC 87560 and maybe others.
++		 * Ganged power switching, no over-current protection.
++		 */
+ 		val |= RH_A_NOCP;
+-		val &= ~(RH_A_POTPGT | RH_A_NPS);
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
++		val &= ~(RH_A_POTPGT | RH_A_NPS | RH_A_PSM | RH_A_OCPM);
+ 	} else if ((ohci->flags & OHCI_QUIRK_AMD756) ||
+ 			(ohci->flags & OHCI_QUIRK_HUB_POWER)) {
+ 		/* hub power always on; required for AMD-756 and some
+-		 * Mac platforms.  ganged overcurrent reporting, if any.
++		 * Mac platforms.
+ 		 */
+ 		val |= RH_A_NPS;
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
+ 	}
++	ohci_writel(ohci, val, &ohci->regs->roothub.a);
++
+ 	ohci_writel (ohci, RH_HS_LPSC, &ohci->regs->roothub.status);
+ 	ohci_writel (ohci, (val & RH_A_NPS) ? 0 : RH_B_PPCM,
+ 						&ohci->regs->roothub.b);
 -- 
 2.25.1
 
