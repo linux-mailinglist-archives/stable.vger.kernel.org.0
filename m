@@ -2,109 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E5F29A601
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 09:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C627829A663
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 09:20:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2508585AbgJ0H74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 03:59:56 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:35051 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2508581AbgJ0H7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 03:59:55 -0400
-Received: by mail-lf1-f66.google.com with SMTP id f9so292994lfq.2;
-        Tue, 27 Oct 2020 00:59:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:organization:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=GyCZOL7vC1Nhz7WTiuAb24B1ml36O2cs7jkzOpAKESY=;
-        b=Q64EH0QSRH8h3FgbrpHDOmPEi6yJiU3jZbL/K+a3SqEqJYl/Lraj4Mn2JQWJRTKSm5
-         7fblJQWyl5wQRZZSxZWPs3/G4cU6ffuFGzZ/CL3sq9IWdQsO5zG4mU++q0grHog0Ifj+
-         W5bOttOkT888Nza7jNunw8fyzoU9Kw1E/N/W7I/cMtwGJWvxNKvDeRgu+XpIacxdmSOn
-         XEUVUreCWlRaB8qNj6WkP+asGjOG2CxnwuKCasvstopuVt20pE5WnBRCMAzJw8x3HCDc
-         rYz9Co2pr8ptmgXroprRQh6YCR/7eGlu67C3EU0q1ZPuSVxW84ErCrB/UF1z2fOvnnAs
-         5BAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=GyCZOL7vC1Nhz7WTiuAb24B1ml36O2cs7jkzOpAKESY=;
-        b=bfPJk7rpfZbZ3uPyjaqLATRFq+y2KgggCWxv1DJDEghAuCAnXAfy+mFRI5KxHEl57f
-         qOsK8+SR51tDwSvWOL9WZeAP8WBo28l+k2yhF4WbF6JKu6oNYx/OeP+mj9/1SvqMCK9w
-         Sk4RGYSgo+R2buYmL51bmfUrSX/GkjFylyDjvbAuid8dJdU0hH9ywvVqTCO7MI3MToOp
-         oPtpb2jDULUyHRvxetRt7PF/63/M8FIjOaoCyqZCWYgl9cxRSAjRWO4lBK0waojfvyGW
-         zhjXsoquJHm87g0IF2jH9SWs8hBkUbzS8vzZ9vdQF8jq58HileAeg88W3Yf3Ooxnf90e
-         ck9w==
-X-Gm-Message-State: AOAM530DwW8oBfKmngLQCjLm6ktIBz85+tKqiN1+9iddnof8tVcZmoih
-        IKndEevDem4YRLySWb1VzdSKiSVFjrc=
-X-Google-Smtp-Source: ABdhPJxPO//vXt7YXKWsmJkbaxahsE2Re3dR5YqgcLasdFy5J+rtvtB4pU9D+RBNjczFxi07Ak2xfQ==
-X-Received: by 2002:a05:6512:3388:: with SMTP id h8mr442415lfg.318.1603785591080;
-        Tue, 27 Oct 2020 00:59:51 -0700 (PDT)
-Received: from ?IPv6:2a00:1fa0:664:39b9:40da:9eb9:498f:e092? ([2a00:1fa0:664:39b9:40da:9eb9:498f:e092])
-        by smtp.gmail.com with ESMTPSA id g14sm82180ljn.67.2020.10.27.00.59.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2020 00:59:50 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 4.19 08/60] MIPS: ftrace: Remove redundant #ifdef
- CONFIG_DYNAMIC_FTRACE
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Zejiang Tang <tangzejiang@loongson.cn>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org
-References: <20201027000415.1026364-1-sashal@kernel.org>
- <20201027000415.1026364-8-sashal@kernel.org>
-From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Organization: Brain-dead Software
-Message-ID: <ac792f50-7bb9-1234-c38a-1d2e32aaf56c@gmail.com>
-Date:   Tue, 27 Oct 2020 10:59:43 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
+        id S2894561AbgJ0ITb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 04:19:31 -0400
+Received: from correo.us.es ([193.147.175.20]:52724 "EHLO mail.us.es"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2894555AbgJ0IT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 04:19:29 -0400
+Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
+        by mail.us.es (Postfix) with ESMTP id D86E8303D13
+        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 09:19:25 +0100 (CET)
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id C9E86DA793
+        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 09:19:25 +0100 (CET)
+Received: by antivirus1-rhel7.int (Postfix, from userid 99)
+        id BEE9ADA844; Tue, 27 Oct 2020 09:19:25 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
+X-Spam-Level: 
+X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
+        SMTPAUTH_US2,USER_IN_WELCOMELIST,USER_IN_WHITELIST autolearn=disabled
+        version=3.4.1
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id 7850ADA72F;
+        Tue, 27 Oct 2020 09:19:23 +0100 (CET)
+Received: from 192.168.1.97 (192.168.1.97)
+ by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
+ Tue, 27 Oct 2020 09:19:23 +0100 (CET)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
+Received: from us.es (unknown [90.77.255.23])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: 1984lsi)
+        by entrada.int (Postfix) with ESMTPSA id 4D30542EF42B;
+        Tue, 27 Oct 2020 09:19:23 +0100 (CET)
+Date:   Tue, 27 Oct 2020 09:19:22 +0100
+X-SMTPAUTHUS: auth mail.us.es
+From:   Pablo Neira Ayuso <pablo@netfilter.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kadlec@netfilter.org, fw@strlen.de, davem@davemloft.net,
+        kuba@kernel.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, netdev@vger.kernel.org
+Subject: Re: [PATCH linux-5.9 1/1] net: netfilter: fix KASAN:
+ slab-out-of-bounds Read in nft_flow_rule_create
+Message-ID: <20201027081922.GA5285@salvia>
+References: <20201019172532.3906-1-saeed.mirzamohammadi@oracle.com>
+ <20201020115047.GA15628@salvia>
+ <28C74722-8F35-4397-B567-FA5BCF525891@oracle.com>
+ <3BE1A64B-7104-4220-BAD1-870338A33B15@oracle.com>
+ <566D38F7-7C99-40F4-A948-03F2F0439BBB@oracle.com>
+ <20201027062111.GD206502@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20201027000415.1026364-8-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201027062111.GD206502@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Virus-Scanned: ClamAV using ClamSMTP
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+Hi Greg,
 
-On 27.10.2020 3:03, Sasha Levin wrote:
+On Tue, Oct 27, 2020 at 07:21:11AM +0100, Greg KH wrote:
+> On Sun, Oct 25, 2020 at 04:31:57PM -0700, Saeed Mirzamohammadi wrote:
+> > Adding stable.
+> 
+> What did that do?
 
-> From: Zejiang Tang <tangzejiang@loongson.cn>
-> 
-> [ Upstream commit 39116103a7345927fa99644d08bc0cc9d45fea6f ]
-> 
-> There exists redundant #ifdef CONFIG_DYNAMIC_FTRACE in ftrace.c, remove it.
-> 
-> Signed-off-by: Zejiang Tang <tangzejiang@loongson.cn>
-> Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   arch/mips/kernel/ftrace.c | 4 ----
->   1 file changed, 4 deletions(-)
-> 
-> diff --git a/arch/mips/kernel/ftrace.c b/arch/mips/kernel/ftrace.c
-> index b122cbb4aad18..7dd52da55907f 100644
-> --- a/arch/mips/kernel/ftrace.c
-> +++ b/arch/mips/kernel/ftrace.c
-> @@ -37,10 +37,6 @@ void arch_ftrace_update_code(int command)
->   	ftrace_modify_all_code(command);
->   }
->   
-> -#endif
-> -
-> -#ifdef CONFIG_DYNAMIC_FTRACE
-> -
->   #define JAL 0x0c000000		/* jump & link: ip --> ra, jump to target */
->   #define ADDR_MASK 0x03ffffff	/*  op_code|addr : 31...26|25 ....0 */
->   #define JUMP_RANGE_MASK ((1UL << 28) - 1)
+Saeed is requesting that stable maintainers cherry-picks this patch:
 
-    Are you sure this is neccessary in -stable? What bug does it fix?
+31cc578ae2de ("netfilter: nftables_offload: KASAN slab-out-of-bounds
+Read in nft_flow_rule_create")
 
-MBR, Sergei
+into stable 5.4 and 5.8.
+
+Thanks.
