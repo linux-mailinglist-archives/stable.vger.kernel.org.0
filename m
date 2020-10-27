@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E16C729AFD7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B3129AEE2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2507297AbgJ0ONN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34562 "EHLO mail.kernel.org"
+        id S1754342AbgJ0OFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756432AbgJ0ONM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:13:12 -0400
+        id S1754331AbgJ0OFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17527206F7;
-        Tue, 27 Oct 2020 14:13:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07B7C22264;
+        Tue, 27 Oct 2020 14:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807991;
-        bh=0jkClK8mVRrdFdEr2nOJ0GaA3EDBxXgPqMe58Z54eY0=;
+        s=default; t=1603807506;
+        bh=MwScFoHCrD1FTWEgOOql8sERHWVfpoxY/zlARsLFSh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=el8rnUvreejbm0J3gbTuxULL6cQvnJhEF8K1vIzIHkL9bWnCm368Su0IRePTa7QzU
-         jEOfXjbgMqpqZULbEX8/5RymYAx3hT5I71GJfkA2YWWbo6JspikcngGWN7K1JGM4NC
-         dNCiwnOg+pdF6uSIfll6apb6dRMJMW4RwOqSzVVY=
+        b=OjW66NyH2L2TTTIQBUZvAtGyJQSpiIQwfxZTi4iuW8aIQ7UrBteQpnObA/nv+53nT
+         XHGugXtFe0pFi8dhj+4/w6pFgmRRElOKI9/bfYY1dPH6WW7GX6XtQagXiJeoB3LHeR
+         glMRel3dJuMqrEQrv7CfxwTr1jnw+5qUdibALSxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, guomin chen <guomin_chen@sina.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 117/191] vfio/pci: Clear token on bypass registration failure
+Subject: [PATCH 4.9 078/139] clk: at91: clk-main: update key before writing AT91_CKGR_MOR
 Date:   Tue, 27 Oct 2020 14:49:32 +0100
-Message-Id: <20201027134915.323592348@linuxfoundation.org>
+Message-Id: <20201027134905.835798683@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 852b1beecb6ff9326f7ca4bc0fe69ae860ebdb9e ]
+[ Upstream commit 85d071e7f19a6a9abf30476b90b3819642568756 ]
 
-The eventfd context is used as our irqbypass token, therefore if an
-eventfd is re-used, our token is the same.  The irqbypass code will
-return an -EBUSY in this case, but we'll still attempt to unregister
-the producer, where if that duplicate token still exists, results in
-removing the wrong object.  Clear the token of failed producers so
-that they harmlessly fall out when unregistered.
+SAMA5D2 datasheet specifies on chapter 33.22.8 (PMC Clock Generator
+Main Oscillator Register) that writing any value other than
+0x37 on KEY field aborts the write operation. Use the key when
+selecting main clock parent.
 
-Fixes: 6d7425f109d2 ("vfio: Register/unregister irq_bypass_producer")
-Reported-by: guomin chen <guomin_chen@sina.com>
-Tested-by: guomin chen <guomin_chen@sina.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 27cb1c2083373 ("clk: at91: rework main clk implementation")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1598338751-20607-3-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_intrs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/at91/clk-main.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index bdfdd506bc588..c989f777bf771 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -355,11 +355,13 @@ static int vfio_msi_set_vector_signal(struct vfio_pci_device *vdev,
- 	vdev->ctx[vector].producer.token = trigger;
- 	vdev->ctx[vector].producer.irq = irq;
- 	ret = irq_bypass_register_producer(&vdev->ctx[vector].producer);
--	if (unlikely(ret))
-+	if (unlikely(ret)) {
- 		dev_info(&pdev->dev,
- 		"irq bypass producer (token %p) registration fails: %d\n",
- 		vdev->ctx[vector].producer.token, ret);
+diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
+index 90988e7a5b47f..2e7da9b379d48 100644
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -517,12 +517,17 @@ static int clk_sam9x5_main_set_parent(struct clk_hw *hw, u8 index)
+ 		return -EINVAL;
  
-+		vdev->ctx[vector].producer.token = NULL;
-+	}
- 	vdev->ctx[vector].trigger = trigger;
+ 	regmap_read(regmap, AT91_CKGR_MOR, &tmp);
+-	tmp &= ~MOR_KEY_MASK;
  
- 	return 0;
+ 	if (index && !(tmp & AT91_PMC_MOSCSEL))
+-		regmap_write(regmap, AT91_CKGR_MOR, tmp | AT91_PMC_MOSCSEL);
++		tmp = AT91_PMC_MOSCSEL;
+ 	else if (!index && (tmp & AT91_PMC_MOSCSEL))
+-		regmap_write(regmap, AT91_CKGR_MOR, tmp & ~AT91_PMC_MOSCSEL);
++		tmp = 0;
++	else
++		return 0;
++
++	regmap_update_bits(regmap, AT91_CKGR_MOR,
++			   AT91_PMC_MOSCSEL | MOR_KEY_MASK,
++			   tmp | AT91_PMC_KEY);
+ 
+ 	while (!clk_sam9x5_main_ready(regmap))
+ 		cpu_relax();
 -- 
 2.25.1
 
