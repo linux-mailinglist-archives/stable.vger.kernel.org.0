@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8690B29C21F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D4229C259
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819357AbgJ0Rbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1819951AbgJ0Rbm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 13:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761993AbgJ0Oky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:40:54 -0400
+        id S1762124AbgJ0Ok5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 704E922258;
-        Tue, 27 Oct 2020 14:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4685A206B2;
+        Tue, 27 Oct 2020 14:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809654;
-        bh=imcWqHJhG0da0/94JatFcVSufvzDh/GcsjAX7lt7Cog=;
+        s=default; t=1603809656;
+        bh=r0xZ+MyCwCIzzwRBd9HQIigHLDj6HOeCaat5FOkT96w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxjitohTI7JHoWFqeNAY5G5O2jZ3ex8aaL+O/bKNe3GJgjQHOBnP9siSW+vb6rqsv
-         AD39yV2wCFZwKfFEXKnRrVN+1Gvhx7aUNxLtNzRIPkx9vUj/RLfW1SrsLaw9O6bEUE
-         NPipmkfHaHLh5B3azVC3aAYdeLIvsTE3o0tEnFKs=
+        b=U5+6uX4Ctp2c50XnDQGzTD+elur8Psrwe1g9dxkjg6tm/eRc8pGY0xHDCwbHl5jOL
+         1Vhab4n+nH7kdz84yBsZf0Zl8WmY0uf/ecvM7CcPvyjcIXiGbl7PlkfgYiCny8sIZK
+         HhIkwzMZDsoE59AO1VP/tYed0192rD4IkD8MJOgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 272/408] module: statically initialize init section freeing data
-Date:   Tue, 27 Oct 2020 14:53:30 +0100
-Message-Id: <20201027135507.666147736@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 273/408] clk: at91: clk-main: update key before writing AT91_CKGR_MOR
+Date:   Tue, 27 Oct 2020 14:53:31 +0100
+Message-Id: <20201027135507.714366861@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,87 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit fdf09ab887829cd1b671e45d9549f8ec1ffda0fa ]
+[ Upstream commit 85d071e7f19a6a9abf30476b90b3819642568756 ]
 
-Corentin hit the following workqueue warning when running with
-CRYPTO_MANAGER_EXTRA_TESTS:
+SAMA5D2 datasheet specifies on chapter 33.22.8 (PMC Clock Generator
+Main Oscillator Register) that writing any value other than
+0x37 on KEY field aborts the write operation. Use the key when
+selecting main clock parent.
 
-  WARNING: CPU: 2 PID: 147 at kernel/workqueue.c:1473 __queue_work+0x3b8/0x3d0
-  Modules linked in: ghash_generic
-  CPU: 2 PID: 147 Comm: modprobe Not tainted
-      5.6.0-rc1-next-20200214-00068-g166c9264f0b1-dirty #545
-  Hardware name: Pine H64 model A (DT)
-  pc : __queue_work+0x3b8/0x3d0
-  Call trace:
-   __queue_work+0x3b8/0x3d0
-   queue_work_on+0x6c/0x90
-   do_init_module+0x188/0x1f0
-   load_module+0x1d00/0x22b0
-
-I wasn't able to reproduce on x86 or rpi 3b+.
-
-This is
-
-  WARN_ON(!list_empty(&work->entry))
-
-from __queue_work(), and it happens because the init_free_wq work item
-isn't initialized in time for a crypto test that requests the gcm
-module.  Some crypto tests were recently moved earlier in boot as
-explained in commit c4741b230597 ("crypto: run initcalls for generic
-implementations earlier"), which went into mainline less than two weeks
-before the Fixes commit.
-
-Avoid the warning by statically initializing init_free_wq and the
-corresponding llist.
-
-Link: https://lore.kernel.org/lkml/20200217204803.GA13479@Red/
-Fixes: 1a7b7d922081 ("modules: Use vmalloc special flag")
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-on: sun50i-h6-pine-h64
-Tested-on: imx8mn-ddr4-evk
-Tested-on: sun50i-a64-bananapi-m64
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: 27cb1c2083373 ("clk: at91: rework main clk implementation")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1598338751-20607-3-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ drivers/clk/at91/clk-main.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 819c5d3b4c295..45513909b01d5 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -88,8 +88,9 @@ EXPORT_SYMBOL_GPL(module_mutex);
- static LIST_HEAD(modules);
+diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
+index 37c22667e8319..4313ecb2af5b2 100644
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -437,12 +437,17 @@ static int clk_sam9x5_main_set_parent(struct clk_hw *hw, u8 index)
+ 		return -EINVAL;
  
- /* Work queue for freeing init sections in success case */
--static struct work_struct init_free_wq;
--static struct llist_head init_free_list;
-+static void do_free_init(struct work_struct *w);
-+static DECLARE_WORK(init_free_wq, do_free_init);
-+static LLIST_HEAD(init_free_list);
+ 	regmap_read(regmap, AT91_CKGR_MOR, &tmp);
+-	tmp &= ~MOR_KEY_MASK;
  
- #ifdef CONFIG_MODULES_TREE_LOOKUP
+ 	if (index && !(tmp & AT91_PMC_MOSCSEL))
+-		regmap_write(regmap, AT91_CKGR_MOR, tmp | AT91_PMC_MOSCSEL);
++		tmp = AT91_PMC_MOSCSEL;
+ 	else if (!index && (tmp & AT91_PMC_MOSCSEL))
+-		regmap_write(regmap, AT91_CKGR_MOR, tmp & ~AT91_PMC_MOSCSEL);
++		tmp = 0;
++	else
++		return 0;
++
++	regmap_update_bits(regmap, AT91_CKGR_MOR,
++			   AT91_PMC_MOSCSEL | MOR_KEY_MASK,
++			   tmp | AT91_PMC_KEY);
  
-@@ -3563,14 +3564,6 @@ static void do_free_init(struct work_struct *w)
- 	}
- }
- 
--static int __init modules_wq_init(void)
--{
--	INIT_WORK(&init_free_wq, do_free_init);
--	init_llist_head(&init_free_list);
--	return 0;
--}
--module_init(modules_wq_init);
--
- /*
-  * This is where the real work happens.
-  *
+ 	while (!clk_sam9x5_main_ready(regmap))
+ 		cpu_relax();
 -- 
 2.25.1
 
