@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69C7529C65B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D77B29C70F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822296AbgJ0SQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S1753001AbgJ0N6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:58:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756211AbgJ0OMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:01 -0400
+        id S1752987AbgJ0N6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67562072D;
-        Tue, 27 Oct 2020 14:12:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1E2B21D42;
+        Tue, 27 Oct 2020 13:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807921;
-        bh=uMXb6/m+AQXzQhdqLTUARmYIEE71vugfO30/rbr9xVg=;
+        s=default; t=1603807078;
+        bh=z5ITrvS6frDn3B3LrQuqXAo4pS6OkHGPzVrkq7m7zuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3rVq5ehxlEEipwbNTmxn9C/68M56bewdRTVZ1KJhAsj9IN3Oz433lPrYlWOQIj27
-         pF81kCMHqpOZcfe3patspsF8s08JNS4yQdwIDt73VlSy46886Do3IRaf80l8qEe0so
-         NOcjvYzCZir7dj4oMAWBZRjE71oc/yUQqj7FmANI=
+        b=QXhfl8BDVD27+5oVcDzBJ2x0U9YNNSqx4fd7L07HqbrRZ4BwPb0KFVysocVcKUhaJ
+         nu30ZX7Jd52Q+WG1jmhNCQ2f77tsUCvuV4mWoxZoMsLpgIOv0y2LaK3y6s0yRE6vMz
+         pM9XiCJzQExMoOgVIigdiEuhJFT7bATDX35XYadE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Alex Dewar <alex.dewar90@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/191] mtd: mtdoops: Dont write panic data twice
+Subject: [PATCH 4.4 035/112] VMCI: check return value of get_user_pages_fast() for errors
 Date:   Tue, 27 Oct 2020 14:49:05 +0100
-Message-Id: <20201027134914.016548859@linuxfoundation.org>
+Message-Id: <20201027134902.221723386@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Alex Dewar <alex.dewar90@gmail.com>
 
-[ Upstream commit c1cf1d57d1492235309111ea6a900940213a9166 ]
+[ Upstream commit 90ca6333fd65f318c47bff425e1ea36c0a5539f6 ]
 
-If calling mtdoops_write, don't also schedule work to be done later.
+In a couple of places in qp_host_get_user_memory(),
+get_user_pages_fast() is called without properly checking for errors. If
+e.g. -EFAULT is returned, this negative value will then be passed on to
+qp_release_pages(), which expects a u64 as input.
 
-Although this appears to not be causing an issue, possibly because the
-scheduled work will never get done, it is confusing.
+Fix this by only calling qp_release_pages() when we have a positive
+number returned.
 
-Fixes: 016c1291ce70 ("mtd: mtdoops: do not use mtd->panic_write directly")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200903034217.23079-1-mark.tomlinson@alliedtelesis.co.nz
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alex Dewar <alex.dewar90@gmail.com>
+Link: https://lore.kernel.org/r/20200825164522.412392-1-alex.dewar90@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdoops.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/mtdoops.c b/drivers/mtd/mtdoops.c
-index 97bb8f6304d4f..09165eaac7a15 100644
---- a/drivers/mtd/mtdoops.c
-+++ b/drivers/mtd/mtdoops.c
-@@ -313,12 +313,13 @@ static void mtdoops_do_dump(struct kmsg_dumper *dumper,
- 	kmsg_dump_get_buffer(dumper, true, cxt->oops_buf + MTDOOPS_HEADER_SIZE,
- 			     record_size - MTDOOPS_HEADER_SIZE, NULL);
- 
--	/* Panics must be written immediately */
--	if (reason != KMSG_DUMP_OOPS)
-+	if (reason != KMSG_DUMP_OOPS) {
-+		/* Panics must be written immediately */
- 		mtdoops_write(cxt, 1);
--
--	/* For other cases, schedule work to write it "nicely" */
--	schedule_work(&cxt->work_write);
-+	} else {
-+		/* For other cases, schedule work to write it "nicely" */
-+		schedule_work(&cxt->work_write);
-+	}
- }
- 
- static void mtdoops_notify_add(struct mtd_info *mtd)
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index 3877f534fd3f4..e57340e980c4b 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -758,8 +758,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)produce_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(produce) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(produce_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		err = VMCI_ERROR_NO_MEM;
+ 		goto out;
+ 	}
+@@ -770,8 +771,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)consume_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(consume) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(consume_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(consume_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+ 				 produce_q->kernel_if->num_pages, false);
+ 		err = VMCI_ERROR_NO_MEM;
 -- 
 2.25.1
 
