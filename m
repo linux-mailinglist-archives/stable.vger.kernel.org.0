@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D866729B3AB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A1229B3AC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752388AbgJ0OyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50580 "EHLO mail.kernel.org"
+        id S2900496AbgJ0OyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773079AbgJ0OvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:08 -0400
+        id S1773105AbgJ0OvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24E6E207DE;
-        Tue, 27 Oct 2020 14:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC93A207DE;
+        Tue, 27 Oct 2020 14:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810267;
-        bh=IbrBttr252SB39PQbupv/VG2aRjO9sVcimOpjFXrj5s=;
+        s=default; t=1603810270;
+        bh=ptos/kFt8+ZQBIpvrfHdAkl9k25O/e2wQYqrPNyGQ2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxSZ3BMUI9oQBZm2Jv4ow2OLvKyNIZGgNClS4gtuSR7uJF4f67KJBgoySkcdUAtzq
-         KohTwZEYDkKW+iBmLkWDMrdV/VVDwsI6TPHM0o732H9HPOmQWcd/8YWGYBYohaP6V4
-         /IrXDWib5Svm/gqyyUKSj1Mh+bxctd6TOSM5LRu8=
+        b=O0xwwjp31Q1LbN02bWepBU8Xz8uLTP02Hf0bikIfKUkFMoatEXjMeHzlkIRIG9DtX
+         YW1MxOutI7Wa8qvrI5k7EUvYTVJ6dP7Xl8xV8u5Y54HyPjzzQWwH9i040DIuDkjGyF
+         0FdFUt/Cwkm53EFoicVtVqoDKUQZCoUWcJ/kSNZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 049/633] r8169: fix operation under forced interrupt threading
-Date:   Tue, 27 Oct 2020 14:46:32 +0100
-Message-Id: <20201027135524.996920454@linuxfoundation.org>
+Subject: [PATCH 5.8 050/633] selftests: forwarding: Add missing rp_filter configuration
+Date:   Tue, 27 Oct 2020 14:46:33 +0100
+Message-Id: <20201027135525.046624396@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,58 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 424a646e072a887aa87283b53aa6f8b19c2a7bef ]
+[ Upstream commit 71a0e29e99405d89b695882d52eec60844173697 ]
 
-For several network drivers it was reported that using
-__napi_schedule_irqoff() is unsafe with forced threading. One way to
-fix this is switching back to __napi_schedule, but then we lose the
-benefit of the irqoff version in general. As stated by Eric it doesn't
-make sense to make the minimal hard irq handlers in drivers using NAPI
-a thread. Therefore ensure that the hard irq handler is never
-thread-ified.
+When 'rp_filter' is configured in strict mode (1) the tests fail because
+packets received from the macvlan netdevs would not be forwarded through
+them on the reverse path.
 
-Fixes: 9a899a35b0d6 ("r8169: switch to napi_schedule_irqoff")
-Link: https://lkml.org/lkml/2020/10/18/19
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/4d3ef84a-c812-5072-918a-22a6f6468310@gmail.com
+Fix this by disabling the 'rp_filter', meaning no source validation is
+performed.
+
+Fixes: 1538812e0880 ("selftests: forwarding: Add a test for VXLAN asymmetric routing")
+Fixes: 438a4f5665b2 ("selftests: forwarding: Add a test for VXLAN symmetric routing")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Tested-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20201015084525.135121-1-idosch@idosch.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/net/forwarding/vxlan_asymmetric.sh |   10 ++++++++++
+ tools/testing/selftests/net/forwarding/vxlan_symmetric.sh  |   10 ++++++++++
+ 2 files changed, 20 insertions(+)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4675,7 +4675,7 @@ static int rtl8169_close(struct net_devi
+--- a/tools/testing/selftests/net/forwarding/vxlan_asymmetric.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_asymmetric.sh
+@@ -215,10 +215,16 @@ switch_create()
  
- 	phy_disconnect(tp->phydev);
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 10
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 20
++
++	sysctl_set net.ipv4.conf.all.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan10-v.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan20-v.rp_filter 0
+ }
  
--	pci_free_irq(pdev, 0, tp);
-+	free_irq(pci_irq_vector(pdev, 0), tp);
+ switch_destroy()
+ {
++	sysctl_restore net.ipv4.conf.all.rp_filter
++
+ 	bridge fdb del 00:00:5e:00:01:01 dev br1 self local vlan 20
+ 	bridge fdb del 00:00:5e:00:01:01 dev br1 self local vlan 10
  
- 	dma_free_coherent(&pdev->dev, R8169_RX_RING_BYTES, tp->RxDescArray,
- 			  tp->RxPhyAddr);
-@@ -4726,8 +4726,8 @@ static int rtl_open(struct net_device *d
+@@ -359,6 +365,10 @@ ns_switch_create()
  
- 	rtl_request_firmware(tp);
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 10
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 20
++
++	sysctl_set net.ipv4.conf.all.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan10-v.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan20-v.rp_filter 0
+ }
+ export -f ns_switch_create
  
--	retval = pci_request_irq(pdev, 0, rtl8169_interrupt, NULL, tp,
--				 dev->name);
-+	retval = request_irq(pci_irq_vector(pdev, 0), rtl8169_interrupt,
-+			     IRQF_NO_THREAD | IRQF_SHARED, dev->name, tp);
- 	if (retval < 0)
- 		goto err_release_fw_2;
+--- a/tools/testing/selftests/net/forwarding/vxlan_symmetric.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_symmetric.sh
+@@ -237,10 +237,16 @@ switch_create()
  
-@@ -4759,7 +4759,7 @@ out:
- 	return retval;
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 10
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 20
++
++	sysctl_set net.ipv4.conf.all.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan10-v.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan20-v.rp_filter 0
+ }
  
- err_free_irq:
--	pci_free_irq(pdev, 0, tp);
-+	free_irq(pci_irq_vector(pdev, 0), tp);
- err_release_fw_2:
- 	rtl_release_firmware(tp);
- 	rtl8169_rx_clear(tp);
+ switch_destroy()
+ {
++	sysctl_restore net.ipv4.conf.all.rp_filter
++
+ 	bridge fdb del 00:00:5e:00:01:01 dev br1 self local vlan 20
+ 	bridge fdb del 00:00:5e:00:01:01 dev br1 self local vlan 10
+ 
+@@ -402,6 +408,10 @@ ns_switch_create()
+ 
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 10
+ 	bridge fdb add 00:00:5e:00:01:01 dev br1 self local vlan 20
++
++	sysctl_set net.ipv4.conf.all.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan10-v.rp_filter 0
++	sysctl_set net.ipv4.conf.vlan20-v.rp_filter 0
+ }
+ export -f ns_switch_create
+ 
 
 
