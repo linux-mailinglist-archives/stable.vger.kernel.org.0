@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF1629C12E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFC929C0E6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780597AbgJ0Oyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43202 "EHLO mail.kernel.org"
+        id S368537AbgJ0Oy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762555AbgJ0OnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:43:24 -0400
+        id S1762579AbgJ0Ona (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:43:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81CE206B2;
-        Tue, 27 Oct 2020 14:43:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29EAC206B2;
+        Tue, 27 Oct 2020 14:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809804;
-        bh=euSlTIDisOskMB5UgyqLeAfOkw/u0PxXEldvc7fiz98=;
+        s=default; t=1603809809;
+        bh=xL8ILGkFw6xtr0TGQPiY83B9mEMpc9DCyccn1srqliI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tigc0aeHLdXpmBqNlqFRdVc6pIZ2qOjnXx9YOEw1qd3DNDE9TZJUQOopczdjaUHp
-         G0usHhqQ4eZP+/kGP2aj7T/jsaL8ZI0WxXswh46R3WRYIMZFsudl9tRj31MtwmE+qC
-         8Z5KwON4QJAKKtgETy7E5W9OwpsrrS2IwRh+3YoY=
+        b=O921XHy2n9VHoGAfrIeJZQiS2Rnm+zmfx2S0RK0blyJJJi2lnFVXx0PdmGFe+Y0z+
+         edqdNdICJdBszdk5IKZr9v2tunIBcE/vCsrzTp+nbGROzSrjNwz396rY703QghZ/mt
+         xhcRN7dz4khRt8WtZpx4gzPX38rXdJaCJiGEL5pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        John Allen <john.allen@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Youquan Song <youquan.song@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 326/408] crypto: ccp - fix error handling
-Date:   Tue, 27 Oct 2020 14:54:24 +0100
-Message-Id: <20201027135510.151206682@linuxfoundation.org>
+Subject: [PATCH 5.4 328/408] x86/mce: Add Skylake quirk for patrol scrub reported errors
+Date:   Tue, 27 Oct 2020 14:54:26 +0100
+Message-Id: <20201027135510.247487777@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,33 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit e356c49c6cf0db3f00e1558749170bd56e47652d ]
+[ Upstream commit fd258dc4442c5c1c069c6b5b42bfe7d10cddda95 ]
 
-Fix resource leak in error handling.
+The patrol scrubber in Skylake and Cascade Lake systems can be configured
+to report uncorrected errors using a special signature in the machine
+check bank and to signal using CMCI instead of machine check.
 
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Acked-by: John Allen <john.allen@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Update the severity calculation mechanism to allow specifying the model,
+minimum stepping and range of machine check bank numbers.
+
+Add a new rule to detect the special signature (on model 0x55, stepping
+>=4 in any of the memory controller banks).
+
+ [ bp: Rewrite it.
+   aegl: Productize it. ]
+
+Suggested-by: Youquan Song <youquan.song@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Co-developed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200930021313.31810-2-tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mce/severity.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
-index 64112c736810e..7234b95241e91 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -1746,7 +1746,7 @@ ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 			break;
- 		default:
- 			ret = -EINVAL;
--			goto e_ctx;
-+			goto e_data;
- 		}
- 	} else {
- 		/* Stash the context */
+diff --git a/arch/x86/kernel/cpu/mce/severity.c b/arch/x86/kernel/cpu/mce/severity.c
+index 87bcdc6dc2f0c..0d09eb13743b4 100644
+--- a/arch/x86/kernel/cpu/mce/severity.c
++++ b/arch/x86/kernel/cpu/mce/severity.c
+@@ -9,9 +9,11 @@
+ #include <linux/seq_file.h>
+ #include <linux/init.h>
+ #include <linux/debugfs.h>
+-#include <asm/mce.h>
+ #include <linux/uaccess.h>
+ 
++#include <asm/mce.h>
++#include <asm/intel-family.h>
++
+ #include "internal.h"
+ 
+ /*
+@@ -40,9 +42,14 @@ static struct severity {
+ 	unsigned char context;
+ 	unsigned char excp;
+ 	unsigned char covered;
++	unsigned char cpu_model;
++	unsigned char cpu_minstepping;
++	unsigned char bank_lo, bank_hi;
+ 	char *msg;
+ } severities[] = {
+ #define MCESEV(s, m, c...) { .sev = MCE_ ## s ## _SEVERITY, .msg = m, ## c }
++#define BANK_RANGE(l, h) .bank_lo = l, .bank_hi = h
++#define MODEL_STEPPING(m, s) .cpu_model = m, .cpu_minstepping = s
+ #define  KERNEL		.context = IN_KERNEL
+ #define  USER		.context = IN_USER
+ #define  KERNEL_RECOV	.context = IN_KERNEL_RECOV
+@@ -97,7 +104,6 @@ static struct severity {
+ 		KEEP, "Corrected error",
+ 		NOSER, BITCLR(MCI_STATUS_UC)
+ 		),
+-
+ 	/*
+ 	 * known AO MCACODs reported via MCE or CMC:
+ 	 *
+@@ -113,6 +119,18 @@ static struct severity {
+ 		AO, "Action optional: last level cache writeback error",
+ 		SER, MASK(MCI_UC_AR|MCACOD, MCI_STATUS_UC|MCACOD_L3WB)
+ 		),
++	/*
++	 * Quirk for Skylake/Cascade Lake. Patrol scrubber may be configured
++	 * to report uncorrected errors using CMCI with a special signature.
++	 * UC=0, MSCOD=0x0010, MCACOD=binary(000X 0000 1100 XXXX) reported
++	 * in one of the memory controller banks.
++	 * Set severity to "AO" for same action as normal patrol scrub error.
++	 */
++	MCESEV(
++		AO, "Uncorrected Patrol Scrub Error",
++		SER, MASK(MCI_STATUS_UC|MCI_ADDR|0xffffeff0, MCI_ADDR|0x001000c0),
++		MODEL_STEPPING(INTEL_FAM6_SKYLAKE_X, 4), BANK_RANGE(13, 18)
++	),
+ 
+ 	/* ignore OVER for UCNA */
+ 	MCESEV(
+@@ -320,6 +338,12 @@ static int mce_severity_intel(struct mce *m, int tolerant, char **msg, bool is_e
+ 			continue;
+ 		if (s->excp && excp != s->excp)
+ 			continue;
++		if (s->cpu_model && boot_cpu_data.x86_model != s->cpu_model)
++			continue;
++		if (s->cpu_minstepping && boot_cpu_data.x86_stepping < s->cpu_minstepping)
++			continue;
++		if (s->bank_lo && (m->bank < s->bank_lo || m->bank > s->bank_hi))
++			continue;
+ 		if (msg)
+ 			*msg = s->msg;
+ 		s->covered = 1;
 -- 
 2.25.1
 
