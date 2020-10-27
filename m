@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B519E29B1E4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FFCE29B1E7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760662AbgJ0Ofq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34532 "EHLO mail.kernel.org"
+        id S1760675AbgJ0Ofv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:35:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898627AbgJ0Ofo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:35:44 -0400
+        id S1760663AbgJ0Ofr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:35:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 264F5207BB;
-        Tue, 27 Oct 2020 14:35:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 105D122202;
+        Tue, 27 Oct 2020 14:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809343;
-        bh=1qmiOEVm+nr7iMCleOBGylULDJsDu5D341+uinWxeOE=;
+        s=default; t=1603809346;
+        bh=GmjrIIIpHuM7SDFnusNHtLXhpaAs1F6AyxchG7BZlZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1Y8Edz5GIOh8CW4AqZSF/67YT+EhrRacGiXYJUipig6kWdkl3jjpKDQtqs7fSOyF
-         StSs9SjwRpOsFYsTydpf4nXX7FxKSHIpyzWg7Hv/8sAEzqeT2zge/3XxOqLeoTf09i
-         q++w7cGGV9GPagx/Nb0jpfIvcJD27pF79bBvvqXI=
+        b=XFpe+4YJqw5AHaMXXaZUh7GgQJgPRIjTIqLNJ/ueoPFOmN0hogl6Na8WXfOdWNi+N
+         lkLdHz3rJEdxtDAK2VM04AVdGRzoJzmqhqM6CPhN4Nc3hMqTYjUS9LaBBij5BchChO
+         CTNRUKA9+4Euzhlwh3z5rRfk9mE9uaLpIBo12Umc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jan Kara <jack@suse.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/408] usb: dwc2: Fix parameter type in function pointer prototype
-Date:   Tue, 27 Oct 2020 14:51:41 +0100
-Message-Id: <20201027135502.659430803@linuxfoundation.org>
+Subject: [PATCH 5.4 164/408] quota: clear padding in v2r1_mem2diskdqb()
+Date:   Tue, 27 Oct 2020 14:51:42 +0100
+Message-Id: <20201027135502.708997639@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,86 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 362b9398c962c9ec563653444e15ef9032ef3a90 ]
+[ Upstream commit 3d3dc274ce736227e3197868ff749cff2f175f63 ]
 
-When booting up on a Raspberry Pi 4 with Control Flow Integrity checking
-enabled, the following warning/panic happens:
+Freshly allocated memory contains garbage, better make sure
+to init all struct v2r1_disk_dqblk fields to avoid KMSAN report:
 
-[    1.626435] CFI failure (target: dwc2_set_bcm_params+0x0/0x4):
-[    1.632408] WARNING: CPU: 0 PID: 32 at kernel/cfi.c:30 __cfi_check_fail+0x54/0x5c
-[    1.640021] Modules linked in:
-[    1.643137] CPU: 0 PID: 32 Comm: kworker/0:1 Not tainted 5.8.0-rc6-next-20200724-00051-g89ba619726de #1
-[    1.652693] Hardware name: Raspberry Pi 4 Model B Rev 1.2 (DT)
-[    1.658637] Workqueue: events deferred_probe_work_func
-[    1.663870] pstate: 60000005 (nZCv daif -PAN -UAO BTYPE=--)
-[    1.669542] pc : __cfi_check_fail+0x54/0x5c
-[    1.673798] lr : __cfi_check_fail+0x54/0x5c
-[    1.678050] sp : ffff8000102bbaa0
-[    1.681419] x29: ffff8000102bbaa0 x28: ffffab09e21c7000
-[    1.686829] x27: 0000000000000402 x26: ffff0000f6e7c228
-[    1.692238] x25: 00000000fb7cdb0d x24: 0000000000000005
-[    1.697647] x23: ffffab09e2515000 x22: ffffab09e069a000
-[    1.703055] x21: 4c550309df1cf4c1 x20: ffffab09e2433c60
-[    1.708462] x19: ffffab09e160dc50 x18: ffff0000f6e8cc78
-[    1.713870] x17: 0000000000000041 x16: ffffab09e0bce6f8
-[    1.719278] x15: ffffab09e1c819b7 x14: 0000000000000003
-[    1.724686] x13: 00000000ffffefff x12: 0000000000000000
-[    1.730094] x11: 0000000000000000 x10: 00000000ffffffff
-[    1.735501] x9 : c932f7abfc4bc600 x8 : c932f7abfc4bc600
-[    1.740910] x7 : 077207610770075f x6 : ffff0000f6c38f00
-[    1.746317] x5 : 0000000000000000 x4 : 0000000000000000
-[    1.751723] x3 : 0000000000000000 x2 : 0000000000000000
-[    1.757129] x1 : ffff8000102bb7d8 x0 : 0000000000000032
-[    1.762539] Call trace:
-[    1.765030]  __cfi_check_fail+0x54/0x5c
-[    1.768938]  __cfi_check+0x5fa6c/0x66afc
-[    1.772932]  dwc2_init_params+0xd74/0xd78
-[    1.777012]  dwc2_driver_probe+0x484/0x6ec
-[    1.781180]  platform_drv_probe+0xb4/0x100
-[    1.785350]  really_probe+0x228/0x63c
-[    1.789076]  driver_probe_device+0x80/0xc0
-[    1.793247]  __device_attach_driver+0x114/0x160
-[    1.797857]  bus_for_each_drv+0xa8/0x128
-[    1.801851]  __device_attach.llvm.14901095709067289134+0xc0/0x170
-[    1.808050]  bus_probe_device+0x44/0x100
-[    1.812044]  deferred_probe_work_func+0x78/0xb8
-[    1.816656]  process_one_work+0x204/0x3c4
-[    1.820736]  worker_thread+0x2f0/0x4c4
-[    1.824552]  kthread+0x174/0x184
-[    1.827837]  ret_from_fork+0x10/0x18
+BUG: KMSAN: uninit-value in qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
+CPU: 0 PID: 23373 Comm: syz-executor.1 Not tainted 5.9.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:219
+ qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
+ v2r1_mem2diskdqb+0x43d/0x710 fs/quota/quota_v2.c:285
+ qtree_write_dquot+0x226/0x870 fs/quota/quota_tree.c:394
+ v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
+ dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
+ ext4_write_dquot fs/ext4/super.c:5934 [inline]
+ ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
+ mark_dquot_dirty fs/quota/dquot.c:347 [inline]
+ mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
+ dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
+ __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
+ ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
+ vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
+ do_tmpfile fs/namei.c:3316 [inline]
+ path_openat+0x4035/0x6a90 fs/namei.c:3359
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+RIP: 0023:0xf7ff4549
+Code: b8 01 10 06 03 74 b4 01 10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+RSP: 002b:00000000f55cd0cc EFLAGS: 00000296 ORIG_RAX: 0000000000000127
+RAX: ffffffffffffffda RBX: 00000000ffffff9c RCX: 0000000020000000
+RDX: 0000000000410481 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
 
-CFI validates that all indirect calls go to a function with the same
-exact function pointer prototype. In this case, dwc2_set_bcm_params
-is the target, which has a parameter of type 'struct dwc2_hsotg *',
-but it is being implicitly cast to have a parameter of type 'void *'
-because that is the set_params function pointer prototype. Make the
-function pointer protoype match the definitions so that there is no
-more violation.
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:143 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:126
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:80
+ slab_alloc_node mm/slub.c:2907 [inline]
+ slab_alloc mm/slub.c:2916 [inline]
+ __kmalloc+0x2bb/0x4b0 mm/slub.c:3982
+ kmalloc include/linux/slab.h:559 [inline]
+ getdqbuf+0x56/0x150 fs/quota/quota_tree.c:52
+ qtree_write_dquot+0xf2/0x870 fs/quota/quota_tree.c:378
+ v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
+ dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
+ ext4_write_dquot fs/ext4/super.c:5934 [inline]
+ ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
+ mark_dquot_dirty fs/quota/dquot.c:347 [inline]
+ mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
+ dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
+ __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
+ ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
+ vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
+ do_tmpfile fs/namei.c:3316 [inline]
+ path_openat+0x4035/0x6a90 fs/namei.c:3359
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
-Fixes: 7de1debcd2de ("usb: dwc2: Remove platform static params")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1107
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 498c60153ebb ("quota: Implement quota format with 64-bit space and inode limits")
+Link: https://lore.kernel.org/r/20200924183619.4176790-1-edumazet@google.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jan Kara <jack@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/params.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/quota/quota_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc2/params.c b/drivers/usb/dwc2/params.c
-index 31e090ac9f1ec..6d3812678b8c6 100644
---- a/drivers/usb/dwc2/params.c
-+++ b/drivers/usb/dwc2/params.c
-@@ -846,7 +846,7 @@ int dwc2_get_hwparams(struct dwc2_hsotg *hsotg)
- int dwc2_init_params(struct dwc2_hsotg *hsotg)
- {
- 	const struct of_device_id *match;
--	void (*set_params)(void *data);
-+	void (*set_params)(struct dwc2_hsotg *data);
- 
- 	dwc2_set_default_params(hsotg);
- 	dwc2_get_device_properties(hsotg);
+diff --git a/fs/quota/quota_v2.c b/fs/quota/quota_v2.c
+index 53429c29c7842..276c27fb99280 100644
+--- a/fs/quota/quota_v2.c
++++ b/fs/quota/quota_v2.c
+@@ -284,6 +284,7 @@ static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
+ 	d->dqb_curspace = cpu_to_le64(m->dqb_curspace);
+ 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
+ 	d->dqb_id = cpu_to_le32(from_kqid(&init_user_ns, dquot->dq_id));
++	d->dqb_pad = 0;
+ 	if (qtree_entry_unused(info, dp))
+ 		d->dqb_itime = cpu_to_le64(1);
+ }
 -- 
 2.25.1
 
