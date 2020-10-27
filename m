@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CB529C1E9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9138529C424
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410939AbgJ0OlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39550 "EHLO mail.kernel.org"
+        id S2509871AbgJ0OXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761969AbgJ0Ok0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:40:26 -0400
+        id S1758711AbgJ0OXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:23:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F401E20773;
-        Tue, 27 Oct 2020 14:40:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F3B72072D;
+        Tue, 27 Oct 2020 14:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809625;
-        bh=ekaUfaLgUd14251slWgKtcDgNOCVS+EsHLnmkbH1ybw=;
+        s=default; t=1603808595;
+        bh=oA28nrlXf/H3md+sDMgwMz6KSIgQXm0l/UiIqV2woLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BwDw37Ui51l9aHSBVQpuerVNRTYcCYj6l/0BWXlGUht7Zmtsp+8O4f72p2J8jBk7
-         qMSaxzXMaOl9PPZ+ijxeNipYpB0rqJUBtLSQIn3mtGTcTekSPvplD6mB934zNS/7Rg
-         LiuCGke1oIZwuqeNk/3rRGwGyonw3RTMW+DwqpIA=
+        b=IcPYcL2Hrm/Uck16ebBjfS8dt7jWZgVy1GBUUoRQ6GiCjPrAKRprDWeA6GBjkdpG6
+         eTaDBNwbsZzbrQ70ZQqaYV2PpHa0tsSw9BKxlZxT3qTqrUbQiNUnqUxc4bS9vpHLd0
+         pYJLZWN9RBU1OxjfnUntw1ELQ64wZzcRVKBQybDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Ray Jui <ray.jui@broadcom.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 263/408] PCI: iproc: Set affinity mask on MSI interrupts
-Date:   Tue, 27 Oct 2020 14:53:21 +0100
-Message-Id: <20201027135507.250558407@linuxfoundation.org>
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 144/264] powerpc/tau: Use appropriate temperature sample interval
+Date:   Tue, 27 Oct 2020 14:53:22 +0100
+Message-Id: <20201027135437.455963546@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit eb7eacaa5b9e4f665bd08d416c8f88e63d2f123c ]
+[ Upstream commit 66943005cc41f48e4d05614e8f76c0ca1812f0fd ]
 
-The core interrupt code expects the irq_set_affinity call to update the
-effective affinity for the interrupt. This was not being done, so update
-iproc_msi_irq_set_affinity() to do so.
+According to the MPC750 Users Manual, the SITV value in Thermal
+Management Register 3 is 13 bits long. The present code calculates the
+SITV value as 60 * 500 cycles. This would overflow to give 10 us on
+a 500 MHz CPU rather than the intended 60 us. (But according to the
+Microprocessor Datasheet, there is also a factor of 266 that has to be
+applied to this value on certain parts i.e. speed sort above 266 MHz.)
+Always use the maximum cycle count, as recommended by the Datasheet.
 
-Link: https://lore.kernel.org/r/20200803035241.7737-1-mark.tomlinson@alliedtelesis.co.nz
-Fixes: 3bc2b2348835 ("PCI: iproc: Add iProc PCIe MSI support")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/896f542e5f0f1d6cf8218524c2b67d79f3d69b3c.1599260540.git.fthain@telegraphics.com.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-iproc-msi.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/powerpc/include/asm/reg.h |  2 +-
+ arch/powerpc/kernel/tau_6xx.c  | 12 ++++--------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
-index 0a3f61be5625b..a1298f6784ac9 100644
---- a/drivers/pci/controller/pcie-iproc-msi.c
-+++ b/drivers/pci/controller/pcie-iproc-msi.c
-@@ -209,15 +209,20 @@ static int iproc_msi_irq_set_affinity(struct irq_data *data,
- 	struct iproc_msi *msi = irq_data_get_irq_chip_data(data);
- 	int target_cpu = cpumask_first(mask);
- 	int curr_cpu;
-+	int ret;
+diff --git a/arch/powerpc/include/asm/reg.h b/arch/powerpc/include/asm/reg.h
+index af99716615122..494b0283f2129 100644
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -788,7 +788,7 @@
+ #define THRM1_TIN	(1 << 31)
+ #define THRM1_TIV	(1 << 30)
+ #define THRM1_THRES(x)	((x&0x7f)<<23)
+-#define THRM3_SITV(x)	((x&0x3fff)<<1)
++#define THRM3_SITV(x)	((x & 0x1fff) << 1)
+ #define THRM1_TID	(1<<2)
+ #define THRM1_TIE	(1<<1)
+ #define THRM1_V		(1<<0)
+diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
+index e2ab8a111b693..976d5bc1b5176 100644
+--- a/arch/powerpc/kernel/tau_6xx.c
++++ b/arch/powerpc/kernel/tau_6xx.c
+@@ -178,15 +178,11 @@ static void tau_timeout(void * info)
+ 	 * complex sleep code needs to be added. One mtspr every time
+ 	 * tau_timeout is called is probably not a big deal.
+ 	 *
+-	 * Enable thermal sensor and set up sample interval timer
+-	 * need 20 us to do the compare.. until a nice 'cpu_speed' function
+-	 * call is implemented, just assume a 500 mhz clock. It doesn't really
+-	 * matter if we take too long for a compare since it's all interrupt
+-	 * driven anyway.
+-	 *
+-	 * use a extra long time.. (60 us @ 500 mhz)
++	 * The "PowerPC 740 and PowerPC 750 Microprocessor Datasheet"
++	 * recommends that "the maximum value be set in THRM3 under all
++	 * conditions."
+ 	 */
+-	mtspr(SPRN_THRM3, THRM3_SITV(500*60) | THRM3_E);
++	mtspr(SPRN_THRM3, THRM3_SITV(0x1fff) | THRM3_E);
  
- 	curr_cpu = hwirq_to_cpu(msi, data->hwirq);
- 	if (curr_cpu == target_cpu)
--		return IRQ_SET_MASK_OK_DONE;
-+		ret = IRQ_SET_MASK_OK_DONE;
-+	else {
-+		/* steer MSI to the target CPU */
-+		data->hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq) + target_cpu;
-+		ret = IRQ_SET_MASK_OK;
-+	}
- 
--	/* steer MSI to the target CPU */
--	data->hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq) + target_cpu;
-+	irq_data_update_effective_affinity(data, cpumask_of(target_cpu));
- 
--	return IRQ_SET_MASK_OK;
-+	return ret;
+ 	local_irq_restore(flags);
  }
- 
- static void iproc_msi_irq_compose_msi_msg(struct irq_data *data,
 -- 
 2.25.1
 
