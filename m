@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 413CF29BF00
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2000829C075
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1814693AbgJ0Q7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:59:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
+        id S2900637AbgJ0OzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794019AbgJ0PJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:09:43 -0400
+        id S2899198AbgJ0Omv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87A3C206E5;
-        Tue, 27 Oct 2020 15:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30C96206B2;
+        Tue, 27 Oct 2020 14:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811383;
-        bh=5gD5+YSD1ucPQ6kqFmI8woromPacIx4Cj5ytG/Cqv68=;
+        s=default; t=1603809770;
+        bh=jCxIbtF31hd+7Wpl7D8uJl4yGO/ELNVRZ+JuCPOOouw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FgkL/RjD7ygsOrTQwkrGv2eOzWrFw99xRgDvvWxR42CH9+wy3v43GL6EMxvlH691
-         tvacNe+kaoGb1v5zPEvlfZtG76SgNqnrxKpVQ6ZoRT6wtT0DSDjkwFvp0O6EI4Qemh
-         oTHOA3sHyWpp2p+Jpm8HVBCCuGrc6ZsCpzmxrFWM=
+        b=B6d+z+GeIE7VLOPULxRcuV2pc6Wrx/WPzNqTqnu51q3Ig0YlCyQMFyTvhN8xC7VyI
+         VXg3Pb76Y6hZKbofaI3HZfF4/5DhO76gR5aA1rqwZN8n418+rgYw9dVYo6nWAVT4mE
+         fkGV/6kkaYA/eGm3AaiFfCjBrOCY9xFkgNXp8QC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hoo <robert.hu@linux.intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 473/633] KVM: x86: emulating RDPID failure shall return #UD rather than #GP
-Date:   Tue, 27 Oct 2020 14:53:36 +0100
-Message-Id: <20201027135544.926561146@linuxfoundation.org>
+Subject: [PATCH 5.4 283/408] SUNRPC: fix copying of multiple pages in gss_read_proxy_verf()
+Date:   Tue, 27 Oct 2020 14:53:41 +0100
+Message-Id: <20201027135508.179385530@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hoo <robert.hu@linux.intel.com>
+From: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
 
-[ Upstream commit a9e2e0ae686094571378c72d8146b5a1a92d0652 ]
+[ Upstream commit d48c8124749c9a5081fe68680f83605e272c984b ]
 
-Per Intel's SDM, RDPID takes a #UD if it is unsupported, which is more or
-less what KVM is emulating when MSR_TSC_AUX is not available.  In fact,
-there are no scenarios in which RDPID is supposed to #GP.
+When the passed token is longer than 4032 bytes, the remaining part
+of the token must be copied from the rqstp->rq_arg.pages. But the
+copy must make sure it happens in a consecutive way.
 
-Fixes: fb6d4d340e ("KVM: x86: emulate RDPID")
-Signed-off-by: Robert Hoo <robert.hu@linux.intel.com>
-Message-Id: <1598581422-76264-1-git-send-email-robert.hu@linux.intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+With the existing code, the first memcpy copies 'length' bytes from
+argv->iobase, but since the header is in front, this never fills the
+whole first page of in_token->pages.
+
+The mecpy in the loop copies the following bytes, but starts writing at
+the next page of in_token->pages.  This leaves the last bytes of page 0
+unwritten.
+
+Symptoms were that users with many groups were not able to access NFS
+exports, when using Active Directory as the KDC.
+
+Signed-off-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
+Fixes: 5866efa8cbfb "SUNRPC: Fix svcauth_gss_proxy_init()"
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index d0e2825ae6174..571cb8657e53e 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -3594,7 +3594,7 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
- 	u64 tsc_aux = 0;
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 3645cd241d3ea..cf4d6d7e72822 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1095,9 +1095,9 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
+ 			       struct gssp_in_token *in_token)
+ {
+ 	struct kvec *argv = &rqstp->rq_arg.head[0];
+-	unsigned int page_base, length;
+-	int pages, i, res;
+-	size_t inlen;
++	unsigned int length, pgto_offs, pgfrom_offs;
++	int pages, i, res, pgto, pgfrom;
++	size_t inlen, to_offs, from_offs;
  
- 	if (ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux))
--		return emulate_gp(ctxt, 0);
-+		return emulate_ud(ctxt);
- 	ctxt->dst.val = tsc_aux;
- 	return X86EMUL_CONTINUE;
+ 	res = gss_read_common_verf(gc, argv, authp, in_handle);
+ 	if (res)
+@@ -1125,17 +1125,24 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
+ 	memcpy(page_address(in_token->pages[0]), argv->iov_base, length);
+ 	inlen -= length;
+ 
+-	i = 1;
+-	page_base = rqstp->rq_arg.page_base;
++	to_offs = length;
++	from_offs = rqstp->rq_arg.page_base;
+ 	while (inlen) {
+-		length = min_t(unsigned int, inlen, PAGE_SIZE);
+-		memcpy(page_address(in_token->pages[i]),
+-		       page_address(rqstp->rq_arg.pages[i]) + page_base,
++		pgto = to_offs >> PAGE_SHIFT;
++		pgfrom = from_offs >> PAGE_SHIFT;
++		pgto_offs = to_offs & ~PAGE_MASK;
++		pgfrom_offs = from_offs & ~PAGE_MASK;
++
++		length = min_t(unsigned int, inlen,
++			 min_t(unsigned int, PAGE_SIZE - pgto_offs,
++			       PAGE_SIZE - pgfrom_offs));
++		memcpy(page_address(in_token->pages[pgto]) + pgto_offs,
++		       page_address(rqstp->rq_arg.pages[pgfrom]) + pgfrom_offs,
+ 		       length);
+ 
++		to_offs += length;
++		from_offs += length;
+ 		inlen -= length;
+-		page_base = 0;
+-		i++;
+ 	}
+ 	return 0;
  }
 -- 
 2.25.1
