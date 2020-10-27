@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 227A029BE5D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C7529BDB0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1812879AbgJ0Qqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35082 "EHLO mail.kernel.org"
+        id S1812873AbgJ0Qqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:46:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801571AbgJ0Pmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:42:49 -0400
+        id S1801586AbgJ0Pmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:42:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C2F820657;
-        Tue, 27 Oct 2020 15:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E404F20657;
+        Tue, 27 Oct 2020 15:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813369;
-        bh=BrzE6FuA9rcWBhFxOTzzLu3ZkxPjMnXxY6yoS+GALEQ=;
+        s=default; t=1603813372;
+        bh=Ds/T0C9B4srp+x7ScLkCF/t1j2DwllrEYssZ9uIHS4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSJkoHQ2CzLpoSf4RbIA35fbt8H4L7sFwlvcOYiTVMdMt+cvT6BeoQC7fuTH2M5d5
-         +xEAh7XvTfOmfBUhnZU9PN0XRlwp+K+UyXhxXrcS4FHUaukPEb4wKy4TwHmIAxwEzL
-         OqpAG7WTVZc4ympVpAe0Vmshp6z9DS7+xxAEe98M=
+        b=b5piyrE7GSm3Bat2tBCMVYu3GcQoA6kIrsMxtLFpphHMvN2x1e6r+Vnn9cENOV9yf
+         yA7Vr4bLBOqfLJ3/oOS7t5grjLZvnrd3U6chcHZeMAFj2dHS7G9QCwQpdfMw2Mo/T+
+         /oxLDCW7UKZMmXU973u2bvzguwNFL3SiV6BcDNc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pierre Morel <pmorel@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 528/757] s390/pci: Mark all VFs as not implementing PCI_COMMAND_MEMORY
-Date:   Tue, 27 Oct 2020 14:52:58 +0100
-Message-Id: <20201027135515.253588002@linuxfoundation.org>
+Subject: [PATCH 5.9 529/757] vfio/pci: Decouple PCI_COMMAND_MEMORY bit checks from is_virtfn
+Date:   Tue, 27 Oct 2020 14:52:59 +0100
+Message-Id: <20201027135515.304800100@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,13 +47,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthew Rosato <mjrosato@linux.ibm.com>
 
-[ Upstream commit 08b6e22b850c28b6032da1e4d767a33116e23dfb ]
+[ Upstream commit 515ecd5368f1510152fa4f9b9ce55b66ac56c334 ]
 
-For s390 we can have VFs that are passed-through without the associated
-PF. Firmware provides an emulation layer to allow these devices to
-operate independently, but is missing emulation of the Memory Space
-Enable bit.  For these as well as linked VFs, set no_command_memory
-which specifies these devices do not implement PCI_COMMAND_MEMORY.
+While it is true that devices with is_virtfn=1 will have a Memory Space
+Enable bit that is hard-wired to 0, this is not the only case where we
+see this behavior -- For example some bare-metal hypervisors lack
+Memory Space Enable bit emulation for devices not setting is_virtfn
+(s390). Fix this by instead checking for the newly-added
+no_command_memory bit which directly denotes the need for
+PCI_COMMAND_MEMORY emulation in vfio.
 
 Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
@@ -62,26 +64,67 @@ Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci_bus.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci_config.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 5967f30141563..c93486a9989bc 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -197,9 +197,10 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
- 	 * With pdev->no_vf_scan the common PCI probing code does not
- 	 * perform PF/VF linking.
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index d98843feddce0..5076d0155bc3f 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -406,7 +406,7 @@ bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
+ 	 * PF SR-IOV capability, there's therefore no need to trigger
+ 	 * faults based on the virtual value.
  	 */
--	if (zdev->vfn)
-+	if (zdev->vfn) {
- 		zpci_bus_setup_virtfn(zdev->zbus, pdev, zdev->vfn);
--
-+		pdev->no_command_memory = 1;
-+	}
+-	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
++	return pdev->no_command_memory || (cmd & PCI_COMMAND_MEMORY);
  }
  
- static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ /*
+@@ -520,8 +520,8 @@ static int vfio_basic_config_read(struct vfio_pci_device *vdev, int pos,
+ 
+ 	count = vfio_default_config_read(vdev, pos, count, perm, offset, val);
+ 
+-	/* Mask in virtual memory enable for SR-IOV devices */
+-	if (offset == PCI_COMMAND && vdev->pdev->is_virtfn) {
++	/* Mask in virtual memory enable */
++	if (offset == PCI_COMMAND && vdev->pdev->no_command_memory) {
+ 		u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
+ 		u32 tmp_val = le32_to_cpu(*val);
+ 
+@@ -589,9 +589,11 @@ static int vfio_basic_config_write(struct vfio_pci_device *vdev, int pos,
+ 		 * shows it disabled (phys_mem/io, then the device has
+ 		 * undergone some kind of backdoor reset and needs to be
+ 		 * restored before we allow it to enable the bars.
+-		 * SR-IOV devices will trigger this, but we catch them later
++		 * SR-IOV devices will trigger this - for mem enable let's
++		 * catch this now and for io enable it will be caught later
+ 		 */
+-		if ((new_mem && virt_mem && !phys_mem) ||
++		if ((new_mem && virt_mem && !phys_mem &&
++		     !pdev->no_command_memory) ||
+ 		    (new_io && virt_io && !phys_io) ||
+ 		    vfio_need_bar_restore(vdev))
+ 			vfio_bar_restore(vdev);
+@@ -1734,12 +1736,14 @@ int vfio_config_init(struct vfio_pci_device *vdev)
+ 				 vconfig[PCI_INTERRUPT_PIN]);
+ 
+ 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
+-
++	}
++	if (pdev->no_command_memory) {
+ 		/*
+-		 * VFs do no implement the memory enable bit of the COMMAND
+-		 * register therefore we'll not have it set in our initial
+-		 * copy of config space after pci_enable_device().  For
+-		 * consistency with PFs, set the virtual enable bit here.
++		 * VFs and devices that set pdev->no_command_memory do not
++		 * implement the memory enable bit of the COMMAND register
++		 * therefore we'll not have it set in our initial copy of
++		 * config space after pci_enable_device().  For consistency
++		 * with PFs, set the virtual enable bit here.
+ 		 */
+ 		*(__le16 *)&vconfig[PCI_COMMAND] |=
+ 					cpu_to_le16(PCI_COMMAND_MEMORY);
 -- 
 2.25.1
 
