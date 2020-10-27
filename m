@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6132C29B9AA
+	by mail.lfdr.de (Postfix) with ESMTP id CF4E629B9AB
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802693AbgJ0Puy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1802695AbgJ0Puy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 11:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43622 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802357AbgJ0PqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:46:25 -0400
+        id S1802359AbgJ0Pqb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:46:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8170B22202;
-        Tue, 27 Oct 2020 15:46:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 247EC21D42;
+        Tue, 27 Oct 2020 15:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813585;
-        bh=bi9rG11d6SB90sUXYBcymSyH0bBautnFLxSOcAwTd+I=;
+        s=default; t=1603813590;
+        bh=V6MQEupNqkeHYdnaJItOH2zf0i2aYj1g8e3cKMZ8rp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1+RACNKXf4B8YiII55zPLXK2X+Jf9JrMOeoPJnDP9cpiCp4E4knNLVgh3RvFxVrZ
-         KWqICwmvs+9Ufn4xK/2mhEW5N3L+C3/T8oQ0v7HZs82MYJFDmKrpYcnU3KLDsvOKui
-         Ml61tImePWxI6heao83ggTr/0Roe6n18f2Q4yEyI=
+        b=sxRbFu9GyHSyaWhFQw1yzBttULsxuoLv3+WQgSFQZDqiKNFyYj7bnIQI1kpYEHqG8
+         geMty1ywSlvgXNvGzfguOKlkZzsNHS/8m2rutGzpzmTQC82esy/wX8Z8uw23pn8i6M
+         Yswjl/VjvGqyHxH6OxsBgTyat47FeHtTEP/dEd74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Amit Pundir <amit.pundir@linaro.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 601/757] arm64: dts: imx8mq: Add missing interrupts to GPC
-Date:   Tue, 27 Oct 2020 14:54:11 +0100
-Message-Id: <20201027135518.737276724@linuxfoundation.org>
+Subject: [PATCH 5.9 603/757] arm64: dts: sdm845: Fixup OPP table for all qup devices
+Date:   Tue, 27 Oct 2020 14:54:13 +0100
+Message-Id: <20201027135518.828227651@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,39 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Rajendra Nayak <rnayak@codeaurora.org>
 
-[ Upstream commit 791619f66843a213784efb2f171be98933bad991 ]
+[ Upstream commit e0b760a5f6c9e54db8bd22b1d6b19223e6b92264 ]
 
-The i.MX General Power Controller v2 device node was missing interrupts
-property necessary to route its interrupt to GIC.  This also fixes the
-dbts_check warnings like:
+This OPP table was based on the clock VDD-FMAX tables seen in
+downstream code, however it turns out the downstream clock
+driver does update these tables based on later/production
+rev of the chip and whats seen in the tables belongs to an
+early engineering rev of the SoC.
+Fix up the OPP tables such that it now matches with the
+production rev of sdm845 SoC.
 
-  arch/arm64/boot/dts/freescale/imx8mq-evk.dt.yaml: gpc@303a0000:
-    {'compatible': ... '$nodename': ['gpc@303a0000']} is not valid under any of the given schemas
-  arch/arm64/boot/dts/freescale/imx8mq-evk.dt.yaml: gpc@303a0000: 'interrupts' is a required property
-
-Fixes: fdbcc04da246 ("arm64: dts: imx8mq: add GPC power domains")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Tested-by: Amit Pundir <amit.pundir@linaro.org>
+Tested-by: John Stultz <john.stultz@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Fixes: 13cadb34e593 ("arm64: dts: sdm845: Add OPP table for all qup devices")
+Reported-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
+Link: https://lore.kernel.org/r/1597227730-16477-1-git-send-email-rnayak@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 561fa792fe5a9..58c08398d4ba7 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -617,6 +617,7 @@ src: reset-controller@30390000 {
- 			gpc: gpc@303a0000 {
- 				compatible = "fsl,imx8mq-gpc";
- 				reg = <0x303a0000 0x10000>;
-+				interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
- 				interrupt-parent = <&gic>;
- 				interrupt-controller;
- 				#interrupt-cells = <3>;
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index 2884577dcb777..eca81cffd2c19 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -1093,8 +1093,8 @@ rng: rng@793000 {
+ 		qup_opp_table: qup-opp-table {
+ 			compatible = "operating-points-v2";
+ 
+-			opp-19200000 {
+-				opp-hz = /bits/ 64 <19200000>;
++			opp-50000000 {
++				opp-hz = /bits/ 64 <50000000>;
+ 				required-opps = <&rpmhpd_opp_min_svs>;
+ 			};
+ 
+@@ -1107,6 +1107,11 @@ opp-100000000 {
+ 				opp-hz = /bits/ 64 <100000000>;
+ 				required-opps = <&rpmhpd_opp_svs>;
+ 			};
++
++			opp-128000000 {
++				opp-hz = /bits/ 64 <128000000>;
++				required-opps = <&rpmhpd_opp_nom>;
++			};
+ 		};
+ 
+ 		qupv3_id_0: geniqup@8c0000 {
 -- 
 2.25.1
 
