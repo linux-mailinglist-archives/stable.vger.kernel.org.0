@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 651E929B47B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEED29B4FA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1789710AbgJ0PCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36828 "EHLO mail.kernel.org"
+        id S1793638AbgJ0PHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789703AbgJ0PCe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:02:34 -0400
+        id S1789717AbgJ0PCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:02:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF8632076B;
-        Tue, 27 Oct 2020 15:02:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE21221707;
+        Tue, 27 Oct 2020 15:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810953;
-        bh=EG7xkLK5RvfqEIedMaeojofnrNqdn+++hd7xuiN/faw=;
+        s=default; t=1603810956;
+        bh=2K7OeD+JWef4EIVf4qM8y+2yXFII68NQ1tDsVgfQEls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMYQJ4HM2yCHIpEj4AGWCBr4DasnsVlWL2M9sK6U+UWloKivI0q8Cq2ib3tQtQLKb
-         5VNXoj71ANblUPdkp6LFlVjv5gDerDKPOkMYZEroyL8obM9GF83CoXe+yvd+YTEBIH
-         pPLVjs1WcOxdIbWCt4h8qjrasKFg8vgSqyYODe2E=
+        b=Dlzf++zXlJCcWfl5284kULbb8AuY9D+CBq/BpM9C7BLKGT7LPTadT0uPMm7jlZWoh
+         F4htVIHNc30Wo/hn45Vlihx7ZxvUD42Wo2PZOqp5rWf0kgS03AsD2CoJ1zeBPXT4Wy
+         5v4WRNyOmuht1HqXty6uenf/CHdQL9Cy3d5jcIO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parshuram Thombare <pthombar@cadence.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 322/633] i3c: master add i3c_master_attach_boardinfo to preserve boardinfo
-Date:   Tue, 27 Oct 2020 14:51:05 +0100
-Message-Id: <20201027135537.783164021@linuxfoundation.org>
+Subject: [PATCH 5.8 323/633] IB/mlx4: Fix starvation in paravirt mux/demux
+Date:   Tue, 27 Oct 2020 14:51:06 +0100
+Message-Id: <20201027135537.833453961@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,64 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parshuram Thombare <pthombar@cadence.com>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit 9da36a7ec42135428e1d41621e3703429bda3b2e ]
+[ Upstream commit 7fd1507df7cee9c533f38152fcd1dd769fcac6ce ]
 
-Boardinfo was lost if I3C object for devices with boardinfo
-available are not created or not added to the I3C device list
-because of some failure e.g. SETDASA failed, retrieve info failed etc
-This patch adds i3c_master_attach_boardinfo which scan boardinfo list
-in the master object and 'attach' it to the I3C device object.
+The mlx4 driver will proxy MAD packets through the PF driver. A VM or an
+instantiated VF will send its MAD packets to the PF driver using
+loop-back. The PF driver will be informed by an interrupt, but defer the
+handling and polling of CQEs to a worker thread running on an ordered
+work-queue.
 
-Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
-Signed-off-by: Parshuram Thombare <pthombar@cadence.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://lore.kernel.org/linux-i3c/1590053542-389-1-git-send-email-pthombar@cadence.com
+Consider the following scenario: the VMs will in short proximity in time,
+for example due to a network event, send many MAD packets to the PF
+driver. Lets say there are K VMs, each sending N packets.
+
+The interrupt from the first VM will start the worker thread, which will
+poll N CQEs. A common case here is where the PF driver will multiplex the
+packets received from the VMs out on the wire QP.
+
+But before the wire QP has returned a send CQE and associated interrupt,
+the other K - 1 VMs have sent their N packets as well.
+
+The PF driver has to multiplex K * N packets out on the wire QP. But the
+send-queue on the wire QP has a finite capacity.
+
+So, in this scenario, if K * N is larger than the send-queue capacity of
+the wire QP, we will get MAD packets dropped on the floor with this
+dynamic debug message:
+
+mlx4_ib_multiplex_mad: failed sending GSI to wire on behalf of slave 2 (-11)
+
+and this despite the fact that the wire send-queue could have capacity,
+but the PF driver isn't aware, because the wire send CQEs have not yet
+been polled.
+
+We can also have a similar scenario inbound, with a wire recv-queue larger
+than the tunnel QP's send-queue. If many remote peers send MAD packets to
+the very same VM, the tunnel send-queue destined to the VM could allegedly
+be construed to be full by the PF driver.
+
+This starvation is fixed by introducing separate work queues for the wire
+QPs vs. the tunnel QPs.
+
+With this fix, using a dual ported HCA, 8 VFs instantiated, we could run
+cmtime on each of the 18 interfaces towards a similar configured peer,
+each cmtime instance with 800 QPs (all in all 14400 QPs) without a single
+CM packet getting lost.
+
+Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
+Link: https://lore.kernel.org/r/20200803061941.1139994-5-haakon.bugge@oracle.com
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i3c/master.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx4/mad.c     | 34 +++++++++++++++++++++++++---
+ drivers/infiniband/hw/mlx4/mlx4_ib.h |  2 ++
+ 2 files changed, 33 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-index 97f2e29265da7..cc7564446ccd2 100644
---- a/drivers/i3c/master.c
-+++ b/drivers/i3c/master.c
-@@ -1782,6 +1782,21 @@ static void i3c_master_bus_cleanup(struct i3c_master_controller *master)
- 	i3c_master_detach_free_devs(master);
+diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
+index abe68708d6d6e..2cbdba4da9dfe 100644
+--- a/drivers/infiniband/hw/mlx4/mad.c
++++ b/drivers/infiniband/hw/mlx4/mad.c
+@@ -1299,6 +1299,18 @@ static void mlx4_ib_tunnel_comp_handler(struct ib_cq *cq, void *arg)
+ 	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
  }
  
-+static void i3c_master_attach_boardinfo(struct i3c_dev_desc *i3cdev)
++static void mlx4_ib_wire_comp_handler(struct ib_cq *cq, void *arg)
 +{
-+	struct i3c_master_controller *master = i3cdev->common.master;
-+	struct i3c_dev_boardinfo *i3cboardinfo;
++	unsigned long flags;
++	struct mlx4_ib_demux_pv_ctx *ctx = cq->cq_context;
++	struct mlx4_ib_dev *dev = to_mdev(ctx->ib_dev);
 +
-+	list_for_each_entry(i3cboardinfo, &master->boardinfo.i3c, node) {
-+		if (i3cdev->info.pid != i3cboardinfo->pid)
-+			continue;
-+
-+		i3cdev->boardinfo = i3cboardinfo;
-+		i3cdev->info.static_addr = i3cboardinfo->static_addr;
-+		return;
-+	}
++	spin_lock_irqsave(&dev->sriov.going_down_lock, flags);
++	if (!dev->sriov.is_going_down && ctx->state == DEMUX_PV_STATE_ACTIVE)
++		queue_work(ctx->wi_wq, &ctx->work);
++	spin_unlock_irqrestore(&dev->sriov.going_down_lock, flags);
 +}
 +
- static struct i3c_dev_desc *
- i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
- {
-@@ -1837,10 +1852,10 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
- 	if (ret)
- 		goto err_detach_dev;
+ static int mlx4_ib_post_pv_qp_buf(struct mlx4_ib_demux_pv_ctx *ctx,
+ 				  struct mlx4_ib_demux_pv_qp *tun_qp,
+ 				  int index)
+@@ -2001,7 +2013,8 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
+ 		cq_size *= 2;
  
-+	i3c_master_attach_boardinfo(newdev);
+ 	cq_attr.cqe = cq_size;
+-	ctx->cq = ib_create_cq(ctx->ib_dev, mlx4_ib_tunnel_comp_handler,
++	ctx->cq = ib_create_cq(ctx->ib_dev,
++			       create_tun ? mlx4_ib_tunnel_comp_handler : mlx4_ib_wire_comp_handler,
+ 			       NULL, ctx, &cq_attr);
+ 	if (IS_ERR(ctx->cq)) {
+ 		ret = PTR_ERR(ctx->cq);
+@@ -2038,6 +2051,7 @@ static int create_pv_resources(struct ib_device *ibdev, int slave, int port,
+ 		INIT_WORK(&ctx->work, mlx4_ib_sqp_comp_worker);
+ 
+ 	ctx->wq = to_mdev(ibdev)->sriov.demux[port - 1].wq;
++	ctx->wi_wq = to_mdev(ibdev)->sriov.demux[port - 1].wi_wq;
+ 
+ 	ret = ib_req_notify_cq(ctx->cq, IB_CQ_NEXT_COMP);
+ 	if (ret) {
+@@ -2181,7 +2195,7 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 		goto err_mcg;
+ 	}
+ 
+-	snprintf(name, sizeof name, "mlx4_ibt%d", port);
++	snprintf(name, sizeof(name), "mlx4_ibt%d", port);
+ 	ctx->wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
+ 	if (!ctx->wq) {
+ 		pr_err("Failed to create tunnelling WQ for port %d\n", port);
+@@ -2189,7 +2203,15 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 		goto err_wq;
+ 	}
+ 
+-	snprintf(name, sizeof name, "mlx4_ibud%d", port);
++	snprintf(name, sizeof(name), "mlx4_ibwi%d", port);
++	ctx->wi_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
++	if (!ctx->wi_wq) {
++		pr_err("Failed to create wire WQ for port %d\n", port);
++		ret = -ENOMEM;
++		goto err_wiwq;
++	}
 +
- 	olddev = i3c_master_search_i3c_dev_duplicate(newdev);
- 	if (olddev) {
--		newdev->boardinfo = olddev->boardinfo;
--		newdev->info.static_addr = olddev->info.static_addr;
- 		newdev->dev = olddev->dev;
- 		if (newdev->dev)
- 			newdev->dev->desc = newdev;
++	snprintf(name, sizeof(name), "mlx4_ibud%d", port);
+ 	ctx->ud_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
+ 	if (!ctx->ud_wq) {
+ 		pr_err("Failed to create up/down WQ for port %d\n", port);
+@@ -2200,6 +2222,10 @@ static int mlx4_ib_alloc_demux_ctx(struct mlx4_ib_dev *dev,
+ 	return 0;
+ 
+ err_udwq:
++	destroy_workqueue(ctx->wi_wq);
++	ctx->wi_wq = NULL;
++
++err_wiwq:
+ 	destroy_workqueue(ctx->wq);
+ 	ctx->wq = NULL;
+ 
+@@ -2247,12 +2273,14 @@ static void mlx4_ib_free_demux_ctx(struct mlx4_ib_demux_ctx *ctx)
+ 				ctx->tun[i]->state = DEMUX_PV_STATE_DOWNING;
+ 		}
+ 		flush_workqueue(ctx->wq);
++		flush_workqueue(ctx->wi_wq);
+ 		for (i = 0; i < dev->dev->caps.sqp_demux; i++) {
+ 			destroy_pv_resources(dev, i, ctx->port, ctx->tun[i], 0);
+ 			free_pv_object(dev, i, ctx->port);
+ 		}
+ 		kfree(ctx->tun);
+ 		destroy_workqueue(ctx->ud_wq);
++		destroy_workqueue(ctx->wi_wq);
+ 		destroy_workqueue(ctx->wq);
+ 	}
+ }
+diff --git a/drivers/infiniband/hw/mlx4/mlx4_ib.h b/drivers/infiniband/hw/mlx4/mlx4_ib.h
+index 6f4ea1067095e..5ec3b747c1aea 100644
+--- a/drivers/infiniband/hw/mlx4/mlx4_ib.h
++++ b/drivers/infiniband/hw/mlx4/mlx4_ib.h
+@@ -454,6 +454,7 @@ struct mlx4_ib_demux_pv_ctx {
+ 	struct ib_pd *pd;
+ 	struct work_struct work;
+ 	struct workqueue_struct *wq;
++	struct workqueue_struct *wi_wq;
+ 	struct mlx4_ib_demux_pv_qp qp[2];
+ };
+ 
+@@ -461,6 +462,7 @@ struct mlx4_ib_demux_ctx {
+ 	struct ib_device *ib_dev;
+ 	int port;
+ 	struct workqueue_struct *wq;
++	struct workqueue_struct *wi_wq;
+ 	struct workqueue_struct *ud_wq;
+ 	spinlock_t ud_lock;
+ 	atomic64_t subnet_prefix;
 -- 
 2.25.1
 
