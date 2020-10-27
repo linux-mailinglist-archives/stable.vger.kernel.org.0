@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB3429B56D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6EB29B563
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794453AbgJ0PLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47850 "EHLO mail.kernel.org"
+        id S1794394AbgJ0PLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794445AbgJ0PLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:11:53 -0400
+        id S1794389AbgJ0PLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:11:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E35021D24;
-        Tue, 27 Oct 2020 15:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9941820657;
+        Tue, 27 Oct 2020 15:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811512;
-        bh=h1sxDJNUepvYbFjEi5Du29K2v2j9/kl7MSSz+3Hms+g=;
+        s=default; t=1603811495;
+        bh=e3oEFej+PMkAdY6IZF3afZUvjo4krjzi0HI+ioI3Pi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZ4/TQSPqr6yW43SYdF/+fttAUpYeBh0NhiCe2I7vxQz2UzRtLWbOYPV8oShesPJV
-         HtbAvVp+C3KfJEeVxACJdSx5Or0+nNyopF6oMdOlnV8EdBZfYx/uLkKMXufDzZt4Zs
-         Iz/jzEio9FxeJLVMksPP07OGVnfngisjP7AQvztk=
+        b=dE3NbOkHr9Z70y5jGq/72mmb5GGRsllPO/0WBaiIguJ/RrCvN40uEZ2onNhTSJZOZ
+         bqh389OISIGm3t7VFBSObUBDLmQXverB6DBvwRy9DgfxJx59T/GAq6p0mIKeXoha3O
+         rbikk2pXnJgNLZzo5YPsH/cazZCs9EXIexaOYLH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 478/633] netsec: ignore phy-mode device property on ACPI systems
-Date:   Tue, 27 Oct 2020 14:53:41 +0100
-Message-Id: <20201027135545.163310625@linuxfoundation.org>
+Subject: [PATCH 5.8 482/633] ARM: dts: imx6sl: fix rng node
+Date:   Tue, 27 Oct 2020 14:53:45 +0100
+Message-Id: <20201027135545.346298856@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,119 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit acd7aaf51b20263a7e62d2a26569988c63bdd3d8 ]
+[ Upstream commit 82ffb35c2ce63ef8e0325f75eb48022abcf8edbe ]
 
-Since commit bbc4d71d63549bc ("net: phy: realtek: fix rtl8211e rx/tx
-delay config"), the Realtek PHY driver will override any TX/RX delay
-set by hardware straps if the phy-mode device property does not match.
+rng DT node was added without a compatible string.
 
-This is causing problems on SynQuacer based platforms (the only SoC
-that incorporates the netsec hardware), since many were built with
-this Realtek PHY, and shipped with firmware that defines the phy-mode
-as 'rgmii', even though the PHY is configured for TX and RX delay using
-pull-ups.
+i.MX driver for RNGC (drivers/char/hw_random/imx-rngc.c) also claims
+support for RNGB, and is currently used for i.MX25.
 
->From the driver's perspective, we should not make any assumptions in
-the general case that the PHY hardware does not require any initial
-configuration. However, the situation is slightly different for ACPI
-boot, since it implies rich firmware with AML abstractions to handle
-hardware details that are not exposed to the OS. So in the ACPI case,
-it is reasonable to assume that the PHY comes up in the right mode,
-regardless of whether the mode is set by straps, by boot time firmware
-or by AML executed by the ACPI interpreter.
+Let's use this driver also for RNGB block in i.MX6SL.
 
-So let's ignore the 'phy-mode' device property when probing the netsec
-driver in ACPI mode, and hardcode the mode to PHY_INTERFACE_MODE_NA,
-which should work with any PHY provided that it is configured by the
-time the driver attaches to it. While at it, document that omitting
-the mode is permitted for DT probing as well, by setting the phy-mode
-DT property to the empty string.
-
-Fixes: 533dd11a12f6 ("net: socionext: Add Synquacer NetSec driver")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20201018163625.2392-1-ardb@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e29fe21cff96 ("ARM: dts: add device tree source for imx6sl SoC")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/net/socionext-netsec.txt         |  4 +++-
- drivers/net/ethernet/socionext/netsec.c       | 24 +++++++++++++------
- 2 files changed, 20 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/imx6sl.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/net/socionext-netsec.txt b/Documentation/devicetree/bindings/net/socionext-netsec.txt
-index 9d6c9feb12ff1..a3c1dffaa4bb4 100644
---- a/Documentation/devicetree/bindings/net/socionext-netsec.txt
-+++ b/Documentation/devicetree/bindings/net/socionext-netsec.txt
-@@ -30,7 +30,9 @@ Optional properties: (See ethernet.txt file in the same directory)
- - max-frame-size: See ethernet.txt in the same directory.
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index 911d8cf77f2c6..0339a46fa71c5 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -939,8 +939,10 @@ memory-controller@21b0000 {
+ 			};
  
- The MAC address will be determined using the optional properties
--defined in ethernet.txt.
-+defined in ethernet.txt. The 'phy-mode' property is required, but may
-+be set to the empty string if the PHY configuration is programmed by
-+the firmware or set by hardware straps, and needs to be preserved.
+ 			rngb: rngb@21b4000 {
++				compatible = "fsl,imx6sl-rngb", "fsl,imx25-rngb";
+ 				reg = <0x021b4000 0x4000>;
+ 				interrupts = <0 5 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&clks IMX6SL_CLK_DUMMY>;
+ 			};
  
- Example:
- 	eth0: ethernet@522d0000 {
-diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
-index 0f366cc50b74c..7f8be61a37089 100644
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -6,6 +6,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/acpi.h>
- #include <linux/of_mdio.h>
-+#include <linux/of_net.h>
- #include <linux/etherdevice.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-@@ -1836,6 +1837,14 @@ static const struct net_device_ops netsec_netdev_ops = {
- static int netsec_of_probe(struct platform_device *pdev,
- 			   struct netsec_priv *priv, u32 *phy_addr)
- {
-+	int err;
-+
-+	err = of_get_phy_mode(pdev->dev.of_node, &priv->phy_interface);
-+	if (err) {
-+		dev_err(&pdev->dev, "missing required property 'phy-mode'\n");
-+		return err;
-+	}
-+
- 	priv->phy_np = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 	if (!priv->phy_np) {
- 		dev_err(&pdev->dev, "missing required property 'phy-handle'\n");
-@@ -1862,6 +1871,14 @@ static int netsec_acpi_probe(struct platform_device *pdev,
- 	if (!IS_ENABLED(CONFIG_ACPI))
- 		return -ENODEV;
- 
-+	/* ACPI systems are assumed to configure the PHY in firmware, so
-+	 * there is really no need to discover the PHY mode from the DSDT.
-+	 * Since firmware is known to exist in the field that configures the
-+	 * PHY correctly but passes the wrong mode string in the phy-mode
-+	 * device property, we have no choice but to ignore it.
-+	 */
-+	priv->phy_interface = PHY_INTERFACE_MODE_NA;
-+
- 	ret = device_property_read_u32(&pdev->dev, "phy-channel", phy_addr);
- 	if (ret) {
- 		dev_err(&pdev->dev,
-@@ -1998,13 +2015,6 @@ static int netsec_probe(struct platform_device *pdev)
- 	priv->msg_enable = NETIF_MSG_TX_ERR | NETIF_MSG_HW | NETIF_MSG_DRV |
- 			   NETIF_MSG_LINK | NETIF_MSG_PROBE;
- 
--	priv->phy_interface = device_get_phy_mode(&pdev->dev);
--	if ((int)priv->phy_interface < 0) {
--		dev_err(&pdev->dev, "missing required property 'phy-mode'\n");
--		ret = -ENODEV;
--		goto free_ndev;
--	}
--
- 	priv->ioaddr = devm_ioremap(&pdev->dev, mmio_res->start,
- 				    resource_size(mmio_res));
- 	if (!priv->ioaddr) {
+ 			weim: weim@21b8000 {
 -- 
 2.25.1
 
