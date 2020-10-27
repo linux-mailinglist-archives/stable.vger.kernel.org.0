@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C65529BC09
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9009729BC07
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802625AbgJ0Pue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60918 "EHLO mail.kernel.org"
+        id S1802634AbgJ0Puf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801415AbgJ0PlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:41:14 -0400
+        id S1801431AbgJ0PlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:41:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10936223AB;
-        Tue, 27 Oct 2020 15:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B65FC222E9;
+        Tue, 27 Oct 2020 15:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813273;
-        bh=ChXSg92q0KDDStYfIpuZUm65CrxV/X8/S/XpJifQi6M=;
+        s=default; t=1603813283;
+        bh=KBUREtmmo+3uvcLL72+r3TUoaWFydzczI+bhCK82yWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scyHZa2nDfHj2Yx4dau1Ku92esywswZ4/r3yqN3lsI/kpouOPputNrasb1L2ZjAPs
-         i8j2qLfJck1aGGZlb3iZYgKuhgKOqu3GiIuwGjMFH18JFT4Dc1EuMHqZnL/tn0SmAk
-         d8ZiGvwbzL3NXl2dRNHxe6TcxdqiyFwDPqcOeV30=
+        b=0pEqv2nayBPI2et7T6JNnAP1/Zx93coePTO8j3CtnfsStlGjSqvq+pAA/mWltd9iD
+         EW4+WzkyyuYcru2Q3s4Oq/Enab4bMInTcgYY2zI/s835x1irhmrHDSQTLLV9H6pCMq
+         Hr8Q2N5R1yl+/f8/OgHmLU4yAiHHtHADXEuOwsAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 496/757] um: time-travel: Fix IRQ handling in time_travel_handle_message()
-Date:   Tue, 27 Oct 2020 14:52:26 +0100
-Message-Id: <20201027135513.724343723@linuxfoundation.org>
+Subject: [PATCH 5.9 499/757] perf trace: Fix off by ones in memset() after realloc() in arches using libaudit
+Date:   Tue, 27 Oct 2020 14:52:29 +0100
+Message-Id: <20201027135513.859324304@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,55 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit ebef8ea2ba967026192a26f4529890893919bc57 ]
+[ Upstream commit f3013f7ed465479e60c1ab1921a5718fc541cc3b ]
 
-As the comment here indicates, we need to do the polling in the
-idle loop without blocking interrupts, since interrupts can be
-vhost-user messages that we must process even while in our idle
-loop.
+'perf trace ls' started crashing after commit d21cb73a9025 on
+!HAVE_SYSCALL_TABLE_SUPPORT configs (armv7l here) like this:
 
-I don't know why I explained one thing and implemented another,
-but we have indeed observed random hangs due to this, depending
-on the timing of the messages.
+  0  strlen () at ../sysdeps/arm/armv6t2/strlen.S:126
+  1  0xb6800780 in __vfprintf_internal (s=0xbeff9908, s@entry=0xbeff9900, format=0xa27160 "]: %s()", ap=..., mode_flags=<optimized out>) at vfprintf-internal.c:1688
+  ...
+  5  0x0056ecdc in fprintf (__fmt=0xa27160 "]: %s()", __stream=<optimized out>) at /usr/include/bits/stdio2.h:100
+  6  trace__sys_exit (trace=trace@entry=0xbeffc710, evsel=evsel@entry=0xd968d0, event=<optimized out>, sample=sample@entry=0xbeffc3e8) at builtin-trace.c:2475
+  7  0x00566d40 in trace__handle_event (sample=0xbeffc3e8, event=<optimized out>, trace=0xbeffc710) at builtin-trace.c:3122
+  ...
+  15 main (argc=2, argv=0xbefff6e8) at perf.c:538
 
-Fixes: 88ce64249233 ("um: Implement time-travel=ext")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+It is because memset in trace__read_syscall_info zeroes wrong memory:
+
+1) when initializing for the first time, it does not reset the last id.
+
+2) in other cases, it resets the last id of previous buffer.
+
+ad 1) it causes the crash above as sc->name used in the fprintf above
+      contains garbage.
+
+ad 2) it sets nonexistent from true back to false for id 11 here. Not
+      sure, what the consequences are.
+
+So fix it by introducing a special case for the initial initialization
+and do the right +1 in both cases.
+
+Fixes: d21cb73a9025 ("perf trace: Grow the syscall table as needed when using libaudit")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20201001093419.15761-1-jslaby@suse.cz
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/time.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ tools/perf/builtin-trace.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
-index 25eaa6a0c6583..c07436e89e599 100644
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -70,13 +70,17 @@ static void time_travel_handle_message(struct um_timetravel_msg *msg,
- 	 * read of the message and write of the ACK.
- 	 */
- 	if (mode != TTMH_READ) {
-+		bool disabled = irqs_disabled();
-+
-+		BUG_ON(mode == TTMH_IDLE && !disabled);
-+
-+		if (disabled)
-+			local_irq_enable();
- 		while (os_poll(1, &time_travel_ext_fd) != 0) {
--			if (mode == TTMH_IDLE) {
--				BUG_ON(!irqs_disabled());
--				local_irq_enable();
--				local_irq_disable();
--			}
-+			/* nothing */
- 		}
-+		if (disabled)
-+			local_irq_disable();
- 	}
+diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+index bea461b6f937b..44a75f234db17 100644
+--- a/tools/perf/builtin-trace.c
++++ b/tools/perf/builtin-trace.c
+@@ -1762,7 +1762,11 @@ static int trace__read_syscall_info(struct trace *trace, int id)
+ 		if (table == NULL)
+ 			return -ENOMEM;
  
- 	ret = os_read_file(time_travel_ext_fd, msg, sizeof(*msg));
+-		memset(table + trace->sctbl->syscalls.max_id, 0, (id - trace->sctbl->syscalls.max_id) * sizeof(*sc));
++		// Need to memset from offset 0 and +1 members if brand new
++		if (trace->syscalls.table == NULL)
++			memset(table, 0, (id + 1) * sizeof(*sc));
++		else
++			memset(table + trace->sctbl->syscalls.max_id + 1, 0, (id - trace->sctbl->syscalls.max_id) * sizeof(*sc));
+ 
+ 		trace->syscalls.table	      = table;
+ 		trace->sctbl->syscalls.max_id = id;
 -- 
 2.25.1
 
