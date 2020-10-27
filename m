@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 427BE29B51C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C53AF29B453
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793767AbgJ0PIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33610 "EHLO mail.kernel.org"
+        id S1762582AbgJ0PAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1788158AbgJ0PAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:00:24 -0400
+        id S1788530AbgJ0PA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:00:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C947C22264;
-        Tue, 27 Oct 2020 15:00:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 937CB20715;
+        Tue, 27 Oct 2020 15:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810823;
-        bh=2CuEHpD9ixvCpTVSYRAENPYy0q6XjSB2a6ayoGBj2c8=;
+        s=default; t=1603810826;
+        bh=68MZxKVkVV8Jbhxo8M3XddQfLsQPWjQhEbfXZvfq0+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poHgf076KN4GYBs+5pQetOg0FASOSzVIft47+rRlICLuIdO3qhV+yt475kuvsKJxC
-         lDpDH8Hq5y3QjDqrKeOmOzjFTqHau/wtmZB1A+NHV28M1uLEl1ue9CHkZTXbYkY/89
-         zeeaqQzPhOw8DVA+6rYQ2yJeVoK5Aa0hznV7S4zE=
+        b=pk3ECQQWoYOZFmpRHrwrcqucbiJ67Ol/FiNo/ta/iJeFlR6d5VhvRXzK8GofIO0hB
+         roDbkXqF7ZdjXJi1EzI9prlWDIRif2x9nGV0lGLiUg+wgBt4+o/AmG1H6U3Le0tlsi
+         gVD99qsQk4mtKWhVIBorDQmzlCJ9rE+CCL7MwXoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Albanowski <kenalba@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 274/633] HID: hid-input: fix stylus battery reporting
-Date:   Tue, 27 Oct 2020 14:50:17 +0100
-Message-Id: <20201027135535.520962610@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 275/633] tty: hvc: fix link error with CONFIG_SERIAL_CORE_CONSOLE=n
+Date:   Tue, 27 Oct 2020 14:50:18 +0100
+Message-Id: <20201027135535.568251447@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,47 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 505f394fa239cecb76d916aa858f87ed7ea7fde4 ]
+[ Upstream commit 75fc65079d8253e1c25a5f8348111a85d71e0f01 ]
 
-With commit 4f3882177240 hid-input started clearing of "ignored" usages
-to avoid using garbage that might have been left in them. However
-"battery strength" usages should not be ignored, as we do want to
-use them.
+aarch64-linux-gnu-ld: drivers/tty/hvc/hvc_dcc.o: in function `dcc_early_write':
+hvc_dcc.c:(.text+0x164): undefined reference to `uart_console_write'
 
-Fixes: 4f3882177240 ("HID: hid-input: clear unmapped usages")
-Reported-by: Kenneth Albanowski <kenalba@google.com>
-Tested-by: Kenneth Albanowski <kenalba@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The driver uses the uart_console_write(), but SERIAL_CORE_CONSOLE is not
+selected, so uart_console_write is not defined, then we get the error.
+Fix this by selecting SERIAL_CORE_CONSOLE.
+
+Fixes: d1a1af2cdf19 ("hvc: dcc: Add earlycon support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20200919063535.2809707-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/hvc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index e3d475f4baf66..b2bff932c524f 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -797,7 +797,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x3b: /* Battery Strength */
- 			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
- 			usage->type = EV_PWR;
--			goto ignore;
-+			return;
- 
- 		case 0x3c: /* Invert */
- 			map_key_clear(BTN_TOOL_RUBBER);
-@@ -1059,7 +1059,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case HID_DC_BATTERYSTRENGTH:
- 			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
- 			usage->type = EV_PWR;
--			goto ignore;
-+			return;
- 		}
- 		goto unknown;
- 
+diff --git a/drivers/tty/hvc/Kconfig b/drivers/tty/hvc/Kconfig
+index d1b27b0522a3c..8d60e0ff67b4d 100644
+--- a/drivers/tty/hvc/Kconfig
++++ b/drivers/tty/hvc/Kconfig
+@@ -81,6 +81,7 @@ config HVC_DCC
+ 	bool "ARM JTAG DCC console"
+ 	depends on ARM || ARM64
+ 	select HVC_DRIVER
++	select SERIAL_CORE_CONSOLE
+ 	help
+ 	  This console uses the JTAG DCC on ARM to create a console under the HVC
+ 	  driver. This console is used through a JTAG only on ARM. If you don't have
 -- 
 2.25.1
 
