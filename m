@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C3029B1F0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:36:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC90729B1F3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760746AbgJ0OgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
+        id S1760773AbgJ0OgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:36:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760741AbgJ0OgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:13 -0400
+        id S1760768AbgJ0OgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 109AB207BB;
-        Tue, 27 Oct 2020 14:36:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0D1E207BB;
+        Tue, 27 Oct 2020 14:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809372;
-        bh=kDkWw07+ycoeL9g5Rbqp86xLJvlkFUxmFz1Zdoqi1e8=;
+        s=default; t=1603809381;
+        bh=YkkYWDzcsvDDMuqk9l3jQRFPM0NSm00iUyOHSx3m5YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJ5FtbSalGATYM6Kb3GkaY9ffVxGMh+ILvdZ69ULBC8I1+l7lhlLFrmaHhuUmWHFS
-         uD4G39m2pq6CU7fdD2rS7sDNAXk/HCd2pAISd7z/jqGcmnA5jc0oEgizicDMvwUzZY
-         fD3bvrdzHVeV+pHNz6OZqUUy8Lf/mjQz/EZnQYMY=
+        b=0+aStNhFNsWofUw6M5sVpym/UCjJK0USq3knuM76g/J6TIRU7kHFeQt8Qrkiaa98d
+         26jtfJgfNejwqsrYQNbrcG9PPjN1iEBOVoqEH+epf1wuX4IhPoaYdUwe+h43HSche7
+         mhtJYlpuoH1sn9wyfpZfPZ42KM02cr3AiavUX61Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Tingwei Zhang <tingwei@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 172/408] coresight: etm: perf: Fix warning caused by etm_setup_aux failure
-Date:   Tue, 27 Oct 2020 14:51:50 +0100
-Message-Id: <20201027135503.074846948@linuxfoundation.org>
+Subject: [PATCH 5.4 175/408] iio: adc: stm32-adc: fix runtime autosuspend delay when slow polling
+Date:   Tue, 27 Oct 2020 14:51:53 +0100
+Message-Id: <20201027135503.211263196@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,45 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tingwei Zhang <tingwei@codeaurora.org>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 716f5652a13122364a65e694386b9b26f5e98c51 ]
+[ Upstream commit c537d3457542a398caa1fe58e0976c5f83cf7281 ]
 
-When coresight_build_path() fails on all the cpus, etm_setup_aux
-calls etm_free_aux() to free allocated event_data.
-WARN_ON(cpumask_empty(mask) will be triggered since cpu mask is empty.
-Check event_data->snk_config is not NULL first to avoid this
-warning.
+When the ADC is runtime suspended and starting a conversion, the stm32-adc
+driver calls pm_runtime_get_sync() that gets cascaded to the parent
+(e.g. runtime resume of stm32-adc-core driver). This also kicks the
+autosuspend delay (e.g. 2s) of the parent.
+Once the ADC is active, calling pm_runtime_get_sync() again (upon a new
+capture) won't kick the autosuspend delay for the parent (stm32-adc-core
+driver) as already active.
 
-Fixes: f5200aa9831f38 ("coresight: perf: Refactor function free_event_data()")
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Tingwei Zhang <tingwei@codeaurora.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200928163513.70169-9-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently, this makes the stm32-adc-core driver go in suspend state
+every 2s when doing slow polling. As an example, doing a capture, e.g.
+cat in_voltageY_raw at a 0.2s rate, the auto suspend delay for the parent
+isn't refreshed. Once it expires, the parent immediately falls into
+runtime suspended state, in between two captures, as soon as the child
+driver falls into runtime suspend state:
+- e.g. after 2s, + child calls pm_runtime_put_autosuspend() + 100ms
+  autosuspend delay of the child.
+- stm32-adc-core switches off regulators, clocks and so on.
+- They get switched on back again 100ms later in this example (at 2.2s).
+
+So, use runtime_idle() callback in stm32-adc-core driver to call
+pm_runtime_mark_last_busy() for the parent driver (stm32-adc-core),
+to avoid this.
+
+Fixes: 9bdbb1139ca1 ("iio: adc: stm32-adc: add power management support")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/1593615328-5180-1-git-send-email-fabrice.gasnier@st.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm-perf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index c4b9898e28418..9b0c5d719232f 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -126,10 +126,10 @@ static void free_sink_buffer(struct etm_event_data *event_data)
- 	cpumask_t *mask = &event_data->mask;
- 	struct coresight_device *sink;
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 74f3a2be17a64..14d6a537289cb 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -780,6 +780,13 @@ static int stm32_adc_core_runtime_resume(struct device *dev)
+ {
+ 	return stm32_adc_core_hw_start(dev);
+ }
++
++static int stm32_adc_core_runtime_idle(struct device *dev)
++{
++	pm_runtime_mark_last_busy(dev);
++
++	return 0;
++}
+ #endif
  
--	if (WARN_ON(cpumask_empty(mask)))
-+	if (!event_data->snk_config)
- 		return;
+ static const struct dev_pm_ops stm32_adc_core_pm_ops = {
+@@ -787,7 +794,7 @@ static const struct dev_pm_ops stm32_adc_core_pm_ops = {
+ 				pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(stm32_adc_core_runtime_suspend,
+ 			   stm32_adc_core_runtime_resume,
+-			   NULL)
++			   stm32_adc_core_runtime_idle)
+ };
  
--	if (!event_data->snk_config)
-+	if (WARN_ON(cpumask_empty(mask)))
- 		return;
- 
- 	cpu = cpumask_first(mask);
+ static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
 -- 
 2.25.1
 
