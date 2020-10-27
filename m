@@ -2,35 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9A629B63C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1885F29B644
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797154AbgJ0PVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:21:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
+        id S1797229AbgJ0PWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:22:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797144AbgJ0PVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:21:51 -0400
+        id S1797225AbgJ0PWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96F0A20657;
-        Tue, 27 Oct 2020 15:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11FF120728;
+        Tue, 27 Oct 2020 15:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812109;
-        bh=dEldMgnZTCIzZ1Zh52EVtedfksIUyT/q4ZLdb6Y2hxc=;
+        s=default; t=1603812138;
+        bh=qcbtqMFBDuE4oRkZ6ZzbWvb7tYcgwL+MvzA/cB4cZTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xj4S0UfFY9qED6ZTsUyhXkMa1XjtP1PE1kLdXj8cdeeHXHa4Ay5jtzJdsq2cdogld
-         6EIHi0ONokshU8GhenqJ2Ax9sYCluH2hRXidbtiAtrceHdYg1GdL7x+fVQKanScVaE
-         p1xRivSYGCpFip+1SWdZ8JrUNkbnF/aPdD9EVWMg=
+        b=ZG7tE5uRbDhYE4qZJ8Dnh8BTm/ghpJbRAuVcR4DnlBJyVfUvAoQsjfmHc8BX7stRd
+         NBLGYV7kzjXe6CIo2WWarcrK2yOv1nMU3/VIaFaQg2cmBWRgsX31Cvto2fEOIawqGT
+         RCw+3uy+hBcmdcdHHp73b/2gRtIhYdA2tvoD9xjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 095/757] x86/fpu: Allow multiple bits in clearcpuid= parameter
-Date:   Tue, 27 Oct 2020 14:45:45 +0100
-Message-Id: <20201027135455.004084066@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Sumit Garg <sumit.garg@linaro.org>
+Subject: [PATCH 5.9 104/757] arm64: perf: Add missing ISB in armv8pmu_enable_counter()
+Date:   Tue, 27 Oct 2020 14:45:54 +0100
+Message-Id: <20201027135455.422462146@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,100 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-[ Upstream commit 0a4bb5e5507a585532cc413125b921c8546fc39f ]
+[ Upstream commit 490d7b7c0845eacf5593db333fd2ae7715416e16 ]
 
-Commit
+Writes to the PMXEVTYPER_EL0 register are not self-synchronising. In
+armv8pmu_enable_event(), the PE can reorder configuring the event type
+after we have enabled the counter and the interrupt. This can lead to an
+interrupt being asserted because of the previous event type that we were
+counting using the same counter, not the one that we've just configured.
 
-  0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
+The same rationale applies to writes to the PMINTENSET_EL1 register. The PE
+can reorder enabling the interrupt at any point in the future after we have
+enabled the event.
 
-changed clearcpuid parsing from __setup() to cmdline_find_option().
-While the __setup() function would have been called for each clearcpuid=
-parameter on the command line, cmdline_find_option() will only return
-the last one, so the change effectively made it impossible to disable
-more than one bit.
+Prevent both situations from happening by adding an ISB just before we
+enable the event counter.
 
-Allow a comma-separated list of bit numbers as the argument for
-clearcpuid to allow multiple bits to be disabled again. Log the bits
-being disabled for informational purposes.
-
-Also fix the check on the return value of cmdline_find_option(). It
-returns -1 when the option is not found, so testing as a boolean is
-incorrect.
-
-Fixes: 0c2a3913d6f5 ("x86/fpu: Parse clearcpuid= as early XSAVE argument")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200907213919.2423441-1-nivedita@alum.mit.edu
+Fixes: 030896885ade ("arm64: Performance counters support")
+Reported-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Tested-by: Sumit Garg <sumit.garg@linaro.org> (Developerbox)
+Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20200924110706.254996-2-alexandru.elisei@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         |  2 +-
- arch/x86/kernel/fpu/init.c                    | 30 ++++++++++++++-----
- 2 files changed, 23 insertions(+), 9 deletions(-)
+ arch/arm64/kernel/perf_event.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index a1068742a6df1..ffe864390c5ac 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -577,7 +577,7 @@
- 			loops can be debugged more effectively on production
- 			systems.
+diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
+index 462f9a9cc44be..481d48e3872b8 100644
+--- a/arch/arm64/kernel/perf_event.c
++++ b/arch/arm64/kernel/perf_event.c
+@@ -532,6 +532,11 @@ static u32 armv8pmu_event_cnten_mask(struct perf_event *event)
  
--	clearcpuid=BITNUM [X86]
-+	clearcpuid=BITNUM[,BITNUM...] [X86]
- 			Disable CPUID feature X for the kernel. See
- 			arch/x86/include/asm/cpufeatures.h for the valid bit
- 			numbers. Note the Linux specific bits are not necessarily
-diff --git a/arch/x86/kernel/fpu/init.c b/arch/x86/kernel/fpu/init.c
-index 61ddc3a5e5c2b..f8ff895aaf7e1 100644
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -243,9 +243,9 @@ static void __init fpu__init_system_ctx_switch(void)
-  */
- static void __init fpu__init_parse_early_param(void)
+ static inline void armv8pmu_enable_counter(u32 mask)
  {
--	char arg[32];
-+	char arg[128];
- 	char *argptr = arg;
--	int bit;
-+	int arglen, res, bit;
- 
- #ifdef CONFIG_X86_32
- 	if (cmdline_find_option_bool(boot_command_line, "no387"))
-@@ -268,12 +268,26 @@ static void __init fpu__init_parse_early_param(void)
- 	if (cmdline_find_option_bool(boot_command_line, "noxsaves"))
- 		setup_clear_cpu_cap(X86_FEATURE_XSAVES);
- 
--	if (cmdline_find_option(boot_command_line, "clearcpuid", arg,
--				sizeof(arg)) &&
--	    get_option(&argptr, &bit) &&
--	    bit >= 0 &&
--	    bit < NCAPINTS * 32)
--		setup_clear_cpu_cap(bit);
-+	arglen = cmdline_find_option(boot_command_line, "clearcpuid", arg, sizeof(arg));
-+	if (arglen <= 0)
-+		return;
-+
-+	pr_info("Clearing CPUID bits:");
-+	do {
-+		res = get_option(&argptr, &bit);
-+		if (res == 0 || res == 3)
-+			break;
-+
-+		/* If the argument was too long, the last bit may be cut off */
-+		if (res == 1 && arglen >= sizeof(arg))
-+			break;
-+
-+		if (bit >= 0 && bit < NCAPINTS * 32) {
-+			pr_cont(" " X86_CAP_FMT, x86_cap_flag(bit));
-+			setup_clear_cpu_cap(bit);
-+		}
-+	} while (res == 2);
-+	pr_cont("\n");
++	/*
++	 * Make sure event configuration register writes are visible before we
++	 * enable the counter.
++	 * */
++	isb();
+ 	write_sysreg(mask, pmcntenset_el0);
  }
  
- /*
 -- 
 2.25.1
 
