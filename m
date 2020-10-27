@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F8429C575
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 077FA29C567
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825108AbgJ0SIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:08:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37870 "EHLO mail.kernel.org"
+        id S1756302AbgJ0OQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757041AbgJ0OPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:55 -0400
+        id S1757126AbgJ0OQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:16:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72A2922263;
-        Tue, 27 Oct 2020 14:15:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 285592072D;
+        Tue, 27 Oct 2020 14:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808155;
-        bh=iR4uckFKr3m+GEBKJmMGgbslAIrCvyCTApli3AyL0yM=;
+        s=default; t=1603808184;
+        bh=GcafrVhX9hvczeiO0e7YmHzs++7ry6hBeglh9Cvz1EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnNbK6bnXm/Qkqp1+qvb/9xEetFwvvY7uZgeuQkPRY7qYTfUEdEQvfh7abP+SCNyC
-         RwAFEMIxeAdxgO8iwY2fGMw+elc7rj0J8TSsw7qy1ljUD1JNDrerMCYxjnSRTE3B/J
-         BoBWj0j1X1K3t37jnOnsOBsRHI1207TLkAsbxnSo=
+        b=CbGVlHcT6XFtiM7nM9fKLaxR9iyOn1f5wUx3LwzaVLNBJydHy716+qAAev8m/YBs6
+         HEUnYo/0Nwab265zXdJoeFlBFQhkjeln17q2HlKA2fKt7HOPnneD7pWkZPgFZzo37D
+         4aUkST/k2+DTdtNyeb0hjdMqolLVnf+/3zYl2KNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 169/191] xfs: make sure the rt allocator doesnt run off the end
-Date:   Tue, 27 Oct 2020 14:50:24 +0100
-Message-Id: <20201027134917.850439409@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 170/191] usb: ohci: Default to per-port over-current protection
+Date:   Tue, 27 Oct 2020 14:50:25 +0100
+Message-Id: <20201027134917.900777589@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -43,56 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
+[ Upstream commit b77d2a0a223bc139ee8904991b2922d215d02636 ]
 
-There's an overflow bug in the realtime allocator.  If the rt volume is
-large enough to handle a single allocation request that is larger than
-the maximum bmap extent length and the rt bitmap ends exactly on a
-bitmap block boundary, it's possible that the near allocator will try to
-check the freeness of a range that extends past the end of the bitmap.
-This fails with a corruption error and shuts down the fs.
+Some integrated OHCI controller hubs do not expose all ports of the hub
+to pins on the SoC. In some cases the unconnected ports generate
+spurious over-current events. For example the Broadcom 56060/Ranger 2 SoC
+contains a nominally 3 port hub but only the first port is wired.
 
-Therefore, constrain maxlen so that the range scan cannot run off the
-end of the rt bitmap.
+Default behaviour for ohci-platform driver is to use global over-current
+protection mode (AKA "ganged"). This leads to the spurious over-current
+events affecting all ports in the hub.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+We now alter the default to use per-port over-current protection.
+
+This patch results in the following configuration changes depending
+on quirks:
+- For quirk OHCI_QUIRK_SUPERIO no changes. These systems remain set up
+  for ganged power switching and no over-current protection.
+- For quirk OHCI_QUIRK_AMD756 or OHCI_QUIRK_HUB_POWER power switching
+  remains at none, while over-current protection is now guaranteed to be
+  set to per-port rather than the previous behaviour where it was either
+  none or global over-current protection depending on the value at
+  function entry.
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200910212512.16670-1-hamish.martin@alliedtelesis.co.nz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/host/ohci-hcd.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index cdcb7235e41ae..7d3b56872e563 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -257,6 +257,9 @@ xfs_rtallocate_extent_block(
- 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
- 	     i <= end;
- 	     i++) {
-+		/* Make sure we don't scan off the end of the rt volume. */
-+		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index 4ea1530257e27..dfc24be376002 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -665,20 +665,24 @@ static int ohci_run (struct ohci_hcd *ohci)
+ 
+ 	/* handle root hub init quirks ... */
+ 	val = roothub_a (ohci);
+-	val &= ~(RH_A_PSM | RH_A_OCPM);
++	/* Configure for per-port over-current protection by default */
++	val &= ~RH_A_NOCP;
++	val |= RH_A_OCPM;
+ 	if (ohci->flags & OHCI_QUIRK_SUPERIO) {
+-		/* NSC 87560 and maybe others */
++		/* NSC 87560 and maybe others.
++		 * Ganged power switching, no over-current protection.
++		 */
+ 		val |= RH_A_NOCP;
+-		val &= ~(RH_A_POTPGT | RH_A_NPS);
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
++		val &= ~(RH_A_POTPGT | RH_A_NPS | RH_A_PSM | RH_A_OCPM);
+ 	} else if ((ohci->flags & OHCI_QUIRK_AMD756) ||
+ 			(ohci->flags & OHCI_QUIRK_HUB_POWER)) {
+ 		/* hub power always on; required for AMD-756 and some
+-		 * Mac platforms.  ganged overcurrent reporting, if any.
++		 * Mac platforms.
+ 		 */
+ 		val |= RH_A_NPS;
+-		ohci_writel (ohci, val, &ohci->regs->roothub.a);
+ 	}
++	ohci_writel(ohci, val, &ohci->regs->roothub.a);
 +
- 		/*
- 		 * See if there's a free extent of maxlen starting at i.
- 		 * If it's not so then next will contain the first non-free.
-@@ -448,6 +451,14 @@ xfs_rtallocate_extent_near(
- 	 */
- 	if (bno >= mp->m_sb.sb_rextents)
- 		bno = mp->m_sb.sb_rextents - 1;
-+
-+	/* Make sure we don't run off the end of the rt volume. */
-+	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
-+	if (maxlen < minlen) {
-+		*rtblock = NULLRTBLOCK;
-+		return 0;
-+	}
-+
- 	/*
- 	 * Try the exact allocation first.
- 	 */
+ 	ohci_writel (ohci, RH_HS_LPSC, &ohci->regs->roothub.status);
+ 	ohci_writel (ohci, (val & RH_A_NPS) ? 0 : RH_B_PPCM,
+ 						&ohci->regs->roothub.b);
 -- 
 2.25.1
 
