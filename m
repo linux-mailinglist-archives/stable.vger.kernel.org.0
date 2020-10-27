@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D7029C3D1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6520129C20B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901571AbgJ0OY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50162 "EHLO mail.kernel.org"
+        id S1819309AbgJ0R3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:29:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368262AbgJ0OYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:24:52 -0400
+        id S1750210AbgJ0Omh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19CCF2072D;
-        Tue, 27 Oct 2020 14:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10A41207BB;
+        Tue, 27 Oct 2020 14:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808691;
-        bh=1diVp1sB2I4qUJjDbncH+lW9A6j4P6IQUwpl1HIzML8=;
+        s=default; t=1603809756;
+        bh=ZS6nVaxoVysnVnL0vCkvk7SNzQ9MvpfH8zkCFFFcde4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lv1b+QuF0stjdndm/cfx2Z6orS8SS5Z07UL1UtmQw2P0ojy1UxtxG02mRjFnb/zZ6
-         Y6AV+SoEeg2diMUNl5JR3Qmj05jowZndpQFWLv8CzmMPIYl1MhFoX97Q2lN35jAWwO
-         HIQsc6r4nqpp0kb9cupXjbNIQkuc3ZRpSZoIIEu0=
+        b=u366DzhwKVbqN/0Gq+8vsktNrH0WsP3qAEFjd5m9aILxc4Y8ehqijAKZlbcv4IQqc
+         AzG0SOqRIPmSJ4DUfeZ80QPp6e03ctaczSHppWHDWFmawFZx7SKPduvVN/VBphb6Re
+         ute7nJgm42qsAxf5WyCY7Rli3WcJJjNHHT8K7RhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hoo <robert.hu@linux.intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/264] KVM: x86: emulating RDPID failure shall return #UD rather than #GP
+Subject: [PATCH 5.4 308/408] arm64: dts: renesas: r8a77990: Fix MSIOF1 DMA channels
 Date:   Tue, 27 Oct 2020 14:54:06 +0100
-Message-Id: <20201027135439.486615063@linuxfoundation.org>
+Message-Id: <20201027135509.317503705@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-References: <20201027135430.632029009@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hoo <robert.hu@linux.intel.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit a9e2e0ae686094571378c72d8146b5a1a92d0652 ]
+[ Upstream commit 453802c463abd003a7c38ffbc90b67ba162335b6 ]
 
-Per Intel's SDM, RDPID takes a #UD if it is unsupported, which is more or
-less what KVM is emulating when MSR_TSC_AUX is not available.  In fact,
-there are no scenarios in which RDPID is supposed to #GP.
+According to Technical Update TN-RCT-S0352A/E, MSIOF1 DMA can only be
+used with SYS-DMAC0 on R-Car E3.
 
-Fixes: fb6d4d340e ("KVM: x86: emulate RDPID")
-Signed-off-by: Robert Hoo <robert.hu@linux.intel.com>
-Message-Id: <1598581422-76264-1-git-send-email-robert.hu@linux.intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8517042060b55a37 ("arm64: dts: renesas: r8a77990: Add DMA properties to MSIOF nodes")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200917132117.8515-2-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a77990.dtsi | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 210eabd71ab23..670c2aedcefab 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -3561,7 +3561,7 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
- 	u64 tsc_aux = 0;
- 
- 	if (ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux))
--		return emulate_gp(ctxt, 0);
-+		return emulate_ud(ctxt);
- 	ctxt->dst.val = tsc_aux;
- 	return X86EMUL_CONTINUE;
- }
+diff --git a/arch/arm64/boot/dts/renesas/r8a77990.dtsi b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
+index 455954c3d98ea..dabee157119f9 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77990.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
+@@ -1168,9 +1168,8 @@ msiof1: spi@e6ea0000 {
+ 			reg = <0 0xe6ea0000 0 0x0064>;
+ 			interrupts = <GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 210>;
+-			dmas = <&dmac1 0x43>, <&dmac1 0x42>,
+-			       <&dmac2 0x43>, <&dmac2 0x42>;
+-			dma-names = "tx", "rx", "tx", "rx";
++			dmas = <&dmac0 0x43>, <&dmac0 0x42>;
++			dma-names = "tx", "rx";
+ 			power-domains = <&sysc R8A77990_PD_ALWAYS_ON>;
+ 			resets = <&cpg 210>;
+ 			#address-cells = <1>;
 -- 
 2.25.1
 
