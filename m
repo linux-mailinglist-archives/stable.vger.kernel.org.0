@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0010D29B3E7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE3B29B3DA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1764135AbgJ0O4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:56:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57254 "EHLO mail.kernel.org"
+        id S1764410AbgJ0O4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900648AbgJ0O4e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:56:34 -0400
+        id S1781780AbgJ0O4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:56:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCD1D22202;
-        Tue, 27 Oct 2020 14:56:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D338222C8;
+        Tue, 27 Oct 2020 14:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810594;
-        bh=JRLSTeeSFm2/jdP3W9a+M6SxnV/Sj8bzuRaqM4XN+Rc=;
+        s=default; t=1603810567;
+        bh=U2L4TI+ODW1DfSENXpsKzJMS8rsBSGdviXkUOtLUq+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVXddm4zWba+FtPknZXwGBg4OUsfEXJUohMpsqGr/rL8FeZWc9FPaB7+HAbLIahiH
-         Xd6SW3K3KMoq3UW3KiT/wJTLz9+DGmGjqd2Ee1fbScXd5Lw/6tNCknsB1eLMiXsHNU
-         7o+e+DnTzlWDF7WNd6S6dhqh3zli5RNPGMIyaXd0=
+        b=BjYbatKcBxDHzeB9nmT2Li1KSX3Rocvz3Famackmw/RqfZ+BU7nJqDOIJ42P2F6HV
+         IiNxBp17KNZuwypt4jIeBItQ21RWfkikUlNFyz7qV6AXDbWW6i0a32dTIu0Ih4X57L
+         g6zdN+z7ESObOPgFBkSXcltUwcRmUs88S287fUfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <quinn.tran@cavium.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Alex Dewar <alex.dewar90@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 177/633] scsi: qla2xxx: Fix wrong return value in qla_nvme_register_hba()
-Date:   Tue, 27 Oct 2020 14:48:40 +0100
-Message-Id: <20201027135530.990257113@linuxfoundation.org>
+Subject: [PATCH 5.8 185/633] VMCI: check return value of get_user_pages_fast() for errors
+Date:   Tue, 27 Oct 2020 14:48:48 +0100
+Message-Id: <20201027135531.367726215@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,36 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Alex Dewar <alex.dewar90@gmail.com>
 
-[ Upstream commit ca4fb89a3d714a770e9c73c649da830f3f4a5326 ]
+[ Upstream commit 90ca6333fd65f318c47bff425e1ea36c0a5539f6 ]
 
-On an error exit path, a negative error code should be returned instead of
-a positive return value.
+In a couple of places in qp_host_get_user_memory(),
+get_user_pages_fast() is called without properly checking for errors. If
+e.g. -EFAULT is returned, this negative value will then be passed on to
+qp_release_pages(), which expects a u64 as input.
 
-Link: https://lore.kernel.org/r/20200802111530.5020-1-tianjia.zhang@linux.alibaba.com
-Fixes: 8777e4314d39 ("scsi: qla2xxx: Migrate NVME N2N handling into state machine")
-Cc: Quinn Tran <quinn.tran@cavium.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by only calling qp_release_pages() when we have a positive
+number returned.
+
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alex Dewar <alex.dewar90@gmail.com>
+Link: https://lore.kernel.org/r/20200825164522.412392-1-alex.dewar90@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 262dfd7635a48..7b14fd1cb0309 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -683,7 +683,7 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
- 	struct nvme_fc_port_template *tmpl;
- 	struct qla_hw_data *ha;
- 	struct nvme_fc_port_info pinfo;
--	int ret = EINVAL;
-+	int ret = -EINVAL;
- 
- 	if (!IS_ENABLED(CONFIG_NVME_FC))
- 		return ret;
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index 8531ae7811956..c49065887e8f5 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -657,8 +657,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)produce_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(produce) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(produce_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		err = VMCI_ERROR_NO_MEM;
+ 		goto out;
+ 	}
+@@ -670,8 +671,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)consume_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(consume) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(consume_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(consume_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+ 				 produce_q->kernel_if->num_pages, false);
+ 		err = VMCI_ERROR_NO_MEM;
 -- 
 2.25.1
 
