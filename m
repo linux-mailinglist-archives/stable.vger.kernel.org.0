@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9CD29C06C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13C4729C09C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1763977AbgJ0O5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58116 "EHLO mail.kernel.org"
+        id S1783362AbgJ0RRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1782522AbgJ0O5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:57:13 -0400
+        id S1782610AbgJ0O5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:57:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0164022281;
-        Tue, 27 Oct 2020 14:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4D8522283;
+        Tue, 27 Oct 2020 14:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810632;
-        bh=/zPaqvUVD/LRMjcJKOs4UB/ea7JZtjeS02/Y1rx2+C0=;
+        s=default; t=1603810635;
+        bh=CQKTD0d148XiW1IMPDm/KF4m8s/GqQ4VL9p2bSbZns4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arEyCl9azBzO2RY5e8FAO5/d7rt+Obf3YmST0O6+Q0BsXLQK5rLNhsIwZhWtgnUVn
-         0YM/YRbDoVPREn+KmkdjAEnA2R5j8VfxPzmLO2se2i6/Tn0SQTQ4glTPNzeLKKScWW
-         pYTUcOyrWAn9s2ZqS8PpeK7UGJKu99UScdb6qcgI=
+        b=s/+/amU3WieFaMn6UklaDAf0zJ/LywfkC+7FgN5z26IqMjcG7biuuo1NV3VCVJRrk
+         K3w/L1IfBzqtmiD/PsFsgWyDdGjr/tMfN9g+33EgXZczmxyE7o+NHfdwkOQZihFxwB
+         Y1SnoqfiIcND0n0hQDouHkamF7HWMYh5IP+mvzVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <abhinavk@codeaurora.org>,
-        Jeykumar Sankaran <jsanka@codeaurora.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 207/633] drm/msm: Avoid div-by-zero in dpu_crtc_atomic_check()
-Date:   Tue, 27 Oct 2020 14:49:10 +0100
-Message-Id: <20201027135532.394623150@linuxfoundation.org>
+Subject: [PATCH 5.8 208/633] drm/panfrost: Ensure GPU quirks are always initialised
+Date:   Tue, 27 Oct 2020 14:49:11 +0100
+Message-Id: <20201027135532.434879310@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -48,81 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit 22f760941844dbcee6ee446e1896532f6dff01ef ]
+[ Upstream commit 8c3c818c23a5bbce6ff180dd2ee04415241df77c ]
 
-The cstate->num_mixers member is only set to a non-zero value once
-dpu_encoder_virt_mode_set() is called, but the atomic check function can
-be called by userspace before that. Let's avoid the div-by-zero here and
-inside _dpu_crtc_setup_lm_bounds() by skipping this part of the atomic
-check if dpu_encoder_virt_mode_set() hasn't been called yet. This fixes
-an UBSAN warning:
+The GPU 'CONFIG' registers used to work around hardware issues are
+cleared on reset so need to be programmed every time the GPU is reset.
+However panfrost_device_reset() failed to do this.
 
- UBSAN: Undefined behaviour in drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c:860:31
- division by zero
- CPU: 7 PID: 409 Comm: frecon Tainted: G S                5.4.31 #128
- Hardware name: Google Trogdor (rev0) (DT)
- Call trace:
-  dump_backtrace+0x0/0x14c
-  show_stack+0x20/0x2c
-  dump_stack+0xa0/0xd8
-  __ubsan_handle_divrem_overflow+0xec/0x110
-  dpu_crtc_atomic_check+0x97c/0x9d4
-  drm_atomic_helper_check_planes+0x160/0x1c8
-  drm_atomic_helper_check+0x54/0xbc
-  drm_atomic_check_only+0x6a8/0x880
-  drm_atomic_commit+0x20/0x5c
-  drm_atomic_helper_set_config+0x98/0xa0
-  drm_mode_setcrtc+0x308/0x5dc
-  drm_ioctl_kernel+0x9c/0x114
-  drm_ioctl+0x2ac/0x4b0
-  drm_compat_ioctl+0xe8/0x13c
-  __arm64_compat_sys_ioctl+0x184/0x324
-  el0_svc_common+0xa4/0x154
-  el0_svc_compat_handler+0x
+To avoid this in future instead move the call to
+panfrost_gpu_init_quirks() to panfrost_gpu_power_on() so that the
+regsiters are always programmed just before the cores are powered.
 
-Cc: Abhinav Kumar <abhinavk@codeaurora.org>
-Cc: Jeykumar Sankaran <jsanka@codeaurora.org>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Sean Paul <seanpaul@chromium.org>
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+Signed-off-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200909122957.51667-1-steven.price@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_gpu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index 1026e1e5bec10..4d81a0c73616f 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -881,7 +881,7 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
- 	struct drm_plane *plane;
- 	struct drm_display_mode *mode;
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gpu.c b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+index f2c1ddc41a9bf..689b92893e0e1 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gpu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+@@ -304,6 +304,8 @@ void panfrost_gpu_power_on(struct panfrost_device *pfdev)
+ 	int ret;
+ 	u32 val;
  
--	int cnt = 0, rc = 0, mixer_width, i, z_pos;
-+	int cnt = 0, rc = 0, mixer_width = 0, i, z_pos;
++	panfrost_gpu_init_quirks(pfdev);
++
+ 	/* Just turn on everything for now */
+ 	gpu_write(pfdev, L2_PWRON_LO, pfdev->features.l2_present);
+ 	ret = readl_relaxed_poll_timeout(pfdev->iomem + L2_READY_LO,
+@@ -355,7 +357,6 @@ int panfrost_gpu_init(struct panfrost_device *pfdev)
+ 		return err;
+ 	}
  
- 	struct dpu_multirect_plane_states multirect_plane[DPU_STAGE_MAX * 2];
- 	int multirect_count = 0;
-@@ -914,9 +914,11 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
+-	panfrost_gpu_init_quirks(pfdev);
+ 	panfrost_gpu_power_on(pfdev);
  
- 	memset(pipe_staged, 0, sizeof(pipe_staged));
- 
--	mixer_width = mode->hdisplay / cstate->num_mixers;
-+	if (cstate->num_mixers) {
-+		mixer_width = mode->hdisplay / cstate->num_mixers;
- 
--	_dpu_crtc_setup_lm_bounds(crtc, state);
-+		_dpu_crtc_setup_lm_bounds(crtc, state);
-+	}
- 
- 	crtc_rect.x2 = mode->hdisplay;
- 	crtc_rect.y2 = mode->vdisplay;
+ 	return 0;
 -- 
 2.25.1
 
