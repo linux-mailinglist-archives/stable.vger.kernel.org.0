@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F45A29AEFE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A1529AFC4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753220AbgJ0N7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46620 "EHLO mail.kernel.org"
+        id S1756316AbgJ0OMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753214AbgJ0N7K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:59:10 -0400
+        id S1756200AbgJ0OL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:11:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7257F218AC;
-        Tue, 27 Oct 2020 13:59:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98C19222D9;
+        Tue, 27 Oct 2020 14:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807149;
-        bh=DIAWyLHVihF92GNPMPQaTxz1zQ3y9fxWKSEVW+Le5wM=;
+        s=default; t=1603807907;
+        bh=XJf9VMU+5vhlCRLTZv/L7ZaAPvTxzT6R+7fdEzE52QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eAkVzu832k7lVwHkqK91mFmTbaQGcyAG7C1unjWrMg9SKIyEs8cWwGYEoS82K07PW
-         JPrlFUPoscPnPZDCE5t63HyhmUFoGij0p+gY9UhJ/3Ka2LW6LqnoKAigdvszL0Uw0J
-         PiSFv8zO7uFr/8JB/QPVX0W2DqpZwVF/s/pshoHQ=
+        b=ZiryTk0vrmozMBlMbvzJ/zTs1YQxm7bp4pShtUEczaEM8giGodjMst6vc+DH1edgX
+         iqOEoOTzyQbZS53+54xvPs1MryyiwzIk8UuyrCVVVXPSaaW0Jg+Tlaql7HnCyF7ugd
+         1Q4puF2OAFX0P9GROAY2Fi0crLyJEQ8JGVt2JzBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 030/112] mwifiex: Do not use GFP_KERNEL in atomic context
-Date:   Tue, 27 Oct 2020 14:49:00 +0100
-Message-Id: <20201027134901.987565895@linuxfoundation.org>
+Subject: [PATCH 4.14 086/191] IB/mlx4: Adjust delayed work when a dup is observed
+Date:   Tue, 27 Oct 2020 14:49:01 +0100
+Message-Id: <20201027134913.829072148@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit d2ab7f00f4321370a8ee14e5630d4349fdacc42e ]
+[ Upstream commit 785167a114855c5aa75efca97000e405c2cc85bf ]
 
-A possible call chain is as follow:
-  mwifiex_sdio_interrupt                            (sdio.c)
-    --> mwifiex_main_process                        (main.c)
-      --> mwifiex_process_cmdresp                   (cmdevt.c)
-        --> mwifiex_process_sta_cmdresp             (sta_cmdresp.c)
-          --> mwifiex_ret_802_11_scan               (scan.c)
-            --> mwifiex_parse_single_response_buf   (scan.c)
+When scheduling delayed work to clean up the cache, if the entry already
+has been scheduled for deletion, we adjust the delay.
 
-'mwifiex_sdio_interrupt()' is an interrupt function.
-
-Also note that 'mwifiex_ret_802_11_scan()' already uses GFP_ATOMIC.
-
-So use GFP_ATOMIC instead of GFP_KERNEL when memory is allocated in
-'mwifiex_parse_single_response_buf()'.
-
-Fixes: 7c6fa2a843c5 ("mwifiex: use cfg80211 dynamic scan table and cfg80211_get_bss API")
-or
-Fixes: 601216e12c65e ("mwifiex: process RX packets in SDIO IRQ thread directly")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200809092906.744621-1-christophe.jaillet@wanadoo.fr
+Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
+Link: https://lore.kernel.org/r/20200803061941.1139994-7-haakon.bugge@oracle.com
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mwifiex/scan.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/cm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mwifiex/scan.c b/drivers/net/wireless/mwifiex/scan.c
-index e7c8972431d34..e54dd4b7face6 100644
---- a/drivers/net/wireless/mwifiex/scan.c
-+++ b/drivers/net/wireless/mwifiex/scan.c
-@@ -1862,7 +1862,7 @@ mwifiex_parse_single_response_buf(struct mwifiex_private *priv, u8 **bss_info,
- 					    chan, CFG80211_BSS_FTYPE_UNKNOWN,
- 					    bssid, timestamp,
- 					    cap_info_bitmap, beacon_period,
--					    ie_buf, ie_len, rssi, GFP_KERNEL);
-+					    ie_buf, ie_len, rssi, GFP_ATOMIC);
- 			if (bss) {
- 				bss_priv = (struct mwifiex_bss_priv *)bss->priv;
- 				bss_priv->band = band;
+diff --git a/drivers/infiniband/hw/mlx4/cm.c b/drivers/infiniband/hw/mlx4/cm.c
+index 8c79a480f2b76..d3e11503e67ca 100644
+--- a/drivers/infiniband/hw/mlx4/cm.c
++++ b/drivers/infiniband/hw/mlx4/cm.c
+@@ -307,6 +307,9 @@ static void schedule_delayed(struct ib_device *ibdev, struct id_map_entry *id)
+ 	if (!sriov->is_going_down) {
+ 		id->scheduled_delete = 1;
+ 		schedule_delayed_work(&id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
++	} else if (id->scheduled_delete) {
++		/* Adjust timeout if already scheduled */
++		mod_delayed_work(system_wq, &id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
+ 	}
+ 	spin_unlock_irqrestore(&sriov->going_down_lock, flags);
+ 	spin_unlock(&sriov->id_map_lock);
 -- 
 2.25.1
 
