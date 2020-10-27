@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8139C29BCC6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37CD929BEAB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811076AbgJ0QhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44576 "EHLO mail.kernel.org"
+        id S1794515AbgJ0QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:54:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800333AbgJ0PrR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:47:17 -0400
+        id S1794513AbgJ0PMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:12:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 459BB2231B;
-        Tue, 27 Oct 2020 15:47:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E58C721D41;
+        Tue, 27 Oct 2020 15:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813635;
-        bh=INZga2ZUpoVs+ZrcWWqAdpisOiUGM/5WS6wpVM+ZhA8=;
+        s=default; t=1603811531;
+        bh=s0/RFL6KuD/rXT5ExrOUu6B75yi54Z7D0EtZWLZhuRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ppq2K0zL1ropRU73caKvHMu8x84X3ZAVwoQj+iJ+pS8stW5KHJ4bQnriee7k1MUug
-         z9lRwk03FjEY48Oaevz9xX7XRhofZU3TzcyoRF2C/0NltIgYtMchan81V4mf/GIywZ
-         xbOTP1ct/X+T46XTtOMv5jHMU6924My6jyfWzhhE=
+        b=U2a74ZUa0QoYZ7z0r3VRHSxKDsNrXiXxhIcscff5zgA8rsEWhxHL0WoJOdhoi0ryD
+         Ev2MyNKfnCmFg7wBdbQsaoFAK69wO2Le8GnqU+Kqw/+br2anh+Yu8TCZooDXQVZU1G
+         oYStnrJEKmTdIyyg17omcJaG688OufaU7U5FTJag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Holger Assmann <h.assmann@pengutronix.de>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Zhao Heming <heming.zhao@suse.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 619/757] ARM: dts: stm32: lxa-mc1: Fix kernel warning about PHY delays
-Date:   Tue, 27 Oct 2020 14:54:29 +0100
-Message-Id: <20201027135519.582718262@linuxfoundation.org>
+Subject: [PATCH 5.8 527/633] md/bitmap: fix memory leak of temporary bitmap
+Date:   Tue, 27 Oct 2020 14:54:30 +0100
+Message-Id: <20201027135547.500226562@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Holger Assmann <h.assmann@pengutronix.de>
+From: Zhao Heming <heming.zhao@suse.com>
 
-[ Upstream commit 42a31ac6698681363363d48335559d212a26a7ca ]
+[ Upstream commit 1383b347a8ae4a69c04ae3746e6cb5c8d38e2585 ]
 
-The KSZ9031 PHY skew timings for rxc/txc, originally set to achieve
-the desired phase shift between clock- and data-signal, now trigger a
-kernel warning when used in rgmii-id mode:
+Callers of get_bitmap_from_slot() are responsible to free the bitmap.
 
- *-skew-ps values should be used only with phy-mode = "rgmii"
-
-This is because commit bcf3440c6dd7 ("net: phy: micrel: add phy-mode
-support for the KSZ9031 PHY") now configures own timings when
-phy-mode = "rgmii-id". Device trees wanting to set their own delays
-should use phy-mode "rgmii" instead as the warning prescribes.
-
-The "standard" timings now used with "rgmii-id" work fine on this
-board, so drop the explicit timings in the device tree and thereby
-silence the warning.
-
-Fixes: 666b5ca85cd3 ("ARM: dts: stm32: add STM32MP1-based Linux Automation MC-1 board")
-Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
-Acked-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Suggested-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Zhao Heming <heming.zhao@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157c-lxa-mc1.dts | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/md/md-bitmap.c  | 3 ++-
+ drivers/md/md-cluster.c | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-mc1.dts b/arch/arm/boot/dts/stm32mp157c-lxa-mc1.dts
-index 5700e6b700d36..b85025d009437 100644
---- a/arch/arm/boot/dts/stm32mp157c-lxa-mc1.dts
-+++ b/arch/arm/boot/dts/stm32mp157c-lxa-mc1.dts
-@@ -121,8 +121,6 @@ ethphy: ethernet-phy@3 { /* KSZ9031RN */
- 			reset-gpios = <&gpiog 0 GPIO_ACTIVE_LOW>; /* ETH_RST# */
- 			interrupt-parent = <&gpioa>;
- 			interrupts = <6 IRQ_TYPE_EDGE_FALLING>; /* ETH_MDINT# */
--			rxc-skew-ps = <1860>;
--			txc-skew-ps = <1860>;
- 			reset-assert-us = <10000>;
- 			reset-deassert-us = <300>;
- 			micrel,force-master;
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index 95a5f3757fa30..19b2601be3c5e 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -1949,6 +1949,7 @@ int md_bitmap_load(struct mddev *mddev)
+ }
+ EXPORT_SYMBOL_GPL(md_bitmap_load);
+ 
++/* caller need to free returned bitmap with md_bitmap_free() */
+ struct bitmap *get_bitmap_from_slot(struct mddev *mddev, int slot)
+ {
+ 	int rv = 0;
+@@ -2012,6 +2013,7 @@ int md_bitmap_copy_from_slot(struct mddev *mddev, int slot,
+ 	md_bitmap_unplug(mddev->bitmap);
+ 	*low = lo;
+ 	*high = hi;
++	md_bitmap_free(bitmap);
+ 
+ 	return rv;
+ }
+@@ -2615,4 +2617,3 @@ struct attribute_group md_bitmap_group = {
+ 	.name = "bitmap",
+ 	.attrs = md_bitmap_attrs,
+ };
+-
+diff --git a/drivers/md/md-cluster.c b/drivers/md/md-cluster.c
+index d50737ec40394..afbbc552c3275 100644
+--- a/drivers/md/md-cluster.c
++++ b/drivers/md/md-cluster.c
+@@ -1166,6 +1166,7 @@ static int resize_bitmaps(struct mddev *mddev, sector_t newsize, sector_t oldsiz
+ 			 * can't resize bitmap
+ 			 */
+ 			goto out;
++		md_bitmap_free(bitmap);
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
