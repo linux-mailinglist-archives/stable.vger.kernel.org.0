@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF0529B06E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CA929B084
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757416AbgJ0OTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
+        id S1758643AbgJ0OUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757412AbgJ0OTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:19:19 -0400
+        id S1757529AbgJ0OTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:19:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE466206D4;
-        Tue, 27 Oct 2020 14:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CC36206F7;
+        Tue, 27 Oct 2020 14:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808358;
-        bh=x2TvJ0hZjn2se6VOs9JSVR3pFlRtrVtctljFXptGMXw=;
+        s=default; t=1603808388;
+        bh=NN02vzp/1B6c+lvKiJ//yVU0C1nhUGO1z+w/ZV88oxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJbzv1rLZxRnRqJLngmvD84oeO7tNseFsYg46ihxbx+Vzxb1KvXjERbzIGu6xzs4Z
-         rcZQeflqRasWh0v7Q/iSszx5d1wtcLplzuojckW0AZ2nq3t5qmPNcNvhbpH0KYR2WT
-         xMb6iHNqBh7FQJNo4k04TmvdJN5oyNbJ0bf5voh4=
+        b=wLtjM/2qJ68Re+rBswtl1qM8WB+fOoiz7aNcWNZwRgkOX2B/fHKo2gL9/Mw8ZLfvh
+         FoQMyVOyHOXPmA7/wEzbZngEGnbTaiWiAOooXR+PBumjrKlmjQOJsY6IZxnKL15gMr
+         I5/kE7nJK9ZyxD+m3uMmq6iu6prbakkoK1H5go6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        stable@vger.kernel.org, Rohit kumar <rohitkr@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/264] regulator: resolve supply after creating regulator
-Date:   Tue, 27 Oct 2020 14:52:00 +0100
-Message-Id: <20201027135433.589016148@linuxfoundation.org>
+Subject: [PATCH 4.19 072/264] ASoC: qcom: lpass-platform: fix memory leak
+Date:   Tue, 27 Oct 2020 14:52:10 +0100
+Message-Id: <20201027135434.080956764@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,61 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Rohit kumar <rohitkr@codeaurora.org>
 
-[ Upstream commit aea6cb99703e17019e025aa71643b4d3e0a24413 ]
+[ Upstream commit 5fd188215d4eb52703600d8986b22311099a5940 ]
 
-When creating a new regulator its supply cannot create the sysfs link
-because the device is not yet published. Remove early supply resolving
-since it will be done later anyway. This makes the following error
-disappear and the symlinks get created instead.
+lpass_pcm_data is never freed. Free it in close
+ops to avoid memory leak.
 
-  DCDC_REG1: supplied by VSYS
-  VSYS: could not add device link regulator.3 err -2
-
-Note: It doesn't fix the problem for bypassed regulators, though.
-
-Fixes: 45389c47526d ("regulator: core: Add early supply resolution for regulators")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/ba09e0a8617ffeeb25cb4affffe6f3149319cef8.1601155770.git.mirq-linux@rere.qmqm.pl
+Fixes: 022d00ee0b55 ("ASoC: lpass-platform: Fix broken pcm data usage")
+Signed-off-by: Rohit kumar <rohitkr@codeaurora.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/1597402388-14112-5-git-send-email-rohitkr@codeaurora.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ sound/soc/qcom/lpass-platform.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 37e6270749eef..c290c89421314 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -4363,15 +4363,20 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	else if (regulator_desc->supply_name)
- 		rdev->supply_name = regulator_desc->supply_name;
+diff --git a/sound/soc/qcom/lpass-platform.c b/sound/soc/qcom/lpass-platform.c
+index d07271ea4c451..2f29672477892 100644
+--- a/sound/soc/qcom/lpass-platform.c
++++ b/sound/soc/qcom/lpass-platform.c
+@@ -69,7 +69,7 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
+ 	int ret, dma_ch, dir = substream->stream;
+ 	struct lpass_pcm_data *data;
  
--	/*
--	 * Attempt to resolve the regulator supply, if specified,
--	 * but don't return an error if we fail because we will try
--	 * to resolve it again later as more regulators are added.
--	 */
--	if (regulator_resolve_supply(rdev))
--		rdev_dbg(rdev, "unable to resolve supply\n");
--
- 	ret = set_machine_constraints(rdev, constraints);
-+	if (ret == -EPROBE_DEFER) {
-+		/* Regulator might be in bypass mode and so needs its supply
-+		 * to set the constraints */
-+		/* FIXME: this currently triggers a chicken-and-egg problem
-+		 * when creating -SUPPLY symlink in sysfs to a regulator
-+		 * that is just being created */
-+		ret = regulator_resolve_supply(rdev);
-+		if (!ret)
-+			ret = set_machine_constraints(rdev, constraints);
-+		else
-+			rdev_dbg(rdev, "unable to resolve supply early: %pe\n",
-+				 ERR_PTR(ret));
-+	}
- 	if (ret < 0)
- 		goto wash;
+-	data = devm_kzalloc(soc_runtime->dev, sizeof(*data), GFP_KERNEL);
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+@@ -127,6 +127,7 @@ static int lpass_platform_pcmops_close(struct snd_pcm_substream *substream)
+ 	if (v->free_dma_channel)
+ 		v->free_dma_channel(drvdata, data->dma_ch);
+ 
++	kfree(data);
+ 	return 0;
+ }
  
 -- 
 2.25.1
