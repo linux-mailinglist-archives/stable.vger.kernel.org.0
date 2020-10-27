@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F2129B99E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F45329B99F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802653AbgJ0Pun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1802656AbgJ0Pun (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 11:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34980 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801555AbgJ0Pmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:42:43 -0400
+        id S1801650AbgJ0PnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:43:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E17D720657;
-        Tue, 27 Oct 2020 15:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF14920657;
+        Tue, 27 Oct 2020 15:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813363;
-        bh=H9n+XaeDssBh4aMeX7Fcvndm3NXzCkWYtp+V389zFRw=;
+        s=default; t=1603813384;
+        bh=RkAb2M/QPYiOuEN/J8weC9N/KBTKrpBy8dh7V0N9d/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cp/mUwWExhgNjrxnV4if9EE/Xwyp5sPQkk4NRnSuzaE2gBPTRERWndhUaYxRIg+6s
-         zZpMMgD3FDN5QyYkFOPFMpPhGhdSQ+QOPQA7aZlxV+SptL9YXFvgG1FqKJsS3Fq3WN
-         oAHD5KT+J/wwHDEFOh69uJo0kz6pWBvPMMw8awGM=
+        b=jgldVScIvG7juLeQzMMWSTudVXIlE5GR3WtvjkAkstHwHs72m+A4618JLkUCs6cy7
+         tBFoja5yByPkfzMGIsNZ5eChcF258zBAZ1Aq6vi6t6qEDhRMBCWnSRyV69sZHWvTa/
+         iN2ifbDEribfzHnkf5rzacEFxIM1dUYc08cfj1b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Tero Kristo <t-kristo@ti.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 526/757] PCI/IOV: Mark VFs as not implementing PCI_COMMAND_MEMORY
-Date:   Tue, 27 Oct 2020 14:52:56 +0100
-Message-Id: <20201027135515.154720871@linuxfoundation.org>
+Subject: [PATCH 5.9 533/757] clk: keystone: sci-clk: fix parsing assigned-clock data during probe
+Date:   Tue, 27 Oct 2020 14:53:03 +0100
+Message-Id: <20201027135515.496107795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,51 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Rosato <mjrosato@linux.ibm.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 12856e7acde4702b7c3238c15fcba86ff6aa507f ]
+[ Upstream commit 2f05cced7307489faab873367fb20cd212e1d890 ]
 
-For VFs, the Memory Space Enable bit in the Command Register is
-hard-wired to 0.
+The DT clock probe loop incorrectly terminates after processing "clocks"
+only, fix this by re-starting the loop when all entries for current
+DT property have been parsed.
 
-Add a new bit to signify devices where the Command Register Memory
-Space Enable bit does not control the device's response to MMIO
-accesses.
-
-Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 8e48b33f9def ("clk: keystone: sci-clk: probe clocks from DT instead of firmware")
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lore.kernel.org/r/20200907085740.1083-2-t-kristo@ti.com
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/iov.c   | 1 +
- include/linux/pci.h | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/clk/keystone/sci-clk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index b37e08c4f9d1a..4afd4ee4f7f04 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -180,6 +180,7 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- 	virtfn->device = iov->vf_device;
- 	virtfn->is_virtfn = 1;
- 	virtfn->physfn = pci_dev_get(dev);
-+	virtfn->no_command_memory = 1;
+diff --git a/drivers/clk/keystone/sci-clk.c b/drivers/clk/keystone/sci-clk.c
+index 2ad26cb927fdb..f126b6045afa7 100644
+--- a/drivers/clk/keystone/sci-clk.c
++++ b/drivers/clk/keystone/sci-clk.c
+@@ -522,7 +522,7 @@ static int ti_sci_scan_clocks_from_dt(struct sci_clk_provider *provider)
+ 		np = of_find_node_with_property(np, *clk_name);
+ 		if (!np) {
+ 			clk_name++;
+-			break;
++			continue;
+ 		}
  
- 	if (id == 0)
- 		pci_read_vf_config_common(virtfn);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 835530605c0d7..3ff723124ca7f 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -445,6 +445,7 @@ struct pci_dev {
- 	unsigned int	is_probed:1;		/* Device probing in progress */
- 	unsigned int	link_active_reporting:1;/* Device capable of reporting link active */
- 	unsigned int	no_vf_scan:1;		/* Don't scan for VFs after IOV enablement */
-+	unsigned int	no_command_memory:1;	/* No PCI_COMMAND_MEMORY */
- 	pci_dev_flags_t dev_flags;
- 	atomic_t	enable_cnt;	/* pci_enable_device has been called */
- 
+ 		if (!of_device_is_available(np))
 -- 
 2.25.1
 
