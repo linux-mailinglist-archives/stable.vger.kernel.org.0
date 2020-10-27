@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6D529C5F5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8A8729C6B4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825205AbgJ0SJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37110 "EHLO mail.kernel.org"
+        id S1827189AbgJ0SWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:22:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756924AbgJ0OPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:16 -0400
+        id S1753641AbgJ0OBP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6440922202;
-        Tue, 27 Oct 2020 14:15:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9855F221F8;
+        Tue, 27 Oct 2020 14:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808116;
-        bh=IWk44sx7GrIK1LwwY141DQgDJvGPoD7OCWS+WVpUCZ4=;
+        s=default; t=1603807275;
+        bh=b0fn2WsIbPOHU2gdfv3rRmasaAVtIhOYtHllGMy7Ec4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZbUcOcnNJfeOG7qeOsjN8yuBujSFsOzjc/4i14mWMIJSX/R124cYONFFP2o+T0eeP
-         gzYtmi5M4mZTYGaxOFsRBpS2cA9esoXqTKoR04H35SXLxITqvlU2NX7bwyOH4Qmx4u
-         Zkq0PemAdeMkZvYU3k/hR/xmCPwvdrwVYqf+yMJI=
+        b=m2Gxf36HHEn2pHc96tOBb7lqfLoPaqNxwfWbOR8seeaF/5Wy2Rl9tJQJxFMDVAQNQ
+         bJuMqA9yPr34gVUx9K5kzzOSg6yVY1IpHlIu5tfn/tpesnfctpRCPVuK9SCYDEm/St
+         GiM2WEjGwWxiJrt818LW8IEd9yJE0gT7uiAByDUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9991561e714f597095da@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 162/191] udf: Limit sparing table size
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 107/112] brcm80211: fix possible memleak in brcmf_proto_msgbuf_attach
 Date:   Tue, 27 Oct 2020 14:50:17 +0100
-Message-Id: <20201027134917.513573784@linuxfoundation.org>
+Message-Id: <20201027134905.608552235@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 44ac6b829c4e173fdf6df18e6dd86aecf9a3dc99 ]
+[ Upstream commit 6c151410d5b57e6bb0d91a735ac511459539a7bf ]
 
-Although UDF standard allows it, we don't support sparing table larger
-than a single block. Check it during mount so that we don't try to
-access memory beyond end of buffer.
+When brcmf_proto_msgbuf_attach fail and msgbuf->txflow_wq != NULL,
+we should destroy the workqueue.
 
-Reported-by: syzbot+9991561e714f597095da@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1595237765-66238-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 51de27685e185..2b8147ecd97fb 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -1385,6 +1385,12 @@ static int udf_load_sparable_map(struct super_block *sb,
- 			(int)spm->numSparingTables);
- 		return -EIO;
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c
+index f944f356d9c51..cacb43573f579 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c
+@@ -1530,6 +1530,8 @@ int brcmf_proto_msgbuf_attach(struct brcmf_pub *drvr)
+ 					  BRCMF_TX_IOCTL_MAX_MSG_SIZE,
+ 					  msgbuf->ioctbuf,
+ 					  msgbuf->ioctbuf_handle);
++		if (msgbuf->txflow_wq)
++			destroy_workqueue(msgbuf->txflow_wq);
+ 		kfree(msgbuf);
  	}
-+	if (le32_to_cpu(spm->sizeSparingTable) > sb->s_blocksize) {
-+		udf_err(sb, "error loading logical volume descriptor: "
-+			"Too big sparing table size (%u)\n",
-+			le32_to_cpu(spm->sizeSparingTable));
-+		return -EIO;
-+	}
- 
- 	for (i = 0; i < spm->numSparingTables; i++) {
- 		loc = le32_to_cpu(spm->locSparingTable[i]);
+ 	return -ENOMEM;
 -- 
 2.25.1
 
