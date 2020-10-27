@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7536F29B711
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3D129B71A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798593AbgJ0P27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
+        id S1798608AbgJ0P3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798198AbgJ0P0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:26:31 -0400
+        id S368748AbgJ0P1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:27:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 044C820657;
-        Tue, 27 Oct 2020 15:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60A6020657;
+        Tue, 27 Oct 2020 15:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812390;
-        bh=mGVoD2VcHSgQ3Z9sdrnPiUekRcAb3+4creFyTeT8P0k=;
+        s=default; t=1603812438;
+        bh=o426H1i3aVi6hnEFyHxSPISptOGmk3ZczSr4QHZcDSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEnDWqqkzWKc6eq8MkgCs4mf7eRwPWR7H554HCLjyHMBR4FSPwhWElHTq/X7ywfMT
-         03P493jvGCTWaTLnYhHzqZqciyy3qtFX3r94zra9DJIm3tmxBWWKs2/4m5MDhx8eZr
-         AhgELyzaS1v7TLoV82iQwwIGjTCs70s8wIh7DuGU=
+        b=1TlzSjqiNIQOXxCwihoP844kgrcqBpDgp6GQ/CvjbAGdglIjw1Xu9yLJX+x9CrXg3
+         l4ZuXs4KXnm0cYeEJ+8naNtZkxJ1WBIEVdIXVnvEsNuQ11RAvv9k8eIwFUTQ4KNiO7
+         /Vcr2lkujVgW7Tw/v3Zw8i8xyrrPrdOtVs1gLtM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 175/757] spi: spi-s3c64xx: swap s3c64xx_spi_set_cs() and s3c64xx_enable_datapath()
-Date:   Tue, 27 Oct 2020 14:47:05 +0100
-Message-Id: <20201027135458.803095375@linuxfoundation.org>
+Subject: [PATCH 5.9 179/757] hwmon: (bt1-pvt) Wait for the completion with timeout
+Date:   Tue, 27 Oct 2020 14:47:09 +0100
+Message-Id: <20201027135458.992300435@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,41 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Stelmach <l.stelmach@samsung.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 581e2b41977dfc2d4c26c8e976f89c43bb92f9bf ]
+[ Upstream commit 0ffd21d5985506d164ada9e8fff6daae8ef469a1 ]
 
-Fix issues with DMA transfers bigger than 512 bytes on Exynos3250. Without
-the patches such transfers fail to complete. This solution to the problem
-is found in the vendor kernel for ARTIK5 boards based on Exynos3250.
+If the PVT sensor is suddenly powered down while a caller is waiting for
+the conversion completion, the request won't be finished and the task will
+hang up on this procedure until the power is back up again. Let's call the
+wait_for_completion_timeout() method instead to prevent that. The cached
+timeout is exactly what we need to predict for how long conversion could
+normally last.
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
-Link: https://lore.kernel.org/r/20201002122243.26849-2-l.stelmach@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 87976ce2825d ("hwmon: Add Baikal-T1 PVT sensor driver")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20200920110924.19741-4-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-s3c64xx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/bt1-pvt.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
-index 924b24441789a..26c7cb79cd784 100644
---- a/drivers/spi/spi-s3c64xx.c
-+++ b/drivers/spi/spi-s3c64xx.c
-@@ -685,11 +685,11 @@ static int s3c64xx_spi_transfer_one(struct spi_master *master,
- 		sdd->state &= ~RXBUSY;
- 		sdd->state &= ~TXBUSY;
+diff --git a/drivers/hwmon/bt1-pvt.c b/drivers/hwmon/bt1-pvt.c
+index 2600426a3b21c..3e1d56585b91a 100644
+--- a/drivers/hwmon/bt1-pvt.c
++++ b/drivers/hwmon/bt1-pvt.c
+@@ -477,6 +477,7 @@ static int pvt_read_data(struct pvt_hwmon *pvt, enum pvt_sensor_type type,
+ 			 long *val)
+ {
+ 	struct pvt_cache *cache = &pvt->cache[type];
++	unsigned long timeout;
+ 	u32 data;
+ 	int ret;
  
--		s3c64xx_enable_datapath(sdd, xfer, use_dma);
--
- 		/* Start the signals */
- 		s3c64xx_spi_set_cs(spi, true);
+@@ -500,7 +501,14 @@ static int pvt_read_data(struct pvt_hwmon *pvt, enum pvt_sensor_type type,
+ 	pvt_update(pvt->regs + PVT_INTR_MASK, PVT_INTR_DVALID, 0);
+ 	pvt_update(pvt->regs + PVT_CTRL, PVT_CTRL_EN, PVT_CTRL_EN);
  
-+		s3c64xx_enable_datapath(sdd, xfer, use_dma);
+-	wait_for_completion(&cache->conversion);
++	/*
++	 * Wait with timeout since in case if the sensor is suddenly powered
++	 * down the request won't be completed and the caller will hang up on
++	 * this procedure until the power is back up again. Multiply the
++	 * timeout by the factor of two to prevent a false timeout.
++	 */
++	timeout = 2 * usecs_to_jiffies(ktime_to_us(pvt->timeout));
++	ret = wait_for_completion_timeout(&cache->conversion, timeout);
+ 
+ 	pvt_update(pvt->regs + PVT_CTRL, PVT_CTRL_EN, 0);
+ 	pvt_update(pvt->regs + PVT_INTR_MASK, PVT_INTR_DVALID,
+@@ -510,6 +518,9 @@ static int pvt_read_data(struct pvt_hwmon *pvt, enum pvt_sensor_type type,
+ 
+ 	mutex_unlock(&pvt->iface_mtx);
+ 
++	if (!ret)
++		return -ETIMEDOUT;
 +
- 		spin_unlock_irqrestore(&sdd->lock, flags);
- 
- 		if (use_dma)
+ 	if (type == PVT_TEMP)
+ 		*val = pvt_calc_poly(&poly_N_to_temp, data);
+ 	else
 -- 
 2.25.1
 
