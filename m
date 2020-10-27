@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A5929B76E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA2629B770
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799723AbgJ0PdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
+        id S1799746AbgJ0PdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:33:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799717AbgJ0PdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:33:00 -0400
+        id S1799740AbgJ0PdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:33:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7B1F20728;
-        Tue, 27 Oct 2020 15:32:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE85122202;
+        Tue, 27 Oct 2020 15:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812780;
-        bh=1Aj6JeR182PwkxhNRcNlUtJai3evxxD9/5dvhRXyi1U=;
+        s=default; t=1603812785;
+        bh=cxuiL3mnDWULZ60LSzmIyrobP5TNhgzpVdTON2kYVoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVwO6qd7X/RaWpJA/lqzld4VE6FxuPCYmxfiZK6ExATVgMQYLRy0rXs3ESC2v/vdn
-         g0Hs5ImSmlz1UkwXCg8F6vm+BOeZia5/03vnLItCWE7i2vY9yWpJgVOcBDwn0Gd2Eu
-         M89gd+1AZObhwkSZSN8ZfKSoX5qtEddAUyNut27o=
+        b=AjdWkJ3RtVjCQkbXFm0O1iuLcog6pmHTbtbcCGk0ryTABM0lYF6Oc2QCrVVYeJqOd
+         kmRENUUab/Hv8YhOKO0rYY9HtG9WmvAz2FIRrFC6iHPLQwS6aemDKZbpQmm8VJMgjK
+         O6EtQ8ZBljLGnm0F9BKgx/mVeKV5tUYmC/NoTAjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 327/757] slimbus: core: do not enter to clock pause mode in core
-Date:   Tue, 27 Oct 2020 14:49:37 +0100
-Message-Id: <20201027135505.880876519@linuxfoundation.org>
+Subject: [PATCH 5.9 329/757] drm/vc4: crtc: Rework a bit the CRTC state code
+Date:   Tue, 27 Oct 2020 14:49:39 +0100
+Message-Id: <20201027135505.978020673@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,36 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit df2c471c4ae07e18a0396db670dca2ef867c5153 ]
+[ Upstream commit 427c4a0680a28f87bb9c7bbfeac26b39ef8682ad ]
 
-Let the controller logic decide when to enter into clock pause mode!
-Entering in to pause mode during unregistration does not really make
-sense as the controller is totally going down at that point in time.
+The current CRTC state reset hook in vc4 allocates a vc4_crtc_state
+structure as a drm_crtc_state, and relies on the fact that vc4_crtc_state
+embeds drm_crtc_state as its first member, and therefore can be safely
+cast.
 
-Fixes: 4b14e62ad3c9e ("slimbus: Add support for 'clock-pause' feature")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200925095520.27316-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, this is pretty fragile especially since there's no check for this
+in place, and we're going to need to access vc4_crtc_state member at reset
+so this looks like a good occasion to make it more robust.
+
+Fixes: 6d6e50039187 ("drm/vc4: Allocate the right amount of space for boot-time CRTC state.")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Tested-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200923084032.218619-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/core.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/slimbus/core.c b/drivers/slimbus/core.c
-index 58b63ae0e75a6..1d2bc181da050 100644
---- a/drivers/slimbus/core.c
-+++ b/drivers/slimbus/core.c
-@@ -301,8 +301,6 @@ int slim_unregister_controller(struct slim_controller *ctrl)
- {
- 	/* Remove all clients */
- 	device_for_each_child(ctrl->dev, NULL, slim_ctrl_remove_device);
--	/* Enter Clock Pause */
--	slim_ctrl_clk_pause(ctrl, false, 0);
- 	ida_simple_remove(&ctrl_ida, ctrl->id);
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 6d8fa6118fc1a..eaad187c41f07 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -723,11 +723,18 @@ void vc4_crtc_destroy_state(struct drm_crtc *crtc,
  
- 	return 0;
+ void vc4_crtc_reset(struct drm_crtc *crtc)
+ {
++	struct vc4_crtc_state *vc4_crtc_state;
++
+ 	if (crtc->state)
+ 		vc4_crtc_destroy_state(crtc, crtc->state);
+-	crtc->state = kzalloc(sizeof(struct vc4_crtc_state), GFP_KERNEL);
+-	if (crtc->state)
+-		__drm_atomic_helper_crtc_reset(crtc, crtc->state);
++
++	vc4_crtc_state = kzalloc(sizeof(*vc4_crtc_state), GFP_KERNEL);
++	if (!vc4_crtc_state) {
++		crtc->state = NULL;
++		return;
++	}
++
++	__drm_atomic_helper_crtc_reset(crtc, &vc4_crtc_state->base);
+ }
+ 
+ static const struct drm_crtc_funcs vc4_crtc_funcs = {
 -- 
 2.25.1
 
