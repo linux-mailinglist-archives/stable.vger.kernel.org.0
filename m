@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D7B29BA26
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDBD29B971
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797536AbgJ0P5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
+        id S2502419AbgJ0PtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803208AbgJ0Pw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:26 -0400
+        id S1796279AbgJ0PRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A24A220678;
-        Tue, 27 Oct 2020 15:52:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1C172225E;
+        Tue, 27 Oct 2020 15:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813945;
-        bh=hny/Y5dD6XNy0/3WN8V74VHWwX1Ghtpx9FzGo93mdy8=;
+        s=default; t=1603811827;
+        bh=ChtabuENSph5cO3SW2pRgjv9lLJRvgGUCXxQ7ZX205Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmCW3lgvh1kRLtNv580v6oyhljkO7O4szFJYZYaOtH/UOHGICfLUjjXdKQ1S3P9q9
-         7VY/RPBHVtGFNq/qJreEbCMqJuG5kl0nofnPKWIYf7SOyjweDOHN3duS2fTzTEkPWc
-         qkEWmeYl9u4IG3hIPxzqA8fln0t4Vz48u96mggWI=
+        b=stv2jrvhjME4P04eTNredkHnWphdk/jUKSIKhYIlxclwQmuD1vNQ163JWDhq2S8BF
+         4KZSaaBY7D0/TgT0r4PkERyNy+8plfisHxVKvHkWI8lwl69T9lETkarEd0+AQ1UGWk
+         1XUgwPnNpenQXFa+LysPZdyr0tRKtyn+xDh0deYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 724/757] scsi: qedi: Fix list_del corruption while removing active I/O
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.8 631/633] usb: cdns3: gadget: free interrupt after gadget has deleted
 Date:   Tue, 27 Oct 2020 14:56:14 +0100
-Message-Id: <20201027135524.469693050@linuxfoundation.org>
+Message-Id: <20201027135552.419922619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit 28b35d17f9f8573d4646dd8df08917a4076a6b63 ]
+commit 98df91f8840cf750a0bc7c4c5d6b6085bac945b3 upstream.
 
-While aborting the I/O, the firmware cleanup task timed out and driver
-deleted the I/O from active command list. Some time later the firmware
-sent the cleanup task response and driver again deleted the I/O from
-active command list causing firmware to send completion for non-existent
-I/O and list_del corruption of active command list.
+The interrupt may occur during the gadget deletion, it fixes the
+below oops.
 
-Add fix to check if I/O is present before deleting it from the active
-command list to ensure firmware sends valid I/O completion and protect
-against list_del corruption.
+[ 2394.974604] configfs-gadget gadget: suspend
+[ 2395.042578] configfs-gadget 5b130000.usb: unregistering UDC driver [g1]
+[ 2395.382562] irq 229: nobody cared (try booting with the "irqpoll" option)
+[ 2395.389362] CPU: 0 PID: 301 Comm: kworker/u12:6 Not tainted 5.8.0-rc3-next-20200703-00060-g2f13b83cbf30-dirty #456
+[ 2395.399712] Hardware name: Freescale i.MX8QM MEK (DT)
+[ 2395.404782] Workqueue: 2-0051 tcpm_state_machine_work
+[ 2395.409832] Call trace:
+[ 2395.412289]  dump_backtrace+0x0/0x1d0
+[ 2395.415950]  show_stack+0x1c/0x28
+[ 2395.419271]  dump_stack+0xbc/0x118
+[ 2395.422678]  __report_bad_irq+0x50/0xe0
+[ 2395.426513]  note_interrupt+0x2cc/0x38c
+[ 2395.430355]  handle_irq_event_percpu+0x88/0x90
+[ 2395.434800]  handle_irq_event+0x4c/0xe8
+[ 2395.438640]  handle_fasteoi_irq+0xbc/0x168
+[ 2395.442740]  generic_handle_irq+0x34/0x48
+[ 2395.446752]  __handle_domain_irq+0x68/0xc0
+[ 2395.450846]  gic_handle_irq+0x64/0x150
+[ 2395.454596]  el1_irq+0xb8/0x180
+[ 2395.457733]  __do_softirq+0xac/0x3b8
+[ 2395.461310]  irq_exit+0xc0/0xe0
+[ 2395.464448]  __handle_domain_irq+0x6c/0xc0
+[ 2395.468540]  gic_handle_irq+0x64/0x150
+[ 2395.472295]  el1_irq+0xb8/0x180
+[ 2395.475436]  _raw_spin_unlock_irqrestore+0x14/0x48
+[ 2395.480232]  usb_gadget_disconnect+0x120/0x140
+[ 2395.484678]  usb_gadget_remove_driver+0xb4/0xd0
+[ 2395.489208]  usb_del_gadget+0x6c/0xc8
+[ 2395.492872]  cdns3_gadget_exit+0x5c/0x120
+[ 2395.496882]  cdns3_role_stop+0x60/0x90
+[ 2395.500634]  cdns3_role_set+0x64/0xd8
+[ 2395.504301]  usb_role_switch_set_role.part.0+0x3c/0x90
+[ 2395.509444]  usb_role_switch_set_role+0x20/0x30
+[ 2395.513978]  tcpm_mux_set+0x60/0xf8
+[ 2395.517470]  tcpm_reset_port+0xa4/0xf0
+[ 2395.521222]  tcpm_detach.part.0+0x44/0x50
+[ 2395.525227]  tcpm_state_machine_work+0x8b0/0x2360
+[ 2395.529932]  process_one_work+0x1c8/0x470
+[ 2395.533939]  worker_thread+0x50/0x420
+[ 2395.537603]  kthread+0x148/0x168
+[ 2395.540830]  ret_from_fork+0x10/0x18
+[ 2395.544399] handlers:
+[ 2395.546671] [<000000008dea28da>] cdns3_wakeup_irq
+[ 2395.551375] [<000000009fee5c61>] cdns3_drd_irq threaded [<000000005148eaec>] cdns3_drd_thread_irq
+[ 2395.560255] Disabling IRQ #229
+[ 2395.563454] configfs-gadget gadget: unbind function 'Mass Storage Function'/000000000132f835
+[ 2395.563657] configfs-gadget gadget: unbind
+[ 2395.563917] udc 5b130000.usb: releasing '5b130000.usb'
 
-Link: https://lore.kernel.org/r/20200908095657.26821-4-mrangankar@marvell.com
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Cc: <stable@vger.kernel.org>
+Acked-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qedi/qedi_fw.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/usb/cdns3/gadget.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index b9f9f764808f9..f158fde0a43c1 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -824,8 +824,11 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
- 			qedi_clear_task_idx(qedi_conn->qedi, rtid);
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -2988,12 +2988,12 @@ void cdns3_gadget_exit(struct cdns3 *cdn
  
- 			spin_lock(&qedi_conn->list_lock);
--			list_del_init(&dbg_cmd->io_cmd);
--			qedi_conn->active_cmd_count--;
-+			if (likely(dbg_cmd->io_cmd_in_list)) {
-+				dbg_cmd->io_cmd_in_list = false;
-+				list_del_init(&dbg_cmd->io_cmd);
-+				qedi_conn->active_cmd_count--;
-+			}
- 			spin_unlock(&qedi_conn->list_lock);
- 			qedi_cmd->state = CLEANUP_RECV;
- 			wake_up_interruptible(&qedi_conn->wait_queue);
-@@ -1243,6 +1246,7 @@ int qedi_cleanup_all_io(struct qedi_ctx *qedi, struct qedi_conn *qedi_conn,
- 		qedi_conn->cmd_cleanup_req++;
- 		qedi_iscsi_cleanup_task(ctask, true);
+ 	priv_dev = cdns->gadget_dev;
  
-+		cmd->io_cmd_in_list = false;
- 		list_del_init(&cmd->io_cmd);
- 		qedi_conn->active_cmd_count--;
- 		QEDI_WARN(&qedi->dbg_ctx,
-@@ -1454,8 +1458,11 @@ static void qedi_tmf_work(struct work_struct *work)
- 	spin_unlock_bh(&qedi_conn->tmf_work_lock);
+-	devm_free_irq(cdns->dev, cdns->dev_irq, priv_dev);
  
- 	spin_lock(&qedi_conn->list_lock);
--	list_del_init(&cmd->io_cmd);
--	qedi_conn->active_cmd_count--;
-+	if (likely(cmd->io_cmd_in_list)) {
-+		cmd->io_cmd_in_list = false;
-+		list_del_init(&cmd->io_cmd);
-+		qedi_conn->active_cmd_count--;
-+	}
- 	spin_unlock(&qedi_conn->list_lock);
+ 	pm_runtime_mark_last_busy(cdns->dev);
+ 	pm_runtime_put_autosuspend(cdns->dev);
  
- 	clear_bit(QEDI_CONN_FW_CLEANUP, &qedi_conn->flags);
--- 
-2.25.1
-
+ 	usb_del_gadget_udc(&priv_dev->gadget);
++	devm_free_irq(cdns->dev, cdns->dev_irq, priv_dev);
+ 
+ 	cdns3_free_all_eps(priv_dev);
+ 
 
 
