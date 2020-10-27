@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA6E29C593
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0468129C5B1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753669AbgJ0OBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49070 "EHLO mail.kernel.org"
+        id S1756218AbgJ0OME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411651AbgJ0OBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:01:24 -0400
+        id S1754841AbgJ0OHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:07:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3EE722202;
-        Tue, 27 Oct 2020 14:01:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FF2D22258;
+        Tue, 27 Oct 2020 14:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807283;
-        bh=eNqI4I4kiQ1KvcRJ+NmcfrVoNL3GnkpktsSWrFMNXgo=;
+        s=default; t=1603807639;
+        bh=2uPyItsYv7sh2HwsuonUm6p+JI2jQxPJkHUuWR9M74I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpyKXKBJF99gg66jZ5peiS31+pnvARoNdymy+z+6RHdKjvCc65WK7/ja7kN5XOEEj
-         fKQxCrMn67T89UMqL1vx8qIwjBNq7NcrMHQvy4ZLDlKtncuhrVbtjiZfAI2eRj1qJN
-         iZchbb0L4Zf9cFGZXNQ6G8Arzq4gDPbI8o+owDfs=
+        b=Yf24KH5VLjD1i5zY2CGb5jUBKg+JXZ2zoQeb26RZmtugccOtsNhI3n4dipUXxs9hd
+         1sp+ROk4f0w72Z4uG7MoIHWmUdGoanfZEJ52cYu6puv4RaHnRz+42PYG3jTBxm9X39
+         L/VTYGRoVAHm9/b0KSSpabOCbHmd7FOf4aAn8nQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 110/112] net: korina: cast KSEG0 address to pointer in kfree
+Subject: [PATCH 4.9 126/139] brcmsmac: fix memory leak in wlc_phy_attach_lcnphy
 Date:   Tue, 27 Oct 2020 14:50:20 +0100
-Message-Id: <20201027134905.753733650@linuxfoundation.org>
+Message-Id: <20201027134908.127325385@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 3bd57b90554b4bb82dce638e0668ef9dc95d3e96 ]
+[ Upstream commit f4443293d741d1776b86ed1dd8c4e4285d0775fc ]
 
-Fixes gcc warning:
+When wlc_phy_txpwr_srom_read_lcnphy fails in wlc_phy_attach_lcnphy,
+the allocated pi->u.pi_lcnphy is leaked, since struct brcms_phy will be
+freed in the caller function.
 
-passing argument 1 of 'kfree' makes pointer from integer without a cast
+Fix this by calling wlc_phy_detach_lcnphy in the error handler of
+wlc_phy_txpwr_srom_read_lcnphy before returning.
 
-Fixes: 3af5f0f5c74e ("net: korina: fix kfree of rx/tx descriptor array")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Link: https://lore.kernel.org/r/20201018184255.28989-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200908121743.23108-1-keitasuzuki.park@sslab.ics.keio.ac.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/korina.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index 3954c80f70fcb..b491de946a0e6 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -1188,7 +1188,7 @@ static int korina_probe(struct platform_device *pdev)
- 	return rc;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+index 93d4cde0eb313..c9f48ec46f4a1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c
+@@ -5090,8 +5090,10 @@ bool wlc_phy_attach_lcnphy(struct brcms_phy *pi)
+ 	pi->pi_fptr.radioloftget = wlc_lcnphy_get_radio_loft;
+ 	pi->pi_fptr.detach = wlc_phy_detach_lcnphy;
  
- probe_err_register:
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
- probe_err_td_ring:
- 	iounmap(lp->tx_dma_regs);
- probe_err_dma_tx:
-@@ -1208,7 +1208,7 @@ static int korina_remove(struct platform_device *pdev)
- 	iounmap(lp->eth_regs);
- 	iounmap(lp->rx_dma_regs);
- 	iounmap(lp->tx_dma_regs);
--	kfree(KSEG0ADDR(lp->td_ring));
-+	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
+-	if (!wlc_phy_txpwr_srom_read_lcnphy(pi))
++	if (!wlc_phy_txpwr_srom_read_lcnphy(pi)) {
++		kfree(pi->u.pi_lcnphy);
+ 		return false;
++	}
  
- 	unregister_netdev(bif->dev);
- 	free_netdev(bif->dev);
+ 	if (LCNREV_IS(pi->pubpi.phy_rev, 1)) {
+ 		if (pi_lcn->lcnphy_tempsense_option == 3) {
 -- 
 2.25.1
 
