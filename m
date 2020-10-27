@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D346029B91D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BAA329B7FC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802204AbgJ0PqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44518 "EHLO mail.kernel.org"
+        id S1798626AbgJ0P3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798526AbgJ0P2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:28:35 -0400
+        id S1798570AbgJ0P24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:28:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A7072225E;
-        Tue, 27 Oct 2020 15:28:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40E0920780;
+        Tue, 27 Oct 2020 15:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812514;
-        bh=/3iBYdK1MPa6Th6bGLCVOq1Dr6W1XCeD4wUwu+g2eh8=;
+        s=default; t=1603812529;
+        bh=3FrghEAZdJTShkk1uslzcRCPiDPwxGtwQjzbTjEI46I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFR/AW53DONmC9XCdyDAbzWKXJwIzOkfxfZT64hDv+3DyAVVzPO6HXtSWXSxkY2cW
-         AYZroci1H/Gtmhj3coaGac5Izr4iHVTPhCNkw9nNeDpz1H96tQ+6c++6R+ybBrJlV5
-         VkHT7XGzKzsck02wj9pby5XdRLBSvKkUchhOBKn0=
+        b=gn2iesS9pG8HN98Llib1rcIIO1aqhs2uvv+0Z7tQrKEXeqiFntK9a/qdDfoAEq53L
+         8JyiH5ZTye9hacX2/YeBnnF+jQcDSWgR3yNP8gkg6Q0NaLDW8/xXuySQW3hFXUiDNb
+         7cdOEJKKiDzgnUkqBtpxm28iMFkJQiFmefe4fP/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Gartrell <alexgartrell@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Ajay Singh <ajay.kathat@microchip.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 209/757] libbpf: Fix unintentional success return code in bpf_object__load
-Date:   Tue, 27 Oct 2020 14:47:39 +0100
-Message-Id: <20201027135500.419798904@linuxfoundation.org>
+Subject: [PATCH 5.9 210/757] wilc1000: Fix memleak in wilc_sdio_probe
+Date:   Tue, 27 Oct 2020 14:47:40 +0100
+Message-Id: <20201027135500.464238865@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,38 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Gartrell <alexgartrell@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit ef05afa66c59c2031a3798916ef3ff3778232129 ]
+[ Upstream commit 8d95ab34b21ee0f870a9185b6457e8f6eb54914c ]
 
-There are code paths where EINVAL is returned directly without setting
-errno. In that case, errno could be 0, which would mask the
-failure. For example, if a careless programmer set log_level to 10000
-out of laziness, they would have to spend a long time trying to figure
-out why.
+When devm_clk_get() returns -EPROBE_DEFER, sdio_priv
+should be freed just like when wilc_cfg80211_init()
+fails.
 
-Fixes: 4f33ddb4e3e2 ("libbpf: Propagate EPERM to caller on program load")
-Signed-off-by: Alex Gartrell <alexgartrell@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200826075549.1858580-1-alexgartrell@gmail.com
+Fixes: 8692b047e86cf ("staging: wilc1000: look for rtc_clk clock")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Ajay Singh <ajay.kathat@microchip.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200820054819.23365-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/microchip/wilc1000/sdio.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index e493d6048143f..8b71a31ca4a97 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -5425,7 +5425,7 @@ load_program(struct bpf_program *prog, struct bpf_insn *insns, int insns_cnt,
- 		free(log_buf);
- 		goto retry_load;
- 	}
--	ret = -errno;
-+	ret = errno ? -errno : -LIBBPF_ERRNO__LOAD;
- 	cp = libbpf_strerror_r(errno, errmsg, sizeof(errmsg));
- 	pr_warn("load bpf program failed: %s\n", cp);
- 	pr_perm_msg(ret);
+diff --git a/drivers/net/wireless/microchip/wilc1000/sdio.c b/drivers/net/wireless/microchip/wilc1000/sdio.c
+index 3ece7b0b03929..351ff909ab1c7 100644
+--- a/drivers/net/wireless/microchip/wilc1000/sdio.c
++++ b/drivers/net/wireless/microchip/wilc1000/sdio.c
+@@ -149,9 +149,10 @@ static int wilc_sdio_probe(struct sdio_func *func,
+ 	wilc->dev = &func->dev;
+ 
+ 	wilc->rtc_clk = devm_clk_get(&func->card->dev, "rtc");
+-	if (PTR_ERR_OR_ZERO(wilc->rtc_clk) == -EPROBE_DEFER)
++	if (PTR_ERR_OR_ZERO(wilc->rtc_clk) == -EPROBE_DEFER) {
++		kfree(sdio_priv);
+ 		return -EPROBE_DEFER;
+-	else if (!IS_ERR(wilc->rtc_clk))
++	} else if (!IS_ERR(wilc->rtc_clk))
+ 		clk_prepare_enable(wilc->rtc_clk);
+ 
+ 	dev_info(&func->dev, "Driver Initializing success\n");
 -- 
 2.25.1
 
