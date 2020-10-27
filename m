@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F0529B3BF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 549EB29B2A2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:43:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780424AbgJ0Oyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S1762634AbgJ0Onp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:43:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762612AbgJ0Onj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:43:39 -0400
+        id S1762632AbgJ0Onp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:43:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7080D206B2;
-        Tue, 27 Oct 2020 14:43:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36961206B2;
+        Tue, 27 Oct 2020 14:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809819;
-        bh=6EsG4J3qaTfb+6PTdylTCV8RwtHyBqmGpqFKCjSOQ5I=;
+        s=default; t=1603809824;
+        bh=+n1S3A+tYy55zl/N+PuWYLmn/WLTr5AUGrt5WVfD6Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpVJ9CzwcDrcElljPfwaHTIY5ZgPJEIzwauu64um015gIClKDHjdJtGO4iJJjFG/m
-         cUoF2aTzt5QejKOQGLihJqwIy3TaMlzhSEJ68bXLmynRQ6iwqn/O0PULRK4/9UA/5b
-         gnv27imKErVFRWHghGhh8XL7/wjII03lZUdfh9Ao=
+        b=q/B4b2V5ja/0XaAkwDMSiuCLzP5kCScYWwndDbi5RWZVXXLd5/5ETb6C060TPqRDf
+         pRniQrG4TyRCIFiIo2XucRkrelb2PJj/iHamJuUw0pJi7rwVIrndbywNPp2r+wlrg+
+         VR+d9dYaIsW5XjO4DXhsbVnNbBZnG1eAui4QyBYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 331/408] media: st-delta: Fix reference count leak in delta_run_work
-Date:   Tue, 27 Oct 2020 14:54:29 +0100
-Message-Id: <20201027135510.395336987@linuxfoundation.org>
+Subject: [PATCH 5.4 332/408] media: sti: Fix reference count leaks
+Date:   Tue, 27 Oct 2020 14:54:30 +0100
+Message-Id: <20201027135510.440813609@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 57cc666d36adc7b45e37ba4cd7bc4e44ec4c43d7 ]
+[ Upstream commit 6f4432bae9f2d12fc1815b5e26cc07e69bcad0df ]
 
-delta_run_work() calls delta_get_sync() that increments
-the reference counter. In case of failure, decrement the reference
-count by calling delta_put_autosuspend().
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/delta/delta-v4l2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/sti/hva/hva-hw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
-index 91369fb3ffaa4..2791107e641bc 100644
---- a/drivers/media/platform/sti/delta/delta-v4l2.c
-+++ b/drivers/media/platform/sti/delta/delta-v4l2.c
-@@ -954,8 +954,10 @@ static void delta_run_work(struct work_struct *work)
- 	/* enable the hardware */
- 	if (!dec->pm) {
- 		ret = delta_get_sync(ctx);
--		if (ret)
-+		if (ret) {
-+			delta_put_autosuspend(ctx);
- 			goto err;
-+		}
- 	}
+diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
+index 401aaafa17109..bb13348be0832 100644
+--- a/drivers/media/platform/sti/hva/hva-hw.c
++++ b/drivers/media/platform/sti/hva/hva-hw.c
+@@ -272,6 +272,7 @@ static unsigned long int hva_hw_get_ip_version(struct hva_dev *hva)
  
- 	/* decode this access unit */
+ 	if (pm_runtime_get_sync(dev) < 0) {
+ 		dev_err(dev, "%s     failed to get pm_runtime\n", HVA_PREFIX);
++		pm_runtime_put_noidle(dev);
+ 		mutex_unlock(&hva->protect_mutex);
+ 		return -EFAULT;
+ 	}
+@@ -553,6 +554,7 @@ void hva_hw_dump_regs(struct hva_dev *hva, struct seq_file *s)
+ 
+ 	if (pm_runtime_get_sync(dev) < 0) {
+ 		seq_puts(s, "Cannot wake up IP\n");
++		pm_runtime_put_noidle(dev);
+ 		mutex_unlock(&hva->protect_mutex);
+ 		return;
+ 	}
 -- 
 2.25.1
 
