@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3AA29C163
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77DF29C160
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:25:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1775709AbgJ0OxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
+        id S1775792AbgJ0OxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1772409AbgJ0OuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:50:17 -0400
+        id S1772587AbgJ0OuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:50:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C03820709;
-        Tue, 27 Oct 2020 14:50:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D90F620709;
+        Tue, 27 Oct 2020 14:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810215;
-        bh=27YXBEPib8thCXvnUB4KeK4jB8iPrPfLeDNa/tQu+lQ=;
+        s=default; t=1603810221;
+        bh=UXWVw92xD2IiNl8i0Lbk5m04/x79jJuEpl26RVJC2EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yph75QYXIyJMn670zQ3PjeQLjqCDzCgFfJo1u4uYuKJ9rOVCNnauQb9cyVstSmjRv
-         3sQKVpUEqFywYsAzxKUjWpL6oaJMJlDIRCIX4EsHyK2c8OJEbYnjGiXCk9nNos3nv/
-         vsZ65Np1TJFwb6OeERvIZoBvsPHP2Lc+6LmlAy+c=
+        b=F59iYNgkXt1CP1zQ54wOu1e1qs3KqM20OguD50fX4Xaf6OgnwIBesY19b8v/IBMPo
+         7BTVTCH4ZLWHj1t1x6Jmz3NRF/QXwMe/22KiU+CntRASxuJYRcQPnL8E8MF0QpdcD3
+         S9TFXCWdaBPy8tn0CMuUd82ZMcolOlpIckRMcGUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 061/633] ALSA: hda/realtek: Enable audio jacks of ASUS D700SA with ALC887
-Date:   Tue, 27 Oct 2020 14:46:44 +0100
-Message-Id: <20201027135525.557962198@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.8 063/633] cifs: Return the error from crypt_message when enc/dec key not found.
+Date:   Tue, 27 Oct 2020 14:46:46 +0100
+Message-Id: <20201027135525.652582033@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,99 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jhp@endlessos.org>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit ca184355db8e60290fa34bf61c13308e6f4f50d3 upstream.
+commit 0bd294b55a5de442370c29fa53bab17aef3ff318 upstream.
 
-The ASUS D700SA desktop's audio (1043:2390) with ALC887 cannot detect
-the headset microphone and another headphone jack until
-ALC887_FIXUP_ASUS_HMIC and ALC887_FIXUP_ASUS_AUDIO quirks are applied.
-The NID 0x15 maps as the headset microphone and NID 0x19 maps as another
-headphone jack. Also need the function like alc887_fixup_asus_jack to
-enable the audio jacks.
+In crypt_message, when smb2_get_enc_key returns error, we need to
+return the error back to the caller. If not, we end up processing
+the message further, causing a kernel oops due to unwarranted access
+of memory.
 
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201007052224.22611-1-jhp@endlessos.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Call Trace:
+smb3_receive_transform+0x120/0x870 [cifs]
+cifs_demultiplex_thread+0xb53/0xc20 [cifs]
+? cifs_handle_standard+0x190/0x190 [cifs]
+kthread+0x116/0x130
+? kthread_park+0x80/0x80
+ret_from_fork+0x1f/0x30
+
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   42 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -1922,6 +1922,8 @@ enum {
- 	ALC1220_FIXUP_CLEVO_P950,
- 	ALC1220_FIXUP_CLEVO_PB51ED,
- 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
-+	ALC887_FIXUP_ASUS_AUDIO,
-+	ALC887_FIXUP_ASUS_HMIC,
- };
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3924,7 +3924,7 @@ crypt_message(struct TCP_Server_Info *se
+ 	if (rc) {
+ 		cifs_server_dbg(VFS, "%s: Could not get %scryption key\n", __func__,
+ 			 enc ? "en" : "de");
+-		return 0;
++		return rc;
+ 	}
  
- static void alc889_fixup_coef(struct hda_codec *codec,
-@@ -2134,6 +2136,31 @@ static void alc1220_fixup_clevo_pb51ed(s
- 	alc_fixup_headset_mode_no_hp_mic(codec, fix, action);
- }
- 
-+static void alc887_asus_hp_automute_hook(struct hda_codec *codec,
-+					 struct hda_jack_callback *jack)
-+{
-+	struct alc_spec *spec = codec->spec;
-+	unsigned int vref;
-+
-+	snd_hda_gen_hp_automute(codec, jack);
-+
-+	if (spec->gen.hp_jack_present)
-+		vref = AC_PINCTL_VREF_80;
-+	else
-+		vref = AC_PINCTL_VREF_HIZ;
-+	snd_hda_set_pin_ctl(codec, 0x19, PIN_HP | vref);
-+}
-+
-+static void alc887_fixup_asus_jack(struct hda_codec *codec,
-+				     const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+	if (action != HDA_FIXUP_ACT_PROBE)
-+		return;
-+	snd_hda_set_pin_ctl_cache(codec, 0x1b, PIN_HP);
-+	spec->gen.hp_automute_hook = alc887_asus_hp_automute_hook;
-+}
-+
- static const struct hda_fixup alc882_fixups[] = {
- 	[ALC882_FIXUP_ABIT_AW9D_MAX] = {
- 		.type = HDA_FIXUP_PINS,
-@@ -2391,6 +2418,20 @@ static const struct hda_fixup alc882_fix
- 		.chained = true,
- 		.chain_id = ALC1220_FIXUP_CLEVO_PB51ED,
- 	},
-+	[ALC887_FIXUP_ASUS_AUDIO] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x15, 0x02a14150 }, /* use as headset mic, without its own jack detect */
-+			{ 0x19, 0x22219420 },
-+			{}
-+		},
-+	},
-+	[ALC887_FIXUP_ASUS_HMIC] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc887_fixup_asus_jack,
-+		.chained = true,
-+		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
-+	},
- };
- 
- static const struct snd_pci_quirk alc882_fixup_tbl[] = {
-@@ -2424,6 +2465,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1043, 0x13c2, "Asus A7M", ALC882_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x1043, 0x1873, "ASUS W90V", ALC882_FIXUP_ASUS_W90V),
- 	SND_PCI_QUIRK(0x1043, 0x1971, "Asus W2JC", ALC882_FIXUP_ASUS_W2JC),
-+	SND_PCI_QUIRK(0x1043, 0x2390, "Asus D700SA", ALC887_FIXUP_ASUS_HMIC),
- 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
- 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
- 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
+ 	rc = smb3_crypto_aead_allocate(server);
 
 
