@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FAC829B8CD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032A029B8D1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802014AbgJ0PpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
+        id S1802023AbgJ0PpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801051AbgJ0Phv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:37:51 -0400
+        id S1801052AbgJ0Phx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:37:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79C74204EF;
-        Tue, 27 Oct 2020 15:37:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B9FA204EF;
+        Tue, 27 Oct 2020 15:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813070;
-        bh=1zDucQGoAD1pm8vzUOYZPH3EoBjMcR0w9x6+T1q1hcg=;
+        s=default; t=1603813072;
+        bh=pWFOEEVBQbqTFmDOGOhYIaLWG+U3p2kWRZR2wkbMfBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvxPkNpeoGjn+zG5td5YTn5681SMuoblaa+IOMfK/XrplSebX7nncXkua28cZCAle
-         c12G3fS4sFA1VWEqtg61QFcv2cNJX/EQL4kUYtplbbVVZ9he05+JVOT/Jtrui+PCU3
-         ck2PYb/E2e0ZvLuxqYSi1Bv4Q82Asn09HuTattKs=
+        b=a1tUlqzISBYNrll5m31OasYouglzpD5KjzTc0XbQk7B8B48z2RAwkow4a1ue8f43K
+         GQAZFNkrcuMc0NmrWgWAUCTVu3I0IbNk1QWILNDD8pFuVEFGWfvkAzqBhvZjQAc96Z
+         bTfSR4CVS0eO9ZnIN06tLTXmIw/fHSOtzcSiCcBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 427/757] RDMA/rtrs-srv: Incorporate ib_register_client into rtrs server init
-Date:   Tue, 27 Oct 2020 14:51:17 +0100
-Message-Id: <20201027135510.596601515@linuxfoundation.org>
+Subject: [PATCH 5.9 428/757] RDMA/core: Delete function indirection for alloc/free kernel CQ
+Date:   Tue, 27 Oct 2020 14:51:18 +0100
+Message-Id: <20201027135510.647482834@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,191 +43,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-[ Upstream commit 558d52b2976b1db3098139aa83ceb9af9066a0e7 ]
+[ Upstream commit 7e3c66c9a989d5b53387ceebc88b9e4a9b1d6434 ]
 
-The rnbd_server module's communication manager (cm) initialization depends
-on the registration of the "network namespace subsystem" of the RDMA CM
-agent module. As such, when the kernel is configured to load the
-rnbd_server and the RDMA cma module during initialization; and if the
-rnbd_server module is initialized before RDMA cma module, a null ptr
-dereference occurs during the RDMA bind operation.
+The ib_alloc_cq*() and ib_free_cq*() are solely kernel verbs to manage CQs
+and doesn't need extra indirection just to call same functions with
+constant parameter NULL as udata.
 
-Call trace:
-
-  Call Trace:
-   ? xas_load+0xd/0x80
-   xa_load+0x47/0x80
-   cma_ps_find+0x44/0x70
-   rdma_bind_addr+0x782/0x8b0
-   ? get_random_bytes+0x35/0x40
-   rtrs_srv_cm_init+0x50/0x80
-   rtrs_srv_open+0x102/0x180
-   ? rnbd_client_init+0x6e/0x6e
-   rnbd_srv_init_module+0x34/0x84
-   ? rnbd_client_init+0x6e/0x6e
-   do_one_initcall+0x4a/0x200
-   kernel_init_freeable+0x1f1/0x26e
-   ? rest_init+0xb0/0xb0
-   kernel_init+0xe/0x100
-   ret_from_fork+0x22/0x30
-  Modules linked in:
-  CR2: 0000000000000015
-
-All this happens cause the cm init is in the call chain of the module
-init, which is not a preferred practice.
-
-So remove the call to rdma_create_id() from the module init call chain.
-Instead register rtrs-srv as an ib client, which makes sure that the
-rdma_create_id() is called only when an ib device is added.
-
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20200907103106.104530-1-haris.iqbal@cloud.ionos.com
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
-Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20200907120921.476363-6-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 76 +++++++++++++++++++++++++-
- drivers/infiniband/ulp/rtrs/rtrs-srv.h |  7 +++
- 2 files changed, 80 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/cq.c | 27 +++++++---------
+ include/rdma/ib_verbs.h      | 62 ++++--------------------------------
+ 2 files changed, 18 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 28f6414dfa3dc..d6f93601712e4 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -16,6 +16,7 @@
- #include "rtrs-srv.h"
- #include "rtrs-log.h"
- #include <rdma/ib_cm.h>
-+#include <rdma/ib_verbs.h>
- 
- MODULE_DESCRIPTION("RDMA Transport Server");
- MODULE_LICENSE("GPL");
-@@ -31,6 +32,7 @@ MODULE_LICENSE("GPL");
- static struct rtrs_rdma_dev_pd dev_pd;
- static mempool_t *chunk_pool;
- struct class *rtrs_dev_class;
-+static struct rtrs_srv_ib_ctx ib_ctx;
- 
- static int __read_mostly max_chunk_size = DEFAULT_MAX_CHUNK_SIZE;
- static int __read_mostly sess_queue_depth = DEFAULT_SESS_QUEUE_DEPTH;
-@@ -2042,6 +2044,70 @@ static void free_srv_ctx(struct rtrs_srv_ctx *ctx)
- 	kfree(ctx);
+diff --git a/drivers/infiniband/core/cq.c b/drivers/infiniband/core/cq.c
+index a92fc3f90bb5b..2efe825689e3e 100644
+--- a/drivers/infiniband/core/cq.c
++++ b/drivers/infiniband/core/cq.c
+@@ -197,24 +197,22 @@ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
  }
  
-+static int rtrs_srv_add_one(struct ib_device *device)
-+{
-+	struct rtrs_srv_ctx *ctx;
-+	int ret = 0;
-+
-+	mutex_lock(&ib_ctx.ib_dev_mutex);
-+	if (ib_ctx.ib_dev_count)
-+		goto out;
-+
-+	/*
-+	 * Since our CM IDs are NOT bound to any ib device we will create them
-+	 * only once
-+	 */
-+	ctx = ib_ctx.srv_ctx;
-+	ret = rtrs_srv_rdma_init(ctx, ib_ctx.port);
-+	if (ret) {
-+		/*
-+		 * We errored out here.
-+		 * According to the ib code, if we encounter an error here then the
-+		 * error code is ignored, and no more calls to our ops are made.
-+		 */
-+		pr_err("Failed to initialize RDMA connection");
-+		goto err_out;
-+	}
-+
-+out:
-+	/*
-+	 * Keep a track on the number of ib devices added
-+	 */
-+	ib_ctx.ib_dev_count++;
-+
-+err_out:
-+	mutex_unlock(&ib_ctx.ib_dev_mutex);
-+	return ret;
-+}
-+
-+static void rtrs_srv_remove_one(struct ib_device *device, void *client_data)
-+{
-+	struct rtrs_srv_ctx *ctx;
-+
-+	mutex_lock(&ib_ctx.ib_dev_mutex);
-+	ib_ctx.ib_dev_count--;
-+
-+	if (ib_ctx.ib_dev_count)
-+		goto out;
-+
-+	/*
-+	 * Since our CM IDs are NOT bound to any ib device we will remove them
-+	 * only once, when the last device is removed
-+	 */
-+	ctx = ib_ctx.srv_ctx;
-+	rdma_destroy_id(ctx->cm_id_ip);
-+	rdma_destroy_id(ctx->cm_id_ib);
-+
-+out:
-+	mutex_unlock(&ib_ctx.ib_dev_mutex);
-+}
-+
-+static struct ib_client rtrs_srv_client = {
-+	.name	= "rtrs_server",
-+	.add	= rtrs_srv_add_one,
-+	.remove	= rtrs_srv_remove_one
-+};
-+
  /**
-  * rtrs_srv_open() - open RTRS server context
-  * @ops:		callback functions
-@@ -2060,7 +2126,11 @@ struct rtrs_srv_ctx *rtrs_srv_open(struct rtrs_srv_ops *ops, u16 port)
- 	if (!ctx)
- 		return ERR_PTR(-ENOMEM);
- 
--	err = rtrs_srv_rdma_init(ctx, port);
-+	mutex_init(&ib_ctx.ib_dev_mutex);
-+	ib_ctx.srv_ctx = ctx;
-+	ib_ctx.port = port;
-+
-+	err = ib_register_client(&rtrs_srv_client);
- 	if (err) {
- 		free_srv_ctx(ctx);
- 		return ERR_PTR(err);
-@@ -2099,8 +2169,8 @@ static void close_ctx(struct rtrs_srv_ctx *ctx)
+- * __ib_alloc_cq_user - allocate a completion queue
++ * __ib_alloc_cq        allocate a completion queue
+  * @dev:		device to allocate the CQ for
+  * @private:		driver private data, accessible from cq->cq_context
+  * @nr_cqe:		number of CQEs to allocate
+  * @comp_vector:	HCA completion vectors for this CQ
+  * @poll_ctx:		context to poll the CQ from.
+  * @caller:		module owner name.
+- * @udata:		Valid user data or NULL for kernel object
+  *
+  * This is the proper interface to allocate a CQ for in-kernel users. A
+  * CQ allocated with this interface will automatically be polled from the
+  * specified context. The ULP must use wr->wr_cqe instead of wr->wr_id
+  * to use this CQ abstraction.
   */
- void rtrs_srv_close(struct rtrs_srv_ctx *ctx)
+-struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
+-				 int nr_cqe, int comp_vector,
+-				 enum ib_poll_context poll_ctx,
+-				 const char *caller, struct ib_udata *udata)
++struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private, int nr_cqe,
++			    int comp_vector, enum ib_poll_context poll_ctx,
++			    const char *caller)
  {
--	rdma_destroy_id(ctx->cm_id_ip);
--	rdma_destroy_id(ctx->cm_id_ib);
-+	ib_unregister_client(&rtrs_srv_client);
-+	mutex_destroy(&ib_ctx.ib_dev_mutex);
- 	close_ctx(ctx);
- 	free_srv_ctx(ctx);
+ 	struct ib_cq_init_attr cq_attr = {
+ 		.cqe		= nr_cqe,
+@@ -277,7 +275,7 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
+ out_destroy_cq:
+ 	rdma_dim_destroy(cq);
+ 	rdma_restrack_del(&cq->res);
+-	cq->device->ops.destroy_cq(cq, udata);
++	cq->device->ops.destroy_cq(cq, NULL);
+ out_free_wc:
+ 	kfree(cq->wc);
+ out_free_cq:
+@@ -285,7 +283,7 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
+ 	trace_cq_alloc_error(nr_cqe, comp_vector, poll_ctx, ret);
+ 	return ERR_PTR(ret);
  }
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.h b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-index dc95b0932f0df..08b0b8a6eebe6 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-@@ -118,6 +118,13 @@ struct rtrs_srv_ctx {
- 	struct list_head srv_list;
- };
+-EXPORT_SYMBOL(__ib_alloc_cq_user);
++EXPORT_SYMBOL(__ib_alloc_cq);
  
-+struct rtrs_srv_ib_ctx {
-+	struct rtrs_srv_ctx	*srv_ctx;
-+	u16			port;
-+	struct mutex            ib_dev_mutex;
-+	int			ib_dev_count;
-+};
-+
- extern struct class *rtrs_dev_class;
+ /**
+  * __ib_alloc_cq_any - allocate a completion queue
+@@ -310,17 +308,16 @@ struct ib_cq *__ib_alloc_cq_any(struct ib_device *dev, void *private,
+ 			atomic_inc_return(&counter) %
+ 			min_t(int, dev->num_comp_vectors, num_online_cpus());
  
- void close_sess(struct rtrs_srv_sess *sess);
+-	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
+-				  caller, NULL);
++	return __ib_alloc_cq(dev, private, nr_cqe, comp_vector, poll_ctx,
++			     caller);
+ }
+ EXPORT_SYMBOL(__ib_alloc_cq_any);
+ 
+ /**
+- * ib_free_cq_user - free a completion queue
++ * ib_free_cq - free a completion queue
+  * @cq:		completion queue to free.
+- * @udata:	User data or NULL for kernel object
+  */
+-void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata)
++void ib_free_cq(struct ib_cq *cq)
+ {
+ 	if (WARN_ON_ONCE(atomic_read(&cq->usecnt)))
+ 		return;
+@@ -344,11 +341,11 @@ void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata)
+ 	rdma_dim_destroy(cq);
+ 	trace_cq_free(cq);
+ 	rdma_restrack_del(&cq->res);
+-	cq->device->ops.destroy_cq(cq, udata);
++	cq->device->ops.destroy_cq(cq, NULL);
+ 	kfree(cq->wc);
+ 	kfree(cq);
+ }
+-EXPORT_SYMBOL(ib_free_cq_user);
++EXPORT_SYMBOL(ib_free_cq);
+ 
+ void ib_cq_pool_init(struct ib_device *dev)
+ {
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index c0b2fa7e9b959..1a3ef718c30b4 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -3817,46 +3817,15 @@ static inline int ib_post_recv(struct ib_qp *qp,
+ 	return qp->device->ops.post_recv(qp, recv_wr, bad_recv_wr ? : &dummy);
+ }
+ 
+-struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
+-				 int nr_cqe, int comp_vector,
+-				 enum ib_poll_context poll_ctx,
+-				 const char *caller, struct ib_udata *udata);
+-
+-/**
+- * ib_alloc_cq_user: Allocate kernel/user CQ
+- * @dev: The IB device
+- * @private: Private data attached to the CQE
+- * @nr_cqe: Number of CQEs in the CQ
+- * @comp_vector: Completion vector used for the IRQs
+- * @poll_ctx: Context used for polling the CQ
+- * @udata: Valid user data or NULL for kernel objects
+- */
+-static inline struct ib_cq *ib_alloc_cq_user(struct ib_device *dev,
+-					     void *private, int nr_cqe,
+-					     int comp_vector,
+-					     enum ib_poll_context poll_ctx,
+-					     struct ib_udata *udata)
+-{
+-	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
+-				  KBUILD_MODNAME, udata);
+-}
+-
+-/**
+- * ib_alloc_cq: Allocate kernel CQ
+- * @dev: The IB device
+- * @private: Private data attached to the CQE
+- * @nr_cqe: Number of CQEs in the CQ
+- * @comp_vector: Completion vector used for the IRQs
+- * @poll_ctx: Context used for polling the CQ
+- *
+- * NOTE: for user cq use ib_alloc_cq_user with valid udata!
+- */
++struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private, int nr_cqe,
++			    int comp_vector, enum ib_poll_context poll_ctx,
++			    const char *caller);
+ static inline struct ib_cq *ib_alloc_cq(struct ib_device *dev, void *private,
+ 					int nr_cqe, int comp_vector,
+ 					enum ib_poll_context poll_ctx)
+ {
+-	return ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
+-				NULL);
++	return __ib_alloc_cq(dev, private, nr_cqe, comp_vector, poll_ctx,
++			     KBUILD_MODNAME);
+ }
+ 
+ struct ib_cq *__ib_alloc_cq_any(struct ib_device *dev, void *private,
+@@ -3878,26 +3847,7 @@ static inline struct ib_cq *ib_alloc_cq_any(struct ib_device *dev,
+ 				 KBUILD_MODNAME);
+ }
+ 
+-/**
+- * ib_free_cq_user - Free kernel/user CQ
+- * @cq: The CQ to free
+- * @udata: Valid user data or NULL for kernel objects
+- *
+- * NOTE: This function shouldn't be called on shared CQs.
+- */
+-void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata);
+-
+-/**
+- * ib_free_cq - Free kernel CQ
+- * @cq: The CQ to free
+- *
+- * NOTE: for user cq use ib_free_cq_user with valid udata!
+- */
+-static inline void ib_free_cq(struct ib_cq *cq)
+-{
+-	ib_free_cq_user(cq, NULL);
+-}
+-
++void ib_free_cq(struct ib_cq *cq);
+ int ib_process_cq_direct(struct ib_cq *cq, int budget);
+ 
+ /**
 -- 
 2.25.1
 
