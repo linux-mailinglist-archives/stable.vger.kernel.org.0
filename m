@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C3E29AF62
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E8129AF0C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754527AbgJ0OFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
+        id S2506120AbgJ0OGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754520AbgJ0OFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:05:51 -0400
+        id S1753375AbgJ0N76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:59:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95DD022263;
-        Tue, 27 Oct 2020 14:05:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0293A2068D;
+        Tue, 27 Oct 2020 13:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807550;
-        bh=TMvl6JqP5QWLLoIB7AQcGC1r6OKMz+DhBZQmQMC6+rA=;
+        s=default; t=1603807198;
+        bh=1hl3tSGkMvAO2zttaOP20rG5Ux1kiz5ts/NfBrKhXiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yw00NDlmS4C6VZCyG1dnI5GvNi80UEJYui7p/jn1t8W29qcVtM90ox3OKAjwHnXUG
-         n6zVv9YatipLIJsiOOuoZSRXR7RsJjIIA3HY6v1HlR0WPF8/WU6RBLnVAmpIFPR3uX
-         1h5pposkNTS3uAWjRU62DqFmTX2atvtN6A7ejNks=
+        b=CrK2LUuFZZ4Y4baneZGvUAQ2GFDE66RTpvPSq1YvAusRuygdAtYXqOKInnEqf2ons
+         kwbBowVsb5vuogmQUHyxIYC0vU95Ro4kLRv7t3OIYUjNjfdGdd3dmV69DD1Xpd+lMR
+         csL5fYRU+k1ULr41c4zUrUVbwQVeef5HNe20fl18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaige Li <likaige@loongson.cn>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/139] NTB: hw: amd: fix an issue about leak system resources
-Date:   Tue, 27 Oct 2020 14:49:47 +0100
-Message-Id: <20201027134906.550742570@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+998261c2ae5932458f6c@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 078/112] media: ati_remote: sanity check for both endpoints
+Date:   Tue, 27 Oct 2020 14:49:48 +0100
+Message-Id: <20201027134904.234334188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaige Li <likaige@loongson.cn>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 44a0a3c17919db1498cebb02ecf3cf4abc1ade7b ]
+[ Upstream commit a8be80053ea74bd9c3f9a3810e93b802236d6498 ]
 
-The related system resources were not released when pci_set_dma_mask(),
-pci_set_consistent_dma_mask(), or pci_iomap() return error in the
-amd_ntb_init_pci() function. Add pci_release_regions() to fix it.
+If you do sanity checks, you should do them for both endpoints.
+Hence introduce checking for endpoint type for the output
+endpoint, too.
 
-Fixes: a1b3695820aa ("NTB: Add support for AMD PCI-Express Non-Transparent Bridge")
-Signed-off-by: Kaige Li <likaige@loongson.cn>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Reported-by: syzbot+998261c2ae5932458f6c@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/amd/ntb_hw_amd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/rc/ati_remote.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/ntb/hw/amd/ntb_hw_amd.c b/drivers/ntb/hw/amd/ntb_hw_amd.c
-index 6ccba0d862df7..927b574e5d596 100644
---- a/drivers/ntb/hw/amd/ntb_hw_amd.c
-+++ b/drivers/ntb/hw/amd/ntb_hw_amd.c
-@@ -994,6 +994,7 @@ static int amd_ntb_init_pci(struct amd_ntb_dev *ndev,
+diff --git a/drivers/media/rc/ati_remote.c b/drivers/media/rc/ati_remote.c
+index a35631891cc00..3c3f4c4f6be40 100644
+--- a/drivers/media/rc/ati_remote.c
++++ b/drivers/media/rc/ati_remote.c
+@@ -843,6 +843,10 @@ static int ati_remote_probe(struct usb_interface *interface,
+ 		err("%s: endpoint_in message size==0? \n", __func__);
+ 		return -ENODEV;
+ 	}
++	if (!usb_endpoint_is_int_out(endpoint_out)) {
++		err("%s: Unexpected endpoint_out\n", __func__);
++		return -ENODEV;
++	}
  
- err_dma_mask:
- 	pci_clear_master(pdev);
-+	pci_release_regions(pdev);
- err_pci_regions:
- 	pci_disable_device(pdev);
- err_pci_enable:
+ 	ati_remote = kzalloc(sizeof (struct ati_remote), GFP_KERNEL);
+ 	rc_dev = rc_allocate_device();
 -- 
 2.25.1
 
