@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6C129B759
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B663E29B76C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1799539AbgJ0PcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
+        id S1799701AbgJ0Pcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799531AbgJ0Pb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:31:58 -0400
+        id S1799698AbgJ0Pcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:32:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABD5A20728;
-        Tue, 27 Oct 2020 15:31:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFF8222202;
+        Tue, 27 Oct 2020 15:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812718;
-        bh=xnSXTGQeoqiqcMyGRm/u/OjKp+OcsyruOhk6ahlVGgA=;
+        s=default; t=1603812774;
+        bh=1NVx5rLyal8hpuvHe85OB/FAzDsAwKW3xaNGwbHZY2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07fqauwMokOrCr+d+wRiNEF0rewnI6puiucuabQaIxgmMrdda6oMi/ZONIbHXsb97
-         WYn4ZTwtVbh7bLJbInStT7/OFlwaW8G1A951BOikK149ubk5eolr97GIJDXMhjRGxU
-         60FrhEMBtrMFBIleLWC0BbU+CELcHJPGDftc9fAc=
+        b=NNp4sAbiXOdR5InDqzILYYesInpMxOGQOLw7/FFl2SigRuSyWNdHCc3CZPy1CfaFd
+         5qZfwEaIXz2HXb+9gNBaSW0312JpXoFHpZ2pvSXWtOC9JQ424Z29juufxXXSSjChsp
+         zbsby4MkFB3k9kdRxTuMq85axnTYhoRzaZjda0jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 305/757] dmaengine: dmatest: Check list for emptiness before access its last entry
-Date:   Tue, 27 Oct 2020 14:49:15 +0100
-Message-Id: <20201027135504.869250668@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 308/757] ALSA: seq: oss: Avoid mutex lock for a long-time ioctl
+Date:   Tue, 27 Oct 2020 14:49:18 +0100
+Message-Id: <20201027135505.003866131@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,55 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b28de385b71abf31ce68ec0387638bee26ae9024 ]
+[ Upstream commit 2759caad2600d503c3b0ed800e7e03d2cd7a4c05 ]
 
-After writing a garbage to the channel we get an Oops in dmatest_chan_set()
-due to access to last entry in the empty list.
+Recently we applied a fix to cover the whole OSS sequencer ioctls with
+the mutex for dealing with the possible races.  This works fine in
+general, but in theory, this may lead to unexpectedly long stall if an
+ioctl like SNDCTL_SEQ_SYNC is issued and an event with the far future
+timestamp was queued.
 
-[  212.670672] BUG: unable to handle page fault for address: fffffff000000020
-[  212.677562] #PF: supervisor read access in kernel mode
-[  212.682702] #PF: error_code(0x0000) - not-present page
-...
-[  212.710074] RIP: 0010:dmatest_chan_set+0x149/0x2d0 [dmatest]
-[  212.715739] Code: e8 cc f9 ff ff 48 8b 1d 0d 55 00 00 48 83 7b 10 00 0f 84 63 01 00 00 48 c7 c7 d0 65 4d c0 e8 ee 4a f5 e1 48 89 c6 48 8b 43 10 <48> 8b 40 20 48 8b 78 58 48 85 ff 0f 84 f5 00 00 00 e8 b1 41 f5 e1
+For fixing such a potential stall, this patch changes the mutex lock
+applied conditionally excluding such an ioctl command.  Also, change
+the mutex_lock() with the interruptible version for user to allow
+escaping from the big-hammer mutex.
 
-Fix this by checking list for emptiness before accessing its last entry.
-
-Fixes: d53513d5dc28 ("dmaengine: dmatest: Add support for multi channel testing")
-Cc: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200922115847.30100-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 80982c7e834e ("ALSA: seq: oss: Serialize ioctls")
+Suggested-by: Pavel Machek <pavel@ucw.cz>
+Link: https://lore.kernel.org/r/20200922083856.28572-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dmatest.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/core/seq/oss/seq_oss.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
-index a819611b8892c..146c3f39f576b 100644
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -1249,15 +1249,14 @@ static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
- 	add_threaded_test(info);
+diff --git a/sound/core/seq/oss/seq_oss.c b/sound/core/seq/oss/seq_oss.c
+index c8b9c0b315d8f..250a92b187265 100644
+--- a/sound/core/seq/oss/seq_oss.c
++++ b/sound/core/seq/oss/seq_oss.c
+@@ -174,9 +174,12 @@ odev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	if (snd_BUG_ON(!dp))
+ 		return -ENXIO;
  
- 	/* Check if channel was added successfully */
--	dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
--
--	if (dtc->chan) {
-+	if (!list_empty(&info->channels)) {
- 		/*
- 		 * if new channel was not successfully added, revert the
- 		 * "test_channel" string to the name of the last successfully
- 		 * added channel. exception for when users issues empty string
- 		 * to channel parameter.
- 		 */
-+		dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
- 		if ((strcmp(dma_chan_name(dtc->chan), strim(test_channel)) != 0)
- 		    && (strcmp("", strim(test_channel)) != 0)) {
- 			ret = -EINVAL;
+-	mutex_lock(&register_mutex);
++	if (cmd != SNDCTL_SEQ_SYNC &&
++	    mutex_lock_interruptible(&register_mutex))
++		return -ERESTARTSYS;
+ 	rc = snd_seq_oss_ioctl(dp, cmd, arg);
+-	mutex_unlock(&register_mutex);
++	if (cmd != SNDCTL_SEQ_SYNC)
++		mutex_unlock(&register_mutex);
+ 	return rc;
+ }
+ 
 -- 
 2.25.1
 
