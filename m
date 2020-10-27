@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AB029C6FE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA4D29C5D6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827669AbgJ0S0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48100 "EHLO mail.kernel.org"
+        id S1756604AbgJ0OOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:14:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390959AbgJ0OAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:00:34 -0400
+        id S1756601AbgJ0OO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 074C921D7B;
-        Tue, 27 Oct 2020 14:00:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 132562076A;
+        Tue, 27 Oct 2020 14:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807233;
-        bh=08qxcCt7Hlmu9AiTjVzLyRv6NcOSyI4KdPv4xpvonkQ=;
+        s=default; t=1603808067;
+        bh=ESmYsFwdjMvGzq6UJYwPaDKEGd2RRZovAo1COkQR6ZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kiZEtWzNC/UYbGXDtQanNgpuFvCVpYbzk65NEOJcxI8r6+JxELSxX1oMbVFMkYMIL
-         /UUlLpkPi/sLUJWvetasueL1xygkcQmCBo6KQ9gpPoFRZ2Bc9z3hfgoHfe/pXZSgLm
-         dG543tJYT1H+qv5FY925eBXi8ZtL6eJAjIN6ER30=
+        b=aK0+tm7pf0jhMBkSe/JrKooaVpYKS/u4owzpVx36OAL3dehP49I2Tw8b24PcU8f6P
+         7LO4GQdWkvh0JYaQ3Eq/FslKLmiQoCwVsQPKd9Jy2l7KmF61T8uJaiR9kVAecp8KI+
+         nr1qV6EVhE0vKqChmjG1E/AuPhY2Qn4Q+9yVLiS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Sylwester Nawrocki <snawrocki@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 090/112] scsi: target: core: Add CONTROL field for trace events
+Subject: [PATCH 4.14 145/191] media: platform: s3c-camif: Fix runtime PM imbalance on error
 Date:   Tue, 27 Oct 2020 14:50:00 +0100
-Message-Id: <20201027134904.806744426@linuxfoundation.org>
+Message-Id: <20201027134916.679483561@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 7010645ba7256992818b518163f46bd4cdf8002a ]
+[ Upstream commit dafa3605fe60d5a61239d670919b2a36e712481e ]
 
-trace-cmd report doesn't show events from target subsystem because
-scsi_command_size() leaks through event format string:
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-  [target:target_sequencer_start] function scsi_command_size not defined
-  [target:target_cmd_complete] function scsi_command_size not defined
+Also, call pm_runtime_disable() when pm_runtime_get_sync() returns
+an error code.
 
-Addition of scsi_command_size() to plugin_scsi.c in trace-cmd doesn't
-help because an expression is used inside TP_printk(). trace-cmd event
-parser doesn't understand minus sign inside [ ]:
-
-  Error: expected ']' but read '-'
-
-Rather than duplicating kernel code in plugin_scsi.c, provide a dedicated
-field for CONTROL byte.
-
-Link: https://lore.kernel.org/r/20200929125957.83069-1-r.bolshakov@yadro.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Sylwester Nawrocki <snawrocki@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/scsi/scsi_common.h    |  7 +++++++
- include/trace/events/target.h | 12 ++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/media/platform/s3c-camif/camif-core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/include/scsi/scsi_common.h b/include/scsi/scsi_common.h
-index 11571b2a831e3..92ba09200f89b 100644
---- a/include/scsi/scsi_common.h
-+++ b/include/scsi/scsi_common.h
-@@ -24,6 +24,13 @@ scsi_command_size(const unsigned char *cmnd)
- 		scsi_varlen_cdb_length(cmnd) : COMMAND_SIZE(cmnd[0]);
- }
+diff --git a/drivers/media/platform/s3c-camif/camif-core.c b/drivers/media/platform/s3c-camif/camif-core.c
+index c4ab63986c8f0..95b11f69555c3 100644
+--- a/drivers/media/platform/s3c-camif/camif-core.c
++++ b/drivers/media/platform/s3c-camif/camif-core.c
+@@ -475,7 +475,7 @@ static int s3c_camif_probe(struct platform_device *pdev)
  
-+static inline unsigned char
-+scsi_command_control(const unsigned char *cmnd)
-+{
-+	return (cmnd[0] == VARIABLE_LENGTH_CMD) ?
-+		cmnd[1] : cmnd[COMMAND_SIZE(cmnd[0]) - 1];
-+}
-+
- /* Returns a human-readable name for the device */
- extern const char *scsi_device_type(unsigned type);
+ 	ret = camif_media_dev_init(camif);
+ 	if (ret < 0)
+-		goto err_alloc;
++		goto err_pm;
  
-diff --git a/include/trace/events/target.h b/include/trace/events/target.h
-index 50fea660c0f89..d543e8b87e50a 100644
---- a/include/trace/events/target.h
-+++ b/include/trace/events/target.h
-@@ -139,6 +139,7 @@ TRACE_EVENT(target_sequencer_start,
- 		__field( unsigned int,	opcode		)
- 		__field( unsigned int,	data_length	)
- 		__field( unsigned int,	task_attribute  )
-+		__field( unsigned char,	control		)
- 		__array( unsigned char,	cdb, TCM_MAX_COMMAND_SIZE	)
- 		__string( initiator,	cmd->se_sess->se_node_acl->initiatorname	)
- 	),
-@@ -148,6 +149,7 @@ TRACE_EVENT(target_sequencer_start,
- 		__entry->opcode		= cmd->t_task_cdb[0];
- 		__entry->data_length	= cmd->data_length;
- 		__entry->task_attribute	= cmd->sam_task_attr;
-+		__entry->control	= scsi_command_control(cmd->t_task_cdb);
- 		memcpy(__entry->cdb, cmd->t_task_cdb, TCM_MAX_COMMAND_SIZE);
- 		__assign_str(initiator, cmd->se_sess->se_node_acl->initiatorname);
- 	),
-@@ -157,9 +159,7 @@ TRACE_EVENT(target_sequencer_start,
- 		  show_opcode_name(__entry->opcode),
- 		  __entry->data_length, __print_hex(__entry->cdb, 16),
- 		  show_task_attribute_name(__entry->task_attribute),
--		  scsi_command_size(__entry->cdb) <= 16 ?
--			__entry->cdb[scsi_command_size(__entry->cdb) - 1] :
--			__entry->cdb[1]
-+		  __entry->control
- 	)
- );
- 
-@@ -174,6 +174,7 @@ TRACE_EVENT(target_cmd_complete,
- 		__field( unsigned int,	opcode		)
- 		__field( unsigned int,	data_length	)
- 		__field( unsigned int,	task_attribute  )
-+		__field( unsigned char,	control		)
- 		__field( unsigned char,	scsi_status	)
- 		__field( unsigned char,	sense_length	)
- 		__array( unsigned char,	cdb, TCM_MAX_COMMAND_SIZE	)
-@@ -186,6 +187,7 @@ TRACE_EVENT(target_cmd_complete,
- 		__entry->opcode		= cmd->t_task_cdb[0];
- 		__entry->data_length	= cmd->data_length;
- 		__entry->task_attribute	= cmd->sam_task_attr;
-+		__entry->control	= scsi_command_control(cmd->t_task_cdb);
- 		__entry->scsi_status	= cmd->scsi_status;
- 		__entry->sense_length	= cmd->scsi_status == SAM_STAT_CHECK_CONDITION ?
- 			min(18, ((u8 *) cmd->sense_buffer)[SPC_ADD_SENSE_LEN_OFFSET] + 8) : 0;
-@@ -202,9 +204,7 @@ TRACE_EVENT(target_cmd_complete,
- 		  show_opcode_name(__entry->opcode),
- 		  __entry->data_length, __print_hex(__entry->cdb, 16),
- 		  show_task_attribute_name(__entry->task_attribute),
--		  scsi_command_size(__entry->cdb) <= 16 ?
--			__entry->cdb[scsi_command_size(__entry->cdb) - 1] :
--			__entry->cdb[1]
-+		  __entry->control
- 	)
- );
- 
+ 	ret = camif_register_sensor(camif);
+ 	if (ret < 0)
+@@ -509,10 +509,9 @@ static int s3c_camif_probe(struct platform_device *pdev)
+ 	media_device_unregister(&camif->media_dev);
+ 	media_device_cleanup(&camif->media_dev);
+ 	camif_unregister_media_entities(camif);
+-err_alloc:
++err_pm:
+ 	pm_runtime_put(dev);
+ 	pm_runtime_disable(dev);
+-err_pm:
+ 	camif_clk_put(camif);
+ err_clk:
+ 	s3c_camif_unregister_subdev(camif);
 -- 
 2.25.1
 
