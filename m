@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C88229B996
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BE729B998
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802627AbgJ0Pue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60998 "EHLO mail.kernel.org"
+        id S1802632AbgJ0Puf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801427AbgJ0PlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:41:17 -0400
+        id S1801429AbgJ0PlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:41:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ECB3223B0;
-        Tue, 27 Oct 2020 15:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A826222E9;
+        Tue, 27 Oct 2020 15:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813276;
-        bh=P05hMdmcCfZ6hsb/t3C3HolCK1kxPQigs2YlxUr23RU=;
+        s=default; t=1603813280;
+        bh=tX+LMavpIXXGBbS4jlBY4UMKgcgST85nNpBWCqLEs3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daKtbnfEtE2cTF86u4YN0JSpg0O8tBvE/94Z03gI6rjs/LecAcgjULlwBaFaQDnqE
-         OS24uF/VEOIqZeXmhxDfOex4O2c7vJ+7XdinuNflh5Wd92VUh+9qGce9ugIvD1rsGp
-         xkecDmWucxjOV08T+G1xwQLlfdQdX01HuidlJejg=
+        b=b7Qk0Besl3/q8ASRKUdsBwe/arwhAyadnwA1kO6mDPtjqrexA/5jWnj/OZ28+VX+F
+         3ulb2ExorEQot2UUrnqqZIHQz0IZxwAceLJ9pH0HALiaIDjP9+VsnJE3oMppWaOIBu
+         Q8Q7/E2wCfCq7m3MiwjhEMERaPwVCik9BUJ2ad0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 497/757] thermal: core: Adding missing nlmsg_free() in thermal_genl_sampling_temp()
-Date:   Tue, 27 Oct 2020 14:52:27 +0100
-Message-Id: <20201027135513.775287511@linuxfoundation.org>
+Subject: [PATCH 5.9 498/757] maiblox: mediatek: Fix handling of platform_get_irq() error
+Date:   Tue, 27 Oct 2020 14:52:28 +0100
+Message-Id: <20201027135513.819516369@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,44 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 48b458591749d35c927351b4960b49e35af30fe6 ]
+[ Upstream commit 558e4c36ec9f2722af4fe8ef84dc812bcdb5c43a ]
 
-thermal_genl_sampling_temp() misses to call nlmsg_free() in an error path.
+platform_get_irq() returns -ERRNO on error.  In such case casting to u32
+and comparing to 0 would pass the check.
 
-Jump to out_free to fix it.
-
-Fixes: 1ce50e7d408ef2 ("thermal: core: genetlink support for events/cmd/sampling")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200929082652.59876-1-jingxiangfeng@huawei.com
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_netlink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mailbox/mtk-cmdq-mailbox.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/thermal/thermal_netlink.c b/drivers/thermal/thermal_netlink.c
-index af7b2383e8f6b..019f4812def6c 100644
---- a/drivers/thermal/thermal_netlink.c
-+++ b/drivers/thermal/thermal_netlink.c
-@@ -78,7 +78,7 @@ int thermal_genl_sampling_temp(int id, int temp)
- 	hdr = genlmsg_put(skb, 0, 0, &thermal_gnl_family, 0,
- 			  THERMAL_GENL_SAMPLING_TEMP);
- 	if (!hdr)
--		return -EMSGSIZE;
-+		goto out_free;
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index 484d4438cd835..5665b6ea8119f 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -69,7 +69,7 @@ struct cmdq_task {
+ struct cmdq {
+ 	struct mbox_controller	mbox;
+ 	void __iomem		*base;
+-	u32			irq;
++	int			irq;
+ 	u32			thread_nr;
+ 	u32			irq_mask;
+ 	struct cmdq_thread	*thread;
+@@ -525,10 +525,8 @@ static int cmdq_probe(struct platform_device *pdev)
+ 	}
  
- 	if (nla_put_u32(skb, THERMAL_GENL_ATTR_TZ_ID, id))
- 		goto out_cancel;
-@@ -93,6 +93,7 @@ int thermal_genl_sampling_temp(int id, int temp)
- 	return 0;
- out_cancel:
- 	genlmsg_cancel(skb, hdr);
-+out_free:
- 	nlmsg_free(skb);
+ 	cmdq->irq = platform_get_irq(pdev, 0);
+-	if (!cmdq->irq) {
+-		dev_err(dev, "failed to get irq\n");
+-		return -EINVAL;
+-	}
++	if (cmdq->irq < 0)
++		return cmdq->irq;
  
- 	return -EMSGSIZE;
+ 	plat_data = (struct gce_plat *)of_device_get_match_data(dev);
+ 	if (!plat_data) {
 -- 
 2.25.1
 
