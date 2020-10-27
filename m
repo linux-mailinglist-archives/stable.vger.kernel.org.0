@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E4129B589
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:13:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7C029B59A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1792968AbgJ0PNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        id S1794793AbgJ0PNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794706AbgJ0PNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:13:09 -0400
+        id S1794789AbgJ0PNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEABE20657;
-        Tue, 27 Oct 2020 15:13:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C4420657;
+        Tue, 27 Oct 2020 15:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811588;
-        bh=4q+xtkTEw+8lhssERipfns72GCshcPgkPtDFSe2mnDA=;
+        s=default; t=1603811614;
+        bh=uMiewmmEqIP9o+WBAyBsct7iMPd6w8XJY4CYwUbB3zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wES//fZr9di5V+I3hIq/FmnL+gjd8ZCeSsSlDYnKy+YMpqa6yu5Ul5kSquyrjP4eb
-         k/ZeQXRuWuaqmHed9PFV3gVXoGkmbyUqbgUfrJsuFHLCh2xRai1l0SeFbBt91fD8aV
-         l4bYullFNrC3ZVQNFMb9axO6bEFjnNqTyK6uvtw4=
+        b=xkfUcsiOz/v35cNqQlkVZyBE26KiOg7Zi3419DN9DYMLOb3ctyw6li3nQ2xjS7WcI
+         kdqMQNpWOFsPKgkvgLwtHMXuN7Xb7Rbzb7leIwVBdeuqE4RWpOF4x+JdfqrtKjXY5J
+         IJqQzlqf05DG3f8ePMjHoPmoh+8vDiyIpcv0B7SA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 545/633] x86/mce: Annotate mce_rd/wrmsrl() with noinstr
-Date:   Tue, 27 Oct 2020 14:54:48 +0100
-Message-Id: <20201027135548.362166679@linuxfoundation.org>
+Subject: [PATCH 5.8 556/633] media: venus: core: Fix runtime PM imbalance in venus_probe
+Date:   Tue, 27 Oct 2020 14:54:59 +0100
+Message-Id: <20201027135548.895140297@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,85 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit e100777016fdf6ec3a9d7c1773b15a2b5eca6c55 ]
+[ Upstream commit bbe516e976fce538db96bd2b7287df942faa14a3 ]
 
-They do get called from the #MC handler which is already marked
-"noinstr".
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced. For other error
+paths after this call, things are the same.
 
-Commit
+Fix this by adding pm_runtime_put_noidle() after 'err_runtime_disable'
+label. But in this case, the error path after pm_runtime_put_sync()
+will decrease PM usage counter twice. Thus add an extra
+pm_runtime_get_noresume() in this path to balance PM counter.
 
-  e2def7d49d08 ("x86/mce: Make mce_rdmsrl() panic on an inaccessible MSR")
-
-already got rid of the instrumentation in the MSR accessors, fix the
-annotation now too, in order to get rid of:
-
-  vmlinux.o: warning: objtool: do_machine_check()+0x4a: call to mce_rdmsrl() leaves .noinstr.text section
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200915194020.28807-1-bp@alien8.de
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ drivers/media/platform/qcom/venus/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 14e4b4d17ee5b..d8dca24feccbe 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -371,16 +371,25 @@ static int msr_to_offset(u32 msr)
- }
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index bfcaba37d60fe..321ad77cb6cf4 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -289,8 +289,10 @@ static int venus_probe(struct platform_device *pdev)
+ 		goto err_core_deinit;
  
- /* MSR access wrappers used for error injection */
--static u64 mce_rdmsrl(u32 msr)
-+static noinstr u64 mce_rdmsrl(u32 msr)
- {
- 	u64 v;
+ 	ret = pm_runtime_put_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_get_noresume(dev);
+ 		goto err_dev_unregister;
++	}
  
- 	if (__this_cpu_read(injectm.finished)) {
--		int offset = msr_to_offset(msr);
-+		int offset;
-+		u64 ret;
+ 	return 0;
  
-+		instrumentation_begin();
-+
-+		offset = msr_to_offset(msr);
- 		if (offset < 0)
--			return 0;
--		return *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
-+			ret = 0;
-+		else
-+			ret = *(u64 *)((char *)this_cpu_ptr(&injectm) + offset);
-+
-+		instrumentation_end();
-+
-+		return ret;
- 	}
- 
- 	if (rdmsrl_safe(msr, &v)) {
-@@ -396,13 +405,19 @@ static u64 mce_rdmsrl(u32 msr)
- 	return v;
- }
- 
--static void mce_wrmsrl(u32 msr, u64 v)
-+static noinstr void mce_wrmsrl(u32 msr, u64 v)
- {
- 	if (__this_cpu_read(injectm.finished)) {
--		int offset = msr_to_offset(msr);
-+		int offset;
- 
-+		instrumentation_begin();
-+
-+		offset = msr_to_offset(msr);
- 		if (offset >= 0)
- 			*(u64 *)((char *)this_cpu_ptr(&injectm) + offset) = v;
-+
-+		instrumentation_end();
-+
- 		return;
- 	}
- 	wrmsrl(msr, v);
+@@ -301,6 +303,7 @@ static int venus_probe(struct platform_device *pdev)
+ err_venus_shutdown:
+ 	venus_shutdown(core);
+ err_runtime_disable:
++	pm_runtime_put_noidle(dev);
+ 	pm_runtime_set_suspended(dev);
+ 	pm_runtime_disable(dev);
+ 	hfi_destroy(core);
 -- 
 2.25.1
 
