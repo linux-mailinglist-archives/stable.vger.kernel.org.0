@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C4E29C311
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3EB29C305
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1821343AbgJ0Rmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S1821311AbgJ0Rmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760078AbgJ0OcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:19 -0400
+        id S1760090AbgJ0OcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:32:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83952206DC;
-        Tue, 27 Oct 2020 14:32:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2619420754;
+        Tue, 27 Oct 2020 14:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809139;
-        bh=6LFXPfRjaXr/B6QXua9ug/OO8Xomm+86NfxiDEDLi6w=;
+        s=default; t=1603809141;
+        bh=BVxlaQ4e428YxoBkIKi4lxRZtgM/8yVnXxfe50osDKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzgvCUj6KTsltAdgOQ3cSpF6Kue8RGnOl5vo98OYVauhyGVL5Rlt6/f5P8QfhLPMY
-         XZvy5sRAq1pUYukkY5B9WUijzPCwP4bTD+o63tqTpbOL1aN/sdqd3juOdKCuer1DDy
-         ED8mJM9f2A0QhJB/C4CGC7UuLwT6a/4X1KayFXXI=
+        b=uvoqwKUkui0xiBZ7gUfcjXOG4ifpZ6bk6axoM3pGjTOyrimRb1o5JzkAEpet7rVfl
+         p+jTOfrPkLmeMFPcRjQu50NpfVlAXgogSve8VffmUJi//zN6C6mkvuNFs+FOC3r88F
+         SJMxuMarfLEUgv/U59QjpmgPXDBghfrKOACcabyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/408] media: tc358743: cleanup tc358743_cec_isr
-Date:   Tue, 27 Oct 2020 14:50:28 +0100
-Message-Id: <20201027135459.257091560@linuxfoundation.org>
+Subject: [PATCH 5.4 091/408] media: rcar-vin: Fix a reference count leak.
+Date:   Tue, 27 Oct 2020 14:50:29 +0100
+Message-Id: <20201027135459.308237140@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,70 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 877cb8a444dad2304e891294afb0915fe3c278d6 ]
+[ Upstream commit aaffa0126a111d65f4028c503c76192d4cc93277 ]
 
-tc358743_cec_isr is misnammed, it is not the main isr.
-So rename it to be consistent with its siblings,
-tc358743_cec_handler.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus call pm_runtime_put_noidle()
+if pm_runtime_get_sync() fails.
 
-It also does not check if its input parameter 'handled' is
-is non NULL like its siblings, so add a check.
-
-Fixes: a0ec8d1dc42e ("media: tc358743: add CEC support")
-Signed-off-by: Tom Rix <trix@redhat.com>
+Fixes: 90dedce9bc54 ("media: rcar-vin: add function to manipulate Gen3 chsel value")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/tc358743.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/media/platform/rcar-vin/rcar-dma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
-index 211caade9f998..cff99cf61ed4d 100644
---- a/drivers/media/i2c/tc358743.c
-+++ b/drivers/media/i2c/tc358743.c
-@@ -919,8 +919,8 @@ static const struct cec_adap_ops tc358743_cec_adap_ops = {
- 	.adap_monitor_all_enable = tc358743_cec_adap_monitor_all_enable,
- };
+diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
+index 3cb29b2e0b2b1..e5f6360801082 100644
+--- a/drivers/media/platform/rcar-vin/rcar-dma.c
++++ b/drivers/media/platform/rcar-vin/rcar-dma.c
+@@ -1334,8 +1334,10 @@ int rvin_set_channel_routing(struct rvin_dev *vin, u8 chsel)
+ 	int ret;
  
--static void tc358743_cec_isr(struct v4l2_subdev *sd, u16 intstatus,
--			     bool *handled)
-+static void tc358743_cec_handler(struct v4l2_subdev *sd, u16 intstatus,
-+				 bool *handled)
- {
- 	struct tc358743_state *state = to_state(sd);
- 	unsigned int cec_rxint, cec_txint;
-@@ -953,7 +953,8 @@ static void tc358743_cec_isr(struct v4l2_subdev *sd, u16 intstatus,
- 			cec_transmit_attempt_done(state->cec_adap,
- 						  CEC_TX_STATUS_ERROR);
- 		}
--		*handled = true;
-+		if (handled)
-+			*handled = true;
- 	}
- 	if ((intstatus & MASK_CEC_RINT) &&
- 	    (cec_rxint & MASK_CECRIEND)) {
-@@ -968,7 +969,8 @@ static void tc358743_cec_isr(struct v4l2_subdev *sd, u16 intstatus,
- 			msg.msg[i] = v & 0xff;
- 		}
- 		cec_received_msg(state->cec_adap, &msg);
--		*handled = true;
-+		if (handled)
-+			*handled = true;
- 	}
- 	i2c_wr16(sd, INTSTATUS,
- 		 intstatus & (MASK_CEC_RINT | MASK_CEC_TINT));
-@@ -1432,7 +1434,7 @@ static int tc358743_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
+ 	ret = pm_runtime_get_sync(vin->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(vin->dev);
+ 		return ret;
++	}
  
- #ifdef CONFIG_VIDEO_TC358743_CEC
- 	if (intstatus & (MASK_CEC_RINT | MASK_CEC_TINT)) {
--		tc358743_cec_isr(sd, intstatus, handled);
-+		tc358743_cec_handler(sd, intstatus, handled);
- 		i2c_wr16(sd, INTSTATUS,
- 			 intstatus & (MASK_CEC_RINT | MASK_CEC_TINT));
- 		intstatus &= ~(MASK_CEC_RINT | MASK_CEC_TINT);
+ 	/* Make register writes take effect immediately. */
+ 	vnmc = rvin_read(vin, VNMC_REG);
 -- 
 2.25.1
 
