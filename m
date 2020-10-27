@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC6729B003
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE05929AF1E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756949AbgJ0OPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37140 "EHLO mail.kernel.org"
+        id S1754832AbgJ0OHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:07:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756932AbgJ0OPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:19 -0400
+        id S1753727AbgJ0OHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:07:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44E992072D;
-        Tue, 27 Oct 2020 14:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C8A22263;
+        Tue, 27 Oct 2020 14:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808118;
-        bh=DoHMJVW9vLJaZWoKIKqf6iqzojGxJFnlThHFDjwg+Ac=;
+        s=default; t=1603807634;
+        bh=ZNAdmDJF+LmLzvYsWmYjtHTcQWzw7tYlotXJpmWsOEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcIxVIqONL2UNm0OfILvGCtLw/0NKDUyDH73FhE+27/rkAVIh4DMuGr1m3VDBuvt+
-         G4kZjUe0jF6Gk+2h6Ge4GQr254I071r+zfv3xnjR/3K0CNJVMWGJBbBvPly+WVwgHo
-         gi7XyjegrNqw56ElUaAP8y/h+JMfTsTkFSP2hLUI=
+        b=oQ1n3aqErmOdwbW4SIEZWnsP0HNYrbVeeEnawZFyPIxSAHre1fEZj3v7l0Tc+owzH
+         M13e0UBUuIfK2KhfLdzz++LRk7t4T5KHsjqfxK2o+C6WCXSfH0tDkbe6WJRqQ9UFWo
+         ihYn0U4Q//o9cZMCtjr3jZcDBWnTPKvKOg+/RziU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 163/191] udf: Avoid accessing uninitialized data on failed inode read
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
+        Manish Mandlik <mmandlik@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 124/139] Bluetooth: Only mark socket zapped after unlocking
 Date:   Tue, 27 Oct 2020 14:50:18 +0100
-Message-Id: <20201027134917.563086643@linuxfoundation.org>
+Message-Id: <20201027134908.034868454@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 
-[ Upstream commit 044e2e26f214e5ab26af85faffd8d1e4ec066931 ]
+[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
 
-When we fail to read inode, some data accessed in udf_evict_inode() may
-be uninitialized. Move the accesses to !is_bad_inode() branch.
+Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
+setting the socket as zapped, it could potentially race with
+l2cap_sock_release which frees the socket. Thus, wait until the cleanup
+is complete before marking the socket as zapped.
 
-Reported-by: syzbot+91f02b28f9bb5f5f1341@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+This race was reproduced on a JBL GO speaker after the remote device
+rejected L2CAP connection due to resource unavailability.
+
+Here is a dmesg log with debug logs from a repro of this bug:
+[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
+[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
+[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
+[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
+[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
+[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
+[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
+[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
+[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
+[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
+[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
+[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
+[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
+[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
+[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[ 3465.430332] Causing a watchdog bite!
+
+Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
+Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ net/bluetooth/l2cap_sock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 3c1b54091d6cc..dd57bd446340c 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -132,21 +132,24 @@ void udf_evict_inode(struct inode *inode)
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int want_delete = 0;
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index ab6b1788dbfc3..f46f59129bf39 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1340,8 +1340,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
  
--	if (!inode->i_nlink && !is_bad_inode(inode)) {
--		want_delete = 1;
--		udf_setsize(inode, 0);
--		udf_update_inode(inode, IS_SYNC(inode));
-+	if (!is_bad_inode(inode)) {
-+		if (!inode->i_nlink) {
-+			want_delete = 1;
-+			udf_setsize(inode, 0);
-+			udf_update_inode(inode, IS_SYNC(inode));
-+		}
-+		if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
-+		    inode->i_size != iinfo->i_lenExtents) {
-+			udf_warn(inode->i_sb,
-+				 "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
-+				 inode->i_ino, inode->i_mode,
-+				 (unsigned long long)inode->i_size,
-+				 (unsigned long long)iinfo->i_lenExtents);
-+		}
+ 	parent = bt_sk(sk)->parent;
+ 
+-	sock_set_flag(sk, SOCK_ZAPPED);
+-
+ 	switch (chan->state) {
+ 	case BT_OPEN:
+ 	case BT_BOUND:
+@@ -1368,8 +1366,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
+ 
+ 		break;
  	}
- 	truncate_inode_pages_final(&inode->i_data);
- 	invalidate_inode_buffers(inode);
- 	clear_inode(inode);
--	if (iinfo->i_alloc_type != ICBTAG_FLAG_AD_IN_ICB &&
--	    inode->i_size != iinfo->i_lenExtents) {
--		udf_warn(inode->i_sb, "Inode %lu (mode %o) has inode size %llu different from extent length %llu. Filesystem need not be standards compliant.\n",
--			 inode->i_ino, inode->i_mode,
--			 (unsigned long long)inode->i_size,
--			 (unsigned long long)iinfo->i_lenExtents);
--	}
- 	kfree(iinfo->i_ext.i_data);
- 	iinfo->i_ext.i_data = NULL;
- 	udf_clear_extent_cache(inode);
+-
+ 	release_sock(sk);
++
++	/* Only zap after cleanup to avoid use after free race */
++	sock_set_flag(sk, SOCK_ZAPPED);
++
+ }
+ 
+ static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
 -- 
 2.25.1
 
