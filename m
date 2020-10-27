@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF01129B960
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E7129B962
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802412AbgJ0PsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
+        id S1802431AbgJ0Pse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796414AbgJ0PSW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:22 -0400
+        id S2901017AbgJ0PSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:18:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D05421D41;
-        Tue, 27 Oct 2020 15:18:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63D742064B;
+        Tue, 27 Oct 2020 15:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811898;
-        bh=3XB9ugt7OyV653v7aSM2DpFppWYd501bNgytNPQxfII=;
+        s=default; t=1603811904;
+        bh=c/9wlfARBEJpTCpm3PS07TAi8NtXw+RfVjcsG7o0TFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXwK2uTojTyB729vpSBfIKxeSUfTUg80pP+MC5aTrwMVuOzWPfgrInx3CayH6NUkB
-         SeY/SqkMoTSw9B2Ef8fltIgJTWfZvf9xlJixpvWF9prvFj1FVXnPf8n4NbLyIUxf+f
-         tQcvhxGwR4YyX3osW7Ukej4bisrmdwFon/hZ57LE=
+        b=tem1KIf8/J1zRaqlfFytUX0om6Ivn0D6jjEyL1Wy1By4jsfgh7lITU5a5aG9U6gB4
+         gb7AWTV77AmoKm3zjBrleNun6NirrY4PgbUs5JbR+zImGRT8CnI8k8N7+elBi3tJC3
+         sjW0zQMBngLeVZeQ3igs7seASt6h8C4oUqx7QHbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Dan Murphy <dmurphy@ti.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.9 022/757] can: m_can_platform: dont call m_can_class_suspend in runtime suspend
-Date:   Tue, 27 Oct 2020 14:44:32 +0100
-Message-Id: <20201027135451.555715581@linuxfoundation.org>
+Subject: [PATCH 5.9 024/757] net: j1939: j1939_session_fresh_new(): fix missing initialization of skbcnt
+Date:   Tue, 27 Oct 2020 14:44:34 +0100
+Message-Id: <20201027135451.656263232@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,42 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 81f1f5ae8b3cbd54fdd994c9e9aacdb7b414a802 ]
+[ Upstream commit 13ba4c434422837d7c8c163f9c8d854e67bf3c99 ]
 
-    0704c5743694 can: m_can_platform: remove unnecessary m_can_class_resume() call
+This patch add the initialization of skbcnt, similar to:
 
-removed the m_can_class_resume() call in the runtime resume path to get
-rid of a infinite recursion, so the runtime resume now only handles the device
-clocks.
+    e009f95b1543 can: j1935: j1939_tp_tx_dat_new(): fix missing initialization of skbcnt
 
-Unfortunately it did not remove the complementary m_can_class_suspend() call in
-the runtime suspend function, so those paths are now unbalanced, which causes
-the pinctrl state to get stuck on the "sleep" state, which breaks all CAN
-functionality on SoCs where this state is defined. Remove the
-m_can_class_suspend() call to fix this.
+Let's play save and initialize this skbcnt as well.
 
-Fixes: 0704c5743694 can: m_can_platform: remove unnecessary m_can_class_resume() call
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://lore.kernel.org/r/20200811081545.19921-1-l.stach@pengutronix.de
-Acked-by: Dan Murphy <dmurphy@ti.com>
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can_platform.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/can/j1939/transport.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/can/m_can/m_can_platform.c
-+++ b/drivers/net/can/m_can/m_can_platform.c
-@@ -144,8 +144,6 @@ static int __maybe_unused m_can_runtime_
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct m_can_classdev *mcan_class = netdev_priv(ndev);
- 
--	m_can_class_suspend(dev);
--
- 	clk_disable_unprepare(mcan_class->cclk);
- 	clk_disable_unprepare(mcan_class->hclk);
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1488,6 +1488,7 @@ j1939_session *j1939_session_fresh_new(s
+ 	skb->dev = priv->ndev;
+ 	can_skb_reserve(skb);
+ 	can_skb_prv(skb)->ifindex = priv->ndev->ifindex;
++	can_skb_prv(skb)->skbcnt = 0;
+ 	skcb = j1939_skb_to_cb(skb);
+ 	memcpy(skcb, rel_skcb, sizeof(*skcb));
  
 
 
