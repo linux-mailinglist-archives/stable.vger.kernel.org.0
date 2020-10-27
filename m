@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E65E29BD7A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D1029BE59
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811048AbgJ0Qgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48996 "EHLO mail.kernel.org"
+        id S1794764AbgJ0PNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802421AbgJ0Psb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:48:31 -0400
+        id S1794757AbgJ0PNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47EAF2072C;
-        Tue, 27 Oct 2020 15:48:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2403B20728;
+        Tue, 27 Oct 2020 15:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813708;
-        bh=sRvLXzKAYS5pkk2rgsasZJC5O1Tt411IIFyn7/zU/V0=;
+        s=default; t=1603811602;
+        bh=2/4bFbKDfm+XVX1/UH+VcP6K9ZV0b7bxP4odHlwzXPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHaUkoAHfVWJGQgCEU1ukEMUsgGV11UMFTtWj9e88WIcKm3SSgXELRVO08zv/BBYM
-         kscL/nw3UwEZiKszTEmL5qFDpsX/Z8olFPjWPfbYKuI5U73H2jJcCbCvw3sMjhAuMZ
-         /Cau917ipGujRabcR0cY2GZj6xrAqjknuG5oaVZI=
+        b=INXKbUjIv7ZG879muEyVNZbrwpj+6OHiolxbumKnAKxKwJ99vFFVQCnOAWg0ZsX1E
+         jsmFLh4rPr7IiK57CkL7XFRrygpa/tNwdrfeglWjttzka2+HYUJQ28jtAYjVn6LBRH
+         /JMaWnfKjEwaLWTYCZ3hWHublxASw2GCRWH8+M6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 612/757] arm64: dts: mt8173: elm: Fix nor_flash node property
-Date:   Tue, 27 Oct 2020 14:54:22 +0100
-Message-Id: <20201027135519.255200692@linuxfoundation.org>
+        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 520/633] nvmet: fix uninitialized work for zero kato
+Date:   Tue, 27 Oct 2020 14:54:23 +0100
+Message-Id: <20201027135547.159661179@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: zhenwei pi <pizhenwei@bytedance.com>
 
-[ Upstream commit 1276be23fd53e1c4e752966d0eab42aa54a343da ]
+[ Upstream commit 85bd23f3dc09a2ae9e56885420e52c54bf983713 ]
 
-bus-width and non-removable is not used by the driver.
-max-frequency should be spi-max-frequency for flash node.
+When connecting a controller with a zero kato value using the following
+command line
 
-Fixes: 689b937bedde ("arm64: dts: mediatek: add mt8173 elm and hana board")
-Reported-by: Nicolas Boichat <drinkcat@chromium.org>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Link: https://lore.kernel.org/r/20200727074124.3779237-1-hsinyi@chromium.org
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+   nvme connect -t tcp -n NQN -a ADDR -s PORT --keep-alive-tmo=0
+
+the warning below can be reproduced:
+
+WARNING: CPU: 1 PID: 241 at kernel/workqueue.c:1627 __queue_delayed_work+0x6d/0x90
+with trace:
+  mod_delayed_work_on+0x59/0x90
+  nvmet_update_cc+0xee/0x100 [nvmet]
+  nvmet_execute_prop_set+0x72/0x80 [nvmet]
+  nvmet_tcp_try_recv_pdu+0x2f7/0x770 [nvmet_tcp]
+  nvmet_tcp_io_work+0x63f/0xb2d [nvmet_tcp]
+  ...
+
+This is caused by queuing up an uninitialized work.  Althrough the
+keep-alive timer is disabled during allocating the controller (fixed in
+0d3b6a8d213a), ka_work still has a chance to run (called by
+nvmet_start_ctrl).
+
+Fixes: 0d3b6a8d213a ("nvmet: Disable keep-alive timer when kato is cleared to 0h")
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/nvme/target/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi b/arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi
-index bdec719a6b62f..44a0346133cde 100644
---- a/arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi
-@@ -433,12 +433,11 @@ &nor_flash {
- 	status = "okay";
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&nor_gpio1_pins>;
--	bus-width = <8>;
--	max-frequency = <50000000>;
--	non-removable;
-+
- 	flash@0 {
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
-+		spi-max-frequency = <50000000>;
- 	};
- };
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 58b035cc67a01..75ed95a250fb5 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -1142,7 +1142,8 @@ static void nvmet_start_ctrl(struct nvmet_ctrl *ctrl)
+ 	 * in case a host died before it enabled the controller.  Hence, simply
+ 	 * reset the keep alive timer when the controller is enabled.
+ 	 */
+-	mod_delayed_work(system_wq, &ctrl->ka_work, ctrl->kato * HZ);
++	if (ctrl->kato)
++		mod_delayed_work(system_wq, &ctrl->ka_work, ctrl->kato * HZ);
+ }
  
+ static void nvmet_clear_ctrl(struct nvmet_ctrl *ctrl)
 -- 
 2.25.1
 
