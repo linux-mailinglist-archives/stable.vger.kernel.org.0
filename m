@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3416829B152
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3795329AEC2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759312AbgJ0O26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:28:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55484 "EHLO mail.kernel.org"
+        id S1754031AbgJ0ODt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759304AbgJ0O25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:28:57 -0400
+        id S1754027AbgJ0ODs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B29220780;
-        Tue, 27 Oct 2020 14:28:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 906F32222C;
+        Tue, 27 Oct 2020 14:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808936;
-        bh=n0JLA2S52Mf6UHB8vzRPwyVL5pgBEFi1fmjP7u1WtjI=;
+        s=default; t=1603807428;
+        bh=Fh3CurmhpDkxBXxMF8kBsENV/noZeSJClYThqjOkMQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcQtDvk9RKyZmpaWNv9d9bVAm6yEaZjdEyFenkmeSnZUMnLEYDpqgGALSO//k/4bS
-         VJFcQrPo+zmmQgWr7DkUKigG3PUAPbXqKN04HyRvp+Q9V1FsDdlTp3TxVYvul/KNWD
-         oV0nbEyEqawbQD4Wg66nif+sWSUMwpbOfabxT80o=
+        b=G/2IMW5OucqYRKmcb3IbAlZejEWFHVp8PHoFYmDmErMLpsj2TNfSV3UbWhnMzReoF
+         a5RoztjF2rI0U0EQWttMmfreU0zK5dgF/AMxTArZ4CYK9Fh3GIcXZupLvhtDL56YP5
+         OcElLR+ZEg2vUq4nWEOhd/d//DvVSXW08PtJpimw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Richard Leitner <richard.leitner@skidata.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 005/408] net: fec: Fix phy_device lookup for phy_reset_after_clk_enable()
-Date:   Tue, 27 Oct 2020 14:49:03 +0100
-Message-Id: <20201027135455.295571826@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 050/139] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
+Date:   Tue, 27 Oct 2020 14:49:04 +0100
+Message-Id: <20201027134904.507540923@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit 64a632da538a6827fad0ea461925cedb9899ebe2 ]
+[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
 
-The phy_reset_after_clk_enable() is always called with ndev->phydev,
-however that pointer may be NULL even though the PHY device instance
-already exists and is sufficient to perform the PHY reset.
+Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
+in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
+assume 16 packets per microframe, and USB 3 and above no longer
+use microframes.
 
-This condition happens in fec_open(), where the clock must be enabled
-first, then the PHY must be reset, and then the PHY IDs can be read
-out of the PHY.
+Maximum speed is actually much higher. On a direct connection,
+theoretical throughput is at most 3.86 Gbps for gen1x1 and
+9.36 Gbps for gen2x1, and I have seen gadget->host iperf
+throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
 
-If the PHY still is not bound to the MAC, but there is OF PHY node
-and a matching PHY device instance already, use the OF PHY node to
-obtain the PHY device instance, and then use that PHY device instance
-when triggering the PHY reset.
+Unfortunately the ConnectionSpeedChange defined in the CDC spec
+only uses 32-bit values, so we can't report accurate numbers for
+10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
+roughly maximum theoretical performance) and 4.25Gbps for
+SuperSpeed Plus (which is close to the maximum that we can report
+in a 32-bit unsigned integer).
 
-Fixes: 1b0a83ac04e3 ("net: fec: add phy_reset_after_clk_enable() support")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: Richard Leitner <richard.leitner@skidata.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This results in:
+
+[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
+[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
+
+on SuperSpeed and:
+
+[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
+[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
+
+on SuperSpeed Plus.
+
+Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -1945,6 +1945,27 @@ out:
- 	return ret;
- }
- 
-+static void fec_enet_phy_reset_after_clk_enable(struct net_device *ndev)
-+{
-+	struct fec_enet_private *fep = netdev_priv(ndev);
-+	struct phy_device *phy_dev = ndev->phydev;
-+
-+	if (phy_dev) {
-+		phy_reset_after_clk_enable(phy_dev);
-+	} else if (fep->phy_node) {
-+		/*
-+		 * If the PHY still is not bound to the MAC, but there is
-+		 * OF PHY node and a matching PHY device instance already,
-+		 * use the OF PHY node to obtain the PHY device instance,
-+		 * and then use that PHY device instance when triggering
-+		 * the PHY reset.
-+		 */
-+		phy_dev = of_phy_find_device(fep->phy_node);
-+		phy_reset_after_clk_enable(phy_dev);
-+		put_device(&phy_dev->mdio.dev);
-+	}
-+}
-+
- static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
+index 0061bf130598e..ba8fa97a62cfd 100644
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -91,8 +91,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static inline unsigned ncm_bitrate(struct usb_gadget *g)
  {
- 	struct fec_enet_private *fep = netdev_priv(ndev);
-@@ -1971,7 +1992,7 @@ static int fec_enet_clk_enable(struct ne
- 		if (ret)
- 			goto failed_clk_ref;
- 
--		phy_reset_after_clk_enable(ndev->phydev);
-+		fec_enet_phy_reset_after_clk_enable(ndev);
- 	} else {
- 		clk_disable_unprepare(fep->clk_enet_out);
- 		if (fep->clk_ptp) {
-@@ -2991,7 +3012,7 @@ fec_enet_open(struct net_device *ndev)
- 	 * phy_reset_after_clk_enable() before because the PHY wasn't probed.
- 	 */
- 	if (reset_again)
--		phy_reset_after_clk_enable(ndev->phydev);
-+		fec_enet_phy_reset_after_clk_enable(ndev);
- 
- 	if (fep->quirks & FEC_QUIRK_ERR006687)
- 		imx6q_cpuidle_fec_irqs_used();
+-	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
++	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
+-- 
+2.25.1
+
 
 
