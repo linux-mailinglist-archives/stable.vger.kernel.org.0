@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BBE29B3AF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCB429B37A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409444AbgJ0OyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50654 "EHLO mail.kernel.org"
+        id S1751837AbgJ0Ow0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773107AbgJ0OvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:13 -0400
+        id S1768387AbgJ0Otm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:49:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 882462225E;
-        Tue, 27 Oct 2020 14:51:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F39206E5;
+        Tue, 27 Oct 2020 14:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810273;
-        bh=N2OKTnmbyuBCrU4Q1Ih2/CK7lfVvfVFuoKzhQQcI/Gs=;
+        s=default; t=1603810181;
+        bh=hMMjolOHhezTfEboHVT4V0QWkMrOOg2PC5xiFDOy9FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkgK8cDeTDaoI/60JH3hJUCOjmvqS8NIwTlFa6TYLKgN1URMBKoyyhAEnlIEpK+yB
-         FUe/ZUyb5k3stJtExIr1OiF4GH7bh5O3ghj0r/M8OpjcQ4LPuRPG5AcH8ujgZo0e5d
-         6lcz3V7MRBDwztJLgt3N8/FbCQM6nGXxDiD/O3uk=
+        b=fLLoORzFXFRnMKxd9VQoYN6lFTW3eMqfmDU4h8db/WmdSDjSYsGXJqoz0wr7UIhPK
+         HMZuUsore8VlDzeBTLVl4IhH1CD9YBo9+aZEMECbDj0Ha8h/ra9ZxU3eFnlM86uPkx
+         +2KCCr17gMLRzoOYTHiUJyRp75gPKOQCLwDiu9Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Hung <dylan_hung@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 041/633] net: ftgmac100: Fix Aspeed ast2600 TX hang issue
-Date:   Tue, 27 Oct 2020 14:46:24 +0100
-Message-Id: <20201027135524.625786235@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 042/633] net: hdlc: In hdlc_rcv, check to make sure dev is an HDLC device
+Date:   Tue, 27 Oct 2020 14:46:25 +0100
+Message-Id: <20201027135524.677380618@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -42,54 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Hung <dylan_hung@aspeedtech.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 137d23cea1c044b2d4853ac71bc68126b25fdbb2 ]
+[ Upstream commit 01c4ceae0a38a0bdbfea6896f41efcd985a9c064 ]
 
-The new HW arbitration feature on Aspeed ast2600 will cause MAC TX to
-hang when handling scatter-gather DMA.  Disable the problematic feature
-by setting MAC register 0x58 bit28 and bit27.
+The hdlc_rcv function is used as hdlc_packet_type.func to process any
+skb received in the kernel with skb->protocol == htons(ETH_P_HDLC).
+The purpose of this function is to provide second-stage processing for
+skbs not assigned a "real" L3 skb->protocol value in the first stage.
 
-Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
-Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
+This function assumes the device from which the skb is received is an
+HDLC device (a device created by this module). It assumes that
+netdev_priv(dev) returns a pointer to "struct hdlc_device".
+
+However, it is possible that some driver in the kernel (not necessarily
+in our control) submits a received skb with skb->protocol ==
+htons(ETH_P_HDLC), from a non-HDLC device. In this case, the skb would
+still be received by hdlc_rcv. This will cause problems.
+
+hdlc_rcv should be able to recognize and drop invalid skbs. It should
+first make sure "dev" is actually an HDLC device, before starting its
+processing. This patch adds this check to hdlc_rcv.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201020013152.89259-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c |    5 +++++
- drivers/net/ethernet/faraday/ftgmac100.h |    8 ++++++++
- 2 files changed, 13 insertions(+)
+ drivers/net/wan/hdlc.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1817,6 +1817,11 @@ static int ftgmac100_probe(struct platfo
- 		priv->rxdes0_edorr_mask = BIT(30);
- 		priv->txdes0_edotr_mask = BIT(30);
- 		priv->is_aspeed = true;
-+		/* Disable ast2600 problematic HW arbitration */
-+		if (of_device_is_compatible(np, "aspeed,ast2600-mac")) {
-+			iowrite32(FTGMAC100_TM_DEFAULT,
-+				  priv->base + FTGMAC100_OFFSET_TM);
-+		}
- 	} else {
- 		priv->rxdes0_edorr_mask = BIT(15);
- 		priv->txdes0_edotr_mask = BIT(15);
---- a/drivers/net/ethernet/faraday/ftgmac100.h
-+++ b/drivers/net/ethernet/faraday/ftgmac100.h
-@@ -170,6 +170,14 @@
- #define FTGMAC100_MACCR_SW_RST		(1 << 31)
- 
- /*
-+ * test mode control register
-+ */
-+#define FTGMAC100_TM_RQ_TX_VALID_DIS (1 << 28)
-+#define FTGMAC100_TM_RQ_RR_IDLE_PREV (1 << 27)
-+#define FTGMAC100_TM_DEFAULT                                                   \
-+	(FTGMAC100_TM_RQ_TX_VALID_DIS | FTGMAC100_TM_RQ_RR_IDLE_PREV)
+--- a/drivers/net/wan/hdlc.c
++++ b/drivers/net/wan/hdlc.c
+@@ -46,7 +46,15 @@ static struct hdlc_proto *first_proto;
+ static int hdlc_rcv(struct sk_buff *skb, struct net_device *dev,
+ 		    struct packet_type *p, struct net_device *orig_dev)
+ {
+-	struct hdlc_device *hdlc = dev_to_hdlc(dev);
++	struct hdlc_device *hdlc;
 +
-+/*
-  * PHY control register
-  */
- #define FTGMAC100_PHYCR_MDC_CYCTHR_MASK	0x3f
++	/* First make sure "dev" is an HDLC device */
++	if (!(dev->priv_flags & IFF_WAN_HDLC)) {
++		kfree_skb(skb);
++		return NET_RX_SUCCESS;
++	}
++
++	hdlc = dev_to_hdlc(dev);
+ 
+ 	if (!net_eq(dev_net(dev), &init_net)) {
+ 		kfree_skb(skb);
 
 
