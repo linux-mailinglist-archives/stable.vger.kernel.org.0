@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 736FE29C3F1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32AD029C3F7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901498AbgJ0OYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49028 "EHLO mail.kernel.org"
+        id S1822676AbgJ0Rvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901482AbgJ0OX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:23:56 -0400
+        id S2901508AbgJ0OYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:24:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF0EC20790;
-        Tue, 27 Oct 2020 14:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3867920780;
+        Tue, 27 Oct 2020 14:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808635;
-        bh=XO1slJuy6Cd3iCL3vp7XmhG9W9rFGULZpdZ0D9mMAVg=;
+        s=default; t=1603808643;
+        bh=7mpwnG2c/HpRVOZkLlEM6xFLuF/c+ZfhXMlSaebxHSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XN9atgX3jckcjFWfqZkDnXVPojv8nnnq4ZqYo69X+J+dsCE0ClVAmWfJbOLjhMWFA
-         qmiW27o7ENV5h2za7vCEjUxVDqS3X8PQugKQY6H52NtTlP8kEhTxaEc86kztWKzxmu
-         o5Ux8eEYqFwlrkYAbcKYMBZYIw3FCqyZYDeJgNlA=
+        b=zv/soq7yFpBKs0m0e8frPEsevvAsNqDLzfUXYs//gWEJv62gdOeFJdkdzTQiTx7wg
+         Qee6w0uiO02M6gLB7zSrw4/qMf7dFZbB3hrUjotYUririvJx/4L27lVjI6urFF0t/M
+         no3dNaFtRSVhkGnBTmQXH2ciH+QE9uLtECZNyZQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Da Xue <da@libre.computer>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 166/264] mailbox: avoid timer start from callback
-Date:   Tue, 27 Oct 2020 14:53:44 +0100
-Message-Id: <20201027135438.485165548@linuxfoundation.org>
+Subject: [PATCH 4.19 169/264] rpmsg: smd: Fix a kobj leak in in qcom_smd_parse_edge()
+Date:   Tue, 27 Oct 2020 14:53:47 +0100
+Message-Id: <20201027135438.619012228@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,73 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jassi Brar <jaswinder.singh@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c7dacf5b0f32957b24ef29df1207dc2cd8307743 ]
+[ Upstream commit e69ee0cf655e8e0c4a80f4319e36019b74f17639 ]
 
-If the txdone is done by polling, it is possible for msg_submit() to start
-the timer while txdone_hrtimer() callback is running. If the timer needs
-recheduling, it could already be enqueued by the time hrtimer_forward_now()
-is called, leading hrtimer to loudly complain.
+We need to call of_node_put(node) on the error paths for this function.
 
-WARNING: CPU: 3 PID: 74 at kernel/time/hrtimer.c:932 hrtimer_forward+0xc4/0x110
-CPU: 3 PID: 74 Comm: kworker/u8:1 Not tainted 5.9.0-rc2-00236-gd3520067d01c-dirty #5
-Hardware name: Libre Computer AML-S805X-AC (DT)
-Workqueue: events_freezable_power_ thermal_zone_device_check
-pstate: 20000085 (nzCv daIf -PAN -UAO BTYPE=--)
-pc : hrtimer_forward+0xc4/0x110
-lr : txdone_hrtimer+0xf8/0x118
-[...]
-
-This can be fixed by not starting the timer from the callback path. Which
-requires the timer reloading as long as any message is queued on the
-channel, and not just when current tx is not done yet.
-
-Fixes: 0cc67945ea59 ("mailbox: switch to hrtimer for tx_complete polling")
-Reported-by: Da Xue <da@libre.computer>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Acked-by: Jerome Brunet <jbrunet@baylibre.com>
-Tested-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200908071841.GA294938@mwanda
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/rpmsg/qcom_smd.c | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 055c90b8253cb..10a559cfb7ea3 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -85,9 +85,12 @@ static void msg_submit(struct mbox_chan *chan)
- exit:
- 	spin_unlock_irqrestore(&chan->lock, flags);
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index b2e5a6abf7d5c..aa008fa11002e 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1338,7 +1338,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 	ret = of_property_read_u32(node, key, &edge->edge_id);
+ 	if (ret) {
+ 		dev_err(dev, "edge missing %s property\n", key);
+-		return -EINVAL;
++		goto put_node;
+ 	}
  
--	if (!err && (chan->txdone_method & TXDONE_BY_POLL))
--		/* kick start the timer immediately to avoid delays */
--		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+	/* kick start the timer immediately to avoid delays */
-+	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
-+		/* but only if not already active */
-+		if (!hrtimer_active(&chan->mbox->poll_hrt))
-+			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+	}
- }
+ 	edge->remote_pid = QCOM_SMEM_HOST_ANY;
+@@ -1349,32 +1349,37 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 	edge->mbox_client.knows_txdone = true;
+ 	edge->mbox_chan = mbox_request_channel(&edge->mbox_client, 0);
+ 	if (IS_ERR(edge->mbox_chan)) {
+-		if (PTR_ERR(edge->mbox_chan) != -ENODEV)
+-			return PTR_ERR(edge->mbox_chan);
++		if (PTR_ERR(edge->mbox_chan) != -ENODEV) {
++			ret = PTR_ERR(edge->mbox_chan);
++			goto put_node;
++		}
  
- static void tx_tick(struct mbox_chan *chan, int r)
-@@ -125,11 +128,10 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
- 		struct mbox_chan *chan = &mbox->chans[i];
+ 		edge->mbox_chan = NULL;
  
- 		if (chan->active_req && chan->cl) {
-+			resched = true;
- 			txdone = chan->mbox->ops->last_tx_done(chan);
- 			if (txdone)
- 				tx_tick(chan, 0);
--			else
--				resched = true;
+ 		syscon_np = of_parse_phandle(node, "qcom,ipc", 0);
+ 		if (!syscon_np) {
+ 			dev_err(dev, "no qcom,ipc node\n");
+-			return -ENODEV;
++			ret = -ENODEV;
++			goto put_node;
+ 		}
+ 
+ 		edge->ipc_regmap = syscon_node_to_regmap(syscon_np);
+-		if (IS_ERR(edge->ipc_regmap))
+-			return PTR_ERR(edge->ipc_regmap);
++		if (IS_ERR(edge->ipc_regmap)) {
++			ret = PTR_ERR(edge->ipc_regmap);
++			goto put_node;
++		}
+ 
+ 		key = "qcom,ipc";
+ 		ret = of_property_read_u32_index(node, key, 1, &edge->ipc_offset);
+ 		if (ret < 0) {
+ 			dev_err(dev, "no offset in %s\n", key);
+-			return -EINVAL;
++			goto put_node;
+ 		}
+ 
+ 		ret = of_property_read_u32_index(node, key, 2, &edge->ipc_bit);
+ 		if (ret < 0) {
+ 			dev_err(dev, "no bit in %s\n", key);
+-			return -EINVAL;
++			goto put_node;
  		}
  	}
  
+@@ -1385,7 +1390,8 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 	irq = irq_of_parse_and_map(node, 0);
+ 	if (irq < 0) {
+ 		dev_err(dev, "required smd interrupt missing\n");
+-		return -EINVAL;
++		ret = irq;
++		goto put_node;
+ 	}
+ 
+ 	ret = devm_request_irq(dev, irq,
+@@ -1393,12 +1399,18 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 			       node->name, edge);
+ 	if (ret) {
+ 		dev_err(dev, "failed to request smd irq\n");
+-		return ret;
++		goto put_node;
+ 	}
+ 
+ 	edge->irq = irq;
+ 
+ 	return 0;
++
++put_node:
++	of_node_put(node);
++	edge->of_node = NULL;
++
++	return ret;
+ }
+ 
+ /*
 -- 
 2.25.1
 
