@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9093329AFFC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B25F929AF17
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756905AbgJ0OPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36926 "EHLO mail.kernel.org"
+        id S1754788AbgJ0OHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756902AbgJ0OPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:15:08 -0400
+        id S1754784AbgJ0OHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:07:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72DD92072D;
-        Tue, 27 Oct 2020 14:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1B4922258;
+        Tue, 27 Oct 2020 14:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808108;
-        bh=QWMvPqkn4Zv3OynYGV21SYqtVsu7u/KB6Eu+sCemUms=;
+        s=default; t=1603807623;
+        bh=O+IHjo24MmO5QxbAQXUaVG9tU1jK7u/IyWbU513gXiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjOJa6L180Gk84kuZ7RnwvKhxiBTR942W49G3Agy47Wo8ifGf7gyD2MAgn9+Xh0Ro
-         wlO6YafFMSyVckqh489hmhDrYatmYH7Sla6d5hw7erE6jZi96U7RU6Wn2XYcDV/vSd
-         RdYOzrcCQPuXhq8vzr3zoJtY7O65V44Fr9OtAWkI=
+        b=ummyH8iJo0I/pbuIsJzUvY/NsFxDyUE9bwcngCVM1zEPiIESAtENj5zg2Lx5iKxL0
+         ePX85vpg9cB34j1zK6j/5zn7GEk4EhgRsDHARf3dpnRpgCr3qVJTBiJh5qE0dsIkuC
+         yMOPs+RVn0hK7LLZLfAY1GePZ3mnE5XthMW1KDp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/191] mic: vop: copy data to kernel space then write to io memory
+Subject: [PATCH 4.9 120/139] misc: rtsx: Fix memory leak in rtsx_pci_probe
 Date:   Tue, 27 Oct 2020 14:50:14 +0100
-Message-Id: <20201027134917.363114258@linuxfoundation.org>
+Message-Id: <20201027134907.839556992@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 675f0ad4046946e80412896436164d172cd92238 ]
+[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
 
-Read and write io memory should address align on ARCH ARM. Change to use
-memcpy_toio to avoid kernel panic caused by the address un-align issue.
+When mfd_add_devices() fail, pcr->slots should also be freed. However,
+the current implementation does not free the member, leading to a memory
+leak.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20200929091106.24624-5-sherry.sun@nxp.com
+Fix this by adding a new goto label that frees pcr->slots.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/vop/vop_vringh.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/mfd/rtsx_pcr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
-index fed992e2c2583..99bde52a3a256 100644
---- a/drivers/misc/mic/vop/vop_vringh.c
-+++ b/drivers/misc/mic/vop/vop_vringh.c
-@@ -611,6 +611,7 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
- 	size_t partlen;
- 	bool dma = VOP_USE_DMA;
- 	int err = 0;
-+	size_t offset = 0;
+diff --git a/drivers/mfd/rtsx_pcr.c b/drivers/mfd/rtsx_pcr.c
+index 98029ee0959e3..be61f8606a045 100644
+--- a/drivers/mfd/rtsx_pcr.c
++++ b/drivers/mfd/rtsx_pcr.c
+@@ -1255,12 +1255,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
+ 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
+ 	if (ret < 0)
+-		goto disable_irq;
++		goto free_slots;
  
- 	if (daddr & (dma_alignment - 1)) {
- 		vdev->tx_dst_unaligned += len;
-@@ -659,13 +660,20 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
- 	 * We are copying to IO below and should ideally use something
- 	 * like copy_from_user_toio(..) if it existed.
- 	 */
--	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
--		err = -EFAULT;
--		dev_err(vop_dev(vdev), "%s %d err %d\n",
--			__func__, __LINE__, err);
--		goto err;
-+	while (len) {
-+		partlen = min_t(size_t, len, VOP_INT_DMA_BUF_SIZE);
-+
-+		if (copy_from_user(vvr->buf, ubuf + offset, partlen)) {
-+			err = -EFAULT;
-+			dev_err(vop_dev(vdev), "%s %d err %d\n",
-+				__func__, __LINE__, err);
-+			goto err;
-+		}
-+		memcpy_toio(dbuf + offset, vvr->buf, partlen);
-+		offset += partlen;
-+		vdev->out_bytes += partlen;
-+		len -= partlen;
- 	}
--	vdev->out_bytes += len;
- 	err = 0;
- err:
- 	vpdev->hw_ops->iounmap(vpdev, dbuf);
+ 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
+ 
+ 	return 0;
+ 
++free_slots:
++	kfree(pcr->slots);
+ disable_irq:
+ 	free_irq(pcr->irq, (void *)pcr);
+ disable_msi:
 -- 
 2.25.1
 
