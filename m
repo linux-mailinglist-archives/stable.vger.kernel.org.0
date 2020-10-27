@@ -2,87 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52D829AD58
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CFAC29AD71
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752116AbgJ0Nbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:31:41 -0400
-Received: from dispatch1-us1.ppe-hosted.com ([67.231.154.164]:51072 "EHLO
-        dispatch1-us1.ppe-hosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2900721AbgJ0Nbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 09:31:40 -0400
-X-Greylist: delayed 423 seconds by postgrey-1.27 at vger.kernel.org; Tue, 27 Oct 2020 09:31:40 EDT
-Received: from dispatch1-us1.ppe-hosted.com (localhost.localdomain [127.0.0.1])
-        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 32AA1224C53
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 13:24:37 +0000 (UTC)
-Received: from mx1-us1.ppe-hosted.com (unknown [10.110.50.143])
-        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id CA2EA200F1;
-        Tue, 27 Oct 2020 13:24:33 +0000 (UTC)
-Received: from us4-mdac16-62.at1.mdlocal (unknown [10.110.50.155])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id C9F6B8009B;
-        Tue, 27 Oct 2020 13:24:33 +0000 (UTC)
-X-Virus-Scanned: Proofpoint Essentials engine
-Received: from mx1-us1.ppe-hosted.com (unknown [10.110.49.30])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 7129C40076;
-        Tue, 27 Oct 2020 13:24:33 +0000 (UTC)
-Received: from webmail.solarflare.com (uk.solarflare.com [193.34.186.16])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 34E9A140084;
-        Tue, 27 Oct 2020 13:24:33 +0000 (UTC)
-Received: from [10.17.20.203] (10.17.20.203) by ukex01.SolarFlarecom.com
- (10.17.10.4) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 27 Oct
- 2020 13:24:28 +0000
-Subject: Re: [PATCH AUTOSEL 5.9 054/147] sfc: add and use efx_tx_send_pending
- in tx.c
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     Jakub Kicinski <kuba@kernel.org>, <netdev@vger.kernel.org>
-References: <20201026234905.1022767-1-sashal@kernel.org>
- <20201026234905.1022767-54-sashal@kernel.org>
-From:   Edward Cree <ecree@solarflare.com>
-Message-ID: <0507e2d9-6535-277c-bd9a-a009c11bf795@solarflare.com>
-Date:   Tue, 27 Oct 2020 13:24:24 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1752297AbgJ0Nf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:35:57 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39052 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752296AbgJ0Nf4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 09:35:56 -0400
+Received: by mail-wr1-f65.google.com with SMTP id y12so1937141wrp.6;
+        Tue, 27 Oct 2020 06:35:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=g6+0uI07gwej8vOY9AHu1gUHHmahsVxYAJt5Q+A7Des=;
+        b=ZZ3GMgxRwAqYpJfyTKg0M/AL6RIKV+uZH8sZpB3VFZXzQbKaDsh6lbPWEm9H0qXgYP
+         99V+0Uqx3P+S+U2zgNzHnC3BR1T6Uw12dUmtHked+gbv9TuBgwqHVUDRrkzkuDOE7EbI
+         iOKNpYM1YXPi7I7iC3XGtFFnQxCtxdJo3MqY0f6V9nh4nOiMfoPtUZi16i3RuncGoG6W
+         oOZeTSKRWitWdhn3mYcuwwP5rD83Pq9ov9vBDQkQZDce1zxWowrSa/yBh503d2U9W+EI
+         JypS3UW6l5EQB4tHYrkVbb8krbsOPPBY9uI3/3UFbSuFn3I4W69OL5ipaGSetRGt95lA
+         gGYg==
+X-Gm-Message-State: AOAM531CvD54o0vlc1F4PiAsZAK4rtUBefvK6bZ5TVU4k6GUFRE7CkoT
+        IsHfVe6kIBJnVPu+kHCmP0J6Lru47g4=
+X-Google-Smtp-Source: ABdhPJz/LlrWPEcwYlzMUVrMCj4Wvg+V3Nbj8qBfkW3mSTfRY9vUmxd86f0gtb1MKixU/pzkz+Ybiw==
+X-Received: by 2002:adf:a354:: with SMTP id d20mr3140972wrb.29.1603805754703;
+        Tue, 27 Oct 2020 06:35:54 -0700 (PDT)
+Received: from msft-t490s.teknoraver.net (net-2-36-134-112.cust.vodafonedsl.it. [2.36.134.112])
+        by smtp.gmail.com with ESMTPSA id x15sm2218175wrr.36.2020.10.27.06.35.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Oct 2020 06:35:54 -0700 (PDT)
+From:   Matteo Croce <mcroce@linux.microsoft.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>,
+        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
+Subject: [PATCH v2 0/2] fix parsing of reboot= cmdline
+Date:   Tue, 27 Oct 2020 14:35:43 +0100
+Message-Id: <20201027133545.58625-1-mcroce@linux.microsoft.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-In-Reply-To: <20201026234905.1022767-54-sashal@kernel.org>
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Content-Language: en-GB
-X-Originating-IP: [10.17.20.203]
-X-ClientProxiedBy: ocex03.SolarFlarecom.com (10.20.40.36) To
- ukex01.SolarFlarecom.com (10.17.10.4)
-X-TM-AS-Product-Ver: SMEX-12.5.0.1300-8.6.1012-25750.003
-X-TM-AS-Result: No-3.416600-8.000000-10
-X-TMASE-MatchedRID: nVQUmLJJeyYzkUg+npt39/ZvT2zYoYOwC/ExpXrHizxBbp4JobErAt6A
-        4kPymCgPML3vcSUM3Wkb0KUY0vR5eD6hJYir1MIcsFkCLeeufNuWGk93C/VnSvn6214PlHOFBLK
-        k3SrDK2G7D2478TEKb2KYeZv05+HVbZ3DSPtWJmueAiCmPx4NwJwhktVkBBrQxq9PbUOwsP9QSF
-        bL1bvQAd934/rDAK3zlGdyD+QE2h/ocXFe3KMWkQV7FJ+dRUhQbDBDo2E3xWW/Xk4A/H8q+aH7Y
-        LicK6DQXBjoZeiEZtOsc5dLZie0RNvXgEiqEY/y218aHXkYIUyFcgJc+QNMwu8bJovJYm8FYupx
-        0XjSQPLDOFVmKqGJ4WptqaeO5a/g
-X-TM-AS-User-Approved-Sender: Yes
-X-TM-AS-User-Blocked-Sender: No
-X-TMASE-Result: 10--3.416600-8.000000
-X-TMASE-Version: SMEX-12.5.0.1300-8.6.1012-25750.003
-X-MDID: 1603805073-CgOOz7FiilPl
-X-PPE-DISP: 1603805073;CgOOz7FiilPl
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/10/2020 23:47, Sasha Levin wrote:
-> From: Edward Cree <ecree@solarflare.com>
->
-> [ Upstream commit 1c0544d24927e4fad04f858216b8ea767a3bd123 ]
->
-> Instead of using efx_tx_queue_partner(), which relies on the assumption
->  that tx_queues_per_channel is 2, efx_tx_send_pending() iterates over
->  txqs with efx_for_each_channel_tx_queue().
-That assumption was valid for the code as of v5.9; this change was only
- needed to support the extra queues that were added for encap offloads.
-Thus, this patch shouldn't be backported, unless -stable is also planning
- to backport that feature (e.g. 0ce8df661456, 24b2c3751aa3), which I
- doubt (it's nearly 20 patches, and can't be considered a bugfix).
+From: Matteo Croce <mcroce@microsoft.com>
 
--ed
+The parsing of the reboot= cmdline has two major errors:
+- a missing bound check can crash the system on reboot
+- parsing of the cpu number only works if specified last
+
+Fix both, along with a small code refactor.
+
+v1->v2:
+As Petr suggested, don't force base 10 in simple_strtoul(),
+so hex values are accepted as well.
+
+Matteo Croce (2):
+  reboot: fix overflow parsing reboot cpu number
+  reboot: fix parsing of reboot cpu number
+
+ kernel/reboot.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+-- 
+2.28.0
+
