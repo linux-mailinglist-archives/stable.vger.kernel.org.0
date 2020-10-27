@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBDD29BD75
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D15F29BE53
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811021AbgJ0Qgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47858 "EHLO mail.kernel.org"
+        id S1791012AbgJ0PNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802385AbgJ0PsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:48:03 -0400
+        id S1794675AbgJ0PNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:13:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2FA222284;
-        Tue, 27 Oct 2020 15:48:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 876C220657;
+        Tue, 27 Oct 2020 15:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813682;
-        bh=gZ5hX7BiaGGoFJsUDs4rmUHdZt47slybaLRfnGmle74=;
+        s=default; t=1603811580;
+        bh=L2+RJXccCaMCISHwYIWzmgF0+1Wiq4nILRjct3Rac6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=04kU1yrrjaTMZZsPKNROoneJ65IrJPeXBfA+IzWNbeVa5Gs00uwwVsJWZJFSpCyqI
-         ZB/tnycxZ6ZeTgu3O/E7k1YsTtFhs3G3reeAfgQsbVVQ7XRG68N7qHc4z8Un/o415t
-         u1jqgJwhg4akvzRWJi8z7/GnSXvpbe/wuCxt9Z2Y=
+        b=M8CPxEjRf+ry85wrni3YlZ1VwYI/KNb4gHYWFvz2tG8xRzBPCZn7LUS8cX7z9BOM4
+         QL8xVI8G/mU84fbpFMrI/vwvCE6VdtaHqGrI5ysoljJac+e7IAukuVTJHbP1sHPMDy
+         dgjRCRL4jrAxFTkmkNw+eRljYKtY1K4RnNhFxX0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 634/757] KVM: ioapic: break infinite recursion on lazy EOI
-Date:   Tue, 27 Oct 2020 14:54:44 +0100
-Message-Id: <20201027135520.294211662@linuxfoundation.org>
+Subject: [PATCH 5.8 542/633] media: platform: sti: hva: Fix runtime PM imbalance on error
+Date:   Tue, 27 Oct 2020 14:54:45 +0100
+Message-Id: <20201027135548.217682629@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 77377064c3a94911339f13ce113b3abf265e06da ]
+[ Upstream commit d912a1d9e9afe69c6066c1ceb6bfc09063074075 ]
 
-During shutdown the IOAPIC trigger mode is reset to edge triggered
-while the vfio-pci INTx is still registered with a resampler.
-This allows us to get into an infinite loop:
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-ioapic_set_irq
-  -> ioapic_lazy_update_eoi
-  -> kvm_ioapic_update_eoi_one
-  -> kvm_notify_acked_irq
-  -> kvm_notify_acked_gsi
-  -> (via irq_acked fn ptr) irqfd_resampler_ack
-  -> kvm_set_irq
-  -> (via set fn ptr) kvm_set_ioapic_irq
-  -> kvm_ioapic_set_irq
-  -> ioapic_set_irq
-
-Commit 8be8f932e3db ("kvm: ioapic: Restrict lazy EOI update to
-edge-triggered interrupts", 2020-05-04) acknowledges that this recursion
-loop exists and tries to avoid it at the call to ioapic_lazy_update_eoi,
-but at this point the scenario is already set, we have an edge interrupt
-with resampler on the same gsi.
-
-Fortunately, the only user of irq ack notifiers (in addition to resamplefd)
-is i8254 timer interrupt reinjection.  These are edge-triggered, so in
-principle they would need the call to kvm_ioapic_update_eoi_one from
-ioapic_lazy_update_eoi, but they already disable AVIC(*), so they don't
-need the lazy EOI behavior.  Therefore, remove the call to
-kvm_ioapic_update_eoi_one from ioapic_lazy_update_eoi.
-
-This fixes CVE-2020-27152.  Note that this issue cannot happen with
-SR-IOV assigned devices because virtual functions do not have INTx,
-only MSI.
-
-Fixes: f458d039db7e ("kvm: ioapic: Lazy update IOAPIC EOI")
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Tested-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/ioapic.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/platform/sti/hva/hva-hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/ioapic.c b/arch/x86/kvm/ioapic.c
-index d057376bd3d33..698969e18fe35 100644
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -197,12 +197,9 @@ static void ioapic_lazy_update_eoi(struct kvm_ioapic *ioapic, int irq)
- 
- 		/*
- 		 * If no longer has pending EOI in LAPICs, update
--		 * EOI for this vetor.
-+		 * EOI for this vector.
- 		 */
- 		rtc_irq_eoi(ioapic, vcpu, entry->fields.vector);
--		kvm_ioapic_update_eoi_one(vcpu, ioapic,
--					  entry->fields.trig_mode,
--					  irq);
- 		break;
+diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
+index bb13348be0832..43f279e2a6a38 100644
+--- a/drivers/media/platform/sti/hva/hva-hw.c
++++ b/drivers/media/platform/sti/hva/hva-hw.c
+@@ -389,7 +389,7 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
+-		goto err_clk;
++		goto err_pm;
  	}
- }
+ 
+ 	/* check IP hardware version */
 -- 
 2.25.1
 
