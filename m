@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2000829C075
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D761A29C0E3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900637AbgJ0OzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42564 "EHLO mail.kernel.org"
+        id S368556AbgJ0Oy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2899198AbgJ0Omv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:42:51 -0400
+        id S1762439AbgJ0Omy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:42:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30C96206B2;
-        Tue, 27 Oct 2020 14:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDFC3206E5;
+        Tue, 27 Oct 2020 14:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809770;
-        bh=jCxIbtF31hd+7Wpl7D8uJl4yGO/ELNVRZ+JuCPOOouw=;
+        s=default; t=1603809773;
+        bh=KEqOOfrAnkfyiT2/q98UFhQvP+8j/UPZzmzHPa4vKyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6d+z+GeIE7VLOPULxRcuV2pc6Wrx/WPzNqTqnu51q3Ig0YlCyQMFyTvhN8xC7VyI
-         VXg3Pb76Y6hZKbofaI3HZfF4/5DhO76gR5aA1rqwZN8n418+rgYw9dVYo6nWAVT4mE
-         fkGV/6kkaYA/eGm3AaiFfCjBrOCY9xFkgNXp8QC4=
+        b=zX3EJS2kzJfXKffc+z7I8NCOUSkNlvqXzXqL5EEbX3jzWD9/o7LPLzuFvoLG/TVI2
+         BFOHYXzW9jFosEn6oOJ1U0PL0DP3r6GiZUmPNSJM1gUDHT7f6lNYaWivItFaA8lF9t
+         wRRhrHWJCwH6QBSlNkwJGRPeQLQuHX/ogwXYux5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 283/408] SUNRPC: fix copying of multiple pages in gss_read_proxy_verf()
-Date:   Tue, 27 Oct 2020 14:53:41 +0100
-Message-Id: <20201027135508.179385530@linuxfoundation.org>
+Subject: [PATCH 5.4 284/408] Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
+Date:   Tue, 27 Oct 2020 14:53:42 +0100
+Message-Id: <20201027135508.225508790@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,82 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d48c8124749c9a5081fe68680f83605e272c984b ]
+[ Upstream commit 30df23c5ecdfb8da5b0bc17ceef67eff9e1b0957 ]
 
-When the passed token is longer than 4032 bytes, the remaining part
-of the token must be copied from the rqstp->rq_arg.pages. But the
-copy must make sure it happens in a consecutive way.
+If imx6ul_tsc_init() fails then we need to clean up the clocks.
 
-With the existing code, the first memcpy copies 'length' bytes from
-argv->iobase, but since the header is in front, this never fills the
-whole first page of in_token->pages.
+I reversed the "if (input_dev->users) {" condition to make the code a
+bit simpler.
 
-The mecpy in the loop copies the following bytes, but starts writing at
-the next page of in_token->pages.  This leaves the last bytes of page 0
-unwritten.
-
-Symptoms were that users with many groups were not able to access NFS
-exports, when using Active Directory as the KDC.
-
-Signed-off-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
-Fixes: 5866efa8cbfb "SUNRPC: Fix svcauth_gss_proxy_init()"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 6cc527b05847 ("Input: imx6ul_tsc - propagate the errors")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200905124942.GC183976@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/imx6ul_tsc.c | 27 +++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index 3645cd241d3ea..cf4d6d7e72822 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1095,9 +1095,9 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
- 			       struct gssp_in_token *in_token)
- {
- 	struct kvec *argv = &rqstp->rq_arg.head[0];
--	unsigned int page_base, length;
--	int pages, i, res;
--	size_t inlen;
-+	unsigned int length, pgto_offs, pgfrom_offs;
-+	int pages, i, res, pgto, pgfrom;
-+	size_t inlen, to_offs, from_offs;
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+index 9ed258854349b..5e6ba5c4eca2a 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -530,20 +530,25 @@ static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
  
- 	res = gss_read_common_verf(gc, argv, authp, in_handle);
- 	if (res)
-@@ -1125,17 +1125,24 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
- 	memcpy(page_address(in_token->pages[0]), argv->iov_base, length);
- 	inlen -= length;
+ 	mutex_lock(&input_dev->mutex);
  
--	i = 1;
--	page_base = rqstp->rq_arg.page_base;
-+	to_offs = length;
-+	from_offs = rqstp->rq_arg.page_base;
- 	while (inlen) {
--		length = min_t(unsigned int, inlen, PAGE_SIZE);
--		memcpy(page_address(in_token->pages[i]),
--		       page_address(rqstp->rq_arg.pages[i]) + page_base,
-+		pgto = to_offs >> PAGE_SHIFT;
-+		pgfrom = from_offs >> PAGE_SHIFT;
-+		pgto_offs = to_offs & ~PAGE_MASK;
-+		pgfrom_offs = from_offs & ~PAGE_MASK;
+-	if (input_dev->users) {
+-		retval = clk_prepare_enable(tsc->adc_clk);
+-		if (retval)
+-			goto out;
+-
+-		retval = clk_prepare_enable(tsc->tsc_clk);
+-		if (retval) {
+-			clk_disable_unprepare(tsc->adc_clk);
+-			goto out;
+-		}
++	if (!input_dev->users)
++		goto out;
+ 
+-		retval = imx6ul_tsc_init(tsc);
++	retval = clk_prepare_enable(tsc->adc_clk);
++	if (retval)
++		goto out;
 +
-+		length = min_t(unsigned int, inlen,
-+			 min_t(unsigned int, PAGE_SIZE - pgto_offs,
-+			       PAGE_SIZE - pgfrom_offs));
-+		memcpy(page_address(in_token->pages[pgto]) + pgto_offs,
-+		       page_address(rqstp->rq_arg.pages[pgfrom]) + pgfrom_offs,
- 		       length);
- 
-+		to_offs += length;
-+		from_offs += length;
- 		inlen -= length;
--		page_base = 0;
--		i++;
++	retval = clk_prepare_enable(tsc->tsc_clk);
++	if (retval) {
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
  	}
- 	return 0;
- }
+ 
++	retval = imx6ul_tsc_init(tsc);
++	if (retval) {
++		clk_disable_unprepare(tsc->tsc_clk);
++		clk_disable_unprepare(tsc->adc_clk);
++		goto out;
++	}
+ out:
+ 	mutex_unlock(&input_dev->mutex);
+ 	return retval;
 -- 
 2.25.1
 
