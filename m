@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC4929B7EE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6147E29B7E8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798569AbgJ0P2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60682 "EHLO mail.kernel.org"
+        id S1798481AbgJ0P2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796199AbgJ0PUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:00 -0400
+        id S1797065AbgJ0PVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:21:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE41B20657;
-        Tue, 27 Oct 2020 15:19:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1B5E2224A;
+        Tue, 27 Oct 2020 15:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812000;
-        bh=E7m0Uwqn2wsCRyU5E2dK2g70oH0PO7eCsfMJ+ITaGdI=;
+        s=default; t=1603812083;
+        bh=gAZsDswlb2Vn0EOro89oYd3j9gROdJsFqkbIdoxTIO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mu+Wor7fWJ/XdItguLgP5ZnOavXYcoYX9hRDL7jKb/8AZL14Z+V/NgwQWglt6Fcuy
-         VqJlRWWKXHjlJ0VdL6/lC2jjDT3v7TjUMyLJmIjGi+MJbXqjdWH9k+A/ZA9B9I5OIp
-         K8XBwOoULDzoqis0xnAEZjx2LQVc0KVV7zTnlJkc=
+        b=hCrcH6LLaEThW5XpP4xwDC/Tz/1nznnU7ZOHIEOuiF21hikkrN/Jxvm4bPXh3kCVi
+         3ttcRvWbz0rnTDtZjNkZXadPUBOZiVeTXixU3Q3y+s86mXbu5gNpj7O1XouaW+tqjt
+         T5zfAqMpyR1+YqvazdvnuTVc7Z+kEND3Zmr9eNac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 058/757] sfc: move initialisation of efx->filter_sem to efx_init_struct()
-Date:   Tue, 27 Oct 2020 14:45:08 +0100
-Message-Id: <20201027135453.278320090@linuxfoundation.org>
+        stable@vger.kernel.org, Andrei Botila <andrei.botila@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.9 087/757] crypto: caam/qi2 - add support for more XTS key lengths
+Date:   Tue, 27 Oct 2020 14:45:37 +0100
+Message-Id: <20201027135454.632031480@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,43 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree@solarflare.com>
+From: Andrei Botila <andrei.botila@nxp.com>
 
-[ Upstream commit 05f90bf3d5df40e1a705527520e5fd56b2b6f09e ]
+commit 596efd57cfa1e1bee575e2a2df44fd8ec5e4a42d upstream.
 
-efx_probe_filters() has not been called yet when EF100 calls into
- efx_mcdi_filter_table_probe(), for which it wants to take the
- filter_sem.
+CAAM accelerator only supports XTS-AES-128 and XTS-AES-256 since
+it adheres strictly to the standard. All the other key lengths
+are accepted and processed through a fallback as long as they pass
+the xts_verify_key() checks.
 
-Fixes: a9dc3d5612ce ("sfc_ef100: RX filter table management and related gubbins")
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Link: https://lore.kernel.org/r/24fad43e-887d-051e-25e3-506f23f63abf@solarflare.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 226853ac3ebe ("crypto: caam/qi2 - add skcipher algorithms")
+Cc: <stable@vger.kernel.org> # v4.20+
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/sfc/efx_common.c |    1 +
- drivers/net/ethernet/sfc/rx_common.c  |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/sfc/efx_common.c
-+++ b/drivers/net/ethernet/sfc/efx_common.c
-@@ -1030,6 +1030,7 @@ int efx_init_struct(struct efx_nic *efx,
- 	efx->num_mac_stats = MC_CMD_MAC_NSTATS;
- 	BUILD_BUG_ON(MC_CMD_MAC_NSTATS - 1 != MC_CMD_MAC_GENERATION_END);
- 	mutex_init(&efx->mac_lock);
-+	init_rwsem(&efx->filter_sem);
- #ifdef CONFIG_RFS_ACCEL
- 	mutex_init(&efx->rps_mutex);
- 	spin_lock_init(&efx->rps_hash_lock);
---- a/drivers/net/ethernet/sfc/rx_common.c
-+++ b/drivers/net/ethernet/sfc/rx_common.c
-@@ -797,7 +797,6 @@ int efx_probe_filters(struct efx_nic *ef
- {
- 	int rc;
+---
+ drivers/crypto/caam/caamalg_qi2.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+--- a/drivers/crypto/caam/caamalg_qi2.c
++++ b/drivers/crypto/caam/caamalg_qi2.c
+@@ -19,6 +19,7 @@
+ #include <linux/fsl/mc.h>
+ #include <soc/fsl/dpaa2-io.h>
+ #include <soc/fsl/dpaa2-fd.h>
++#include <crypto/xts.h>
+ #include <asm/unaligned.h>
  
--	init_rwsem(&efx->filter_sem);
- 	mutex_lock(&efx->mac_lock);
- 	down_write(&efx->filter_sem);
- 	rc = efx->type->filter_table_probe(efx);
+ #define CAAM_CRA_PRIORITY	2000
+@@ -81,6 +82,7 @@ struct caam_ctx {
+ 	struct alginfo adata;
+ 	struct alginfo cdata;
+ 	unsigned int authsize;
++	bool xts_key_fallback;
+ 	struct crypto_skcipher *fallback;
+ };
+ 
+@@ -1060,11 +1062,15 @@ static int xts_skcipher_setkey(struct cr
+ 	u32 *desc;
+ 	int err;
+ 
+-	if (keylen != 2 * AES_MIN_KEY_SIZE  && keylen != 2 * AES_MAX_KEY_SIZE) {
++	err = xts_verify_key(skcipher, key, keylen);
++	if (err) {
+ 		dev_dbg(dev, "key size mismatch\n");
+-		return -EINVAL;
++		return err;
+ 	}
+ 
++	if (keylen != 2 * AES_KEYSIZE_128 && keylen != 2 * AES_KEYSIZE_256)
++		ctx->xts_key_fallback = true;
++
+ 	err = crypto_skcipher_setkey(ctx->fallback, key, keylen);
+ 	if (err)
+ 		return err;
+@@ -1474,7 +1480,8 @@ static int skcipher_encrypt(struct skcip
+ 	if (!req->cryptlen && !ctx->fallback)
+ 		return 0;
+ 
+-	if (ctx->fallback && xts_skcipher_ivsize(req)) {
++	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
++			      ctx->xts_key_fallback)) {
+ 		skcipher_request_set_tfm(&caam_req->fallback_req, ctx->fallback);
+ 		skcipher_request_set_callback(&caam_req->fallback_req,
+ 					      req->base.flags,
+@@ -1522,7 +1529,8 @@ static int skcipher_decrypt(struct skcip
+ 	if (!req->cryptlen && !ctx->fallback)
+ 		return 0;
+ 
+-	if (ctx->fallback && xts_skcipher_ivsize(req)) {
++	if (ctx->fallback && (xts_skcipher_ivsize(req) ||
++			      ctx->xts_key_fallback)) {
+ 		skcipher_request_set_tfm(&caam_req->fallback_req, ctx->fallback);
+ 		skcipher_request_set_callback(&caam_req->fallback_req,
+ 					      req->base.flags,
 
 
