@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE8029B122
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DAA29B124
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759019AbgJ0O1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53208 "EHLO mail.kernel.org"
+        id S1759026AbgJ0O1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759015AbgJ0O1M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:27:12 -0400
+        id S1759023AbgJ0O1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:27:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A983F20790;
-        Tue, 27 Oct 2020 14:27:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47A57207C3;
+        Tue, 27 Oct 2020 14:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808831;
-        bh=1/zcvT49Z0HRAXBRD5R7Zp7EgSGSNvitNfefz2WUyTM=;
+        s=default; t=1603808833;
+        bh=0b41Nn/+HIXIRX/epMBdzWRszgK3AARiMdEPvv557E8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYlRUXdd/bWSSe+IRvIN2vXPnvfOoxRYYAKxrwFDewxS8jd4tD/rAdSxxKd7ENtw9
-         fSX9man3ZTL8qYvsclSw8DFrbhc/kz4T0YtyWMRrNI0yehyuXp4lqRIDv5Q9142sgv
-         HtAzcqLRN9kbnzyQ4zbCKhayB5wQlUMO/K6T807s=
+        b=MZp80f/49PINWwj9o9TDiUClJvhfCV97O47aHo1xZAowLLfottNH+o06zaWVCACBW
+         5oIbWvYI7N53wNhhiO1nr8XCwJ0AYNil8T2GKzgkVcUtCk+FOBD8nC12OYBR7ta8cv
+         SyqC3rCSdDHEVDUl2ihEatCXJwzy63/8rUpRdlvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com,
-        Brooke Basile <brookebasile@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 239/264] ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()
-Date:   Tue, 27 Oct 2020 14:54:57 +0100
-Message-Id: <20201027135441.881843414@linuxfoundation.org>
+Subject: [PATCH 4.19 240/264] misc: rtsx: Fix memory leak in rtsx_pci_probe
+Date:   Tue, 27 Oct 2020 14:54:58 +0100
+Message-Id: <20201027135441.928731185@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,89 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brooke Basile <brookebasile@gmail.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 03fb92a432ea5abe5909bca1455b7e44a9380480 ]
+[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
 
-Calls to usb_kill_anchored_urbs() after usb_kill_urb() on multiprocessor
-systems create a race condition in which usb_kill_anchored_urbs() deallocates
-the URB before the completer callback is called in usb_kill_urb(), resulting
-in a use-after-free.
-To fix this, add proper lock protection to usb_kill_urb() calls that can
-possibly run concurrently with usb_kill_anchored_urbs().
+When mfd_add_devices() fail, pcr->slots should also be freed. However,
+the current implementation does not free the member, leading to a memory
+leak.
 
-Reported-by: syzbot+89bd486af9427a9fc605@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=cabffad18eb74197f84871802fd2c5117b61febf
-Signed-off-by: Brooke Basile <brookebasile@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200911071427.32354-1-brookebasile@gmail.com
+Fix this by adding a new goto label that frees pcr->slots.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/misc/cardreader/rtsx_pcr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 3f563e02d17da..2ed98aaed6fb5 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -449,10 +449,19 @@ static void hif_usb_stop(void *hif_handle)
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
+index 5c5d0241603a3..3eb3c237f3398 100644
+--- a/drivers/misc/cardreader/rtsx_pcr.c
++++ b/drivers/misc/cardreader/rtsx_pcr.c
+@@ -1524,12 +1524,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
+ 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
+ 	if (ret < 0)
+-		goto disable_irq;
++		goto free_slots;
  
- 	/* The pending URBs have to be canceled. */
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
-+		list_del(&tx_buf->list);
-+		usb_free_urb(tx_buf->urb);
-+		kfree(tx_buf->buf);
-+		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
  
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
-@@ -762,27 +771,37 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
- 	struct tx_buf *tx_buf = NULL, *tx_buf_tmp = NULL;
- 	unsigned long flags;
+ 	return 0;
  
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_buf, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	hif_dev->tx.flags |= HIF_USB_TX_FLUSH;
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
-+	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_pending, list) {
-+		usb_get_urb(tx_buf->urb);
-+		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
-+		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
-+	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
- 
- 	usb_kill_anchored_urbs(&hif_dev->mgmt_submitted);
- }
++free_slots:
++	kfree(pcr->slots);
+ disable_irq:
+ 	free_irq(pcr->irq, (void *)pcr);
+ disable_msi:
 -- 
 2.25.1
 
