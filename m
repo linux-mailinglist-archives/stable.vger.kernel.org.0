@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BCEC29C3C4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A4929C3BA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822535AbgJ0RuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:50:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S2901664AbgJ0OZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901644AbgJ0OZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:25:45 -0400
+        id S2901651AbgJ0OZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:25:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AD122072D;
-        Tue, 27 Oct 2020 14:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5F9B207C3;
+        Tue, 27 Oct 2020 14:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808744;
-        bh=acmOn8DqEDhDyakHFgwde4nbqmaXmf1ElTBFFceAZyo=;
+        s=default; t=1603808750;
+        bh=LJo36oZvjES6iiePu+aWwhNnfptmuFWCkAh8BvbK3bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWtlqRnFb+jPMGCqSXxWqnrPXKJzub6uEsG6jGp/KyWqwO11TV/FPYjG/t0ld5EoP
-         knAaC9gqyHU/hnPI8aTZGdhXmXkRLOCoRyy8iLrVqtM7g/WA7lmPUctQuAejdKZbwC
-         d7PTDcz1GpTjjxjwK494r7CSVjVm3x5/lWGyOxAc=
+        b=xqmBhIBZj4OBhytap/NhSKOa9bj5MsEgTemcn7xSfgpOznHT+Xv7X5mOcUzh+CnV0
+         C475ReN7nCOIFkU/U1zufa0OSye/1xpE4fAE+E7CsGCLzQwN0l5xVPv/iTlVtDVkjz
+         TM4LPzVF1gJ1AnQl+QbfmkwJ6Yg68JzFfyjfhmwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 206/264] block: ratelimit handle_bad_sector() message
-Date:   Tue, 27 Oct 2020 14:54:24 +0100
-Message-Id: <20201027135440.350879776@linuxfoundation.org>
+Subject: [PATCH 4.19 208/264] media: firewire: fix memory leak
+Date:   Tue, 27 Oct 2020 14:54:26 +0100
+Message-Id: <20201027135440.445956494@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -44,45 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Pavel Machek <pavel@ucw.cz>
 
-[ Upstream commit f4ac712e4fe009635344b9af5d890fe25fcc8c0d ]
+[ Upstream commit b28e32798c78a346788d412f1958f36bb760ec03 ]
 
-syzbot is reporting unkillable task [1], for the caller is failing to
-handle a corrupted filesystem image which attempts to access beyond
-the end of the device. While we need to fix the caller, flooding the
-console with handle_bad_sector() message is unlikely useful.
+Fix memory leak in node_probe.
 
-[1] https://syzkaller.appspot.com/bug?id=f1f49fb971d7a3e01bd8ab8cff2ff4572ccf3092
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/media/firewire/firedtv-fw.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index ce3710404544c..445b878e35194 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -2127,11 +2127,10 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
- {
- 	char b[BDEVNAME_SIZE];
+diff --git a/drivers/media/firewire/firedtv-fw.c b/drivers/media/firewire/firedtv-fw.c
+index eaf94b817dbc0..2ac9d24d3f0cd 100644
+--- a/drivers/media/firewire/firedtv-fw.c
++++ b/drivers/media/firewire/firedtv-fw.c
+@@ -271,8 +271,10 @@ static int node_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
  
--	printk(KERN_INFO "attempt to access beyond end of device\n");
--	printk(KERN_INFO "%s: rw=%d, want=%Lu, limit=%Lu\n",
--			bio_devname(bio, b), bio->bi_opf,
--			(unsigned long long)bio_end_sector(bio),
--			(long long)maxsector);
-+	pr_info_ratelimited("attempt to access beyond end of device\n"
-+			    "%s: rw=%d, want=%llu, limit=%llu\n",
-+			    bio_devname(bio, b), bio->bi_opf,
-+			    bio_end_sector(bio), maxsector);
- }
- 
- #ifdef CONFIG_FAIL_MAKE_REQUEST
+ 	name_len = fw_csr_string(unit->directory, CSR_MODEL,
+ 				 name, sizeof(name));
+-	if (name_len < 0)
+-		return name_len;
++	if (name_len < 0) {
++		err = name_len;
++		goto fail_free;
++	}
+ 	for (i = ARRAY_SIZE(model_names); --i; )
+ 		if (strlen(model_names[i]) <= name_len &&
+ 		    strncmp(name, model_names[i], name_len) == 0)
 -- 
 2.25.1
 
