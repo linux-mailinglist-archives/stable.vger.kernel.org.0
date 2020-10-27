@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7048B29B018
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEDB29B02A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757105AbgJ0OQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38294 "EHLO mail.kernel.org"
+        id S1757156AbgJ0OQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757099AbgJ0OQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:16 -0400
+        id S1757151AbgJ0OQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:16:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D49962072D;
-        Tue, 27 Oct 2020 14:16:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8698C2072D;
+        Tue, 27 Oct 2020 14:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808176;
-        bh=MrJiC9wb9d+XrO2cN6hHTpn4O+4AUDBTCEp1dJPZ7iQ=;
+        s=default; t=1603808190;
+        bh=kNPdSGzpBNQUMJ8Q961fEH9S72mz6FKrkyRrrhmKC7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrwV4TqrvDeKt2Hf337ePZeX7pgFIvSn8fXxO657pN8ygCOKor3CgayZlkc8Jm7Ex
-         hn65RxyukclQ5mKPqSPgRL/SC+L7yNiIIBuhxyxSIxrg+kMVBuZ6NMfpIn+i+mMIZH
-         38WfaVBfOiw2xEa5PH10aoxC3Y5MjCP5A3hlwWLw=
+        b=d8bp/o5TfaBYsux08/S8J26I0he7VLMjFUQJ6L+RRSzmXrKn3pi4dgYT18zxcD/em
+         a+vH/rIx0YI7WpxcYioHjBASdzV8oNJ1JfaDcbuQfjSjlWQp4hf4u4tBTvYKfvo3Qr
+         1j/hLxvWL4rT94ry5CDdlg1QRJ69l8H8QPR72WxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 185/191] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
-Date:   Tue, 27 Oct 2020 14:50:40 +0100
-Message-Id: <20201027134918.625204606@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Oliver Neukum <oneukum@suse.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.14 189/191] USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
+Date:   Tue, 27 Oct 2020 14:50:44 +0100
+Message-Id: <20201027134918.812823123@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -43,68 +45,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
+commit 37d2a36394d954413a495da61da1b2a51ecd28ab upstream.
 
-The idx in __ath10k_htt_rx_ring_fill_n function lives in
-consistent dma region writable by the device. Malfunctional
-or malicious device could manipulate such idx to have a OOB
-write. Either by
-    htt->rx_ring.netbufs_ring[idx] = skb;
-or by
-    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
+syzbot is reporting hung task at wdm_flush() [1], for there is a circular
+dependency that wdm_flush() from flip_close() for /dev/cdc-wdm0 forever
+waits for /dev/raw-gadget to be closed while close() for /dev/raw-gadget
+cannot be called unless close() for /dev/cdc-wdm0 completes.
 
-The idx can also be negative as it's signed, giving a large
-memory space to write to.
+Tetsuo Handa considered that such circular dependency is an usage error [2]
+which corresponds to an unresponding broken hardware [3]. But Alan Stern
+responded that we should be prepared for such hardware [4]. Therefore,
+this patch changes wdm_flush() to use wait_event_interruptible_timeout()
+which gives up after 30 seconds, for hardware that remains silent must be
+ignored. The 30 seconds are coming out of thin air.
 
-It's possibly exploitable by corruptting a legit pointer with
-a skb pointer. And then fill skb with payload as rougue object.
+Changing wait_event() to wait_event_interruptible_timeout() makes error
+reporting from close() syscall less reliable. To compensate it, this patch
+also implements wdm_fsync() which does not use timeout. Those who want to
+be very sure that data has gone out to the device are now advised to call
+fsync(), with a caveat that fsync() can return -EINVAL when running on
+older kernels which do not implement wdm_fsync().
 
-Part of the log here. Sometimes it appears as UAF when writing
-to a freed memory by chance.
+This patch also fixes three more problems (listed below) found during
+exhaustive discussion and testing.
 
- [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
- [   15.595483] #PF: supervisor write access in kernel mode
- [   15.596250] #PF: error_code(0x0002) - not-present page
- [   15.597013] PGD 0 P4D 0
- [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
- [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
- [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
- BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
- [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
- [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
- (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
+  Since multiple threads can concurrently call wdm_write()/wdm_flush(),
+  we need to use wake_up_all() whenever clearing WDM_IN_USE in order to
+  make sure that all waiters are woken up. Also, error reporting needs
+  to use fetch-and-clear approach in order not to report same error for
+  multiple times.
 
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  Since wdm_flush() checks WDM_DISCONNECTING, wdm_write() should as well
+  check WDM_DISCONNECTING.
+
+  In wdm_flush(), since locks are not held, it is not safe to dereference
+  desc->intf after checking that WDM_DISCONNECTING is not set [5]. Thus,
+  remove dev_err() from wdm_flush().
+
+[1] https://syzkaller.appspot.com/bug?id=e7b761593b23eb50855b9ea31e3be5472b711186
+[2] https://lkml.kernel.org/r/27b7545e-8f41-10b8-7c02-e35a08eb1611@i-love.sakura.ne.jp
+[3] https://lkml.kernel.org/r/79ba410f-e0ef-2465-b94f-6b9a4a82adf5@i-love.sakura.ne.jp
+[4] https://lkml.kernel.org/r/20200530011040.GB12419@rowland.harvard.edu
+[5] https://lkml.kernel.org/r/c85331fc-874c-6e46-a77f-0ef1dc075308@i-love.sakura.ne.jp
+
+Reported-by: syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>
+Cc: stable <stable@vger.kernel.org>
+Co-developed-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200928141755.3476-1-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/class/cdc-wdm.c |   70 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 54 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index 21642bab485a1..fd276e54bb7c2 100644
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -100,6 +100,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
- 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -57,6 +57,9 @@ MODULE_DEVICE_TABLE (usb, wdm_ids);
  
- 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
+ #define WDM_MAX			16
+ 
++/* we cannot wait forever at flush() */
++#define WDM_FLUSH_TIMEOUT	(30 * HZ)
 +
-+	if (idx < 0 || idx >= htt->rx_ring.size) {
-+		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
-+		idx &= htt->rx_ring.size_mask;
-+		ret = -ENOMEM;
-+		goto fail;
-+	}
+ /* CDC-WMC r1.1 requires wMaxCommand to be "at least 256 decimal (0x100)" */
+ #define WDM_DEFAULT_BUFSIZE	256
+ 
+@@ -147,7 +150,7 @@ static void wdm_out_callback(struct urb
+ 	kfree(desc->outbuf);
+ 	desc->outbuf = NULL;
+ 	clear_bit(WDM_IN_USE, &desc->flags);
+-	wake_up(&desc->wait);
++	wake_up_all(&desc->wait);
+ }
+ 
+ /* forward declaration */
+@@ -390,6 +393,9 @@ static ssize_t wdm_write
+ 	if (test_bit(WDM_RESETTING, &desc->flags))
+ 		r = -EIO;
+ 
++	if (test_bit(WDM_DISCONNECTING, &desc->flags))
++		r = -ENODEV;
 +
- 	while (num > 0) {
- 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
- 		if (!skb) {
--- 
-2.25.1
-
+ 	if (r < 0) {
+ 		rv = r;
+ 		goto out_free_mem_pm;
+@@ -421,6 +427,7 @@ static ssize_t wdm_write
+ 	if (rv < 0) {
+ 		desc->outbuf = NULL;
+ 		clear_bit(WDM_IN_USE, &desc->flags);
++		wake_up_all(&desc->wait); /* for wdm_wait_for_response() */
+ 		dev_err(&desc->intf->dev, "Tx URB error: %d\n", rv);
+ 		rv = usb_translate_errors(rv);
+ 		goto out_free_mem_pm;
+@@ -580,28 +587,58 @@ err:
+ 	return rv;
+ }
+ 
+-static int wdm_flush(struct file *file, fl_owner_t id)
++static int wdm_wait_for_response(struct file *file, long timeout)
+ {
+ 	struct wdm_device *desc = file->private_data;
++	long rv; /* Use long here because (int) MAX_SCHEDULE_TIMEOUT < 0. */
+ 
+-	wait_event(desc->wait,
+-			/*
+-			 * needs both flags. We cannot do with one
+-			 * because resetting it would cause a race
+-			 * with write() yet we need to signal
+-			 * a disconnect
+-			 */
+-			!test_bit(WDM_IN_USE, &desc->flags) ||
+-			test_bit(WDM_DISCONNECTING, &desc->flags));
++	/*
++	 * Needs both flags. We cannot do with one because resetting it would
++	 * cause a race with write() yet we need to signal a disconnect.
++	 */
++	rv = wait_event_interruptible_timeout(desc->wait,
++			      !test_bit(WDM_IN_USE, &desc->flags) ||
++			      test_bit(WDM_DISCONNECTING, &desc->flags),
++			      timeout);
+ 
+-	/* cannot dereference desc->intf if WDM_DISCONNECTING */
++	/*
++	 * To report the correct error. This is best effort.
++	 * We are inevitably racing with the hardware.
++	 */
+ 	if (test_bit(WDM_DISCONNECTING, &desc->flags))
+ 		return -ENODEV;
+-	if (desc->werr < 0)
+-		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
+-			desc->werr);
++	if (!rv)
++		return -EIO;
++	if (rv < 0)
++		return -EINTR;
++
++	spin_lock_irq(&desc->iuspin);
++	rv = desc->werr;
++	desc->werr = 0;
++	spin_unlock_irq(&desc->iuspin);
++
++	return usb_translate_errors(rv);
++
++}
+ 
+-	return usb_translate_errors(desc->werr);
++/*
++ * You need to send a signal when you react to malicious or defective hardware.
++ * Also, don't abort when fsync() returned -EINVAL, for older kernels which do
++ * not implement wdm_flush() will return -EINVAL.
++ */
++static int wdm_fsync(struct file *file, loff_t start, loff_t end, int datasync)
++{
++	return wdm_wait_for_response(file, MAX_SCHEDULE_TIMEOUT);
++}
++
++/*
++ * Same with wdm_fsync(), except it uses finite timeout in order to react to
++ * malicious or defective hardware which ceased communication after close() was
++ * implicitly called due to process termination.
++ */
++static int wdm_flush(struct file *file, fl_owner_t id)
++{
++	return wdm_wait_for_response(file, WDM_FLUSH_TIMEOUT);
+ }
+ 
+ static unsigned int wdm_poll(struct file *file, struct poll_table_struct *wait)
+@@ -726,6 +763,7 @@ static const struct file_operations wdm_
+ 	.owner =	THIS_MODULE,
+ 	.read =		wdm_read,
+ 	.write =	wdm_write,
++	.fsync =	wdm_fsync,
+ 	.open =		wdm_open,
+ 	.flush =	wdm_flush,
+ 	.release =	wdm_release,
 
 
