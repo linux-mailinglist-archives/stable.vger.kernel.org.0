@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C3929C2B3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:39:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DB329C2B1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793526AbgJ0Riq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33296 "EHLO mail.kernel.org"
+        id S1807686AbgJ0Rih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:38:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760308AbgJ0Oeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:34:31 -0400
+        id S1753718AbgJ0Oeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:34:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1AD207BB;
-        Tue, 27 Oct 2020 14:34:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BDCD20709;
+        Tue, 27 Oct 2020 14:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809270;
-        bh=JZO0FMmtG4vn/Ir8BKBtAao/jx/uemYfhrNZ6ukyQ5c=;
+        s=default; t=1603809276;
+        bh=fy9N58wjZup82r/EkguW3PAFikuqfdGSsjTn1IAuGoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OGP7TddV5c4rFM6HNflsIwsdwhfa3D6IvsLs9RjGvw8xMWOIjcGZ9I6A66L7azxy
-         jjZI3bUDIB2aQpqQGDfcsXQUntsMy53p/mnwPglflIXoWFkF5sE+NLQfhllVHYqPjk
-         iIiqvhgNYVd5+g+E327qeeNeEtGeRMapd2QRbUtU=
+        b=FgJm/7n1KWMW+c0/ooHWy7giK20Dz/0DCuWAyZA9ARcbQxyipCUdy0V+bjfpdtntn
+         mvhjiCSkrM/pNNuOE5iSzo3NiJ/FiGUf9auxJnBI0gG6izd6BDxBzZpFavC9XlUTLx
+         191ieqbzquOkD9ZrOLwjBBsV7q1B7iksD6u0bezQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Andrew Morton <akpm@osdl.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/408] video: fbdev: sis: fix null ptr dereference
-Date:   Tue, 27 Oct 2020 14:51:14 +0100
-Message-Id: <20201027135501.404525918@linuxfoundation.org>
+Subject: [PATCH 5.4 138/408] ASoC: fsl: imx-es8328: add missing put_device() call in imx_es8328_probe()
+Date:   Tue, 27 Oct 2020 14:51:16 +0100
+Message-Id: <20201027135501.501890393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,76 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit ad6f93e9cd56f0b10e9b22e3e137d17a1a035242 ]
+[ Upstream commit e525db7e4b44c5b2b5aac0dad24e23cb58c54d22 ]
 
-Clang static analysis reports this representative error
+if of_find_device_by_node() succeed, imx_es8328_probe() doesn't have
+a corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
-init.c:2501:18: warning: Array access (from variable 'queuedata') results
-  in a null pointer dereference
-      templ |= ((queuedata[i] & 0xc0) << 3);
-
-This is the problem block of code
-
-   if(ModeNo > 0x13) {
-      ...
-      if(SiS_Pr->ChipType == SIS_730) {
-	 queuedata = &FQBQData730[0];
-      } else {
-	 queuedata = &FQBQData[0];
-      }
-   } else {
-
-   }
-
-queuedata is not set in the else block
-
-Reviewing the old code, the arrays FQBQData730 and FQBQData were
-used directly.
-
-So hoist the setting of queuedata out of the if-else block.
-
-Fixes: 544393fe584d ("[PATCH] sisfb update")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805145208.17727-1-trix@redhat.com
+Fixes: 7e7292dba215 ("ASoC: fsl: add imx-es8328 machine driver")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20200825130224.1488694-1-yukuai3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sis/init.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ sound/soc/fsl/imx-es8328.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/sis/init.c b/drivers/video/fbdev/sis/init.c
-index dfe3eb769638b..fde27feae5d0c 100644
---- a/drivers/video/fbdev/sis/init.c
-+++ b/drivers/video/fbdev/sis/init.c
-@@ -2428,6 +2428,11 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
+diff --git a/sound/soc/fsl/imx-es8328.c b/sound/soc/fsl/imx-es8328.c
+index 15a27a2cd0cae..fad1eb6253d53 100644
+--- a/sound/soc/fsl/imx-es8328.c
++++ b/sound/soc/fsl/imx-es8328.c
+@@ -145,13 +145,13 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
  
-    i = 0;
+ 	comp = devm_kzalloc(dev, 3 * sizeof(*comp), GFP_KERNEL);
+ 	if (!comp) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
  
-+	if (SiS_Pr->ChipType == SIS_730)
-+		queuedata = &FQBQData730[0];
-+	else
-+		queuedata = &FQBQData[0];
-+
-    if(ModeNo > 0x13) {
+ 	data->dev = dev;
+@@ -182,12 +182,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	ret = snd_soc_of_parse_card_name(&data->card, "model");
+ 	if (ret) {
+ 		dev_err(dev, "Unable to parse card name\n");
+-		goto fail;
++		goto put_device;
+ 	}
+ 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
+ 	if (ret) {
+ 		dev_err(dev, "Unable to parse routing: %d\n", ret);
+-		goto fail;
++		goto put_device;
+ 	}
+ 	data->card.num_links = 1;
+ 	data->card.owner = THIS_MODULE;
+@@ -196,10 +196,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	ret = snd_soc_register_card(&data->card);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to register: %d\n", ret);
+-		goto fail;
++		goto put_device;
+ 	}
  
-       /* Get VCLK  */
-@@ -2445,12 +2450,6 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
-       /* Get half colordepth */
-       colorth = colortharray[(SiS_Pr->SiS_ModeType - ModeEGA)];
- 
--      if(SiS_Pr->ChipType == SIS_730) {
--	 queuedata = &FQBQData730[0];
--      } else {
--	 queuedata = &FQBQData[0];
--      }
--
-       do {
- 	 templ = SiS_CalcDelay2(SiS_Pr, queuedata[i]) * VCLK * colorth;
- 
+ 	platform_set_drvdata(pdev, data);
++put_device:
++	put_device(&ssi_pdev->dev);
+ fail:
+ 	of_node_put(ssi_np);
+ 	of_node_put(codec_np);
 -- 
 2.25.1
 
