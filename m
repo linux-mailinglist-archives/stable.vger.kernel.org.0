@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 677A129B7C7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C13AB29BBBD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794616AbgJ0PQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52612 "EHLO mail.kernel.org"
+        id S1809628AbgJ0Q1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:27:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796133AbgJ0PPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:53 -0400
+        id S1802748AbgJ0PvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:51:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59F4120657;
-        Tue, 27 Oct 2020 15:15:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BDAC204EF;
+        Tue, 27 Oct 2020 15:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811752;
-        bh=XNBNPHCWavZrEu5SlajFZldWJA/rSGH/UWI9X1BQniU=;
+        s=default; t=1603813871;
+        bh=HBFMJq3Sjz6XcNnpX5MUhb16/7mEz0FRqglRSlBXsFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgnLo63oxkqHHlfd2bbyPKJWuA2yDEbvQHQQLaUA+99CKxlPARap8B1oOYyFQpuv3
-         pXxIAEA5EX4PUPRxQspEU/A80zfR60V4T0l3sKmQgItCTE7fuIenXWmvPQaoySRhkj
-         gWpS26oxhh5JncEmFfk+ieMeVGKSXq3u0RyKgqKs=
+        b=sCHAjGS/o/atjdDV65RAYyxJH4ef2XRHp93oV9cBCT6Ojm46eSr6A2Hj10I8Nm1oP
+         OMS9PEobwRG9z5ylqfUFDsSSQ+IF51XLEXv0DmWGctKL8Fo0k3yUoyBrlL6O5rtusM
+         b6L9LRzaDJGZHSVINmEbVSC4omoMRXSTz/3tAdOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 604/633] scsi: qedi: Fix list_del corruption while removing active I/O
-Date:   Tue, 27 Oct 2020 14:55:47 +0100
-Message-Id: <20201027135551.148241734@linuxfoundation.org>
+Subject: [PATCH 5.9 698/757] drm/panfrost: add Amlogic GPU integration quirks
+Date:   Tue, 27 Oct 2020 14:55:48 +0100
+Message-Id: <20201027135523.255777968@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 28b35d17f9f8573d4646dd8df08917a4076a6b63 ]
+[ Upstream commit afcd0c7d3d4c22afc8befcfc906db6ce3058d3ee ]
 
-While aborting the I/O, the firmware cleanup task timed out and driver
-deleted the I/O from active command list. Some time later the firmware
-sent the cleanup task response and driver again deleted the I/O from
-active command list causing firmware to send completion for non-existent
-I/O and list_del corruption of active command list.
+This adds the required GPU quirks, including the quirk in the PWR
+registers at the GPU reset time and the IOMMU quirk for shareability
+issues observed on G52 in Amlogic G12B SoCs.
 
-Add fix to check if I/O is present before deleting it from the active
-command list to ensure firmware sends valid I/O completion and protect
-against list_del corruption.
-
-Link: https://lore.kernel.org/r/20200908095657.26821-4-mrangankar@marvell.com
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916150147.25753-4-narmstrong@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_drv.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index 32586800620bd..90aa64604ad78 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -825,8 +825,11 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
- 			qedi_clear_task_idx(qedi_conn->qedi, rtid);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index ada51df9a7a32..f6d5d03201fad 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -667,7 +667,18 @@ static const struct panfrost_compatible default_data = {
+ 	.pm_domain_names = NULL,
+ };
  
- 			spin_lock(&qedi_conn->list_lock);
--			list_del_init(&dbg_cmd->io_cmd);
--			qedi_conn->active_cmd_count--;
-+			if (likely(dbg_cmd->io_cmd_in_list)) {
-+				dbg_cmd->io_cmd_in_list = false;
-+				list_del_init(&dbg_cmd->io_cmd);
-+				qedi_conn->active_cmd_count--;
-+			}
- 			spin_unlock(&qedi_conn->list_lock);
- 			qedi_cmd->state = CLEANUP_RECV;
- 			wake_up_interruptible(&qedi_conn->wait_queue);
-@@ -1244,6 +1247,7 @@ int qedi_cleanup_all_io(struct qedi_ctx *qedi, struct qedi_conn *qedi_conn,
- 		qedi_conn->cmd_cleanup_req++;
- 		qedi_iscsi_cleanup_task(ctask, true);
- 
-+		cmd->io_cmd_in_list = false;
- 		list_del_init(&cmd->io_cmd);
- 		qedi_conn->active_cmd_count--;
- 		QEDI_WARN(&qedi->dbg_ctx,
-@@ -1455,8 +1459,11 @@ static void qedi_tmf_work(struct work_struct *work)
- 	spin_unlock_bh(&qedi_conn->tmf_work_lock);
- 
- 	spin_lock(&qedi_conn->list_lock);
--	list_del_init(&cmd->io_cmd);
--	qedi_conn->active_cmd_count--;
-+	if (likely(cmd->io_cmd_in_list)) {
-+		cmd->io_cmd_in_list = false;
-+		list_del_init(&cmd->io_cmd);
-+		qedi_conn->active_cmd_count--;
-+	}
- 	spin_unlock(&qedi_conn->list_lock);
- 
- 	clear_bit(QEDI_CONN_FW_CLEANUP, &qedi_conn->flags);
++static const struct panfrost_compatible amlogic_data = {
++	.num_supplies = ARRAY_SIZE(default_supplies),
++	.supply_names = default_supplies,
++	.vendor_quirk = panfrost_gpu_amlogic_quirk,
++};
++
+ static const struct of_device_id dt_match[] = {
++	/* Set first to probe before the generic compatibles */
++	{ .compatible = "amlogic,meson-gxm-mali",
++	  .data = &amlogic_data, },
++	{ .compatible = "amlogic,meson-g12a-mali",
++	  .data = &amlogic_data, },
+ 	{ .compatible = "arm,mali-t604", .data = &default_data, },
+ 	{ .compatible = "arm,mali-t624", .data = &default_data, },
+ 	{ .compatible = "arm,mali-t628", .data = &default_data, },
 -- 
 2.25.1
 
