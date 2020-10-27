@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBD029C37C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:47:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 109EA29C36A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822089AbgJ0Rqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:46:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S1822050AbgJ0Rqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410300AbgJ0Oaf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:30:35 -0400
+        id S2896833AbgJ0Oah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:30:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DA9422284;
-        Tue, 27 Oct 2020 14:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC4ED20780;
+        Tue, 27 Oct 2020 14:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809034;
-        bh=ntGYySYSNw7SODL6UYsSxoIpCGndJvA1TtZUtQ2Fs4Q=;
+        s=default; t=1603809037;
+        bh=mpM/eNc1qPCXevA0Cv9TCas8brCKRl1fN7wjoo6bpVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWEYU3f36SN36PFVPtF5XTBezB4TNcPV7EiuK8FfidK2jHJwkAR8+p3dfQGc6ptDX
-         JrLq0GcKiElkDB011i7HPKZ3+LA3STpSnbplET8YTWupNBhABVDrt13+l3HHsT3m2I
-         5o61J84JlMlhWWYM9djCiRqpHHxZD/qO0G1k3P3k=
+        b=Bo5rswbFOdhgWvC/bvCbgGYxGjg/0xMQOFvkXv8AMiL47aYy0EFKUlaWxcdNfG2dM
+         B3UrAyObSYIGJaDfl1ZxVpH2zLAvGGnFVOii0KXwWkGWV4xbyG2Kq+1UIUoJrLK16p
+         wmm1X1fJp0KkqVjPI9fJoazjx7zsz/uNY74rEfs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.4 020/408] binder: fix UAF when releasing todo list
-Date:   Tue, 27 Oct 2020 14:49:18 +0100
-Message-Id: <20201027135456.001781035@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 021/408] ALSA: bebob: potential info leak in hwdep_read()
+Date:   Tue, 27 Oct 2020 14:49:19 +0100
+Message-Id: <20201027135456.041009132@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -41,113 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f3277cbfba763cd2826396521b9296de67cf1bbc upstream.
+commit b41c15f4e1c1f1657da15c482fa837c1b7384452 upstream.
 
-When releasing a thread todo list when tearing down
-a binder_proc, the following race was possible which
-could result in a use-after-free:
+The "count" variable needs to be capped on every path so that we don't
+copy too much information to the user.
 
-1.  Thread 1: enter binder_release_work from binder_thread_release
-2.  Thread 2: binder_update_ref_for_handle() -> binder_dec_node_ilocked()
-3.  Thread 2: dec nodeA --> 0 (will free node)
-4.  Thread 1: ACQ inner_proc_lock
-5.  Thread 2: block on inner_proc_lock
-6.  Thread 1: dequeue work (BINDER_WORK_NODE, part of nodeA)
-7.  Thread 1: REL inner_proc_lock
-8.  Thread 2: ACQ inner_proc_lock
-9.  Thread 2: todo list cleanup, but work was already dequeued
-10. Thread 2: free node
-11. Thread 2: REL inner_proc_lock
-12. Thread 1: deref w->type (UAF)
-
-The problem was that for a BINDER_WORK_NODE, the binder_work element
-must not be accessed after releasing the inner_proc_lock while
-processing the todo list elements since another thread might be
-handling a deref on the node containing the binder_work element
-leading to the node being freed.
-
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20201009232455.4054810-1-tkjos@google.com
-Cc: <stable@vger.kernel.org> # 4.14, 4.19, 5.4, 5.8
+Fixes: 618eabeae711 ("ALSA: bebob: Add hwdep interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201007074928.GA2529578@mwanda
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |   35 ++++++++++-------------------------
- 1 file changed, 10 insertions(+), 25 deletions(-)
+ sound/firewire/bebob/bebob_hwdep.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -227,7 +227,7 @@ static struct binder_transaction_log_ent
- struct binder_work {
- 	struct list_head entry;
- 
--	enum {
-+	enum binder_work_type {
- 		BINDER_WORK_TRANSACTION = 1,
- 		BINDER_WORK_TRANSACTION_COMPLETE,
- 		BINDER_WORK_RETURN_ERROR,
-@@ -889,27 +889,6 @@ static struct binder_work *binder_dequeu
- 	return w;
- }
- 
--/**
-- * binder_dequeue_work_head() - Dequeues the item at head of list
-- * @proc:         binder_proc associated with list
-- * @list:         list to dequeue head
-- *
-- * Removes the head of the list if there are items on the list
-- *
-- * Return: pointer dequeued binder_work, NULL if list was empty
-- */
--static struct binder_work *binder_dequeue_work_head(
--					struct binder_proc *proc,
--					struct list_head *list)
--{
--	struct binder_work *w;
--
--	binder_inner_proc_lock(proc);
--	w = binder_dequeue_work_head_ilocked(list);
--	binder_inner_proc_unlock(proc);
--	return w;
--}
--
- static void
- binder_defer_work(struct binder_proc *proc, enum binder_deferred_state defer);
- static void binder_free_thread(struct binder_thread *thread);
-@@ -4591,13 +4570,17 @@ static void binder_release_work(struct b
- 				struct list_head *list)
- {
- 	struct binder_work *w;
-+	enum binder_work_type wtype;
- 
- 	while (1) {
--		w = binder_dequeue_work_head(proc, list);
-+		binder_inner_proc_lock(proc);
-+		w = binder_dequeue_work_head_ilocked(list);
-+		wtype = w ? w->type : 0;
-+		binder_inner_proc_unlock(proc);
- 		if (!w)
- 			return;
- 
--		switch (w->type) {
-+		switch (wtype) {
- 		case BINDER_WORK_TRANSACTION: {
- 			struct binder_transaction *t;
- 
-@@ -4631,9 +4614,11 @@ static void binder_release_work(struct b
- 			kfree(death);
- 			binder_stats_deleted(BINDER_STAT_DEATH);
- 		} break;
-+		case BINDER_WORK_NODE:
-+			break;
- 		default:
- 			pr_err("unexpected work type, %d, not freed\n",
--			       w->type);
-+			       wtype);
- 			break;
- 		}
+--- a/sound/firewire/bebob/bebob_hwdep.c
++++ b/sound/firewire/bebob/bebob_hwdep.c
+@@ -36,12 +36,11 @@ hwdep_read(struct snd_hwdep *hwdep, char
  	}
+ 
+ 	memset(&event, 0, sizeof(event));
++	count = min_t(long, count, sizeof(event.lock_status));
+ 	if (bebob->dev_lock_changed) {
+ 		event.lock_status.type = SNDRV_FIREWIRE_EVENT_LOCK_STATUS;
+ 		event.lock_status.status = (bebob->dev_lock_count > 0);
+ 		bebob->dev_lock_changed = false;
+-
+-		count = min_t(long, count, sizeof(event.lock_status));
+ 	}
+ 
+ 	spin_unlock_irq(&bebob->lock);
 
 
