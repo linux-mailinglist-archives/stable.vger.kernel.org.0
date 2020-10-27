@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7B329AEB6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F9729AFA2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753960AbgJ0ODU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51470 "EHLO mail.kernel.org"
+        id S2507453AbgJ0OLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753967AbgJ0ODT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:03:19 -0400
+        id S1755485AbgJ0OKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:10:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A80AE2222C;
-        Tue, 27 Oct 2020 14:03:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E41302072D;
+        Tue, 27 Oct 2020 14:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807398;
-        bh=pOcBVd12JvXVaMyayHwf6XKXc6qvqsXaYmFZ6nMZF8c=;
+        s=default; t=1603807805;
+        bh=3FSq1EhZdfDup8CjiAUD2ypmmOkblGi6RFdoaTOmGyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfBbSXU6sWdm4kaZFseC3x+EVvBphpflmMUpisfU0VYXDyIPSx8vV+dyS+34q5rWc
-         Dud5/vVQp+V6ZhRdbOhqDb1pBtoJmjnRPrZfATYtGSPfelbKKJfUufMLo6TUpgjEpo
-         yJmhUOAUFm8S2gktYUXMq8sU1rV/2ffCXjA0lErQ=
+        b=fVLOyPAX1QD4DQB3rmcbPB1kFa+hlaoZp+bJpJgIL3pFUmFFyhFP3ETQqRBiW/M2y
+         aIY1ERWLCmRK0ACytq7yJSM1pfq1GmPNK25E9emAbo6pPpzThKIR5nUvjsMOsmeUy+
+         AMM4+6unMx3TdIV4J5FmIuWZB/Jlw8dnhqcOqy3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Apollon Oikonomopoulos <apoikos@dmesg.gr>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 009/139] tcp: fix to update snd_wl1 in bulk receiver fast path
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 048/191] brcmfmac: check ndev pointer
 Date:   Tue, 27 Oct 2020 14:48:23 +0100
-Message-Id: <20201027134902.591675828@linuxfoundation.org>
+Message-Id: <20201027134912.046558842@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 18ded910b589839e38a51623a179837ab4cc3789 ]
+[ Upstream commit 9c9f015bc9f8839831c7ba0a6d731a3853c464e2 ]
 
-In the header prediction fast path for a bulk data receiver, if no
-data is newly acknowledged then we do not call tcp_ack() and do not
-call tcp_ack_update_window(). This means that a bulk receiver that
-receives large amounts of data can have the incoming sequence numbers
-wrap, so that the check in tcp_may_update_window fails:
-   after(ack_seq, tp->snd_wl1)
+Clang static analysis reports this error
 
-If the incoming receive windows are zero in this state, and then the
-connection that was a bulk data receiver later wants to send data,
-that connection can find itself persistently rejecting the window
-updates in incoming ACKs. This means the connection can persistently
-fail to discover that the receive window has opened, which in turn
-means that the connection is unable to send anything, and the
-connection's sending process can get permanently "stuck".
+brcmfmac/core.c:490:4: warning: Dereference of null pointer
+        (*ifp)->ndev->stats.rx_errors++;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The fix is to update snd_wl1 in the header prediction fast path for a
-bulk data receiver, so that it keeps up and does not see wrapping
-problems.
+In this block of code
 
-This fix is based on a very nice and thorough analysis and diagnosis
-by Apollon Oikonomopoulos (see link below).
+	if (ret || !(*ifp) || !(*ifp)->ndev) {
+		if (ret != -ENODATA && *ifp)
+			(*ifp)->ndev->stats.rx_errors++;
+		brcmu_pkt_buf_free_skb(skb);
+		return -ENODATA;
+	}
 
-This is a stable candidate but there is no Fixes tag here since the
-bug predates current git history. Just for fun: looks like the bug
-dates back to when header prediction was added in Linux v2.1.8 in Nov
-1996. In that version tcp_rcv_established() was added, and the code
-only updates snd_wl1 in tcp_ack(), and in the new "Bulk data transfer:
-receiver" code path it does not call tcp_ack(). This fix seems to
-apply cleanly at least as far back as v3.2.
+(*ifp)->ndev being NULL is caught as an error
+But then it is used to report the error.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reported-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Tested-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Link: https://www.spinics.net/lists/netdev/msg692430.html
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201022143331.1887495-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So add a check before using it.
+
+Fixes: 91b632803ee4 ("brcmfmac: Use net_device_stats from struct net_device")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200802161804.6126-1-trix@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5598,6 +5598,8 @@ void tcp_rcv_established(struct sock *sk
- 				tcp_data_snd_check(sk);
- 				if (!inet_csk_ack_scheduled(sk))
- 					goto no_ack;
-+			} else {
-+				tcp_update_wl(tp, TCP_SKB_CB(skb)->seq);
- 			}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index bfc0e37b7f344..590bef2defb94 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -318,7 +318,7 @@ static int brcmf_rx_hdrpull(struct brcmf_pub *drvr, struct sk_buff *skb,
+ 	ret = brcmf_proto_hdrpull(drvr, true, skb, ifp);
  
- 			__tcp_ack_snd_check(sk, 0);
+ 	if (ret || !(*ifp) || !(*ifp)->ndev) {
+-		if (ret != -ENODATA && *ifp)
++		if (ret != -ENODATA && *ifp && (*ifp)->ndev)
+ 			(*ifp)->ndev->stats.rx_errors++;
+ 		brcmu_pkt_buf_free_skb(skb);
+ 		return -ENODATA;
+-- 
+2.25.1
+
 
 
