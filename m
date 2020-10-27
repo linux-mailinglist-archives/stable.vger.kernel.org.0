@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB4E29BC5B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B3A29BC06
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802526AbgJ0Pt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52292 "EHLO mail.kernel.org"
+        id S368706AbgJ0Qaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1795788AbgJ0PPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:21 -0400
+        id S1802636AbgJ0Pug (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E37CA20728;
-        Tue, 27 Oct 2020 15:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A563204EF;
+        Tue, 27 Oct 2020 15:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811721;
-        bh=D4zjN5/SB8CO5872b2Os3idW0tfPlzkQWmu5vObtLck=;
+        s=default; t=1603813835;
+        bh=rajoBg90m9v2veNuegkxxzBLUEQ6nFdodXsoaaQtBF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0X81XoyRDmBCZA5ROLngW2Cj1/u6/OWICmI8CeUTyf+M3Bwueycu2WwkNZ9wvz/Z
-         8+BXS76uuLp4vguuiR3/8LoVMkJm6EIkTW1AQ5hNHStrnxz4sO597n+IUy4ZyK3tIm
-         cCE3Id436tKMmbo8ofBdwDsUOuh6DPW7uqhQG98Q=
+        b=sJqBG2DbpMEbRnSASoLS/TvkCnchi9Q4pewt4gOy3GJy8BhTOVUCDxr+CbWjFc9C/
+         ng1FPb59CgvTAkCLFl6DF2Ah2TI0ulQ5oEzLIQZA+qV8BVFO1BXsSx4Fpy8C4Dqu8c
+         yQzavBohYKQ7+TixcEcdSec4Tz4QrJFzcki501/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 594/633] scsi: ibmvfc: Fix error return in ibmvfc_probe()
+        stable@vger.kernel.org,
+        syzbot+9991561e714f597095da@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 687/757] udf: Limit sparing table size
 Date:   Tue, 27 Oct 2020 14:55:37 +0100
-Message-Id: <20201027135550.683366459@linuxfoundation.org>
+Message-Id: <20201027135522.754187717@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 5e48a084f4e824e1b624d3fd7ddcf53d2ba69e53 ]
+[ Upstream commit 44ac6b829c4e173fdf6df18e6dd86aecf9a3dc99 ]
 
-Fix to return error code PTR_ERR() from the error handling case instead of
-0.
+Although UDF standard allows it, we don't support sparing table larger
+than a single block. Check it during mount so that we don't try to
+access memory beyond end of buffer.
 
-Link: https://lore.kernel.org/r/20200907083949.154251-1-jingxiangfeng@huawei.com
-Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: syzbot+9991561e714f597095da@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/udf/super.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 635f6f9cffc40..ef91f3d01f989 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -4928,6 +4928,7 @@ static int ibmvfc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 	if (IS_ERR(vhost->work_thread)) {
- 		dev_err(dev, "Couldn't create kernel thread: %ld\n",
- 			PTR_ERR(vhost->work_thread));
-+		rc = PTR_ERR(vhost->work_thread);
- 		goto free_host_mem;
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 1c42f544096d8..a03b8ce5ef0fd 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -1353,6 +1353,12 @@ static int udf_load_sparable_map(struct super_block *sb,
+ 			(int)spm->numSparingTables);
+ 		return -EIO;
  	}
++	if (le32_to_cpu(spm->sizeSparingTable) > sb->s_blocksize) {
++		udf_err(sb, "error loading logical volume descriptor: "
++			"Too big sparing table size (%u)\n",
++			le32_to_cpu(spm->sizeSparingTable));
++		return -EIO;
++	}
  
+ 	for (i = 0; i < spm->numSparingTables; i++) {
+ 		loc = le32_to_cpu(spm->locSparingTable[i]);
 -- 
 2.25.1
 
