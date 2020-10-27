@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210B029BBC0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC36929BBBB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1809630AbgJ0Q1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:27:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52716 "EHLO mail.kernel.org"
+        id S1809620AbgJ0Q07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802758AbgJ0PvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:51:14 -0400
+        id S1802769AbgJ0PvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:51:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5700A2065C;
-        Tue, 27 Oct 2020 15:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70FEC207C3;
+        Tue, 27 Oct 2020 15:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813873;
-        bh=gPSiEeiV42B9c4CxYzoSvDQvifyXtKapRDX7C2GEKS8=;
+        s=default; t=1603813877;
+        bh=MIJdmlDPf/6a9ww6acyCu/XbTZ0zqwY1PWgU7Qwbn/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bdUp3qtR6dOfer0z4+KB1kiqj6KoYYXtVawrB0tSIbxrCAooBzszPcByxvi7EuIY
-         OThrOY1/gM0Q6c+sgO4Q9cmwfHcpkA+B/1Q5qrQivT5i/rmyUWLscgd3+pavxwxCKS
-         f0O9yX3HFjX+f6RInZircJMzlUGQDDveuPKv5FeE=
+        b=OxcCOwb9xnevQ5S3I9CRVhs41ZTLeCWxS3V9DqMKS1VuxKLrub69XGwBh5NOkgL9y
+         W3v4KWZ8ORdKqar/rs4Dx1chadIE2FpCO7tEz+v9uxavetmD6VeLuJK3pLm4li6Wn0
+         ByLevZq1ToQO0W3qQPp2y33BPvzu5xf+Ah7clHu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Steven Price <steven.price@arm.com>,
         Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 699/757] drm/panfrost: add amlogic reset quirk callback
-Date:   Tue, 27 Oct 2020 14:55:49 +0100
-Message-Id: <20201027135523.301522271@linuxfoundation.org>
+Subject: [PATCH 5.9 700/757] drm/panfrost: add support for vendor quirk
+Date:   Tue, 27 Oct 2020 14:55:50 +0100
+Message-Id: <20201027135523.337662798@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,77 +46,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 110003002291525bb209f47e6dbf121a63249a97 ]
+[ Upstream commit 91e89097b86f566636ea5a7329c79d5521be46d2 ]
 
 The T820, G31 & G52 GPUs integrated by Amlogic in the respective GXM,
-G12A/SM1 & G12B SoCs needs a quirk in the PWR registers at the GPU reset
-time.
+G12A/SM1 & G12B SoCs needs a quirk in the PWR registers after each reset.
 
-Since the Amlogic's integration of the GPU cores with the SoC is not
-publicly documented we do not know what does these values, but they
-permit having a fully functional GPU running with Panfrost.
+This adds a callback in the device compatible struct of permit this.
 
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 [Steven: Fix typo in commit log]
 Reviewed-by: Steven Price <steven.price@arm.com>
 Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200916150147.25753-3-narmstrong@baylibre.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916150147.25753-2-narmstrong@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_gpu.c  | 11 +++++++++++
- drivers/gpu/drm/panfrost/panfrost_gpu.h  |  2 ++
- drivers/gpu/drm/panfrost/panfrost_regs.h |  4 ++++
- 3 files changed, 17 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_device.h | 3 +++
+ drivers/gpu/drm/panfrost/panfrost_gpu.c    | 4 ++++
+ 2 files changed, 7 insertions(+)
 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
+index c30c719a80594..3c4a85213c15f 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.h
++++ b/drivers/gpu/drm/panfrost/panfrost_device.h
+@@ -69,6 +69,9 @@ struct panfrost_compatible {
+ 	int num_pm_domains;
+ 	/* Only required if num_pm_domains > 1. */
+ 	const char * const *pm_domain_names;
++
++	/* Vendor implementation quirks callback */
++	void (*vendor_quirk)(struct panfrost_device *pfdev);
+ };
+ 
+ struct panfrost_device {
 diff --git a/drivers/gpu/drm/panfrost/panfrost_gpu.c b/drivers/gpu/drm/panfrost/panfrost_gpu.c
-index dfe4c9151eaf2..a9d08a2927aa3 100644
+index a9d08a2927aa3..165403878ad9b 100644
 --- a/drivers/gpu/drm/panfrost/panfrost_gpu.c
 +++ b/drivers/gpu/drm/panfrost/panfrost_gpu.c
-@@ -75,6 +75,17 @@ int panfrost_gpu_soft_reset(struct panfrost_device *pfdev)
- 	return 0;
+@@ -146,6 +146,10 @@ static void panfrost_gpu_init_quirks(struct panfrost_device *pfdev)
+ 
+ 	if (quirks)
+ 		gpu_write(pfdev, GPU_JM_CONFIG, quirks);
++
++	/* Here goes platform specific quirks */
++	if (pfdev->comp->vendor_quirk)
++		pfdev->comp->vendor_quirk(pfdev);
  }
  
-+void panfrost_gpu_amlogic_quirk(struct panfrost_device *pfdev)
-+{
-+	/*
-+	 * The Amlogic integrated Mali-T820, Mali-G31 & Mali-G52 needs
-+	 * these undocumented bits in GPU_PWR_OVERRIDE1 to be set in order
-+	 * to operate correctly.
-+	 */
-+	gpu_write(pfdev, GPU_PWR_KEY, GPU_PWR_KEY_UNLOCK);
-+	gpu_write(pfdev, GPU_PWR_OVERRIDE1, 0xfff | (0x20 << 16));
-+}
-+
- static void panfrost_gpu_init_quirks(struct panfrost_device *pfdev)
- {
- 	u32 quirks = 0;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gpu.h b/drivers/gpu/drm/panfrost/panfrost_gpu.h
-index 4112412087b27..468c51e7e46db 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gpu.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_gpu.h
-@@ -16,4 +16,6 @@ int panfrost_gpu_soft_reset(struct panfrost_device *pfdev);
- void panfrost_gpu_power_on(struct panfrost_device *pfdev);
- void panfrost_gpu_power_off(struct panfrost_device *pfdev);
- 
-+void panfrost_gpu_amlogic_quirk(struct panfrost_device *pfdev);
-+
- #endif
-diff --git a/drivers/gpu/drm/panfrost/panfrost_regs.h b/drivers/gpu/drm/panfrost/panfrost_regs.h
-index ea38ac60581c6..eddaa62ad8b0e 100644
---- a/drivers/gpu/drm/panfrost/panfrost_regs.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_regs.h
-@@ -51,6 +51,10 @@
- #define GPU_STATUS			0x34
- #define   GPU_STATUS_PRFCNT_ACTIVE	BIT(2)
- #define GPU_LATEST_FLUSH_ID		0x38
-+#define GPU_PWR_KEY			0x50	/* (WO) Power manager key register */
-+#define  GPU_PWR_KEY_UNLOCK		0x2968A819
-+#define GPU_PWR_OVERRIDE0		0x54	/* (RW) Power manager override settings */
-+#define GPU_PWR_OVERRIDE1		0x58	/* (RW) Power manager override settings */
- #define GPU_FAULT_STATUS		0x3C
- #define GPU_FAULT_ADDRESS_LO		0x40
- #define GPU_FAULT_ADDRESS_HI		0x44
+ #define MAX_HW_REVS 6
 -- 
 2.25.1
 
