@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8FE29BD4D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E65F29BD4E
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761003AbgJ0Plf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:41:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
+        id S1797960AbgJ0Pli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800066AbgJ0Pen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:34:43 -0400
+        id S1800084AbgJ0Pew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:34:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7181322282;
-        Tue, 27 Oct 2020 15:34:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ABB12225E;
+        Tue, 27 Oct 2020 15:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812883;
-        bh=Gn73Rd2CjuPXWZU7iiPPD8ts5YKE28+C2nLyoLeyP8E=;
+        s=default; t=1603812891;
+        bh=lMMHdA/8048VM3PBksY4VAcm8GFml13hO7tc6DH14Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAUhG0NUsApFjkgR5s9rN5m4CVKhmYhdZAjMzHVhEGmyt2TUVxmXKmnFwpxUfQ3Ig
-         f1OzZF/ogSfRouQBQxknL4I27fnbRRVvIiEenE3oWGT7RZWWQt4bDkSYgSUWS29xkr
-         RSGn88KytSChwEuIw3mfD2DkfQRzBUEmdlgzo47w=
+        b=B31t/WH+TrXk2dSc3OtZcAJwAfsiKYVBmFSyhCwN5wEZjDeZXUQ84QA/3XlJqcmeQ
+         At3QPZ0h4G//w2m4ccQNVxU9HlGeD0c3eIKZEwDYjjbfSuMsNDBpTucXAC5wYwhsQL
+         xD/x8d1OmDiExKQQpvD1iTq3mrHw9RH7+gzxuyG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Linh Phung <linh.phung.jy@renesas.com>,
+        Tam Nguyen <tam.nguyen.xa@renesas.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 363/757] iwlwifi: dbg: remove no filter condition
-Date:   Tue, 27 Oct 2020 14:50:13 +0100
-Message-Id: <20201027135507.594109604@linuxfoundation.org>
+Subject: [PATCH 5.9 366/757] usb: gadget: u_serial: clear suspended flag when disconnecting
+Date:   Tue, 27 Oct 2020 14:50:16 +0100
+Message-Id: <20201027135507.736682232@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,41 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit bfdb157127dab2a85d4096a68a00ad568c9eb590 ]
+[ Upstream commit d98ef43bfb65b5201e1afe36aaf8c4f9d71b4307 ]
 
-Currently if group-id and command-id values are zero we
-trigger and collect every RX frame,
-this is not the right behavior and zero value
-should be handled like any other filter.
+The commit aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume
+callbacks") set/cleared the suspended flag in USB bus suspend/resume
+only. But, when a USB cable is disconnected in the suspend, since some
+controllers will not detect USB bus resume, the suspended flag is not
+cleared. After that, user cannot send any data. To fix the issue,
+clears the suspended flag in the gserial_disconnect().
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: 3ed34fbf9d3b ("iwlwifi: dbg_ini: support FW response/notification region type")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200930161256.6a0aae2c0507.I7bd72968279d586af420472707d53106b35efc08@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume callbacks")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Linh Phung <linh.phung.jy@renesas.com>
+Tested-by: Tam Nguyen <tam.nguyen.xa@renesas.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/u_serial.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-index 9ce7207d9ec5b..e575fc09d3fa4 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-@@ -947,9 +947,8 @@ static bool iwl_dbg_tlv_check_fw_pkt(struct iwl_fw_runtime *fwrt,
- 	struct iwl_rx_packet *pkt = tp_data->fw_pkt;
- 	struct iwl_cmd_header *wanted_hdr = (void *)&trig_data;
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index 127ecc2b43176..2caccbb6e0140 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -1391,6 +1391,7 @@ void gserial_disconnect(struct gserial *gser)
+ 		if (port->port.tty)
+ 			tty_hangup(port->port.tty);
+ 	}
++	port->suspended = false;
+ 	spin_unlock_irqrestore(&port->port_lock, flags);
  
--	if (pkt && ((wanted_hdr->cmd == 0 && wanted_hdr->group_id == 0) ||
--		    (pkt->hdr.cmd == wanted_hdr->cmd &&
--		     pkt->hdr.group_id == wanted_hdr->group_id))) {
-+	if (pkt && (pkt->hdr.cmd == wanted_hdr->cmd &&
-+		    pkt->hdr.group_id == wanted_hdr->group_id)) {
- 		struct iwl_rx_packet *fw_pkt =
- 			kmemdup(pkt,
- 				sizeof(*pkt) + iwl_rx_packet_payload_len(pkt),
+ 	/* disable endpoints, aborting down any active I/O */
 -- 
 2.25.1
 
