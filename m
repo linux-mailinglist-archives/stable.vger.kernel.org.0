@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D146129AE2E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 394EB29AE31
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752932AbgJ0N5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1752961AbgJ0N5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:57:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752912AbgJ0N5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:57:39 -0400
+        id S1752955AbgJ0N5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:57:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E4BA21655;
-        Tue, 27 Oct 2020 13:57:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 601112072D;
+        Tue, 27 Oct 2020 13:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807058;
-        bh=6Ru14FfKMxajVakNntDal+Pwp6FhhFhEwqVPOngvRe8=;
+        s=default; t=1603807070;
+        bh=v8P6ZSRKnnsELgim7giWIaierPdmu0FAQLMPvm0bIjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c19rx7HFPCVmZEqMYCTumHV/QsG6usxxASCFI2FukpqXvI4Af4FVKLvPRFlPKaI1t
-         bAl2ijmHM2M8oB8Dv96AVpR16pn3CXnWBcxzcGwLRWkouTw8T9oYsMxNTJWP++XbFR
-         Y9Lw82+igPlLT8zrTUKcwNnLzT5AE1K/q8yq+VSM=
+        b=CdOLkOLzuUi5TPFQ5jC5G3/9uJCG7h7cH0zAAqko3wdrTN+ISnyCFZGU/sl4vBnsE
+         nk6Y9Na69QOC0BumZpX6tW8d1WndPJbb+JO2CeGD+4BqzmnFIA8h7QwrqxRHcq19gC
+         hiiWw20ktbibb22/+4ahYt7whDmW4JwDwJI2LSCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 005/112] ALSA: bebob: potential info leak in hwdep_read()
-Date:   Tue, 27 Oct 2020 14:48:35 +0100
-Message-Id: <20201027134900.794715749@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.4 009/112] compiler.h: Add read_word_at_a_time() function.
+Date:   Tue, 27 Oct 2020 14:48:39 +0100
+Message-Id: <20201027134900.991495979@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -43,40 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-commit b41c15f4e1c1f1657da15c482fa837c1b7384452 upstream.
+commit 7f1e541fc8d57a143dd5df1d0a1276046e08c083 upstream.
 
-The "count" variable needs to be capped on every path so that we don't
-copy too much information to the user.
+Sometimes we know that it's safe to do potentially out-of-bounds access
+because we know it won't cross a page boundary.  Still, KASAN will
+report this as a bug.
 
-Fixes: 618eabeae711 ("ALSA: bebob: Add hwdep interface")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201007074928.GA2529578@mwanda
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Add read_word_at_a_time() function which is supposed to be used in such
+cases.  In read_word_at_a_time() KASAN performs relaxed check - only the
+first byte of access is validated.
+
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 4.4: adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/firewire/bebob/bebob_hwdep.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/compiler.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/firewire/bebob/bebob_hwdep.c
-+++ b/sound/firewire/bebob/bebob_hwdep.c
-@@ -37,12 +37,11 @@ hwdep_read(struct snd_hwdep *hwdep, char
- 	}
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -292,6 +292,7 @@ static __always_inline void __write_once
+  * with an explicit memory barrier or atomic instruction that provides the
+  * required ordering.
+  */
++#include <linux/kasan-checks.h>
  
- 	memset(&event, 0, sizeof(event));
-+	count = min_t(long, count, sizeof(event.lock_status));
- 	if (bebob->dev_lock_changed) {
- 		event.lock_status.type = SNDRV_FIREWIRE_EVENT_LOCK_STATUS;
- 		event.lock_status.status = (bebob->dev_lock_count > 0);
- 		bebob->dev_lock_changed = false;
--
--		count = min_t(long, count, sizeof(event.lock_status));
- 	}
+ #define __READ_ONCE(x, check)						\
+ ({									\
+@@ -310,6 +311,13 @@ static __always_inline void __write_once
+  */
+ #define READ_ONCE_NOCHECK(x) __READ_ONCE(x, 0)
  
- 	spin_unlock_irq(&bebob->lock);
++static __no_kasan_or_inline
++unsigned long read_word_at_a_time(const void *addr)
++{
++	kasan_check_read(addr, 1);
++	return *(unsigned long *)addr;
++}
++
+ #define WRITE_ONCE(x, val) \
+ ({							\
+ 	union { typeof(x) __val; char __c[1]; } __u =	\
 
 
