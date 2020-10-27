@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3428629B822
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF85829B8E9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797010AbgJ0PcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:32:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49346 "EHLO mail.kernel.org"
+        id S1802090AbgJ0Ppf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799584AbgJ0PcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:32:16 -0400
+        id S1799304AbgJ0Pas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:30:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA29320728;
-        Tue, 27 Oct 2020 15:32:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0EB922202;
+        Tue, 27 Oct 2020 15:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812735;
-        bh=1ObmjkWDMCeEt0kyPQ7yIVa7gmllwV9YT5qSow79xC4=;
+        s=default; t=1603812648;
+        bh=XEh+266qbHO/JplKpkkP76/x6r4YBQwRmHueb4pivNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHqoF/S3zHHX14b0zsIze9Z/cXqmdmuhs8gavQqKwQ25simhzAJzbuH3t9Aml+Wom
-         qEbkuYgp67ThNEa6Tx7df3lO7Z2oHi6V36c63zu7afxBiff+3yEUftf8kj/krTViM5
-         mIemaBaGxXxHqfZ0hKhKe1nizSe7ZGFUe+pfJJyI=
+        b=jBysVGzyU3C4DadnrWRvdMFyWN78l+2vFG1m9z9yDNY0Rlfy7T0Yy0Dsp5DPXuQ8i
+         JNwT/US939W+hT/5JTpnFbj2utZzmvYJd6gqGSERlhlGZrvvjFioOlMz6d4ndqke9S
+         rWmZthnqF1oOh5VVbmiNPaJOP121HGvj2jgmut6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 282/757] dmaengine: ti: k3-udma-glue: fix channel enable functions
-Date:   Tue, 27 Oct 2020 14:48:52 +0100
-Message-Id: <20201027135503.806351312@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 283/757] selftests/bpf: Fix endianness issue in sk_assign
+Date:   Tue, 27 Oct 2020 14:48:53 +0100
+Message-Id: <20201027135503.854624225@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,76 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 52c74d3d356b60f3c53dc69e5109752347e144e8 ]
+[ Upstream commit b6ed6cf4a3acdeab9aed8e0a524850761ec9b152 ]
 
-Now the K3 UDMA glue layer enable functions perform RMW operation on UDMA
-RX/TX RT_CTL registers to set EN bit and enable channel, which is
-incorrect, because only EN bit has to be set in those registers to enable
-channel (all other bits should be cleared 0).
-More over, this causes issues when bootloader leaves UDMA channel RX/TX
-RT_CTL registers in incorrect state - TDOWN bit set, for example. As
-result, UDMA channel will just perform teardown right after it's enabled.
+server_map's value size is 8, but the test tries to put an int there.
+This sort of works on x86 (unless followed by non-0), but hard fails on
+s390.
 
-Hence, fix it by writing correct values (EN=1) directly in UDMA channel
-RX/TX RT_CTL registers in k3_udma_glue_enable_tx/rx_chn() functions.
+Fix by using __s64 instead of int.
 
-Fixes: d70241913413 ("dmaengine: ti: k3-udma: Add glue layer for non DMAengine users")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200916120955.7963-1-grygorii.strashko@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 2d7824ffd25c ("selftests: bpf: Add test for sk_assign")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200915113815.3768217-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma-glue.c | 17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/sk_assign.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/k3-udma-glue.c b/drivers/dma/ti/k3-udma-glue.c
-index 3a5d33ea5ebe7..42c8ad10d75eb 100644
---- a/drivers/dma/ti/k3-udma-glue.c
-+++ b/drivers/dma/ti/k3-udma-glue.c
-@@ -378,17 +378,11 @@ EXPORT_SYMBOL_GPL(k3_udma_glue_pop_tx_chn);
+diff --git a/tools/testing/selftests/bpf/prog_tests/sk_assign.c b/tools/testing/selftests/bpf/prog_tests/sk_assign.c
+index 47fa04adc1471..21c2d265c3e8e 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sk_assign.c
++++ b/tools/testing/selftests/bpf/prog_tests/sk_assign.c
+@@ -265,7 +265,7 @@ void test_sk_assign(void)
+ 		TEST("ipv6 udp port redir", AF_INET6, SOCK_DGRAM, false),
+ 		TEST("ipv6 udp addr redir", AF_INET6, SOCK_DGRAM, true),
+ 	};
+-	int server = -1;
++	__s64 server = -1;
+ 	int server_map;
+ 	int self_net;
  
- int k3_udma_glue_enable_tx_chn(struct k3_udma_glue_tx_channel *tx_chn)
- {
--	u32 txrt_ctl;
--
--	txrt_ctl = UDMA_PEER_RT_EN_ENABLE;
- 	xudma_tchanrt_write(tx_chn->udma_tchanx, UDMA_CHAN_RT_PEER_RT_EN_REG,
--			    txrt_ctl);
-+			    UDMA_PEER_RT_EN_ENABLE);
- 
--	txrt_ctl = xudma_tchanrt_read(tx_chn->udma_tchanx,
--				      UDMA_CHAN_RT_CTL_REG);
--	txrt_ctl |= UDMA_CHAN_RT_CTL_EN;
- 	xudma_tchanrt_write(tx_chn->udma_tchanx, UDMA_CHAN_RT_CTL_REG,
--			    txrt_ctl);
-+			    UDMA_CHAN_RT_CTL_EN);
- 
- 	k3_udma_glue_dump_tx_rt_chn(tx_chn, "txchn en");
- 	return 0;
-@@ -1058,19 +1052,14 @@ EXPORT_SYMBOL_GPL(k3_udma_glue_rx_flow_disable);
- 
- int k3_udma_glue_enable_rx_chn(struct k3_udma_glue_rx_channel *rx_chn)
- {
--	u32 rxrt_ctl;
--
- 	if (rx_chn->remote)
- 		return -EINVAL;
- 
- 	if (rx_chn->flows_ready < rx_chn->flow_num)
- 		return -EINVAL;
- 
--	rxrt_ctl = xudma_rchanrt_read(rx_chn->udma_rchanx,
--				      UDMA_CHAN_RT_CTL_REG);
--	rxrt_ctl |= UDMA_CHAN_RT_CTL_EN;
- 	xudma_rchanrt_write(rx_chn->udma_rchanx, UDMA_CHAN_RT_CTL_REG,
--			    rxrt_ctl);
-+			    UDMA_CHAN_RT_CTL_EN);
- 
- 	xudma_rchanrt_write(rx_chn->udma_rchanx, UDMA_CHAN_RT_PEER_RT_EN_REG,
- 			    UDMA_PEER_RT_EN_ENABLE);
 -- 
 2.25.1
 
