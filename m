@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B252729B6E7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C743C29B69B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368770AbgJ0P1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37766 "EHLO mail.kernel.org"
+        id S1797337AbgJ0PW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797318AbgJ0PWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:22:50 -0400
+        id S1797332AbgJ0PW4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A8B12064B;
-        Tue, 27 Oct 2020 15:22:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DE8F2064B;
+        Tue, 27 Oct 2020 15:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812169;
-        bh=4RuWZUZzQBdWwwc8UhIj14hBjpAmE/3TkrvqmhbmZYA=;
+        s=default; t=1603812176;
+        bh=p7NNNZMBxNsyoTsqtcaif3w4G0jBrVdCgsFZHvNNmf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+OKIVjeZPTnfC8vG4bcjM4JnskSPAJRjx+3YREjA3vcrzlzjJtst1Z78+D1fc7l+
-         KX2KpOLMPq/oQtbFEkyQHcqgWHGQDa/j1IylLm0Sb/xYbZcGa6tlJHGGSzintavIub
-         h8kF2FmqJ+5YiE/xq52JdputxxL16jbrPhYtGsL8=
+        b=xQqlpaL7vRh0Lnrag6FISUB4gGsi8Mt3raPfwRv/OlJInTMWPo3d8E8wIeJ1F7Acs
+         gWGAeJnY3dRabZ9MEsviXPZygqNiLJyITP8vTp37tUzcWyexaeQW4pa2t1/ITQCQv4
+         yUb4xx4lLpLXoPPSMXbKVkt7TT29wBE3CTqYFzK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wade Mealing <wmealing@redhat.com>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 117/757] perf/core: Fix race in the perf_mmap_close() function
-Date:   Tue, 27 Oct 2020 14:46:07 +0100
-Message-Id: <20201027135456.059763721@linuxfoundation.org>
+Subject: [PATCH 5.9 119/757] crypto: algif_skcipher - EBUSY on aio should be an error
+Date:   Tue, 27 Oct 2020 14:46:09 +0100
+Message-Id: <20201027135456.158657092@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,101 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit f91072ed1b7283b13ca57fcfbece5a3b92726143 ]
+[ Upstream commit 2a05b029c1ee045b886ebf9efef9985ca23450de ]
 
-There's a possible race in perf_mmap_close() when checking ring buffer's
-mmap_count refcount value. The problem is that the mmap_count check is
-not atomic because we call atomic_dec() and atomic_read() separately.
+I removed the MAY_BACKLOG flag on the aio path a while ago but
+the error check still incorrectly interpreted EBUSY as success.
+This may cause the submitter to wait for a request that will never
+complete.
 
-  perf_mmap_close:
-  ...
-   atomic_dec(&rb->mmap_count);
-   ...
-   if (atomic_read(&rb->mmap_count))
-      goto out_put;
-
-   <ring buffer detach>
-   free_uid
-
-out_put:
-  ring_buffer_put(rb); /* could be last */
-
-The race can happen when we have two (or more) events sharing same ring
-buffer and they go through atomic_dec() and then they both see 0 as refcount
-value later in atomic_read(). Then both will go on and execute code which
-is meant to be run just once.
-
-The code that detaches ring buffer is probably fine to be executed more
-than once, but the problem is in calling free_uid(), which will later on
-demonstrate in related crashes and refcount warnings, like:
-
-  refcount_t: addition on 0; use-after-free.
-  ...
-  RIP: 0010:refcount_warn_saturate+0x6d/0xf
-  ...
-  Call Trace:
-  prepare_creds+0x190/0x1e0
-  copy_creds+0x35/0x172
-  copy_process+0x471/0x1a80
-  _do_fork+0x83/0x3a0
-  __do_sys_wait4+0x83/0x90
-  __do_sys_clone+0x85/0xa0
-  do_syscall_64+0x5b/0x1e0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Using atomic decrease and check instead of separated calls.
-
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Wade Mealing <wmealing@redhat.com>
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
-Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+Fixes: dad419970637 ("crypto: algif_skcipher - Do not set...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ crypto/algif_skcipher.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index e8bf92202542b..6a1ae6a62d489 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5869,11 +5869,11 @@ static void perf_pmu_output_stop(struct perf_event *event);
- static void perf_mmap_close(struct vm_area_struct *vma)
- {
- 	struct perf_event *event = vma->vm_file->private_data;
--
- 	struct perf_buffer *rb = ring_buffer_get(event);
- 	struct user_struct *mmap_user = rb->mmap_user;
- 	int mmap_locked = rb->mmap_locked;
- 	unsigned long size = perf_data_size(rb);
-+	bool detach_rest = false;
+diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+index 478f3b8f5bd52..ee8890ee8f332 100644
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -123,7 +123,7 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
+ 			crypto_skcipher_decrypt(&areq->cra_u.skcipher_req);
  
- 	if (event->pmu->event_unmapped)
- 		event->pmu->event_unmapped(event, vma->vm_mm);
-@@ -5904,7 +5904,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
- 		mutex_unlock(&event->mmap_mutex);
- 	}
+ 		/* AIO operation in progress */
+-		if (err == -EINPROGRESS || err == -EBUSY)
++		if (err == -EINPROGRESS)
+ 			return -EIOCBQUEUED;
  
--	atomic_dec(&rb->mmap_count);
-+	if (atomic_dec_and_test(&rb->mmap_count))
-+		detach_rest = true;
- 
- 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
- 		goto out_put;
-@@ -5913,7 +5914,7 @@ static void perf_mmap_close(struct vm_area_struct *vma)
- 	mutex_unlock(&event->mmap_mutex);
- 
- 	/* If there's still other mmap()s of this buffer, we're done. */
--	if (atomic_read(&rb->mmap_count))
-+	if (!detach_rest)
- 		goto out_put;
- 
- 	/*
+ 		sock_put(sk);
 -- 
 2.25.1
 
