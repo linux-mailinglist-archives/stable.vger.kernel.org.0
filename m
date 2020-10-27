@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4943E29B0EE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40AF129B0F0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368359AbgJ0OZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50652 "EHLO mail.kernel.org"
+        id S2901619AbgJ0OZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:25:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758871AbgJ0OZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:25:16 -0400
+        id S2901613AbgJ0OZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:25:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E91D20780;
-        Tue, 27 Oct 2020 14:25:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3007320773;
+        Tue, 27 Oct 2020 14:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808716;
-        bh=cLaNBB6AnDMMfGESDOCXCe12YlDrGVGT5U6gj77FQV0=;
+        s=default; t=1603808723;
+        bh=1fHMQsfwc+E4J485jdFMYQOsESavJapQ0G7HTOqP9Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FiS2nwrnvldooKhKa6ESGzqIROXmLBUJunnU2modovSU2c2LAghqiYCHBjLG7jcRv
-         eR1Uo3kQyWU/I/BWIlkRwTkAi/HJUkhV62+1V1p5k6OsvDGHLHbTMBwt3m1hetdVFR
-         wvV6gSoTKKU6u53/X0cwq0nMbvnaTQLoQaRP0QnM=
+        b=La8e/RgB+dETqzU1B19eUEWldsvpd3IKSSV17b1N9Ykoja3rphKV8SFuD+baPLKv4
+         seaGm/jmRTKSkjhZ2gdh/BXiF7NKcQyElKUwmJML+seu1RAyRbuhY2pD4++cpHyyJE
+         /wZUsk9F9Q5gQF3JBCQ7hAPUpk8MwKIUfiRaaWKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 196/264] arm64: dts: qcom: pm8916: Remove invalid reg size from wcd_codec
-Date:   Tue, 27 Oct 2020 14:54:14 +0100
-Message-Id: <20201027135439.878748020@linuxfoundation.org>
+Subject: [PATCH 4.19 199/264] arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
+Date:   Tue, 27 Oct 2020 14:54:17 +0100
+Message-Id: <20201027135440.016823650@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,46 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit c2f0cbb57dbac6da3d38b47b5b96de0fe4e23884 ]
+[ Upstream commit 35292518cb0a626fcdcabf739aed75060a018ab5 ]
 
-Tha parent node of "wcd_codec" specifies #address-cells = <1>
-and #size-cells = <0>, which means that each resource should be
-described by one cell for the address and size omitted.
+DT binding permits only one compatible string which was decribed in past by
+commit 63cab195bf49 ("i2c: removed work arounds in i2c driver for Zynq
+Ultrascale+ MPSoC").
+The commit aea37006e183 ("dt-bindings: i2c: cadence: Migrate i2c-cadence
+documentation to YAML") has converted binding to yaml and the following
+issues is reported:
+...: i2c@ff030000: compatible: Additional items are not allowed
+('cdns,i2c-r1p10' was unexpected)
+	From schema:
+.../Documentation/devicetree/bindings/i2c/cdns,i2c-r1p10.yaml fds
+...: i2c@ff030000: compatible: ['cdns,i2c-r1p14', 'cdns,i2c-r1p10'] is too
+long
 
-However, wcd_codec currently lists 0x200 as second cell (probably
-the size of the resource). When parsing this would be treated like
-another memory resource - which is entirely wrong.
+The commit c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+has added the second compatible string but without removing origin one.
+The patch is only keeping one compatible string "cdns,i2c-r1p14".
 
-To quote the device tree specification [1]:
-  "If the parent node specifies a value of 0 for #size-cells,
-   the length field in the value of reg shall be omitted."
-
-[1]: https://www.devicetree.org/specifications/
-
-Fixes: 5582fcb3829f ("arm64: dts: apq8016-sbc: add analog audio support with multicodec")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200915071221.72895-4-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: c415f9e8304a ("ARM64: zynqmp: Fix i2c node's compatible string")
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/cc294ae1a79ef845af6809ddb4049f0c0f5bb87a.1598259551.git.michal.simek@xilinx.com
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/pm8916.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/pm8916.dtsi b/arch/arm64/boot/dts/qcom/pm8916.dtsi
-index 196b1c0ceb9b0..b968afa8da175 100644
---- a/arch/arm64/boot/dts/qcom/pm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8916.dtsi
-@@ -99,7 +99,7 @@ pm8916_1: pm8916@1 {
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index a516c0e01429a..8a885ae647b7e 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -411,7 +411,7 @@ gpio: gpio@ff0a0000 {
+ 		};
  
- 		wcd_codec: codec@f000 {
- 			compatible = "qcom,pm8916-wcd-analog-codec";
--			reg = <0xf000 0x200>;
-+			reg = <0xf000>;
- 			reg-names = "pmic-codec-core";
- 			clocks = <&gcc GCC_CODEC_DIGCODEC_CLK>;
- 			clock-names = "mclk";
+ 		i2c0: i2c@ff020000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 17 4>;
+@@ -421,7 +421,7 @@ i2c0: i2c@ff020000 {
+ 		};
+ 
+ 		i2c1: i2c@ff030000 {
+-			compatible = "cdns,i2c-r1p14", "cdns,i2c-r1p10";
++			compatible = "cdns,i2c-r1p14";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 18 4>;
 -- 
 2.25.1
 
