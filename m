@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DA1929BCC1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEAD29BE4C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811058AbgJ0QhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
+        id S1794623AbgJ0PMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1765974AbgJ0Prs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:47:48 -0400
+        id S1794616AbgJ0PMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:12:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EC7E22282;
-        Tue, 27 Oct 2020 15:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA14A20728;
+        Tue, 27 Oct 2020 15:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813667;
-        bh=TlzoQOTgJdo063lAP9IImjdEtkOQ5U8LxXHV/62dbH0=;
+        s=default; t=1603811560;
+        bh=+n1S3A+tYy55zl/N+PuWYLmn/WLTr5AUGrt5WVfD6Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBSdSYh69MsCAZl6dCCeTp+2who74sWsyJe5crYnj5XC13OekbYWWRGvEEhAYLUUD
-         NNjpkGodYllZmEFKmR6N5oOIzzRCLymjmsR62vVuNIbqR/iN6C0lUg80Umk14/jq3W
-         G27jcdYZ4di1IH24kJVanCUnctUgO/NreFxlnJRE=
+        b=kmWqjKFGtAfXPkw4Gx6vZn7UKWczIcbF4HGG/50NgFi2WDsQReA1+YMNQ1h/tleAu
+         Ccq1gsepAZ/0MzTVj/hDtWPjESiX4finvmsIJgxjbbhG+v+WQOrsYFXl+P68i5+0OB
+         rFF9FWA0lwZ7Le8mxNr1c2UjMlSbVA8KemorVJjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 629/757] powerpc/powernv/dump: Fix race while processing OPAL dump
+Subject: [PATCH 5.8 536/633] media: sti: Fix reference count leaks
 Date:   Tue, 27 Oct 2020 14:54:39 +0100
-Message-Id: <20201027135520.047518649@linuxfoundation.org>
+Message-Id: <20201027135547.929274290@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 0a43ae3e2beb77e3481d812834d33abe270768ab ]
+[ Upstream commit 6f4432bae9f2d12fc1815b5e26cc07e69bcad0df ]
 
-Every dump reported by OPAL is exported to userspace through a sysfs
-interface and notified using kobject_uevent(). The userspace daemon
-(opal_errd) then reads the dump and acknowledges that the dump is
-saved safely to disk. Once acknowledged the kernel removes the
-respective sysfs file entry causing respective resources to be
-released including kobject.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
 
-However it's possible the userspace daemon may already be scanning
-dump entries when a new sysfs dump entry is created by the kernel.
-User daemon may read this new entry and ack it even before kernel can
-notify userspace about it through kobject_uevent() call. If that
-happens then we have a potential race between
-dump_ack_store->kobject_put() and kobject_uevent which can lead to
-use-after-free of a kernfs object resulting in a kernel crash.
-
-This patch fixes this race by protecting the sysfs file
-creation/notification by holding a reference count on kobject until we
-safely send kobject_uevent().
-
-The function create_dump_obj() returns the dump object which if used
-by caller function will end up in use-after-free problem again.
-However, the return value of create_dump_obj() function isn't being
-used today and there is no need as well. Hence change it to return
-void to make this fix complete.
-
-Fixes: c7e64b9ce04a ("powerpc/powernv Platform dump interface")
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201017164210.264619-1-hegdevasant@linux.vnet.ibm.com
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal-dump.c | 41 +++++++++++++++-------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+ drivers/media/platform/sti/hva/hva-hw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/platforms/powernv/opal-dump.c b/arch/powerpc/platforms/powernv/opal-dump.c
-index 543c816fa99ef..0e6693bacb7e7 100644
---- a/arch/powerpc/platforms/powernv/opal-dump.c
-+++ b/arch/powerpc/platforms/powernv/opal-dump.c
-@@ -318,15 +318,14 @@ static ssize_t dump_attr_read(struct file *filep, struct kobject *kobj,
- 	return count;
- }
+diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
+index 401aaafa17109..bb13348be0832 100644
+--- a/drivers/media/platform/sti/hva/hva-hw.c
++++ b/drivers/media/platform/sti/hva/hva-hw.c
+@@ -272,6 +272,7 @@ static unsigned long int hva_hw_get_ip_version(struct hva_dev *hva)
  
--static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
--					uint32_t type)
-+static void create_dump_obj(uint32_t id, size_t size, uint32_t type)
- {
- 	struct dump_obj *dump;
- 	int rc;
- 
- 	dump = kzalloc(sizeof(*dump), GFP_KERNEL);
- 	if (!dump)
--		return NULL;
-+		return;
- 
- 	dump->kobj.kset = dump_kset;
- 
-@@ -346,21 +345,39 @@ static struct dump_obj *create_dump_obj(uint32_t id, size_t size,
- 	rc = kobject_add(&dump->kobj, NULL, "0x%x-0x%x", type, id);
- 	if (rc) {
- 		kobject_put(&dump->kobj);
--		return NULL;
-+		return;
+ 	if (pm_runtime_get_sync(dev) < 0) {
+ 		dev_err(dev, "%s     failed to get pm_runtime\n", HVA_PREFIX);
++		pm_runtime_put_noidle(dev);
+ 		mutex_unlock(&hva->protect_mutex);
+ 		return -EFAULT;
  	}
+@@ -553,6 +554,7 @@ void hva_hw_dump_regs(struct hva_dev *hva, struct seq_file *s)
  
-+	/*
-+	 * As soon as the sysfs file for this dump is created/activated there is
-+	 * a chance the opal_errd daemon (or any userspace) might read and
-+	 * acknowledge the dump before kobject_uevent() is called. If that
-+	 * happens then there is a potential race between
-+	 * dump_ack_store->kobject_put() and kobject_uevent() which leads to a
-+	 * use-after-free of a kernfs object resulting in a kernel crash.
-+	 *
-+	 * To avoid that, we need to take a reference on behalf of the bin file,
-+	 * so that our reference remains valid while we call kobject_uevent().
-+	 * We then drop our reference before exiting the function, leaving the
-+	 * bin file to drop the last reference (if it hasn't already).
-+	 */
-+
-+	/* Take a reference for the bin file */
-+	kobject_get(&dump->kobj);
- 	rc = sysfs_create_bin_file(&dump->kobj, &dump->dump_attr);
--	if (rc) {
-+	if (rc == 0) {
-+		kobject_uevent(&dump->kobj, KOBJ_ADD);
-+
-+		pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
-+			__func__, dump->id, dump->size);
-+	} else {
-+		/* Drop reference count taken for bin file */
- 		kobject_put(&dump->kobj);
--		return NULL;
+ 	if (pm_runtime_get_sync(dev) < 0) {
+ 		seq_puts(s, "Cannot wake up IP\n");
++		pm_runtime_put_noidle(dev);
+ 		mutex_unlock(&hva->protect_mutex);
+ 		return;
  	}
- 
--	pr_info("%s: New platform dump. ID = 0x%x Size %u\n",
--		__func__, dump->id, dump->size);
--
--	kobject_uevent(&dump->kobj, KOBJ_ADD);
--
--	return dump;
-+	/* Drop our reference */
-+	kobject_put(&dump->kobj);
-+	return;
- }
- 
- static irqreturn_t process_dump(int irq, void *data)
 -- 
 2.25.1
 
