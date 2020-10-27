@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF85829B8E9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6771929B8E4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802090AbgJ0Ppf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S1802082AbgJ0Ppc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1799304AbgJ0Pas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:30:48 -0400
+        id S1799314AbgJ0Pav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:30:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0EB922202;
-        Tue, 27 Oct 2020 15:30:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C282225E;
+        Tue, 27 Oct 2020 15:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812648;
-        bh=XEh+266qbHO/JplKpkkP76/x6r4YBQwRmHueb4pivNs=;
+        s=default; t=1603812651;
+        bh=1O3HA3EBzE4msZhuBrHkLy8BBzalcw41zC2njxyqYX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBysVGzyU3C4DadnrWRvdMFyWN78l+2vFG1m9z9yDNY0Rlfy7T0Yy0Dsp5DPXuQ8i
-         JNwT/US939W+hT/5JTpnFbj2utZzmvYJd6gqGSERlhlGZrvvjFioOlMz6d4ndqke9S
-         rWmZthnqF1oOh5VVbmiNPaJOP121HGvj2jgmut6Q=
+        b=L/L+PfFqEIZMGI7Ba9U2Cme+KCJVtVm6gGdHu/keImsw5Bv2fjSc04mFP9iu2ElNg
+         KFKP/Wj6eNmotsf00NqO1Avpjn2J7Y6p7Jz9oDM9jKEG2qXL976g8HRZg5DspXVYmN
+         ZWJh33qbdq4YRi+tdvCFP2oUjkEcl3royzkOzl48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 283/757] selftests/bpf: Fix endianness issue in sk_assign
-Date:   Tue, 27 Oct 2020 14:48:53 +0100
-Message-Id: <20201027135503.854624225@linuxfoundation.org>
+Subject: [PATCH 5.9 284/757] selftests/bpf: Fix endianness issue in test_sockopt_sk
+Date:   Tue, 27 Oct 2020 14:48:54 +0100
+Message-Id: <20201027135503.897598737@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,36 +46,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit b6ed6cf4a3acdeab9aed8e0a524850761ec9b152 ]
+[ Upstream commit fec47bbc10b243690f5d0ee484a0bbdee273e71b ]
 
-server_map's value size is 8, but the test tries to put an int there.
-This sort of works on x86 (unless followed by non-0), but hard fails on
-s390.
+getsetsockopt() calls getsockopt() with optlen == 1, but then checks
+the resulting int. It is ok on little endian, but not on big endian.
 
-Fix by using __s64 instead of int.
+Fix by checking char instead.
 
-Fixes: 2d7824ffd25c ("selftests: bpf: Add test for sk_assign")
+Fixes: 8a027dc0d8f5 ("selftests/bpf: add sockopt test that exercises sk helpers")
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200915113815.3768217-1-iii@linux.ibm.com
+Link: https://lore.kernel.org/bpf/20200915113928.3768496-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/sk_assign.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/prog_tests/sockopt_sk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/sk_assign.c b/tools/testing/selftests/bpf/prog_tests/sk_assign.c
-index 47fa04adc1471..21c2d265c3e8e 100644
---- a/tools/testing/selftests/bpf/prog_tests/sk_assign.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sk_assign.c
-@@ -265,7 +265,7 @@ void test_sk_assign(void)
- 		TEST("ipv6 udp port redir", AF_INET6, SOCK_DGRAM, false),
- 		TEST("ipv6 udp addr redir", AF_INET6, SOCK_DGRAM, true),
- 	};
--	int server = -1;
-+	__s64 server = -1;
- 	int server_map;
- 	int self_net;
+diff --git a/tools/testing/selftests/bpf/prog_tests/sockopt_sk.c b/tools/testing/selftests/bpf/prog_tests/sockopt_sk.c
+index 5f54c6aec7f07..b25c9c45c1484 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sockopt_sk.c
++++ b/tools/testing/selftests/bpf/prog_tests/sockopt_sk.c
+@@ -45,9 +45,9 @@ static int getsetsockopt(void)
+ 		goto err;
+ 	}
+ 
+-	if (*(int *)big_buf != 0x08) {
++	if (*big_buf != 0x08) {
+ 		log_err("Unexpected getsockopt(IP_TOS) optval 0x%x != 0x08",
+-			*(int *)big_buf);
++			(int)*big_buf);
+ 		goto err;
+ 	}
  
 -- 
 2.25.1
