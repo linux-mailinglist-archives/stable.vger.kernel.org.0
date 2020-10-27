@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7141B299EB8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58454299DD9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:10:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439214AbgJ0AKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2439218AbgJ0AKY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 26 Oct 2020 20:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59292 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411524AbgJ0AKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:22 -0400
+        id S2411526AbgJ0AKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A85E320709;
-        Tue, 27 Oct 2020 00:10:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1F1021707;
+        Tue, 27 Oct 2020 00:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757422;
-        bh=HoW85fLPTK65Z7dRxaeiTBjd5ELak8Sr7pzlGc0Jq+4=;
+        s=default; t=1603757423;
+        bh=9KYKRWTu6ffT7C4/Z/PZ4/egrPMtIo1MCy0b/3ERZmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02j6h8HWo2Qn1nJnILtNGwall8DMtfE+LBv7o/pMdrUBYnBm5yuT8OthzvT4qXfeQ
-         dcocNyndbheoUCuH+4cLce0pFvHilB8Nl/tFahbsXLrzDurVwEkT84XleVEO6fB3aN
-         85dBkxKV7JvJeKC/W9VHaTEzYoaj3rHNjfkRurCM=
+        b=1kIXcd2NLj3gj64dkbIz9i8HWmool2qv7qZW5bmY1mVZ5vvGUSriZ2tMfI+NNiSyr
+         rdkWW+KpUAhddCJ2B95z4C1NEepttB6Fn2CPQF3v5uz2pmAixaYHB8lBaftq+PCpSB
+         U1wQCkGUQ439UkY9QkE3Iq12Ecb2Ru7FuSkERGo0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 30/46] power: supply: test_power: add missing newlines when printing parameters by sysfs
-Date:   Mon, 26 Oct 2020 20:09:29 -0400
-Message-Id: <20201027000946.1026923-30-sashal@kernel.org>
+Cc:     Zhao Heming <heming.zhao@suse.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 31/46] md/bitmap: md_bitmap_get_counter returns wrong blocks
+Date:   Mon, 26 Oct 2020 20:09:30 -0400
+Message-Id: <20201027000946.1026923-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000946.1026923-1-sashal@kernel.org>
 References: <20201027000946.1026923-1-sashal@kernel.org>
@@ -42,81 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Zhao Heming <heming.zhao@suse.com>
 
-[ Upstream commit c07fa6c1631333f02750cf59f22b615d768b4d8f ]
+[ Upstream commit d837f7277f56e70d82b3a4a037d744854e62f387 ]
 
-When I cat some module parameters by sysfs, it displays as follows.
-It's better to add a newline for easy reading.
+md_bitmap_get_counter() has code:
 
-root@syzkaller:~# cd /sys/module/test_power/parameters/
-root@syzkaller:/sys/module/test_power/parameters# cat ac_online
-onroot@syzkaller:/sys/module/test_power/parameters# cat battery_present
-trueroot@syzkaller:/sys/module/test_power/parameters# cat battery_health
-goodroot@syzkaller:/sys/module/test_power/parameters# cat battery_status
-dischargingroot@syzkaller:/sys/module/test_power/parameters# cat battery_technology
-LIONroot@syzkaller:/sys/module/test_power/parameters# cat usb_online
-onroot@syzkaller:/sys/module/test_power/parameters#
+```
+    if (bitmap->bp[page].hijacked ||
+        bitmap->bp[page].map == NULL)
+        csize = ((sector_t)1) << (bitmap->chunkshift +
+                      PAGE_COUNTER_SHIFT - 1);
+```
 
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+The minus 1 is wrong, this branch should report 2048 bits of space.
+With "-1" action, this only report 1024 bit of space.
+
+This bug code returns wrong blocks, but it doesn't inflence bitmap logic:
+1. Most callers focus this function return value (the counter of offset),
+   not the parameter blocks.
+2. The bug is only triggered when hijacked is true or map is NULL.
+   the hijacked true condition is very rare.
+   the "map == null" only true when array is creating or resizing.
+3. Even the caller gets wrong blocks, current code makes caller just to
+   call md_bitmap_get_counter() one more time.
+
+Signed-off-by: Zhao Heming <heming.zhao@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/test_power.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/md/bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/test_power.c b/drivers/power/supply/test_power.c
-index 57246cdbd0426..925abec45380f 100644
---- a/drivers/power/supply/test_power.c
-+++ b/drivers/power/supply/test_power.c
-@@ -344,6 +344,7 @@ static int param_set_ac_online(const char *key, const struct kernel_param *kp)
- static int param_get_ac_online(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_ac_online, ac_online, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -357,6 +358,7 @@ static int param_set_usb_online(const char *key, const struct kernel_param *kp)
- static int param_get_usb_online(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_ac_online, usb_online, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -371,6 +373,7 @@ static int param_set_battery_status(const char *key,
- static int param_get_battery_status(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_status, battery_status, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -385,6 +388,7 @@ static int param_set_battery_health(const char *key,
- static int param_get_battery_health(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_health, battery_health, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -400,6 +404,7 @@ static int param_get_battery_present(char *buffer,
- 					const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_present, battery_present, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -417,6 +422,7 @@ static int param_get_battery_technology(char *buffer,
- {
- 	strcpy(buffer,
- 		map_get_key(map_technology, battery_technology, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
+diff --git a/drivers/md/bitmap.c b/drivers/md/bitmap.c
+index 7eb76a1a25053..521c13f7929c8 100644
+--- a/drivers/md/bitmap.c
++++ b/drivers/md/bitmap.c
+@@ -1369,7 +1369,7 @@ __acquires(bitmap->lock)
+ 	if (bitmap->bp[page].hijacked ||
+ 	    bitmap->bp[page].map == NULL)
+ 		csize = ((sector_t)1) << (bitmap->chunkshift +
+-					  PAGE_COUNTER_SHIFT - 1);
++					  PAGE_COUNTER_SHIFT);
+ 	else
+ 		csize = ((sector_t)1) << bitmap->chunkshift;
+ 	*blocks = csize - (offset & (csize - 1));
 -- 
 2.25.1
 
