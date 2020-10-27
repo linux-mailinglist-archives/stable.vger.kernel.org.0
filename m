@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF3029ABC5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 13:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A696E29AC02
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 13:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1751009AbgJ0MS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 08:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36322 "EHLO mail.kernel.org"
+        id S2440918AbgJ0MYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 08:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751004AbgJ0MS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 08:18:26 -0400
+        id S2436636AbgJ0MYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 08:24:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2C2522283;
-        Tue, 27 Oct 2020 12:18:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86A7522447;
+        Tue, 27 Oct 2020 12:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603801105;
-        bh=INsJBWlwcJJirta9xdzYeDim389p0z7sDIcU+ho0fKE=;
+        s=default; t=1603801449;
+        bh=YGG2AZkSpAcEmpTHGJ8bG7WWHjyC/E3o+pr+1dHnM/k=;
         h=Subject:To:From:Date:From;
-        b=DfOrcENICblBNev0poR0TVswmHazIMTLitbHbF5KEDG8XqMNj0pGggiAMXhjDn7zI
-         giA8pA4iRHmYwfdb0svS7GP3r3q2a3TqvwQ/P0kFIdKTDPnmXN2UZQYRzPlSmgCHrG
-         qz9RTnLaUHMhq4bHetY7UC2TCRygGCl371+cIqz0=
-Subject: patch "staging: comedi: cb_pcidas: Allow 2-channel commands for AO subdevice" added to staging-linus
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=qiJG02b0OczfPbYSD92Po2tlmDHe4GIryfZEZ25/pMQ/jfv4zqpaGKyN88xnaqrqc
+         5x8C5CAEvVcmZRt2p5iPnWUnHRVrQ9WGhKwMNCyffHqFIANZ7n4kE88xNTs/O/bjiN
+         GbX+t/sj+GypTbaAVZHbCZWrKvMDqhQN/POHR9pU=
+Subject: patch "staging: fieldbus: anybuss: jump to correct label in an error path" added to staging-linus
+To:     jingxiangfeng@huawei.com, TheSven73@gmail.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 27 Oct 2020 13:19:07 +0100
-Message-ID: <160380114725542@kroah.com>
+Date:   Tue, 27 Oct 2020 13:25:04 +0100
+Message-ID: <1603801504178119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: cb_pcidas: Allow 2-channel commands for AO subdevice
+    staging: fieldbus: anybuss: jump to correct label in an error path
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -54,44 +54,37 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 647a6002cb41d358d9ac5de101a8a6dc74748a59 Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Wed, 21 Oct 2020 13:21:42 +0100
-Subject: staging: comedi: cb_pcidas: Allow 2-channel commands for AO subdevice
+From 7e97e4cbf30026b49b0145c3bfe06087958382c5 Mon Sep 17 00:00:00 2001
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Date: Mon, 12 Oct 2020 21:24:04 +0800
+Subject: staging: fieldbus: anybuss: jump to correct label in an error path
 
-The "cb_pcidas" driver supports asynchronous commands on the analog
-output (AO) subdevice for those boards that have an AO FIFO.  The code
-(in `cb_pcidas_ao_check_chanlist()` and `cb_pcidas_ao_cmd()`) to
-validate and set up the command supports output to a single channel or
-to two channels simultaneously (the boards have two AO channels).
-However, the code in `cb_pcidas_auto_attach()` that initializes the
-subdevices neglects to initialize the AO subdevice's `len_chanlist`
-member, leaving it set to 0, but the Comedi core will "correct" it to 1
-if the driver neglected to set it.  This limits commands to use a single
-channel (either channel 0 or 1), but the limit should be two channels.
-Set the AO subdevice's `len_chanlist` member to be the same value as the
-`n_chan` member, which will be 2.
+In current code, controller_probe() misses to call ida_simple_remove()
+in an error path. Jump to correct label to fix it.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20201021122142.81628-1-abbotti@mev.co.uk
+Fixes: 17614978ed34 ("staging: fieldbus: anybus-s: support the Arcx anybus controller")
+Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201012132404.113031-1-jingxiangfeng@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/cb_pcidas.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/fieldbus/anybuss/arcx-anybus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/comedi/drivers/cb_pcidas.c b/drivers/staging/comedi/drivers/cb_pcidas.c
-index 48ec2ee953dc..d740c4782775 100644
---- a/drivers/staging/comedi/drivers/cb_pcidas.c
-+++ b/drivers/staging/comedi/drivers/cb_pcidas.c
-@@ -1342,6 +1342,7 @@ static int cb_pcidas_auto_attach(struct comedi_device *dev,
- 		if (dev->irq && board->has_ao_fifo) {
- 			dev->write_subdev = s;
- 			s->subdev_flags	|= SDF_CMD_WRITE;
-+			s->len_chanlist	= s->n_chan;
- 			s->do_cmdtest	= cb_pcidas_ao_cmdtest;
- 			s->do_cmd	= cb_pcidas_ao_cmd;
- 			s->cancel	= cb_pcidas_ao_cancel;
+diff --git a/drivers/staging/fieldbus/anybuss/arcx-anybus.c b/drivers/staging/fieldbus/anybuss/arcx-anybus.c
+index 5b8d0bae9ff3..b5fded15e8a6 100644
+--- a/drivers/staging/fieldbus/anybuss/arcx-anybus.c
++++ b/drivers/staging/fieldbus/anybuss/arcx-anybus.c
+@@ -293,7 +293,7 @@ static int controller_probe(struct platform_device *pdev)
+ 	regulator = devm_regulator_register(dev, &can_power_desc, &config);
+ 	if (IS_ERR(regulator)) {
+ 		err = PTR_ERR(regulator);
+-		goto out_reset;
++		goto out_ida;
+ 	}
+ 	/* make controller info visible to userspace */
+ 	cd->class_dev = kzalloc(sizeof(*cd->class_dev), GFP_KERNEL);
 -- 
 2.29.1
 
