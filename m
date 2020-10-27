@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D7629C1DF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C8A29C470
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761013AbgJ0Ohg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
+        id S1823013AbgJ0R4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761009AbgJ0Ohe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:37:34 -0400
+        id S2901238AbgJ0OVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:21:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50D2D206B2;
-        Tue, 27 Oct 2020 14:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B1B2206FA;
+        Tue, 27 Oct 2020 14:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809453;
-        bh=jSESAeX6xce2pFeTetsAAgIZX1gV9C0Ym91zOBsOhSE=;
+        s=default; t=1603808492;
+        bh=HZEflZcPzytj0oE3sdNwYUh5+hNkLcYjgHHNTEKAvvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BU8ZlW6qcp0y0R5IGnTryZjHbcy26A7tGDiqgnPjxOM9y3ku9IZ4Ri6Z11MtDURFV
-         8R3MXNCNRcY0hua1EkvJyQXYw8CLaPl7YQfWzfuBNGmHTwyavyZtct6y2gDT8BD80V
-         tuwzFBd8H+dhZoI3nmx5j1geHM/VZbtZLIKHfiMQ=
+        b=gT9TdUjjtr/UQbHanLk0J0cAmSolgtFrXIvItF8Vz1BwcSObXwpa0V4hipT03ok9i
+         FosLjheoOf0yRcRdZTPXAVrjt2eRpwHbyAKwxx3ySvEjaSpZkRcf2xG3KQp841tftP
+         JjnSUuuyo4106rTqYk6KUXwCcRsTzMHb1o5X2fhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Alex Dewar <alex.dewar90@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 201/408] RDMA/ucma: Fix locking for ctx->events_reported
-Date:   Tue, 27 Oct 2020 14:52:19 +0100
-Message-Id: <20201027135504.423359374@linuxfoundation.org>
+Subject: [PATCH 4.19 082/264] VMCI: check return value of get_user_pages_fast() for errors
+Date:   Tue, 27 Oct 2020 14:52:20 +0100
+Message-Id: <20201027135434.552317357@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Alex Dewar <alex.dewar90@gmail.com>
 
-[ Upstream commit 98837c6c3d7285f6eca86480b6f7fac6880e27a8 ]
+[ Upstream commit 90ca6333fd65f318c47bff425e1ea36c0a5539f6 ]
 
-This value is locked under the file->mut, ensure it is held whenever
-touching it.
+In a couple of places in qp_host_get_user_memory(),
+get_user_pages_fast() is called without properly checking for errors. If
+e.g. -EFAULT is returned, this negative value will then be passed on to
+qp_release_pages(), which expects a u64 as input.
 
-The case in ucma_migrate_id() is a race, while in ucma_free_uctx() it is
-already not possible for the write side to run, the movement is just for
-clarity.
+Fix this by only calling qp_release_pages() when we have a positive
+number returned.
 
-Fixes: 88314e4dda1e ("RDMA/cma: add support for rdma_migrate_id()")
-Link: https://lore.kernel.org/r/20200818120526.702120-10-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alex Dewar <alex.dewar90@gmail.com>
+Link: https://lore.kernel.org/r/20200825164522.412392-1-alex.dewar90@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/ucma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
-index f4f79f1292b91..d7c74f095805a 100644
---- a/drivers/infiniband/core/ucma.c
-+++ b/drivers/infiniband/core/ucma.c
-@@ -581,6 +581,7 @@ static int ucma_free_ctx(struct ucma_context *ctx)
- 			list_move_tail(&uevent->list, &list);
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index bd52f29b4a4e2..5e0d1ac67f73f 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -671,8 +671,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)produce_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(produce) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(produce_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		err = VMCI_ERROR_NO_MEM;
+ 		goto out;
  	}
- 	list_del(&ctx->list);
-+	events_reported = ctx->events_reported;
- 	mutex_unlock(&ctx->file->mut);
- 
- 	list_for_each_entry_safe(uevent, tmp, &list, list) {
-@@ -590,7 +591,6 @@ static int ucma_free_ctx(struct ucma_context *ctx)
- 		kfree(uevent);
- 	}
- 
--	events_reported = ctx->events_reported;
- 	mutex_destroy(&ctx->mutex);
- 	kfree(ctx);
- 	return events_reported;
-@@ -1639,7 +1639,9 @@ static ssize_t ucma_migrate_id(struct ucma_file *new_file,
- 
- 	cur_file = ctx->file;
- 	if (cur_file == new_file) {
-+		mutex_lock(&cur_file->mut);
- 		resp.events_reported = ctx->events_reported;
-+		mutex_unlock(&cur_file->mut);
- 		goto response;
- 	}
- 
+@@ -683,8 +684,9 @@ static int qp_host_get_user_memory(u64 produce_uva,
+ 	if (retval < (int)consume_q->kernel_if->num_pages) {
+ 		pr_debug("get_user_pages_fast(consume) failed (retval=%d)",
+ 			retval);
+-		qp_release_pages(consume_q->kernel_if->u.h.header_page,
+-				 retval, false);
++		if (retval > 0)
++			qp_release_pages(consume_q->kernel_if->u.h.header_page,
++					retval, false);
+ 		qp_release_pages(produce_q->kernel_if->u.h.header_page,
+ 				 produce_q->kernel_if->num_pages, false);
+ 		err = VMCI_ERROR_NO_MEM;
 -- 
 2.25.1
 
