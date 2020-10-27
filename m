@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A5C29C1FD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E916929C358
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819217AbgJ0R2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S1759995AbgJ0Oat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900474AbgJ0OwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:52:17 -0400
+        id S2901896AbgJ0O27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:28:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 887CB207DE;
-        Tue, 27 Oct 2020 14:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D416322202;
+        Tue, 27 Oct 2020 14:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810336;
-        bh=ZaVjIWVv8PtuZehReE4iWCq4c9wvjvXt8JCOgG+Mj0Y=;
+        s=default; t=1603808939;
+        bh=icR0u3f/LKjxxSFL29ZkQPAijUpINKsZ/b7eanDvc6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+tzyxsmf3YpbbksVLbEYqnjYGL/8BV0dRQo6rr68M5e9aVgVjQjGjVOKHtpwkPXM
-         wn0pkL9d4ovwWpxuNdT5QD3OyOXeppBDXDPUT9Yw1ugtca1udgHImZADH8rsj4Km1h
-         aXuBc3cRT/LPqthpZ1GZZA5/NsZaKgvyX2ED8MTc=
+        b=atMKfBFKfS9NioIW3d6YGR1pseUG3O95ArxYr82r6D/VWU3lgXAjqR93sm3SoYAwB
+         rslOtKfHlmispRYurfgz4QQXGh/XMnQNIZhTmXXdGJsrbRMSvl4C0ZYOjJfGc0y4O9
+         mghwmLxCK9+i92r9pAySeMuz0BMyyvZ7Gge4RzVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 103/633] crypto: mediatek - Fix wrong return value in mtk_desc_ring_alloc()
-Date:   Tue, 27 Oct 2020 14:47:26 +0100
-Message-Id: <20201027135527.534559340@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Marek Vasut <marex@denx.de>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 006/408] net: fec: Fix PHY init after phy_reset_after_clk_enable()
+Date:   Tue, 27 Oct 2020 14:49:04 +0100
+Message-Id: <20201027135455.337503286@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
+References: <20201027135455.027547757@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 8cbde6c6a6d2b1599ff90f932304aab7e32fce89 ]
+[ Upstream commit 0da1ccbbefb662915228bc17e1c7d4ad28b3ddab ]
 
-In case of memory allocation failure, a negative error code should
-be returned.
+The phy_reset_after_clk_enable() does a PHY reset, which means the PHY
+loses its register settings. The fec_enet_mii_probe() starts the PHY
+and does the necessary calls to configure the PHY via PHY framework,
+and loads the correct register settings into the PHY. Therefore,
+fec_enet_mii_probe() should be called only after the PHY has been
+reset, not before as it is now.
 
-Fixes: 785e5c616c849 ("crypto: mediatek - Add crypto driver support for some MediaTek chips")
-Cc: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1b0a83ac04e3 ("net: fec: add phy_reset_after_clk_enable() support")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Tested-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/mediatek/mtk-platform.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/mediatek/mtk-platform.c b/drivers/crypto/mediatek/mtk-platform.c
-index 7e3ad085b5bdd..ef4339e84d034 100644
---- a/drivers/crypto/mediatek/mtk-platform.c
-+++ b/drivers/crypto/mediatek/mtk-platform.c
-@@ -442,7 +442,7 @@ static void mtk_desc_dma_free(struct mtk_cryp *cryp)
- static int mtk_desc_ring_alloc(struct mtk_cryp *cryp)
- {
- 	struct mtk_ring **ring = cryp->ring;
--	int i, err = ENOMEM;
-+	int i;
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3003,17 +3003,17 @@ fec_enet_open(struct net_device *ndev)
+ 	/* Init MAC prior to mii bus probe */
+ 	fec_restart(ndev);
  
- 	for (i = 0; i < MTK_RING_MAX; i++) {
- 		ring[i] = kzalloc(sizeof(**ring), GFP_KERNEL);
-@@ -476,7 +476,7 @@ static int mtk_desc_ring_alloc(struct mtk_cryp *cryp)
- 				  ring[i]->cmd_base, ring[i]->cmd_dma);
- 		kfree(ring[i]);
- 	}
--	return err;
-+	return -ENOMEM;
- }
+-	/* Probe and connect to PHY when open the interface */
+-	ret = fec_enet_mii_probe(ndev);
+-	if (ret)
+-		goto err_enet_mii_probe;
+-
+ 	/* Call phy_reset_after_clk_enable() again if it failed during
+ 	 * phy_reset_after_clk_enable() before because the PHY wasn't probed.
+ 	 */
+ 	if (reset_again)
+ 		fec_enet_phy_reset_after_clk_enable(ndev);
  
- static int mtk_crypto_probe(struct platform_device *pdev)
--- 
-2.25.1
-
++	/* Probe and connect to PHY when open the interface */
++	ret = fec_enet_mii_probe(ndev);
++	if (ret)
++		goto err_enet_mii_probe;
++
+ 	if (fep->quirks & FEC_QUIRK_ERR006687)
+ 		imx6q_cpuidle_fec_irqs_used();
+ 
 
 
