@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFF029BA4C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EB429BA50
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1751792AbgJ0P7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56386 "EHLO mail.kernel.org"
+        id S1796456AbgJ0P7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:59:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1804294AbgJ0Pyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:54:31 -0400
+        id S1804132AbgJ0Pxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:53:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E0D9204EF;
-        Tue, 27 Oct 2020 15:54:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 895F1204EF;
+        Tue, 27 Oct 2020 15:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603814071;
-        bh=X3yF2WEk7jjodg1N+eVjY14Uiapn2eIHGyzVg1Pa178=;
+        s=default; t=1603814030;
+        bh=ZVJjWqt/gLGBfV8vE0SwTTeHC7oOKwAYG59kYQ8fiZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kg4Wo3ACusnK0+V9KW1rT8oCiIw0g8l6MQ55jmW5kFXfI8596MKdRxw7j73bhMRzV
-         HHaYBUze2rMAjUDgqQg1u40ahdyb2b5y/eo+41bfANfdWTMh2DEL0HuOexps/D4FmN
-         6p36hWeXcXdGEHIE8sZM1e+7BVxq0UVjG4xkpjYg=
+        b=2ouLK3VKpBLuAEj8IRSYqqA3Ad2HjTKCJrglnUQQUiedmKczwIr3aIfDdDzjHO5hW
+         /9OuTjkt+zUHOWwNEOFVlMQFG3jn6tH/7Kh2rCHJh9SAie5/JzN5Z49dEPDLaqnr7i
+         qxQWorJdrX+mfCRaRTl0MWYk9E2FVhwN6xfufOes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 743/757] dmaengine: dw: Activate FIFO-mode for memory peripherals only
-Date:   Tue, 27 Oct 2020 14:56:33 +0100
-Message-Id: <20201027135525.357736194@linuxfoundation.org>
+        stable@vger.kernel.org, Tian Tao <tiantao6@hisilicon.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 744/757] drm/hisilicon: Code refactoring for hibmc_drv_de
+Date:   Tue, 27 Oct 2020 14:56:34 +0100
+Message-Id: <20201027135525.406462190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,63 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Tian Tao <tiantao6@hisilicon.com>
 
-[ Upstream commit 6d9459d04081c796fc67c2bb771f4e4ebb5744c4 ]
+[ Upstream commit 13b0d4a9ae0c2d650993c48be797992eaf621332 ]
 
-CFGx.FIFO_MODE field controls a DMA-controller "FIFO readiness" criterion.
-In other words it determines when to start pushing data out of a DW
-DMAC channel FIFO to a destination peripheral or from a source
-peripheral to the DW DMAC channel FIFO. Currently FIFO-mode is set to one
-for all DW DMAC channels. It means they are tuned to flush data out of
-FIFO (to a memory peripheral or by accepting the burst transaction
-requests) when FIFO is at least half-full (except at the end of the block
-transfer, when FIFO-flush mode is activated) and are configured to get
-data to the FIFO when it's at least half-empty.
+The memory used to be allocated with devres helpers and released
+automatically. In rare circumstances, the memory's release could
+have happened before the DRM device got released, which would have
+caused memory corruption of some kind. Now we're embedding the data
+structures in struct hibmc_drm_private. The whole release problem
+has been resolved, because struct hibmc_drm_private is allocated
+with drmm_kzalloc and always released with the DRM device.
 
-Such configuration is a good choice when there is no slave device involved
-in the DMA transfers. In that case the number of bursts per block is less
-than when CFGx.FIFO_MODE = 0 and, hence, the bus utilization will improve.
-But the latency of DMA transfers may increase when CFGx.FIFO_MODE = 1,
-since DW DMAC will wait for the channel FIFO contents to be either
-half-full or half-empty depending on having the destination or the source
-transfers. Such latencies might be dangerous in case if the DMA transfers
-are expected to be performed from/to a slave device. Since normally
-peripheral devices keep data in internal FIFOs, any latency at some
-critical moment may cause one being overflown and consequently losing
-data. This especially concerns a case when either a peripheral device is
-relatively fast or the DW DMAC engine is relatively slow with respect to
-the incoming data pace.
-
-In order to solve problems, which might be caused by the latencies
-described above, let's enable the FIFO half-full/half-empty "FIFO
-readiness" criterion only for DMA transfers with no slave device involved.
-Thanks to the commit 99ba8b9b0d97 ("dmaengine: dw: Initialize channel
-before each transfer") we can freely do that in the generic
-dw_dma_initialize_chan() method.
-
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200731200826.9292-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1597218179-3938-3-git-send-email-tiantao6@hisilicon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/dw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    | 55 +++++--------------
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |  2 +
+ 2 files changed, 15 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/dma/dw/dw.c b/drivers/dma/dw/dw.c
-index 7a085b3c1854c..d9810980920a1 100644
---- a/drivers/dma/dw/dw.c
-+++ b/drivers/dma/dw/dw.c
-@@ -14,7 +14,7 @@
- static void dw_dma_initialize_chan(struct dw_dma_chan *dwc)
- {
- 	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
--	u32 cfghi = DWC_CFGH_FIFO_MODE;
-+	u32 cfghi = is_slave_direction(dwc->direction) ? 0 : DWC_CFGH_FIFO_MODE;
- 	u32 cfglo = DWC_CFGL_CH_PRIOR(dwc->priority);
- 	bool hs_polarity = dwc->dws.hs_polarity;
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
+index cc70e836522f0..8758958e16893 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
+@@ -160,37 +160,6 @@ static const struct drm_plane_helper_funcs hibmc_plane_helper_funcs = {
+ 	.atomic_update = hibmc_plane_atomic_update,
+ };
  
+-static struct drm_plane *hibmc_plane_init(struct hibmc_drm_private *priv)
+-{
+-	struct drm_device *dev = priv->dev;
+-	struct drm_plane *plane;
+-	int ret = 0;
+-
+-	plane = devm_kzalloc(dev->dev, sizeof(*plane), GFP_KERNEL);
+-	if (!plane) {
+-		DRM_ERROR("failed to alloc memory when init plane\n");
+-		return ERR_PTR(-ENOMEM);
+-	}
+-	/*
+-	 * plane init
+-	 * TODO: Now only support primary plane, overlay planes
+-	 * need to do.
+-	 */
+-	ret = drm_universal_plane_init(dev, plane, 1, &hibmc_plane_funcs,
+-				       channel_formats1,
+-				       ARRAY_SIZE(channel_formats1),
+-				       NULL,
+-				       DRM_PLANE_TYPE_PRIMARY,
+-				       NULL);
+-	if (ret) {
+-		DRM_ERROR("failed to init plane: %d\n", ret);
+-		return ERR_PTR(ret);
+-	}
+-
+-	drm_plane_helper_add(plane, &hibmc_plane_helper_funcs);
+-	return plane;
+-}
+-
+ static void hibmc_crtc_dpms(struct drm_crtc *crtc, int dpms)
+ {
+ 	struct hibmc_drm_private *priv = crtc->dev->dev_private;
+@@ -537,22 +506,24 @@ static const struct drm_crtc_helper_funcs hibmc_crtc_helper_funcs = {
+ int hibmc_de_init(struct hibmc_drm_private *priv)
+ {
+ 	struct drm_device *dev = priv->dev;
+-	struct drm_crtc *crtc;
+-	struct drm_plane *plane;
++	struct drm_crtc *crtc = &priv->crtc;
++	struct drm_plane *plane = &priv->primary_plane;
+ 	int ret;
+ 
+-	plane = hibmc_plane_init(priv);
+-	if (IS_ERR(plane)) {
+-		DRM_ERROR("failed to create plane: %ld\n", PTR_ERR(plane));
+-		return PTR_ERR(plane);
+-	}
++	ret = drm_universal_plane_init(dev, plane, 1, &hibmc_plane_funcs,
++				       channel_formats1,
++				       ARRAY_SIZE(channel_formats1),
++				       NULL,
++				       DRM_PLANE_TYPE_PRIMARY,
++				       NULL);
+ 
+-	crtc = devm_kzalloc(dev->dev, sizeof(*crtc), GFP_KERNEL);
+-	if (!crtc) {
+-		DRM_ERROR("failed to alloc memory when init crtc\n");
+-		return -ENOMEM;
++	if (ret) {
++		DRM_ERROR("failed to init plane: %d\n", ret);
++		return ret;
+ 	}
+ 
++	drm_plane_helper_add(plane, &hibmc_plane_helper_funcs);
++
+ 	ret = drm_crtc_init_with_planes(dev, crtc, plane,
+ 					NULL, &hibmc_crtc_funcs, NULL);
+ 	if (ret) {
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+index 609768748de65..0a74ba220cac5 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+@@ -29,6 +29,8 @@ struct hibmc_drm_private {
+ 
+ 	/* drm */
+ 	struct drm_device  *dev;
++	struct drm_plane primary_plane;
++	struct drm_crtc crtc;
+ 	struct drm_encoder encoder;
+ 	struct drm_connector connector;
+ 	bool mode_config_initialized;
 -- 
 2.25.1
 
