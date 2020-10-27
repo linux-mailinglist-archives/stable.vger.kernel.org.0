@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F12129C6BA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B868C29C5FF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827199AbgJ0SWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:22:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49478 "EHLO mail.kernel.org"
+        id S1825592AbgJ0SLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753729AbgJ0OBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:01:43 -0400
+        id S1756815AbgJ0OOv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C8B02222C;
-        Tue, 27 Oct 2020 14:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B08212072D;
+        Tue, 27 Oct 2020 14:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807303;
-        bh=AAHz49gc5RmN16iSmEg+i3TXTgGI13TFfboXqttQlf8=;
+        s=default; t=1603808089;
+        bh=nzyNKnlvQUFwa97D46h/9JH6DNevRH/OniOTgNqcPjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGmHd0u2Dz0Qlaw6CcmyaH2kfabIoDjgN5emPk4tEPKweb5Am1TTNQLfFDuRGe9Ik
-         lGt1L2A8ugQ2x2U+2F3wx7GoJLi2aCzOTUYDh7MoZhtwRyKKOCVZYkUv3mRf5K7NaX
-         tsPxPyjlNfHAjguJsYE1Hhn4FMMOVyvrU1nHFh+0=
+        b=AqvNg/xdpPfB9qGrBrVLiQtuXDlpo/h643muQRidqp7JKRTKq/rjTN/pM/lJI4o80
+         7E+zIIBYE4qkEtZa0YunqflYGbUPLjpWODPj/bW8LOQWah5f1RoQkHsJxG4m05aPVs
+         3K0qpwT4XP5N80QvX7XbSKH9Y2HUs3tFRmZPOSBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 097/112] xfs: make sure the rt allocator doesnt run off the end
-Date:   Tue, 27 Oct 2020 14:50:07 +0100
-Message-Id: <20201027134905.133410706@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 153/191] media: venus: core: Fix runtime PM imbalance in venus_probe
+Date:   Tue, 27 Oct 2020 14:50:08 +0100
+Message-Id: <20201027134917.062721687@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
+[ Upstream commit bbe516e976fce538db96bd2b7287df942faa14a3 ]
 
-There's an overflow bug in the realtime allocator.  If the rt volume is
-large enough to handle a single allocation request that is larger than
-the maximum bmap extent length and the rt bitmap ends exactly on a
-bitmap block boundary, it's possible that the near allocator will try to
-check the freeness of a range that extends past the end of the bitmap.
-This fails with a corruption error and shuts down the fs.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced. For other error
+paths after this call, things are the same.
 
-Therefore, constrain maxlen so that the range scan cannot run off the
-end of the rt bitmap.
+Fix this by adding pm_runtime_put_noidle() after 'err_runtime_disable'
+label. But in this case, the error path after pm_runtime_put_sync()
+will decrease PM usage counter twice. Thus add an extra
+pm_runtime_get_noresume() in this path to balance PM counter.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/media/platform/qcom/venus/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 919b6544b61a3..bda5248fc6498 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -256,6 +256,9 @@ xfs_rtallocate_extent_block(
- 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
- 	     i <= end;
- 	     i++) {
-+		/* Make sure we don't scan off the end of the rt volume. */
-+		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
-+
- 		/*
- 		 * See if there's a free extent of maxlen starting at i.
- 		 * If it's not so then next will contain the first non-free.
-@@ -447,6 +450,14 @@ xfs_rtallocate_extent_near(
- 	 */
- 	if (bno >= mp->m_sb.sb_rextents)
- 		bno = mp->m_sb.sb_rextents - 1;
-+
-+	/* Make sure we don't run off the end of the rt volume. */
-+	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
-+	if (maxlen < minlen) {
-+		*rtblock = NULLRTBLOCK;
-+		return 0;
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index 9360b36b82cd8..0a011b117a6db 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -236,8 +236,10 @@ static int venus_probe(struct platform_device *pdev)
+ 		goto err_dev_unregister;
+ 
+ 	ret = pm_runtime_put_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_get_noresume(dev);
+ 		goto err_dev_unregister;
 +	}
-+
- 	/*
- 	 * Try the exact allocation first.
- 	 */
+ 
+ 	return 0;
+ 
+@@ -248,6 +250,7 @@ static int venus_probe(struct platform_device *pdev)
+ err_venus_shutdown:
+ 	venus_shutdown(dev);
+ err_runtime_disable:
++	pm_runtime_put_noidle(dev);
+ 	pm_runtime_set_suspended(dev);
+ 	pm_runtime_disable(dev);
+ 	hfi_destroy(core);
 -- 
 2.25.1
 
