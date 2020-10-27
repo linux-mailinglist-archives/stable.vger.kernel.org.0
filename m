@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E573E29B7D5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1546B29B967
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796547AbgJ0PTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
+        id S1802454AbgJ0Psr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796544AbgJ0PTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:19:18 -0400
+        id S1796380AbgJ0PR7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:17:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2936021527;
-        Tue, 27 Oct 2020 15:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 674C82225E;
+        Tue, 27 Oct 2020 15:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811957;
-        bh=R5Ah/Z4m1Y4HfCobwLE2cMeMwWKUGcMx0fkl35sJ05U=;
+        s=default; t=1603811878;
+        bh=1XRL5IgcWVP1VmHKPDYMi7dioyi4E8Iz9AUZbTwPah8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3Ob7HBIbE8t/Ba7MardaMJ3Ihz7HMREUtHUDi7DbQzeCEFzygZ8zvACMMq2w7LqO
-         Rl+FgKkCkhFLRFKQCN911xGMoO8XVGQC5YgORZgtpd2r2aYilTX7yxnSRdtZDtkAR9
-         tHbxyxyprWPZqSQwTacdEPh+rRsmXR9M8/mVpW94=
+        b=Qia2NZ+Q4XzZ5sts+ji6qQ3mRJT1NujmuVD3s56lDp6sc82IRWWqhpGEU5L0Of21P
+         f5SomwrVJGf21JVhbin5M8J2qebPnVLNazVcNKRmb+n588ux+OiSnRHxA/oJPzeGLg
+         RIY9mdDJNLb1wAGUht3Y41w1525n6VUjMhtZe8dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Vasily Averin <vvs@virtuozzo.com>, Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 011/757] net: fix pos incrementment in ipv6_route_seq_next
-Date:   Tue, 27 Oct 2020 14:44:21 +0100
-Message-Id: <20201027135451.058382477@linuxfoundation.org>
+Subject: [PATCH 5.9 015/757] net/smc: fix use-after-free of delayed events
+Date:   Tue, 27 Oct 2020 14:44:25 +0100
+Message-Id: <20201027135451.240221379@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,90 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit 6617dfd440149e42ce4d2be615eb31a4755f4d30 ]
+[ Upstream commit d535ca1367787ddc8bff22d679a11f864c8228bc ]
 
-Commit 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-tried to fix the issue where seq_file pos is not increased
-if a NULL element is returned with seq_ops->next(). See bug
-  https://bugzilla.kernel.org/show_bug.cgi?id=206283
-The commit effectively does:
-  - increase pos for all seq_ops->start()
-  - increase pos for all seq_ops->next()
+When a delayed event is enqueued then the event worker will send this
+event the next time it is running and no other flow is currently
+active. The event handler is called for the delayed event, and the
+pointer to the event keeps set in lgr->delayed_event. This pointer is
+cleared later in the processing by smc_llc_flow_start().
+This can lead to a use-after-free condition when the processing does not
+reach smc_llc_flow_start(), but frees the event because of an error
+situation. Then the delayed_event pointer is still set but the event is
+freed.
+Fix this by always clearing the delayed event pointer when the event is
+provided to the event handler for processing, and remove the code to
+clear it in smc_llc_flow_start().
 
-For ipv6_route, increasing pos for all seq_ops->next() is correct.
-But increasing pos for seq_ops->start() is not correct
-since pos is used to determine how many items to skip during
-seq_ops->start():
-  iter->skip = *pos;
-seq_ops->start() just fetches the *current* pos item.
-The item can be skipped only after seq_ops->show() which essentially
-is the beginning of seq_ops->next().
-
-For example, I have 7 ipv6 route entries,
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=4096
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000004 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  0+1 records in
-  0+1 records out
-  1050 bytes (1.0 kB, 1.0 KiB) copied, 0.00707908 s, 148 kB/s
-  root@arch-fb-vm1:~/net-next
-
-In the above, I specify buffer size 4096, so all records can be returned
-to user space with a single trip to the kernel.
-
-If I use buffer size 128, since each record size is 149, internally
-kernel seq_read() will read 149 into its internal buffer and return the data
-to user space in two read() syscalls. Then user read() syscall will trigger
-next seq_ops->start(). Since the current implementation increased pos even
-for seq_ops->start(), it will skip record #2, #4 and #6, assuming the first
-record is #1.
-
-  root@arch-fb-vm1:~/net-next dd if=/proc/net/ipv6_route bs=128
-  00000000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000400 00000001 00000000 00000001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-  fe800000000000002050e3fffebd3be8 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0
-  00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
-4+1 records in
-4+1 records out
-600 bytes copied, 0.00127758 s, 470 kB/s
-
-To fix the problem, create a fake pos pointer so seq_ops->start()
-won't actually increase seq_file pos. With this fix, the
-above `dd` command with `bs=128` will show correct result.
-
-Fixes: 4fc427e05158 ("ipv6_route_seq_next should increase position index")
-Cc: Alexei Starovoitov <ast@kernel.org>
-Suggested-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Fixes: 555da9af827d ("net/smc: add event-based llc_flow framework")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_fib.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/smc/smc_llc.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2618,8 +2618,10 @@ static void *ipv6_route_seq_start(struct
- 	iter->skip = *pos;
- 
- 	if (iter->tbl) {
-+		loff_t p = 0;
-+
- 		ipv6_route_seq_setup_walk(iter, net);
--		return ipv6_route_seq_next(seq, NULL, pos);
-+		return ipv6_route_seq_next(seq, NULL, &p);
- 	} else {
- 		return NULL;
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -233,8 +233,6 @@ static bool smc_llc_flow_start(struct sm
+ 	default:
+ 		flow->type = SMC_LLC_FLOW_NONE;
  	}
+-	if (qentry == lgr->delayed_event)
+-		lgr->delayed_event = NULL;
+ 	smc_llc_flow_qentry_set(flow, qentry);
+ 	spin_unlock_bh(&lgr->llc_flow_lock);
+ 	return true;
+@@ -1603,13 +1601,12 @@ static void smc_llc_event_work(struct wo
+ 	struct smc_llc_qentry *qentry;
+ 
+ 	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
+-		if (smc_link_usable(lgr->delayed_event->link)) {
+-			smc_llc_event_handler(lgr->delayed_event);
+-		} else {
+-			qentry = lgr->delayed_event;
+-			lgr->delayed_event = NULL;
++		qentry = lgr->delayed_event;
++		lgr->delayed_event = NULL;
++		if (smc_link_usable(qentry->link))
++			smc_llc_event_handler(qentry);
++		else
+ 			kfree(qentry);
+-		}
+ 	}
+ 
+ again:
 
 
