@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51AE429C321
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C78729C31A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1821403AbgJ0Rn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58812 "EHLO mail.kernel.org"
+        id S1821372AbgJ0RnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:43:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2902281AbgJ0OcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:00 -0400
+        id S2896804AbgJ0OcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:32:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87C2820754;
-        Tue, 27 Oct 2020 14:31:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5C08206DC;
+        Tue, 27 Oct 2020 14:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809120;
-        bh=c8wDAXu4cH/SVSFcKyJJjTYM7/BaI6/wMP+Z9tPj/Fw=;
+        s=default; t=1603809128;
+        bh=3q/nnEhu9E96bk/YiAIQUGQn5eWJ44nRaz75oCev4C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KUX6+fFyVwrmDtkIy9r/WF0UTe0H/vHbdwM8GlfSzEGNCgYJgh2B3x1xd4q1kTY0
-         h0qe7NX0HQGRKpeUUORKsUjkrZbDIHXBm5p7BYcPFgi1x8/xPHhPsEHWYFBAmUfWG4
-         SlIuPxDBq8msfAjiJodkHMz/tlCXuTTV9gZyB53s=
+        b=bwPOeWreKnHcbDvrYo7/mFTOA7xbbBx/LMZ/dPrauVSxFBu6kaaKnJU8HyS2SPSF4
+         lWNRjfL+YAFr4apsMvTCyQnI8MSg2GlJooJWG2g37cT3OJAAqODNO7fgju7oI7F0w4
+         yDbyUJ6vAteFMU/otZ2ZJz+UJb3ZaDsTshIVmeaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.4 052/408] ima: Dont ignore errors from crypto_shash_update()
-Date:   Tue, 27 Oct 2020 14:49:50 +0100
-Message-Id: <20201027135457.485388717@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/408] EDAC/i5100: Fix error handling order in i5100_init_one()
+Date:   Tue, 27 Oct 2020 14:49:53 +0100
+Message-Id: <20201027135457.615592298@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -42,35 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 60386b854008adc951c470067f90a2d85b5d520f upstream.
+[ Upstream commit 857a3139bd8be4f702c030c8ca06f3fd69c1741a ]
 
-Errors returned by crypto_shash_update() are not checked in
-ima_calc_boot_aggregate_tfm() and thus can be overwritten at the next
-iteration of the loop. This patch adds a check after calling
-crypto_shash_update() and returns immediately if the result is not zero.
+When pci_get_device_func() fails, the driver doesn't need to execute
+pci_dev_put(). mci should still be freed, though, to prevent a memory
+leak. When pci_enable_device() fails, the error injection PCI device
+"einj" doesn't need to be disabled either.
 
-Cc: stable@vger.kernel.org
-Fixes: 3323eec921efd ("integrity: IMA as an integrity service provider")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [ bp: Massage commit message, rename label to "bail_mc_free". ]
 
+Fixes: 52608ba205461 ("i5100_edac: probe for device 19 function 0")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200826121437.31606-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/edac/i5100_edac.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -688,6 +688,8 @@ static int ima_calc_boot_aggregate_tfm(c
- 		/* now accumulate with current aggregate */
- 		rc = crypto_shash_update(shash, d.digest,
- 					 crypto_shash_digestsize(tfm));
-+		if (rc != 0)
-+			return rc;
+diff --git a/drivers/edac/i5100_edac.c b/drivers/edac/i5100_edac.c
+index 251f2b692785d..0c72daa519ffa 100644
+--- a/drivers/edac/i5100_edac.c
++++ b/drivers/edac/i5100_edac.c
+@@ -1074,16 +1074,15 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 				    PCI_DEVICE_ID_INTEL_5100_19, 0);
+ 	if (!einj) {
+ 		ret = -ENODEV;
+-		goto bail_einj;
++		goto bail_mc_free;
  	}
- 	if (!rc)
- 		crypto_shash_final(shash, digest);
+ 
+ 	rc = pci_enable_device(einj);
+ 	if (rc < 0) {
+ 		ret = rc;
+-		goto bail_disable_einj;
++		goto bail_einj;
+ 	}
+ 
+-
+ 	mci->pdev = &pdev->dev;
+ 
+ 	priv = mci->pvt_info;
+@@ -1149,14 +1148,14 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ bail_scrub:
+ 	priv->scrub_enable = 0;
+ 	cancel_delayed_work_sync(&(priv->i5100_scrubbing));
+-	edac_mc_free(mci);
+-
+-bail_disable_einj:
+ 	pci_disable_device(einj);
+ 
+ bail_einj:
+ 	pci_dev_put(einj);
+ 
++bail_mc_free:
++	edac_mc_free(mci);
++
+ bail_disable_ch1:
+ 	pci_disable_device(ch1mm);
+ 
+-- 
+2.25.1
+
 
 
