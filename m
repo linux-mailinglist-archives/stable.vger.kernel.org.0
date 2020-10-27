@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DB729BC1F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD60029BC10
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1766565AbgJ0Qbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:31:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S1762946AbgJ0QbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:31:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802552AbgJ0PuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:04 -0400
+        id S1802599AbgJ0Pu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A953C21D42;
-        Tue, 27 Oct 2020 15:50:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4602D204EF;
+        Tue, 27 Oct 2020 15:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813803;
-        bh=876ugGTYUCG5GvmuzmLBh8mkjKMdy2vxqd0GNel4T/Y=;
+        s=default; t=1603813827;
+        bh=A37e4dVHhc52u326Jau40fDQWp8Wy/f8qd4T3PclcYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EhwALpKK0QcTtmVsXJYQKnNSeBgUcKMmQBHQrJ/4qHFHC/yQ0kCtESeKuoFFdABC
-         ElgmJwptbv5u91S0HWxLTC8S8LpysuQ6Xru1k8mU5mI7jWkGldpHGMXIpwSbIqbNZI
-         dX+yDFE3jyabrRG8VHkyCIXlQDA+ZYOo5pEIjz0o=
+        b=aNZII14HDk0HqUwNumeBmFm3bO88QbchI4Exz01mh9IVfAov9qcNh2w3IGY6MuECA
+         Lh7dL3LIj90gIhK/enheF3zD0sJT3U/E30FpAPJFhV3SZdZO9dL3i5S/vXkIqu1S4H
+         /m4e3qBGYkxqkRf29oBiHY7LqX9FenY2/h4KdA84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Tu <u9012063@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
-Subject: [PATCH 5.9 674/757] ip_gre: set dev->hard_header_len and dev->needed_headroom properly
-Date:   Tue, 27 Oct 2020 14:55:24 +0100
-Message-Id: <20201027135522.144173345@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 676/757] staging: wfx: fix handling of MMIC error
+Date:   Tue, 27 Oct 2020 14:55:26 +0100
+Message-Id: <20201027135522.244534084@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -47,88 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit fdafed459998e2be0e877e6189b24cb7a0183224 ]
+[ Upstream commit 8d350c14ee5eb62ecd40b0991248bfbce511954d ]
 
-GRE tunnel has its own header_ops, ipgre_header_ops, and sets it
-conditionally. When it is set, it assumes the outer IP header is
-already created before ipgre_xmit().
+As expected, when the device detect a MMIC error, it returns a specific
+status. However, it also strip IV from the frame (don't ask me why).
 
-This is not true when we send packets through a raw packet socket,
-where L2 headers are supposed to be constructed by user. Packet
-socket calls dev_validate_header() to validate the header. But
-GRE tunnel does not set dev->hard_header_len, so that check can
-be simply bypassed, therefore uninit memory could be passed down
-to ipgre_xmit(). Similar for dev->needed_headroom.
+So, with the current code, mac80211 detects a corrupted frame and it
+drops it before it handle the MMIC error. The expected behavior would be
+to detect MMIC error then to renegotiate the EAP session.
 
-dev->hard_header_len is supposed to be the length of the header
-created by dev->header_ops->create(), so it should be used whenever
-header_ops is set, and dev->needed_headroom should be used when it
-is not set.
+So, this patch correctly informs mac80211 that IV is not available. So,
+mac80211 correctly takes into account the MMIC error.
 
-Reported-and-tested-by: syzbot+4a2c52677a8a1aa283cb@syzkaller.appspotmail.com
-Cc: William Tu <u9012063@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/20201007101943.749898-2-Jerome.Pouiller@silabs.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/staging/wfx/data_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 4e31f23e4117e..e70291748889b 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -625,9 +625,7 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
- 	}
+diff --git a/drivers/staging/wfx/data_rx.c b/drivers/staging/wfx/data_rx.c
+index 33b715b7b94bb..ef0cc1e474ae6 100644
+--- a/drivers/staging/wfx/data_rx.c
++++ b/drivers/staging/wfx/data_rx.c
+@@ -44,7 +44,7 @@ void wfx_rx_cb(struct wfx_vif *wvif,
+ 	memset(hdr, 0, sizeof(*hdr));
  
- 	if (dev->header_ops) {
--		/* Need space for new headers */
--		if (skb_cow_head(skb, dev->needed_headroom -
--				      (tunnel->hlen + sizeof(struct iphdr))))
-+		if (skb_cow_head(skb, 0))
- 			goto free_skb;
+ 	if (arg->status == HIF_STATUS_RX_FAIL_MIC)
+-		hdr->flag |= RX_FLAG_MMIC_ERROR;
++		hdr->flag |= RX_FLAG_MMIC_ERROR | RX_FLAG_IV_STRIPPED;
+ 	else if (arg->status)
+ 		goto drop;
  
- 		tnl_params = (const struct iphdr *)skb->data;
-@@ -748,7 +746,11 @@ static void ipgre_link_update(struct net_device *dev, bool set_mtu)
- 	len = tunnel->tun_hlen - len;
- 	tunnel->hlen = tunnel->hlen + len;
- 
--	dev->needed_headroom = dev->needed_headroom + len;
-+	if (dev->header_ops)
-+		dev->hard_header_len += len;
-+	else
-+		dev->needed_headroom += len;
-+
- 	if (set_mtu)
- 		dev->mtu = max_t(int, dev->mtu - len, 68);
- 
-@@ -944,6 +946,7 @@ static void __gre_tunnel_init(struct net_device *dev)
- 	tunnel->parms.iph.protocol = IPPROTO_GRE;
- 
- 	tunnel->hlen = tunnel->tun_hlen + tunnel->encap_hlen;
-+	dev->needed_headroom = tunnel->hlen + sizeof(tunnel->parms.iph);
- 
- 	dev->features		|= GRE_FEATURES;
- 	dev->hw_features	|= GRE_FEATURES;
-@@ -987,10 +990,14 @@ static int ipgre_tunnel_init(struct net_device *dev)
- 				return -EINVAL;
- 			dev->flags = IFF_BROADCAST;
- 			dev->header_ops = &ipgre_header_ops;
-+			dev->hard_header_len = tunnel->hlen + sizeof(*iph);
-+			dev->needed_headroom = 0;
- 		}
- #endif
- 	} else if (!tunnel->collect_md) {
- 		dev->header_ops = &ipgre_header_ops;
-+		dev->hard_header_len = tunnel->hlen + sizeof(*iph);
-+		dev->needed_headroom = 0;
- 	}
- 
- 	return ip_tunnel_init(dev);
 -- 
 2.25.1
 
