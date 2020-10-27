@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 764C729B5FF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0E629B601
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1796466AbgJ0PSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56350 "EHLO mail.kernel.org"
+        id S1794950AbgJ0PS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796464AbgJ0PSu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:18:50 -0400
+        id S1796477AbgJ0PSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:18:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 938CF20657;
-        Tue, 27 Oct 2020 15:18:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 385BA2064B;
+        Tue, 27 Oct 2020 15:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811929;
-        bh=pFs9n+Gj1jKW2bBBP7YnwJ58RyLikOVqgifg89QbknU=;
+        s=default; t=1603811934;
+        bh=l6PdRIk2q9kQkm+pHSYC9bMdJ4FHIN5XHDF1uNwVZbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0EvpfgOZAfQKsErvykPWIj1XzA6k1qyGHDaEDFqnYR1oW2o7fE2vVvJLHdlD2NNmc
-         gfxsQ3Rw5wv3R2Zai9muYVitrcN/jvDvDp0ihqZRzHvDE/osalR3IY64bo8k9YcBc7
-         fcT5dq3Of5TMxVOOhkIvGADcuTAI8JTAQ7azclug=
+        b=RmTY/xyLbXIz6ak6h2LPgvvlrDpAZcQNxbfq5RYaEREntdfFVkLz7AKgvIN2kCrjB
+         AN2cJvCOh2qWkAwEfRuJjDcLvMq/uFEOc1FoDvSgKKeBMXnMVDa9LM4L+t4CY8NP9y
+         L0mu7oyifYeDHj/s4kNRID1WLVz+oCYhwlNV7QxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Venkatesh Ellapu <venkatesh.e@chelsio.com>,
         Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 032/757] chelsio/chtls: correct netdevice for vlan interface
-Date:   Tue, 27 Oct 2020 14:44:42 +0100
-Message-Id: <20201027135452.029850864@linuxfoundation.org>
+Subject: [PATCH 5.9 034/757] chelsio/chtls: Fix panic when listen on multiadapter
+Date:   Tue, 27 Oct 2020 14:44:44 +0100
+Message-Id: <20201027135452.124074922@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,30 +45,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-[ Upstream commit 81519d1f7df7ed1bd5b1397540c8884438f57ae2 ]
+[ Upstream commit 9819f22c410b4bf6589d3126e8bc3952db507cbf ]
 
-Check if netdevice is a vlan interface and find real vlan netdevice.
+Add the logic to compare net_device returned by ip_dev_find()
+with the net_device list in cdev->ports[] array and return
+net_device if matched else NULL.
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Fixes: 6abde0b24122 ("crypto/chtls: IPv6 support for inline TLS")
 Signed-off-by: Venkatesh Ellapu <venkatesh.e@chelsio.com>
 Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 --- a/drivers/crypto/chelsio/chtls/chtls_cm.c
 +++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -1157,6 +1157,9 @@ static struct sock *chtls_recv_sock(stru
- 	ndev = n->dev;
- 	if (!ndev)
- 		goto free_dst;
-+	if (is_vlan_dev(ndev))
+@@ -92,11 +92,13 @@ static void chtls_sock_release(struct kr
+ static struct net_device *chtls_find_netdev(struct chtls_dev *cdev,
+ 					    struct sock *sk)
+ {
++	struct adapter *adap = pci_get_drvdata(cdev->pdev);
+ 	struct net_device *ndev = cdev->ports[0];
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	struct net_device *temp;
+ 	int addr_type;
+ #endif
++	int i;
+ 
+ 	switch (sk->sk_family) {
+ 	case PF_INET:
+@@ -127,8 +129,12 @@ static struct net_device *chtls_find_net
+ 		return NULL;
+ 
+ 	if (is_vlan_dev(ndev))
+-		return vlan_dev_real_dev(ndev);
+-	return ndev;
 +		ndev = vlan_dev_real_dev(ndev);
 +
- 	port_id = cxgb4_port_idx(ndev);
++	for_each_port(adap, i)
++		if (cdev->ports[i] == ndev)
++			return ndev;
++	return NULL;
+ }
  
- 	csk = chtls_sock_create(cdev);
+ static void assign_rxopt(struct sock *sk, unsigned int opt)
 
 
