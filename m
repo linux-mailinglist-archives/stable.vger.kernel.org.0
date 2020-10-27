@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D21629AF7A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C31D229AF40
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:09:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1755175AbgJ0OIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1755176AbgJ0OIh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 10:08:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57598 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755159AbgJ0OId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:08:33 -0400
+        id S1755173AbgJ0OIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:08:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0040B21D7B;
-        Tue, 27 Oct 2020 14:08:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9762D22202;
+        Tue, 27 Oct 2020 14:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807712;
-        bh=9KA96x2D90g8RKtMU/yAlw8WiKVaTJqP2HfE2g+VKGE=;
+        s=default; t=1603807715;
+        bh=BEfWy2+JSp0yUnX8RY8thtw2/KUjVHAvzoy8V9o1UKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v//KT05YoNLyfwXvAMzHqX9EO5zFRKZtOxbfxUu7HfcHriyXJFzfLmryWqiegmNbP
-         q1sF1NttKGEMjd3tvRSm33ynk8H+AXrBDu6iydZx5m/m9m0HvLO0XxYywolIZXS8hG
-         pZtYa53z/M6uSwj2+rJJtQsfrN36OBBf12iHNx1k=
+        b=VRa6pvb4u2JlpYL018c/OhEZSIo2Dife8orCT0zbhiaXQlOV2/kwn06XdJFMoMiFM
+         c6BYv6mCG/NX1p84iFdj+BXeOzxl9/0RpHJYPRRsC60OY7K3iokh7w6LV/9xfNO+aW
+         3BndWUFsY68305rnOXN8aOt5LScJadlYInwYsOaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Apollon Oikonomopoulos <apoikos@dmesg.gr>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 014/191] tcp: fix to update snd_wl1 in bulk receiver fast path
-Date:   Tue, 27 Oct 2020 14:47:49 +0100
-Message-Id: <20201027134910.404693543@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 015/191] icmp: randomize the global rate limiter
+Date:   Tue, 27 Oct 2020 14:47:50 +0100
+Message-Id: <20201027134910.453973269@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -46,65 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 18ded910b589839e38a51623a179837ab4cc3789 ]
+[ Upstream commit b38e7819cae946e2edf869e604af1e65a5d241c5 ]
 
-In the header prediction fast path for a bulk data receiver, if no
-data is newly acknowledged then we do not call tcp_ack() and do not
-call tcp_ack_update_window(). This means that a bulk receiver that
-receives large amounts of data can have the incoming sequence numbers
-wrap, so that the check in tcp_may_update_window fails:
-   after(ack_seq, tp->snd_wl1)
+Keyu Man reported that the ICMP rate limiter could be used
+by attackers to get useful signal. Details will be provided
+in an upcoming academic publication.
 
-If the incoming receive windows are zero in this state, and then the
-connection that was a bulk data receiver later wants to send data,
-that connection can find itself persistently rejecting the window
-updates in incoming ACKs. This means the connection can persistently
-fail to discover that the receive window has opened, which in turn
-means that the connection is unable to send anything, and the
-connection's sending process can get permanently "stuck".
+Our solution is to add some noise, so that the attackers
+no longer can get help from the predictable token bucket limiter.
 
-The fix is to update snd_wl1 in the header prediction fast path for a
-bulk data receiver, so that it keeps up and does not see wrapping
-problems.
-
-This fix is based on a very nice and thorough analysis and diagnosis
-by Apollon Oikonomopoulos (see link below).
-
-This is a stable candidate but there is no Fixes tag here since the
-bug predates current git history. Just for fun: looks like the bug
-dates back to when header prediction was added in Linux v2.1.8 in Nov
-1996. In that version tcp_rcv_established() was added, and the code
-only updates snd_wl1 in tcp_ack(), and in the new "Bulk data transfer:
-receiver" code path it does not call tcp_ack(). This fix seems to
-apply cleanly at least as far back as v3.2.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reported-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Tested-by: Apollon Oikonomopoulos <apoikos@dmesg.gr>
-Link: https://www.spinics.net/lists/netdev/msg692430.html
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
+Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201022143331.1887495-1-ncardwell.kernel@gmail.com
+Reported-by: Keyu Man <kman001@ucr.edu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/networking/ip-sysctl.txt |    4 +++-
+ net/ipv4/icmp.c                        |    7 +++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5539,6 +5539,8 @@ void tcp_rcv_established(struct sock *sk
- 				tcp_data_snd_check(sk);
- 				if (!inet_csk_ack_scheduled(sk))
- 					goto no_ack;
-+			} else {
-+				tcp_update_wl(tp, TCP_SKB_CB(skb)->seq);
- 			}
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -905,12 +905,14 @@ icmp_ratelimit - INTEGER
+ icmp_msgs_per_sec - INTEGER
+ 	Limit maximal number of ICMP packets sent per second from this host.
+ 	Only messages whose type matches icmp_ratemask (see below) are
+-	controlled by this limit.
++	controlled by this limit. For security reasons, the precise count
++	of messages per second is randomized.
+ 	Default: 1000
  
- 			__tcp_ack_snd_check(sk, 0);
+ icmp_msgs_burst - INTEGER
+ 	icmp_msgs_per_sec controls number of ICMP packets sent per second,
+ 	while icmp_msgs_burst controls the burst size of these packets.
++	For security reasons, the precise burst size is randomized.
+ 	Default: 50
+ 
+ icmp_ratemask - INTEGER
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -244,7 +244,7 @@ static struct {
+ /**
+  * icmp_global_allow - Are we allowed to send one more ICMP message ?
+  *
+- * Uses a token bucket to limit our ICMP messages to sysctl_icmp_msgs_per_sec.
++ * Uses a token bucket to limit our ICMP messages to ~sysctl_icmp_msgs_per_sec.
+  * Returns false if we reached the limit and can not send another packet.
+  * Note: called with BH disabled
+  */
+@@ -272,7 +272,10 @@ bool icmp_global_allow(void)
+ 	}
+ 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
+ 	if (credit) {
+-		credit--;
++		/* We want to use a credit of one in average, but need to randomize
++		 * it for security reasons.
++		 */
++		credit = max_t(int, credit - prandom_u32_max(3), 0);
+ 		rc = true;
+ 	}
+ 	WRITE_ONCE(icmp_global.credit, credit);
 
 
