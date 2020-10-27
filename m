@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112FD29C474
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 891EE29C44F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1823027AbgJ0R4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45384 "EHLO mail.kernel.org"
+        id S2901213AbgJ0OVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901193AbgJ0OVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:21:10 -0400
+        id S2901199AbgJ0OVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:21:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0072B2072D;
-        Tue, 27 Oct 2020 14:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93B56207BB;
+        Tue, 27 Oct 2020 14:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808469;
-        bh=9HK6sxL6xOugQSJcjuw6i0Bo87xjsGOD4ApX+QPW4yk=;
+        s=default; t=1603808472;
+        bh=J4FfHhLDEh0Nlpe8vsWHG3Hw8kONUu6/CIsZCuXQOP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wEBHd0xqw35+4EuhjwM9h6CVl7nDIJ/EhaHM++6m7SqvjcJqzNpG4z3oMSv/kunL
-         s0KVLITNdUTcBMeKOGuodmZ53TfUmbzbF9qNd/6oiFnkXpT43LendHVCqRjRMJXavt
-         X8NIsONEB8/bex1b6QJwqGCILnps1MdguS6JtiLs=
+        b=K1VnNYYwl8FUmQ4ytFvNekHXUOwb0djjrgJ0wxd+m7Gt8yJoqq2eIt5bI7WIQBYNX
+         zfuVt4tbMh1QXO+VvDFnVgbWWOBVvk/O8nlrIMSgXzIkkdAOEyr9RDBncB/yUvo0yZ
+         S0EMpMZbiVvaY0NqCMo/6MuHqjgZs4z1n5xQpapg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/264] misc: mic: scif: Fix error handling path
-Date:   Tue, 27 Oct 2020 14:52:41 +0100
-Message-Id: <20201027135435.529968154@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 104/264] ALSA: seq: oss: Avoid mutex lock for a long-time ioctl
+Date:   Tue, 27 Oct 2020 14:52:42 +0100
+Message-Id: <20201027135435.574761712@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,63 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder <jrdr.linux@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a81072a9c0ae734b7889929b0bc070fe3f353f0e ]
+[ Upstream commit 2759caad2600d503c3b0ed800e7e03d2cd7a4c05 ]
 
-Inside __scif_pin_pages(), when map_flags != SCIF_MAP_KERNEL it
-will call pin_user_pages_fast() to map nr_pages. However,
-pin_user_pages_fast() might fail with a return value -ERRNO.
+Recently we applied a fix to cover the whole OSS sequencer ioctls with
+the mutex for dealing with the possible races.  This works fine in
+general, but in theory, this may lead to unexpectedly long stall if an
+ioctl like SNDCTL_SEQ_SYNC is issued and an event with the far future
+timestamp was queued.
 
-The return value is stored in pinned_pages->nr_pages. which in
-turn is passed to unpin_user_pages(), which expects
-pinned_pages->nr_pages >=0, else disaster.
+For fixing such a potential stall, this patch changes the mutex lock
+applied conditionally excluding such an ioctl command.  Also, change
+the mutex_lock() with the interruptible version for user to allow
+escaping from the big-hammer mutex.
 
-Fix this by assigning pinned_pages->nr_pages to 0 if
-pin_user_pages_fast() returns -ERRNO.
-
-Fixes: ba612aa8b487 ("misc: mic: SCIF memory registration and unregistration")
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-Link: https://lore.kernel.org/r/1600570295-29546-1-git-send-email-jrdr.linux@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 80982c7e834e ("ALSA: seq: oss: Serialize ioctls")
+Suggested-by: Pavel Machek <pavel@ucw.cz>
+Link: https://lore.kernel.org/r/20200922083856.28572-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/scif/scif_rma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/core/seq/oss/seq_oss.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/mic/scif/scif_rma.c b/drivers/misc/mic/scif/scif_rma.c
-index 0e4193cb08cf1..e1f59b17715d5 100644
---- a/drivers/misc/mic/scif/scif_rma.c
-+++ b/drivers/misc/mic/scif/scif_rma.c
-@@ -1403,6 +1403,8 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
- 				NULL);
- 		up_write(&mm->mmap_sem);
- 		if (nr_pages != pinned_pages->nr_pages) {
-+			if (pinned_pages->nr_pages < 0)
-+				pinned_pages->nr_pages = 0;
- 			if (try_upgrade) {
- 				if (ulimit)
- 					__scif_dec_pinned_vm_lock(mm,
-@@ -1423,7 +1425,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
+diff --git a/sound/core/seq/oss/seq_oss.c b/sound/core/seq/oss/seq_oss.c
+index ed5bca0db3e73..f4a9d9972330b 100644
+--- a/sound/core/seq/oss/seq_oss.c
++++ b/sound/core/seq/oss/seq_oss.c
+@@ -187,9 +187,12 @@ odev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	if (snd_BUG_ON(!dp))
+ 		return -ENXIO;
  
- 	if (pinned_pages->nr_pages < nr_pages) {
- 		err = -EFAULT;
--		pinned_pages->nr_pages = nr_pages;
- 		goto dec_pinned;
- 	}
+-	mutex_lock(&register_mutex);
++	if (cmd != SNDCTL_SEQ_SYNC &&
++	    mutex_lock_interruptible(&register_mutex))
++		return -ERESTARTSYS;
+ 	rc = snd_seq_oss_ioctl(dp, cmd, arg);
+-	mutex_unlock(&register_mutex);
++	if (cmd != SNDCTL_SEQ_SYNC)
++		mutex_unlock(&register_mutex);
+ 	return rc;
+ }
  
-@@ -1436,7 +1437,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
- 		__scif_dec_pinned_vm_lock(mm, nr_pages, 0);
- 	/* Something went wrong! Rollback */
- error_unmap:
--	pinned_pages->nr_pages = nr_pages;
- 	scif_destroy_pinned_pages(pinned_pages);
- 	*pages = NULL;
- 	dev_dbg(scif_info.mdev.this_device,
 -- 
 2.25.1
 
