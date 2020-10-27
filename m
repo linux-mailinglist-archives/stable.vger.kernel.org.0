@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D9E29C672
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F30429C671
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826212AbgJ0SRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S1826210AbgJ0SR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756136AbgJ0OLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:11:30 -0400
+        id S1726224AbgJ0OLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:11:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91E7B22264;
-        Tue, 27 Oct 2020 14:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0525422265;
+        Tue, 27 Oct 2020 14:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807889;
-        bh=ibIjj1JrObcWr+O2IP3zi/Wuo05+HdiiqfNBa5+45us=;
+        s=default; t=1603807891;
+        bh=eJ6d5q7q6vJKYj/w5rWdhSPdJ6OvBRnmGhkWoG6xm7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5kNze1Uo07D6H0CkECbeKisQug8Pxj5b0W/VK91PnlJgsGA13UQclE8J/AbuMMvD
-         F4gUu3/AHdpRxZyU9jXPUMeOGk9+/2Q/6qsi+4AusJNAjUPumshytfKbE54qJl4TM+
-         usQmOLWF6krQEjx2Fg2RP20784cEhrnqHbVohZsU=
+        b=VGI8jERrLiLvdvbdGhvJW98VlmrVBbpuF+QQDu7T526RHxd3isQNs+mnGJzw0HmK8
+         5PPKSU6WL4G+dniiyXUOHt72clos/8BlNpiHAXVc0BlLNRcsVXaEH41tAGOsDR2ilS
+         QDdCOYERCCPMltcux7XC0h4r4g33zvFICjKIea8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 079/191] usb: dwc2: Fix INTR OUT transfers in DDMA mode.
-Date:   Tue, 27 Oct 2020 14:48:54 +0100
-Message-Id: <20201027134913.478415665@linuxfoundation.org>
+Subject: [PATCH 4.14 080/191] scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()
+Date:   Tue, 27 Oct 2020 14:48:55 +0100
+Message-Id: <20201027134913.528638748@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -43,141 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b2c586eb07efab982419f32b7c3bd96829bc8bcd ]
+[ Upstream commit 38b2db564d9ab7797192ef15d7aade30633ceeae ]
 
-In DDMA mode if INTR OUT transfers mps not multiple of 4 then single packet
-corresponds to single descriptor.
+The be_fill_queue() function can only fail when "eq_vaddress" is NULL and
+since it's non-NULL here that means the function call can't fail.  But
+imagine if it could, then in that situation we would want to store the
+"paddr" so that dma memory can be released.
 
-Descriptor limit set to mps and desc chain limit set to mps *
-MAX_DMA_DESC_NUM_GENERIC. On that descriptors complete, to calculate
-transfer size should be considered correction value for each descriptor.
-
-In start request function, if "continue" is true then dma buffer address
-should be incremmented by offset for all type of transfers, not only for
-Control DATA_OUT transfers.
-
-Fixes: cf77b5fb9b394 ("usb: dwc2: gadget: Transfer length limit checking for DDMA")
-Fixes: e02f9aa6119e0 ("usb: dwc2: gadget: EP 0 specific DDMA programming")
-Fixes: aa3e8bc81311e ("usb: dwc2: gadget: DDMA transfer start and complete")
-
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/20200928091300.GD377727@mwanda
+Fixes: bfead3b2cb46 ("[SCSI] be2iscsi: Adding msix and mcc_rings V3")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 40 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 33 insertions(+), 7 deletions(-)
+ drivers/scsi/be2iscsi/be_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 03bc479d04e0d..d2d4067a1a5f4 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -704,8 +704,11 @@ static u32 dwc2_hsotg_read_frameno(struct dwc2_hsotg *hsotg)
-  */
- static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
- {
-+	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
- 	int is_isoc = hs_ep->isochronous;
- 	unsigned int maxsize;
-+	u32 mps = hs_ep->ep.maxpacket;
-+	int dir_in = hs_ep->dir_in;
- 
- 	if (is_isoc)
- 		maxsize = hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
-@@ -716,6 +719,11 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
- 	/* Above size of one descriptor was chosen, multiple it */
- 	maxsize *= MAX_DMA_DESC_NUM_GENERIC;
- 
-+	/* Interrupt OUT EP with mps not multiple of 4 */
-+	if (hs_ep->index)
-+		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4))
-+			maxsize = mps * MAX_DMA_DESC_NUM_GENERIC;
-+
- 	return maxsize;
- }
- 
-@@ -731,11 +739,14 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
-  * Isochronous - descriptor rx/tx bytes bitfield limit,
-  * Control In/Bulk/Interrupt - multiple of mps. This will allow to not
-  * have concatenations from various descriptors within one packet.
-+ * Interrupt OUT - if mps not multiple of 4 then a single packet corresponds
-+ * to a single descriptor.
-  *
-  * Selects corresponding mask for RX/TX bytes as well.
-  */
- static u32 dwc2_gadget_get_desc_params(struct dwc2_hsotg_ep *hs_ep, u32 *mask)
- {
-+	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
- 	u32 mps = hs_ep->ep.maxpacket;
- 	int dir_in = hs_ep->dir_in;
- 	u32 desc_size = 0;
-@@ -759,6 +770,13 @@ static u32 dwc2_gadget_get_desc_params(struct dwc2_hsotg_ep *hs_ep, u32 *mask)
- 		desc_size -= desc_size % mps;
- 	}
- 
-+	/* Interrupt OUT EP with mps not multiple of 4 */
-+	if (hs_ep->index)
-+		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4)) {
-+			desc_size = mps;
-+			*mask = DEV_DMA_NBYTES_MASK;
-+		}
-+
- 	return desc_size;
- }
- 
-@@ -1094,13 +1112,7 @@ static void dwc2_hsotg_start_req(struct dwc2_hsotg *hsotg,
- 				length += (mps - (length % mps));
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index b4542e7e2ad5b..86e1eac3a4703 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3013,6 +3013,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 			goto create_eq_error;
  		}
  
--		/*
--		 * If more data to send, adjust DMA for EP0 out data stage.
--		 * ureq->dma stays unchanged, hence increment it by already
--		 * passed passed data count before starting new transaction.
--		 */
--		if (!index && hsotg->ep0_state == DWC2_EP0_DATA_OUT &&
--		    continuing)
-+		if (continuing)
- 			offset = ureq->actual;
++		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3022,7 +3023,6 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 			goto create_eq_error;
+ 		}
  
- 		/* Fill DDMA chain entries */
-@@ -2260,22 +2272,36 @@ static void dwc2_hsotg_change_ep_iso_parity(struct dwc2_hsotg *hsotg,
-  */
- static unsigned int dwc2_gadget_get_xfersize_ddma(struct dwc2_hsotg_ep *hs_ep)
- {
-+	const struct usb_endpoint_descriptor *ep_desc = hs_ep->ep.desc;
- 	struct dwc2_hsotg *hsotg = hs_ep->parent;
- 	unsigned int bytes_rem = 0;
-+	unsigned int bytes_rem_correction = 0;
- 	struct dwc2_dma_desc *desc = hs_ep->desc_list;
- 	int i;
- 	u32 status;
-+	u32 mps = hs_ep->ep.maxpacket;
-+	int dir_in = hs_ep->dir_in;
+-		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    phwi_context->cur_eqd);
+ 		if (ret) {
+@@ -3079,6 +3079,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 			goto create_cq_error;
+ 		}
  
- 	if (!desc)
- 		return -EINVAL;
++		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3088,7 +3089,6 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 			goto create_cq_error;
+ 		}
  
-+	/* Interrupt OUT EP with mps not multiple of 4 */
-+	if (hs_ep->index)
-+		if (usb_endpoint_xfer_int(ep_desc) && !dir_in && (mps % 4))
-+			bytes_rem_correction = 4 - (mps % 4);
-+
- 	for (i = 0; i < hs_ep->desc_count; ++i) {
- 		status = desc->status;
- 		bytes_rem += status & DEV_DMA_NBYTES_MASK;
-+		bytes_rem -= bytes_rem_correction;
- 
- 		if (status & DEV_DMA_STS_MASK)
- 			dev_err(hsotg->dev, "descriptor %d closed with %x\n",
- 				i, status & DEV_DMA_STS_MASK);
-+
-+		if (status & DEV_DMA_L)
-+			break;
-+
- 		desc++;
- 	}
- 
+-		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
 -- 
 2.25.1
 
