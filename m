@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B87E29B7EF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D71129B7F7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798578AbgJ0P2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
+        id S1798606AbgJ0P3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798171AbgJ0P0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:26:22 -0400
+        id S1798223AbgJ0P0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:26:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64E3320728;
-        Tue, 27 Oct 2020 15:26:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A332E2064B;
+        Tue, 27 Oct 2020 15:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812381;
-        bh=n5Oauafp7LEVZC9i3ohVAscmQu/4U9GxIJvoTryhYg0=;
+        s=default; t=1603812401;
+        bh=47XuXRUE5rmrBFlPABf4wvzHJhnotZEIQYbipEI3bKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oretGqGMrwJLsBhd6L0Ga0uRKKEA0hwGYr28GkNX13Squ9J06Rb9XzK5fCF5Xdcn
-         WGTUrU+BnieMZnap5d5vJhU6SaLWx6vj1gSxfdpfcqXxIDIOmI/MyGno19iU5NH1cA
-         wJBLaXi9DUjFfarIZ+RzIH6Sw0uBOJ7OLYxeIC6Y=
+        b=UjqRE9AxubwzSz/YC4duo4fNBUkHa5i3Gy1815xK0R5lvt5ybI+s4/eo3CQwlP8Yf
+         /HPf0Z/0I9sYnz9Ekx8hvwrNEwa4cit7k0NDTpudrBAXJRseJxMqMweQi4MvUUJqOd
+         zvRxwui/lfVBSf6+FHrzop2pTzV0ntO21wwrgc+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 190/757] ath6kl: prevent potential array overflow in ath6kl_add_new_sta()
-Date:   Tue, 27 Oct 2020 14:47:20 +0100
-Message-Id: <20201027135459.526163752@linuxfoundation.org>
+Subject: [PATCH 5.9 196/757] ath11k: Fix possible memleak in ath11k_qmi_init_service
+Date:   Tue, 27 Oct 2020 14:47:26 +0100
+Message-Id: <20201027135459.805356901@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,37 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 54f9ab7b870934b70e5a21786d951fbcf663970f ]
+[ Upstream commit 28f1632118818d9dccabf4c0fccfe49686742317 ]
 
-The value for "aid" comes from skb->data so Smatch marks it as
-untrusted.  If it's invalid then it can result in an out of bounds array
-access in ath6kl_add_new_sta().
+When qmi_add_lookup fail, we should destroy the workqueue
 
-Fixes: 572e27c00c9d ("ath6kl: Fix AP mode connect event parsing and TIM updates")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200813141315.GB457408@mwanda
+Link: https://lore.kernel.org/r/1595237804-66297-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ath/ath11k/qmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/main.c b/drivers/net/wireless/ath/ath6kl/main.c
-index 5e7ea838a9218..814131a0680a4 100644
---- a/drivers/net/wireless/ath/ath6kl/main.c
-+++ b/drivers/net/wireless/ath/ath6kl/main.c
-@@ -430,6 +430,9 @@ void ath6kl_connect_ap_mode_sta(struct ath6kl_vif *vif, u16 aid, u8 *mac_addr,
+diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
+index c00a99ad8dbc1..497cff7e64cc5 100644
+--- a/drivers/net/wireless/ath/ath11k/qmi.c
++++ b/drivers/net/wireless/ath/ath11k/qmi.c
+@@ -2419,6 +2419,7 @@ int ath11k_qmi_init_service(struct ath11k_base *ab)
+ 			     ATH11K_QMI_WLFW_SERVICE_INS_ID_V01);
+ 	if (ret < 0) {
+ 		ath11k_warn(ab, "failed to add qmi lookup\n");
++		destroy_workqueue(ab->qmi.event_wq);
+ 		return ret;
+ 	}
  
- 	ath6kl_dbg(ATH6KL_DBG_TRC, "new station %pM aid=%d\n", mac_addr, aid);
- 
-+	if (aid < 1 || aid > AP_MAX_NUM_STA)
-+		return;
-+
- 	if (assoc_req_len > sizeof(struct ieee80211_hdr_3addr)) {
- 		struct ieee80211_mgmt *mgmt =
- 			(struct ieee80211_mgmt *) assoc_info;
 -- 
 2.25.1
 
