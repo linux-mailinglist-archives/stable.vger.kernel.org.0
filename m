@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ECB329AFC7
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFA429AECF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756322AbgJ0OMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
+        id S1754100AbgJ0OEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:04:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756269AbgJ0OMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:17 -0400
+        id S2504863AbgJ0OEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:04:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2684218AC;
-        Tue, 27 Oct 2020 14:12:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D372A2222C;
+        Tue, 27 Oct 2020 14:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807937;
-        bh=1uoyyZBa7a9RsIJ2llUpY36WmAMbNoNaAGHNDn5lHhk=;
+        s=default; t=1603807452;
+        bh=gAnXIdKLsqUvOJAAyBxNNufl+z8q4nno/Dh7BsCrLTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wB9ye4noe3i9i9fy/wAllN/zvafzP60aD7Rbe2DR7trMEnyliasTyJkck/pgtUmyW
-         x58RR09qPMRl+eEYqiXj+mRct/TtFBRxUfLsqNvsAw7QVvK7H7E4FZElPS2D8Pnp9/
-         8GIom2cQkubJdtIQSwx9pU0dsXYwSIlcN6bzEpsE=
+        b=bUdTTp99Nde9AbG5OEVYXTgeW49D4VohqVeCLJj7bGZDMkaeZiBwc2Otl+conYuvZ
+         ZWTsux20LfqzRv0rG+nbedJGOX9uPLiG9QxhHipeIEHX9tBpoqZ6j0OjlyixmEIkFq
+         zUjdIL5u0KsDHP3A4xHNr+i5Fv7sUJNuWTpnFhBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
+        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/191] powerpc/tau: Remove duplicated set_thresholds() call
-Date:   Tue, 27 Oct 2020 14:49:11 +0100
-Message-Id: <20201027134914.313153176@linuxfoundation.org>
+Subject: [PATCH 4.9 058/139] powerpc/pseries: Fix missing of_node_put() in rng_init()
+Date:   Tue, 27 Oct 2020 14:49:12 +0100
+Message-Id: <20201027134904.880807636@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Nicholas Mc Guire <hofrat@osadl.org>
 
-[ Upstream commit 420ab2bc7544d978a5d0762ee736412fe9c796ab ]
+[ Upstream commit 67c3e59443f5fc77be39e2ce0db75fbfa78c7965 ]
 
-The commentary at the call site seems to disagree with the code. The
-conditional prevents calling set_thresholds() via the exception handler,
-which appears to crash. Perhaps that's because it immediately triggers
-another TAU exception. Anyway, calling set_thresholds() from TAUupdate()
-is redundant because tau_timeout() does so.
+The call to of_find_compatible_node() returns a node pointer with
+refcount incremented thus it must be explicitly decremented here
+before returning.
 
-Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
+Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d7c7ee33232cf72a6a6bbb6ef05838b2e2b113c0.1599260540.git.fthain@telegraphics.com.au
+Link: https://lore.kernel.org/r/1530522496-14816-1-git-send-email-hofrat@osadl.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/tau_6xx.c | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/powerpc/platforms/pseries/rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
-index 64a27b20cf55e..9e8b709a2aae4 100644
---- a/arch/powerpc/kernel/tau_6xx.c
-+++ b/arch/powerpc/kernel/tau_6xx.c
-@@ -108,11 +108,6 @@ void TAUupdate(int cpu)
- #ifdef DEBUG
- 	printk("grew = %d\n", tau[cpu].grew);
- #endif
--
--#ifndef CONFIG_TAU_INT /* tau_timeout will do this if not using interrupts */
--	set_thresholds(cpu);
--#endif
--
- }
+diff --git a/arch/powerpc/platforms/pseries/rng.c b/arch/powerpc/platforms/pseries/rng.c
+index 31ca557af60bc..262b8c5e1b9d0 100644
+--- a/arch/powerpc/platforms/pseries/rng.c
++++ b/arch/powerpc/platforms/pseries/rng.c
+@@ -40,6 +40,7 @@ static __init int rng_init(void)
  
- #ifdef CONFIG_TAU_INT
+ 	ppc_md.get_random_seed = pseries_get_random_long;
+ 
++	of_node_put(dn);
+ 	return 0;
+ }
+ machine_subsys_initcall(pseries, rng_init);
 -- 
 2.25.1
 
