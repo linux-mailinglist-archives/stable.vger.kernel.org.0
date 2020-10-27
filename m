@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C854229A735
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 10:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C18529A741
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 10:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408132AbgJ0JDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 05:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56410 "EHLO mail.kernel.org"
+        id S2895307AbgJ0JED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 05:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408143AbgJ0JDh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 05:03:37 -0400
+        id S2408257AbgJ0JEC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 05:04:02 -0400
 Received: from saruman (88-113-213-94.elisa-laajakaista.fi [88.113.213.94])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 581A3206DC;
-        Tue, 27 Oct 2020 09:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6C7820870;
+        Tue, 27 Oct 2020 09:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603789417;
-        bh=+88N+jaf6zFgt8gBGY6GxL5Kq0Ie4Xujwte+ErsZbrg=;
+        s=default; t=1603789441;
+        bh=5Gcw7k0eUtljJox1AOmH5be3N3M7rGCdkSsXn5sHhMY=;
         h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=UL33vr29j+dVAhlRaFzJ/uPlfCEPQwT/+SG2eygmGjo5z/siQ+27w3v+iXnOL8YYq
-         c+nh4h+BWxMv3dL59qQiAYmdFb0snTxaaivi6oDjHoqhSE5/WieZGeEgkFxOCSHogu
-         R2Y5dHMoof54GJZsVotOhz2JWrek9M3OyQecylZc=
+        b=2TqSgyuRxdL6Z+vnabD+7abFdLlwaIKQzpiyD+Tszjc2AKXnhdAs1Ewgn9txa3p9H
+         akVVQvT4Rw9auyBSIEDIQ2zubuNcJOdxfJnn9JyrF2KEZU1ok/4m5vrAlmL+VvC359
+         xlQ8D9ds40Q7IMoN/W5NsXJRGxifTew7WFDxOUiM=
 From:   Felipe Balbi <balbi@kernel.org>
 To:     Peter Chen <peter.chen@nxp.com>, pawell@cadence.com, rogerq@ti.com
 Cc:     linux-usb@vger.kernel.org, linux-imx@nxp.com,
@@ -32,8 +32,8 @@ Subject: Re: [PATCH 1/3] usb: cdns3: gadget: suspicious implicit sign extension
 In-Reply-To: <20201016101659.29482-2-peter.chen@nxp.com>
 References: <20201016101659.29482-1-peter.chen@nxp.com>
  <20201016101659.29482-2-peter.chen@nxp.com>
-Date:   Tue, 27 Oct 2020 11:03:29 +0200
-Message-ID: <871rhkdori.fsf@kernel.org>
+Date:   Tue, 27 Oct 2020 11:03:54 +0200
+Message-ID: <87zh48ca6d.fsf@kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; boundary="=-=-=";
         micalg=pgp-sha256; protocol="application/pgp-signature"
@@ -89,8 +89,8 @@ looks like a false positive...
 ... because TRB_BURST_LEN() is used to intialize a __le32 type. Even if
 it ends up being sign extended, the top 32-bits will be ignored.
 
-I'll apply, but it looks like a pointless fix. We shouldn't need it for sta=
-ble
+I'll apply, but it looks like a pointless fix. We shouldn't need it for
+stable.
 
 =2D-=20
 balbi
@@ -100,19 +100,19 @@ Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAl+X4mERHGJhbGJpQGtl
-cm5lbC5vcmcACgkQzL64meEamQa8Ug/9GY0hScyIyCfZE4ugHeECPPIsjd1xC2ac
-PpKkhf88Lb1BLLsNOXXEXwMeAza3B2pxt2MQWhZhSNiSU5WOa4P9E1F6nXpcjp46
-RwDTk4mzyWVjfFqQYcF5ZDwT/6+49YKif0TO9OQQg5CGMaa+VK9+o8jLxKl/TYHG
-dKnjfhIwkbA3NPMbfm0d445JT1evMDHCK7qt487eK+ifNRXdv6IWMuB/JHMe+ny/
-V7Ygc7IKSnoo0CaAyj3/oQchsTyW+cleT3TXPYXUQIHjXuGJDvv1E5thVva0D4zF
-yjMKFe+0TIW0SqMflg2ufV9MBQoqNqmzJGWB5N0+nhp4XFBWYts5JEHDejZyVosT
-glhhROCFEMMAieqHb1XwcoPNRmNGvWKdRMhaANyUhBPxMe6Kf50FLbja7cgGay4K
-aRqKlYnw8GbS4de6ZCYj8AZpQPFvHFnX6S2rNSo4hrWrbR5+/rmPVuWwf2tejt21
-Ko7ch82bTNKCdYnu5THByGmOfnckZiTk1fLu8P7ygqcrnfSO8xeKjiARSN98EAgf
-kYqacE90zCysiF7tthEw7cmWaWODBm+JUw/4pgAJingYX9a2Saib/9ZbQ4aFiZhh
-ToHIMovA4z2M9/g/g4IbWsiJEhXDNRI4fpgDDTyxmGRyWgeBnW8JaMSorJt6y8AU
-YQpldMS6fP8=
-=W+KT
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAl+X4noRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQb92w/+KT5diuJ2aHTvSkzd+nyEQOaHQARFXHJH
+xYr/LtgQL+51xiV7vi/UEhHuZHmize/4jNXe8bPLkBYsiCSjUkJpV3uptQ64Rj3J
+DBtSOZaPkGZoy2AGyCVjL6iv3c3JvtHoaQSxSEdA6NsGYIFKCI7+QaaKv0nRXaOS
+JF5jQgoLeporKsKmB60xx8TUkKWF0ohG+wxt+CrPDwhF1ONlSKavEzP8z+EHrKZT
+SINn7kCV+mhCa90v4hJD+jk4wrY/VH8KE5ccERyNZqzRoMx8xk7PODSJHybyKhs+
+VWZ9Rb4C/eM1y5/qeGafdaigbE5vQix8mzu00TmmI3QL99jqmwb5SCzjMkjqhQIv
+dzxddMI//AjNTrq//OADL2B/F8J16d7ID0HqX3EXG9ZU4cSxrFtJBfTiW2UAPdyL
+lm0rlQPixCZrEh0pKkbUuWnuvRx71YBXewNkmcjBoAP17EJABRKU2auP65PSCz/m
+9Xx6+ZLgpZeEn4RrVzeNRRFZwbCO9mJkkeiCjckgFwN0hIR95+h/c497cZjILkMk
+CVJmnmDj0F2Y7dJ5fGeRCmLf7s440oDLqnaXUIV7nsO1gFzjd66y0SKsUpsHtyqJ
+5jjsiO1TTQoKjtWhym/UZYy8+QpXNpFali0+FlYvkEfvNg0YJKAZoAkkToOGqf27
+z2jwPm6hvKU=
+=TDeG
 -----END PGP SIGNATURE-----
 --=-=-=--
