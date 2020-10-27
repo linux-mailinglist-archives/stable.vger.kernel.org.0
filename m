@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E67D29C553
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF79629C5BC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1824784AbgJ0SFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39168 "EHLO mail.kernel.org"
+        id S1756284AbgJ0OMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390715AbgJ0OQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:16:46 -0400
+        id S1755028AbgJ0OIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:08:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B166622263;
-        Tue, 27 Oct 2020 14:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C81B0218AC;
+        Tue, 27 Oct 2020 14:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808206;
-        bh=M5h23QEKSYzAsQW1pluqDkFL6Ex4/VF/E/xG4/7dcJo=;
+        s=default; t=1603807685;
+        bh=yZxujvYKhkqY2K0QKru7IfWi0PCdpXQpY8Gi4kGmoeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RM5wYUjW0ldIFgDFsVZEX/I4MQrs7ux6wn8JBuJDUFUAbY2Fpy1J8XwkYE3b65hlH
-         nf2xDqJgpbFEtyRkUR43LeSm5edzbMD2GUQMZ59a20iMb7y/PSVfnlHGzocWBatZvB
-         ckmDg7Vk0dmyzj82xbdnbqrMJKN+eBaEtDAUV+VA=
+        b=l7MyAJjhHUSYUE35hgE9QIKxL+Mm+8j7d8iiJcf7E+AiRn20NOz6mh833rigr/mtC
+         sqRGtzuTTMx6wYtNEY5KITp5E1SjB30jjVjYcjvLM//g7SDZBwJ+gQbyCG3bULd9ca
+         C+XcQOZ43/6jvuucsiav7IfCf+/nO2ywnbsYqAho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 174/191] rtl8xxxu: prevent potential memory leak
-Date:   Tue, 27 Oct 2020 14:50:29 +0100
-Message-Id: <20201027134918.095753042@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Subject: [PATCH 4.9 136/139] usb: cdc-acm: add quirk to blacklist ETAS ES58X devices
+Date:   Tue, 27 Oct 2020 14:50:30 +0100
+Message-Id: <20201027134908.619020110@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,340 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 86279456a4d47782398d3cb8193f78f672e36cac ]
+commit a4f88430af896bf34ec25a7a5f0e053fb3d928e0 upstream.
 
-Free the skb if usb_submit_urb fails on rx_urb. And free the urb
-no matter usb_submit_urb succeeds or not in rtl8xxxu_submit_int_urb.
+The ES58X devices has a CDC ACM interface (used for debug
+purpose). During probing, the device is thus recognized as USB Modem
+(CDC ACM), preventing the etas-es58x module to load:
+  usbcore: registered new interface driver etas_es58x
+  usb 1-1.1: new full-speed USB device number 14 using xhci_hcd
+  usb 1-1.1: New USB device found, idVendor=108c, idProduct=0159, bcdDevice= 1.00
+  usb 1-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+  usb 1-1.1: Product: ES581.4
+  usb 1-1.1: Manufacturer: ETAS GmbH
+  usb 1-1.1: SerialNumber: 2204355
+  cdc_acm 1-1.1:1.0: No union descriptor, testing for castrated device
+  cdc_acm 1-1.1:1.0: ttyACM0: USB ACM device
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200906040424.22022-1-chiu@endlessm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thus, these have been added to the ignore list in
+drivers/usb/class/cdc-acm.c
+
+N.B. Future firmware release of the ES58X will remove the CDC-ACM
+interface.
+
+`lsusb -v` of the three devices variant (ES581.4, ES582.1 and
+ES584.1):
+
+  Bus 001 Device 011: ID 108c:0159 Robert Bosch GmbH ES581.4
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               1.10
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0159
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES581.4
+    iSerial                 3 2204355
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0035
+      bNumInterfaces          1
+      bConfigurationValue     1
+      iConfiguration          5 Bus Powered Configuration
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              100mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           3
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      0
+        iInterface              4 ACM Control Interface
+        CDC Header:
+          bcdCDC               1.10
+        CDC Call Management:
+          bmCapabilities       0x01
+            call management
+          bDataInterface          0
+        CDC ACM:
+          bmCapabilities       0x06
+            sends break
+            line coding and serial state
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0010  1x 16 bytes
+          bInterval              10
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x82  EP 2 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x03  EP 3 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval               0
+  Device Status:     0x0000
+    (Bus Powered)
+
+  Bus 001 Device 012: ID 108c:0168 Robert Bosch GmbH ES582
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0168
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES582
+    iSerial                 3 0108933
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0043
+      bNumInterfaces          2
+      bConfigurationValue     1
+      iConfiguration          0
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              500mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           1
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      1 AT-commands (v.25ter)
+        iInterface              0
+        CDC Header:
+          bcdCDC               1.10
+        CDC ACM:
+          bmCapabilities       0x02
+            line coding and serial state
+        CDC Union:
+          bMasterInterface        0
+          bSlaveInterface         1
+        CDC Call Management:
+          bmCapabilities       0x03
+            call management
+            use DataInterface
+          bDataInterface          1
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x83  EP 3 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval              16
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        1
+        bAlternateSetting       0
+        bNumEndpoints           2
+        bInterfaceClass        10 CDC Data
+        bInterfaceSubClass      0
+        bInterfaceProtocol      0
+        iInterface              0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x02  EP 2 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+  Device Qualifier (for other device speed):
+    bLength                10
+    bDescriptorType         6
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    bNumConfigurations      1
+  Device Status:     0x0000
+    (Bus Powered)
+
+  Bus 001 Device 013: ID 108c:0169 Robert Bosch GmbH ES584.1
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0169
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES584.1
+    iSerial                 3 0100320
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0043
+      bNumInterfaces          2
+      bConfigurationValue     1
+      iConfiguration          0
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              500mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           1
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      1 AT-commands (v.25ter)
+        iInterface              0
+        CDC Header:
+          bcdCDC               1.10
+        CDC ACM:
+          bmCapabilities       0x02
+            line coding and serial state
+        CDC Union:
+          bMasterInterface        0
+          bSlaveInterface         1
+        CDC Call Management:
+          bmCapabilities       0x03
+            call management
+            use DataInterface
+          bDataInterface          1
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x83  EP 3 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval              16
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        1
+        bAlternateSetting       0
+        bNumEndpoints           2
+        bInterfaceClass        10 CDC Data
+        bInterfaceSubClass      0
+        bInterfaceProtocol      0
+        iInterface              0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x02  EP 2 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+  Device Qualifier (for other device speed):
+    bLength                10
+    bDescriptorType         6
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    bNumConfigurations      1
+  Device Status:     0x0000
+    (Bus Powered)
+
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201002154219.4887-8-mailhol.vincent@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 63f37fa72e4ba..5cf61710ae2f1 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5453,7 +5453,6 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
- 	ret = usb_submit_urb(urb, GFP_KERNEL);
- 	if (ret) {
- 		usb_unanchor_urb(urb);
--		usb_free_urb(urb);
- 		goto error;
- 	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1852,6 +1852,17 @@ static const struct usb_device_id acm_id
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
  
-@@ -5462,6 +5461,7 @@ static int rtl8xxxu_submit_int_urb(struct ieee80211_hw *hw)
- 	rtl8xxxu_write32(priv, REG_USB_HIMR, val32);
- 
- error:
-+	usb_free_urb(urb);
- 	return ret;
- }
- 
-@@ -5787,6 +5787,7 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct rtl8xxxu_rx_urb *rx_urb;
- 	struct rtl8xxxu_tx_urb *tx_urb;
-+	struct sk_buff *skb;
- 	unsigned long flags;
- 	int ret, i;
- 
-@@ -5837,6 +5838,13 @@ static int rtl8xxxu_start(struct ieee80211_hw *hw)
- 		rx_urb->hw = hw;
- 
- 		ret = rtl8xxxu_submit_rx_urb(priv, rx_urb);
-+		if (ret) {
-+			if (ret != -ENOMEM) {
-+				skb = (struct sk_buff *)rx_urb->urb.context;
-+				dev_kfree_skb(skb);
-+			}
-+			rtl8xxxu_queue_rx_urb(priv, rx_urb);
-+		}
- 	}
- exit:
- 	/*
--- 
-2.25.1
-
++	/* Exclude ETAS ES58x */
++	{ USB_DEVICE(0x108c, 0x0159), /* ES581.4 */
++	.driver_info = IGNORE_DEVICE,
++	},
++	{ USB_DEVICE(0x108c, 0x0168), /* ES582.1 */
++	.driver_info = IGNORE_DEVICE,
++	},
++	{ USB_DEVICE(0x108c, 0x0169), /* ES584.1 */
++	.driver_info = IGNORE_DEVICE,
++	},
++
+ 	{ USB_DEVICE(0x1bc7, 0x0021), /* Telit 3G ACM only composition */
+ 	.driver_info = SEND_ZERO_PACKET,
+ 	},
 
 
