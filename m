@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8E8329B246
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD7029B226
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761186AbgJ0OiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:38:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
+        id S1761209AbgJ0Oi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:38:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2899138AbgJ0OiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:38:22 -0400
+        id S1761206AbgJ0OiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:38:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EC1E206B2;
-        Tue, 27 Oct 2020 14:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC7D3207BB;
+        Tue, 27 Oct 2020 14:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809501;
-        bh=xp14mvD661kTxVznKY67nU5aQT5D9zV9J2X4NY8G0vo=;
+        s=default; t=1603809504;
+        bh=F8eUBlUZLZfvPMwO1QGBdYgE8jn3qlju0+011V3Bu54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp41gmWinP18q6FJhEeZ9Tpa2FF6OHjcaI/AkfpjQKQy+rcma+2gPxbpR87tD24Tp
-         3r2yYwRAWRefC9JLreRtjfQLux91NPMwqw5S9gQJgBEA39QZkeNeFMYephLqnSpMnY
-         bKJkj2W+4C9V2UmUOkd3O3ohhYTPxW5vQFi2nSq8=
+        b=KR0snGAWdYOmRZdV1+mm9kjfwWl6MDV6aJ2OSa8P2p0OSjFTYHGUpGCbYYWu83Agx
+         2BxjtMH7KUxZLVlt3n/9WbxrDGwlEvRWWc72yRzcXF1dlcvGIe4WnwxFLxCAGSnfFU
+         HL6o1LHUY3VLsqEyDZv6R2EZnxMvbBedgnHKA5Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny B <abt-admin@mail.ru>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/408] ipvs: clear skb->tstamp in forwarding path
-Date:   Tue, 27 Oct 2020 14:52:06 +0100
-Message-Id: <20201027135503.810274452@linuxfoundation.org>
+Subject: [PATCH 5.4 189/408] net: korina: fix kfree of rx/tx descriptor array
+Date:   Tue, 27 Oct 2020 14:52:07 +0100
+Message-Id: <20201027135503.857722853@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -46,57 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit 7980d2eabde82be86c5be18aa3d07e88ec13c6a1 ]
+[ Upstream commit 3af5f0f5c74ecbaf757ef06c3f80d56751277637 ]
 
-fq qdisc requires tstamp to be cleared in forwarding path
+kmalloc returns KSEG0 addresses so convert back from KSEG1
+in kfree. Also make sure array is freed when the driver is
+unloaded from the kernel.
 
-Reported-by: Evgeny B <abt-admin@mail.ru>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209427
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: 8203e2d844d3 ("net: clear skb->tstamp in forwarding paths")
-Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
-Fixes: 80b14dee2bea ("net: Add a new socket option for a future transmit time.")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_xmit.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/korina.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_xmit.c b/net/netfilter/ipvs/ip_vs_xmit.c
-index c62a131a60948..cefc39878b1a4 100644
---- a/net/netfilter/ipvs/ip_vs_xmit.c
-+++ b/net/netfilter/ipvs/ip_vs_xmit.c
-@@ -615,6 +615,8 @@ static inline int ip_vs_tunnel_xmit_prepare(struct sk_buff *skb,
- 	if (ret == NF_ACCEPT) {
- 		nf_reset_ct(skb);
- 		skb_forward_csum(skb);
-+		if (skb->dev)
-+			skb->tstamp = 0;
- 	}
- 	return ret;
- }
-@@ -655,6 +657,8 @@ static inline int ip_vs_nat_send_or_cont(int pf, struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
+index ae195f8adff58..5bdff77c0ad10 100644
+--- a/drivers/net/ethernet/korina.c
++++ b/drivers/net/ethernet/korina.c
+@@ -1113,7 +1113,7 @@ static int korina_probe(struct platform_device *pdev)
+ 	return rc;
  
- 	if (!local) {
- 		skb_forward_csum(skb);
-+		if (skb->dev)
-+			skb->tstamp = 0;
- 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
- 			NULL, skb_dst(skb)->dev, dst_output);
- 	} else
-@@ -675,6 +679,8 @@ static inline int ip_vs_send_or_cont(int pf, struct sk_buff *skb,
- 	if (!local) {
- 		ip_vs_drop_early_demux_sk(skb);
- 		skb_forward_csum(skb);
-+		if (skb->dev)
-+			skb->tstamp = 0;
- 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
- 			NULL, skb_dst(skb)->dev, dst_output);
- 	} else
+ probe_err_register:
+-	kfree(lp->td_ring);
++	kfree(KSEG0ADDR(lp->td_ring));
+ probe_err_td_ring:
+ 	iounmap(lp->tx_dma_regs);
+ probe_err_dma_tx:
+@@ -1133,6 +1133,7 @@ static int korina_remove(struct platform_device *pdev)
+ 	iounmap(lp->eth_regs);
+ 	iounmap(lp->rx_dma_regs);
+ 	iounmap(lp->tx_dma_regs);
++	kfree(KSEG0ADDR(lp->td_ring));
+ 
+ 	unregister_netdev(bif->dev);
+ 	free_netdev(bif->dev);
 -- 
 2.25.1
 
