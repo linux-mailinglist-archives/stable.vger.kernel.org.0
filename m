@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 085C129B044
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DBA429B047
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756539AbgJ0ORj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
+        id S1757294AbgJ0ORm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:17:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S460358AbgJ0ORi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:17:38 -0400
+        id S1757288AbgJ0ORl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF5D0206F7;
-        Tue, 27 Oct 2020 14:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65CC3206F7;
+        Tue, 27 Oct 2020 14:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808258;
-        bh=m5PM8Aalp8ez1lWfySaxFWEGz5AJ2IA8HDibuZMhuOg=;
+        s=default; t=1603808260;
+        bh=bcfvIJmKlabq9204cn8GO6rrhDD6gspxG6dLQKMkS5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w+9pnE+U57EBoP9v/7yMw9fJErYrwujxZ7ol6Cfl6CwseoPgzUhmaR+15dMDcsmSL
-         d/RihusAVzYIkLJ5b4orbmH8pgRGLeGdnsXk9fYM5EAcaJVgHBC9qEmaSbpVk8qgru
-         3lw27I4cYwb9WCtWxgx9+B1BgOAUfPNRl10ZOEVY=
+        b=u5MS3zAlAGkQnK4NdL0L/hnMTzzYFA5qQ7S9Bhc3VWIHg+75iGMynICW57Dl1ic7v
+         x7myF0dP/CJm+IW3qyYThklGi+vQtcdcrSHvyD9bE7tzjk1LTwG4eS04T6Hdx82w+f
+         hfgG4fBUM0Ny+eVq+aNYZBmbTK0988tDQymBZ/Co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 024/264] r8169: fix operation under forced interrupt threading
-Date:   Tue, 27 Oct 2020 14:51:22 +0100
-Message-Id: <20201027135431.790182685@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 025/264] icmp: randomize the global rate limiter
+Date:   Tue, 27 Oct 2020 14:51:23 +0100
+Message-Id: <20201027135431.836248747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -42,58 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 424a646e072a887aa87283b53aa6f8b19c2a7bef ]
+[ Upstream commit b38e7819cae946e2edf869e604af1e65a5d241c5 ]
 
-For several network drivers it was reported that using
-__napi_schedule_irqoff() is unsafe with forced threading. One way to
-fix this is switching back to __napi_schedule, but then we lose the
-benefit of the irqoff version in general. As stated by Eric it doesn't
-make sense to make the minimal hard irq handlers in drivers using NAPI
-a thread. Therefore ensure that the hard irq handler is never
-thread-ified.
+Keyu Man reported that the ICMP rate limiter could be used
+by attackers to get useful signal. Details will be provided
+in an upcoming academic publication.
 
-Fixes: 9a899a35b0d6 ("r8169: switch to napi_schedule_irqoff")
-Link: https://lkml.org/lkml/2020/10/18/19
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/4d3ef84a-c812-5072-918a-22a6f6468310@gmail.com
+Our solution is to add some noise, so that the attackers
+no longer can get help from the predictable token bucket limiter.
+
+Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/networking/ip-sysctl.txt |    4 +++-
+ net/ipv4/icmp.c                        |    7 +++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169.c
-+++ b/drivers/net/ethernet/realtek/r8169.c
-@@ -6830,7 +6830,7 @@ static int rtl8169_close(struct net_devi
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -934,12 +934,14 @@ icmp_ratelimit - INTEGER
+ icmp_msgs_per_sec - INTEGER
+ 	Limit maximal number of ICMP packets sent per second from this host.
+ 	Only messages whose type matches icmp_ratemask (see below) are
+-	controlled by this limit.
++	controlled by this limit. For security reasons, the precise count
++	of messages per second is randomized.
+ 	Default: 1000
  
- 	phy_disconnect(dev->phydev);
+ icmp_msgs_burst - INTEGER
+ 	icmp_msgs_per_sec controls number of ICMP packets sent per second,
+ 	while icmp_msgs_burst controls the burst size of these packets.
++	For security reasons, the precise burst size is randomized.
+ 	Default: 50
  
--	pci_free_irq(pdev, 0, tp);
-+	free_irq(pci_irq_vector(pdev, 0), tp);
- 
- 	dma_free_coherent(&pdev->dev, R8169_RX_RING_BYTES, tp->RxDescArray,
- 			  tp->RxPhyAddr);
-@@ -6885,8 +6885,8 @@ static int rtl_open(struct net_device *d
- 
- 	rtl_request_firmware(tp);
- 
--	retval = pci_request_irq(pdev, 0, rtl8169_interrupt, NULL, tp,
--				 dev->name);
-+	retval = request_irq(pci_irq_vector(pdev, 0), rtl8169_interrupt,
-+			     IRQF_NO_THREAD | IRQF_SHARED, dev->name, tp);
- 	if (retval < 0)
- 		goto err_release_fw_2;
- 
-@@ -6919,7 +6919,7 @@ out:
- 	return retval;
- 
- err_free_irq:
--	pci_free_irq(pdev, 0, tp);
-+	free_irq(pci_irq_vector(pdev, 0), tp);
- err_release_fw_2:
- 	rtl_release_firmware(tp);
- 	rtl8169_rx_clear(tp);
+ icmp_ratemask - INTEGER
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -244,7 +244,7 @@ static struct {
+ /**
+  * icmp_global_allow - Are we allowed to send one more ICMP message ?
+  *
+- * Uses a token bucket to limit our ICMP messages to sysctl_icmp_msgs_per_sec.
++ * Uses a token bucket to limit our ICMP messages to ~sysctl_icmp_msgs_per_sec.
+  * Returns false if we reached the limit and can not send another packet.
+  * Note: called with BH disabled
+  */
+@@ -272,7 +272,10 @@ bool icmp_global_allow(void)
+ 	}
+ 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
+ 	if (credit) {
+-		credit--;
++		/* We want to use a credit of one in average, but need to randomize
++		 * it for security reasons.
++		 */
++		credit = max_t(int, credit - prandom_u32_max(3), 0);
+ 		rc = true;
+ 	}
+ 	WRITE_ONCE(icmp_global.credit, credit);
 
 
