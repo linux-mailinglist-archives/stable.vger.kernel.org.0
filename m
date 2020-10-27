@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8DF0299EDF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDA1299EDB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 01:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440855AbgJ0ASZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Oct 2020 20:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
+        id S2439185AbgJ0AKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Oct 2020 20:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394679AbgJ0AKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Oct 2020 20:10:15 -0400
+        id S2439172AbgJ0AKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Oct 2020 20:10:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3FEE216FD;
-        Tue, 27 Oct 2020 00:10:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1443F21707;
+        Tue, 27 Oct 2020 00:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603757414;
-        bh=OAj47EfaOe6gK4x+AuCSChzJ36grRYU6wc/Z79hiisw=;
+        s=default; t=1603757415;
+        bh=iq+KxVy377wxcJtct4zypIzO9jOuDzcIXcn5/4GYRic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dphwd2D7ZfoJpkI7+kH4qngLDlG3LhD8wgb1C3LteW1UHpfVkkFlTcUiwUM/Ts1aB
-         vmT7JF1UZUZ5aXOmOdDTh/+cszEoSxX0YsoU8eiSI1j0KDDapSPkmxbM/MG+XUAzrM
-         2I5Wl+eeXVoMl3/zbSi2A2W7aXCcEOYG6u1MbDuE=
+        b=CSYH2ib6uIR2TBwpmZpoSoVcuKa6sp5S5lgxfsdMsgwyLoLghFLFY57mKa0wnmofm
+         FSleo6IBq/htoIjEgf9u+tr5HeI6o6atj5Ad5tAdjVTcgog2IKg4p9CUf/H/8fh4hJ
+         SoazsS2M89v09E/VYjQL2MebnM1Pmxs/FH1Cpy1A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
+Cc:     Lang Dai <lang.dai@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 23/46] USB: adutux: fix debugging
-Date:   Mon, 26 Oct 2020 20:09:22 -0400
-Message-Id: <20201027000946.1026923-23-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 24/46] uio: free uio id after uio file node is freed
+Date:   Mon, 26 Oct 2020 20:09:23 -0400
+Message-Id: <20201027000946.1026923-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201027000946.1026923-1-sashal@kernel.org>
 References: <20201027000946.1026923-1-sashal@kernel.org>
@@ -42,33 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Lang Dai <lang.dai@intel.com>
 
-[ Upstream commit c56150c1bc8da5524831b1dac2eec3c67b89f587 ]
+[ Upstream commit 8fd0e2a6df262539eaa28b0a2364cca10d1dc662 ]
 
-Handling for removal of the controller was missing at one place.
-Add it.
+uio_register_device() do two things.
+1) get an uio id from a global pool, e.g. the id is <A>
+2) create file nodes like /sys/class/uio/uio<A>
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20200917112600.26508-1-oneukum@suse.com
+uio_unregister_device() do two things.
+1) free the uio id <A> and return it to the global pool
+2) free the file node /sys/class/uio/uio<A>
+
+There is a situation is that one worker is calling uio_unregister_device(),
+and another worker is calling uio_register_device().
+If the two workers are X and Y, they go as below sequence,
+1) X free the uio id <AAA>
+2) Y get an uio id <AAA>
+3) Y create file node /sys/class/uio/uio<AAA>
+4) X free the file note /sys/class/uio/uio<AAA>
+Then it will failed at the 3rd step and cause the phenomenon we saw as it
+is creating a duplicated file node.
+
+Failure reports as follows:
+sysfs: cannot create duplicate filename '/class/uio/uio10'
+Call Trace:
+   sysfs_do_create_link_sd.isra.2+0x9e/0xb0
+   sysfs_create_link+0x25/0x40
+   device_add+0x2c4/0x640
+   __uio_register_device+0x1c5/0x576 [uio]
+   adf_uio_init_bundle_dev+0x231/0x280 [intel_qat]
+   adf_uio_register+0x1c0/0x340 [intel_qat]
+   adf_dev_start+0x202/0x370 [intel_qat]
+   adf_dev_start_async+0x40/0xa0 [intel_qat]
+   process_one_work+0x14d/0x410
+   worker_thread+0x4b/0x460
+   kthread+0x105/0x140
+ ? process_one_work+0x410/0x410
+ ? kthread_bind+0x40/0x40
+ ret_from_fork+0x1f/0x40
+ Code: 85 c0 48 89 c3 74 12 b9 00 10 00 00 48 89 c2 31 f6 4c 89 ef
+ e8 ec c4 ff ff 4c 89 e2 48 89 de 48 c7 c7 e8 b4 ee b4 e8 6a d4 d7
+ ff <0f> 0b 48 89 df e8 20 fa f3 ff 5b 41 5c 41 5d 5d c3 66 0f 1f 84
+---[ end trace a7531c1ed5269e84 ]---
+ c6xxvf b002:00:00.0: Failed to register UIO devices
+ c6xxvf b002:00:00.0: Failed to register UIO devices
+
+Signed-off-by: Lang Dai <lang.dai@intel.com>
+
+Link: https://lore.kernel.org/r/1600054002-17722-1-git-send-email-lang.dai@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/adutux.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/uio/uio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/misc/adutux.c b/drivers/usb/misc/adutux.c
-index 45390045c75dc..852f768ef77b2 100644
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -209,6 +209,7 @@ static void adu_interrupt_out_callback(struct urb *urb)
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index 7c18536a3742a..4fc94b5e15ef4 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -1009,8 +1009,6 @@ void uio_unregister_device(struct uio_info *info)
  
- 	if (status != 0) {
- 		if ((status != -ENOENT) &&
-+		    (status != -ESHUTDOWN) &&
- 		    (status != -ECONNRESET)) {
- 			dev_dbg(&dev->udev->dev,
- 				"%s :nonzero status received: %d\n", __func__,
+ 	idev = info->uio_dev;
+ 
+-	uio_free_minor(idev);
+-
+ 	mutex_lock(&idev->info_lock);
+ 	uio_dev_del_attributes(idev);
+ 
+@@ -1022,6 +1020,8 @@ void uio_unregister_device(struct uio_info *info)
+ 
+ 	device_unregister(&idev->dev);
+ 
++	uio_free_minor(idev);
++
+ 	return;
+ }
+ EXPORT_SYMBOL_GPL(uio_unregister_device);
 -- 
 2.25.1
 
