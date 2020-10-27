@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B6F29C600
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F12129C6BA
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1825594AbgJ0SLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36434 "EHLO mail.kernel.org"
+        id S1827199AbgJ0SWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:22:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756686AbgJ0OOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:47 -0400
+        id S1753729AbgJ0OBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E490206F7;
-        Tue, 27 Oct 2020 14:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C8B02222C;
+        Tue, 27 Oct 2020 14:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808086;
-        bh=8F3uUtHSi5y+880/nn5AXD4aT5Eiz5gbBtxIaXiatbw=;
+        s=default; t=1603807303;
+        bh=AAHz49gc5RmN16iSmEg+i3TXTgGI13TFfboXqttQlf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfUvh1FecIkhnTZNnJJ0jljVRY+F1c5foN3Bqp0Ralf7ir6UXiM5l82CYf2PVtVdR
-         Fv24IsBwLy0CuNuwabBmYYPGyeJRIZJxhjyBMSjzLRj1PWN4A63iul3SS5j/xNhhpN
-         k0I5sI8DhHgON1NYGCfLof4z68HE15BoUgiJuWnc=
+        b=TGmHd0u2Dz0Qlaw6CcmyaH2kfabIoDjgN5emPk4tEPKweb5Am1TTNQLfFDuRGe9Ik
+         lGt1L2A8ugQ2x2U+2F3wx7GoJLi2aCzOTUYDh7MoZhtwRyKKOCVZYkUv3mRf5K7NaX
+         tsPxPyjlNfHAjguJsYE1Hhn4FMMOVyvrU1nHFh+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 152/191] fs: dlm: fix configfs memory leak
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 097/112] xfs: make sure the rt allocator doesnt run off the end
 Date:   Tue, 27 Oct 2020 14:50:07 +0100
-Message-Id: <20201027134917.014263510@linuxfoundation.org>
+Message-Id: <20201027134905.133410706@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 3d2825c8c6105b0f36f3ff72760799fa2e71420e ]
+[ Upstream commit 2a6ca4baed620303d414934aa1b7b0a8e7bab05f ]
 
-This patch fixes the following memory detected by kmemleak and umount
-gfs2 filesystem which removed the last lockspace:
+There's an overflow bug in the realtime allocator.  If the rt volume is
+large enough to handle a single allocation request that is larger than
+the maximum bmap extent length and the rt bitmap ends exactly on a
+bitmap block boundary, it's possible that the near allocator will try to
+check the freeness of a range that extends past the end of the bitmap.
+This fails with a corruption error and shuts down the fs.
 
-unreferenced object 0xffff9264f482f600 (size 192):
-  comm "dlm_controld", pid 325, jiffies 4294690276 (age 48.136s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 6e 6f 64 65 73 00 00 00  ........nodes...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000060481d7>] make_space+0x41/0x130
-    [<000000008d905d46>] configfs_mkdir+0x1a2/0x5f0
-    [<00000000729502cf>] vfs_mkdir+0x155/0x210
-    [<000000000369bcf1>] do_mkdirat+0x6d/0x110
-    [<00000000cc478a33>] do_syscall_64+0x33/0x40
-    [<00000000ce9ccf01>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Therefore, constrain maxlen so that the range scan cannot run off the
+end of the rt bitmap.
 
-The patch just remembers the "nodes" entry pointer in space as I think
-it's created as subdirectory when parent "spaces" is created. In
-function drop_space() we will lost the pointer reference to nds because
-configfs_remove_default_groups(). However as this subdirectory is always
-available when "spaces" exists it will just be freed when "spaces" will be
-freed.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/xfs/xfs_rtalloc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 7211e826d90df..472f4f835d3e1 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -218,6 +218,7 @@ struct dlm_space {
- 	struct list_head members;
- 	struct mutex members_lock;
- 	int members_count;
-+	struct dlm_nodes *nds;
- };
- 
- struct dlm_comms {
-@@ -426,6 +427,7 @@ static struct config_group *make_space(struct config_group *g, const char *name)
- 	INIT_LIST_HEAD(&sp->members);
- 	mutex_init(&sp->members_lock);
- 	sp->members_count = 0;
-+	sp->nds = nds;
- 	return &sp->group;
- 
-  fail:
-@@ -447,6 +449,7 @@ static void drop_space(struct config_group *g, struct config_item *i)
- static void release_space(struct config_item *i)
- {
- 	struct dlm_space *sp = config_item_to_space(i);
-+	kfree(sp->nds);
- 	kfree(sp);
- }
- 
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 919b6544b61a3..bda5248fc6498 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -256,6 +256,9 @@ xfs_rtallocate_extent_block(
+ 		end = XFS_BLOCKTOBIT(mp, bbno + 1) - 1;
+ 	     i <= end;
+ 	     i++) {
++		/* Make sure we don't scan off the end of the rt volume. */
++		maxlen = min(mp->m_sb.sb_rextents, i + maxlen) - i;
++
+ 		/*
+ 		 * See if there's a free extent of maxlen starting at i.
+ 		 * If it's not so then next will contain the first non-free.
+@@ -447,6 +450,14 @@ xfs_rtallocate_extent_near(
+ 	 */
+ 	if (bno >= mp->m_sb.sb_rextents)
+ 		bno = mp->m_sb.sb_rextents - 1;
++
++	/* Make sure we don't run off the end of the rt volume. */
++	maxlen = min(mp->m_sb.sb_rextents, bno + maxlen) - bno;
++	if (maxlen < minlen) {
++		*rtblock = NULLRTBLOCK;
++		return 0;
++	}
++
+ 	/*
+ 	 * Try the exact allocation first.
+ 	 */
 -- 
 2.25.1
 
