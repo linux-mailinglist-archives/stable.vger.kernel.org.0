@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE8E29C038
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8688329BF5D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1817054AbgJ0RMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
+        id S1793726AbgJ0PIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1785104AbgJ0O7o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:59:44 -0400
+        id S1788787AbgJ0PAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:00:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D7E920714;
-        Tue, 27 Oct 2020 14:59:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 238AF20714;
+        Tue, 27 Oct 2020 15:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810783;
-        bh=NtXoIMJCeTROgKuaHm67EDwfKRS+kP49fIqYA68hxQs=;
+        s=default; t=1603810834;
+        bh=c3eVX2rW9IL+JatQCuUpN638FaBb3LtCewNoITz+JtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eG3ngfh+gIEBj7ZTKWz3RpdDz6bBgU+i+XgVY8IKvPdeWiHr7JKvIh+/8Cdzipyr3
-         +urcbxDWISKnlzBWWnaCxCLuWKKCRnPw3M3kFkfcvCAFBfPzCblRx0Hw8IKrhSygKd
-         V6JACTEZjUQY//agykszmjMH8NI2tngy+IGcy8dQ=
+        b=Ynm3FIkBDefFKppmueML7B7wk+fJA4mHa0cPzu9fIH2E6FWfjVcHk2wqhSAm1Ud0d
+         PdQEKBaMTT0L55Gvg2tJXUUHy5PE2/+4+s9NQHkGpWMkxw1IjF1nxkZ99n6amp94CB
+         jmDhmI7u8VAsIjRNNTZQkGEWGaGHf5v5DBqVoOGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Huang Guobin <huangguobin4@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 245/633] net: wilc1000: clean up resource in error path of init mon interface
-Date:   Tue, 27 Oct 2020 14:49:48 +0100
-Message-Id: <20201027135534.168133078@linuxfoundation.org>
+Subject: [PATCH 5.8 248/633] ASoC: tas2770: Fix required DT properties in the code
+Date:   Tue, 27 Oct 2020 14:49:51 +0100
+Message-Id: <20201027135534.312845190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,42 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Guobin <huangguobin4@huawei.com>
+From: Dan Murphy <dmurphy@ti.com>
 
-[ Upstream commit 55bd149978679742374c800e56e8f6bc74378bbe ]
+[ Upstream commit 4b8ab8a7761fe2ba1c4e741703a848cb8f390f79 ]
 
-The wilc_wfi_init_mon_int() forgets to clean up resource when
-register_netdevice() failed. Add the missed call to fix it.
-And the return value of netdev_priv can't be NULL, so remove
-the unnecessary error handling.
+The devicetree binding indicates that the ti,asi-format, ti,imon-slot-no
+and ti,vmon-slot-no are not required but the driver requires them or it
+fails to probe. Honor the binding and allow these entries to be optional
+and set the corresponding values to the default values for each as defined
+in the data sheet.
 
-Fixes: 588713006ea4 ("staging: wilc1000: avoid the use of 'wilc_wfi_mon' static variable")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200917123019.206382-1-huangguobin4@huawei.com
+Fixes: 1a476abc723e6 ("tas2770: add tas2770 smart PA kernel driver")
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Link: https://lore.kernel.org/r/20200918190548.12598-4-dmurphy@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wilc1000/mon.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/codecs/tas2770.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/wilc1000/mon.c b/drivers/staging/wilc1000/mon.c
-index 60331417bd983..66f1c870f4f69 100644
---- a/drivers/staging/wilc1000/mon.c
-+++ b/drivers/staging/wilc1000/mon.c
-@@ -236,11 +236,10 @@ struct net_device *wilc_wfi_init_mon_interface(struct wilc *wl,
- 
- 	if (register_netdevice(wl->monitor_dev)) {
- 		netdev_err(real_dev, "register_netdevice failed\n");
-+		free_netdev(wl->monitor_dev);
- 		return NULL;
+diff --git a/sound/soc/codecs/tas2770.c b/sound/soc/codecs/tas2770.c
+index 4d67b1c160380..f6c3c5aaab653 100644
+--- a/sound/soc/codecs/tas2770.c
++++ b/sound/soc/codecs/tas2770.c
+@@ -707,29 +707,28 @@ static int tas2770_parse_dt(struct device *dev, struct tas2770_priv *tas2770)
+ 	rc = fwnode_property_read_u32(dev->fwnode, "ti,asi-format",
+ 					&tas2770->asi_format);
+ 	if (rc) {
+-		dev_err(tas2770->dev, "Looking up %s property failed %d\n",
+-			"ti,asi-format", rc);
+-		goto end;
++		dev_info(tas2770->dev, "Property %s is missing setting default slot\n",
++			"ti,asi-format");
++		tas2770->asi_format = 0;
  	}
- 	priv = netdev_priv(wl->monitor_dev);
--	if (!priv)
--		return NULL;
  
- 	priv->real_ndev = real_dev;
+ 	rc = fwnode_property_read_u32(dev->fwnode, "ti,imon-slot-no",
+ 			&tas2770->i_sense_slot);
+ 	if (rc) {
+-		dev_err(tas2770->dev, "Looking up %s property failed %d\n",
+-			"ti,imon-slot-no", rc);
+-		goto end;
++		dev_info(tas2770->dev, "Property %s is missing setting default slot\n",
++			"ti,imon-slot-no");
++		tas2770->i_sense_slot = 0;
+ 	}
  
+ 	rc = fwnode_property_read_u32(dev->fwnode, "ti,vmon-slot-no",
+ 				&tas2770->v_sense_slot);
+ 	if (rc) {
+-		dev_err(tas2770->dev, "Looking up %s property failed %d\n",
+-			"ti,vmon-slot-no", rc);
+-		goto end;
++		dev_info(tas2770->dev, "Property %s is missing setting default slot\n",
++			"ti,vmon-slot-no");
++		tas2770->v_sense_slot = 2;
+ 	}
+ 
+-end:
+-	return rc;
++	return 0;
+ }
+ 
+ static int tas2770_i2c_probe(struct i2c_client *client,
 -- 
 2.25.1
 
