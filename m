@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C30729C501
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D9229C517
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1814692AbgJ0SCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43854 "EHLO mail.kernel.org"
+        id S1824170AbgJ0SDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757609AbgJ0OTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:19:51 -0400
+        id S1757029AbgJ0OSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:18:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25606206F7;
-        Tue, 27 Oct 2020 14:19:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 714D12072D;
+        Tue, 27 Oct 2020 14:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808390;
-        bh=iyP0gQBHcNYb8zjOSjoeuVpWcvdMV1cP4U7E/BOAFaQ=;
+        s=default; t=1603808334;
+        bh=h410fBETSbNY4KSCGL+2n3v/7n1NVs+6lZTrSLGBo4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohd0mdTDP3YynehNzONNSOktdLkLMSVbfUh8A6txWbJ3ogvXpVK1p3/T2BflFMvmI
-         3VyPuIL1owecRXFaxGwC4M5Qr8SGZklEEr5onf53YHiUJJ4UOrphLb3Lx3FXv5m3YY
-         RnFP3mHX1G3KD6BMVN2EsDrKEBRVuqxh/q3PqBck=
+        b=GW+zpwugn26sGsbGD61TxREcJlRbqQcFZIE0vn7Q9qkh/JrdcVt4c/lGo6CldXdvo
+         siqzXV8+keYKB44LV6CjqmPi/Zz+ZVEkiFIe+SqfYhEWMziS+n7diOIh7utjEsKkxi
+         g4U4RUga9Kw2hf0bftKRhmwTIyagcJPO86I9seww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/264] media: uvcvideo: Set media controller entity functions
-Date:   Tue, 27 Oct 2020 14:51:44 +0100
-Message-Id: <20201027135432.841115380@linuxfoundation.org>
+Subject: [PATCH 4.19 053/264] media: tc358743: initialize variable
+Date:   Tue, 27 Oct 2020 14:51:51 +0100
+Message-Id: <20201027135433.168350470@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,75 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit d6834b4b58d110814aaf3469e7fd87d34ae5ae81 ]
+[ Upstream commit 274cf92d5dff5c2fec1a518078542ffe70d07646 ]
 
-The media controller core prints a warning when an entity is registered
-without a function being set. This affects the uvcvideo driver, as the
-warning was added without first addressing the issue in existing
-drivers. The problem is harmless, but unnecessarily worries users. Fix
-it by mapping UVC entity types to MC entity functions as accurately as
-possible using the existing functions.
+clang static analysis flags this error
 
-Fixes: b50bde4e476d ("[media] v4l2-subdev: use MEDIA_ENT_T_UNKNOWN for new subdevs")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+tc358743.c:1468:9: warning: Branch condition evaluates
+  to a garbage value
+        return handled ? IRQ_HANDLED : IRQ_NONE;
+               ^~~~~~~
+handled should be initialized to false.
+
+Fixes: d747b806abf4 ("[media] tc358743: add direct interrupt handling")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_entity.c | 35 ++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/media/i2c/tc358743.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
-index 554063c07d7a2..f2457953f27c6 100644
---- a/drivers/media/usb/uvc/uvc_entity.c
-+++ b/drivers/media/usb/uvc/uvc_entity.c
-@@ -78,10 +78,45 @@ static int uvc_mc_init_entity(struct uvc_video_chain *chain,
- 	int ret;
+diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
+index e4c0a27b636aa..874673218dd6e 100644
+--- a/drivers/media/i2c/tc358743.c
++++ b/drivers/media/i2c/tc358743.c
+@@ -1461,7 +1461,7 @@ static int tc358743_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
+ static irqreturn_t tc358743_irq_handler(int irq, void *dev_id)
+ {
+ 	struct tc358743_state *state = dev_id;
+-	bool handled;
++	bool handled = false;
  
- 	if (UVC_ENTITY_TYPE(entity) != UVC_TT_STREAMING) {
-+		u32 function;
-+
- 		v4l2_subdev_init(&entity->subdev, &uvc_subdev_ops);
- 		strlcpy(entity->subdev.name, entity->name,
- 			sizeof(entity->subdev.name));
- 
-+		switch (UVC_ENTITY_TYPE(entity)) {
-+		case UVC_VC_SELECTOR_UNIT:
-+			function = MEDIA_ENT_F_VID_MUX;
-+			break;
-+		case UVC_VC_PROCESSING_UNIT:
-+		case UVC_VC_EXTENSION_UNIT:
-+			/* For lack of a better option. */
-+			function = MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER;
-+			break;
-+		case UVC_COMPOSITE_CONNECTOR:
-+		case UVC_COMPONENT_CONNECTOR:
-+			function = MEDIA_ENT_F_CONN_COMPOSITE;
-+			break;
-+		case UVC_SVIDEO_CONNECTOR:
-+			function = MEDIA_ENT_F_CONN_SVIDEO;
-+			break;
-+		case UVC_ITT_CAMERA:
-+			function = MEDIA_ENT_F_CAM_SENSOR;
-+			break;
-+		case UVC_TT_VENDOR_SPECIFIC:
-+		case UVC_ITT_VENDOR_SPECIFIC:
-+		case UVC_ITT_MEDIA_TRANSPORT_INPUT:
-+		case UVC_OTT_VENDOR_SPECIFIC:
-+		case UVC_OTT_DISPLAY:
-+		case UVC_OTT_MEDIA_TRANSPORT_OUTPUT:
-+		case UVC_EXTERNAL_VENDOR_SPECIFIC:
-+		default:
-+			function = MEDIA_ENT_F_V4L2_SUBDEV_UNKNOWN;
-+			break;
-+		}
-+
-+		entity->subdev.entity.function = function;
-+
- 		ret = media_entity_pads_init(&entity->subdev.entity,
- 					entity->num_pads, entity->pads);
+ 	tc358743_isr(&state->sd, 0, &handled);
  
 -- 
 2.25.1
