@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1B329C1A0
+	by mail.lfdr.de (Postfix) with ESMTP id D691C29C1A1
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369876AbgJ0R0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54128 "EHLO mail.kernel.org"
+        id S1775319AbgJ0R0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1780075AbgJ0Oxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:53:45 -0400
+        id S1780082AbgJ0Oxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:53:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B712F20679;
-        Tue, 27 Oct 2020 14:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B8172071A;
+        Tue, 27 Oct 2020 14:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810425;
-        bh=f/HgVOAJzeq+5iPW5B2NBIb2TqBz5P25xd0J88Tlb78=;
+        s=default; t=1603810428;
+        bh=VHdgOiu0cFIaKnbNnwJm16vfEUKRWoUX+lJJ1TXbTuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjZ0MA9Bw6WbmsfKp/82/tEUSq1Qo/nZ0Jym1SX7DzGiAMd/jwFWWBhRH1fdOa/GT
-         hXgeC0VmohZ6YqoAB52igisMFCqck9jpDmiIKFCFSTyrQZK+eP8ShYqTvvQmZL6rZi
-         TwWzDyra/QvggbR27ycXQJwS0hCoObbQ8OpVgpXk=
+        b=CvS1G0gC4k34GT/0wISFq+h6gEppJjxV0kDdko5b+xhRPHQ9Vw+8uuidLqZvlZ54d
+         EPrnDcxT04AA+eQS7dmL2RP5CKsyW/5L2rwGw/mAgdtoeOM6RD1EDbYIU2VrtoCmV/
+         1lNqJuWowI/paEjFmWwhb/+VfW65gLzAqHaxw8WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Fabio Estevam <festevam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 134/633] crypto: sun8i-ce - handle endianness of t_common_ctl
-Date:   Tue, 27 Oct 2020 14:47:57 +0100
-Message-Id: <20201027135528.975923563@linuxfoundation.org>
+Subject: [PATCH 5.8 135/633] media: mx2_emmaprp: Fix memleak in emmaprp_probe
+Date:   Tue, 27 Oct 2020 14:47:58 +0100
+Message-Id: <20201027135529.025055274@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,38 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 87f34260f5e09a4578132ad1c05aef2d707dd4bf ]
+[ Upstream commit 21d387b8d372f859d9e87fdcc7c3b4a432737f4d ]
 
-t_common_ctl is LE32 so we need to convert its value before using it.
-This value is only used on H6 (ignored on other SoCs) and not handling
-the endianness cause failure on xRNG/hashes operations on H6 when running BE.
+When platform_get_irq() fails, we should release
+vfd and unregister pcdev->v4l2_dev just like the
+subsequent error paths.
 
-Fixes: 06f751b61329 ("crypto: allwinner - Add sun8i-ce Crypto Engine")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: d4e192cc44914 ("media: mx2_emmaprp: Check for platform_get_irq() error")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/mx2_emmaprp.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
-index b957061424a1f..8f3d6d31da52f 100644
---- a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
-@@ -120,7 +120,10 @@ int sun8i_ce_run_task(struct sun8i_ce_dev *ce, int flow, const char *name)
- 	/* Be sure all data is written before enabling the task */
- 	wmb();
+diff --git a/drivers/media/platform/mx2_emmaprp.c b/drivers/media/platform/mx2_emmaprp.c
+index df78df59da456..08a5473b56104 100644
+--- a/drivers/media/platform/mx2_emmaprp.c
++++ b/drivers/media/platform/mx2_emmaprp.c
+@@ -852,8 +852,11 @@ static int emmaprp_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, pcdev);
  
--	v = 1 | (ce->chanlist[flow].tl->t_common_ctl & 0x7F) << 8;
-+	/* Only H6 needs to write a part of t_common_ctl along with "1", but since it is ignored
-+	 * on older SoCs, we have no reason to complicate things.
-+	 */
-+	v = 1 | ((le32_to_cpu(ce->chanlist[flow].tl->t_common_ctl) & 0x7F) << 8);
- 	writel(v, ce->base + CE_TLR);
- 	mutex_unlock(&ce->mlock);
- 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
++	if (irq < 0) {
++		ret = irq;
++		goto rel_vdev;
++	}
++
+ 	ret = devm_request_irq(&pdev->dev, irq, emmaprp_irq, 0,
+ 			       dev_name(&pdev->dev), pcdev);
+ 	if (ret)
 -- 
 2.25.1
 
