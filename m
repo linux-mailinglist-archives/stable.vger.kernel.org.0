@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 264E529B7DC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE14329B7D9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:07:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368726AbgJ0P1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:27:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39982 "EHLO mail.kernel.org"
+        id S1797504AbgJ0P05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:26:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797626AbgJ0PYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:24:40 -0400
+        id S1797666AbgJ0PYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:24:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46A1D2064B;
-        Tue, 27 Oct 2020 15:24:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7D8820728;
+        Tue, 27 Oct 2020 15:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812279;
-        bh=YWjS08R2CUFRCQE6ZV5tRBo22c6qCWO6JTAwR8jqYjY=;
+        s=default; t=1603812285;
+        bh=FcZ9oAcLnJ3iHNV2wOlJDe85UXwQ0TyY6NTBbu+Fz8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hn/VWwZPuRz+VNFTMJnGxWE+w+sJcoDXhC2jPXGmNiljGzkHSU/PBU0Euozvy/tt0
-         ILnMKcNtindZHoz2b44cNlmGP/veY+B6FOh1at+apeVHMzrpZ99x95zMJImj+69taC
-         xVNTkxvMyYnHBoJ7hFo6DYaxXRXonmLr22exq2M0=
+        b=qPkuWvjU/gBowCWhAFZ22AM+2OVNcId71JebcIs9DNckTIyVv27PvyxLlUu1HgIls
+         KcENL+kbW98wtL3WpYo0YQhZ5Pkj0tf5Zk3endAcHfg/sIxmzuDMPg1ckxi8FIQKK/
+         XM5zpSMw1rRxBYoe+x7iyDpZqTtxSO7O6To8Sh2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Steve Foreman <foremans@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 154/757] selftests/seccomp: powerpc: Fix seccomp return value testing
-Date:   Tue, 27 Oct 2020 14:46:44 +0100
-Message-Id: <20201027135457.827743026@linuxfoundation.org>
+Subject: [PATCH 5.9 156/757] hwmon: (pmbus/max34440) Fix status register reads for MAX344{51,60,61}
+Date:   Tue, 27 Oct 2020 14:46:46 +0100
+Message-Id: <20201027135457.921503752@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,51 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 46138329faeac3598f5a4dc991a174386b6de833 ]
+[ Upstream commit 6c094b31ea2ad773824362ba0fccb88d36f8d32d ]
 
-On powerpc, the errno is not inverted, and depends on ccr.so being
-set. Add this to a powerpc definition of SYSCALL_RET_SET().
+Starting with MAX34451, the chips of this series support STATUS_IOUT and
+STATUS_TEMPERATURE commands, and no longer report over-current and
+over-temperature status with STATUS_MFR_SPECIFIC.
 
-Co-developed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Link: https://lore.kernel.org/linux-kselftest/20200911181012.171027-1-cascardo@canonical.com/
-Fixes: 5d83c2b37d43 ("selftests/seccomp: Add powerpc support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/lkml/20200912110820.597135-13-keescook@chromium.org
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 7a001dbab4ade ("hwmon: (pmbus/max34440) Add support for MAX34451.")
+Fixes: 50115ac9b6f35 ("hwmon: (pmbus/max34440) Add support for MAX34460 and MAX34461")
+Reported-by: Steve Foreman <foremans@google.com>
+Cc: Steve Foreman <foremans@google.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/seccomp/seccomp_bpf.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/hwmon/pmbus/max34440.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-index e2f38507a0621..9a9eb02539fb4 100644
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -1702,6 +1702,21 @@ TEST_F(TRACE_poke, getpid_runs_normally)
- # define ARCH_REGS		struct pt_regs
- # define SYSCALL_NUM(_regs)	(_regs).gpr[0]
- # define SYSCALL_RET(_regs)	(_regs).gpr[3]
-+# define SYSCALL_RET_SET(_regs, _val)				\
-+	do {							\
-+		typeof(_val) _result = (_val);			\
-+		/*						\
-+		 * A syscall error is signaled by CR0 SO bit	\
-+		 * and the code is stored as a positive value.	\
-+		 */						\
-+		if (_result < 0) {				\
-+			SYSCALL_RET(_regs) = -result;		\
-+			(_regs).ccr |= 0x10000000;		\
-+		} else {					\
-+			SYSCALL_RET(_regs) = result;		\
-+			(_regs).ccr &= ~0x10000000;		\
-+		}						\
-+	} while (0)
- #elif defined(__s390__)
- # define ARCH_REGS		s390_regs
- # define SYSCALL_NUM(_regs)	(_regs).gprs[2]
+diff --git a/drivers/hwmon/pmbus/max34440.c b/drivers/hwmon/pmbus/max34440.c
+index 18b4e071067f7..de04dff28945b 100644
+--- a/drivers/hwmon/pmbus/max34440.c
++++ b/drivers/hwmon/pmbus/max34440.c
+@@ -388,7 +388,6 @@ static struct pmbus_driver_info max34440_info[] = {
+ 		.func[18] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[19] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[20] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+-		.read_byte_data = max34440_read_byte_data,
+ 		.read_word_data = max34440_read_word_data,
+ 		.write_word_data = max34440_write_word_data,
+ 	},
+@@ -419,7 +418,6 @@ static struct pmbus_driver_info max34440_info[] = {
+ 		.func[15] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[16] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[17] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+-		.read_byte_data = max34440_read_byte_data,
+ 		.read_word_data = max34440_read_word_data,
+ 		.write_word_data = max34440_write_word_data,
+ 	},
+@@ -455,7 +453,6 @@ static struct pmbus_driver_info max34440_info[] = {
+ 		.func[19] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[20] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+ 		.func[21] = PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP,
+-		.read_byte_data = max34440_read_byte_data,
+ 		.read_word_data = max34440_read_word_data,
+ 		.write_word_data = max34440_write_word_data,
+ 	},
 -- 
 2.25.1
 
