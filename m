@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6930329B133
+	by mail.lfdr.de (Postfix) with ESMTP id D67C429B134
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901845AbgJ0O15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:27:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54244 "EHLO mail.kernel.org"
+        id S2901856AbgJ0O2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901840AbgJ0O14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:27:56 -0400
+        id S2901849AbgJ0O17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:27:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D845206DC;
-        Tue, 27 Oct 2020 14:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F123B206DC;
+        Tue, 27 Oct 2020 14:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808875;
-        bh=3H1Z0eUXlPWIuf2+rSfVAYlM82e6yjJTmveMrv/NORk=;
+        s=default; t=1603808878;
+        bh=w+VEKb+Hf3pXAkLmexrxfM5CSLIe4/wyNYmE6gGGBjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XF7PZpT0gSGdGVVOfvlKaPcPRf/cP3NPcFpdPLSlGSlmzUupVLfD05bZF8mQz4lPe
-         MPcu5Agggkz6Pg//YTFqcV2OfqE/KPLWhEr++phmpP/cG1d8dZ2h4b0A5HQWnURhdq
-         i53BkB/FsQhg/5Hqczov+dHblGQYJPqenuTqdvns=
+        b=XExbuGNi7ipNLXtj2/JebbTO3ZUHHNEGrS/eBxeSOrcutkjWouoKJQ59BLc1I1rZR
+         FPcie6aZv+y3L8GDWlyI0cRTtzTguZZUfVo1JvoofK67jYB372TNK3RsODi3+DhnCk
+         GEWWAKCjJPQ+dVUmDOHLuN81UVDzbQJPUZ0xLmnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 258/264] ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
-Date:   Tue, 27 Oct 2020 14:55:16 +0100
-Message-Id: <20201027135442.768107230@linuxfoundation.org>
+Subject: [PATCH 4.19 259/264] net: korina: cast KSEG0 address to pointer in kfree
+Date:   Tue, 27 Oct 2020 14:55:17 +0100
+Message-Id: <20201027135442.817287009@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,66 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit bad60b8d1a7194df38fd7fe4b22f3f4dcf775099 ]
+[ Upstream commit 3bd57b90554b4bb82dce638e0668ef9dc95d3e96 ]
 
-The idx in __ath10k_htt_rx_ring_fill_n function lives in
-consistent dma region writable by the device. Malfunctional
-or malicious device could manipulate such idx to have a OOB
-write. Either by
-    htt->rx_ring.netbufs_ring[idx] = skb;
-or by
-    ath10k_htt_set_paddrs_ring(htt, paddr, idx);
+Fixes gcc warning:
 
-The idx can also be negative as it's signed, giving a large
-memory space to write to.
+passing argument 1 of 'kfree' makes pointer from integer without a cast
 
-It's possibly exploitable by corruptting a legit pointer with
-a skb pointer. And then fill skb with payload as rougue object.
-
-Part of the log here. Sometimes it appears as UAF when writing
-to a freed memory by chance.
-
- [   15.594376] BUG: unable to handle page fault for address: ffff887f5c1804f0
- [   15.595483] #PF: supervisor write access in kernel mode
- [   15.596250] #PF: error_code(0x0002) - not-present page
- [   15.597013] PGD 0 P4D 0
- [   15.597395] Oops: 0002 [#1] SMP KASAN PTI
- [   15.597967] CPU: 0 PID: 82 Comm: kworker/u2:2 Not tainted 5.6.0 #69
- [   15.598843] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
- BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
- [   15.600438] Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
- [   15.601389] RIP: 0010:__ath10k_htt_rx_ring_fill_n
- (linux/drivers/net/wireless/ath/ath10k/htt_rx.c:173) ath10k_core
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200623221105.3486-1-bruceshenzk@gmail.com
+Fixes: 3af5f0f5c74e ("net: korina: fix kfree of rx/tx descriptor array")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Link: https://lore.kernel.org/r/20201018184255.28989-1-vvidic@valentin-vidic.from.hr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/korina.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index 03d4cc6f35bcd..7d15f6208b463 100644
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -153,6 +153,14 @@ static int __ath10k_htt_rx_ring_fill_n(struct ath10k_htt *htt, int num)
- 	BUILD_BUG_ON(HTT_RX_RING_FILL_LEVEL >= HTT_RX_RING_SIZE / 2);
+diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
+index 5bdff77c0ad10..993f495e2bf7b 100644
+--- a/drivers/net/ethernet/korina.c
++++ b/drivers/net/ethernet/korina.c
+@@ -1113,7 +1113,7 @@ static int korina_probe(struct platform_device *pdev)
+ 	return rc;
  
- 	idx = __le32_to_cpu(*htt->rx_ring.alloc_idx.vaddr);
-+
-+	if (idx < 0 || idx >= htt->rx_ring.size) {
-+		ath10k_err(htt->ar, "rx ring index is not valid, firmware malfunctioning?\n");
-+		idx &= htt->rx_ring.size_mask;
-+		ret = -ENOMEM;
-+		goto fail;
-+	}
-+
- 	while (num > 0) {
- 		skb = dev_alloc_skb(HTT_RX_BUF_SIZE + HTT_RX_DESC_ALIGN);
- 		if (!skb) {
+ probe_err_register:
+-	kfree(KSEG0ADDR(lp->td_ring));
++	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
+ probe_err_td_ring:
+ 	iounmap(lp->tx_dma_regs);
+ probe_err_dma_tx:
+@@ -1133,7 +1133,7 @@ static int korina_remove(struct platform_device *pdev)
+ 	iounmap(lp->eth_regs);
+ 	iounmap(lp->rx_dma_regs);
+ 	iounmap(lp->tx_dma_regs);
+-	kfree(KSEG0ADDR(lp->td_ring));
++	kfree((struct dma_desc *)KSEG0ADDR(lp->td_ring));
+ 
+ 	unregister_netdev(bif->dev);
+ 	free_netdev(bif->dev);
 -- 
 2.25.1
 
