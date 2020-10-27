@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C04629B05B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5D029B042
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756902AbgJ0OSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42098 "EHLO mail.kernel.org"
+        id S2900912AbgJ0OR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756593AbgJ0OSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:18:33 -0400
+        id S2900908AbgJ0OR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:17:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BA0C206D4;
-        Tue, 27 Oct 2020 14:18:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63668206D4;
+        Tue, 27 Oct 2020 14:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808312;
-        bh=WUbHRaoqJfCsnlYmdkmweJM2LnXWWp4F9r/tgGzHg4s=;
+        s=default; t=1603808248;
+        bh=2xe2IxVXNEOe5tbVNVRFe3UO2+ZWr7Ggj1Le36gQ/9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CG3nKmW212l8GVdy+NOOpsJNTDAFYTsAkkrYCRstZQZiHCPZdCcKvhrk8AX2Tcp47
-         HwNrZ3q9TcREzWitjQg03FQUh6k9hAyxge1B9mEK+/s9B8qQ8l9x6Vv5gcmYcrBTYI
-         aCmMrcdLwU7JSkuhttEMraL9uL4tWKI3KROaRI8c=
+        b=RLJLM+jdOZSBs3fvrS2GkgEXVMxWTae052Kn+ymzKqwfcnQ0aR2fkPLA+0cVNKrtd
+         tX+h8pHp9DDs6JUR9NIAimb//ascXrRBiK6wMQCzHxk9MbhJL16H8606U/Zb5Excdq
+         8gerU2LL7gQG3rq8IMEf4lmsFXPVij7UK8aKmccQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 013/264] net/tls: sendfile fails with ktls offload
-Date:   Tue, 27 Oct 2020 14:51:11 +0100
-Message-Id: <20201027135431.286491589@linuxfoundation.org>
+Subject: [PATCH 4.19 020/264] net: hdlc_raw_eth: Clear the IFF_TX_SKB_SHARING flag after calling ether_setup
+Date:   Tue, 27 Oct 2020 14:51:18 +0100
+Message-Id: <20201027135431.609009179@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -42,66 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit Maheshwari <rohitm@chelsio.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit ea1dd3e9d080c961b9a451130b61c72dc9a5397b ]
+[ Upstream commit 5fce1e43e2d5bf2f7e3224d7b99b1c65ab2c26e2 ]
 
-At first when sendpage gets called, if there is more data, 'more' in
-tls_push_data() gets set which later sets pending_open_record_frags, but
-when there is no more data in file left, and last time tls_push_data()
-gets called, pending_open_record_frags doesn't get reset. And later when
-2 bytes of encrypted alert comes as sendmsg, it first checks for
-pending_open_record_frags, and since this is set, it creates a record with
-0 data bytes to encrypt, meaning record length is prepend_size + tag_size
-only, which causes problem.
- We should set/reset pending_open_record_frags based on more bit.
+This driver calls ether_setup to set up the network device.
+The ether_setup function would add the IFF_TX_SKB_SHARING flag to the
+device. This flag indicates that it is safe to transmit shared skbs to
+the device.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+However, this is not true. This driver may pad the frame (in eth_tx)
+before transmission, so the skb may be modified.
+
+Fixes: 550fd08c2ceb ("net: Audit drivers to identify those needing IFF_TX_SKB_SHARING cleared")
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201020063420.187497-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_device.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/wan/hdlc_raw_eth.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -351,13 +351,13 @@ static int tls_push_data(struct sock *sk
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct tls_offload_context_tx *ctx = tls_offload_ctx_tx(tls_ctx);
- 	int tls_push_record_flags = flags | MSG_SENDPAGE_NOTLAST;
--	int more = flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE);
- 	struct tls_record_info *record = ctx->open_record;
- 	struct page_frag *pfrag;
- 	size_t orig_size = size;
- 	u32 max_open_record_len;
--	int copy, rc = 0;
-+	bool more = false;
- 	bool done = false;
-+	int copy, rc = 0;
- 	long timeo;
- 
- 	if (flags &
-@@ -422,9 +422,8 @@ handle_error:
- 		if (!size) {
- last_record:
- 			tls_push_record_flags = flags;
--			if (more) {
--				tls_ctx->pending_open_record_frags =
--						record->num_frags;
-+			if (flags & (MSG_SENDPAGE_NOTLAST | MSG_MORE)) {
-+				more = true;
- 				break;
- 			}
- 
-@@ -445,6 +444,8 @@ last_record:
- 		}
- 	} while (!done);
- 
-+	tls_ctx->pending_open_record_frags = more;
-+
- 	if (orig_size - size > 0)
- 		rc = orig_size - size;
- 
+--- a/drivers/net/wan/hdlc_raw_eth.c
++++ b/drivers/net/wan/hdlc_raw_eth.c
+@@ -102,6 +102,7 @@ static int raw_eth_ioctl(struct net_devi
+ 		old_qlen = dev->tx_queue_len;
+ 		ether_setup(dev);
+ 		dev->tx_queue_len = old_qlen;
++		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 		eth_hw_addr_random(dev);
+ 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
+ 		netif_dormant_off(dev);
 
 
