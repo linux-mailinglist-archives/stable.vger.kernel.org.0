@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6559929C65F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C33329C5A0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826117AbgJ0SQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60744 "EHLO mail.kernel.org"
+        id S1754022AbgJ0ODr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756206AbgJ0OMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:12:00 -0400
+        id S1754015AbgJ0ODq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE623218AC;
-        Tue, 27 Oct 2020 14:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0706922264;
+        Tue, 27 Oct 2020 14:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807915;
-        bh=0mN8TmZOcC4Y0B6sUPhKksNVA2GHXtJ7Blbbkn+Cw+0=;
+        s=default; t=1603807425;
+        bh=HTNvj0LwQZKlHxGdjAqCUqIMVCVIlJ0nTrua3uHhzVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdRg0ZV//jusfY/G9X6tqBLSfZ24wJeipWWxPqB/VpwilDrSUC5LH9+E7mL3SzTUg
-         Yh/9+Yznzz4pov+3ZdnhbkNr+UWgpJN/AScIS1+WyeqKpzQOZHgBqpO6aE94CQTuhV
-         AU7PRIyPPJmpkNbl5Q4AoLAilv+bhiHFqDk7KWtU=
+        b=QRT7Cnn7n7BnbqbZXAOUr2jHt1od7yIzbMMTBKy3Cif+q+4FVMBtnOb1Vm1n0POJp
+         LNO2xXCWQrl5wYMzjObhKliqhKY3afPExlPCoNOOU9xuTSWZCwASeG6WlE11IJqpLl
+         KbwM6g9HDp+6RuT6RrfMXJy9HVna9aDC4MB7yB1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/191] powerpc/icp-hv: Fix missing of_node_put() in success path
+Subject: [PATCH 4.9 049/139] iwlwifi: mvm: split a print to avoid a WARNING in ROC
 Date:   Tue, 27 Oct 2020 14:49:03 +0100
-Message-Id: <20201027134913.923916173@linuxfoundation.org>
+Message-Id: <20201027134904.460975829@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Mc Guire <hofrat@osadl.org>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit d3e669f31ec35856f5e85df9224ede5bdbf1bc7b ]
+[ Upstream commit 903b3f9badf1d54f77b468b96706dab679b45b14 ]
 
-Both of_find_compatible_node() and of_find_node_by_type() will return
-a refcounted node on success - thus for the success path the node must
-be explicitly released with a of_node_put().
+A print in the remain on channel code was too long and caused
+a WARNING, split it.
 
-Fixes: 0b05ac6e2480 ("powerpc/xics: Rewrite XICS driver")
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1530691407-3991-1-git-send-email-hofrat@osadl.org
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Fixes: dc28e12f2125 ("iwlwifi: mvm: ROC: Extend the ROC max delay duration & limit ROC duration")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200930102759.58d57c0bdc68.Ib06008665e7bf1199c360aa92691d9c74fb84990@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xics/icp-hv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xics/icp-hv.c b/arch/powerpc/sysdev/xics/icp-hv.c
-index bbc839a98c414..003deaabb5680 100644
---- a/arch/powerpc/sysdev/xics/icp-hv.c
-+++ b/arch/powerpc/sysdev/xics/icp-hv.c
-@@ -179,6 +179,7 @@ int icp_hv_init(void)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index d91ab2b8d6671..d46efa8d70732 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3046,9 +3046,12 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
+ 	aux_roc_req.apply_time_max_delay = cpu_to_le32(delay);
  
- 	icp_ops = &icp_hv_ops;
- 
-+	of_node_put(np);
- 	return 0;
- }
+ 	IWL_DEBUG_TE(mvm,
+-		     "ROC: Requesting to remain on channel %u for %ums (requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
+-		     channel->hw_value, req_dur, duration, delay,
+-		     dtim_interval);
++		     "ROC: Requesting to remain on channel %u for %ums\n",
++		     channel->hw_value, req_dur);
++	IWL_DEBUG_TE(mvm,
++		     "\t(requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
++		     duration, delay, dtim_interval);
++
+ 	/* Set the node address */
+ 	memcpy(aux_roc_req.node_addr, vif->addr, ETH_ALEN);
  
 -- 
 2.25.1
