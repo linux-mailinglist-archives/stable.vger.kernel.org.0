@@ -2,65 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4035829B09A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0DC29AF92
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757250AbgJ0OV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:21:27 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:59162 "EHLO
-        mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S460200AbgJ0OV0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 10:21:26 -0400
-Received: from relay7-d.mail.gandi.net (unknown [217.70.183.200])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id 6CB423A7CEE
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 14:02:49 +0000 (UTC)
-X-Originating-IP: 82.255.60.242
-Received: from [192.168.0.28] (lns-bzn-39-82-255-60-242.adsl.proxad.net [82.255.60.242])
-        (Authenticated sender: hadess@hadess.net)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 76F292000A;
-        Tue, 27 Oct 2020 14:02:23 +0000 (UTC)
-Message-ID: <4f367aba2f43b5e3807e0b01a5375e4a024ce765.camel@hadess.net>
-Subject: Re: [PATCH 1/2] usbcore: Check both id_table and match() when both
- available
-From:   Bastien Nocera <hadess@hadess.net>
-To:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Date:   Tue, 27 Oct 2020 15:02:22 +0100
-In-Reply-To: <20201022135521.375211-2-m.v.b@runbox.com>
-References: <4cc0e162-c607-3fdf-30c9-1b3a77f6cf20@runbox.com>
-         <20201022135521.375211-1-m.v.b@runbox.com>
-         <20201022135521.375211-2-m.v.b@runbox.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.1 (3.38.1-1.fc33) 
+        id S1756106AbgJ0OLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:11:22 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35927 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2900871AbgJ0OJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 10:09:45 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09RE0pmf080717;
+        Tue, 27 Oct 2020 10:09:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=jChWsOA8YS9pQwv8zyPiia36c8pqWlM7B7sXoqVLDvM=;
+ b=jZflx97pSU2+0g+PDZbCN7+Jb4PfVKrfdGdGAB9cuUmHGM5xyZHG32MMcb4vzOp0V7gF
+ +XC+LQEn2wbSHVDWPVSjYRtIBZ6RNRktTA0M0FA8NLGIjEA/mK5kNAR66+uTr4W5Xj5D
+ tCGFPnhPs/b2ep76Volj/M6JIz0PD+88h0hmOd5DAeAfDyC9P/RlKfEpNPPLvPI45dWe
+ A2Dcczwlm5lI8FDcxMIuMo25hnvJg0fDbrpoAj/87cr8BZPv8fW+H1a1Vcs4B5tQL6QT
+ z0QvCRktbBgskpgXspJCverZaA4GL4eD1wOMmQr7vIip+Oc9i6SSFgC+WHtdtExvwXuW 8w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 34ejc1naxn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Oct 2020 10:09:34 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09RE1rOw087747;
+        Tue, 27 Oct 2020 10:09:33 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 34ejc1nawv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Oct 2020 10:09:33 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09RE76Hj006624;
+        Tue, 27 Oct 2020 14:09:32 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 34cbw89rsd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Oct 2020 14:09:31 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09RE9TYZ29753656
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Oct 2020 14:09:29 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D92D34203F;
+        Tue, 27 Oct 2020 14:09:28 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 883194204C;
+        Tue, 27 Oct 2020 14:09:28 +0000 (GMT)
+Received: from pomme.tlslab.ibm.com (unknown [9.145.20.129])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Oct 2020 14:09:28 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] mm/slub: fix panic in slab_alloc_node()
+Date:   Tue, 27 Oct 2020 15:09:26 +0100
+Message-Id: <20201027140926.276-1-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.29.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-27_08:2020-10-26,2020-10-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 malwarescore=0 impostorscore=0 lowpriorityscore=0
+ clxscore=1011 adultscore=0 suspectscore=0 bulkscore=0 phishscore=0
+ mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010270085
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2020-10-22 at 09:55 -0400, M. Vefa Bicakci wrote:
-> From: Bastien Nocera <hadess@hadess.net>
-> 
-> From: Bastien Nocera <hadess@hadess.net>
-> 
-> When a USB device driver has both an id_table and a match() function,
-> make
-> sure to check both to find a match, first matching the id_table, then
-> checking the match() function.
-> 
-> This makes it possible to have module autoloading done through the
-> id_table when devices are plugged in, before checking for further
-> device eligibility in the match() function.
-> 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> Cc: <stable@vger.kernel.org> # 5.8
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Co-developed-by: M. Vefa Bicakci <m.v.b@runbox.com>
-> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+While doing memory hot-unplug operation on a PowerPC VM running 1024 CPUs
+with 11TB of ram, I hit the following panic:
 
-You can also add my:
-Tested-by: Bastien Nocera <hadess@hadess.net>
+BUG: Kernel NULL pointer dereference on read at 0x00000007
+Faulting instruction address: 0xc000000000456048
+Oops: Kernel access of bad area, sig: 11 [#2]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: rpadlpar_io rpaphp
+CPU: 160 PID: 1 Comm: systemd Tainted: G      D           5.9.0 #1
+NIP:  c000000000456048 LR: c000000000455fd4 CTR: c00000000047b350
+REGS: c00006028d1b77a0 TRAP: 0300   Tainted: G      D            (5.9.0)
+MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004228  XER: 00000000
+CFAR: c00000000000f1b0 DAR: 0000000000000007 DSISR: 40000000 IRQMASK: 0
+GPR00: c000000000455fd4 c00006028d1b7a30 c000000001bec800 0000000000000000
+GPR04: 0000000000000dc0 0000000000000000 00000000000374ef c00007c53df99320
+GPR08: 000007c53c980000 0000000000000000 000007c53c980000 0000000000000000
+GPR12: 0000000000004400 c00000001e8e4400 0000000000000000 0000000000000f6a
+GPR16: 0000000000000000 c000000001c25930 c000000001d62528 00000000000000c1
+GPR20: c000000001d62538 c00006be469e9000 0000000fffffffe0 c0000000003c0ff8
+GPR24: 0000000000000018 0000000000000000 0000000000000dc0 0000000000000000
+GPR28: c00007c513755700 c000000001c236a4 c00007bc4001f800 0000000000000001
+NIP [c000000000456048] __kmalloc_node+0x108/0x790
+LR [c000000000455fd4] __kmalloc_node+0x94/0x790
+Call Trace:
+[c00006028d1b7a30] [c00007c51af92000] 0xc00007c51af92000 (unreliable)
+[c00006028d1b7aa0] [c0000000003c0ff8] kvmalloc_node+0x58/0x110
+[c00006028d1b7ae0] [c00000000047b45c] mem_cgroup_css_online+0x10c/0x270
+[c00006028d1b7b30] [c000000000241fd8] online_css+0x48/0xd0
+[c00006028d1b7b60] [c00000000024af14] cgroup_apply_control_enable+0x2c4/0x470
+[c00006028d1b7c40] [c00000000024e838] cgroup_mkdir+0x408/0x5f0
+[c00006028d1b7cb0] [c0000000005a4ef0] kernfs_iop_mkdir+0x90/0x100
+[c00006028d1b7cf0] [c0000000004b8168] vfs_mkdir+0x138/0x250
+[c00006028d1b7d40] [c0000000004baf04] do_mkdirat+0x154/0x1c0
+[c00006028d1b7dc0] [c000000000032b38] system_call_exception+0xf8/0x200
+[c00006028d1b7e20] [c00000000000c740] system_call_common+0xf0/0x27c
+Instruction dump:
+e93e0000 e90d0030 39290008 7cc9402a e94d0030 e93e0000 7ce95214 7f89502a
+2fbc0000 419e0018 41920230 e9270010 <89290007> 7f994800 419e0220 7ee6bb78
+
+This pointing to the following code:
+
+mm/slub.c:2851
+        if (unlikely(!object || !node_match(page, node))) {
+c000000000456038:       00 00 bc 2f     cmpdi   cr7,r28,0
+c00000000045603c:       18 00 9e 41     beq     cr7,c000000000456054 <__kmalloc_node+0x114>
+node_match():
+mm/slub.c:2491
+        if (node != NUMA_NO_NODE && page_to_nid(page) != node)
+c000000000456040:       30 02 92 41     beq     cr4,c000000000456270 <__kmalloc_node+0x330>
+page_to_nid():
+include/linux/mm.h:1294
+c000000000456044:       10 00 27 e9     ld      r9,16(r7)
+c000000000456048:       07 00 29 89     lbz     r9,7(r9)	<<<< r9 = NULL
+node_match():
+mm/slub.c:2491
+c00000000045604c:       00 48 99 7f     cmpw    cr7,r25,r9
+c000000000456050:       20 02 9e 41     beq     cr7,c000000000456270 <__kmalloc_node+0x330>
+
+The panic occurred in slab_alloc_node() when checking for the page's node:
+	object = c->freelist;
+	page = c->page;
+	if (unlikely(!object || !node_match(page, node))) {
+		object = __slab_alloc(s, gfpflags, node, addr, c);
+		stat(s, ALLOC_SLOWPATH);
+
+The issue is that object is not NULL while page is NULL which is odd but
+may happen if the cache flush happened after loading object but before
+loading page. Thus checking for the page pointer is required too.
+
+In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
+node_match()") check on the page pointer has been removed assuming that
+page is always valid when it is called. It happens that this is not true in
+that particular case, so check for page before calling node_match() here.
+
+Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+---
+ mm/slub.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mm/slub.c b/mm/slub.c
+index 8f66de8a5ab3..7dc5c6aaf4b7 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2852,7 +2852,7 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
+ 
+ 	object = c->freelist;
+ 	page = c->page;
+-	if (unlikely(!object || !node_match(page, node))) {
++	if (unlikely(!object || !page || !node_match(page, node))) {
+ 		object = __slab_alloc(s, gfpflags, node, addr, c);
+ 	} else {
+ 		void *next_object = get_freepointer_safe(s, object);
+-- 
+2.29.1
 
