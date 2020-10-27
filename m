@@ -2,198 +2,254 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFB429C847
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 20:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F7829C8E5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 20:29:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1829319AbgJ0TE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 15:04:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2598 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1829313AbgJ0TE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 15:04:27 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09RJ2BK2048482;
-        Tue, 27 Oct 2020 15:04:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=bCy2xH+AjAyhLFkSzKrpu4+tH0gcsqeTR7dukXpPFoo=;
- b=hPvlQ4xN+b4t8zowjEKQ70/YggSnDA8hILi8jf+6WnH1Z+gCEbO0Db0WCpE3U9B0YBn5
- 49HZQ3RPwcg2i/+mx9TgNHzdDTCPdT9mi1MuV5atSysMHmPUmelJUkYcdNHh70yEoTei
- HOpXARRL5P/P8WuzCOr/ngbNGvdZEjAYNID7y5IffAWzlTRMGyXpA4oNaOoC8giunTpo
- ll1yaFYhxkJRBnvCE2gr9hRjhwFUDkoeEAcAEDcffbIdtyZs4uex1B/YZXct4X8gGBvE
- lDFqbEnuKVxuBMnkV+96ql0EJ6L3J2KBPjRElxWL7odoEbKOVJNDqjzodgiGlOQOaUuy hw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34dydtqxuw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Oct 2020 15:04:14 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09RJ3GFu053294;
-        Tue, 27 Oct 2020 15:04:13 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34dydtqxtu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Oct 2020 15:04:13 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09RIr3ht008168;
-        Tue, 27 Oct 2020 19:04:11 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 34cbhh3p8t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Oct 2020 19:04:11 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09RJ48M031982012
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Oct 2020 19:04:08 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5AB3FAE058;
-        Tue, 27 Oct 2020 19:04:08 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E79A9AE056;
-        Tue, 27 Oct 2020 19:04:07 +0000 (GMT)
-Received: from pomme.tlslab.ibm.com (unknown [9.145.41.45])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Oct 2020 19:04:07 +0000 (GMT)
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc:     nathanl@linux.ibm.com, cheloha@linux.ibm.com, mhocko@suse.com,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] mm/slub: fix panic in slab_alloc_node()
-Date:   Tue, 27 Oct 2020 20:04:06 +0100
-Message-Id: <20201027190406.33283-1-ldufour@linux.ibm.com>
-X-Mailer: git-send-email 2.29.1
-In-Reply-To: <7ef64e75-2150-01a9-074d-a754348683b3@suse.cz>
-References: <7ef64e75-2150-01a9-074d-a754348683b3@suse.cz>
+        id S2442358AbgJ0T3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 15:29:06 -0400
+Received: from mail-pg1-f177.google.com ([209.85.215.177]:33058 "EHLO
+        mail-pg1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757043AbgJ0T17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 15:27:59 -0400
+Received: by mail-pg1-f177.google.com with SMTP id r186so1374697pgr.0
+        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 12:27:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=J0E78/ZKk4zbQsfqgosOKRfUQN1eGLf1llU+JNXXYbY=;
+        b=jH3Fbx1kmJ9w6Cwhn90nFWE0Ed4WZQXnXmyOuEDmE6P2qsp/KVmKlayEh2r2FLCkpF
+         nHxY4WWfhiBne03UP0wM84jEvhbJzmWiz8g+f/7Kw+odTHK+EU1giR4WxIcLkEyy3m85
+         u+uIkomfQRo7PdD25NmRYmpQ8HvJIzcx7eUdPWyRa7qZSTnwylPIQnoW+FPSgpxUaAlr
+         DOEnjC/W4nPJ/t6xRPzUtjlzAhyYyWh14ADbEhT/G4vx4hvciZ06ZBz2rrNgeQ9AJlB2
+         hYmeYcNCkbaNTdl5lLXF6klA4BKYLqBzEvHLVp/KybuPAve6x9mUr0gayDBZxjIlBPtt
+         GDBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=J0E78/ZKk4zbQsfqgosOKRfUQN1eGLf1llU+JNXXYbY=;
+        b=CpNl6QVdFJSSC/0i5nuC6MqofYeX/FD2YqYXR2kGcZ7ryZ1v3AiX/Mv6xlPvdJANV2
+         rMotH1BEQkHo9J+MPc6EgYOaOW067tpm/oxGzZqb/+sSre4uQIeXKN70ZUNlJmbC//m4
+         +t7L3Nc/R3Koy8ivA3l8vODpn8/NflLPZN+QvJb5nbKVBDfzApqUacZ0l7oZ1xlgmyMK
+         ZZ0+JO5Ufp7oS+enzhbWwX+UU0N/OIzMbD+a62Z22LSegiwwjDrHck5XjQfAoDy4h8ty
+         Z4xxZ6lG5/FsQGK2h8NuI15cXeU+R9DA09xooz133kFYsIuOC1/1WKGbP/rBNF2IyZva
+         11EQ==
+X-Gm-Message-State: AOAM530O1KhhY4Xk2HcoIou5n3b0RiDCbi0ffQl3VmYok77PxwjrPtPi
+        9MUAX4G/EJAoeM+oPyXb1qA/R0im/4j3Ag==
+X-Google-Smtp-Source: ABdhPJxQfeer04Ggo5kwXa4LOBL/f6e6svn+wB0fZSLTRVGVJHyP7gEFzkXbQXgm19DKyuiQYo9DPQ==
+X-Received: by 2002:a63:f502:: with SMTP id w2mr3127281pgh.186.1603826878652;
+        Tue, 27 Oct 2020 12:27:58 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 13sm3227138pfj.100.2020.10.27.12.27.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Oct 2020 12:27:57 -0700 (PDT)
+Message-ID: <5f9874bd.1c69fb81.ce7c0.62de@mx.google.com>
+Date:   Tue, 27 Oct 2020 12:27:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-10-27_10:2020-10-26,2020-10-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- mlxscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 phishscore=0 suspectscore=0 impostorscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010270109
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.152-265-g8919185062d4
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 167 runs,
+ 4 regressions (v4.19.152-265-g8919185062d4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While doing memory hot-unplug operation on a PowerPC VM running 1024 CPUs
-with 11TB of ram, I hit the following panic:
+stable-rc/linux-4.19.y baseline: 167 runs, 4 regressions (v4.19.152-265-g89=
+19185062d4)
 
-BUG: Kernel NULL pointer dereference on read at 0x00000007
-Faulting instruction address: 0xc000000000456048
-Oops: Kernel access of bad area, sig: 11 [#2]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: rpadlpar_io rpaphp
-CPU: 160 PID: 1 Comm: systemd Tainted: G      D           5.9.0 #1
-NIP:  c000000000456048 LR: c000000000455fd4 CTR: c00000000047b350
-REGS: c00006028d1b77a0 TRAP: 0300   Tainted: G      D            (5.9.0)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004228  XER: 00000000
-CFAR: c00000000000f1b0 DAR: 0000000000000007 DSISR: 40000000 IRQMASK: 0
-GPR00: c000000000455fd4 c00006028d1b7a30 c000000001bec800 0000000000000000
-GPR04: 0000000000000dc0 0000000000000000 00000000000374ef c00007c53df99320
-GPR08: 000007c53c980000 0000000000000000 000007c53c980000 0000000000000000
-GPR12: 0000000000004400 c00000001e8e4400 0000000000000000 0000000000000f6a
-GPR16: 0000000000000000 c000000001c25930 c000000001d62528 00000000000000c1
-GPR20: c000000001d62538 c00006be469e9000 0000000fffffffe0 c0000000003c0ff8
-GPR24: 0000000000000018 0000000000000000 0000000000000dc0 0000000000000000
-GPR28: c00007c513755700 c000000001c236a4 c00007bc4001f800 0000000000000001
-NIP [c000000000456048] __kmalloc_node+0x108/0x790
-LR [c000000000455fd4] __kmalloc_node+0x94/0x790
-Call Trace:
-[c00006028d1b7a30] [c00007c51af92000] 0xc00007c51af92000 (unreliable)
-[c00006028d1b7aa0] [c0000000003c0ff8] kvmalloc_node+0x58/0x110
-[c00006028d1b7ae0] [c00000000047b45c] mem_cgroup_css_online+0x10c/0x270
-[c00006028d1b7b30] [c000000000241fd8] online_css+0x48/0xd0
-[c00006028d1b7b60] [c00000000024af14] cgroup_apply_control_enable+0x2c4/0x470
-[c00006028d1b7c40] [c00000000024e838] cgroup_mkdir+0x408/0x5f0
-[c00006028d1b7cb0] [c0000000005a4ef0] kernfs_iop_mkdir+0x90/0x100
-[c00006028d1b7cf0] [c0000000004b8168] vfs_mkdir+0x138/0x250
-[c00006028d1b7d40] [c0000000004baf04] do_mkdirat+0x154/0x1c0
-[c00006028d1b7dc0] [c000000000032b38] system_call_exception+0xf8/0x200
-[c00006028d1b7e20] [c00000000000c740] system_call_common+0xf0/0x27c
-Instruction dump:
-e93e0000 e90d0030 39290008 7cc9402a e94d0030 e93e0000 7ce95214 7f89502a
-2fbc0000 419e0018 41920230 e9270010 <89290007> 7f994800 419e0220 7ee6bb78
+Regressions Summary
+-------------------
 
-This pointing to the following code:
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
 
-mm/slub.c:2851
-        if (unlikely(!object || !node_match(page, node))) {
-c000000000456038:       00 00 bc 2f     cmpdi   cr7,r28,0
-c00000000045603c:       18 00 9e 41     beq     cr7,c000000000456054 <__kmalloc_node+0x114>
-node_match():
-mm/slub.c:2491
-        if (node != NUMA_NO_NODE && page_to_nid(page) != node)
-c000000000456040:       30 02 92 41     beq     cr4,c000000000456270 <__kmalloc_node+0x330>
-page_to_nid():
-include/linux/mm.h:1294
-c000000000456044:       10 00 27 e9     ld      r9,16(r7)
-c000000000456048:       07 00 29 89     lbz     r9,7(r9)	<<<< r9 = NULL
-node_match():
-mm/slub.c:2491
-c00000000045604c:       00 48 99 7f     cmpw    cr7,r25,r9
-c000000000456050:       20 02 9e 41     beq     cr7,c000000000456270 <__kmalloc_node+0x330>
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-The panic occurred in slab_alloc_node() when checking for the page's node:
-	object = c->freelist;
-	page = c->page;
-	if (unlikely(!object || !node_match(page, node))) {
-		object = __slab_alloc(s, gfpflags, node, addr, c);
-		stat(s, ALLOC_SLOWPATH);
+hsdk                  | arc   | lab-baylibre  | gcc-8    | hsdk_defconfig  =
+    | 1          =
 
-The issue is that object is not NULL while page is NULL which is odd but
-may happen if the cache flush happened after loading object but before
-loading page. Thus checking for the page pointer is required too.
+panda                 | arm   | lab-collabora | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-The cache flush is done through an inter processor interrupt when a piece
-of memory is off-lined. That interrupt is triggered when a memory
-hot-unplug operation is initiated and offline_pages() is calling the slub's
-MEM_GOING_OFFLINE callback slab_mem_going_offline_callback() which is
-calling flush_cpu_slab(). If that interrupt is caught between the
-reading of c->freelist and the reading of c->page, this could lead to such
-a situation. That situation is expected and the later call to
-this_cpu_cmpxchg_double() will detect the change to c->freelist and redo
-the whole operation.
 
-In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
-node_match()") check on the page pointer has been removed assuming that
-page is always valid when it is called. It happens that this is not true in
-that particular case, so check for page before calling node_match() here.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.152-265-g8919185062d4/plan/baseline/
 
-Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
----
- mm/slub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.152-265-g8919185062d4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8919185062d40d0559c701be480cc8fa547291ed =
 
-diff --git a/mm/slub.c b/mm/slub.c
-index 8f66de8a5ab3..7dc5c6aaf4b7 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2852,7 +2852,7 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
- 
- 	object = c->freelist;
- 	page = c->page;
--	if (unlikely(!object || !node_match(page, node))) {
-+	if (unlikely(!object || !page || !node_match(page, node))) {
- 		object = __slab_alloc(s, gfpflags, node, addr, c);
- 	} else {
- 		void *next_object = get_freepointer_safe(s, object);
--- 
-2.29.1
 
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f984074a66e78706238101b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f984074a66e787062381=
+01c
+        failing since 133 days (last pass: v4.19.126-55-gf6c346f2d42d, firs=
+t fail: v4.19.126-113-gd694d4388e88) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f983f9b9adfa85f09381012
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f983f9b9adfa85f=
+09381017
+        failing since 10 days (last pass: v4.19.151-22-g5f066e3d5e44, first=
+ fail: v4.19.152-16-g2fac1e5e3bc9)
+        1 lines
+
+    2020-10-27 15:38:45.566000+00:00  Connected to bcm2837-rpi-3-b console =
+[channel connected] (~$quit to exit)
+    2020-10-27 15:38:45.566000+00:00  (user:khilman) is already connected
+    2020-10-27 15:39:00.962000+00:00  =00
+    2020-10-27 15:39:00.963000+00:00  =
+
+    2020-10-27 15:39:00.963000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
+2 -0800)
+    2020-10-27 15:39:00.963000+00:00  =
+
+    2020-10-27 15:39:00.963000+00:00  DRAM:  948 MiB
+    2020-10-27 15:39:00.978000+00:00  RPI 3 Model B (0xa02082)
+    2020-10-27 15:39:01.065000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
+0: 1
+    2020-10-27 15:39:01.097000+00:00  Loading Environment from FAT... *** W=
+arning - bad CRC, using default environment =
+
+    ... (377 line(s) more)  =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+hsdk                  | arc   | lab-baylibre  | gcc-8    | hsdk_defconfig  =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f98405a23b9f364f2381035
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: hsdk_defconfig
+  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
+19.03-rc1) 8.3.1 20190225)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arc/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f98405a23b9f364f2381=
+036
+        failing since 98 days (last pass: v4.19.125-93-g80718197a8a3, first=
+ fail: v4.19.133-134-g9d319b54cc24) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+panda                 | arm   | lab-collabora | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f98427b87f1264e75381051
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+52-265-g8919185062d4/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f98427b87f1264=
+e75381058
+        failing since 3 days (last pass: v4.19.151-22-g5f066e3d5e44, first =
+fail: v4.19.152-33-g0f1e84b5bbc2)
+        2 lines =
+
+ =20
