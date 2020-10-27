@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BA929AFDD
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C159329AFBD
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756475AbgJ0ONc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:13:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
+        id S1756310AbgJ0OMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756472AbgJ0ONb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:13:31 -0400
+        id S1754422AbgJ0OF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:05:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94CEC2072D;
-        Tue, 27 Oct 2020 14:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED5672222C;
+        Tue, 27 Oct 2020 14:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808011;
-        bh=aUaCq+ABJ015NZQWid6SoBHEGAphAYcU5/XDqh9DNUg=;
+        s=default; t=1603807525;
+        bh=wDwf2i9uGR0rwnKUyq9gM6YhF7p9cbeUh3XtLO7HrWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cK3cgFAqevJ+rGVuJ3Vin62IftPiukx5aTdvX7KRwI0WnHBEszkxq+NRcD40blbtE
-         wT2g/K2HKF+SUY8tsvpOm3Qx+Z6oH9r6wyJDZUXkiwAgqFDhZ/t7AnPIJSzNY9gl0+
-         4hIglarkv01LYi2K0FxJCl8aI3sPKwIo2HuymRVg=
+        b=hwpF3tMj0ZKtkhaYNUAx8ricwY7MOQ9U5K+FImATBhj4Ps7I17qQNNzEfm9xj1Ceg
+         6UPEg5erGYemD3N/rD49XkkEFn73clpj5+AyM0vP78QDW0n9kO1Qb9Gcg9EsH8JEom
+         YEkZkibhB/hxIhLtQpzmhYoQI6eRM9sOpCivOkPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/191] Input: twl4030_keypad - fix handling of platform_get_irq() error
+Subject: [PATCH 4.9 084/139] Input: twl4030_keypad - fix handling of platform_get_irq() error
 Date:   Tue, 27 Oct 2020 14:49:38 +0100
-Message-Id: <20201027134915.608587021@linuxfoundation.org>
+Message-Id: <20201027134906.122228354@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index f9f98ef1d98e3..8677dbe0fd209 100644
+index 323a0fb575a44..d87e7cd11ecb6 100644
 --- a/drivers/input/keyboard/twl4030_keypad.c
 +++ b/drivers/input/keyboard/twl4030_keypad.c
 @@ -63,7 +63,7 @@ struct twl4030_keypad {
