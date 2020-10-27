@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF0429BA6F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC74B29BA55
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901076AbgJ0QBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:01:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
+        id S1804888AbgJ0P7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803472AbgJ0Pw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:58 -0400
+        id S1803513AbgJ0PxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:53:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3808A204EF;
-        Tue, 27 Oct 2020 15:52:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17A5E20657;
+        Tue, 27 Oct 2020 15:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813977;
-        bh=P53ED4BShvDlilS5vert2xbkgwQD01dU3Jv7kDeWyIM=;
+        s=default; t=1603813980;
+        bh=dYPfU2nzxaMcnrWOWuW9A74av4A+cXEPOv4fMsWHBNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2xCPjeO6uKKpf4NB7nJI7ffUNvqHNtDEZ+l13oRCEQNDorKHf5ngDtiDOjo5b55m
-         08e+c0ovzIORQCmfQDbNxaLtJFbeJypNlIF6cEpHWACCfiuvJjBoU0UA2mXE0kK3yA
-         w3XTmT2ipipLJeqa7JprWHhxakjrk6/Qk6WlC7RU=
+        b=nwElJz3vZviR3JjL7LzUAj42zKy4BGWOHyZMhcJ1xv3YuEqgoBpbVpB1J5iQty38E
+         vOWFuupe2SJB4fz3wfnODuRo94yPxZ0TQCgoOIlL6ZNBUH/lPNgiX/ORIGl44tgvds
+         sgVGTkIVbcy7dqUxYbiA285QRO7NtuwrN0nMLezQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
         Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Mac Chiang <mac.chiang@intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 734/757] ASoC: SOF: Add topology filename override based on dmi data match
-Date:   Tue, 27 Oct 2020 14:56:24 +0100
-Message-Id: <20201027135524.931852453@linuxfoundation.org>
+Subject: [PATCH 5.9 735/757] ASoC: Intel: sof_rt5682: override quirk data for tgl_max98373_rt5682
+Date:   Tue, 27 Oct 2020 14:56:25 +0100
+Message-Id: <20201027135524.981041892@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -48,90 +49,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
 
-[ Upstream commit 5253a73d567dcd75e62834ff5f502ea9470e5722 ]
+[ Upstream commit 3e1734b64ce786c54dc98adcfe67941e6011d735 ]
 
-Add topology filename override based on system DMI data matching,
-typically to account for a different hardware layout.
-
-In ACPI based systems, the tplg_filename is pre-defined in an ACPI
-machine table. When a DMI quirk is detected, the
-sof_pdata->tplg_filename is not set with the hard-coded ACPI value,
-and instead is set with the DMI-specific filename.
+A Chrome System based on tgl_max98373_rt5682 has different SSP interface
+configurations. Using DMI data of this variant DUT, override quirk
+data.
 
 Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Signed-off-by: Mac Chiang <mac.chiang@intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200821195603.215535-14-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20200821195603.215535-13-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c   |  8 +++++++-
- sound/soc/sof/sof-pci-dev.c | 24 ++++++++++++++++++++++++
- 2 files changed, 31 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/sof_rt5682.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 63ca920c8e6e0..7152e6d1cf673 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1179,7 +1179,13 @@ void hda_machine_select(struct snd_sof_dev *sdev)
- 
- 	mach = snd_soc_acpi_find_machine(desc->machines);
- 	if (mach) {
--		sof_pdata->tplg_filename = mach->sof_tplg_filename;
-+		/*
-+		 * If tplg file name is overridden, use it instead of
-+		 * the one set in mach table
-+		 */
-+		if (!sof_pdata->tplg_filename)
-+			sof_pdata->tplg_filename = mach->sof_tplg_filename;
-+
- 		sof_pdata->machine = mach;
- 
- 		if (mach->link_mask) {
-diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
-index aa3532ba14349..f3a8140773db5 100644
---- a/sound/soc/sof/sof-pci-dev.c
-+++ b/sound/soc/sof/sof-pci-dev.c
-@@ -35,8 +35,28 @@ static int sof_pci_debug;
- module_param_named(sof_pci_debug, sof_pci_debug, int, 0444);
- MODULE_PARM_DESC(sof_pci_debug, "SOF PCI debug options (0x0 all off)");
- 
-+static const char *sof_override_tplg_name;
-+
- #define SOF_PCI_DISABLE_PM_RUNTIME BIT(0)
- 
-+static int sof_tplg_cb(const struct dmi_system_id *id)
-+{
-+	sof_override_tplg_name = id->driver_data;
-+	return 1;
-+}
-+
-+static const struct dmi_system_id sof_tplg_table[] = {
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index 0129d23694ed5..9a6f10ede427e 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -119,6 +119,19 @@ static const struct dmi_system_id sof_rt5682_quirk_table[] = {
+ 		.driver_data = (void *)(SOF_RT5682_MCLK_EN |
+ 					SOF_RT5682_SSP_CODEC(0)),
+ 	},
 +	{
-+		.callback = sof_tplg_cb,
++		.callback = sof_rt5682_quirk_cb,
 +		.matches = {
 +			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google_Volteer"),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "Terrador"),
 +		},
-+		.driver_data = "sof-tgl-rt5682-ssp0-max98373-ssp2.tplg",
++		.driver_data = (void *)(SOF_RT5682_MCLK_EN |
++					SOF_RT5682_SSP_CODEC(0) |
++					SOF_SPEAKER_AMP_PRESENT |
++					SOF_MAX98373_SPEAKER_AMP_PRESENT |
++					SOF_RT5682_SSP_AMP(2) |
++					SOF_RT5682_NUM_HDMIDEV(4)),
 +	},
-+	{}
-+};
-+
- static const struct dmi_system_id community_key_platforms[] = {
- 	{
- 		.ident = "Up Squared",
-@@ -347,6 +367,10 @@ static int sof_pci_probe(struct pci_dev *pci,
- 		sof_pdata->tplg_filename_prefix =
- 			sof_pdata->desc->default_tplg_path;
+ 	{}
+ };
  
-+	dmi_check_system(sof_tplg_table);
-+	if (sof_override_tplg_name)
-+		sof_pdata->tplg_filename = sof_override_tplg_name;
-+
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
- 	/* set callback to enable runtime_pm */
- 	sof_pdata->sof_probe_complete = sof_pci_probe_complete;
 -- 
 2.25.1
 
