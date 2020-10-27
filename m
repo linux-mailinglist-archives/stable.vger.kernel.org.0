@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEA329B0FE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5774129B0FF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:26:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901694AbgJ0O0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:26:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51588 "EHLO mail.kernel.org"
+        id S2901704AbgJ0O0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901690AbgJ0O0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:26:00 -0400
+        id S2901697AbgJ0O0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:26:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E92F207C3;
-        Tue, 27 Oct 2020 14:25:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 809862072D;
+        Tue, 27 Oct 2020 14:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808760;
-        bh=Aj3H/mllP3Z1Ndwy+73zR5D3CeWuFmetb4clh9ff4xM=;
+        s=default; t=1603808763;
+        bh=Gm6quWG61QDKSQll4BJQfDy3dvG4rp4sAm9JUEJKn28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKxzBBcJbl+XWOWxSrW/Dk7Ep99HHof4cUq9HO1JUDHxyEYBSMtBbT3Sh77z5+C4/
-         ns3YsVWiHkNEJhUv8bE0fLyqWfP81/LQYdhnVnw4vEIPtKER5jvkZQurW5VOpEGsMj
-         wGpcmMdTiqhDlDBQXbjf7+8rAVY5yRk/rvVbidPw=
+        b=Svubma3hP5lgRIKbiNDliM055KQjyyS4QQcW08omqW99ZyMnPd3ISeQEbFWgWiMbU
+         5rju/1NLqIKgWm+QC+E1bnrrH3JRlAnOw7gZ48fEX5yZHJa1CsKbO7sIuniDtf8gcU
+         k4aGyyOj2kyzullT0xp0De/159AcPrHkuKshxVUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/264] Input: stmfts - fix a & vs && typo
-Date:   Tue, 27 Oct 2020 14:54:01 +0100
-Message-Id: <20201027135439.263930691@linuxfoundation.org>
+Subject: [PATCH 4.19 184/264] Input: ep93xx_keypad - fix handling of platform_get_irq() error
+Date:   Tue, 27 Oct 2020 14:54:02 +0100
+Message-Id: <20201027135439.311302436@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,35 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit d04afe14b23651e7a8bc89727a759e982a8458e4 ]
+[ Upstream commit 7d50f6656dacf085a00beeedbc48b19a37d17881 ]
 
-In stmfts_sysfs_hover_enable_write(), we should check value and
-sdata->hover_enabled is all true.
+platform_get_irq() returns -ERRNO on error.  In such case comparison
+to 0 would pass the check.
 
-Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20200916141941.16684-1-yuehaibing@huawei.com
+Fixes: 60214f058f44 ("Input: ep93xx_keypad - update driver to new core support")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200828145744.3636-1-krzk@kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/stmfts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index b6f95f20f9244..cd8805d71d977 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -479,7 +479,7 @@ static ssize_t stmfts_sysfs_hover_enable_write(struct device *dev,
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index f77b295e0123e..01788a78041b3 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
+ 	}
  
- 	mutex_lock(&sdata->mutex);
+ 	keypad->irq = platform_get_irq(pdev, 0);
+-	if (!keypad->irq) {
+-		err = -ENXIO;
++	if (keypad->irq < 0) {
++		err = keypad->irq;
+ 		goto failed_free;
+ 	}
  
--	if (value & sdata->hover_enabled)
-+	if (value && sdata->hover_enabled)
- 		goto out;
- 
- 	if (sdata->running)
 -- 
 2.25.1
 
