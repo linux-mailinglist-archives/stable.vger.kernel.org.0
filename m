@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3174A29B050
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DE329B052
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2901022AbgJ0OSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:18:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41396 "EHLO mail.kernel.org"
+        id S2901037AbgJ0OSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901017AbgJ0OSH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:18:07 -0400
+        id S2901028AbgJ0OSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:18:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EB6E206F7;
-        Tue, 27 Oct 2020 14:18:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4381321D42;
+        Tue, 27 Oct 2020 14:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808286;
-        bh=gu14B/3XyOqUww19uJ6tUihj6C0vESM6NGFqZSz5VoI=;
+        s=default; t=1603808291;
+        bh=5BI8wfVcoEddnD+KqpMepe7zS2o2NVVqC0QjF4j4IQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioWVMA4HzzyHX0GrvgdbEQaUT5sNeVFwmdGonar7bmAdJV6CS1bvkDZk3Il8dHTZF
-         s0WGQLB+6CXjqHYB6cbbMY19Yk5UAT8yvQuSA5zG7X71N3tUsXeJ/9Nwd1qPyP3M7E
-         9Pn1juhVMjj/nQ7wkztsAPjFF/1L5Ksv+BUamtJk=
+        b=10S4IAVggLncvLymRtgviMoLIF2q7+B1zsURCWvXfL0ClXK94sG6SUQixmFrI80/b
+         hH4Itl/hSwSELWuIZzEfsOQiHMNhC2c6L0viZF90o7d1Xw9MHb+/xZUo4dyf9abMoj
+         otxZtBmt+aNstZKAlGVOKYgwBEJl5uPuwz0I7QKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Tero Kristo <t-kristo@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/264] EDAC/ti: Fix handling of platform_get_irq() error
-Date:   Tue, 27 Oct 2020 14:51:32 +0100
-Message-Id: <20201027135432.261879287@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Salter <msalter@redhat.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 036/264] drivers/perf: xgene_pmu: Fix uninitialized resource struct
+Date:   Tue, 27 Oct 2020 14:51:34 +0100
+Message-Id: <20201027135432.359121277@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,40 +42,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Mark Salter <msalter@redhat.com>
 
-[ Upstream commit 66077adb70a2a9e92540155b2ace33ec98299c90 ]
+[ Upstream commit a76b8236edcf5b785d044b930f9e14ad02b4a484 ]
 
-platform_get_irq() returns a negative error number on error. In such a
-case, comparison to 0 would pass the check therefore check the return
-value properly, whether it is negative.
+This splat was reported on newer Fedora kernels booting on certain
+X-gene based machines:
 
- [ bp: Massage commit message. ]
+ xgene-pmu APMC0D83:00: X-Gene PMU version 3
+ Unable to handle kernel read from unreadable memory at virtual \
+ address 0000000000004006
+ ...
+ Call trace:
+  string+0x50/0x100
+  vsnprintf+0x160/0x750
+  devm_kvasprintf+0x5c/0xb4
+  devm_kasprintf+0x54/0x60
+  __devm_ioremap_resource+0xdc/0x1a0
+  devm_ioremap_resource+0x14/0x20
+  acpi_get_pmu_hw_inf.isra.0+0x84/0x15c
+  acpi_pmu_dev_add+0xbc/0x21c
+  acpi_ns_walk_namespace+0x16c/0x1e4
+  acpi_walk_namespace+0xb4/0xfc
+  xgene_pmu_probe_pmu_dev+0x7c/0xe0
+  xgene_pmu_probe.part.0+0x2c0/0x310
+  xgene_pmu_probe+0x54/0x64
+  platform_drv_probe+0x60/0xb4
+  really_probe+0xe8/0x4a0
+  driver_probe_device+0xe4/0x100
+  device_driver_attach+0xcc/0xd4
+  __driver_attach+0xb0/0x17c
+  bus_for_each_dev+0x6c/0xb0
+  driver_attach+0x30/0x40
+  bus_add_driver+0x154/0x250
+  driver_register+0x84/0x140
+  __platform_driver_register+0x54/0x60
+  xgene_pmu_driver_init+0x28/0x34
+  do_one_initcall+0x40/0x204
+  do_initcalls+0x104/0x144
+  kernel_init_freeable+0x198/0x210
+  kernel_init+0x20/0x12c
+  ret_from_fork+0x10/0x18
+ Code: 91000400 110004e1 eb08009f 540000c0 (38646846)
+ ---[ end trace f08c10566496a703 ]---
 
-Fixes: 86a18ee21e5e ("EDAC, ti: Add support for TI keystone and DRA7xx EDAC")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lkml.kernel.org/r/20200827070743.26628-2-krzk@kernel.org
+This is due to use of an uninitialized local resource struct in the xgene
+pmu driver. The thunderx2_pmu driver avoids this by using the resource list
+constructed by acpi_dev_get_resources() rather than using a callback from
+that function. The callback in the xgene driver didn't fully initialize
+the resource. So get rid of the callback and search the resource list as
+done by thunderx2.
+
+Fixes: 832c927d119b ("perf: xgene: Add APM X-Gene SoC Performance Monitoring Unit driver")
+Signed-off-by: Mark Salter <msalter@redhat.com>
+Link: https://lore.kernel.org/r/20200915204110.326138-1-msalter@redhat.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ti_edac.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/perf/xgene_pmu.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
-index 6ac26d1b929f0..3247689467435 100644
---- a/drivers/edac/ti_edac.c
-+++ b/drivers/edac/ti_edac.c
-@@ -278,7 +278,8 @@ static int ti_edac_probe(struct platform_device *pdev)
+diff --git a/drivers/perf/xgene_pmu.c b/drivers/perf/xgene_pmu.c
+index 0e31f1392a53c..949b07e29c06b 100644
+--- a/drivers/perf/xgene_pmu.c
++++ b/drivers/perf/xgene_pmu.c
+@@ -1474,17 +1474,6 @@ static char *xgene_pmu_dev_name(struct device *dev, u32 type, int id)
+ }
  
- 	/* add EMIF ECC error handler */
- 	error_irq = platform_get_irq(pdev, 0);
--	if (!error_irq) {
-+	if (error_irq < 0) {
-+		ret = error_irq;
- 		edac_printk(KERN_ERR, EDAC_MOD_NAME,
- 			    "EMIF irq number not defined.\n");
- 		goto err;
+ #if defined(CONFIG_ACPI)
+-static int acpi_pmu_dev_add_resource(struct acpi_resource *ares, void *data)
+-{
+-	struct resource *res = data;
+-
+-	if (ares->type == ACPI_RESOURCE_TYPE_FIXED_MEMORY32)
+-		acpi_dev_resource_memory(ares, res);
+-
+-	/* Always tell the ACPI core to skip this resource */
+-	return 1;
+-}
+-
+ static struct
+ xgene_pmu_dev_ctx *acpi_get_pmu_hw_inf(struct xgene_pmu *xgene_pmu,
+ 				       struct acpi_device *adev, u32 type)
+@@ -1496,6 +1485,7 @@ xgene_pmu_dev_ctx *acpi_get_pmu_hw_inf(struct xgene_pmu *xgene_pmu,
+ 	struct hw_pmu_info *inf;
+ 	void __iomem *dev_csr;
+ 	struct resource res;
++	struct resource_entry *rentry;
+ 	int enable_bit;
+ 	int rc;
+ 
+@@ -1504,11 +1494,23 @@ xgene_pmu_dev_ctx *acpi_get_pmu_hw_inf(struct xgene_pmu *xgene_pmu,
+ 		return NULL;
+ 
+ 	INIT_LIST_HEAD(&resource_list);
+-	rc = acpi_dev_get_resources(adev, &resource_list,
+-				    acpi_pmu_dev_add_resource, &res);
++	rc = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
++	if (rc <= 0) {
++		dev_err(dev, "PMU type %d: No resources found\n", type);
++		return NULL;
++	}
++
++	list_for_each_entry(rentry, &resource_list, node) {
++		if (resource_type(rentry->res) == IORESOURCE_MEM) {
++			res = *rentry->res;
++			rentry = NULL;
++			break;
++		}
++	}
+ 	acpi_dev_free_resource_list(&resource_list);
+-	if (rc < 0) {
+-		dev_err(dev, "PMU type %d: No resource address found\n", type);
++
++	if (rentry) {
++		dev_err(dev, "PMU type %d: No memory resource found\n", type);
+ 		return NULL;
+ 	}
+ 
 -- 
 2.25.1
 
