@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1294929B279
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A5E29B267
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762218AbgJ0Olb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40840 "EHLO mail.kernel.org"
+        id S1762127AbgJ0Ok6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2899181AbgJ0Ol2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:41:28 -0400
+        id S1761579AbgJ0OkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:40:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5195206B2;
-        Tue, 27 Oct 2020 14:41:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72ADA207BB;
+        Tue, 27 Oct 2020 14:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809688;
-        bh=6iNgf1jOVE5Jgq3YA/ekXFTlsyVoU1AiArcDjjJpnNg=;
+        s=default; t=1603809603;
+        bh=7FQEsk05nrktPxevnQuGLlkEVqLXai2JYnx/z19yd3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npjGJsxHg06ON55uLns2bk3lSeIZ9dBga1Qbv2bv6xmhKSmN1OW/lnlJ3tVNN5hzJ
-         3PPkut1WZ9mE5FvU5Z83fYIKJheD7tZLe8ZcrfEHssfLblFEJufuENZBOTaT6VLDZr
-         PP51xzNKi8jLEhI0kFU4FCw2RrRWxtefQCGptfgA=
+        b=Gx2rkqkVc2mq6XUPhSz0gPtZW69In8xWf/9asq6lJDaQwIxqiD5Kp8HSRgTWrNcRx
+         64uAimf9vAGbtfv0OzvPGF+turV0rTF/VXzVc0NYkKQHd3a1W/AVhzqazTA0gXihCO
+         a6MZ45xD7d+eyZNcb7NeNXMd1vBdGFM5K17dR8ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Tobias Jordan <kernel@cdqe.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 253/408] RDMA/rxe: Handle skb_clone() failure in rxe_recv.c
-Date:   Tue, 27 Oct 2020 14:53:11 +0100
-Message-Id: <20201027135506.775858094@linuxfoundation.org>
+Subject: [PATCH 5.4 255/408] lib/crc32.c: fix trivial typo in preprocessor condition
+Date:   Tue, 27 Oct 2020 14:53:13 +0100
+Message-Id: <20201027135506.872244534@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,41 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Tobias Jordan <kernel@cdqe.de>
 
-[ Upstream commit 71abf20b28ff87fee6951ec2218d5ce7969c4e87 ]
+[ Upstream commit 904542dc56524f921a6bab0639ff6249c01e775f ]
 
-If skb_clone() is unable to allocate memory for a new sk_buff this is not
-detected by the current code.
+Whether crc32_be needs a lookup table is chosen based on CRC_LE_BITS.
+Obviously, the _be function should be governed by the _BE_ define.
 
-Check for a NULL return and continue. This is similar to other errors in
-this loop over QPs attached to the multicast address and consistent with
-the unreliable UD transport.
+This probably never pops up as it's hard to come up with a configuration
+where CRC_BE_BITS isn't the same as CRC_LE_BITS and as nobody is using
+bitwise CRC anyway.
 
-Fixes: e7ec96fc7932f ("RDMA/rxe: Fix skb lifetime in rxe_rcv_mcast_pkt()")
-Addresses-Coverity-ID: 1497804: Null pointer dereferences (NULL_RETURNS)
-Link: https://lore.kernel.org/r/20201013184236.5231-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 46c5801eaf86 ("crc32: bolt on crc32c")
+Signed-off-by: Tobias Jordan <kernel@cdqe.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lkml.kernel.org/r/20200923182122.GA3338@agrajag.zerfleddert.de
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ lib/crc32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index be6416a982c70..9bfb98056fc2a 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -319,6 +319,9 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
- 		else
- 			per_qp_skb = skb;
+diff --git a/lib/crc32.c b/lib/crc32.c
+index 4a20455d1f61e..bf60ef26a45c2 100644
+--- a/lib/crc32.c
++++ b/lib/crc32.c
+@@ -331,7 +331,7 @@ static inline u32 __pure crc32_be_generic(u32 crc, unsigned char const *p,
+ 	return crc;
+ }
  
-+		if (unlikely(!per_qp_skb))
-+			continue;
-+
- 		per_qp_pkt = SKB_TO_PKT(per_qp_skb);
- 		per_qp_pkt->qp = qp;
- 		rxe_add_ref(qp);
+-#if CRC_LE_BITS == 1
++#if CRC_BE_BITS == 1
+ u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
+ {
+ 	return crc32_be_generic(crc, p, len, NULL, CRC32_POLY_BE);
 -- 
 2.25.1
 
