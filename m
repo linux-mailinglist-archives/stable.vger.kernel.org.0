@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B2C29C6A5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BDDC29C72C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827148AbgJ0SVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
+        id S368175AbgJ0N5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:57:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437164AbgJ0OCW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:02:22 -0400
+        id S368170AbgJ0N5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:57:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD19F221F8;
-        Tue, 27 Oct 2020 14:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D95AF21D41;
+        Tue, 27 Oct 2020 13:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807342;
-        bh=21qaHhpW/Wwa7qW3sCqRpKHvcl5k0Y7T1+5VsKaCf/g=;
+        s=default; t=1603807037;
+        bh=uN2CxSEDCzGGU6nQ+FvZW9OEUbApARxwXfnsiQR00ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3QS+YsafKBHekUOFUfUsqCrkIORUUo4mVJf/3dXFpxwkJ+c5P5LEIpWeq/Se34/w
-         AORuRCmfB/GySm9PvTrWlJIlBySDW5wEIv7vxSXcU/pvi0c++dKWlJqkz2Mk2KukAP
-         WXL7M5chtYmsGipfqgCwPpYy2UkxJpstTPgPts4U=
+        b=BkiFCeGJvjdTpudrfNpmQBw275wgjz1hss8WfIci/c0R5sBW89BlpgO37FzCMEvcQ
+         3ZjvaF2y9sAvXrwn64G+LJMXHYrK52/G6dnxCoO6UiWV1Ce+oJaXMzLbbQAJYjYRUG
+         CfZp8H9L6U8HZxyZNFtXJOUR11K7DztkECW7Rkm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 018/139] media: m5mols: Check function pointer in m5mols_sensor_power
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 002/112] tipc: fix the skb_unshare() in tipc_buf_append()
 Date:   Tue, 27 Oct 2020 14:48:32 +0100
-Message-Id: <20201027134903.003094307@linuxfoundation.org>
+Message-Id: <20201027134900.654163019@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 52438c4463ac904d14bf3496765e67750766f3a6 ]
+[ Upstream commit ed42989eab57d619667d7e87dfbd8fe207db54fe ]
 
-clang static analysis reports this error
+skb_unshare() drops a reference count on the old skb unconditionally,
+so in the failure case, we end up freeing the skb twice here.
+And because the skb is allocated in fclone and cloned by caller
+tipc_msg_reassemble(), the consequence is actually freeing the
+original skb too, thus triggered the UAF by syzbot.
 
-m5mols_core.c:767:4: warning: Called function pointer
-  is null (null dereference) [core.CallAndMessage]
-    info->set_power(&client->dev, 0);
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fix this by replacing this skb_unshare() with skb_cloned()+skb_copy().
 
-In other places, the set_power ptr is checked.
-So add a check.
-
-Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ff48b6222e65 ("tipc: use skb_unshare() instead in tipc_buf_append()")
+Reported-and-tested-by: syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/m5mols/m5mols_core.c | 3 ++-
+ net/tipc/msg.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
-index acb804bceccbc..e1736777e6ccb 100644
---- a/drivers/media/i2c/m5mols/m5mols_core.c
-+++ b/drivers/media/i2c/m5mols/m5mols_core.c
-@@ -754,7 +754,8 @@ static int m5mols_sensor_power(struct m5mols_info *info, bool enable)
- 
- 		ret = regulator_bulk_enable(ARRAY_SIZE(supplies), supplies);
- 		if (ret) {
--			info->set_power(&client->dev, 0);
-+			if (info->set_power)
-+				info->set_power(&client->dev, 0);
- 			return ret;
- 		}
- 
--- 
-2.25.1
-
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -138,7 +138,8 @@ int tipc_buf_append(struct sk_buff **hea
+ 	if (fragid == FIRST_FRAGMENT) {
+ 		if (unlikely(head))
+ 			goto err;
+-		frag = skb_unshare(frag, GFP_ATOMIC);
++		if (skb_cloned(frag))
++			frag = skb_copy(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
 
 
