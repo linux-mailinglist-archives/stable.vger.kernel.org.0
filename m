@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A71AD29AFBF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0637D29AFC2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2507386AbgJ0OMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59648 "EHLO mail.kernel.org"
+        id S2900876AbgJ0OMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:12:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755905AbgJ0OKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:52 -0400
+        id S1755981AbgJ0OKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:10:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A319D218AC;
-        Tue, 27 Oct 2020 14:10:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59C4D2072D;
+        Tue, 27 Oct 2020 14:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807851;
-        bh=hVObMkP4w4Evwr+FFTtiTi63sgwcJ8Cg+PrCq/AqQto=;
+        s=default; t=1603807854;
+        bh=hhoxEyIEZZvefeQxJwP97kWrbU1FsUOEFaAp6bXSetI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LswAHEYf8lFfe6ZssPtYt7gLNaz0dnyvM9CjdwYcIBu4aS93IOcbWGHNGiQbSj0/X
-         bqkz9EDIoubK5s/ks/buzbUBF+naM90aIaPwCKHZFn/Ic5xBZRjzKYYlKp/zLRWxsb
-         gyc6qksrRas79SKkxexZlk+/fkpwRM87FZuvlLNw=
+        b=Qhe4NuAT/SftHdjiMkPWs7gvr7osKQ3pkIt1R4r76M+oq8es8Q/bnwI2Hfyg3XeqQ
+         14RE9EFi6SCCCUl3RAXv8QN1LePr5KwGk4HmGCt/q1z6zOrX9XjBip9v3578Qi7PHp
+         jb+TGSCxkLi3YRuVsntGgk4AMXGl5x9VNYCRRd2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 063/191] HID: roccat: add bounds checking in kone_sysfs_write_settings()
-Date:   Tue, 27 Oct 2020 14:48:38 +0100
-Message-Id: <20201027134912.765283233@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thomas Preston <thomas.preston@codethink.co.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 064/191] pinctrl: mcp23s08: Fix mcp23x17_regmap initialiser
+Date:   Tue, 27 Oct 2020 14:48:39 +0100
+Message-Id: <20201027134912.814390967@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -42,76 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thomas Preston <thomas.preston@codethink.co.uk>
 
-[ Upstream commit d4f98dbfe717490e771b6e701904bfcf4b4557f0 ]
+[ Upstream commit b445f6237744df5e8d4f56f8733b2108c611220a ]
 
-This code doesn't check if "settings->startup_profile" is within bounds
-and that could result in an out of bounds array access.  What the code
-does do is it checks if the settings can be written to the firmware, so
-it's possible that the firmware has a bounds check?  It's safer and
-easier to verify when the bounds checking is done in the kernel.
+The mcp23x17_regmap is initialised with structs named "mcp23x16".
+However, the mcp23s08 driver doesn't support the MCP23016 device yet, so
+this appears to be a typo.
 
-Fixes: 14bf62cde794 ("HID: add driver for Roccat Kone gaming mouse")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 8f38910ba4f6 ("pinctrl: mcp23s08: switch to regmap caching")
+Signed-off-by: Thomas Preston <thomas.preston@codethink.co.uk>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20200828213226.1734264-2-thomas.preston@codethink.co.uk
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-roccat-kone.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/pinctrl/pinctrl-mcp23s08.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index bf4675a273965..9be8c31f613fd 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -297,31 +297,40 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
- 	int retval = 0, difference, old_profile;
-+	struct kone_settings *settings = (struct kone_settings *)buf;
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
+index 22558bf294246..12e7f7c54ffaa 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -119,7 +119,7 @@ static const struct regmap_config mcp23x08_regmap = {
+ 	.max_register = MCP_OLAT,
+ };
  
- 	/* I need to get my data in one piece */
- 	if (off != 0 || count != sizeof(struct kone_settings))
- 		return -EINVAL;
+-static const struct reg_default mcp23x16_defaults[] = {
++static const struct reg_default mcp23x17_defaults[] = {
+ 	{.reg = MCP_IODIR << 1,		.def = 0xffff},
+ 	{.reg = MCP_IPOL << 1,		.def = 0x0000},
+ 	{.reg = MCP_GPINTEN << 1,	.def = 0x0000},
+@@ -130,23 +130,23 @@ static const struct reg_default mcp23x16_defaults[] = {
+ 	{.reg = MCP_OLAT << 1,		.def = 0x0000},
+ };
  
- 	mutex_lock(&kone->kone_lock);
--	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
-+	difference = memcmp(settings, &kone->settings,
-+			    sizeof(struct kone_settings));
- 	if (difference) {
--		retval = kone_set_settings(usb_dev,
--				(struct kone_settings const *)buf);
--		if (retval) {
--			mutex_unlock(&kone->kone_lock);
--			return retval;
-+		if (settings->startup_profile < 1 ||
-+		    settings->startup_profile > 5) {
-+			retval = -EINVAL;
-+			goto unlock;
- 		}
+-static const struct regmap_range mcp23x16_volatile_range = {
++static const struct regmap_range mcp23x17_volatile_range = {
+ 	.range_min = MCP_INTF << 1,
+ 	.range_max = MCP_GPIO << 1,
+ };
  
-+		retval = kone_set_settings(usb_dev, settings);
-+		if (retval)
-+			goto unlock;
-+
- 		old_profile = kone->settings.startup_profile;
--		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
-+		memcpy(&kone->settings, settings, sizeof(struct kone_settings));
+-static const struct regmap_access_table mcp23x16_volatile_table = {
+-	.yes_ranges = &mcp23x16_volatile_range,
++static const struct regmap_access_table mcp23x17_volatile_table = {
++	.yes_ranges = &mcp23x17_volatile_range,
+ 	.n_yes_ranges = 1,
+ };
  
- 		kone_profile_activated(kone, kone->settings.startup_profile);
+-static const struct regmap_range mcp23x16_precious_range = {
++static const struct regmap_range mcp23x17_precious_range = {
+ 	.range_min = MCP_GPIO << 1,
+ 	.range_max = MCP_GPIO << 1,
+ };
  
- 		if (kone->settings.startup_profile != old_profile)
- 			kone_profile_report(kone, kone->settings.startup_profile);
- 	}
-+unlock:
- 	mutex_unlock(&kone->kone_lock);
+-static const struct regmap_access_table mcp23x16_precious_table = {
+-	.yes_ranges = &mcp23x16_precious_range,
++static const struct regmap_access_table mcp23x17_precious_table = {
++	.yes_ranges = &mcp23x17_precious_range,
+ 	.n_yes_ranges = 1,
+ };
  
-+	if (retval)
-+		return retval;
-+
- 	return sizeof(struct kone_settings);
- }
- static BIN_ATTR(settings, 0660, kone_sysfs_read_settings,
+@@ -156,10 +156,10 @@ static const struct regmap_config mcp23x17_regmap = {
+ 
+ 	.reg_stride = 2,
+ 	.max_register = MCP_OLAT << 1,
+-	.volatile_table = &mcp23x16_volatile_table,
+-	.precious_table = &mcp23x16_precious_table,
+-	.reg_defaults = mcp23x16_defaults,
+-	.num_reg_defaults = ARRAY_SIZE(mcp23x16_defaults),
++	.volatile_table = &mcp23x17_volatile_table,
++	.precious_table = &mcp23x17_precious_table,
++	.reg_defaults = mcp23x17_defaults,
++	.num_reg_defaults = ARRAY_SIZE(mcp23x17_defaults),
+ 	.cache_type = REGCACHE_FLAT,
+ 	.val_format_endian = REGMAP_ENDIAN_LITTLE,
+ };
 -- 
 2.25.1
 
