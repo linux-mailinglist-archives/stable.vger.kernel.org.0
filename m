@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 380EE29C21A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F0929C1F2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762362AbgJ0Rbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40588 "EHLO mail.kernel.org"
+        id S1762234AbgJ0Ole (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762197AbgJ0Ol0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:41:26 -0400
+        id S1762224AbgJ0Old (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:41:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C52BA207BB;
-        Tue, 27 Oct 2020 14:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DFDA21D7B;
+        Tue, 27 Oct 2020 14:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809685;
-        bh=cXy6+26ePzReBMf/5wBOpAdSF2gtRECGNpeHu9LTGDk=;
+        s=default; t=1603809691;
+        bh=tIhuQwH7xnw1zH6uRoc74A1CX0+jdIg+BwCUhy5SXLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRS1IJ3TLarTWj066qXrNSl5/0Bz/zCGMvwWVtmR638gO3nwzQlaIxcNzpCqrJNQb
-         4oaMNHKx1rmRAr3If68ARZdSCzNQZTs5fL0TrUM4+n/Yp3jjY7qJIihZlBFpgjmy9w
-         HE9vmrehGaesc/q7KE1F9Jje4j5T54mgmLInEsR4=
+        b=0jF6j9y60bt/q0eqbskQnG8t4lgBW84V63QLeDp3T6Lc29oegz/iyjarFtNiv4z92
+         7CsgZuPx/l+FQ0PG86mRwQebOCbs536ZDoQB/PSmb0T/gAuGRrxbgmnRDzXWfDdH1h
+         UxXOkTLpWMzkBPknsS0+tpWTPXrvNTa0yArP8fWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Chao Yu <chao@kernel.org>, Jamie Iles <jamie@nuviainc.com>,
-        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 252/408] f2fs: wait for sysfs kobject removal before freeing f2fs_sb_info
-Date:   Tue, 27 Oct 2020 14:53:10 +0100
-Message-Id: <20201027135506.734206214@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        SeongJae Park <sjpark@amazon.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 254/408] mm/page_owner: change split_page_owner to take a count
+Date:   Tue, 27 Oct 2020 14:53:12 +0100
+Message-Id: <20201027135506.824352608@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -43,76 +48,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <jamie@nuviainc.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit ae284d87abade58c8db7760c808f311ef1ce693c ]
+[ Upstream commit 8fb156c9ee2db94f7127c930c89917634a1a9f56 ]
 
-syzkaller found that with CONFIG_DEBUG_KOBJECT_RELEASE=y, unmounting an
-f2fs filesystem could result in the following splat:
+The implementation of split_page_owner() prefers a count rather than the
+old order of the page.  When we support a variable size THP, we won't
+have the order at this point, but we will have the number of pages.
+So change the interface to what the caller and callee would prefer.
 
-  kobject: 'loop5' ((____ptrval____)): kobject_release, parent 0000000000000000 (delayed 250)
-  kobject: 'f2fs_xattr_entry-7:5' ((____ptrval____)): kobject_release, parent 0000000000000000 (delayed 750)
-  ------------[ cut here ]------------
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x98
-  WARNING: CPU: 0 PID: 699 at lib/debugobjects.c:485 debug_print_object+0x180/0x240
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 0 PID: 699 Comm: syz-executor.5 Tainted: G S                5.9.0-rc8+ #101
-  Hardware name: linux,dummy-virt (DT)
-  Call trace:
-   dump_backtrace+0x0/0x4d8
-   show_stack+0x34/0x48
-   dump_stack+0x174/0x1f8
-   panic+0x360/0x7a0
-   __warn+0x244/0x2ec
-   report_bug+0x240/0x398
-   bug_handler+0x50/0xc0
-   call_break_hook+0x160/0x1d8
-   brk_handler+0x30/0xc0
-   do_debug_exception+0x184/0x340
-   el1_dbg+0x48/0xb0
-   el1_sync_handler+0x170/0x1c8
-   el1_sync+0x80/0x100
-   debug_print_object+0x180/0x240
-   debug_check_no_obj_freed+0x200/0x430
-   slab_free_freelist_hook+0x190/0x210
-   kfree+0x13c/0x460
-   f2fs_put_super+0x624/0xa58
-   generic_shutdown_super+0x120/0x300
-   kill_block_super+0x94/0xf8
-   kill_f2fs_super+0x244/0x308
-   deactivate_locked_super+0x104/0x150
-   deactivate_super+0x118/0x148
-   cleanup_mnt+0x27c/0x3c0
-   __cleanup_mnt+0x28/0x38
-   task_work_run+0x10c/0x248
-   do_notify_resume+0x9d4/0x1188
-   work_pending+0x8/0x34c
-
-Like the error handling for f2fs_register_sysfs(), we need to wait for
-the kobject to be destroyed before returning to prevent a potential
-use-after-free.
-
-Fixes: bf9e697ecd42 ("f2fs: expose features to sysfs entry")
-Cc: Jaegeuk Kim <jaegeuk@kernel.org>
-Cc: Chao Yu <chao@kernel.org>
-Signed-off-by: Jamie Iles <jamie@nuviainc.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: SeongJae Park <sjpark@amazon.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Link: https://lkml.kernel.org/r/20200908195539.25896-4-willy@infradead.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/page_owner.h | 6 +++---
+ mm/huge_memory.c           | 2 +-
+ mm/page_alloc.c            | 2 +-
+ mm/page_owner.c            | 4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index 170934430d7d7..029e693e201cf 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -788,4 +788,5 @@ void f2fs_unregister_sysfs(struct f2fs_sb_info *sbi)
- 	}
- 	kobject_del(&sbi->s_kobj);
- 	kobject_put(&sbi->s_kobj);
-+	wait_for_completion(&sbi->s_kobj_unregister);
+diff --git a/include/linux/page_owner.h b/include/linux/page_owner.h
+index 8679ccd722e89..3468794f83d23 100644
+--- a/include/linux/page_owner.h
++++ b/include/linux/page_owner.h
+@@ -11,7 +11,7 @@ extern struct page_ext_operations page_owner_ops;
+ extern void __reset_page_owner(struct page *page, unsigned int order);
+ extern void __set_page_owner(struct page *page,
+ 			unsigned int order, gfp_t gfp_mask);
+-extern void __split_page_owner(struct page *page, unsigned int order);
++extern void __split_page_owner(struct page *page, unsigned int nr);
+ extern void __copy_page_owner(struct page *oldpage, struct page *newpage);
+ extern void __set_page_owner_migrate_reason(struct page *page, int reason);
+ extern void __dump_page_owner(struct page *page);
+@@ -31,10 +31,10 @@ static inline void set_page_owner(struct page *page,
+ 		__set_page_owner(page, order, gfp_mask);
  }
+ 
+-static inline void split_page_owner(struct page *page, unsigned int order)
++static inline void split_page_owner(struct page *page, unsigned int nr)
+ {
+ 	if (static_branch_unlikely(&page_owner_inited))
+-		__split_page_owner(page, order);
++		__split_page_owner(page, nr);
+ }
+ static inline void copy_page_owner(struct page *oldpage, struct page *newpage)
+ {
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 873de55d93fb2..9295d9d70681e 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2569,7 +2569,7 @@ static void __split_huge_page(struct page *page, struct list_head *list,
+ 
+ 	ClearPageCompound(head);
+ 
+-	split_page_owner(head, HPAGE_PMD_ORDER);
++	split_page_owner(head, HPAGE_PMD_NR);
+ 
+ 	/* See comment in __split_huge_page_tail() */
+ 	if (PageAnon(head)) {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 2640f67410044..c20e664866c33 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3130,7 +3130,7 @@ void split_page(struct page *page, unsigned int order)
+ 
+ 	for (i = 1; i < (1 << order); i++)
+ 		set_page_refcounted(page + i);
+-	split_page_owner(page, order);
++	split_page_owner(page, 1 << order);
+ }
+ EXPORT_SYMBOL_GPL(split_page);
+ 
+diff --git a/mm/page_owner.c b/mm/page_owner.c
+index 18ecde9f45b24..83d08943bcdee 100644
+--- a/mm/page_owner.c
++++ b/mm/page_owner.c
+@@ -204,7 +204,7 @@ void __set_page_owner_migrate_reason(struct page *page, int reason)
+ 	page_owner->last_migrate_reason = reason;
+ }
+ 
+-void __split_page_owner(struct page *page, unsigned int order)
++void __split_page_owner(struct page *page, unsigned int nr)
+ {
+ 	int i;
+ 	struct page_ext *page_ext = lookup_page_ext(page);
+@@ -213,7 +213,7 @@ void __split_page_owner(struct page *page, unsigned int order)
+ 	if (unlikely(!page_ext))
+ 		return;
+ 
+-	for (i = 0; i < (1 << order); i++) {
++	for (i = 0; i < nr; i++) {
+ 		page_owner = get_page_owner(page_ext);
+ 		page_owner->order = 0;
+ 		page_ext = page_ext_next(page_ext);
 -- 
 2.25.1
 
