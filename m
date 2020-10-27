@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A938329B3C9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91E1F29B3CB
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1744137AbgJ0OzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:55:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
+        id S1752417AbgJ0OzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1775683AbgJ0OxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:53:05 -0400
+        id S1775997AbgJ0OxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:53:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22D062071A;
-        Tue, 27 Oct 2020 14:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D92C2225E;
+        Tue, 27 Oct 2020 14:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810384;
-        bh=WsO/3xgdooEX+IcSNZnLCeDHoNnU47gv7/UoTyrRZSk=;
+        s=default; t=1603810399;
+        bh=/MpkjtwbIeJqfHde6uoQ+qIVHoHiphfOXqQaZX7nSp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Li3gr4+5rrhYJfS64kjiDgmjhybLgiBJG7xi0G83nKfmsjHI/j7bxrqnzJ48nB06c
-         Q/qqBhCMJ4AxzxJCMJr+gDE5ECC/jnwE/w+BWoAIm0WEAbA5o9ViUlDDeEjYQjF53S
-         J1JA08YKKcDVn1L1rGuxFfTDfa1vLEirRmlxRtnk=
+        b=c3J/eYYnmjKBQ+L3VhUeR752f19R2Rf94MUThFSjo6H8c1v7Cez8N89t5DVWd3rcU
+         4FX+GVKUNcAu3Q1gFM4im92ue6bbCY6KkhoSdD7Zz812w9VzCEg5MRdZArFqRECLwe
+         FnPX/n7vTgBEvBr8Me4xK+f1jS998wWMeT6VjWqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Brad Bishop <bradleyb@fuzziesquirrel.com>,
+        Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 121/633] media: i2c: ov5640: Enable data pins on poweron for DVP mode
-Date:   Tue, 27 Oct 2020 14:47:44 +0100
-Message-Id: <20201027135528.380122412@linuxfoundation.org>
+Subject: [PATCH 5.8 126/633] spi: fsi: Fix use of the bneq+ sequencer instruction
+Date:   Tue, 27 Oct 2020 14:47:49 +0100
+Message-Id: <20201027135528.610555087@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -47,139 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Brad Bishop <bradleyb@fuzziesquirrel.com>
 
-[ Upstream commit 576f5d4ba8f672953513280510abf9a736b015cc ]
+[ Upstream commit 7909eebb2bea7fdbb2de0aa794cf29843761ed5b ]
 
-During testing this sensor on iW-RainboW-G21D-Qseven platform in 8-bit DVP
-mode with rcar-vin bridge noticed the capture worked fine for the first run
-(with yavta), but for subsequent runs the bridge driver waited for the
-frame to be captured. Debugging further noticed the data lines were
-enabled/disabled in stream on/off callback and dumping the register
-contents 0x3017/0x3018 in ov5640_set_stream_dvp() reported the correct
-values, but yet frame capturing failed.
+All of the switches in N2_count_control in the counter configuration are
+required to make the branch if not equal and increment command work.
+Set them when using bneq+.
 
-To get around this issue data lines are enabled in s_power callback.
-(Also the sensor remains in power down mode if not streaming so power
-consumption shouldn't be affected)
+A side effect of this mode requires a dummy write to TDR when both
+transmitting and receiving otherwise the controller won't start shifting
+receive data.
 
-Fixes: f22996db44e2d ("media: ov5640: add support of DVP parallel interface")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Tested-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+It is likely not possible to avoid TDR underrun errors in this mode and
+they are harmless, so do not check for them.
+
+Fixes: bbb6b2f9865b ("spi: Add FSI-attached SPI controller driver")
+Signed-off-by: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20200909222857.28653-4-eajames@linux.ibm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 73 +++++++++++++++++++++-----------------
- 1 file changed, 40 insertions(+), 33 deletions(-)
+ drivers/spi/spi-fsi.c | 28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 90db5443c4248..3a4268aa5f023 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -276,8 +276,7 @@ static inline struct v4l2_subdev *ctrl_to_sd(struct v4l2_ctrl *ctrl)
- /* YUV422 UYVY VGA@30fps */
- static const struct reg_value ov5640_init_setting_30fps_VGA[] = {
- 	{0x3103, 0x11, 0, 0}, {0x3008, 0x82, 0, 5}, {0x3008, 0x42, 0, 0},
--	{0x3103, 0x03, 0, 0}, {0x3017, 0x00, 0, 0}, {0x3018, 0x00, 0, 0},
--	{0x3630, 0x36, 0, 0},
-+	{0x3103, 0x03, 0, 0}, {0x3630, 0x36, 0, 0},
- 	{0x3631, 0x0e, 0, 0}, {0x3632, 0xe2, 0, 0}, {0x3633, 0x12, 0, 0},
- 	{0x3621, 0xe0, 0, 0}, {0x3704, 0xa0, 0, 0}, {0x3703, 0x5a, 0, 0},
- 	{0x3715, 0x78, 0, 0}, {0x3717, 0x01, 0, 0}, {0x370b, 0x60, 0, 0},
-@@ -1283,33 +1282,6 @@ static int ov5640_set_stream_dvp(struct ov5640_dev *sensor, bool on)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
+index 8f64af0140e09..bb18b407cdcf3 100644
+--- a/drivers/spi/spi-fsi.c
++++ b/drivers/spi/spi-fsi.c
+@@ -29,6 +29,10 @@
+ #define SPI_FSI_ERROR			0x0
+ #define SPI_FSI_COUNTER_CFG		0x1
+ #define  SPI_FSI_COUNTER_CFG_LOOPS(x)	 (((u64)(x) & 0xffULL) << 32)
++#define  SPI_FSI_COUNTER_CFG_N2_RX	 BIT_ULL(8)
++#define  SPI_FSI_COUNTER_CFG_N2_TX	 BIT_ULL(9)
++#define  SPI_FSI_COUNTER_CFG_N2_IMPLICIT BIT_ULL(10)
++#define  SPI_FSI_COUNTER_CFG_N2_RELOAD	 BIT_ULL(11)
+ #define SPI_FSI_CFG1			0x2
+ #define SPI_FSI_CLOCK_CFG		0x3
+ #define  SPI_FSI_CLOCK_CFG_MM_ENABLE	 BIT_ULL(32)
+@@ -61,7 +65,7 @@
+ #define  SPI_FSI_STATUS_RDR_OVERRUN	 BIT_ULL(62)
+ #define  SPI_FSI_STATUS_RDR_FULL	 BIT_ULL(63)
+ #define  SPI_FSI_STATUS_ANY_ERROR	 \
+-	(SPI_FSI_STATUS_ERROR | SPI_FSI_STATUS_TDR_UNDERRUN | \
++	(SPI_FSI_STATUS_ERROR | \
+ 	 SPI_FSI_STATUS_TDR_OVERRUN | SPI_FSI_STATUS_RDR_UNDERRUN | \
+ 	 SPI_FSI_STATUS_RDR_OVERRUN)
+ #define SPI_FSI_PORT_CTRL		0x9
+@@ -238,6 +242,7 @@ static int fsi_spi_sequence_transfer(struct fsi_spi *ctx,
+ 	int rc;
+ 	u8 len = min(transfer->len, 8U);
+ 	u8 rem = transfer->len % len;
++	u64 cfg = 0ULL;
  
--	/*
--	 * enable VSYNC/HREF/PCLK DVP control lines
--	 * & D[9:6] DVP data lines
--	 *
--	 * PAD OUTPUT ENABLE 01
--	 * - 6:		VSYNC output enable
--	 * - 5:		HREF output enable
--	 * - 4:		PCLK output enable
--	 * - [3:0]:	D[9:6] output enable
--	 */
--	ret = ov5640_write_reg(sensor,
--			       OV5640_REG_PAD_OUTPUT_ENABLE01,
--			       on ? 0x7f : 0);
--	if (ret)
--		return ret;
--
--	/*
--	 * enable D[5:0] DVP data lines
--	 *
--	 * PAD OUTPUT ENABLE 02
--	 * - [7:2]:	D[5:0] output enable
--	 */
--	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02,
--			       on ? 0xfc : 0);
--	if (ret)
--		return ret;
--
- 	return ov5640_write_reg(sensor, OV5640_REG_SYS_CTRL0, on ?
- 				OV5640_REG_SYS_CTRL0_SW_PWUP :
- 				OV5640_REG_SYS_CTRL0_SW_PWDN);
-@@ -2069,6 +2041,40 @@ static int ov5640_set_power_mipi(struct ov5640_dev *sensor, bool on)
- 	return 0;
- }
+ 	loops = transfer->len / len;
  
-+static int ov5640_set_power_dvp(struct ov5640_dev *sensor, bool on)
-+{
-+	int ret;
+@@ -258,8 +263,14 @@ static int fsi_spi_sequence_transfer(struct fsi_spi *ctx,
+ 	if (loops > 1) {
+ 		fsi_spi_sequence_add(seq, SPI_FSI_SEQUENCE_BRANCH(idx));
+ 
+-		rc = fsi_spi_write_reg(ctx, SPI_FSI_COUNTER_CFG,
+-				       SPI_FSI_COUNTER_CFG_LOOPS(loops - 1));
++		cfg = SPI_FSI_COUNTER_CFG_LOOPS(loops - 1);
++		if (transfer->rx_buf)
++			cfg |= SPI_FSI_COUNTER_CFG_N2_RX |
++				SPI_FSI_COUNTER_CFG_N2_TX |
++				SPI_FSI_COUNTER_CFG_N2_IMPLICIT |
++				SPI_FSI_COUNTER_CFG_N2_RELOAD;
 +
-+	if (!on) {
-+		/* Reset settings to their default values. */
-+		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x00);
-+		ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0x00);
-+		return 0;
-+	}
-+
-+	/*
-+	 * enable VSYNC/HREF/PCLK DVP control lines
-+	 * & D[9:6] DVP data lines
-+	 *
-+	 * PAD OUTPUT ENABLE 01
-+	 * - 6:		VSYNC output enable
-+	 * - 5:		HREF output enable
-+	 * - 4:		PCLK output enable
-+	 * - [3:0]:	D[9:6] output enable
-+	 */
-+	ret = ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE01, 0x7f);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * enable D[5:0] DVP data lines
-+	 *
-+	 * PAD OUTPUT ENABLE 02
-+	 * - [7:2]:	D[5:0] output enable
-+	 */
-+	return ov5640_write_reg(sensor, OV5640_REG_PAD_OUTPUT_ENABLE02, 0xfc);
-+}
-+
- static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
- {
- 	int ret = 0;
-@@ -2083,11 +2089,12 @@ static int ov5640_set_power(struct ov5640_dev *sensor, bool on)
- 			goto power_off;
++		rc = fsi_spi_write_reg(ctx, SPI_FSI_COUNTER_CFG, cfg);
+ 		if (rc)
+ 			return rc;
  	}
+@@ -275,6 +286,7 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
+ {
+ 	int rc = 0;
+ 	u64 status = 0ULL;
++	u64 cfg = 0ULL;
  
--	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
-+	if (sensor->ep.bus_type == V4L2_MBUS_CSI2_DPHY)
- 		ret = ov5640_set_power_mipi(sensor, on);
--		if (ret)
--			goto power_off;
--	}
-+	else
-+		ret = ov5640_set_power_dvp(sensor, on);
-+	if (ret)
-+		goto power_off;
+ 	if (transfer->tx_buf) {
+ 		int nb;
+@@ -312,6 +324,16 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
+ 		u64 in = 0ULL;
+ 		u8 *rx = transfer->rx_buf;
  
- 	if (!on)
- 		ov5640_set_power_off(sensor);
++		rc = fsi_spi_read_reg(ctx, SPI_FSI_COUNTER_CFG, &cfg);
++		if (rc)
++			return rc;
++
++		if (cfg & SPI_FSI_COUNTER_CFG_N2_IMPLICIT) {
++			rc = fsi_spi_write_reg(ctx, SPI_FSI_DATA_TX, 0);
++			if (rc)
++				return rc;
++		}
++
+ 		while (transfer->len > recv) {
+ 			do {
+ 				rc = fsi_spi_read_reg(ctx, SPI_FSI_STATUS,
 -- 
 2.25.1
 
