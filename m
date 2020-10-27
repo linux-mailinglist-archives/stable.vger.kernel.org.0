@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5E129B9B1
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C0D29BAEF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802729AbgJ0PvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
+        id S1802724AbgJ0PvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802173AbgJ0Ppx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:45:53 -0400
+        id S1802190AbgJ0Pp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:45:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7312822202;
-        Tue, 27 Oct 2020 15:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60AB321D42;
+        Tue, 27 Oct 2020 15:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813553;
-        bh=6mYzDgJcOvDJXh+Tmg2NuyyLlvNXj+9TQ0gkWTS9jaw=;
+        s=default; t=1603813556;
+        bh=8SNNtuzrARVvmIzrpEB5X660higLB/V4bop+H40E/jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYgo3Bjgb3za/kIMWEoAB7UuUXC/grUMsmejPzkJmbpX8gxBs2dZMki/wgIsb9BQp
-         AWNyaQusA48ABMffGbTRHnOREgvPWkOFO4xzudUDa4S5JSiPWWcmaEALiZYTmPLlzi
-         BPUO+S8kXYQGqe/jX589Zvka2749T2Mk9DBa6Z7I=
+        b=gGlkl4FgBoRFRsZn61zHsGPFP7yLUv2By+xKcq8J5aYK6aUxRHEqrLONv6xPWSfqE
+         uD6sp9lTFDb9VzJKm8G2jMUuslf5WNfcueFoFusWaERDRtLWOb3ZD+DAzcWJ1F1uIe
+         cuCtIUnFElYuq68dDGsd1mHIxkprwEzIDoj+jz8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Roger Quadros <rogerq@ti.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 591/757] memory: omap-gpmc: Fix build error without CONFIG_OF
-Date:   Tue, 27 Oct 2020 14:54:01 +0100
-Message-Id: <20201027135518.254433173@linuxfoundation.org>
+Subject: [PATCH 5.9 592/757] arm64: dts: qcom: msm8992: Fix UART interrupt property
+Date:   Tue, 27 Oct 2020 14:54:02 +0100
+Message-Id: <20201027135518.304282419@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 13d029ee51da365aa9c859db0c7395129252bde8 ]
+[ Upstream commit aa551bd7a04159cf2ca8806abe5da8012b59d058 ]
 
-If CONFIG_OF is n, gcc fails:
+"interrupt" is not a valid property.
 
-drivers/memory/omap-gpmc.o: In function `gpmc_omap_onenand_set_timings':
-    omap-gpmc.c:(.text+0x2a88): undefined reference to `gpmc_read_settings_dt'
-
-Add gpmc_read_settings_dt() helper function, which zero the gpmc_settings
-so the caller doesn't proceed with random/invalid settings.
-
-Fixes: a758f50f10cf ("mtd: onenand: omap2: Configure driver from DT")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Roger Quadros <rogerq@ti.com>
-Link: https://lore.kernel.org/r/20200827125316.20780-1-yuehaibing@huawei.com
+Fixes: 7f8bcc0c4cfe ("arm64: dts: qcom: msm8992: Add BLSP2_UART2 and I2C nodes")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200829111209.32685-1-krzk@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/omap-gpmc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8992.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/omap-gpmc.c b/drivers/memory/omap-gpmc.c
-index 1e6d6e9434c8b..057666e1b6cda 100644
---- a/drivers/memory/omap-gpmc.c
-+++ b/drivers/memory/omap-gpmc.c
-@@ -2265,6 +2265,10 @@ static void gpmc_probe_dt_children(struct platform_device *pdev)
- 	}
- }
- #else
-+void gpmc_read_settings_dt(struct device_node *np, struct gpmc_settings *p)
-+{
-+	memset(p, 0, sizeof(*p));
-+}
- static int gpmc_probe_dt(struct platform_device *pdev)
- {
- 	return 0;
+diff --git a/arch/arm64/boot/dts/qcom/msm8992.dtsi b/arch/arm64/boot/dts/qcom/msm8992.dtsi
+index 188fff2095f11..8626b3a50eda7 100644
+--- a/arch/arm64/boot/dts/qcom/msm8992.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8992.dtsi
+@@ -335,7 +335,7 @@ blsp_i2c6: i2c@f9928000 {
+ 		blsp2_uart2: serial@f995e000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0xf995e000 0x1000>;
+-			interrupt = <GIC_SPI 146 IRQ_TYPE_LEVEL_LOW>;
++			interrupts = <GIC_SPI 146 IRQ_TYPE_LEVEL_LOW>;
+ 			clock-names = "core", "iface";
+ 			clocks = <&gcc GCC_BLSP2_UART2_APPS_CLK>,
+ 				<&gcc GCC_BLSP2_AHB_CLK>;
 -- 
 2.25.1
 
