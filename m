@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D9829B700
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 955FC29B70D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798523AbgJ0P2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35494 "EHLO mail.kernel.org"
+        id S1798556AbgJ0P24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796987AbgJ0PU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:58 -0400
+        id S1796774AbgJ0PTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:19:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 437A12064B;
-        Tue, 27 Oct 2020 15:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A8B020728;
+        Tue, 27 Oct 2020 15:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812058;
-        bh=bYNbhbqM39yeoVrh7stHZh+bz3NNfwEA99baQdTdKyQ=;
+        s=default; t=1603811991;
+        bh=jvgays3a90RPfEgOKFLjXhqJ2FEh1p8PbKohW/LEUP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcTtiVEkNOkxwvNBXSnaJdwjS4/pY0oE5zCnBtDGStSY7mUf8V0LEphwiS568eTos
-         k007vhmy6nXP7cFJ9c/1tyn/hMltI7D61VyG/QqD90V7tMe56wtOYvx/gZHzB0I/eA
-         xEecuAVfTdCjLZJfaCO3gv68wdnGwtXZqesXU4Lo=
+        b=g10NekuIBwOZ8lMv/IxmbplxizdPk+E8yKdOZxkc+J0qB8NkJGP+6t33RaAzqwij3
+         NYv5vHKM8EE6TuXfoQ0aWqRDRDV+HFtAmcQgnC8GLvcvCT+JmvpwBLhBl60adeW3jp
+         vExsq//6VYAXCePZmTKYaQP/SwrZoadaB4h5qSlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Ian Kumlien <ian.kumlien@gmail.com>,
         Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        David Ahern <dsahern@gmail.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 047/757] nexthop: Fix performance regression in nexthop deletion
-Date:   Tue, 27 Oct 2020 14:44:57 +0100
-Message-Id: <20201027135452.747433967@linuxfoundation.org>
+Subject: [PATCH 5.9 055/757] ixgbe: fix probing of multi-port devices with one MDIO
+Date:   Tue, 27 Oct 2020 14:45:05 +0100
+Message-Id: <20201027135453.128835689@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,102 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit df6afe2f7c19349de2ee560dc62ea4d9ad3ff889 ]
+[ Upstream commit bd7f14df9492e7d3772812a215fca66e6737e598 ]
 
-While insertion of 16k nexthops all using the same netdev ('dummy10')
-takes less than a second, deletion takes about 130 seconds:
+Ian reports that after upgrade from v5.8.14 to v5.9 only one
+of his 4 ixgbe netdevs appear in the system.
 
-# time -p ip -b nexthop.batch
-real 0.29
-user 0.01
-sys 0.15
+Quoting the comment on ixgbe_x550em_a_has_mii():
+ * Returns true if hw points to lowest numbered PCI B:D.F x550_em_a device in
+ * the SoC.  There are up to 4 MACs sharing a single MDIO bus on the x550em_a,
+ * but we only want to register one MDIO bus.
 
-# time -p ip link set dev dummy10 down
-real 131.03
-user 0.06
-sys 0.52
+This matches the symptoms, since the return value from
+ixgbe_mii_bus_init() is no longer ignored we need to handle
+the higher ports of x550em without an error.
 
-This is because of repeated calls to synchronize_rcu() whenever a
-nexthop is removed from a nexthop group:
-
-# /usr/share/bcc/tools/offcputime -p `pgrep -nx ip` -K
-...
-    b'finish_task_switch'
-    b'schedule'
-    b'schedule_timeout'
-    b'wait_for_completion'
-    b'__wait_rcu_gp'
-    b'synchronize_rcu.part.0'
-    b'synchronize_rcu'
-    b'__remove_nexthop'
-    b'remove_nexthop'
-    b'nexthop_flush_dev'
-    b'nh_netdev_event'
-    b'raw_notifier_call_chain'
-    b'call_netdevice_notifiers_info'
-    b'__dev_notify_flags'
-    b'dev_change_flags'
-    b'do_setlink'
-    b'__rtnl_newlink'
-    b'rtnl_newlink'
-    b'rtnetlink_rcv_msg'
-    b'netlink_rcv_skb'
-    b'rtnetlink_rcv'
-    b'netlink_unicast'
-    b'netlink_sendmsg'
-    b'____sys_sendmsg'
-    b'___sys_sendmsg'
-    b'__sys_sendmsg'
-    b'__x64_sys_sendmsg'
-    b'do_syscall_64'
-    b'entry_SYSCALL_64_after_hwframe'
-    -                ip (277)
-        126554955
-
-Since nexthops are always deleted under RTNL, synchronize_net() can be
-used instead. It will call synchronize_rcu_expedited() which only blocks
-for several microseconds as opposed to multiple milliseconds like
-synchronize_rcu().
-
-With this patch deletion of 16k nexthops takes less than a second:
-
-# time -p ip link set dev dummy10 down
-real 0.12
-user 0.00
-sys 0.04
-
-Tested with fib_nexthops.sh which includes torture tests that prompted
-the initial change:
-
-# ./fib_nexthops.sh
-...
-Tests passed: 134
-Tests failed:   0
-
-Fixes: 90f33bffa382 ("nexthops: don't modify published nexthop groups")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Link: https://lore.kernel.org/r/20201016172914.643282-1-idosch@idosch.org
+Fixes: 09ef193fef7e ("net: ethernet: ixgbe: check the return value of ixgbe_mii_bus_init()")
+Reported-by: Ian Kumlien <ian.kumlien@gmail.com>
+Tested-by: Ian Kumlien <ian.kumlien@gmail.com>
+Acked-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Link: https://lore.kernel.org/r/20201016232006.3352947-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -842,7 +842,7 @@ static void remove_nexthop_from_groups(s
- 		remove_nh_grp_entry(net, nhge, nlinfo);
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
+@@ -901,15 +901,13 @@ static bool ixgbe_x550em_a_has_mii(struc
+  **/
+ s32 ixgbe_mii_bus_init(struct ixgbe_hw *hw)
+ {
++	s32 (*write)(struct mii_bus *bus, int addr, int regnum, u16 val);
++	s32 (*read)(struct mii_bus *bus, int addr, int regnum);
+ 	struct ixgbe_adapter *adapter = hw->back;
+ 	struct pci_dev *pdev = adapter->pdev;
+ 	struct device *dev = &adapter->netdev->dev;
+ 	struct mii_bus *bus;
  
- 	/* make sure all see the newly published array before releasing rtnl */
--	synchronize_rcu();
-+	synchronize_net();
- }
+-	bus = devm_mdiobus_alloc(dev);
+-	if (!bus)
+-		return -ENOMEM;
+-
+ 	switch (hw->device_id) {
+ 	/* C3000 SoCs */
+ 	case IXGBE_DEV_ID_X550EM_A_KR:
+@@ -922,16 +920,23 @@ s32 ixgbe_mii_bus_init(struct ixgbe_hw *
+ 	case IXGBE_DEV_ID_X550EM_A_1G_T:
+ 	case IXGBE_DEV_ID_X550EM_A_1G_T_L:
+ 		if (!ixgbe_x550em_a_has_mii(hw))
+-			return -ENODEV;
+-		bus->read = &ixgbe_x550em_a_mii_bus_read;
+-		bus->write = &ixgbe_x550em_a_mii_bus_write;
++			return 0;
++		read = &ixgbe_x550em_a_mii_bus_read;
++		write = &ixgbe_x550em_a_mii_bus_write;
+ 		break;
+ 	default:
+-		bus->read = &ixgbe_mii_bus_read;
+-		bus->write = &ixgbe_mii_bus_write;
++		read = &ixgbe_mii_bus_read;
++		write = &ixgbe_mii_bus_write;
+ 		break;
+ 	}
  
- static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
++	bus = devm_mdiobus_alloc(dev);
++	if (!bus)
++		return -ENOMEM;
++
++	bus->read = read;
++	bus->write = write;
++
+ 	/* Use the position of the device in the PCI hierarchy as the id */
+ 	snprintf(bus->id, MII_BUS_ID_SIZE, "%s-mdio-%s", ixgbe_driver_name,
+ 		 pci_name(pdev));
 
 
