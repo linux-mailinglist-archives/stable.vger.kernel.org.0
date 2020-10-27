@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A6229BC9A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B5929BDD0
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1810168AbgJ0QeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49544 "EHLO mail.kernel.org"
+        id S1812964AbgJ0QrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802461AbgJ0Psv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:48:51 -0400
+        id S1794995AbgJ0POu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:14:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C374822265;
-        Tue, 27 Oct 2020 15:48:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBB2F21D41;
+        Tue, 27 Oct 2020 15:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813729;
-        bh=lCZKQ7KGG1SLMxrz/BobWDhhT068d+17W29g9IlqiF0=;
+        s=default; t=1603811690;
+        bh=TbvKyiIsY8u3aNEGtQ4lzndNOknupo3iNqO8vf8zft4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivlwTxGueFAE+TH1Yuq6qnfKpMozSNCn93lXeYETpIHgc2bUm+gJw1hUr/O9dD+sr
-         JwDPDn26jDCF4ugK2f22RB65IcjKq3R+DXsRpSoGf6I8dRuECyOc72nS3se2DYnhl4
-         QiOqpO0JgvTEoCQz/RPGkVaA+sRIGSGA8yl85oMI=
+        b=TSpLouG0t1kszjXrd/FJJgte+KevHwsaRqvy1MkIDoXNhsxmwN6BlYUksDLoG+Ykl
+         8ARlJWhVHB0I8tACC5BZtoyE7OSjpIBKM33x0DNHxKz3t83VOIK3pEjag6z56WrbIa
+         4MN9oO+CNBtqwMG8r66oILIDADuT+5wvY3rtPY6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Mossberg <mark.mossberg@gmail.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 643/757] x86/dumpstack: Fix misleading instruction pointer error message
-Date:   Tue, 27 Oct 2020 14:54:53 +0100
-Message-Id: <20201027135520.731919820@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 551/633] media: saa7134: avoid a shift overflow
+Date:   Tue, 27 Oct 2020 14:54:54 +0100
+Message-Id: <20201027135548.649611304@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Mossberg <mark.mossberg@gmail.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 238c91115cd05c71447ea071624a4c9fe661f970 ]
+[ Upstream commit 15a36aae1ec1c1f17149b6113b92631791830740 ]
 
-Printing "Bad RIP value" if copy_code() fails can be misleading for
-userspace pointers, since copy_code() can fail if the instruction
-pointer is valid but the code is paged out. This is because copy_code()
-calls copy_from_user_nmi() for userspace pointers, which disables page
-fault handling.
+As reported by smatch:
+	drivers/media/pci/saa7134//saa7134-tvaudio.c:686 saa_dsp_writel() warn: should 'reg << 2' be a 64 bit type?
 
-This is reproducible in OOM situations, where it's plausible that the
-code may be reclaimed in the time between entry into the kernel and when
-this message is printed. This leaves a misleading log in dmesg that
-suggests instruction pointer corruption has occurred, which may alarm
-users.
+On a 64-bits Kernel, the shift might be bigger than 32 bits.
 
-Change the message to state the error condition more precisely.
+In real, this should never happen, but let's shut up the warning.
 
- [ bp: Massage a bit. ]
-
-Signed-off-by: Mark Mossberg <mark.mossberg@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201002042915.403558-1-mark.mossberg@gmail.com
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/dumpstack.c | 3 ++-
+ drivers/media/pci/saa7134/saa7134-tvaudio.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index 48ce44576947c..ea8d51ec251bb 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -115,7 +115,8 @@ void show_opcodes(struct pt_regs *regs, const char *loglvl)
- 	unsigned long prologue = regs->ip - PROLOGUE_SIZE;
+diff --git a/drivers/media/pci/saa7134/saa7134-tvaudio.c b/drivers/media/pci/saa7134/saa7134-tvaudio.c
+index 79e1afb710758..5cc4ef21f9d37 100644
+--- a/drivers/media/pci/saa7134/saa7134-tvaudio.c
++++ b/drivers/media/pci/saa7134/saa7134-tvaudio.c
+@@ -683,7 +683,8 @@ int saa_dsp_writel(struct saa7134_dev *dev, int reg, u32 value)
+ {
+ 	int err;
  
- 	if (copy_code(regs, opcodes, prologue, sizeof(opcodes))) {
--		printk("%sCode: Bad RIP value.\n", loglvl);
-+		printk("%sCode: Unable to access opcode bytes at RIP 0x%lx.\n",
-+		       loglvl, prologue);
- 	} else {
- 		printk("%sCode: %" __stringify(PROLOGUE_SIZE) "ph <%02x> %"
- 		       __stringify(EPILOGUE_SIZE) "ph\n", loglvl, opcodes,
+-	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n", reg << 2, value);
++	audio_dbg(2, "dsp write reg 0x%x = 0x%06x\n",
++		  (reg << 2) & 0xffffffff, value);
+ 	err = saa_dsp_wait_bit(dev,SAA7135_DSP_RWSTATE_WRR);
+ 	if (err < 0)
+ 		return err;
 -- 
 2.25.1
 
