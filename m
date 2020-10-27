@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD8629AF12
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 916B929AE8F
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1754741AbgJ0OGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55346 "EHLO mail.kernel.org"
+        id S2436846AbgJ0OBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754733AbgJ0OGs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:06:48 -0400
+        id S1740904AbgJ0OBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:01:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A765322263;
-        Tue, 27 Oct 2020 14:06:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F03532222C;
+        Tue, 27 Oct 2020 14:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807607;
-        bh=lIqONl9aFZcteiiAvZsyK1IFW0Kx3GlNq0KWB81uUHc=;
+        s=default; t=1603807308;
+        bh=6jUS3MrpA5h6hCLksjg54WIptLdagffpuMQViYB/eTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRXveXFxyzLVmGD2EULoYUMZZrfQuZ/bOkN9DOYNEscbrzthp/VRAEyfLrk8i6Ojl
-         4uC/0wM76Z2utXgufq+TBuIx5L9IJc5oViA4oGlDzQ/dm1kHGZqEzUOd6H4WHHLoxP
-         TUlWvCxcqSfiB7FuNprA7vP2L1Q/0LQRyOARAh1k=
+        b=aFPVumE9CUIW+857Ii9/Hc+6Gu2xbPPu/QcQWv+qWFFGc+b/ur44SQK5okAEOifyi
+         Gkp7EB7yGN9Tl4wLiVjoK1umN1g4cl0ZUtY+NR4gjcnPmqjxsfizv6W9tUlVc0x0RN
+         oh+YMQmODtYmaAhjg/+fGCDoa3bbkARjuxybDUmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
-        Zqiang <qiang.zhang@windriver.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
+        Manish Mandlik <mmandlik@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/139] usb: gadget: function: printer: fix use-after-free in __lock_acquire
+Subject: [PATCH 4.4 099/112] Bluetooth: Only mark socket zapped after unlocking
 Date:   Tue, 27 Oct 2020 14:50:09 +0100
-Message-Id: <20201027134907.600649641@linuxfoundation.org>
+Message-Id: <20201027134905.225233912@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,179 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 
-[ Upstream commit e8d5f92b8d30bb4ade76494490c3c065e12411b1 ]
+[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
 
-Fix this by increase object reference count.
+Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
+setting the socket as zapped, it could potentially race with
+l2cap_sock_release which frees the socket. Thus, wait until the cleanup
+is complete before marking the socket as zapped.
 
-BUG: KASAN: use-after-free in __lock_acquire+0x3fd4/0x4180
-kernel/locking/lockdep.c:3831
-Read of size 8 at addr ffff8880683b0018 by task syz-executor.0/3377
+This race was reproduced on a JBL GO speaker after the remote device
+rejected L2CAP connection due to resource unavailability.
 
-CPU: 1 PID: 3377 Comm: syz-executor.0 Not tainted 5.6.11 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
- __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:641
- __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
- __lock_acquire+0x3fd4/0x4180 kernel/locking/lockdep.c:3831
- lock_acquire+0x127/0x350 kernel/locking/lockdep.c:4488
- __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
- _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
- printer_ioctl+0x4a/0x110 drivers/usb/gadget/function/f_printer.c:723
- vfs_ioctl fs/ioctl.c:47 [inline]
- ksys_ioctl+0xfb/0x130 fs/ioctl.c:763
- __do_sys_ioctl fs/ioctl.c:772 [inline]
- __se_sys_ioctl fs/ioctl.c:770 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
- do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4531a9
-Code: ed 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48
-89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
-01 f0 ff ff 0f 83 bb 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fd14ad72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 000000000073bfa8 RCX: 00000000004531a9
-RDX: fffffffffffffff9 RSI: 000000000000009e RDI: 0000000000000003
-RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004bbd61
-R13: 00000000004d0a98 R14: 00007fd14ad736d4 R15: 00000000ffffffff
+Here is a dmesg log with debug logs from a repro of this bug:
+[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
+[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
+[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
+[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
+[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
+[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
+[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
+[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
+[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
+[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
+[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
+[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
+[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
+[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
+[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[ 3465.430332] Causing a watchdog bite!
 
-Allocated by task 2393:
- save_stack+0x21/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- __kasan_kmalloc.constprop.3+0xa7/0xd0 mm/kasan/common.c:515
- kasan_kmalloc+0x9/0x10 mm/kasan/common.c:529
- kmem_cache_alloc_trace+0xfa/0x2d0 mm/slub.c:2813
- kmalloc include/linux/slab.h:555 [inline]
- kzalloc include/linux/slab.h:669 [inline]
- gprinter_alloc+0xa1/0x870 drivers/usb/gadget/function/f_printer.c:1416
- usb_get_function+0x58/0xc0 drivers/usb/gadget/functions.c:61
- config_usb_cfg_link+0x1ed/0x3e0 drivers/usb/gadget/configfs.c:444
- configfs_symlink+0x527/0x11d0 fs/configfs/symlink.c:202
- vfs_symlink+0x33d/0x5b0 fs/namei.c:4201
- do_symlinkat+0x11b/0x1d0 fs/namei.c:4228
- __do_sys_symlinkat fs/namei.c:4242 [inline]
- __se_sys_symlinkat fs/namei.c:4239 [inline]
- __x64_sys_symlinkat+0x73/0xb0 fs/namei.c:4239
- do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 3368:
- save_stack+0x21/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- kasan_set_free_info mm/kasan/common.c:337 [inline]
- __kasan_slab_free+0x135/0x190 mm/kasan/common.c:476
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:485
- slab_free_hook mm/slub.c:1444 [inline]
- slab_free_freelist_hook mm/slub.c:1477 [inline]
- slab_free mm/slub.c:3034 [inline]
- kfree+0xf7/0x410 mm/slub.c:3995
- gprinter_free+0x49/0xd0 drivers/usb/gadget/function/f_printer.c:1353
- usb_put_function+0x38/0x50 drivers/usb/gadget/functions.c:87
- config_usb_cfg_unlink+0x2db/0x3b0 drivers/usb/gadget/configfs.c:485
- configfs_unlink+0x3b9/0x7f0 fs/configfs/symlink.c:250
- vfs_unlink+0x287/0x570 fs/namei.c:4073
- do_unlinkat+0x4f9/0x620 fs/namei.c:4137
- __do_sys_unlink fs/namei.c:4184 [inline]
- __se_sys_unlink fs/namei.c:4182 [inline]
- __x64_sys_unlink+0x42/0x50 fs/namei.c:4182
- do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8880683b0000
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 24 bytes inside of
- 1024-byte region [ffff8880683b0000, ffff8880683b0400)
-The buggy address belongs to the page:
-page:ffffea0001a0ec00 refcount:1 mapcount:0 mapping:ffff88806c00e300
-index:0xffff8880683b1800 compound_mapcount: 0
-flags: 0x100000000010200(slab|head)
-raw: 0100000000010200 0000000000000000 0000000600000001 ffff88806c00e300
-raw: ffff8880683b1800 000000008010000a 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
+Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_printer.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_sock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
-index 0de36cda6e410..d89b3046dd10b 100644
---- a/drivers/usb/gadget/function/f_printer.c
-+++ b/drivers/usb/gadget/function/f_printer.c
-@@ -35,6 +35,7 @@
- #include <linux/types.h>
- #include <linux/ctype.h>
- #include <linux/cdev.h>
-+#include <linux/kref.h>
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index e562385d9440e..30731ce390ba0 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1330,8 +1330,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
  
- #include <asm/byteorder.h>
- #include <linux/io.h>
-@@ -69,7 +70,7 @@ struct printer_dev {
- 	struct usb_gadget	*gadget;
- 	s8			interface;
- 	struct usb_ep		*in_ep, *out_ep;
+ 	parent = bt_sk(sk)->parent;
+ 
+-	sock_set_flag(sk, SOCK_ZAPPED);
 -
-+	struct kref             kref;
- 	struct list_head	rx_reqs;	/* List of free RX structs */
- 	struct list_head	rx_reqs_active;	/* List of Active RX xfers */
- 	struct list_head	rx_buffers;	/* List of completed xfers */
-@@ -223,6 +224,13 @@ static inline struct usb_endpoint_descriptor *ep_desc(struct usb_gadget *gadget,
+ 	switch (chan->state) {
+ 	case BT_OPEN:
+ 	case BT_BOUND:
+@@ -1358,8 +1356,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
  
- /*-------------------------------------------------------------------------*/
- 
-+static void printer_dev_free(struct kref *kref)
-+{
-+	struct printer_dev *dev = container_of(kref, struct printer_dev, kref);
-+
-+	kfree(dev);
-+}
-+
- static struct usb_request *
- printer_req_alloc(struct usb_ep *ep, unsigned len, gfp_t gfp_flags)
- {
-@@ -353,6 +361,7 @@ printer_open(struct inode *inode, struct file *fd)
- 
- 	spin_unlock_irqrestore(&dev->lock, flags);
- 
-+	kref_get(&dev->kref);
- 	DBG(dev, "printer_open returned %x\n", ret);
- 	return ret;
- }
-@@ -370,6 +379,7 @@ printer_close(struct inode *inode, struct file *fd)
- 	dev->printer_status &= ~PRINTER_SELECTED;
- 	spin_unlock_irqrestore(&dev->lock, flags);
- 
-+	kref_put(&dev->kref, printer_dev_free);
- 	DBG(dev, "printer_close\n");
- 
- 	return 0;
-@@ -1320,7 +1330,8 @@ static void gprinter_free(struct usb_function *f)
- 	struct f_printer_opts *opts;
- 
- 	opts = container_of(f->fi, struct f_printer_opts, func_inst);
--	kfree(dev);
-+
-+	kref_put(&dev->kref, printer_dev_free);
- 	mutex_lock(&opts->lock);
- 	--opts->refcnt;
- 	mutex_unlock(&opts->lock);
-@@ -1389,6 +1400,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
- 		return ERR_PTR(-ENOMEM);
+ 		break;
  	}
+-
+ 	release_sock(sk);
++
++	/* Only zap after cleanup to avoid use after free race */
++	sock_set_flag(sk, SOCK_ZAPPED);
++
+ }
  
-+	kref_init(&dev->kref);
- 	++opts->refcnt;
- 	dev->minor = opts->minor;
- 	dev->pnp_string = opts->pnp_string;
+ static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
 -- 
 2.25.1
 
