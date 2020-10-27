@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF9D29B1AF
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA8A29B1B1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1759197AbgJ0Oc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:32:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59892 "EHLO mail.kernel.org"
+        id S2897325AbgJ0OdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2902372AbgJ0Oc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:32:58 -0400
+        id S2896682AbgJ0OdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:33:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8420720709;
-        Tue, 27 Oct 2020 14:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70F9B20773;
+        Tue, 27 Oct 2020 14:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809177;
-        bh=YqtLuZQZPmRkC5QNozAQcF6nEFU1MFaMOGR/B2pblzs=;
+        s=default; t=1603809180;
+        bh=U11Pqb5/KllwWvOKuhjO9gmtVEa+zhlzKUXrp2x5m78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gvera7Vc3qmu/lWG3CtnptsMAjCu2V4XzQ4BRkV6hxqwrAZ991gaV0y6Moh8WPr6k
-         KxpUzG4Uo0hX+1yyp6xORfajcCizISkoMCbvNnWh2a2T6kOYw75ArSnAKhLq/Zc/CD
-         tAiSiGQ3frZKxTSA6I4wlhwcKoceKqR4NjO8Ut6U=
+        b=EYZGPVgdipCqO3PyBk8Fl04qwP3nfmTSE5hCSwV5qPrKpTVXCHIX9drmok+uoudHL
+         QiIGN2qA/kLOAOu7kbfPUUjTLUb9fMTwTSjoTKsR7nQGg0pbdCcOSuJoZh+8CBXvz3
+         MEyGNqMAGTPMKjXBBf5RXQYU2H5M79f2bDHYxJV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
-        Markus Theil <markus.theil@tu-ilmenau.de>,
-        John Deere <24601deerej@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Melissa Wen <melissa.srw@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/408] ath10k: provide survey info as accumulated data
-Date:   Tue, 27 Oct 2020 14:50:41 +0100
-Message-Id: <20201027135459.879588055@linuxfoundation.org>
+Subject: [PATCH 5.4 104/408] drm/vkms: fix xrgb on compute crc
+Date:   Tue, 27 Oct 2020 14:50:42 +0100
+Message-Id: <20201027135459.930470954@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -47,71 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+From: Melissa Wen <melissa.srw@gmail.com>
 
-[ Upstream commit 720e5c03e5cb26d33d97f55192b791bb48478aa5 ]
+[ Upstream commit 0986191186128b10b6bbfa5220fc587ed5725e49 ]
 
-It is expected that the returned counters by .get_survey are monotonic
-increasing. But the data from ath10k gets reset to zero regularly. Channel
-active/busy time are then showing incorrect values (less than previous or
-sometimes zero) for the currently active channel during successive survey
-dump commands.
+The previous memset operation was not correctly zeroing the alpha
+channel to compute the crc, and as a result, the IGT subtest
+kms_cursor_crc/pipe-A-cursor-alpha-transparent fails.
 
-example:
+Fixes: db7f419c06d7c ("drm/vkms: Compute CRC with Cursor Plane")
 
-  $ iw dev wlan0 survey dump
-  Survey data from wlan0
-  	frequency:                      5180 MHz [in use]
-  	channel active time:            54995 ms
-  	channel busy time:              432 ms
-  	channel receive time:           0 ms
-  	channel transmit time:          59 ms
-  ...
-
-  $ iw dev wlan0 survey dump
-  Survey data from wlan0
-  	frequency:                      5180 MHz [in use]
-  	channel active time:            32592 ms
-  	channel busy time:              254 ms
-  	channel receive time:           0 ms
-  	channel transmit time:          0 ms
-  ...
-
-The correct way to handle this is to use the non-clearing
-WMI_BSS_SURVEY_REQ_TYPE_READ wmi_bss_survey_req_type. The firmware will
-then accumulate the survey data and handle wrap arounds.
-
-Tested-on: QCA9984 hw1.0 10.4-3.5.3-00057
-Tested-on: QCA988X hw2.0 10.2.4-1.0-00047
-Tested-on: QCA9888 hw2.0 10.4-3.9.0.2-00024
-Tested-on: QCA4019 hw1.0 10.4-3.6-00140
-
-Fixes: fa7937e3d5c2 ("ath10k: update bss channel survey information")
-Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
-Tested-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Tested-by: John Deere <24601deerej@gmail.com>
-[sven@narfation.org: adjust commit message]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1592232686-28712-1-git-send-email-kvalo@codeaurora.org
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200730202524.5upzuh4irboru7my@smtp.gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 2 +-
+ drivers/gpu/drm/vkms/vkms_composer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index d373602a80145..915ba2a7f7448 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -7131,7 +7131,7 @@ ath10k_mac_update_bss_chan_survey(struct ath10k *ar,
- 				  struct ieee80211_channel *channel)
- {
- 	int ret;
--	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ_CLEAR;
-+	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ;
- 
- 	lockdep_assert_held(&ar->conf_mutex);
- 
+diff --git a/drivers/gpu/drm/vkms/vkms_composer.c b/drivers/gpu/drm/vkms/vkms_composer.c
+index d5585695c64d1..45d6ebbdbdb22 100644
+--- a/drivers/gpu/drm/vkms/vkms_composer.c
++++ b/drivers/gpu/drm/vkms/vkms_composer.c
+@@ -33,7 +33,7 @@ static uint32_t compute_crc(void *vaddr_out, struct vkms_composer *composer)
+ 				     + (i * composer->pitch)
+ 				     + (j * composer->cpp);
+ 			/* XRGB format ignores Alpha channel */
+-			memset(vaddr_out + src_offset + 24, 0,  8);
++			bitmap_clear(vaddr_out + src_offset, 24, 8);
+ 			crc = crc32_le(crc, vaddr_out + src_offset,
+ 				       sizeof(u32));
+ 		}
 -- 
 2.25.1
 
