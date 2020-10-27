@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 821FE29BF4C
+	by mail.lfdr.de (Postfix) with ESMTP id 132F529BF4B
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793597AbgJ0PHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37740 "EHLO mail.kernel.org"
+        id S1793587AbgJ0PHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789872AbgJ0PDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:03:19 -0400
+        id S1790040AbgJ0PDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:03:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D2C021D24;
-        Tue, 27 Oct 2020 15:03:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D8FD21D24;
+        Tue, 27 Oct 2020 15:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810998;
-        bh=a7tWooIq1JwVf+nKvVRDjSP9fBHenH+DxoBQ0HKZLSE=;
+        s=default; t=1603811017;
+        bh=LiIrEiwETVTgXBLW+un4dFfNAJQ7Zyu4Z/UTAqyR7kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/oYVhtesXUdEFiH+CPkxs1dEMxDwnPM2FDtTXL/+ziVFCvVUVpA5Yajto0w+rIj+
-         QxigUNXlRs6mJFJjgqdhdopfoEsUikdqQOny4PHStYiJ4ZuIHB/NmLXJG8jwSCplz7
-         G9es8UVD7nENz9ZqUm3cKCIe64COTEpr9wX57Js0=
+        b=2shLAyWzEFVF+FGsyanv7Q3tTkPYe03XX/nmkNWM2CPUjRYugPYrz6n8PQClEE2Yr
+         Gjc6kIXt4bphn7pwpBJmDhHUYV2f7Z6smr5U0obknd3xW/Ov2ubBNdpi9wtdZfeLwl
+         KZz8jcwXEUs94MklstB6jzC+PhhNZKVeajt7SA2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 337/633] mtd: mtdoops: Dont write panic data twice
-Date:   Tue, 27 Oct 2020 14:51:20 +0100
-Message-Id: <20201027135538.493820601@linuxfoundation.org>
+Subject: [PATCH 5.8 343/633] arc: plat-hsdk: fix kconfig dependency warning when !RESET_CONTROLLER
+Date:   Tue, 27 Oct 2020 14:51:26 +0100
+Message-Id: <20201027135538.776203786@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,47 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit c1cf1d57d1492235309111ea6a900940213a9166 ]
+[ Upstream commit 63bcf87cb1c57956e1179f1a78dde625c7e3cba7 ]
 
-If calling mtdoops_write, don't also schedule work to be done later.
+When ARC_SOC_HSDK is enabled and RESET_CONTROLLER is disabled, it results
+in the following Kbuild warning:
 
-Although this appears to not be causing an issue, possibly because the
-scheduled work will never get done, it is confusing.
+WARNING: unmet direct dependencies detected for RESET_HSDK
+  Depends on [n]: RESET_CONTROLLER [=n] && HAS_IOMEM [=y] && (ARC_SOC_HSDK [=y] || COMPILE_TEST [=n])
+  Selected by [y]:
+  - ARC_SOC_HSDK [=y] && ISA_ARCV2 [=y]
 
-Fixes: 016c1291ce70 ("mtd: mtdoops: do not use mtd->panic_write directly")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200903034217.23079-1-mark.tomlinson@alliedtelesis.co.nz
+The reason is that ARC_SOC_HSDK selects RESET_HSDK without depending on or
+selecting RESET_CONTROLLER while RESET_HSDK is subordinate to
+RESET_CONTROLLER.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: a528629dfd3b ("ARC: [plat-hsdk] select CONFIG_RESET_HSDK from Kconfig")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdoops.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arc/plat-hsdk/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mtd/mtdoops.c b/drivers/mtd/mtdoops.c
-index 4ced68be7ed7e..774970bfcf859 100644
---- a/drivers/mtd/mtdoops.c
-+++ b/drivers/mtd/mtdoops.c
-@@ -279,12 +279,13 @@ static void mtdoops_do_dump(struct kmsg_dumper *dumper,
- 	kmsg_dump_get_buffer(dumper, true, cxt->oops_buf + MTDOOPS_HEADER_SIZE,
- 			     record_size - MTDOOPS_HEADER_SIZE, NULL);
- 
--	/* Panics must be written immediately */
--	if (reason != KMSG_DUMP_OOPS)
-+	if (reason != KMSG_DUMP_OOPS) {
-+		/* Panics must be written immediately */
- 		mtdoops_write(cxt, 1);
--
--	/* For other cases, schedule work to write it "nicely" */
--	schedule_work(&cxt->work_write);
-+	} else {
-+		/* For other cases, schedule work to write it "nicely" */
-+		schedule_work(&cxt->work_write);
-+	}
- }
- 
- static void mtdoops_notify_add(struct mtd_info *mtd)
+diff --git a/arch/arc/plat-hsdk/Kconfig b/arch/arc/plat-hsdk/Kconfig
+index ce81018345184..6b5c54576f54d 100644
+--- a/arch/arc/plat-hsdk/Kconfig
++++ b/arch/arc/plat-hsdk/Kconfig
+@@ -8,5 +8,6 @@ menuconfig ARC_SOC_HSDK
+ 	select ARC_HAS_ACCL_REGS
+ 	select ARC_IRQ_NO_AUTOSAVE
+ 	select CLK_HSDK
++	select RESET_CONTROLLER
+ 	select RESET_HSDK
+ 	select HAVE_PCI
 -- 
 2.25.1
 
