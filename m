@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A10AA29C0F5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F88729C066
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1817990AbgJ0RQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58734 "EHLO mail.kernel.org"
+        id S1783058AbgJ0O5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1782913AbgJ0O5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:57:41 -0400
+        id S1783041AbgJ0O5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:57:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7D5B20714;
-        Tue, 27 Oct 2020 14:57:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01805206F4;
+        Tue, 27 Oct 2020 14:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810660;
-        bh=MO537yTZlawsZwUmLjXenwfiZhbXE6ENO0mjI/ZuZ2M=;
+        s=default; t=1603810666;
+        bh=DjhRzW5XfOtwP0yQSjpNXslIJWOVWBT27b+JKCQ4Jd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orvyAMcYG/pCFOiocNrYRDU9Q8v1UHOvNqvvR29MXimGNcldyYSCQd4ugacOsXZs3
-         4qKPn3iYLokaaZemhx5tp3u0pgHQ+AoTHS2Rx6doEl2BaiUsABzxzIRUQIssRjzKKk
-         YDW1BOQB1BIPsXYysFmDnEE4fqNQhvh7/N2pwqW8=
+        b=n46HHXvVwNvWwEsCSTYxL2OmKhifduJ0whDca8hE3tVzsn3rlnadOfArWyA9Jtawq
+         m4wC6oxcJCakTnXnDlxuZ9DTW/t1zwlyUwU8t2sLp/zNEo0OPgy1q4CxSAt7rlt0pi
+         GbL1YVGz+klXy887N6qVV/IVlDfpVwAKtG0/XxJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 219/633] scsi: mpt3sas: Fix sync irqs
-Date:   Tue, 27 Oct 2020 14:49:22 +0100
-Message-Id: <20201027135532.959168099@linuxfoundation.org>
+Subject: [PATCH 5.8 221/633] net: stmmac: use netif_tx_start|stop_all_queues() function
+Date:   Tue, 27 Oct 2020 14:49:24 +0100
+Message-Id: <20201027135533.050586518@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -45,58 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-[ Upstream commit 45181eab8ba79ed7a41b549f00500c0093828521 ]
+[ Upstream commit 9f19306d166688a73356aa636c62e698bf2063cc ]
 
-_base_process_reply_queue() called from _base_interrupt() may schedule a
-new irq poll. Fix this by calling synchronize_irq() first.
+The current implementation of stmmac_stop_all_queues() and
+stmmac_start_all_queues() will not work correctly when the value of
+tx_queues_to_use is changed through ethtool -L DEVNAME rx N tx M command.
 
-Also ensure that enable_irq() is called only when necessary to avoid
-"Unbalanced enable for IRQ..." errors.
+Also, netif_tx_start|stop_all_queues() are only needed in driver open()
+and close() only.
 
-Link: https://lore.kernel.org/r/20200910142126.8147-1-thenzl@redhat.com
-Fixes: 320e77acb327 ("scsi: mpt3sas: Irq poll to avoid CPU hard lockups")
-Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c22a3f48 net: stmmac: adding multiple napi mechanism
+
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 33 +------------------
+ 1 file changed, 1 insertion(+), 32 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index a85c9672c6ea3..a67749c8f4ab3 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -1808,18 +1808,22 @@ mpt3sas_base_sync_reply_irqs(struct MPT3SAS_ADAPTER *ioc)
- 		/* TMs are on msix_index == 0 */
- 		if (reply_q->msix_index == 0)
- 			continue;
-+		synchronize_irq(pci_irq_vector(ioc->pdev, reply_q->msix_index));
- 		if (reply_q->irq_poll_scheduled) {
- 			/* Calling irq_poll_disable will wait for any pending
- 			 * callbacks to have completed.
- 			 */
- 			irq_poll_disable(&reply_q->irqpoll);
- 			irq_poll_enable(&reply_q->irqpoll);
--			reply_q->irq_poll_scheduled = false;
--			reply_q->irq_line_enable = true;
--			enable_irq(reply_q->os_irq);
--			continue;
-+			/* check how the scheduled poll has ended,
-+			 * clean up only if necessary
-+			 */
-+			if (reply_q->irq_poll_scheduled) {
-+				reply_q->irq_poll_scheduled = false;
-+				reply_q->irq_line_enable = true;
-+				enable_irq(reply_q->os_irq);
-+			}
- 		}
--		synchronize_irq(pci_irq_vector(ioc->pdev, reply_q->msix_index));
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 44ceba8ceae1a..d4be2559bb73d 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -176,32 +176,6 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
  	}
  }
  
+-/**
+- * stmmac_stop_all_queues - Stop all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_stop_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_stop_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+-/**
+- * stmmac_start_all_queues - Start all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_start_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_start_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+ static void stmmac_service_event_schedule(struct stmmac_priv *priv)
+ {
+ 	if (!test_bit(STMMAC_DOWN, &priv->state) &&
+@@ -2866,7 +2840,7 @@ static int stmmac_open(struct net_device *dev)
+ 	}
+ 
+ 	stmmac_enable_all_queues(priv);
+-	stmmac_start_all_queues(priv);
++	netif_tx_start_all_queues(priv->dev);
+ 
+ 	return 0;
+ 
+@@ -2907,8 +2881,6 @@ static int stmmac_release(struct net_device *dev)
+ 	phylink_stop(priv->phylink);
+ 	phylink_disconnect_phy(priv->phylink);
+ 
+-	stmmac_stop_all_queues(priv);
+-
+ 	stmmac_disable_all_queues(priv);
+ 
+ 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
+@@ -5078,7 +5050,6 @@ int stmmac_suspend(struct device *dev)
+ 	mutex_lock(&priv->lock);
+ 
+ 	netif_device_detach(ndev);
+-	stmmac_stop_all_queues(priv);
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
+@@ -5203,8 +5174,6 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_enable_all_queues(priv);
+ 
+-	stmmac_start_all_queues(priv);
+-
+ 	mutex_unlock(&priv->lock);
+ 
+ 	if (!device_may_wakeup(priv->device)) {
 -- 
 2.25.1
 
