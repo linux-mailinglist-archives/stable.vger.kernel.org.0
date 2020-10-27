@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EFF29BDCC
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9CD29BC90
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802821AbgJ0Qq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
+        id S1810125AbgJ0QeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794823AbgJ0PNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:13:48 -0400
+        id S1766703AbgJ0Ps6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:48:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AAF42224A;
-        Tue, 27 Oct 2020 15:13:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6501B22283;
+        Tue, 27 Oct 2020 15:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811627;
-        bh=xTXZ3LFLfbNBi2+C9NOvr+Ye26ESR4F400hGWDKrExw=;
+        s=default; t=1603813738;
+        bh=oDOnjFHkVgiIoA7tw0e2d0rfAy5TH6MzhU8d0U9ZVbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w33NU+q51VNDlF6jwjGInPLFY0fVWWs2mJnmJ4NXkW7c9tb03u9y4xBm7onN4zJjO
-         9IuFp7SwXxqMHh5vNohAH+tSrFcJBsIoRcJEZd8puXpZY8oeNymdO6FlzSaCdLsS4P
-         T95nimQsofHV4TLvkdKjh30vXQu8qP4rNAzxyHdc=
+        b=DhIXJ21PbZWfGFqJqCXA2pFAgxS3BW6LNFLXHfTnzjZFoIUhfceWRT6Vow+R3CLaH
+         awwBUuRY+U5A7ySuOZSJI8f60yPn9p6gt/3KWSYwRK5uHpEW1LaYyRxVM8HOkomE5L
+         c4f772x8ymjVCYyxVWHJF9KsxMBB9UcPu8vq33ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 561/633] libbpf: Close map fd if init map slots failed
+Subject: [PATCH 5.9 654/757] media: vsp1: Fix runtime PM imbalance on error
 Date:   Tue, 27 Oct 2020 14:55:04 +0100
-Message-Id: <20201027135549.120457645@linuxfoundation.org>
+Message-Id: <20201027135521.204316666@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit a0f2b7acb4b1d29127ff99c714233b973afd1411 ]
+[ Upstream commit 98fae901c8883640202802174a4bd70a1b9118bd ]
 
-Previously we forgot to close the map fd if bpf_map_update_elem()
-failed during map slot init, which will leak map fd.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-Let's move map slot initialization to new function init_map_slots() to
-simplify the code. And close the map fd if init slot failed.
-
-Reported-by: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20201006021345.3817033-2-liuhangbin@gmail.com
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 55 ++++++++++++++++++++++++++----------------
- 1 file changed, 34 insertions(+), 21 deletions(-)
+ drivers/media/platform/vsp1/vsp1_drv.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index e4d304247c1ba..3e71c2f69afe8 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3677,6 +3677,36 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- 	return 0;
- }
+diff --git a/drivers/media/platform/vsp1/vsp1_drv.c b/drivers/media/platform/vsp1/vsp1_drv.c
+index c650e45bb0ad1..dc62533cf32ce 100644
+--- a/drivers/media/platform/vsp1/vsp1_drv.c
++++ b/drivers/media/platform/vsp1/vsp1_drv.c
+@@ -562,7 +562,12 @@ int vsp1_device_get(struct vsp1_device *vsp1)
+ 	int ret;
  
-+static int init_map_slots(struct bpf_map *map)
-+{
-+	const struct bpf_map *targ_map;
-+	unsigned int i;
-+	int fd, err;
-+
-+	for (i = 0; i < map->init_slots_sz; i++) {
-+		if (!map->init_slots[i])
-+			continue;
-+
-+		targ_map = map->init_slots[i];
-+		fd = bpf_map__fd(targ_map);
-+		err = bpf_map_update_elem(map->fd, &i, &fd, 0);
-+		if (err) {
-+			err = -errno;
-+			pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
-+				map->name, i, targ_map->name,
-+				fd, err);
-+			return err;
-+		}
-+		pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
-+			 map->name, i, targ_map->name, fd);
+ 	ret = pm_runtime_get_sync(vsp1->dev);
+-	return ret < 0 ? ret : 0;
++	if (ret < 0) {
++		pm_runtime_put_noidle(vsp1->dev);
++		return ret;
 +	}
 +
-+	zfree(&map->init_slots);
-+	map->init_slots_sz = 0;
-+
 +	return 0;
-+}
-+
- static int
- bpf_object__create_maps(struct bpf_object *obj)
- {
-@@ -3719,28 +3749,11 @@ bpf_object__create_maps(struct bpf_object *obj)
- 		}
+ }
  
- 		if (map->init_slots_sz) {
--			for (j = 0; j < map->init_slots_sz; j++) {
--				const struct bpf_map *targ_map;
--				int fd;
--
--				if (!map->init_slots[j])
--					continue;
--
--				targ_map = map->init_slots[j];
--				fd = bpf_map__fd(targ_map);
--				err = bpf_map_update_elem(map->fd, &j, &fd, 0);
--				if (err) {
--					err = -errno;
--					pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
--						map->name, j, targ_map->name,
--						fd, err);
--					goto err_out;
--				}
--				pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
--					 map->name, j, targ_map->name, fd);
-+			err = init_map_slots(map);
-+			if (err < 0) {
-+				zclose(map->fd);
-+				goto err_out;
- 			}
--			zfree(&map->init_slots);
--			map->init_slots_sz = 0;
- 		}
+ /*
+@@ -845,12 +850,12 @@ static int vsp1_probe(struct platform_device *pdev)
+ 	/* Configure device parameters based on the version register. */
+ 	pm_runtime_enable(&pdev->dev);
  
- 		if (map->pin_path && !map->pinned) {
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = vsp1_device_get(vsp1);
+ 	if (ret < 0)
+ 		goto done;
+ 
+ 	vsp1->version = vsp1_read(vsp1, VI6_IP_VERSION);
+-	pm_runtime_put_sync(&pdev->dev);
++	vsp1_device_put(vsp1);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(vsp1_device_infos); ++i) {
+ 		if ((vsp1->version & VI6_IP_VERSION_MODEL_MASK) ==
 -- 
 2.25.1
 
