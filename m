@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6774229BFE5
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:10:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578BF29BFB5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1803229AbgJ0RJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:09:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33274 "EHLO mail.kernel.org"
+        id S1816452AbgJ0RGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:06:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1786708AbgJ0O74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:59:56 -0400
+        id S1787338AbgJ0PAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:00:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF81B20714;
-        Tue, 27 Oct 2020 14:59:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A05220714;
+        Tue, 27 Oct 2020 15:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810795;
-        bh=TptQ6ah7Z5g936RT8jh4D/knZGrI2I1FgYocnR2J4Jk=;
+        s=default; t=1603810801;
+        bh=u0wQe6TgDCj75T6Wk00+nF4tb2AYYeLSD64yFhQleIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfFAOPtC4dby65VahACjtWDZHdyXoCabgk4JC1KonmIXcIX0PLrZ+4BOtERT2HaUb
-         REAYLa8V52bksH5Q328Ov0tq8cFCSft5FpQHpNtFkPShqzJKBSGi7wNsnht77iZzDo
-         FMP+9bCXl/lKxvPUGmb5/cytfYXoPRWDRY9zjAUE=
+        b=D1hzEnLjFX6udo7oTppYfe2uyu06gTgBnnOhIRm7aX47AoN5vF3TtKU1ZQiHFcRdI
+         k0IHethIASkba2DotRA3jzSuXMz407IjCtsRwrqRyXRPnE5ehp0EFMea5bXPXMx78h
+         sbROoxjzOW/NsRLnvOAT5RkvoFFRzXw6AKy1nYTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 266/633] rtw88: Fix probe error handling race with firmware loading
-Date:   Tue, 27 Oct 2020 14:50:09 +0100
-Message-Id: <20201027135535.144984743@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 268/633] mt76: mt7915: fix possible memory leak in mt7915_mcu_add_beacon
+Date:   Tue, 27 Oct 2020 14:50:11 +0100
+Message-Id: <20201027135535.240054202@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,106 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Färber <afaerber@suse.de>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit ecda9cda3338b594a1b82d62018c247132a39e57 ]
+[ Upstream commit 071c8ce8e92a86b8bf78678e78eb4b79fdc16768 ]
 
-In case of rtw8822be, a probe failure after successful rtw_core_init()
-has been observed to occasionally lead to an oops from rtw_load_firmware_cb():
+Release mcu message memory in case of failure in mt7915_mcu_add_beacon
+routine
 
-[    3.924268] pci 0001:01:00.0: [10ec:b822] type 00 class 0xff0000
-[    3.930531] pci 0001:01:00.0: reg 0x10: [io  0x0000-0x00ff]
-[    3.936360] pci 0001:01:00.0: reg 0x18: [mem 0x00000000-0x0000ffff 64bit]
-[    3.944042] pci 0001:01:00.0: supports D1 D2
-[    3.948438] pci 0001:01:00.0: PME# supported from D0 D1 D2 D3hot D3cold
-[    3.957312] pci 0001:01:00.0: BAR 2: no space for [mem size 0x00010000 64bit]
-[    3.964645] pci 0001:01:00.0: BAR 2: failed to assign [mem size 0x00010000 64bit]
-[    3.972332] pci 0001:01:00.0: BAR 0: assigned [io  0x10000-0x100ff]
-[    3.986240] rtw_8822be 0001:01:00.0: enabling device (0000 -> 0001)
-[    3.992735] rtw_8822be 0001:01:00.0: failed to map pci memory
-[    3.998638] rtw_8822be 0001:01:00.0: failed to request pci io region
-[    4.005166] rtw_8822be 0001:01:00.0: failed to setup pci resources
-[    4.011580] rtw_8822be: probe of 0001:01:00.0 failed with error -12
-[    4.018827] cfg80211: Loading compiled-in X.509 certificates for regulatory database
-[    4.029121] cfg80211: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
-[    4.050828] Unable to handle kernel paging request at virtual address edafeaac9607952c
-[    4.058975] Mem abort info:
-[    4.058980]   ESR = 0x96000004
-[    4.058990]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    4.070353]   SET = 0, FnV = 0
-[    4.073487]   EA = 0, S1PTW = 0
-[    4.073501] dw-apb-uart 98007800.serial: forbid DMA for kernel console
-[    4.076723] Data abort info:
-[    4.086415]   ISV = 0, ISS = 0x00000004
-[    4.087731] Freeing unused kernel memory: 1792K
-[    4.090391]   CM = 0, WnR = 0
-[    4.098091] [edafeaac9607952c] address between user and kernel address ranges
-[    4.105418] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[    4.111129] Modules linked in:
-[    4.114275] CPU: 1 PID: 31 Comm: kworker/1:1 Not tainted 5.9.0-rc5-next-20200915+ #700
-[    4.122386] Hardware name: Realtek Saola EVB (DT)
-[    4.127223] Workqueue: events request_firmware_work_func
-[    4.132676] pstate: 60000005 (nZCv daif -PAN -UAO BTYPE=--)
-[    4.138393] pc : rtw_load_firmware_cb+0x54/0xbc
-[    4.143040] lr : request_firmware_work_func+0x44/0xb4
-[    4.148217] sp : ffff800010133d70
-[    4.151616] x29: ffff800010133d70 x28: 0000000000000000
-[    4.157069] x27: 0000000000000000 x26: 0000000000000000
-[    4.162520] x25: 0000000000000000 x24: 0000000000000000
-[    4.167971] x23: ffff00007ac21908 x22: ffff00007ebb2100
-[    4.173424] x21: ffff00007ad35880 x20: edafeaac96079504
-[    4.178877] x19: ffff00007ad35870 x18: 0000000000000000
-[    4.184328] x17: 00000000000044d8 x16: 0000000000004310
-[    4.189780] x15: 0000000000000800 x14: 00000000ef006305
-[    4.195231] x13: ffffffff00000000 x12: ffffffffffffffff
-[    4.200682] x11: 0000000000000020 x10: 0000000000000003
-[    4.206135] x9 : 0000000000000000 x8 : ffff00007e73f680
-[    4.211585] x7 : 0000000000000000 x6 : ffff80001119b588
-[    4.217036] x5 : ffff00007e649c80 x4 : ffff00007e649c80
-[    4.222487] x3 : ffff80001119b588 x2 : ffff8000108d1718
-[    4.227940] x1 : ffff800011bd5000 x0 : ffff00007ac21600
-[    4.233391] Call trace:
-[    4.235906]  rtw_load_firmware_cb+0x54/0xbc
-[    4.240198]  request_firmware_work_func+0x44/0xb4
-[    4.245027]  process_one_work+0x178/0x1e4
-[    4.249142]  worker_thread+0x1d0/0x268
-[    4.252989]  kthread+0xe8/0xf8
-[    4.256127]  ret_from_fork+0x10/0x18
-[    4.259800] Code: f94013f5 a8c37bfd d65f03c0 f9000260 (f9401681)
-[    4.266049] ---[ end trace f822ebae1a8545c2 ]---
-
-To avoid this, wait on the completion callbacks in rtw_core_deinit()
-before releasing firmware and continuing teardown.
-
-Note that rtw_wait_firmware_completion() was introduced with
-c8e5695eae9959fc5774c0f490f2450be8bad3de ("rtw88: load wowlan firmware
-if wowlan is supported"), so backports to earlier branches may need to
-inline wait_for_completion(&rtwdev->fw.completion) instead.
-
-Fixes: e3037485c68e ("rtw88: new Realtek 802.11ac driver")
-Fixes: c8e5695eae99 ("rtw88: load wowlan firmware if wowlan is supported")
-Cc: Yan-Hsuan Chuang <yhchuang@realtek.com>
-Signed-off-by: Andreas Färber <afaerber@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200920132621.26468-2-afaerber@suse.de
+Fixes: e57b7901469fc ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../net/wireless/mediatek/mt76/mt7915/mcu.c    | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/main.c b/drivers/net/wireless/realtek/rtw88/main.c
-index 665d4bbdee6a0..80b880b671eaa 100644
---- a/drivers/net/wireless/realtek/rtw88/main.c
-+++ b/drivers/net/wireless/realtek/rtw88/main.c
-@@ -1479,6 +1479,8 @@ void rtw_core_deinit(struct rtw_dev *rtwdev)
- 	struct rtw_rsvd_page *rsvd_pkt, *tmp;
- 	unsigned long flags;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 8fb8255650a7e..6969579e6b1dd 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -2267,14 +2267,6 @@ int mt7915_mcu_add_beacon(struct ieee80211_hw *hw,
+ 	struct bss_info_bcn *bcn;
+ 	int len = MT7915_BEACON_UPDATE_SIZE + MAX_BEACON_SIZE;
  
-+	rtw_wait_firmware_completion(rtwdev);
+-	rskb = mt7915_mcu_alloc_sta_req(dev, mvif, NULL, len);
+-	if (IS_ERR(rskb))
+-		return PTR_ERR(rskb);
+-
+-	tlv = mt7915_mcu_add_tlv(rskb, BSS_INFO_OFFLOAD, sizeof(*bcn));
+-	bcn = (struct bss_info_bcn *)tlv;
+-	bcn->enable = en;
+-
+ 	skb = ieee80211_beacon_get_template(hw, vif, &offs);
+ 	if (!skb)
+ 		return -EINVAL;
+@@ -2285,6 +2277,16 @@ int mt7915_mcu_add_beacon(struct ieee80211_hw *hw,
+ 		return -EINVAL;
+ 	}
+ 
++	rskb = mt7915_mcu_alloc_sta_req(dev, mvif, NULL, len);
++	if (IS_ERR(rskb)) {
++		dev_kfree_skb(skb);
++		return PTR_ERR(rskb);
++	}
 +
- 	if (fw->firmware)
- 		release_firmware(fw->firmware);
- 
++	tlv = mt7915_mcu_add_tlv(rskb, BSS_INFO_OFFLOAD, sizeof(*bcn));
++	bcn = (struct bss_info_bcn *)tlv;
++	bcn->enable = en;
++
+ 	if (mvif->band_idx) {
+ 		info = IEEE80211_SKB_CB(skb);
+ 		info->hw_queue |= MT_TX_HW_QUEUE_EXT_PHY;
 -- 
 2.25.1
 
