@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB58F29C49A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B0A29C49B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757389AbgJ0OTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
+        id S1757397AbgJ0OTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2901137AbgJ0OTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:19:10 -0400
+        id S2507091AbgJ0OTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:19:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DC2E2072D;
-        Tue, 27 Oct 2020 14:19:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D1B2206FA;
+        Tue, 27 Oct 2020 14:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808350;
-        bh=4dYIerY6Lyw+agPoGxjvA/z1ZZEJA0SmrHwnIzTauOs=;
+        s=default; t=1603808352;
+        bh=N2azJv4WeKf6Ckk5KeWSs9aBaDQwAxx36ObrsGLQtpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CM0Kyhr1K/n4FPsaw+0/AjH1Wf7dWGOZ9H7UylupeMzAL2UOYKNIduUR2jnXBXF95
-         luWnzQUXgXAiwLAp9StSNsXQ1mWR6XEmoe+am4LYz6k9KGFo5h9360eNa23DjkI2QM
-         lgpTGjR42Jheq55zYyXpyQa3Af6d0/nLXKhA7KZE=
+        b=2c1mK5lPYeM9RugJPfmK+n2Xd+c+7grfpigKqoQrmkpSas9Ciy4Bby42o0y1Nu/aF
+         sq/HNg835RIBmCZMUbluTcgbz7WA9H224LDOixcGNb7rlfl6n4z/J/EI+6PZ5wWll0
+         DFTX48ESwdZWAttMhiOfR1B+bfcI8BAGNl5Z2MuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/264] media: s5p-mfc: Fix a reference count leak
-Date:   Tue, 27 Oct 2020 14:51:57 +0100
-Message-Id: <20201027135433.445783753@linuxfoundation.org>
+Subject: [PATCH 4.19 060/264] media: stm32-dcmi: Fix a reference count leak
+Date:   Tue, 27 Oct 2020 14:51:58 +0100
+Message-Id: <20201027135433.493018203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -46,38 +46,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 78741ce98c2e36188e2343434406b0e0bc50b0e7 ]
+[ Upstream commit 88f50a05f907d96a27a9ce3cc9e8cbb91a6f0f22 ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code, causing incorrect ref count if
-pm_runtime_put_noidle() is not called in error handling paths.
-Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails.
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count if pm_runtime_put is not
+called in error handling paths. Thus replace the jump target
+"err_release_buffers" by "err_pm_putw".
 
-Fixes: c5086f130a77 ("[media] s5p-mfc: Use clock gating only on MFC v5 hardware")
+Fixes: 152e0bf60219 ("media: stm32-dcmi: add power saving support")
 Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_pm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/stm32/stm32-dcmi.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-index 5e080f32b0e82..95abf2bd7ebae 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-@@ -83,8 +83,10 @@ int s5p_mfc_power_on(void)
- 	int i, ret = 0;
+diff --git a/drivers/media/platform/stm32/stm32-dcmi.c b/drivers/media/platform/stm32/stm32-dcmi.c
+index 18d0b56417894..ee1a211797673 100644
+--- a/drivers/media/platform/stm32/stm32-dcmi.c
++++ b/drivers/media/platform/stm32/stm32-dcmi.c
+@@ -587,7 +587,7 @@ static int dcmi_start_streaming(struct vb2_queue *vq, unsigned int count)
+ 	if (ret < 0) {
+ 		dev_err(dcmi->dev, "%s: Failed to start streaming, cannot get sync (%d)\n",
+ 			__func__, ret);
+-		goto err_release_buffers;
++		goto err_pm_put;
+ 	}
  
- 	ret = pm_runtime_get_sync(pm->device);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(pm->device);
- 		return ret;
-+	}
+ 	/* Enable stream on the sub device */
+@@ -682,8 +682,6 @@ static int dcmi_start_streaming(struct vb2_queue *vq, unsigned int count)
  
- 	/* clock control */
- 	for (i = 0; i < pm->num_clocks; i++) {
+ err_pm_put:
+ 	pm_runtime_put(dcmi->dev);
+-
+-err_release_buffers:
+ 	spin_lock_irq(&dcmi->irqlock);
+ 	/*
+ 	 * Return all buffers to vb2 in QUEUED state.
 -- 
 2.25.1
 
