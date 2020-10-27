@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1816829C6BB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C4629C5D9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1827201AbgJ0SWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 14:22:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49348 "EHLO mail.kernel.org"
+        id S1756636AbgJ0OOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753715AbgJ0OBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:01:37 -0400
+        id S1756631AbgJ0OOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9923F22258;
-        Tue, 27 Oct 2020 14:01:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 950562072D;
+        Tue, 27 Oct 2020 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807297;
-        bh=O+IHjo24MmO5QxbAQXUaVG9tU1jK7u/IyWbU513gXiM=;
+        s=default; t=1603808081;
+        bh=JQh2fpdPo7hQptUNAeVejo7y6ygRohzYnpAbQwiUe4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kiGRx6fdMg3GmLVo9NXSMX7PZ8i2XVVan8WcVV1k7Cwi5Fk+pR6/iWKXiaWbO+E/I
-         kYXaAH3omHkgO1PF+tJc/9NRuQ/EEDz7Kswn+xmhExDWs8q6mT+KjiyIbTkNlGgJpb
-         IAxguyvVCMihbxckUYPXVKfSbCvMGgn1rjaNvAY0=
+        b=mzxT8WQl9/N4/uVegSw6D2Jt8VRAfoWwQdKgHvIuJDxXtgdwpEc+9/FA9l/jWuQtJ
+         y3xeCIu2vTLKoVRB931WUtQrOZwobo3x+JY83fKOu6cp9oX9RHZwr5VlXbzd2hiLz+
+         9XmHE5k2OqpDieBtggKNFE00V0s3C8z4KeMo+DFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 095/112] misc: rtsx: Fix memory leak in rtsx_pci_probe
+Subject: [PATCH 4.14 150/191] mmc: sdio: Check for CISTPL_VERS_1 buffer size
 Date:   Tue, 27 Oct 2020 14:50:05 +0100
-Message-Id: <20201027134905.036072970@linuxfoundation.org>
+Message-Id: <20201027134916.930575556@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit bc28369c6189009b66d9619dd9f09bd8c684bb98 ]
+[ Upstream commit 8ebe2607965d3e2dc02029e8c7dd35fbe508ffd0 ]
 
-When mfd_add_devices() fail, pcr->slots should also be freed. However,
-the current implementation does not free the member, leading to a memory
-leak.
+Before parsing CISTPL_VERS_1 structure check that its size is at least two
+bytes to prevent buffer overflow.
 
-Fix this by adding a new goto label that frees pcr->slots.
-
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Link: https://lore.kernel.org/r/20200909071853.4053-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20200727133837.19086-2-pali@kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/rtsx_pcr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sdio_cis.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mfd/rtsx_pcr.c b/drivers/mfd/rtsx_pcr.c
-index 98029ee0959e3..be61f8606a045 100644
---- a/drivers/mfd/rtsx_pcr.c
-+++ b/drivers/mfd/rtsx_pcr.c
-@@ -1255,12 +1255,14 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
- 	ret = mfd_add_devices(&pcidev->dev, pcr->id, rtsx_pcr_cells,
- 			ARRAY_SIZE(rtsx_pcr_cells), NULL, 0, NULL);
- 	if (ret < 0)
--		goto disable_irq;
-+		goto free_slots;
+diff --git a/drivers/mmc/core/sdio_cis.c b/drivers/mmc/core/sdio_cis.c
+index f8c372839d244..2ca5cd79018b4 100644
+--- a/drivers/mmc/core/sdio_cis.c
++++ b/drivers/mmc/core/sdio_cis.c
+@@ -30,6 +30,9 @@ static int cistpl_vers_1(struct mmc_card *card, struct sdio_func *func,
+ 	unsigned i, nr_strings;
+ 	char **buffer, *string;
  
- 	schedule_delayed_work(&pcr->idle_work, msecs_to_jiffies(200));
- 
- 	return 0;
- 
-+free_slots:
-+	kfree(pcr->slots);
- disable_irq:
- 	free_irq(pcr->irq, (void *)pcr);
- disable_msi:
++	if (size < 2)
++		return 0;
++
+ 	/* Find all null-terminated (including zero length) strings in
+ 	   the TPLLV1_INFO field. Trailing garbage is ignored. */
+ 	buf += 2;
 -- 
 2.25.1
 
