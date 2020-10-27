@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901DF29AF48
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B174329AF7D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1755231AbgJ0OIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58042 "EHLO mail.kernel.org"
+        id S1755252AbgJ0OJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:09:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755227AbgJ0OIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:08:54 -0400
+        id S1755237AbgJ0OI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:08:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA8E6218AC;
-        Tue, 27 Oct 2020 14:08:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7499C21D42;
+        Tue, 27 Oct 2020 14:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807734;
-        bh=bLXa6Zvc/A0U3L/brtR1buwg/a3P6Bys9Ppsmx5ZWto=;
+        s=default; t=1603807736;
+        bh=c8FHyKToXQuo9CBHL9rLDcp8R6E1FXTC4O/WMUx+1t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQruL+FPSsfPhIA+wAKrbz9fL+juju0qWfuiCgEJroRDU4PtqzYpGSZGHlnFoRwO0
-         Y/b9QCyCmOzOdK54N8vFncpJuAyKAEnWYg42rX1DlaPjok7cJDZbetH4HpSHI0OD6k
-         vw6akxVdA3O/K1KjgjDxUR3RGALNS5dJoCJit5s8=
+        b=yeS31n5q6HkXCyVCsheBC+2/3wLBduf/OlAl8UUDcwph4DDk58eObEQ6wpJ0EEqll
+         /WE42f+vw/zrGljWbQBieoXzWUbAqfXh/mrgnBEJaO8HDl+smcy+szpl51Pf0ZnrzN
+         NBP7VQYOtdURJZ8wu3zn0veRPV5oK2CDJAruN51g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 021/191] crypto: algif_aead - Do not set MAY_BACKLOG on the async path
-Date:   Tue, 27 Oct 2020 14:47:56 +0100
-Message-Id: <20201027134910.740997899@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 022/191] EDAC/i5100: Fix error handling order in i5100_init_one()
+Date:   Tue, 27 Oct 2020 14:47:57 +0100
+Message-Id: <20201027134910.792426188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
 References: <20201027134909.701581493@linuxfoundation.org>
@@ -41,56 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit cbdad1f246dd98e6c9c32a6e5212337f542aa7e0 upstream.
+[ Upstream commit 857a3139bd8be4f702c030c8ca06f3fd69c1741a ]
 
-The async path cannot use MAY_BACKLOG because it is not meant to
-block, which is what MAY_BACKLOG does.  On the other hand, both
-the sync and async paths can make use of MAY_SLEEP.
+When pci_get_device_func() fails, the driver doesn't need to execute
+pci_dev_put(). mci should still be freed, though, to prevent a memory
+leak. When pci_enable_device() fails, the error injection PCI device
+"einj" doesn't need to be disabled either.
 
-Fixes: 83094e5e9e49 ("crypto: af_alg - add async support to...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [ bp: Massage commit message, rename label to "bail_mc_free". ]
 
+Fixes: 52608ba205461 ("i5100_edac: probe for device 19 function 0")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200826121437.31606-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algif_aead.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/edac/i5100_edac.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -83,7 +83,7 @@ static int crypto_aead_copy_sgl(struct c
- 	SKCIPHER_REQUEST_ON_STACK(skreq, null_tfm);
+diff --git a/drivers/edac/i5100_edac.c b/drivers/edac/i5100_edac.c
+index b506eef6b146d..858ef4e15180b 100644
+--- a/drivers/edac/i5100_edac.c
++++ b/drivers/edac/i5100_edac.c
+@@ -1072,16 +1072,15 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 				    PCI_DEVICE_ID_INTEL_5100_19, 0);
+ 	if (!einj) {
+ 		ret = -ENODEV;
+-		goto bail_einj;
++		goto bail_mc_free;
+ 	}
  
- 	skcipher_request_set_tfm(skreq, null_tfm);
--	skcipher_request_set_callback(skreq, CRYPTO_TFM_REQ_MAY_BACKLOG,
-+	skcipher_request_set_callback(skreq, CRYPTO_TFM_REQ_MAY_SLEEP,
- 				      NULL, NULL);
- 	skcipher_request_set_crypt(skreq, src, dst, len, NULL);
+ 	rc = pci_enable_device(einj);
+ 	if (rc < 0) {
+ 		ret = rc;
+-		goto bail_disable_einj;
++		goto bail_einj;
+ 	}
  
-@@ -296,19 +296,20 @@ static int _aead_recvmsg(struct socket *
- 		areq->outlen = outlen;
+-
+ 	mci->pdev = &pdev->dev;
  
- 		aead_request_set_callback(&areq->cra_u.aead_req,
--					  CRYPTO_TFM_REQ_MAY_BACKLOG,
-+					  CRYPTO_TFM_REQ_MAY_SLEEP,
- 					  af_alg_async_cb, areq);
- 		err = ctx->enc ? crypto_aead_encrypt(&areq->cra_u.aead_req) :
- 				 crypto_aead_decrypt(&areq->cra_u.aead_req);
+ 	priv = mci->pvt_info;
+@@ -1147,14 +1146,14 @@ static int i5100_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ bail_scrub:
+ 	priv->scrub_enable = 0;
+ 	cancel_delayed_work_sync(&(priv->i5100_scrubbing));
+-	edac_mc_free(mci);
+-
+-bail_disable_einj:
+ 	pci_disable_device(einj);
  
- 		/* AIO operation in progress */
--		if (err == -EINPROGRESS || err == -EBUSY)
-+		if (err == -EINPROGRESS)
- 			return -EIOCBQUEUED;
+ bail_einj:
+ 	pci_dev_put(einj);
  
- 		sock_put(sk);
- 	} else {
- 		/* Synchronous operation */
- 		aead_request_set_callback(&areq->cra_u.aead_req,
-+					  CRYPTO_TFM_REQ_MAY_SLEEP |
- 					  CRYPTO_TFM_REQ_MAY_BACKLOG,
- 					  af_alg_complete, &ctx->completion);
- 		err = af_alg_wait_for_completion(ctx->enc ?
++bail_mc_free:
++	edac_mc_free(mci);
++
+ bail_disable_ch1:
+ 	pci_disable_device(ch1mm);
+ 
+-- 
+2.25.1
+
 
 
