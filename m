@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0562C29C14B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2C5C29C148
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900805AbgJ0RYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:24:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
+        id S1818837AbgJ0RYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900787AbgJ0OyO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:54:14 -0400
+        id S2900805AbgJ0OyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:54:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 662F920679;
-        Tue, 27 Oct 2020 14:54:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45BF222202;
+        Tue, 27 Oct 2020 14:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810454;
-        bh=I155zozoECyCRDse1vjaFFlaWx71oqPdXbTz5mWzBEM=;
+        s=default; t=1603810457;
+        bh=A6OMpTdyCylzyerA5CB0Ge8MMoV/V8hVB4ep8A82JIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djqzhHS5RaJ6zPFvrAWrnhToFQ9rQlaFEVBchKkrQIPqdQSX03BF7k6/OM2x5Kt2S
-         wacqnVhdJPX4mDFZPQPs+o6y2+5qs02BoaPMQIkq9Y/udCnEiLtsIhzneAWOkyGTGo
-         Affokkk7xS70lb0HmdUsp7uA+dD8qaC6pplPJYU0=
+        b=mqsjIxMugiM5HaAHxuxMUQDDB0TzNg1xSIt2WsmaKye55Is0WU4psr050u6iS+Ei7
+         wH32/WCKxuJ72ctrcZjtDA/2FsZ+OmR52sxrbhFRSLdIbm7wMgPh0YF18yXTpH+1gY
+         7OuDlH6NdHb7D81G5Bfwl+EPCI9w7h28Mwsy619w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 114/633] fscrypt: restrict IV_INO_LBLK_32 to ino_bits <= 32
-Date:   Tue, 27 Oct 2020 14:47:37 +0100
-Message-Id: <20201027135528.042711735@linuxfoundation.org>
+Subject: [PATCH 5.8 115/633] media: uvcvideo: Set media controller entity functions
+Date:   Tue, 27 Oct 2020 14:47:38 +0100
+Message-Id: <20201027135528.085062020@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,63 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 5e895bd4d5233cb054447d0491d4e63c8496d419 ]
+[ Upstream commit d6834b4b58d110814aaf3469e7fd87d34ae5ae81 ]
 
-When an encryption policy has the IV_INO_LBLK_32 flag set, the IV
-generation method involves hashing the inode number.  This is different
-from fscrypt's other IV generation methods, where the inode number is
-either not used at all or is included directly in the IVs.
+The media controller core prints a warning when an entity is registered
+without a function being set. This affects the uvcvideo driver, as the
+warning was added without first addressing the issue in existing
+drivers. The problem is harmless, but unnecessarily worries users. Fix
+it by mapping UVC entity types to MC entity functions as accurately as
+possible using the existing functions.
 
-Therefore, in principle IV_INO_LBLK_32 can work with any length inode
-number.  However, currently fscrypt gets the inode number from
-inode::i_ino, which is 'unsigned long'.  So currently the implementation
-limit is actually 32 bits (like IV_INO_LBLK_64), since longer inode
-numbers will have been truncated by the VFS on 32-bit platforms.
-
-Fix fscrypt_supported_v2_policy() to enforce the correct limit.
-
-This doesn't actually matter currently, since only ext4 and f2fs support
-IV_INO_LBLK_32, and they both only support 32-bit inode numbers.  But we
-might as well fix it in case it matters in the future.
-
-Ideally inode::i_ino would instead be made 64-bit, but for now it's not
-needed.  (Note, this limit does *not* prevent filesystems with 64-bit
-inode numbers from adding fscrypt support, since IV_INO_LBLK_* support
-is optional and is useful only on certain hardware.)
-
-Fixes: e3b1078bedd3 ("fscrypt: add support for IV_INO_LBLK_32 policies")
-Reported-by: Jeff Layton <jlayton@kernel.org>
-Link: https://lore.kernel.org/r/20200824203841.1707847-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: b50bde4e476d ("[media] v4l2-subdev: use MEDIA_ENT_T_UNKNOWN for new subdevs")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/policy.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/media/usb/uvc/uvc_entity.c | 35 ++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
-index d23ff162c78bc..0b32c64eb4053 100644
---- a/fs/crypto/policy.c
-+++ b/fs/crypto/policy.c
-@@ -178,10 +178,15 @@ static bool fscrypt_supported_v2_policy(const struct fscrypt_policy_v2 *policy,
- 					  32, 32))
- 		return false;
+diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
+index b4499cddeffe5..ca3a9c2eec271 100644
+--- a/drivers/media/usb/uvc/uvc_entity.c
++++ b/drivers/media/usb/uvc/uvc_entity.c
+@@ -73,10 +73,45 @@ static int uvc_mc_init_entity(struct uvc_video_chain *chain,
+ 	int ret;
  
-+	/*
-+	 * IV_INO_LBLK_32 hashes the inode number, so in principle it can
-+	 * support any ino_bits.  However, currently the inode number is gotten
-+	 * from inode::i_ino which is 'unsigned long'.  So for now the
-+	 * implementation limit is 32 bits.
-+	 */
- 	if ((policy->flags & FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32) &&
--	    /* This uses hashed inode numbers, so ino_bits doesn't matter. */
- 	    !supported_iv_ino_lblk_policy(policy, inode, "IV_INO_LBLK_32",
--					  INT_MAX, 32))
-+					  32, 32))
- 		return false;
+ 	if (UVC_ENTITY_TYPE(entity) != UVC_TT_STREAMING) {
++		u32 function;
++
+ 		v4l2_subdev_init(&entity->subdev, &uvc_subdev_ops);
+ 		strscpy(entity->subdev.name, entity->name,
+ 			sizeof(entity->subdev.name));
  
- 	if (memchr_inv(policy->__reserved, 0, sizeof(policy->__reserved))) {
++		switch (UVC_ENTITY_TYPE(entity)) {
++		case UVC_VC_SELECTOR_UNIT:
++			function = MEDIA_ENT_F_VID_MUX;
++			break;
++		case UVC_VC_PROCESSING_UNIT:
++		case UVC_VC_EXTENSION_UNIT:
++			/* For lack of a better option. */
++			function = MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER;
++			break;
++		case UVC_COMPOSITE_CONNECTOR:
++		case UVC_COMPONENT_CONNECTOR:
++			function = MEDIA_ENT_F_CONN_COMPOSITE;
++			break;
++		case UVC_SVIDEO_CONNECTOR:
++			function = MEDIA_ENT_F_CONN_SVIDEO;
++			break;
++		case UVC_ITT_CAMERA:
++			function = MEDIA_ENT_F_CAM_SENSOR;
++			break;
++		case UVC_TT_VENDOR_SPECIFIC:
++		case UVC_ITT_VENDOR_SPECIFIC:
++		case UVC_ITT_MEDIA_TRANSPORT_INPUT:
++		case UVC_OTT_VENDOR_SPECIFIC:
++		case UVC_OTT_DISPLAY:
++		case UVC_OTT_MEDIA_TRANSPORT_OUTPUT:
++		case UVC_EXTERNAL_VENDOR_SPECIFIC:
++		default:
++			function = MEDIA_ENT_F_V4L2_SUBDEV_UNKNOWN;
++			break;
++		}
++
++		entity->subdev.entity.function = function;
++
+ 		ret = media_entity_pads_init(&entity->subdev.entity,
+ 					entity->num_pads, entity->pads);
+ 
 -- 
 2.25.1
 
