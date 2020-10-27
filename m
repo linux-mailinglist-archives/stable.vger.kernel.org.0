@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B32B29B636
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB8B29B647
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1797108AbgJ0PVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36246 "EHLO mail.kernel.org"
+        id S1797251AbgJ0PW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1797103AbgJ0PVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:21:38 -0400
+        id S1797241AbgJ0PWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:22:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7AAB20657;
-        Tue, 27 Oct 2020 15:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 218232064B;
+        Tue, 27 Oct 2020 15:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812097;
-        bh=6yv3Oh8wNkjZaKoanGeblrl+rJZ6HHCfqns5L9hxAtE=;
+        s=default; t=1603812143;
+        bh=7xT6aAxzOBLkpA2SaahT+QLhtQ+3akzwiY9gddM3Qho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u//SPXUjWsu+c7jsXyEMtRHs9tgddSD6PA4M9+/JxyiDhMSNGaVwmXvBSZGHsWlTK
-         DYpOLspvJNeJzIjMpJUoMQps6ijM+x/GJU3ZAo4V19+VZM7mVgvjKUcigNykPsSk07
-         X0sRKHUaq7UQbKUH7OJ+jBkWBXHslTEVQJF15FR8=
+        b=IFyieVV9RSyc9xEHvgJtw73jwpaeYM0sp99SVS4H26eBM9scQpAMoacaJwoNR4AQ2
+         N4aaKXNz8xqOoB5fBSf/EUDo098zgVVgIdZ3GVOQQKMWp87sD1uj9SPN24UwR+mJsV
+         RwykExx85nO+257OxQy2H4Xsvjz+EQMqtKpl1ZTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Junaid Shahid <junaids@google.com>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.9 074/757] KVM: nVMX: Reset the segment cache when stuffing guest segs
-Date:   Tue, 27 Oct 2020 14:45:24 +0100
-Message-Id: <20201027135454.019797277@linuxfoundation.org>
+Subject: [PATCH 5.9 076/757] KVM: x86/mmu: Commit zap of remaining invalid pages when recovering lpages
+Date:   Tue, 27 Oct 2020 14:45:26 +0100
+Message-Id: <20201027135454.103297549@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,72 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit fc387d8daf3960c5e1bc18fa353768056f4fd394 upstream.
+commit e89505698c9f70125651060547da4ff5046124fc upstream.
 
-Explicitly reset the segment cache after stuffing guest segment regs in
-prepare_vmcs02_rare().  Although the cache is reset when switching to
-vmcs02, there is nothing that prevents KVM from re-populating the cache
-prior to writing vmcs02 with vmcs12's values.  E.g. if the vCPU is
-preempted after switching to vmcs02 but before prepare_vmcs02_rare(),
-kvm_arch_vcpu_put() will dereference GUEST_SS_AR_BYTES via .get_cpl()
-and cache the stale vmcs02 value.  While the current code base only
-caches stale data in the preemption case, it's theoretically possible
-future code could read a segment register during the nested flow itself,
-i.e. this isn't technically illegal behavior in kvm_arch_vcpu_put(),
-although it did introduce the bug.
+Call kvm_mmu_commit_zap_page() after exiting the "prepare zap" loop in
+kvm_recover_nx_lpages() to finish zapping pages in the unlikely event
+that the loop exited due to lpage_disallowed_mmu_pages being empty.
+Because the recovery thread drops mmu_lock() when rescheduling, it's
+possible that lpage_disallowed_mmu_pages could be emptied by a different
+thread without to_zap reaching zero despite to_zap being derived from
+the number of disallowed lpages.
 
-This manifests as an unexpected nested VM-Enter failure when running
-with unrestricted guest disabled if the above preemption case coincides
-with L1 switching L2's CPL, e.g. when switching from a L2 vCPU at CPL3
-to to a L2 vCPU at CPL0.  stack_segment_valid() will see the new SS_SEL
-but the old SS_AR_BYTES and incorrectly mark the guest state as invalid
-due to SS.dpl != SS.rpl.
-
-Don't bother updating the cache even though prepare_vmcs02_rare() writes
-every segment.  With unrestricted guest, guest segments are almost never
-read, let alone L2 guest segments.  On the other hand, populating the
-cache requires a large number of memory writes, i.e. it's unlikely to be
-a net win.  Updating the cache would be a win when unrestricted guest is
-not supported, as guest_state_valid() will immediately cache all segment
-registers.  But, nested virtualization without unrestricted guest is
-dirt slow, saving some VMREADs won't change that, and every CPU
-manufactured in the last decade supports unrestricted guest.  In other
-words, the extra (minor) complexity isn't worth the trouble.
-
-Note, kvm_arch_vcpu_put() may see stale data when querying guest CPL
-depending on when preemption occurs.  This is "ok" in that the usage is
-imperfect by nature, i.e. it's used heuristically to improve performance
-but doesn't affect functionality.  kvm_arch_vcpu_put() could be "fixed"
-by also disabling preemption while loading segments, but that's
-pointless and misleading as reading state from kvm_sched_{in,out}() is
-guaranteed to see stale data in one form or another.  E.g. even if all
-the usage of regs_avail is fixed to call kvm_register_mark_available()
-after the associated state is set, the individual state might still be
-stale with respect to the overall vCPU state.  I.e. making functional
-decisions in an asynchronous hook is doomed from the get go.  Thankfully
-KVM doesn't do that.
-
-Fixes: de63ad4cf4973 ("KVM: X86: implement the logic for spinlock optimization")
+Fixes: 1aa9b9572b105 ("kvm: x86: mmu: Recovery of shattered NX large pages")
+Cc: Junaid Shahid <junaids@google.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923184452.980-2-sean.j.christopherson@intel.com>
+Message-Id: <20200923183735.584-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2408,6 +2408,8 @@ static void prepare_vmcs02_rare(struct v
- 		vmcs_writel(GUEST_TR_BASE, vmcs12->guest_tr_base);
- 		vmcs_writel(GUEST_GDTR_BASE, vmcs12->guest_gdtr_base);
- 		vmcs_writel(GUEST_IDTR_BASE, vmcs12->guest_idtr_base);
-+
-+		vmx->segment_cache.bitmask = 0;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6376,6 +6376,7 @@ static void kvm_recover_nx_lpages(struct
+ 				cond_resched_lock(&kvm->mmu_lock);
+ 		}
  	}
++	kvm_mmu_commit_zap_page(kvm, &invalid_list);
  
- 	if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
 
 
