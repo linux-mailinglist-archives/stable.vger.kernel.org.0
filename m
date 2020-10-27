@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB98229AE45
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8EE29AE44
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753129AbgJ0N6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2392157AbgJ0N6h (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 09:58:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45838 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753106AbgJ0N6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 09:58:31 -0400
+        id S1753084AbgJ0N6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:58:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EA3A206D4;
-        Tue, 27 Oct 2020 13:58:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 033FB2072D;
+        Tue, 27 Oct 2020 13:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807110;
-        bh=TfYBY1TWWeVZN1EtVNgKY8Pt/If16lcI9INRfa875aI=;
+        s=default; t=1603807113;
+        bh=IX2d2SxGPTenesbgtUY1o15LkCFjmE32LFqtIj318rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nghFc33Q8yxWI+3EnJ5+qjHnI8MdNRnjeQUBiy98jkITdNplcAfwzjixKLQPUJmrk
-         +Jbex1PuiHI7qs7rF+KybHEzn285k++zdaGaJWlFvfBjWg7o4XJMTnboPJZ388GxEl
-         /5p4fPNqPzD3aR912cHu1S0K5LV6uS1zBi8MsXWc=
+        b=w9A1vgEIiTZGy0FFe1PFuY6rC6P98Tpk8aVXM5li7fXCez895GH71oGi0S9fzEbci
+         cB4wJ4THqRHsgcaK+QVVj643cIMh8Bjy2AQJH7ptRb9jzVC5HksWdQU5qXeWQ/YaVf
+         NvXakcn5mYgAc1sYTz7CnK9ndjq9C8t3iLwuf2W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jan Kara <jack@suse.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 046/112] quota: clear padding in v2r1_mem2diskdqb()
-Date:   Tue, 27 Oct 2020 14:49:16 +0100
-Message-Id: <20201027134902.733057639@linuxfoundation.org>
+Subject: [PATCH 4.4 047/112] net: enic: Cure the enic api locking trainwreck
+Date:   Tue, 27 Oct 2020 14:49:17 +0100
+Message-Id: <20201027134902.781869222@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
 References: <20201027134900.532249571@linuxfoundation.org>
@@ -43,112 +43,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 3d3dc274ce736227e3197868ff749cff2f175f63 ]
+[ Upstream commit a53b59ece86c86d16d12ccdaa1ad0c78250a9d96 ]
 
-Freshly allocated memory contains garbage, better make sure
-to init all struct v2r1_disk_dqblk fields to avoid KMSAN report:
+enic_dev_wait() has a BUG_ON(in_interrupt()).
 
-BUG: KMSAN: uninit-value in qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
-CPU: 0 PID: 23373 Comm: syz-executor.1 Not tainted 5.9.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:219
- qtree_entry_unused+0x137/0x1b0 fs/quota/quota_tree.c:218
- v2r1_mem2diskdqb+0x43d/0x710 fs/quota/quota_v2.c:285
- qtree_write_dquot+0x226/0x870 fs/quota/quota_tree.c:394
- v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
- dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
- ext4_write_dquot fs/ext4/super.c:5934 [inline]
- ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
- mark_dquot_dirty fs/quota/dquot.c:347 [inline]
- mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
- dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
- __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
- ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
- vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
- do_tmpfile fs/namei.c:3316 [inline]
- path_openat+0x4035/0x6a90 fs/namei.c:3359
- do_filp_open+0x2b8/0x710 fs/namei.c:3395
- do_sys_openat2+0xa88/0x1140 fs/open.c:1168
- do_sys_open fs/open.c:1184 [inline]
- __do_compat_sys_openat fs/open.c:1242 [inline]
- __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
- __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
- do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
- __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
- do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
- do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
-RIP: 0023:0xf7ff4549
-Code: b8 01 10 06 03 74 b4 01 10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000f55cd0cc EFLAGS: 00000296 ORIG_RAX: 0000000000000127
-RAX: ffffffffffffffda RBX: 00000000ffffff9c RCX: 0000000020000000
-RDX: 0000000000410481 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+Chasing the callers of enic_dev_wait() revealed the gems of enic_reset()
+and enic_tx_hang_reset() which are both invoked through work queues in
+order to be able to call rtnl_lock(). So far so good.
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:143 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:126
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:80
- slab_alloc_node mm/slub.c:2907 [inline]
- slab_alloc mm/slub.c:2916 [inline]
- __kmalloc+0x2bb/0x4b0 mm/slub.c:3982
- kmalloc include/linux/slab.h:559 [inline]
- getdqbuf+0x56/0x150 fs/quota/quota_tree.c:52
- qtree_write_dquot+0xf2/0x870 fs/quota/quota_tree.c:378
- v2_write_dquot+0x1ad/0x280 fs/quota/quota_v2.c:333
- dquot_commit+0x4af/0x600 fs/quota/dquot.c:482
- ext4_write_dquot fs/ext4/super.c:5934 [inline]
- ext4_mark_dquot_dirty+0x4d8/0x6a0 fs/ext4/super.c:5985
- mark_dquot_dirty fs/quota/dquot.c:347 [inline]
- mark_all_dquot_dirty fs/quota/dquot.c:385 [inline]
- dquot_alloc_inode+0xc05/0x12b0 fs/quota/dquot.c:1755
- __ext4_new_inode+0x8204/0x9d70 fs/ext4/ialloc.c:1155
- ext4_tmpfile+0x41a/0x850 fs/ext4/namei.c:2686
- vfs_tmpfile+0x2a2/0x570 fs/namei.c:3283
- do_tmpfile fs/namei.c:3316 [inline]
- path_openat+0x4035/0x6a90 fs/namei.c:3359
- do_filp_open+0x2b8/0x710 fs/namei.c:3395
- do_sys_openat2+0xa88/0x1140 fs/open.c:1168
- do_sys_open fs/open.c:1184 [inline]
- __do_compat_sys_openat fs/open.c:1242 [inline]
- __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
- __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
- do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
- __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
- do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
- do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+After locking rtnl both functions acquire enic::enic_api_lock which
+serializes against the (ab)use from infiniband. This is where the
+trainwreck starts.
 
-Fixes: 498c60153ebb ("quota: Implement quota format with 64-bit space and inode limits")
-Link: https://lore.kernel.org/r/20200924183619.4176790-1-edumazet@google.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jan Kara <jack@suse.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+enic::enic_api_lock is a spin_lock() which implicitly disables preemption,
+but both functions invoke a ton of functions under that lock which can
+sleep. The BUG_ON(in_interrupt()) does not trigger in that case because it
+can't detect the preempt disabled condition.
+
+This clearly has never been tested with any of the mandatory debug options
+for 7+ years, which would have caught that for sure.
+
+Cure it by adding a enic_api_busy member to struct enic, which is modified
+and evaluated with enic::enic_api_lock held.
+
+If enic_api_devcmd_proxy_by_index() observes enic::enic_api_busy as true,
+it drops enic::enic_api_lock and busy waits for enic::enic_api_busy to
+become false.
+
+It would be smarter to wait for a completion of that busy period, but
+enic_api_devcmd_proxy_by_index() is called with other spin locks held which
+obviously can't sleep.
+
+Remove the BUG_ON(in_interrupt()) check as well because it's incomplete and
+with proper debugging enabled the problem would have been caught from the
+debug checks in schedule_timeout().
+
+Fixes: 0b038566c0ea ("drivers/net: enic: Add an interface for USNIC to interact with firmware")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/cisco/enic/enic.h      |  1 +
+ drivers/net/ethernet/cisco/enic/enic_api.c  |  6 +++++
+ drivers/net/ethernet/cisco/enic/enic_main.c | 27 ++++++++++++++++-----
+ 3 files changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/fs/quota/quota_v2.c b/fs/quota/quota_v2.c
-index 2aa012a68e90e..9891b8fb0432f 100644
---- a/fs/quota/quota_v2.c
-+++ b/fs/quota/quota_v2.c
-@@ -266,6 +266,7 @@ static void v2r1_mem2diskdqb(void *dp, struct dquot *dquot)
- 	d->dqb_curspace = cpu_to_le64(m->dqb_curspace);
- 	d->dqb_btime = cpu_to_le64(m->dqb_btime);
- 	d->dqb_id = cpu_to_le32(from_kqid(&init_user_ns, dquot->dq_id));
-+	d->dqb_pad = 0;
- 	if (qtree_entry_unused(info, dp))
- 		d->dqb_itime = cpu_to_le64(1);
+diff --git a/drivers/net/ethernet/cisco/enic/enic.h b/drivers/net/ethernet/cisco/enic/enic.h
+index 7ba6d530b0c0a..230a4157ae9d0 100644
+--- a/drivers/net/ethernet/cisco/enic/enic.h
++++ b/drivers/net/ethernet/cisco/enic/enic.h
+@@ -163,6 +163,7 @@ struct enic {
+ 	u16 num_vfs;
+ #endif
+ 	spinlock_t enic_api_lock;
++	bool enic_api_busy;
+ 	struct enic_port_profile *pp;
+ 
+ 	/* work queue cache line section */
+diff --git a/drivers/net/ethernet/cisco/enic/enic_api.c b/drivers/net/ethernet/cisco/enic/enic_api.c
+index b161f24522b87..b028ea2dec2b9 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_api.c
++++ b/drivers/net/ethernet/cisco/enic/enic_api.c
+@@ -34,6 +34,12 @@ int enic_api_devcmd_proxy_by_index(struct net_device *netdev, int vf,
+ 	struct vnic_dev *vdev = enic->vdev;
+ 
+ 	spin_lock(&enic->enic_api_lock);
++	while (enic->enic_api_busy) {
++		spin_unlock(&enic->enic_api_lock);
++		cpu_relax();
++		spin_lock(&enic->enic_api_lock);
++	}
++
+ 	spin_lock_bh(&enic->devcmd_lock);
+ 
+ 	vnic_dev_cmd_proxy_by_index_start(vdev, vf);
+diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
+index 3fd1cba0c7ec3..5c74e55b75e52 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_main.c
++++ b/drivers/net/ethernet/cisco/enic/enic_main.c
+@@ -1938,8 +1938,6 @@ static int enic_dev_wait(struct vnic_dev *vdev,
+ 	int done;
+ 	int err;
+ 
+-	BUG_ON(in_interrupt());
+-
+ 	err = start(vdev, arg);
+ 	if (err)
+ 		return err;
+@@ -2116,6 +2114,13 @@ static int enic_set_rss_nic_cfg(struct enic *enic)
+ 		rss_hash_bits, rss_base_cpu, rss_enable);
  }
+ 
++static void enic_set_api_busy(struct enic *enic, bool busy)
++{
++	spin_lock(&enic->enic_api_lock);
++	enic->enic_api_busy = busy;
++	spin_unlock(&enic->enic_api_lock);
++}
++
+ static void enic_reset(struct work_struct *work)
+ {
+ 	struct enic *enic = container_of(work, struct enic, reset);
+@@ -2125,7 +2130,9 @@ static void enic_reset(struct work_struct *work)
+ 
+ 	rtnl_lock();
+ 
+-	spin_lock(&enic->enic_api_lock);
++	/* Stop any activity from infiniband */
++	enic_set_api_busy(enic, true);
++
+ 	enic_stop(enic->netdev);
+ 	enic_dev_soft_reset(enic);
+ 	enic_reset_addr_lists(enic);
+@@ -2133,7 +2140,10 @@ static void enic_reset(struct work_struct *work)
+ 	enic_set_rss_nic_cfg(enic);
+ 	enic_dev_set_ig_vlan_rewrite_mode(enic);
+ 	enic_open(enic->netdev);
+-	spin_unlock(&enic->enic_api_lock);
++
++	/* Allow infiniband to fiddle with the device again */
++	enic_set_api_busy(enic, false);
++
+ 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 
+ 	rtnl_unlock();
+@@ -2145,7 +2155,9 @@ static void enic_tx_hang_reset(struct work_struct *work)
+ 
+ 	rtnl_lock();
+ 
+-	spin_lock(&enic->enic_api_lock);
++	/* Stop any activity from infiniband */
++	enic_set_api_busy(enic, true);
++
+ 	enic_dev_hang_notify(enic);
+ 	enic_stop(enic->netdev);
+ 	enic_dev_hang_reset(enic);
+@@ -2154,7 +2166,10 @@ static void enic_tx_hang_reset(struct work_struct *work)
+ 	enic_set_rss_nic_cfg(enic);
+ 	enic_dev_set_ig_vlan_rewrite_mode(enic);
+ 	enic_open(enic->netdev);
+-	spin_unlock(&enic->enic_api_lock);
++
++	/* Allow infiniband to fiddle with the device again */
++	enic_set_api_busy(enic, false);
++
+ 	call_netdevice_notifiers(NETDEV_REBOOT, enic->netdev);
+ 
+ 	rtnl_unlock();
 -- 
 2.25.1
 
