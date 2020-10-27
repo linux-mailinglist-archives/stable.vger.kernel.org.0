@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E73529BBEB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DC6D29BC0B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1809842AbgJ0Q3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:29:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52456 "EHLO mail.kernel.org"
+        id S1752347AbgJ0QbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:31:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1802704AbgJ0Pu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:50:59 -0400
+        id S1802614AbgJ0Puc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9194C207C3;
-        Tue, 27 Oct 2020 15:50:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30B242065C;
+        Tue, 27 Oct 2020 15:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813859;
-        bh=2EdnI/44i6cOeu1YQKKHewLtw6WjTFdpQXVpmbL+U34=;
+        s=default; t=1603813829;
+        bh=Y5rxppWBie0Qi7JMg05QqUMHqjHqiVXYZGdU7R4cg2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xa4Qk+MUSVPUGkM0qNX/52ZY/cGgkJRAnt19tSFKbzaVKFUkOZKl3eNBOkRayAoFE
-         YfyjZIal+M0EWESdVwni0hwURvZ1YZGYCS61zZV4vdHpqcpYMYpqqW/61JhqHAo+ql
-         1vQsOjydTYWzSU4xkli2dbG1pgUmrd5oghHJ54sU=
+        b=nLoO2NVAUb8vgCGkl1BmRnj+FVXHA5v/8bH08ZmmXkOWFGoJWmzHd71ehg2sS3QTJ
+         9Efc627Q9f1AlFVbB99nmHBf1+4GqVUyztU6oxCrAMm38eZz9Mx/zCu+DxV1lKIuNU
+         invfKdhktOLSJ3fZdnVocIMwZW8bARY4rLi4ieBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 677/757] libbpf: Close map fd if init map slots failed
-Date:   Tue, 27 Oct 2020 14:55:27 +0100
-Message-Id: <20201027135522.291289890@linuxfoundation.org>
+Subject: [PATCH 5.9 685/757] usb: gadget: function: printer: fix use-after-free in __lock_acquire
+Date:   Tue, 27 Oct 2020 14:55:35 +0100
+Message-Id: <20201027135522.666764765@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -46,100 +44,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit a0f2b7acb4b1d29127ff99c714233b973afd1411 ]
+[ Upstream commit e8d5f92b8d30bb4ade76494490c3c065e12411b1 ]
 
-Previously we forgot to close the map fd if bpf_map_update_elem()
-failed during map slot init, which will leak map fd.
+Fix this by increase object reference count.
 
-Let's move map slot initialization to new function init_map_slots() to
-simplify the code. And close the map fd if init slot failed.
+BUG: KASAN: use-after-free in __lock_acquire+0x3fd4/0x4180
+kernel/locking/lockdep.c:3831
+Read of size 8 at addr ffff8880683b0018 by task syz-executor.0/3377
 
-Reported-by: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20201006021345.3817033-2-liuhangbin@gmail.com
+CPU: 1 PID: 3377 Comm: syz-executor.0 Not tainted 5.6.11 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
+ __lock_acquire+0x3fd4/0x4180 kernel/locking/lockdep.c:3831
+ lock_acquire+0x127/0x350 kernel/locking/lockdep.c:4488
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+ _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
+ printer_ioctl+0x4a/0x110 drivers/usb/gadget/function/f_printer.c:723
+ vfs_ioctl fs/ioctl.c:47 [inline]
+ ksys_ioctl+0xfb/0x130 fs/ioctl.c:763
+ __do_sys_ioctl fs/ioctl.c:772 [inline]
+ __se_sys_ioctl fs/ioctl.c:770 [inline]
+ __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4531a9
+Code: ed 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48
+89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
+01 f0 ff ff 0f 83 bb 60 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fd14ad72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 000000000073bfa8 RCX: 00000000004531a9
+RDX: fffffffffffffff9 RSI: 000000000000009e RDI: 0000000000000003
+RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004bbd61
+R13: 00000000004d0a98 R14: 00007fd14ad736d4 R15: 00000000ffffffff
+
+Allocated by task 2393:
+ save_stack+0x21/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ __kasan_kmalloc.constprop.3+0xa7/0xd0 mm/kasan/common.c:515
+ kasan_kmalloc+0x9/0x10 mm/kasan/common.c:529
+ kmem_cache_alloc_trace+0xfa/0x2d0 mm/slub.c:2813
+ kmalloc include/linux/slab.h:555 [inline]
+ kzalloc include/linux/slab.h:669 [inline]
+ gprinter_alloc+0xa1/0x870 drivers/usb/gadget/function/f_printer.c:1416
+ usb_get_function+0x58/0xc0 drivers/usb/gadget/functions.c:61
+ config_usb_cfg_link+0x1ed/0x3e0 drivers/usb/gadget/configfs.c:444
+ configfs_symlink+0x527/0x11d0 fs/configfs/symlink.c:202
+ vfs_symlink+0x33d/0x5b0 fs/namei.c:4201
+ do_symlinkat+0x11b/0x1d0 fs/namei.c:4228
+ __do_sys_symlinkat fs/namei.c:4242 [inline]
+ __se_sys_symlinkat fs/namei.c:4239 [inline]
+ __x64_sys_symlinkat+0x73/0xb0 fs/namei.c:4239
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 3368:
+ save_stack+0x21/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ kasan_set_free_info mm/kasan/common.c:337 [inline]
+ __kasan_slab_free+0x135/0x190 mm/kasan/common.c:476
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:485
+ slab_free_hook mm/slub.c:1444 [inline]
+ slab_free_freelist_hook mm/slub.c:1477 [inline]
+ slab_free mm/slub.c:3034 [inline]
+ kfree+0xf7/0x410 mm/slub.c:3995
+ gprinter_free+0x49/0xd0 drivers/usb/gadget/function/f_printer.c:1353
+ usb_put_function+0x38/0x50 drivers/usb/gadget/functions.c:87
+ config_usb_cfg_unlink+0x2db/0x3b0 drivers/usb/gadget/configfs.c:485
+ configfs_unlink+0x3b9/0x7f0 fs/configfs/symlink.c:250
+ vfs_unlink+0x287/0x570 fs/namei.c:4073
+ do_unlinkat+0x4f9/0x620 fs/namei.c:4137
+ __do_sys_unlink fs/namei.c:4184 [inline]
+ __se_sys_unlink fs/namei.c:4182 [inline]
+ __x64_sys_unlink+0x42/0x50 fs/namei.c:4182
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8880683b0000
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 24 bytes inside of
+ 1024-byte region [ffff8880683b0000, ffff8880683b0400)
+The buggy address belongs to the page:
+page:ffffea0001a0ec00 refcount:1 mapcount:0 mapping:ffff88806c00e300
+index:0xffff8880683b1800 compound_mapcount: 0
+flags: 0x100000000010200(slab|head)
+raw: 0100000000010200 0000000000000000 0000000600000001 ffff88806c00e300
+raw: ffff8880683b1800 000000008010000a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 55 ++++++++++++++++++++++++++----------------
- 1 file changed, 34 insertions(+), 21 deletions(-)
+ drivers/usb/gadget/function/f_printer.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 8b71a31ca4a97..edd6f7b7d9b82 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3841,6 +3841,36 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- 	return 0;
- }
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index 68697f596066c..64a4112068fc8 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -31,6 +31,7 @@
+ #include <linux/types.h>
+ #include <linux/ctype.h>
+ #include <linux/cdev.h>
++#include <linux/kref.h>
  
-+static int init_map_slots(struct bpf_map *map)
+ #include <asm/byteorder.h>
+ #include <linux/io.h>
+@@ -64,7 +65,7 @@ struct printer_dev {
+ 	struct usb_gadget	*gadget;
+ 	s8			interface;
+ 	struct usb_ep		*in_ep, *out_ep;
+-
++	struct kref             kref;
+ 	struct list_head	rx_reqs;	/* List of free RX structs */
+ 	struct list_head	rx_reqs_active;	/* List of Active RX xfers */
+ 	struct list_head	rx_buffers;	/* List of completed xfers */
+@@ -218,6 +219,13 @@ static inline struct usb_endpoint_descriptor *ep_desc(struct usb_gadget *gadget,
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++static void printer_dev_free(struct kref *kref)
 +{
-+	const struct bpf_map *targ_map;
-+	unsigned int i;
-+	int fd, err;
++	struct printer_dev *dev = container_of(kref, struct printer_dev, kref);
 +
-+	for (i = 0; i < map->init_slots_sz; i++) {
-+		if (!map->init_slots[i])
-+			continue;
-+
-+		targ_map = map->init_slots[i];
-+		fd = bpf_map__fd(targ_map);
-+		err = bpf_map_update_elem(map->fd, &i, &fd, 0);
-+		if (err) {
-+			err = -errno;
-+			pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
-+				map->name, i, targ_map->name,
-+				fd, err);
-+			return err;
-+		}
-+		pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
-+			 map->name, i, targ_map->name, fd);
-+	}
-+
-+	zfree(&map->init_slots);
-+	map->init_slots_sz = 0;
-+
-+	return 0;
++	kfree(dev);
 +}
 +
- static int
- bpf_object__create_maps(struct bpf_object *obj)
+ static struct usb_request *
+ printer_req_alloc(struct usb_ep *ep, unsigned len, gfp_t gfp_flags)
  {
-@@ -3883,28 +3913,11 @@ bpf_object__create_maps(struct bpf_object *obj)
- 		}
+@@ -353,6 +361,7 @@ printer_open(struct inode *inode, struct file *fd)
  
- 		if (map->init_slots_sz) {
--			for (j = 0; j < map->init_slots_sz; j++) {
--				const struct bpf_map *targ_map;
--				int fd;
--
--				if (!map->init_slots[j])
--					continue;
--
--				targ_map = map->init_slots[j];
--				fd = bpf_map__fd(targ_map);
--				err = bpf_map_update_elem(map->fd, &j, &fd, 0);
--				if (err) {
--					err = -errno;
--					pr_warn("map '%s': failed to initialize slot [%d] to map '%s' fd=%d: %d\n",
--						map->name, j, targ_map->name,
--						fd, err);
--					goto err_out;
--				}
--				pr_debug("map '%s': slot [%d] set to map '%s' fd=%d\n",
--					 map->name, j, targ_map->name, fd);
-+			err = init_map_slots(map);
-+			if (err < 0) {
-+				zclose(map->fd);
-+				goto err_out;
- 			}
--			zfree(&map->init_slots);
--			map->init_slots_sz = 0;
- 		}
+ 	spin_unlock_irqrestore(&dev->lock, flags);
  
- 		if (map->pin_path && !map->pinned) {
++	kref_get(&dev->kref);
+ 	DBG(dev, "printer_open returned %x\n", ret);
+ 	return ret;
+ }
+@@ -370,6 +379,7 @@ printer_close(struct inode *inode, struct file *fd)
+ 	dev->printer_status &= ~PRINTER_SELECTED;
+ 	spin_unlock_irqrestore(&dev->lock, flags);
+ 
++	kref_put(&dev->kref, printer_dev_free);
+ 	DBG(dev, "printer_close\n");
+ 
+ 	return 0;
+@@ -1386,7 +1396,8 @@ static void gprinter_free(struct usb_function *f)
+ 	struct f_printer_opts *opts;
+ 
+ 	opts = container_of(f->fi, struct f_printer_opts, func_inst);
+-	kfree(dev);
++
++	kref_put(&dev->kref, printer_dev_free);
+ 	mutex_lock(&opts->lock);
+ 	--opts->refcnt;
+ 	mutex_unlock(&opts->lock);
+@@ -1455,6 +1466,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
++	kref_init(&dev->kref);
+ 	++opts->refcnt;
+ 	dev->minor = opts->minor;
+ 	dev->pnp_string = opts->pnp_string;
 -- 
 2.25.1
 
