@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEC929C097
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A68E929C101
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1818047AbgJ0RRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        id S1818025AbgJ0RQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752441AbgJ0OzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:55:17 -0400
+        id S1766369AbgJ0Oz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:55:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7C4622281;
-        Tue, 27 Oct 2020 14:55:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC53822284;
+        Tue, 27 Oct 2020 14:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810516;
-        bh=KF/Ofjy4mVyLTWfJnvtlTceptkR3W66u7sq+KtYlifo=;
+        s=default; t=1603810519;
+        bh=47XuXRUE5rmrBFlPABf4wvzHJhnotZEIQYbipEI3bKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJqv4Oc4G0BSDtReB0LoIUH62XvkaO6fBupsAjSJnoznAefle3wEhEemuOAUfGU9M
-         0y18C73GQGaWUU3GhHz/TnGc0yewzFQjmGMxJyghIUDZs35xxGt1zWqNYhdoIPDaAL
-         BNNMNA9C2BbotSpDiIKgZmHZzFAcKjwCzpwYEebQ=
+        b=VGvsxrMfYILLLIYtFOwM1ME7Wi/YIlTJ7gdF4RVlzO0Ypd1ice9Rq7qhK2MccQUXf
+         d8qXOpf1xLiyoAV5yusAp5OUd7JXQvQM3d/d7FF5opn1sGv0hnKN9JSAqiE60eAWuy
+         +hBUBb5eyb6HxwUgOWHX2NE5965QxrdC5pIbBBDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit kumar <rohitkr@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 166/633] ASoC: qcom: lpass-cpu: fix concurrency issue
-Date:   Tue, 27 Oct 2020 14:48:29 +0100
-Message-Id: <20201027135530.456032359@linuxfoundation.org>
+Subject: [PATCH 5.8 167/633] ath11k: Fix possible memleak in ath11k_qmi_init_service
+Date:   Tue, 27 Oct 2020 14:48:30 +0100
+Message-Id: <20201027135530.504494846@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,60 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit kumar <rohitkr@codeaurora.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 753a6e17942f6f425ca622e1610625998312ad89 ]
+[ Upstream commit 28f1632118818d9dccabf4c0fccfe49686742317 ]
 
-i2sctl register value is set to 0 during hw_free(). This
-impacts any ongoing concurrent session on the same i2s
-port. As trigger() stop already resets enable bit to 0,
-there is no need of explicit hw_free. Removing it to
-fix the issue.
+When qmi_add_lookup fail, we should destroy the workqueue
 
-Fixes: 80beab8e1d86 ("ASoC: qcom: Add LPASS CPU DAI driver")
-Signed-off-by: Rohit kumar <rohitkr@codeaurora.org>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/1597402388-14112-7-git-send-email-rohitkr@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1595237804-66297-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/net/wireless/ath/ath11k/qmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index e00a4af29c13f..f25da84f175ac 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -209,21 +209,6 @@ static int lpass_cpu_daiops_hw_params(struct snd_pcm_substream *substream,
- 	return 0;
- }
+diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
+index c00a99ad8dbc1..497cff7e64cc5 100644
+--- a/drivers/net/wireless/ath/ath11k/qmi.c
++++ b/drivers/net/wireless/ath/ath11k/qmi.c
+@@ -2419,6 +2419,7 @@ int ath11k_qmi_init_service(struct ath11k_base *ab)
+ 			     ATH11K_QMI_WLFW_SERVICE_INS_ID_V01);
+ 	if (ret < 0) {
+ 		ath11k_warn(ab, "failed to add qmi lookup\n");
++		destroy_workqueue(ab->qmi.event_wq);
+ 		return ret;
+ 	}
  
--static int lpass_cpu_daiops_hw_free(struct snd_pcm_substream *substream,
--		struct snd_soc_dai *dai)
--{
--	struct lpass_data *drvdata = snd_soc_dai_get_drvdata(dai);
--	int ret;
--
--	ret = regmap_write(drvdata->lpaif_map,
--			   LPAIF_I2SCTL_REG(drvdata->variant, dai->driver->id),
--			   0);
--	if (ret)
--		dev_err(dai->dev, "error writing to i2sctl reg: %d\n", ret);
--
--	return ret;
--}
--
- static int lpass_cpu_daiops_prepare(struct snd_pcm_substream *substream,
- 		struct snd_soc_dai *dai)
- {
-@@ -304,7 +289,6 @@ const struct snd_soc_dai_ops asoc_qcom_lpass_cpu_dai_ops = {
- 	.startup	= lpass_cpu_daiops_startup,
- 	.shutdown	= lpass_cpu_daiops_shutdown,
- 	.hw_params	= lpass_cpu_daiops_hw_params,
--	.hw_free	= lpass_cpu_daiops_hw_free,
- 	.prepare	= lpass_cpu_daiops_prepare,
- 	.trigger	= lpass_cpu_daiops_trigger,
- };
 -- 
 2.25.1
 
