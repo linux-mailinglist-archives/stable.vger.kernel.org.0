@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFAE329B385
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F2A29B350
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1775642AbgJ0Ow7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
+        id S1766310AbgJ0OsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1766317AbgJ0OsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:48:09 -0400
+        id S1766334AbgJ0OsP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:48:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1F1020709;
-        Tue, 27 Oct 2020 14:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7096A206E5;
+        Tue, 27 Oct 2020 14:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810089;
-        bh=Wk6oyEMtaxZAZBQtmH1ud7Z24NCHUghIcxVPyF8m00Y=;
+        s=default; t=1603810095;
+        bh=BJvb4V9xb38s8zLFeTwibaret5OoK0IbAq9JwNTuhLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbjyXdLR4mH8OcW4i619vx17VRWPTplx+IzhjJGnF8fWX7weM20JGy2dBX/nrcV7y
-         MLff+xw5PfnJ8o2+kFB6juZDTgNB4CpekvbmELYrBusYR0btLdG4abk8IJH897VEr6
-         FMtEPC3hPgoOfRrv8h192TaB3TR3DwwCT2Otq61A=
+        b=QKW9Kw/b89hhfPYMC3VpWEVSWFpJEhy/JUjl+7aPZNU5taaMnPuTOuIA9vO2rxhD1
+         q1C9rn5tBA7Q47cLMsIKyo8E69uVecAbmMUbH/iDZxSp+MR/8d4UdkGGBoiXKh1mT7
+         gMEZiOE8X1DbHebm1lKTs/L77e2UDyOoy9mmZQAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Subject: [PATCH 5.8 017/633] tipc: fix the skb_unshare() in tipc_buf_append()
-Date:   Tue, 27 Oct 2020 14:46:00 +0100
-Message-Id: <20201027135523.497338814@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Willem de Bruijn <willemb@google.com>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 019/633] socket: dont clear SOCK_TSTAMP_NEW when SO_TIMESTAMPNS is disabled
+Date:   Tue, 27 Oct 2020 14:46:02 +0100
+Message-Id: <20201027135523.584671299@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Christian Eggers <ceggers@arri.de>
 
-[ Upstream commit ed42989eab57d619667d7e87dfbd8fe207db54fe ]
+[ Upstream commit 4e3bbb33e6f36e4b05be1b1b9b02e3dd5aaa3e69 ]
 
-skb_unshare() drops a reference count on the old skb unconditionally,
-so in the failure case, we end up freeing the skb twice here.
-And because the skb is allocated in fclone and cloned by caller
-tipc_msg_reassemble(), the consequence is actually freeing the
-original skb too, thus triggered the UAF by syzbot.
+SOCK_TSTAMP_NEW (timespec64 instead of timespec) is also used for
+hardware time stamps (configured via SO_TIMESTAMPING_NEW).
 
-Fix this by replacing this skb_unshare() with skb_cloned()+skb_copy().
+User space (ptp4l) first configures hardware time stamping via
+SO_TIMESTAMPING_NEW which sets SOCK_TSTAMP_NEW. In the next step, ptp4l
+disables SO_TIMESTAMPNS(_NEW) (software time stamps), but this must not
+switch hardware time stamps back to "32 bit mode".
 
-Fixes: ff48b6222e65 ("tipc: use skb_unshare() instead in tipc_buf_append()")
-Reported-and-tested-by: syzbot+e96a7ba46281824cc46a@syzkaller.appspotmail.com
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
+This problem happens on 32 bit platforms were the libc has already
+switched to struct timespec64 (from SO_TIMExxx_OLD to SO_TIMExxx_NEW
+socket options). ptp4l complains with "missing timestamp on transmitted
+peer delay request" because the wrong format is received (and
+discarded).
+
+Fixes: 887feae36aee ("socket: Add SO_TIMESTAMP[NS]_NEW")
+Fixes: 783da70e8396 ("net: add sock_enable_timestamps")
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Deepa Dinamani <deepa.kernel@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/msg.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/sock.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -150,7 +150,8 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		frag = skb_unshare(frag, GFP_ATOMIC);
-+		if (skb_cloned(frag))
-+			frag = skb_copy(frag, GFP_ATOMIC);
- 		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -777,7 +777,6 @@ static void __sock_set_timestamps(struct
+ 	} else {
+ 		sock_reset_flag(sk, SOCK_RCVTSTAMP);
+ 		sock_reset_flag(sk, SOCK_RCVTSTAMPNS);
+-		sock_reset_flag(sk, SOCK_TSTAMP_NEW);
+ 	}
+ }
+ 
 
 
