@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B7C29AFE8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8107429AF6B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756552AbgJ0OOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:14:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
+        id S1754723AbgJ0OGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:06:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756548AbgJ0OOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:14:03 -0400
+        id S1753430AbgJ0OAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:00:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03D9B2072D;
-        Tue, 27 Oct 2020 14:14:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F6CF218AC;
+        Tue, 27 Oct 2020 14:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808043;
-        bh=7SUS70GJEZwnwKJafFVVsx4lhLtPP4fRAGwyWt3H+Gg=;
+        s=default; t=1603807201;
+        bh=kCI6C+Rbf72dTLt4cwKxut0xt+2H3GYiFc6VgBsQ2KE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djyaWfZCKN3rclGezPpo7c1jRn35949ogEIVbHbZxz8HNY2dyejV1156vmUMOqvQ+
-         yOjedln7dAv7ItwaToNowwifQW/nmsDd6fbaHY0p/Xas69qGmCA5W9czC6pPrmxIoM
-         Hh0cpyrNQ7klO+w+s6y6XXNB/XT8Fx9dri/52bT8=
+        b=NLdE9q9MhLPJXPWxaKEe6T0Qd97i+Y1vv8HVj/2h74dSY4GNTQ+H/6QSpYhFIhmq1
+         jF5rrIMkriu+DFY+0XFNlmgkLARTuALXsZp2i5fHx8DMtjkeGbp8bvOBnkZeCGxidH
+         c4BLQRoXinXo0uDGT58urk1UxL6DsIvt0qxqOqhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Grant <al.grant@foss.arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andi Kleen <ak@linux.intel.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 134/191] perf: correct SNOOPX field offset
+Subject: [PATCH 4.4 079/112] media: exynos4-is: Fix several reference count leaks due to pm_runtime_get_sync
 Date:   Tue, 27 Oct 2020 14:49:49 +0100
-Message-Id: <20201027134916.146416665@linuxfoundation.org>
+Message-Id: <20201027134904.282305822@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Grant <al.grant@foss.arm.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit f3d301c1f2f5676465cdf3259737ea19cc82731f ]
+[ Upstream commit 7ef64ceea0008c17e94a8a2c60c5d6d46f481996 ]
 
-perf_event.h has macros that define the field offsets in the
-data_src bitmask in perf records. The SNOOPX and REMOTE offsets
-were both 37. These are distinct fields, and the bitfield layout
-in perf_mem_data_src confirms that SNOOPX should be at offset 38.
+On calling pm_runtime_get_sync() the reference count of the device
+is incremented. In case of failure, decrement the
+reference count before returning the error.
 
-Fixes: 52839e653b5629bd ("perf tools: Add support for printing new mem_info encodings")
-Signed-off-by: Al Grant <al.grant@foss.arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Link: https://lkml.kernel.org/r/4ac9f5cc-4388-b34a-9999-418a4099415d@foss.arm.com
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/perf_event.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/fimc-isp.c  | 4 +++-
+ drivers/media/platform/exynos4-is/fimc-lite.c | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/perf_event.h b/include/uapi/linux/perf_event.h
-index 362493a2f950b..fc72a3839c9dc 100644
---- a/include/uapi/linux/perf_event.h
-+++ b/include/uapi/linux/perf_event.h
-@@ -1033,7 +1033,7 @@ union perf_mem_data_src {
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp.c b/drivers/media/platform/exynos4-is/fimc-isp.c
+index 5d78f5716f3b8..ad280c5258b34 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp.c
+@@ -311,8 +311,10 @@ static int fimc_isp_subdev_s_power(struct v4l2_subdev *sd, int on)
  
- #define PERF_MEM_SNOOPX_FWD	0x01 /* forward */
- /* 1 free */
--#define PERF_MEM_SNOOPX_SHIFT	37
-+#define PERF_MEM_SNOOPX_SHIFT  38
+ 	if (on) {
+ 		ret = pm_runtime_get_sync(&is->pdev->dev);
+-		if (ret < 0)
++		if (ret < 0) {
++			pm_runtime_put(&is->pdev->dev);
+ 			return ret;
++		}
+ 		set_bit(IS_ST_PWR_ON, &is->state);
  
- /* locked instruction */
- #define PERF_MEM_LOCK_NA	0x01 /* not available */
+ 		ret = fimc_is_start_firmware(is);
+diff --git a/drivers/media/platform/exynos4-is/fimc-lite.c b/drivers/media/platform/exynos4-is/fimc-lite.c
+index 60660c3a5de0d..65b33470a1b1b 100644
+--- a/drivers/media/platform/exynos4-is/fimc-lite.c
++++ b/drivers/media/platform/exynos4-is/fimc-lite.c
+@@ -487,7 +487,7 @@ static int fimc_lite_open(struct file *file)
+ 	set_bit(ST_FLITE_IN_USE, &fimc->state);
+ 	ret = pm_runtime_get_sync(&fimc->pdev->dev);
+ 	if (ret < 0)
+-		goto unlock;
++		goto err_pm;
+ 
+ 	ret = v4l2_fh_open(file);
+ 	if (ret < 0)
 -- 
 2.25.1
 
