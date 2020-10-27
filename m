@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B9C229B71D
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B965A29B72D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798619AbgJ0P3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43960 "EHLO mail.kernel.org"
+        id S1794647AbgJ0P36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798444AbgJ0P2A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:28:00 -0400
+        id S1798675AbgJ0P3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAA91206E9;
-        Tue, 27 Oct 2020 15:27:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D80520728;
+        Tue, 27 Oct 2020 15:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812480;
-        bh=+cwNwv6qjsb5YJODqEPijhAolfDeP6rDsLXPpxdyTWo=;
+        s=default; t=1603812582;
+        bh=fy9N58wjZup82r/EkguW3PAFikuqfdGSsjTn1IAuGoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEOSRMr3Uy8Go+/uYWlG4aFPGtcD6z4IBdOtJ13GLNKGTMiEwZoPMxnZk/Qwa7Ssz
-         Zf6q5t3aJjo6M2xtpmYZ2Cxuy/AoN7wO3tTwlFeBhjbWzu1ySyDgMQjxPM40+wgf1t
-         n2r0U0JhcQ/lX7CFb32l8hA6A3+sBwsh+k+mLMJg=
+        b=ouaAY5pqAqagBnyifvm6OTNjHtViirMdqTvI4R5zykGYUxk+rDbgqP2sYAMFXgU5i
+         hHEOoWmJqYPFifQVRh12H0HGs9RcKB9qkkyAUQTW9H61jTne3M5cJd+SbNDCx36vJh
+         qV9kX5ItY8iiR+R5LtwkaA1QjSijuGVtaRgLLl3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
-        Jiri Kosina <trivial@kernel.org>,
-        Shuah Khan <shuah@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 225/757] selftests: vm: add fragment CONFIG_GUP_BENCHMARK
-Date:   Tue, 27 Oct 2020 14:47:55 +0100
-Message-Id: <20201027135501.165835678@linuxfoundation.org>
+Subject: [PATCH 5.9 242/757] ASoC: fsl: imx-es8328: add missing put_device() call in imx_es8328_probe()
+Date:   Tue, 27 Oct 2020 14:48:12 +0100
+Message-Id: <20201027135501.941802022@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,43 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatoly Pugachev <matorola@gmail.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit cae1d5a2c5a491141faa747e9944ba40ab4ab786 ]
+[ Upstream commit e525db7e4b44c5b2b5aac0dad24e23cb58c54d22 ]
 
-When running gup_benchmark test the following output states that
-the config options is missing.
+if of_find_device_by_node() succeed, imx_es8328_probe() doesn't have
+a corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
-$ sudo ./gup_benchmark
-open: No such file or directory
-
-$ sudo strace -e trace=file ./gup_benchmark 2>&1 | tail -3
-openat(AT_FDCWD, "/sys/kernel/debug/gup_benchmark", O_RDWR) = -1 ENOENT
-(No such file or directory)
-open: No such file or directory
-+++ exited with 1 +++
-
-Fix it by adding config option fragment.
-
-Fixes: 64c349f4ae78 ("mm: add infrastructure for get_user_pages_fast() benchmarking")
-Signed-off-by: Anatoly Pugachev <matorola@gmail.com>
-CC: Jiri Kosina <trivial@kernel.org>
-CC: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 7e7292dba215 ("ASoC: fsl: add imx-es8328 machine driver")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20200825130224.1488694-1-yukuai3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/config | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/fsl/imx-es8328.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/config b/tools/testing/selftests/vm/config
-index 3ba674b64fa9f..69dd0d1aa30b2 100644
---- a/tools/testing/selftests/vm/config
-+++ b/tools/testing/selftests/vm/config
-@@ -3,3 +3,4 @@ CONFIG_USERFAULTFD=y
- CONFIG_TEST_VMALLOC=m
- CONFIG_DEVICE_PRIVATE=y
- CONFIG_TEST_HMM=m
-+CONFIG_GUP_BENCHMARK=y
+diff --git a/sound/soc/fsl/imx-es8328.c b/sound/soc/fsl/imx-es8328.c
+index 15a27a2cd0cae..fad1eb6253d53 100644
+--- a/sound/soc/fsl/imx-es8328.c
++++ b/sound/soc/fsl/imx-es8328.c
+@@ -145,13 +145,13 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	comp = devm_kzalloc(dev, 3 * sizeof(*comp), GFP_KERNEL);
+ 	if (!comp) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->dev = dev;
+@@ -182,12 +182,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	ret = snd_soc_of_parse_card_name(&data->card, "model");
+ 	if (ret) {
+ 		dev_err(dev, "Unable to parse card name\n");
+-		goto fail;
++		goto put_device;
+ 	}
+ 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
+ 	if (ret) {
+ 		dev_err(dev, "Unable to parse routing: %d\n", ret);
+-		goto fail;
++		goto put_device;
+ 	}
+ 	data->card.num_links = 1;
+ 	data->card.owner = THIS_MODULE;
+@@ -196,10 +196,12 @@ static int imx_es8328_probe(struct platform_device *pdev)
+ 	ret = snd_soc_register_card(&data->card);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to register: %d\n", ret);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, data);
++put_device:
++	put_device(&ssi_pdev->dev);
+ fail:
+ 	of_node_put(ssi_np);
+ 	of_node_put(codec_np);
 -- 
 2.25.1
 
