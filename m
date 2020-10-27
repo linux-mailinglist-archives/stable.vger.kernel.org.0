@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 234D229BD56
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0993A29BD58
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368888AbgJ0PmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:42:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55146 "EHLO mail.kernel.org"
+        id S1799474AbgJ0Pm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:42:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800528AbgJ0PgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:36:22 -0400
+        id S1800592AbgJ0Pgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:36:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4B1822264;
-        Tue, 27 Oct 2020 15:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56E372064B;
+        Tue, 27 Oct 2020 15:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812980;
-        bh=nALgSeWdz1PUQSaQqu/bwnyyDHbDE6gOQVLeheW9+KI=;
+        s=default; t=1603813003;
+        bh=j8sycDWh7wTs5cS/7e+OSsDH8CYam9rdxktbp1y7oco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zayCFbLySUXWxOGn49zIMsJYzUZidP+mo0WQgs8lixkbhrslQR+zMDFmbHcaPY3ua
-         HY75RK7iCK2LLzxKhdjhbIwMg5XUBJsR1aWChXCIRTS1ymGXetdm4krx3namccUZFT
-         ducnwUuo2X2Z7nGohmnKLX4TxI4QgTLWelYvWA8g=
+        b=i3p3LokKp8beafogzL0nOvYdLK3fCzOQUpCv/1hLXYPN+WvfmnQrfmt9R+pDVMLq6
+         uwzqlUC38Llf8JTbO1N2z/AjhFiWnmJbb63GPZq1cwfYc2OXediTof0GQoSykNY2Ru
+         szXtIVR4zr1YIYT3CE2JAQ2TFmhFnuua0Up/KXak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 396/757] selftests/ftrace: Change synthetic event name for inter-event-combined test
-Date:   Tue, 27 Oct 2020 14:50:46 +0100
-Message-Id: <20201027135509.144428778@linuxfoundation.org>
+Subject: [PATCH 5.9 403/757] rcu/tree: Force quiescent state on callback overload
+Date:   Tue, 27 Oct 2020 14:50:53 +0100
+Message-Id: <20201027135509.484474750@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,49 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-[ Upstream commit 96378b2088faea68f1fb05ea6b9a566fc569a44c ]
+[ Upstream commit 9c39245382de4d52a122641952900709d4a9950b ]
 
-This test uses waking+wakeup_latency as an event name, which doesn't
-make sense since it includes an operator.  Illegal names are now
-detected by the synthetic event command parsing, which causes this
-test to fail.  Change the name to 'waking_plus_wakeup_latency' to
-prevent this.
+On callback overload, it is necessary to quickly detect idle CPUs,
+and rcu_gp_fqs_check_wake() checks for this condition.  Unfortunately,
+the code following the call to this function does not repeat this check,
+which means that in reality no actual quiescent-state forcing, instead
+only a couple of quick and pointless wakeups at the beginning of the
+grace period.
 
-Link: https://lkml.kernel.org/r/a1ee2f76ff28ef7166fb788ca8be968887808920.1602598160.git.zanussi@kernel.org
+This commit therefore adds a check for the RCU_GP_FLAG_OVLD flag in
+the post-wakeup "if" statement in rcu_gp_fqs_loop().
 
-Fixes: f06eec4d0f2c (selftests: ftrace: Add inter-event hist triggers testcases)
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 1fca4d12f4637 ("rcu: Expedite first two FQS scans under callback-overload conditions")
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../inter-event/trigger-inter-event-combined-hist.tc      | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-inter-event-combined-hist.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-inter-event-combined-hist.tc
-index 7449a4b8f1f9a..9098f1e7433fd 100644
---- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-inter-event-combined-hist.tc
-+++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-inter-event-combined-hist.tc
-@@ -25,12 +25,12 @@ echo 'wakeup_latency u64 lat pid_t pid' >> synthetic_events
- echo 'hist:keys=pid:ts1=common_timestamp.usecs if comm=="ping"' >> events/sched/sched_wakeup/trigger
- echo 'hist:keys=next_pid:wakeup_lat=common_timestamp.usecs-$ts1:onmatch(sched.sched_wakeup).wakeup_latency($wakeup_lat,next_pid) if next_comm=="ping"' > events/sched/sched_switch/trigger
- 
--echo 'waking+wakeup_latency u64 lat; pid_t pid' >> synthetic_events
--echo 'hist:keys=pid,lat:sort=pid,lat:ww_lat=$waking_lat+$wakeup_lat:onmatch(synthetic.wakeup_latency).waking+wakeup_latency($ww_lat,pid)' >> events/synthetic/wakeup_latency/trigger
--echo 'hist:keys=pid,lat:sort=pid,lat' >> events/synthetic/waking+wakeup_latency/trigger
-+echo 'waking_plus_wakeup_latency u64 lat; pid_t pid' >> synthetic_events
-+echo 'hist:keys=pid,lat:sort=pid,lat:ww_lat=$waking_lat+$wakeup_lat:onmatch(synthetic.wakeup_latency).waking_plus_wakeup_latency($ww_lat,pid)' >> events/synthetic/wakeup_latency/trigger
-+echo 'hist:keys=pid,lat:sort=pid,lat' >> events/synthetic/waking_plus_wakeup_latency/trigger
- 
- ping $LOCALHOST -c 3
--if ! grep -q "pid:" events/synthetic/waking+wakeup_latency/hist; then
-+if ! grep -q "pid:" events/synthetic/waking_plus_wakeup_latency/hist; then
-     fail "Failed to create combined histogram"
- fi
- 
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index f78ee759af9cb..388a2ad292bf4 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -1898,7 +1898,7 @@ static void rcu_gp_fqs_loop(void)
+ 			break;
+ 		/* If time for quiescent-state forcing, do it. */
+ 		if (!time_after(rcu_state.jiffies_force_qs, jiffies) ||
+-		    (gf & RCU_GP_FLAG_FQS)) {
++		    (gf & (RCU_GP_FLAG_FQS | RCU_GP_FLAG_OVLD))) {
+ 			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+ 					       TPS("fqsstart"));
+ 			rcu_gp_fqs(first_gp_fqs);
 -- 
 2.25.1
 
