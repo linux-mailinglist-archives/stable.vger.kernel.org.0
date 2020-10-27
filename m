@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE7829BDCE
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B0C29BDC1
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:50:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1812959AbgJ0QrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
+        id S1812936AbgJ0Qqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752709AbgJ0Plf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:41:35 -0400
+        id S368822AbgJ0Plr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:41:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CE80222E9;
-        Tue, 27 Oct 2020 15:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8A2A223B0;
+        Tue, 27 Oct 2020 15:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813294;
-        bh=REmmnSsJwWZx/kVUtojQvQwHNvJzF7LjL9JjzVKz8co=;
+        s=default; t=1603813306;
+        bh=HlvhLh2XRV8P63I3PDSoEJNpntXPrXg01bsS+JuAT6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnCoGy9KxS+XyajEgXhfG4xcrZfqPeSrnAgIGg3KadZNENc3wGI7zi0pfojC8D1rK
-         qrWZqH0R1URj/cvamvRvAtCC72+DkJqSwwcbss+cRVbsD3xgRuCcGdzDNnWdb94qnK
-         YRiBZkp/4o9xKaFhFBkAwQ+XWi7Z1u5sVuZ7o2/o=
+        b=Aim2l2qtq4K1UricKvWeIu6EfliPaHl0/Z8EQgcUL3CqwZ2vt8G4MbqDGNCe0fJk9
+         15TXKUfC1ueOQRfqYUhQKs2uVs1DTm5Ixc8rKcC2Wq96Mm3cBcr9PwYbAoz1C5WC1T
+         Va6Oy/31q5loCWIahmbNtG0rdG7Gws4p8HtO45S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 476/757] mtd: rawnand: ams-delta: Fix non-OF build warning
-Date:   Tue, 27 Oct 2020 14:52:06 +0100
-Message-Id: <20201027135512.834123749@linuxfoundation.org>
+Subject: [PATCH 5.9 477/757] kdb: Fix pager search for multi-line strings
+Date:   Tue, 27 Oct 2020 14:52:07 +0100
+Message-Id: <20201027135512.866706533@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,50 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit 6d11178762f7c8338a028b428198383b8978b280 ]
+[ Upstream commit d081a6e353168f15e63eb9e9334757f20343319f ]
 
-Commit 7c2f66a960fc ("mtd: rawnand: ams-delta: Add module device
-tables") introduced an OF module device table but wrapped a reference
-to it with of_match_ptr() which resolves to NULL in non-OF configs.
-That resulted in a clang compiler warning on unused variable in non-OF
-builds.  Fix it.
+Currently using forward search doesn't handle multi-line strings correctly.
+The search routine replaces line breaks with \0 during the search and, for
+regular searches ("help | grep Common\n"), there is code after the line
+has been discarded or printed to replace the break character.
 
-drivers/mtd/nand/raw/ams-delta.c:373:34: warning: unused variable 'gpio_nand_of_id_table' [-Wunused-const-variable]
-   static const struct of_device_id gpio_nand_of_id_table[] = {
-                                    ^
-   1 warning generated.
+However during a pager search ("help\n" followed by "/Common\n") when the
+string is matched we will immediately return to normal output and the code
+that should restore the \n becomes unreachable. Fix this by restoring the
+replaced character when we disable the search mode and update the comment
+accordingly.
 
-Fixes: 7c2f66a960fc ("mtd: rawnand: ams-delta: Add module device tables")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200919080403.17520-1-jmkrzyszt@gmail.com
+Fixes: fb6daa7520f9d ("kdb: Provide forward search at more prompt")
+Link: https://lore.kernel.org/r/20200909141708.338273-1-daniel.thompson@linaro.org
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/ams-delta.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/debug/kdb/kdb_io.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/ams-delta.c b/drivers/mtd/nand/raw/ams-delta.c
-index fdba155416d25..0bf4cfc251472 100644
---- a/drivers/mtd/nand/raw/ams-delta.c
-+++ b/drivers/mtd/nand/raw/ams-delta.c
-@@ -400,12 +400,14 @@ static int gpio_nand_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
- static const struct of_device_id gpio_nand_of_id_table[] = {
- 	{
- 		/* sentinel */
- 	},
- };
- MODULE_DEVICE_TABLE(of, gpio_nand_of_id_table);
-+#endif
- 
- static const struct platform_device_id gpio_nand_plat_id_table[] = {
- 	{
+diff --git a/kernel/debug/kdb/kdb_io.c b/kernel/debug/kdb/kdb_io.c
+index 9d847ab851dbe..e240c97086e20 100644
+--- a/kernel/debug/kdb/kdb_io.c
++++ b/kernel/debug/kdb/kdb_io.c
+@@ -706,12 +706,16 @@ int vkdb_printf(enum kdb_msgsrc src, const char *fmt, va_list ap)
+ 			size_avail = sizeof(kdb_buffer) - len;
+ 			goto kdb_print_out;
+ 		}
+-		if (kdb_grepping_flag >= KDB_GREPPING_FLAG_SEARCH)
++		if (kdb_grepping_flag >= KDB_GREPPING_FLAG_SEARCH) {
+ 			/*
+ 			 * This was a interactive search (using '/' at more
+-			 * prompt) and it has completed. Clear the flag.
++			 * prompt) and it has completed. Replace the \0 with
++			 * its original value to ensure multi-line strings
++			 * are handled properly, and return to normal mode.
+ 			 */
++			*cphold = replaced_byte;
+ 			kdb_grepping_flag = 0;
++		}
+ 		/*
+ 		 * at this point the string is a full line and
+ 		 * should be printed, up to the null.
 -- 
 2.25.1
 
