@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FE829B1D2
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2510F29B1F4
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898626AbgJ0Oez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:34:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33610 "EHLO mail.kernel.org"
+        id S1760781AbgJ0Og0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760418AbgJ0Oet (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:34:49 -0400
+        id S1760774AbgJ0OgZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF0ED2222C;
-        Tue, 27 Oct 2020 14:34:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 838E622202;
+        Tue, 27 Oct 2020 14:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809287;
-        bh=RbVpIclLUTesCsYKE9TAReEUwRspILDj7f9EGIco0dw=;
+        s=default; t=1603809384;
+        bh=Ecf0yql+zoT0pyv047KGBEdCZlzEQhf5i6DcdzlRRcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6RezP6L198VLchLaSdfRF8GdLivi7n9Lf1e/jzZp2Fhf8pXCjdG5hOld+pm/vJYS
-         HPcwrV639+cD27N29f3lr92zqCoNCWUiPrXKjrmVigthglE3YL8mBRzfdW/0lY1vDI
-         DZ/25MWofc6rFPdBQKcN/xqHuI6FtQb3dNTKCZ5Y=
+        b=U3fYV6NNXwUEjsCSiyiXUyOL5JnLi/jQaTGB0lDUfz1AeiRG3Z9tPdBE87OAA0isi
+         jsXeEIGl05+S6hqtUurQ3n9HM9imyN7vpsDpHmJx/PkYUUeaB1HiZXUlo+VWZpnpRI
+         6FZeOvdNpHdTjDzMA5rD9TkO3qmy+/J4kie5Ciek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/408] iomap: Clear page error before beginning a write
-Date:   Tue, 27 Oct 2020 14:51:20 +0100
-Message-Id: <20201027135501.684781130@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 149/408] drm: mxsfb: check framebuffer pitch
+Date:   Tue, 27 Oct 2020 14:51:27 +0100
+Message-Id: <20201027135502.006469538@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,49 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit e6e7ca92623a43156100306861272e04d46385fc ]
+[ Upstream commit d5a0c816900419105a12e7471bf074319dfa34be ]
 
-If we find a page in write_begin which is !Uptodate, we need
-to clear any error on the page before starting to read data
-into it.  This matches how filemap_fault(), do_read_cache_page()
-and generic_file_buffered_read() handle PageError on !Uptodate pages.
-When calling iomap_set_range_uptodate() in __iomap_write_begin(), blocks
-were not being marked as uptodate.
+The lcdif IP does not support a framebuffer pitch (stride) other than
+framebuffer width. Check for equality and reject the framebuffer
+otherwise.
 
-This was found with generic/127 and a specially modified kernel which
-would fail (some) readahead I/Os.  The test read some bytes in a prior
-page which caused readahead to extend into page 0x34.  There was
-a subsequent write to page 0x34, followed by a read to page 0x34.
-Because the blocks were still marked as !Uptodate, the read caused all
-blocks to be re-read, overwriting the write.  With this change, and the
-next one, the bytes which were written are marked as being Uptodate, so
-even though the page is still marked as !Uptodate, the blocks containing
-the written data are not re-read from storage.
+This prevents a distorted picture when using 640x800 and running the
+Mesa graphics stack. Mesa tries to use a cache aligned stride, which
+leads at that particular resolution to width != stride. Currently
+Mesa has no fallback behavior, but rejecting this configuration allows
+userspace to handle the issue correctly.
 
-Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: 45d59d704080 ("drm: Add new driver for MXSFB controller")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200908141654.266836-1-stefan@agner.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index a30ea7ecb790a..80867a1a94f26 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -559,6 +559,7 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len,
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.c b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+index e8506335cd155..1694a7deb9133 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+@@ -26,6 +26,7 @@
+ #include <drm/drm_drv.h>
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_fb_helper.h>
++#include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_cma_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_irq.h>
+@@ -87,8 +88,26 @@ void mxsfb_disable_axi_clk(struct mxsfb_drm_private *mxsfb)
+ 		clk_disable_unprepare(mxsfb->clk_axi);
+ }
  
- 	if (PageUptodate(page))
- 		return 0;
-+	ClearPageError(page);
- 
- 	do {
- 		iomap_adjust_read_range(inode, iop, &block_start,
++static struct drm_framebuffer *
++mxsfb_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		const struct drm_mode_fb_cmd2 *mode_cmd)
++{
++	const struct drm_format_info *info;
++
++	info = drm_get_format_info(dev, mode_cmd);
++	if (!info)
++		return ERR_PTR(-EINVAL);
++
++	if (mode_cmd->width * info->cpp[0] != mode_cmd->pitches[0]) {
++		dev_dbg(dev->dev, "Invalid pitch: fb width must match pitch\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++}
++
+ static const struct drm_mode_config_funcs mxsfb_mode_config_funcs = {
+-	.fb_create		= drm_gem_fb_create,
++	.fb_create		= mxsfb_fb_create,
+ 	.atomic_check		= drm_atomic_helper_check,
+ 	.atomic_commit		= drm_atomic_helper_commit,
+ };
 -- 
 2.25.1
 
