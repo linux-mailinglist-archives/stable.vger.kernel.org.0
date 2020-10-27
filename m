@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 327D929B980
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 195A329B982
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802547AbgJ0Pt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
+        id S1802553AbgJ0PuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:50:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801323AbgJ0Pj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:39:58 -0400
+        id S1801324AbgJ0PkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:40:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A807222E9;
-        Tue, 27 Oct 2020 15:39:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 104DE22283;
+        Tue, 27 Oct 2020 15:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813197;
-        bh=l8TP4PujF4lCA2KzBevTqGAlA194lTaPGAqZ2ecbHz8=;
+        s=default; t=1603813200;
+        bh=ZJqjsdKlIez/izupHcMQW/SuMX9IgbuRMm3o5iN5rcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIutA71yNc2wO0AC4Hm+tkTmmcnrTW08ygz+hFSLv38iTWKnsCCwJdZGqgep43pIN
-         P6gK0futdDzkgLGWjbyvtxG/7PXttwLXMeW/mWU7+n9P0NgOelvoztfnm86SbWKz2F
-         LLm/u3DF25sN6LKUKlqmVWVGNmiimdKL7B5U8cKA=
+        b=wooLhz8E8YIaKpSi/P6GuWqA025CzEWFsl0S1rXlP9hzMtZ17AN2KLmfyEnPne+BK
+         LM4B1wbKzd78Jqu10pOIHER8Mhp9B4CORzfcbyXOJp1B4kIDpu99Scor40XoSkVl7t
+         6muFu7Z3Se/P7ty5zC0IDHg8GlmPoIVYWBG2GbaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weihang Li <liweihang@huawei.com>,
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 469/757] RDMA/hns: Fix missing sq_sig_type when querying QP
-Date:   Tue, 27 Oct 2020 14:51:59 +0100
-Message-Id: <20201027135512.518105387@linuxfoundation.org>
+Subject: [PATCH 5.9 470/757] RDMA/mlx5: Fix type warning of sizeof in __mlx5_ib_alloc_counters()
+Date:   Tue, 27 Oct 2020 14:52:00 +0100
+Message-Id: <20201027135512.558148464@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -43,34 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 05df49279f8926178ecb3ce88e61b63104cd6293 ]
+[ Upstream commit b942fc0319a72b83146b79619eb578e989062911 ]
 
-The sq_sig_type field should be filled when querying QP, or the users may
-get a wrong value.
+sizeof() when applied to a pointer typed expression should give the size
+of the pointed data, even if the data is a pointer.
 
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/1600509802-44382-9-git-send-email-liweihang@huawei.com
-Signed-off-by: Weihang Li <liweihang@huawei.com>
+Fixes: e1f24a79f424 ("IB/mlx5: Support congestion related counters")
+Link: https://lore.kernel.org/r/20200917081354.2083293-1-liushixin2@huawei.com
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Acked-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/mlx5/counters.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index f72ee3b5d05f6..cee140920c579 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4791,6 +4791,7 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
+diff --git a/drivers/infiniband/hw/mlx5/counters.c b/drivers/infiniband/hw/mlx5/counters.c
+index 145f3cb40ccba..aeeb14ecb3ee7 100644
+--- a/drivers/infiniband/hw/mlx5/counters.c
++++ b/drivers/infiniband/hw/mlx5/counters.c
+@@ -456,12 +456,12 @@ static int __mlx5_ib_alloc_counters(struct mlx5_ib_dev *dev,
+ 		cnts->num_ext_ppcnt_counters = ARRAY_SIZE(ext_ppcnt_cnts);
+ 		num_counters += ARRAY_SIZE(ext_ppcnt_cnts);
  	}
+-	cnts->names = kcalloc(num_counters, sizeof(cnts->names), GFP_KERNEL);
++	cnts->names = kcalloc(num_counters, sizeof(*cnts->names), GFP_KERNEL);
+ 	if (!cnts->names)
+ 		return -ENOMEM;
  
- 	qp_init_attr->cap = qp_attr->cap;
-+	qp_init_attr->sq_sig_type = hr_qp->sq_signal_bits;
+ 	cnts->offsets = kcalloc(num_counters,
+-				sizeof(cnts->offsets), GFP_KERNEL);
++				sizeof(*cnts->offsets), GFP_KERNEL);
+ 	if (!cnts->offsets)
+ 		goto err_names;
  
- out:
- 	mutex_unlock(&hr_qp->mutex);
 -- 
 2.25.1
 
