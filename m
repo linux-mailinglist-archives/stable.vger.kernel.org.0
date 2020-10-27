@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C8929B901
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6200529B892
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802141AbgJ0Ppp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56050 "EHLO mail.kernel.org"
+        id S368830AbgJ0Plt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1800946AbgJ0PhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:37:06 -0400
+        id S1800302AbgJ0Pfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:35:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CB0B22264;
-        Tue, 27 Oct 2020 15:37:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D773222264;
+        Tue, 27 Oct 2020 15:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813026;
-        bh=HbKsOaIRIDaMkVBOlfk7KW/RMZkGG6bw++aR4jYtnWk=;
+        s=default; t=1603812939;
+        bh=77ptOLX3KQeh/RP+VjXPKJB9yWx9VC9Ttjn6ShYvepg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anp0PvxAP//Rq0wNfkRm52G6waynbmt+6QeazlmXT5Mc2DrV+8YjfS/BH/ZnbCBSS
-         o3gF6lvpoJ/+ZM4a8pJ35PnVCul91MvpY3xKlOUZczAy7M2iMWown1csiveYbUK+rp
-         dqsb1ffeQSkpY5/WakOv9uVFo1bZLxpPCnEgXMtM=
+        b=VtcRPSif1vk18PtzcyCG/DANeZIr1l3DAOjSIRWaqMoTafdLu8KKe75qdIsqvt78M
+         mshEhj+sDNrYAF2FYxiasK9YiTd5WzNEyhGURLVMfvh5HCrhZyFTKyC7hxk1N/I3Sb
+         UwR2KqLMGB2wzEbV89dsUqlqy6SjFW2yKdiafoTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 382/757] mwifiex: fix double free
-Date:   Tue, 27 Oct 2020 14:50:32 +0100
-Message-Id: <20201027135508.469886096@linuxfoundation.org>
+Subject: [PATCH 5.9 383/757] drm/panfrost: increase readl_relaxed_poll_timeout values
+Date:   Tue, 27 Oct 2020 14:50:33 +0100
+Message-Id: <20201027135508.518371190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,48 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 53708f4fd9cfe389beab5c8daa763bcd0e0b4aef ]
+[ Upstream commit c2df75ad2a9f205820e4bc0db936d3d9af3da1ae ]
 
-clang static analysis reports this problem:
+Amlogic SoC devices report the following errors frequently causing excessive
+dmesg log spam and early log rotataion, although the errors appear to be
+harmless as everything works fine:
 
-sdio.c:2403:3: warning: Attempt to free released memory
-        kfree(card->mpa_rx.buf);
-        ^~~~~~~~~~~~~~~~~~~~~~~
+[    7.202702] panfrost ffe40000.gpu: error powering up gpu L2
+[    7.203760] panfrost ffe40000.gpu: error powering up gpu shader
 
-When mwifiex_init_sdio() fails in its first call to
-mwifiex_alloc_sdio_mpa_buffer, it falls back to calling it
-again.  If the second alloc of mpa_tx.buf fails, the error
-handler will try to free the old, previously freed mpa_rx.buf.
-Reviewing the code, it looks like a second double free would
-happen with mwifiex_cleanup_sdio().
+ARM staff have advised increasing the timeout values to eliminate the errors
+in most normal scenarios, and testing with several different G31/G52 devices
+shows 20000 to be a reliable value.
 
-So set both pointers to NULL when they are freed.
-
-Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201004131931.29782-1-trix@redhat.com
+Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+Suggested-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201008141738.13560-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/sdio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_gpu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
-index a042965962a2d..1b6bee5465288 100644
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -1976,6 +1976,8 @@ static int mwifiex_alloc_sdio_mpa_buffers(struct mwifiex_adapter *adapter,
- 		kfree(card->mpa_rx.buf);
- 		card->mpa_tx.buf_size = 0;
- 		card->mpa_rx.buf_size = 0;
-+		card->mpa_tx.buf = NULL;
-+		card->mpa_rx.buf = NULL;
- 	}
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gpu.c b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+index 689b92893e0e1..dfe4c9151eaf2 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gpu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gpu.c
+@@ -309,13 +309,13 @@ void panfrost_gpu_power_on(struct panfrost_device *pfdev)
+ 	/* Just turn on everything for now */
+ 	gpu_write(pfdev, L2_PWRON_LO, pfdev->features.l2_present);
+ 	ret = readl_relaxed_poll_timeout(pfdev->iomem + L2_READY_LO,
+-		val, val == pfdev->features.l2_present, 100, 1000);
++		val, val == pfdev->features.l2_present, 100, 20000);
+ 	if (ret)
+ 		dev_err(pfdev->dev, "error powering up gpu L2");
  
- 	return ret;
+ 	gpu_write(pfdev, SHADER_PWRON_LO, pfdev->features.shader_present);
+ 	ret = readl_relaxed_poll_timeout(pfdev->iomem + SHADER_READY_LO,
+-		val, val == pfdev->features.shader_present, 100, 1000);
++		val, val == pfdev->features.shader_present, 100, 20000);
+ 	if (ret)
+ 		dev_err(pfdev->dev, "error powering up gpu shader");
+ 
 -- 
 2.25.1
 
