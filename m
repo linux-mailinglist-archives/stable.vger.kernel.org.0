@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D38BC29B8F8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D99229B8F3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1802124AbgJ0Ppm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:45:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46336 "EHLO mail.kernel.org"
+        id S1802116AbgJ0Ppk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798719AbgJ0P3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:29:51 -0400
+        id S1799096AbgJ0P3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:29:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2CFF22202;
-        Tue, 27 Oct 2020 15:29:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E49522264;
+        Tue, 27 Oct 2020 15:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812590;
-        bh=2CERZp7JXvwfrqf51KqbnJQEQDA7tw+oLMlKSUyRrOE=;
+        s=default; t=1603812593;
+        bh=wHEBUNkcsiftxN1X5zv+IIrtBCPEKGCBkQheH9aKlTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzRMqvLpxX7xzypKSOU95eBPN6wQOlmJwZpMWNLomT/jik1XtcW2u/MZLr/Q9wQhx
-         QxC2qdQMcbZ3fD+hgh9ZRcfJs1xiYMpaDc/BwElVTqryR6lh51oPPth7UnbCxc0xx6
-         FAx3YjxZ9FW+AJImRuj62cBp3jb8DKkOdbXTSQiU=
+        b=lrziUagBRYHbMOWsk39mC1yS18doPfHn8RJ93assVRNoRowtWZSUeyp4tEIRFGCsC
+         1adoDTN7wtPHxOib9jcT61gNgbqmEgIZ+3+unxn0eRHrOzntYkx5W3kGkZGOGp2lLh
+         iB9QComa64V7Pdun0XtJcA2gteCsMT882XKugRVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aashish Verma <aashishx.verma@intel.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>,
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 262/757] net: stmmac: Fix incorrect location to set real_num_rx|tx_queues
-Date:   Tue, 27 Oct 2020 14:48:32 +0100
-Message-Id: <20201027135502.869371870@linuxfoundation.org>
+Subject: [PATCH 5.9 263/757] net: stmmac: use netif_tx_start|stop_all_queues() function
+Date:   Tue, 27 Oct 2020 14:48:33 +0100
+Message-Id: <20201027135502.917378612@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,51 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aashish Verma <aashishx.verma@intel.com>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-[ Upstream commit 686cff3d7022ddf35d7e38bc80191eb92de5989a ]
+[ Upstream commit 9f19306d166688a73356aa636c62e698bf2063cc ]
 
-netif_set_real_num_tx_queues() & netif_set_real_num_rx_queues() should be
-used to inform network stack about the real Tx & Rx queue (active) number
-in both stmmac_open() and stmmac_resume(), therefore, we move the code
-from stmmac_dvr_probe() to stmmac_hw_setup().
+The current implementation of stmmac_stop_all_queues() and
+stmmac_start_all_queues() will not work correctly when the value of
+tx_queues_to_use is changed through ethtool -L DEVNAME rx N tx M command.
 
-Fixes: c02b7a914551 net: stmmac: use netif_set_real_num_{rx,tx}_queues
+Also, netif_tx_start|stop_all_queues() are only needed in driver open()
+and close() only.
 
-Signed-off-by: Aashish Verma <aashishx.verma@intel.com>
+Fixes: c22a3f48 net: stmmac: adding multiple napi mechanism
+
 Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 33 +------------------
+ 1 file changed, 1 insertion(+), 32 deletions(-)
 
 diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index b56b13d64ab48..1af25da4461da 100644
+index 1af25da4461da..122a0697229af 100644
 --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
 +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2740,6 +2740,10 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
- 		stmmac_enable_tbs(priv, priv->ioaddr, enable, chan);
+@@ -176,32 +176,6 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
+ 	}
+ }
+ 
+-/**
+- * stmmac_stop_all_queues - Stop all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_stop_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_stop_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+-/**
+- * stmmac_start_all_queues - Start all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_start_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_start_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+ static void stmmac_service_event_schedule(struct stmmac_priv *priv)
+ {
+ 	if (!test_bit(STMMAC_DOWN, &priv->state) &&
+@@ -2872,7 +2846,7 @@ static int stmmac_open(struct net_device *dev)
  	}
  
-+	/* Configure real RX and TX queues */
-+	netif_set_real_num_rx_queues(dev, priv->plat->rx_queues_to_use);
-+	netif_set_real_num_tx_queues(dev, priv->plat->tx_queues_to_use);
-+
- 	/* Start the ball rolling... */
- 	stmmac_start_all_dma(priv);
+ 	stmmac_enable_all_queues(priv);
+-	stmmac_start_all_queues(priv);
++	netif_tx_start_all_queues(priv->dev);
  
-@@ -4827,10 +4831,6 @@ int stmmac_dvr_probe(struct device *device,
+ 	return 0;
  
- 	stmmac_check_ether_addr(priv);
+@@ -2915,8 +2889,6 @@ static int stmmac_release(struct net_device *dev)
+ 	phylink_stop(priv->phylink);
+ 	phylink_disconnect_phy(priv->phylink);
  
--	/* Configure real RX and TX queues */
--	netif_set_real_num_rx_queues(ndev, priv->plat->rx_queues_to_use);
--	netif_set_real_num_tx_queues(ndev, priv->plat->tx_queues_to_use);
+-	stmmac_stop_all_queues(priv);
 -
- 	ndev->netdev_ops = &stmmac_netdev_ops;
+ 	stmmac_disable_all_queues(priv);
  
- 	ndev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+ 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
+@@ -5086,7 +5058,6 @@ int stmmac_suspend(struct device *dev)
+ 	mutex_lock(&priv->lock);
+ 
+ 	netif_device_detach(ndev);
+-	stmmac_stop_all_queues(priv);
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
+@@ -5213,8 +5184,6 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_enable_all_queues(priv);
+ 
+-	stmmac_start_all_queues(priv);
+-
+ 	mutex_unlock(&priv->lock);
+ 
+ 	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
 -- 
 2.25.1
 
