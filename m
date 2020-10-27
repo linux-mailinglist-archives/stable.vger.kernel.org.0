@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5AA29BF4F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C01829BF47
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793655AbgJ0PHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39848 "EHLO mail.kernel.org"
+        id S1789367AbgJ0PHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1790968AbgJ0PFV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:05:21 -0400
+        id S1790420AbgJ0PE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:04:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D9FD21707;
-        Tue, 27 Oct 2020 15:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EACB521707;
+        Tue, 27 Oct 2020 15:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811121;
-        bh=XRWy2QwBtKv0+SiGIvl4jK6Gry7e5n+hn+5YliPx8m0=;
+        s=default; t=1603811069;
+        bh=1BcVye8HRxyDPFVEqpme3Hjykoavb1YY5uMUVusMe8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfFF1u5/y3mNdueBD2NbPbCZsJvrKZCZOBQl7pCI0b4i08EeIrEILFp1PIYt4QPrz
-         gLIf3iSZbsDowFruVmodpjo8UxXDyt0TwKwo77jBKR1rndA/sMLjMYFLNXumlULjSB
-         wB1fL1NrhxKf1O/+kNG6mypZLBQypZxnvR+tketc=
+        b=aXy1I7M9bHjvhYDejAzPUmTGLMd+DEI47xyP5V+vrVOHFc35Yq/2vwC220XafDm4Q
+         5J1zhwuTgJVv5weoQi1M1jkcTVVf4aFpMdCc/Q0FZs077gqBynn3W0Lp8AAOiaJiKe
+         DB3eKLxDHq+qY3ofFissRj/L8AjPeVqDdFSmRrQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 350/633] RDMA/core: Delete function indirection for alloc/free kernel CQ
-Date:   Tue, 27 Oct 2020 14:51:33 +0100
-Message-Id: <20201027135539.106690141@linuxfoundation.org>
+Subject: [PATCH 5.8 363/633] powerpc/book3s64/hash/4k: Support large linear mapping range with 4K
+Date:   Tue, 27 Oct 2020 14:51:46 +0100
+Message-Id: <20201027135539.724283921@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,194 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 7e3c66c9a989d5b53387ceebc88b9e4a9b1d6434 ]
+[ Upstream commit 7746406baa3bc9e23fdd7b7da2f04d86e25ab837 ]
 
-The ib_alloc_cq*() and ib_free_cq*() are solely kernel verbs to manage CQs
-and doesn't need extra indirection just to call same functions with
-constant parameter NULL as udata.
+With commit: 0034d395f89d ("powerpc/mm/hash64: Map all the kernel
+regions in the same 0xc range"), we now split the 64TB address range
+into 4 contexts each of 16TB. That implies we can do only 16TB linear
+mapping.
 
-Link: https://lore.kernel.org/r/20200907120921.476363-6-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On some systems, eg. Power9, memory attached to nodes > 0 will appear
+above 16TB in the linear mapping. This resulted in kernel crash when
+we boot such systems in hash translation mode with 4K PAGE_SIZE.
+
+This patch updates the kernel mapping such that we now start supporting upto
+61TB of memory with 4K. The kernel mapping now looks like below 4K PAGE_SIZE
+and hash translation.
+
+    vmalloc start     = 0xc0003d0000000000
+    IO start          = 0xc0003e0000000000
+    vmemmap start     = 0xc0003f0000000000
+
+Our MAX_PHYSMEM_BITS for 4K is still 64TB even though we can only map 61TB.
+We prevent bolt mapping anything outside 61TB range by checking against
+H_VMALLOC_START.
+
+Fixes: 0034d395f89d ("powerpc/mm/hash64: Map all the kernel regions in the same 0xc range")
+Reported-by: Cameron Berkenpas <cam@neo-zeon.de>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200608070904.387440-3-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cq.c | 27 +++++++---------
- include/rdma/ib_verbs.h      | 62 ++++--------------------------------
- 2 files changed, 18 insertions(+), 71 deletions(-)
+ arch/powerpc/include/asm/book3s/64/hash-4k.h | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/core/cq.c b/drivers/infiniband/core/cq.c
-index a92fc3f90bb5b..2efe825689e3e 100644
---- a/drivers/infiniband/core/cq.c
-+++ b/drivers/infiniband/core/cq.c
-@@ -197,24 +197,22 @@ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
- }
- 
- /**
-- * __ib_alloc_cq_user - allocate a completion queue
-+ * __ib_alloc_cq        allocate a completion queue
-  * @dev:		device to allocate the CQ for
-  * @private:		driver private data, accessible from cq->cq_context
-  * @nr_cqe:		number of CQEs to allocate
-  * @comp_vector:	HCA completion vectors for this CQ
-  * @poll_ctx:		context to poll the CQ from.
-  * @caller:		module owner name.
-- * @udata:		Valid user data or NULL for kernel object
-  *
-  * This is the proper interface to allocate a CQ for in-kernel users. A
-  * CQ allocated with this interface will automatically be polled from the
-  * specified context. The ULP must use wr->wr_cqe instead of wr->wr_id
-  * to use this CQ abstraction.
+diff --git a/arch/powerpc/include/asm/book3s/64/hash-4k.h b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+index 3f9ae3585ab98..80c9534148821 100644
+--- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+@@ -13,20 +13,19 @@
   */
--struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
--				 int nr_cqe, int comp_vector,
--				 enum ib_poll_context poll_ctx,
--				 const char *caller, struct ib_udata *udata)
-+struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private, int nr_cqe,
-+			    int comp_vector, enum ib_poll_context poll_ctx,
-+			    const char *caller)
- {
- 	struct ib_cq_init_attr cq_attr = {
- 		.cqe		= nr_cqe,
-@@ -277,7 +275,7 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
- out_destroy_cq:
- 	rdma_dim_destroy(cq);
- 	rdma_restrack_del(&cq->res);
--	cq->device->ops.destroy_cq(cq, udata);
-+	cq->device->ops.destroy_cq(cq, NULL);
- out_free_wc:
- 	kfree(cq->wc);
- out_free_cq:
-@@ -285,7 +283,7 @@ struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
- 	trace_cq_alloc_error(nr_cqe, comp_vector, poll_ctx, ret);
- 	return ERR_PTR(ret);
- }
--EXPORT_SYMBOL(__ib_alloc_cq_user);
-+EXPORT_SYMBOL(__ib_alloc_cq);
+ #define MAX_EA_BITS_PER_CONTEXT		46
  
- /**
-  * __ib_alloc_cq_any - allocate a completion queue
-@@ -310,17 +308,16 @@ struct ib_cq *__ib_alloc_cq_any(struct ib_device *dev, void *private,
- 			atomic_inc_return(&counter) %
- 			min_t(int, dev->num_comp_vectors, num_online_cpus());
+-#define REGION_SHIFT		(MAX_EA_BITS_PER_CONTEXT - 2)
  
--	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
--				  caller, NULL);
-+	return __ib_alloc_cq(dev, private, nr_cqe, comp_vector, poll_ctx,
-+			     caller);
- }
- EXPORT_SYMBOL(__ib_alloc_cq_any);
- 
- /**
-- * ib_free_cq_user - free a completion queue
-+ * ib_free_cq - free a completion queue
-  * @cq:		completion queue to free.
-- * @udata:	User data or NULL for kernel object
+ /*
+- * Our page table limit us to 64TB. Hence for the kernel mapping,
+- * each MAP area is limited to 16 TB.
+- * The four map areas are:  linear mapping, vmap, IO and vmemmap
++ * Our page table limit us to 64TB. For 64TB physical memory, we only need 64GB
++ * of vmemmap space. To better support sparse memory layout, we use 61TB
++ * linear map range, 1TB of vmalloc, 1TB of I/O and 1TB of vmememmap.
   */
--void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata)
-+void ib_free_cq(struct ib_cq *cq)
- {
- 	if (WARN_ON_ONCE(atomic_read(&cq->usecnt)))
- 		return;
-@@ -344,11 +341,11 @@ void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata)
- 	rdma_dim_destroy(cq);
- 	trace_cq_free(cq);
- 	rdma_restrack_del(&cq->res);
--	cq->device->ops.destroy_cq(cq, udata);
-+	cq->device->ops.destroy_cq(cq, NULL);
- 	kfree(cq->wc);
- 	kfree(cq);
- }
--EXPORT_SYMBOL(ib_free_cq_user);
-+EXPORT_SYMBOL(ib_free_cq);
++#define REGION_SHIFT		(40)
+ #define H_KERN_MAP_SIZE		(ASM_CONST(1) << REGION_SHIFT)
  
- void ib_cq_pool_init(struct ib_device *dev)
- {
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index ef2f3986c4933..bfd1f38c495c7 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -3834,46 +3834,15 @@ static inline int ib_post_recv(struct ib_qp *qp,
- 	return qp->device->ops.post_recv(qp, recv_wr, bad_recv_wr ? : &dummy);
- }
+ /*
+- * Define the address range of the kernel non-linear virtual area
+- * 16TB
++ * Define the address range of the kernel non-linear virtual area (61TB)
+  */
+-#define H_KERN_VIRT_START	ASM_CONST(0xc000100000000000)
++#define H_KERN_VIRT_START	ASM_CONST(0xc0003d0000000000)
  
--struct ib_cq *__ib_alloc_cq_user(struct ib_device *dev, void *private,
--				 int nr_cqe, int comp_vector,
--				 enum ib_poll_context poll_ctx,
--				 const char *caller, struct ib_udata *udata);
--
--/**
-- * ib_alloc_cq_user: Allocate kernel/user CQ
-- * @dev: The IB device
-- * @private: Private data attached to the CQE
-- * @nr_cqe: Number of CQEs in the CQ
-- * @comp_vector: Completion vector used for the IRQs
-- * @poll_ctx: Context used for polling the CQ
-- * @udata: Valid user data or NULL for kernel objects
-- */
--static inline struct ib_cq *ib_alloc_cq_user(struct ib_device *dev,
--					     void *private, int nr_cqe,
--					     int comp_vector,
--					     enum ib_poll_context poll_ctx,
--					     struct ib_udata *udata)
--{
--	return __ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
--				  KBUILD_MODNAME, udata);
--}
--
--/**
-- * ib_alloc_cq: Allocate kernel CQ
-- * @dev: The IB device
-- * @private: Private data attached to the CQE
-- * @nr_cqe: Number of CQEs in the CQ
-- * @comp_vector: Completion vector used for the IRQs
-- * @poll_ctx: Context used for polling the CQ
-- *
-- * NOTE: for user cq use ib_alloc_cq_user with valid udata!
-- */
-+struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private, int nr_cqe,
-+			    int comp_vector, enum ib_poll_context poll_ctx,
-+			    const char *caller);
- static inline struct ib_cq *ib_alloc_cq(struct ib_device *dev, void *private,
- 					int nr_cqe, int comp_vector,
- 					enum ib_poll_context poll_ctx)
- {
--	return ib_alloc_cq_user(dev, private, nr_cqe, comp_vector, poll_ctx,
--				NULL);
-+	return __ib_alloc_cq(dev, private, nr_cqe, comp_vector, poll_ctx,
-+			     KBUILD_MODNAME);
- }
- 
- struct ib_cq *__ib_alloc_cq_any(struct ib_device *dev, void *private,
-@@ -3895,26 +3864,7 @@ static inline struct ib_cq *ib_alloc_cq_any(struct ib_device *dev,
- 				 KBUILD_MODNAME);
- }
- 
--/**
-- * ib_free_cq_user - Free kernel/user CQ
-- * @cq: The CQ to free
-- * @udata: Valid user data or NULL for kernel objects
-- *
-- * NOTE: This function shouldn't be called on shared CQs.
-- */
--void ib_free_cq_user(struct ib_cq *cq, struct ib_udata *udata);
--
--/**
-- * ib_free_cq - Free kernel CQ
-- * @cq: The CQ to free
-- *
-- * NOTE: for user cq use ib_free_cq_user with valid udata!
-- */
--static inline void ib_free_cq(struct ib_cq *cq)
--{
--	ib_free_cq_user(cq, NULL);
--}
--
-+void ib_free_cq(struct ib_cq *cq);
- int ib_process_cq_direct(struct ib_cq *cq, int budget);
- 
- /**
+ #ifndef __ASSEMBLY__
+ #define H_PTE_TABLE_SIZE	(sizeof(pte_t) << H_PTE_INDEX_SIZE)
 -- 
 2.25.1
 
