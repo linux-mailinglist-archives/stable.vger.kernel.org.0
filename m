@@ -2,74 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79EE929CD26
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 02:47:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD1429CD29
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 02:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbgJ1Bif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 21:38:35 -0400
-Received: from mail-pl1-f175.google.com ([209.85.214.175]:39645 "EHLO
-        mail-pl1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1833009AbgJ0X3b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 19:29:31 -0400
-Received: by mail-pl1-f175.google.com with SMTP id x23so1575679plr.6
-        for <stable@vger.kernel.org>; Tue, 27 Oct 2020 16:29:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=JxDtWghWI5IaHjEami+ieysTKrrtiOIIUwBaYeLTyWQ=;
-        b=upUrTZ2lVg2qLF+yTTg65nBtsshtimEddy4AVUEgZ0JcSI08I2g0miqFKdJwXthY7Y
-         jwZK557jlX7oSlAo7oi1BBIch3rQ3VodmkSWTcyj4dlapruZgYazdYlP8ecaaKH1a/vg
-         iDQjba/Iur82Hq9n0M/oe6kU3lvsbpuJMgW/hn1zGUuy34RmftHUtpy/aL9vkQ47LNYP
-         3sLBLYa8q6GPdgtGC2BoqoxQ6ASSDOUfHL9E4Hzn99M8PJBxSzKhwjWA1WS/YW5GrNWG
-         eR04Sh5kkp/LF8UqPLxThjxt+Oq3d6xS0/RHXLSmsSgH446Czm17bQjHF/TaGQETDu92
-         Awcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=JxDtWghWI5IaHjEami+ieysTKrrtiOIIUwBaYeLTyWQ=;
-        b=NZWDWXqM/H3FBA+CPcX7FwSGWDeI9UBW57KfXT25qRvqLmdEBQ9k1cWvOX9546K9+U
-         /rvwe6rN7n1+JT4n98Roixjk1cRD7oByi3FdtZDd3dG64LJ97dRs8UO9fmaDWu/QG04j
-         IRJjeRvygxAxE6kcuHdUqej8faz7vaWzwEwY9KE4thousCI5At7QInZDLKw3wXSbSPXJ
-         +qsR3AOsCc78GrCUJAZzQ9gooVNYFWva6WIU14ZeibKe8/+Q/fbxK5rqP5MzMN2/H6Xv
-         Zn/2Ol2yypGp6OR8LTMEEl+fR4s+0WOkXqUTrUjkHKkieBb1IWqkqMQAPbZArZB8uOg4
-         XZmw==
-X-Gm-Message-State: AOAM530tadKuYz0AWr2QV8P9amvt8s98kpEBG3bZyO0JYpr54r6wP35i
-        tahwtMhqAjtBxOnC1C8ygnB3A7ZVHM7ByDdk3Rwua/OTYcluZQ==
-X-Google-Smtp-Source: ABdhPJyDFBbM7//cpQWMi9kjJ/Qny2YtDPqEliLjI2opE1QiQCPliwrOea/3dZsSlwgN8iInBHjKoWIn4jTyNQHwvkM=
-X-Received: by 2002:a17:90b:110b:: with SMTP id gi11mr3974124pjb.25.1603841368765;
- Tue, 27 Oct 2020 16:29:28 -0700 (PDT)
+        id S1726138AbgJ1Big (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 21:38:36 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:52014 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1833049AbgJ0Xmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 19:42:35 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09RNdU5J033454;
+        Tue, 27 Oct 2020 23:42:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc : to : from :
+ subject : message-id : date : mime-version : content-type :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=rIHsVK2Oy3+HUfVyT3NQyvNdOPBUsBa0ax0zbtnybL8=;
+ b=TFJiBvZigbKvtRAHuHGPt5V+TU6nGt0GZp3Sop1rZ0GHYmdfX+RfJQqqfTMMTKr5i3wF
+ aXFcBQHgZiceXh+8Ymo/0jftwgoB7tho88tuBm3IQxJVFvxAnoXncNRmOapOeeT1RzDj
+ 3B+ITf3WBfLkwSppYSquv4Z7KHL9YUL5UCv6ksthqSQYSkhDv9JAphHYFVY7J9Vm7hGk
+ OjgZ13jz6+vhpVHi27rmPm+KBX3sR0Nh+eu+Mlg5Sbe4tbqZr1PRVQXCwj907q1B5yo/
+ dROe/LT7bKDY1Gw+IY40ORaEAS5/GE7MFGCf473PrwLTnszfKybvsRJ/9cu999tXURyd yA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2120.oracle.com with ESMTP id 34dgm42cea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 27 Oct 2020 23:42:30 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09RNeIir070761;
+        Tue, 27 Oct 2020 23:42:30 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3020.oracle.com with ESMTP id 34cx1rb3g9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Oct 2020 23:42:30 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 09RNgTcG014364;
+        Tue, 27 Oct 2020 23:42:29 GMT
+Received: from [10.175.221.126] (/10.175.221.126)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 27 Oct 2020 16:42:28 -0700
+Cc:     linux-nfs@vger.kernel.org, NeilBrown <neilb@suse.com>
+To:     stable@vger.kernel.org
+From:   Calum Mackay <calum.mackay@oracle.com>
+Subject: please cherry-pick for stable --- fd01b2597941 SUNRPC: ECONNREFUSED
+ should cause a rebind.
+Organization: Oracle
+Message-ID: <380083cd-f5f5-73fa-33ff-c5dde2e7bd02@oracle.com>
+Date:   Tue, 27 Oct 2020 23:42:27 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
 MIME-Version: 1.0
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 27 Oct 2020 16:29:17 -0700
-Message-ID: <CAKwvOdn78WAUiRtyPxW7oEhUz8GN6MkL=Jt+n17jEQXPPZE77g@mail.gmail.com>
-Subject: LLVM_IAS=1 x86_64 patches for 5.4 and 4.19
-To:     "# 3.4.x" <stable@vger.kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jian Cai <jiancai@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dmitry Golovin <dima@golovin.in>, Borislav Petkov <bp@suse.de>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Nathan Chancellor <natechancellor@gmail.com>, mbenes@suse.cz
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9787 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0 bulkscore=0
+ suspectscore=13 malwarescore=0 mlxlogscore=965 mlxscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2010270135
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9787 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 bulkscore=0 spamscore=0 phishscore=0 mlxlogscore=999
+ suspectscore=13 clxscore=1011 mlxscore=0 malwarescore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2010270135
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Stable kernel maintainers,
-Please consider cherry picking
+This commit:
 
-commit e81e07244325 ("objtool: Support Clang non-section symbols in
-ORC generation")
+	fd01b2597941 SUNRPC: ECONNREFUSED should cause a rebind.
 
-to linux-5.4.y and linux-4.19.y.  This allows us to use LLVM_IAS=1 for
-x86_64 Android kernel builds without warning.
+(originally applied to v4.14-rc1) didn't appear to get a stable cc, 
+perhaps because it wasn't considered a common problem at the time.
 
-Its partner patch (8782e7cab51b6b) was already backported to
-linux-5.4.y as 8c627d4b15de9, and linux-4.19.y as 6e575122cd956.
+A patch I'm shortly about to post, cc stable, depends on the above, so 
+could it please be cherry-picked for stable?
 
-https://github.com/ClangBuiltLinux/linux/issues/669
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e81e0724432542af8d8c702c31e9d82f57b1ff31
--- 
-Thanks,
-~Nick Desaulniers
+It applies cleanly to both v4.4.240 & v4.9.240
+
+thank you,
+calum.
+
