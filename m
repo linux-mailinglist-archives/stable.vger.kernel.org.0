@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAE829AEBA
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC59029AEBC
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753994AbgJ0OD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S1754006AbgJ0ODd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753988AbgJ0OD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:03:27 -0400
+        id S1754002AbgJ0ODc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D736622282;
-        Tue, 27 Oct 2020 14:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7194C22264;
+        Tue, 27 Oct 2020 14:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807406;
-        bh=hVObMkP4w4Evwr+FFTtiTi63sgwcJ8Cg+PrCq/AqQto=;
+        s=default; t=1603807412;
+        bh=YCtJBikWbVe51JPWyF/ICm/ac53aJzJ5DDmSsCSSYjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5ix6CtIR4wkCH9SQg6c/cVSENL85HFcw3JjrdOKLcpP3zonXABhe85MiU5vVD6id
-         SAAXuJmeo2UKaewjCMFkThmT1mewLrYl9Pjr3eat4WzaTMMyOYJ4FphNhKcvawX2IO
-         kSRLbI5PtoRHlB4vG4G7PAHZhdLtO3kERxYgY3t0=
+        b=KnmEo6447DnZ9h7euR4Tknsxg8dBYn1uGPo5OBFEv4Pv/+DKVznHnuq1bUKYW6oOG
+         MkX5sK1mUPLmUtB77TPi4NXucrGby/OLeKlow7QDjkuLD421bEzCRi8NlmtFHizJNr
+         WVyjR5Y6usJGojPIiIPeWom+HDC8Hpb3WLSvXUhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/139] HID: roccat: add bounds checking in kone_sysfs_write_settings()
-Date:   Tue, 27 Oct 2020 14:48:56 +0100
-Message-Id: <20201027134904.135831573@linuxfoundation.org>
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 044/139] misc: mic: scif: Fix error handling path
+Date:   Tue, 27 Oct 2020 14:48:58 +0100
+Message-Id: <20201027134904.231958824@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
 References: <20201027134902.130312227@linuxfoundation.org>
@@ -42,76 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit d4f98dbfe717490e771b6e701904bfcf4b4557f0 ]
+[ Upstream commit a81072a9c0ae734b7889929b0bc070fe3f353f0e ]
 
-This code doesn't check if "settings->startup_profile" is within bounds
-and that could result in an out of bounds array access.  What the code
-does do is it checks if the settings can be written to the firmware, so
-it's possible that the firmware has a bounds check?  It's safer and
-easier to verify when the bounds checking is done in the kernel.
+Inside __scif_pin_pages(), when map_flags != SCIF_MAP_KERNEL it
+will call pin_user_pages_fast() to map nr_pages. However,
+pin_user_pages_fast() might fail with a return value -ERRNO.
 
-Fixes: 14bf62cde794 ("HID: add driver for Roccat Kone gaming mouse")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The return value is stored in pinned_pages->nr_pages. which in
+turn is passed to unpin_user_pages(), which expects
+pinned_pages->nr_pages >=0, else disaster.
+
+Fix this by assigning pinned_pages->nr_pages to 0 if
+pin_user_pages_fast() returns -ERRNO.
+
+Fixes: ba612aa8b487 ("misc: mic: SCIF memory registration and unregistration")
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Link: https://lore.kernel.org/r/1600570295-29546-1-git-send-email-jrdr.linux@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-roccat-kone.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/misc/mic/scif/scif_rma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index bf4675a273965..9be8c31f613fd 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -297,31 +297,40 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
- 	int retval = 0, difference, old_profile;
-+	struct kone_settings *settings = (struct kone_settings *)buf;
+diff --git a/drivers/misc/mic/scif/scif_rma.c b/drivers/misc/mic/scif/scif_rma.c
+index 32ab0f43f5061..4e2cfb6eea353 100644
+--- a/drivers/misc/mic/scif/scif_rma.c
++++ b/drivers/misc/mic/scif/scif_rma.c
+@@ -1401,6 +1401,8 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
+ 				NULL);
+ 		up_write(&mm->mmap_sem);
+ 		if (nr_pages != pinned_pages->nr_pages) {
++			if (pinned_pages->nr_pages < 0)
++				pinned_pages->nr_pages = 0;
+ 			if (try_upgrade) {
+ 				if (ulimit)
+ 					__scif_dec_pinned_vm_lock(mm,
+@@ -1421,7 +1423,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
  
- 	/* I need to get my data in one piece */
- 	if (off != 0 || count != sizeof(struct kone_settings))
- 		return -EINVAL;
- 
- 	mutex_lock(&kone->kone_lock);
--	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
-+	difference = memcmp(settings, &kone->settings,
-+			    sizeof(struct kone_settings));
- 	if (difference) {
--		retval = kone_set_settings(usb_dev,
--				(struct kone_settings const *)buf);
--		if (retval) {
--			mutex_unlock(&kone->kone_lock);
--			return retval;
-+		if (settings->startup_profile < 1 ||
-+		    settings->startup_profile > 5) {
-+			retval = -EINVAL;
-+			goto unlock;
- 		}
- 
-+		retval = kone_set_settings(usb_dev, settings);
-+		if (retval)
-+			goto unlock;
-+
- 		old_profile = kone->settings.startup_profile;
--		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
-+		memcpy(&kone->settings, settings, sizeof(struct kone_settings));
- 
- 		kone_profile_activated(kone, kone->settings.startup_profile);
- 
- 		if (kone->settings.startup_profile != old_profile)
- 			kone_profile_report(kone, kone->settings.startup_profile);
+ 	if (pinned_pages->nr_pages < nr_pages) {
+ 		err = -EFAULT;
+-		pinned_pages->nr_pages = nr_pages;
+ 		goto dec_pinned;
  	}
-+unlock:
- 	mutex_unlock(&kone->kone_lock);
  
-+	if (retval)
-+		return retval;
-+
- 	return sizeof(struct kone_settings);
- }
- static BIN_ATTR(settings, 0660, kone_sysfs_read_settings,
+@@ -1434,7 +1435,6 @@ int __scif_pin_pages(void *addr, size_t len, int *out_prot,
+ 		__scif_dec_pinned_vm_lock(mm, nr_pages, 0);
+ 	/* Something went wrong! Rollback */
+ error_unmap:
+-	pinned_pages->nr_pages = nr_pages;
+ 	scif_destroy_pinned_pages(pinned_pages);
+ 	*pages = NULL;
+ 	dev_dbg(scif_info.mdev.this_device,
 -- 
 2.25.1
 
