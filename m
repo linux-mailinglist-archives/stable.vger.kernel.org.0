@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A91E229BE7A
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:57:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC49A29BC1B
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1812943AbgJ0Qqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:46:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
+        id S1766315AbgJ0Qbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 12:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1795052AbgJ0PO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:14:59 -0400
+        id S1802576AbgJ0PuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:50:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 497AE20728;
-        Tue, 27 Oct 2020 15:14:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 255CB22283;
+        Tue, 27 Oct 2020 15:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811698;
-        bh=yq0gWSECjPQM66kKtNub8gytoCMnqfIguqqQEgqvihY=;
+        s=default; t=1603813814;
+        bh=vJFXUUXbzdk6b30x0KD3inikwaRRFzDEaCtkhqDKtxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LmNr4JNeEcKE1ZCuChVS3yCQS02hC3IrpRP5skd0+d6XLsdjOQUrugvKBzOZJ0Tlq
-         hShAbPuhtVixLOGSOWUFlxyCEbRGl4MSIBV/+qFN/GhtoQDpItJob4MCMyotIza0sL
-         hPe9NdR9n674T4EqR0PrfWZ/ajUntPRmDYbdYhMQ=
+        b=q3A6MJb9s7pl2sC36YOJdK0CGa5XXVZoOGaVFx8uscqAOQps8mXL9RR7ArCsQPdzk
+         Jo9OG+RRJ9J9V/STWrA4hbCE9iKvOVo5LfNzbvHmp/jfh5On18axoqhore5NlfP+hN
+         8NY04EcKf9oPykjiAK8eynRzkAqwpfMhCkbpunyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 554/633] fs: dlm: fix configfs memory leak
-Date:   Tue, 27 Oct 2020 14:54:57 +0100
-Message-Id: <20201027135548.793197385@linuxfoundation.org>
+Subject: [PATCH 5.9 649/757] media: st-delta: Fix reference count leak in delta_run_work
+Date:   Tue, 27 Oct 2020 14:54:59 +0100
+Message-Id: <20201027135520.992367291@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
-References: <20201027135522.655719020@linuxfoundation.org>
+In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
+References: <20201027135450.497324313@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 3d2825c8c6105b0f36f3ff72760799fa2e71420e ]
+[ Upstream commit 57cc666d36adc7b45e37ba4cd7bc4e44ec4c43d7 ]
 
-This patch fixes the following memory detected by kmemleak and umount
-gfs2 filesystem which removed the last lockspace:
+delta_run_work() calls delta_get_sync() that increments
+the reference counter. In case of failure, decrement the reference
+count by calling delta_put_autosuspend().
 
-unreferenced object 0xffff9264f482f600 (size 192):
-  comm "dlm_controld", pid 325, jiffies 4294690276 (age 48.136s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 6e 6f 64 65 73 00 00 00  ........nodes...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000060481d7>] make_space+0x41/0x130
-    [<000000008d905d46>] configfs_mkdir+0x1a2/0x5f0
-    [<00000000729502cf>] vfs_mkdir+0x155/0x210
-    [<000000000369bcf1>] do_mkdirat+0x6d/0x110
-    [<00000000cc478a33>] do_syscall_64+0x33/0x40
-    [<00000000ce9ccf01>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The patch just remembers the "nodes" entry pointer in space as I think
-it's created as subdirectory when parent "spaces" is created. In
-function drop_space() we will lost the pointer reference to nds because
-configfs_remove_default_groups(). However as this subdirectory is always
-available when "spaces" exists it will just be freed when "spaces" will be
-freed.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/sti/delta/delta-v4l2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 3b21082e1b550..3b1012a3c4396 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -216,6 +216,7 @@ struct dlm_space {
- 	struct list_head members;
- 	struct mutex members_lock;
- 	int members_count;
-+	struct dlm_nodes *nds;
- };
+diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
+index 2503224eeee51..c691b3d81549d 100644
+--- a/drivers/media/platform/sti/delta/delta-v4l2.c
++++ b/drivers/media/platform/sti/delta/delta-v4l2.c
+@@ -954,8 +954,10 @@ static void delta_run_work(struct work_struct *work)
+ 	/* enable the hardware */
+ 	if (!dec->pm) {
+ 		ret = delta_get_sync(ctx);
+-		if (ret)
++		if (ret) {
++			delta_put_autosuspend(ctx);
+ 			goto err;
++		}
+ 	}
  
- struct dlm_comms {
-@@ -424,6 +425,7 @@ static struct config_group *make_space(struct config_group *g, const char *name)
- 	INIT_LIST_HEAD(&sp->members);
- 	mutex_init(&sp->members_lock);
- 	sp->members_count = 0;
-+	sp->nds = nds;
- 	return &sp->group;
- 
-  fail:
-@@ -445,6 +447,7 @@ static void drop_space(struct config_group *g, struct config_item *i)
- static void release_space(struct config_item *i)
- {
- 	struct dlm_space *sp = config_item_to_space(i);
-+	kfree(sp->nds);
- 	kfree(sp);
- }
- 
+ 	/* decode this access unit */
 -- 
 2.25.1
 
