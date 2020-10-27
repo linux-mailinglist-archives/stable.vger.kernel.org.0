@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E7F29B710
+	by mail.lfdr.de (Postfix) with ESMTP id ED7DC29B712
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798589AbgJ0P26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41150 "EHLO mail.kernel.org"
+        id S2902103AbgJ0P27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1798192AbgJ0P02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:26:28 -0400
+        id S1798208AbgJ0P0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:26:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 263372064B;
-        Tue, 27 Oct 2020 15:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB68D2064B;
+        Tue, 27 Oct 2020 15:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812387;
-        bh=WFP3DXfrV2CTmd6xS7VgXQ6Ti8KKpa/VtK2jqgpNDkg=;
+        s=default; t=1603812393;
+        bh=0JBJlYcToSashEDa/XPQcIeVUKG24V/lqTNQKTNvfs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DU6Dc/lhh2EK0bP+ze4NV8w3AHkpemCDFXJI1AYGUjiLMIYY76VzVKHIoRcQHgBuP
-         m6ONh7mrk9rlWKkn6T3ZIQwiFXlAukT6UEvP6wRKHSm4iUoOBdL+szQO+IzFR1VJKR
-         voF+GT/e0xPD2Hg5SYLmUl32EIIelmXfSR/Uqpe4=
+        b=YHMplscv3RDXc9NYb+a+WIoOyJnaE7eta8kUbMqyLKzmBu1Fn1gcs++3wiGU2Pvgj
+         yDDkug61su5bNjFdyf2p+rwOtJMTLODz0mTVB94MCAhoXPJD9XGWqORKl5/J8Vs4rg
+         EOImxruN2N0vEro4CBbNgLrerQ244+InE9COB5bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Rakesh Pillai <pillair@codeaurora.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 192/757] ath10k: Fix the size used in a dma_free_coherent() call in an error handling path
-Date:   Tue, 27 Oct 2020 14:47:22 +0100
-Message-Id: <20201027135459.625440749@linuxfoundation.org>
+Subject: [PATCH 5.9 193/757] wcn36xx: Fix reported 802.11n rx_highest rate wcn3660/wcn3680
+Date:   Tue, 27 Oct 2020 14:47:23 +0100
+Message-Id: <20201027135459.664947215@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -45,36 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 454530a9950b5a26d4998908249564cedfc4babc ]
+[ Upstream commit 3b9fb6791e7113679b1eb472e6ce1659e80f5797 ]
 
-Update the size used in 'dma_free_coherent()' in order to match the one
-used in the corresponding 'dma_alloc_coherent()'.
+Qualcomm's document "80-WL007-1 Rev. J" states that the highest rx rate for
+the WCN3660 and WCN3680 on MCS 7 is 150 Mbps not the 72 Mbps stated here.
 
-Fixes: 1863008369ae ("ath10k: fix shadow register implementation for WCN3990")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Rakesh Pillai <pillair@codeaurora.org>
+This patch fixes the data-rate declared in the 5GHz table.
+
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680
+hardware")
+
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200802122227.678637-1-christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20200802004824.1307124-1-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/ce.c | 2 +-
+ drivers/net/wireless/ath/wcn36xx/main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/ce.c b/drivers/net/wireless/ath/ath10k/ce.c
-index 294fbc1e89ab8..e6e0284e47837 100644
---- a/drivers/net/wireless/ath/ath10k/ce.c
-+++ b/drivers/net/wireless/ath/ath10k/ce.c
-@@ -1555,7 +1555,7 @@ ath10k_ce_alloc_src_ring(struct ath10k *ar, unsigned int ce_id,
- 		ret = ath10k_ce_alloc_shadow_base(ar, src_ring, nentries);
- 		if (ret) {
- 			dma_free_coherent(ar->dev,
--					  (nentries * sizeof(struct ce_desc_64) +
-+					  (nentries * sizeof(struct ce_desc) +
- 					   CE_DESC_RING_ALIGN),
- 					  src_ring->base_addr_owner_space_unaligned,
- 					  base_addr);
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index 702b689c06df3..f3ea629764fa8 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -163,7 +163,7 @@ static struct ieee80211_supported_band wcn_band_5ghz = {
+ 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
+ 		.mcs = {
+ 			.rx_mask = { 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+-			.rx_highest = cpu_to_le16(72),
++			.rx_highest = cpu_to_le16(150),
+ 			.tx_params = IEEE80211_HT_MCS_TX_DEFINED,
+ 		}
+ 	}
 -- 
 2.25.1
 
