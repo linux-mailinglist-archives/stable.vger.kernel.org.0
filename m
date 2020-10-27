@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 916B929AE8F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E60929AFF9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:15:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436846AbgJ0OBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
+        id S1755732AbgJ0OPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:15:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1740904AbgJ0OBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:01:49 -0400
+        id S1754586AbgJ0OO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:14:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F03532222C;
-        Tue, 27 Oct 2020 14:01:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CA792076A;
+        Tue, 27 Oct 2020 14:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807308;
-        bh=6jUS3MrpA5h6hCLksjg54WIptLdagffpuMQViYB/eTQ=;
+        s=default; t=1603808097;
+        bh=CjoBqnIUwU8OsjDiYAN4C8ltkaGbcwBB0IHARfU1d0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFPVumE9CUIW+857Ii9/Hc+6Gu2xbPPu/QcQWv+qWFFGc+b/ur44SQK5okAEOifyi
-         Gkp7EB7yGN9Tl4wLiVjoK1umN1g4cl0ZUtY+NR4gjcnPmqjxsfizv6W9tUlVc0x0RN
-         oh+YMQmODtYmaAhjg/+fGCDoa3bbkARjuxybDUmA=
+        b=TKBaq2LVx+pdMAo8yP6StsjtuEYTi5fxbPdM9lK9mtowN8vzx/aZif8TH7Oj7No+l
+         htlHc8ymZ2bzxuyUyNHWnAJxXvPuUX+n3QDfEhQWoO6erP1SsKotbQ66NvbbREGiyi
+         scHz1vuk9RTeOwq538j0VgKhK8jKAJ/26IG70Dt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Balakrishna Godavarthi <bgodavar@codeaurora.org>,
-        Manish Mandlik <mmandlik@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 099/112] Bluetooth: Only mark socket zapped after unlocking
-Date:   Tue, 27 Oct 2020 14:50:09 +0100
-Message-Id: <20201027134905.225233912@linuxfoundation.org>
+Subject: [PATCH 4.14 155/191] mac80211: handle lack of sband->bitrates in rates
+Date:   Tue, 27 Oct 2020 14:50:10 +0100
+Message-Id: <20201027134917.164877462@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
-References: <20201027134900.532249571@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+From: Thomas Pedersen <thomas@adapt-ip.com>
 
-[ Upstream commit 20ae4089d0afeb24e9ceb026b996bfa55c983cc2 ]
+[ Upstream commit 8b783d104e7f40684333d2ec155fac39219beb2f ]
 
-Since l2cap_sock_teardown_cb doesn't acquire the channel lock before
-setting the socket as zapped, it could potentially race with
-l2cap_sock_release which frees the socket. Thus, wait until the cleanup
-is complete before marking the socket as zapped.
+Even though a driver or mac80211 shouldn't produce a
+legacy bitrate if sband->bitrates doesn't exist, don't
+crash if that is the case either.
 
-This race was reproduced on a JBL GO speaker after the remote device
-rejected L2CAP connection due to resource unavailability.
+This fixes a kernel panic if station dump is run before
+last_rate can be updated with a data frame when
+sband->bitrates is missing (eg. in S1G bands).
 
-Here is a dmesg log with debug logs from a repro of this bug:
-[ 3465.424086] Bluetooth: hci_core.c:hci_acldata_packet() hci0 len 16 handle 0x0003 flags 0x0002
-[ 3465.424090] Bluetooth: hci_conn.c:hci_conn_enter_active_mode() hcon 00000000cfedd07d mode 0
-[ 3465.424094] Bluetooth: l2cap_core.c:l2cap_recv_acldata() conn 000000007eae8952 len 16 flags 0x2
-[ 3465.424098] Bluetooth: l2cap_core.c:l2cap_recv_frame() len 12, cid 0x0001
-[ 3465.424102] Bluetooth: l2cap_core.c:l2cap_raw_recv() conn 000000007eae8952
-[ 3465.424175] Bluetooth: l2cap_core.c:l2cap_sig_channel() code 0x03 len 8 id 0x0c
-[ 3465.424180] Bluetooth: l2cap_core.c:l2cap_connect_create_rsp() dcid 0x0045 scid 0x0000 result 0x02 status 0x00
-[ 3465.424189] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 4
-[ 3465.424196] Bluetooth: l2cap_core.c:l2cap_chan_del() chan 000000006acf9bff, conn 000000007eae8952, err 111, state BT_CONNECT
-[ 3465.424203] Bluetooth: l2cap_sock.c:l2cap_sock_teardown_cb() chan 000000006acf9bff state BT_CONNECT
-[ 3465.424221] Bluetooth: l2cap_core.c:l2cap_chan_put() chan 000000006acf9bff orig refcnt 3
-[ 3465.424226] Bluetooth: hci_core.h:hci_conn_drop() hcon 00000000cfedd07d orig refcnt 6
-[ 3465.424234] BUG: spinlock bad magic on CPU#2, kworker/u17:0/159
-[ 3465.425626] Bluetooth: hci_sock.c:hci_sock_sendmsg() sock 000000002bb0cb64 sk 00000000a7964053
-[ 3465.430330]  lock: 0xffffff804410aac0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-[ 3465.430332] Causing a watchdog bite!
-
-Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reported-by: Balakrishna Godavarthi <bgodavar@codeaurora.org>
-Reviewed-by: Manish Mandlik <mmandlik@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
+Link: https://lore.kernel.org/r/20201005164522.18069-1-thomas@adapt-ip.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/mac80211/cfg.c      | 3 ++-
+ net/mac80211/sta_info.c | 4 ++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index e562385d9440e..30731ce390ba0 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1330,8 +1330,6 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index c883cb67b7311..0b82d8da4ab0a 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -661,7 +661,8 @@ void sta_set_rate_info_tx(struct sta_info *sta,
+ 		u16 brate;
  
- 	parent = bt_sk(sk)->parent;
+ 		sband = ieee80211_get_sband(sta->sdata);
+-		if (sband) {
++		WARN_ON_ONCE(sband && !sband->bitrates);
++		if (sband && sband->bitrates) {
+ 			brate = sband->bitrates[rate->idx].bitrate;
+ 			rinfo->legacy = DIV_ROUND_UP(brate, 1 << shift);
+ 		}
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 6af5fda6461ce..2a18687019003 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2004,6 +2004,10 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u16 rate,
  
--	sock_set_flag(sk, SOCK_ZAPPED);
--
- 	switch (chan->state) {
- 	case BT_OPEN:
- 	case BT_BOUND:
-@@ -1358,8 +1356,11 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
- 
- 		break;
- 	}
--
- 	release_sock(sk);
+ 		rinfo->flags = 0;
+ 		sband = local->hw.wiphy->bands[band];
 +
-+	/* Only zap after cleanup to avoid use after free race */
-+	sock_set_flag(sk, SOCK_ZAPPED);
++		if (WARN_ON_ONCE(!sband->bitrates))
++			break;
 +
- }
- 
- static void l2cap_sock_state_change_cb(struct l2cap_chan *chan, int state,
+ 		brate = sband->bitrates[rate_idx].bitrate;
+ 		if (rinfo->bw == RATE_INFO_BW_5)
+ 			shift = 2;
 -- 
 2.25.1
 
