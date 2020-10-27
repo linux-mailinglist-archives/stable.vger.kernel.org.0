@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CCF29BCC4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 112F329BCC5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1811075AbgJ0QhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1811064AbgJ0QhH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Oct 2020 12:37:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1764358AbgJ0PrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:47:19 -0400
+        id S2899697AbgJ0PrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:47:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E867A223B0;
-        Tue, 27 Oct 2020 15:47:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E15182242B;
+        Tue, 27 Oct 2020 15:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813637;
-        bh=NY6zUWyp4Q9m1nxkUjRJHZSZytY4h0qUVzUefWcCByo=;
+        s=default; t=1603813640;
+        bh=U38pIinAUzj6lUxBuxFi6yjG8fqQCzz+IqPvS2YnehE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woL6sRXnnDtJ4tyneWlsUaVpGimUxYOb1arZQ9UMdRGak1wsK/WtN15XblCXVhW2o
-         zpPwj54yz1VE4IzhxOgXNsMKY61NikE2CaZDF6kvv3J0y21dk59JArFDYgbRlteBRB
-         J6WvZzSExYnBExpyjgFbNVs5j6WXQcyEj5H6z8PQ=
+        b=1U0mbuHVkZpJhvd3BKZVt4odxHzqE0FcxAagjFZAv5nKhNAxNc455fGCf51DvmQp2
+         bxwZrnXHV1NcBYPfpfkiwunL4o3npq/ReW8Z31KDI/DoFdWrlGDnLPzIbZgAa6D4bq
+         jFbUtCkAoGDQ7lNEIzZHpWQn980xWHGGsJ8i4b6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Patrick Delaunay <patrick.delaunay@st.com>,
         linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 620/757] ARM: dts: stm32: Move ethernet PHY into DH SoM DT
-Date:   Tue, 27 Oct 2020 14:54:30 +0100
-Message-Id: <20201027135519.627612876@linuxfoundation.org>
+Subject: [PATCH 5.9 621/757] ARM: dts: stm32: Swap PHY reset GPIO and TSC2004 IRQ on DHCOM SOM
+Date:   Tue, 27 Oct 2020 14:54:31 +0100
+Message-Id: <20201027135519.673571241@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -49,11 +49,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit b0a07f609600b6fa4c30f783db50c38456804485 ]
+[ Upstream commit 9ad98319e95263469d8ca2cb543c37c5a2f40980 ]
 
-The PHY and the VIO regulator is populated on the SoM, move it
-into the SoM DT.
+On the production revision of the SoM, 587-200, the PHY reset GPIO and
+touchscreen IRQs are swapped to prevent collision between EXTi IRQs,
+reflect that in DT.
 
+Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
@@ -64,129 +66,31 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 33 -----------------
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi  | 36 +++++++++++++++++++
- 2 files changed, 36 insertions(+), 33 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index 7c4bd615b3115..9cf6d90fbf69f 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -11,7 +11,6 @@ aliases {
- 		serial0 = &uart4;
- 		serial1 = &usart3;
- 		serial2 = &uart8;
--		ethernet0 = &ethernet0;
- 	};
- 
- 	chosen {
-@@ -33,16 +32,6 @@ display_bl: display-bl {
- 		status = "okay";
- 	};
- 
--	ethernet_vio: vioregulator {
--		compatible = "regulator-fixed";
--		regulator-name = "vio";
--		regulator-min-microvolt = <3300000>;
--		regulator-max-microvolt = <3300000>;
--		gpio = <&gpiog 3 GPIO_ACTIVE_LOW>;
--		regulator-always-on;
--		regulator-boot-on;
--	};
--
- 	gpio-keys-polled {
- 		compatible = "gpio-keys-polled";
- 		#size-cells = <0>;
-@@ -141,28 +130,6 @@ &cec {
- 	status = "okay";
- };
- 
--&ethernet0 {
--	status = "okay";
--	pinctrl-0 = <&ethernet0_rmii_pins_a>;
--	pinctrl-1 = <&ethernet0_rmii_sleep_pins_a>;
--	pinctrl-names = "default", "sleep";
--	phy-mode = "rmii";
--	max-speed = <100>;
--	phy-handle = <&phy0>;
--	st,eth-ref-clk-sel;
--	phy-reset-gpios = <&gpioh 15 GPIO_ACTIVE_LOW>;
--
--	mdio0 {
--		#address-cells = <1>;
--		#size-cells = <0>;
--		compatible = "snps,dwmac-mdio";
--
--		phy0: ethernet-phy@1 {
--			reg = <1>;
--		};
--	};
--};
--
- &i2c2 {	/* Header X22 */
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c2_pins_a>;
 diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index ba905196fb549..d30a3c60da9b0 100644
+index d30a3c60da9b0..a87ebc4843963 100644
 --- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
 +++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -9,6 +9,10 @@
- #include <dt-bindings/mfd/st,stpmic1.h>
+@@ -117,7 +117,7 @@ &ethernet0 {
+ 	max-speed = <100>;
+ 	phy-handle = <&phy0>;
+ 	st,eth-ref-clk-sel;
+-	phy-reset-gpios = <&gpioh 15 GPIO_ACTIVE_LOW>;
++	phy-reset-gpios = <&gpioh 3 GPIO_ACTIVE_LOW>;
  
- / {
-+	aliases {
-+		ethernet0 = &ethernet0;
-+	};
-+
- 	memory@c0000000 {
- 		device_type = "memory";
- 		reg = <0xC0000000 0x40000000>;
-@@ -55,6 +59,16 @@ retram: retram@38000000 {
- 			no-map;
- 		};
+ 	mdio0 {
+ 		#address-cells = <1>;
+@@ -285,7 +285,7 @@ touchscreen@49 {
+ 		compatible = "ti,tsc2004";
+ 		reg = <0x49>;
+ 		vio-supply = <&v3v3>;
+-		interrupts-extended = <&gpioh 3 IRQ_TYPE_EDGE_FALLING>;
++		interrupts-extended = <&gpioh 15 IRQ_TYPE_EDGE_FALLING>;
  	};
-+
-+	ethernet_vio: vioregulator {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vio";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		gpio = <&gpiog 3 GPIO_ACTIVE_LOW>;
-+		regulator-always-on;
-+		regulator-boot-on;
-+	};
- };
  
- &adc {
-@@ -94,6 +108,28 @@ &dts {
- 	status = "okay";
- };
- 
-+&ethernet0 {
-+	status = "okay";
-+	pinctrl-0 = <&ethernet0_rmii_pins_a>;
-+	pinctrl-1 = <&ethernet0_rmii_sleep_pins_a>;
-+	pinctrl-names = "default", "sleep";
-+	phy-mode = "rmii";
-+	max-speed = <100>;
-+	phy-handle = <&phy0>;
-+	st,eth-ref-clk-sel;
-+	phy-reset-gpios = <&gpioh 15 GPIO_ACTIVE_LOW>;
-+
-+	mdio0 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,dwmac-mdio";
-+
-+		phy0: ethernet-phy@1 {
-+			reg = <1>;
-+		};
-+	};
-+};
-+
- &i2c4 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c4_pins_a>;
+ 	eeprom@50 {
 -- 
 2.25.1
 
