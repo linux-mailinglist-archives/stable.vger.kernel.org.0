@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04DE29C5C0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C6729C71A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756305AbgJ0OM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
+        id S1827761AbgJ0S1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755756AbgJ0OKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:46 -0400
+        id S2504140AbgJ0N5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 09:57:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 440D2218AC;
-        Tue, 27 Oct 2020 14:10:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A164C2072E;
+        Tue, 27 Oct 2020 13:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807845;
-        bh=JZO0FMmtG4vn/Ir8BKBtAao/jx/uemYfhrNZ6ukyQ5c=;
+        s=default; t=1603807064;
+        bh=I6ItegFF5/0mB3bA4/y65+UrSzJEeBIb/GuBLhWEBSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tkpkdztl/IcgUWW3UpU+yhwK/yz7BBtfixeYIJC6zs9Zn4ttekVvE3J5YbMjtozQb
-         SpavX8m5rG79tBlbMeTRWpMNVuerJlSc+MqwQZ2nLYxPIQ179FW3Db4FOpeJbNdEuR
-         fyYXdasAcSXUo0LEOhCZ9udhiBzxp+Tfi3Dk3ePQ=
+        b=C0NA3bKroKFAMb4PkEuOjcxFY95CCvHYQyc2lENqyOTCV16zJXix3uPzPgz+zQORZ
+         JH8YlL3k2NSUZ0T9hl63blOj8X1m6rKzErGrHvbJwaVntCm/JtvTCWjmxawYxGvl8s
+         pD+ydR8g1wOgmjCOCPDQsdri16PFpY7b6hyl5WZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Andrew Morton <akpm@osdl.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/191] video: fbdev: sis: fix null ptr dereference
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.4 007/112] mm/kasan: add API to check memory regions
 Date:   Tue, 27 Oct 2020 14:48:37 +0100
-Message-Id: <20201027134912.715225285@linuxfoundation.org>
+Message-Id: <20201027134900.893996677@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134900.532249571@linuxfoundation.org>
+References: <20201027134900.532249571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-[ Upstream commit ad6f93e9cd56f0b10e9b22e3e137d17a1a035242 ]
+commit 64f8ebaf115bcddc4aaa902f981c57ba6506bc42 upstream.
 
-Clang static analysis reports this representative error
+Memory access coded in an assembly won't be seen by KASAN as a compiler
+can instrument only C code.  Add kasan_check_[read,write]() API which is
+going to be used to check a certain memory range.
 
-init.c:2501:18: warning: Array access (from variable 'queuedata') results
-  in a null pointer dereference
-      templ |= ((queuedata[i] & 0xc0) << 3);
-
-This is the problem block of code
-
-   if(ModeNo > 0x13) {
-      ...
-      if(SiS_Pr->ChipType == SIS_730) {
-	 queuedata = &FQBQData730[0];
-      } else {
-	 queuedata = &FQBQData[0];
-      }
-   } else {
-
-   }
-
-queuedata is not set in the else block
-
-Reviewing the old code, the arrays FQBQData730 and FQBQData were
-used directly.
-
-So hoist the setting of queuedata out of the if-else block.
-
-Fixes: 544393fe584d ("[PATCH] sisfb update")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805145208.17727-1-trix@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/1462538722-1574-3-git-send-email-aryabinin@virtuozzo.com
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 4.4: drop change in MAINTAINERS]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/sis/init.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ include/linux/kasan-checks.h |   12 ++++++++++++
+ mm/kasan/kasan.c             |   12 ++++++++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 include/linux/kasan-checks.h
 
-diff --git a/drivers/video/fbdev/sis/init.c b/drivers/video/fbdev/sis/init.c
-index dfe3eb769638b..fde27feae5d0c 100644
---- a/drivers/video/fbdev/sis/init.c
-+++ b/drivers/video/fbdev/sis/init.c
-@@ -2428,6 +2428,11 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
- 
-    i = 0;
- 
-+	if (SiS_Pr->ChipType == SIS_730)
-+		queuedata = &FQBQData730[0];
-+	else
-+		queuedata = &FQBQData[0];
+--- /dev/null
++++ b/include/linux/kasan-checks.h
+@@ -0,0 +1,12 @@
++#ifndef _LINUX_KASAN_CHECKS_H
++#define _LINUX_KASAN_CHECKS_H
 +
-    if(ModeNo > 0x13) {
++#ifdef CONFIG_KASAN
++void kasan_check_read(const void *p, unsigned int size);
++void kasan_check_write(const void *p, unsigned int size);
++#else
++static inline void kasan_check_read(const void *p, unsigned int size) { }
++static inline void kasan_check_write(const void *p, unsigned int size) { }
++#endif
++
++#endif
+--- a/mm/kasan/kasan.c
++++ b/mm/kasan/kasan.c
+@@ -278,6 +278,18 @@ static void check_memory_region(unsigned
+ 	check_memory_region_inline(addr, size, write, ret_ip);
+ }
  
-       /* Get VCLK  */
-@@ -2445,12 +2450,6 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
-       /* Get half colordepth */
-       colorth = colortharray[(SiS_Pr->SiS_ModeType - ModeEGA)];
- 
--      if(SiS_Pr->ChipType == SIS_730) {
--	 queuedata = &FQBQData730[0];
--      } else {
--	 queuedata = &FQBQData[0];
--      }
--
-       do {
- 	 templ = SiS_CalcDelay2(SiS_Pr, queuedata[i]) * VCLK * colorth;
- 
--- 
-2.25.1
-
++void kasan_check_read(const void *p, unsigned int size)
++{
++	check_memory_region((unsigned long)p, size, false, _RET_IP_);
++}
++EXPORT_SYMBOL(kasan_check_read);
++
++void kasan_check_write(const void *p, unsigned int size)
++{
++	check_memory_region((unsigned long)p, size, true, _RET_IP_);
++}
++EXPORT_SYMBOL(kasan_check_write);
++
+ #undef memset
+ void *memset(void *addr, int c, size_t len)
+ {
 
 
