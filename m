@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9226529B70B
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D2429B679
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1798547AbgJ0P2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:28:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33682 "EHLO mail.kernel.org"
+        id S1796858AbgJ0PUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796844AbgJ0PUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:20:12 -0400
+        id S1796854AbgJ0PUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:20:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F6FD2064B;
-        Tue, 27 Oct 2020 15:20:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65FCC2224A;
+        Tue, 27 Oct 2020 15:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603812012;
-        bh=np69AsM3udaKUpjwndbbBcSbkDZCkgDrrmooXS4GtxM=;
+        s=default; t=1603812015;
+        bh=mqQCLmeaHGFFJStA/Xz1a8NZIRfxPJMeFJv1wdg9m3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=actZoe7xoYfuUvD38QCNw7jgTtMzjtaLuaEEJG1uKtyz5k199QmyMGgFKQY2+55sa
-         Ot5vxc8sM+DEp3I3bz9935uML9D4cTS49u/RLFCl6l1Zm/68/Lc1ni2TjRQu04gZSO
-         YLydGW+e6R+bi+d1WNcO2yv0PEzPmX0wB+8hMoJs=
+        b=vTRxNqtg05B+Ywidx2N/jFvM5TpNg2vwXBfg0rZ2lQKqtkVHiLjq8M8b3lT5t7IT8
+         hAfFQb49dVO7DuApGLIpfQFmE9xRefm5nw3jYcBMmRQ+JG26Feyv1JUqTY5RER0k/S
+         d00ACceoFiGBYkxZbXcPZ35LmkySAa1zQtBY8Xgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Halman <lukasz.halman@gmail.com>,
+        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 061/757] ALSA: usb-audio: Line6 Pod Go interface requires static clock rate quirk
-Date:   Tue, 27 Oct 2020 14:45:11 +0100
-Message-Id: <20201027135453.428964949@linuxfoundation.org>
+Subject: [PATCH 5.9 062/757] ALSA: hda/realtek - The front Mic on a HP machine doesnt work
+Date:   Tue, 27 Oct 2020 14:45:12 +0100
+Message-Id: <20201027135453.478874013@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -42,33 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Halman <lukasz.halman@gmail.com>
+From: Jeremy Szu <jeremy.szu@canonical.com>
 
-commit 7da4c510abff8ad47eb2d7cc9a97def5a411947f upstream.
+commit 148ebf548a1af366fc797fcc7d03f0bb92b12a79 upstream.
 
-Recently released Line6 Pod Go requires static clock rate quirk to make
-its usb audio interface working. Added its usb id to the list of similar
-line6 devices.
+On a HP ZCentral, the front Mic could not be detected.
 
-Signed-off-by: Lukasz Halman <lukasz.halman@gmail.com>
+The codec of the HP ZCentrol is alc671 and it needs to override the pin
+configuration to enable the headset mic.
+
+Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201020061409.GA24382@TAG009442538903
+Link: https://lore.kernel.org/r/20201008105645.65505-1-jeremy.szu@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/format.c |    1 +
+ sound/pci/hda/patch_realtek.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -406,6 +406,7 @@ static int line6_parse_audio_format_rate
- 	case USB_ID(0x0e41, 0x4242): /* Line6 Helix Rack */
- 	case USB_ID(0x0e41, 0x4244): /* Line6 Helix LT */
- 	case USB_ID(0x0e41, 0x4246): /* Line6 HX-Stomp */
-+	case USB_ID(0x0e41, 0x4247): /* Line6 Pod Go */
- 	case USB_ID(0x0e41, 0x4248): /* Line6 Helix >= fw 2.82 */
- 	case USB_ID(0x0e41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
- 	case USB_ID(0x0e41, 0x424a): /* Line6 Helix LT >= fw 2.82 */
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9623,6 +9623,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x1028, 0x0698, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
++	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x1043, 0x1080, "Asus UX501VW", ALC668_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1043, 0x11cd, "Asus N550", ALC662_FIXUP_ASUS_Nx50),
+ 	SND_PCI_QUIRK(0x1043, 0x13df, "Asus N550JX", ALC662_FIXUP_BASS_1A),
 
 
