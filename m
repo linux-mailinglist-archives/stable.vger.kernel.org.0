@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B0429B3D0
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D6829B3D9
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2900641AbgJ0Ozm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:55:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56234 "EHLO mail.kernel.org"
+        id S1781705AbgJ0O4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:56:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1781441AbgJ0Ozk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:55:40 -0400
+        id S1781703AbgJ0O4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:56:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A1B720679;
-        Tue, 27 Oct 2020 14:55:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC52A22264;
+        Tue, 27 Oct 2020 14:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810539;
-        bh=l1kaWWINDqgYxtprcmfWxtaQ+1hArbtHtpIwUpQLm0w=;
+        s=default; t=1603810564;
+        bh=hDVORjIq6JPZCf+Mkul67ROnnJelVfKrbcgJPP7pvv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RuQcz7EhbGt0eHigOghp1828q0S9tXP6jVh9HBzqCW+wUaYQVcknKhbKey+yXClS/
-         M8IyfzgGjHgjYHeqnyYCjp+sMGXo64YMI5ctVk0Aky0tsrRkwwaxypKoilkgzlhUIq
-         r5DUtmVSiAqaUBuEqnlH2AdC+xZ5S1TjB1Rgwg5U=
+        b=vcHhyTfFypERorAKKpcDS7KgBiMvhZRHJQspLFTDxbqNYjVCQCEHe2fCPs8r7unyP
+         E/Q3UNksVj2yZquTRXi79/if4k+33VSPgjFxAp61W5nhni27INhQ7EkMzBKEuhHKBU
+         h2hRyV55p4NIaQITznamblhfynYl4Kp2ooTd0vKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org, Quinn Tran <quinn.tran@cavium.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 173/633] drm/gma500: fix error check
-Date:   Tue, 27 Oct 2020 14:48:36 +0100
-Message-Id: <20201027135530.794567525@linuxfoundation.org>
+Subject: [PATCH 5.8 176/633] scsi: qla2xxx: Fix wrong return value in qlt_chk_unresolv_exchg()
+Date:   Tue, 27 Oct 2020 14:48:39 +0100
+Message-Id: <20201027135530.939811328@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,52 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit cdd296cdae1af2d27dae3fcfbdf12c5252ab78cf ]
+[ Upstream commit bbf2d06a9d767718bfe6028d6288c03edb98554a ]
 
-Reviewing this block of code in cdv_intel_dp_init()
+In the case of a failed retry, a positive value EIO is returned here.  I
+think this is a typo error. It is necessary to return an error value.
 
-ret = cdv_intel_dp_aux_native_read(gma_encoder, DP_DPCD_REV, ...
+[mkp: caller checks != 0 but the rest of the file uses -Exxx so fix this up
+to be consistent]
 
-cdv_intel_edp_panel_vdd_off(gma_encoder);
-if (ret == 0) {
-	/* if this fails, presume the device is a ghost */
-	DRM_INFO("failed to retrieve link info, disabling eDP\n");
-	drm_encoder_cleanup(encoder);
-	cdv_intel_dp_destroy(connector);
-	goto err_priv;
-} else {
-
-The (ret == 0) is not strict enough.
-cdv_intel_dp_aux_native_read() returns > 0 on success
-otherwise it is failure.
-
-So change to <=
-
-Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
-
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200805205911.20927-1-trix@redhat.com
+Link: https://lore.kernel.org/r/20200802111528.4974-1-tianjia.zhang@linux.alibaba.com
+Fixes: 0691094ff3f2 ("scsi: qla2xxx: Add logic to detect ABTS hang and response completion")
+Cc: Quinn Tran <quinn.tran@cavium.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
+ drivers/scsi/qla2xxx/qla_target.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-index f41cbb753bb46..720a767118c9c 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-@@ -2078,7 +2078,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
- 					       intel_dp->dpcd,
- 					       sizeof(intel_dp->dpcd));
- 		cdv_intel_edp_panel_vdd_off(gma_encoder);
--		if (ret == 0) {
-+		if (ret <= 0) {
- 			/* if this fails, presume the device is a ghost */
- 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
- 			drm_encoder_cleanup(encoder);
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 90289162dbd4c..a034e9caa2997 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -5668,7 +5668,7 @@ static int qlt_chk_unresolv_exchg(struct scsi_qla_host *vha,
+ 		/* found existing exchange */
+ 		qpair->retry_term_cnt++;
+ 		if (qpair->retry_term_cnt >= 5) {
+-			rc = EIO;
++			rc = -EIO;
+ 			qpair->retry_term_cnt = 0;
+ 			ql_log(ql_log_warn, vha, 0xffff,
+ 			    "Unable to send ABTS Respond. Dumping firmware.\n");
 -- 
 2.25.1
 
