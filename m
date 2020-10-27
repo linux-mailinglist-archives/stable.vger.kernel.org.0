@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8566D29B4B9
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A2129B476
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762663AbgJ0PAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:00:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
+        id S1789662AbgJ0PC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1788582AbgJ0PA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:00:29 -0400
+        id S1789490AbgJ0PCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:02:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EFDE20714;
-        Tue, 27 Oct 2020 15:00:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2FA622264;
+        Tue, 27 Oct 2020 15:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810829;
-        bh=X29lZydw6kWSNcMmU6M4f+oKfY11QqVF0S/Svtg6fok=;
+        s=default; t=1603810942;
+        bh=oey3az2tHcESgDRQcByndXxFAvhtrUWEW2qFCWdSyfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwg+Myc8SwoNJE2Bnbaisygf1RFd3xZvQgsGYRrlmuCO/EEROqDlcEWf+1LhCgA5b
-         GoVE878UsxsUjZgepnt1Flz4bCoWN05h1Hy9CuZWJZUZ2qTI9Oh+AlXB6PhOERkYvi
-         A15XIOzR1NUyZjZIq38FBoI9eUohpEuF0DZHfXbc=
+        b=h//RK/ShrNBuiNKPiQyxc5YZDXkPSsOdNA3PjfEoc9VkcOp6U8KY4ABPli4QPAwu+
+         peGhTK/bhBr5EebVvousyZLsCTHp8Q6WYmEIxtTQEYjUhJMoc3gmnS4ZCyVaTeKG19
+         x8aW8z7ALzxH/Ji1tdepTuWL1fw1uBOD3qucmJRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 276/633] nvmem: core: fix possibly memleak when use nvmem_cell_info_to_nvmem_cell()
-Date:   Tue, 27 Oct 2020 14:50:19 +0100
-Message-Id: <20201027135535.616771401@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Mohammed Gamal <mgamal@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 277/633] hv: clocksource: Add notrace attribute to read_hv_sched_clock_*() functions
+Date:   Tue, 27 Oct 2020 14:50:20 +0100
+Message-Id: <20201027135535.663881746@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,112 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadym Kochan <vadym.kochan@plvision.eu>
+From: Mohammed Gamal <mgamal@redhat.com>
 
-[ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
+[ Upstream commit 1f3aed01473c41c9f896fbf4c30d330655e8aa7c ]
 
-Fix missing 'kfree_const(cell->name)' when call to
-nvmem_cell_info_to_nvmem_cell() in several places:
+When selecting function_graph tracer with the command:
+ # echo function_graph > /sys/kernel/debug/tracing/current_tracer
 
-     * after nvmem_cell_info_to_nvmem_cell() failed during
-       nvmem_add_cells()
+The kernel crashes with the following stack trace:
 
-     * during nvmem_device_cell_{read,write} when cell->name is
-       kstrdup'ed() without calling kfree_const() at the end, but
-       really there is no reason to do that 'dup, because the cell
-       instance is allocated on the stack for some short period to be
-       read/write without exposing it to the caller.
+[69703.122389] BUG: stack guard page was hit at 000000001056545c (stack is 00000000fa3f8fed..0000000005d39503)
+[69703.122403] kernel stack overflow (double-fault): 0000 [#1] SMP PTI
+[69703.122413] CPU: 0 PID: 16982 Comm: bash Kdump: loaded Not tainted 4.18.0-236.el8.x86_64 #1
+[69703.122420] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
+[69703.122433] RIP: 0010repare_ftrace_return+0xa/0x110
+[69703.122458] Code: 05 00 0f 0b 48 c7 c7 10 ca 69 ae 0f b6 f0 e8 4b 52 0c 00 31 c0 eb ca 66 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 56 41 55 41 54 <53> 48 83 ec 18 65 48 8b 04 25 28 00 00 00 48 89 45 d8 31 c0 48 85
+[69703.122467] RSP: 0018:ffffbd6d01118000 EFLAGS: 00010086
+[69703.122476] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000003
+[69703.122484] RDX: 0000000000000000 RSI: ffffbd6d011180d8 RDI: ffffffffadce7550
+[69703.122491] RBP: ffffbd6d01118018 R08: 0000000000000000 R09: ffff9d4b09266000
+[69703.122498] R10: ffff9d4b0fc04540 R11: ffff9d4b0fc20a00 R12: ffff9d4b6e42aa90
+[69703.122506] R13: ffff9d4b0fc20ab8 R14: 00000000000003e8 R15: ffffbd6d0111837c
+[69703.122514] FS:  00007fd5f2588740(0000) GS:ffff9d4b6e400000(0000) knlGS:0000000000000000
+[69703.122521] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[69703.122528] CR2: ffffbd6d01117ff8 CR3: 00000000565d8001 CR4: 00000000003606f0
+[69703.122538] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[69703.122545] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[69703.122552] Call Trace:
+[69703.122568]  ftrace_graph_caller+0x6b/0xa0
+[69703.122589]  ? read_hv_sched_clock_tsc+0x5/0x20
+[69703.122599]  read_hv_sched_clock_tsc+0x5/0x20
+[69703.122611]  sched_clock+0x5/0x10
+[69703.122621]  sched_clock_local+0x12/0x80
+[69703.122631]  sched_clock_cpu+0x8c/0xb0
+[69703.122644]  trace_clock_global+0x21/0x90
+[69703.122655]  ring_buffer_lock_reserve+0x100/0x3c0
+[69703.122671]  trace_buffer_lock_reserve+0x16/0x50
+[69703.122683]  __trace_graph_entry+0x28/0x90
+[69703.122695]  trace_graph_entry+0xfd/0x1a0
+[69703.122705]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122714]  ? sched_clock+0x5/0x10
+[69703.122723]  prepare_ftrace_return+0x99/0x110
+[69703.122734]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122743]  ? sched_clock+0x5/0x10
+[69703.122752]  ftrace_graph_caller+0x6b/0xa0
+[69703.122768]  ? read_hv_clock_tsc_cs+0x10/0x10
+[69703.122777]  ? sched_clock+0x5/0x10
+[69703.122786]  ? read_hv_sched_clock_tsc+0x5/0x20
+[69703.122796]  ? ring_buffer_unlock_commit+0x1d/0xa0
+[69703.122805]  read_hv_sched_clock_tsc+0x5/0x20
+[69703.122814]  ftrace_graph_caller+0xa0/0xa0
+[ ... recursion snipped ... ]
 
-So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
-which is used to convert cell_info -> cell without name duplication as
-a lighweight version of nvmem_cell_info_to_nvmem_cell().
+Setting the notrace attribute for read_hv_sched_clock_msr() and
+read_hv_sched_clock_tsc() fixes it.
 
-Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Link: https://lore.kernel.org/r/20200923204456.14032-1-vadym.kochan@plvision.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
+Link: https://lore.kernel.org/r/20200924151117.767442-1-mgamal@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/clocksource/hyperv_timer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 394e75dede725..4aca5b4a87d75 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -355,16 +355,14 @@ static void nvmem_cell_add(struct nvmem_cell *cell)
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_CELL_ADD, cell);
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index 09aa44cb8a91d..ba04cb381cd3f 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -341,7 +341,7 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
+ 	return read_hv_clock_tsc();
  }
  
--static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
--				   const struct nvmem_cell_info *info,
--				   struct nvmem_cell *cell)
-+static int nvmem_cell_info_to_nvmem_cell_nodup(struct nvmem_device *nvmem,
-+					const struct nvmem_cell_info *info,
-+					struct nvmem_cell *cell)
+-static u64 read_hv_sched_clock_tsc(void)
++static u64 notrace read_hv_sched_clock_tsc(void)
  {
- 	cell->nvmem = nvmem;
- 	cell->offset = info->offset;
- 	cell->bytes = info->bytes;
--	cell->name = kstrdup_const(info->name, GFP_KERNEL);
--	if (!cell->name)
--		return -ENOMEM;
-+	cell->name = info->name;
- 
- 	cell->bit_offset = info->bit_offset;
- 	cell->nbits = info->nbits;
-@@ -376,13 +374,30 @@ static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
- 	if (!IS_ALIGNED(cell->offset, nvmem->stride)) {
- 		dev_err(&nvmem->dev,
- 			"cell %s unaligned to nvmem stride %d\n",
--			cell->name, nvmem->stride);
-+			cell->name ?: "<unknown>", nvmem->stride);
- 		return -EINVAL;
- 	}
- 
- 	return 0;
+ 	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
+@@ -404,7 +404,7 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
+ 	return read_hv_clock_msr();
  }
  
-+static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-+				const struct nvmem_cell_info *info,
-+				struct nvmem_cell *cell)
-+{
-+	int err;
-+
-+	err = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, cell);
-+	if (err)
-+		return err;
-+
-+	cell->name = kstrdup_const(info->name, GFP_KERNEL);
-+	if (!cell->name)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
- /**
-  * nvmem_add_cells() - Add cell information to an nvmem device
-  *
-@@ -1436,7 +1451,7 @@ ssize_t nvmem_device_cell_read(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
-@@ -1466,7 +1481,7 @@ int nvmem_device_cell_write(struct nvmem_device *nvmem,
- 	if (!nvmem)
- 		return -EINVAL;
- 
--	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
-+	rc = nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, &cell);
- 	if (rc)
- 		return rc;
- 
+-static u64 read_hv_sched_clock_msr(void)
++static u64 notrace read_hv_sched_clock_msr(void)
+ {
+ 	return (read_hv_clock_msr() - hv_sched_clock_offset) *
+ 		(NSEC_PER_SEC / HV_CLOCK_HZ);
 -- 
 2.25.1
 
