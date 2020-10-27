@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 863D929AD7A
+	by mail.lfdr.de (Postfix) with ESMTP id 861AF29AD79
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 14:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1752308AbgJ0NgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 09:36:13 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52603 "EHLO
+        id S1752322AbgJ0NgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 09:36:16 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47521 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752315AbgJ0NgM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 09:36:12 -0400
+        by vger.kernel.org with ESMTP id S1752315AbgJ0NgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Oct 2020 09:36:16 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8AB9910E3;
-        Tue, 27 Oct 2020 09:36:11 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 27 Oct 2020 09:36:11 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 7680C10DB;
+        Tue, 27 Oct 2020 09:36:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 27 Oct 2020 09:36:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jtspPd
-        ica1o9/gdPCB1RQODh62zKyHxQM+EJ84IQIXI=; b=AkHJYLSUYHZmc/j6DKLqDs
-        c1oTs0iipDlwbqziGO/8deRPlVzpnoPq7VRJHteBT7ajHgR28cQI16Dahsesm89S
-        71MsDISIy+cFVrO4fcpN/MUYmVkSYOda0KreD3TPd/H57JMcXfbPZeiC2MGeHIEL
-        Pjmy474Kij2jEpErXj/zeB+FFqLBcW+mxz1+WQZrO/HoOgsMMtRbOlv996zYmMM3
-        nAOYEZdmi9e1UNNzm2j5VnYC+q+AxuiO8emP4FTKITRQxeDdsMHLi6iVW740njv0
-        vODninnC5yvRJXGFh0szc8u/FWxsxHxHUaZuHl3XOJ2el0f6qMxeLl7hGb7iqo6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xZHtJh
+        VvhKAHfXmFrOtVPOxd5mNDjOzXUmLd9zHIlmc=; b=EeIjE7s6psp0d9QQq5dm8T
+        HokUSi35DepQRrp3lflt+Exfq3tlJNW7Uk4Zw1lzynqZ5zqy4+h7JWYoSuGBOyGj
+        UUFORtrcYBoFXSxVOcM60MTDRgigx9sdk8mEBGPXOJbjdH69XFbHXbfGnpDBA6Z5
+        T04KBApyw24vKroyNLcv4DOuBFGCr9AVYptiTVebdyW+bJDrHl0FoGhHo87sBpie
+        uRbWoq0l0fo7XdaXm7Lo8F7+PeKS6rm9UGLc0ZG7u8RPUaq3mF6c2Y8UeJ3F8l6U
+        qkMKSmdhxWe9Tabug0rnzyOhoRbUWDn/rPxHqLOJLtlwHO0pXgpo1Ij8SVGwTB/Q
         ==
-X-ME-Sender: <xms:SiKYX42urO0ElyAZ7KF0vdfusCY5Qu1C0Xb8uEZ_lnFOOi7FUMcgbw>
-    <xme:SiKYXzEcS8_TkomkjWWdwBtNkuix9i-4hqVzEfMW9YRB0Syc8ys0aCRtaHhV8KbGh
-    RFQN_1zMVw_6A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkeelgdehfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:TiKYX1QNElM2sVto2_2n0Wwahcne7wHSmIWdDCcp8nWbXPu3E0x0mQ>
+    <xme:TiKYX-xADwBxAPpXAo_Fd5ip2x0reKy_utfa3seX8gcSOqMgrSEyB4S6xBjVGZgjz
+    fzxpJykFmmPKA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkeelgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrkeelgdehfecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:SiKYXw5f2zCXyi_bLwiYHBkItdVyyU3r95IlVSDtcFoRA2zW7nn0TQ>
-    <xmx:SiKYXx15me6ajycv83ip82rMtMKF3hZRM006OCtP21PTXym3ERQ9HQ>
-    <xmx:SiKYX7FjKINCUw6qtm5a4kvw9XA6Wc2CUqdcMoxfv4zMqRhxNOKeMA>
-    <xmx:SyKYX-MPpCNgtrt1AYIV8yOQW_U-5TVYZLIjQNiUGCwIeenPqm9FqK3953o>
+X-ME-Proxy: <xmx:TyKYX60EwzPUigjOhP0YTbseh4iwSm0wUWtvV8nCqtWsBAnLt-DTaQ>
+    <xmx:TyKYX9DXm9reXMWGFUhbXcdJEyyoGPuKTqqZ9fguO3MvS4okpwRQmQ>
+    <xmx:TyKYX-iHQ6hAnrC_MYR6sGba-9ILh8Wn1BKfu4vM_YduNpN-j0Tj1g>
+    <xmx:TyKYX2IqWRTW3TvGs5OCapHYMmoI-i-d587PtAbA2AkbKDh79pfxjkfd6Q4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7F4473064680;
-        Tue, 27 Oct 2020 09:36:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tty: serial: lpuart: fix lpuart32_write usage" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8E003328005E;
+        Tue, 27 Oct 2020 09:36:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tty: serial: lpuart: fix lpuart32_write usage" failed to apply to 4.19-stable tree
 To:     peng.fan@nxp.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 27 Oct 2020 14:37:01 +0100
-Message-ID: <160380582192232@kroah.com>
+Message-ID: <1603805821617@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
