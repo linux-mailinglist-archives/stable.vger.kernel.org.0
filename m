@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9117D29C07C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D34829C063
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1817983AbgJ0RQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59126 "EHLO mail.kernel.org"
+        id S1783248AbgJ0O6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1783176AbgJ0O56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:57:58 -0400
+        id S1783233AbgJ0O6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:58:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAD2E206F4;
-        Tue, 27 Oct 2020 14:57:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66C2020780;
+        Tue, 27 Oct 2020 14:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810677;
-        bh=UnlBI+gDGXaX3+z9SxabEFOzl99bud+KBkDUDoIRtFU=;
+        s=default; t=1603810680;
+        bh=DCgQ9rO8eT5AKp6LgqlnZWOe584uEltQyBx8h0ap0CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+TRTMvEsjekrrbXqV8FQMfmU6hYSO1XZL760I2JtkfNvYOYxHX0x05102FRs8VAX
-         fTZvvKtO2K3Z/DDEvnVnDB79IHJkpwRklT307Rqsdh0uvqLXWsdwfbZ9dvLmtBqkAH
-         5LQj+9bqcFELCbw+Kb1AkRK12DjG5b/Et7wyAv4E=
+        b=RfeGH9knrC68sVqnyf2zK2s9wpNm8/xbxKbERcIr8JUSnJzPMC5U5kB1EJYKzwAaF
+         AGIcKBnEExq1wenkzIm14XC9npsdqDNMqih7sYOZ7oXiROtIu9g/zJL5NfKTJ4lSik
+         bssZ1elN0FuYWqLK9w4sbU8l+A7rcUmS4fmTuG7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KP Singh <kpsingh@google.com>,
-        Florent Revest <revest@chromium.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Jaska Uimonen <jaska.uimonen@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 225/633] ima: Fix NULL pointer dereference in ima_file_hash
-Date:   Tue, 27 Oct 2020 14:49:28 +0100
-Message-Id: <20201027135533.237888356@linuxfoundation.org>
+Subject: [PATCH 5.8 226/633] ASoC: topology: disable size checks for bytes_ext controls if needed
+Date:   Tue, 27 Oct 2020 14:49:29 +0100
+Message-Id: <20201027135533.284609954@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -44,76 +48,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KP Singh <kpsingh@google.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit aa662fc04f5b290b3979332588bf8d812b189962 ]
+[ Upstream commit 6788fc1a66a0c1d1cec7a0f84f94b517eae8611c ]
 
-ima_file_hash can be called when there is no iint->ima_hash available
-even though the inode exists in the integrity cache. It is fairly
-common for a file to not have a hash. (e.g. an mknodat, prior to the
-file being closed).
+When CONFIG_SND_CTL_VALIDATION is set, accesses to extended bytes
+control generate spurious error messages when the size exceeds 512
+bytes, such as
 
-Another example where this can happen (suggested by Jann Horn):
+[ 11.224223] sof_sdw sof_sdw: control 2:0:0:EQIIR5.0 eqiir_coef_5:0:
+invalid count 1024
 
-Process A does:
+In addition the error check returns -EINVAL which has the nasty side
+effect of preventing applications accessing controls from working,
+e.g.
 
-	while(1) {
-		unlink("/tmp/imafoo");
-		fd = open("/tmp/imafoo", O_RDWR|O_CREAT|O_TRUNC, 0700);
-		if (fd == -1) {
-			perror("open");
-			continue;
-		}
-		write(fd, "A", 1);
-		close(fd);
-	}
+root@plb:~# alsamixer
+cannot load mixer controls: Invalid argument
 
-and Process B does:
+It's agreed that the control interface has been abused since 2014, but
+forcing a check should not prevent existing solutions from working.
 
-	while (1) {
-		int fd = open("/tmp/imafoo", O_RDONLY);
-		if (fd == -1)
-			continue;
-    		char *mapping = mmap(NULL, 0x1000, PROT_READ|PROT_EXEC,
-			 	     MAP_PRIVATE, fd, 0);
-		if (mapping != MAP_FAILED)
-			munmap(mapping, 0x1000);
-		close(fd);
-  	}
+This patch skips the checks conditionally if CONFIG_SND_CTL_VALIDATION
+is set and the byte array provided by topology is > 512. This
+preserves the checks for all other cases.
 
-Due to the race to get the iint->mutex between ima_file_hash and
-process_measurement iint->ima_hash could still be NULL.
-
-Fixes: 6beea7afcc72 ("ima: add the ability to query the cached hash of a given file")
-Signed-off-by: KP Singh <kpsingh@google.com>
-Reviewed-by: Florent Revest <revest@chromium.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 1a3232d2f61d2 ('ASoC: topology: Add support for TLV bytes controls')
+BugLink: https://github.com/thesofproject/linux/issues/2430
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Jaska Uimonen <jaska.uimonen@intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200917103912.2565907-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_main.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/soc-topology.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index c1583d98c5e50..0b8f17570f210 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -531,6 +531,16 @@ int ima_file_hash(struct file *file, char *buf, size_t buf_size)
- 		return -EOPNOTSUPP;
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index 6eaa00c210117..a5460155b3f64 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -592,6 +592,17 @@ static int soc_tplg_kcontrol_bind_io(struct snd_soc_tplg_ctl_hdr *hdr,
+ 		k->info = snd_soc_bytes_info_ext;
+ 		k->tlv.c = snd_soc_bytes_tlv_callback;
  
- 	mutex_lock(&iint->mutex);
++		/*
++		 * When a topology-based implementation abuses the
++		 * control interface and uses bytes_ext controls of
++		 * more than 512 bytes, we need to disable the size
++		 * checks, otherwise accesses to such controls will
++		 * return an -EINVAL error and prevent the card from
++		 * being configured.
++		 */
++		if (IS_ENABLED(CONFIG_SND_CTL_VALIDATION) && sbe->max > 512)
++			k->access |= SNDRV_CTL_ELEM_ACCESS_SKIP_CHECK;
 +
-+	/*
-+	 * ima_file_hash can be called when ima_collect_measurement has still
-+	 * not been called, we might not always have a hash.
-+	 */
-+	if (!iint->ima_hash) {
-+		mutex_unlock(&iint->mutex);
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (buf) {
- 		size_t copied_size;
- 
+ 		ext_ops = tplg->bytes_ext_ops;
+ 		num_ops = tplg->bytes_ext_ops_count;
+ 		for (i = 0; i < num_ops; i++) {
 -- 
 2.25.1
 
