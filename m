@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C12329C1EB
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9A029C3E5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:51:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762178AbgJ0OlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
+        id S1758830AbgJ0OYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762089AbgJ0Okk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:40:40 -0400
+        id S1754048AbgJ0OY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:24:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FDEE20773;
-        Tue, 27 Oct 2020 14:40:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A1E2207BB;
+        Tue, 27 Oct 2020 14:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809639;
-        bh=9Z0BV+pcPEXz15ht+CDhxkr4zW1ipdYLTDkJG9TligU=;
+        s=default; t=1603808665;
+        bh=enGR59jdD9P/ESIJGxRfdylK/+zWp+mCJu7RYxCAwmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jw6R1Z62epuVHjFE5OY7KkCIe52WKVxAaP6J8SwGeyxQ7D2up5bvv1dbTVvXM69Ah
-         xagf0/paXzSo/npKHVdOk8EZZ/J2Z0ZYQjnbtXFquVsGSrqHjWk9DdoNsAx6zXCai2
-         rRZV/PxxmSt3jp53cIf57ZyQygaLIraf+HsZODwo=
+        b=OtRaCM6Ay6Go0RZzktBbEKnpF1y+ow7K2JgXs0nE0J0gXSnxpzhmdmXO9cT0civpA
+         zIgcLd4JquIq5txZutBVfFCNntP/+zqZxT7Yu0feXBArnHco1UrTbLMQX/cZCjIZ7d
+         7Mi0Ad6KLTkt+sIB6al839Pa2KNsNeSSrGym+rts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Dubrova <pashadubrova@gmail.com>,
-        Konrad Dybcio <konradybcio@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 267/408] clk: qcom: gcc-sdm660: Fix wrong parent_map
+Subject: [PATCH 4.19 147/264] powerpc/tau: Check processor type before enabling TAU interrupt
 Date:   Tue, 27 Oct 2020 14:53:25 +0100
-Message-Id: <20201027135507.430722310@linuxfoundation.org>
+Message-Id: <20201027135437.581780203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konradybcio@gmail.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit d46e5a39f9be9288f1ce2170c4c7f8098f4e7f68 ]
+[ Upstream commit 5e3119e15fed5b9a9a7e528665ff098a4a8dbdbc ]
 
-This was likely overlooked while porting the driver upstream.
+According to Freescale's documentation, MPC74XX processors have an
+erratum that prevents the TAU interrupt from working, so don't try to
+use it when running on those processors.
 
-Reported-by: Pavel Dubrova <pashadubrova@gmail.com>
-Signed-off-by: Konrad Dybcio <konradybcio@gmail.com>
-Link: https://lore.kernel.org/r/20200922120909.97203-1-konradybcio@gmail.com
-Fixes: f2a76a2955c0 ("clk: qcom: Add Global Clock controller (GCC) driver for SDM660")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c281611544768e758bd58fe812cf702a5bd2d042.1599260540.git.fthain@telegraphics.com.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sdm660.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/tau_6xx.c  | 33 ++++++++++++++-------------------
+ arch/powerpc/platforms/Kconfig |  5 ++---
+ 2 files changed, 16 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sdm660.c b/drivers/clk/qcom/gcc-sdm660.c
-index c6fb57cd576f5..aa5c0c6ead017 100644
---- a/drivers/clk/qcom/gcc-sdm660.c
-+++ b/drivers/clk/qcom/gcc-sdm660.c
-@@ -666,7 +666,7 @@ static struct clk_rcg2 hmss_rbcpr_clk_src = {
- 	.cmd_rcgr = 0x48044,
- 	.mnd_width = 0,
- 	.hid_width = 5,
--	.parent_map = gcc_parent_map_xo_gpll0_gpll0_early_div,
-+	.parent_map = gcc_parent_map_xo_gpll0,
- 	.freq_tbl = ftbl_hmss_rbcpr_clk_src,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "hmss_rbcpr_clk_src",
+diff --git a/arch/powerpc/kernel/tau_6xx.c b/arch/powerpc/kernel/tau_6xx.c
+index b8d7e7d498e0a..614b5b272d9c6 100644
+--- a/arch/powerpc/kernel/tau_6xx.c
++++ b/arch/powerpc/kernel/tau_6xx.c
+@@ -40,6 +40,8 @@ static struct tau_temp
+ 	unsigned char grew;
+ } tau[NR_CPUS];
+ 
++static bool tau_int_enable;
++
+ #undef DEBUG
+ 
+ /* TODO: put these in a /proc interface, with some sanity checks, and maybe
+@@ -54,22 +56,13 @@ static struct tau_temp
+ 
+ static void set_thresholds(unsigned long cpu)
+ {
+-#ifdef CONFIG_TAU_INT
+-	/*
+-	 * setup THRM1,
+-	 * threshold, valid bit, enable interrupts, interrupt when below threshold
+-	 */
+-	mtspr(SPRN_THRM1, THRM1_THRES(tau[cpu].low) | THRM1_V | THRM1_TIE | THRM1_TID);
++	u32 maybe_tie = tau_int_enable ? THRM1_TIE : 0;
+ 
+-	/* setup THRM2,
+-	 * threshold, valid bit, enable interrupts, interrupt when above threshold
+-	 */
+-	mtspr (SPRN_THRM2, THRM1_THRES(tau[cpu].high) | THRM1_V | THRM1_TIE);
+-#else
+-	/* same thing but don't enable interrupts */
+-	mtspr(SPRN_THRM1, THRM1_THRES(tau[cpu].low) | THRM1_V | THRM1_TID);
+-	mtspr(SPRN_THRM2, THRM1_THRES(tau[cpu].high) | THRM1_V);
+-#endif
++	/* setup THRM1, threshold, valid bit, interrupt when below threshold */
++	mtspr(SPRN_THRM1, THRM1_THRES(tau[cpu].low) | THRM1_V | maybe_tie | THRM1_TID);
++
++	/* setup THRM2, threshold, valid bit, interrupt when above threshold */
++	mtspr(SPRN_THRM2, THRM1_THRES(tau[cpu].high) | THRM1_V | maybe_tie);
+ }
+ 
+ static void TAUupdate(int cpu)
+@@ -142,9 +135,8 @@ static void tau_timeout(void * info)
+ 	local_irq_save(flags);
+ 	cpu = smp_processor_id();
+ 
+-#ifndef CONFIG_TAU_INT
+-	TAUupdate(cpu);
+-#endif
++	if (!tau_int_enable)
++		TAUupdate(cpu);
+ 
+ 	size = tau[cpu].high - tau[cpu].low;
+ 	if (size > min_window && ! tau[cpu].grew) {
+@@ -225,6 +217,9 @@ static int __init TAU_init(void)
+ 		return 1;
+ 	}
+ 
++	tau_int_enable = IS_ENABLED(CONFIG_TAU_INT) &&
++			 !strcmp(cur_cpu_spec->platform, "ppc750");
++
+ 	tau_workq = alloc_workqueue("tau", WQ_UNBOUND, 1, 0);
+ 	if (!tau_workq)
+ 		return -ENOMEM;
+@@ -234,7 +229,7 @@ static int __init TAU_init(void)
+ 	queue_work(tau_workq, &tau_work);
+ 
+ 	pr_info("Thermal assist unit using %s, shrink_timer: %d ms\n",
+-		IS_ENABLED(CONFIG_TAU_INT) ? "interrupts" : "workqueue", shrink_timer);
++		tau_int_enable ? "interrupts" : "workqueue", shrink_timer);
+ 	tau_initialized = 1;
+ 
+ 	return 0;
+diff --git a/arch/powerpc/platforms/Kconfig b/arch/powerpc/platforms/Kconfig
+index 14ef17e10ec9a..e094211c7206b 100644
+--- a/arch/powerpc/platforms/Kconfig
++++ b/arch/powerpc/platforms/Kconfig
+@@ -238,9 +238,8 @@ config TAU
+ 	  temperature within 2-4 degrees Celsius. This option shows the current
+ 	  on-die temperature in /proc/cpuinfo if the cpu supports it.
+ 
+-	  Unfortunately, on some chip revisions, this sensor is very inaccurate
+-	  and in many cases, does not work at all, so don't assume the cpu
+-	  temp is actually what /proc/cpuinfo says it is.
++	  Unfortunately, this sensor is very inaccurate when uncalibrated, so
++	  don't assume the cpu temp is actually what /proc/cpuinfo says it is.
+ 
+ config TAU_INT
+ 	bool "Interrupt driven TAU driver (DANGEROUS)"
 -- 
 2.25.1
 
