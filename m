@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C9C29AF99
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373C029AEAF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1756142AbgJ0OLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:11:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59028 "EHLO mail.kernel.org"
+        id S1753945AbgJ0ODI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755370AbgJ0OJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:09:52 -0400
+        id S1753944AbgJ0ODI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:03:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E67922202;
-        Tue, 27 Oct 2020 14:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4480822258;
+        Tue, 27 Oct 2020 14:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807792;
-        bh=u9O5ObKmFfCguUL/ZEod1TjXFMrufcLhe+P6NZkSS9k=;
+        s=default; t=1603807387;
+        bh=6Ru14FfKMxajVakNntDal+Pwp6FhhFhEwqVPOngvRe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHDxfooCjlUWZSG9WK6O4GBJTYcGYK4YRnZp9sRLAYR8uFEGxjaD6kyaOSuoogD/m
-         UCjOqU3goUGUb/0g1Pm5vg5W2DEBjmEh23HnDPFobhPRqXgiT86liG8KRqnVqgplzz
-         L4M9F/HNN/gBYKFzSvAdgIKMMO2Adnc84bMgcegw=
+        b=Wh5v+pteUqIRglUyj6+Z45u0OuFNh0rYNV9wGJmkxEx1mtCJmJqn4vC5DvmuxWP5l
+         o26T9FS+sorP/dPyjBPx8f3R8ihTetUHENRuCBgl1gfN8ulP8+Y+wEBaTMg9VtYP/a
+         25JWH37D3bnLIHfxMnO9KGoywY3vFMMUxV1XFO+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/191] ath6kl: prevent potential array overflow in ath6kl_add_new_sta()
-Date:   Tue, 27 Oct 2020 14:48:18 +0100
-Message-Id: <20201027134911.801172753@linuxfoundation.org>
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 005/139] ALSA: bebob: potential info leak in hwdep_read()
+Date:   Tue, 27 Oct 2020 14:48:19 +0100
+Message-Id: <20201027134902.406673509@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 54f9ab7b870934b70e5a21786d951fbcf663970f ]
+commit b41c15f4e1c1f1657da15c482fa837c1b7384452 upstream.
 
-The value for "aid" comes from skb->data so Smatch marks it as
-untrusted.  If it's invalid then it can result in an out of bounds array
-access in ath6kl_add_new_sta().
+The "count" variable needs to be capped on every path so that we don't
+copy too much information to the user.
 
-Fixes: 572e27c00c9d ("ath6kl: Fix AP mode connect event parsing and TIM updates")
+Fixes: 618eabeae711 ("ALSA: bebob: Add hwdep interface")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200813141315.GB457408@mwanda
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201007074928.GA2529578@mwanda
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/ath/ath6kl/main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/firewire/bebob/bebob_hwdep.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/main.c b/drivers/net/wireless/ath/ath6kl/main.c
-index b90c77ef792ef..1c542cf0fd058 100644
---- a/drivers/net/wireless/ath/ath6kl/main.c
-+++ b/drivers/net/wireless/ath/ath6kl/main.c
-@@ -430,6 +430,9 @@ void ath6kl_connect_ap_mode_sta(struct ath6kl_vif *vif, u16 aid, u8 *mac_addr,
+--- a/sound/firewire/bebob/bebob_hwdep.c
++++ b/sound/firewire/bebob/bebob_hwdep.c
+@@ -37,12 +37,11 @@ hwdep_read(struct snd_hwdep *hwdep, char
+ 	}
  
- 	ath6kl_dbg(ATH6KL_DBG_TRC, "new station %pM aid=%d\n", mac_addr, aid);
+ 	memset(&event, 0, sizeof(event));
++	count = min_t(long, count, sizeof(event.lock_status));
+ 	if (bebob->dev_lock_changed) {
+ 		event.lock_status.type = SNDRV_FIREWIRE_EVENT_LOCK_STATUS;
+ 		event.lock_status.status = (bebob->dev_lock_count > 0);
+ 		bebob->dev_lock_changed = false;
+-
+-		count = min_t(long, count, sizeof(event.lock_status));
+ 	}
  
-+	if (aid < 1 || aid > AP_MAX_NUM_STA)
-+		return;
-+
- 	if (assoc_req_len > sizeof(struct ieee80211_hdr_3addr)) {
- 		struct ieee80211_mgmt *mgmt =
- 			(struct ieee80211_mgmt *) assoc_info;
--- 
-2.25.1
-
+ 	spin_unlock_irq(&bebob->lock);
 
 
