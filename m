@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D755E29C2B8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDCB29C2B5
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:39:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1815492AbgJ0RjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
+        id S1808754AbgJ0Riu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760266AbgJ0OeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:34:23 -0400
+        id S1760298AbgJ0Oe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:34:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CD1420773;
-        Tue, 27 Oct 2020 14:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343D020709;
+        Tue, 27 Oct 2020 14:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809261;
-        bh=loRu9X5YDZQepfBgowK8l1UTSryY7TjMd+cnq7+KGXg=;
+        s=default; t=1603809267;
+        bh=ukGCmKdVlfLX/vv05S5i6v0UWlpxKaL8OxClYG3OUNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9znOwx/MvNnV26X/TkBosJJmD41zPFOg500BkWrxlEzbt+vPBBFxa663AyVsMqHF
-         wv3xk1e2rhIwjD6pgt8tFpY7Sg07XtIMBfCwAUcm64439t5glIJX4MUg3l5heOtpKO
-         MjAxazxsfWe36s8rX3EnRfNC9bfuUch995t6RTu4=
+        b=gh2nnahRJGTUPnp/A1pAp1/AoOE3NcHMjdFKlpEZOXQ/oT96pLVuQNOlLFHgEuf5c
+         pLCrhZ07eo6VcLJtcSPiybGtUcVhGJsgEhcJZI+xgxjPMDUwTRXT6onCyZrEK71Brl
+         T9kFFHS9Z/tFsoIqckAo5F7zkptzzggl1k98n0a4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/408] pwm: lpss: Add range limit check for the base_unit register value
-Date:   Tue, 27 Oct 2020 14:51:11 +0100
-Message-Id: <20201027135501.266309423@linuxfoundation.org>
+Subject: [PATCH 5.4 135/408] video: fbdev: vga16fb: fix setting of pixclock because a pass-by-value error
+Date:   Tue, 27 Oct 2020 14:51:13 +0100
+Message-Id: <20201027135501.360734345@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,66 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit ef9f60daab309558c8bb3e086a9a11ee40bd6061 ]
+[ Upstream commit c72fab81ceaa54408b827a2f0486d9a0f4be34cf ]
 
-When the user requests a high enough period ns value, then the
-calculations in pwm_lpss_prepare() might result in a base_unit value of 0.
+The pixclock is being set locally because it is being passed as a
+pass-by-value argument rather than pass-by-reference, so the computed
+pixclock is never being set in var->pixclock. Fix this by passing
+by reference.
 
-But according to the data-sheet the way the PWM controller works is that
-each input clock-cycle the base_unit gets added to a N bit counter and
-that counter overflowing determines the PWM output frequency. Adding 0
-to the counter is a no-op. The data-sheet even explicitly states that
-writing 0 to the base_unit bits will result in the PWM outputting a
-continuous 0 signal.
+[This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git ]
 
-When the user requestes a low enough period ns value, then the
-calculations in pwm_lpss_prepare() might result in a base_unit value
-which is bigger then base_unit_range - 1. Currently the codes for this
-deals with this by applying a mask:
-
-	base_unit &= (base_unit_range - 1);
-
-But this means that we let the value overflow the range, we throw away the
-higher bits and store whatever value is left in the lower bits into the
-register leading to a random output frequency, rather then clamping the
-output frequency to the highest frequency which the hardware can do.
-
-This commit fixes both issues by clamping the base_unit value to be
-between 1 and (base_unit_range - 1).
-
-Fixes: 684309e5043e ("pwm: lpss: Avoid potential overflow of base_unit")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200903112337.4113-5-hdegoede@redhat.com
+Addresses-Coverity: ("Unused value")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jani Nikula <jani.nikula@intel.com>
+[b.zolnierkie: minor patch summary fixup]
+[b.zolnierkie: removed "Fixes:" tag (not in upstream tree)]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200723170227.996229-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/vga16fb.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 16f32576b320c..d77cec2769b76 100644
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -97,6 +97,8 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	freq *= base_unit_range;
+diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
+index 4b83109202b1c..3c4d20618de4c 100644
+--- a/drivers/video/fbdev/vga16fb.c
++++ b/drivers/video/fbdev/vga16fb.c
+@@ -243,7 +243,7 @@ static void vga16fb_update_fix(struct fb_info *info)
+ }
  
- 	base_unit = DIV_ROUND_CLOSEST_ULL(freq, c);
-+	/* base_unit must not be 0 and we also want to avoid overflowing it */
-+	base_unit = clamp_val(base_unit, 1, base_unit_range - 1);
+ static void vga16fb_clock_chip(struct vga16fb_par *par,
+-			       unsigned int pixclock,
++			       unsigned int *pixclock,
+ 			       const struct fb_info *info,
+ 			       int mul, int div)
+ {
+@@ -259,14 +259,14 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
+ 		{     0 /* bad */,    0x00, 0x00}};
+ 	int err;
  
- 	on_time_div = 255ULL * duty_ns;
- 	do_div(on_time_div, period_ns);
-@@ -105,7 +107,6 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	orig_ctrl = ctrl = pwm_lpss_read(pwm);
- 	ctrl &= ~PWM_ON_TIME_DIV_MASK;
- 	ctrl &= ~((base_unit_range - 1) << PWM_BASE_UNIT_SHIFT);
--	base_unit &= (base_unit_range - 1);
- 	ctrl |= (u32) base_unit << PWM_BASE_UNIT_SHIFT;
- 	ctrl |= on_time_div;
+-	pixclock = (pixclock * mul) / div;
++	*pixclock = (*pixclock * mul) / div;
+ 	best = vgaclocks;
+-	err = pixclock - best->pixclock;
++	err = *pixclock - best->pixclock;
+ 	if (err < 0) err = -err;
+ 	for (ptr = vgaclocks + 1; ptr->pixclock; ptr++) {
+ 		int tmp;
  
+-		tmp = pixclock - ptr->pixclock;
++		tmp = *pixclock - ptr->pixclock;
+ 		if (tmp < 0) tmp = -tmp;
+ 		if (tmp < err) {
+ 			err = tmp;
+@@ -275,7 +275,7 @@ static void vga16fb_clock_chip(struct vga16fb_par *par,
+ 	}
+ 	par->misc |= best->misc;
+ 	par->clkdiv = best->seq_clock_mode;
+-	pixclock = (best->pixclock * div) / mul;		
++	*pixclock = (best->pixclock * div) / mul;
+ }
+ 			       
+ #define FAIL(X) return -EINVAL
+@@ -497,10 +497,10 @@ static int vga16fb_check_var(struct fb_var_screeninfo *var,
+ 
+ 	if (mode & MODE_8BPP)
+ 		/* pixel clock == vga clock / 2 */
+-		vga16fb_clock_chip(par, var->pixclock, info, 1, 2);
++		vga16fb_clock_chip(par, &var->pixclock, info, 1, 2);
+ 	else
+ 		/* pixel clock == vga clock */
+-		vga16fb_clock_chip(par, var->pixclock, info, 1, 1);
++		vga16fb_clock_chip(par, &var->pixclock, info, 1, 1);
+ 	
+ 	var->red.offset = var->green.offset = var->blue.offset = 
+ 	var->transp.offset = 0;
 -- 
 2.25.1
 
