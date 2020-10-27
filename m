@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C0129C10F
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3E129C093
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2899694AbgJ0RWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:22:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
+        id S1818037AbgJ0RQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1780750AbgJ0OzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:55:00 -0400
+        id S1772437AbgJ0Ozb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:55:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FEAE2071A;
-        Tue, 27 Oct 2020 14:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3564B20679;
+        Tue, 27 Oct 2020 14:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810499;
-        bh=ipHvzcX42wBYYnwHI70OxBqJ5XCYoQQwOnR/I7HYPcs=;
+        s=default; t=1603810530;
+        bh=KOXJTid2xDyZt25H6x3ZKA2YehySt6F2hi3jIR4IdJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/Dp6ARXd108hMNsOq9UXlONAJfs/gEsBfQ1h/Yrq4gaodI+upDwEyY4Jj0RsI226
-         CmDnE4LpNlMV8UM4gm6AGu9k2vHOi94pgWhKlgz6+qiaP64iIAZbsmkUmK55nzkGJa
-         PTClBPAS/TNQpWXAkG123zFKxITtD2bYsMemsp2A=
+        b=kbApbmW/eQDCnXuAiENOr1gAa0eTEpY0IuXmselrK5oQsTsYvBg/4a//nD1PHh9ir
+         at8HhSsq/ZbaQWwSJrwHtk0IyIaT0kyzyzlGwOWd2IwBWuN04JnLvBRRBfEUuVL48C
+         VkKKuUCWJsUmnUqVSQ7sBjIOOSw6tQN10vrvMuHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 143/633] media: stm32-dcmi: Fix a reference count leak
-Date:   Tue, 27 Oct 2020 14:48:06 +0100
-Message-Id: <20201027135529.397451578@linuxfoundation.org>
+Subject: [PATCH 5.8 144/633] media: ti-vpe: Fix a missing check and reference count leak
+Date:   Tue, 27 Oct 2020 14:48:07 +0100
+Message-Id: <20201027135529.446461995@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,44 +46,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 88f50a05f907d96a27a9ce3cc9e8cbb91a6f0f22 ]
+[ Upstream commit 7dae2aaaf432767ca7aa11fa84643a7c2600dbdd ]
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count if pm_runtime_put is not
-called in error handling paths. Thus replace the jump target
-"err_release_buffers" by "err_pm_putw".
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code, causing incorrect ref count if
+pm_runtime_put_noidle() is not called in error handling paths.
+And also, when the call of function vpe_runtime_get() failed,
+we won't call vpe_runtime_put().
+Thus call pm_runtime_put_noidle() if pm_runtime_get_sync() fails
+inside vpe_runtime_get().
 
-Fixes: 152e0bf60219 ("media: stm32-dcmi: add power saving support")
+Fixes: 4571912743ac ("[media] v4l: ti-vpe: Add VPE mem to mem driver")
 Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/stm32/stm32-dcmi.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/media/platform/ti-vpe/vpe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/stm32/stm32-dcmi.c b/drivers/media/platform/stm32/stm32-dcmi.c
-index b8931490b83b7..fd1c41cba52fc 100644
---- a/drivers/media/platform/stm32/stm32-dcmi.c
-+++ b/drivers/media/platform/stm32/stm32-dcmi.c
-@@ -733,7 +733,7 @@ static int dcmi_start_streaming(struct vb2_queue *vq, unsigned int count)
- 	if (ret < 0) {
- 		dev_err(dcmi->dev, "%s: Failed to start streaming, cannot get sync (%d)\n",
- 			__func__, ret);
--		goto err_release_buffers;
-+		goto err_pm_put;
- 	}
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index cff2fcd6d812a..82d3ee45e2e90 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -2475,6 +2475,8 @@ static int vpe_runtime_get(struct platform_device *pdev)
  
- 	ret = media_pipeline_start(&dcmi->vdev->entity, &dcmi->pipeline);
-@@ -837,8 +837,6 @@ static int dcmi_start_streaming(struct vb2_queue *vq, unsigned int count)
+ 	r = pm_runtime_get_sync(&pdev->dev);
+ 	WARN_ON(r < 0);
++	if (r)
++		pm_runtime_put_noidle(&pdev->dev);
+ 	return r < 0 ? r : 0;
+ }
  
- err_pm_put:
- 	pm_runtime_put(dcmi->dev);
--
--err_release_buffers:
- 	spin_lock_irq(&dcmi->irqlock);
- 	/*
- 	 * Return all buffers to vb2 in QUEUED state.
 -- 
 2.25.1
 
