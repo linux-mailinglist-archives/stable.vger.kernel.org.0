@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB9129B5D7
+	by mail.lfdr.de (Postfix) with ESMTP id D8D5129B5D8
 	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794438AbgJ0PQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:16:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S1794477AbgJ0PQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1796128AbgJ0PPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:15:47 -0400
+        id S1796131AbgJ0PPv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:15:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 820F62225C;
-        Tue, 27 Oct 2020 15:15:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48B6420728;
+        Tue, 27 Oct 2020 15:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811747;
-        bh=VBzvYmETKXOwfA2KkRNYm/mmCR6EPH7oXjsYbI2Q7cM=;
+        s=default; t=1603811750;
+        bh=DdtyPGVSGHvtTEvYrlcZowAJNLm2m8h3kmrGWS+IKvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HI2FiQwOx8PmxVfmGWDAwWXqkDkTgXGCTQfdFtSp9p5YePRCxSblUd6qS4wWPPrTu
-         Xvm9cJgL5f+Z5YhaI66LMjr141f3rMlUgxfgLuHKg8iLHSFPCstDRlKGl0jDAwd2dI
-         p0KZxaxH2wsyagigF1ZRqFNcxVYgC1K4l+F77ggk=
+        b=BM75A++R05yUksyFl5hGPSM3SJ5PuhDP9bm9QsBVkdOmC3S8FZIoEfAcSAwqDcg2I
+         4zfVl+aQ2pgPG5AZTioxeNWQu9P4tRXAj+ru48Aku91wa1Ubx+Dj1UQ/ZjstCZcWPq
+         gC8Q3xgliHWhrRn+EFPO1AA3T098yLyemJw4bOHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Manish Rangankar <mrangankar@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 602/633] scsi: qedi: Mark all connections for recovery on link down event
-Date:   Tue, 27 Oct 2020 14:55:45 +0100
-Message-Id: <20201027135551.053619230@linuxfoundation.org>
+Subject: [PATCH 5.8 603/633] scsi: qedi: Protect active command list to avoid list corruption
+Date:   Tue, 27 Oct 2020 14:55:46 +0100
+Message-Id: <20201027135551.102660096@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -46,52 +46,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit 4118879be3755b38171063dfd4a57611d4b20a83 ]
+[ Upstream commit c0650e28448d606c84f76c34333dba30f61de993 ]
 
-For short time cable pulls, the in-flight I/O to the firmware is never
-cleaned up, resulting in the behaviour of stale I/O completion causing
-list_del corruption and soft lockup of the system.
+Protect active command list for non-I/O commands like login response,
+logout response, text response, and recovery cleanup of active list to
+avoid list corruption.
 
-On link down event, mark all the connections for recovery, causing cleanup
-of all the in-flight I/O immediately.
-
-Link: https://lore.kernel.org/r/20200908095657.26821-7-mrangankar@marvell.com
+Link: https://lore.kernel.org/r/20200908095657.26821-5-mrangankar@marvell.com
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_main.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/qedi/qedi_fw.c    | 8 ++++++++
+ drivers/scsi/qedi/qedi_iscsi.c | 2 ++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index 81a307695cc91..569fa4b28e4e2 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -1127,6 +1127,15 @@ static void qedi_schedule_recovery_handler(void *dev)
- 	schedule_delayed_work(&qedi->recovery_work, 0);
- }
+diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
+index 946cebc4c9322..32586800620bd 100644
+--- a/drivers/scsi/qedi/qedi_fw.c
++++ b/drivers/scsi/qedi/qedi_fw.c
+@@ -59,6 +59,7 @@ static void qedi_process_logout_resp(struct qedi_ctx *qedi,
+ 		  "Freeing tid=0x%x for cid=0x%x\n",
+ 		  cmd->task_id, qedi_conn->iscsi_conn_id);
  
-+static void qedi_set_conn_recovery(struct iscsi_cls_session *cls_session)
-+{
-+	struct iscsi_session *session = cls_session->dd_data;
-+	struct iscsi_conn *conn = session->leadconn;
-+	struct qedi_conn *qedi_conn = conn->dd_data;
-+
-+	qedi_start_conn_recovery(qedi_conn->qedi, qedi_conn);
-+}
-+
- static void qedi_link_update(void *dev, struct qed_link_output *link)
- {
- 	struct qedi_ctx *qedi = (struct qedi_ctx *)dev;
-@@ -1138,6 +1147,7 @@ static void qedi_link_update(void *dev, struct qed_link_output *link)
- 		QEDI_INFO(&qedi->dbg_ctx, QEDI_LOG_INFO,
- 			  "Link Down event.\n");
- 		atomic_set(&qedi->link_state, QEDI_LINK_DOWN);
-+		iscsi_host_for_each_session(qedi->shost, qedi_set_conn_recovery);
++	spin_lock(&qedi_conn->list_lock);
+ 	if (likely(cmd->io_cmd_in_list)) {
+ 		cmd->io_cmd_in_list = false;
+ 		list_del_init(&cmd->io_cmd);
+@@ -69,6 +70,7 @@ static void qedi_process_logout_resp(struct qedi_ctx *qedi,
+ 			  cmd->task_id, qedi_conn->iscsi_conn_id,
+ 			  &cmd->io_cmd);
  	}
++	spin_unlock(&qedi_conn->list_lock);
+ 
+ 	cmd->state = RESPONSE_RECEIVED;
+ 	qedi_clear_task_idx(qedi, cmd->task_id);
+@@ -122,6 +124,7 @@ static void qedi_process_text_resp(struct qedi_ctx *qedi,
+ 		  "Freeing tid=0x%x for cid=0x%x\n",
+ 		  cmd->task_id, qedi_conn->iscsi_conn_id);
+ 
++	spin_lock(&qedi_conn->list_lock);
+ 	if (likely(cmd->io_cmd_in_list)) {
+ 		cmd->io_cmd_in_list = false;
+ 		list_del_init(&cmd->io_cmd);
+@@ -132,6 +135,7 @@ static void qedi_process_text_resp(struct qedi_ctx *qedi,
+ 			  cmd->task_id, qedi_conn->iscsi_conn_id,
+ 			  &cmd->io_cmd);
+ 	}
++	spin_unlock(&qedi_conn->list_lock);
+ 
+ 	cmd->state = RESPONSE_RECEIVED;
+ 	qedi_clear_task_idx(qedi, cmd->task_id);
+@@ -222,11 +226,13 @@ static void qedi_process_tmf_resp(struct qedi_ctx *qedi,
+ 
+ 	tmf_hdr = (struct iscsi_tm *)qedi_cmd->task->hdr;
+ 
++	spin_lock(&qedi_conn->list_lock);
+ 	if (likely(qedi_cmd->io_cmd_in_list)) {
+ 		qedi_cmd->io_cmd_in_list = false;
+ 		list_del_init(&qedi_cmd->io_cmd);
+ 		qedi_conn->active_cmd_count--;
+ 	}
++	spin_unlock(&qedi_conn->list_lock);
+ 
+ 	if (((tmf_hdr->flags & ISCSI_FLAG_TM_FUNC_MASK) ==
+ 	      ISCSI_TM_FUNC_LOGICAL_UNIT_RESET) ||
+@@ -288,11 +294,13 @@ static void qedi_process_login_resp(struct qedi_ctx *qedi,
+ 		  ISCSI_LOGIN_RESPONSE_HDR_DATA_SEG_LEN_MASK;
+ 	qedi_conn->gen_pdu.resp_wr_ptr = qedi_conn->gen_pdu.resp_buf + pld_len;
+ 
++	spin_lock(&qedi_conn->list_lock);
+ 	if (likely(cmd->io_cmd_in_list)) {
+ 		cmd->io_cmd_in_list = false;
+ 		list_del_init(&cmd->io_cmd);
+ 		qedi_conn->active_cmd_count--;
+ 	}
++	spin_unlock(&qedi_conn->list_lock);
+ 
+ 	memset(task_ctx, '\0', sizeof(*task_ctx));
+ 
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 425e665ec08b2..6e92625df4b7c 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -975,11 +975,13 @@ static void qedi_cleanup_active_cmd_list(struct qedi_conn *qedi_conn)
+ {
+ 	struct qedi_cmd *cmd, *cmd_tmp;
+ 
++	spin_lock(&qedi_conn->list_lock);
+ 	list_for_each_entry_safe(cmd, cmd_tmp, &qedi_conn->active_cmd_list,
+ 				 io_cmd) {
+ 		list_del_init(&cmd->io_cmd);
+ 		qedi_conn->active_cmd_count--;
+ 	}
++	spin_unlock(&qedi_conn->list_lock);
  }
  
+ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
 -- 
 2.25.1
 
