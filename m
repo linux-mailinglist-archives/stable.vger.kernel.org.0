@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A6729C1ED
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AADB029C422
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:54:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762198AbgJ0Ol0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38546 "EHLO mail.kernel.org"
+        id S1758693AbgJ0OXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:23:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761372AbgJ0OjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:39:15 -0400
+        id S1757412AbgJ0OXK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:23:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30E77206B2;
-        Tue, 27 Oct 2020 14:39:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 677762072D;
+        Tue, 27 Oct 2020 14:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809554;
-        bh=WvaZZsQ6AHJAROazEoz53LMspT6PT8dbz8rpt9JsBEg=;
+        s=default; t=1603808590;
+        bh=P3eiigDrjbceMQa001iT9bQphKWP3yqQUrbj5CvO1xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIvIYmCkpJA4ulp2isxrN1c6ucE2YkZGHWY99BMX7mK8K/2g8kiIDuyOdVDmwxd7n
-         LLzgwP21T+AJdtJRyDztv9KKjPxX1gWwtFlh/r45e5mPNoil8CWMy6UhF2AcLy9g3F
-         s/2LrcBH8259EWkDTYr45FjTRQeIQKi9/VyhOQmE=
+        b=Y9BPWN2TeZe0EUzUqbL8V/qOw5oXX0aDlvRVSfG++1rFOiOhOzW5HgAbv5+rtrUVd
+         cwjdAJ9Lwj8IjbwssFsOuIzv8mGP6Okt6+FhF/QilK1OW4dw4MBSpanDGGS9lvos76
+         dAP8/VLjMw9L1+V2FGEdnfDTu6BiUypK1PiPPuSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 237/408] RDMA/hns: Fix missing sq_sig_type when querying QP
-Date:   Tue, 27 Oct 2020 14:52:55 +0100
-Message-Id: <20201027135506.049243924@linuxfoundation.org>
+Subject: [PATCH 4.19 118/264] nl80211: fix non-split wiphy information
+Date:   Tue, 27 Oct 2020 14:52:56 +0100
+Message-Id: <20201027135436.233847377@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 05df49279f8926178ecb3ce88e61b63104cd6293 ]
+[ Upstream commit ab10c22bc3b2024f0c9eafa463899a071eac8d97 ]
 
-The sq_sig_type field should be filled when querying QP, or the users may
-get a wrong value.
+When dumping wiphy information, we try to split the data into
+many submessages, but for old userspace we still support the
+old mode where this doesn't happen.
 
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/1600509802-44382-9-git-send-email-liweihang@huawei.com
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+However, in this case we were not resetting our state correctly
+and dumping multiple messages for each wiphy, which would have
+broken such older userspace.
+
+This was broken pretty much immediately afterwards because it
+only worked in the original commit where non-split dumps didn't
+have any more data than split dumps...
+
+Fixes: fe1abafd942f ("nl80211: re-add channel width and extended capa advertising")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200928130717.3e6d9c6bada2.Ie0f151a8d0d00a8e1e18f6a8c9244dd02496af67@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/nl80211.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index def266626223a..bb75328193957 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4634,6 +4634,7 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
- 	}
- 
- 	qp_init_attr->cap = qp_attr->cap;
-+	qp_init_attr->sq_sig_type = hr_qp->sq_signal_bits;
- 
- out:
- 	mutex_unlock(&hr_qp->mutex);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 4e41792099822..fbc8875502c3e 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -1950,7 +1950,10 @@ static int nl80211_send_wiphy(struct cfg80211_registered_device *rdev,
+ 		 * case we'll continue with more data in the next round,
+ 		 * but break unconditionally so unsplit data stops here.
+ 		 */
+-		state->split_start++;
++		if (state->split)
++			state->split_start++;
++		else
++			state->split_start = 0;
+ 		break;
+ 	case 9:
+ 		if (rdev->wiphy.extended_capabilities &&
 -- 
 2.25.1
 
