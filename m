@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D03F029C261
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85AC729C3B7
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1819376AbgJ0RbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:31:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41838 "EHLO mail.kernel.org"
+        id S2901679AbgJ0OZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:25:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761663AbgJ0OmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:42:15 -0400
+        id S2901674AbgJ0OZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:25:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A7702225E;
-        Tue, 27 Oct 2020 14:42:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCA4D2072D;
+        Tue, 27 Oct 2020 14:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809733;
-        bh=iaeWQxLEeCtbsftmvdeqjxfe9w7BWNTtvOJOz2Qf0LE=;
+        s=default; t=1603808755;
+        bh=vuk7De3gB1zl84qZPE6NaDduTX67OTn7Ip/yqRMiBR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNpmg6nnwb/UQyd1+1GyKObUQgBW6X+Xq86eGGW+9S9pSLwgr2nYh1wzpj5kOflVI
-         7WKPSdgo1MBko2IKvZP5eqNU/CEVpMKbMn83SfzbPiyQzOiXFCtn+j6aIrl7gdLApA
-         YF0/zJHuFfDgeae48/8/4iMoDENT6Tv6fyqmCzfw=
+        b=kWfQX5M24/TZEKCjwWD8Kzvf8i/iQk+P5yLBeWV3ABfaOel13xskrGuR2C3ikl3n2
+         eeJfuwVW4D5qU6PXTxslXgZCCdTmn/QDSVlkgmp3z/l2xVcEqUdSClr2qUWXzPA6Aj
+         L5tmAmhih/CovWy+nA93lYIIXb2bIRDn5akEjfkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiang Yu <yuq825@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
+        Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 300/408] arm64: dts: allwinner: h5: remove Mali GPU PMU module
-Date:   Tue, 27 Oct 2020 14:53:58 +0100
-Message-Id: <20201027135508.943171960@linuxfoundation.org>
+Subject: [PATCH 4.19 181/264] SUNRPC: fix copying of multiple pages in gss_read_proxy_verf()
+Date:   Tue, 27 Oct 2020 14:53:59 +0100
+Message-Id: <20201027135439.177745995@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
-References: <20201027135455.027547757@linuxfoundation.org>
+In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
+References: <20201027135430.632029009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <yuq825@gmail.com>
+From: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
 
-[ Upstream commit 2933bf3528007f834fb7f5eab033f9c5b0683f91 ]
+[ Upstream commit d48c8124749c9a5081fe68680f83605e272c984b ]
 
-H5's Mali GPU PMU is not present or working corretly although
-H5 datasheet record its interrupt vector.
+When the passed token is longer than 4032 bytes, the remaining part
+of the token must be copied from the rqstp->rq_arg.pages. But the
+copy must make sure it happens in a consecutive way.
 
-Adding this module will miss lead lima driver try to shutdown
-it and get waiting timeout. This problem is not exposed before
-lima runtime PM support is added.
+With the existing code, the first memcpy copies 'length' bytes from
+argv->iobase, but since the header is in front, this never fills the
+whole first page of in_token->pages.
 
-Fixes: bb39ed07e55b ("arm64: dts: allwinner: h5: Add device node for Mali-450 GPU")
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20200822062755.534761-1-yuq825@gmail.com
+The mecpy in the loop copies the following bytes, but starts writing at
+the next page of in_token->pages.  This leaves the last bytes of page 0
+unwritten.
+
+Symptoms were that users with many groups were not able to access NFS
+exports, when using Active Directory as the KDC.
+
+Signed-off-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
+Fixes: 5866efa8cbfb "SUNRPC: Fix svcauth_gss_proxy_init()"
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-index eaf8f83794fd9..8466d44ee0b15 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-@@ -155,8 +155,7 @@ mali: gpu@1e80000 {
- 				     <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 106 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-+				     <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "gp",
- 					  "gpmmu",
- 					  "pp",
-@@ -167,8 +166,7 @@ mali: gpu@1e80000 {
- 					  "pp2",
- 					  "ppmmu2",
- 					  "pp3",
--					  "ppmmu3",
--					  "pmu";
-+					  "ppmmu3";
- 			clocks = <&ccu CLK_BUS_GPU>, <&ccu CLK_GPU>;
- 			clock-names = "bus", "core";
- 			resets = <&ccu RST_BUS_GPU>;
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 68259eec6afd1..ab086081be9c7 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1079,9 +1079,9 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
+ 			       struct gssp_in_token *in_token)
+ {
+ 	struct kvec *argv = &rqstp->rq_arg.head[0];
+-	unsigned int page_base, length;
+-	int pages, i, res;
+-	size_t inlen;
++	unsigned int length, pgto_offs, pgfrom_offs;
++	int pages, i, res, pgto, pgfrom;
++	size_t inlen, to_offs, from_offs;
+ 
+ 	res = gss_read_common_verf(gc, argv, authp, in_handle);
+ 	if (res)
+@@ -1109,17 +1109,24 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
+ 	memcpy(page_address(in_token->pages[0]), argv->iov_base, length);
+ 	inlen -= length;
+ 
+-	i = 1;
+-	page_base = rqstp->rq_arg.page_base;
++	to_offs = length;
++	from_offs = rqstp->rq_arg.page_base;
+ 	while (inlen) {
+-		length = min_t(unsigned int, inlen, PAGE_SIZE);
+-		memcpy(page_address(in_token->pages[i]),
+-		       page_address(rqstp->rq_arg.pages[i]) + page_base,
++		pgto = to_offs >> PAGE_SHIFT;
++		pgfrom = from_offs >> PAGE_SHIFT;
++		pgto_offs = to_offs & ~PAGE_MASK;
++		pgfrom_offs = from_offs & ~PAGE_MASK;
++
++		length = min_t(unsigned int, inlen,
++			 min_t(unsigned int, PAGE_SIZE - pgto_offs,
++			       PAGE_SIZE - pgfrom_offs));
++		memcpy(page_address(in_token->pages[pgto]) + pgto_offs,
++		       page_address(rqstp->rq_arg.pages[pgfrom]) + pgfrom_offs,
+ 		       length);
+ 
++		to_offs += length;
++		from_offs += length;
+ 		inlen -= length;
+-		page_base = 0;
+-		i++;
+ 	}
+ 	return 0;
+ }
 -- 
 2.25.1
 
