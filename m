@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9E929BA70
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:13:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C28C429BA2C
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1789444AbgJ0QBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:01:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
+        id S1798554AbgJ0P5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1803436AbgJ0Pwy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:52:54 -0400
+        id S1803454AbgJ0Pwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:52:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53C4520657;
-        Tue, 27 Oct 2020 15:52:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CB96204EF;
+        Tue, 27 Oct 2020 15:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813972;
-        bh=+18Rmy1rZb4EA8ZKVxJUrwxKrhYtc4JVUL89try4Ahc=;
+        s=default; t=1603813974;
+        bh=6iCJp5uNG4JGnYtuc9D2ok6/pin2tQp8td7WDvk/Se0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1Z3inN03x2p/zRRfr5IqjLhujK5TdwfU9ZyGfbOs5gRkYwaa+50CLylj5knGCdoC
-         Y03g6blUBPlXscaZ2eHYC8rJw6rddSR7WuGFvBJv96KybH84KfKObcIpHR00NriU0r
-         f20PewP1wanBTxYjwSeU6q6onMHLI3Mjt1eyAJ3A=
+        b=W4ZtxGsewKoxblXbSMJaW1/5Xyp5wacHuWe3jo1lRPYxg8Lbbw9VKFw9dK6kfQv3L
+         61BC4srVkAQ6DbfyI1Nkqcku8k6w39S5LFY8YS0skYza29F+YyfZFR4zKQ9LfFNYex
+         5NQRTeyVzP/EcjwYLqJt9I6bSL1wflpZ3VzSMKzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Connor McAdams <conmanx360@gmail.com>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 732/757] ALSA: hda/ca0132 - Add AE-7 microphone selection commands.
-Date:   Tue, 27 Oct 2020 14:56:22 +0100
-Message-Id: <20201027135524.842494771@linuxfoundation.org>
+Subject: [PATCH 5.9 733/757] ALSA: hda/ca0132 - Add new quirk ID for SoundBlaster AE-7.
+Date:   Tue, 27 Oct 2020 14:56:23 +0100
+Message-Id: <20201027135524.888558922@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
 References: <20201027135450.497324313@linuxfoundation.org>
@@ -44,66 +44,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Connor McAdams <conmanx360@gmail.com>
 
-[ Upstream commit ed93f9750c6c2ed371347d0aac3dcd31cb9cf256 ]
+[ Upstream commit 620f08eea6d6961b789af3fa3ea86725c8c93ece ]
 
-Add AE-7 quirk data for setting of microphone. The AE-7 has no front
-panel connector, so only rear-mic/line-in have new commands.
+Add a new PCI subsystem ID for the SoundBlaster AE-7 card.
 
 Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Link: https://lore.kernel.org/r/20200825201040.30339-19-conmanx360@gmail.com
+Link: https://lore.kernel.org/r/20200825201040.30339-11-conmanx360@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index b7dbf2e7f77af..c68669911de0a 100644
+index c68669911de0a..a3eecdf9185e8 100644
 --- a/sound/pci/hda/patch_ca0132.c
 +++ b/sound/pci/hda/patch_ca0132.c
-@@ -4675,6 +4675,15 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
- 			tmp = FLOAT_THREE;
- 			break;
-+		case QUIRK_AE7:
-+			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
-+			tmp = FLOAT_THREE;
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
-+					SR_96_000);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
-+					SR_96_000);
-+			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
-+			break;
- 		default:
- 			tmp = FLOAT_ONE;
- 			break;
-@@ -4720,6 +4729,14 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 		case QUIRK_AE5:
- 			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x00);
- 			break;
-+		case QUIRK_AE7:
-+			ca0113_mmio_command_set(codec, 0x30, 0x28, 0x3f);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICIN2,
-+					SR_96_000);
-+			chipio_set_conn_rate(codec, MEM_CONNID_MICOUT2,
-+					SR_96_000);
-+			dspio_set_uint_param(codec, 0x80, 0x01, FLOAT_ZERO);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -4729,7 +4746,10 @@ static int ca0132_alt_select_in(struct hda_codec *codec)
- 		if (ca0132_quirk(spec) == QUIRK_R3DI)
- 			chipio_set_conn_rate(codec, 0x0F, SR_96_000);
+@@ -1065,6 +1065,7 @@ enum {
+ 	QUIRK_R3DI,
+ 	QUIRK_R3D,
+ 	QUIRK_AE5,
++	QUIRK_AE7,
+ };
  
--		tmp = FLOAT_ZERO;
-+		if (ca0132_quirk(spec) == QUIRK_AE7)
-+			tmp = FLOAT_THREE;
-+		else
-+			tmp = FLOAT_ZERO;
- 		dspio_set_uint_param(codec, 0x80, 0x00, tmp);
+ #ifdef CONFIG_PCI
+@@ -1184,6 +1185,7 @@ static const struct snd_pci_quirk ca0132_quirks[] = {
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
++	SND_PCI_QUIRK(0x1102, 0x0081, "Sound Blaster AE-7", QUIRK_AE7),
+ 	{}
+ };
  
- 		switch (ca0132_quirk(spec)) {
 -- 
 2.25.1
 
