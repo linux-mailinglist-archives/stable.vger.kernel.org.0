@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 232EE29BD71
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 17:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C129829BED2
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1810978AbgJ0Qgf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 12:36:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40472 "EHLO mail.kernel.org"
+        id S1793905AbgJ0PI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1801839AbgJ0Pob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:44:31 -0400
+        id S1793897AbgJ0PI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:08:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ED312245D;
-        Tue, 27 Oct 2020 15:43:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02FA2206E5;
+        Tue, 27 Oct 2020 15:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603813434;
-        bh=vzAInNGIvcVAoYf6SO9RuuGhQ0XIGZPey4gJ2+u3GV8=;
+        s=default; t=1603811336;
+        bh=BAQ7snCPKVCnRASrWnmkg7RaL+GKYB6ieRuDz1XCi6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmgXhGyRJJKv034CUl40NGgGmQCHAhTceoaMQGZ1ymzIUiAcdPHy8yMDm0leKques
-         lbndPqzzKYpW2UBuFy5+KbHeObcUcoTtgzkj13FAXYk3ysHX4lHFFqk5Om9/5ygjYy
-         EunmGv8FYSHR/AmYC8m/jLH3PSSjoUlP3onkEOZE=
+        b=KCmCzhGlH3xck3gkZCjREDBmHGHHb3D8BYvCcz/gd63iFMskvRHbuCKWHe+Fc+2QC
+         W+HdhIXJn6A1lULhYW6ZDV5SQDbRRJ5W078TL1ljGIgIQS7s4/+78U5M3l4qcFHNTb
+         +15GhbkCdSMAJJbuHvPVgNCpfyIYDLVm8jYP9BsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 551/757] ext4: discard preallocations before releasing group lock
+Subject: [PATCH 5.8 458/633] ext4: discard preallocations before releasing group lock
 Date:   Tue, 27 Oct 2020 14:53:21 +0100
-Message-Id: <20201027135516.336527751@linuxfoundation.org>
+Message-Id: <20201027135544.198854866@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027135450.497324313@linuxfoundation.org>
-References: <20201027135450.497324313@linuxfoundation.org>
+In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
+References: <20201027135522.655719020@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 20 deletions(-)
 
 diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index ff47347012f4b..a8d99f676fb1f 100644
+index 787a894f5d1da..79d32ea606aa1 100644
 --- a/fs/ext4/mballoc.c
 +++ b/fs/ext4/mballoc.c
-@@ -4160,7 +4160,7 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
+@@ -4037,7 +4037,7 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
  	struct ext4_buddy e4b;
  	int err;
  	int busy = 0;
@@ -76,7 +76,7 @@ index ff47347012f4b..a8d99f676fb1f 100644
  
  	mb_debug(sb, "discard preallocation for group %u\n", group);
  	if (list_empty(&grp->bb_prealloc_list))
-@@ -4188,6 +4188,7 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
+@@ -4065,6 +4065,7 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
  
  	INIT_LIST_HEAD(&list);
  repeat:
@@ -84,7 +84,7 @@ index ff47347012f4b..a8d99f676fb1f 100644
  	ext4_lock_group(sb, group);
  	list_for_each_entry_safe(pa, tmp,
  				&grp->bb_prealloc_list, pa_group_list) {
-@@ -4217,22 +4218,6 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
+@@ -4094,22 +4095,6 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
  		list_add(&pa->u.pa_tmp_list, &list);
  	}
  
@@ -107,7 +107,7 @@ index ff47347012f4b..a8d99f676fb1f 100644
  	/* now free all selected PAs */
  	list_for_each_entry_safe(pa, tmp, &list, u.pa_tmp_list) {
  
-@@ -4250,14 +4235,22 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
+@@ -4127,14 +4112,22 @@ ext4_mb_discard_group_preallocations(struct super_block *sb,
  		call_rcu(&(pa)->u.pa_rcu, ext4_mb_pa_callback);
  	}
  
