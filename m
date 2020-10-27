@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4C329BFA6
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC56A29BFA3
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1815696AbgJ0REe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:04:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41394 "EHLO mail.kernel.org"
+        id S1811907AbgJ0REZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793586AbgJ0PHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:07:18 -0400
+        id S1793600AbgJ0PHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:07:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48ACA21D24;
-        Tue, 27 Oct 2020 15:07:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C9D9222C8;
+        Tue, 27 Oct 2020 15:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811238;
-        bh=MDb6D/+EPwT024XRbziP/5eSlZjL68o4s8lTYj9nSNU=;
+        s=default; t=1603811241;
+        bh=y0GFApQjWZe2gHBjOjdI0yRNIDYlQa3AZzDzTjZdvoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7pxIDB4NUOD3HQzY6jozrD2fo6lS9z0AnkDIm7HnwhxvSGyAI7qIFPCIjRNmms8M
-         2tRvGrJBI+CGXnepGFiXFzRV2odUuCCVaAHfwIQ08j/MrjquhBf03cdQXbBauA2l4B
-         8GIr5ZvBt9mvgyFvou/N93tIzeZ0XrPREjdqVD5A=
+        b=u4ZE3mjGDJjHnQeWuYt8lQwHGnrdUHbn5vSfXGl9a6MFjDvNggfR+KypYNodSYMlT
+         COKT+qxo54Ox+T4/37+pwmQR/snoJ/MVP63rsu/f9xwmmR2PX4yHQrRc8sPLNKdQu0
+         138E5y11EHdotko3OOHRwjVJCdkvjJHJNxUrsow8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Kees Cook <keescook@chromium.org>,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Da Xue <da@libre.computer>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 423/633] rapidio: fix the missed put_device() for rio_mport_add_riodev
-Date:   Tue, 27 Oct 2020 14:52:46 +0100
-Message-Id: <20201027135542.560487722@linuxfoundation.org>
+Subject: [PATCH 5.8 424/633] mailbox: avoid timer start from callback
+Date:   Tue, 27 Oct 2020 14:52:47 +0100
+Message-Id: <20201027135542.608029131@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -51,52 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Jassi Brar <jaswinder.singh@linaro.org>
 
-[ Upstream commit 85094c05eeb47d195a74a25366a2db066f1c9d47 ]
+[ Upstream commit c7dacf5b0f32957b24ef29df1207dc2cd8307743 ]
 
-rio_mport_add_riodev() misses to call put_device() when the device already
-exists.  Add the missed function call to fix it.
+If the txdone is done by polling, it is possible for msg_submit() to start
+the timer while txdone_hrtimer() callback is running. If the timer needs
+recheduling, it could already be enqueued by the time hrtimer_forward_now()
+is called, leading hrtimer to loudly complain.
 
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lkml.kernel.org/r/20200922072525.42330-1-jingxiangfeng@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+WARNING: CPU: 3 PID: 74 at kernel/time/hrtimer.c:932 hrtimer_forward+0xc4/0x110
+CPU: 3 PID: 74 Comm: kworker/u8:1 Not tainted 5.9.0-rc2-00236-gd3520067d01c-dirty #5
+Hardware name: Libre Computer AML-S805X-AC (DT)
+Workqueue: events_freezable_power_ thermal_zone_device_check
+pstate: 20000085 (nzCv daIf -PAN -UAO BTYPE=--)
+pc : hrtimer_forward+0xc4/0x110
+lr : txdone_hrtimer+0xf8/0x118
+[...]
+
+This can be fixed by not starting the timer from the callback path. Which
+requires the timer reloading as long as any message is queued on the
+channel, and not just when current tx is not done yet.
+
+Fixes: 0cc67945ea59 ("mailbox: switch to hrtimer for tx_complete polling")
+Reported-by: Da Xue <da@libre.computer>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
+Tested-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mailbox/mailbox.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 438cbf994c57f..152946e033d17 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1680,6 +1680,7 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 	struct rio_dev *rdev;
- 	struct rio_switch *rswitch = NULL;
- 	struct rio_mport *mport;
-+	struct device *dev;
- 	size_t size;
- 	u32 rval;
- 	u32 swpinfo = 0;
-@@ -1694,8 +1695,10 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 	rmcd_debug(RDEV, "name:%s ct:0x%x did:0x%x hc:0x%x", dev_info.name,
- 		   dev_info.comptag, dev_info.destid, dev_info.hopcount);
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index 0b821a5b2db84..3e7d4b20ab34f 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -82,9 +82,12 @@ static void msg_submit(struct mbox_chan *chan)
+ exit:
+ 	spin_unlock_irqrestore(&chan->lock, flags);
  
--	if (bus_find_device_by_name(&rio_bus_type, NULL, dev_info.name)) {
-+	dev = bus_find_device_by_name(&rio_bus_type, NULL, dev_info.name);
-+	if (dev) {
- 		rmcd_debug(RDEV, "device %s already exists", dev_info.name);
-+		put_device(dev);
- 		return -EEXIST;
+-	if (!err && (chan->txdone_method & TXDONE_BY_POLL))
+-		/* kick start the timer immediately to avoid delays */
+-		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++	/* kick start the timer immediately to avoid delays */
++	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
++		/* but only if not already active */
++		if (!hrtimer_active(&chan->mbox->poll_hrt))
++			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++	}
+ }
+ 
+ static void tx_tick(struct mbox_chan *chan, int r)
+@@ -122,11 +125,10 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
+ 		struct mbox_chan *chan = &mbox->chans[i];
+ 
+ 		if (chan->active_req && chan->cl) {
++			resched = true;
+ 			txdone = chan->mbox->ops->last_tx_done(chan);
+ 			if (txdone)
+ 				tx_tick(chan, 0);
+-			else
+-				resched = true;
+ 		}
  	}
  
 -- 
