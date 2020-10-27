@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8573F29AFB8
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:13:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE47F29AEA8
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2507479AbgJ0OMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
+        id S1753897AbgJ0OCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756089AbgJ0OK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:10:59 -0400
+        id S1753893AbgJ0OCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:02:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02C4E22202;
-        Tue, 27 Oct 2020 14:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E6C22222C;
+        Tue, 27 Oct 2020 14:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807859;
-        bh=WId7CC7UAsFQd6UFXl7R7iT2RWemnXX3GytAhRUz8Ko=;
+        s=default; t=1603807371;
+        bh=ccSakzlvJ1pOGAPCxw2juTXBtRQf5UCsQSz/C31fcoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3SJKNS1TJCFqbu3KZSfWmTrN5OKEPU+lUJxBhDfAydLc2CacuUgPMjUfAeHnsdJV
-         B4fIQSwbJ/LR6EcJtRsxtbl+jNZKm4KlxmSJMKRL7gAHTERBSMt/04L8KguBsxRPuz
-         5eX3EGN4j0H7ilzpegpRT5MLFyoj8y2qSjBXd9Ao=
+        b=GSxwMylx51ykqzTWO3p4ccwUcO17E0ShDvH1bOqNZR+G51X/lrSl5rp1jS7xMTi8J
+         8+1aaKXF6B+qCKKLrwWqffxKoQjE13y8w0/EEWIZ7Ej4nS2+u3xk68qZM3QrMhwrVv
+         lHsix//A67t/59QzjW98x9zorxGj+9thJyUjby4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/191] ath6kl: wmi: prevent a shift wrapping bug in ath6kl_wmi_delete_pstream_cmd()
-Date:   Tue, 27 Oct 2020 14:48:41 +0100
-Message-Id: <20201027134912.915613145@linuxfoundation.org>
+Subject: [PATCH 4.9 028/139] wcn36xx: Fix reported 802.11n rx_highest rate wcn3660/wcn3680
+Date:   Tue, 27 Oct 2020 14:48:42 +0100
+Message-Id: <20201027134903.463718304@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
-References: <20201027134909.701581493@linuxfoundation.org>
+In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
+References: <20201027134902.130312227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 6a950755cec1a90ddaaff3e4acb5333617441c32 ]
+[ Upstream commit 3b9fb6791e7113679b1eb472e6ce1659e80f5797 ]
 
-The "tsid" is a user controlled u8 which comes from debugfs.  Values
-more than 15 are invalid because "active_tsids" is a 16 bit variable.
-If the value of "tsid" is more than 31 then that leads to a shift
-wrapping bug.
+Qualcomm's document "80-WL007-1 Rev. J" states that the highest rx rate for
+the WCN3660 and WCN3680 on MCS 7 is 150 Mbps not the 72 Mbps stated here.
 
-Fixes: 8fffd9e5ec9e ("ath6kl: Implement support for QOS-enable and QOS-disable from userspace")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+This patch fixes the data-rate declared in the 5GHz table.
+
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680
+hardware")
+
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200918142732.GA909725@mwanda
+Link: https://lore.kernel.org/r/20200802004824.1307124-1-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/wmi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/ath/wcn36xx/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index d79c2bccf5822..f80f1757b58fc 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -2648,6 +2648,11 @@ int ath6kl_wmi_delete_pstream_cmd(struct wmi *wmi, u8 if_idx, u8 traffic_class,
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index ca8797c653125..86beadf0f2493 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -158,7 +158,7 @@ static struct ieee80211_supported_band wcn_band_5ghz = {
+ 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
+ 		.mcs = {
+ 			.rx_mask = { 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+-			.rx_highest = cpu_to_le16(72),
++			.rx_highest = cpu_to_le16(150),
+ 			.tx_params = IEEE80211_HT_MCS_TX_DEFINED,
+ 		}
  	}
- 
-+	if (tsid >= 16) {
-+		ath6kl_err("invalid tsid: %d\n", tsid);
-+		return -EINVAL;
-+	}
-+
- 	skb = ath6kl_wmi_get_new_buf(sizeof(*cmd));
- 	if (!skb)
- 		return -ENOMEM;
 -- 
 2.25.1
 
