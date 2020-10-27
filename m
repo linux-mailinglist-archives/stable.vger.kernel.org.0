@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B6C29C599
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A8329C681
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1753751AbgJ0OB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        id S1826273AbgJ0SSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 14:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753745AbgJ0OB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:01:56 -0400
+        id S2507353AbgJ0OLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:11:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE0CB2222C;
-        Tue, 27 Oct 2020 14:01:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6673922284;
+        Tue, 27 Oct 2020 14:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603807316;
-        bh=bpcsc7ia7WXrIwoT1qsr2umv8Th+iiXB2l/wpiUUFqc=;
+        s=default; t=1603807873;
+        bh=isIZVoKOxKXWE6sSxI1avpyfCm9wqvraJw1QI7nSX0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzYPsHLJiYrI7JPduP/BiaaK1Bm2JhkV0DaklwTeupwBkq7ucW1W0Ipldv+nyLPCJ
-         mBntpFlFIVFsKYaW31qXlaWUinY+m6LuddvXUepg4o6K50kiPGvFtUO2wNn3umm22f
-         7Xfmlz35zW0lOisz39E5dTfAu+tzXwLhCHlJeAZA=
+        b=Z6r+lzuPuMr+kWOS8TZDB0wyDtvZyrPoCGfZq2iOJxkf2Tgy67/K0XCk5ngvZnztF
+         hAy0MY1hKWYmVUEMpSpwNNi0CldhmJIxRh65eIM+A5XLWEF/T1c6EDRqvM5+O5IRe3
+         ukzuE5SQmts6u7zbQs9PXj4tEmkNCucYLBO4nvPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wilder <dwilder@us.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Cristobal Forno <cris.forno@ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 001/139] ibmveth: Identify ingress large send packets.
-Date:   Tue, 27 Oct 2020 14:48:15 +0100
-Message-Id: <20201027134902.208152892@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Markus Theil <markus.theil@tu-ilmenau.de>,
+        John Deere <24601deerej@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 041/191] ath10k: provide survey info as accumulated data
+Date:   Tue, 27 Oct 2020 14:48:16 +0100
+Message-Id: <20201027134911.720450590@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-References: <20201027134902.130312227@linuxfoundation.org>
+In-Reply-To: <20201027134909.701581493@linuxfoundation.org>
+References: <20201027134909.701581493@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,57 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wilder <dwilder@us.ibm.com>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit 413f142cc05cb03f2d1ea83388e40c1ddc0d74e9 ]
+[ Upstream commit 720e5c03e5cb26d33d97f55192b791bb48478aa5 ]
 
-Ingress large send packets are identified by either:
-The IBMVETH_RXQ_LRG_PKT flag in the receive buffer
-or with a -1 placed in the ip header checksum.
-The method used depends on firmware version. Frame
-geometry and sufficient header validation is performed by the
-hypervisor eliminating the need for further header checks here.
+It is expected that the returned counters by .get_survey are monotonic
+increasing. But the data from ath10k gets reset to zero regularly. Channel
+active/busy time are then showing incorrect values (less than previous or
+sometimes zero) for the currently active channel during successive survey
+dump commands.
 
-Fixes: 7b5967389f5a ("ibmveth: set correct gso_size and gso_type")
-Signed-off-by: David Wilder <dwilder@us.ibm.com>
-Reviewed-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Reviewed-by: Cristobal Forno <cris.forno@ibm.com>
-Reviewed-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+example:
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            54995 ms
+  	channel busy time:              432 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          59 ms
+  ...
+
+  $ iw dev wlan0 survey dump
+  Survey data from wlan0
+  	frequency:                      5180 MHz [in use]
+  	channel active time:            32592 ms
+  	channel busy time:              254 ms
+  	channel receive time:           0 ms
+  	channel transmit time:          0 ms
+  ...
+
+The correct way to handle this is to use the non-clearing
+WMI_BSS_SURVEY_REQ_TYPE_READ wmi_bss_survey_req_type. The firmware will
+then accumulate the survey data and handle wrap arounds.
+
+Tested-on: QCA9984 hw1.0 10.4-3.5.3-00057
+Tested-on: QCA988X hw2.0 10.2.4-1.0-00047
+Tested-on: QCA9888 hw2.0 10.4-3.9.0.2-00024
+Tested-on: QCA4019 hw1.0 10.4-3.6-00140
+
+Fixes: fa7937e3d5c2 ("ath10k: update bss channel survey information")
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Tested-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Tested-by: John Deere <24601deerej@gmail.com>
+[sven@narfation.org: adjust commit message]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1592232686-28712-1-git-send-email-kvalo@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmveth.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1256,6 +1256,7 @@ static int ibmveth_poll(struct napi_stru
- 			int offset = ibmveth_rxq_frame_offset(adapter);
- 			int csum_good = ibmveth_rxq_csum_good(adapter);
- 			int lrg_pkt = ibmveth_rxq_large_packet(adapter);
-+			__sum16 iph_check = 0;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index ea47ad4b2343b..be4420ff52b8a 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -6718,7 +6718,7 @@ ath10k_mac_update_bss_chan_survey(struct ath10k *ar,
+ 				  struct ieee80211_channel *channel)
+ {
+ 	int ret;
+-	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ_CLEAR;
++	enum wmi_bss_survey_req_type type = WMI_BSS_SURVEY_REQ_TYPE_READ;
  
- 			skb = ibmveth_rxq_get_buffer(adapter);
+ 	lockdep_assert_held(&ar->conf_mutex);
  
-@@ -1307,7 +1308,17 @@ static int ibmveth_poll(struct napi_stru
- 				}
- 			}
- 
--			if (length > netdev->mtu + ETH_HLEN) {
-+			/* PHYP without PLSO support places a -1 in the ip
-+			 * checksum for large send frames.
-+			 */
-+			if (skb->protocol == cpu_to_be16(ETH_P_IP)) {
-+				struct iphdr *iph = (struct iphdr *)skb->data;
-+
-+				iph_check = iph->check;
-+			}
-+
-+			if ((length > netdev->mtu + ETH_HLEN) ||
-+			    lrg_pkt || iph_check == 0xffff) {
- 				ibmveth_rx_mss_helper(skb, mss, lrg_pkt);
- 				adapter->rx_large_packets++;
- 			}
+-- 
+2.25.1
+
 
 
