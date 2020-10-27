@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D3929B215
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8D029B218
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 15:38:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761034AbgJ0Ohn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:37:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36806 "EHLO mail.kernel.org"
+        id S1761064AbgJ0Oht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761006AbgJ0Ohm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:37:42 -0400
+        id S1761056AbgJ0Ohs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:37:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA19E20759;
-        Tue, 27 Oct 2020 14:37:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D813207BB;
+        Tue, 27 Oct 2020 14:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809462;
-        bh=ztkl12GQR6cNGhXqfbGMj2z38KOAVYMM4dj/6xgAZKI=;
+        s=default; t=1603809467;
+        bh=caehzLcFJ81Qcd8lml6VlP0wX1r5SUkrnd8s6ZAUruk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gu8uyq721T28pJpxv974TOaFpcia73svS0EN1ELjVpYHw6JRLm5+qv4UBfuOB6Top
-         4iUup/yK5wKH9lMxdPJDX82oi7Ko0SaaIttyYpWiRbcvvfMTczRdKqPbUFnnUKUQRy
-         kTkQKiqqpxgbqFSw2RaStf71XHJ4sPI4mE4uSmB0=
+        b=QzsZJ2hi4InQc0NoXIyXb5ScHu3IeKQyFUW3MYqX5aMF9DZzXVlU8wFJoRgKQTK0Q
+         A7Cjr6KUhD06bpebo3IucsGOu0EV4WVaNXqGS27Uv9eMYpajMZG/1Jgg55j5qqPQe0
+         RmMskIfkCGgovQCcjuzUcBjm7NQ/TiG7BN0QTWGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/408] RDMA/hns: Add a check for current state before modifying QP
-Date:   Tue, 27 Oct 2020 14:52:22 +0100
-Message-Id: <20201027135504.564180604@linuxfoundation.org>
+Subject: [PATCH 5.4 206/408] powerpc/pseries: explicitly reschedule during drmem_lmb list traversal
+Date:   Tue, 27 Oct 2020 14:52:24 +0100
+Message-Id: <20201027135504.655837265@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,43 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Cheng <chenglang@huawei.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit e0ef0f68c4c0d85b1eb63f38d5d10324361280e8 ]
+[ Upstream commit 9d6792ffe140240ae54c881cc4183f9acc24b4df ]
 
-It should be considered an illegal operation if the ULP attempts to modify
-a QP from another state to the current hardware state. Otherwise, the ULP
-can modify some fields of QPC at any time. For example, for a QP in state
-of RTS, modify it from RTR to RTS can change the PSN, which is always not
-as expected.
+The drmem lmb list can have hundreds of thousands of entries, and
+unfortunately lookups take the form of linear searches. As long as
+this is the case, traversals have the potential to monopolize the CPU
+and provoke lockup reports, workqueue stalls, and the like unless
+they explicitly yield.
 
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/1598353674-24270-1-git-send-email-liweihang@huawei.com
-Signed-off-by: Lang Cheng <chenglang@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Rather than placing cond_resched() calls within various
+for_each_drmem_lmb() loop blocks in the code, put it in the iteration
+expression of the loop macro itself so users can't omit it.
+
+Introduce a drmem_lmb_next() iteration helper function which calls
+cond_resched() at a regular interval during array traversal. Each
+iteration of the loop in DLPAR code paths can involve around ten RTAS
+calls which can each take up to 250us, so this ensures the check is
+performed at worst every few milliseconds.
+
+Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200813151131.2070161-1-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/drmem.h | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 8dd2d666f6875..730e50c87a760 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -1181,8 +1181,10 @@ int hns_roce_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
+index 28c3d936fdf32..dcd6ac098a6e4 100644
+--- a/arch/powerpc/include/asm/drmem.h
++++ b/arch/powerpc/include/asm/drmem.h
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_POWERPC_LMB_H
+ #define _ASM_POWERPC_LMB_H
  
- 	mutex_lock(&hr_qp->mutex);
- 
--	cur_state = attr_mask & IB_QP_CUR_STATE ?
--		    attr->cur_qp_state : (enum ib_qp_state)hr_qp->state;
-+	if (attr_mask & IB_QP_CUR_STATE && attr->cur_qp_state != hr_qp->state)
-+		goto out;
++#include <linux/sched.h>
 +
-+	cur_state = hr_qp->state;
- 	new_state = attr_mask & IB_QP_STATE ? attr->qp_state : cur_state;
+ struct drmem_lmb {
+ 	u64     base_addr;
+ 	u32     drc_index;
+@@ -26,8 +28,22 @@ struct drmem_lmb_info {
  
- 	if (ibqp->uobject &&
+ extern struct drmem_lmb_info *drmem_info;
+ 
++static inline struct drmem_lmb *drmem_lmb_next(struct drmem_lmb *lmb,
++					       const struct drmem_lmb *start)
++{
++	/*
++	 * DLPAR code paths can take several milliseconds per element
++	 * when interacting with firmware. Ensure that we don't
++	 * unfairly monopolize the CPU.
++	 */
++	if (((++lmb - start) % 16) == 0)
++		cond_resched();
++
++	return lmb;
++}
++
+ #define for_each_drmem_lmb_in_range(lmb, start, end)		\
+-	for ((lmb) = (start); (lmb) < (end); (lmb)++)
++	for ((lmb) = (start); (lmb) < (end); lmb = drmem_lmb_next(lmb, start))
+ 
+ #define for_each_drmem_lmb(lmb)					\
+ 	for_each_drmem_lmb_in_range((lmb),			\
 -- 
 2.25.1
 
