@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C3B29C126
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B644029C153
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780321AbgJ0Oyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44214 "EHLO mail.kernel.org"
+        id S1780288AbgJ0OyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762775AbgJ0Oo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:44:27 -0400
+        id S1762347AbgJ0Ooz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:44:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 196C2206B2;
-        Tue, 27 Oct 2020 14:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8FE921D7B;
+        Tue, 27 Oct 2020 14:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809864;
-        bh=DpHT2fIvQDFMTl3zA2tlrlnamB5l7Vg/t12RcV/70NI=;
+        s=default; t=1603809895;
+        bh=NMbRKQtIo06DCqElI09OojTwuYhyr225CCCA9tMoc+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMyoCofBXQBuItLXuSJML6HZjGZ76cvw1/mpcLw/MDcC7F2a1ijN55Ju7l60CKf/G
-         SLl8lsab/t0qYNP1zIGRNfUes96aSiT1cBq6tVPx92HusCZVfLBMlajGoQANnHeByF
-         93CIwRuX0MyvAmSCpIUA65FX7smj1UjjnTD7FpKM=
+        b=J7KHtT9od7FXNW+DjKignJyZ9LpwwkXyt0tT6OSafeucwAZrvl2fjrbX9RlGf6se6
+         aWT/fiCs4Im+O8Bf0VYEiaNXEZfyHveVzxaa6FrzXBPXRj3HhHAsqhBrL+lQqFFzvM
+         XbIEsYTE1PL2bPEPBluFUkunBdHQ2DiogeIjRvdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vikash Garodia <vgarodia@codeaurora.org>,
-        Fritz Koenig <frkoenig@chromium.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 345/408] media: venus: fixes for list corruption
-Date:   Tue, 27 Oct 2020 14:54:43 +0100
-Message-Id: <20201027135511.029778204@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9991561e714f597095da@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 358/408] udf: Limit sparing table size
+Date:   Tue, 27 Oct 2020 14:54:56 +0100
+Message-Id: <20201027135511.624985906@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -45,77 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Garodia <vgarodia@codeaurora.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit e1c69c4eef61ffe295b747992c6fd849e6cd747d ]
+[ Upstream commit 44ac6b829c4e173fdf6df18e6dd86aecf9a3dc99 ]
 
-There are few list handling issues while adding and deleting
-node in the registered buf list in the driver.
-1. list addition - buffer added into the list during buf_init
-while not deleted during cleanup.
-2. list deletion - In capture streamoff, the list was reinitialized.
-As a result, if any node was present in the list, it would
-lead to issue while cleaning up that node during buf_cleanup.
+Although UDF standard allows it, we don't support sparing table larger
+than a single block. Check it during mount so that we don't try to
+access memory beyond end of buffer.
 
-Corresponding call traces below:
-[  165.751014] Call trace:
-[  165.753541]  __list_add_valid+0x58/0x88
-[  165.757532]  venus_helper_vb2_buf_init+0x74/0xa8 [venus_core]
-[  165.763450]  vdec_buf_init+0x34/0xb4 [venus_dec]
-[  165.768271]  __buf_prepare+0x598/0x8a0 [videobuf2_common]
-[  165.773820]  vb2_core_qbuf+0xb4/0x334 [videobuf2_common]
-[  165.779298]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
-[  165.784053]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
-[  165.789067]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
-[  165.794624]  v4l_qbuf+0x48/0x58
-
-[ 1797.556001] Call trace:
-[ 1797.558516]  __list_del_entry_valid+0x88/0x9c
-[ 1797.562989]  vdec_buf_cleanup+0x54/0x228 [venus_dec]
-[ 1797.568088]  __buf_prepare+0x270/0x8a0 [videobuf2_common]
-[ 1797.573625]  vb2_core_qbuf+0xb4/0x338 [videobuf2_common]
-[ 1797.579082]  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
-[ 1797.583830]  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
-[ 1797.588843]  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
-[ 1797.594389]  v4l_qbuf+0x48/0x58
-
-Signed-off-by: Vikash Garodia <vgarodia@codeaurora.org>
-Reviewed-by: Fritz Koenig <frkoenig@chromium.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+9991561e714f597095da@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/vdec.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/udf/super.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
-index 05b80a66e80ed..658825b4c4e8d 100644
---- a/drivers/media/platform/qcom/venus/vdec.c
-+++ b/drivers/media/platform/qcom/venus/vdec.c
-@@ -993,8 +993,6 @@ static int vdec_stop_capture(struct venus_inst *inst)
- 		break;
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 4baa1ca91e9be..a0cd766b41cdb 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -1352,6 +1352,12 @@ static int udf_load_sparable_map(struct super_block *sb,
+ 			(int)spm->numSparingTables);
+ 		return -EIO;
  	}
++	if (le32_to_cpu(spm->sizeSparingTable) > sb->s_blocksize) {
++		udf_err(sb, "error loading logical volume descriptor: "
++			"Too big sparing table size (%u)\n",
++			le32_to_cpu(spm->sizeSparingTable));
++		return -EIO;
++	}
  
--	INIT_LIST_HEAD(&inst->registeredbufs);
--
- 	return ret;
- }
- 
-@@ -1091,6 +1089,14 @@ static int vdec_buf_init(struct vb2_buffer *vb)
- static void vdec_buf_cleanup(struct vb2_buffer *vb)
- {
- 	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
-+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
-+	struct venus_buffer *buf = to_venus_buffer(vbuf);
-+
-+	mutex_lock(&inst->lock);
-+	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
-+		if (!list_empty(&inst->registeredbufs))
-+			list_del_init(&buf->reg_list);
-+	mutex_unlock(&inst->lock);
- 
- 	inst->buf_count--;
- 	if (!inst->buf_count)
+ 	for (i = 0; i < spm->numSparingTables; i++) {
+ 		loc = le32_to_cpu(spm->locSparingTable[i]);
 -- 
 2.25.1
 
