@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E15A29B52E
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DEF29B531
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1793920AbgJ0PJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44518 "EHLO mail.kernel.org"
+        id S1793934AbgJ0PJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:09:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1793915AbgJ0PJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:09:03 -0400
+        id S1793916AbgJ0PJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:09:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5ADA206E5;
-        Tue, 27 Oct 2020 15:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E074C206F4;
+        Tue, 27 Oct 2020 15:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811343;
-        bh=qoRhQuQEV4CKlz3qaWNl7/xqZX+AF2ooIstYglQn92E=;
+        s=default; t=1603811349;
+        bh=xY4tDXnwwKQuGgM7gkuKXttAzi3VIUbCG+AB6r+fZOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anPQd7wJKIgCX5qZHIMr7XscWQGyN6mXFIk2qTdKlyjPXTaDzQTCcRoPve3LH3urh
-         1E0OSzlxqrrCBcPDIwRYvvgylrLHTudOG/Utp9cp3AR3T7CIzSityZqLx31ILzZyHm
-         a3wpKyOiWWz4nezFaFFdrnpI/ktpRyoH1L8YH3YA=
+        b=U7HO0PitKK09giS5xN6yhLe62H/aN6N1wK2+WEXsvf6QfBQs2m+D2Ja6fFv51c1n8
+         1M+TczU4Ju/xZVkhWrDYGH0Dg1FJ0VAdTcWt6sTnJhjoN9GCytPVuJtSjgn+dfPino
+         WnCywUeVXjp3T6XRTv6ApzLy5s5sxjVUcJbhdD4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 460/633] ext4: limit entries returned when counting fsmap records
-Date:   Tue, 27 Oct 2020 14:53:23 +0100
-Message-Id: <20201027135544.301836461@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoyang Xu <xuxiaoyang2@huawei.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 462/633] vfio iommu type1: Fix memory leak in vfio_iommu_type1_pin_pages
+Date:   Tue, 27 Oct 2020 14:53:25 +0100
+Message-Id: <20201027135544.395337555@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Xiaoyang Xu <xuxiaoyang2@huawei.com>
 
-[ Upstream commit af8c53c8bc087459b1aadd4c94805d8272358d79 ]
+[ Upstream commit 2e6cfd496f5b57034cf2aec738799571b5a52124 ]
 
-If userspace asked fsmap to try to count the number of entries, we cannot
-return more than UINT_MAX entries because fmh_entries is u32.
-Therefore, stop counting if we hit this limit or else we will waste time
-to return truncated results.
+pfn is not added to pfn_list when vfio_add_to_pfn_list fails.
+vfio_unpin_page_external will exit directly without calling
+vfio_iova_put_vfio_pfn.  This will lead to a memory leak.
 
-Fixes: 0c9ec4beecac ("ext4: support GETFSMAP ioctls")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Link: https://lore.kernel.org/r/20201001222148.GA49520@magnolia
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Signed-off-by: Xiaoyang Xu <xuxiaoyang2@huawei.com>
+[aw: simplified logic, add Fixes]
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fsmap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vfio/vfio_iommu_type1.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/fsmap.c b/fs/ext4/fsmap.c
-index dbccf46f17709..37347ba868b70 100644
---- a/fs/ext4/fsmap.c
-+++ b/fs/ext4/fsmap.c
-@@ -108,6 +108,9 @@ static int ext4_getfsmap_helper(struct super_block *sb,
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index eb7bb14e4f62a..00d3cf12e92c3 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -693,7 +693,8 @@ static int vfio_iommu_type1_pin_pages(void *iommu_data,
  
- 	/* Are we just counting mappings? */
- 	if (info->gfi_head->fmh_count == 0) {
-+		if (info->gfi_head->fmh_entries == UINT_MAX)
-+			return EXT4_QUERY_RANGE_ABORT;
-+
- 		if (rec_fsblk > info->gfi_next_fsblk)
- 			info->gfi_head->fmh_entries++;
+ 		ret = vfio_add_to_pfn_list(dma, iova, phys_pfn[i]);
+ 		if (ret) {
+-			vfio_unpin_page_external(dma, iova, do_accounting);
++			if (put_pfn(phys_pfn[i], dma->prot) && do_accounting)
++				vfio_lock_acct(dma, -1, true);
+ 			goto pin_unwind;
+ 		}
  
 -- 
 2.25.1
