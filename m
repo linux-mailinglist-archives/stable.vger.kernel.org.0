@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2608A29C127
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E1429C12A
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1780335AbgJ0Oyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 10:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51126 "EHLO mail.kernel.org"
+        id S1780387AbgJ0Oyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 10:54:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1773192AbgJ0Ovn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:51:43 -0400
+        id S1773203AbgJ0Ovq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:51:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBF9A207DE;
-        Tue, 27 Oct 2020 14:51:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB26821556;
+        Tue, 27 Oct 2020 14:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810302;
-        bh=dvIZLbACW+xwduXQBY5j9WoNudiInwnxg8U3A+qjvdc=;
+        s=default; t=1603810305;
+        bh=jOumJcFRVCiUq4Fxh9Ed+uFdID1qZjEhwjCna7nvkdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bT11fkTw2SFxjEgXtLBji1usA2ct+oGA2fSqlDGH7yuHxGuolOKNBclOjunVzwWVs
-         ztibfVUmBM+oR43q1vjGlBNyH+A9zs1pyLNJRkvxIHrarX+HuMprrdwLRZrwHdQdEA
-         wm19KfUIAjxisozZ1uZi+UXEXJokm0bVQDF+4cuo=
+        b=DQ3j+W8uXnahwKScyhCV2YUVZehBWnTLSVajXr7hKZ3wnf0i5nSP5+HRFzNQ16d95
+         A4LDG9yK5fwfmfbzXthyFQfqyq2EbmM6RlcKxG7OyIZ2plI1gXuyCO5Io7N2Qt6Y9v
+         rlxmEx5r82q/oJZSX4H5SRdlzBMZfxaVWTZooevY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Sumit Garg <sumit.garg@linaro.org>
-Subject: [PATCH 5.8 092/633] arm64: perf: Add missing ISB in armv8pmu_enable_counter()
-Date:   Tue, 27 Oct 2020 14:47:15 +0100
-Message-Id: <20201027135527.017508351@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 093/633] perf/x86/intel/uncore: Update Ice Lake uncore units
+Date:   Tue, 27 Oct 2020 14:47:16 +0100
+Message-Id: <20201027135527.072503693@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -54,60 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 490d7b7c0845eacf5593db333fd2ae7715416e16 ]
+[ Upstream commit 8f5d41f3a0f495435c88ebba8fc150c931c10fef ]
 
-Writes to the PMXEVTYPER_EL0 register are not self-synchronising. In
-armv8pmu_enable_event(), the PE can reorder configuring the event type
-after we have enabled the counter and the interrupt. This can lead to an
-interrupt being asserted because of the previous event type that we were
-counting using the same counter, not the one that we've just configured.
+There are some updates for the Icelake model specific uncore performance
+monitors. (The update can be found at 10th generation intel core
+processors families specification update Revision 004, ICL068)
 
-The same rationale applies to writes to the PMINTENSET_EL1 register. The PE
-can reorder enabling the interrupt at any point in the future after we have
-enabled the event.
+1) Counter 0 of ARB uncore unit is not available for software use
+2) The global 'enable bit' (bit 29) and 'freeze bit' (bit 31) of
+   MSR_UNC_PERF_GLOBAL_CTRL cannot be used to control counter behavior.
+   Needs to use local enable in event select MSR.
 
-Prevent both situations from happening by adding an ISB just before we
-enable the event counter.
+Accessing the modified bit/registers will be ignored by HW. Users may
+observe inaccurate results with the current code.
 
-Fixes: 030896885ade ("arm64: Performance counters support")
-Reported-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Tested-by: Sumit Garg <sumit.garg@linaro.org> (Developerbox)
-Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20200924110706.254996-2-alexandru.elisei@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+The changes of the MSR_UNC_PERF_GLOBAL_CTRL imply that groups cannot be
+read atomically anymore. Although the error of the result for a group
+becomes a bit bigger, it still far lower than not using a group. The
+group support is still kept. Only Remove the *_box() related
+implementation.
+
+Since the counter 0 of ARB uncore unit is not available, update the MSR
+address for the ARB uncore unit.
+
+There is no change for IMC uncore unit, which only include free-running
+counters.
+
+Fixes: 6e394376ee89 ("perf/x86/intel/uncore: Add Intel Icelake uncore support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200925134905.8839-2-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/perf_event.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/events/intel/uncore_snb.c | 29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
-index 581602413a130..c26d84ff0e224 100644
---- a/arch/arm64/kernel/perf_event.c
-+++ b/arch/arm64/kernel/perf_event.c
-@@ -510,6 +510,11 @@ static u32 armv8pmu_event_cnten_mask(struct perf_event *event)
+diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
+index 1038e9f1e3542..300937cc8795b 100644
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -115,6 +115,10 @@
+ #define ICL_UNC_CBO_0_PER_CTR0			0x702
+ #define ICL_UNC_CBO_MSR_OFFSET			0x8
  
- static inline void armv8pmu_enable_counter(u32 mask)
- {
-+	/*
-+	 * Make sure event configuration register writes are visible before we
-+	 * enable the counter.
-+	 * */
-+	isb();
- 	write_sysreg(mask, pmcntenset_el0);
++/* ICL ARB register */
++#define ICL_UNC_ARB_PER_CTR			0x3b1
++#define ICL_UNC_ARB_PERFEVTSEL			0x3b3
++
+ DEFINE_UNCORE_FORMAT_ATTR(event, event, "config:0-7");
+ DEFINE_UNCORE_FORMAT_ATTR(umask, umask, "config:8-15");
+ DEFINE_UNCORE_FORMAT_ATTR(edge, edge, "config:18");
+@@ -302,6 +306,12 @@ void skl_uncore_cpu_init(void)
+ 	snb_uncore_arb.ops = &skl_uncore_msr_ops;
  }
  
++static struct intel_uncore_ops icl_uncore_msr_ops = {
++	.disable_event	= snb_uncore_msr_disable_event,
++	.enable_event	= snb_uncore_msr_enable_event,
++	.read_counter	= uncore_msr_read_counter,
++};
++
+ static struct intel_uncore_type icl_uncore_cbox = {
+ 	.name		= "cbox",
+ 	.num_counters   = 4,
+@@ -310,7 +320,7 @@ static struct intel_uncore_type icl_uncore_cbox = {
+ 	.event_ctl	= SNB_UNC_CBO_0_PERFEVTSEL0,
+ 	.event_mask	= SNB_UNC_RAW_EVENT_MASK,
+ 	.msr_offset	= ICL_UNC_CBO_MSR_OFFSET,
+-	.ops		= &skl_uncore_msr_ops,
++	.ops		= &icl_uncore_msr_ops,
+ 	.format_group	= &snb_uncore_format_group,
+ };
+ 
+@@ -339,13 +349,25 @@ static struct intel_uncore_type icl_uncore_clockbox = {
+ 	.single_fixed	= 1,
+ 	.event_mask	= SNB_UNC_CTL_EV_SEL_MASK,
+ 	.format_group	= &icl_uncore_clock_format_group,
+-	.ops		= &skl_uncore_msr_ops,
++	.ops		= &icl_uncore_msr_ops,
+ 	.event_descs	= icl_uncore_events,
+ };
+ 
++static struct intel_uncore_type icl_uncore_arb = {
++	.name		= "arb",
++	.num_counters   = 1,
++	.num_boxes	= 1,
++	.perf_ctr_bits	= 44,
++	.perf_ctr	= ICL_UNC_ARB_PER_CTR,
++	.event_ctl	= ICL_UNC_ARB_PERFEVTSEL,
++	.event_mask	= SNB_UNC_RAW_EVENT_MASK,
++	.ops		= &icl_uncore_msr_ops,
++	.format_group	= &snb_uncore_format_group,
++};
++
+ static struct intel_uncore_type *icl_msr_uncores[] = {
+ 	&icl_uncore_cbox,
+-	&snb_uncore_arb,
++	&icl_uncore_arb,
+ 	&icl_uncore_clockbox,
+ 	NULL,
+ };
+@@ -363,7 +385,6 @@ void icl_uncore_cpu_init(void)
+ {
+ 	uncore_msr_uncores = icl_msr_uncores;
+ 	icl_uncore_cbox.num_boxes = icl_get_cbox_num();
+-	snb_uncore_arb.ops = &skl_uncore_msr_ops;
+ }
+ 
+ enum {
 -- 
 2.25.1
 
