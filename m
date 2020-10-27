@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8D629B5A3
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1BC29B5A6
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1794856AbgJ0PN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50876 "EHLO mail.kernel.org"
+        id S1794878AbgJ0POH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:14:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1794851AbgJ0PN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:13:56 -0400
+        id S1794874AbgJ0POF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:14:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7259921D41;
-        Tue, 27 Oct 2020 15:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 077F220728;
+        Tue, 27 Oct 2020 15:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603811636;
-        bh=rv4AEcROxj8BAs2llGk0xVhlp4UVGLDxwUVC5kEsDUw=;
+        s=default; t=1603811644;
+        bh=MkgMDcccSHwun46vYipogs2oopYDY7nk+d6mYmDSuyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gf8FZjHnd6TGhOg6EcXmNtOr2nRsLjjeeaRvR4W7sj1j0iDvJXrCHkC0XZqVqusli
-         RD73UPvjFJc/Js/EUb3k8QzJ+axUaVi54Zc8ZOd99RJ78UnlrXPLKIc9xpHew18ehj
-         deDDRGHiRcMTVSP3vz2T6a+nG5EDMZGVXbQzAzpQ=
+        b=qPnc7k9yDUaG/xhN/bcmri4qs0T15DOgf15AVqUQf1XB18xU6p04tt/PBXI8IRil6
+         SykzCIU/4o8wt8dsfbI8ATdp+/88bqJQepj/QuAwior1vrj0pQwPLdkNtWmjnHraxU
+         TI7eMIXhK8N3G6xYebokk64u2efGh/FHIzfC65f4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 564/633] scsi: mvumi: Fix error return in mvumi_io_attach()
-Date:   Tue, 27 Oct 2020 14:55:07 +0100
-Message-Id: <20201027135549.267457995@linuxfoundation.org>
+Subject: [PATCH 5.8 566/633] mic: vop: copy data to kernel space then write to io memory
+Date:   Tue, 27 Oct 2020 14:55:09 +0100
+Message-Id: <20201027135549.354705053@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,32 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 055f15ab2cb4a5cbc4c0a775ef3d0066e0fa9b34 ]
+[ Upstream commit 675f0ad4046946e80412896436164d172cd92238 ]
 
-Return PTR_ERR() from the error handling case instead of 0.
+Read and write io memory should address align on ARCH ARM. Change to use
+memcpy_toio to avoid kernel panic caused by the address un-align issue.
 
-Link: https://lore.kernel.org/r/20200910123848.93649-1-jingxiangfeng@huawei.com
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Link: https://lore.kernel.org/r/20200929091106.24624-5-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mvumi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/mic/vop/vop_vringh.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/mvumi.c b/drivers/scsi/mvumi.c
-index 8906aceda4c43..0354898d7cac1 100644
---- a/drivers/scsi/mvumi.c
-+++ b/drivers/scsi/mvumi.c
-@@ -2425,6 +2425,7 @@ static int mvumi_io_attach(struct mvumi_hba *mhba)
- 	if (IS_ERR(mhba->dm_thread)) {
- 		dev_err(&mhba->pdev->dev,
- 			"failed to create device scan thread\n");
-+		ret = PTR_ERR(mhba->dm_thread);
- 		mutex_unlock(&mhba->sas_discovery_mutex);
- 		goto fail_create_thread;
+diff --git a/drivers/misc/mic/vop/vop_vringh.c b/drivers/misc/mic/vop/vop_vringh.c
+index 30eac172f0170..d069947b09345 100644
+--- a/drivers/misc/mic/vop/vop_vringh.c
++++ b/drivers/misc/mic/vop/vop_vringh.c
+@@ -602,6 +602,7 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
+ 	size_t partlen;
+ 	bool dma = VOP_USE_DMA && vi->dma_ch;
+ 	int err = 0;
++	size_t offset = 0;
+ 
+ 	if (dma) {
+ 		dma_alignment = 1 << vi->dma_ch->device->copy_align;
+@@ -655,13 +656,20 @@ static int vop_virtio_copy_from_user(struct vop_vdev *vdev, void __user *ubuf,
+ 	 * We are copying to IO below and should ideally use something
+ 	 * like copy_from_user_toio(..) if it existed.
+ 	 */
+-	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
+-		err = -EFAULT;
+-		dev_err(vop_dev(vdev), "%s %d err %d\n",
+-			__func__, __LINE__, err);
+-		goto err;
++	while (len) {
++		partlen = min_t(size_t, len, VOP_INT_DMA_BUF_SIZE);
++
++		if (copy_from_user(vvr->buf, ubuf + offset, partlen)) {
++			err = -EFAULT;
++			dev_err(vop_dev(vdev), "%s %d err %d\n",
++				__func__, __LINE__, err);
++			goto err;
++		}
++		memcpy_toio(dbuf + offset, vvr->buf, partlen);
++		offset += partlen;
++		vdev->out_bytes += partlen;
++		len -= partlen;
  	}
+-	vdev->out_bytes += len;
+ 	err = 0;
+ err:
+ 	vpdev->hw_ops->unmap(vpdev, dbuf);
 -- 
 2.25.1
 
