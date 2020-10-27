@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D41729C380
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:47:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD6229C376
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:47:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1822096AbgJ0Rqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52404 "EHLO mail.kernel.org"
+        id S1822074AbgJ0Rqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758944AbgJ0O0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:26:37 -0400
+        id S1758962AbgJ0O0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:26:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA677207C3;
-        Tue, 27 Oct 2020 14:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C34020780;
+        Tue, 27 Oct 2020 14:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808797;
-        bh=pN4UVmEFdrHmz+bdkxbaYKM41nFhOg1T4hfcjmN95X0=;
+        s=default; t=1603808802;
+        bh=0PciOSX2gDkQA1NyDpMa1zEgIxCFqywez5dzFi1BmZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrECcJTqQ4SEbGOs6wpOUj50LanYoamGCpe8b5+6ijY2ELbRyVTE3KK1kWJCZ/Z2+
-         rImhzOibM6sum/fR3D0uqB00wj1NMJxNYZM4L9dxPj3IAcAhDRZM0E2iuKzqr2a/d7
-         XSSMh3Cr92wQX/6DD/LW8eZULHz2E1DKjNse4c1A=
+        b=rkFWXVXrFQg53On2epwsUfWSWQIe+BJrtZ/TEMBF598c7ZOSPUN0F9ll6NqoV9j+4
+         +zWiUSJs4QjDAOQa8fg83d50Ufr7+a0hou/olkqxzK1OXVPokul71zqrvqa3Fi6SJM
+         WMmwZ8oYGrNB8cq6C0GahaPMbDtzkLHHW8cq3Em4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 228/264] PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
-Date:   Tue, 27 Oct 2020 14:54:46 +0100
-Message-Id: <20201027135441.360964081@linuxfoundation.org>
+Subject: [PATCH 4.19 229/264] scsi: mvumi: Fix error return in mvumi_io_attach()
+Date:   Tue, 27 Oct 2020 14:54:47 +0100
+Message-Id: <20201027135441.406192553@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -43,46 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 428805c0c5e76ef643b1fbc893edfb636b3d8aef ]
+[ Upstream commit 055f15ab2cb4a5cbc4c0a775ef3d0066e0fa9b34 ]
 
-get_gendisk grabs a reference on the disk and file operation, so this
-code will leak both of them while having absolutely no use for the
-gendisk itself.
+Return PTR_ERR() from the error handling case instead of 0.
 
-This effectively reverts commit 2df83fa4bce421f ("PM / Hibernate: Use
-get_gendisk to verify partition if resume_file is integer format")
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20200910123848.93649-1-jingxiangfeng@huawei.com
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/hibernate.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/scsi/mvumi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index 537a2a3c1dea2..28db51274ed0e 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -842,17 +842,6 @@ static int software_resume(void)
- 
- 	/* Check if the device is there */
- 	swsusp_resume_device = name_to_dev_t(resume_file);
--
--	/*
--	 * name_to_dev_t is ineffective to verify parition if resume_file is in
--	 * integer format. (e.g. major:minor)
--	 */
--	if (isdigit(resume_file[0]) && resume_wait) {
--		int partno;
--		while (!get_gendisk(swsusp_resume_device, &partno))
--			msleep(10);
--	}
--
- 	if (!swsusp_resume_device) {
- 		/*
- 		 * Some device discovery might still be in progress; we need
+diff --git a/drivers/scsi/mvumi.c b/drivers/scsi/mvumi.c
+index b3cd9a6b1d306..b3df114a1200f 100644
+--- a/drivers/scsi/mvumi.c
++++ b/drivers/scsi/mvumi.c
+@@ -2439,6 +2439,7 @@ static int mvumi_io_attach(struct mvumi_hba *mhba)
+ 	if (IS_ERR(mhba->dm_thread)) {
+ 		dev_err(&mhba->pdev->dev,
+ 			"failed to create device scan thread\n");
++		ret = PTR_ERR(mhba->dm_thread);
+ 		mutex_unlock(&mhba->sas_discovery_mutex);
+ 		goto fail_create_thread;
+ 	}
 -- 
 2.25.1
 
