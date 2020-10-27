@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C760B29C4B4
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D1C29C4BF
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 19:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758672AbgJ0R4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44824 "EHLO mail.kernel.org"
+        id S1823053AbgJ0R5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2900081AbgJ0OUl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:20:41 -0400
+        id S2509483AbgJ0OUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:20:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 415D7206F7;
-        Tue, 27 Oct 2020 14:20:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCC05206D4;
+        Tue, 27 Oct 2020 14:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603808440;
-        bh=VBveqTQRqqFBUP5e/jtDQ/vSTg8WLW6xhy6Cknv2CPs=;
+        s=default; t=1603808451;
+        bh=OjUdGh4Z85bmDQt9ToW+nl7MZhmz7IOacyixy5UXS5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHT/GZ9fjO+Ek0zXHupUYPWhhzrOLIp3K70Ytj2FkMR65AzMcmfIzEQ5xCEhoCgMT
-         cu8E9ohGmQBpSHBUm+V9YfQrJOQeV2mHk8e5CYAXmmaknRsVCoaOMzdracyrwIlV8W
-         ppTGe3E4V1yV3RMC+OGjKYFgo98ZOC1R9jQjI1QQ=
+        b=VZjGo2F8EheLBAyfODYyWuWjeM9azJnqQrWOycm+UoxpyhRfjfXXI3KpNAclm0d34
+         kw66Hoqu+f93wdFVhe4fMagxpAVwv+iIfpqkF3AZF8oSctHW2c6V6kI2eciFOCZqtX
+         cxdxwuAisz0PJpAFRezLhK5Iq+XOa5jBjCXSCJ08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Preston <thomas.preston@codethink.co.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/264] pinctrl: mcp23s08: Fix mcp23x17_regmap initialiser
-Date:   Tue, 27 Oct 2020 14:52:31 +0100
-Message-Id: <20201027135435.062239601@linuxfoundation.org>
+Subject: [PATCH 4.19 096/264] net: stmmac: use netif_tx_start|stop_all_queues() function
+Date:   Tue, 27 Oct 2020 14:52:34 +0100
+Message-Id: <20201027135435.204241270@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
 References: <20201027135430.632029009@linuxfoundation.org>
@@ -45,82 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Preston <thomas.preston@codethink.co.uk>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-[ Upstream commit b445f6237744df5e8d4f56f8733b2108c611220a ]
+[ Upstream commit 9f19306d166688a73356aa636c62e698bf2063cc ]
 
-The mcp23x17_regmap is initialised with structs named "mcp23x16".
-However, the mcp23s08 driver doesn't support the MCP23016 device yet, so
-this appears to be a typo.
+The current implementation of stmmac_stop_all_queues() and
+stmmac_start_all_queues() will not work correctly when the value of
+tx_queues_to_use is changed through ethtool -L DEVNAME rx N tx M command.
 
-Fixes: 8f38910ba4f6 ("pinctrl: mcp23s08: switch to regmap caching")
-Signed-off-by: Thomas Preston <thomas.preston@codethink.co.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20200828213226.1734264-2-thomas.preston@codethink.co.uk
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Also, netif_tx_start|stop_all_queues() are only needed in driver open()
+and close() only.
+
+Fixes: c22a3f48 net: stmmac: adding multiple napi mechanism
+
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 33 +------------------
+ 1 file changed, 1 insertion(+), 32 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
-index 33c3eca0ece97..5f0cea13bb5ce 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -120,7 +120,7 @@ static const struct regmap_config mcp23x08_regmap = {
- 	.max_register = MCP_OLAT,
- };
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index c41879a955b57..2872684906e14 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -177,32 +177,6 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
+ 	}
+ }
  
--static const struct reg_default mcp23x16_defaults[] = {
-+static const struct reg_default mcp23x17_defaults[] = {
- 	{.reg = MCP_IODIR << 1,		.def = 0xffff},
- 	{.reg = MCP_IPOL << 1,		.def = 0x0000},
- 	{.reg = MCP_GPINTEN << 1,	.def = 0x0000},
-@@ -131,23 +131,23 @@ static const struct reg_default mcp23x16_defaults[] = {
- 	{.reg = MCP_OLAT << 1,		.def = 0x0000},
- };
+-/**
+- * stmmac_stop_all_queues - Stop all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_stop_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_stop_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+-/**
+- * stmmac_start_all_queues - Start all queues
+- * @priv: driver private structure
+- */
+-static void stmmac_start_all_queues(struct stmmac_priv *priv)
+-{
+-	u32 tx_queues_cnt = priv->plat->tx_queues_to_use;
+-	u32 queue;
+-
+-	for (queue = 0; queue < tx_queues_cnt; queue++)
+-		netif_tx_start_queue(netdev_get_tx_queue(priv->dev, queue));
+-}
+-
+ static void stmmac_service_event_schedule(struct stmmac_priv *priv)
+ {
+ 	if (!test_bit(STMMAC_DOWN, &priv->state) &&
+@@ -2678,7 +2652,7 @@ static int stmmac_open(struct net_device *dev)
+ 	}
  
--static const struct regmap_range mcp23x16_volatile_range = {
-+static const struct regmap_range mcp23x17_volatile_range = {
- 	.range_min = MCP_INTF << 1,
- 	.range_max = MCP_GPIO << 1,
- };
+ 	stmmac_enable_all_queues(priv);
+-	stmmac_start_all_queues(priv);
++	netif_tx_start_all_queues(priv->dev);
  
--static const struct regmap_access_table mcp23x16_volatile_table = {
--	.yes_ranges = &mcp23x16_volatile_range,
-+static const struct regmap_access_table mcp23x17_volatile_table = {
-+	.yes_ranges = &mcp23x17_volatile_range,
- 	.n_yes_ranges = 1,
- };
+ 	return 0;
  
--static const struct regmap_range mcp23x16_precious_range = {
-+static const struct regmap_range mcp23x17_precious_range = {
- 	.range_min = MCP_GPIO << 1,
- 	.range_max = MCP_GPIO << 1,
- };
+@@ -2724,8 +2698,6 @@ static int stmmac_release(struct net_device *dev)
+ 		phy_disconnect(dev->phydev);
+ 	}
  
--static const struct regmap_access_table mcp23x16_precious_table = {
--	.yes_ranges = &mcp23x16_precious_range,
-+static const struct regmap_access_table mcp23x17_precious_table = {
-+	.yes_ranges = &mcp23x17_precious_range,
- 	.n_yes_ranges = 1,
- };
+-	stmmac_stop_all_queues(priv);
+-
+ 	stmmac_disable_all_queues(priv);
  
-@@ -157,10 +157,10 @@ static const struct regmap_config mcp23x17_regmap = {
+ 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
+@@ -4519,7 +4491,6 @@ int stmmac_suspend(struct device *dev)
+ 	mutex_lock(&priv->lock);
  
- 	.reg_stride = 2,
- 	.max_register = MCP_OLAT << 1,
--	.volatile_table = &mcp23x16_volatile_table,
--	.precious_table = &mcp23x16_precious_table,
--	.reg_defaults = mcp23x16_defaults,
--	.num_reg_defaults = ARRAY_SIZE(mcp23x16_defaults),
-+	.volatile_table = &mcp23x17_volatile_table,
-+	.precious_table = &mcp23x17_precious_table,
-+	.reg_defaults = mcp23x17_defaults,
-+	.num_reg_defaults = ARRAY_SIZE(mcp23x17_defaults),
- 	.cache_type = REGCACHE_FLAT,
- 	.val_format_endian = REGMAP_ENDIAN_LITTLE,
- };
+ 	netif_device_detach(ndev);
+-	stmmac_stop_all_queues(priv);
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
+@@ -4628,8 +4599,6 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_enable_all_queues(priv);
+ 
+-	stmmac_start_all_queues(priv);
+-
+ 	mutex_unlock(&priv->lock);
+ 
+ 	if (ndev->phydev)
 -- 
 2.25.1
 
