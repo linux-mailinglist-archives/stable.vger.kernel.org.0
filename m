@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A2129B476
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6CC329B50D
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 16:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1789662AbgJ0PC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 11:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36588 "EHLO mail.kernel.org"
+        id S1793708AbgJ0PH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 11:07:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1789490AbgJ0PCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 11:02:24 -0400
+        id S1762585AbgJ0PAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 11:00:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2FA622264;
-        Tue, 27 Oct 2020 15:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49D8220714;
+        Tue, 27 Oct 2020 15:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603810942;
-        bh=oey3az2tHcESgDRQcByndXxFAvhtrUWEW2qFCWdSyfA=;
+        s=default; t=1603810851;
+        bh=DDF0I1k5C+unUaX+r+5FEtnY69aKSSDIEB+xmGaIxPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h//RK/ShrNBuiNKPiQyxc5YZDXkPSsOdNA3PjfEoc9VkcOp6U8KY4ABPli4QPAwu+
-         peGhTK/bhBr5EebVvousyZLsCTHp8Q6WYmEIxtTQEYjUhJMoc3gmnS4ZCyVaTeKG19
-         x8aW8z7ALzxH/Ji1tdepTuWL1fw1uBOD3qucmJRQ=
+        b=ka/Zjri62s0Z3k9VoluRfmN16GT6/UgADrvcNnYe9FQc7mBxUDyoZ0xPCkZ9OnMqB
+         VjSf9hgC0xxE859pYeShmlLMc7XL2dZCPI9/iKP8jCjsZp5LHDAjFJs+VL0qG3eytS
+         y6zWMgFOJvfjLYFTEEHPKSWUiR1V8guoiAEctHPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Mohammed Gamal <mgamal@redhat.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 277/633] hv: clocksource: Add notrace attribute to read_hv_sched_clock_*() functions
-Date:   Tue, 27 Oct 2020 14:50:20 +0100
-Message-Id: <20201027135535.663881746@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rajkumar Manoharan <rmanohar@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 278/633] nl80211: fix OBSS PD min and max offset validation
+Date:   Tue, 27 Oct 2020 14:50:21 +0100
+Message-Id: <20201027135535.712418669@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135522.655719020@linuxfoundation.org>
 References: <20201027135522.655719020@linuxfoundation.org>
@@ -43,93 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammed Gamal <mgamal@redhat.com>
+From: Rajkumar Manoharan <rmanohar@codeaurora.org>
 
-[ Upstream commit 1f3aed01473c41c9f896fbf4c30d330655e8aa7c ]
+[ Upstream commit 6c8b6e4a5f745ec49286ac0a3f1d591a34818f82 ]
 
-When selecting function_graph tracer with the command:
- # echo function_graph > /sys/kernel/debug/tracing/current_tracer
+The SRG min and max offset won't present when SRG Information Present of
+SR control field of Spatial Reuse Parameter Set element set to 0. Per
+spec. IEEE802.11ax D7.0, SRG OBSS PD Min Offset ≤ SRG OBSS PD Max
+Offset. Hence fix the constrain check to allow same values in both
+offset and also call appropriate nla_get function to read the values.
 
-The kernel crashes with the following stack trace:
-
-[69703.122389] BUG: stack guard page was hit at 000000001056545c (stack is 00000000fa3f8fed..0000000005d39503)
-[69703.122403] kernel stack overflow (double-fault): 0000 [#1] SMP PTI
-[69703.122413] CPU: 0 PID: 16982 Comm: bash Kdump: loaded Not tainted 4.18.0-236.el8.x86_64 #1
-[69703.122420] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
-[69703.122433] RIP: 0010repare_ftrace_return+0xa/0x110
-[69703.122458] Code: 05 00 0f 0b 48 c7 c7 10 ca 69 ae 0f b6 f0 e8 4b 52 0c 00 31 c0 eb ca 66 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 56 41 55 41 54 <53> 48 83 ec 18 65 48 8b 04 25 28 00 00 00 48 89 45 d8 31 c0 48 85
-[69703.122467] RSP: 0018:ffffbd6d01118000 EFLAGS: 00010086
-[69703.122476] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000003
-[69703.122484] RDX: 0000000000000000 RSI: ffffbd6d011180d8 RDI: ffffffffadce7550
-[69703.122491] RBP: ffffbd6d01118018 R08: 0000000000000000 R09: ffff9d4b09266000
-[69703.122498] R10: ffff9d4b0fc04540 R11: ffff9d4b0fc20a00 R12: ffff9d4b6e42aa90
-[69703.122506] R13: ffff9d4b0fc20ab8 R14: 00000000000003e8 R15: ffffbd6d0111837c
-[69703.122514] FS:  00007fd5f2588740(0000) GS:ffff9d4b6e400000(0000) knlGS:0000000000000000
-[69703.122521] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[69703.122528] CR2: ffffbd6d01117ff8 CR3: 00000000565d8001 CR4: 00000000003606f0
-[69703.122538] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[69703.122545] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[69703.122552] Call Trace:
-[69703.122568]  ftrace_graph_caller+0x6b/0xa0
-[69703.122589]  ? read_hv_sched_clock_tsc+0x5/0x20
-[69703.122599]  read_hv_sched_clock_tsc+0x5/0x20
-[69703.122611]  sched_clock+0x5/0x10
-[69703.122621]  sched_clock_local+0x12/0x80
-[69703.122631]  sched_clock_cpu+0x8c/0xb0
-[69703.122644]  trace_clock_global+0x21/0x90
-[69703.122655]  ring_buffer_lock_reserve+0x100/0x3c0
-[69703.122671]  trace_buffer_lock_reserve+0x16/0x50
-[69703.122683]  __trace_graph_entry+0x28/0x90
-[69703.122695]  trace_graph_entry+0xfd/0x1a0
-[69703.122705]  ? read_hv_clock_tsc_cs+0x10/0x10
-[69703.122714]  ? sched_clock+0x5/0x10
-[69703.122723]  prepare_ftrace_return+0x99/0x110
-[69703.122734]  ? read_hv_clock_tsc_cs+0x10/0x10
-[69703.122743]  ? sched_clock+0x5/0x10
-[69703.122752]  ftrace_graph_caller+0x6b/0xa0
-[69703.122768]  ? read_hv_clock_tsc_cs+0x10/0x10
-[69703.122777]  ? sched_clock+0x5/0x10
-[69703.122786]  ? read_hv_sched_clock_tsc+0x5/0x20
-[69703.122796]  ? ring_buffer_unlock_commit+0x1d/0xa0
-[69703.122805]  read_hv_sched_clock_tsc+0x5/0x20
-[69703.122814]  ftrace_graph_caller+0xa0/0xa0
-[ ... recursion snipped ... ]
-
-Setting the notrace attribute for read_hv_sched_clock_msr() and
-read_hv_sched_clock_tsc() fixes it.
-
-Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
-Link: https://lore.kernel.org/r/20200924151117.767442-1-mgamal@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 796e90f42b7e ("cfg80211: add support for parsing OBBS_PD attributes")
+Signed-off-by: Rajkumar Manoharan <rmanohar@codeaurora.org>
+Link: https://lore.kernel.org/r/1601278091-20313-1-git-send-email-rmanohar@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/hyperv_timer.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
-index 09aa44cb8a91d..ba04cb381cd3f 100644
---- a/drivers/clocksource/hyperv_timer.c
-+++ b/drivers/clocksource/hyperv_timer.c
-@@ -341,7 +341,7 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
- 	return read_hv_clock_tsc();
- }
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 4d7b255067225..7cbb94b4d4917 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4683,16 +4683,14 @@ static int nl80211_parse_he_obss_pd(struct nlattr *attrs,
+ 	if (err)
+ 		return err;
  
--static u64 read_hv_sched_clock_tsc(void)
-+static u64 notrace read_hv_sched_clock_tsc(void)
- {
- 	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
- 		(NSEC_PER_SEC / HV_CLOCK_HZ);
-@@ -404,7 +404,7 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
- 	return read_hv_clock_msr();
- }
+-	if (!tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET] ||
+-	    !tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET])
+-		return -EINVAL;
+-
+-	he_obss_pd->min_offset =
+-		nla_get_u32(tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET]);
+-	he_obss_pd->max_offset =
+-		nla_get_u32(tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET]);
+-
+-	if (he_obss_pd->min_offset >= he_obss_pd->max_offset)
++	if (tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET])
++		he_obss_pd->min_offset =
++			nla_get_u8(tb[NL80211_HE_OBSS_PD_ATTR_MIN_OFFSET]);
++	if (tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET])
++		he_obss_pd->max_offset =
++			nla_get_u8(tb[NL80211_HE_OBSS_PD_ATTR_MAX_OFFSET]);
++
++	if (he_obss_pd->min_offset > he_obss_pd->max_offset)
+ 		return -EINVAL;
  
--static u64 read_hv_sched_clock_msr(void)
-+static u64 notrace read_hv_sched_clock_msr(void)
- {
- 	return (read_hv_clock_msr() - hv_sched_clock_offset) *
- 		(NSEC_PER_SEC / HV_CLOCK_HZ);
+ 	he_obss_pd->enable = true;
 -- 
 2.25.1
 
