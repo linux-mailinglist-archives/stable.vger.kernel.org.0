@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65AB029C27C
-	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FAF829C282
+	for <lists+stable@lfdr.de>; Tue, 27 Oct 2020 18:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1760832AbgJ0Rgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Oct 2020 13:36:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
+        id S1820083AbgJ0Rgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Oct 2020 13:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1760804AbgJ0Ogd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Oct 2020 10:36:33 -0400
+        id S1760814AbgJ0Ogf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Oct 2020 10:36:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A731C2222C;
-        Tue, 27 Oct 2020 14:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 554972222C;
+        Tue, 27 Oct 2020 14:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603809392;
-        bh=hZ7gd0AfcfRYq0EOQUsHs1ZqsOn6ncwDMHF6lQ2LrWw=;
+        s=default; t=1603809394;
+        bh=/tjv9XXeftNbeS+TgYPo9QlogmLSUzz/8u5bVbnUNPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RytIUMCBnIl8Ip4n7wTYZF2WTBO9v25C2RvUUuxo8bL74+diTSXAjVka8+tN2d1ML
-         2MUiIvklkjGcFj089lpr99kduqElbnDiybPJiKLJh28XGLe8lr4S7wTOfmaAHRkS9a
-         AMyPpqNftyPzcSkJlEPdZ4FtCzNOaFcglwjZVgiw=
+        b=EHGNhAt76pw1rqODznkNNRPQDpamkhMm6TQgvGi4MKzJKM9M4tqRnH6AcG/a4ID06
+         weX2+ibY94r4JnjTI1VftvHH+Nkite8zcqzgdoL2SL/xIT5fpi6PnY5mvD2NMmVr6Z
+         19cXaKX+g8RcR54/oO5eWwSWW2Xu1YGRkfIAkmno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 178/408] iwlwifi: mvm: split a print to avoid a WARNING in ROC
-Date:   Tue, 27 Oct 2020 14:51:56 +0100
-Message-Id: <20201027135503.358943552@linuxfoundation.org>
+Subject: [PATCH 5.4 179/408] usb: gadget: f_ncm: fix ncm_bitrate for SuperSpeed and above.
+Date:   Tue, 27 Oct 2020 14:51:57 +0100
+Message-Id: <20201027135503.408451301@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201027135455.027547757@linuxfoundation.org>
 References: <20201027135455.027547757@linuxfoundation.org>
@@ -44,43 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Lorenzo Colitti <lorenzo@google.com>
 
-[ Upstream commit 903b3f9badf1d54f77b468b96706dab679b45b14 ]
+[ Upstream commit 986499b1569af980a819817f17238015b27793f6 ]
 
-A print in the remain on channel code was too long and caused
-a WARNING, split it.
+Currently, SuperSpeed NCM gadgets report a speed of 851 Mbps
+in USB_CDC_NOTIFY_SPEED_CHANGE. But the calculation appears to
+assume 16 packets per microframe, and USB 3 and above no longer
+use microframes.
 
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Fixes: dc28e12f2125 ("iwlwifi: mvm: ROC: Extend the ROC max delay duration & limit ROC duration")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200930102759.58d57c0bdc68.Ib06008665e7bf1199c360aa92691d9c74fb84990@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Maximum speed is actually much higher. On a direct connection,
+theoretical throughput is at most 3.86 Gbps for gen1x1 and
+9.36 Gbps for gen2x1, and I have seen gadget->host iperf
+throughput of >2 Gbps for gen1x1 and >4 Gbps for gen2x1.
+
+Unfortunately the ConnectionSpeedChange defined in the CDC spec
+only uses 32-bit values, so we can't report accurate numbers for
+10Gbps and above. So, report 3.75Gbps for SuperSpeed (which is
+roughly maximum theoretical performance) and 4.25Gbps for
+SuperSpeed Plus (which is close to the maximum that we can report
+in a 32-bit unsigned integer).
+
+This results in:
+
+[50879.191272] cdc_ncm 2-2:1.0 enx228b127e050c: renamed from usb0
+[50879.234778] cdc_ncm 2-2:1.0 enx228b127e050c: 3750 mbit/s downlink 3750 mbit/s uplink
+
+on SuperSpeed and:
+
+[50798.434527] cdc_ncm 8-2:1.0 enx228b127e050c: renamed from usb0
+[50798.524278] cdc_ncm 8-2:1.0 enx228b127e050c: 4250 mbit/s downlink 4250 mbit/s uplink
+
+on SuperSpeed Plus.
+
+Fixes: 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors for CDC NCM")
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index ed92a8e8cd519..01b26b3327b01 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -3650,9 +3650,12 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
- 	tail->apply_time_max_delay = cpu_to_le32(delay);
- 
- 	IWL_DEBUG_TE(mvm,
--		     "ROC: Requesting to remain on channel %u for %ums (requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
--		     channel->hw_value, req_dur, duration, delay,
--		     dtim_interval);
-+		     "ROC: Requesting to remain on channel %u for %ums\n",
-+		     channel->hw_value, req_dur);
-+	IWL_DEBUG_TE(mvm,
-+		     "\t(requested = %ums, max_delay = %ums, dtim_interval = %ums)\n",
-+		     duration, delay, dtim_interval);
-+
- 	/* Set the node address */
- 	memcpy(tail->node_addr, vif->addr, ETH_ALEN);
- 
+diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
+index 1f638759a9533..7672fa25085b0 100644
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -85,8 +85,10 @@ static inline struct f_ncm *func_to_ncm(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static inline unsigned ncm_bitrate(struct usb_gadget *g)
+ {
+-	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
++	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
 -- 
 2.25.1
 
