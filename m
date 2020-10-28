@@ -2,99 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF4029D695
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7232D29D58A
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729987AbgJ1WQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:16:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731418AbgJ1WQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:16:28 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E64C0613CF
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:16:28 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id f140so509180ybg.3
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:16:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ZfGMZOlyIfrdtI2jObKxuhMFXzNJJxLtmREdUxwtXKw=;
-        b=EdC0Mv/ASSEdQM3X6sJVE8rFSpsKbK7PLyUYMW7WSIlrz7YGcePkN80k0JI1DTpdTK
-         WH8a5SzYR8gM79U7+KNUxKb+S4tsKC5f0lF2nudFV1z5SdmHrcy5cZvlFh5UejJMFh3f
-         wHeTpuxJuRTERLkLou5CHK257CUl37duB0/D4qQkhWqgCqXuh8kd/DVE1Sw1wpgHkrXm
-         AqhpoREfLnBDL1/wOwkqCatJt4KWc57AwBNG6hvTQGDiErPASfzLPKU6j7kTI3S/oZgn
-         Ar+rrDm7WTDu4kzNqhLyRdOgW8ppqY9QRtdB5nOTR1XfcdV6IvMLZG1PO6B4+IBeyjvN
-         R6bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZfGMZOlyIfrdtI2jObKxuhMFXzNJJxLtmREdUxwtXKw=;
-        b=Wj0p8Z1ePhgVzyomWdBM9BVmo/VywnoY5VJgTSIMjIPn+mcCWPsqNOQF57Nnt2qz5x
-         sh1prAckanH2laP0mJqgLc+RRUVcxoddtr4BgosY///2NGVa7BjhyQAyY3wFq80CEWFN
-         z4ng/JdCK53uSo8Xc08/kFFOdS/ZeyJjv46UuF0UCw44q0GMUT/gVVz4JLXldCbON9n3
-         jKrGVL5hNSf0ebD5HCTyOQyuQ0hbHmkksBdXJ7Y+fCoi7tQ6kVvDhCypgjOyNWrAV0Hq
-         3HxoYtCQrJ0T9yUbTYUIcY+e8Cztv2aIQsX/1/cv+159X6CMZwwJ1nCf7L/OnC4germ2
-         wAZw==
-X-Gm-Message-State: AOAM532s3zHM7oSuZLvHYy08pF8RhE3ZXFkr86cnWFgTPorNJzBwHZL1
-        P/84jjhHuLr9bZ8VbAcXJJHuF1p4supRaJZI5d+BcyBRDX4=
-X-Google-Smtp-Source: ABdhPJwUKJsKFZwQaM/RozJpF8Q4x1PJAKTkqCFAMSwGdiV8T611A75j+X+2fe6elkjpDptOFONkttXWUw1kMZS5eY0=
-X-Received: by 2002:a4a:d0a4:: with SMTP id t4mr585141oor.21.1603917226627;
- Wed, 28 Oct 2020 13:33:46 -0700 (PDT)
-MIME-Version: 1.0
-References: <20201027134900.532249571@linuxfoundation.org> <20201028170621.GA118534@roeck-us.net>
- <20201028194647.GA124690@roeck-us.net>
-In-Reply-To: <20201028194647.GA124690@roeck-us.net>
-From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Date:   Wed, 28 Oct 2020 14:33:35 -0600
-Message-ID: <CAEUSe7_72XC=Dz=yy6UrHLrgAQbHzP9V2UfmWXbwmeUSeVzgJA@mail.gmail.com>
-Subject: Re: [PATCH 4.4 000/112] 4.4.241-rc1 review
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, patches@kernelci.org,
-        linux- stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1729253AbgJ1WEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:04:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50708 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729506AbgJ1WCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:02:23 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 251B52481F;
+        Wed, 28 Oct 2020 20:46:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603917981;
+        bh=gacJxhPFaV7MzWGuIG1Bkmd7QlRpAFNicJ9/Ih7v/T0=;
+        h=Date:From:To:Subject:From;
+        b=IF2/gMm766vdXRX9qSJh4fTqdJdbY6YrIckS2mQ4uUyDRbKxNlM6krs+L3/Tn+Ypx
+         7BJVSrx8pHfbZZv2/x5LSanA/JpgjnhwXCK7NYOu2aRg34FPW2v/6c3SuluG0veqBc
+         Nt0oNUjrfA60KKFdXhM9HdrgtdlU4gTCb2hqaZg8=
+Date:   Wed, 28 Oct 2020 13:46:19 -0700
+From:   akpm@linux-foundation.org
+To:     aryabinin@virtuozzo.com, bp@alien8.de, brijesh.singh@amd.com,
+        corbet@lwn.net, dvyukov@google.com, dyoung@redhat.com,
+        glider@google.com, jgg@nvidia.com, konrad.wilk@oracle.com,
+        luto@kernel.org, lwoodman@redhat.com, matt@codeblueprint.co.uk,
+        mingo@kernel.org, mm-commits@vger.kernel.org, mst@redhat.com,
+        pbonzini@redhat.com, peterz@infradead.org, riel@redhat.com,
+        stable@vger.kernel.org, tglx@linutronix.de,
+        thomas.lendacky@amd.com, toshi.kani@hpe.com
+Subject:  +
+ mm-always-have-io_remap_pfn_range-set-pgprot_decrypted.patch added to -mm
+ tree
+Message-ID: <20201028204619.tp952CPe7%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
 
-On Wed, 28 Oct 2020 at 13:46, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Oct 28, 2020 at 10:06:21AM -0700, Guenter Roeck wrote:
-> > On Tue, Oct 27, 2020 at 02:48:30PM +0100, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.4.241 release.
-> > > There are 112 patches in this series, all will be posted as a respons=
-e
-> > > to this one.  If anyone has any issues with these being applied, plea=
-se
-> > > let me know.
-> > >
-> > > Responses should be made by Thu, 29 Oct 2020 13:48:36 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> >
-> > Build results:
-> >       total: 165 pass: 165 fail: 0
-> > Qemu test results:
-> >       total: 332 pass: 332 fail: 0
-> >
->
-> Did anyone receive the original e-mail ? Looks like I have been tagged as
-> spammer, and I am having trouble sending e-mails.
+The patch titled
+     Subject: mm: always have io_remap_pfn_range() set pgprot_decrypted()
+has been added to the -mm tree.  Its filename is
+     mm-always-have-io_remap_pfn_range-set-pgprot_decrypted.patch
 
-If the original is from 3.5 hours ago, yeah, we got it. I'm not seeing
-lore updated, but that's probably another issue.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-always-have-io_remap_pfn_range-set-pgprot_decrypted.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-always-have-io_remap_pfn_range-set-pgprot_decrypted.patch
 
-Greetings!
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Daniel D=C3=ADaz
-daniel.diaz@linaro.org
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Jason Gunthorpe <jgg@nvidia.com>
+Subject: mm: always have io_remap_pfn_range() set pgprot_decrypted()
+
+The purpose of io_remap_pfn_range() is to map IO memory, such as a memory
+mapped IO exposed through a PCI BAR.  IO devices do not understand
+encryption, so this memory must always be decrypted.  Automatically call
+pgprot_decrypted() as part of the generic implementation.
+
+This fixes a bug where enabling AMD SME causes subsystems, such as RDMA,
+using io_remap_pfn_range() to expose BAR pages to user space to fail.  The
+CPU will encrypt access to those BAR pages instead of passing unencrypted
+IO directly to the device.
+
+Places not mapping IO should use remap_pfn_range().
+
+Link: https://lkml.kernel.org/r/0-v1-025d64bdf6c4+e-amd_sme_fix_jgg@nvidia.com
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+CcK Arnd Bergmann <arnd@arndb.de>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: "Dave Young" <dyoung@redhat.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Larry Woodman <lwoodman@redhat.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Toshimitsu Kani <toshi.kani@hpe.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/mm.h      |    9 +++++++++
+ include/linux/pgtable.h |    4 ----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+
+--- a/include/linux/mm.h~mm-always-have-io_remap_pfn_range-set-pgprot_decrypted
++++ a/include/linux/mm.h
+@@ -2759,6 +2759,15 @@ static inline vm_fault_t vmf_insert_page
+ 	return VM_FAULT_NOPAGE;
+ }
+ 
++#ifndef io_remap_pfn_range
++static inline int io_remap_pfn_range(struct vm_area_struct *vma,
++				     unsigned long addr, unsigned long pfn,
++				     unsigned long size, pgprot_t prot)
++{
++	return remap_pfn_range(vma, addr, pfn, size, pgprot_decrypted(prot));
++}
++#endif
++
+ static inline vm_fault_t vmf_error(int err)
+ {
+ 	if (err == -ENOMEM)
+--- a/include/linux/pgtable.h~mm-always-have-io_remap_pfn_range-set-pgprot_decrypted
++++ a/include/linux/pgtable.h
+@@ -1427,10 +1427,6 @@ typedef unsigned int pgtbl_mod_mask;
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+-#ifndef io_remap_pfn_range
+-#define io_remap_pfn_range remap_pfn_range
+-#endif
+-
+ #ifndef has_transparent_hugepage
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #define has_transparent_hugepage() 1
+_
+
+Patches currently in -mm which might be from jgg@nvidia.com are
+
+mm-always-have-io_remap_pfn_range-set-pgprot_decrypted.patch
+
