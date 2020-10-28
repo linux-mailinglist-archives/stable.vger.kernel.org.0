@@ -2,75 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CA629DF61
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 02:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B93129DD0E
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 01:34:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403893AbgJ2BBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 21:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60530 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731532AbgJ1WR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:17:27 -0400
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58F6246A6;
-        Wed, 28 Oct 2020 09:57:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603879030;
-        bh=hCvFhlXRZP8QcFZMywnwAGeTuLKw+VShX5l+WcmL3oI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=okFfVnztN8gNMlNO/ZprsZw3qs52+ZR/00d9QoHpQJsNvdrNVqZ/nndqqMe8X3swW
-         EoxudFpVnQdDs4fMV3RN8ZzY0E83nlRl4LCCYO56I8QbtqQPS6YisaGfl69PhWvxRd
-         5UYEoQm2Uw8x/ShYFZXzhueZ5HgEH7O8xjgNisrA=
-Received: by mail-ej1-f48.google.com with SMTP id s15so6298369ejf.8;
-        Wed, 28 Oct 2020 02:57:09 -0700 (PDT)
-X-Gm-Message-State: AOAM5302zJfv0RUaNlbOak4dejLxT1ztb8Pa/l8yEPZ9TV0mucgXftyG
-        mgRgEzp+PWdDXoFMPyF0AjMsSIUeS13JQzA3Ay8=
-X-Google-Smtp-Source: ABdhPJygjXByCdjhVHlhdVq8u/aNG3plYjxpvOMyvsUkqVxwF3rWdAOBBDnpi+MLEMgiduMT3nJgvTfbXpXCYYc8nCQ=
-X-Received: by 2002:a17:907:43c0:: with SMTP id ok24mr6693694ejb.385.1603879028139;
- Wed, 28 Oct 2020 02:57:08 -0700 (PDT)
+        id S1728484AbgJ2Aes convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 28 Oct 2020 20:34:48 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:58270 "EHLO
+        mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732017AbgJ1WTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:19:44 -0400
+Received: from relay8-d.mail.gandi.net (unknown [217.70.183.201])
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id A281A3B269D
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 10:03:42 +0000 (UTC)
+X-Originating-IP: 91.224.148.103
+Received: from xps13 (unknown [91.224.148.103])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 0BC631BF21A;
+        Wed, 28 Oct 2020 10:03:19 +0000 (UTC)
+Date:   Wed, 28 Oct 2020 11:03:18 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Sergei Antonov <saproj@gmail.com>
+Cc:     linux-mtd@lists.infradead.org, jianxin.pan@amlogic.com,
+        liang.yang@amlogic.com, stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: meson: fix meson_nfc_dma_buffer_release()
+ arguments
+Message-ID: <20201028110318.134be5f8@xps13>
+In-Reply-To: <20201028094940.11765-1-saproj@gmail.com>
+References: <20201028094940.11765-1-saproj@gmail.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <20201028091947.93097-1-krzk@kernel.org> <MWHPR11MB0046B799E9AD3648C6F67BFE87170@MWHPR11MB0046.namprd11.prod.outlook.com>
- <CAJKOXPePfsRNZkY+L1XM3_iz6dMYFNZAJgrcut9JriuwYkKWsw@mail.gmail.com>
-In-Reply-To: <CAJKOXPePfsRNZkY+L1XM3_iz6dMYFNZAJgrcut9JriuwYkKWsw@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Wed, 28 Oct 2020 10:56:55 +0100
-X-Gmail-Original-Message-ID: <CAJKOXPf6zhpu_3oQZ2bL_FnkBx7-NwH65N_OzVkH=Nh1bYkHxw@mail.gmail.com>
-Message-ID: <CAJKOXPf6zhpu_3oQZ2bL_FnkBx7-NwH65N_OzVkH=Nh1bYkHxw@mail.gmail.com>
-Subject: Re: [PATCH] media: i2c: imx258: correct mode to GBGB/RGRG
-To:     "Yeh, Andy" <andy.yeh@intel.com>
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Jason Chen <jasonx.z.chen@intel.com>,
-        Alan Chiang <alanx.chiang@intel.com>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 28 Oct 2020 at 10:45, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->
-> On Wed, 28 Oct 2020 at 10:43, Yeh, Andy <andy.yeh@intel.com> wrote:
-> >
-> > But the sensor settings for the original submission is to output GRBG Bayer RAW.
-> >
-> > Regards, Andy
->
-> No, not to my knowledge. There are no settings for color output
-> because it is fixed to GBGB/RGRG. I was looking a lot into this driver
-> (I have few other problems with it, already few other patches posted)
-> and I could not find a setting for this in datasheet. If you know the
-> setting for the other color - can you point me to it?
+Hi Sergei,
 
-And except the datasheet which mentions the specific format, the
-testing confirms it. With original color the pictures are pink/purple.
-With proper color, the pictures are correct (with more green color as
-expected for bayer).
+Sergei Antonov <saproj@gmail.com> wrote on Wed, 28 Oct 2020 12:49:40
++0300:
 
-Best regards,
-Krzysztof
+> Arguments 'infolen' and 'datalen' to meson_nfc_dma_buffer_release() were mixed up.
+> 
+> Fixes: 8fae856c53500 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sergei Antonov <saproj@gmail.com>
+
+This patch looks good to me. Next time you send a new iteration of a
+patch, please use [PATCH v2] in the subject prefix and also add a
+changelog below the three dashes.
+
+(your other patch to fix the style is still welcome)
+
+> ---
+>  drivers/mtd/nand/raw/meson_nand.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+> index 48e6dac96be6..a76afea6ea77 100644
+> --- a/drivers/mtd/nand/raw/meson_nand.c
+> +++ b/drivers/mtd/nand/raw/meson_nand.c
+> @@ -510,7 +510,7 @@ static int meson_nfc_dma_buffer_setup(struct nand_chip *nand, void *databuf,
+>  }
+>  
+>  static void meson_nfc_dma_buffer_release(struct nand_chip *nand,
+> -					 int infolen, int datalen,
+> +					 int datalen, int infolen,
+>  					 enum dma_data_direction dir)
+>  {
+>  	struct meson_nfc *nfc = nand_get_controller_data(nand);
+
+Thanks,
+Miquèl
