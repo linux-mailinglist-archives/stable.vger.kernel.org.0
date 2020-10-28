@@ -2,150 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FDF29D6B3
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:18:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 797D829D564
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731620AbgJ1WRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:17:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731589AbgJ1WRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:17:33 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3A3F24735;
-        Wed, 28 Oct 2020 12:41:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603888906;
-        bh=HpHXGfQ/NrqF+O5uHqaq7ANAiD3lIN5bPX+OZQwGWOw=;
-        h=Subject:To:From:Date:From;
-        b=V54s1174TaNxYKmXX4I1hy3yWaHZhakat1KXaIryR7meLQUMYLcGlhnT3KaiKbnw3
-         d+9gbStMqWe28em7YpZKp3WkxBdXNAa1Se4syUVD8Gxi5HD8MRf8eK87h0Yi9DtoyN
-         G0/rE3HXU7nHVUKbhAYH7GpUjWC7CCukeXrwjxYw=
-Subject: patch "vt: keyboard, extend func_buf_lock to readers" added to tty-linus
-To:     jslaby@suse.cz, gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        yuanmingbuaa@gmail.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Oct 2020 13:42:30 +0100
-Message-ID: <160388895048113@kroah.com>
+        id S1729388AbgJ1WAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:00:35 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32118 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729440AbgJ1WAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:00:34 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09SDY1lC111372;
+        Wed, 28 Oct 2020 09:49:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=IDQmMwvqE3BIPtsJjL2PtnQ5y0GM7gcvLr6wNoeY+yc=;
+ b=Fajcbce/dcGtAMEBjYmqxgxu14eU1G/hk8K8pFezScUhDB5R3sCn5936edEkcN1szk+n
+ TLhWPvA7dY5+KPbNs28byecSryku0RiTfUA0bkolM1LUwSK0fY8SvPs0A2+3Cw8k0wVo
+ VLqU9wm2aFcIIYwLR2AugCabWSfM4zGqznu8+JWkdj9rambEPsaowXkfzCEO1HUZJzNj
+ KJ3Ca8QVihGcGixzvDxnHBJEODPEToB52l2/KjViULy3Xmhv4d4JoLaPLiTjgacAc53B
+ MrfcizYYOpcnl9ENM+5wL8d88XrmqVB6zQwlHLRpMF8rAfV/dGQKAQBMtr7pMKZauOjy zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34d97hp094-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Oct 2020 09:49:51 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09SDYqfb115286;
+        Wed, 28 Oct 2020 09:49:51 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34d97hp08f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Oct 2020 09:49:51 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09SDmYRQ019172;
+        Wed, 28 Oct 2020 13:49:48 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 34e56qsxaq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Oct 2020 13:49:48 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09SDnkJk30671350
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Oct 2020 13:49:46 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EEA1511C050;
+        Wed, 28 Oct 2020 13:49:45 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 74E0611C04A;
+        Wed, 28 Oct 2020 13:49:45 +0000 (GMT)
+Received: from pomme.local (unknown [9.145.78.110])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Oct 2020 13:49:45 +0000 (GMT)
+Subject: Re: [PATCH v2] mm/slub: fix panic in slab_alloc_node()
+To:     Christopher Lameter <cl@linux.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        nathanl@linux.ibm.com, cheloha@linux.ibm.com, mhocko@suse.com,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+References: <7ef64e75-2150-01a9-074d-a754348683b3@suse.cz>
+ <20201027190406.33283-1-ldufour@linux.ibm.com>
+ <alpine.DEB.2.22.394.2010281109580.1521@www.lameter.com>
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+Message-ID: <73aa614f-24e6-75d5-8173-d858a5b33fec@linux.ibm.com>
+Date:   Wed, 28 Oct 2020 14:49:45 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <alpine.DEB.2.22.394.2010281109580.1521@www.lameter.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-28_06:2020-10-26,2020-10-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 malwarescore=0 phishscore=0 mlxlogscore=952
+ adultscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2010280088
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Le 28/10/2020 à 12:11, Christopher Lameter a écrit :
+> On Tue, 27 Oct 2020, Laurent Dufour wrote:
+> 
+>> The issue is that object is not NULL while page is NULL which is odd but
+>> may happen if the cache flush happened after loading object but before
+>> loading page. Thus checking for the page pointer is required too.
+> 
+> 
+> Ok then lets revert commit  6159d0f5c03e? The situation may occur
+> elsewhere too.
 
-This is a note to let you know that I've just added the patch titled
-
-    vt: keyboard, extend func_buf_lock to readers
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 82e61c3909db51d91b9d3e2071557b6435018b80 Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jslaby@suse.cz>
-Date: Mon, 19 Oct 2020 10:55:17 +0200
-Subject: vt: keyboard, extend func_buf_lock to readers
-
-Both read-side users of func_table/func_buf need locking. Without that,
-one can easily confuse the code by repeatedly setting altering strings
-like:
-while (1)
-	for (a = 0; a < 2; a++) {
-		struct kbsentry kbs = {};
-		strcpy((char *)kbs.kb_string, a ? ".\n" : "88888\n");
-		ioctl(fd, KDSKBSENT, &kbs);
-	}
-
-When that program runs, one can get unexpected output by holding F1
-(note the unxpected period on the last line):
-.
-88888
-.8888
-
-So protect all accesses to 'func_table' (and func_buf) by preexisting
-'func_buf_lock'.
-
-It is easy in 'k_fn' handler as 'puts_queue' is expected not to sleep.
-On the other hand, KDGKBSENT needs a local (atomic) copy of the string
-because copy_to_user can sleep. Use already allocated, but unused
-'kbs->kb_string' for that purpose.
-
-Note that the program above needs at least CAP_SYS_TTY_CONFIG.
-
-This depends on the previous patch and on the func_buf_lock lock added
-in commit 46ca3f735f34 (tty/vt: fix write/write race in ioctl(KDSKBSENT)
-handler) in 5.2.
-
-Likely fixes CVE-2020-25656.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201019085517.10176-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/keyboard.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-index 7bfa95c3252c..78acc270e39a 100644
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -743,8 +743,13 @@ static void k_fn(struct vc_data *vc, unsigned char value, char up_flag)
- 		return;
- 
- 	if ((unsigned)value < ARRAY_SIZE(func_table)) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
- 		if (func_table[value])
- 			puts_queue(vc, func_table[value]);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
-+
- 	} else
- 		pr_err("k_fn called with value=%d\n", value);
- }
-@@ -1991,7 +1996,7 @@ int vt_do_kdsk_ioctl(int cmd, struct kbentry __user *user_kbe, int perm,
- #undef s
- #undef v
- 
--/* FIXME: This one needs untangling and locking */
-+/* FIXME: This one needs untangling */
- int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- {
- 	struct kbsentry *kbs;
-@@ -2023,10 +2028,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- 	switch (cmd) {
- 	case KDGKBSENT: {
- 		/* size should have been a struct member */
--		unsigned char *from = func_table[i] ? : "";
-+		ssize_t len = sizeof(user_kdgkb->kb_string);
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
-+		len = strlcpy(kbs->kb_string, func_table[i] ? : "", len);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
- 
--		ret = copy_to_user(user_kdgkb->kb_string, from,
--				strlen(from) + 1) ? -EFAULT : 0;
-+		ret = copy_to_user(user_kdgkb->kb_string, kbs->kb_string,
-+				len + 1) ? -EFAULT : 0;
- 
- 		goto reterr;
- 	}
--- 
-2.29.1
-
-
+The only other call to node_match() is in ___slab_alloc(), and the page pointer 
+is already checked there.
+So there is no real need to check it in node_match().
