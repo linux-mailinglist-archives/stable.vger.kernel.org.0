@@ -2,83 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAEA229D91F
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:44:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B65329D8FF
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389166AbgJ1Wob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389160AbgJ1WmX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:42:23 -0400
-Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (unknown [163.114.132.6])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8332247F1;
-        Wed, 28 Oct 2020 16:46:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603903599;
-        bh=u0zpqZBA75YhMTCDK2IhnqlGdtca2dn1nTVqZw7Ot14=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=euGVA9HlpXasrUOFGBJJZvv8Qjo5PBwZ/iN2wWfDmBPwQ6UATCjlwTH7csCVMwGMV
-         /jSQ3k0xZitMLNf3fOCxhoyEytkkP+jHkCs2uLEYErtl/Tzj74E7ZZwThmkFaxLkIZ
-         Kh+SW3kfInPmqvdc4bxy8RhhdcMa00Q/lPcZE0N0=
-Date:   Wed, 28 Oct 2020 09:46:38 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Subject: Re: [PATCH 4.19 018/264] chelsio/chtls: correct function return and
- return type
-Message-ID: <20201028094638.3284bded@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201028065803.GA8084@amd>
-References: <20201027135430.632029009@linuxfoundation.org>
-        <20201027135431.522408687@linuxfoundation.org>
-        <20201028065803.GA8084@amd>
+        id S1731446AbgJ1Wlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731262AbgJ1WjJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:39:09 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C39AC0613CF
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:39:08 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id j18so682827pfa.0
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:39:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=4qQTutAxJUIrOL9lIlnr8WfxtfCzcr5gMv7GAyN7wjo=;
+        b=G7G8LR3UmATpw9riJF5YJAKEoS6HKZ5Ma4CixsIzy0ehFCG+OTg5qTJB0phxP1rZWM
+         ppHxyo3g/eVv2JF8pR9sqedJu823Y+gEUx96BET0dbzy0FjBWNvig/5E8Zg0CFaBa8Qu
+         Qyg12HmTbs4umYc87QMy5PNDQ3/k4vp3kkk3b4HSwObbe+zCCCGq6aIkLd48vA+sa3kK
+         +wr/08meWvO0nAx+1vnPOayE19PqywFUBj1Om3OHmMYcNTPrPwOB0eKWWb0E5Ie8R9xz
+         ZAptqaAatWYPhKeDAT1fEqQl1oB1eH2hrzT7m50DaTKBFvBnNLzWqlj12HBbxHaqBd/l
+         FJMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=4qQTutAxJUIrOL9lIlnr8WfxtfCzcr5gMv7GAyN7wjo=;
+        b=sRvTvOWLTzd0z9HXVD1Bz3RmnWeWTeQMeQGtiXR21SgcE6nhTL04jQ9/UuoRr6rAGx
+         tD31sVqXMVJjfzq5e67ZGUBFUWPGoCeHWIZg2V6tzKxUlGLiV0tME7UD16XH0TSZVCDc
+         C0LwQqrYntR1JJvv1L6MOMSTkX3XMj6Tl7wpmsLXfbP97A+SZMafTtHPymossrkFHfEy
+         u10oJueBhtFZAMh+J96stCsZ29+2zzSzCgQZGu9374CQAh1G/6hu0HpurbSB+TJe6M4b
+         n12rwU1zVGnUTQSU/TQGhY3FEdJvA9kuORgTJTNomF+OnNzvd9cvMG9ckhoVAERpovX0
+         a8zQ==
+X-Gm-Message-State: AOAM531JW475DvTmIyy4TXo+FTLPeIsMlq9NNSfoWKJL+zakG+0IhJho
+        52EUV1t/qxoAK+1RCrmAhd2Cf8xeJbc=
+X-Google-Smtp-Source: ABdhPJxAk3OAOfD0/sdfbg5wHgdPFdbvgpurVk7nnnsBJGCvUFfc4Q9sGX5FN0zafPG5TVwsOcglKg==
+X-Received: by 2002:a63:160b:: with SMTP id w11mr370599pgl.110.1603905195113;
+        Wed, 28 Oct 2020 10:13:15 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id jy19sm9292pjb.9.2020.10.28.10.13.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Oct 2020 10:13:13 -0700 (PDT)
+Date:   Wed, 28 Oct 2020 10:13:11 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Chris Ye <lzye@google.com>
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
+Subject: Re: HID : Add devices for HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
+Message-ID: <20201028171311.GL444962@dtor-ws>
+References: <CAFFudd+V62a35zZ4Lw06NRwrH=uUsfYL0-Uu523Ua+teN29_tg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFFudd+V62a35zZ4Lw06NRwrH=uUsfYL0-Uu523Ua+teN29_tg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 28 Oct 2020 07:58:04 +0100 Pavel Machek wrote:
-> > From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-> > 
-> > [ Upstream commit 8580a61aede28d441e1c80588803411ee86aa299 ]
-> > 
-> > csk_mem_free() should return true if send buffer is available,
-> > false otherwise.  
+Hi Chris,
+
+On Tue, Oct 27, 2020 at 12:57:51PM -0700, Chris Ye wrote:
+> Add devices for HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
 > 
-> > Fixes: 3b8305f5c844 ("crypto: chtls - wait for memory sendmsg, sendpage")  
+> Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need
+> to be set explicitly with this flag.
+> Signed-off-by: Chris Ye <lzye@google.com>
 > 
-> This does not fix anything. In fact, binary code should be exactly
-> equivalent. It does not need to be in 4.19-stable.
 
-Not sure why you think binary code will be equivalent.
+This is still line-wrapped and still is in HTML. It also is not
+formatted so that maintainers scripts can process it properly. Please
+follow Documentation/process/suubmitting-patches.rst "Canonical format
+patch" section. I recommend using "git format-patch ..." to generate it
+and git send-email for sending it.
 
-The condition changed from:
+Thanks.
 
-cdev->max_host_sndbuf != sk->sk_wmem_queued
+> diff -uprN -X linux-vanilla/Documentation/dontdiff
+> linux-vanilla/drivers/hid/hid-ids.h linux/drivers/hid/hid-ids.h
+> --- linux-vanilla/drivers/hid/hid-ids.h 2020-10-26 22:16:49.930361683 -0700
+> +++ linux/drivers/hid/hid-ids.h 2020-10-26 22:20:02.811994573 -0700
+> @@ -443,6 +443,10 @@
+> #define USB_VENDOR_ID_FRUCTEL  0x25B6
+> #define USB_DEVICE_ID_GAMETEL_MT_MODE  0x0002
+> 
+> +#define USB_VENDOR_ID_GAMEVICE 0x27F8
+> +#define USB_DEVICE_ID_GAMEVICE_GV186   0x0BBE
+> +#define USB_DEVICE_ID_GAMEVICE_KISHI   0x0BBF
+> +
+> #define USB_VENDOR_ID_GAMERON          0x0810
+> #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR 0x0001
+> #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR 0x0002
+> diff -uprN -X linux-vanilla/Documentation/dontdiff
+> linux-vanilla/drivers/hid/hid-quirks.c linux/drivers/hid/hid-quirks.c
+> --- linux-vanilla/drivers/hid/hid-quirks.c      2020-10-26
+> 22:16:49.930361683 -0700
+> +++ linux/drivers/hid/hid-quirks.c      2020-10-26 22:20:02.811994573 -0700
+> @@ -84,6 +84,8 @@ static const struct hid_device_id hid_qu
+>        { HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE,
+> USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+>        { HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY),
+> HID_QUIRK_NO_INIT_REPORTS },
+>        { HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA,
+> USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE,
+> USB_DEVICE_ID_GAMEVICE_GV186), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE,
+> USB_DEVICE_ID_GAMEVICE_KISHI), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+>        { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING),
+> HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+>        { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING),
+> HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+>        { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING),
+> HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 
-to
-
-cdev->max_host_sndbuf > sk->sk_wmem_queued
-
-
-That said Chelsio would have to comment if it really fixes any real
-user-visible issue :)
-
-> > @@ -914,9 +914,9 @@ static int tls_header_read(struct tls_hd
-> >  	return (__force int)cpu_to_be16(thdr->length);
-> >  }
-> >  
-> > -static int csk_mem_free(struct chtls_dev *cdev, struct sock *sk)
-> > +static bool csk_mem_free(struct chtls_dev *cdev, struct sock *sk)
-> >  {
-> > -	return (cdev->max_host_sndbuf - sk->sk_wmem_queued);
-> > +	return (cdev->max_host_sndbuf - sk->sk_wmem_queued > 0);
-> >  }
-> >  
-> >  static int csk_wait_memory(struct chtls_dev *cdev,
+-- 
+Dmitry
