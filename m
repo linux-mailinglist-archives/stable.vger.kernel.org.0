@@ -2,163 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0DA29DA1B
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 00:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7252729DA25
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 00:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728588AbgJ1XOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 19:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390237AbgJ1XOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 19:14:38 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADC0C0613D1
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 16:14:38 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id m22so731223ots.4
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 16:14:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=xcYtxhATV9tNgzx/0u/R7WT0cT5PolfDyRZ40j1FlbI=;
-        b=zgsUAsMT0yDpwiTyOvKDRHI+scC2U9iPXQzA5yYwY+Tqh8UAupR9WUMi5j7rPAKb0G
-         MBot37UhvP8sRYYRvOgUm86e204v15RwQ8HNzZ9o/hzd4Wei6ltsr8yURMsIeJMmt0fh
-         9G1X21u3jibbfJmYoUEblBbsG2Dh5PvSnLFLGiohh+01PMCPtvyR+3DmVDI2MWxiX2Nz
-         XKnMH1kwOt848xReaMGXXTVvHnND/sSAfk0bRQ5M9++dwwC7boNt61hkeSezDkm0U65p
-         y1b93ygDMQQRL0vL9JH0JfGL/WyWk9yj3sfsiR43T9P78VT+Q7PubjaogZZeWp5Tc3VB
-         8iHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=xcYtxhATV9tNgzx/0u/R7WT0cT5PolfDyRZ40j1FlbI=;
-        b=nyx5OGT+oinIAaIJhC1To/Mt9Zo2BESwKpQ6wruZSp8nn/ovFvHwCxmJZD9i/wOA3X
-         /9qhr3NLGsYwoOlt5xbikXpeGc8GLBw8iIYtUEL02W0RJJLP2tLFT3GtKeyQM2ULvyIQ
-         pS9adWEauKZGCn6JQPNTEt+OASKQCJwOaqrLRxPPtANjaIexSdliiN/XRVu7APf1l8im
-         nY2hLQDj92wWn1x6YopVnSYqyVEJtvHAXv1uD73vMAghwmKWSqe5LnAPEgTtEHf4tx0b
-         6wmxGJm9KDyYA0w7u9nu1hOkG6CfoaNNf1a0Bn9M+bp0vWedQRSIciG0E8109L3QGXr+
-         lQ4g==
-X-Gm-Message-State: AOAM533K04gbWafyhZ0/LxnNEY69RgufgU7qajHmDUA6xqNcQNyHb6ZB
-        Wh64tyFY/FBwItFe4c9kVvDvQY5UGHLDi9ObC0GPX+K7w+Iv6NcW
-X-Google-Smtp-Source: ABdhPJy6soemAsqMe1KYx+bmBldzxZD4Uw6ebV8TsxQ/bcsplxiFnj7KM2Q6qrJCMRh4pBcok2RmEJjEr5dSkRTzXfY=
-X-Received: by 2002:a9d:22e4:: with SMTP id y91mr5240199ota.72.1603893200353;
- Wed, 28 Oct 2020 06:53:20 -0700 (PDT)
+        id S1726472AbgJ1XPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 19:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45838 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390273AbgJ1XPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 19:15:05 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 262F6206FB;
+        Wed, 28 Oct 2020 23:15:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603926905;
+        bh=fOIDlzpAqyABbNY+P2PRe8x4YzZuz/sC9KM32cPf/5M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XPZq4sY3JCfcvIVrQAwM1oC0gWhP6h5YPUDArmR+ONvM4tynk3CEsW8qGYCASu0vh
+         owY/MeP5chXdGoqazdeGOprfjWlhBpOHtLIWsjmB134vYw3q3MXsPR5Xy7Xl5lNOHB
+         PAieaYoy9HIidmKLa3WUf7sH5XDVAbOjg/9KmPcM=
+Date:   Wed, 28 Oct 2020 19:15:03 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 000/191] 4.14.203-rc1 review
+Message-ID: <20201028231503.GE87646@sasha-vm>
+References: <20201027134909.701581493@linuxfoundation.org>
+ <20201028170853.GC118534@roeck-us.net>
+ <20201028195610.GB124982@roeck-us.net>
 MIME-Version: 1.0
-References: <20201027134902.130312227@linuxfoundation.org>
-In-Reply-To: <20201027134902.130312227@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 28 Oct 2020 19:23:08 +0530
-Message-ID: <CA+G9fYvGVjxrJf=vFzuqhWfcmCUPbeOB3qgL7HWZUBiFAo4KSA@mail.gmail.com>
-Subject: Re: [PATCH 4.9 000/139] 4.9.241-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20201028195610.GB124982@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 27 Oct 2020 at 19:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Wed, Oct 28, 2020 at 12:56:10PM -0700, Guenter Roeck wrote:
+>Retry.
 >
-> This is the start of the stable review cycle for the 4.9.241 release.
-> There are 139 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 29 Oct 2020 13:48:36 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.241-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+>On Wed, Oct 28, 2020 at 10:08:53AM -0700, Guenter Roeck wrote:
+>> On Tue, Oct 27, 2020 at 02:47:35PM +0100, Greg Kroah-Hartman wrote:
+>> > This is the start of the stable review cycle for the 4.14.203 release.
+>> > There are 191 patches in this series, all will be posted as a response
+>> > to this one.  If anyone has any issues with these being applied, please
+>> > let me know.
+>> >
+>> > Responses should be made by Thu, 29 Oct 2020 13:48:36 +0000.
+>> > Anything received after that time might be too late.
+>> >
+>>
+>> Build results:
+>> 	total: 168 pass: 166 fail: 2
+>> Failed builds:
+>> 	powerpc:defconfig
+>> 	powerpc:allmodconfig
+>> Qemu test results:
+>> 	total: 404 pass: 385 fail: 19
+>> Failed tests:
+>> 	<various powerpc64>
+>>
+>> Error log:
+>> arch/powerpc/platforms/powernv/opal-dump.c: In function 'process_dump':
+>> arch/powerpc/platforms/powernv/opal-dump.c:409:7: error: void value not ignored as it ought to be
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I'll grab b29336c0e178 ("powerpc/powernv/opal-dump : Use IRQ_HANDLED
+instead of numbers in interrupt handler") to fix that, thanks!
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.9.241-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 97bfc73b33b595e89801f5fd849c14af344dccdd
-git describe: v4.9.240-140-g97bfc73b33b5
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.=
-y/build/v4.9.240-140-g97bfc73b33b5
-
-No regressions (compared to build v4.9.240)
-
-No fixes (compared to build v4.9.240)
-
-Ran 16492 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* perf
-* v4l2-compliance
-* ltp-sched-tests
-* network-basic-tests
-* ltp-containers-tests
-* ltp-fs-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Thanks,
+Sasha
