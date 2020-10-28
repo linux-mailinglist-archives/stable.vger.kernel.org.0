@@ -2,89 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F7C29D858
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:31:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9D429D908
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387905AbgJ1Wbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:31:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387909AbgJ1Wbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:31:31 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FDE3C0613D2;
-        Wed, 28 Oct 2020 15:31:31 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id x7so668517ota.0;
-        Wed, 28 Oct 2020 15:31:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ItbVqLLxaak1URBYc5TKvu5eTrGNoh/BJB0Sgch8G6s=;
-        b=V4lzKPbYI7ub2gITJ2UWfkwMMyZtaGsT6uAHW70qe4uJRjlGjAjinfym8ASbVJt4gw
-         B8y8XBQSofv0pkRgPjkl3yAhIiTBi36Jt7g5db9FXeBk5/ETY7zcqZg3wVj9DgIKpCvj
-         y8DtjSckb7bMGqqcy0QcqSZYmYk6PWKpjwmORC+i6chQXBQ/9XsEnxo37hVUzONPmbhF
-         5RrlzDFlAoV2aValE8jIhsiAef0E/amiIyrqDRXCldRvbeqzsVZJAIp6RYQ2+TbmCKN8
-         Xgya66BfzLAcOz4UGXqR3tPOTfkb3nDH/JlVmAfjE6QXfARxqPVTQ6aEXZPkY5aDLVp9
-         eFBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ItbVqLLxaak1URBYc5TKvu5eTrGNoh/BJB0Sgch8G6s=;
-        b=qiN+A22+opHL+ncEsi1vYdTfVlaZ7cmxJEOqL/rfigye9MDzz195KII4RBUCLJrJsR
-         58dI4ppitulz8UqbinJTbrqKSLU6lmZaA9hXKkrKYzkWKCA/bcUciZD2r/IrbX1Cy7gg
-         K+WeyMpJwfFRvRV5bjMHx7rgKgfCK9T39SZnCEduiV46N8LV7xCLAbVmqOPcWVd/aOGW
-         3LA9e1giBMy8h5wuHJf8yz6D60A7wycdnGZ/jWwsp8w8O1dtqyZdAJuFK6yHRDy+Z4rA
-         FBFlJtnoXR6kQUrpOliDEdzuIVb2IFgwuJkra4M5RXS81orxbNVwe1kgdUc51n3L8PtL
-         mWmQ==
-X-Gm-Message-State: AOAM532iLJOy/tmVKh4gg7dQBp3sW9edS6uxBm5wOPo0FsRpW6jpnvL/
-        PRLomPWxsKPoV17v+rebveRvUzDU1OA=
-X-Google-Smtp-Source: ABdhPJxGK6g2IdozXEcpTZy/fRWOZocAv3upk2QM1Vj+mQu7dFHt7r3p4s6BKM2AY/2I1DD8jXNrvg==
-X-Received: by 2002:a9d:5c86:: with SMTP id a6mr654604oti.298.1603914957383;
-        Wed, 28 Oct 2020 12:55:57 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m27sm120540otr.32.2020.10.28.12.55.56
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 28 Oct 2020 12:55:56 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 28 Oct 2020 12:55:55 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
+        id S1731232AbgJ1Wl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:41:56 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:57404 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728005AbgJ1Wlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:41:55 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E5F711C0BB6; Wed, 28 Oct 2020 21:12:34 +0100 (CET)
+Date:   Wed, 28 Oct 2020 21:12:34 +0100
+From:   Pavel Machek <pavel@ucw.cz>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 000/139] 4.9.241-rc1 review
-Message-ID: <20201028195555.GA124982@roeck-us.net>
-References: <20201027134902.130312227@linuxfoundation.org>
- <20201028170653.GB118534@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vadym Kochan <vadym.kochan@plvision.eu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 111/264] nvmem: core: fix possibly memleak when use
+ nvmem_cell_info_to_nvmem_cell()
+Message-ID: <20201028201234.GA11038@duo.ucw.cz>
+References: <20201027135430.632029009@linuxfoundation.org>
+ <20201027135435.887735842@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <20201028170653.GB118534@roeck-us.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20201027135435.887735842@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Retry.
 
-On Wed, Oct 28, 2020 at 10:06:53AM -0700, Guenter Roeck wrote:
-> On Tue, Oct 27, 2020 at 02:48:14PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.9.241 release.
-> > There are 139 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 29 Oct 2020 13:48:36 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 168 pass: 168 fail: 0
-> Qemu test results:
-> 	total: 386 pass: 386 fail: 0
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> Guenter
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> From: Vadym Kochan <vadym.kochan@plvision.eu>
+>=20
+> [ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
+>=20
+> Fix missing 'kfree_const(cell->name)' when call to
+> nvmem_cell_info_to_nvmem_cell() in several places:
+>=20
+>      * after nvmem_cell_info_to_nvmem_cell() failed during
+>        nvmem_add_cells()
+>=20
+>      * during nvmem_device_cell_{read,write} when cell->name is
+>        kstrdup'ed() without calling kfree_const() at the end, but
+>        really there is no reason to do that 'dup, because the cell
+>        instance is allocated on the stack for some short period to be
+>        read/write without exposing it to the caller.
+>=20
+> So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
+> which is used to convert cell_info -> cell without name duplication as
+> a lighweight version of nvmem_cell_info_to_nvmem_cell().
+>=20
+> Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
+
+There's something very wrong here.
+
+> index 30c040786fde2..54204d550fc22 100644
+> --- a/drivers/nvmem/core.c
+> +++ b/drivers/nvmem/core.c
+> @@ -326,9 +326,9 @@ static void nvmem_cell_add(struct nvmem_cell *cell)
+>  	mutex_unlock(&nvmem_cells_mutex);
+>  }
+> =20
+> -static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
+> -				   const struct nvmem_cell_info *info,
+> -				   struct nvmem_cell *cell)
+> +static int nvmem_cell_info_to_nvmem_cell_nodup(struct nvmem_device *nvme=
+m,
+> +					const struct nvmem_cell_info *info,
+> +					struct nvmem_cell *cell)
+>  {
+>  	cell->nvmem =3D nvmem;
+>  	cell->offset =3D info->offset;
+> @@ -345,13 +345,30 @@ static int nvmem_cell_info_to_nvmem_cell(struct nvm=
+em_device *nvmem,
+>  	if (!IS_ALIGNED(cell->offset, nvmem->stride)) {
+>  		dev_err(&nvmem->dev,
+>  			"cell %s unaligned to nvmem stride %d\n",
+> -			cell->name, nvmem->stride);
+> +			cell->name ?: "<unknown>", nvmem->stride);
+>  		return -EINVAL;
+>  	}
+> =20
+>  	return 0;
+>  }
+
+We rename call from .._cell to .._cell_nodup, but it did not have the
+kstrdup_const() in the first place!
+
+> +static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
+> +				const struct nvmem_cell_info *info,
+> +				struct nvmem_cell *cell)
+> +{
+> +	int err;
+> +
+> +	err =3D nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, cell);
+> +	if (err)
+> +		return err;
+> +
+> +	cell->name =3D kstrdup_const(info->name, GFP_KERNEL);
+> +	if (!cell->name)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+
+So now we introduce an allocation, but we don't have a place to free
+it. In mainline, it is freed in nvmem_cell_drop(), but 4.19 does not
+have a free there.
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX5nQsgAKCRAw5/Bqldv6
+8ihBAJ0dzQuBqm8Owd8kn4PWA8aEWAyTtwCgs0Ffgl8YI4NWlTA13oW6fwieVU8=
+=0+Y+
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--
