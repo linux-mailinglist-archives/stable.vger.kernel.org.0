@@ -2,168 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBC429D823
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8206629D6F2
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387641AbgJ1W34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:29:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55690 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387592AbgJ1W3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:29:54 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF48C0613CF
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:29:54 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id r186so713251pgr.0
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:29:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DFXhmhnE0HABF0BXWy7FPG6M7auqIQQvigvYJvceh4w=;
-        b=XgxDaYlcXD9VneIWZ0+tEYxjrB075Cu/ikkDKfbLtF35LmwU+N/0bMXfOuzN0z2f6t
-         m3wzPAjY3WYxaz8YkjDVKl7qcN6yumeH8d4dgpDXdJbiD0QfNX7ebYT2Ctf1GMLn3/WW
-         BdKBZEw/mmum2r7fTvmbRUVO0asKpizsMNN8pKM80rPyeDyzefYm9f3KobmINHM9kg2M
-         dgZeXHKZbS53M0KW2ifZwOYlDqH5QwSJbckbHlIFFtxqhBA7WBOGIM5bg56a/1/kXQop
-         HuMcZ21r7E0Z7Nw+cfSvrL3INEjdBOOtnw9FFlWfjNXwNt2g392uE1iy+4tPGpIbL9Zm
-         bxow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DFXhmhnE0HABF0BXWy7FPG6M7auqIQQvigvYJvceh4w=;
-        b=iy/Qj/Eiesa53t21+996/1ewuDUyNPVtylZwZpq9hEVjLxDxznBstoAwd48AQpevtO
-         bfvGih1ZKMAtuhy6ol4P0b5tFonMd+03dZNwEK0eTghZLvwwKFgts6GuiG/BJN89IAL7
-         oqhraiBxF3IWmkEuOvdhZry9fOu/IcqpskvspQEHk+PSwyNPs3xFRPocuwXnVNCYZquP
-         MpVDfEeR+Vhm4y2uCtLgpSyI5euJvbZhzVtBQ+12AIZjASdrJwJqRW25b0ALHiGtAwLv
-         KO0yUXM0KMHQpM6lFVeoCvJRQeZPPMmVYE2r274AIY6Sfgt8v4fd4VjN5VkXRZ62Orti
-         6rYg==
-X-Gm-Message-State: AOAM531Y1KSIGR6r4Rw1lNBxevJs9nAyqe8NtwC6BBhhicrsGRtX3U1N
-        ogZTfVXV/Q4zl0np06pcCcHw/JmVCLePPALi9U2ru0+kqHOl3B6j
-X-Google-Smtp-Source: ABdhPJwsBNCa9tGNVxqh7UFIxLXZTMNgEfqLLnBSEU/1OZJL7n0MFXc/F3fsV7zd4kQ1GDw3rwoBriJ7AAh32Ay0TSc=
-X-Received: by 2002:a92:9944:: with SMTP id p65mr4688477ili.127.1603874858750;
- Wed, 28 Oct 2020 01:47:38 -0700 (PDT)
+        id S1731856AbgJ1WTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60528 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731742AbgJ1WRo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:17:44 -0400
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47F50246B0;
+        Wed, 28 Oct 2020 10:15:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603880117;
+        bh=E57TRRP55Kk9vg5tur1KhYG5qx7b3ky4jZL+p+sXuoY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=MrdU+GtBcZwjT+vZ+g8Hw6gZHvwWzT4GZ+SrmHeBOThKai89DQFRg3IRa6i/wLsbi
+         9oXfv2GsWan0iTEVWd6s8Uc7GCICsJ7Vb4CS+WAncE8FpLa9n0f9+F/iZgTmtEHQim
+         Sc2XD/nbGU1AmKMLAuCRjVRBJorO4jHJsQVP7IqU=
+Received: by mail-ed1-f44.google.com with SMTP id x1so4523300eds.1;
+        Wed, 28 Oct 2020 03:15:17 -0700 (PDT)
+X-Gm-Message-State: AOAM532qAFPQWwXKiy51ycWtsZvHgS1ewyTUIiBpduGY/UUKlO4W5CHD
+        4gNHuMLG0UkgcDWsp0LIV8MrkxtUQkpcia5swfY=
+X-Google-Smtp-Source: ABdhPJz4yllQgyYZ8Tamki1QBJ8R6wNyadcvzqNfdvF4QwTASSCCiWTVEZ36r/fo7dWTUfe04TsIynmfdLIh/mOJ5uk=
+X-Received: by 2002:a05:6402:cf:: with SMTP id i15mr2651762edu.246.1603880115644;
+ Wed, 28 Oct 2020 03:15:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201027135430.632029009@linuxfoundation.org>
-In-Reply-To: <20201027135430.632029009@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 28 Oct 2020 14:17:27 +0530
-Message-ID: <CA+G9fYsP=i9aRDxSqAZM_BvXn3xRDFHEZLT3poomjZuCrgW28g@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/264] 4.19.153-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+References: <20201028091947.93097-1-krzk@kernel.org> <MWHPR11MB0046B799E9AD3648C6F67BFE87170@MWHPR11MB0046.namprd11.prod.outlook.com>
+ <CAJKOXPePfsRNZkY+L1XM3_iz6dMYFNZAJgrcut9JriuwYkKWsw@mail.gmail.com>
+ <CAJKOXPf6zhpu_3oQZ2bL_FnkBx7-NwH65N_OzVkH=Nh1bYkHxw@mail.gmail.com> <20201028100311.GF26150@paasikivi.fi.intel.com>
+In-Reply-To: <20201028100311.GF26150@paasikivi.fi.intel.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+Date:   Wed, 28 Oct 2020 11:15:01 +0100
+X-Gmail-Original-Message-ID: <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
+Message-ID: <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
+Subject: Re: [PATCH] media: i2c: imx258: correct mode to GBGB/RGRG
+To:     Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc:     "Yeh, Andy" <andy.yeh@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Jason Chen <jasonx.z.chen@intel.com>,
+        Alan Chiang <alanx.chiang@intel.com>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 27 Oct 2020 at 19:52, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Wed, 28 Oct 2020 at 11:03, Sakari Ailus <sakari.ailus@linux.intel.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.153 release.
-> There are 264 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Wed, Oct 28, 2020 at 10:56:55AM +0100, Krzysztof Kozlowski wrote:
+> > On Wed, 28 Oct 2020 at 10:45, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> > >
+> > > On Wed, 28 Oct 2020 at 10:43, Yeh, Andy <andy.yeh@intel.com> wrote:
+> > > >
+> > > > But the sensor settings for the original submission is to output GRBG Bayer RAW.
+> > > >
+> > > > Regards, Andy
+> > >
+> > > No, not to my knowledge. There are no settings for color output
+> > > because it is fixed to GBGB/RGRG. I was looking a lot into this driver
+> > > (I have few other problems with it, already few other patches posted)
+> > > and I could not find a setting for this in datasheet. If you know the
+> > > setting for the other color - can you point me to it?
+> >
+> > And except the datasheet which mentions the specific format, the
+> > testing confirms it. With original color the pictures are pink/purple.
+> > With proper color, the pictures are correct (with more green color as
+> > expected for bayer).
 >
-> Responses should be made by Thu, 29 Oct 2020 13:53:47 +0000.
-> Anything received after that time might be too late.
+> Quoting the driver's start_streaming function:
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.153-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
+>         /* Set Orientation be 180 degree */
+>         ret = imx258_write_reg(imx258, REG_MIRROR_FLIP_CONTROL,
+>                                IMX258_REG_VALUE_08BIT, REG_CONFIG_MIRROR_FLIP);
+
+I understand that you think it will replace the lines and columns and
+the first line will be RG, instead of GB.... or actually BG because it
+flips horizontal and vertical? So why does it not work?
+
+BTW, this nicely points that the comment around
+device_property_read_u32() for rotation is a little bit misleading :)
+
+>         if (ret) {
+>                 dev_err(&client->dev, "%s failed to set orientation\n",
+>                         __func__);
+>                 return ret;
+>         }
 >
-> thanks,
->
-> greg k-h
+> Could it be you're taking pictures of pink objects? ;-)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I can send a few sample pictures taken with GStreamer (RAW8, not
+original RAW10)...
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.19.153-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 8919185062d40d0559c701be480cc8fa547291ed
-git describe: v4.19.152-265-g8919185062d4
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.152-265-g8919185062d4
-
-No regressions (compared to build v4.19.152)
-
-No fixes (compared to build v4.19.152)
-
-Ran 28857 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* network-basic-tests
-* libhugetlbfs
-* ltp-commands-tests
-* ltp-fs-tests
-* ltp-math-tests
-* ltp-open-posix-tests
-* ltp-tracing-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Best regards,
+Krzysztof
