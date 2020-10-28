@@ -2,78 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A27B29DFD4
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 02:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7EE929DFB0
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 02:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730044AbgJ2BFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 21:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
+        id S1731406AbgJ2BDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 21:03:55 -0400
+Received: from foss.arm.com ([217.140.110.172]:39014 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730040AbgJ1WFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:05:53 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 116422470E;
-        Wed, 28 Oct 2020 22:05:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603922753;
-        bh=F1c6QXnKInsunrs54b2TDGrRkEY1sKVhgft/QBBBS/4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BE++ewv+P4nwQUTepsCZG6cKx0Y8e9s2HVp4cvHYT2JFtD+o0NMeixwS7XHof/FTU
-         zIYkgzglXdN6urahcV9wNuV240zH6n21REZ42myOcV7+FL2Zmgs7och7o/cwobFX8l
-         FjyCgExzfSM8KShC6S3hkap2uZ/BYpI3fKh+TePU=
-Date:   Wed, 28 Oct 2020 18:05:51 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vadym Kochan <vadym.kochan@plvision.eu>
-Subject: Re: [PATCH 4.19 111/264] nvmem: core: fix possibly memleak when use
- nvmem_cell_info_to_nvmem_cell()
-Message-ID: <20201028220551.GA87646@sasha-vm>
-References: <20201027135430.632029009@linuxfoundation.org>
- <20201027135435.887735842@linuxfoundation.org>
- <20201028201234.GA11038@duo.ucw.cz>
+        id S1730416AbgJ1WKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:10:03 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3706E1762;
+        Wed, 28 Oct 2020 15:10:02 -0700 (PDT)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 2E1543F73C;
+        Wed, 28 Oct 2020 15:10:01 -0700 (PDT)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     mathieu.poirier@linaro.org, mike.leach@linaro.org,
+        coresight@lists.linaro.org, linux-kernel@vger.kernel.org,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 01/26] coresight: etm4x: Fix accesses to TRCVMIDCTLR1
+Date:   Wed, 28 Oct 2020 22:09:20 +0000
+Message-Id: <20201028220945.3826358-3-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20201028220945.3826358-1-suzuki.poulose@arm.com>
+References: <20201028220945.3826358-1-suzuki.poulose@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20201028201234.GA11038@duo.ucw.cz>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 28, 2020 at 09:12:34PM +0100, Pavel Machek wrote:
->Hi!
->
->> From: Vadym Kochan <vadym.kochan@plvision.eu>
->>
->> [ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
->>
->> Fix missing 'kfree_const(cell->name)' when call to
->> nvmem_cell_info_to_nvmem_cell() in several places:
->>
->>      * after nvmem_cell_info_to_nvmem_cell() failed during
->>        nvmem_add_cells()
->>
->>      * during nvmem_device_cell_{read,write} when cell->name is
->>        kstrdup'ed() without calling kfree_const() at the end, but
->>        really there is no reason to do that 'dup, because the cell
->>        instance is allocated on the stack for some short period to be
->>        read/write without exposing it to the caller.
->>
->> So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
->> which is used to convert cell_info -> cell without name duplication as
->> a lighweight version of nvmem_cell_info_to_nvmem_cell().
->>
->> Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
->
->There's something very wrong here.
+TRCVMIDCTRL1 is only implemented only if the TRCIDR4.NUMVMIDC > 4.
+We must not touch the register otherwise.
 
-Right, looks like it actually fixes 16bb7abc4a6b ("nvmem: core: fix
-memory abort in cleanup path"). I'll just drop this commit.
+Cc: stable@vger.kernel.org
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ drivers/hwtracing/coresight/coresight-etm4x-core.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+index 6096d7abf80d..e67365d1ce28 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+@@ -193,7 +193,8 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+ 		writeq_relaxed(config->vmid_val[i],
+ 			       drvdata->base + TRCVMIDCVRn(i));
+ 	writel_relaxed(config->vmid_mask0, drvdata->base + TRCVMIDCCTLR0);
+-	writel_relaxed(config->vmid_mask1, drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		writel_relaxed(config->vmid_mask1, drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	if (!drvdata->skip_power_up) {
+ 		/*
+@@ -1243,7 +1244,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 	state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
+ 
+ 	state->trcvmidcctlr0 = readl(drvdata->base + TRCVMIDCCTLR0);
+-	state->trcvmidcctlr1 = readl(drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		state->trcvmidcctlr1 = readl(drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	state->trcclaimset = readl(drvdata->base + TRCCLAIMCLR);
+ 
+@@ -1353,7 +1355,8 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+ 	writel_relaxed(state->trccidcctlr1, drvdata->base + TRCCIDCCTLR1);
+ 
+ 	writel_relaxed(state->trcvmidcctlr0, drvdata->base + TRCVMIDCCTLR0);
+-	writel_relaxed(state->trcvmidcctlr1, drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		writel_relaxed(state->trcvmidcctlr1, drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	writel_relaxed(state->trcclaimset, drvdata->base + TRCCLAIMSET);
+ 
 -- 
-Thanks,
-Sasha
+2.24.1
+
