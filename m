@@ -2,83 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5716529D3B4
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 22:46:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D5629D303
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 22:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727480AbgJ1VqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 17:46:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48032 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727476AbgJ1VqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 17:46:17 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A795C0613CF
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 14:46:17 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id y186so1145789oia.3
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 14:46:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6JSP+gknecdQIb43HL25pDbZr81hZ8KDnNrBmTGdQyQ=;
-        b=IZ1C3kIaYcK/G2ClwunxqGHsFv2IHhnNyr3/1dNAioeOVs7VevEtVOQCDqZHuBK5QN
-         ubeC8+K+5JYRFnK0bmP2I1Uo8RsUKENUEmcSIixhppbebvpY8iCTaUDs++CbJaJUZBgu
-         byT/X0NQ24miKZlInT/MCffbrOMl4VR2ITW6vf7srIfVd2uh8YHCeTjcAc9iu/u5aT4S
-         MoMvbJOWYhJEMCmVQnY22EEACVRtqY2yP9mELPJbkjw8J5nboE+tJIuhH7FbwwAJWHE3
-         TyOAt6jZ0LLPKJiFGaDVnOHPMPfQXAwcfj80dy9D9q5tL6Q31tWe96FfozpRAJMj/BDl
-         mObw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6JSP+gknecdQIb43HL25pDbZr81hZ8KDnNrBmTGdQyQ=;
-        b=Jlri+h86cqL9T/q54H7cmqK6xz4tm3RSZckEWZEgYQ4VSPJ0Qw+R7Z8nhXbzLM6eTc
-         hrQRLOzIl+5fSTKR5+yyMlHmxH7nlLrgX+2tqcY1+5LA15AKGC2g78I86p0w6CV1wVZo
-         ZegFBjQOIp9w2sk2uZKa8UvYCKxgmzb/wZHYOKI1BfB+d+O84y/MGfMj9EkfcWESR5Lw
-         i1m9JmZb8K1F+UyCveq6uIbW4bJcXU2qmpfZNPGGohM9rTqngiUVF+IBcUXzVy34OYDx
-         anwXfr9pnjumH3WC+NNdDDyT1jNfmf0rGJ8dCEv/KNvYHERTUGsFtPB1B0op4qY9pLIa
-         CFGg==
-X-Gm-Message-State: AOAM532ANOGfuht0QpiRq18ExYNLneIyh/lMotOWLBt2uUlL05kVGg8R
-        zb3aQYjve/o4NZZNwpXjuvNtPe1MzfyUZw==
-X-Google-Smtp-Source: ABdhPJyZSVd+JZaAYxUeIMvPGFoUD0i3wI32yHTc5e5c7SW3PYC40SS0vy9uNw2huBZNAxs4EV6Z3A==
-X-Received: by 2002:a17:90b:3842:: with SMTP id nl2mr4612274pjb.202.1603852862019;
-        Tue, 27 Oct 2020 19:41:02 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id f4sm3205726pjs.8.2020.10.27.19.41.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2020 19:41:01 -0700 (PDT)
-Subject: Re: [PATCH v2 1/1] null_blk: synchronization fix for zoned device
-To:     Kanchan Joshi <joshi.k@samsung.com>, Damien.LeMoal@wdc.com
-Cc:     linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, selvakuma.s1@samsung.com,
-        nj.shetty@samsung.com, javier.gonz@samsung.com
-References: <20200928095549.184510-1-joshi.k@samsung.com>
- <CGME20200928095914epcas5p1beae8d5a201c35b598fde8288532d58d@epcas5p1.samsung.com>
- <20200928095549.184510-2-joshi.k@samsung.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <c948100e-7e01-5f30-721a-7ed8c820a3b8@kernel.dk>
-Date:   Tue, 27 Oct 2020 20:40:59 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727162AbgJ1VkX convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 28 Oct 2020 17:40:23 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:35134 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727150AbgJ1VkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 17:40:22 -0400
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id AC78B1F447F5;
+        Wed, 28 Oct 2020 08:44:18 +0000 (GMT)
+Date:   Wed, 28 Oct 2020 09:44:15 +0100
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Inki Dae <inki.dae@samsung.com>,
+        Joonyoung Shim <jy0922.shim@samsung.com>,
+        Seung-Woo Kim <sw0312.kim@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Rob Herring <robh@kernel.org>, linux-media@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org, stable@vger.kernel.org,
+        piotr.oniszczuk@gmail.com, Daniel Vetter <daniel.vetter@intel.com>
+Subject: Re: [PATCH] drm/shme-helpers: Fix dma_buf_mmap forwarding bug
+Message-ID: <20201028094415.7a7782b8@collabora.com>
+In-Reply-To: <20201027214922.3566743-1-daniel.vetter@ffwll.ch>
+References: <20201027214922.3566743-1-daniel.vetter@ffwll.ch>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20200928095549.184510-2-joshi.k@samsung.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/28/20 3:55 AM, Kanchan Joshi wrote:
-> Parallel write,read,zone-mgmt operations accessing/altering zone state
-> and write-pointer may get into race. Avoid the situation by using a new
-> spinlock for zoned device.
-> Concurrent zone-appends (on a zone) returning same write-pointer issue
-> is also avoided using this lock.
+On Tue, 27 Oct 2020 22:49:22 +0100
+Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
 
-Applied, thanks.
+> When we forward an mmap to the dma_buf exporter, they get to own
+> everything. Unfortunately drm_gem_mmap_obj() overwrote
+> vma->vm_private_data after the driver callback, wreaking the
+> exporter complete. This was noticed because vb2_common_vm_close blew
+> up on mali gpu with panfrost after commit 26d3ac3cb04d
+> ("drm/shmem-helpers: Redirect mmap for imported dma-buf").
+> 
+> Unfortunately drm_gem_mmap_obj also acquires a surplus reference that
+> we need to drop in shmem helpers, which is a bit of a mislayer
+> situation. Maybe the entire dma_buf_mmap forwarding should be pulled
+> into core gem code.
+> 
+> Note that the only two other drivers which forward mmap in their own
+> code (etnaviv and exynos) get this somewhat right by overwriting the
+> gem mmap code. But they seem to still have the leak. This might be a
+> good excuse to move these drivers over to shmem helpers completely.
+> 
+> Note to stable team: There's a trivial context conflict with
+> d693def4fd1c ("drm: Remove obsolete GEM and PRIME callbacks from
+> struct drm_driver"). I'm assuming it's clear where to put the first
+> hunk, otherwise I can send a 5.9 version of this.
+> 
+> Cc: Christian König <christian.koenig@amd.com>
+> Cc: Sumit Semwal <sumit.semwal@linaro.org>
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Cc: Russell King <linux+etnaviv@armlinux.org.uk>
+> Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
+> Cc: Inki Dae <inki.dae@samsung.com>
+> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
+> Cc: Kyungmin Park <kyungmin.park@samsung.com>
+> Fixes: 26d3ac3cb04d ("drm/shmem-helpers: Redirect mmap for imported dma-buf")
+> Cc: Boris Brezillon <boris.brezillon@collabora.com>
 
--- 
-Jens Axboe
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: linux-media@vger.kernel.org
+> Cc: linaro-mm-sig@lists.linaro.org
+> Cc: <stable@vger.kernel.org> # v5.9+
+> Reported-and-tested-by: piotr.oniszczuk@gmail.com
+> Cc: piotr.oniszczuk@gmail.com
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> ---
+>  drivers/gpu/drm/drm_gem.c              | 4 ++--
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 7 ++++++-
+>  2 files changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> index 1da67d34e55d..d586068f5509 100644
+> --- a/drivers/gpu/drm/drm_gem.c
+> +++ b/drivers/gpu/drm/drm_gem.c
+> @@ -1076,6 +1076,8 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj, unsigned long obj_size,
+>  	 */
+>  	drm_gem_object_get(obj);
+>  
+> +	vma->vm_private_data = obj;
+> +
+>  	if (obj->funcs->mmap) {
+>  		ret = obj->funcs->mmap(obj, vma);
+>  		if (ret) {
+> @@ -1096,8 +1098,6 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj, unsigned long obj_size,
+>  		vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
+>  	}
+>  
+> -	vma->vm_private_data = obj;
+> -
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL(drm_gem_mmap_obj);
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index fb11df7aced5..8233bda4692f 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -598,8 +598,13 @@ int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+>  	/* Remove the fake offset */
+>  	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
+>  
+> -	if (obj->import_attach)
+> +	if (obj->import_attach) {
+> +		/* Drop the reference drm_gem_mmap_obj() acquired.*/
+> +		drm_gem_object_put(obj);
+> +		vma->vm_private_data = NULL;
+> +
+>  		return dma_buf_mmap(obj->dma_buf, vma, 0);
+> +	}
+>  
+>  	shmem = to_drm_gem_shmem_obj(obj);
+>  
 
