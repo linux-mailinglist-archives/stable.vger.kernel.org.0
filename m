@@ -2,92 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0788429D6A0
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8528129D601
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbgJ1WQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:16:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53418 "EHLO
+        id S1725936AbgJ1WKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731136AbgJ1WQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:16:55 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C837C0613CF
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:16:55 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id r10so653750pgb.10
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:16:55 -0700 (PDT)
+        with ESMTP id S1730564AbgJ1WKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:10:37 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8E6EC0613CF
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:10:36 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id i7so684855qti.6
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:10:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=to:from:subject:message-id:date:user-agent:mime-version
          :content-language;
-        bh=W9DftUEI45xru0idEhXVo0USPZhsJmhI30J7lW/fCvM=;
-        b=M1IR7iMSZqv43JT7IBCV3m/J3VKr/meg11GZU2jtlIxjKuqOhWvTdTufrtlmDiPs9V
-         nT+llEJawUZoTzP7Q9TfJHI63y2GrQhlygiYjVaK0JnCtuVI5uWhbIyNENwzd/Ab+Vjz
-         BFVdvPJoRWS5t2ZRbwQCZRffq+YgJe+ozON/pKgGNQ/KdxnYF+DBu7ic0P7bHofIuL0X
-         TPBCWOW6L9etJNERpYCRVf1CoW1Fmfg0ewt8HqjdBwdiuOcsTDTFfilUFUReWGUojqIv
-         szZdHOd7uKwF6KX5y4DmtXCGhQMCBnzXn4FITep7v/24ewy63nu3dEqQv/TqpF1ioaq/
-         l8sQ==
+        bh=kDFdrmYvLoIxXZIg02NhkAs/LUwl3J8QMZm7+8O0iho=;
+        b=MRh0CuXUDm7apWEbIAogVrMQL38/pXfRyBBLWB7+QSXVYb0wguzIosHLk6t/8+SjFK
+         SBiZ52eV5nQrLIRQxeZJhygQ1IDVPUTwGT1ttOWaWyuvKAF5HsbomdlQDw6E7bhD6JIf
+         uDanqho7UI71zapRYJRFrYfbuVagOR/b/h7fi/H/3LrtEMNlM7ZQdm7ArvEKC3FIlrbF
+         nH3ixSZSKTJ6KmhINo+nlyo+tYG1NJWNp8ykrf8Er8D6Bkk6JfxTzhsqtBVCKzW6K2i5
+         65BMYC6nXJFseLO1yEZUYzj75azZXcpsKSWkspfzvo47AUk2sr3Wm9iQcqt6/zXcmNql
+         yDXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:to:from:subject:message-id:date:user-agent
          :mime-version:content-language;
-        bh=W9DftUEI45xru0idEhXVo0USPZhsJmhI30J7lW/fCvM=;
-        b=eVq966BwfNpKgvJgHluq84t7z+k1NI2ccN/i13U9SfsookRcMz+UjpnVdE/jPY/qF9
-         SFAeHDus1V/8KEqXsoz7GlSbqNYtLv5HOA6GNCVVdFKTKKsYZy1TQMs+rLr3OvjTpPNU
-         VRjbWanAs+eFY25eUUgg3EHnTJbA5XVStc2p7kmRKlfUwKJFJBHL/iOZQaVmPpE71ysC
-         t+1I3sBxMQXJ6CbasTpQM4+f3lZyEMABZcKJz7VZi+CmmZXgmmQvNdPH60nEC6842bFv
-         yb07efG6Bn+nY+iT1UeBpO2h5eaB3nGe75tibhm1thSwGBHG29mE9/LG68G74y2FGi0P
-         R/Mg==
-X-Gm-Message-State: AOAM531AyBwef/9Chf4B+Wv7xuuCPk65LB2HHHDdJNz1l2ayG4LU1G9l
-        L2m8IQtICVpZ7WMU+9OavwfMH7A8K/TvhA==
-X-Google-Smtp-Source: ABdhPJzqHqn6Cq48TSvBssy1VUgmRs9Vf9TWlFQzbYgvsFreJF7ROJ8okY8NGCG30ZwIVoQm3qVnGw==
-X-Received: by 2002:a05:6602:2181:: with SMTP id b1mr176410iob.172.1603902685391;
-        Wed, 28 Oct 2020 09:31:25 -0700 (PDT)
+        bh=kDFdrmYvLoIxXZIg02NhkAs/LUwl3J8QMZm7+8O0iho=;
+        b=pubcBLZmxzowreySEeolpsEjL6uUw29RbzqGrMxX//blcW/bxjqgvu+G3p0ptD2Uyi
+         hGFypCl+uyUGVGRpf2s6VpyOHhWAc0mSTRgoAjY5+v0hr9B26eyjcFQB5bIkHaGtJp0E
+         aa5zvwVOSD3N/lgQjcqTPfVwluriAP1gF907dRz3RWmyvapgzjtkz/1DMMUoKdvKSPy6
+         vlGUv2IXMHWR/zGADr1tEeSbyz5VP3frtDX/Zyp1gx664TMUfhDcir3Sw0gYs2NpiiEC
+         8CZD6jEQMj97r6RtUD+mVHzcVy0b/hxERI45dnyaKMbVadfPLb32Nj/26h66DYC5uBUT
+         sopg==
+X-Gm-Message-State: AOAM5323WdHYyzYbrxWxzMipl4AbpRt04uRCI93//qhHuk5/qrMIObtS
+        540/DWsuruZGop3opJ0stq3lHRp9DmlnBA==
+X-Google-Smtp-Source: ABdhPJxchevkuVNWw8hPxuib2AJxGThtRnXR29aP2K/TGsG6hIpg4T3SH8mOFiRSrFvX+nv28yMjKw==
+X-Received: by 2002:a05:6638:3f1:: with SMTP id s17mr2409jaq.102.1603902787777;
+        Wed, 28 Oct 2020 09:33:07 -0700 (PDT)
 Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id g185sm2928811ilh.35.2020.10.28.09.31.23
+        by smtp.gmail.com with ESMTPSA id d26sm3055996ill.83.2020.10.28.09.33.06
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 Oct 2020 09:31:23 -0700 (PDT)
+        Wed, 28 Oct 2020 09:33:06 -0700 (PDT)
 To:     stable@vger.kernel.org
 From:   Jens Axboe <axboe@kernel.dk>
-Subject: 5.9 stable inclusion request
-Message-ID: <115609b0-9167-dfda-85eb-de8d87f33e75@kernel.dk>
-Date:   Wed, 28 Oct 2020 10:31:23 -0600
+Subject: 5.8 stable inclusion request
+Message-ID: <e9b172db-412a-4c94-cb13-1e64f0a386e5@kernel.dk>
+Date:   Wed, 28 Oct 2020 10:33:06 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
- boundary="------------4A1C62D62F0A548A85843422"
+ boundary="------------5AD4B1471F8EAA2A7F88AE21"
 Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-Hi,
-
-Please include this series of patches for 5.9-stable, thanks.
+Please include this series of patches for 5.8-stable, thanks.
 
 -- 
 Jens Axboe
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0014-io_uring-Convert-advanced-XArray-uses-to-the-normal-.patch"
+ name="0015-io_uring-Convert-advanced-XArray-uses-to-the-normal-.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0014-io_uring-Convert-advanced-XArray-uses-to-the-normal-.pa";
+ filename*0="0015-io_uring-Convert-advanced-XArray-uses-to-the-normal-.pa";
  filename*1="tch"
 
-From 20a4be151c4ba3025e11acdd739fb420393a9ae5 Mon Sep 17 00:00:00 2001
+From d58e8b8d843a9e9970b15da166597cef0badcde3 Mon Sep 17 00:00:00 2001
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Date: Fri, 9 Oct 2020 13:49:53 +0100
-Subject: [PATCH 14/14] io_uring: Convert advanced XArray uses to the normal
+Subject: [PATCH 15/15] io_uring: Convert advanced XArray uses to the normal
  API
 
 commit 5e2ed8c4f45093698855b1f45cdf43efbf6dd498 upstream.
@@ -103,10 +101,10 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 2 insertions(+), 12 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 82c5bd58042a..f333ead8dc4e 100644
+index f8053e85f5b0..8e9c58fa7636 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8365,27 +8365,17 @@ static int io_uring_add_task_file(struct file *file)
+@@ -7958,27 +7958,17 @@ static int io_uring_add_task_file(struct file *file)
  static void io_uring_del_task_file(struct file *file)
  {
  	struct io_uring_task *tctx = current->io_uring;
@@ -140,18 +138,18 @@ index 82c5bd58042a..f333ead8dc4e 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0013-io_uring-Fix-XArray-usage-in-io_uring_add_task_file.patch"
+ name="0014-io_uring-Fix-XArray-usage-in-io_uring_add_task_file.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0013-io_uring-Fix-XArray-usage-in-io_uring_add_task_file.pat";
+ filename*0="0014-io_uring-Fix-XArray-usage-in-io_uring_add_task_file.pat";
  filename*1="ch"
 
-From b267238d1bf7c09f6f9c23b6b7547ab1e5b11cfc Mon Sep 17 00:00:00 2001
+From 10b0f4e0c59b4be359cceb8fc90fa261b6406d61 Mon Sep 17 00:00:00 2001
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Date: Fri, 9 Oct 2020 13:49:52 +0100
-Subject: [PATCH 13/14] io_uring: Fix XArray usage in io_uring_add_task_file
+Subject: [PATCH 14/15] io_uring: Fix XArray usage in io_uring_add_task_file
 
 commit 236434c3438c4da3dfbd6aeeab807577b85e951a upstream.
 
@@ -171,10 +169,10 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9a428f0abdf6..82c5bd58042a 100644
+index dfffa6a07a92..f8053e85f5b0 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8336,27 +8336,24 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+@@ -7929,27 +7929,24 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
   */
  static int io_uring_add_task_file(struct file *file)
  {
@@ -215,18 +213,18 @@ index 9a428f0abdf6..82c5bd58042a 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0012-io_uring-Fix-use-of-XArray-in-__io_uring_files_cance.patch"
+ name="0013-io_uring-Fix-use-of-XArray-in-__io_uring_files_cance.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0012-io_uring-Fix-use-of-XArray-in-__io_uring_files_cance.pa";
+ filename*0="0013-io_uring-Fix-use-of-XArray-in-__io_uring_files_cance.pa";
  filename*1="tch"
 
-From 68798e6df7ae32afddc3a3a5971620b92ff192c9 Mon Sep 17 00:00:00 2001
+From f128917762a903bb29dd275c8c4b86d48c810765 Mon Sep 17 00:00:00 2001
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Date: Fri, 9 Oct 2020 13:49:51 +0100
-Subject: [PATCH 12/14] io_uring: Fix use of XArray in __io_uring_files_cancel
+Subject: [PATCH 13/15] io_uring: Fix use of XArray in __io_uring_files_cancel
 
 commit ce765372bc443573d1d339a2bf4995de385dea3a upstream.
 
@@ -241,10 +239,10 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 5 insertions(+), 14 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cdce7598b981..9a428f0abdf6 100644
+index 49c9e252dcbe..dfffa6a07a92 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8415,28 +8415,19 @@ static void io_uring_attempt_task_drop(struct file *file, bool exiting)
+@@ -8008,28 +8008,19 @@ static void io_uring_attempt_task_drop(struct file *file, bool exiting)
  void __io_uring_files_cancel(struct files_struct *files)
  {
  	struct io_uring_task *tctx = current->io_uring;
@@ -282,18 +280,18 @@ index cdce7598b981..9a428f0abdf6 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0011-io_uring-no-need-to-call-xa_destroy-on-empty-xarray.patch"
+ name="0012-io_uring-no-need-to-call-xa_destroy-on-empty-xarray.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0011-io_uring-no-need-to-call-xa_destroy-on-empty-xarray.pat";
+ filename*0="0012-io_uring-no-need-to-call-xa_destroy-on-empty-xarray.pat";
  filename*1="ch"
 
-From b2275a21e9218c8de937169cb1260a4e37e4c07e Mon Sep 17 00:00:00 2001
+From 14cc5ff5945e7eac173c5717a995a21a2d227ef7 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Thu, 8 Oct 2020 07:46:52 -0600
-Subject: [PATCH 11/14] io_uring: no need to call xa_destroy() on empty xarray
+Subject: [PATCH 12/15] io_uring: no need to call xa_destroy() on empty xarray
 
 commit ca6484cd308a671811bf39f3119e81966eb476e3 upstream.
 
@@ -383,10 +381,10 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 05ec385a6094..cdce7598b981 100644
+index 7e616aeebe5c..49c9e252dcbe 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7536,7 +7536,6 @@ void __io_uring_free(struct task_struct *tsk)
+@@ -7136,7 +7136,6 @@ void __io_uring_free(struct task_struct *tsk)
  	struct io_uring_task *tctx = tsk->io_uring;
  
  	WARN_ON_ONCE(!xa_empty(&tctx->xa));
@@ -398,17 +396,17 @@ index 05ec385a6094..cdce7598b981 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0010-io-wq-fix-use-after-free-in-io_wq_worker_running.patch"
+ name="0011-io-wq-fix-use-after-free-in-io_wq_worker_running.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0010-io-wq-fix-use-after-free-in-io_wq_worker_running.patch"
+ filename*0="0011-io-wq-fix-use-after-free-in-io_wq_worker_running.patch"
 
-From a5cd006e24750ef019a70836606a061b79ca69a3 Mon Sep 17 00:00:00 2001
+From 5a24393da4d25028f032f94c365ef874f75a66d0 Mon Sep 17 00:00:00 2001
 From: Hillf Danton <hdanton@sina.com>
 Date: Sat, 26 Sep 2020 21:26:55 +0800
-Subject: [PATCH 10/14] io-wq: fix use-after-free in io_wq_worker_running
+Subject: [PATCH 11/15] io-wq: fix use-after-free in io_wq_worker_running
 
 commit c4068bf898ddaef791049a366828d9b84b467bda upstream.
 
@@ -521,7 +519,7 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 58 insertions(+), 58 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index c1a7ef85844b..19db17e99cf9 100644
+index 19f9072f310a..56a229621a83 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
 @@ -202,7 +202,6 @@ static void io_worker_exit(struct io_worker *worker)
@@ -550,7 +548,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  }
  
  static inline bool io_wqe_run_queue(struct io_wqe *wqe)
-@@ -641,7 +636,7 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
+@@ -644,7 +639,7 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
  
  static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
  {
@@ -559,7 +557,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  	struct io_worker *worker;
  
  	worker = kzalloc_node(sizeof(*worker), GFP_KERNEL, wqe->node);
-@@ -674,6 +669,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+@@ -677,6 +672,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
  	if (index == IO_WQ_ACCT_UNBOUND)
  		atomic_inc(&wq->user->processes);
  
@@ -567,7 +565,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  	wake_up_process(worker->task);
  	return true;
  }
-@@ -689,28 +685,63 @@ static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
+@@ -692,28 +688,63 @@ static inline bool io_wqe_need_worker(struct io_wqe *wqe, int index)
  	return acct->nr_workers < acct->max_workers;
  }
  
@@ -639,7 +637,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  	complete(&wq->done);
  
  	while (!kthread_should_stop()) {
-@@ -742,12 +773,18 @@ static int io_wq_manager(void *data)
+@@ -745,12 +776,18 @@ static int io_wq_manager(void *data)
  	if (current->task_works)
  		task_work_run();
  
@@ -663,7 +661,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  	return 0;
  }
  
-@@ -854,37 +891,6 @@ void io_wq_hash_work(struct io_wq_work *work, void *val)
+@@ -858,37 +895,6 @@ void io_wq_hash_work(struct io_wq_work *work, void *val)
  	work->flags |= (IO_WQ_WORK_HASHED | (bit << IO_WQ_HASH_SHIFT));
  }
  
@@ -701,7 +699,7 @@ index c1a7ef85844b..19db17e99cf9 100644
  void io_wq_cancel_all(struct io_wq *wq)
  {
  	int node;
-@@ -1117,12 +1123,6 @@ bool io_wq_get(struct io_wq *wq, struct io_wq_data *data)
+@@ -1121,12 +1127,6 @@ bool io_wq_get(struct io_wq *wq, struct io_wq_data *data)
  	return refcount_inc_not_zero(&wq->use_refs);
  }
  
@@ -718,17 +716,17 @@ index c1a7ef85844b..19db17e99cf9 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0009-io_wq-Make-io_wqe-lock-a-raw_spinlock_t.patch"
+ name="0010-io_wq-Make-io_wqe-lock-a-raw_spinlock_t.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0009-io_wq-Make-io_wqe-lock-a-raw_spinlock_t.patch"
+ filename="0010-io_wq-Make-io_wqe-lock-a-raw_spinlock_t.patch"
 
-From cfb93658f4cd3d2f57ec4af646a0bc77877d935f Mon Sep 17 00:00:00 2001
+From 009e0c884665053aa3d97e020629510aab36c45a Mon Sep 17 00:00:00 2001
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Date: Tue, 1 Sep 2020 10:41:46 +0200
-Subject: [PATCH 09/14] io_wq: Make io_wqe::lock a raw_spinlock_t
+Subject: [PATCH 10/15] io_wq: Make io_wqe::lock a raw_spinlock_t
 
 commit 95da84659226d75698a1ab958be0af21d9cc2a9c upstream.
 
@@ -770,7 +768,7 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 09e20bbf0d37..c1a7ef85844b 100644
+index 5257bb943d76..19f9072f310a 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
 @@ -88,7 +88,7 @@ enum {
@@ -830,7 +828,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  		if (!work)
  			break;
  		io_assign_current_work(worker, work);
-@@ -542,17 +542,17 @@ static void io_worker_handle_work(struct io_worker *worker)
+@@ -543,7 +543,7 @@ static void io_worker_handle_work(struct io_worker *worker)
  				io_wqe_enqueue(wqe, linked);
  
  			if (hash != -1U && !next_hashed) {
@@ -838,6 +836,8 @@ index 09e20bbf0d37..c1a7ef85844b 100644
 +				raw_spin_lock_irq(&wqe->lock);
  				wqe->hash_map &= ~BIT_ULL(hash);
  				wqe->flags &= ~IO_WQE_FLAG_STALLED;
+ 				/* dependent work is not hashed */
+@@ -551,11 +551,11 @@ static void io_worker_handle_work(struct io_worker *worker)
  				/* skip unnecessary unlock-lock wqe->lock */
  				if (!work)
  					goto get_next;
@@ -851,7 +851,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  	} while (1);
  }
  
-@@ -567,7 +567,7 @@ static int io_wqe_worker(void *data)
+@@ -570,7 +570,7 @@ static int io_wqe_worker(void *data)
  	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
  		set_current_state(TASK_INTERRUPTIBLE);
  loop:
@@ -860,7 +860,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  		if (io_wqe_run_queue(wqe)) {
  			__set_current_state(TASK_RUNNING);
  			io_worker_handle_work(worker);
-@@ -578,7 +578,7 @@ static int io_wqe_worker(void *data)
+@@ -581,7 +581,7 @@ static int io_wqe_worker(void *data)
  			__release(&wqe->lock);
  			goto loop;
  		}
@@ -869,7 +869,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  		if (signal_pending(current))
  			flush_signals(current);
  		if (schedule_timeout(WORKER_IDLE_TIMEOUT))
-@@ -590,11 +590,11 @@ static int io_wqe_worker(void *data)
+@@ -593,11 +593,11 @@ static int io_wqe_worker(void *data)
  	}
  
  	if (test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
@@ -883,7 +883,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  	}
  
  	io_worker_exit(worker);
-@@ -634,9 +634,9 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
+@@ -637,9 +637,9 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
  
  	worker->flags &= ~IO_WORKER_F_RUNNING;
  
@@ -895,7 +895,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  }
  
  static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
-@@ -660,7 +660,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+@@ -663,7 +663,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
  		return false;
  	}
  
@@ -904,7 +904,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  	hlist_nulls_add_head_rcu(&worker->nulls_node, &wqe->free_list);
  	list_add_tail_rcu(&worker->all_list, &wqe->all_list);
  	worker->flags |= IO_WORKER_F_FREE;
-@@ -669,7 +669,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+@@ -672,7 +672,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
  	if (!acct->nr_workers && (worker->flags & IO_WORKER_F_BOUND))
  		worker->flags |= IO_WORKER_F_FIXED;
  	acct->nr_workers++;
@@ -913,7 +913,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  
  	if (index == IO_WQ_ACCT_UNBOUND)
  		atomic_inc(&wq->user->processes);
-@@ -724,12 +724,12 @@ static int io_wq_manager(void *data)
+@@ -727,12 +727,12 @@ static int io_wq_manager(void *data)
  			if (!node_online(node))
  				continue;
  
@@ -928,7 +928,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  			if (fork_worker[IO_WQ_ACCT_BOUND])
  				create_io_worker(wq, wqe, IO_WQ_ACCT_BOUND);
  			if (fork_worker[IO_WQ_ACCT_UNBOUND])
-@@ -825,10 +825,10 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+@@ -829,10 +829,10 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
  	}
  
  	work_flags = work->flags;
@@ -941,7 +941,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  
  	if ((work_flags & IO_WQ_WORK_CONCURRENT) ||
  	    !atomic_read(&acct->nr_running))
-@@ -955,13 +955,13 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+@@ -959,13 +959,13 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
  	unsigned long flags;
  
  retry:
@@ -957,7 +957,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  		io_run_cancel(work, wqe);
  		match->nr_pending++;
  		if (!match->cancel_all)
-@@ -970,7 +970,7 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+@@ -974,7 +974,7 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
  		/* not safe to continue after unlock */
  		goto retry;
  	}
@@ -966,7 +966,7 @@ index 09e20bbf0d37..c1a7ef85844b 100644
  }
  
  static void io_wqe_cancel_running_work(struct io_wqe *wqe,
-@@ -1078,7 +1078,7 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+@@ -1082,7 +1082,7 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
  		}
  		atomic_set(&wqe->acct[IO_WQ_ACCT_UNBOUND].nr_running, 0);
  		wqe->wq = wq;
@@ -979,18 +979,18 @@ index 09e20bbf0d37..c1a7ef85844b 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0008-io_uring-reference-nsproxy-for-file-table-commands.patch"
+ name="0009-io_uring-reference-nsproxy-for-file-table-commands.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0008-io_uring-reference-nsproxy-for-file-table-commands.patc";
+ filename*0="0009-io_uring-reference-nsproxy-for-file-table-commands.patc";
  filename*1="h"
 
-From e745bd4141a553b8a3f6ee94fe5efa1fa84b0310 Mon Sep 17 00:00:00 2001
+From 6f00b3577ded6262579c3c81fe6f7cfe3411c7db Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Fri, 18 Sep 2020 20:13:06 -0600
-Subject: [PATCH 08/14] io_uring: reference ->nsproxy for file table commands
+Subject: [PATCH 09/15] io_uring: reference ->nsproxy for file table commands
 
 commit 9b8284921513fc1ea57d87777283a59b05862f03 upstream.
 
@@ -1009,7 +1009,7 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  3 files changed, 8 insertions(+)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 414beb543883..09e20bbf0d37 100644
+index cb9e5a444fba..5257bb943d76 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
 @@ -60,6 +60,7 @@ struct io_worker {
@@ -1045,7 +1045,7 @@ index 414beb543883..09e20bbf0d37 100644
  	}
  	if (work->fs && current->fs != work->fs)
 diff --git a/fs/io-wq.h b/fs/io-wq.h
-index ddaf9614cf9b..2519830c8c55 100644
+index 071f1a997800..9be6def2b5a6 100644
 --- a/fs/io-wq.h
 +++ b/fs/io-wq.h
 @@ -88,6 +88,7 @@ struct io_wq_work {
@@ -1054,13 +1054,13 @@ index ddaf9614cf9b..2519830c8c55 100644
  	const struct cred *creds;
 +	struct nsproxy *nsproxy;
  	struct fs_struct *fs;
- 	unsigned long fsize;
  	unsigned flags;
+ };
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ee75ba7113cf..05ec385a6094 100644
+index ce6b241edd10..7e616aeebe5c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5678,6 +5678,7 @@ static void io_req_drop_files(struct io_kiocb *req)
+@@ -1456,6 +1456,7 @@ static void io_req_drop_files(struct io_kiocb *req)
  	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
  	req->flags &= ~REQ_F_INFLIGHT;
  	put_files_struct(req->work.files);
@@ -1068,7 +1068,7 @@ index ee75ba7113cf..05ec385a6094 100644
  	req->work.files = NULL;
  }
  
-@@ -6086,6 +6087,8 @@ static int io_grab_files(struct io_kiocb *req)
+@@ -5685,6 +5686,8 @@ static int io_grab_files(struct io_kiocb *req)
  		return 0;
  
  	req->work.files = get_files_struct(current);
@@ -1081,17 +1081,17 @@ index ee75ba7113cf..05ec385a6094 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0007-io_uring-don-t-rely-on-weak-files-references.patch"
+ name="0008-io_uring-don-t-rely-on-weak-files-references.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0007-io_uring-don-t-rely-on-weak-files-references.patch"
+ filename="0008-io_uring-don-t-rely-on-weak-files-references.patch"
 
-From 47f8ab595b4845cef33a51d9ea57c4f3262e6618 Mon Sep 17 00:00:00 2001
+From b810fbadd2907c02ea8d971a0c0a8be68ab62d5c Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Sun, 13 Sep 2020 13:09:39 -0600
-Subject: [PATCH 07/14] io_uring: don't rely on weak ->files references
+Subject: [PATCH 08/15] io_uring: don't rely on weak ->files references
 
 commit 0f2122045b946241a9e549c2a76cea54fa58a7ff upstream.
 
@@ -1110,16 +1110,16 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
  fs/exec.c                |   6 +
  fs/file.c                |   2 +
- fs/io_uring.c            | 306 ++++++++++++++++++++++++++++++++++-----
+ fs/io_uring.c            | 301 ++++++++++++++++++++++++++++++++++-----
  include/linux/io_uring.h |  53 +++++++
  include/linux/sched.h    |   5 +
  init/init_task.c         |   3 +
  kernel/fork.c            |   6 +
- 7 files changed, 344 insertions(+), 37 deletions(-)
+ 7 files changed, 340 insertions(+), 36 deletions(-)
  create mode 100644 include/linux/io_uring.h
 
 diff --git a/fs/exec.c b/fs/exec.c
-index a91003e28eaa..07910f5032e7 100644
+index e6e8a9a70327..78976a3260c6 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -62,6 +62,7 @@
@@ -1130,9 +1130,9 @@ index a91003e28eaa..07910f5032e7 100644
  
  #include <linux/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -1895,6 +1896,11 @@ static int bprm_execve(struct linux_binprm *bprm,
- 	struct files_struct *displaced;
- 	int retval;
+@@ -1847,6 +1848,11 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 	 * further execve() calls fail. */
+ 	current->flags &= ~PF_NPROC_EXCEEDED;
  
 +	/*
 +	 * Cancel any io_uring activity across execve
@@ -1141,20 +1141,20 @@ index a91003e28eaa..07910f5032e7 100644
 +
  	retval = unshare_files(&displaced);
  	if (retval)
- 		return retval;
+ 		goto out_ret;
 diff --git a/fs/file.c b/fs/file.c
-index 21c0893f2f1d..4559b5fec3bd 100644
+index abb8b7081d7a..8e2c532bb02e 100644
 --- a/fs/file.c
 +++ b/fs/file.c
-@@ -21,6 +21,7 @@
+@@ -18,6 +18,7 @@
+ #include <linux/bitops.h>
+ #include <linux/spinlock.h>
  #include <linux/rcupdate.h>
- #include <linux/close_range.h>
- #include <net/sock.h>
 +#include <linux/io_uring.h>
  
  unsigned int sysctl_nr_open __read_mostly = 1024*1024;
  unsigned int sysctl_nr_open_min = BITS_PER_LONG;
-@@ -452,6 +453,7 @@ void exit_files(struct task_struct *tsk)
+@@ -439,6 +440,7 @@ void exit_files(struct task_struct *tsk)
  	struct files_struct * files = tsk->files;
  
  	if (files) {
@@ -1163,18 +1163,18 @@ index 21c0893f2f1d..4559b5fec3bd 100644
  		tsk->files = NULL;
  		task_unlock(tsk);
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 046d06266a11..ee75ba7113cf 100644
+index de702e514590..ce6b241edd10 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -79,6 +79,7 @@
+@@ -78,6 +78,7 @@
+ #include <linux/fs_struct.h>
  #include <linux/splice.h>
  #include <linux/task_work.h>
- #include <linux/pagemap.h>
 +#include <linux/io_uring.h>
  
  #define CREATE_TRACE_POINTS
  #include <trace/events/io_uring.h>
-@@ -284,8 +285,6 @@ struct io_ring_ctx {
+@@ -283,8 +284,6 @@ struct io_ring_ctx {
  	 */
  	struct fixed_file_data	*file_data;
  	unsigned		nr_user_files;
@@ -1183,7 +1183,7 @@ index 046d06266a11..ee75ba7113cf 100644
  
  	/* if used, fixed mapped user buffers */
  	unsigned		nr_user_bufs;
-@@ -1433,7 +1432,12 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
+@@ -1335,7 +1334,12 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
  		WRITE_ONCE(cqe->user_data, req->user_data);
  		WRITE_ONCE(cqe->res, res);
  		WRITE_ONCE(cqe->flags, cflags);
@@ -1197,40 +1197,30 @@ index 046d06266a11..ee75ba7113cf 100644
  		WRITE_ONCE(ctx->rings->cq_overflow,
  				atomic_inc_return(&ctx->cached_cq_overflow));
  	} else {
-@@ -1591,8 +1595,12 @@ static bool io_dismantle_req(struct io_kiocb *req)
+@@ -1451,17 +1455,22 @@ static void io_req_drop_files(struct io_kiocb *req)
+ 		wake_up(&ctx->inflight_wait);
+ 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+ 	req->flags &= ~REQ_F_INFLIGHT;
++	put_files_struct(req->work.files);
+ 	req->work.files = NULL;
+ }
  
- static void __io_free_req_finish(struct io_kiocb *req)
+ static void __io_req_aux_free(struct io_kiocb *req)
  {
 +	struct io_uring_task *tctx = req->task->io_uring;
- 	struct io_ring_ctx *ctx = req->ctx;
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		io_cleanup_req(req);
  
+ 	kfree(req->io);
+ 	if (req->file)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
 +	atomic_long_inc(&tctx->req_complete);
 +	if (tctx->in_idle)
 +		wake_up(&tctx->wait);
  	put_task_struct(req->task);
- 
- 	if (likely(!io_is_fallback_req(req)))
-@@ -1907,6 +1915,7 @@ static void io_req_free_batch_finish(struct io_ring_ctx *ctx,
- 	if (rb->to_free)
- 		__io_req_free_batch_flush(ctx, rb);
- 	if (rb->task) {
-+		atomic_long_add(rb->task_refs, &rb->task->io_uring->req_complete);
- 		put_task_struct_many(rb->task, rb->task_refs);
- 		rb->task = NULL;
- 	}
-@@ -1922,8 +1931,10 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
- 		io_queue_next(req);
- 
- 	if (req->task != rb->task) {
--		if (rb->task)
-+		if (rb->task) {
-+			atomic_long_add(rb->task_refs, &rb->task->io_uring->req_complete);
- 			put_task_struct_many(rb->task, rb->task_refs);
-+		}
- 		rb->task = req->task;
- 		rb->task_refs = 0;
- 	}
-@@ -3978,8 +3989,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	io_req_work_drop_env(req);
+ }
+@@ -3532,8 +3541,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  		return -EBADF;
  
  	req->close.fd = READ_ONCE(sqe->fd);
@@ -1240,22 +1230,12 @@ index 046d06266a11..ee75ba7113cf 100644
  		return -EBADF;
  
  	req->close.put_file = NULL;
-@@ -5667,6 +5677,7 @@ static void io_req_drop_files(struct io_kiocb *req)
- 		wake_up(&ctx->inflight_wait);
- 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
- 	req->flags &= ~REQ_F_INFLIGHT;
-+	put_files_struct(req->work.files);
- 	req->work.files = NULL;
- }
- 
-@@ -6067,34 +6078,20 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
+@@ -5671,32 +5679,18 @@ static int io_req_set_file(struct io_submit_state *state, struct io_kiocb *req,
  
  static int io_grab_files(struct io_kiocb *req)
  {
 -	int ret = -EBADF;
  	struct io_ring_ctx *ctx = req->ctx;
- 
- 	io_req_init_async(req);
  
  	if (req->work.files || (req->flags & REQ_F_NO_FILE_TABLE))
  		return 0;
@@ -1287,8 +1267,8 @@ index 046d06266a11..ee75ba7113cf 100644
 +	return 0;
  }
  
- static inline int io_prep_work_files(struct io_kiocb *req)
-@@ -6459,6 +6456,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+@@ -6067,6 +6061,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
  	refcount_set(&req->refs, 2);
  	req->task = current;
  	get_task_struct(req->task);
@@ -1296,7 +1276,7 @@ index 046d06266a11..ee75ba7113cf 100644
  	req->result = 0;
  
  	if (unlikely(req->opcode >= IORING_OP_LAST))
-@@ -6494,8 +6492,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+@@ -6102,8 +6097,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
  	return io_req_set_file(state, req, READ_ONCE(sqe->fd));
  }
  
@@ -1304,11 +1284,11 @@ index 046d06266a11..ee75ba7113cf 100644
 -			  struct file *ring_file, int ring_fd)
 +static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
  {
- 	struct io_submit_state state;
+ 	struct io_submit_state state, *statep = NULL;
  	struct io_kiocb *link = NULL;
-@@ -6516,9 +6513,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 
- 	io_submit_state_start(&state, ctx, nr);
+@@ -6127,9 +6121,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 		statep = &state;
+ 	}
  
 -	ctx->ring_fd = ring_fd;
 -	ctx->ring_file = ring_file;
@@ -1316,7 +1296,7 @@ index 046d06266a11..ee75ba7113cf 100644
  	for (i = 0; i < nr; i++) {
  		const struct io_uring_sqe *sqe;
  		struct io_kiocb *req;
-@@ -6687,7 +6681,7 @@ static int io_sq_thread(void *data)
+@@ -6290,7 +6281,7 @@ static int io_sq_thread(void *data)
  
  		mutex_lock(&ctx->uring_lock);
  		if (likely(!percpu_ref_is_dying(&ctx->refs)))
@@ -1325,7 +1305,7 @@ index 046d06266a11..ee75ba7113cf 100644
  		mutex_unlock(&ctx->uring_lock);
  		timeout = jiffies + ctx->sq_thread_idle;
  	}
-@@ -7516,6 +7510,34 @@ static int io_init_wq_offload(struct io_ring_ctx *ctx,
+@@ -7119,6 +7110,34 @@ static int io_init_wq_offload(struct io_ring_ctx *ctx,
  	return ret;
  }
  
@@ -1360,7 +1340,7 @@ index 046d06266a11..ee75ba7113cf 100644
  static int io_sq_offload_start(struct io_ring_ctx *ctx,
  			       struct io_uring_params *p)
  {
-@@ -7551,6 +7573,9 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+@@ -7154,6 +7173,9 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
  			ctx->sqo_thread = NULL;
  			goto err;
  		}
@@ -1370,7 +1350,7 @@ index 046d06266a11..ee75ba7113cf 100644
  		wake_up_process(ctx->sqo_thread);
  	} else if (p->flags & IORING_SETUP_SQ_AFF) {
  		/* Can't have SQ_AFF without SQPOLL */
-@@ -8063,7 +8088,7 @@ static bool io_wq_files_match(struct io_wq_work *work, void *data)
+@@ -7633,7 +7655,7 @@ static bool io_wq_files_match(struct io_wq_work *work, void *data)
  {
  	struct files_struct *files = data;
  
@@ -1379,7 +1359,7 @@ index 046d06266a11..ee75ba7113cf 100644
  }
  
  /*
-@@ -8218,7 +8243,7 @@ static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
+@@ -7787,7 +7809,7 @@ static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
  
  		spin_lock_irq(&ctx->inflight_lock);
  		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
@@ -1388,7 +1368,7 @@ index 046d06266a11..ee75ba7113cf 100644
  				continue;
  			/* req is being completed, ignore */
  			if (!refcount_inc_not_zero(&req->refs))
-@@ -8254,18 +8279,217 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+@@ -7850,18 +7872,217 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
  	return io_task_match(req, task);
  }
  
@@ -1408,8 +1388,8 @@ index 046d06266a11..ee75ba7113cf 100644
 +
 +		/* SQPOLL thread does its own polling */
 +		if (!(ctx->flags & IORING_SETUP_SQPOLL)) {
-+			while (!list_empty_careful(&ctx->iopoll_list)) {
-+				io_iopoll_try_reap_events(ctx);
++			if (!list_empty_careful(&ctx->poll_list)) {
++				io_iopoll_reap_events(ctx);
 +				ret = true;
 +			}
 +		}
@@ -1609,7 +1589,7 @@ index 046d06266a11..ee75ba7113cf 100644
  	return 0;
  }
  
-@@ -8379,8 +8603,11 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+@@ -7975,8 +8196,11 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
  			wake_up(&ctx->sqo_wait);
  		submitted = to_submit;
  	} else if (to_submit) {
@@ -1622,7 +1602,7 @@ index 046d06266a11..ee75ba7113cf 100644
  		mutex_unlock(&ctx->uring_lock);
  
  		if (submitted != to_submit)
-@@ -8590,6 +8817,7 @@ static int io_uring_get_fd(struct io_ring_ctx *ctx)
+@@ -8188,6 +8412,7 @@ static int io_uring_get_fd(struct io_ring_ctx *ctx)
  	file = anon_inode_getfile("[io_uring]", &io_uring_fops, ctx,
  					O_RDWR | O_CLOEXEC);
  	if (IS_ERR(file)) {
@@ -1630,7 +1610,7 @@ index 046d06266a11..ee75ba7113cf 100644
  		put_unused_fd(ret);
  		ret = PTR_ERR(file);
  		goto err;
-@@ -8598,6 +8826,10 @@ static int io_uring_get_fd(struct io_ring_ctx *ctx)
+@@ -8196,6 +8421,10 @@ static int io_uring_get_fd(struct io_ring_ctx *ctx)
  #if defined(CONFIG_UNIX)
  	ctx->ring_sock->file = file;
  #endif
@@ -1701,10 +1681,10 @@ index 000000000000..c09135a1ef13
 +
 +#endif
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index afe01e232935..8bf2295ebee4 100644
+index 683372943093..f0f38e86ab1e 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -63,6 +63,7 @@ struct sighand_struct;
+@@ -61,6 +61,7 @@ struct sighand_struct;
  struct signal_struct;
  struct task_delay_info;
  struct task_group;
@@ -1712,7 +1692,7 @@ index afe01e232935..8bf2295ebee4 100644
  
  /*
   * Task state bitmask. NOTE! These bits are also
-@@ -935,6 +936,10 @@ struct task_struct {
+@@ -923,6 +924,10 @@ struct task_struct {
  	/* Open file information: */
  	struct files_struct		*files;
  
@@ -1724,10 +1704,10 @@ index afe01e232935..8bf2295ebee4 100644
  	struct nsproxy			*nsproxy;
  
 diff --git a/init/init_task.c b/init/init_task.c
-index f6889fce64af..a56f0abb63e9 100644
+index 15089d15010a..7802f91109b4 100644
 --- a/init/init_task.c
 +++ b/init/init_task.c
-@@ -114,6 +114,9 @@ struct task_struct init_task
+@@ -113,6 +113,9 @@ struct task_struct init_task
  	.thread		= INIT_THREAD,
  	.fs		= &init_fs,
  	.files		= &init_files,
@@ -1738,7 +1718,7 @@ index f6889fce64af..a56f0abb63e9 100644
  	.sighand	= &init_sighand,
  	.nsproxy	= &init_nsproxy,
 diff --git a/kernel/fork.c b/kernel/fork.c
-index da8d360fb032..a3795aaaab5c 100644
+index efc5493203ae..fa1974e11fad 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -95,6 +95,7 @@
@@ -1749,7 +1729,7 @@ index da8d360fb032..a3795aaaab5c 100644
  
  #include <asm/pgalloc.h>
  #include <linux/uaccess.h>
-@@ -728,6 +729,7 @@ void __put_task_struct(struct task_struct *tsk)
+@@ -745,6 +746,7 @@ void __put_task_struct(struct task_struct *tsk)
  	WARN_ON(refcount_read(&tsk->usage));
  	WARN_ON(tsk == current);
  
@@ -1757,7 +1737,7 @@ index da8d360fb032..a3795aaaab5c 100644
  	cgroup_free(tsk);
  	task_numa_free(tsk, true);
  	security_task_free(tsk);
-@@ -1983,6 +1985,10 @@ static __latent_entropy struct task_struct *copy_process(
+@@ -2003,6 +2005,10 @@ static __latent_entropy struct task_struct *copy_process(
  	p->vtime.state = VTIME_INACTIVE;
  #endif
  
@@ -1772,18 +1752,18 @@ index da8d360fb032..a3795aaaab5c 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0006-io_uring-enable-task-files-specific-overflow-flushin.patch"
+ name="0007-io_uring-enable-task-files-specific-overflow-flushin.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0006-io_uring-enable-task-files-specific-overflow-flushin.pa";
+ filename*0="0007-io_uring-enable-task-files-specific-overflow-flushin.pa";
  filename*1="tch"
 
-From 062be0e7ae80f9450d04fc4e4b8911dda02e2a75 Mon Sep 17 00:00:00 2001
+From 9236b56e2dcc9b437c8a9a73574db095f8cfb8b6 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Mon, 28 Sep 2020 13:10:13 -0600
-Subject: [PATCH 06/14] io_uring: enable task/files specific overflow flushing
+Subject: [PATCH 07/15] io_uring: enable task/files specific overflow flushing
 
 commit e6c8aa9ac33bd7c968af7816240fc081401fddcd upstream.
 
@@ -1795,15 +1775,15 @@ No intended functional changes in this patch.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 41 +++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 41 ++++++++++++++++++++++++++---------------
+ 1 file changed, 26 insertions(+), 15 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5ddb8b2fe3e5..046d06266a11 100644
+index 3de1e9535b95..de702e514590 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1344,12 +1344,24 @@ static void io_cqring_mark_overflow(struct io_ring_ctx *ctx)
- 	}
+@@ -1240,12 +1240,24 @@ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+ 		eventfd_signal(ctx->cq_ev_fd, 1);
  }
  
 +static inline bool io_match_files(struct io_kiocb *req,
@@ -1829,12 +1809,12 @@ index 5ddb8b2fe3e5..046d06266a11 100644
  	unsigned long flags;
  	LIST_HEAD(list);
  
-@@ -1368,13 +1380,16 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+@@ -1264,7 +1276,12 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
  		ctx->cq_overflow_flushed = 1;
  
  	cqe = NULL;
 -	while (!list_empty(&ctx->cq_overflow_list)) {
-+	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
++	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, list) {
 +		if (tsk && req->task != tsk)
 +			continue;
 +		if (!io_match_files(req, files))
@@ -1843,13 +1823,7 @@ index 5ddb8b2fe3e5..046d06266a11 100644
  		cqe = io_get_cqring(ctx);
  		if (!cqe && !force)
  			break;
- 
--		req = list_first_entry(&ctx->cq_overflow_list, struct io_kiocb,
--						compl.list);
- 		list_move(&req->compl.list, &list);
- 		if (cqe) {
- 			WRITE_ONCE(cqe->user_data, req->user_data);
-@@ -1988,7 +2003,7 @@ static unsigned io_cqring_events(struct io_ring_ctx *ctx, bool noflush)
+@@ -1734,7 +1751,7 @@ static unsigned io_cqring_events(struct io_ring_ctx *ctx, bool noflush)
  		if (noflush && !list_empty(&ctx->cq_overflow_list))
  			return -1U;
  
@@ -1858,7 +1832,7 @@ index 5ddb8b2fe3e5..046d06266a11 100644
  	}
  
  	/* See comment at the top of this file */
-@@ -6489,7 +6504,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+@@ -6095,7 +6112,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
  	/* if we have a backlog and couldn't flush it all, return BUSY */
  	if (test_bit(0, &ctx->sq_check_overflow)) {
  		if (!list_empty(&ctx->cq_overflow_list) &&
@@ -1867,25 +1841,34 @@ index 5ddb8b2fe3e5..046d06266a11 100644
  			return -EBUSY;
  	}
  
-@@ -7993,7 +8008,7 @@ static void io_ring_exit_work(struct work_struct *work)
- 	 */
- 	do {
+@@ -7556,7 +7573,7 @@ static void io_ring_exit_work(struct work_struct *work)
+ 
+ 	ctx = container_of(work, struct io_ring_ctx, exit_work);
+ 	if (ctx->rings)
+-		io_cqring_overflow_flush(ctx, true);
++		io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 
+ 	/*
+ 	 * If we're doing polled IO and end up having requests being
+@@ -7567,7 +7584,7 @@ static void io_ring_exit_work(struct work_struct *work)
+ 	while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20)) {
+ 		io_iopoll_reap_events(ctx);
  		if (ctx->rings)
 -			io_cqring_overflow_flush(ctx, true);
 +			io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 		io_iopoll_try_reap_events(ctx);
- 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+ 	}
  	io_ring_ctx_free(ctx);
-@@ -8013,7 +8028,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 
+ }
+@@ -7587,7 +7604,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	io_iopoll_reap_events(ctx);
  	/* if we failed setting up the ctx, we might not have any rings */
  	if (ctx->rings)
 -		io_cqring_overflow_flush(ctx, true);
 +		io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 	io_iopoll_try_reap_events(ctx);
  	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
  
-@@ -8069,12 +8084,6 @@ static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
+ 	/*
+@@ -7637,12 +7654,6 @@ static bool io_match_link(struct io_kiocb *preq, struct io_kiocb *req)
  	return false;
  }
  
@@ -1898,7 +1881,7 @@ index 5ddb8b2fe3e5..046d06266a11 100644
  static bool io_match_link_files(struct io_kiocb *req,
  				struct files_struct *files)
  {
-@@ -8365,7 +8374,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+@@ -7959,7 +7970,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
  	ret = 0;
  	if (ctx->flags & IORING_SETUP_SQPOLL) {
  		if (!list_empty_careful(&ctx->cq_overflow_list))
@@ -1911,18 +1894,18 @@ index 5ddb8b2fe3e5..046d06266a11 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0005-io_uring-return-cancelation-status-from-poll-timeout.patch"
+ name="0006-io_uring-return-cancelation-status-from-poll-timeout.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0005-io_uring-return-cancelation-status-from-poll-timeout.pa";
+ filename*0="0006-io_uring-return-cancelation-status-from-poll-timeout.pa";
  filename*1="tch"
 
-From bde6369157b2e0ee1ae65d2c337ee1bb13b68106 Mon Sep 17 00:00:00 2001
+From 40274a8506d43254a89789db3ec0f47fc9fd6d35 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Sat, 26 Sep 2020 15:05:03 -0600
-Subject: [PATCH 05/14] io_uring: return cancelation status from
+Subject: [PATCH 06/15] io_uring: return cancelation status from
  poll/timeout/files handlers
 
 commit 76e1b6427fd8246376a97e3227049d49188dfb9c upstream.
@@ -1934,14 +1917,14 @@ patch.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 53392f22b212..5ddb8b2fe3e5 100644
+index 908b26abcc9c..3de1e9535b95 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1229,16 +1229,23 @@ static bool io_task_match(struct io_kiocb *req, struct task_struct *tsk)
+@@ -1143,15 +1143,23 @@ static bool io_task_match(struct io_kiocb *req, struct task_struct *tsk)
  	return false;
  }
  
@@ -1955,19 +1938,20 @@ index 53392f22b212..5ddb8b2fe3e5 100644
 +	int canceled = 0;
  
  	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
+-	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list)
 -		if (io_task_match(req, tsk))
++	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list) {
 +		if (io_task_match(req, tsk)) {
  			io_kill_timeout(req);
 +			canceled++;
 +		}
- 	}
++	}
  	spin_unlock_irq(&ctx->completion_lock);
 +	return canceled != 0;
  }
  
  static void __io_queue_deferred(struct io_ring_ctx *ctx)
-@@ -5013,7 +5020,10 @@ static bool io_poll_remove_one(struct io_kiocb *req)
+@@ -4650,7 +4658,10 @@ static bool io_poll_remove_one(struct io_kiocb *req)
  	return do_complete;
  }
  
@@ -1979,7 +1963,7 @@ index 53392f22b212..5ddb8b2fe3e5 100644
  {
  	struct hlist_node *tmp;
  	struct io_kiocb *req;
-@@ -5033,6 +5043,8 @@ static void io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
+@@ -4670,6 +4681,8 @@ static void io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
  
  	if (posted)
  		io_cqring_ev_posted(ctx);
@@ -1988,7 +1972,7 @@ index 53392f22b212..5ddb8b2fe3e5 100644
  }
  
  static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
-@@ -8178,11 +8190,14 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+@@ -7744,11 +7757,14 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
  	}
  }
  
@@ -2005,7 +1989,7 @@ index 53392f22b212..5ddb8b2fe3e5 100644
  
  	io_cancel_defer_files(ctx, files);
  	/* cancel all at once, should be faster than doing it one by one*/
-@@ -8218,6 +8233,8 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+@@ -7811,6 +7827,8 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
  		schedule();
  		finish_wait(&ctx->inflight_wait, &wait);
  	}
@@ -2018,17 +2002,17 @@ index 53392f22b212..5ddb8b2fe3e5 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0004-io_uring-unconditionally-grab-req-task.patch"
+ name="0005-io_uring-unconditionally-grab-req-task.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0004-io_uring-unconditionally-grab-req-task.patch"
+ filename="0005-io_uring-unconditionally-grab-req-task.patch"
 
-From 88f9bcf0b379c8fc571c77045c8a3b05b730a212 Mon Sep 17 00:00:00 2001
+From 56cb5da1be821e1f528eb51e498bd272744403f6 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 24 Sep 2020 08:45:57 -0600
-Subject: [PATCH 04/14] io_uring: unconditionally grab req->task
+Date: Mon, 12 Oct 2020 11:25:39 -0600
+Subject: [PATCH 05/15] io_uring: unconditionally grab req->task
 
 commit e3bc8e9dad7f2f83cc807111d4472164c9210153 upstream.
 
@@ -2039,23 +2023,23 @@ flag related to tracking this state.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 47 +++++++++--------------------------------------
- 1 file changed, 9 insertions(+), 38 deletions(-)
+ fs/io_uring.c | 26 +++-----------------------
+ 1 file changed, 3 insertions(+), 23 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d24e0322bd1d..53392f22b212 100644
+index 171ea70d5350..908b26abcc9c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -553,7 +553,6 @@ enum {
- 	REQ_F_BUFFER_SELECTED_BIT,
+@@ -550,7 +550,6 @@ enum {
  	REQ_F_NO_FILE_TABLE_BIT,
+ 	REQ_F_QUEUE_TIMEOUT_BIT,
  	REQ_F_WORK_INITIALIZED_BIT,
 -	REQ_F_TASK_PINNED_BIT,
  
  	/* not a real bit, just to check we're not overflowing the space */
  	__REQ_F_LAST_BIT,
-@@ -599,8 +598,6 @@ enum {
- 	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
+@@ -608,8 +607,6 @@ enum {
+ 	REQ_F_QUEUE_TIMEOUT	= BIT(REQ_F_QUEUE_TIMEOUT_BIT),
  	/* io_wq_work is initialized */
  	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
 -	/* req->task is refcounted */
@@ -2063,7 +2047,7 @@ index d24e0322bd1d..53392f22b212 100644
  };
  
  struct async_poll {
-@@ -942,14 +939,6 @@ struct sock *io_uring_get_socket(struct file *file)
+@@ -924,21 +921,6 @@ struct sock *io_uring_get_socket(struct file *file)
  }
  EXPORT_SYMBOL(io_uring_get_socket);
  
@@ -2075,13 +2059,6 @@ index d24e0322bd1d..53392f22b212 100644
 -	req->flags |= REQ_F_TASK_PINNED;
 -}
 -
- static inline void io_clean_op(struct io_kiocb *req)
- {
- 	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED |
-@@ -957,13 +946,6 @@ static inline void io_clean_op(struct io_kiocb *req)
- 		__io_clean_op(req);
- }
- 
 -/* not idempotent -- it doesn't clear REQ_F_TASK_PINNED */
 -static void __io_put_req_task(struct io_kiocb *req)
 -{
@@ -2089,95 +2066,45 @@ index d24e0322bd1d..53392f22b212 100644
 -		put_task_struct(req->task);
 -}
 -
- static void io_sq_thread_drop_mm(void)
- {
- 	struct mm_struct *mm = current->mm;
-@@ -1589,7 +1571,8 @@ static void __io_free_req_finish(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
+ static void io_file_put_work(struct work_struct *work);
  
+ /*
+@@ -1455,7 +1437,7 @@ static void __io_req_aux_free(struct io_kiocb *req)
+ 	kfree(req->io);
+ 	if (req->file)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
 -	__io_put_req_task(req);
 +	put_task_struct(req->task);
-+
- 	if (likely(!io_is_fallback_req(req)))
- 		kmem_cache_free(req_cachep, req);
- 	else
-@@ -1916,16 +1899,13 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req)
- 	if (req->flags & REQ_F_LINK_HEAD)
- 		io_queue_next(req);
- 
--	if (req->flags & REQ_F_TASK_PINNED) {
--		if (req->task != rb->task) {
--			if (rb->task)
--				put_task_struct_many(rb->task, rb->task_refs);
--			rb->task = req->task;
--			rb->task_refs = 0;
--		}
--		rb->task_refs++;
--		req->flags &= ~REQ_F_TASK_PINNED;
-+	if (req->task != rb->task) {
-+		if (rb->task)
-+			put_task_struct_many(rb->task, rb->task_refs);
-+		rb->task = req->task;
-+		rb->task_refs = 0;
- 	}
-+	rb->task_refs++;
- 
- 	WARN_ON_ONCE(io_dismantle_req(req));
- 	rb->reqs[rb->to_free++] = req;
-@@ -2550,9 +2530,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (kiocb->ki_flags & IOCB_NOWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 
--	if (kiocb->ki_flags & IOCB_DIRECT)
--		io_get_req_task(req);
--
- 	if (force_nonblock)
- 		kiocb->ki_flags |= IOCB_NOWAIT;
- 
-@@ -2564,7 +2541,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		kiocb->ki_flags |= IOCB_HIPRI;
- 		kiocb->ki_complete = io_complete_rw_iopoll;
- 		req->iopoll_completed = 0;
--		io_get_req_task(req);
- 	} else {
- 		if (kiocb->ki_flags & IOCB_HIPRI)
- 			return -EINVAL;
-@@ -3132,8 +3108,6 @@ static bool io_rw_should_retry(struct io_kiocb *req)
- 	kiocb->ki_flags |= IOCB_WAITQ;
- 	kiocb->ki_flags &= ~IOCB_NOWAIT;
- 	kiocb->ki_waitq = wait;
--
--	io_get_req_task(req);
- 	return true;
+ 	io_req_work_drop_env(req);
  }
  
-@@ -4965,7 +4939,6 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	apoll->double_poll = NULL;
+@@ -1765,7 +1747,7 @@ static inline bool io_req_multi_free(struct req_batch *rb, struct io_kiocb *req)
+ 	if ((req->flags & REQ_F_LINK_HEAD) || io_is_fallback_req(req))
+ 		return false;
  
- 	req->flags |= REQ_F_POLLED;
+-	if (req->file || req->io)
++	if (req->file || req->io || req->task)
+ 		rb->need_iter++;
+ 
+ 	rb->reqs[rb->to_free++] = req;
+@@ -4584,7 +4566,6 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 	if (req->flags & REQ_F_WORK_INITIALIZED)
+ 		memcpy(&apoll->work, &req->work, sizeof(req->work));
+ 
 -	io_get_req_task(req);
  	req->apoll = apoll;
  	INIT_HLIST_NODE(&req->hash_node);
  
-@@ -5148,8 +5121,6 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- #endif
- 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP |
- 		       (events & EPOLLEXCLUSIVE);
+@@ -4774,8 +4755,6 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 
+ 	events = READ_ONCE(sqe->poll_events);
+ 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
 -
 -	io_get_req_task(req);
  	return 0;
  }
  
-@@ -6336,7 +6307,6 @@ static int io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 			return ret;
- 		}
- 		trace_io_uring_link(ctx, req, head);
--		io_get_req_task(req);
- 		list_add_tail(&req->link_list, &head->link_list);
- 
- 		/* last request of a link, enqueue the link */
-@@ -6461,6 +6431,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+@@ -6057,6 +6036,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
  	/* one is dropped after submission, the other at completion */
  	refcount_set(&req->refs, 2);
  	req->task = current;
@@ -2189,17 +2116,17 @@ index d24e0322bd1d..53392f22b212 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0003-io_uring-stash-ctx-task-reference-for-SQPOLL.patch"
+ name="0004-io_uring-stash-ctx-task-reference-for-SQPOLL.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0003-io_uring-stash-ctx-task-reference-for-SQPOLL.patch"
+ filename="0004-io_uring-stash-ctx-task-reference-for-SQPOLL.patch"
 
-From 2951cff0148a9e1069201bd3c73c04e8bb13b19a Mon Sep 17 00:00:00 2001
+From 48f1481d400b9b6a8da85b023c6d20b8802e0ec2 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Mon, 14 Sep 2020 10:45:53 -0600
-Subject: [PATCH 03/14] io_uring: stash ctx task reference for SQPOLL
+Date: Mon, 12 Oct 2020 11:15:07 -0600
+Subject: [PATCH 04/15] io_uring: stash ctx task reference for SQPOLL
 
 commit 2aede0e417db846793c276c7a1bbf7262c8349b0 upstream.
 
@@ -2210,14 +2137,14 @@ between the ring fd and the task itself.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 47 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 13 deletions(-)
+ fs/io_uring.c | 39 +++++++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 73c5dbb1591d..d24e0322bd1d 100644
+index 6e061d5cf856..171ea70d5350 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -265,7 +265,16 @@ struct io_ring_ctx {
+@@ -264,7 +264,16 @@ struct io_ring_ctx {
  	/* IO offload */
  	struct io_wq		*io_wq;
  	struct task_struct	*sqo_thread;	/* if using sq thread polling */
@@ -2235,101 +2162,88 @@ index 73c5dbb1591d..d24e0322bd1d 100644
  	wait_queue_head_t	sqo_wait;
  
  	/*
-@@ -969,9 +978,10 @@ static int __io_sq_thread_acquire_mm(struct io_ring_ctx *ctx)
+@@ -4421,9 +4430,10 @@ static int io_sq_thread_acquire_mm(struct io_ring_ctx *ctx,
  {
- 	if (!current->mm) {
+ 	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
  		if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
 -			     !mmget_not_zero(ctx->sqo_mm)))
-+			     !ctx->sqo_task->mm ||
-+			     !mmget_not_zero(ctx->sqo_task->mm)))
++			!ctx->sqo_task->mm ||
++			!mmget_not_zero(ctx->sqo_task->mm)))
  			return -EFAULT;
 -		kthread_use_mm(ctx->sqo_mm);
 +		kthread_use_mm(ctx->sqo_task->mm);
  	}
  
  	return 0;
-@@ -7591,11 +7601,11 @@ static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages,
- 	if (ctx->limit_mem)
- 		__io_unaccount_mem(ctx->user, nr_pages);
+@@ -7104,9 +7114,6 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ {
+ 	int ret;
  
--	if (ctx->sqo_mm) {
-+	if (ctx->mm_account) {
- 		if (acct == ACCT_LOCKED)
--			ctx->sqo_mm->locked_vm -= nr_pages;
-+			ctx->mm_account->locked_vm -= nr_pages;
- 		else if (acct == ACCT_PINNED)
--			atomic64_sub(nr_pages, &ctx->sqo_mm->pinned_vm);
-+			atomic64_sub(nr_pages, &ctx->mm_account->pinned_vm);
- 	}
+-	mmgrab(current->mm);
+-	ctx->sqo_mm = current->mm;
+-
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		ret = -EPERM;
+ 		if (!capable(CAP_SYS_ADMIN))
+@@ -7151,8 +7158,6 @@ static int io_sq_offload_start(struct io_ring_ctx *ctx,
+ 	return 0;
+ err:
+ 	io_finish_async(ctx);
+-	mmdrop(ctx->sqo_mm);
+-	ctx->sqo_mm = NULL;
+ 	return ret;
  }
  
-@@ -7610,11 +7620,11 @@ static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages,
- 			return ret;
- 	}
- 
--	if (ctx->sqo_mm) {
-+	if (ctx->mm_account) {
- 		if (acct == ACCT_LOCKED)
--			ctx->sqo_mm->locked_vm += nr_pages;
-+			ctx->mm_account->locked_vm += nr_pages;
- 		else if (acct == ACCT_PINNED)
--			atomic64_add(nr_pages, &ctx->sqo_mm->pinned_vm);
-+			atomic64_add(nr_pages, &ctx->mm_account->pinned_vm);
- 	}
- 
- 	return 0;
-@@ -7918,9 +7928,12 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+@@ -7482,8 +7487,12 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
+ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
  {
  	io_finish_async(ctx);
- 	io_sqe_buffer_unregister(ctx);
--	if (ctx->sqo_mm) {
+-	if (ctx->sqo_mm)
 -		mmdrop(ctx->sqo_mm);
--		ctx->sqo_mm = NULL;
-+
 +	if (ctx->sqo_task) {
 +		put_task_struct(ctx->sqo_task);
 +		ctx->sqo_task = NULL;
 +		mmdrop(ctx->mm_account);
 +		ctx->mm_account = NULL;
- 	}
++	}
  
- 	io_sqe_files_unregister(ctx);
-@@ -8665,8 +8678,16 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	io_iopoll_reap_events(ctx);
+ 	io_sqe_buffer_unregister(ctx);
+@@ -8256,6 +8265,16 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
  	ctx->user = user;
  	ctx->creds = get_current_cred();
  
 +	ctx->sqo_task = get_task_struct(current);
-+
 +	/*
 +	 * This is just grabbed for accounting purposes. When a process exits,
 +	 * the mm is exited and dropped before the files, hence we need to hang
 +	 * on to this mm purely for the purposes of being able to unaccount
 +	 * memory (locked/pinned vm). It's not used for anything else.
 +	 */
- 	mmgrab(current->mm);
--	ctx->sqo_mm = current->mm;
++	mmgrab(current->mm);
 +	ctx->mm_account = current->mm;
- 
- 	/*
- 	 * Account memory _before_ installing the file descriptor. Once
++
+ 	ret = io_allocate_scq_urings(ctx, p);
+ 	if (ret)
+ 		goto err;
 -- 
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0002-io_uring-move-dropping-of-files-into-separate-helper.patch"
+ name="0003-io_uring-move-dropping-of-files-into-separate-helper.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0002-io_uring-move-dropping-of-files-into-separate-helper.pa";
+ filename*0="0003-io_uring-move-dropping-of-files-into-separate-helper.pa";
  filename*1="tch"
 
-From 851be0ed1af0a5cbeac216cfdd04e2695ca091ca Mon Sep 17 00:00:00 2001
+From f205e9f8c3ebf3a691bc4f142ebd5aaf19d0c382 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 22 Sep 2020 10:19:24 -0600
-Subject: [PATCH 02/14] io_uring: move dropping of files into separate helper
+Date: Mon, 12 Oct 2020 11:03:18 -0600
+Subject: [PATCH 03/15] io_uring: move dropping of files into separate helper
 
-commit 0444ce1e0b5967393447dcd5adbf2bb023a50aab upstream.
+commit f573d384456b3025d3f8e58b3eafaeeb0f510784 upstream.
 
 No functional changes in this patch, prep patch for grabbing references
 to the files_struct.
@@ -2337,15 +2251,15 @@ to the files_struct.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 867145fb149c..73c5dbb1591d 100644
+index 67cb1d25769a..6e061d5cf856 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5648,6 +5648,20 @@ static int io_req_defer(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	return -EIOCBQUEUED;
+@@ -1424,6 +1424,20 @@ static inline void io_put_file(struct io_kiocb *req, struct file *file,
+ 		fput(file);
  }
  
 +static void io_req_drop_files(struct io_kiocb *req)
@@ -2362,12 +2276,12 @@ index 867145fb149c..73c5dbb1591d 100644
 +	req->work.files = NULL;
 +}
 +
- static void __io_clean_op(struct io_kiocb *req)
+ static void __io_req_aux_free(struct io_kiocb *req)
  {
- 	struct io_async_ctx *io = req->io;
-@@ -5697,17 +5711,8 @@ static void __io_clean_op(struct io_kiocb *req)
- 		req->flags &= ~REQ_F_NEED_CLEANUP;
- 	}
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+@@ -1440,16 +1454,8 @@ static void __io_free_req(struct io_kiocb *req)
+ {
+ 	__io_req_aux_free(req);
  
 -	if (req->flags & REQ_F_INFLIGHT) {
 -		struct io_ring_ctx *ctx = req->ctx;
@@ -2378,32 +2292,31 @@ index 867145fb149c..73c5dbb1591d 100644
 -		if (waitqueue_active(&ctx->inflight_wait))
 -			wake_up(&ctx->inflight_wait);
 -		spin_unlock_irqrestore(&ctx->inflight_lock, flags);
--		req->flags &= ~REQ_F_INFLIGHT;
 -	}
 +	if (req->flags & REQ_F_INFLIGHT)
 +		io_req_drop_files(req);
- }
  
- static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 	percpu_ref_put(&req->ctx->refs);
+ 	if (likely(!io_is_fallback_req(req)))
 -- 
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422
+--------------5AD4B1471F8EAA2A7F88AE21
 Content-Type: text/x-patch; charset=UTF-8;
- name="0001-io_uring-allow-timeout-poll-files-killing-to-take-ta.patch"
+ name="0002-io_uring-allow-timeout-poll-files-killing-to-take-ta.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0001-io_uring-allow-timeout-poll-files-killing-to-take-ta.pa";
+ filename*0="0002-io_uring-allow-timeout-poll-files-killing-to-take-ta.pa";
  filename*1="tch"
 
-From 5ca57677cda6ea463276c72b3eddcd5482de081c Mon Sep 17 00:00:00 2001
+From e35de1a881ec13d38ac69c5012acc02a799c808e Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
 Date: Tue, 22 Sep 2020 08:18:24 -0600
-Subject: [PATCH 01/14] io_uring: allow timeout/poll/files killing to take task
+Subject: [PATCH 02/15] io_uring: allow timeout/poll/files killing to take task
  into account
 
-commit 07d3ca52b0056f25eef61b1c896d089f8d365468 upstream.
+commit f3606e3a92ddd36299642c78592fc87609abb1f6 upstream.
 
 We currently cancel these when the ring exits, and we cancel all of
 them. This is in preparation for killing only the ones associated
@@ -2412,14 +2325,14 @@ with a given task.
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index aae0ef2ec34d..867145fb149c 100644
+index b706a4538a7f..67cb1d25769a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1226,13 +1226,26 @@ static void io_kill_timeout(struct io_kiocb *req)
+@@ -1141,13 +1141,25 @@ static void io_kill_timeout(struct io_kiocb *req)
  	}
  }
  
@@ -2440,16 +2353,14 @@ index aae0ef2ec34d..867145fb149c 100644
  	struct io_kiocb *req, *tmp;
  
  	spin_lock_irq(&ctx->completion_lock);
--	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list)
+ 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list)
 -		io_kill_timeout(req);
-+	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
 +		if (io_task_match(req, tsk))
 +			io_kill_timeout(req);
-+	}
  	spin_unlock_irq(&ctx->completion_lock);
  }
  
-@@ -5017,7 +5030,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
+@@ -4641,7 +4653,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
  	return do_complete;
  }
  
@@ -2458,7 +2369,7 @@ index aae0ef2ec34d..867145fb149c 100644
  {
  	struct hlist_node *tmp;
  	struct io_kiocb *req;
-@@ -5028,8 +5041,10 @@ static void io_poll_remove_all(struct io_ring_ctx *ctx)
+@@ -4652,8 +4664,10 @@ static void io_poll_remove_all(struct io_ring_ctx *ctx)
  		struct hlist_head *list;
  
  		list = &ctx->cancel_hash[i];
@@ -2471,7 +2382,7 @@ index aae0ef2ec34d..867145fb149c 100644
  	}
  	spin_unlock_irq(&ctx->completion_lock);
  
-@@ -7989,8 +8004,8 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+@@ -7556,8 +7570,8 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
  	percpu_ref_kill(&ctx->refs);
  	mutex_unlock(&ctx->uring_lock);
  
@@ -2482,7 +2393,7 @@ index aae0ef2ec34d..867145fb149c 100644
  
  	if (ctx->io_wq)
  		io_wq_cancel_all(ctx->io_wq);
-@@ -8221,7 +8236,7 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+@@ -7809,7 +7823,7 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
  	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
  	struct task_struct *task = data;
  
@@ -2495,4 +2406,57 @@ index aae0ef2ec34d..867145fb149c 100644
 2.29.0
 
 
---------------4A1C62D62F0A548A85843422--
+--------------5AD4B1471F8EAA2A7F88AE21
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-io_uring-don-t-run-task-work-on-an-exiting-task.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-io_uring-don-t-run-task-work-on-an-exiting-task.patch"
+
+From 6fda39205165a6f0dd6c9558c73176f28ded719f Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 12 Oct 2020 11:53:29 -0600
+Subject: [PATCH 01/15] io_uring: don't run task work on an exiting task
+
+commit 6200b0ae4ea28a4bfd8eb434e33e6201b7a6a282 upstream.
+
+This isn't safe, and isn't needed either. We are guaranteed that any
+work we queue is on a live task (and will be run), or it goes to
+our backup io-wq threads if the task is exiting.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d2bb2ae9551f..b706a4538a7f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1762,6 +1762,12 @@ static int io_put_kbuf(struct io_kiocb *req)
+ 
+ static inline bool io_run_task_work(void)
+ {
++	/*
++	 * Not safe to run on exiting task, and the task_work handling will
++	 * not add work to such a task.
++	 */
++	if (unlikely(current->flags & PF_EXITING))
++		return false;
+ 	if (current->task_works) {
+ 		__set_current_state(TASK_RUNNING);
+ 		task_work_run();
+@@ -7791,6 +7797,8 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 			io_put_req(cancel_req);
+ 		}
+ 
++		/* cancellations _may_ trigger task work */
++		io_run_task_work();
+ 		schedule();
+ 		finish_wait(&ctx->inflight_wait, &wait);
+ 	}
+-- 
+2.29.0
+
+
+--------------5AD4B1471F8EAA2A7F88AE21--
