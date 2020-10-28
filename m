@@ -2,138 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9D429D908
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F50829DABF
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 00:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbgJ1Wl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:41:56 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:57404 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728005AbgJ1Wlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:41:55 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E5F711C0BB6; Wed, 28 Oct 2020 21:12:34 +0100 (CET)
-Date:   Wed, 28 Oct 2020 21:12:34 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 111/264] nvmem: core: fix possibly memleak when use
- nvmem_cell_info_to_nvmem_cell()
-Message-ID: <20201028201234.GA11038@duo.ucw.cz>
-References: <20201027135430.632029009@linuxfoundation.org>
- <20201027135435.887735842@linuxfoundation.org>
+        id S2390490AbgJ1X3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 19:29:14 -0400
+Received: from mail-il1-f195.google.com ([209.85.166.195]:36515 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390330AbgJ1X07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 19:26:59 -0400
+Received: by mail-il1-f195.google.com with SMTP id p10so1259506ile.3;
+        Wed, 28 Oct 2020 16:26:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y4IyH/K1uoL8Sz48jVC4BVAm2CEzoTJ0RsS+KKnMacQ=;
+        b=BLE//ez4GjeFZ6QQVlM/RVLml8HQT8E3yiUvgMc/boq70EepmNi/K7hp85FsIU2Pux
+         y4QN5kuTarfGWgtX3qrNv9vB/kRiivitKmyaEEr1pOFNRJlBkhS+AGnjwNj/8HD7cw3J
+         3Wh4wumkpVVVOAVqpTehhMxa5JoNsGtxKVFRvvaL6F+xVtlyiUHRBYtUl5SLf1twAKn2
+         k1LN5OmxJe9bCKZHWGEctkqfTKSxRobT5FM5doOXbQVavGbGX/OjtXoujXbaj9NuBsNE
+         ruhZCB023bv7HXSwN2MIAkBT67ni43XI+2y8HW4fxqok8ZmT85h3WN9J+N8lp3+LxJfG
+         U8xg==
+X-Gm-Message-State: AOAM531jzmfw4lBbvUV51lX9iatLJ1tpzJ+CD9GfTpI9E+vX0DPmnU3I
+        6K4Huq87tXfOF0UtGzW2l65On3lIIJEgLl6z
+X-Google-Smtp-Source: ABdhPJxDZmVRDYaofDrlgJS4ZZywf3C3X2WrupX8H8e2FTYfMa40efu8pXkwnyFzdyqj8kF6899xcQ==
+X-Received: by 2002:a6b:bbc6:: with SMTP id l189mr4708130iof.145.1603857709465;
+        Tue, 27 Oct 2020 21:01:49 -0700 (PDT)
+Received: from mail-il1-f174.google.com (mail-il1-f174.google.com. [209.85.166.174])
+        by smtp.gmail.com with ESMTPSA id u20sm1869597ilj.5.2020.10.27.21.01.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Oct 2020 21:01:49 -0700 (PDT)
+Received: by mail-il1-f174.google.com with SMTP id x7so2054397ili.5;
+        Tue, 27 Oct 2020 21:01:49 -0700 (PDT)
+X-Received: by 2002:a92:9e94:: with SMTP id s20mr4756389ilk.102.1603857708890;
+ Tue, 27 Oct 2020 21:01:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-In-Reply-To: <20201027135435.887735842@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <4cc0e162-c607-3fdf-30c9-1b3a77f6cf20@runbox.com>
+ <20201022135521.375211-1-m.v.b@runbox.com> <20201022135521.375211-3-m.v.b@runbox.com>
+ <c69233ce20acd04fcba780a0483a18031d9a541e.camel@hadess.net>
+In-Reply-To: <c69233ce20acd04fcba780a0483a18031d9a541e.camel@hadess.net>
+From:   Pany <pany@fedoraproject.org>
+Date:   Wed, 28 Oct 2020 04:01:37 +0000
+X-Gmail-Original-Message-ID: <CAE3RAxsG5JxV_7hVWxy9TLzfXY3aNKSe_L+V0Fxo-XpDe0wzKg@mail.gmail.com>
+Message-ID: <CAE3RAxsG5JxV_7hVWxy9TLzfXY3aNKSe_L+V0Fxo-XpDe0wzKg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] USB: apple-mfi-fastcharge: don't probe unhandled devices
+To:     Bastien Nocera <hadess@hadess.net>
+Cc:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 27, 2020 at 2:03 PM Bastien Nocera <hadess@hadess.net> wrote:
+>
+> On Thu, 2020-10-22 at 09:55 -0400, M. Vefa Bicakci wrote:
+> > From: Bastien Nocera <hadess@hadess.net>
+> >
+> > From: Bastien Nocera <hadess@hadess.net>
+> >
+> > Contrary to the comment above the id table, we didn't implement a
+> > match
+> > function. This meant that every single Apple device that was already
+> > plugged in to the computer would have its device driver reprobed
+> > when the apple-mfi-fastcharge driver was loaded, eg. the SD card
+> > reader
+> > could be reprobed when the apple-mfi-fastcharge after pivoting root
+> > during boot up and the module became available.
+> >
+> > Make sure that the driver probe isn't being run for unsupported
+> > devices by adding a match function that checks the product ID, in
+> > addition to the id_table checking the vendor ID.
+> >
+> > Fixes: 249fa8217b84 ("USB: Add driver to control USB fast charge for
+> > iOS devices")
+> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > Reported-by: Pany <pany@fedoraproject.org>
+> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1878347
+> > Link:
+> > https://lore.kernel.org/linux-usb/CAE3RAxt0WhBEz8zkHrVO5RiyEOasayy1QUAjsv-pB0fAbY1GSw@mail.gmail.com/
+> > Cc: <stable@vger.kernel.org> # 5.8
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Alan Stern <stern@rowland.harvard.edu>
+> > [m.v.b: Add Link and Reported-by tags to the commit message]
+> > Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+>
+> And along with the 1/2 patch:
+> Tested-by: Bastien Nocera <hadess@hadess.net>
+>
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch works well for me.
+Tested-by: Pan (Pany) YUAN <pany@fedoraproject.org>
 
-Hi!
-
-> From: Vadym Kochan <vadym.kochan@plvision.eu>
->=20
-> [ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
->=20
-> Fix missing 'kfree_const(cell->name)' when call to
-> nvmem_cell_info_to_nvmem_cell() in several places:
->=20
->      * after nvmem_cell_info_to_nvmem_cell() failed during
->        nvmem_add_cells()
->=20
->      * during nvmem_device_cell_{read,write} when cell->name is
->        kstrdup'ed() without calling kfree_const() at the end, but
->        really there is no reason to do that 'dup, because the cell
->        instance is allocated on the stack for some short period to be
->        read/write without exposing it to the caller.
->=20
-> So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
-> which is used to convert cell_info -> cell without name duplication as
-> a lighweight version of nvmem_cell_info_to_nvmem_cell().
->=20
-> Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
-
-There's something very wrong here.
-
-> index 30c040786fde2..54204d550fc22 100644
-> --- a/drivers/nvmem/core.c
-> +++ b/drivers/nvmem/core.c
-> @@ -326,9 +326,9 @@ static void nvmem_cell_add(struct nvmem_cell *cell)
->  	mutex_unlock(&nvmem_cells_mutex);
->  }
-> =20
-> -static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-> -				   const struct nvmem_cell_info *info,
-> -				   struct nvmem_cell *cell)
-> +static int nvmem_cell_info_to_nvmem_cell_nodup(struct nvmem_device *nvme=
-m,
-> +					const struct nvmem_cell_info *info,
-> +					struct nvmem_cell *cell)
->  {
->  	cell->nvmem =3D nvmem;
->  	cell->offset =3D info->offset;
-> @@ -345,13 +345,30 @@ static int nvmem_cell_info_to_nvmem_cell(struct nvm=
-em_device *nvmem,
->  	if (!IS_ALIGNED(cell->offset, nvmem->stride)) {
->  		dev_err(&nvmem->dev,
->  			"cell %s unaligned to nvmem stride %d\n",
-> -			cell->name, nvmem->stride);
-> +			cell->name ?: "<unknown>", nvmem->stride);
->  		return -EINVAL;
->  	}
-> =20
->  	return 0;
->  }
-
-We rename call from .._cell to .._cell_nodup, but it did not have the
-kstrdup_const() in the first place!
-
-> +static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-> +				const struct nvmem_cell_info *info,
-> +				struct nvmem_cell *cell)
-> +{
-> +	int err;
-> +
-> +	err =3D nvmem_cell_info_to_nvmem_cell_nodup(nvmem, info, cell);
-> +	if (err)
-> +		return err;
-> +
-> +	cell->name =3D kstrdup_const(info->name, GFP_KERNEL);
-> +	if (!cell->name)
-> +		return -ENOMEM;
-> +
-> +	return 0;
-> +}
-
-So now we introduce an allocation, but we don't have a place to free
-it. In mainline, it is freed in nvmem_cell_drop(), but 4.19 does not
-have a free there.
-
-Best regards,
-								Pavel
---=20
-http://www.livejournal.com/~pavelmachek
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX5nQsgAKCRAw5/Bqldv6
-8ihBAJ0dzQuBqm8Owd8kn4PWA8aEWAyTtwCgs0Ffgl8YI4NWlTA13oW6fwieVU8=
-=0+Y+
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+-- 
+Regards,
+Pany
+pany@fedoraproject.org
