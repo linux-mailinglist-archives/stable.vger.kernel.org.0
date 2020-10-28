@@ -2,74 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295BA29DFBD
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 02:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A27B29DFD4
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 02:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729948AbgJ2BEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 21:04:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51598 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729366AbgJ1WGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 18:06:37 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C621C0613D1
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:06:37 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id dk16so471649ejb.12
-        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 15:06:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=31i/QzMx1qJGm7gv7wpnFE8V4pQHzgS9S13apLDwkA4=;
-        b=Jr+ZYL262N3hK0Xyic136ZWTqDNVVHCocQJIqYs8xD+6rj+NlvkAMvjZFyvauSEb0+
-         zwviDjvq/pjx+q0mDCav/owcLAP5klHK9L4yiU/BZ/RwYPUJPWCJ2dvAhUGUnbK8NKzM
-         GgNskN42QWIfgLTcuQ5UqVYi8xI6iWAgoADGVRvnY2GQZRPmpM5E5MOsIwvNP5mfFJr3
-         FgsmxT/5MKr3R4BK3dWPjGlq1jXpaCLvidpCPLhIHbHeowD3TrbBqHzP+gHjBD2iJ23P
-         XuL6jRAamFO3H3/3BeAM9/sBwy+z5A7h2PQAvoR4NxBcrv841sSiFgCv+vY9geY59SRd
-         UD+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=31i/QzMx1qJGm7gv7wpnFE8V4pQHzgS9S13apLDwkA4=;
-        b=o9AzRICOZamBSupcooO4KzHSqaw2pg/Gy2UNEl4NZ2a5gofHtuWU1fI9ClLS55CJdL
-         u6SZqilZQC+GMUtinFX7dV/Yk62bkQQT1IIxdT8LKmR54vOaidNI26YS24Jq1XyOfBjM
-         lbJsTsuivca/qUP+4xx+sQCKIIeAxjQvv3io34fAAlE4hBNud/w+C1m0Q1mY+1BJ/tEb
-         /FDu79YimyvG2lPB4UYTqd781ht1HdTnfERAMUz7pfQKUPil2KRnhagLmfkmmnIbFIyo
-         X5ZG7MmsCGsnn6X8vZx7J1eAPAfvr+N4lsE57EHuJQIwMi5o+gkWqjuxiLm3DML+IqF1
-         llzA==
-X-Gm-Message-State: AOAM531MHhxTxwxPY1cvPtLUmPOBT8DFxEomnxI1yu5Hhkue1vt9wZUE
-        TJ9kUgio/oYTGvHd5QsdvGSxImjCiryCXybNuIOaHUY1abSThg==
-X-Google-Smtp-Source: ABdhPJwEd9/wX7jOGLty/bRGMgs7eRsQyaFZtH1M4wFBWscg0ccllswqO+QGNO1DGyjMDf7j5ntcau5QKHldCUhIbbg=
-X-Received: by 2002:a50:d2d3:: with SMTP id q19mr201217edg.22.1603909182715;
- Wed, 28 Oct 2020 11:19:42 -0700 (PDT)
+        id S1730044AbgJ2BFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 21:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730040AbgJ1WFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:05:53 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 116422470E;
+        Wed, 28 Oct 2020 22:05:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603922753;
+        bh=F1c6QXnKInsunrs54b2TDGrRkEY1sKVhgft/QBBBS/4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BE++ewv+P4nwQUTepsCZG6cKx0Y8e9s2HVp4cvHYT2JFtD+o0NMeixwS7XHof/FTU
+         zIYkgzglXdN6urahcV9wNuV240zH6n21REZ42myOcV7+FL2Zmgs7och7o/cwobFX8l
+         FjyCgExzfSM8KShC6S3hkap2uZ/BYpI3fKh+TePU=
+Date:   Wed, 28 Oct 2020 18:05:51 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vadym Kochan <vadym.kochan@plvision.eu>
+Subject: Re: [PATCH 4.19 111/264] nvmem: core: fix possibly memleak when use
+ nvmem_cell_info_to_nvmem_cell()
+Message-ID: <20201028220551.GA87646@sasha-vm>
+References: <20201027135430.632029009@linuxfoundation.org>
+ <20201027135435.887735842@linuxfoundation.org>
+ <20201028201234.GA11038@duo.ucw.cz>
 MIME-Version: 1.0
-Received: by 2002:a17:906:13d0:0:0:0:0 with HTTP; Wed, 28 Oct 2020 11:19:41
- -0700 (PDT)
-Reply-To: mfdp@tlen.pl
-From:   "IMF/WB OFFER" <keshintondesmond@gmail.com>
-Date:   Wed, 28 Oct 2020 11:19:41 -0700
-Message-ID: <CA+nDMuup6L3kuhCBg5zNzT5bB1tzX=mqnaRx2Wp0VHYGje-JnQ@mail.gmail.com>
-Subject: Congratulation,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20201028201234.GA11038@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-IMF/WB OFFER,
-Your E-mail was selected as a Lucky winner of =C2=A32,900,000.00 GBP Only.
-This is your winning seal code number IMF/WB/787298/092772/20/21.
-Meanwhile, your fund sum =C2=A32,900,000.00 GBP Only. will be Credit into
-your bank account. or in ATM Card and send it to you. awaiting for
-your reply as to enable the necessary services transfer to take care
-of your success. with Your Name:...  Your Occupation:... Your
-Country:... Your State:...
+On Wed, Oct 28, 2020 at 09:12:34PM +0100, Pavel Machek wrote:
+>Hi!
+>
+>> From: Vadym Kochan <vadym.kochan@plvision.eu>
+>>
+>> [ Upstream commit fc9eec4d643597cf4cb2fef17d48110e677610da ]
+>>
+>> Fix missing 'kfree_const(cell->name)' when call to
+>> nvmem_cell_info_to_nvmem_cell() in several places:
+>>
+>>      * after nvmem_cell_info_to_nvmem_cell() failed during
+>>        nvmem_add_cells()
+>>
+>>      * during nvmem_device_cell_{read,write} when cell->name is
+>>        kstrdup'ed() without calling kfree_const() at the end, but
+>>        really there is no reason to do that 'dup, because the cell
+>>        instance is allocated on the stack for some short period to be
+>>        read/write without exposing it to the caller.
+>>
+>> So the new nvmem_cell_info_to_nvmem_cell_nodup() helper is introduced
+>> which is used to convert cell_info -> cell without name duplication as
+>> a lighweight version of nvmem_cell_info_to_nvmem_cell().
+>>
+>> Fixes: e2a5402ec7c6 ("nvmem: Add nvmem_device based consumer apis.")
+>
+>There's something very wrong here.
 
-Best Regards
-Mr Keshinton Desmond | Customer Service
+Right, looks like it actually fixes 16bb7abc4a6b ("nvmem: core: fix
+memory abort in cleanup path"). I'll just drop this commit.
 
-Sincerely,
-Prof. Mark Clement | Director
+-- 
+Thanks,
+Sasha
