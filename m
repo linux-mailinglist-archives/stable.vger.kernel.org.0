@@ -2,103 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8206629D6F2
-	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D797529D745
+	for <lists+stable@lfdr.de>; Wed, 28 Oct 2020 23:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731856AbgJ1WTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 18:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60528 "EHLO mail.kernel.org"
+        id S1732657AbgJ1WWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731742AbgJ1WRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:17:44 -0400
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1732651AbgJ1WWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:22:23 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F50246B0;
-        Wed, 28 Oct 2020 10:15:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EA24246F7;
+        Wed, 28 Oct 2020 12:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603880117;
-        bh=E57TRRP55Kk9vg5tur1KhYG5qx7b3ky4jZL+p+sXuoY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=MrdU+GtBcZwjT+vZ+g8Hw6gZHvwWzT4GZ+SrmHeBOThKai89DQFRg3IRa6i/wLsbi
-         9oXfv2GsWan0iTEVWd6s8Uc7GCICsJ7Vb4CS+WAncE8FpLa9n0f9+F/iZgTmtEHQim
-         Sc2XD/nbGU1AmKMLAuCRjVRBJorO4jHJsQVP7IqU=
-Received: by mail-ed1-f44.google.com with SMTP id x1so4523300eds.1;
-        Wed, 28 Oct 2020 03:15:17 -0700 (PDT)
-X-Gm-Message-State: AOAM532qAFPQWwXKiy51ycWtsZvHgS1ewyTUIiBpduGY/UUKlO4W5CHD
-        4gNHuMLG0UkgcDWsp0LIV8MrkxtUQkpcia5swfY=
-X-Google-Smtp-Source: ABdhPJz4yllQgyYZ8Tamki1QBJ8R6wNyadcvzqNfdvF4QwTASSCCiWTVEZ36r/fo7dWTUfe04TsIynmfdLIh/mOJ5uk=
-X-Received: by 2002:a05:6402:cf:: with SMTP id i15mr2651762edu.246.1603880115644;
- Wed, 28 Oct 2020 03:15:15 -0700 (PDT)
+        s=default; t=1603887530;
+        bh=dWmkv/cPghqBP+M0mvlJ5p6VEncAftmXvK/Isw2Nc+g=;
+        h=Subject:To:From:Date:From;
+        b=pHNB5SF5IjEVGXoafWVaqcDGcdqVX5Z+eevcgPKPIJYmHJVSmWEnzikXd8Deepl1j
+         GQCBpXNto7rC8etLjOTMI8cXao81RngAob5Ug6cnb6hiXTRKAx3Y0pWg5lUVNbRKc4
+         mDpf7Wz7RHF+UIS/GG4WTH3pk3s3l/axQZBuMnms=
+Subject: patch "usb: host: fsl-mph-dr-of: check return of dma_set_mask()" added to usb-linus
+To:     ran.wang_1@nxp.com, gregkh@linuxfoundation.org, peter.chen@nxp.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 28 Oct 2020 13:19:42 +0100
+Message-ID: <1603887582129148@kroah.com>
 MIME-Version: 1.0
-References: <20201028091947.93097-1-krzk@kernel.org> <MWHPR11MB0046B799E9AD3648C6F67BFE87170@MWHPR11MB0046.namprd11.prod.outlook.com>
- <CAJKOXPePfsRNZkY+L1XM3_iz6dMYFNZAJgrcut9JriuwYkKWsw@mail.gmail.com>
- <CAJKOXPf6zhpu_3oQZ2bL_FnkBx7-NwH65N_OzVkH=Nh1bYkHxw@mail.gmail.com> <20201028100311.GF26150@paasikivi.fi.intel.com>
-In-Reply-To: <20201028100311.GF26150@paasikivi.fi.intel.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Wed, 28 Oct 2020 11:15:01 +0100
-X-Gmail-Original-Message-ID: <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
-Message-ID: <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
-Subject: Re: [PATCH] media: i2c: imx258: correct mode to GBGB/RGRG
-To:     Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     "Yeh, Andy" <andy.yeh@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Jason Chen <jasonx.z.chen@intel.com>,
-        Alan Chiang <alanx.chiang@intel.com>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 28 Oct 2020 at 11:03, Sakari Ailus <sakari.ailus@linux.intel.com> wrote:
->
-> On Wed, Oct 28, 2020 at 10:56:55AM +0100, Krzysztof Kozlowski wrote:
-> > On Wed, 28 Oct 2020 at 10:45, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > >
-> > > On Wed, 28 Oct 2020 at 10:43, Yeh, Andy <andy.yeh@intel.com> wrote:
-> > > >
-> > > > But the sensor settings for the original submission is to output GRBG Bayer RAW.
-> > > >
-> > > > Regards, Andy
-> > >
-> > > No, not to my knowledge. There are no settings for color output
-> > > because it is fixed to GBGB/RGRG. I was looking a lot into this driver
-> > > (I have few other problems with it, already few other patches posted)
-> > > and I could not find a setting for this in datasheet. If you know the
-> > > setting for the other color - can you point me to it?
-> >
-> > And except the datasheet which mentions the specific format, the
-> > testing confirms it. With original color the pictures are pink/purple.
-> > With proper color, the pictures are correct (with more green color as
-> > expected for bayer).
->
-> Quoting the driver's start_streaming function:
->
->         /* Set Orientation be 180 degree */
->         ret = imx258_write_reg(imx258, REG_MIRROR_FLIP_CONTROL,
->                                IMX258_REG_VALUE_08BIT, REG_CONFIG_MIRROR_FLIP);
 
-I understand that you think it will replace the lines and columns and
-the first line will be RG, instead of GB.... or actually BG because it
-flips horizontal and vertical? So why does it not work?
+This is a note to let you know that I've just added the patch titled
 
-BTW, this nicely points that the comment around
-device_property_read_u32() for rotation is a little bit misleading :)
+    usb: host: fsl-mph-dr-of: check return of dma_set_mask()
 
->         if (ret) {
->                 dev_err(&client->dev, "%s failed to set orientation\n",
->                         __func__);
->                 return ret;
->         }
->
-> Could it be you're taking pictures of pink objects? ;-)
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-I can send a few sample pictures taken with GStreamer (RAW8, not
-original RAW10)...
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Best regards,
-Krzysztof
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 3cd54a618834430a26a648d880dd83d740f2ae30 Mon Sep 17 00:00:00 2001
+From: Ran Wang <ran.wang_1@nxp.com>
+Date: Sat, 10 Oct 2020 14:03:08 +0800
+Subject: usb: host: fsl-mph-dr-of: check return of dma_set_mask()
+
+fsl_usb2_device_register() should stop init if dma_set_mask() return
+error.
+
+Fixes: cae058610465 ("drivers/usb/host: fsl: Set DMA_MASK of usb platform device")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Link: https://lore.kernel.org/r/20201010060308.33693-1-ran.wang_1@nxp.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/fsl-mph-dr-of.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/host/fsl-mph-dr-of.c b/drivers/usb/host/fsl-mph-dr-of.c
+index ae8f60f6e6a5..44a7e58a26e3 100644
+--- a/drivers/usb/host/fsl-mph-dr-of.c
++++ b/drivers/usb/host/fsl-mph-dr-of.c
+@@ -94,10 +94,13 @@ static struct platform_device *fsl_usb2_device_register(
+ 
+ 	pdev->dev.coherent_dma_mask = ofdev->dev.coherent_dma_mask;
+ 
+-	if (!pdev->dev.dma_mask)
++	if (!pdev->dev.dma_mask) {
+ 		pdev->dev.dma_mask = &ofdev->dev.coherent_dma_mask;
+-	else
+-		dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++	} else {
++		retval = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++		if (retval)
++			goto error;
++	}
+ 
+ 	retval = platform_device_add_data(pdev, pdata, sizeof(*pdata));
+ 	if (retval)
+-- 
+2.29.1
+
+
