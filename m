@@ -2,110 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CEA29E1C1
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 03:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB3529E281
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 03:17:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729048AbgJ2CDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 22:03:04 -0400
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:42463 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727903AbgJ1Vsn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 17:48:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1603921722; x=1635457722;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=SHatl5wKLhbJ1HTEYcwsngnXnHrZQwgmxwifuFPenoY=;
-  b=DqEN+Mr+THv5gUMtdadmlB2lZ9CC4Y/BzM/EiSs0ADSuPyW+uHcebW1I
-   szI2yo+CDxWlZr2RIifYjBdWU5LXI4gsfxyjQ3klPHWFVWbv1eIU5ki6O
-   O/h/WdAjTQu4mJQsLKmKao9jOp8dQ5Sut1toE5GFsUAwtMHUIozgMKa2b
-   7ewfWMC6pVLEJpmUnviZdjqvWFHm6sTyxOi30aDWTzwH49mjqvppkjwMR
-   Rh+BaQN64ZeuIlqObnoEM5WPA1u7pqFOpv/621LAOxoStDBh53EwsH/WT
-   P3dCFAA/DF11of9uuBfy4BFdSOwb4gPkzEbCn3zcVzIorG1wvVXtaklcO
-   Q==;
-IronPort-SDR: eQucXinzePyv54C/qXbWVHbmr7WyRTpWwVXHp7SwwyatGxBALKCrLZpHoOCC+HZ+7w/k8YmE0O
- RKwRh0BCUj8ZXKqjd1i9RWHB0yHpj0gkA9aU+UGEYBhwar87a0USUzDBw001zAitq0V/s6G9Df
- AVQn4VtWdGMdfMNvL67ERQEvPFRkxeLJae0V0ckVJIFgNMQPIjPGy2VTStqn+Dw/G+fubTC0iC
- v0o6KGJC5R0pSWx3S4LCZ8ChEcHBF5/FagzCXhW5FWHZAUqlDxCmFGjamRhXi8mgA3FD+Zg1sU
- ZJc=
-X-IronPort-AV: E=Sophos;i="5.77,425,1596470400"; 
-   d="scan'208";a="151169949"
-Received: from mail-dm6nam10lp2101.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.101])
-  by ob1.hgst.iphmx.com with ESMTP; 28 Oct 2020 16:45:07 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=C/AciDJZoe8xPVJ7wX1Yrdru5AkvigpzqfivXwO+ucJb72WF2Je5+6ZoG/gTIq5W6wzqjHth9kz9FcET6gZbZA/XgKXMyzgaTeUZb9VwSCaweWnTQ9fgDxk9n0dNbDF7BoUqUK7XDwx8/s6n/E/2xMKR2AES0F6M/BvR6ZrJ3sqQZ4xMoC0tMH/zxRwvAlu7Exmm+3QBZII5QaMHFbHHE4emJHdkuot2z58WpU06YLPXkuaXe8ntmlAB9zBkvJC9UhuFQhbzOhNnYLchcI+f178Mp+WQEuUZjrdJWnBSX/7ygvgCFDNmLrj6jmrAIsPDLtPFx76pgP52CX4YSC7jlg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SHatl5wKLhbJ1HTEYcwsngnXnHrZQwgmxwifuFPenoY=;
- b=oDPfWQDfjuj6A2ap3RhWilF8HQsZWd3ubbEw0gYE8CDoLwT6jebVUrfCWKHmz595hsWKMt9MY5/EgZLhQMH1jNstFln7tef7F8C0IMgwUeiQsfM/nTS223XIg8ICC6AdvQ34+ZSHG8iyCZl+yjzUqMozG1Q6JIhlqol3CwkPQSDwbE+5uKgFAjHMmJ1JZ2o0FuLSBJ8edHoYndXWW5P/tfxCHIx72438mOj1tDAgc9+qbQ0XCtKjeiKRrjH7I8sOvwexsVzlqcZFXMQvxFWsPjTDb2kLtDh9Iocm/FTTBdrkoeEvsMWIKy1S72cIEwmoqJclSdobycFE+uxsypyQew==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
+        id S1728811AbgJ2CRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 22:17:12 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39380 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726756AbgJ1VfY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Oct 2020 17:35:24 -0400
+Received: by mail-wr1-f65.google.com with SMTP id y12so615481wrp.6
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 14:35:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SHatl5wKLhbJ1HTEYcwsngnXnHrZQwgmxwifuFPenoY=;
- b=JI9PUKbZtpQPaOfGku4fDm+ySg9kUUoTlFxt1UsPsONZfPI4/OtqEBOAz4kxO+mOTDlwVWK3grz+5K91gTZhVtWlnHhQ3816xc3AXOyUg+jrVz9oSyuv+7zzOIxCBend3rjc/oQCm3mis7rl0l6EjL0y5/qTpQaBmcxNNyIa7Xc=
-Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
- (2603:10b6:803:47::21) by SA0PR04MB7420.namprd04.prod.outlook.com
- (2603:10b6:806:e8::9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.18; Wed, 28 Oct
- 2020 08:45:05 +0000
-Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
- ([fe80::619a:567c:d053:ce25]) by SN4PR0401MB3598.namprd04.prod.outlook.com
- ([fe80::619a:567c:d053:ce25%6]) with mapi id 15.20.3477.028; Wed, 28 Oct 2020
- 08:45:05 +0000
-From:   Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
-To:     Naohiro Aota <Naohiro.Aota@wdc.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
-CC:     Damien Le Moal <Damien.LeMoal@wdc.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] block: advance iov_iter on bio_add_hw_page failure
-Thread-Topic: [PATCH] block: advance iov_iter on bio_add_hw_page failure
-Thread-Index: AQHWrPuN5bEkPswN00253WdAP7+4zQ==
-Date:   Wed, 28 Oct 2020 08:45:05 +0000
-Message-ID: <SN4PR0401MB3598F35451C8A3A8D9719A009B170@SN4PR0401MB3598.namprd04.prod.outlook.com>
-References: <7e91d39fccbd06efdee40ad119833dbfeafd2fb7.1603868801.git.naohiro.aota@wdc.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: wdc.com; dkim=none (message not signed)
- header.d=none;wdc.com; dmarc=none action=none header.from=wdc.com;
-x-originating-ip: [2001:a62:14ff:e901:156e:c9ac:ebdd:d314]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: ccba5323-1090-430c-3bd2-08d87b1dc47a
-x-ms-traffictypediagnostic: SA0PR04MB7420:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SA0PR04MB74202D79DA6C15519E6C4AF59B170@SA0PR04MB7420.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:2803;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: LXyrODMq6+eRNVa0GtN/23tk752zc4xkAzRIIL+l5XAmCNvsZv9V5ATg7O7FfJ9Rby+Wa4eKcw+slCNw0AC0U7uE8d7wj5RWh6L8ZsaV1uwZ+zryMc7BVND1/BlS11m4IpOfPBKeD2S1VCj2mmWZq4gypb6j082Xa2JNo4jWHsf2b+LMZyPQ/56pN9Q2DFJ4YjzzAZSBaNAWojr8+Yln1L4qPKVmG8wYnbuTVdY4CLhMyD2JdoMrHfI2oOAt1Def9SKlg5bDCH4ziKzYktMXYpHJbGEPBRvbQ/dgby2lPpbKQQfyn7i9jC+K8+T2gpTg0JZRVMNqVmJsgqBno2LboA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0401MB3598.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(396003)(346002)(136003)(39860400002)(376002)(2906002)(9686003)(66556008)(66476007)(91956017)(64756008)(76116006)(66946007)(66446008)(316002)(5660300002)(8936002)(55016002)(8676002)(19618925003)(110136005)(186003)(52536014)(86362001)(4270600006)(478600001)(33656002)(558084003)(6506007)(7696005)(54906003)(4326008)(71200400001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: 6kNR3adqSqqtwvSJZMHmH83t98yyqwxtZuR0u48tTphGSkgDfg6MDE49cT/8tqVj3NpwzpOVyLHTYBpFd40hxHIAufvCp3+ky0tHKDLz6ZNOW2yOEIe9fYl6Yu5GmQng1zZzY1ecDgQ+6A+5vy+c212QMTnEkvmpBiXu/c8SqUmWKZr/AUZkh2McHprRGUaL73Sz3I7gG1zQufEOFLmFDdmocv5EC0aejg4nltcYVpSxRQTHeO1+7S/zv1Hu5rTOnV+5tigrL2xFxrUH884D95e6d4HpjBvc5YAMbWdlm+SwGcMG3zUuONh8HfoTfpxph+4oZLst7WJjrGipDz5wTk72myLWUlEgf0v1MX0QXTrGSBmGahGT/9nKK4iyzOVLVU6/DiWSKO9K7RSkDn9AY4Cz739fhr2WRvsBiKW+7J58w3TyirVrcQE1noBHEE+7WjKg1ffS7DX1CtGnz8q71WxoN125Bw2IzNYUAjD/gVPx4/0Teqyl3JSdGMVz/9E+lvP6lgPrTuNxb8+jfJoMYQ3O5SQmXkUn3lV1UGgx2FSDh+9rdxhTfciDz8eeWeFxESViIg+ux8LoDPdoKpySnPMV9liCu5eUG7+yvIe46M9jUdeUhJ6pBsSa8RithkKw7cJVaMoGatqkCZ6CH/KOz/s892ehMxVsEUk7y7tC5rlHR3kJoyJJhgCkzmGcYPCJtPyKFVSR5Tkrl/HQr/bt8w==
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6y4QOceXe8zRQKZs06ORTkquPOtHQn77ARvbGZP9r1M=;
+        b=gFRUCQCFuTR8+JtdmcXcAlK5X7E61XmvvyAGA/K18mnTt93AI2o+wSqfYUI4n8Y0lU
+         +48KACrQVO3Qw2aB5MwS/gPxeoLzJZw2XI2pEtuKlzoaB/ELqONtZsDRg2xOHXNYJiB6
+         ur5YGrTWS0kXoutcPvKSjtwakbK/45cyXDu+4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6y4QOceXe8zRQKZs06ORTkquPOtHQn77ARvbGZP9r1M=;
+        b=iWzKCpk0By3rKZ1L26kixWK0LGnKjwgO2Q1371bEZ6W7aMfwB042ygPkNYFGFvPTet
+         ob9NvxRSxdhr/fyyK5J2cwej0xNdXRyM9d1T+Rj/MEp0KfV/pzlxoc2xmuvQ+Rk+XtCr
+         ye89IA8mPnp2aeEh+koyu+v1OTIjHoCHbKhkVYAL+07+Wm3Uc6f2fsO096pDuRtlTc4z
+         bjrHnhJLJNcB+pUbdO6NifeioyfM1LuFJ6xJrWvnuzpspQHt5lUnk9uX4x42ifpyniA4
+         LjViR/6Wu8Vb39JF0jj050xvO22ZoJFP8o3te90V5Ur3tVIpSKnnBXefKp+4pL5CM3UM
+         Xtdg==
+X-Gm-Message-State: AOAM531voVWIla7u+lsxwNjwZvWQ8tCO8b6/m2Pu+WDzsvdG+dhW2m0C
+        sCbLnO3tiP0bnPS2anqzGx4cTLvDL5nN5Q==
+X-Google-Smtp-Source: ABdhPJwVow+W7Cs1dVg5itA4nHI/7GCqMNB6ky+XEBiyaFeBtCDK082l59S/zmg9q3jjmNTnff4k9A==
+X-Received: by 2002:a50:e79d:: with SMTP id b29mr7381849edn.57.1603886921776;
+        Wed, 28 Oct 2020 05:08:41 -0700 (PDT)
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com. [209.85.221.48])
+        by smtp.gmail.com with ESMTPSA id m1sm2955418ejj.117.2020.10.28.05.08.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Oct 2020 05:08:40 -0700 (PDT)
+Received: by mail-wr1-f48.google.com with SMTP id i1so5450062wro.1
+        for <stable@vger.kernel.org>; Wed, 28 Oct 2020 05:08:40 -0700 (PDT)
+X-Received: by 2002:adf:ab05:: with SMTP id q5mr8280571wrc.32.1603886919796;
+ Wed, 28 Oct 2020 05:08:39 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN4PR0401MB3598.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ccba5323-1090-430c-3bd2-08d87b1dc47a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Oct 2020 08:45:05.2618
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 6VtnRcb6LiRUtEoXf/xjCdLKFnJYZwqbwujkIMoY9/0B9kso/lA70wT7QmTU0eckeAQ3NjrBgxEItzfwrLYSBPLeCW+rEumjzmEmZRAuiYM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR04MB7420
+References: <20201028091947.93097-1-krzk@kernel.org> <MWHPR11MB0046B799E9AD3648C6F67BFE87170@MWHPR11MB0046.namprd11.prod.outlook.com>
+ <CAJKOXPePfsRNZkY+L1XM3_iz6dMYFNZAJgrcut9JriuwYkKWsw@mail.gmail.com>
+ <CAJKOXPf6zhpu_3oQZ2bL_FnkBx7-NwH65N_OzVkH=Nh1bYkHxw@mail.gmail.com>
+ <20201028100311.GF26150@paasikivi.fi.intel.com> <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
+In-Reply-To: <CAJKOXPcjtZidY1prH1ZCj+i-SM1mhABGbS_6_g1cH5WSGVhOAA@mail.gmail.com>
+From:   Tomasz Figa <tfiga@chromium.org>
+Date:   Wed, 28 Oct 2020 13:08:28 +0100
+X-Gmail-Original-Message-ID: <CAAFQd5AwvuuxekSdDnHNB7KiC7+mHFisEkCW71F3XQMWaFqamw@mail.gmail.com>
+Message-ID: <CAAFQd5AwvuuxekSdDnHNB7KiC7+mHFisEkCW71F3XQMWaFqamw@mail.gmail.com>
+Subject: Re: [PATCH] media: i2c: imx258: correct mode to GBGB/RGRG
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        "Yeh, Andy" <andy.yeh@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Jason Chen <jasonx.z.chen@intel.com>,
+        Alan Chiang <alanx.chiang@intel.com>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks,=0A=
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>=0A=
+On Wed, Oct 28, 2020 at 11:15 AM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>
+> On Wed, 28 Oct 2020 at 11:03, Sakari Ailus <sakari.ailus@linux.intel.com> wrote:
+> >
+> > On Wed, Oct 28, 2020 at 10:56:55AM +0100, Krzysztof Kozlowski wrote:
+> > > On Wed, 28 Oct 2020 at 10:45, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> > > >
+> > > > On Wed, 28 Oct 2020 at 10:43, Yeh, Andy <andy.yeh@intel.com> wrote:
+> > > > >
+> > > > > But the sensor settings for the original submission is to output GRBG Bayer RAW.
+> > > > >
+> > > > > Regards, Andy
+> > > >
+> > > > No, not to my knowledge. There are no settings for color output
+> > > > because it is fixed to GBGB/RGRG. I was looking a lot into this driver
+> > > > (I have few other problems with it, already few other patches posted)
+> > > > and I could not find a setting for this in datasheet. If you know the
+> > > > setting for the other color - can you point me to it?
+> > >
+> > > And except the datasheet which mentions the specific format, the
+> > > testing confirms it. With original color the pictures are pink/purple.
+> > > With proper color, the pictures are correct (with more green color as
+> > > expected for bayer).
+> >
+> > Quoting the driver's start_streaming function:
+> >
+> >         /* Set Orientation be 180 degree */
+> >         ret = imx258_write_reg(imx258, REG_MIRROR_FLIP_CONTROL,
+> >                                IMX258_REG_VALUE_08BIT, REG_CONFIG_MIRROR_FLIP);
+>
+> I understand that you think it will replace the lines and columns and
+> the first line will be RG, instead of GB.... or actually BG because it
+> flips horizontal and vertical? So why does it not work?
+
+Any chance your SoC capture interface performs this flipping on its own as well?
+
+>
+> BTW, this nicely points that the comment around
+> device_property_read_u32() for rotation is a little bit misleading :)
+>
+
+Are you referring to the comment below?
+
+/*
+* Check that the device is mounted upside down. The driver only
+* supports a single pixel order right now.
+*/
+ret = device_property_read_u32(&client->dev, "rotation", &val);
+if (ret || val != 180)
+    return -EINVAL;
+
+What's misleading about it?
+
+> >         if (ret) {
+> >                 dev_err(&client->dev, "%s failed to set orientation\n",
+> >                         __func__);
+> >                 return ret;
+> >         }
+> >
+> > Could it be you're taking pictures of pink objects? ;-)
+>
+> I can send a few sample pictures taken with GStreamer (RAW8, not
+> original RAW10)...
+>
+> Best regards,
+> Krzysztof
