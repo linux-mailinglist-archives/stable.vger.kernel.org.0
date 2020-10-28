@@ -2,128 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C531C29DEC3
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 01:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32AE929DE58
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 01:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403765AbgJ2A4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Oct 2020 20:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60526 "EHLO mail.kernel.org"
+        id S1731396AbgJ1WTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Oct 2020 18:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731630AbgJ1WRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:17:36 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1731730AbgJ1WRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:17:43 -0400
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F378224733;
-        Wed, 28 Oct 2020 12:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9CD7247B3;
+        Wed, 28 Oct 2020 15:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603888897;
-        bh=H1HUc4LwNgqJ7DmQxImG33wnqHv70RJG+i8fu6v8IC4=;
-        h=Subject:To:From:Date:From;
-        b=2lecIFGaGRvZz8FSZvjirgwkx3i2HKeuVNa8aljgvjAkYrAzoiQCDjC73nZUzABde
-         qScVAjzpwXo0PXyUveRQ7ZEaWullwqPvYsIyAzNeT5zH+tB2U2dhyQ2TiVGEssHp7a
-         E8OYCXXwVZI+ACmMtOJjcpK5AfZaDsbgghQzr6qQ=
-Subject: patch "vt: keyboard, simplify vt_kdgkbsent" added to tty-linus
-To:     jslaby@suse.cz, gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Oct 2020 13:42:29 +0100
-Message-ID: <16038889494586@kroah.com>
+        s=default; t=1603897973;
+        bh=9ClaS39qsu/8IFZeXHaVx8PcmKehSz9sH+qzL4vXJxs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=co88HEQHIL5+KsFEIyZ1iMP+lEmwUbGs90igcu0t9SFvJwRYsCz6Zceb/tQX0k8h4
+         Wv0pj60BkZl4dUvuQGdz3g/BimVof8eTpIJgkmWJdG+GkN8yiYmIGVweIrNu7cXOpD
+         cPsSvSXGu5YPXxaq2AdLKJujm65qVV5nluI6LLJk=
+From:   Will Deacon <will@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Stephen Boyd <swboyd@chromium.org>
+Cc:     kernel-team@android.com, Will Deacon <will@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        linux-kernel@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Steven Price <steven.price@arm.com>
+Subject: Re: [PATCH v3] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return SMCCC_RET_NOT_REQUIRED
+Date:   Wed, 28 Oct 2020 15:12:36 +0000
+Message-Id: <160388361710.744976.4736349542337915760.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20201023154751.1973872-1-swboyd@chromium.org>
+References: <20201023154751.1973872-1-swboyd@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 23 Oct 2020 08:47:50 -0700, Stephen Boyd wrote:
+> According to the SMCCC spec[1](7.5.2 Discovery) the
+> ARM_SMCCC_ARCH_WORKAROUND_1 function id only returns 0, 1, and
+> SMCCC_RET_NOT_SUPPORTED.
+> 
+>  0 is "workaround required and safe to call this function"
+>  1 is "workaround not required but safe to call this function"
+>  SMCCC_RET_NOT_SUPPORTED is "might be vulnerable or might not be, who knows, I give up!"
+> 
+> [...]
 
-This is a note to let you know that I've just added the patch titled
+Applied to arm64 (for-next/fixes), thanks!
 
-    vt: keyboard, simplify vt_kdgkbsent
+[1/1] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return SMCCC_RET_NOT_REQUIRED
+      https://git.kernel.org/arm64/c/1de111b51b82
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 6ca03f90527e499dd5e32d6522909e2ad390896b Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jslaby@suse.cz>
-Date: Mon, 19 Oct 2020 10:55:16 +0200
-Subject: vt: keyboard, simplify vt_kdgkbsent
-
-Use 'strlen' of the string, add one for NUL terminator and simply do
-'copy_to_user' instead of the explicit 'for' loop. This makes the
-KDGKBSENT case more compact.
-
-The only thing we need to take care about is NULL 'func_table[i]'. Use
-an empty string in that case.
-
-The original check for overflow could never trigger as the func_buf
-strings are always shorter or equal to 'struct kbsentry's.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201019085517.10176-1-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/keyboard.c | 28 +++++++++-------------------
- 1 file changed, 9 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-index 0db53b5b3acf..7bfa95c3252c 100644
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -1995,9 +1995,7 @@ int vt_do_kdsk_ioctl(int cmd, struct kbentry __user *user_kbe, int perm,
- int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- {
- 	struct kbsentry *kbs;
--	char *p;
- 	u_char *q;
--	u_char __user *up;
- 	int sz, fnw_sz;
- 	int delta;
- 	char *first_free, *fj, *fnw;
-@@ -2023,23 +2021,15 @@ int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- 	i = array_index_nospec(kbs->kb_func, MAX_NR_FUNC);
- 
- 	switch (cmd) {
--	case KDGKBSENT:
--		sz = sizeof(kbs->kb_string) - 1; /* sz should have been
--						  a struct member */
--		up = user_kdgkb->kb_string;
--		p = func_table[i];
--		if(p)
--			for ( ; *p && sz; p++, sz--)
--				if (put_user(*p, up++)) {
--					ret = -EFAULT;
--					goto reterr;
--				}
--		if (put_user('\0', up)) {
--			ret = -EFAULT;
--			goto reterr;
--		}
--		kfree(kbs);
--		return ((p && *p) ? -EOVERFLOW : 0);
-+	case KDGKBSENT: {
-+		/* size should have been a struct member */
-+		unsigned char *from = func_table[i] ? : "";
-+
-+		ret = copy_to_user(user_kdgkb->kb_string, from,
-+				strlen(from) + 1) ? -EFAULT : 0;
-+
-+		goto reterr;
-+	}
- 	case KDSKBSENT:
- 		if (!perm) {
- 			ret = -EPERM;
+Cheers,
 -- 
-2.29.1
+Will
 
-
+https://fixes.arm64.dev
+https://next.arm64.dev
+https://will.arm64.dev
