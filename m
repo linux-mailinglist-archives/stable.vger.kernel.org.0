@@ -2,92 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 677FC29EA00
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E92C29EA09
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727110AbgJ2LGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 07:06:55 -0400
-Received: from correo.us.es ([193.147.175.20]:54962 "EHLO mail.us.es"
+        id S1726829AbgJ2LHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 07:07:40 -0400
+Received: from mailout10.rmx.de ([94.199.88.75]:51655 "EHLO mailout10.rmx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726078AbgJ2LGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 07:06:55 -0400
-Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
-        by mail.us.es (Postfix) with ESMTP id 8A5BD891985
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id 7AF86DA84A
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
-Received: by antivirus1-rhel7.int (Postfix, from userid 99)
-        id 6F56BDA793; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
-X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
-X-Spam-Level: 
-X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
-        SMTPAUTH_US2,USER_IN_WELCOMELIST,USER_IN_WHITELIST autolearn=disabled
-        version=3.4.1
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id 4F7AFDA78A;
-        Thu, 29 Oct 2020 12:06:51 +0100 (CET)
-Received: from 192.168.1.97 (192.168.1.97)
- by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
- Thu, 29 Oct 2020 12:06:51 +0100 (CET)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
-Received: from us.es (unknown [90.77.255.23])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726257AbgJ2LHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 07:07:40 -0400
+Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: 1984lsi)
-        by entrada.int (Postfix) with ESMTPSA id 236CC42EF4EA;
-        Thu, 29 Oct 2020 12:06:51 +0100 (CET)
-Date:   Thu, 29 Oct 2020 12:06:50 +0100
-X-SMTPAUTHUS: auth mail.us.es
-From:   Pablo Neira Ayuso <pablo@netfilter.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kadlec@netfilter.org, fw@strlen.de, davem@davemloft.net,
-        kuba@kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, netdev@vger.kernel.org
-Subject: Re: [PATCH linux-5.9 1/1] net: netfilter: fix KASAN:
- slab-out-of-bounds Read in nft_flow_rule_create
-Message-ID: <20201029110650.GA10242@salvia>
-References: <20201019172532.3906-1-saeed.mirzamohammadi@oracle.com>
- <20201020115047.GA15628@salvia>
- <28C74722-8F35-4397-B567-FA5BCF525891@oracle.com>
- <3BE1A64B-7104-4220-BAD1-870338A33B15@oracle.com>
- <566D38F7-7C99-40F4-A948-03F2F0439BBB@oracle.com>
- <20201027062111.GD206502@kroah.com>
- <20201027081922.GA5285@salvia>
- <20201029110241.GB3840801@kroah.com>
+        by mailout10.rmx.de (Postfix) with ESMTPS id 4CMN2K1pDpz312X
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:07:37 +0100 (CET)
+Received: from mta.arri.de (unknown [217.111.95.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by kdin02.retarus.com (Postfix) with ESMTPS id 4CMN263nqyz2TRjV
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:07:26 +0100 (CET)
+Received: from n95hx1g2.localnet (192.168.54.83) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Thu, 29 Oct
+ 2020 12:07:19 +0100
+From:   Christian Eggers <ceggers@arri.de>
+To:     Greg KH <greg@kroah.com>
+CC:     <stable@vger.kernel.org>, Willem de Bruijn <willemb@google.com>,
+        "Deepa Dinamani" <deepa.kernel@gmail.com>
+Subject: Re: [PATCH] socket: don't clear SOCK_TSTAMP_NEW when SO_TIMESTAMPNS is disabled
+Date:   Thu, 29 Oct 2020 12:07:18 +0100
+Message-ID: <14350449.KPx3aKPc1t@n95hx1g2>
+Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+In-Reply-To: <20201029110414.GD3840801@kroah.com>
+References: <20201027171526.23151-1-ceggers@arri.de> <20201029110414.GD3840801@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201029110241.GB3840801@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Originating-IP: [192.168.54.83]
+X-RMX-ID: 20201029-120730-4CMN263nqyz2TRjV-0@kdin02
+X-RMX-SOURCE: 217.111.95.66
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 12:02:41PM +0100, Greg KH wrote:
-> On Tue, Oct 27, 2020 at 09:19:22AM +0100, Pablo Neira Ayuso wrote:
+Just after sending the back port yesterday I discovered that stable patches 
+related to networking should go via netdev. So I additionally posted it there.
+
+regards
+Christian
+
+On Thursday, 29 October 2020, 12:04:14 CET, Greg KH wrote:
+> On Tue, Oct 27, 2020 at 06:15:26PM +0100, Christian Eggers wrote:
+> > [ Upstream commit 4e3bbb33e6f36e4b05be1b1b9b02e3dd5aaa3e69 ]
+> > 
+> > SOCK_TSTAMP_NEW (timespec64 instead of timespec) is also used for
+> > hardware time stamps (configured via SO_TIMESTAMPING_NEW).
+> > 
+> > User space (ptp4l) first configures hardware time stamping via
+> > SO_TIMESTAMPING_NEW which sets SOCK_TSTAMP_NEW. In the next step, ptp4l
+> > disables SO_TIMESTAMPNS(_NEW) (software time stamps), but this must not
+> > switch hardware time stamps back to "32 bit mode".
+> > 
+> > This problem happens on 32 bit platforms were the libc has already
+> > switched to struct timespec64 (from SO_TIMExxx_OLD to SO_TIMExxx_NEW
+> > socket options). ptp4l complains with "missing timestamp on transmitted
+> > peer delay request" because the wrong format is received (and
+> > discarded).
+> > 
+> > Fixes: 887feae36aee ("socket: Add SO_TIMESTAMP[NS]_NEW")
+> > Signed-off-by: Christian Eggers <ceggers@arri.de>
+> > Acked-by: Willem de Bruijn <willemb@google.com>
+> > Acked-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> > ---
 > > Hi Greg,
 > > 
-> > On Tue, Oct 27, 2020 at 07:21:11AM +0100, Greg KH wrote:
-> > > On Sun, Oct 25, 2020 at 04:31:57PM -0700, Saeed Mirzamohammadi wrote:
-> > > > Adding stable.
-> > > 
-> > > What did that do?
+> > I just got your E-mail(s) that this patch has been applied to 5.8 and 5.9.
+> > This is a back port for the same problem on 5.4. It does the same as the
+> > upstream patch, only the affected code is at another position here. Please
+> > decide yourself whether the Acked-by: tags (from the upstream patch)
+> > should
+> > be kept or removed.
 > > 
-> > Saeed is requesting that stable maintainers cherry-picks this patch:
+> > This back port is only required for 5.4, older kernels like 4.19 are not
+> > affected.
 > > 
-> > 31cc578ae2de ("netfilter: nftables_offload: KASAN slab-out-of-bounds
-> > Read in nft_flow_rule_create")
-> > 
-> > into stable 5.4 and 5.8.
+> > regards
+> > Christian
 > 
-> 5.9 is also a stable kernel :)
+> Now queued up, thanks.
+> 
+> greg k-h
 
-Oh, indeed, I forgot this one :)
 
-> Will go queue it up everywhere...
 
-Thanks.
+
