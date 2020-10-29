@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A5429E9E4
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD07529E9ED
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbgJ2LCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 07:02:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39452 "EHLO mail.kernel.org"
+        id S1727343AbgJ2LDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 07:03:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726025AbgJ2LCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 07:02:37 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727294AbgJ2LDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 07:03:40 -0400
+Received: from e123331-lin.nice.arm.com (lfbn-nic-1-188-42.w2-15.abo.wanadoo.fr [2.15.37.42])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00E2A2072D;
-        Thu, 29 Oct 2020 11:02:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F4620754;
+        Thu, 29 Oct 2020 11:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603969356;
-        bh=HkZvAn5MjVZOthJYyfmXpbjUnjLgxWPIT1sDs9FNYU0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RoxVHBr5/s0q8Ly0B0NSmsykQw88I3WBCRzmng+S2FJgp6T/ET8/DF/+i7OxNsVE2
-         Y1MafCmeaHTwcImhbeEzzjMY7nmTSmd29izdq9kWZ45Lt0Wmw3snYgz9hSlPXndgWM
-         rROr5/yoKDUFWWoX71syakVRiqSghZj2/7ahci/w=
-Date:   Thu, 29 Oct 2020 12:03:26 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Cc:     stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        b.zolnierkie@samsung.com, jani.nikula@intel.com,
-        daniel.vetter@ffwll.ch, gustavoars@kernel.org,
-        dri-devel@lists.freedesktop.org, akpm@linux-foundation.org,
-        rppt@kernel.org
-Subject: Re: [PATCH 1/1] video: fbdev: fix divide error in fbcon_switch
-Message-ID: <20201029110326.GC3840801@kroah.com>
-References: <20201021235758.59993-1-saeed.mirzamohammadi@oracle.com>
- <ad87c5c1-061d-8a81-7b2c-43a8687a464f@suse.de>
- <3294C797-1BBB-4410-812B-4A4BB813F002@oracle.com>
- <20201027062217.GE206502@kroah.com>
- <2DA9AE6D-93D6-4142-9FC4-EEACB92B7203@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2DA9AE6D-93D6-4142-9FC4-EEACB92B7203@oracle.com>
+        s=default; t=1603969420;
+        bh=acyncxg5wDmK6CNLmKA7z6UGUav7uI03MNVXwSyOnEI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=2l7+bdLsxiEoowdZcFK8fSCWL8dc6VEbigghYpsfmRdAG96y63rpRU+TOb4VC3eRm
+         SxGFfM/H8Drmgt7S9KEKWjfrVU10S2BXpHQh5zohudS/m+W2oBmOOmjJKratdUW6M/
+         ALKaey2MrK+zqmua8tZQZrtZMrdwYB5eoZK6f67Q=
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     linus.walleij@linaro.org, linux@armlinux.org.uk,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] ARM: highmem: avoid clobbering non-page aligned memory reservations
+Date:   Thu, 29 Oct 2020 12:03:34 +0100
+Message-Id: <20201029110334.4118-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 27, 2020 at 10:12:49AM -0700, Saeed Mirzamohammadi wrote:
-> Hi Greg,
-> 
-> Sorry for the confusion. I’m requesting stable maintainers to cherry-pick this patch into stable 5.4 and 5.8.
-> commit cc07057c7c88fb8eff3b1991131ded0f0bcfa7e3
-> Author: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-> Date:   Wed Oct 21 16:57:58 2020 -0700
-> 
->     video: fbdev: fix divide error in fbcon_switch
+free_highpages() iterates over the free memblock regions in high
+memory, and marks each page as available for the memory management
+system. However, as it rounds the end of each region downwards, we
+may end up freeing a page that is memblock_reserve()d, resulting
+in memory corruption. So align the end of the range to the next
+page instead.
 
-I do not see that commit in Linus's tree, do you?
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ arch/arm/mm/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-confused,
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index a391804c7ce3..d41781cb5496 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -354,7 +354,7 @@ static void __init free_highpages(void)
+ 	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+ 				&range_start, &range_end, NULL) {
+ 		unsigned long start = PHYS_PFN(range_start);
+-		unsigned long end = PHYS_PFN(range_end);
++		unsigned long end = PHYS_PFN(PAGE_ALIGN(range_end));
+ 
+ 		/* Ignore complete lowmem entries */
+ 		if (end <= max_low)
+-- 
+2.17.1
 
-greg k-h
