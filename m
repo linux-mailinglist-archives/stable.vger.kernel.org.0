@@ -2,124 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6865D29EE8A
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 15:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9294729EEED
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 15:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726029AbgJ2Omi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 10:42:38 -0400
-Received: from mout.gmx.net ([212.227.17.22]:44233 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726297AbgJ2Omh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 10:42:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1603982530;
-        bh=B5fjuh1PbI2SnXgyH1envbzqQOQcynTKeIgMm8qOVds=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=fedIqrvoG7fKh5h3ebq51ck/RbloJoGFlk24O1iojof/4pW5ZmxAiwmarz70gdQWo
-         sfjIRFwr56eCdxJWV6uqDqDXbrRhYnpKb/XbLS2UjcEB+oOTNPLvBbc1ZxoNOLRq2i
-         InXe8VfPscjBU2TNJERfN0EZftL8VqFXCcyPEcM8=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from obelix.fritz.box ([46.142.27.25]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1N7iCg-1kKD3Y0wbK-014mRS; Thu, 29
- Oct 2020 15:42:10 +0100
-Subject: Re: [PATCH 5.9 000/757] 5.9.2-rc1 review
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <d8211fcd-ddb5-34e1-1f9e-aa5b94a03889@gmx.de>
- <20201029091412.GA3749125@kroah.com>
-From:   Ronald Warsow <rwarsow@gmx.de>
-Message-ID: <16326ab5-79f3-2e1b-511f-31f048608e6f@gmx.de>
-Date:   Thu, 29 Oct 2020 15:42:09 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+        id S1727928AbgJ2O5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 10:57:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727887AbgJ2O5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 10:57:24 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EDDC0613CF
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 07:57:24 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id r186so2566099pgr.0
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 07:57:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fgcGnqbsKJDncXNQGiLF8zGlekA9rqnjeyDKPHYEPVw=;
+        b=Ai+CgOoBogA8yOD0ezIYROtCxrwI/xxqV1JlhZtJ1y4TWp7J8mmnDzEFy+uth3l5E2
+         Zqr2wPfwA8/SqCskzfhUzjExABTGw1Si4eFqlTHkTBp03dbnge3oD5WBr6CJVBN6ai7H
+         8bxRfSyg4KTEbG9QZUzQpxgaJwsLXZNV2YpqmAqRS/b21ihh42qKSW+zRqHz5gYCTSY4
+         tFCf6wI2pGU7km3Dwn14IzPVU5sGdQm1+MCKWyLxYS433DNVaANexhQ0+JAnPOAm4RGD
+         Ii1xm+NFqisrFpRMx1FBUjqct/XF2XpDb7MBSJWJ3uZQ3oT3TfHmnCWMtnTVdVlgWEMz
+         w/iQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fgcGnqbsKJDncXNQGiLF8zGlekA9rqnjeyDKPHYEPVw=;
+        b=Cw07C/TczjMSDaeNoI9OAVCsG6q6WKClL0RgQOZBeVgcfhOqBKiPBffFOuSwe6yN3R
+         vKy6IeVxF9fsk1GwGWWEZvo7ehCTp9xxz/dXpqn2USSWEOvhBOGotURlyrxvnDOsHT/3
+         kjHbGxGWRLHtrr5DkJSF8g19vAt/cJA0jhMrDTUd+/xEwoLidSNNRB7aIZVZ0Z2gGDTH
+         KSn/HtU9P8OV9ZwThsMfA0XjnkcyH9JQgrm06elGFMbNQMfvAhYbnE2uetNTuTHOHqZ2
+         wk6xJh2kNRPrDA/WuZUUdkdEi56Rtmqmy6Xz85jK61eqzmicmbi3FmFP05btr3gE/rK2
+         ToWw==
+X-Gm-Message-State: AOAM532ZHvAPeu76AqtWEe2s0TDwBg8gOTLe+qBEQYotqnRMevHk+30S
+        2mmj0BOpb9aA5G6k75TcsWUlglxSHL05fA==
+X-Google-Smtp-Source: ABdhPJx0+loBGk7AFAFeDJnXec371kByLo/+rE8zjPYwMq0n8EU1hUH1KyUQsFl96AGT93WdOTlZ7w==
+X-Received: by 2002:a63:6d4e:: with SMTP id i75mr1908192pgc.305.1603983443832;
+        Thu, 29 Oct 2020 07:57:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d6sm76602pjr.51.2020.10.29.07.57.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 07:57:23 -0700 (PDT)
+Message-ID: <5f9ad853.1c69fb81.6555f.0235@mx.google.com>
+Date:   Thu, 29 Oct 2020 07:57:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201029091412.GA3749125@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:77rbd7w+ZbYuLme15IYdzCwxmDvg/Zo/E4sAWQo30Ttu6x/psgU
- IsSLJBuhMGzbKmHDFYF1DZqUmMRZhDCFAKc63mdhPrzcmw/e477cBuJRQIBvTT/An6f9zPM
- tVwpxB/XviFkNVRqJ6slC5zAYEdInIEDnpzU64nnpPO4rLDFCseDOEpvUIcPxdPUYKJj/N4
- opl1NgYw/4RiMFpIdfKSA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:hsNCIb0giBw=:pOB+d7racHse+T+1ZSIBat
- S2Uon1vsgAiPG0+s7saMaw1KhAhkLrjIpI5H2pcIGu/h+cQBJXjXFP5bWuOOWcJ6WCw0JSvBn
- cagxDj9NcQnCYXKDIv0yjiRCCkavYw2KP6Av/3C0MJhWRL/zJdo7FYsPFFqSDYGhiEF4ZkSYt
- SSVbwsgvz2fR6opu6QuLqibyb9boI+9olTXLO0hmXE5mbScR5aulOCK0h9OsoNp4tDd85yrGx
- +UKTPXbuohXxi4zSBfYf9l5tT99IU+UTmfYcvi+W3Yt1+asq38BoJJKm+oXqkdadgXgTnL6ye
- iEwlHyJgbVLpbDjND1Akb02K0bc+80ximHlXBhkgIHgGv/eaP53QUhdOT7e+1eVrYVR5D2MIb
- qMxs8gau9h1WY3GLXDG1Jt/gpCb6nqJ0llbKqZ1paCJf3xDUQY/nZKGEIHLNppMCFa6XucpHG
- Rj1PLa7CtTWLXeMngzeCoailPYwvo49aRNUVNNJ/w/T5byyTxWmuZFMn/qGPDtJDQTTUxhVa5
- ZDKDRkhycLLyFR+jqpj07qr1dAtu+iAxgqX3FqBjMJHIUTzXKB6xP8rMPidtDsT5W84ThlSm1
- oTHH+dQTI235UuaXAOLmNwXRWTVqkjw7jQkInK9N8oxyH0jn6QSm+UHudL8Vm35BC8dQfbIsB
- ptSecyQxabZbfdsHas5m8DKQ1jjEXbAKm3mVmlRF9QY3ApsI/FqkUPXqn+KQvMhxu1BpAzLNb
- L/goixo2wkDQQhH4kFGckNQcEjDTzhJezrbZ7DQI2QIi152r6KTgW9rcT5IHp3nc0vgNjxHAT
- ILux69gYkG9SM4nLQck/tubBdFJ/+bdIboizgusfgkJhjfqKf+BmDKboWfI8aWfX4YUxyVelz
- 5ZT1iLvbey0iTtWAfYoA==
+X-Kernelci-Kernel: v5.4.73
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable/linux-5.4.y baseline: 207 runs, 1 regressions (v5.4.73)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29.10.20 10:14, Greg KH wrote:
-> On Tue, Oct 27, 2020 at 07:09:52PM +0100, Ronald Warsow wrote:
->> Hallo
->>
->> this rc1 runs here (pure Intel-box) without errors.
->> Thanks !
->>
->>
->> An RPC (I'm thinking about since some month)
->> =3D=3D=3D=3D=3D=3D
->>
->> Wouldn't it be better (and not so much add. work) to sort the
->> Pseudo-Shortlog towards subsystem/driver ?
->>
->> something like this:
->>
->> ...
->> usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
->> usb: cdns3: gadget: free interrupt after gadget has deleted
->>
->>     Lorenzo Colitti <lorenzo@google.com>
->>     Peter Chen <peter.chen@nxp.com>
->> ...
->>
->>
->> Think of searching a bugfix in the shortlog.
->>
->> With the current layout I need to read/"visual grep" the whole log.
->>
->> With the new layout I'm able to jump to the "buggy" subsystem/driver an=
-d
->> only need to read that part of the log to get the info if the bug is
->> fixed or not yet
->
-> Do you have an example script that generates such a thing?  If so, I'll
-> be glad to look into it, but am not going to try to create it on my own,
-> sorry.
->
-> thanks,
->
-> greg k-h
->
+stable/linux-5.4.y baseline: 207 runs, 1 regressions (v5.4.73)
 
-first of all: in the above mail it should read "RFC"
+Regressions Summary
+-------------------
+
+platform              | arch | lab          | compiler | defconfig       | =
+regressions
+----------------------+------+--------------+----------+-----------------+-=
+-----------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+1          =
 
 
-Surely, who get the most benefit of it (the layout) does the most work.
-Agreed, I will see what I can do -I'm unsure -
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.73/plan/baseline/
 
-Currently, I'm thinking that the data for your shortlog are coming from
-a sort of an git query or so and it would just be an easy adjustment of
-the query parameter.
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.4.y
+  Describe: v5.4.73
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      bde3f94035b0e5a724853544d65d00536e1889b2 =
 
-This seems not to be the case ?
 
-To get an idea if my knowledge is sufficing (I'm no developer):
 
-Where do you get the data from to generate your shortlog ?
+Test Regressions
+---------------- =
 
-=2D-
-regards
 
-Ronald
+
+platform              | arch | lab          | compiler | defconfig       | =
+regressions
+----------------------+------+--------------+----------+-----------------+-=
+-----------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9aa4414a95575b9238105f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.73/arm=
+/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.73/arm=
+/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9aa4414a95575b92381=
+060
+        failing since 133 days (last pass: v5.4.46, first fail: v5.4.47) =
+
+ =20
