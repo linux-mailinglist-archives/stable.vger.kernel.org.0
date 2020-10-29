@@ -2,109 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B2729F4C8
+	by mail.lfdr.de (Postfix) with ESMTP id 4D15D29F4C7
 	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 20:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725931AbgJ2TSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 15:18:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725824AbgJ2TRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 15:17:01 -0400
+        id S1725928AbgJ2TSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 15:18:45 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44009 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726120AbgJ2TSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 15:18:35 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 641415C0154;
+        Thu, 29 Oct 2020 15:18:34 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Thu, 29 Oct 2020 15:18:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=A+tR7LRyNOp7mORAAFKltvWRx4+
+        z/NkLgTl5JCNqOrQ=; b=WoQGeX6a9UmmWtoIYxbPYLwkElQgA2rQf7p0UxN2SW0
+        6aIEF3VBOo5fUoCJazXh5tWWfOfwLfjZnWawXiJeqwihoqoPFmbNdO2zf7/Vyko2
+        QbHfSXvT1npC7/JLulR8q7pnem4XVfNSH6m9o35qNzsrsI7s31YxlHjUKLVszjtt
+        FPxOuBQtb3P0K+EkqAQm/sIqd0wvsogvwb1Swo1IxvXzXh0TEAa4yYVcuHoEfJwS
+        H31YGOwn8Ze+mVtM3QS+oFJl0XpR4BHMiVi3CIQkoiXDhv6yd0XIJL2jA+1psw2C
+        L1QZik+SEXp8xZAqqPFapJoxsQvCckZxxmtcr7ghS0A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=A+tR7L
+        RyNOp7mORAAFKltvWRx4+z/NkLgTl5JCNqOrQ=; b=NRIQsjY9U5stD901XHVuZZ
+        UAqgB0h3bTPC9+LfPpfL3D/j0kXkxnrUCPMlZUhJrosMquKhqNxIeeGbhiDobxXc
+        SnMLc/h9o+fc0k9UHM1vsfMJ89FHfSRhw/pC3SqFYjsG3muE2Ett///8WFa6EbAF
+        V/N8sFkx9PSK809RPhUysI7IUEXKusb2pJ2ZIKJ/s+hZQ2e4g2bnDYBMSJZYp2ae
+        dRQYirWRAE4YLXVu4tfhPrlggzH508ZpVMFlmIpWnCXRBVQ/h3+6hiCWodJlQKze
+        ovl3Pi6wB70uGrgjC24LRXoiXsdOfChifytAOY1OiFeeP8OS0Dlpcy6+H/s/Rw+g
+        ==
+X-ME-Sender: <xms:iRWbX1-29BIccNVjIvpDoEiUQPEcgTlkmPe1tNeBru3XB2yPwsrXDw>
+    <xme:iRWbX5sclbe0ROffc5GRkAAxl8roy2dqjqX6208W85hH7Z-9fSmbkXw8ng4ZIfcq0
+    QCtI-tC088fag>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleefgdduvddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:iRWbXzDIdOI4HGzSmqeQXVAU_5XXHSpRNMnGRSm4GpWn2TmTd7yvyw>
+    <xmx:iRWbX5fIt8jvM1UarnRHyRKsNco1rVxreTpsQ1yF3nzNIjVNJQocZg>
+    <xmx:iRWbX6PW761BdDogqYOkL9rbCnvs2M5qftdf5jqCGpxTrcnTeBmNew>
+    <xmx:ihWbX3rAg10n0y6bOLTiAPjR66xNtTo7Ux6uCZfIhDdpQZtGyQ4zkA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C4092076D;
-        Thu, 29 Oct 2020 19:17:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603999021;
-        bh=Z7HglUzBMygilCAvzwCh2Drqd4bWtlEBiAHCSSTrsNo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vBEOejOIJMKSGck1+EjPBZonVZX/K20gvYCRzxcgUFC285EbzLG+PwhOeQSsDP1Nv
-         EvPMEJz6hYP9G2Af7nuVq45e5bjBE7b5Chn7VMm5rSsFPFDgHcbjakC46wWp4ezbqa
-         vNphP34YRzHenmpt1SrBt9Gcn5U5e3vH1WGDCK3c=
-Date:   Thu, 29 Oct 2020 20:17:50 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ronald Warsow <rwarsow@gmx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.9 000/757] 5.9.2-rc1 review
-Message-ID: <20201029191750.GA988039@kroah.com>
-References: <d8211fcd-ddb5-34e1-1f9e-aa5b94a03889@gmx.de>
- <20201029091412.GA3749125@kroah.com>
- <16326ab5-79f3-2e1b-511f-31f048608e6f@gmx.de>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8315E328005D;
+        Thu, 29 Oct 2020 15:18:33 -0400 (EDT)
+Date:   Thu, 29 Oct 2020 20:19:23 +0100
+From:   Greg KH <greg@kroah.com>
+To:     dann frazier <dann.frazier@canonical.com>
+Cc:     stable@vger.kernel.org, Michael Schaller <misch@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Matthew Garrett <matthew.garrett@nebula.com>,
+        Jeremy Kerr <jk@ozlabs.org>, linux-efi@vger.kernel.org
+Subject: Re: [PATCH 4.4-5.9] efivarfs: Replace invalid slashes with
+ exclamation marks in dentries.
+Message-ID: <20201029191923.GB988039@kroah.com>
+References: <20201029175442.564282-1-dann.frazier@canonical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16326ab5-79f3-2e1b-511f-31f048608e6f@gmx.de>
+In-Reply-To: <20201029175442.564282-1-dann.frazier@canonical.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 03:42:09PM +0100, Ronald Warsow wrote:
-> On 29.10.20 10:14, Greg KH wrote:
-> > On Tue, Oct 27, 2020 at 07:09:52PM +0100, Ronald Warsow wrote:
-> > > Hallo
-> > > 
-> > > this rc1 runs here (pure Intel-box) without errors.
-> > > Thanks !
-> > > 
-> > > 
-> > > An RPC (I'm thinking about since some month)
-> > > ======
-> > > 
-> > > Wouldn't it be better (and not so much add. work) to sort the
-> > > Pseudo-Shortlog towards subsystem/driver ?
-> > > 
-> > > something like this:
-> > > 
-> > > ...
-> > > usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
-> > > usb: cdns3: gadget: free interrupt after gadget has deleted
-> > > 
-> > >     Lorenzo Colitti <lorenzo@google.com>
-> > >     Peter Chen <peter.chen@nxp.com>
-> > > ...
-> > > 
-> > > 
-> > > Think of searching a bugfix in the shortlog.
-> > > 
-> > > With the current layout I need to read/"visual grep" the whole log.
-> > > 
-> > > With the new layout I'm able to jump to the "buggy" subsystem/driver and
-> > > only need to read that part of the log to get the info if the bug is
-> > > fixed or not yet
-> > 
-> > Do you have an example script that generates such a thing?  If so, I'll
-> > be glad to look into it, but am not going to try to create it on my own,
-> > sorry.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
+On Thu, Oct 29, 2020 at 11:54:42AM -0600, dann frazier wrote:
+> From: Michael Schaller <misch@google.com>
 > 
-> first of all: in the above mail it should read "RFC"
+> commit 336af6a4686d885a067ecea8c3c3dd129ba4fc75 upstream
 > 
+> Without this patch efivarfs_alloc_dentry creates dentries with slashes in
+> their name if the respective EFI variable has slashes in its name. This in
+> turn causes EIO on getdents64, which prevents a complete directory listing
+> of /sys/firmware/efi/efivars/.
 > 
-> Surely, who get the most benefit of it (the layout) does the most work.
-> Agreed, I will see what I can do -I'm unsure -
+> This patch replaces the invalid shlashes with exclamation marks like
+> kobject_set_name_vargs does for /sys/firmware/efi/vars/ to have consistently
+> named dentries under /sys/firmware/efi/vars/ and /sys/firmware/efi/efivars/.
 > 
-> Currently, I'm thinking that the data for your shortlog are coming from
-> a sort of an git query or so and it would just be an easy adjustment of
-> the query parameter.
-> 
-> This seems not to be the case ?
-> 
-> To get an idea if my knowledge is sufficing (I'm no developer):
-> 
-> Where do you get the data from to generate your shortlog ?
+> Signed-off-by: Michael Schaller <misch@google.com>
+> Link: https://lore.kernel.org/r/20200925074502.150448-1-misch@google.com
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
-A "simple" git command:
-	git log --abbrev=12 --format="%aN <%aE>%n    %s%n" ${VERSION}..HEAD > ${TMP_LOG}
+Any reason you are not signing off on this?
 
-If you can come up with a command that replaces that, I'll be glad to
-try it out.
+:(
 
-thanks,
-
-greg k-h
