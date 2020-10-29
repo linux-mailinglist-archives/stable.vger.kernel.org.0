@@ -2,195 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17FE529F45C
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 19:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1434B29F48F
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 20:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725912AbgJ2S6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 14:58:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725910AbgJ2S6S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 14:58:18 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E0EC0613CF
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 11:58:16 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id z24so3118986pgk.3
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 11:58:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ygdtL6CnTQH7Tnq1yUpsax8Newnu3ysggevTfg1LisY=;
-        b=SlVYufBS5tCcv0R6+JmhzzJvGNoXoY5S2nsAlRGRGq+Fe2+1EJbpkQKzA5Gnd7iO6+
-         cw0lZqZsxTCmwcfJnpSdZXyU/SS2WFTqicH0O9VngeXPi7mr4WMJBEDI50G2jUjX9EDY
-         Rc2Y/r84AwAx5OlZrEOvxmjRAOQOts5uyNJicFafTbb/6zzc4SQlxCJ9R8gOdvt4nvzy
-         lGCUHN57g+aM0+XfUQ6PmF/KyF8kebq1r+ROplDVGmXF0gLcgZwmZ1mEKewFabAFnfTj
-         t7QNguANFCGy59+TFInKISflN+qm/82xNMHpzHl6vx0H43nS7AEPO/1oa9oLmdzR183N
-         iyrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ygdtL6CnTQH7Tnq1yUpsax8Newnu3ysggevTfg1LisY=;
-        b=VovqZ+XrsDd1ZXqaUDokQloEuKuD81+wM9o1fWdJ5BwiVqa5qlBtUrG0IRypzjHi1r
-         svQ97NrD0kjfYYWtpI9FQMhBjWMwhWNt1lBKi0RPdaVwLJRULlvJzR9yBmDJfpBO4UQE
-         sVR1Opk782lAWccOnmiDex7+SebBlnFBFAXQsUwUv9DEkvmn06V2aP7WYfBFagrrSJ8e
-         BHF93VssOvoz20eMX7NBA0bjThHzvYYdIEowOdL1JkSWaPWNRddWNQQhsvcCtt4XoyZN
-         xQnzIuuQWzh9g7DyqMj0uPlwllUlR3A2wa6yrjs/He2dn9HbpRpTl429hONP7wFBXSf8
-         SZBQ==
-X-Gm-Message-State: AOAM530CSGTDMgq9Co/mv79o1lCnZHhZ3wfhsb74fBzTPn7Mn2qG7k7T
-        t3og2Z5416QDBgm4Fe8HSzPsaVvxtTLND2Z/lOiZVA==
-X-Google-Smtp-Source: ABdhPJz4PoYDzphWyJBEp8RiYQueGGU5MN7SjJhtFj5K2T9gbIjRlRf3SlSdmK6ZvImEza0+mUDiAJ8UlfPRN7OlFsA=
-X-Received: by 2002:a17:90b:110b:: with SMTP id gi11mr546213pjb.25.1603997895872;
- Thu, 29 Oct 2020 11:58:15 -0700 (PDT)
+        id S1725852AbgJ2TKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 15:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44524 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725780AbgJ2TKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 15:10:43 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2ED820756;
+        Thu, 29 Oct 2020 19:10:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603998642;
+        bh=KqzhuycAAUdKVsnextmEz9EKV0e+preDYkS+8Z3FF5Q=;
+        h=Subject:To:From:Date:From;
+        b=vIRKonHsQfIv5XyzfQig3Pw9xK07Qme7sQ1iOEYsPvQwflRQCjI2Y7yWSUpSke58K
+         O91yF8ggznkvzBFJ1Kw0Uv8uLG7hNGUr8H54eJCZhPCyG/AH4bNwvBKZjwa2zuwJBd
+         eOlQDeVpC97n9MwT3Y+20N6w2ty8TjOjuBJ+wVUM=
+Subject: patch "coresight: cti: Initialize dynamic sysfs attributes" added to char-misc-linus
+To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
+        leo.yan@linaro.org, mathieu.poirier@linaro.org,
+        mike.leach@linaro.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 29 Oct 2020 20:11:23 +0100
+Message-ID: <1603998683186111@kroah.com>
 MIME-Version: 1.0
-References: <20201029180525.1797645-1-maskray@google.com>
-In-Reply-To: <20201029180525.1797645-1-maskray@google.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 29 Oct 2020 11:58:03 -0700
-Message-ID: <CAKwvOdk+72TmStpCr0jrCTeBB2mKuNAVqju5zD3m-K21BKfg-g@mail.gmail.com>
-Subject: Re: [PATCH] x86_64: Change .weak to SYM_FUNC_START_WEAK for arch/x86/lib/mem*_64.S
-To:     Fangrui Song <maskray@google.com>
-Cc:     "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Jian Cai <jiancai@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 11:05 AM 'Fangrui Song' via Clang Built Linux
-<clang-built-linux@googlegroups.com> wrote:
->
-> Commit 393f203f5fd5 ("x86_64: kasan: add interceptors for
-> memset/memmove/memcpy functions") added .weak directives to
-> arch/x86/lib/mem*_64.S instead of changing the existing SYM_FUNC_START_*
-> macros. This can lead to the assembly snippet `.weak memcpy ... .globl
-> memcpy` which will produce a STB_WEAK memcpy with GNU as but STB_GLOBAL
-> memcpy with LLVM's integrated assembler before LLVM 12. LLVM 12 (since
-> https://reviews.llvm.org/D90108) will error on such an overridden symbol
-> binding.
->
-> Use the appropriate SYM_FUNC_START_WEAK instead.
->
-> Fixes: 393f203f5fd5 ("x86_64: kasan: add interceptors for memset/memmove/memcpy functions")
-> Reported-by: Sami Tolvanen <samitolvanen@google.com>
-> Signed-off-by: Fangrui Song <maskray@google.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->  arch/x86/lib/memcpy_64.S  | 4 +---
->  arch/x86/lib/memmove_64.S | 4 +---
->  arch/x86/lib/memset_64.S  | 4 +---
->  3 files changed, 3 insertions(+), 9 deletions(-)
->
-> diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
-> index 037faac46b0c..1e299ac73c86 100644
-> --- a/arch/x86/lib/memcpy_64.S
-> +++ b/arch/x86/lib/memcpy_64.S
-> @@ -16,8 +16,6 @@
->   * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
->   */
->
-> -.weak memcpy
-> -
->  /*
->   * memcpy - Copy a memory block.
->   *
-> @@ -30,7 +28,7 @@
->   * rax original destination
->   */
->  SYM_FUNC_START_ALIAS(__memcpy)
-> -SYM_FUNC_START_LOCAL(memcpy)
-> +SYM_FUNC_START_WEAK(memcpy)
->         ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
->                       "jmp memcpy_erms", X86_FEATURE_ERMS
 
-Thanks for the patch.  This exposes a lack of symmetry in the
-assembler subroutine for memcpy; memmove and memset use SYM_FUNC_START
-for their double underscore prefixed symbols, and SYM_FUNC_START_WEAK
-for the non prefixed symbols, and no SYM_FUNC_START_ALIAS after your
-patch.  It's also curious to me why you removed SYM_FUNC_START_ALIAS
-for memmove and memset, but not memcpy?  Can we sort that out so that
-they all follow the same convention?
+This is a note to let you know that I've just added the patch titled
 
-Before your patch, with GNU `as` I see:
-$ llvm-readelf -s arch/x86/lib/memcpy_64.o | grep -e memcpy -e __memcpy
-    16: 0000000000000000    26 FUNC    GLOBAL DEFAULT     4 __memcpy
-    17: 0000000000000000    26 FUNC    WEAK   DEFAULT     4 memcpy
-$ llvm-readelf -s arch/x86/lib/memmove_64.o| grep -e memmove -e __memmove
-    13: 0000000000000000   409 FUNC    WEAK   DEFAULT     1 memmove
-    14: 0000000000000000   409 FUNC    GLOBAL DEFAULT     1 __memmove
-$ llvm-readelf -s arch/x86/lib/memset_64.o| grep -e memset -e __memset
-    15: 0000000000000000    47 FUNC    WEAK   DEFAULT     1 memset
-    16: 0000000000000000    47 FUNC    GLOBAL DEFAULT     1 __memset
+    coresight: cti: Initialize dynamic sysfs attributes
 
-After your patch, with GNU `as` I see:
-$ llvm-readelf -s arch/x86/lib/memcpy_64.o | grep -e memcpy -e __memcpy
-    16: 0000000000000000    26 FUNC    GLOBAL DEFAULT     4 __memcpy
-    17: 0000000000000000    26 FUNC    WEAK   DEFAULT     4 memcpy
-$ llvm-readelf -s arch/x86/lib/memmove_64.o| grep -e memmove -e __memmove
-    13: 0000000000000000   409 FUNC    WEAK   DEFAULT     1 memmove
-    14: 0000000000000000   409 FUNC    GLOBAL DEFAULT     1 __memmove
-$ llvm-readelf -s arch/x86/lib/memset_64.o| grep -e memset -e __memset
-    15: 0000000000000000    47 FUNC    WEAK   DEFAULT     1 memset
-    16: 0000000000000000    47 FUNC    GLOBAL DEFAULT     1 __memset
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-So in that sense, your patch is no functional change, and simply
-resolves ambiguities in repeatedly defining a symbol with different
-bindings.  I guess we can save uncovering why memcpy doesn't follow
-the same convention for another day.  In that sense:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-And thanks for the patch!
+If you have any questions about this process, please let me know.
 
->
-> diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
-> index 7ff00ea64e4f..41902fe8b859 100644
-> --- a/arch/x86/lib/memmove_64.S
-> +++ b/arch/x86/lib/memmove_64.S
-> @@ -24,9 +24,7 @@
->   * Output:
->   * rax: dest
->   */
-> -.weak memmove
-> -
-> -SYM_FUNC_START_ALIAS(memmove)
-> +SYM_FUNC_START_WEAK(memmove)
->  SYM_FUNC_START(__memmove)
->
->         mov %rdi, %rax
-> diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
-> index 9ff15ee404a4..0bfd26e4ca9e 100644
-> --- a/arch/x86/lib/memset_64.S
-> +++ b/arch/x86/lib/memset_64.S
-> @@ -6,8 +6,6 @@
->  #include <asm/alternative-asm.h>
->  #include <asm/export.h>
->
-> -.weak memset
-> -
->  /*
->   * ISO C memset - set a memory block to a byte value. This function uses fast
->   * string to get better performance than the original function. The code is
-> @@ -19,7 +17,7 @@
->   *
->   * rax   original destination
->   */
-> -SYM_FUNC_START_ALIAS(memset)
-> +SYM_FUNC_START_WEAK(memset)
->  SYM_FUNC_START(__memset)
->         /*
->          * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
-> --
-> 2.29.1.341.ge80a0c044ae-goog
->
-> --
+
+From 80624263fa289b3416f7ca309491f1b75e579477 Mon Sep 17 00:00:00 2001
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Date: Thu, 29 Oct 2020 10:45:58 -0600
+Subject: coresight: cti: Initialize dynamic sysfs attributes
+
+With LOCKDEP enabled, CTI driver triggers the following splat due
+to uninitialized lock class for dynamically allocated attribute
+objects.
+
+[    5.372901] coresight etm0: CPU0: ETM v4.0 initialized
+[    5.376694] coresight etm1: CPU1: ETM v4.0 initialized
+[    5.380785] coresight etm2: CPU2: ETM v4.0 initialized
+[    5.385851] coresight etm3: CPU3: ETM v4.0 initialized
+[    5.389808] BUG: key ffff00000564a798 has not been registered!
+[    5.392456] ------------[ cut here ]------------
+[    5.398195] DEBUG_LOCKS_WARN_ON(1)
+[    5.398233] WARNING: CPU: 1 PID: 32 at kernel/locking/lockdep.c:4623 lockdep_init_map_waits+0x14c/0x260
+[    5.406149] Modules linked in:
+[    5.415411] CPU: 1 PID: 32 Comm: kworker/1:1 Not tainted 5.9.0-12034-gbbe85027ce80 #51
+[    5.418553] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+[    5.426453] Workqueue: events amba_deferred_retry_func
+[    5.433299] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
+[    5.438252] pc : lockdep_init_map_waits+0x14c/0x260
+[    5.444410] lr : lockdep_init_map_waits+0x14c/0x260
+[    5.449007] sp : ffff800012bbb720
+...
+
+[    5.531561] Call trace:
+[    5.536847]  lockdep_init_map_waits+0x14c/0x260
+[    5.539027]  __kernfs_create_file+0xa8/0x1c8
+[    5.543539]  sysfs_add_file_mode_ns+0xd0/0x208
+[    5.548054]  internal_create_group+0x118/0x3c8
+[    5.552307]  internal_create_groups+0x58/0xb8
+[    5.556733]  sysfs_create_groups+0x2c/0x38
+[    5.561160]  device_add+0x2d8/0x768
+[    5.565148]  device_register+0x28/0x38
+[    5.568537]  coresight_register+0xf8/0x320
+[    5.572358]  cti_probe+0x1b0/0x3f0
+
+...
+
+Fix this by initializing the attributes when they are allocated.
+
+Fixes: 3c5597e39812 ("coresight: cti: Add connection information to sysfs")
+Reported-by: Leo Yan <leo.yan@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20201029164559.1268531-2-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hwtracing/coresight/coresight-cti-sysfs.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/hwtracing/coresight/coresight-cti-sysfs.c b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
+index 392757f3a019..7ff7e7780bbf 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
+@@ -1065,6 +1065,13 @@ static int cti_create_con_sysfs_attr(struct device *dev,
+ 	}
+ 	eattr->var = con;
+ 	con->con_attrs[attr_idx] = &eattr->attr.attr;
++	/*
++	 * Initialize the dynamically allocated attribute
++	 * to avoid LOCKDEP splat. See include/linux/sysfs.h
++	 * for more details.
++	 */
++	sysfs_attr_init(con->con_attrs[attr_idx]);
++
+ 	return 0;
+ }
+ 
 -- 
-Thanks,
-~Nick Desaulniers
+2.29.1
+
+
