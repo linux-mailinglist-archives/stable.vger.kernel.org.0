@@ -2,88 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D75F29E9F5
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 677FC29EA00
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727005AbgJ2LEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 07:04:52 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:59283 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726071AbgJ2LEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 07:04:52 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1E44A5C0172;
-        Thu, 29 Oct 2020 07:04:51 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 29 Oct 2020 07:04:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=fcUTHlI0YXoRRSufhXhW2Gk3Txj
-        GQ2RXt7LzqobeGeA=; b=JY+FH2LGaP9fJXSu8pxCkQhzoAJ7aKORPd9PD17GWKh
-        O73naJSonRmM2TlG0DQDOz+4TOv0KRZRB7FxeLlBXy68z+zaQmOv1wkPET77OcZU
-        mc4fyldOJ29TYtWggEc3+PJJ4pch9ItlI4qllohS2wfNdmB+sjQRbzJnXdO1qxqV
-        8vhfINjUq0sWMxrEV0sZbAa5oCBVWLjnWws33mnbXDeBOqgbQQWpw9aOH6EjjayU
-        h0g2ZOyKMVcjDEHjmJ5j8Vpk+qQz6oLH3t4F+rQmXQP9oaKev8a8TCoB0bjUJLVv
-        9d9dvyHog+u9t3TPzBUan2JJSidHqSTnEYXywO69NmQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fcUTHl
-        I0YXoRRSufhXhW2Gk3TxjGQ2RXt7LzqobeGeA=; b=cWXOO2mwWykEfJ84ae4v22
-        qRUfypIZwrW+OQ5uTw98qHFzfyaGihB2ztbbyy62SzRp+gpZqoy78+GxDS/uxTL7
-        gE3IFUHPATYtaYyQN/6C5YkxdMvaIrv5dbEtQO5eaGLVAVkrNFvIYKLIPDfJEuUA
-        8WphxFjqWWeK6iUnE6cjT4VHEVbfy2NQuxZ+ZDgF8D/8CyU3n3AkyHVvRaIdjJKk
-        PfRxcP6RZO5pyfj0plgPQ9u9Kcp5xLqfbUrVPBB/T4DGfmXjaUD4+3HFAuksjOev
-        btxke1NtRjpRe2LVGOcljEwpZnLb6xW0cncqzFD5c2UDHLVwpQwYLRSmgbdEoWEw
-        ==
-X-ME-Sender: <xms:0qGaX4bcs23oOkWKmEGiAWzhhFKg8CexyKcUZbgA7oi-v4JTLr_IXg>
-    <xme:0qGaXzZlMxXOJ4qu16Owfm5c_z7Mypdg4ksbn7n2AZ3sGMXIBpArLdTPjbhJkKvzn
-    5__38Is9t7MOA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleefgddvgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:0qGaXy_0-EzflJMBJUNi_vbf4daQAboPJW_Gyfzm4SxEukXD3KpePg>
-    <xmx:0qGaXyqemZN67CcZCfevKr5rLuODJs4iQzZfdEC4O4-FLARKkdKejg>
-    <xmx:0qGaXzrYfVMi7ix9TeT7BKnM0aNq6ombRgUxAjjK0cZASH__IER3Kw>
-    <xmx:06GaX8CEcn2sBv7KDbSsDUT5ZyyVhpSmZQw0zJGnbHJALJS3VrJPAQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 837A63064687;
-        Thu, 29 Oct 2020 07:04:50 -0400 (EDT)
-Date:   Thu, 29 Oct 2020 12:05:37 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Calum Mackay <calum.mackay@oracle.com>
-Cc:     stable@vger.kernel.org, linux-nfs@vger.kernel.org,
-        NeilBrown <neilb@suse.com>
-Subject: Re: please cherry-pick for stable --- fd01b2597941 SUNRPC:
- ECONNREFUSED should cause a rebind.
-Message-ID: <20201029110537.GF3840801@kroah.com>
-References: <380083cd-f5f5-73fa-33ff-c5dde2e7bd02@oracle.com>
+        id S1727110AbgJ2LGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 07:06:55 -0400
+Received: from correo.us.es ([193.147.175.20]:54962 "EHLO mail.us.es"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726078AbgJ2LGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 07:06:55 -0400
+Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
+        by mail.us.es (Postfix) with ESMTP id 8A5BD891985
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id 7AF86DA84A
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
+Received: by antivirus1-rhel7.int (Postfix, from userid 99)
+        id 6F56BDA793; Thu, 29 Oct 2020 12:06:53 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
+X-Spam-Level: 
+X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
+        SMTPAUTH_US2,USER_IN_WELCOMELIST,USER_IN_WHITELIST autolearn=disabled
+        version=3.4.1
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id 4F7AFDA78A;
+        Thu, 29 Oct 2020 12:06:51 +0100 (CET)
+Received: from 192.168.1.97 (192.168.1.97)
+ by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
+ Thu, 29 Oct 2020 12:06:51 +0100 (CET)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
+Received: from us.es (unknown [90.77.255.23])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: 1984lsi)
+        by entrada.int (Postfix) with ESMTPSA id 236CC42EF4EA;
+        Thu, 29 Oct 2020 12:06:51 +0100 (CET)
+Date:   Thu, 29 Oct 2020 12:06:50 +0100
+X-SMTPAUTHUS: auth mail.us.es
+From:   Pablo Neira Ayuso <pablo@netfilter.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kadlec@netfilter.org, fw@strlen.de, davem@davemloft.net,
+        kuba@kernel.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, netdev@vger.kernel.org
+Subject: Re: [PATCH linux-5.9 1/1] net: netfilter: fix KASAN:
+ slab-out-of-bounds Read in nft_flow_rule_create
+Message-ID: <20201029110650.GA10242@salvia>
+References: <20201019172532.3906-1-saeed.mirzamohammadi@oracle.com>
+ <20201020115047.GA15628@salvia>
+ <28C74722-8F35-4397-B567-FA5BCF525891@oracle.com>
+ <3BE1A64B-7104-4220-BAD1-870338A33B15@oracle.com>
+ <566D38F7-7C99-40F4-A948-03F2F0439BBB@oracle.com>
+ <20201027062111.GD206502@kroah.com>
+ <20201027081922.GA5285@salvia>
+ <20201029110241.GB3840801@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <380083cd-f5f5-73fa-33ff-c5dde2e7bd02@oracle.com>
+In-Reply-To: <20201029110241.GB3840801@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Virus-Scanned: ClamAV using ClamSMTP
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 27, 2020 at 11:42:27PM +0000, Calum Mackay wrote:
-> This commit:
+On Thu, Oct 29, 2020 at 12:02:41PM +0100, Greg KH wrote:
+> On Tue, Oct 27, 2020 at 09:19:22AM +0100, Pablo Neira Ayuso wrote:
+> > Hi Greg,
+> > 
+> > On Tue, Oct 27, 2020 at 07:21:11AM +0100, Greg KH wrote:
+> > > On Sun, Oct 25, 2020 at 04:31:57PM -0700, Saeed Mirzamohammadi wrote:
+> > > > Adding stable.
+> > > 
+> > > What did that do?
+> > 
+> > Saeed is requesting that stable maintainers cherry-picks this patch:
+> > 
+> > 31cc578ae2de ("netfilter: nftables_offload: KASAN slab-out-of-bounds
+> > Read in nft_flow_rule_create")
+> > 
+> > into stable 5.4 and 5.8.
 > 
-> 	fd01b2597941 SUNRPC: ECONNREFUSED should cause a rebind.
-> 
-> (originally applied to v4.14-rc1) didn't appear to get a stable cc, perhaps
-> because it wasn't considered a common problem at the time.
-> 
-> A patch I'm shortly about to post, cc stable, depends on the above, so could
-> it please be cherry-picked for stable?
-> 
-> It applies cleanly to both v4.4.240 & v4.9.240
+> 5.9 is also a stable kernel :)
 
-Now queued up, thanks.
+Oh, indeed, I forgot this one :)
 
-greg k-h
+> Will go queue it up everywhere...
+
+Thanks.
