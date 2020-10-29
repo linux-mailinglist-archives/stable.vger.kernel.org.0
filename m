@@ -2,63 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8965C29E9EE
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D75F29E9F5
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:04:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727099AbgJ2LEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 07:04:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726071AbgJ2LEK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 07:04:10 -0400
+        id S1727005AbgJ2LEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 07:04:52 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:59283 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726071AbgJ2LEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 07:04:52 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 1E44A5C0172;
+        Thu, 29 Oct 2020 07:04:51 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 29 Oct 2020 07:04:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=fcUTHlI0YXoRRSufhXhW2Gk3Txj
+        GQ2RXt7LzqobeGeA=; b=JY+FH2LGaP9fJXSu8pxCkQhzoAJ7aKORPd9PD17GWKh
+        O73naJSonRmM2TlG0DQDOz+4TOv0KRZRB7FxeLlBXy68z+zaQmOv1wkPET77OcZU
+        mc4fyldOJ29TYtWggEc3+PJJ4pch9ItlI4qllohS2wfNdmB+sjQRbzJnXdO1qxqV
+        8vhfINjUq0sWMxrEV0sZbAa5oCBVWLjnWws33mnbXDeBOqgbQQWpw9aOH6EjjayU
+        h0g2ZOyKMVcjDEHjmJ5j8Vpk+qQz6oLH3t4F+rQmXQP9oaKev8a8TCoB0bjUJLVv
+        9d9dvyHog+u9t3TPzBUan2JJSidHqSTnEYXywO69NmQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fcUTHl
+        I0YXoRRSufhXhW2Gk3TxjGQ2RXt7LzqobeGeA=; b=cWXOO2mwWykEfJ84ae4v22
+        qRUfypIZwrW+OQ5uTw98qHFzfyaGihB2ztbbyy62SzRp+gpZqoy78+GxDS/uxTL7
+        gE3IFUHPATYtaYyQN/6C5YkxdMvaIrv5dbEtQO5eaGLVAVkrNFvIYKLIPDfJEuUA
+        8WphxFjqWWeK6iUnE6cjT4VHEVbfy2NQuxZ+ZDgF8D/8CyU3n3AkyHVvRaIdjJKk
+        PfRxcP6RZO5pyfj0plgPQ9u9Kcp5xLqfbUrVPBB/T4DGfmXjaUD4+3HFAuksjOev
+        btxke1NtRjpRe2LVGOcljEwpZnLb6xW0cncqzFD5c2UDHLVwpQwYLRSmgbdEoWEw
+        ==
+X-ME-Sender: <xms:0qGaX4bcs23oOkWKmEGiAWzhhFKg8CexyKcUZbgA7oi-v4JTLr_IXg>
+    <xme:0qGaXzZlMxXOJ4qu16Owfm5c_z7Mypdg4ksbn7n2AZ3sGMXIBpArLdTPjbhJkKvzn
+    5__38Is9t7MOA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleefgddvgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:0qGaXy_0-EzflJMBJUNi_vbf4daQAboPJW_Gyfzm4SxEukXD3KpePg>
+    <xmx:0qGaXyqemZN67CcZCfevKr5rLuODJs4iQzZfdEC4O4-FLARKkdKejg>
+    <xmx:0qGaXzrYfVMi7ix9TeT7BKnM0aNq6ombRgUxAjjK0cZASH__IER3Kw>
+    <xmx:06GaX8CEcn2sBv7KDbSsDUT5ZyyVhpSmZQw0zJGnbHJALJS3VrJPAQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6175220754;
-        Thu, 29 Oct 2020 11:04:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603969450;
-        bh=qibV5zwWbW1Gt4xCaFTElwQoaSFfCZCRU50jD77fASw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pJwoIxIiFO4fDZ9Ipde+VTs3F6pcn5AR20PyGkQisJVurM0irzlLvZT/aBULIwJIc
-         NYaV3ekzu70L5wrLvO4vVqFYfXwdvvSc+DfrmCOdA0YdpCjkFxqlhimluXjNOQ50xf
-         WItc0uccKKK91302UbAhK2DhAnN8qWn1Ju4Iqd9o=
-Date:   Thu, 29 Oct 2020 12:04:59 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Jian Cai <jiancai@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dmitry Golovin <dima@golovin.in>, Borislav Petkov <bp@suse.de>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Nathan Chancellor <natechancellor@gmail.com>, mbenes@suse.cz
-Subject: Re: LLVM_IAS=1 x86_64 patches for 5.4 and 4.19
-Message-ID: <20201029110459.GE3840801@kroah.com>
-References: <CAKwvOdn78WAUiRtyPxW7oEhUz8GN6MkL=Jt+n17jEQXPPZE77g@mail.gmail.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 837A63064687;
+        Thu, 29 Oct 2020 07:04:50 -0400 (EDT)
+Date:   Thu, 29 Oct 2020 12:05:37 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Calum Mackay <calum.mackay@oracle.com>
+Cc:     stable@vger.kernel.org, linux-nfs@vger.kernel.org,
+        NeilBrown <neilb@suse.com>
+Subject: Re: please cherry-pick for stable --- fd01b2597941 SUNRPC:
+ ECONNREFUSED should cause a rebind.
+Message-ID: <20201029110537.GF3840801@kroah.com>
+References: <380083cd-f5f5-73fa-33ff-c5dde2e7bd02@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKwvOdn78WAUiRtyPxW7oEhUz8GN6MkL=Jt+n17jEQXPPZE77g@mail.gmail.com>
+In-Reply-To: <380083cd-f5f5-73fa-33ff-c5dde2e7bd02@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 27, 2020 at 04:29:17PM -0700, Nick Desaulniers wrote:
-> Dear Stable kernel maintainers,
-> Please consider cherry picking
+On Tue, Oct 27, 2020 at 11:42:27PM +0000, Calum Mackay wrote:
+> This commit:
 > 
-> commit e81e07244325 ("objtool: Support Clang non-section symbols in
-> ORC generation")
+> 	fd01b2597941 SUNRPC: ECONNREFUSED should cause a rebind.
 > 
-> to linux-5.4.y and linux-4.19.y.  This allows us to use LLVM_IAS=1 for
-> x86_64 Android kernel builds without warning.
+> (originally applied to v4.14-rc1) didn't appear to get a stable cc, perhaps
+> because it wasn't considered a common problem at the time.
 > 
-> Its partner patch (8782e7cab51b6b) was already backported to
-> linux-5.4.y as 8c627d4b15de9, and linux-4.19.y as 6e575122cd956.
+> A patch I'm shortly about to post, cc stable, depends on the above, so could
+> it please be cherry-picked for stable?
 > 
-> https://github.com/ClangBuiltLinux/linux/issues/669
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e81e0724432542af8d8c702c31e9d82f57b1ff31
+> It applies cleanly to both v4.4.240 & v4.9.240
 
 Now queued up, thanks.
 
