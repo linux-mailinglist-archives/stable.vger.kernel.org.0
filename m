@@ -2,124 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D86B729EFDE
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 16:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4DED29EFFF
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 16:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728230AbgJ2P27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 11:28:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46228 "EHLO
+        id S1728152AbgJ2PbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 11:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727941AbgJ2P27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 11:28:59 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE27FC0613D5
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 08:28:58 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id f21so1459753plr.5
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 08:28:58 -0700 (PDT)
+        with ESMTP id S1728343AbgJ2P3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 11:29:11 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA8CC0613D5
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 08:29:10 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id t13so3498274ljk.12
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 08:29:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=z45/meuYgcB8whMYLLhVXnPKnL+KnoijTnhwotrKn/U=;
-        b=n17bzJe0zR0UFwb9Fp3xkQlnWG5uH1V0ML5Cl4ZlXvWUz8LTEnffZ172n6gFM3t8s3
-         uCU7Z12Wbbe+UXr3PXNZy+LXzozJJ89X/1ywxck9hHBlUjshG/qR/7dnRJ/WVv+6qGdk
-         RYPHt5Poxj7F4Pa1rm4P9IfBVdnog9r+nh6ecTpNd/4/5DPUFkGGui5zwieVlxZ4/zoY
-         M+ru3xFS0VeZCeBRWo3+d0UwA/laNNsJV8llAAOMMDw3hKk0p2tSbdcMKnXvig9HqRzs
-         aHTVltSNEuX4/cAOclIUJGDP8h40IyN8Nk8YWGVxHlN0N8MsaCg5+J7HbL/rKzXaOENL
-         cGBg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=yUiHroil23Ysm/oPYXt1mfZFVtFDWQvOgy/RoBiFB5Y=;
+        b=JNdBZbJaab3zgf6RO4FoBPVrqalMXowq7JnjRdf8XYw7dm+EDvje50lZxEY6mNq964
+         3ilG0BOObK8A+ZpjRxpDV1YKnf214l5Y/I0oSvFHugRLQMk58rxxY1tbelsgejNifu+q
+         ZwCVa91K40jpS7wG9dvL9TW3vv0enhbMqXygVQyIji0PW0kd3xjONcciagrMc2/xKvpN
+         Ej3PvIo9REEg7RIOBPU9gFfX48gwYul0iMYeSvp3jQEoz/juTpOalSNU1caj+xo37sD3
+         IiKtzWZFibcUxE0wTZoNy+L/cI1WJwvNUTiVjnGawQEkV6DSGi8Stz+L3FbU34a27e6e
+         YtsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=z45/meuYgcB8whMYLLhVXnPKnL+KnoijTnhwotrKn/U=;
-        b=NfI/s8SdArZlSNN7+Nxs/xw1O/lvbzfq083uhrUEU3oklHI9zon9RjVdcwpji4md4V
-         VWqSS09VNEnMQBIYXZbxngEDXJ64DGpZXxtvAG7sUs8oU42vEGO1QwoxT60vuV9tu3Xb
-         HSEgJxvwFnDDNOd/jYoaSh2HjmeJEl4VseNDBtK7e2d++68G7x204Zfthu5nFQf0GPst
-         clasK7t0Ifrd5HuK/7eSkwozZ9h1ZaM+MMe9Kol1MjIGPfSvM37bB0Y18Eu5k0afT6ZQ
-         MRNJy8HqVo87oSGgJhYMlD81B9IJux07cT+IWum5jiMmYAMngl/FmXFQDv380KsiyytL
-         59fQ==
-X-Gm-Message-State: AOAM533buRMuRFP+haPygTXpyGLUmycDV6/IX5o//1TsbDgF2Pbp3WB+
-        /CRzwlvLv0tmpCes82ErztI5y1aKUppM6Q==
-X-Google-Smtp-Source: ABdhPJyjsL4dy8vBXe7oSgIocsY0dFhLtHcYtQmoCvkuVZzt0+2WeBkrHXO21B9C1oONZRTAtDoWAg==
-X-Received: by 2002:a17:902:b28c:b029:d6:528b:ea5d with SMTP id u12-20020a170902b28cb02900d6528bea5dmr4810874plr.54.1603985338206;
-        Thu, 29 Oct 2020 08:28:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ng7sm185622pjb.14.2020.10.29.08.28.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 08:28:57 -0700 (PDT)
-Message-ID: <5f9adfb9.1c69fb81.10c0a.0598@mx.google.com>
-Date:   Thu, 29 Oct 2020 08:28:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=yUiHroil23Ysm/oPYXt1mfZFVtFDWQvOgy/RoBiFB5Y=;
+        b=cJkHM66jG2fLHiRss8piBjyAC7KVrSxqo5wWokXHHMR8mRJ7sdVDkTKn2fxhyM8C0a
+         LPOli6D0sg8OIYxdQGE/7LbuRNmRx1xHmr+1WCLZyD1qmiIdcqB40n40lby/p0huV7m8
+         UQMyY6xHZHtPdLxGKch36NWFScub8XBuSm3yhPeg2wyCTea/nX1CAq40U+yYNVUXbanE
+         0dP3wfJaMyZTz25W5pLlIXzJJha+xGwHTbVBdGyxHjHJrxHxead4s3McoHNBe66k6hTQ
+         LaspyyJME4Bzd4oGsIKSiY51b9PFExSUjCNEXerL28MPpUTvPQXjZFxTY4YrXNxndNVM
+         aVPg==
+X-Gm-Message-State: AOAM5301h2sIbHFIbk9XY9DmZWI7g3XcUvxoUgmqHNTLVOgCUkYXYj91
+        HNLHyGktuOzQ38BN2zYJspsZ4o4VfzIZ6IQqJCY=
+X-Google-Smtp-Source: ABdhPJxcGdCg1Ov3JFnu8B4jW25g+M9eWz8fZZoJ9LsAfnDHejTA2X6E50mnJQ6W62m3rZ3EluWBALsEQT/HEBwfkOY=
+X-Received: by 2002:a2e:80c2:: with SMTP id r2mr2022834ljg.402.1603985349508;
+ Thu, 29 Oct 2020 08:29:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.153
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y baseline: 182 runs, 1 regressions (v4.19.153)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a05:6512:214f:0:0:0:0 with HTTP; Thu, 29 Oct 2020 08:29:09
+ -0700 (PDT)
+Reply-To: mrjohnsonsmith009@gmail.com
+From:   Johnson smith <georgeolivier1986@gmail.com>
+Date:   Thu, 29 Oct 2020 15:29:09 +0000
+Message-ID: <CAHLEK+_8WzyfrPnzDbXZL_jFyUD59fBfMr89S0RP1w_Wr2r8oQ@mail.gmail.com>
+Subject: hi
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 182 runs, 1 regressions (v4.19.153)
+-- 
 
-Regressions Summary
--------------------
+Attention Beneficiary
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+To stop this dubious act, we agreed with the World Bank and the
+Federal Bureau of Investigation (FBI) that we the International
+Monetary Fund (IMF) can manage and monitor this payment to overcome
+the desperate situation of banks and other personnel. Organizations
+involved in the criminal process.
 
+We have obtained an irrevocable payment guarantee for your payment
+from the World Bank. We would like to inform you that the World Bank
+has decided to send you $ 350,000.00 dollars and transfer it through
+international ATM VISA card, which you can withdraw from any Visa ATM
+MACHINE anywhere in the world. (International Commercial Bank Senegal
+S.A) will issue an international ATM visa card in your name and send
+it to your home address through DHL Delivery Company.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.153/plan/baseline/
+Contact Mr Johnson James to send your (International Commercial Bank
+Senegal S.A) Visa card to your home address immediately.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.153
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      79524e8c64bda80bb35ab490177d0e6813bf112c =
+Email: mrjohnsonsmith009@gmail.com
 
+Website: www.un.org
 
+WhatsApp phone number +22890198522
 
-Test Regressions
----------------- =
+Phone No:+22890198522
 
+Regards
 
+Mr Johnson James
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9aaedf88a9b4d88238102a
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.153/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.153/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9aaedf88a9b4d=
-882381031
-        failing since 14 days (last pass: v4.19.150, first fail: v4.19.151)
-        2 lines =
-
- =20
+International Commercial Bank Senegal S.A, Management
