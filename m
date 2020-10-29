@@ -2,250 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB61229EC13
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 13:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B3C29EC53
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 13:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbgJ2Mmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 08:42:46 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50339 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726569AbgJ2Mmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 08:42:45 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 01F6E86F;
-        Thu, 29 Oct 2020 08:42:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 29 Oct 2020 08:42:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Z6Bh54
-        CPmcrAUXZHG1cCjOHW2CaY0Sb3V0sfMvxHdI4=; b=ezuNNRAHbrhd4ErHecZyp1
-        3jB0L6SSlvTPKxcao+5wLZtFtkyTU+N44nnegBl3E04nVwpl79srcAXW1KTBYElg
-        veTBNYNt5aHoIKosAfqbMtn9D9ru0x47oL2h0LytK5SHxAbt7W+sWFrU0GLRFpyx
-        oR8xcoG6WatcV7TiZrTdxuLvMWouUY++MNQdxoctVeO0iOoJfiEwizMAxy3/oVi/
-        Gd9n977O6O6O2SU6NGcZE3K6RupFVXHvtczhD7dmvBgmW/WOeBKVnfgdUSKSsbbz
-        V11DJ+cSeq7+59NHMx2ybS9hUXc5/B+KDiYQS2WynkiFMkTEexCNGxs7NkjYVinQ
-        ==
-X-ME-Sender: <xms:w7iaX35ZcSVJpu-qRUpYNYr7YRyTYqvJcLcn7XclLx1wBGwwdO-hxw>
-    <xme:w7iaX85qyNO14r53zRHMoFwDQ-zc7XnzA_bmX_MkEkUZIQUmJcQLGHlSfkHvyJxuR
-    nkiwkMskd3GtQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleefgdegfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeehleefgeeufeevuedtfedvvefhtdduteffffekiedtke
-    fhjeeuteetiedvledvueenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdeigedrshgs
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepjeenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:w7iaX-flkk2fgBr3gtz3Glc-SEvPZ35txyc-fibdlL787s0yvqB_Fw>
-    <xmx:w7iaX4LZ8ImyHbsRa-0rjIGvHL6aD-5GKnsezXmeqwdIqijGlkNT2g>
-    <xmx:w7iaX7IsE5tOzz5oSDbvcTkrlUsXbwkwqeqy5hsB1funYHM1ohY1GQ>
-    <xmx:w7iaXz1dmMPbBdO7e3zL_NXEeI8tOaKNdhnynCOay8HzthOdroso6TNfayY>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 300A63064687;
-        Thu, 29 Oct 2020 08:42:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/copy_mc: Introduce copy_mc_enhanced_fast_string()" failed to apply to 4.9-stable tree
-To:     dan.j.williams@intel.com, bp@suse.de, erwin.tsaur@intel.com,
-        lkp@intel.com, stable@vger.kernel.org, tony.luck@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 29 Oct 2020 13:43:34 +0100
-Message-ID: <16039754147867@kroah.com>
+        id S1725763AbgJ2M6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 08:58:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725554AbgJ2M6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 08:58:53 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE85C0613CF
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 05:58:52 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id k9so573395pgt.9
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 05:58:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CXKWD3Oji34cYFykiSJbxFmVxgsVvUg9IBuESXI4Jp4=;
+        b=R3fTCvDCFnC8/GzHy7lx6LGQF6epIsy2Nw7c/0ruDkmR7jV+NLlns3lr2G+zEfHazn
+         mQN/sr+Lbc64E2ZKc/fRnSjRv1dTHiEgAoWujjqrP5RJbScxy6O58wi1ASPxCdsb/La7
+         9oBi0D9mTixFNrqgvtiGcdgtyvTQZS4fHEWu0ie8KriL0pGrMeHp5Wz/l5o0D0GXG6EZ
+         c9iz6ocPUxiFPu6b6XELd5OCNirwdDfyjKO9ypyJYVCQJgUHwTaYLEB7rsBYP8zV5ZSI
+         aDdwz1/qWGST7i1/0cEPdzlB8N22atsOOTe3kMDBTVHZO/duxKa4qC53t/mwtC7fv/5C
+         HrQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CXKWD3Oji34cYFykiSJbxFmVxgsVvUg9IBuESXI4Jp4=;
+        b=Lt8qQvtt2qPDrgnBiRGcvQ98sHvbJvXv9wXMTXW9axjBX5we4IWqae9fC7WZ5JV2eN
+         I1bIEH6D4xG4sXkg46yMsRktSIKljwDgvtnpXSiOp+GTyl/9521QD+z+Yvq+KG2DeZ33
+         8VQzMTFty7rRez9HoFWaHNlUkLp+/ODWVoKOCZ8AEP7EK+EU+GhzJMyzn6shLpbjlIqb
+         XAmIqAKOfVFetHRP3KwY0Wd6FsmXJ7XmHSxs9fzpYN2BdVVRDlHC1x+el9oGF7hq95GK
+         UFXMFnYoIodPGMgZ2k+Nur1PnzQjtWD8bDhSPRG2ausy1fQXvyCJU9lyoGHlSjGTOH3b
+         HqCg==
+X-Gm-Message-State: AOAM5313UHs0o5C5P2YjFaeDn3SgNp/asuJuvleXjtLA66IEes9oVbAW
+        BoAw9cojXzTkWHcH2bvFjSCp03xkaMJS3g==
+X-Google-Smtp-Source: ABdhPJyXT87Sf6wdF0hvqpLM9cUDhAO9H1ff1PRCrVD7qo0sJC/3AsD3ApyQhLMD+xRTGLxFpNhwdA==
+X-Received: by 2002:a63:1e64:: with SMTP id p36mr3933617pgm.126.1603976331989;
+        Thu, 29 Oct 2020 05:58:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b17sm2596244pgb.94.2020.10.29.05.58.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 05:58:51 -0700 (PDT)
+Message-ID: <5f9abc8b.1c69fb81.38383.57ff@mx.google.com>
+Date:   Thu, 29 Oct 2020 05:58:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.8.16-632-g35e3ec0c7174
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.8
+Subject: stable-rc/queue/5.8 baseline: 205 runs,
+ 2 regressions (v5.8.16-632-g35e3ec0c7174)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.8 baseline: 205 runs, 2 regressions (v5.8.16-632-g35e3ec0=
+c7174)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+imx8mp-evk      | arm64 | lab-nxp      | gcc-8    | defconfig          | 1 =
+         =
 
-greg k-h
+stm32mp157c-dk2 | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1 =
+         =
 
------------------- original commit in Linus's tree ------------------
 
-From 5da8e4a658109e3b7e1f45ae672b7c06ac3e7158 Mon Sep 17 00:00:00 2001
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Mon, 5 Oct 2020 20:40:25 -0700
-Subject: [PATCH] x86/copy_mc: Introduce copy_mc_enhanced_fast_string()
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
+el/v5.8.16-632-g35e3ec0c7174/plan/baseline/
 
-The motivations to go rework memcpy_mcsafe() are that the benefit of
-doing slow and careful copies is obviated on newer CPUs, and that the
-current opt-in list of CPUs to instrument recovery is broken relative to
-those CPUs.  There is no need to keep an opt-in list up to date on an
-ongoing basis if pmem/dax operations are instrumented for recovery by
-default. With recovery enabled by default the old "mcsafe_key" opt-in to
-careful copying can be made a "fragile" opt-out. Where the "fragile"
-list takes steps to not consume poison across cachelines.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.8
+  Describe: v5.8.16-632-g35e3ec0c7174
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      35e3ec0c7174453dd4892c5edafb86b2db216ddd =
 
-The discussion with Linus made clear that the current "_mcsafe" suffix
-was imprecise to a fault. The operations that are needed by pmem/dax are
-to copy from a source address that might throw #MC to a destination that
-may write-fault, if it is a user page.
 
-So copy_to_user_mcsafe() becomes copy_mc_to_user() to indicate
-the separate precautions taken on source and destination.
-copy_mc_to_kernel() is introduced as a non-SMAP version that does not
-expect write-faults on the destination, but is still prepared to abort
-with an error code upon taking #MC.
 
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platforms that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
+Test Regressions
+---------------- =
 
-Introduce copy_mc_enhanced_fast_string() as the fast default
-implementation of copy_mc_to_kernel() and finalize the transition of
-copy_mc_fragile() to be a platform quirk to indicate 'copy-carefully'.
-With this in place, copy_mc_to_kernel() is fast and recovery-ready by
-default regardless of hardware capability.
 
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler(). Thanks to the 0day robot for catching a
-performance bug in the x86/copy_mc_to_user implementation.
 
- [ bp: Add the "why" for this change from the 0/2th message, massage. ]
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+imx8mp-evk      | arm64 | lab-nxp      | gcc-8    | defconfig          | 1 =
+         =
 
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Reported-by: 0day robot <lkp@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/160195562556.2163339.18063423034951948973.stgit@dwillia2-desk3.amr.corp.intel.com
 
-diff --git a/arch/x86/lib/copy_mc.c b/arch/x86/lib/copy_mc.c
-index 2633635530b7..c13e8c9ee926 100644
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -45,6 +45,8 @@ void enable_copy_mc_fragile(void)
- #define copy_mc_fragile_enabled (0)
- #endif
- 
-+unsigned long copy_mc_enhanced_fast_string(void *dst, const void *src, unsigned len);
-+
- /**
-  * copy_mc_to_kernel - memory copy that handles source exceptions
-  *
-@@ -52,9 +54,11 @@ void enable_copy_mc_fragile(void)
-  * @src:	source address
-  * @len:	number of bytes to copy
-  *
-- * Call into the 'fragile' version on systems that have trouble
-- * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * Call into the 'fragile' version on systems that benefit from avoiding
-+ * corner case poison consumption scenarios, For example, accessing
-+ * poison across 2 cachelines with a single instruction. Almost all
-+ * other uses case can use copy_mc_enhanced_fast_string() for a fast
-+ * recoverable copy, or fallback to plain memcpy.
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -63,6 +67,8 @@ unsigned long __must_check copy_mc_to_kernel(void *dst, const void *src, unsigne
- {
- 	if (copy_mc_fragile_enabled)
- 		return copy_mc_fragile(dst, src, len);
-+	if (static_cpu_has(X86_FEATURE_ERMS))
-+		return copy_mc_enhanced_fast_string(dst, src, len);
- 	memcpy(dst, src, len);
- 	return 0;
- }
-@@ -72,11 +78,19 @@ unsigned long __must_check copy_mc_to_user(void *dst, const void *src, unsigned
- {
- 	unsigned long ret;
- 
--	if (!copy_mc_fragile_enabled)
--		return copy_user_generic(dst, src, len);
-+	if (copy_mc_fragile_enabled) {
-+		__uaccess_begin();
-+		ret = copy_mc_fragile(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
-+
-+	if (static_cpu_has(X86_FEATURE_ERMS)) {
-+		__uaccess_begin();
-+		ret = copy_mc_enhanced_fast_string(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
- 
--	__uaccess_begin();
--	ret = copy_mc_fragile(dst, src, len);
--	__uaccess_end();
--	return ret;
-+	return copy_user_generic(dst, src, len);
- }
-diff --git a/arch/x86/lib/copy_mc_64.S b/arch/x86/lib/copy_mc_64.S
-index c3b613c4544a..892d8915f609 100644
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -124,4 +124,40 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
- #endif /* CONFIG_X86_MCE */
-+
-+/*
-+ * copy_mc_enhanced_fast_string - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_enhanced_fast_string)
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_enhanced_fast_string)
-+
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_mc_generic() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif /* !CONFIG_UML */
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 893f021fec63..b3e4efcf7ca6 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -550,6 +550,7 @@ static const char *uaccess_safe_builtin[] = {
- 	"csum_partial_copy_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
-+	"copy_mc_enhanced_fast_string",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
- 	NULL
- };
+  Details:     https://kernelci.org/test/plan/id/5f9a902f505558bcf738102d
 
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-63=
+2-g35e3ec0c7174/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-63=
+2-g35e3ec0c7174/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9a902f505558bcf7381=
+02e
+        failing since 2 days (last pass: v5.8.16-626-gbc7f19da4ffe, first f=
+ail: v5.8.16-627-ga9047ecdbcb4) =
+
+ =
+
+
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+stm32mp157c-dk2 | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9a8c870b532f6d7b381028
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-63=
+2-g35e3ec0c7174/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
+57c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-63=
+2-g35e3ec0c7174/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
+57c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9a8c870b532f6d7b381=
+029
+        failing since 3 days (last pass: v5.8.16-78-g480e444094c4, first fa=
+il: v5.8.16-626-g41d0d5713799) =
+
+ =20
