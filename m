@@ -2,128 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DC629F3A0
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 18:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 933C529F3A7
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 18:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727067AbgJ2Rvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 13:51:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727051AbgJ2Rvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 13:51:40 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F80C0613CF
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 10:51:39 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id o129so2981155pfb.1
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 10:51:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WcRmS7SKuCYT+oeURtIqVK1u3/Azt4Es5FX6kTFAPKI=;
-        b=J6R/yi+5e1wM+cHKF7LCF0zD3LAJIPfNh0SmKahwIx7CpdoB3OOjY6nEjUSJE51Prl
-         U4xF02Pq2T8teKluOcFrYC7Wwx9IiEct+q+nDGkA84stHVNEbhRDTgRmRFKTUh2uy+8L
-         0zN8u0H3HkdtxqVkREMxonJCh6jaZMPqOwr6FNDQdPIXpnaY/brQ/OusirMEnmb+IOrZ
-         yfXcwYSUI/RA8280ijXoDB2ayLROuC9a5Bt70IBDRDTjOBN17hwAM6Kqc+9dJwYP0t67
-         wWsuyJtq40I+Et7sQRm8pB0C3e7guJNCQrRyRywuEVq6UNA+Xm6ung/Emye2K9Kc6bxo
-         V+/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WcRmS7SKuCYT+oeURtIqVK1u3/Azt4Es5FX6kTFAPKI=;
-        b=Aw11k1+HTvnsuFlGULmVg3tIZjG4Jy+YbIBdrr/1vGPwF3Q1bElse6WqjUAxBQ9Juh
-         VBo/snFIVHIPrEUh0B0nBi49zYYCM3Ki4Zs+WeRSKUhD+lByJkqpN0/lLilhQZ32yCSK
-         7QJYh6HG7ArG46j8cncZxK/O5SrD4RJpFDlp0s9sZz3T18hS2kqCNZaiJMaRzTfJEcK+
-         l9OL0We1nUCsFmp/5c2ZprybiPlFReVadKFYwPq/696Fd3UZ1UMvVgYC7iQyCd27xgRJ
-         dNWMHq36p+zvHOCJJ39QQfDmDBVB+taV/JlePnUV+817wZoxMC0b+fjX1wVtvJNDIfBW
-         nT9w==
-X-Gm-Message-State: AOAM5313s2NRJaTlI3Miy+/4ovPZXz09adltwXVg4w/bHYcTEpoxDcuE
-        oF+niuQy3WhAs7MHOrPXNWD4TMRD3/nRJQ==
-X-Google-Smtp-Source: ABdhPJxKDgAZD1Ln69+Maad+Y6t+T1xS1EkqufBSR2yajnQNQRQRE26n7zNoR244XnStKhnW3vIQdA==
-X-Received: by 2002:a63:ef51:: with SMTP id c17mr4993626pgk.36.1603993898822;
-        Thu, 29 Oct 2020 10:51:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r187sm3709735pfc.137.2020.10.29.10.51.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 10:51:37 -0700 (PDT)
-Message-ID: <5f9b0129.1c69fb81.a58d8.89c1@mx.google.com>
-Date:   Thu, 29 Oct 2020 10:51:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725805AbgJ2RzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 13:55:01 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:37849 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725777AbgJ2RzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 13:55:00 -0400
+Received: from 2.general.dannf.us.vpn ([10.172.65.1] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <dann.frazier@canonical.com>)
+        id 1kYC8Y-0003Pf-HJ; Thu, 29 Oct 2020 17:54:58 +0000
+From:   dann frazier <dann.frazier@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Michael Schaller <misch@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Matthew Garrett <matthew.garrett@nebula.com>,
+        Jeremy Kerr <jk@ozlabs.org>, linux-efi@vger.kernel.org
+Subject: [PATCH 4.4-5.9] efivarfs: Replace invalid slashes with exclamation marks in dentries.
+Date:   Thu, 29 Oct 2020 11:54:42 -0600
+Message-Id: <20201029175442.564282-1-dann.frazier@canonical.com>
+X-Mailer: git-send-email 2.29.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.8.16-658-gc32c23a5a4dd
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.8
-Subject: stable-rc/queue/5.8 baseline: 204 runs,
- 1 regressions (v5.8.16-658-gc32c23a5a4dd)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 204 runs, 1 regressions (v5.8.16-658-gc32c23a=
-5a4dd)
+From: Michael Schaller <misch@google.com>
 
-Regressions Summary
--------------------
+commit 336af6a4686d885a067ecea8c3c3dd129ba4fc75 upstream
 
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
+Without this patch efivarfs_alloc_dentry creates dentries with slashes in
+their name if the respective EFI variable has slashes in its name. This in
+turn causes EIO on getdents64, which prevents a complete directory listing
+of /sys/firmware/efi/efivars/.
 
+This patch replaces the invalid shlashes with exclamation marks like
+kobject_set_name_vargs does for /sys/firmware/efi/vars/ to have consistently
+named dentries under /sys/firmware/efi/vars/ and /sys/firmware/efi/efivars/.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.16-658-gc32c23a5a4dd/plan/baseline/
+Signed-off-by: Michael Schaller <misch@google.com>
+Link: https://lore.kernel.org/r/20200925074502.150448-1-misch@google.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.16-658-gc32c23a5a4dd
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c32c23a5a4dd9f72a18cbcc12d64a3451402294d =
+---
 
+This addresses an issue that breaks Ubuntu installs on platforms that have
+variable names as described above. One of our installers needs to sort
+the BootOrder to keep BootCurrent at the front, but this fails when the
+variable BootCurrent points at appears to not exist due to this issue.
 
+Ref: https://bugs.launchpad.net/bugs/1899993
 
-Test Regressions
----------------- =
+fs/efivarfs/super.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
+index 28bb5689333a..15880a68faad 100644
+--- a/fs/efivarfs/super.c
++++ b/fs/efivarfs/super.c
+@@ -141,6 +141,9 @@ static int efivarfs_callback(efi_char16_t *name16, efi_guid_t vendor,
+ 
+ 	name[len + EFI_VARIABLE_GUID_LEN+1] = '\0';
+ 
++	/* replace invalid slashes like kobject_set_name_vargs does for /sys/firmware/efi/vars. */
++	strreplace(name, '/', '!');
++
+ 	inode = efivarfs_get_inode(sb, d_inode(root), S_IFREG | 0644, 0,
+ 				   is_removable);
+ 	if (!inode)
+-- 
+2.29.1
 
-
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9ac91f8ca6a109a8381047
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-65=
-8-gc32c23a5a4dd/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.16-65=
-8-gc32c23a5a4dd/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9ac91f8ca6a109a8381=
-048
-        failing since 3 days (last pass: v5.8.16-78-g480e444094c4, first fa=
-il: v5.8.16-626-g41d0d5713799) =
-
- =20
