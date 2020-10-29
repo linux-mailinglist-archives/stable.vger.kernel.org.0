@@ -2,198 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0562329F8CC
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 00:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8CC29F927
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 00:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725769AbgJ2XDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 19:03:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725768AbgJ2XDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 19:03:06 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2BFC0613CF
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 16:01:51 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id y14so3612936pfp.13
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 16:01:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DiqgfwwU4+Nk6JwvFfw2O3LxFQJRqmlBPawxJU7tgZg=;
-        b=utIBo2IGXt1NdGCB8vyohPcPidLhsQwHL+UDrtpUVhHiXnUghftsnhNxhP0zZx4ppM
-         2hpzlqpw19+kxWRJJfQ13p+F+VkErjspbmfxP9yBMDiFCOXKSMqbZGnQ4tC5xI/zGMDz
-         kD7NL5SMdIrUGVeiG0m7tFOP3OubpH+hsoPUvBeWpAGUG1vJ/teTiuVTdg+leTSiGiR6
-         zurb1xvW8Q+XW3dob/WRxHKr4F9JEzSsM8UEtLQL3kbCjMPMrYwZi8KOmtpjfIk8YTfG
-         oQpse50f+OtHbRlQT+cpprfi0Whhe9JHlRstkw1rMp/lrytgYGv6hRJeO7Kuyagvt5mI
-         ERcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DiqgfwwU4+Nk6JwvFfw2O3LxFQJRqmlBPawxJU7tgZg=;
-        b=n8I7Rh9utMUsurpydDogo9TFdN9QCPCe4slNaCifGMR1poKXBdR/w6eSmrU44hvu+c
-         QAUkek9bNyS462gQ+Dmq9Bs/1FsYOc1XwIZwQUZTXOg7g3S+YI2MOPmCfYDlJGYEDR+0
-         ThOSf/cj/vjg80CnjhE2f5sE0sSrn1UCT5jNxKuJpCX53xlWEi2d7yp45ZV/j6a7RCVY
-         VirsODJrlrLL2N5s2+QxRZFUh6GJI8HiGt/r4xqa24JoSM00T7W191U+dSdIHsYzPtuM
-         mKK7qs9jSwvHBjVVhK0JGjAzMJOsifjR9c35GUVnZQPiVzEjYjaCvrD1Mpsn+kidsnR/
-         wSZQ==
-X-Gm-Message-State: AOAM531o/n7XvdnoCwBB+Ti905wqMMK/vD8UaOZ8NYcU4lMmbfXhWCiN
-        UciC2CXcn0dNTSdBP9LToW8vQeS3cJZsYw==
-X-Google-Smtp-Source: ABdhPJy6GsL/tK6GSt7T35j5Wl1KKZ6Oh/Gxk/H6SRf++qU0kO6MyKhl4ei0cZO9lDw7rHluKThVYQ==
-X-Received: by 2002:a63:5f05:: with SMTP id t5mr5823863pgb.172.1604012510803;
-        Thu, 29 Oct 2020 16:01:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t11sm874869pjs.8.2020.10.29.16.01.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 16:01:50 -0700 (PDT)
-Message-ID: <5f9b49de.1c69fb81.b5f6d.2453@mx.google.com>
-Date:   Thu, 29 Oct 2020 16:01:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725681AbgJ2Xgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 19:36:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60688 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725372AbgJ2Xgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 19:36:38 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAD6B20739;
+        Thu, 29 Oct 2020 23:36:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604014597;
+        bh=tiQsCPtLsqO5ooF7IiNDNyjbGaPP8KTeVd+mnveyGcs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kF1I5s4G4GwjeViHSetaQE7rxjmrJKdWT1rryocgiIzFtcjNviVVxZM5NWZZNnZIG
+         53i4oiQKZTYuqN0OZCri/BKAmgSnlY9p/ObT9PkPogTZwo2eURU2YkdBsq3xqwQNku
+         dlqjYN4+Eny9hd1IVqNcebSpxfunzxaqLfu+e9Wo=
+Date:   Thu, 29 Oct 2020 19:36:35 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Jian Cai <jiancai@google.com>, "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Luis Lozano <llozano@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: Backport 44623b2818f4a442726639572f44fd9b6d0ef68c to kernel 5.4
+Message-ID: <20201029233635.GF87646@sasha-vm>
+References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
+ <20201029110153.GA3840801@kroah.com>
+ <CAKwvOdkQ5M+ujYZgg7T80W-uNgsn_mmv8R+-15HJjPoPDpES1Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.203-2-g4eb6bac3af5a
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 167 runs,
- 3 regressions (v4.14.203-2-g4eb6bac3af5a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdkQ5M+ujYZgg7T80W-uNgsn_mmv8R+-15HJjPoPDpES1Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 167 runs, 3 regressions (v4.14.203-2-g4eb6ba=
-c3af5a)
+On Thu, Oct 29, 2020 at 11:05:01AM -0700, Nick Desaulniers wrote:
+>On Thu, Oct 29, 2020 at 4:01 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>>
+>> On Mon, Oct 26, 2020 at 06:17:00PM -0700, Jian Cai wrote:
+>> > Hello,
+>> >
+>> > I am working on assembling kernel 5.4 with LLVM's integrated assembler on
+>> > ChromeOS, and the following patch is required to make it work. Would you
+>> > please consider backporting it to 5.4?
+>> >
+>> >
+>> > commit 44623b2818f4a442726639572f44fd9b6d0ef68c
+>> > Author: Arnd Bergmann <arnd@arndb.de>
+>> > Date:   Wed May 27 16:17:40 2020 +0200
+>> >
+>> >     crypto: x86/crc32c - fix building with clang ias
+>> >
+>> > Link:
+>> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=44623b2818f4a442726639572f44fd9b6d0ef68c
+>> >
+>>
+>> It does not apply cleanly, can you please provide a properly backported
+>> and tested version?
+>
+>Hi Jian,
+>Thanks for proactively identifying and requesting a backport of
+>44623b2818.  We'll need it for Android as well soon.
+>
+>One thing I do when requesting backports from stable is I checkout the
+>branch of the stable tree and see if the patch cherry picks cleanly.
 
-Regressions Summary
--------------------
+btw, an easy way to get an idea of possible dependencies is to look at
+the dependency repo :) For this commit on 5.4:
 
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-panda            | arm    | lab-collabora | gcc-8    | omap2plus_defconfig =
-| 1          =
+https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/plain/v5.4/44623b2818f4a442726639572f44fd9b6d0ef68c
 
-qemu_x86_64      | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    =
-| 1          =
-
-qemu_x86_64-uefi | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig    =
-| 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.203-2-g4eb6bac3af5a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.203-2-g4eb6bac3af5a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4eb6bac3af5a84befa2ffd9bceddfcfaa0bd35b5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-panda            | arm    | lab-collabora | gcc-8    | omap2plus_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9b13106a0ffdef5e38103b
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9b13106a0ffde=
-f5e381042
-        new failure (last pass: v4.14.202-192-ge89d89c342f6)
-        2 lines =
-
- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-qemu_x86_64      | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9b134a9210427dc4381045
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
-86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
-86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9b134a9210427dc4381=
-046
-        new failure (last pass: v4.14.202-192-ge89d89c342f6) =
-
- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-qemu_x86_64-uefi | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig    =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9b133f9210427dc438103d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x8=
-6_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
--2-g4eb6bac3af5a/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x8=
-6_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9b133f9210427dc4381=
-03e
-        new failure (last pass: v4.14.202-192-ge89d89c342f6) =
-
- =20
+-- 
+Thanks,
+Sasha
