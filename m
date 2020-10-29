@@ -2,135 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1434B29F48F
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 20:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 956E929F494
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 20:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725852AbgJ2TKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 15:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44524 "EHLO mail.kernel.org"
+        id S1725774AbgJ2TMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 15:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725780AbgJ2TKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 15:10:43 -0400
+        id S1725379AbgJ2TMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 15:12:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2ED820756;
-        Thu, 29 Oct 2020 19:10:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5F8120728;
+        Thu, 29 Oct 2020 19:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603998642;
-        bh=KqzhuycAAUdKVsnextmEz9EKV0e+preDYkS+8Z3FF5Q=;
-        h=Subject:To:From:Date:From;
-        b=vIRKonHsQfIv5XyzfQig3Pw9xK07Qme7sQ1iOEYsPvQwflRQCjI2Y7yWSUpSke58K
-         O91yF8ggznkvzBFJ1Kw0Uv8uLG7hNGUr8H54eJCZhPCyG/AH4bNwvBKZjwa2zuwJBd
-         eOlQDeVpC97n9MwT3Y+20N6w2ty8TjOjuBJ+wVUM=
-Subject: patch "coresight: cti: Initialize dynamic sysfs attributes" added to char-misc-linus
-To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
-        leo.yan@linaro.org, mathieu.poirier@linaro.org,
-        mike.leach@linaro.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 29 Oct 2020 20:11:23 +0100
-Message-ID: <1603998683186111@kroah.com>
+        s=default; t=1603998759;
+        bh=pCNMmpnsx69VJQqTHTzQSUX7WSLANUjiWqyo7kzaxZs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=brr/4ARi3aEz2HJg0WcqiiJq3RpPrRgPFNXPCCt0uMC93zLIRp7uH58ViBy+b2gOX
+         neX4K3LZ5rOg6MEU+maQWAyBrSUXLOplqr6ttGm+m1gnKcgLrsK/qDTXNuKBF4JAoL
+         Xz0A9TCyEVqfGGKgjk4H9lV5sKSSIu9WwMGeaOuU=
+Date:   Thu, 29 Oct 2020 20:13:28 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Cc:     Kamal Mostafa <kamal@canonical.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        stable <stable@vger.kernel.org>
+Subject: Re: v4.4.y broken by "Fix race while processing OPAL dump"
+Message-ID: <20201029191328.GA986195@kroah.com>
+References: <20201029150259.30375-1-kamal@canonical.com>
+ <7d12bc74-b737-9ed0-cb48-e394c96e1dcd@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7d12bc74-b737-9ed0-cb48-e394c96e1dcd@linux.vnet.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 29, 2020 at 09:53:52PM +0530, Vasant Hegde wrote:
+> On 10/29/20 8:32 PM, Kamal Mostafa wrote:
+> > Hi-
+> > 
+> > This commit from v4.4.241 breaks the v4.4.y build for powerpc:
+> > 
+> > 217f139551c0 powerpc/powernv/dump: Fix race while processing OPAL dump
+> > 
+> > Like this:
+> > 
+> > .../arch/powerpc/platforms/powernv/opal-dump.c:409:7: error: void value not ignored as it ought to be
+> >    dump = create_dump_obj(dump_id, dump_size, dump_type);
+> >         ^
+> > 
+> > 
+> > The commit descriptions says:
+> > 
+> > "... the return value of create_dump_obj() function isn't being used today ..."
+> > 
+> > But that's only true for kernels >= v4.19, because they carry this commit:
+> > 
+> > b29336c0e178 powerpc/powernv/opal-dump : Use IRQ_HANDLED instead of numbers in interrupt handler
+> > 
+> > In v4.4 process_dump(), the only caller of create_dump_obj(), still tries to
+> > use the return value (see the error above).
+> > 
+> > 
+> > Applying "b29336c0e178 powerpc/powernv/opal-dump : Use IRQ_HANDLED ..." to
+> > v4.4.y fixes the problem.
+> 
+> 
+> Makes sense. Can you please pick above commit as well?
 
-This is a note to let you know that I've just added the patch titled
+Now queued up there, and in 4.9.y as well, thanks.
 
-    coresight: cti: Initialize dynamic sysfs attributes
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 80624263fa289b3416f7ca309491f1b75e579477 Mon Sep 17 00:00:00 2001
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Thu, 29 Oct 2020 10:45:58 -0600
-Subject: coresight: cti: Initialize dynamic sysfs attributes
-
-With LOCKDEP enabled, CTI driver triggers the following splat due
-to uninitialized lock class for dynamically allocated attribute
-objects.
-
-[    5.372901] coresight etm0: CPU0: ETM v4.0 initialized
-[    5.376694] coresight etm1: CPU1: ETM v4.0 initialized
-[    5.380785] coresight etm2: CPU2: ETM v4.0 initialized
-[    5.385851] coresight etm3: CPU3: ETM v4.0 initialized
-[    5.389808] BUG: key ffff00000564a798 has not been registered!
-[    5.392456] ------------[ cut here ]------------
-[    5.398195] DEBUG_LOCKS_WARN_ON(1)
-[    5.398233] WARNING: CPU: 1 PID: 32 at kernel/locking/lockdep.c:4623 lockdep_init_map_waits+0x14c/0x260
-[    5.406149] Modules linked in:
-[    5.415411] CPU: 1 PID: 32 Comm: kworker/1:1 Not tainted 5.9.0-12034-gbbe85027ce80 #51
-[    5.418553] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[    5.426453] Workqueue: events amba_deferred_retry_func
-[    5.433299] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
-[    5.438252] pc : lockdep_init_map_waits+0x14c/0x260
-[    5.444410] lr : lockdep_init_map_waits+0x14c/0x260
-[    5.449007] sp : ffff800012bbb720
-...
-
-[    5.531561] Call trace:
-[    5.536847]  lockdep_init_map_waits+0x14c/0x260
-[    5.539027]  __kernfs_create_file+0xa8/0x1c8
-[    5.543539]  sysfs_add_file_mode_ns+0xd0/0x208
-[    5.548054]  internal_create_group+0x118/0x3c8
-[    5.552307]  internal_create_groups+0x58/0xb8
-[    5.556733]  sysfs_create_groups+0x2c/0x38
-[    5.561160]  device_add+0x2d8/0x768
-[    5.565148]  device_register+0x28/0x38
-[    5.568537]  coresight_register+0xf8/0x320
-[    5.572358]  cti_probe+0x1b0/0x3f0
-
-...
-
-Fix this by initializing the attributes when they are allocated.
-
-Fixes: 3c5597e39812 ("coresight: cti: Add connection information to sysfs")
-Reported-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201029164559.1268531-2-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/hwtracing/coresight/coresight-cti-sysfs.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/hwtracing/coresight/coresight-cti-sysfs.c b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
-index 392757f3a019..7ff7e7780bbf 100644
---- a/drivers/hwtracing/coresight/coresight-cti-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
-@@ -1065,6 +1065,13 @@ static int cti_create_con_sysfs_attr(struct device *dev,
- 	}
- 	eattr->var = con;
- 	con->con_attrs[attr_idx] = &eattr->attr.attr;
-+	/*
-+	 * Initialize the dynamically allocated attribute
-+	 * to avoid LOCKDEP splat. See include/linux/sysfs.h
-+	 * for more details.
-+	 */
-+	sysfs_attr_init(con->con_attrs[attr_idx]);
-+
- 	return 0;
- }
- 
--- 
-2.29.1
-
-
+greg k-h
