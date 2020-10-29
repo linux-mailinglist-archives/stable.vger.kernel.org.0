@@ -2,67 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAA729EA08
-	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0464C29E9E3
+	for <lists+stable@lfdr.de>; Thu, 29 Oct 2020 12:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727449AbgJ2LHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 07:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41680 "EHLO mail.kernel.org"
+        id S1726740AbgJ2LCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 07:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727445AbgJ2LHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 07:07:23 -0400
+        id S1726071AbgJ2LCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Oct 2020 07:02:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 204CF20727;
-        Thu, 29 Oct 2020 11:01:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4008E2072D;
+        Thu, 29 Oct 2020 11:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603969263;
-        bh=R92KNs8S38MZTxidNQ/KELDDBq80do4lAJlTlaY7shs=;
+        s=default; t=1603969311;
+        bh=5ohHGgOU0GJJt6kXAqIi0aDDZtxgSeUQSguJlV/VLQY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vkGu2R5XbT1ery9DxQP4CncywLf46MpkH8l+MZPgbWeL8TWh1rXnL9Ogv3nZe7cS2
-         BOr68XfGWSeYQ6TUKApn6Q+xjJyO1R7MFCHBQl4f0XtauJc8ArdXwmgUU0jZ0rzxMH
-         oMxDMzkjJRH8SqDuQLmAfaNJWRMkAlNxDe3NVZOc=
-Date:   Thu, 29 Oct 2020 12:01:53 +0100
+        b=i5bv54YL6HL6hhUpVryFoeFiiZqyYnTTwjBrQBcDFEswgJ9uYbZfviDib11iLKa5N
+         POAs/1YlMYaSALMoDbd000e4PSAzGB6/MHkvszXMlUaKxDb7njsGuTvEJr0jFZu044
+         h1gcFRki3vAgGqaNPJm9Re6n67ZWwq2Jc/i4jYwA=
+Date:   Thu, 29 Oct 2020 12:02:41 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jian Cai <jiancai@google.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Luis Lozano <llozano@google.com>, arnd@arndb.de
-Subject: Re: Backport 44623b2818f4a442726639572f44fd9b6d0ef68c to kernel 5.4
-Message-ID: <20201029110153.GA3840801@kroah.com>
-References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
+To:     Pablo Neira Ayuso <pablo@netfilter.org>
+Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kadlec@netfilter.org, fw@strlen.de, davem@davemloft.net,
+        kuba@kernel.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, netdev@vger.kernel.org
+Subject: Re: [PATCH linux-5.9 1/1] net: netfilter: fix KASAN:
+ slab-out-of-bounds Read in nft_flow_rule_create
+Message-ID: <20201029110241.GB3840801@kroah.com>
+References: <20201019172532.3906-1-saeed.mirzamohammadi@oracle.com>
+ <20201020115047.GA15628@salvia>
+ <28C74722-8F35-4397-B567-FA5BCF525891@oracle.com>
+ <3BE1A64B-7104-4220-BAD1-870338A33B15@oracle.com>
+ <566D38F7-7C99-40F4-A948-03F2F0439BBB@oracle.com>
+ <20201027062111.GD206502@kroah.com>
+ <20201027081922.GA5285@salvia>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
+In-Reply-To: <20201027081922.GA5285@salvia>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 26, 2020 at 06:17:00PM -0700, Jian Cai wrote:
-> Hello,
+On Tue, Oct 27, 2020 at 09:19:22AM +0100, Pablo Neira Ayuso wrote:
+> Hi Greg,
 > 
-> I am working on assembling kernel 5.4 with LLVM's integrated assembler on
-> ChromeOS, and the following patch is required to make it work. Would you
-> please consider backporting it to 5.4?
+> On Tue, Oct 27, 2020 at 07:21:11AM +0100, Greg KH wrote:
+> > On Sun, Oct 25, 2020 at 04:31:57PM -0700, Saeed Mirzamohammadi wrote:
+> > > Adding stable.
+> > 
+> > What did that do?
 > 
+> Saeed is requesting that stable maintainers cherry-picks this patch:
 > 
-> commit 44623b2818f4a442726639572f44fd9b6d0ef68c
-> Author: Arnd Bergmann <arnd@arndb.de>
-> Date:   Wed May 27 16:17:40 2020 +0200
+> 31cc578ae2de ("netfilter: nftables_offload: KASAN slab-out-of-bounds
+> Read in nft_flow_rule_create")
 > 
->     crypto: x86/crc32c - fix building with clang ias
-> 
-> Link:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=44623b2818f4a442726639572f44fd9b6d0ef68c
-> 
+> into stable 5.4 and 5.8.
 
-It does not apply cleanly, can you please provide a properly backported
-and tested version?
+5.9 is also a stable kernel :)
+
+Will go queue it up everywhere...
 
 thanks,
 
