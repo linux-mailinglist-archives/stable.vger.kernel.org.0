@@ -2,24 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C91E2A05B6
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 13:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49C72A05B5
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 13:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726055AbgJ3MrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1725975AbgJ3MrC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 30 Oct 2020 08:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46852 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725939AbgJ3MrB (ORCPT
+Received: from smtp-42ab.mail.infomaniak.ch ([84.16.66.171]:57937 "EHLO
+        smtp-42ab.mail.infomaniak.ch" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725999AbgJ3MrB (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 08:47:01 -0400
-Received: from smtp-190f.mail.infomaniak.ch (smtp-190f.mail.infomaniak.ch [IPv6:2001:1600:3:17::190f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7E7C0613D2
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 05:47:01 -0700 (PDT)
-Received: from smtp-2-0001.mail.infomaniak.ch (unknown [10.5.36.108])
-        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4CN21F6GMlzlhjZL;
-        Fri, 30 Oct 2020 13:38:57 +0100 (CET)
+X-Greylist: delayed 479 seconds by postgrey-1.27 at vger.kernel.org; Fri, 30 Oct 2020 08:47:00 EDT
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4CN21G6tpXzlhjYs;
+        Fri, 30 Oct 2020 13:38:58 +0100 (CET)
 Received: from localhost (unknown [94.23.54.103])
-        by smtp-2-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4CN21F2JzKzlh8TF;
-        Fri, 30 Oct 2020 13:38:57 +0100 (CET)
+        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4CN21G5BxVzlh8TD;
+        Fri, 30 Oct 2020 13:38:58 +0100 (CET)
 From:   =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To:     Christian Brauner <christian.brauner@ubuntu.com>,
         Jann Horn <jannh@google.com>,
@@ -33,9 +31,9 @@ Cc:     =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
         Will Drewry <wad@chromium.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org,
         =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
-Subject: [PATCH v1 1/2] ptrace: Set PF_SUPERPRIV when checking capability
-Date:   Fri, 30 Oct 2020 13:38:48 +0100
-Message-Id: <20201030123849.770769-2-mic@digikod.net>
+Subject: [PATCH v1 2/2] seccomp: Set PF_SUPERPRIV when checking capability
+Date:   Fri, 30 Oct 2020 13:38:49 +0100
+Message-Id: <20201030123849.770769-3-mic@digikod.net>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201030123849.770769-1-mic@digikod.net>
 References: <20201030123849.770769-1-mic@digikod.net>
@@ -48,84 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mickaël Salaün <mic@linux.microsoft.com>
 
-Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
-/proc/pid/stat") replaced the use of ns_capable() with
-has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
+Replace the use of security_capable(current_cred(), ...) with
+ns_capable_noaudit() which set PF_SUPERPRIV.
 
-Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in
-ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
-security_capable(), which doesn't set PF_SUPERPRIV neither.
+Since commit 98f368e9e263 ("kernel: Add noaudit variant of
+ns_capable()"), a new ns_capable_noaudit() helper is available.  Let's
+use it!
 
-Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()"), a
-new ns_capable_noaudit() helper is available.  Let's use it!
-
-As a result, the signature of ptrace_has_cap() is restored to its original one.
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Eric Paris <eparis@redhat.com>
 Cc: Jann Horn <jannh@google.com>
 Cc: Kees Cook <keescook@chromium.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Serge E. Hallyn <serge@hallyn.com>
 Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: Will Drewry <wad@chromium.org>
 Cc: stable@vger.kernel.org
-Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()")
-Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+Fixes: e2cfabdfd075 ("seccomp: add system call filtering using BPF")
 Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
 ---
- kernel/ptrace.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ kernel/seccomp.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 43d6179508d6..aa3c2fd6e41b 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -264,23 +264,17 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
- 	return ret;
- }
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index 8ad7a293255a..53a7d1512dd7 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -38,7 +38,7 @@
+ #include <linux/filter.h>
+ #include <linux/pid.h>
+ #include <linux/ptrace.h>
+-#include <linux/security.h>
++#include <linux/capability.h>
+ #include <linux/tracehook.h>
+ #include <linux/uaccess.h>
+ #include <linux/anon_inodes.h>
+@@ -558,8 +558,7 @@ static struct seccomp_filter *seccomp_prepare_filter(struct sock_fprog *fprog)
+ 	 * behavior of privileged children.
+ 	 */
+ 	if (!task_no_new_privs(current) &&
+-	    security_capable(current_cred(), current_user_ns(),
+-				     CAP_SYS_ADMIN, CAP_OPT_NOAUDIT) != 0)
++			!ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
+ 		return ERR_PTR(-EACCES);
  
--static bool ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
--			   unsigned int mode)
-+static bool ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
- {
--	int ret;
--
- 	if (mode & PTRACE_MODE_NOAUDIT)
--		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NOAUDIT);
--	else
--		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
--
--	return ret == 0;
-+		return ns_capable_noaudit(ns, CAP_SYS_PTRACE);
-+	return ns_capable(ns, CAP_SYS_PTRACE);
- }
- 
- /* Returns 0 on success, -errno on denial. */
- static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
- {
--	const struct cred *cred = current_cred(), *tcred;
-+	const struct cred *const cred = current_cred(), *tcred;
- 	struct mm_struct *mm;
- 	kuid_t caller_uid;
- 	kgid_t caller_gid;
-@@ -326,7 +320,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	    gid_eq(caller_gid, tcred->sgid) &&
- 	    gid_eq(caller_gid, tcred->gid))
- 		goto ok;
--	if (ptrace_has_cap(cred, tcred->user_ns, mode))
-+	if (ptrace_has_cap(tcred->user_ns, mode))
- 		goto ok;
- 	rcu_read_unlock();
- 	return -EPERM;
-@@ -345,7 +339,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	mm = task->mm;
- 	if (mm &&
- 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
--	     !ptrace_has_cap(cred, mm->user_ns, mode)))
-+	     !ptrace_has_cap(mm->user_ns, mode)))
- 	    return -EPERM;
- 
- 	return security_ptrace_access_check(task, mode);
+ 	/* Allocate a new seccomp_filter */
 -- 
 2.28.0
 
