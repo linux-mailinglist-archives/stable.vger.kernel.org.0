@@ -2,108 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C242A0828
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E4E2A082B
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726239AbgJ3Onu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 10:43:50 -0400
-Received: from mga05.intel.com ([192.55.52.43]:62349 "EHLO mga05.intel.com"
+        id S1726491AbgJ3Oon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 10:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725975AbgJ3Onu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 10:43:50 -0400
-IronPort-SDR: wR6JV0c4TYxhP3zU0Q0wgudr709aJi/z9/mxMawCsdntsjekn1fJzbYqv7h6uWwo65Y/FZqR5d
- tiDgl55AhbMQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9789"; a="253323613"
-X-IronPort-AV: E=Sophos;i="5.77,433,1596524400"; 
-   d="scan'208";a="253323613"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2020 07:43:49 -0700
-IronPort-SDR: 3sNntcel3Mt5MdolL+3ZJfoZkbkDPOMwyJKTBvktwKLoWskwvT/ejKmqeo6P+0xe+PIdt4ohQs
- mXOnfaPGEUjw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,433,1596524400"; 
-   d="scan'208";a="361866344"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by FMSMGA003.fm.intel.com with SMTP; 30 Oct 2020 07:43:47 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 30 Oct 2020 16:43:46 +0200
-Date:   Fri, 30 Oct 2020 16:43:46 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        Randy Dunlap <rdunlap@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/modes: Switch to 64bit maths to avoid integer
- overflow
-Message-ID: <20201030144346.GJ6112@intel.com>
-References: <20201022194256.30978-1-ville.syrjala@linux.intel.com>
- <160406758530.15070.9622609556730885347@build.alporthouse.com>
+        id S1725939AbgJ3Ool (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 10:44:41 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0774020724;
+        Fri, 30 Oct 2020 14:44:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604069080;
+        bh=hkBjTIMyTaX2dJRjqSGQ5hhGLfMUVMWI2P2FkxjzDgs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GHKLcj0Eah8aX7EqX+kesrMqkk1+BVwFb5i89iAk4wNlYHLkYDvDxpNp1zzPbnp26
+         UdxF9uY2DMhRNuewZnsvpi5vbJKI+gD2pVyQiVgobAqNvwT9nkUzuntaLP99etLgUo
+         mH8aHM0ZJC0siM3jTtZSWATW3B2YTWY1lSOyrrgw=
+Date:   Fri, 30 Oct 2020 10:44:38 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+        akpm@linux-foundation.org, torvalds@linux-foundation.org,
+        stable@vger.kernel.org, lwn@lwn.net, jslaby@suse.cz
+Subject: Re: Linux 4.19.153
+Message-ID: <20201030144438.GH87646@sasha-vm>
+References: <160396822019115@kroah.com>
+ <20201030082653.GA29475@amd>
+ <20201030084915.GB1625087@kroah.com>
+ <20201030091416.GA1759200@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <160406758530.15070.9622609556730885347@build.alporthouse.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20201030091416.GA1759200@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 02:19:45PM +0000, Chris Wilson wrote:
-> Quoting Ville Syrjala (2020-10-22 20:42:56)
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > The new >8k CEA modes have dotclocks reaching 5.94 GHz, which
-> > means our clock*1000 will now overflow the 32bit unsigned
-> > integer. Switch to 64bit maths to avoid it.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Randy Dunlap <rdunlap@infradead.org>
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > ---
-> > An interesting question how many other place might suffer from similar
-> > overflows. I think i915 should be mostly OK. The one place I know we use
-> > Hz instead kHz is the hsw DPLL code, which I would prefer we also change
-> > to use kHz. The other concern is whether we have any potential overflows
-> > before we check this against the platform's max dotclock.
-> > 
-> > I do have this unreviewed igt series 
-> > https://patchwork.freedesktop.org/series/69531/ which extends the
-> > current testing with some other forms of invalid modes. Could probably
-> > extend that with a mode.clock=INT_MAX test to see if anything else might
-> > trip up.
-> > 
-> > No idea about other drivers.
-> > 
-> >  drivers/gpu/drm/drm_modes.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-> > index 501b4fe55a3d..511cde5c7fa6 100644
-> > --- a/drivers/gpu/drm/drm_modes.c
-> > +++ b/drivers/gpu/drm/drm_modes.c
-> > @@ -762,7 +762,7 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
-> >         if (mode->htotal == 0 || mode->vtotal == 0)
-> >                 return 0;
-> >  
-> > -       num = mode->clock * 1000;
-> > +       num = mode->clock;
-> >         den = mode->htotal * mode->vtotal;
-> 
-> You don't want to promote den to u64 while you are here? We are at
-> 8kx4k, throw in dblscan and some vscan, and we could soon have wacky
-> refresh rates.
+On Fri, Oct 30, 2020 at 10:14:16AM +0100, Greg Kroah-Hartman wrote:
+>On Fri, Oct 30, 2020 at 09:49:15AM +0100, Greg Kroah-Hartman wrote:
+>> On Fri, Oct 30, 2020 at 09:26:54AM +0100, Pavel Machek wrote:
+>> > Hi!
+>> >
+>> > > I'm announcing the release of the 4.19.153 kernel.
+>> > >
+>> > > All users of the 4.19 kernel series must upgrade.
+>> > >
+>> > > The updated 4.19.y git tree can be found at:
+>> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+>> > > and can be browsed at the normal kernel.org git web browser:
+>> > > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+>> >
+>> > Did something go seriously wrong here?
+>> >
+>> > The original 4.19.153-rc1 series had 264 patches. "powerpc/tau: Remove
+>> > duplicated set_thresholds() call" is 146/264 of the series, but it is
+>> > last one in 4.19.153 as released. "178/264 ext4: limit entries
+>> > returned when counting...", for example, is not present in
+>> > 4.19.153... as are others, for example "net: korina: cast KSEG0
+>> > address to pointer in kfree". Looks like 118 or so patches are
+>> > missing.
+>> >
+>> > They are not in origin/queue/4.19, either.
+>>
+>> Wow, something did go wrong here, thanks for catching this.
+>>
+>> Let me dig and see what happened, the whole series did not apply, which
+>> makes me wonder if the same thing happened for other branches as well...
+>>
+>> thanks for checking up and finding this.
+>>
+>> Give me a bit...
+>
+>Ok, figure3d it out.
+>
+>Sasha changed a powerpc patch to build properly but didn't realize that
+>later powerpc patches would not apply because of that.  I didn't run my
+>"apply all patches to make sure they are clean" script before doing the
+>release after he did that, so 'git quiltimport' failed when applying the
+>series at the place where the powerpc path failed to apply.
+>
+>My scripts don't check for the result of 'git quiltimport' being
+>successful or not (I don't even know if it return an error for this type
+>of thing), and just moved on in the release process.
+>
+>I'll go do a new 4.19 release with the rest of the patches missed here,
+>thank you for finding this.
+>
+>And I'll go make my release scripts more robust to failures like this as
+>well.
+>
+>thanks so much!
 
-i915 has 16kx8k hard limit currently, and we reject vscan>1
-(wish we could also reject DBLSCAN). So we should not hit
-that, at least not yet. Other drivers might not be so strict
-I guess.
-
-I have a nagging feeling that other places are in danger of
-overflows if we try to push the current limits significantly.
-But I guess no real harm in going full 64bit here, except
-maybe making it a bit slower.
+You're right, sorry :( And thanks Pavel!
 
 -- 
-Ville Syrjälä
-Intel
+Thanks,
+Sasha
