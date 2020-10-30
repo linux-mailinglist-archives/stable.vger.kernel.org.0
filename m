@@ -2,164 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C88029FA69
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 02:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C939229FA75
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 02:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725771AbgJ3BQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 21:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725379AbgJ3BQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 21:16:30 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88A02C0613CF
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 18:16:27 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id i7so1869973pgh.6
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 18:16:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NnnqMjbWWrtenvWLzpSzFfZNdtvP2pBXR1M1qxwlppw=;
-        b=OCspByrWewz8iVyIEjUbma99B+5S6KOcjg7mNg05wxWVqYrluYb/xTr6aJMzWkUp6c
-         BJTmsLpmFC3Zsv1sCAyDggmU14BT3cP1cy0D7aQfDnpNh0l22VT8zn6FKjyB7wkVPvhJ
-         X4UnUxqloOacyGPCl82yV86A0eoQ+mgXutO0NSh0OXH9NIINcVSrb2n1TcK4f8C9bY1J
-         9W586KPpehCf527LN3aLkv8wV3cK9lcppgKEZlL1UO9U2eI/rScl6yqQjphfsrXdZ5rV
-         6VLrXQF2dOLmsMLfQcFgrUM3q+S0C+jXZSLgaSK3gBkSRfhUVCgdW5JH189eKYJNlEsR
-         7qJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NnnqMjbWWrtenvWLzpSzFfZNdtvP2pBXR1M1qxwlppw=;
-        b=WQfjHHIr1l/n7/hUqFpq7I9zLL8lNBUdmbBTcztrbzfI5bTctnj3jCZCE7733euSsH
-         JoLFUVYkOGIPc+9Tx08MwJ8PW704yH2qj5TJkdlH4ipmOzl/vq0iVvbJFGGPtun7Nel5
-         Zv6nmBkZKuPIX69joJN25OQNRWZLPG5xpbBXMlMV9pXJsEHutO4U8xg7WsLDO7mJw5Vw
-         J6rfX+XDt2+MgiirICtRa6lGJSpWdtFvC0WyjYiD3vn/d524Wm6UXuI2BxIx+4hyhyR8
-         NSQieaiREbyKVL42HLDwLGSPtXFtOmvrsxKefMLF2V31AQz9QAawASrwrbObOMTqDO5Y
-         RMBw==
-X-Gm-Message-State: AOAM532JD8ePyj3fMcWMWmKP4uoBV3QaBSPBQTY2dTz+stsZr9fwGwi5
-        o3dji62PWNPa1YPtfgln8QCh2VC8wBL1zw==
-X-Google-Smtp-Source: ABdhPJw+PuBUkL5Dno1PbweLS2/1QlzKb4iv+QNzuhxCHvSa3v5g8Pb+X+X7QH18Xw/WBLIfxGePbA==
-X-Received: by 2002:aa7:8bcd:0:b029:160:cb7:b639 with SMTP id s13-20020aa78bcd0000b02901600cb7b639mr6967841pfd.78.1604020586666;
-        Thu, 29 Oct 2020 18:16:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t15sm230628pji.0.2020.10.29.18.16.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 18:16:26 -0700 (PDT)
-Message-ID: <5f9b696a.1c69fb81.1b574.0f9d@mx.google.com>
-Date:   Thu, 29 Oct 2020 18:16:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725379AbgJ3BUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 21:20:20 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:15554 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbgJ3BUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 21:20:20 -0400
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f9b6a590000>; Thu, 29 Oct 2020 18:20:25 -0700
+Received: from [10.2.173.19] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 30 Oct
+ 2020 01:20:19 +0000
+From:   Zi Yan <ziy@nvidia.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     Yang Shi <shy828301@gmail.com>, Linux MM <linux-mm@kvack.org>,
+        Rik van Riel <riel@surriel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm/compaction: count pages and stop correctly during page
+ isolation.
+Date:   Thu, 29 Oct 2020 21:20:16 -0400
+X-Mailer: MailMate (1.13.2r5673)
+Message-ID: <7DC14FB8-8DA4-4DB4-BB0B-3409CA8D6DD9@nvidia.com>
+In-Reply-To: <20201029172822.da31fa5ab34c3a795361768f@linux-foundation.org>
+References: <20201029200435.3386066-1-zi.yan@sent.com>
+ <CAHbLzkpka7s1DFeXO5dxfGvxZFcTYb9KH0AE_AXuxeFO4q_rtg@mail.gmail.com>
+ <EC915762-AE2E-4ACB-AB27-E7C95A584A0C@nvidia.com>
+ <20201029172822.da31fa5ab34c3a795361768f@linux-foundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.73-9-ga9c55e5daa9c
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 200 runs,
- 2 regressions (v5.4.73-9-ga9c55e5daa9c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed;
+        boundary="=_MailMate_F7AF6098-5787-4D04-BE62-9B2642263752_=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1604020825; bh=mvZsLVM6tlK6PbjaUtfB4jNu8ApWwcVhlCkzmZmnkzk=;
+        h=From:To:CC:Subject:Date:X-Mailer:Message-ID:In-Reply-To:
+         References:MIME-Version:Content-Type:X-Originating-IP:
+         X-ClientProxiedBy;
+        b=PVbfUvLB+69Tb4HT5qcDP0k+dYwzMNRTqvuiIWEdPmfliK/0EI6jcQ1DTL67sHRTt
+         IMZnAeq0hse4NS9cdN3B4CLJhcAnGVaKOSa5hpXcKdwzZc91Fi7qPt8PNIfIBmSPM/
+         rvrNbLTnjK9EUYeqpNWGF8djdyrilOya5k0NYz5cxMGPIPsdhDa/xSwUP+YIr+P0H7
+         vR+C1SA8quFRODqoU9REMd9m1X59xztMXalWsJYkjemWwSM120HkDMhMZRmjEbZYrA
+         7fqca2gBYwixOno0NEJWUx9IBINwzpuZGzTf+MEv44z/OWJq6CoUIKev3Tekl8ZrX2
+         K6YeXpD5WfhGA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 200 runs, 2 regressions (v5.4.73-9-ga9c55e5da=
-a9c)
+--=_MailMate_F7AF6098-5787-4D04-BE62-9B2642263752_=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Regressions Summary
--------------------
+On 29 Oct 2020, at 20:28, Andrew Morton wrote:
 
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
- | 1          =
+> On Thu, 29 Oct 2020 17:31:28 -0400 Zi Yan <ziy@nvidia.com> wrote:
+>
+>>>
+>>> Shall you add Fixes tag to commit
+>>> 1da2f328fa643bd72197dfed0c655148af31e4eb? And may cc stable.
+>>
+>> Sure.
+>>
+>> Fixes: 1da2f328fa64 (=E2=80=9Cmm,thp,compaction,cma: allow THP migrati=
+on for CMA allocations=E2=80=9D)
+>>
+>> stable cc'ed.
+>
+> A think a cc:stable really requires a description of the end-user
+> visible effects of the bug.  Could you please provide that?
 
-stm32mp157c-dk2       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
- | 1          =
+Sure.
 
+For example, in a system with 16GB memory and an 8GB CMA region reserved =
+by hugetlb_cma,
+if we first allocate 10GB THPs and mlock them (so some THPs are allocated=
+ in the CMA
+region and mlocked), reserving 6 1GB hugetlb pages via
+/sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages will get stuck =
+(looping
+in too_many_isolated function) until we kill either task. With the patch =
+applied,
+oom will kill the application with 10GB THPs and let hugetlb page reserva=
+tion finish.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.73-9-ga9c55e5daa9c/plan/baseline/
+=E2=80=94
+Best Regards,
+Yan Zi
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.73-9-ga9c55e5daa9c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a9c55e5daa9c8c24a2529aea9f067d03063e3492 =
+--=_MailMate_F7AF6098-5787-4D04-BE62-9B2642263752_=
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
+iQJDBAEBCgAtFiEEh7yFAW3gwjwQ4C9anbJR82th+ooFAl+balAPHHppeUBudmlk
+aWEuY29tAAoJEJ2yUfNrYfqKM68P/0+QGFqt++5awuTrfb0Lct/UGOPe0oz/k7Qy
+uVG1tVaiWcUKjl3qHvt0twOPjslKMzV/CqxJ418XzqnM5w3oMOi5g1WSmABAQyyA
+B+4D3D+rpgN5gep7V+DXxbHIecmBXHsmVw0wcCShgQwkO5BYAed3fduPNiSRSYRb
+JUVXyBkyzg9mTV1pFXIdXoYrfy/iy8OTUceRUfmUGr/Sjx8tgLuxFx73iGG0kDPK
+UZHUi8DZ1BMrOJ6wJb9H1WbFOyIZhsk6BwsvFm/8OinOTuckLo1ikXOXkdDU70fS
+tMC8C2HuLLt5UFBpa7XYfDhk2CwlAM1BEtb1z1Q6eeLQnTNUH34wOEDJlRmnwLkO
+VBC+B0wKthSWDhaTmqfwxB+Hg2Ve87gKcgSiyjTq8i+MdPQVuXSOY27AApFetQby
+Vqt9VJXMzgOnkBnT31L9ITEEz9Ciy29OtA3tZ8cfLTidNlNiPCR7UiNqz7fRKfbh
+8oqstMbxl5H6/yXlMRb1ZcIj9KW6xY75pH0TfYo4aVDsggCgXqadUTqk9GIsJTOj
+nJETE6WzSdTU17nDFF5gUWsoUZSC6AHbJcpFRnXAjoGdd26rrzaW+H6lShCIL3pZ
+2hXBD1vGU9BMV0LSuQQxIzo8LyynzrmfYabUSiUbdI2JesIcvMz/cYlqSeNzEzZF
+Oo8hV/Xn
+=2Vrc
+-----END PGP SIGNATURE-----
 
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9b35dbd5f0158c2e38102d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-ga9c55e5daa9c/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-ga9c55e5daa9c/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9b35dbd5f0158c2e381=
-02e
-        failing since 0 day (last pass: v5.4.72-409-gbbe9df5e07cf, first fa=
-il: v5.4.72-409-ga6e47f533653) =
-
- =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-stm32mp157c-dk2       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9b389fe82e81eab5381025
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-ga9c55e5daa9c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157=
-c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-ga9c55e5daa9c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157=
-c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9b389fe82e81eab5381=
-026
-        failing since 3 days (last pass: v5.4.72-54-gc97bc0eb3ef2, first fa=
-il: v5.4.72-402-g22eb6f319bc6) =
-
- =20
+--=_MailMate_F7AF6098-5787-4D04-BE62-9B2642263752_=--
