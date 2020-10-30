@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B972A0B44
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:34:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8432A0B45
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:34:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726917AbgJ3Qel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 12:34:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
+        id S1727210AbgJ3Qeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 12:34:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726072AbgJ3Qek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 12:34:40 -0400
+        id S1727209AbgJ3Qeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 12:34:44 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9679221EB;
-        Fri, 30 Oct 2020 16:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AEC920A8B;
+        Fri, 30 Oct 2020 16:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604075679;
-        bh=HtWWeoMKIGDHZfzIKVlwwzCwnmFm0Tolm4f/tzLXjoA=;
+        s=default; t=1604075683;
+        bh=zS4ms9lpY+5i0csRVlQid6DJtYxnZFqMNVqaAUo4X8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3M7q8Vtz1s9xXAvRUGPoiE17y/kJYftLf+CXmDJX4vApbjIKO6yMITI1HcnEFKnR
-         hbxf5qrZzTo0HMCEnBnXWYggCX4uhxKxdWTC45MDsXfyq33QIx6dql4Y/m6nYdvk5q
-         U2+LwADSW82V5xByGNP+6dyRD+BGQKaxBtRn8yS8=
+        b=E6FTkFeSwDWpVeE8fvcPq9dxKQ5KsW+8e59E8Gj1WkI/RGa0z4MB+SGM6dh7ODhQK
+         6sJ8Y8hkokNRBwdxzwwWf8iuanS+erZtNB0IRlS0Xhu58A19bSeKEYsqewcpFpJ0HL
+         Jp/SJXqPPHSIXvyk9WGt9iKx2i7AGPy6m5Qz3SOQ=
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94)
         (envelope-from <maz@kernel.org>)
-        id 1kYXML-005nhE-Vg; Fri, 30 Oct 2020 16:34:38 +0000
+        id 1kYXMO-005nhE-K2; Fri, 30 Oct 2020 16:34:40 +0000
 From:   Marc Zyngier <maz@kernel.org>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     David Brazdil <dbrazdil@google.com>, Gavin Shan <gshan@redhat.com>,
@@ -41,9 +41,9 @@ Cc:     David Brazdil <dbrazdil@google.com>, Gavin Shan <gshan@redhat.com>,
         Julien Thierry <julien.thierry.kdev@gmail.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         kernel-team@android.com, stable@vger.kernel.org
-Subject: [PATCH 05/12] KVM: arm64: Fix AArch32 handling of DBGD{CCINT,SCRext} and DBGVCR
-Date:   Fri, 30 Oct 2020 16:34:15 +0000
-Message-Id: <20201030163422.243844-6-maz@kernel.org>
+Subject: [PATCH 08/12] KVM: arm64: Force PTE mapping on fault resulting in a device mapping
+Date:   Fri, 30 Oct 2020 16:34:18 +0000
+Message-Id: <20201030163422.243844-9-maz@kernel.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201030163422.243844-1-maz@kernel.org>
 References: <20201030163422.243844-1-maz@kernel.org>
@@ -57,58 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The DBGD{CCINT,SCRext} and DBGVCR register entries in the cp14 array
-are missing their target register, resulting in all accesses being
-targetted at the guard sysreg (indexed by __INVALID_SYSREG__).
+From: Santosh Shukla <sashukla@nvidia.com>
 
-Point the emulation code at the actual register entries.
+VFIO allows a device driver to resolve a fault by mapping a MMIO
+range. This can be subsequently result in user_mem_abort() to
+try and compute a huge mapping based on the MMIO pfn, which is
+a sure recipe for things to go wrong.
 
-Fixes: bdfb4b389c8d ("arm64: KVM: add trap handlers for AArch32 debug registers")
+Instead, force a PTE mapping when the pfn faulted in has a device
+mapping.
+
+Fixes: 6d674e28f642 ("KVM: arm/arm64: Properly handle faulting of device mappings")
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Santosh Shukla <sashukla@nvidia.com>
+[maz: rewritten commit message]
 Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201029172409.2768336-1-maz@kernel.org
+Link: https://lore.kernel.org/r/1603711447-11998-2-git-send-email-sashukla@nvidia.com
 ---
- arch/arm64/include/asm/kvm_host.h | 1 +
- arch/arm64/kvm/sys_regs.c         | 6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/kvm/mmu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 0aecbab6a7fb..781d029b8aa8 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -239,6 +239,7 @@ enum vcpu_sysreg {
- #define cp14_DBGWCR0	(DBGWCR0_EL1 * 2)
- #define cp14_DBGWVR0	(DBGWVR0_EL1 * 2)
- #define cp14_DBGDCCINT	(MDCCINT_EL1 * 2)
-+#define cp14_DBGVCR	(DBGVCR32_EL2 * 2)
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index e431d2d8e368..c7c6df6309d5 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -851,6 +851,7 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
  
- #define NR_COPRO_REGS	(NR_SYS_REGS * 2)
- 
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index 3c203cb8c103..983994f01a63 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1881,9 +1881,9 @@ static const struct sys_reg_desc cp14_regs[] = {
- 	{ Op1( 0), CRn( 0), CRm( 1), Op2( 0), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(1),
- 	/* DBGDCCINT */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32, NULL, cp14_DBGDCCINT },
- 	/* DBGDSCRext */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32, NULL, cp14_DBGDSCRext },
- 	DBG_BCR_BVR_WCR_WVR(2),
- 	/* DBGDTR[RT]Xint */
- 	{ Op1( 0), CRn( 0), CRm( 3), Op2( 0), trap_raz_wi },
-@@ -1898,7 +1898,7 @@ static const struct sys_reg_desc cp14_regs[] = {
- 	{ Op1( 0), CRn( 0), CRm( 6), Op2( 2), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(6),
- 	/* DBGVCR */
--	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32, NULL, cp14_DBGVCR },
- 	DBG_BCR_BVR_WCR_WVR(7),
- 	DBG_BCR_BVR_WCR_WVR(8),
- 	DBG_BCR_BVR_WCR_WVR(9),
+ 	if (kvm_is_device_pfn(pfn)) {
+ 		device = true;
++		force_pte = true;
+ 	} else if (logging_active && !write_fault) {
+ 		/*
+ 		 * Only actually map the page as writable if this was a write
 -- 
 2.28.0
 
