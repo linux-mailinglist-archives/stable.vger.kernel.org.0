@@ -2,126 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8722A00B6
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 10:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB872A00E7
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 10:13:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725823AbgJ3JG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 05:06:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40658 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725808AbgJ3JGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 05:06:25 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C171C0613CF;
-        Fri, 30 Oct 2020 02:06:25 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id p15so6782541ioh.0;
-        Fri, 30 Oct 2020 02:06:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=ajoTgRnqXmGr4NGz4sDpf2t3leA2CkfA49rjJDDlhoM=;
-        b=KefjnyhYCfoYAm8EPLwzn8mn34N7B1TMaMJeF/wDuWddo58+UlTWBx1rN+Lb6ilbFL
-         R9xoEiBixZKDGgnqOalWsSSdeN9mkKx4jf9JLPBcsK3T2ymLpf5W22DOWn+XkqaystSQ
-         nls507X9al+GqM/2iGLlMTjznJS2kAensbitYckM9I+4aicXw5oCiproVXMfqX1p+btO
-         qn2J1elUsgRgmcJbr9pJkmuwJRYyKX9vXGRjr81ksVNCc6gy9t1ULavQAJq0KyhuUaP9
-         15mJOWUI3bxFFI2diqj/bBE6Z9WUsq27mWuuPera5ono9nNMxgykCnQ7ry+srf40XFd1
-         lIjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=ajoTgRnqXmGr4NGz4sDpf2t3leA2CkfA49rjJDDlhoM=;
-        b=m1TgrjtLdu7lICkmQoi1AIuA7gE78XQnKfcBXhohK5TmJ5wOQ22WX60fHIqxD/kTDF
-         nUtDoUQalUXEW1R4FIkpMeOkQOjCTNNpTRfma+iIK0fjkeN+7cGF65u/HYNw5p3ReUZo
-         uw9kK/Q38Mp+q9hxW8KCY44EIZFhwAI9fur6m4tGf/5ivLghQkstCXTXkWE8dFrSfybT
-         BE1Xm+SiMHn21EI9ySexFLTiFa+WKXEnQBfTLnlyGcsVJLUsuVistju8VpwqASiywGvd
-         pxeJGa0i6tJCYHfExrMYbI+j1czPScnFurv6lZKBS6fQXqRRYsADxM1zmRIYB+FkcbKK
-         9Zow==
-X-Gm-Message-State: AOAM530V7IR5rtdOEfTjbLE+vJdb8qoId/xPKAmg2YaDzRWtq8E/k16d
-        qfhzInB486T+4vh8uSHwSy8=
-X-Google-Smtp-Source: ABdhPJw85sVyP6y5ilqXEh1EvkZzIms/rsekSrV637FLs1tm3tNCCEayMR8NXGizRE+7xH5lc+aNFg==
-X-Received: by 2002:a6b:fe11:: with SMTP id x17mr1031699ioh.192.1604048784946;
-        Fri, 30 Oct 2020 02:06:24 -0700 (PDT)
-Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
-        by smtp.gmail.com with ESMTPSA id c1sm4878264ile.0.2020.10.30.02.06.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 02:06:23 -0700 (PDT)
-Date:   Fri, 30 Oct 2020 02:06:21 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Martin =?iso-8859-1?Q?Hundeb=F8ll?= <martin@geanix.com>
-Cc:     Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-rpi-kernel@lists.infradead.org, Ray Jui <rjui@broadcom.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] spi: bcm2835: fix gpio cs level inversion
-Message-ID: <20201030090621.GA3594676@ubuntu-m3-large-x86>
-References: <20201014090230.2706810-1-martin@geanix.com>
+        id S1725790AbgJ3JN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 05:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725784AbgJ3JN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 05:13:29 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44F6220728;
+        Fri, 30 Oct 2020 09:13:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604049208;
+        bh=rGFZAxdEquOjEM6OhiSMy36YpDpqeLIYsKc/vDNiDUs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ucla+KlaTBQy5baKLWHImDCFUQWEz158viu9zqq6clbHvk5f7zbVkrpO1NM78m7lI
+         juYg276FTOuYqjDjwYY+F7YGDUpPDZYHEwV6+zOPIz9RDLxMgdCgzIz7PlEspHigUe
+         Td2Mt1hlqnWt+r6hH/TikSCEA/r9/8t3tflLp6x8=
+Date:   Fri, 30 Oct 2020 10:14:16 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>, Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz
+Subject: Re: Linux 4.19.153
+Message-ID: <20201030091416.GA1759200@kroah.com>
+References: <160396822019115@kroah.com>
+ <20201030082653.GA29475@amd>
+ <20201030084915.GB1625087@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201014090230.2706810-1-martin@geanix.com>
+In-Reply-To: <20201030084915.GB1625087@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 14, 2020 at 11:02:30AM +0200, Martin Hundebøll wrote:
-> The work on improving gpio chip-select in spi core, and the following
-> fixes, has caused the bcm2835 spi driver to use wrong levels. Fix this
-> by simply removing level handling in the bcm2835 driver, and let the
-> core do its work.
+On Fri, Oct 30, 2020 at 09:49:15AM +0100, Greg Kroah-Hartman wrote:
+> On Fri, Oct 30, 2020 at 09:26:54AM +0100, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > I'm announcing the release of the 4.19.153 kernel.
+> > > 
+> > > All users of the 4.19 kernel series must upgrade.
+> > > 
+> > > The updated 4.19.y git tree can be found at:
+> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+> > > and can be browsed at the normal kernel.org git web browser:
+> > > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+> > 
+> > Did something go seriously wrong here?
+> > 
+> > The original 4.19.153-rc1 series had 264 patches. "powerpc/tau: Remove
+> > duplicated set_thresholds() call" is 146/264 of the series, but it is
+> > last one in 4.19.153 as released. "178/264 ext4: limit entries
+> > returned when counting...", for example, is not present in
+> > 4.19.153... as are others, for example "net: korina: cast KSEG0
+> > address to pointer in kfree". Looks like 118 or so patches are
+> > missing.
+> > 
+> > They are not in origin/queue/4.19, either.
 > 
-> Fixes: 3e5ec1db8bfe ("spi: Fix SPI_CS_HIGH setting when using native and GPIO CS")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Martin Hundebøll <martin@geanix.com>
-> ---
->  drivers/spi/spi-bcm2835.c | 12 ------------
->  1 file changed, 12 deletions(-)
+> Wow, something did go wrong here, thanks for catching this.
 > 
-> diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
-> index b87116e9b413..9b6ba94fe878 100644
-> --- a/drivers/spi/spi-bcm2835.c
-> +++ b/drivers/spi/spi-bcm2835.c
-> @@ -1259,18 +1259,6 @@ static int bcm2835_spi_setup(struct spi_device *spi)
->  	if (!chip)
->  		return 0;
->  
-> -	/*
-> -	 * Retrieve the corresponding GPIO line used for CS.
-> -	 * The inversion semantics will be handled by the GPIO core
-> -	 * code, so we pass GPIOD_OUT_LOW for "unasserted" and
-> -	 * the correct flag for inversion semantics. The SPI_CS_HIGH
-> -	 * on spi->mode cannot be checked for polarity in this case
-> -	 * as the flag use_gpio_descriptors enforces SPI_CS_HIGH.
-> -	 */
-> -	if (of_property_read_bool(spi->dev.of_node, "spi-cs-high"))
-> -		lflags = GPIO_ACTIVE_HIGH;
-> -	else
-> -		lflags = GPIO_ACTIVE_LOW;
->  	spi->cs_gpiod = gpiochip_request_own_desc(chip, 8 - spi->chip_select,
->  						  DRV_NAME,
->  						  lflags,
-> -- 
-> 2.28.0
+> Let me dig and see what happened, the whole series did not apply, which
+> makes me wonder if the same thing happened for other branches as well...
 > 
+> thanks for checking up and finding this.
 > 
+> Give me a bit...
 
-Clang now warns:
+Ok, figure3d it out.
 
-drivers/spi/spi-bcm2835.c:1264:9: warning: variable 'lflags' is uninitialized when used here [-Wuninitialized]
-                                                  lflags,
-                                                  ^~~~~~
-drivers/spi/spi-bcm2835.c:1196:2: note: variable 'lflags' is declared here
-        enum gpio_lookup_flags lflags;
-        ^
-1 warning generated.
+Sasha changed a powerpc patch to build properly but didn't realize that
+later powerpc patches would not apply because of that.  I didn't run my
+"apply all patches to make sure they are clean" script before doing the
+release after he did that, so 'git quiltimport' failed when applying the
+series at the place where the powerpc path failed to apply.
 
-Cheers,
-Nathan
+My scripts don't check for the result of 'git quiltimport' being
+successful or not (I don't even know if it return an error for this type
+of thing), and just moved on in the release process.
+
+I'll go do a new 4.19 release with the rest of the patches missed here,
+thank you for finding this.
+
+And I'll go make my release scripts more robust to failures like this as
+well.
+
+thanks so much!
+
+greg k-h
