@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0912A0A83
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:57:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EC62A0A85
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726929AbgJ3P5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726955AbgJ3P5d (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 30 Oct 2020 11:57:33 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55841 "EHLO
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54265 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726899AbgJ3P5c (ORCPT
+        by vger.kernel.org with ESMTP id S1726178AbgJ3P5c (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:57:32 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2BD295C02E4;
+        by mailout.nyi.internal (Postfix) with ESMTP id 2AEAA5C02E3;
         Fri, 30 Oct 2020 11:57:31 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
   by compute6.internal (MEProxy); Fri, 30 Oct 2020 11:57:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sent.com; h=from
-        :to:cc:subject:date:message-id:reply-to:mime-version
-        :content-type:content-transfer-encoding; s=fm1; bh=GgFywE3sedM8p
-        RqGb2GCUrt5KozSDzUlHAh3jMIZlYc=; b=ELu5vcLmJCPbE1orsyqdaspWVSIsY
-        5oksyRCGM576vzsq89hLCxIBtbLPiCCrpDaFw83NsKi3/IznqGNNbiqhpTwgQhK+
-        Ufls4ptpwl56aGFMNH6Df/oT3Wu+08VrHoUK+yqU72y2JeCEzoNkETULRfqFXcx3
-        6oCb2Asj+gmC+Y2ZZCEJtz7EXKo1eNDHHRwHn7pGhXWCxaGQE+ZD1hoG7Ju8pSvM
-        CyYf+VwStncPVVlBqmQ7GGbCb7yAEuyid1JVD9faaPMlLpPcD4tarWsAl95+voEw
-        4sC0+/7hjoGctlNjU0tAZLv0Mzuo0WVb3UpYE4xYxvdHSwxv+tQslMSYg==
+        :to:cc:subject:date:message-id:in-reply-to:references:reply-to
+        :mime-version:content-type:content-transfer-encoding; s=fm1; bh=
+        a+yV5AyyQgbkAmuRGp5Grqx+CnaA6i6TKDg6E8EnuoM=; b=CM6maBmxba6MD3gN
+        Qh3zw0M8Aodzykt7peGyp7k/hIrMRoSl4FyRsvoZgLc5iOjVDs05mgSwWSVB3RnU
+        FHLvhGZ8QPztxZ3oWCaeIpOZPWPEHEsTHeoYk7tHY4TDF3x0XLxMUFQ2cULSYdxz
+        on7zYvowgLYsDo6wTr3SOIKJr+0V55ya+/HxrINLLieVhkKQGEyoe3n8LemVQ3ck
+        k76+b5mmNeYjebN9Ef6Y3sbpPgmfzDS+HiARnQnY91NWj+SduiWXEHrPsUhkVowJ
+        so/Sxk7BtDDyHw4qi7yUjut9k5Ymb7QEhiAgjkTB5FJfFuprNPqOCAG2KQigidNZ
+        0qgWvw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:reply-to:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; bh=GgFywE3sedM8pRqGb2GCUrt5KozSDzUlHAh3jMIZlYc=; b=kcys9TqQ
-        hx/6X5aclY41cAAm2+CfJLf318GOtMzVEb/zdTO0t/7En4msj8YMVxEWK5DtkKo0
-        p0sc/FfWfrwEvsGTXVK2R/zZhZ261K7d6pSKPJTw+H3V91x4fJxDxfo4ITgtejc7
-        J1vhAC2//JgIyKVxNowH5HCr2Ta1qo1s7GXVQyP+VSohKjuJryAdbiFbLaMHwEAI
-        9TjVqDghhW/QbkkhhJDsjd9mCJNsogaj5/ztJJR2BDoM5AsJH0QxdA03I500RqdX
-        a4p8c2+VD+GQ1qixZkJ8OgaL9+hXQqkh4G9KUtXdLe2xaZ5MBInP2/P43rRZn6ng
-        +KASUSrMSm1fuA==
-X-ME-Sender: <xms:6jecXxg_gwZ5JGpMUQWVAkYyxETPf1H_nKX48ZCsvM7Rfi4AdJMBqA>
-    <xme:6jecX2CJp_J4KLY4M2llGpto-z2f9BNE5qKVEueM5IKp1GjCQGTlDJOFYrvnpjc01
-    I3L3yI5sxhim1x2dA>
+        :date:from:in-reply-to:message-id:mime-version:references
+        :reply-to:subject:to:x-me-proxy:x-me-proxy:x-me-sender
+        :x-me-sender:x-sasl-enc; s=fm1; bh=a+yV5AyyQgbkAmuRGp5Grqx+CnaA6
+        i6TKDg6E8EnuoM=; b=XjsIw02X52kdwL2SI7AqkUZsB2TNMfkrvT1ZSucW8u4vP
+        9PKkglNpAMYJOAWnOHqUCdcHxxIYY/67DCcN3Xjpy3T35LjkN2B4z+RxS+q/C0uo
+        +6gds5HWz1ZooDha+wUdpT/VHGI+I2LeXv+blBPL10LsEnh4Dg/+PH52HPiallui
+        xg0D+IkHHQVbLjlS1NoldygtcJvt0pqRKpAUX8pcmCetyDlWmraPrdHsvizrrbLH
+        DvmXnX/Z9QZtPIqoxJ7goL93hTaTSsjYilQBwYBer0J95f1B/HSDJy0Np470chnU
+        1SLnleKf+vrEmVlYAZwJcHLRc+1CgOZ9rYaYmgsUw==
+X-ME-Sender: <xms:6jecXwNsUFY30fvsZI4ygQMm7FShfp9oQMWP-9zKuyMH6lSqWtiz8Q>
+    <xme:6jecX2_LAnZb62_TK9vIE5nXsVX941nMbatW5pivg7TwyWCZqZYZO10rLid4v3Qah
+    12ayEh1aMaWjfEDXg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleehgdejkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofhrgggtgfesthhqredtredtjeenucfhrhhomhepkghiucgjrghn
-    uceoiihirdihrghnsehsvghnthdrtghomheqnecuggftrfgrthhtvghrnhepudevleffhe
-    duuddvhfdtvdehfeekjedtleeifefhgeehjeetvdethfefvdekkeelnecukfhppeduvddr
-    geeirddutdeirdduieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepiihirdihrghnsehsvghnthdrtghomh
-X-ME-Proxy: <xmx:6jecXxEWorKtSdxIzLyeaxLWpNqaf6Ga4dQDdayfjPA2Q273mekKqA>
-    <xmx:6jecX2QXZgkVAUY8Feb4FjPY-rRDPkvlJT3HHxROI2guU0kNLvecpg>
-    <xmx:6jecX-yR7z3thC0k-bOrAdvJOH5sU9sM8gjuFPLZLReLY813vPwfUQ>
-    <xmx:6zecX1maHvD-O-QuMbHHXs7cUF5FpywD-m1hpxc84WUFIb0S7G6fTw>
+    fjughrpefhvffufffkofgjfhhrgggtgfesthhqredtredtjeenucfhrhhomhepkghiucgj
+    rghnuceoiihirdihrghnsehsvghnthdrtghomheqnecuggftrfgrthhtvghrnhepkefggf
+    eljeefgeejtdethfehvdfgffdvfeefkeejtefghfetvdduffekgeeltedtnecukfhppedu
+    vddrgeeirddutdeirdduieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepiihirdihrghnsehsvghnthdrtghomh
+X-ME-Proxy: <xmx:6jecX3SwqoUEgFceRqgWX9icwxS_HzhKVdCdLr97Ih-34JsAyCCdiw>
+    <xmx:6jecX4vFCMytth0AbAjmr7vBPpoGXKPgQIQtQAh2TflIM6fsm_RwTw>
+    <xmx:6jecX4fCnqP5Yx4bSWpZCNZabjZrjo9Jd6ysknmsRIQ4NxhgXmXRhg>
+    <xmx:6zecXwTYDEixWvZ6dY2LgLz6lLCSsbm5TrsvUSrpIOUEhVGHk94KRw>
 Received: from nvrsysarch6.NVidia.COM (unknown [12.46.106.164])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B8B8328005E;
+        by mail.messagingengine.com (Postfix) with ESMTPA id 45A85328005D;
         Fri, 30 Oct 2020 11:57:30 -0400 (EDT)
 From:   Zi Yan <zi.yan@sent.com>
 To:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
@@ -61,10 +62,12 @@ Cc:     Yang Shi <shy828301@gmail.com>, Michal Hocko <mhocko@suse.com>,
         Rik van Riel <riel@surriel.com>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v2 1/2] mm/compaction: count pages and stop correctly during page isolation.
-Date:   Fri, 30 Oct 2020 11:57:15 -0400
-Message-Id: <20201030155716.3614401-1-zi.yan@sent.com>
+Subject: [PATCH v2 2/2] mm/compaction: stop isolation if too many pages are isolated and we have pages to migrate.
+Date:   Fri, 30 Oct 2020 11:57:16 -0400
+Message-Id: <20201030155716.3614401-2-zi.yan@sent.com>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201030155716.3614401-1-zi.yan@sent.com>
+References: <20201030155716.3614401-1-zi.yan@sent.com>
 Reply-To: Zi Yan <ziy@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,75 +78,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zi Yan <ziy@nvidia.com>
 
-In isolate_migratepages_block, when cc->alloc_contig is true, we are
-able to isolate compound pages, nr_migratepages and nr_isolated did not
-count compound pages correctly, causing us to isolate more pages than we
-thought. Use thp_nr_pages to count pages. Otherwise, we might be trapped
-in too_many_isolated while loop, since the actual isolated pages can go
-up to COMPACT_CLUSTER_MAX*512=3D16384, where COMPACT_CLUSTER_MAX is 32,
-since we stop isolation after cc->nr_migratepages reaches to
-COMPACT_CLUSTER_MAX.
-
-In addition, after we fix the issue above, cc->nr_migratepages could
-never be equal to COMPACT_CLUSTER_MAX if compound pages are isolated,
-thus page isolation could not stop as we intended. Change the isolation
-stop condition to >=3D.
-
-The issue can be triggered as follows:
-In a system with 16GB memory and an 8GB CMA region reserved by
-hugetlb_cma, if we first allocate 10GB THPs and mlock them
-(so some THPs are allocated in the CMA region and mlocked), reserving
-6 1GB hugetlb pages via
-/sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages will get stuck
-(looping in too_many_isolated function) until we kill either task.
-With the patch applied, oom will kill the application with 10GB THPs and
-let hugetlb page reservation finish.
+In isolate_migratepages_block, if we have too many isolated pages and
+nr_migratepages is not zero, we should try to migrate what we have
+without wasting time on isolating.
 
 Fixes: 1da2f328fa64 (=E2=80=9Cmm,thp,compaction,cma: allow THP migration fo=
 r CMA allocations=E2=80=9D)
+Suggested-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Zi Yan <ziy@nvidia.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
 Cc: <stable@vger.kernel.org>
 ---
- mm/compaction.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/compaction.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/mm/compaction.c b/mm/compaction.c
-index ee1f8439369e..3e834ac402f1 100644
+index 3e834ac402f1..4d237a7c3830 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
-@@ -1012,8 +1012,8 @@ isolate_migratepages_block(struct compact_control *cc=
-, unsigned long low_pfn,
-=20
- isolate_success:
- 		list_add(&page->lru, &cc->migratepages);
--		cc->nr_migratepages++;
--		nr_isolated++;
-+		cc->nr_migratepages +=3D compound_nr(page);
-+		nr_isolated +=3D compound_nr(page);
-=20
- 		/*
- 		 * Avoid isolating too much unless this block is being
-@@ -1021,7 +1021,7 @@ isolate_migratepages_block(struct compact_control *cc=
-, unsigned long low_pfn,
- 		 * or a lock is contended. For contention, isolate quickly to
- 		 * potentially remove one source of contention.
- 		 */
--		if (cc->nr_migratepages =3D=3D COMPACT_CLUSTER_MAX &&
-+		if (cc->nr_migratepages >=3D COMPACT_CLUSTER_MAX &&
- 		    !cc->rescan && !cc->contended) {
- 			++low_pfn;
- 			break;
-@@ -1132,7 +1132,7 @@ isolate_migratepages_range(struct compact_control *cc=
-, unsigned long start_pfn,
- 		if (!pfn)
- 			break;
-=20
--		if (cc->nr_migratepages =3D=3D COMPACT_CLUSTER_MAX)
-+		if (cc->nr_migratepages >=3D COMPACT_CLUSTER_MAX)
- 			break;
- 	}
-=20
+@@ -817,6 +817,10 @@ isolate_migratepages_block(struct compact_control *cc,=
+ unsigned long low_pfn,
+ 	 * delay for some time until fewer pages are isolated
+ 	 */
+ 	while (unlikely(too_many_isolated(pgdat))) {
++		/* stop isolation if there are still pages not migrated */
++		if (cc->nr_migratepages)
++			return 0;
++
+ 		/* async migration should just abort */
+ 		if (cc->mode =3D=3D MIGRATE_ASYNC)
+ 			return 0;
 --=20
 2.28.0
 
