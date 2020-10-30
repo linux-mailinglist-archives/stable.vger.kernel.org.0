@@ -2,105 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EB62A0D30
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 19:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AEB2A0D3E
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 19:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbgJ3SPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 14:15:14 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:4549 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725844AbgJ3SPO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 14:15:14 -0400
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5f9c58360002>; Fri, 30 Oct 2020 11:15:18 -0700
-Received: from [10.2.173.19] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 30 Oct
- 2020 18:15:12 +0000
-From:   Zi Yan <ziy@nvidia.com>
-To:     Matthew Wilcox <willy@infradead.org>
-CC:     Andrew Morton <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
-        Yang Shi <shy828301@gmail.com>, Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Rik van Riel <riel@surriel.com>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] mm/compaction: count pages and stop correctly
- during page isolation.
-Date:   Fri, 30 Oct 2020 14:15:09 -0400
-X-Mailer: MailMate (1.13.2r5673)
-Message-ID: <DCB4BD99-5351-40AD-8F74-2BCCEAC496D1@nvidia.com>
-In-Reply-To: <20201030181246.GM27442@casper.infradead.org>
-References: <20201030155716.3614401-1-zi.yan@sent.com>
- <20201030181246.GM27442@casper.infradead.org>
+        id S1726178AbgJ3SSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 14:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42562 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726077AbgJ3SSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 14:18:35 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25919C0613D5
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 11:18:35 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id w14so7461344wrs.9
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 11:18:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=POr4JSNxo9Vex3KFhgjAL6YPhe46OQ89C08+ir6XPTs=;
+        b=dTIDxPGPYckzrbOC6452Z1q6L3MaW1Z9CfWUkssYbkTuuKzC890B9DQnGXkQ7eYX4z
+         u1en4kP44xS3sM/Sgpw6aBzPfKh4+PI/qo9M4VNRqIY1ByMdgt7DuqqF4VXyqEkLLyfF
+         z/OlkU05m48R64suFmuHzsonZet4HZnEru7tKDc4g858Tiq/hW2+1Fzp8jNtMePX23Ki
+         /w42o716i+5AxhmT5iFTFAo+uxQ2sYqjeYRU8rMYdXhAOtNfPmOik3Qc+Om9sR+Vf1op
+         ySXnMFI1sW67thE7M1Q4bUoemFEL/KIT/fgNKzdMso1GUM7oddT9hVN602WGpg1RbCyu
+         d2CA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=POr4JSNxo9Vex3KFhgjAL6YPhe46OQ89C08+ir6XPTs=;
+        b=agzPLPeKlqKHjXqu9gaJ/5Pu0EH0aG0VBN2uXl2wmC+676liF0QtikgDa/JWNrmTrD
+         YrLM337Jn60v7Zwnpj9gDnIROKLmTX/NJ0m23bapIQjAwd9HG3ul/Tl8nRIdDhucErxD
+         mTpPZ5mTkglu+h5rjfKJ1jnSNg3NGLCX0R7itaCGN/QRcuuLmr/68qfSX5tKwBd713/I
+         piGLOQTZxqmFvkQVidv6OnZvhKuj8Neqo2/wQxZgKexUEW3VyR4VLousgtWVD+jBGAUB
+         aqpouNq7hfKKIs+I2IznQ+Vg8mfvR7Tt+zl4tJo9MYl2mINugmGH7Yz1e4u9bPjHR6V/
+         vPUw==
+X-Gm-Message-State: AOAM533XxwSocaCr85xZB4r9WRBafRzdTY0U747mH6m0obB8cdukauhE
+        LwjW0FDSUyZYHbZBkYMdIocrmw==
+X-Google-Smtp-Source: ABdhPJxonhFew2B7p2VHkxM2LDKbQTJFr887Y1UWz9SfxnrnktBXTh6CZjDeCt19buh2y+hpgrAsxw==
+X-Received: by 2002:adf:b7c8:: with SMTP id t8mr4941556wre.143.1604081913792;
+        Fri, 30 Oct 2020 11:18:33 -0700 (PDT)
+Received: from dell.default ([91.110.221.176])
+        by smtp.gmail.com with ESMTPSA id q6sm5666782wma.0.2020.10.30.11.18.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2020 11:18:32 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     daniel.vetter@ffwll.ch, gregkh@linuxfoundation.org,
+        yepeilin.cs@gmail.com
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>, stable@vger.kernel.org,
+        Russell King <linux@armlinux.org.uk>
+Subject: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const qualifier
+Date:   Fri, 30 Oct 2020 18:18:22 +0000
+Message-Id: <20201030181822.570402-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-        boundary="=_MailMate_573EF8E1-1214-4432-98D9-A4F76B6C57F8_=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1604081718; bh=/6wp6v+qawImNCBcm3218WQBNLGDLuVE3WspHkP/EhA=;
-        h=From:To:CC:Subject:Date:X-Mailer:Message-ID:In-Reply-To:
-         References:MIME-Version:Content-Type:X-Originating-IP:
-         X-ClientProxiedBy;
-        b=ZdT3Mg+f0Ae5f+9hwXiaj8nnuLLALFDwDy0UHpQNn5KwpmPFz9TxpNcba0Sd5wwyi
-         wAIpd6uGdh5+BT1fJpkE4bJsFlOH43h1NMiakoZ1z7m27C7K/hffEj7w1t2XxPTtn1
-         3uhIdu9SuBioBB46ZHd95wynBC+6vnw5uBsWDDDdUa/Cmg/3ryq9DKgDlcQoNvaHGu
-         fL4ieO7XmGkXS75ym5xQ9oIrkzJEcf4harWs0aIRXSmtO+rd5naRtSt1f1B+E/yjss
-         VaQIGF7pfRMO8pvHrNMt0hZbH0kar217l50UXzpTi3CrFfc6Ce4tu1oYn791stGf/q
-         lU8a4/o3nMK/g==
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=_MailMate_573EF8E1-1214-4432-98D9-A4F76B6C57F8_=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
+built-in fonts") introduced the following error when building
+rpc_defconfig (only this build appears to be affected):
 
-On 30 Oct 2020, at 14:12, Matthew Wilcox wrote:
+ `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+ make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+ make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
 
-> On Fri, Oct 30, 2020 at 11:57:15AM -0400, Zi Yan wrote:
->> In isolate_migratepages_block, when cc->alloc_contig is true, we are
->> able to isolate compound pages, nr_migratepages and nr_isolated did no=
-t
->> count compound pages correctly, causing us to isolate more pages than =
-we
->> thought. Use thp_nr_pages to count pages. Otherwise, we might be trapp=
-ed
->                ^^^^^^^^^^^^
-> Maybe replace that sentence with "Count compound pages as the number of=
+The .data section is discarded at link time.  Reinstating
+acorndata_8x8 as const ensures it is still available after linking.
 
-> base pages they contain"?
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ lib/fonts/font_acorn_8x8.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Sure. And compound_nr is used instead of thp_nr_pages in fact.
+diff --git a/lib/fonts/font_acorn_8x8.c b/lib/fonts/font_acorn_8x8.c
+index 069b3e80c4344..fb395f0d40317 100644
+--- a/lib/fonts/font_acorn_8x8.c
++++ b/lib/fonts/font_acorn_8x8.c
+@@ -5,7 +5,7 @@
+ 
+ #define FONTDATAMAX 2048
+ 
+-static struct font_data acorndata_8x8 = {
++static const struct font_data acorndata_8x8 = {
+ { 0, 0, FONTDATAMAX, 0 }, {
+ /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
+ /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
+-- 
+2.25.1
 
-OK. V3 is coming.
-
-=E2=80=94
-Best Regards,
-Yan Zi
-
---=_MailMate_573EF8E1-1214-4432-98D9-A4F76B6C57F8_=
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQJDBAEBCgAtFiEEh7yFAW3gwjwQ4C9anbJR82th+ooFAl+cWC0PHHppeUBudmlk
-aWEuY29tAAoJEJ2yUfNrYfqK0+UP/A38KGcVHP+cTsJ91NYNXaCKVkiFmJwnt3l6
-K4y+2ZfE2KtHh4uDZMex/WT20P9p6ktqHtYdG57Rdppi4bbMpUPQX6whffeHUdlq
-d/EkPss31sAUl32VpC81HJeEjoCpDUCcUATCMs//0jl2zMHUzTegHzIZL4INmosy
-b7tlN1APNY/xA9JIs/X1yITEp3aBjHnnG4nLKp6U2NdhDWo/AsQFiPppkBbL5fUI
-1GgTb67HwKMZuYfja0/wrmhP7M2CxslcyimweojegjXGiL3lU9l91hSlH1l73PWc
-ievwOYghyY+EV38zgTZu0JNdR+uYTLTWTn//uRAbXGzPzjEqMAWliqIVQ2aUF1Ht
-KxtngTbB6ZQDdUpjNgE2Por8yoIYE7vL0Cw/sWpE410RuhBQ8QSQrrcK8KJLmI7y
-hMcOAE0OjrN/FJRacXPO0a7MPTa0zdM7JcGUmKFylsW8Z3swQP6OXKU2iutrpH8h
-CSnovLZxKfwINrepfbjYOVCknvDY5FLMQ/AHgqzxreYJVaZhgeqmzUC6a2AiOAuw
-m9VmRxFuXGfa0qcHrCsr8+1wdNXtUux/TFeO7TLlkTOxECwSHqqcDLY1bPOaVyqm
-ru++Z9qT4nni3ChedR8hsvdIxxHMriTaFC8XFWsFJXzfAfvCNyk8gBUuJbLKah3T
-f9o5SAye
-=DMW2
------END PGP SIGNATURE-----
-
---=_MailMate_573EF8E1-1214-4432-98D9-A4F76B6C57F8_=--
