@@ -2,84 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A65A929FA04
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 01:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F382A29F9ED
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 01:44:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726099AbgJ3AwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 20:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46642 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbgJ3AwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Oct 2020 20:52:09 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18627206CB;
-        Fri, 30 Oct 2020 00:41:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604018486;
-        bh=jaVoQ6gMlDU7VIZlY2vM9Xf4+Qo24p9tTO4G+6O8AMU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QtpEEOsifaM5jXznMxw0z/om881741H8UIJn4/rGXErLYq4ISCK8Q4IRY1LNaVu4K
-         4sPdtHPgNCSKDDQure/dgeHZgsRQWPi63jad9SDFWvpEqFnT7qq/OxUj6RB9TgP6xA
-         m/qMwW+QZzaU+i/VuX1FV4Vk9CB5K233DbecbWkc=
-Date:   Thu, 29 Oct 2020 20:41:24 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Jian Cai <jiancai@google.com>, "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: Backport 44623b2818f4a442726639572f44fd9b6d0ef68c to kernel 5.4
-Message-ID: <20201030004124.GG87646@sasha-vm>
-References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
- <20201029110153.GA3840801@kroah.com>
- <CAKwvOdkQ5M+ujYZgg7T80W-uNgsn_mmv8R+-15HJjPoPDpES1Q@mail.gmail.com>
- <20201029233635.GF87646@sasha-vm>
- <CAKwvOd=MLOKH-JoaiQcahz3bxXiCoH_hkfw2Q_Wu7514vP3zkg@mail.gmail.com>
+        id S1725797AbgJ3Aos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 20:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbgJ3Aor (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 20:44:47 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4EBFC0613D2
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 17:44:47 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id j5so2136986plk.7
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 17:44:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5+e1t9OgSv87oF1Md3oFa16VMF0WOuvXzcUnBng+6XI=;
+        b=lXPrUQImPrSmRs3UaLkFdznoCFRuOYJvjz2Y4IbvgiMo2vC8ga1wEmfim3p3pKGMBT
+         6I24IlMal23NHnn6/sVcFcCCBKGXO4l9NDHkJX9g+cvRP1gdFmFFcap82Wfw+tNP1eQ9
+         3cejyBqNTPyJCG47nGRPWpzjdgRe9GyWqfGJ9GzhySme2n2LiN6PrmWwZTlbeQyO1S+c
+         G2Vba6pZXUMqMUUKf+GNQ9HYOszyN/TS9V9A4XQGhOTWOM75J8m0BpowsSBeX0K2YGM4
+         ZfQtE1A/sHi76kF7oirLmLIcX7KLzTe/eV5kUKkjLf+Sq4Rf/XTOdnVZzAKeJ+JM4JT7
+         BNfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5+e1t9OgSv87oF1Md3oFa16VMF0WOuvXzcUnBng+6XI=;
+        b=sZLbGhF9xWhE1jR2nzesjhBCo6Wv4XuAgDP9SEQ8dK92o0zb26LXUCmLVussSSSbF0
+         v2nCvZhpltweaBktoih+ih7TE4MTZEDWLVQDXTWyKi/W5f2jifMWaBD/Qzkf1GO5ou5f
+         aM9wEEs7xyLOkhc02D4g+QZ8ufUqkPp/VdN/zagTrlfMGiKidiYor/FnkDp2EPiBjs6B
+         REJVhnDHLdi44n0M0qEKzcEWulIgHyD0lhDcvX7b5q9qCNzTrsuxnGX4ElRux+aXbtXm
+         ZzYQihv6UtvDHkKLCDZDiphCIa9MsJ5p3OBDZWZUrauYV625ODPO0zzj+N+O+PElSy03
+         GlPw==
+X-Gm-Message-State: AOAM530sI2rY3RepJTOm2avowy2M1TJn3H5myf7aiWYDWKFuWdwMtCrT
+        fhKbTHaFIo4onnmLJmMvwwE72J/ix6WaVg==
+X-Google-Smtp-Source: ABdhPJz1W5inOr7UjtRDYkfwLLzrro+4YjLXuID4Cse/ldzUWSRi/fFwvO/N58XHLd4KBtj2Q4frCA==
+X-Received: by 2002:a17:902:8502:b029:d5:b4f4:8555 with SMTP id bj2-20020a1709028502b02900d5b4f48555mr6374275plb.76.1604018686835;
+        Thu, 29 Oct 2020 17:44:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x2sm3919327pfc.133.2020.10.29.17.44.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 17:44:46 -0700 (PDT)
+Message-ID: <5f9b61fe.1c69fb81.fa224.9de3@mx.google.com>
+Date:   Thu, 29 Oct 2020 17:44:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAKwvOd=MLOKH-JoaiQcahz3bxXiCoH_hkfw2Q_Wu7514vP3zkg@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.241
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 144 runs, 1 regressions (v4.9.241)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 04:45:52PM -0700, Nick Desaulniers wrote:
->On Thu, Oct 29, 2020 at 4:36 PM Sasha Levin <sashal@kernel.org> wrote:
->>
->> On Thu, Oct 29, 2020 at 11:05:01AM -0700, Nick Desaulniers wrote:
->> >Hi Jian,
->> >Thanks for proactively identifying and requesting a backport of
->> >44623b2818.  We'll need it for Android as well soon.
->> >
->> >One thing I do when requesting backports from stable is I checkout the
->> >branch of the stable tree and see if the patch cherry picks cleanly.
->>
->> btw, an easy way to get an idea of possible dependencies is to look at
->> the dependency repo :) For this commit on 5.4:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/plain/v5.4/44623b2818f4a442726639572f44fd9b6d0ef68c
->
->Why you guys never tell me this before? :P Very cool, how is the
->dependency chain built? Is it built for every commit?
+stable-rc/linux-4.9.y baseline: 144 runs, 1 regressions (v4.9.241)
 
-git bisect run for each commit on each branch we have. I have a little
-stable-deps tool that looks something like this to make it easy:
+Regressions Summary
+-------------------
 
-ver=$(make SUBLEVEL= kernelversion)
-cmt=$(git rev-parse $1)
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-for i in $(curl -s https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/plain/v$ver/$cmt | awk {'print $1'}); do
-         stable commit-in-tree $i
-         if [ $? -eq 1 ]; then
-                 continue
-         fi
-         git ol $i
-done
 
--- 
-Thanks,
-Sasha
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.241/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.241
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d69a20c91691be92364526ffb084d750e3e7f7fd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9b31259e67b1653c38101c
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.241=
+/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.241=
+/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9b31259e67b16=
+53c381023
+        failing since 2 days (last pass: v4.9.240-15-g726ac45a50a6, first f=
+ail: v4.9.240-140-g97bfc73b33b5)
+        2 lines =
+
+ =20
