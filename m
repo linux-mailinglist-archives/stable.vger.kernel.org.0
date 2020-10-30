@@ -2,128 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8052A0A9C
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2752A0AAE
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725863AbgJ3QBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 12:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726072AbgJ3QBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 12:01:15 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA120C0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 09:01:13 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id 1so3171345ple.2
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 09:01:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zyWIDyshEK8DeuCu7LaaIxDbSMh2iXgQGLBiHEJBINc=;
-        b=D3lcbAVqO5cP+OJ/mBT0V8aZTFCpAppGrxxrUkceavd+FLK4kf30XG1uBFL5q1km4M
-         FJT5f+BAX9cMOVX1zoBxg15GiOQZamVRS78m2GSp6S0te2w81Lwp5vhcPdcLuddQwcew
-         Bjy+MbLfwweLOSDq+KzDDtxArbJmattT5MW7RbXauk75d4yyIh9h84k9sEyCvrkVWijR
-         8uNjuXj5M3TyHgzDXVGm4w2Aq+EeY1KmzIbPBeWJcDQbI+sLsh4MXnFCBia0cej6CSaW
-         Ph6pm7aBothmZ6YjgfgpefbAphDwgJc63PU7JSdFCbITEeE7rkWDB5doGN4B99RJFuwI
-         LqWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zyWIDyshEK8DeuCu7LaaIxDbSMh2iXgQGLBiHEJBINc=;
-        b=gUbUHKcxEhsxukR93HeifJFkH8l4bixwxPAsilmF3SSR4P8bHua8todf/4nALqJkOY
-         gnTIJHHdJV4v0b9bdNZ295o1dx2NKt9J9qOpSHXJvf7xi9y00CMk0QGjWUz86masNR+z
-         hZWQ82h6TzWC/w3MdR8W2dCQETo7cGE4lX9ppTnRUJsw8eLGc0nXol0FybRGqgIp5ifq
-         Zq82gwgow/MDGNr04p6ZBWdUUYLuBgIzDTKxmmo7r9UNEjgycVdLtEZIjUxIOdwrxdNM
-         HTwjvQC1kRq6Ktti0QYAhT0VVXz8wrBL+ccHRTfEA4CWiCRNx83wAzLE8jOVdeYpRtrZ
-         FjHQ==
-X-Gm-Message-State: AOAM530U2Y6hX+dymsDuCi5H9jduYcarMci6kho7PNePuPs3DDj7a+ci
-        nemKC7QHmwa++vawyEff35IlO23EqXQjbA==
-X-Google-Smtp-Source: ABdhPJzCFDZrOlMVefk5AtI3orkPim5n+vOsF22siy5Mov+FyQImvp1Mu5O2Gcjg80S1I9wg3ItqWw==
-X-Received: by 2002:a17:902:778d:b029:d6:489c:67ee with SMTP id o13-20020a170902778db02900d6489c67eemr9640557pll.52.1604073672981;
-        Fri, 30 Oct 2020 09:01:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t15sm6367715pfq.201.2020.10.30.09.01.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 09:01:12 -0700 (PDT)
-Message-ID: <5f9c38c8.1c69fb81.4256b.f4ee@mx.google.com>
-Date:   Fri, 30 Oct 2020 09:01:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726396AbgJ3QGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 12:06:47 -0400
+Received: from smtp-bc0c.mail.infomaniak.ch ([45.157.188.12]:36407 "EHLO
+        smtp-bc0c.mail.infomaniak.ch" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725355AbgJ3QGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 12:06:46 -0400
+X-Greylist: delayed 12464 seconds by postgrey-1.27 at vger.kernel.org; Fri, 30 Oct 2020 12:06:45 EDT
+Received: from smtp-2-0001.mail.infomaniak.ch (unknown [10.5.36.108])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4CN6cx2KK4zllGw2;
+        Fri, 30 Oct 2020 17:06:41 +0100 (CET)
+Received: from ns3096276.ip-94-23-54.eu (unknown [94.23.54.103])
+        by smtp-2-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4CN6cw2Rr9zlh8TQ;
+        Fri, 30 Oct 2020 17:06:40 +0100 (CET)
+Subject: Re: [PATCH v1 1/2] ptrace: Set PF_SUPERPRIV when checking capability
+To:     Jann Horn <jannh@google.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Will Drewry <wad@chromium.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@linux.microsoft.com>
+References: <20201030123849.770769-1-mic@digikod.net>
+ <20201030123849.770769-2-mic@digikod.net>
+ <CAG48ez1LFAKoi-nvipsar2SAH0eNhKkOzWj4Fuf9wNCtpWsH9A@mail.gmail.com>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <94a86084-5aab-4a2c-e654-f55130190c1a@digikod.net>
+Date:   Fri, 30 Oct 2020 17:06:39 +0100
+User-Agent: 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.241-4-g8d9cc85ab09b
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 139 runs,
- 1 regressions (v4.9.241-4-g8d9cc85ab09b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CAG48ez1LFAKoi-nvipsar2SAH0eNhKkOzWj4Fuf9wNCtpWsH9A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 139 runs, 1 regressions (v4.9.241-4-g8d9cc85a=
-b09b)
 
-Regressions Summary
--------------------
+On 30/10/2020 16:47, Jann Horn wrote:
+> On Fri, Oct 30, 2020 at 1:39 PM Mickaël Salaün <mic@digikod.net> wrote:
+>> Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
+>> /proc/pid/stat") replaced the use of ns_capable() with
+>> has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
+>>
+>> Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in
+>> ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
+>> security_capable(), which doesn't set PF_SUPERPRIV neither.
+>>
+>> Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()"), a
+>> new ns_capable_noaudit() helper is available.  Let's use it!
+>>
+>> As a result, the signature of ptrace_has_cap() is restored to its original one.
+>>
+>> Cc: Christian Brauner <christian.brauner@ubuntu.com>
+>> Cc: Eric Paris <eparis@redhat.com>
+>> Cc: Jann Horn <jannh@google.com>
+>> Cc: Kees Cook <keescook@chromium.org>
+>> Cc: Oleg Nesterov <oleg@redhat.com>
+>> Cc: Serge E. Hallyn <serge@hallyn.com>
+>> Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()")
+>> Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+>> Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+> 
+> Yeah... I guess this makes sense. (We'd have to undo or change it if
+> we ever end up needing to use a different set of credentials, e.g.
+> from ->f_cred, but I guess that's really something we should avoid
+> anyway.)
+> 
+> Reviewed-by: Jann Horn <jannh@google.com>
+> 
+> with one nit:
+> 
+> 
+> [...]
+>>  /* Returns 0 on success, -errno on denial. */
+>>  static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+>>  {
+>> -       const struct cred *cred = current_cred(), *tcred;
+>> +       const struct cred *const cred = current_cred(), *tcred;
+> 
+> This is an unrelated change, and almost no kernel code marks local
+> pointer variables as "const". I would drop this change from the patch.
 
-platform              | arch | lab          | compiler | defconfig       | =
-regressions
-----------------------+------+--------------+----------+-----------------+-=
------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-1          =
+This give guarantee that the cred variable will not be used for
+something else than current_cred(), which kinda prove that this patch
+doesn't change the behavior of __ptrace_may_access() by not using cred
+in ptrace_has_cap(). It doesn't hurt and I think it could be useful to
+spot issues when backporting.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.241-4-g8d9cc85ab09b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.241-4-g8d9cc85ab09b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8d9cc85ab09bb9655da3317cef0e26a6522fb7de =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-regressions
-----------------------+------+--------------+----------+-----------------+-=
------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9c06a25140bbd831381046
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-4=
--g8d9cc85ab09b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-4=
--g8d9cc85ab09b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9c06a25140bbd831381=
-047
-        failing since 1 day (last pass: v4.9.240-139-gd719c4ad8056, first f=
-ail: v4.9.240-139-g65bd9a74252c) =
-
- =20
+> 
+>>         struct mm_struct *mm;
+>>         kuid_t caller_uid;
+>>         kgid_t caller_gid;
