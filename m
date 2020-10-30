@@ -2,85 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326D129F939
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 00:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BA729F96F
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 01:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725379AbgJ2XqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Oct 2020 19:46:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39186 "EHLO
+        id S1725775AbgJ3AGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Oct 2020 20:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgJ2XqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 19:46:06 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BD7C0613CF
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 16:46:05 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id r10so3637453pgb.10
-        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 16:46:05 -0700 (PDT)
+        with ESMTP id S1725562AbgJ3AGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Oct 2020 20:06:37 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B86EC0613CF
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 17:06:36 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id a200so3724551pfa.10
+        for <stable@vger.kernel.org>; Thu, 29 Oct 2020 17:06:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kGjqAOdcC5QA0DRyEF0KSvVoN/sesHrA9HjD2QObBEA=;
-        b=byD4ZuKzmQJwen0Px0eAhntfvWNP0bdFDrZn6l8dLtefqQuuqQKElTVD69EdEkAUEi
-         +YqONnWHjkMz1fS4x7D+dbkZu0D79gw3tBeMwrG0pVvw5GmYVT2vkzWQxgU4R1QgFwkt
-         QQGJ5vc8Rn7qbn3JaC4ZUaAnCWGg0b5kytPUl7Lo5Wg5Xe5ExUBo+8UOeGPJ32V9oRqY
-         avtUKmvWn2xWfyGX+imo/7Gqtai4RaPHwGX3yVdFFFm3IKMjPxBYYEvtgfWJasKWRzW5
-         DmeL0uxLXs8V02hJdOl242tkcoeu6GCOwtIlRuaRzFu+fl01O7yz536tEQtdBaRtYli4
-         NkzA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=0LDlAa2UfMZ0ztR+ObYlMRuLth8/cnRZ1+4AqykIQpY=;
+        b=VBVHQdX0dcWCpOgR8yFRIdQ9nNmD5AhfbgnU3D76Dz0rpye1cmorc7JUcKiWqxLYDG
+         AR9aRwntOnWvtTvLhCmNABobn6k8SyeiV7YNAyamXE5xn0JhxrUf1O7jY2/7KbZjs+qj
+         NcLvf9zZBbFz4EkVflTe4Sh/2i1TnpT+sCbtJrYzMFz88NEWzA5x+n55UBOdyFBMyxMi
+         zNUf/SBsEjq5plgSJw+5/wK4l+caj3dHTQ30P2Id3rgvcXQMTfiBB1GTyRlOBKyXyM9E
+         2lt5B1YKSWAzQ7UvEHBsvhrPyQYSy+rguUC2kx4uPcR9ehIAIp6ufbZLvkoC+dgIL14H
+         TJLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kGjqAOdcC5QA0DRyEF0KSvVoN/sesHrA9HjD2QObBEA=;
-        b=crTiw90hs3HIu6IpWuQIqar9S4GPYx3KHuYaCtJM73eJdl/ziUF5FW8VAnsLWU7M2O
-         WYNTvQJ1LiCaEvMV/V5YJOzBSoXC5MjttYOB+uE+1sNhJw/BHr6strMq54e13sB4wH9W
-         XXM6TSX2gLEQr73Uu0S1sk3QslhgAMz2pgv5+Szg3gtZ+he1fuvNsA+ktY8yPIo62GBQ
-         tn5569sd9mIt/v6u37rn710i5BGWo4hylRTqnHryj3h+YfgUXhd5MLDz0D0gSa0D/krl
-         QQVp1JhM4+KeLu4BbrO/u7VbqMrxvbwGP5XuUGaCb053YPH+S3hZeBszBh8Dqnb2lNwu
-         rONw==
-X-Gm-Message-State: AOAM532EDWf6OP+eS/yxgsMsxzwwlu0ZxRwfRvU5lKDfI2bC9Q+EG3M9
-        NNX3FqcEV7I5jQyVgNNuuUp19S+EWBAowXnJgX4HxQ==
-X-Google-Smtp-Source: ABdhPJxviljmY9+mLV2iAwebovZEYN2mccFF6yYPtYM4WQh4oURd61zF3VU4iF8hxAAJvL8VdR71QbE6zNaKKkso+yA=
-X-Received: by 2002:a63:2f41:: with SMTP id v62mr5972972pgv.10.1604015164347;
- Thu, 29 Oct 2020 16:46:04 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=0LDlAa2UfMZ0ztR+ObYlMRuLth8/cnRZ1+4AqykIQpY=;
+        b=dfoP4eykF1FqyojxWwfjKzE062nNb7DBIjH2lsA9aPJ7DXD082e0ybWsYe+piu298w
+         1Fl0hWbAYVqNdpMV6H4175vRnVHOxp0+R9e/5AEEzOmzS+2jl7kNQ8X+6QCd3tRGqdmX
+         NIfXAKT9Jp8puiOO3gdBbLgcYhAjmrx79poWR7UCBL2lWrf3afdjh1fGQbfAIYGuTHXc
+         XCMSqbsMo6L1BOP64vxZ8pKeAXCoBv4u9zkSuJcip/wa4WmBzu+2VBhib7FQU6xovN5c
+         F+Pv5PfFVluvye2bhhEp0y5zCPQwlc8797Z58cKPnH4fUXh4PrbbTXC/l7LHf03X6TxF
+         CSgg==
+X-Gm-Message-State: AOAM532JDV9JQS8VgpXqSxHNiUmZr6beEw3rE7ayjG3NWjBgGlqcafUz
+        NZ+XNmvIkXtecDErOrT9hRrNlN4ow4bfmQ==
+X-Google-Smtp-Source: ABdhPJy/pAV5p7lKI6nPg7vpERjZR1sNnBm7rbEPoeTXjalH3XYqqyYxqOOlDCv6z7hBvElSoZ6Egw==
+X-Received: by 2002:a63:ee02:: with SMTP id e2mr5796047pgi.287.1604016395566;
+        Thu, 29 Oct 2020 17:06:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id nv7sm126910pjb.27.2020.10.29.17.06.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 17:06:34 -0700 (PDT)
+Message-ID: <5f9b590a.1c69fb81.22012.07e5@mx.google.com>
+Date:   Thu, 29 Oct 2020 17:06:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
- <20201029110153.GA3840801@kroah.com> <CAKwvOdkQ5M+ujYZgg7T80W-uNgsn_mmv8R+-15HJjPoPDpES1Q@mail.gmail.com>
- <20201029233635.GF87646@sasha-vm>
-In-Reply-To: <20201029233635.GF87646@sasha-vm>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 29 Oct 2020 16:45:52 -0700
-Message-ID: <CAKwvOd=MLOKH-JoaiQcahz3bxXiCoH_hkfw2Q_Wu7514vP3zkg@mail.gmail.com>
-Subject: Re: Backport 44623b2818f4a442726639572f44fd9b6d0ef68c to kernel 5.4
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jian Cai <jiancai@google.com>, "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.73
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 86 runs, 2 regressions (v5.4.73)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 4:36 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Thu, Oct 29, 2020 at 11:05:01AM -0700, Nick Desaulniers wrote:
-> >Hi Jian,
-> >Thanks for proactively identifying and requesting a backport of
-> >44623b2818.  We'll need it for Android as well soon.
-> >
-> >One thing I do when requesting backports from stable is I checkout the
-> >branch of the stable tree and see if the patch cherry picks cleanly.
->
-> btw, an easy way to get an idea of possible dependencies is to look at
-> the dependency repo :) For this commit on 5.4:
->
-> https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/plain/v5.4/44623b2818f4a442726639572f44fd9b6d0ef68c
+stable-rc/linux-5.4.y baseline: 86 runs, 2 regressions (v5.4.73)
 
-Why you guys never tell me this before? :P Very cool, how is the
-dependency chain built? Is it built for every commit?
--- 
-Thanks,
-~Nick Desaulniers
+Regressions Summary
+-------------------
+
+platform              | arch | lab          | compiler | defconfig         =
+ | regressions
+----------------------+------+--------------+----------+-------------------=
+-+------------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
+ | 1          =
+
+stm32mp157c-dk2       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.73/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.73
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bde3f94035b0e5a724853544d65d00536e1889b2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig         =
+ | regressions
+----------------------+------+--------------+----------+-------------------=
+-+------------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig   =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9b2423825a6a1dd9381019
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.73/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.73/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9b2423825a6a1dd9381=
+01a
+        failing since 201 days (last pass: v5.4.30-54-g6f04e8ca5355, first =
+fail: v5.4.30-81-gf163418797b9) =
+
+ =
+
+
+
+platform              | arch | lab          | compiler | defconfig         =
+ | regressions
+----------------------+------+--------------+----------+-------------------=
+-+------------
+stm32mp157c-dk2       | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9b2743b5784a0d51381047
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.73/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.73/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9b2743b5784a0d51381=
+048
+        failing since 2 days (last pass: v5.4.72-55-g7fa6d77807db, first fa=
+il: v5.4.72-409-gab6643bad070) =
+
+ =20
