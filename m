@@ -2,98 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB872A00E7
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 10:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DA8E2A016B
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 10:29:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725790AbgJ3JN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 05:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39594 "EHLO mail.kernel.org"
+        id S1725790AbgJ3J3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 05:29:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725784AbgJ3JN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 05:13:29 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725355AbgJ3J3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 05:29:31 -0400
+Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F6220728;
-        Fri, 30 Oct 2020 09:13:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC08620728
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 09:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604049208;
-        bh=rGFZAxdEquOjEM6OhiSMy36YpDpqeLIYsKc/vDNiDUs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ucla+KlaTBQy5baKLWHImDCFUQWEz158viu9zqq6clbHvk5f7zbVkrpO1NM78m7lI
-         juYg276FTOuYqjDjwYY+F7YGDUpPDZYHEwV6+zOPIz9RDLxMgdCgzIz7PlEspHigUe
-         Td2Mt1hlqnWt+r6hH/TikSCEA/r9/8t3tflLp6x8=
-Date:   Fri, 30 Oct 2020 10:14:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        jslaby@suse.cz
-Subject: Re: Linux 4.19.153
-Message-ID: <20201030091416.GA1759200@kroah.com>
-References: <160396822019115@kroah.com>
- <20201030082653.GA29475@amd>
- <20201030084915.GB1625087@kroah.com>
+        s=default; t=1604050168;
+        bh=IGbCujS20JYunuVqkL9NB3jtW8MwPdsdjo/WXA38uNI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=AtbJhTYK0/44U9VxwQEZk+A3oEs0Qvund5OHTSdeq8lrX1h8kgMMjM0CKrmkA+ynM
+         SZyDug6tJoS8+60NxW89Gw9Ua1W2OMxTPWaIUTJd1RcWXBePCjwVGfYdFucxKlpMJa
+         v6oglTxdCuXKJTh7IhTcsjvNQLvvYqTJTYhQ0sds=
+Received: by mail-ot1-f53.google.com with SMTP id k3so5011072otp.1
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 02:29:28 -0700 (PDT)
+X-Gm-Message-State: AOAM531yBLqHMyiZcVvWIGzBNl/cq5eC/q6kG7/t9DSr4zQE+3cJzO1I
+        2Xs3UQXMxfPy5enaz4Xu+EwlwWxPh88hd/cZSNM=
+X-Google-Smtp-Source: ABdhPJxrDiMIvnB87kufLhzjVYXVx3Ut2BKpS5zwNx3DT55+rz9rBYMatBFw3pHxo39mcF9V9CqMoeNewlcBpfvawdQ=
+X-Received: by 2002:a9d:7ad0:: with SMTP id m16mr575737otn.77.1604050167856;
+ Fri, 30 Oct 2020 02:29:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201030084915.GB1625087@kroah.com>
+References: <20201029110334.4118-1-ardb@kernel.org> <CAMj1kXGiJtqp51h2FA35Q44VDrsx8Kd3Pi=e45Trn6MLN=iV9A@mail.gmail.com>
+ <013f82d6-d20f-1242-2cdd-9ea9c2ab9f9c@gmail.com>
+In-Reply-To: <013f82d6-d20f-1242-2cdd-9ea9c2ab9f9c@gmail.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Fri, 30 Oct 2020 10:29:16 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXEQveNVAbH=uZzqz4-KVFK+bbafGQ2-U7fCnD530PPq_g@mail.gmail.com>
+Message-ID: <CAMj1kXEQveNVAbH=uZzqz4-KVFK+bbafGQ2-U7fCnD530PPq_g@mail.gmail.com>
+Subject: Re: [PATCH] ARM: highmem: avoid clobbering non-page aligned memory reservations
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>
+Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 09:49:15AM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Oct 30, 2020 at 09:26:54AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > I'm announcing the release of the 4.19.153 kernel.
-> > > 
-> > > All users of the 4.19 kernel series must upgrade.
-> > > 
-> > > The updated 4.19.y git tree can be found at:
-> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-> > > and can be browsed at the normal kernel.org git web browser:
-> > > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> > 
-> > Did something go seriously wrong here?
-> > 
-> > The original 4.19.153-rc1 series had 264 patches. "powerpc/tau: Remove
-> > duplicated set_thresholds() call" is 146/264 of the series, but it is
-> > last one in 4.19.153 as released. "178/264 ext4: limit entries
-> > returned when counting...", for example, is not present in
-> > 4.19.153... as are others, for example "net: korina: cast KSEG0
-> > address to pointer in kfree". Looks like 118 or so patches are
-> > missing.
-> > 
-> > They are not in origin/queue/4.19, either.
-> 
-> Wow, something did go wrong here, thanks for catching this.
-> 
-> Let me dig and see what happened, the whole series did not apply, which
-> makes me wonder if the same thing happened for other branches as well...
-> 
-> thanks for checking up and finding this.
-> 
-> Give me a bit...
+(+ Mike)
 
-Ok, figure3d it out.
+On Fri, 30 Oct 2020 at 03:25, Florian Fainelli <f.fainelli@gmail.com> wrote:
+>
+>
+>
+> On 10/29/2020 4:14 AM, Ard Biesheuvel wrote:
+> > On Thu, 29 Oct 2020 at 12:03, Ard Biesheuvel <ardb@kernel.org> wrote:
+> >>
+> >> free_highpages() iterates over the free memblock regions in high
+> >> memory, and marks each page as available for the memory management
+> >> system. However, as it rounds the end of each region downwards, we
+> >> may end up freeing a page that is memblock_reserve()d, resulting
+> >> in memory corruption. So align the end of the range to the next
+> >> page instead.
+> >>
+> >> Cc: <stable@vger.kernel.org>
+> >> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> >> ---
+> >>  arch/arm/mm/init.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>
+> >> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+> >> index a391804c7ce3..d41781cb5496 100644
+> >> --- a/arch/arm/mm/init.c
+> >> +++ b/arch/arm/mm/init.c
+> >> @@ -354,7 +354,7 @@ static void __init free_highpages(void)
+> >>         for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+> >>                                 &range_start, &range_end, NULL) {
+> >>                 unsigned long start = PHYS_PFN(range_start);
+> >> -               unsigned long end = PHYS_PFN(range_end);
+> >> +               unsigned long end = PHYS_PFN(PAGE_ALIGN(range_end));
+> >>
+> >
+> > Apologies, this should be
+> >
+> > -               unsigned long start = PHYS_PFN(range_start);
+> > +               unsigned long start = PHYS_PFN(PAGE_ALIGN(range_start));
+> >                 unsigned long end = PHYS_PFN(range_end);
+> >
+> >
+> > Strangely enough, the wrong version above also fixed the issue I was
+> > seeing, but it is start that needs rounding up, not end.
+>
+> Is there a particular commit that you identified which could be used as
+>  Fixes: tag to ease the back porting of such a change?
 
-Sasha changed a powerpc patch to build properly but didn't realize that
-later powerpc patches would not apply because of that.  I didn't run my
-"apply all patches to make sure they are clean" script before doing the
-release after he did that, so 'git quiltimport' failed when applying the
-series at the place where the powerpc path failed to apply.
+Ah hold on. This appears to be a very recent regression, in
+cddb5ddf2b76debdb8cad1728ad0a9321383d933, added in v5.10-rc1.
 
-My scripts don't check for the result of 'git quiltimport' being
-successful or not (I don't even know if it return an error for this type
-of thing), and just moved on in the release process.
+The old code was
 
-I'll go do a new 4.19 release with the rest of the patches missed here,
-thank you for finding this.
+unsigned long start = memblock_region_memory_base_pfn(mem);
 
-And I'll go make my release scripts more robust to failures like this as
-well.
+which uses PFN_UP() to round up, whereas the new code rounds down.
 
-thanks so much!
+Looks like this is broken on a lot of platforms.
 
-greg k-h
+Mike?
