@@ -2,144 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C032A0530
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 13:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AFF22A0587
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 13:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725834AbgJ3MRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 08:17:17 -0400
-Received: from mout.gmx.net ([212.227.17.21]:49561 "EHLO mout.gmx.net"
+        id S1726277AbgJ3Mhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 08:37:43 -0400
+Received: from mgw-01.mpynet.fi ([82.197.21.90]:58598 "EHLO mgw-01.mpynet.fi"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725355AbgJ3MRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 08:17:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1604060235;
-        bh=Yznrua1rAYLJyzyX5Y20Rgf33YP7dTKuIxygcJ2Da2w=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=Tli26PxQFCN2nmTkC92y1kZc2wOrrkLWFHiWSmYgyirK8zA60x4H5jLU8xHTk7Ele
-         6AcKXSe/R1O3xeJNtb4sc8qUQUwaOu4R+6TTTvYxAJ48Lw6bTwKPuKcWio6LQpafoJ
-         6Iuar0MK8D1ZXS/jifC/nXsdjxae+rN/yau/r77E=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from obelix.fritz.box ([46.142.24.28]) by mail.gmx.com (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MDQeU-1kgkoe3UFa-00AUzj; Fri, 30
- Oct 2020 13:17:14 +0100
-Subject: Re: [PATCH 5.9 000/757] 5.9.2-rc1 review
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <d8211fcd-ddb5-34e1-1f9e-aa5b94a03889@gmx.de>
- <20201029091412.GA3749125@kroah.com>
- <16326ab5-79f3-2e1b-511f-31f048608e6f@gmx.de>
- <20201029191750.GA988039@kroah.com>
-From:   Ronald Warsow <rwarsow@gmx.de>
-Message-ID: <0928177e-0c93-b06b-59a6-b7597659ff34@gmx.de>
-Date:   Fri, 30 Oct 2020 13:17:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        id S1725939AbgJ3Mhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 08:37:43 -0400
+X-Greylist: delayed 991 seconds by postgrey-1.27 at vger.kernel.org; Fri, 30 Oct 2020 08:37:42 EDT
+Received: from pps.filterd (mgw-01.mpynet.fi [127.0.0.1])
+        by mgw-01.mpynet.fi (8.16.0.42/8.16.0.42) with SMTP id 09UCBMOo060917;
+        Fri, 30 Oct 2020 14:20:42 +0200
+Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
+        by mgw-01.mpynet.fi with ESMTP id 34g4hx0uhv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 14:20:42 +0200
+Received: from [192.168.108.50] (194.100.106.190) by tuxera-exch.ad.tuxera.com
+ (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 30 Oct
+ 2020 14:20:42 +0200
+Subject: Re: [PATCH 1/4] erofs: fix setting up pcluster for temporary pages
+To:     <linux-erofs@lists.ozlabs.org>, Gao Xiang <hsiangkao@redhat.com>
+CC:     Gao Xiang <hsiangkao@aol.com>, <stable@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+References: <20201022145724.27284-1-hsiangkao.ref@aol.com>
+ <20201022145724.27284-1-hsiangkao@aol.com>
+From:   Vladimir Zapolskiy <vladimir@tuxera.com>
+Message-ID: <ba952daf-c55d-c251-9dfc-3bf199a2d4ff@tuxera.com>
+Date:   Fri, 30 Oct 2020 14:20:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-In-Reply-To: <20201029191750.GA988039@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: de-DE
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:jlKTkQkRJNc4/WpJSp7XUBcjiDU1w7e05OzY18NKpkvOPYuI4Ds
- jw5Q5fz+ZzzstfYK2LzM367Phajud5vGMnld85PTzbLZmci0Ga3vIbm0h87zGRWlDVa0oaD
- XW0sAmAGXpI2Mr/Ad1+bBVMLJINFbnHTc9rH+4oFwTqOVXUi2kg0Z4dxuaduOovonqfkJoJ
- WbgMve/hhitO3MotKKHWg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:AFxalEPT35Y=:uu8SR6GjtLLNlumhHGW3wQ
- 9yETuXk8h11rnkRddQb681HVd2Asdk+xUuHQ1x+SuIcB3lovsCPJbekUXvLsamtdIyPSIK6hH
- t10kfS9nBd8DrOeXMI9GH8NjK37cS8kKZt64eA0xUsdl7nKNZ4AVJBCNqdJO2ieKQxMJG1Sit
- LKX3XwwYyKIQiTHgBSgzSeGWYEsFCSKyQJpRd08/nF3jLJodSGzLdLxn+N6SIkU7EL1kFcGwb
- xkgtSjwulBcWjhgnEoMOY57qNSAdozha0cFZQNr/8HrpmFgkKKKq2WVdKyb4dcpvvFO9/Uuip
- S13BOx+YQaGX80uolpfBCo0Y/fp8oqcL9RsNdVS745jWM9RqHm2ukgCqhh6H58lRpOrPkDzsJ
- ZKTq78V8ohF7kDqUxdxyS71SME6bj9X808qTnduBfbggmTxzQu9TaHxo7yn/vv98Y0E7voOZO
- bdn9SUlsXL7VrWUXSztIcwSS+8Twy7nfMCVGcoi0Zv+NDmq+28+IkBD2QyjUSYYcKK/PCg3tJ
- 3UmoKH5DK51wHo0ZLk3tdOnZF4xf5o4jpD2K9K4t+spVP1kRJ3IjdhXteroAH+9LqjaW33S53
- yOUffp54zNodOCu+skw8mznsFA877zHqDExdEFV+JHTtlkpuhhZjLbIdfs7Qgyg0z39Dar3iJ
- OxVNQ8/e17q8j9C/kuML+QQuwUpNmohtZ3mbmqTw7hRS7uJw/JSq7Y2V0igg++/mygRNzeiOJ
- w0XSxSs+Pp3VMLPEe8xLCVW5xPK6EC7Td9poqfC4clulUGvF3md8lqKYa4g8S2RngUtZkPYbb
- NlQOgHEH796jbQe0HInFVXmAwrgRnfS5jW2iuDxvGZiHf0t0op3K/xg85tygNGydjtJrQGbMZ
- Ctiz4C2+23F+2uGnw2zA==
+In-Reply-To: <20201022145724.27284-1-hsiangkao@aol.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [194.100.106.190]
+X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
+ tuxera-exch.ad.tuxera.com (10.20.48.11)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-30_04:2020-10-30,2020-10-30 signatures=0
+X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 spamscore=0 malwarescore=0
+ suspectscore=2 mlxscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010300095
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29.10.20 20:17, Greg KH wrote:
-> On Thu, Oct 29, 2020 at 03:42:09PM +0100, Ronald Warsow wrote:
->> On 29.10.20 10:14, Greg KH wrote:
->>> On Tue, Oct 27, 2020 at 07:09:52PM +0100, Ronald Warsow wrote:
->>>> Hallo
->>>>
->>>> this rc1 runs here (pure Intel-box) without errors.
->>>> Thanks !
->>>>
->>>>
->>>> An RPC (I'm thinking about since some month)
->>>> =3D=3D=3D=3D=3D=3D
->>>>
->>>> Wouldn't it be better (and not so much add. work) to sort the
->>>> Pseudo-Shortlog towards subsystem/driver ?
->>>>
->>>> something like this:
->>>>
->>>> ...
->>>> usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
->>>> usb: cdns3: gadget: free interrupt after gadget has deleted
->>>>
->>>>      Lorenzo Colitti <lorenzo@google.com>
->>>>      Peter Chen <peter.chen@nxp.com>
->>>> ...
->>>>
->>>>
->>>> Think of searching a bugfix in the shortlog.
->>>>
->>>> With the current layout I need to read/"visual grep" the whole log.
->>>>
->>>> With the new layout I'm able to jump to the "buggy" subsystem/driver =
-and
->>>> only need to read that part of the log to get the info if the bug is
->>>> fixed or not yet
->>>
->>> Do you have an example script that generates such a thing?  If so, I'l=
-l
->>> be glad to look into it, but am not going to try to create it on my ow=
-n,
->>> sorry.
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
->>
->> first of all: in the above mail it should read "RFC"
->>
->>
->> Surely, who get the most benefit of it (the layout) does the most work.
->> Agreed, I will see what I can do -I'm unsure -
->>
->> Currently, I'm thinking that the data for your shortlog are coming from
->> a sort of an git query or so and it would just be an easy adjustment of
->> the query parameter.
->>
->> This seems not to be the case ?
->>
->> To get an idea if my knowledge is sufficing (I'm no developer):
->>
->> Where do you get the data from to generate your shortlog ?
->
-> A "simple" git command:
-> 	git log --abbrev=3D12 --format=3D"%aN <%aE>%n    %s%n" ${VERSION}..HEAD=
- > ${TMP_LOG}
->
-> If you can come up with a command that replaces that, I'll be glad to
-> try it out.
->
-> thanks,
->
-> greg k-h
->
+Hello Gao Xiang,
 
-I'll have a look into it.
+On 10/22/20 5:57 PM, Gao Xiang via Linux-erofs wrote:
+> From: Gao Xiang <hsiangkao@redhat.com>
+> 
+> pcluster should be only set up for all managed pages instead of
+> temporary pages. Since it currently uses page->mapping to identify,
+> the impact is minor for now.
+> 
+> Fixes: 5ddcee1f3a1c ("erofs: get rid of __stagingpage_alloc helper")
+> Cc: <stable@vger.kernel.org> # 5.5+
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-=2D-
-regards
+I was looking exactly at this problem recently, my change is one-to-one
+to your fix, thus I can provide a tag:
 
-Ronald
+Tested-by: Vladimir Zapolskiy <vladimir@tuxera.com>
+
+
+The fixed problem is minor, but the kernel log becomes polluted, if
+a page allocation debug option is enabled:
+
+     % md5sum ~/erofs/testfile
+     BUG: Bad page state in process kworker/u9:0  pfn:687de
+     page:0000000057b8bcb4 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x687de
+     flags: 0x4000000000002000(private)
+     raw: 4000000000002000 dead000000000100 dead000000000122 0000000000000000
+     raw: 0000000000000000 ffff888066758690 00000000ffffffff 0000000000000000
+     page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+     Modules linked in:
+     CPU: 1 PID: 602 Comm: kworker/u9:0 Not tainted 5.9.1 #2
+     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+     Workqueue: erofs_unzipd z_erofs_decompressqueue_work
+     Call Trace:
+      dump_stack+0x84/0xba
+      bad_page.cold+0xac/0xb1
+      check_free_page_bad+0xb0/0xc0
+      free_pcp_prepare+0x2c8/0x2d0
+      free_unref_page+0x18/0xf0
+      put_pages_list+0x11a/0x120
+      z_erofs_decompressqueue_work+0xc9/0x110
+      ? z_erofs_decompress_pcluster.isra.0+0xf10/0xf10
+      ? read_word_at_a_time+0x12/0x20
+      ? strscpy+0xc7/0x1a0
+      process_one_work+0x30c/0x730
+      worker_thread+0x91/0x640
+      ? __kasan_check_read+0x11/0x20
+      ? rescuer_thread+0x8a0/0x8a0
+      kthread+0x1dd/0x200
+      ? kthread_unpark+0xa0/0xa0
+      ret_from_fork+0x1f/0x30
+     Disabling lock debugging due to kernel taint
+
+--
+Best wishes,
+Vladimir
