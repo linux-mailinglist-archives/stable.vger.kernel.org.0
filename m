@@ -2,106 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2752A0AAE
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2172A0AB7
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 17:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbgJ3QGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 12:06:47 -0400
-Received: from smtp-bc0c.mail.infomaniak.ch ([45.157.188.12]:36407 "EHLO
-        smtp-bc0c.mail.infomaniak.ch" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725355AbgJ3QGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 12:06:46 -0400
-X-Greylist: delayed 12464 seconds by postgrey-1.27 at vger.kernel.org; Fri, 30 Oct 2020 12:06:45 EDT
-Received: from smtp-2-0001.mail.infomaniak.ch (unknown [10.5.36.108])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4CN6cx2KK4zllGw2;
-        Fri, 30 Oct 2020 17:06:41 +0100 (CET)
-Received: from ns3096276.ip-94-23-54.eu (unknown [94.23.54.103])
-        by smtp-2-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4CN6cw2Rr9zlh8TQ;
-        Fri, 30 Oct 2020 17:06:40 +0100 (CET)
-Subject: Re: [PATCH v1 1/2] ptrace: Set PF_SUPERPRIV when checking capability
-To:     Jann Horn <jannh@google.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Will Drewry <wad@chromium.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@linux.microsoft.com>
-References: <20201030123849.770769-1-mic@digikod.net>
- <20201030123849.770769-2-mic@digikod.net>
- <CAG48ez1LFAKoi-nvipsar2SAH0eNhKkOzWj4Fuf9wNCtpWsH9A@mail.gmail.com>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <94a86084-5aab-4a2c-e654-f55130190c1a@digikod.net>
-Date:   Fri, 30 Oct 2020 17:06:39 +0100
-User-Agent: 
+        id S1726545AbgJ3QIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 12:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50524 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725939AbgJ3QIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 12:08:49 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CC9C0613CF
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 09:08:48 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id f21so3172351plr.5
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 09:08:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=X4h7VqbjWCTGqCw8svcGQvNFpVYxdtzFtyWsEhbWn98=;
+        b=La2F8tfdO9gPtLk6NBLoFPncEHH9xi/vq3BgzPxpACZ7qaJfeGgyrKtM1nxKV3oomF
+         rpz8wX+Fp1XVY6j6jhskM1DYBiySNJURTeKLF27RCm9qdfFhWZXYtL5XO13glKbtz1AT
+         XBUlf64tNVx0JIyE5tHxQ0LInxano5sCS6Pj5pY1LNW4JwZWEi/3IoCqIm2wohyQ+tiv
+         jz0OJOW3UVF9GzVizciJNrkARHPWxDt0EMn9DBtqVhPZynsQxtzFU7eW18tQ5u66zLiq
+         yvzLwt2wzMHcceG2StAbTXfp6+4x6lGe9Pmhjm9NDjJ09ArcsYYF8z388I9KIvwZ7SPM
+         q8sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=X4h7VqbjWCTGqCw8svcGQvNFpVYxdtzFtyWsEhbWn98=;
+        b=bouZpknYfXDPjdNtTkm4QYFT/w4VNthMIzt3Di2ihKUZ6ftRWY991/7W9DtxB9KKi4
+         6p4lrYSLKPQzKdgteD4ttsholqWsWHm5m2oSCpN2Yjb03roxPpC7WIkimvgUYBnBepWm
+         T//OFJ89HSfuiiUToqTouySdpehrLzVwmfTYTtXMYadofIBPlWEExGfPJXKR6t9Hpj5Y
+         WMkw/tDFfl6KZzWgQS9z8U2XJGgR7+s66ZnRHJW9tgzBI8P3zhRkSF0MBjWZLT7wL/qf
+         yBm0gpzV/uzUUQN21N1ALb5nHD+Ns4y4Akt03/qDKf0ei7kv99BUdGWE5uDeN5i48i92
+         nUpw==
+X-Gm-Message-State: AOAM533rV7Mm4pYQbUgCqt63HT3Z6LT7dDpgpfCOmoIw5F7iVM1fz4Us
+        1dqxSoORZX6d0ds0BzjblNwhfXXXAtmWhqrRIpo08A==
+X-Google-Smtp-Source: ABdhPJwmn80tRBWXBbGzsZF1fDNlJuss+2qqaEfCoYXaiWaOKg5IbXI7+ZBt3a2mRiv+aOpOj5ixiNK7VB3jrC5am5o=
+X-Received: by 2002:a17:902:7298:b029:d4:c71a:357a with SMTP id
+ d24-20020a1709027298b02900d4c71a357amr9533788pll.38.1604074127724; Fri, 30
+ Oct 2020 09:08:47 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAG48ez1LFAKoi-nvipsar2SAH0eNhKkOzWj4Fuf9wNCtpWsH9A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20201029180525.1797645-1-maskray@google.com> <a7d7b3d9-a902-346c-0b9c-d2364440e70b@kernel.org>
+In-Reply-To: <a7d7b3d9-a902-346c-0b9c-d2364440e70b@kernel.org>
+From:   =?UTF-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>
+Date:   Fri, 30 Oct 2020 09:08:35 -0700
+Message-ID: <CAFP8O3JEOXJumFtPh4dwiYT2FHt+27epqnBUQ-2622Mm29trcQ@mail.gmail.com>
+Subject: Re: [PATCH] x86_64: Change .weak to SYM_FUNC_START_WEAK for arch/x86/lib/mem*_64.S
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     X86 ML <x86@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Jian Cai <jiancai@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Oct 30, 2020 at 2:48 AM Jiri Slaby <jirislaby@kernel.org> wrote:
+>
+> On 29. 10. 20, 19:05, Fangrui Song wrote:
+> > Commit 393f203f5fd5 ("x86_64: kasan: add interceptors for
+> > memset/memmove/memcpy functions") added .weak directives to
+> > arch/x86/lib/mem*_64.S instead of changing the existing SYM_FUNC_START_=
+*
+> > macros.
+>
+> There were no SYM_FUNC_START_* macros in 2015.
 
-On 30/10/2020 16:47, Jann Horn wrote:
-> On Fri, Oct 30, 2020 at 1:39 PM Mickaël Salaün <mic@digikod.net> wrote:
->> Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
->> /proc/pid/stat") replaced the use of ns_capable() with
->> has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
->>
->> Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in
->> ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
->> security_capable(), which doesn't set PF_SUPERPRIV neither.
->>
->> Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()"), a
->> new ns_capable_noaudit() helper is available.  Let's use it!
->>
->> As a result, the signature of ptrace_has_cap() is restored to its original one.
->>
->> Cc: Christian Brauner <christian.brauner@ubuntu.com>
->> Cc: Eric Paris <eparis@redhat.com>
->> Cc: Jann Horn <jannh@google.com>
->> Cc: Kees Cook <keescook@chromium.org>
->> Cc: Oleg Nesterov <oleg@redhat.com>
->> Cc: Serge E. Hallyn <serge@hallyn.com>
->> Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
->> Cc: stable@vger.kernel.org
->> Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()")
->> Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
->> Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
-> 
-> Yeah... I guess this makes sense. (We'd have to undo or change it if
-> we ever end up needing to use a different set of credentials, e.g.
-> from ->f_cred, but I guess that's really something we should avoid
-> anyway.)
-> 
-> Reviewed-by: Jann Horn <jannh@google.com>
-> 
-> with one nit:
-> 
-> 
-> [...]
->>  /* Returns 0 on success, -errno on denial. */
->>  static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
->>  {
->> -       const struct cred *cred = current_cred(), *tcred;
->> +       const struct cred *const cred = current_cred(), *tcred;
-> 
-> This is an unrelated change, and almost no kernel code marks local
-> pointer variables as "const". I would drop this change from the patch.
+include/linux/linkage.h had WEAK in 2015 and WEAK should have been
+used instead. Do I just need to fix the description?
 
-This give guarantee that the cred variable will not be used for
-something else than current_cred(), which kinda prove that this patch
-doesn't change the behavior of __ptrace_may_access() by not using cred
-in ptrace_has_cap(). It doesn't hurt and I think it could be useful to
-spot issues when backporting.
+> > This can lead to the assembly snippet `.weak memcpy ... .globl
+> > memcpy`
+>
+> SYM_FUNC_START_LOCAL(memcpy)
+> does not add .globl, so I don't understand the rationale.
 
-> 
->>         struct mm_struct *mm;
->>         kuid_t caller_uid;
->>         kgid_t caller_gid;
+There is no problem using
+.weak
+SYM_FUNC_START_LOCAL
+just looks suspicious so I changed it, too.
+
+> > which will produce a STB_WEAK memcpy with GNU as but STB_GLOBAL
+> > memcpy with LLVM's integrated assembler before LLVM 12. LLVM 12 (since
+> > https://reviews.llvm.org/D90108) will error on such an overridden symbo=
+l
+> > binding.
+> >
+> > Use the appropriate SYM_FUNC_START_WEAK instead.
+> >
+> > Fixes: 393f203f5fd5 ("x86_64: kasan: add interceptors for memset/memmov=
+e/memcpy functions")
+> > Reported-by: Sami Tolvanen <samitolvanen@google.com>
+> > Signed-off-by: Fangrui Song <maskray@google.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+> >   arch/x86/lib/memcpy_64.S  | 4 +---
+> >   arch/x86/lib/memmove_64.S | 4 +---
+> >   arch/x86/lib/memset_64.S  | 4 +---
+> >   3 files changed, 3 insertions(+), 9 deletions(-)
+> >
+> > diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
+> > index 037faac46b0c..1e299ac73c86 100644
+> > --- a/arch/x86/lib/memcpy_64.S
+> > +++ b/arch/x86/lib/memcpy_64.S
+> > @@ -16,8 +16,6 @@
+> >    * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
+> >    */
+> >
+> > -.weak memcpy
+> > -
+> >   /*
+> >    * memcpy - Copy a memory block.
+> >    *
+> > @@ -30,7 +28,7 @@
+> >    * rax original destination
+> >    */
+> >   SYM_FUNC_START_ALIAS(__memcpy)
+> > -SYM_FUNC_START_LOCAL(memcpy)
+> > +SYM_FUNC_START_WEAK(memcpy)
+> >       ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
+> >                     "jmp memcpy_erms", X86_FEATURE_ERMS
+> >
+> > diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+> > index 7ff00ea64e4f..41902fe8b859 100644
+> > --- a/arch/x86/lib/memmove_64.S
+> > +++ b/arch/x86/lib/memmove_64.S
+> > @@ -24,9 +24,7 @@
+> >    * Output:
+> >    * rax: dest
+> >    */
+> > -.weak memmove
+> > -
+> > -SYM_FUNC_START_ALIAS(memmove)
+> > +SYM_FUNC_START_WEAK(memmove)
+> >   SYM_FUNC_START(__memmove)
+> >
+> >       mov %rdi, %rax
+> > diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
+> > index 9ff15ee404a4..0bfd26e4ca9e 100644
+> > --- a/arch/x86/lib/memset_64.S
+> > +++ b/arch/x86/lib/memset_64.S
+> > @@ -6,8 +6,6 @@
+> >   #include <asm/alternative-asm.h>
+> >   #include <asm/export.h>
+> >
+> > -.weak memset
+> > -
+> >   /*
+> >    * ISO C memset - set a memory block to a byte value. This function u=
+ses fast
+> >    * string to get better performance than the original function. The c=
+ode is
+> > @@ -19,7 +17,7 @@
+> >    *
+> >    * rax   original destination
+> >    */
+> > -SYM_FUNC_START_ALIAS(memset)
+> > +SYM_FUNC_START_WEAK(memset)
+> >   SYM_FUNC_START(__memset)
+> >       /*
+> >        * Some CPUs support enhanced REP MOVSB/STOSB feature. It is reco=
+mmended
+> >
+>
+>
+> --
+> js
+> suse labs
+
+
+
+--=20
+=E5=AE=8B=E6=96=B9=E7=9D=BF
