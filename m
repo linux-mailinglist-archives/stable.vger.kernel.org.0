@@ -2,364 +2,478 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14BE72A02D7
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 11:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E81DA2A02D2
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 11:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726438AbgJ3K2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 06:28:34 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:58074 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725801AbgJ3K2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 06:28:34 -0400
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        id S1725905AbgJ3K2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 06:28:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58726 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725790AbgJ3K2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 06:28:10 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id B82341F45E58;
-        Fri, 30 Oct 2020 10:28:31 +0000 (GMT)
-Date:   Fri, 30 Oct 2020 11:28:26 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Steven Price <steven.price@arm.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/panfrost: Move the GPU reset bits outside the
- timeout handler
-Message-ID: <20201030112826.1b182709@collabora.com>
-In-Reply-To: <8185209b-b943-c1b8-90d8-fee894f6f829@arm.com>
-References: <20201030070826.582969-1-boris.brezillon@collabora.com>
-        <8185209b-b943-c1b8-90d8-fee894f6f829@arm.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        by mail.kernel.org (Postfix) with ESMTPSA id E094E20704;
+        Fri, 30 Oct 2020 10:28:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604053688;
+        bh=kdv1OM3Ft/tsgGwP4y0onEg+PAv9jxxpv8O/1I6NnNo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lgwkfHY5+SgZfOTgC448lpTrfcv11epk0oqeEUGNI8xNUPkRhrxLR1kc8H1stN7bw
+         n2V504eK4FCnkR9GNuYTxykzGSWk1y6t/78ZgcvzkXIG1aOA145hfu0t40JXWweVoS
+         ASilGfQkof0OmWFgw+x1uDKNAmMdBiRtOvGEQPJo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.154
+Date:   Fri, 30 Oct 2020 11:28:53 +0100
+Message-Id: <160405368022942@kroah.com>
+X-Mailer: git-send-email 2.29.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 30 Oct 2020 10:00:07 +0000
-Steven Price <steven.price@arm.com> wrote:
+I'm announcing the release of the 4.19.154 kernel.
 
-> On 30/10/2020 07:08, Boris Brezillon wrote:
-> > We've fixed many races in panfrost_job_timedout() but some remain.
-> > Instead of trying to fix it again, let's simplify the logic and move
-> > the reset bits to a separate work scheduled when one of the queue
-> > reports a timeout.
-> > 
-> > Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > ---
-> >   drivers/gpu/drm/panfrost/panfrost_device.c |   1 -
-> >   drivers/gpu/drm/panfrost/panfrost_device.h |   6 +-
-> >   drivers/gpu/drm/panfrost/panfrost_job.c    | 130 ++++++++++++---------
-> >   3 files changed, 82 insertions(+), 55 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
-> > index ea8d31863c50..a83b2ff5837a 100644
-> > --- a/drivers/gpu/drm/panfrost/panfrost_device.c
-> > +++ b/drivers/gpu/drm/panfrost/panfrost_device.c
-> > @@ -200,7 +200,6 @@ int panfrost_device_init(struct panfrost_device *pfdev)
-> >   	struct resource *res;
-> >   
-> >   	mutex_init(&pfdev->sched_lock);
-> > -	mutex_init(&pfdev->reset_lock);
-> >   	INIT_LIST_HEAD(&pfdev->scheduled_jobs);
-> >   	INIT_LIST_HEAD(&pfdev->as_lru_list);
-> >   
-> > diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
-> > index 2e9cbd1c4a58..67f9f66904be 100644
-> > --- a/drivers/gpu/drm/panfrost/panfrost_device.h
-> > +++ b/drivers/gpu/drm/panfrost/panfrost_device.h
-> > @@ -105,7 +105,11 @@ struct panfrost_device {
-> >   	struct panfrost_perfcnt *perfcnt;
-> >   
-> >   	struct mutex sched_lock;
-> > -	struct mutex reset_lock;
-> > +
-> > +	struct {
-> > +		struct work_struct work;
-> > +		atomic_t pending;
-> > +	} reset;
-> >   
-> >   	struct mutex shrinker_lock;
-> >   	struct list_head shrinker_list;
-> > diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-> > index d0469e944143..745ee9563a54 100644
-> > --- a/drivers/gpu/drm/panfrost/panfrost_job.c
-> > +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-> > @@ -20,6 +20,8 @@
-> >   #include "panfrost_gpu.h"
-> >   #include "panfrost_mmu.h"
-> >   
-> > +#define JOB_TIMEOUT_MS 500
-> > +
-> >   #define job_write(dev, reg, data) writel(data, dev->iomem + (reg))
-> >   #define job_read(dev, reg) readl(dev->iomem + (reg))
-> >   
-> > @@ -382,19 +384,37 @@ static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
-> >   			drm_sched_increase_karma(bad);
-> >   		queue->stopped = true;
-> >   		stopped = true;
-> > +
-> > +		/*
-> > +		 * Set the timeout to max so the timer doesn't get started
-> > +		 * when we return from the timeout handler (restored in
-> > +		 * panfrost_scheduler_start()).
-> > +		 */
-> > +		queue->sched.timeout = MAX_SCHEDULE_TIMEOUT;
-> >   	}
-> >   	mutex_unlock(&queue->lock);
-> >   
-> >   	return stopped;
-> >   }
-> >   
-> > +static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
-> > +{
-> > +	if (WARN_ON(!queue->stopped))
-> > +		return;
-> > +
-> > +	mutex_lock(&queue->lock);
-> > +	/* Restore the original timeout before starting the scheduler. */
-> > +	queue->sched.timeout = msecs_to_jiffies(JOB_TIMEOUT_MS);
-> > +	drm_sched_start(&queue->sched, true);
-> > +	queue->stopped = false;
-> > +	mutex_unlock(&queue->lock);
-> > +}
-> > +
-> >   static void panfrost_job_timedout(struct drm_sched_job *sched_job)
-> >   {
-> >   	struct panfrost_job *job = to_panfrost_job(sched_job);
-> >   	struct panfrost_device *pfdev = job->pfdev;
-> >   	int js = panfrost_job_get_slot(job);
-> > -	unsigned long flags;
-> > -	int i;
-> >   
-> >   	/*
-> >   	 * If the GPU managed to complete this jobs fence, the timeout is
-> > @@ -415,56 +435,9 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
-> >   	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
-> >   		return;
-> >   
-> > -	if (!mutex_trylock(&pfdev->reset_lock))
-> > -		return;
-> > -
-> > -	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-> > -		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
-> > -
-> > -		/*
-> > -		 * If the queue is still active, make sure we wait for any
-> > -		 * pending timeouts.
-> > -		 */
-> > -		if (!pfdev->js->queue[i].stopped)
-> > -			cancel_delayed_work_sync(&sched->work_tdr);
-> > -
-> > -		/*
-> > -		 * If the scheduler was not already stopped, there's a tiny
-> > -		 * chance a timeout has expired just before we stopped it, and
-> > -		 * drm_sched_stop() does not flush pending works. Let's flush
-> > -		 * them now so the timeout handler doesn't get called in the
-> > -		 * middle of a reset.
-> > -		 */
-> > -		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
-> > -			cancel_delayed_work_sync(&sched->work_tdr);
-> > -
-> > -		/*
-> > -		 * Now that we cancelled the pending timeouts, we can safely
-> > -		 * reset the stopped state.
-> > -		 */
-> > -		pfdev->js->queue[i].stopped = false;
-> > -	}
-> > -
-> > -	spin_lock_irqsave(&pfdev->js->job_lock, flags);
-> > -	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-> > -		if (pfdev->jobs[i]) {
-> > -			pm_runtime_put_noidle(pfdev->dev);
-> > -			panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
-> > -			pfdev->jobs[i] = NULL;
-> > -		}
-> > -	}
-> > -	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
-> > -
-> > -	panfrost_device_reset(pfdev);
-> > -
-> > -	for (i = 0; i < NUM_JOB_SLOTS; i++)
-> > -		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
-> > -
-> > -	mutex_unlock(&pfdev->reset_lock);
-> > -
-> > -	/* restart scheduler after GPU is usable again */
-> > -	for (i = 0; i < NUM_JOB_SLOTS; i++)
-> > -		drm_sched_start(&pfdev->js->queue[i].sched, true);
-> > +	/* Schedule a reset. */
-> > +	atomic_set(&pfdev->reset.pending, 1);  
-> 
-> Maybe I'm missing something, but I can't work out what setting 
-> reset.pending here gives us. See below.
-> 
-> > +	schedule_work(&pfdev->reset.work);
-> >   }
-> >   
-> >   static const struct drm_sched_backend_ops panfrost_sched_ops = {
-> > @@ -531,11 +504,62 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
-> >   	return IRQ_HANDLED;
-> >   }
-> >   
-> > +static void panfrost_reset(struct work_struct *work)
-> > +{
-> > +	struct panfrost_device *pfdev = container_of(work,
-> > +						     struct panfrost_device,
-> > +						     reset.work);
-> > +	unsigned long flags;
-> > +	unsigned int i;
-> > +
-> > +	if (!atomic_read(&pfdev->reset.pending))
-> > +		return;  
-> 
-> AFAICT the only time this return will be hit is in the following case:
-> 
-> CPU 0                     |  CPU 1
-> --------------------------+-------------------
-> job_timedout()            |
-> panfrost_reset()          |
->   ...                      | job_timedout()
->   - atomic_set(pending, 0) | ...
->                            | if (!atomic_read()) - returns early
+All users of the 4.19 kernel series must upgrade.
 
-AFAICT a work can only be scheduled on one workqueue, IOW, it can't run
-on 2 CPUs simultaneously, and your example seems to imply that it can
-(both 'atomic_set(pending, 0)' and 'if (!atomic_read()) - returns
-early' are done in the reset handler).
+Many thanks to Pavel Machek for pointing out that the last 4.19.y
+release was "short" a bunch of patches, which results in this "the rest
+of the series" release.
 
-> 
-> However, reordering that a little we can see it can fail:
-> 
-> CPU 0                     |  CPU 1
-> --------------------------+-------------------
-> job_timedout()            |
->   ...                      |
-> panfrost_reset()          |
->   ...                      | job_timedout()
->   ...                      | panfrost_reset()
->   ...                      | if (atomic_read()) - doesn't return early
->   - atomic_set(pending, 0) | ...
-> 
-> I don't see anything which prevents the second scenario, so this pending 
-> flag doesn't seem to be stopping any race condition.
-> 
-> What am I missing?
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-The pending state is just here to overcome the lack of cancel_work():
-if we schedule a reset while the reset handler is running, this handler
-will be called again just after it returns, but we only need to reset
-the GPU again if the timeout handler scheduled the reset work after the
-GPU has been reset and queues have been restarted.
+thanks,
 
-> 
-> I would have expected something more along the lines of:
-> 
-> 	/* Schedule a reset */
-> 	if (atomic_cmpxchg(&pfdev->reset.pending, 0, 1)) {
-> 		/* Reset already in progress */
-> 		return;
-> 	}
-> 	schedule_work(&pfdev->reset.work);
-> 
-> What do you think?
+greg k-h
 
-That would work too, and allows us to get rid of the atomic_read() in
-the reset handler. I'll go for this version. This being said, I'm pretty
-sure my version was safe too ;-).
+------------
 
-> 
-> Also FYI I applied this on top of my panfrost-dev branch and managed to 
-> hit the following splat. I haven't yet got to the bottom of it, so it 
-> might well be an unrelated bug. At first glance this looks like the job 
-> is managing to outlive the MMU context it's tied to.
+ Makefile                                                       |    2 
+ arch/arm/boot/dts/imx6sl.dtsi                                  |    2 
+ arch/arm/boot/dts/owl-s500.dtsi                                |    6 
+ arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts              |   10 -
+ arch/arm64/boot/dts/qcom/msm8916.dtsi                          |    4 
+ arch/arm64/boot/dts/qcom/pm8916.dtsi                           |    2 
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi                         |    4 
+ arch/powerpc/include/asm/tlb.h                                 |   13 -
+ arch/powerpc/kernel/tau_6xx.c                                  |   96 +++-------
+ arch/powerpc/mm/tlb-radix.c                                    |   23 +-
+ arch/powerpc/perf/hv-gpci-requests.h                           |    6 
+ arch/powerpc/perf/isa207-common.c                              |   10 +
+ arch/powerpc/platforms/Kconfig                                 |   14 -
+ arch/powerpc/platforms/powernv/opal-dump.c                     |   41 +++-
+ arch/x86/kvm/emulate.c                                         |    2 
+ block/blk-core.c                                               |    9 
+ drivers/clk/at91/clk-main.c                                    |   11 -
+ drivers/clk/bcm/clk-bcm2835.c                                  |    4 
+ drivers/clk/rockchip/clk-half-divider.c                        |    2 
+ drivers/cpufreq/powernv-cpufreq.c                              |    9 
+ drivers/crypto/ccp/ccp-ops.c                                   |    2 
+ drivers/gpu/drm/virtio/virtgpu_kms.c                           |    2 
+ drivers/gpu/drm/virtio/virtgpu_vq.c                            |   10 -
+ drivers/i2c/busses/Kconfig                                     |    1 
+ drivers/i2c/i2c-core-acpi.c                                    |   11 +
+ drivers/infiniband/core/cma.c                                  |   84 +++-----
+ drivers/infiniband/hw/hns/hns_roce_hw_v1.c                     |    1 
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c                     |    1 
+ drivers/infiniband/sw/rdmavt/vt.c                              |    4 
+ drivers/input/keyboard/ep93xx_keypad.c                         |    4 
+ drivers/input/keyboard/omap4-keypad.c                          |    6 
+ drivers/input/keyboard/twl4030_keypad.c                        |    8 
+ drivers/input/serio/sun4i-ps2.c                                |    9 
+ drivers/input/touchscreen/imx6ul_tsc.c                         |   27 +-
+ drivers/input/touchscreen/stmfts.c                             |    2 
+ drivers/mailbox/mailbox.c                                      |   12 -
+ drivers/media/firewire/firedtv-fw.c                            |    6 
+ drivers/media/pci/bt8xx/bttv-driver.c                          |   13 +
+ drivers/media/pci/saa7134/saa7134-tvaudio.c                    |    3 
+ drivers/media/platform/exynos4-is/fimc-isp.c                   |    4 
+ drivers/media/platform/exynos4-is/fimc-lite.c                  |    2 
+ drivers/media/platform/exynos4-is/media-dev.c                  |    4 
+ drivers/media/platform/exynos4-is/mipi-csis.c                  |    4 
+ drivers/media/platform/qcom/venus/core.c                       |    5 
+ drivers/media/platform/s3c-camif/camif-core.c                  |    5 
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c                  |    3 
+ drivers/media/platform/sti/delta/delta-v4l2.c                  |    4 
+ drivers/media/platform/sti/hva/hva-hw.c                        |    4 
+ drivers/media/platform/vsp1/vsp1_drv.c                         |   11 -
+ drivers/media/rc/ati_remote.c                                  |    4 
+ drivers/media/usb/uvc/uvc_v4l2.c                               |   30 +++
+ drivers/memory/fsl-corenet-cf.c                                |    6 
+ drivers/memory/omap-gpmc.c                                     |    8 
+ drivers/misc/cardreader/rtsx_pcr.c                             |    4 
+ drivers/misc/eeprom/at25.c                                     |    2 
+ drivers/misc/mic/vop/vop_main.c                                |    2 
+ drivers/misc/mic/vop/vop_vringh.c                              |   24 +-
+ drivers/mmc/core/sdio_cis.c                                    |    3 
+ drivers/net/can/flexcan.c                                      |   34 ++-
+ drivers/net/ethernet/korina.c                                  |    4 
+ drivers/net/wireless/ath/ath10k/htt_rx.c                       |    8 
+ drivers/net/wireless/ath/ath9k/hif_usb.c                       |   19 +
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c      |    2 
+ drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_lcn.c |    4 
+ drivers/net/wireless/marvell/mwifiex/usb.c                     |    3 
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c          |   10 -
+ drivers/ntb/hw/amd/ntb_hw_amd.c                                |    1 
+ drivers/nvme/target/core.c                                     |    3 
+ drivers/pci/controller/pcie-iproc-msi.c                        |   13 -
+ drivers/pwm/pwm-img.c                                          |    3 
+ drivers/rapidio/devices/rio_mport_cdev.c                       |   18 +
+ drivers/rpmsg/qcom_smd.c                                       |   32 ++-
+ drivers/scsi/ibmvscsi/ibmvfc.c                                 |    1 
+ drivers/scsi/mvumi.c                                           |    1 
+ drivers/scsi/qedi/qedi_fw.c                                    |   23 +-
+ drivers/scsi/qedi/qedi_iscsi.c                                 |    2 
+ drivers/scsi/ufs/ufs-qcom.c                                    |    5 
+ drivers/tty/ipwireless/network.c                               |    4 
+ drivers/tty/ipwireless/tty.c                                   |    2 
+ drivers/tty/serial/fsl_lpuart.c                                |    2 
+ drivers/usb/class/cdc-acm.c                                    |   23 ++
+ drivers/usb/class/cdc-wdm.c                                    |   72 +++++--
+ drivers/usb/core/urb.c                                         |   89 +++++----
+ drivers/usb/dwc3/dwc3-of-simple.c                              |    1 
+ drivers/usb/gadget/function/f_ncm.c                            |    2 
+ drivers/usb/gadget/function/f_printer.c                        |   16 +
+ drivers/usb/host/ohci-hcd.c                                    |   16 +
+ drivers/vfio/pci/vfio_pci_intrs.c                              |    4 
+ drivers/vfio/vfio_iommu_type1.c                                |    3 
+ drivers/watchdog/sp5100_tco.h                                  |    2 
+ drivers/watchdog/watchdog_dev.c                                |    6 
+ fs/dlm/config.c                                                |    3 
+ fs/ext4/fsmap.c                                                |    3 
+ fs/f2fs/sysfs.c                                                |    1 
+ fs/ntfs/inode.c                                                |    6 
+ fs/ramfs/file-nommu.c                                          |    2 
+ fs/reiserfs/inode.c                                            |    3 
+ fs/reiserfs/super.c                                            |    8 
+ fs/udf/inode.c                                                 |   25 +-
+ fs/udf/super.c                                                 |    6 
+ fs/xfs/xfs_rtalloc.c                                           |   11 +
+ include/linux/overflow.h                                       |    1 
+ include/scsi/scsi_common.h                                     |    7 
+ include/trace/events/target.h                                  |   12 -
+ include/uapi/linux/perf_event.h                                |    2 
+ kernel/debug/kdb/kdb_io.c                                      |    8 
+ kernel/power/hibernate.c                                       |   11 -
+ kernel/sched/core.c                                            |    2 
+ kernel/sched/sched.h                                           |   13 +
+ lib/crc32.c                                                    |    2 
+ net/bluetooth/l2cap_sock.c                                     |    7 
+ net/ipv4/ip_gre.c                                              |   15 +
+ net/mac80211/cfg.c                                             |    3 
+ net/mac80211/sta_info.c                                        |    4 
+ net/netfilter/ipvs/ip_vs_ctl.c                                 |    7 
+ net/netfilter/nf_conntrack_proto_tcp.c                         |   19 +
+ net/netfilter/nf_dup_netdev.c                                  |    1 
+ net/netfilter/nft_fwd_netdev.c                                 |    1 
+ net/sunrpc/auth_gss/svcauth_gss.c                              |   27 +-
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c                          |    3 
+ samples/mic/mpssd/mpssd.c                                      |    4 
+ tools/perf/util/intel-pt.c                                     |    8 
+ 122 files changed, 808 insertions(+), 450 deletions(-)
 
-Hm, I think I don't see those because I have "drm/panfrost: Make sure
-MMU context lifetime is not bound to panfrost_priv" applied. We should
-really work on a proper fix for that problem, or maybe apply the
-proposed fix until we have time to work on a better solution.
+Abhishek Pandit-Subedi (1):
+      Bluetooth: Only mark socket zapped after unlocking
 
-> 
-> Steve
-> 
-> [  554.032998] ------------[ cut here ]------------
-> [  554.035169] Unable to handle kernel NULL pointer dereference at 
-> virtual address 00000104
-> [  554.035199] pgd = a3e6a38a
-> [  554.035214] [00000104] *pgd=00000000
-> [  554.035238] Internal error: Oops: 805 [#1] SMP ARM
-> [  554.035245] Modules linked in: panfrost gpu_sched
-> [  554.035265] CPU: 1 PID: 59 Comm: kworker/1:2 Not tainted 5.9.0-rc5+ #14
-> [  554.035271] Hardware name: Rockchip (Device Tree)
-> [  554.035305] Workqueue: events panfrost_reset [panfrost]
-> [  554.035336] PC is at panfrost_mmu_as_get+0x7c/0x270 [panfrost]
-> [  554.035363] LR is at panfrost_mmu_as_get+0x3c/0x270 [panfrost]
-> [  554.035371] pc : [<bf00e65c>]    lr : [<bf00e61c>]    psr: 800f0013
-> [  554.035378] sp : ecfdfe40  ip : 00000000  fp : 02f79000
-> [  554.035384] r10: 00000000  r9 : eb748d68  r8 : eb748d3c
-> [  554.035390] r7 : 00000001  r6 : eb442200  r5 : 00000001  r4 : eb748c40
-> [  554.035398] r3 : eb442244  r2 : 00000122  r1 : 00000100  r0 : eb442240
-> [  554.035406] Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM 
-> Segment none
-> [  554.035415] Control: 10c5387d  Table: 2bb6406a  DAC: 00000051
-> [  554.035423] Process kworker/1:2 (pid: 59, stack limit = 0x4caadad3)
-> [  554.035430] Stack: (0xecfdfe40 to 0xecfe0000)
-> [  554.035445] fe40: 600f0013 ee1cdd24 ee1cdd24 c07934f0 00000001 
-> eb748c40 e96c8400 00000080
-> [  554.035458] fe60: 00000001 000018e0 e97d6480 00000000 02f79000 
-> bf00d3bc 00000006 00000000
-> [  554.035471] fe80: 00000005 00000000 c0d08ec8 ecfdfeb4 00000000 
-> ffffe000 eb81421c e96c8400
-> [  554.035483] fea0: eb814400 eac71d80 eb814278 00000000 00000238 
-> eb814418 00000000 bf000f40
-> [  554.035496] fec0: 83f5c473 eb748dd8 eb81421c 00000238 00000001 
-> 00000000 00000238 bf0122de
-> [  554.035509] fee0: eb814040 bf00d088 bf00cf68 ecf94680 eefa5f40 
-> eb748dd8 c0dd62a7 eefa9400
-> [  554.035521] ff00: 00000000 00000000 00000001 c013a6b4 00000001 
-> 00000000 c013a608 83f5c473
-> [  554.035534] ff20: ffffe000 c0d08ec8 bf0144f4 c126d4e0 00000000 
-> bf012441 00000000 83f5c473
-> [  554.035547] ff40: 00000000 ecf94680 ecf94694 eefa5f40 ecfde000 
-> eefa5f78 c0d05d00 c0deece8
-> [  554.035560] ff60: 00000000 c013b1a0 00000000 eea2f300 ecfde000 
-> ecf95540 c013af74 ecf94680
-> [  554.035573] ff80: eea49ea4 eea2f344 00000000 c0140a80 ecf95540 
-> c0140958 00000000 00000000
-> [  554.035584] ffa0: 00000000 00000000 00000000 c0100114 00000000 
-> 00000000 00000000 00000000
-> [  554.035596] ffc0: 00000000 00000000 00000000 00000000 00000000 
-> 00000000 00000000 00000000
-> [  554.035607] ffe0: 00000000 00000000 00000000 00000000 00000013 
-> 00000000 00000000 00000000
-> [  554.035663] [<bf00e65c>] (panfrost_mmu_as_get [panfrost]) from 
-> [<bf00d3bc>] (panfrost_job_run+0x19c/0x2b4 [panfrost])
-> [  554.035717] [<bf00d3bc>] (panfrost_job_run [panfrost]) from 
-> [<bf000f40>] (drm_sched_resubmit_jobs+0x88/0xc4 [gpu_sched])
-> [  554.035771] [<bf000f40>] (drm_sched_resubmit_jobs [gpu_sched]) from 
-> [<bf00d088>] (panfrost_reset+0x120/0x190 [panfrost])
-> [  554.035809] [<bf00d088>] (panfrost_reset [panfrost]) from 
-> [<c013a6b4>] (process_one_work+0x238/0x53c)
-> [  554.035823] [<c013a6b4>] (process_one_work) from [<c013b1a0>] 
-> (worker_thread+0x22c/0x2e0)
-> [  554.035838] [<c013b1a0>] (worker_thread) from [<c0140a80>] 
-> (kthread+0x128/0x138)
-> [  554.035854] [<c0140a80>] (kthread) from [<c0100114>] 
-> (ret_from_fork+0x14/0x20)
-> [  554.035864] Exception stack(0xecfdffb0 to 0xecfdfff8)
-> [  554.043775] WARNING: CPU: 0 PID: 350 at drivers/gpu/drm/drm_mm.c:999 
-> panfrost_postclose+0x28/0x34 [panfrost]
-> [  554.050065] ffa0:                                     00000000 
-> 00000000 00000000 00000000
-> [  554.050077] ffc0: 00000000 00000000 00000000 00000000 00000000 
-> 00000000 00000000 00000000
-> [  554.050087] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
-> [  554.050101] Code: eb44454b e5962048 e2863044 e5961044 (e5812004)
-> [  554.050178] ---[ end trace 220c904d56e775c9 ]---
+Adam Goode (1):
+      media: uvcvideo: Ensure all probed info is returned to v4l2
+
+Aditya Pakki (1):
+      media: st-delta: Fix reference count leak in delta_run_work
+
+Adrian Hunter (1):
+      perf intel-pt: Fix "context_switch event has no tid" error
+
+Al Grant (1):
+      perf: correct SNOOPX field offset
+
+Alex Williamson (1):
+      vfio/pci: Clear token on bypass registration failure
+
+Alexander Aring (1):
+      fs: dlm: fix configfs memory leak
+
+Athira Rajeev (1):
+      powerpc/perf: Exclude pmc5/6 from the irrelevant PMU group constraints
+
+Brooke Basile (1):
+      ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()
+
+Can Guo (1):
+      scsi: ufs: ufs-qcom: Fix race conditions caused by ufs_qcom_testbus_config()
+
+Chris Chiu (1):
+      rtl8xxxu: prevent potential memory leak
+
+Christian Eggers (1):
+      eeprom: at25: set minimum read/write access stride to 1
+
+Christoph Hellwig (1):
+      PM: hibernate: remove the bogus call to get_gendisk() in software_resume()
+
+Claudiu Beznea (1):
+      clk: at91: clk-main: update key before writing AT91_CKGR_MOR
+
+Colin Ian King (1):
+      IB/rdmavt: Fix sizeof mismatch
+
+Cong Wang (1):
+      ip_gre: set dev->hard_header_len and dev->needed_headroom properly
+
+Cristian Ciocaltea (1):
+      ARM: dts: owl-s500: Fix incorrect PPI interrupt specifiers
+
+Dan Aloni (1):
+      svcrdma: fix bounce buffers for unaligned offsets and multiple pages
+
+Dan Carpenter (3):
+      rpmsg: smd: Fix a kobj leak in in qcom_smd_parse_edge()
+      Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
+      memory: omap-gpmc: Fix a couple off by ones
+
+Daniel Thompson (1):
+      kdb: Fix pager search for multi-line strings
+
+Darrick J. Wong (2):
+      ext4: limit entries returned when counting fsmap records
+      xfs: make sure the rt allocator doesn't run off the end
+
+Dinghao Liu (7):
+      watchdog: Fix memleak in watchdog_cdev_register
+      watchdog: Use put_device on error
+      media: vsp1: Fix runtime PM imbalance on error
+      media: platform: s3c-camif: Fix runtime PM imbalance on error
+      media: platform: sti: hva: Fix runtime PM imbalance on error
+      media: bdisp: Fix runtime PM imbalance on error
+      media: venus: core: Fix runtime PM imbalance in venus_probe
+
+Dirk Behme (1):
+      i2c: rcar: Auto select RESET_CONTROLLER
+
+Doug Horn (1):
+      Fix use after free in get_capset_info callback.
+
+Eli Billauer (1):
+      usb: core: Solve race condition in anchor cleanup functions
+
+Eric Biggers (1):
+      reiserfs: only call unlock_new_inode() if I_NEW
+
+Finn Thain (2):
+      powerpc/tau: Check processor type before enabling TAU interrupt
+      powerpc/tau: Disable TAU between measurements
+
+Francesco Ruggeri (1):
+      netfilter: conntrack: connection timeout after re-register
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.154
+
+Guenter Roeck (1):
+      watchdog: sp5100: Fix definition of EFCH_PM_DECODEEN3
+
+Hamish Martin (1):
+      usb: ohci: Default to per-port over-current protection
+
+Hans de Goede (1):
+      i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
+
+Hauke Mehrtens (1):
+      pwm: img: Fix null pointer access in probe
+
+Horia Geantă (1):
+      ARM: dts: imx6sl: fix rng node
+
+Jamie Iles (1):
+      f2fs: wait for sysfs kobject removal before freeing f2fs_sb_info
+
+Jan Kara (3):
+      udf: Limit sparing table size
+      udf: Avoid accessing uninitialized data on failed inode read
+      reiserfs: Fix memory leak in reiserfs_parse_options()
+
+Jason Gunthorpe (2):
+      RDMA/cma: Remove dead code for kernel rdmacm multicast
+      RDMA/cma: Consolidate the destruction of a cma_multicast in one place
+
+Jassi Brar (1):
+      mailbox: avoid timer start from callback
+
+Jernej Skrabec (1):
+      ARM: dts: sun8i: r40: bananapi-m2-ultra: Fix dcdc1 regulator
+
+Jing Xiangfeng (3):
+      rapidio: fix the missed put_device() for rio_mport_add_riodev
+      scsi: mvumi: Fix error return in mvumi_io_attach()
+      scsi: ibmvfc: Fix error return in ibmvfc_probe()
+
+Joakim Zhang (1):
+      can: flexcan: flexcan_chip_stop(): add error handling and propagate error value
+
+Johan Hovold (1):
+      USB: cdc-acm: handle broken union descriptors
+
+Juri Lelli (1):
+      sched/features: Fix !CONFIG_JUMP_LABEL case
+
+Kaige Li (1):
+      NTB: hw: amd: fix an issue about leak system resources
+
+Kajol Jain (1):
+      powerpc/perf/hv-gpci: Fix starting index value
+
+Keita Suzuki (2):
+      misc: rtsx: Fix memory leak in rtsx_pci_probe
+      brcmsmac: fix memory leak in wlc_phy_attach_lcnphy
+
+Krzysztof Kozlowski (5):
+      Input: ep93xx_keypad - fix handling of platform_get_irq() error
+      Input: omap4-keypad - fix handling of platform_get_irq() error
+      Input: twl4030_keypad - fix handling of platform_get_irq() error
+      Input: sun4i-ps2 - fix handling of platform_get_irq() error
+      memory: fsl-corenet-cf: Fix handling of platform_get_irq() error
+
+Leon Romanovsky (1):
+      overflow: Include header file with SIZE_MAX declaration
+
+Lijun Ou (1):
+      RDMA/hns: Set the unsupported wr opcode
+
+Lorenzo Colitti (1):
+      usb: gadget: f_ncm: allow using NCM in SuperSpeed Plus gadgets.
+
+Mark Tomlinson (1):
+      PCI: iproc: Set affinity mask on MSI interrupts
+
+Martijn de Gouw (1):
+      SUNRPC: fix copying of multiple pages in gss_read_proxy_verf()
+
+Matthew Wilcox (Oracle) (1):
+      ramfs: fix nommu mmap with gaps in the page cache
+
+Mauro Carvalho Chehab (2):
+      media: saa7134: avoid a shift overflow
+      usb: dwc3: simple: add support for Hikey 970
+
+Michal Simek (1):
+      arm64: dts: zynqmp: Remove additional compatible string for i2c IPs
+
+Navid Emamdoost (1):
+      clk: bcm2835: add missing release if devm_clk_hw_register fails
+
+Nicholas Piggin (1):
+      powerpc/64s/radix: Fix mm_cpumask trimming race vs kthread_use_mm
+
+Nilesh Javali (2):
+      scsi: qedi: Protect active command list to avoid list corruption
+      scsi: qedi: Fix list_del corruption while removing active I/O
+
+Oliver Neukum (2):
+      media: ati_remote: sanity check for both endpoints
+      USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
+
+Pablo Neira Ayuso (1):
+      netfilter: nf_fwd_netdev: clear timestamp in forwarding path
+
+Pali Rohár (1):
+      mmc: sdio: Check for CISTPL_VERS_1 buffer size
+
+Pavel Machek (2):
+      crypto: ccp - fix error handling
+      media: firewire: fix memory leak
+
+Peilin Ye (1):
+      ipvs: Fix uninit-value in do_ip_vs_set_ctl()
+
+Peng Fan (1):
+      tty: serial: fsl_lpuart: fix lpuart32_poll_get_char
+
+Qiushi Wu (4):
+      media: sti: Fix reference count leaks
+      media: exynos4-is: Fix several reference count leaks due to pm_runtime_get_sync
+      media: exynos4-is: Fix a reference count leak due to pm_runtime_get_sync
+      media: exynos4-is: Fix a reference count leak
+
+Robert Hoo (1):
+      KVM: x86: emulating RDPID failure shall return #UD rather than #GP
+
+Roman Bolshakov (1):
+      scsi: target: core: Add CONTROL field for trace events
+
+Rustam Kovhaev (1):
+      ntfs: add check for mft record size in superblock
+
+Sherry Sun (2):
+      mic: vop: copy data to kernel space then write to io memory
+      misc: vop: add round_up(x,4) for vring_size to avoid kernel panic
+
+Souptick Joarder (1):
+      rapidio: fix error handling path
+
+Srikar Dronamraju (1):
+      cpufreq: powernv: Fix frame-size-overflow in powernv_cpufreq_reboot_notifier
+
+Stephan Gerhold (2):
+      arm64: dts: qcom: pm8916: Remove invalid reg size from wcd_codec
+      arm64: dts: qcom: msm8916: Fix MDP/DSI interrupts
+
+Stephen Boyd (1):
+      clk: rockchip: Initialize hw to error to avoid undefined behavior
+
+Tetsuo Handa (2):
+      block: ratelimit handle_bad_sector() message
+      mwifiex: don't call del_timer_sync() on uninitialized timer
+
+Thomas Pedersen (1):
+      mac80211: handle lack of sband->bitrates in rates
+
+Tobias Jordan (1):
+      lib/crc32.c: fix trivial typo in preprocessor condition
+
+Tong Zhang (1):
+      tty: ipwireless: fix error handling
+
+Valentin Vidic (1):
+      net: korina: cast KSEG0 address to pointer in kfree
+
+Vasant Hegde (1):
+      powerpc/powernv/dump: Fix race while processing OPAL dump
+
+Vincent Mailhol (1):
+      usb: cdc-acm: add quirk to blacklist ETAS ES58X devices
+
+Wang Yufen (1):
+      brcm80211: fix possible memleak in brcmf_proto_msgbuf_attach
+
+Weihang Li (1):
+      RDMA/hns: Fix missing sq_sig_type when querying QP
+
+Xiaolong Huang (1):
+      media: media/pci: prevent memory leak in bttv_probe
+
+Xiaoyang Xu (1):
+      vfio iommu type1: Fix memory leak in vfio_iommu_type1_pin_pages
+
+YueHaibing (2):
+      Input: stmfts - fix a & vs && typo
+      memory: omap-gpmc: Fix build error without CONFIG_OF
+
+Zekun Shen (1):
+      ath10k: check idx validity in __ath10k_htt_rx_ring_fill_n()
+
+Zqiang (1):
+      usb: gadget: function: printer: fix use-after-free in __lock_acquire
+
+zhenwei pi (1):
+      nvmet: fix uninitialized work for zero kato
 
