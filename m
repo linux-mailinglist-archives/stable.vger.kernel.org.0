@@ -2,244 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41622A0940
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3AF2A09E4
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbgJ3PIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 11:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40698 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbgJ3PIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:08:07 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137BEC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:08:07 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id x13so5446669pgp.7
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:08:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SN0/a8IvFEJOFUfXNTNy2J75RGeitGNuzVFGvjy+6nE=;
-        b=YQSQKLDFws2bsWXPrIw/HmTpfxy4IhIQ5Ir3OeYRn/quxaVPtc5Zwhn7qzvJcpObCU
-         do+8X1ojuArxsgxXWnYPoTqD03vN1xhrTde42XzXK2u7O8L+qwH+PJzOrNVo+cnitW5k
-         GUEzwj2kYnh9Z88QvVQJYUq+LdDNLfMjT2wnA0iETw8xmEWBQXN881Crrc6TgdobEz8v
-         5x+4Rj9Tvy4QEtIdto5jBTA/GlpLd6s0pYTr3DdmW83S6suMJ4tL/NZhMSwpCLJWRQG9
-         r5DlTIAfEYW6qc2fpCxrK5zO+TqA98Hwh7ejlnlabw0hLUgNPMbQW7HAu9oTdLb7qjMY
-         RYZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SN0/a8IvFEJOFUfXNTNy2J75RGeitGNuzVFGvjy+6nE=;
-        b=FWD5lfwCS/nC8I1yBYdrmzWC8kevl11+p1tqk63c6cF10sn9eM/ei0oBiuYYG+rCoV
-         SuQS/CBAHhbmvPwX5OItKLWWPTlXyqNZ5trDfHYYt+InQKxV+bkBTjJjUX41EEBjT3qD
-         HBQpDgcLBVInoqFr1e+Yz3XlC8Elgqx2mW9oZKFjuarW6F4w9/rxsShHq0ob7KqEO4NH
-         pFMUeu0ZaKHA3tOzCo1ysVGjGIasd98sa71xQTyHbTQTc7UNFkx/rg89jpwx1t9u+QUi
-         bP2y7EzDYQOtUn27U8B2Pe36KqEz78qvubSGZlj474OS/KJWn6WcxfUPWk+3PPpTFz4a
-         2BOw==
-X-Gm-Message-State: AOAM530P1sGawXH5tnfPpgPAeh8pbwRv4gQaNAqfsZ4FewlffJJA2C2b
-        OInSo0aMsjldTi9efUAexS01UJttJm9TJA==
-X-Google-Smtp-Source: ABdhPJyr39kouYdWgvriSohLBMYklUTRorWEBmvanFD2PD5jhivEigis1qObYDF/pz3TDm9ERNvjRg==
-X-Received: by 2002:a17:90a:4897:: with SMTP id b23mr3346767pjh.12.1604070486230;
-        Fri, 30 Oct 2020 08:08:06 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c140sm6234439pfb.124.2020.10.30.08.08.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 08:08:05 -0700 (PDT)
-Message-ID: <5f9c2c55.1c69fb81.f165a.ec30@mx.google.com>
-Date:   Fri, 30 Oct 2020 08:08:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725844AbgJ3Pam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 11:30:42 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30760 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726890AbgJ3Pam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:30:42 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09UF1NoA007107;
+        Fri, 30 Oct 2020 11:18:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=T33zqOJqojD8WVWVqOqNqvPk0z9OEeoWFKvCwxxVvFY=;
+ b=LGn1rSmzaJA/10hwFW7SEqktvLj5ES2qHQGLcs9s27eRZ+pvZO9kSeq5qMnVqTt0Oh8k
+ WKcKFjHeO8EQZNOgIF2TNWEbfwNusLAhMskFYCv41Bd/0KFZOx4Eb2vxAaoRo1xgJMLX
+ 7PRa7jinVo25ofusf51wXo+x2gj3ZEkHPZwZwLjzFyCXTilZvOuw/RepVYIDdgrgJZnS
+ LULY/i8B2NRcnoXX4SEWVFKkqkzD6P52AywTwm+Q3cofC6vux3FLUoG8d8SvPnKOK44V
+ PiI3b5pU+89rrhtWzqTZfakrzMdjSeopspdwQnAQVU84ZZMRBCDwfJ/vGvZHm765rE7l Sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 34ge8uxjbb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 11:18:29 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09UF1PZI007313;
+        Fri, 30 Oct 2020 11:18:29 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 34ge8uxjam-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 11:18:29 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09UFDXuk005384;
+        Fri, 30 Oct 2020 15:18:27 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 34fv15rp6w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 15:18:27 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09UFIPgQ33423632
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Oct 2020 15:18:25 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 41E4011C054;
+        Fri, 30 Oct 2020 15:18:25 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 69B2D11C050;
+        Fri, 30 Oct 2020 15:18:24 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.79.39])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 30 Oct 2020 15:18:24 +0000 (GMT)
+Date:   Fri, 30 Oct 2020 17:18:22 +0200
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH] ARM: highmem: avoid clobbering non-page aligned memory
+ reservations
+Message-ID: <20201030151822.GA16907@linux.ibm.com>
+References: <20201029110334.4118-1-ardb@kernel.org>
+ <CAMj1kXGiJtqp51h2FA35Q44VDrsx8Kd3Pi=e45Trn6MLN=iV9A@mail.gmail.com>
+ <013f82d6-d20f-1242-2cdd-9ea9c2ab9f9c@gmail.com>
+ <CAMj1kXEQveNVAbH=uZzqz4-KVFK+bbafGQ2-U7fCnD530PPq_g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.241-4-ga5b62fb44d07
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 123 runs,
- 4 regressions (v4.4.241-4-ga5b62fb44d07)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEQveNVAbH=uZzqz4-KVFK+bbafGQ2-U7fCnD530PPq_g@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-30_05:2020-10-30,2020-10-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 suspectscore=5 adultscore=0 spamscore=0
+ mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010300111
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 123 runs, 4 regressions (v4.4.241-4-ga5b62fb4=
-4d07)
+Hi Ard,
 
-Regressions Summary
--------------------
+On Fri, Oct 30, 2020 at 10:29:16AM +0100, Ard Biesheuvel wrote:
+> (+ Mike)
+> 
+> On Fri, 30 Oct 2020 at 03:25, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> >
+> >
+> >
+> > On 10/29/2020 4:14 AM, Ard Biesheuvel wrote:
+> > > On Thu, 29 Oct 2020 at 12:03, Ard Biesheuvel <ardb@kernel.org> wrote:
+> > >>
+> > >> free_highpages() iterates over the free memblock regions in high
+> > >> memory, and marks each page as available for the memory management
+> > >> system. However, as it rounds the end of each region downwards, we
+> > >> may end up freeing a page that is memblock_reserve()d, resulting
+> > >> in memory corruption. So align the end of the range to the next
+> > >> page instead.
+> > >>
+> > >> Cc: <stable@vger.kernel.org>
+> > >> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > >> ---
+> > >>  arch/arm/mm/init.c | 2 +-
+> > >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >>
+> > >> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+> > >> index a391804c7ce3..d41781cb5496 100644
+> > >> --- a/arch/arm/mm/init.c
+> > >> +++ b/arch/arm/mm/init.c
+> > >> @@ -354,7 +354,7 @@ static void __init free_highpages(void)
+> > >>         for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+> > >>                                 &range_start, &range_end, NULL) {
+> > >>                 unsigned long start = PHYS_PFN(range_start);
+> > >> -               unsigned long end = PHYS_PFN(range_end);
+> > >> +               unsigned long end = PHYS_PFN(PAGE_ALIGN(range_end));
+> > >>
+> > >
+> > > Apologies, this should be
+> > >
+> > > -               unsigned long start = PHYS_PFN(range_start);
+> > > +               unsigned long start = PHYS_PFN(PAGE_ALIGN(range_start));
+> > >                 unsigned long end = PHYS_PFN(range_end);
+> > >
+> > >
+> > > Strangely enough, the wrong version above also fixed the issue I was
+> > > seeing, but it is start that needs rounding up, not end.
+> >
+> > Is there a particular commit that you identified which could be used as
+> >  Fixes: tag to ease the back porting of such a change?
+> 
+> Ah hold on. This appears to be a very recent regression, in
+> cddb5ddf2b76debdb8cad1728ad0a9321383d933, added in v5.10-rc1.
+> 
+> The old code was
+> 
+> unsigned long start = memblock_region_memory_base_pfn(mem);
+> 
+> which uses PFN_UP() to round up, whereas the new code rounds down.
+> 
+> Looks like this is broken on a lot of platforms.
+> 
+> Mike?
 
-platform         | arch   | lab          | compiler | defconfig           |=
- regressions
------------------+--------+--------------+----------+---------------------+=
-------------
-beagle-xm        | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 2          =
+I've reviewed again the whole series and it seems that only highmem
+initialization on arm and xtensa (that copied this code from arm) have
+this problem. I might have missed something again, though.
 
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig    |=
- 1          =
+So, to restore the original behaviour I think the fix should be
 
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig    |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.241-4-ga5b62fb44d07/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.241-4-ga5b62fb44d07
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a5b62fb44d07b6e24748fcbc0bf4d657d9023c8a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig           |=
- regressions
------------------+--------+--------------+----------+---------------------+=
-------------
-beagle-xm        | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bfac1be2fa0dd6d381026
-
-  Results:     2 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f9bfac1be2fa0dd=
-6d38102b
-        failing since 0 day (last pass: v4.4.241-2-g0b3b9f46127e, first fai=
-l: v4.4.241-4-g71c7677aa3c2)
-        1 lines
-
-    2020-10-30 11:34:42.422000+00:00  Connected to omap3-beagle-xm console =
-[channel connected] (~$quit to exit)
-    2020-10-30 11:34:42.423000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.423000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.423000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.423000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.423000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.424000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.424000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.424000+00:00  (user:) is already connected
-    2020-10-30 11:34:42.424000+00:00  (user:) is already connected =
-
-    ... (495 line(s) more)  =
+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+				&range_start, &range_end, NULL) {
+		unsigned long start = PHYS_UP(range_start);
+		unsigned long end = PHYS_DOWN(range_end);
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9bfac1be2fa0d=
-d6d38102d
-        failing since 0 day (last pass: v4.4.241-2-g0b3b9f46127e, first fai=
-l: v4.4.241-4-g71c7677aa3c2)
-        28 lines
-
-    2020-10-30 11:36:28.470000+00:00  kern  :emerg : Stack: (0xcb979d10 to =
-0xcb97a000)
-    2020-10-30 11:36:28.480000+00:00  kern  :emerg : 9d00:                 =
-                    bf02b8fc bf010b84 cb8f5010 bf02b988
-    2020-10-30 11:36:28.487000+00:00  kern  :emerg : 9d20: cb8f5010 bf2010a=
-8 00000002 cbc47010 cb8f5010 bf24bb54 cbc726f0 cbc726f0
-    2020-10-30 11:36:28.495000+00:00  kern  :emerg : 9d40: 00000000 0000000=
-0 ce228930 c01fb3d8 ce228930 ce228930 c0857e88 00000001
-    2020-10-30 11:36:28.504000+00:00  kern  :emerg : 9d60: ce228930 cbc726f=
-0 cbc727b0 00000000 ce228930 c0857e88 00000001 c09612c0
-    2020-10-30 11:36:28.512000+00:00  kern  :emerg : 9d80: ffffffed bf24fff=
-4 fffffdfb 00000027 00000001 c00ce2f4 bf250188 c04070c8
-    2020-10-30 11:36:28.520000+00:00  kern  :emerg : 9da0: c09612c0 c120da3=
-0 bf24fff4 00000000 00000027 c040559c c09612c0 c09612f4
-    2020-10-30 11:36:28.528000+00:00  kern  :emerg : 9dc0: bf24fff4 0000000=
-0 00000000 c0405744 00000000 bf24fff4 c04056b8 c0403a68
-    2020-10-30 11:36:28.536000+00:00  kern  :emerg : 9de0: ce0b08a4 ce22191=
-0 bf24fff4 cbc2b540 c09dd3a8 c0404bb4 bf24eb6c c095e460
-    2020-10-30 11:36:28.544000+00:00  kern  :emerg : 9e00: cbba5f40 bf24fff=
-4 c095e460 cbba5f40 bf253000 c040617c c095e460 c095e460 =
-
-    ... (16 line(s) more)  =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig           |=
- regressions
------------------+--------+--------------+----------+---------------------+=
-------------
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig    |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bfb4eeae361e0aa38101c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9bfb4eeae361e0aa381=
-01d
-        failing since 0 day (last pass: v4.4.240-112-g1a1bb4139b4c, first f=
-ail: v4.4.241-2-g0b3b9f46127e) =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig           |=
- regressions
------------------+--------+--------------+----------+---------------------+=
-------------
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig    |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bfb66eae361e0aa381040
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-4=
--ga5b62fb44d07/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9bfb66eae361e0aa381=
-041
-        new failure (last pass: v4.4.241-4-g71c7677aa3c2) =
-
- =20
+-- 
+Sincerely yours,
+Mike.
