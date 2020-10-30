@@ -2,128 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C5E2A07E1
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:30:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C242A0828
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:43:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726348AbgJ3Oaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 10:30:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47700 "EHLO mx2.suse.de"
+        id S1726239AbgJ3Onu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 10:43:50 -0400
+Received: from mga05.intel.com ([192.55.52.43]:62349 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725975AbgJ3Oaw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 10:30:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604068250;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=dzYRrHej5hwjdfH+v+jsCGMI1ohR5+BirpcUtCHUXxQ=;
-        b=CPD8K/ywq8vKYtZW5A2+PtWBC4VF2z7PYJKPwv2MMTuvQ66KNaZzlhmyOFkQpOOWU0nGlU
-        hZBN5dX22vj+/LXY62V7n/T1Hs7LKOqWQoBsHBQS99fPgM4Cr6VGBTUFGR4vyih15fy0jp
-        B/p/LKjHKTqkd+hvpDp2gc0ENNGOCaA=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 0117BAE0F;
-        Fri, 30 Oct 2020 14:30:50 +0000 (UTC)
-Date:   Fri, 30 Oct 2020 15:30:49 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     Matteo Croce <mcroce@linux.microsoft.com>
-Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] reboot: fix parsing of reboot cpu number
-Message-ID: <20201030143049.GE1602@alley>
-References: <20201027133545.58625-1-mcroce@linux.microsoft.com>
- <20201027133545.58625-3-mcroce@linux.microsoft.com>
+        id S1725975AbgJ3Onu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 10:43:50 -0400
+IronPort-SDR: wR6JV0c4TYxhP3zU0Q0wgudr709aJi/z9/mxMawCsdntsjekn1fJzbYqv7h6uWwo65Y/FZqR5d
+ tiDgl55AhbMQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9789"; a="253323613"
+X-IronPort-AV: E=Sophos;i="5.77,433,1596524400"; 
+   d="scan'208";a="253323613"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2020 07:43:49 -0700
+IronPort-SDR: 3sNntcel3Mt5MdolL+3ZJfoZkbkDPOMwyJKTBvktwKLoWskwvT/ejKmqeo6P+0xe+PIdt4ohQs
+ mXOnfaPGEUjw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,433,1596524400"; 
+   d="scan'208";a="361866344"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by FMSMGA003.fm.intel.com with SMTP; 30 Oct 2020 07:43:47 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 30 Oct 2020 16:43:46 +0200
+Date:   Fri, 30 Oct 2020 16:43:46 +0200
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        Randy Dunlap <rdunlap@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/modes: Switch to 64bit maths to avoid integer
+ overflow
+Message-ID: <20201030144346.GJ6112@intel.com>
+References: <20201022194256.30978-1-ville.syrjala@linux.intel.com>
+ <160406758530.15070.9622609556730885347@build.alporthouse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20201027133545.58625-3-mcroce@linux.microsoft.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <160406758530.15070.9622609556730885347@build.alporthouse.com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 2020-10-27 14:35:45, Matteo Croce wrote:
-> From: Matteo Croce <mcroce@microsoft.com>
+On Fri, Oct 30, 2020 at 02:19:45PM +0000, Chris Wilson wrote:
+> Quoting Ville Syrjala (2020-10-22 20:42:56)
+> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > 
+> > The new >8k CEA modes have dotclocks reaching 5.94 GHz, which
+> > means our clock*1000 will now overflow the 32bit unsigned
+> > integer. Switch to 64bit maths to avoid it.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > ---
+> > An interesting question how many other place might suffer from similar
+> > overflows. I think i915 should be mostly OK. The one place I know we use
+> > Hz instead kHz is the hsw DPLL code, which I would prefer we also change
+> > to use kHz. The other concern is whether we have any potential overflows
+> > before we check this against the platform's max dotclock.
+> > 
+> > I do have this unreviewed igt series 
+> > https://patchwork.freedesktop.org/series/69531/ which extends the
+> > current testing with some other forms of invalid modes. Could probably
+> > extend that with a mode.clock=INT_MAX test to see if anything else might
+> > trip up.
+> > 
+> > No idea about other drivers.
+> > 
+> >  drivers/gpu/drm/drm_modes.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
+> > index 501b4fe55a3d..511cde5c7fa6 100644
+> > --- a/drivers/gpu/drm/drm_modes.c
+> > +++ b/drivers/gpu/drm/drm_modes.c
+> > @@ -762,7 +762,7 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
+> >         if (mode->htotal == 0 || mode->vtotal == 0)
+> >                 return 0;
+> >  
+> > -       num = mode->clock * 1000;
+> > +       num = mode->clock;
+> >         den = mode->htotal * mode->vtotal;
 > 
-> The kernel cmdline reboot= argument allows to specify the CPU used
-> for rebooting, with the syntax `s####` among the other flags, e.g.
-> 
->   reboot=soft,s4
->   reboot=warm,s31,force
-> 
-> In the early days the parsing was done with simple_strtoul(), later
-> deprecated in favor of the safer kstrtoint() which handles overflow.
-> 
-> But kstrtoint() returns -EINVAL if there are non-digit characters
-> in a string, so if this flag is not the last given, it's silently
-> ignored as well as the subsequent ones.
-> 
-> To fix it, revert the usage of simple_strtoul(), which is no longer
-> deprecated, and restore the old behaviour.
-> 
-> While at it, merge two identical code blocks into one.
+> You don't want to promote den to u64 while you are here? We are at
+> 8kx4k, throw in dblscan and some vscan, and we could soon have wacky
+> refresh rates.
 
-> --- a/kernel/reboot.c
-> +++ b/kernel/reboot.c
-> @@ -552,25 +552,19 @@ static int __init reboot_setup(char *str)
->  
->  		case 's':
->  		{
-> -			int rc;
-> -
-> -			if (isdigit(*(str+1))) {
-> -				rc = kstrtoint(str+1, 0, &reboot_cpu);
-> -				if (rc)
-> -					return rc;
-> -				if (reboot_cpu >= num_possible_cpus()) {
-> -					reboot_cpu = 0;
-> -					return -ERANGE;
-> -				}
-> -			} else if (str[1] == 'm' && str[2] == 'p' &&
-> -				   isdigit(*(str+3))) {
-> -				rc = kstrtoint(str+3, 0, &reboot_cpu);
-> -				if (rc)
-> -					return rc;
-> -				if (reboot_cpu >= num_possible_cpus()) {
-> -					reboot_cpu = 0;
+i915 has 16kx8k hard limit currently, and we reject vscan>1
+(wish we could also reject DBLSCAN). So we should not hit
+that, at least not yet. Other drivers might not be so strict
+I guess.
 
-                                                     ^^^^^^
+I have a nagging feeling that other places are in danger of
+overflows if we try to push the current limits significantly.
+But I guess no real harm in going full 64bit here, except
+maybe making it a bit slower.
 
-> +			int cpu;
-> +
-> +			/*
-> +			 * reboot_cpu is s[mp]#### with #### being the processor
-> +			 * to be used for rebooting. Skip 's' or 'smp' prefix.
-> +			 */
-> +			str += str[1] == 'm' && str[2] == 'p' ? 3 : 1;
-> +
-> +			if (isdigit(str[0])) {
-> +				cpu = simple_strtoul(str, NULL, 0);
-> +				if (cpu >= num_possible_cpus())
->  					return -ERANGE;
-> -				}
-> +				reboot_cpu = cpu;
-
-The original value stays when the new one is out of range. It is
-small functional change that should get mentioned in the commit
-message or better fixed separately.
-
-Hmm, I suggest to split this into 3 patches and switch the order:
-
-  + 1st patch should simply revert the commit 616feab75397
-   ("kernel/reboot.c: convert simple_strtoul to kstrtoint").
-
-  + 2nd patch should merge the two branches without any
-    functional change.
-
-  + 3rd patch should add the check for num_possible_cpus()
-    and update the value only when it is valid.
-
-I am sorry that I did not suggested this when reviewed v1.
-I have missed this functional change at that time.
-
-Best Regards,
-Petr
+-- 
+Ville Syrjälä
+Intel
