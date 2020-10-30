@@ -2,87 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FEF32A09EB
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:34:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CB02A0A0A
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbgJ3Pec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 11:34:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
+        id S1727084AbgJ3Phm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 11:37:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgJ3Pec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:34:32 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2BDC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:34:31 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id a9so8420968lfc.7
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:34:31 -0700 (PDT)
+        with ESMTP id S1726178AbgJ3Phl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:37:41 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14BDC0613CF
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:37:41 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id b3so5645229pfo.2
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:37:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=qM4J1yE0KLU5F8QyG5kC5LlHB8ZdM2OXBQyKY4bPPG8=;
-        b=otXOfEzK9W1IRzhLagM/rOl8Uox3QAsxNGcfJAriK5e9tbtG8dc5a97zPIBkUI5Xig
-         d97j65dDcgUwo3rKIqTYxsDkZWFzZUHNxA2oKqfWGwj8823L9kFyCk0O122Ap8/wav3A
-         nEhC/bGx+3GVxOYUgUQZwm4gAeYcoBfijlLy8nJeAcs0ORg9gd4SHFzlXh0FIh5hJf8B
-         Ao6+xSGXgD02/KDktagUMb8Iy8fJQ88VIfgAgmDupjd+ibLo8Ul6yBqIHyfqP1QTiTer
-         Cy/BCYaQNnspe24MnE9YtkTcLQoNPTb/3ZdTY5zrBNJLm4Xm9Gx1cwmfQF5SN9oeNLQc
-         gV3A==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=r9/ySKSK8zz3zokw5WuzYA4KqwUtBy+kTmOV4ySXNlg=;
+        b=CqChE21yOeBeQ2iMPJtAph6B4TIXJkwF6wIEajfSlGJNGvH0MOei7REzOhw9xZ0a2t
+         lO7cyZYbBHZAOSy8U3f4ZDp8ehK+pZiviJLqWsCvwWFLPadYMivYZTg0KoSUDbXOOV/7
+         JkHtnTVpAzB1AocYwJbIZHK/n7WQ8TIaNg5gHaZXTQtSvGZdGHpgxb5yDVT7M4mVSj78
+         Yox/gW7BLWPiEQ7E1p6oGgFqesqp9tPtYqbzITd4uMnUh8wKUvsweDmsabJUO+gnp0C2
+         VYJ9fHdeFucIGnuCcrI8pxeWex2uGy9qjz64EY0ubPpErMnLpQwXBWf5z2nSeVBkUtY2
+         mBww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=qM4J1yE0KLU5F8QyG5kC5LlHB8ZdM2OXBQyKY4bPPG8=;
-        b=fbUiBp14QtOMoHc4t7z+yrX5q9Jw6Uhtyr8BHODgpl3hilbaJByWLp0tGIMY9Bet20
-         FofI9Zv2q2raB2HOdWMH1T/Uhfr7VLN50rKxcK1o/tMxiTbL9jOaPdWqo7tfV9FHYLw7
-         M7aaeGfUaRfUMpnrgGomVzrPC1kaupj2ibeu+SxRZTqfLeqp6NduH5URmyC89M7vXYU7
-         WXZ4bRFwMqvlMefvbOYs0/AdcyJRUHp06gOGO6o/W5WPOP7oU7j5QQIsptCLW1eSpSn5
-         UVyU1qLRVjyk6qkwcLwypnUg5HtNvymiDec3VZRIReNNiAzILCzckgqWCjx8vaxQWgpB
-         mPUA==
-X-Gm-Message-State: AOAM533BojG9jOAgpIj8EhVWx6GjKk9AcYdL+PNZiuff3prAtsA9sheR
-        7rIE6l/Ky5Zs+zybr3aLKE0zpDhd4XT047DbvDXMhg==
-X-Google-Smtp-Source: ABdhPJyaMAJuSEdSdPOxRQ0zpZINDQPMrZyIuDAHHetn/wlXXtmKXFXcF4mKtRhuohWCHb+fSMLV8uyxyp10TGkPbCE=
-X-Received: by 2002:a05:6512:51a:: with SMTP id o26mr1119962lfb.381.1604072070166;
- Fri, 30 Oct 2020 08:34:30 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=r9/ySKSK8zz3zokw5WuzYA4KqwUtBy+kTmOV4ySXNlg=;
+        b=G5u6x++jfIS8HQa27VjPGqTfYcYRT0H6tD5xl82CjDzUrnOv7ZzRjDdxxw+g3tMSly
+         PAgRJs8k5MYHPeZS9MMCVoxmPOImmGOb8P3nLbrvjY+yxnoeCiT0pSATv1BAYr/48R7v
+         TswCVfoBZzhYfQO29uR9vkKRoQTrWHZk5t8y2Ir73opBgi0GMzY7UmDufmGtV2vzVgPb
+         Y7Q66xTzU3L1bXTAfWxdNpdGepTqnIGDGXqtEizrfqTrSytpILuUvWYCfUPU4AT7kSSZ
+         OcWq9R/d1iaXSMnl1Xh5ZiGK2aEBtnR3oQPMoEvipk1f17sDJqkgPBZy0MLLpVFjhOXj
+         FM9A==
+X-Gm-Message-State: AOAM532Qgo9Tm3cn0lzd30tigdwCAyT98/Y5h8w25NMZfRVmr1KIJKXe
+        noSHlrsrohGMhecD2eEV1rzK3HqX6EYZ5w==
+X-Google-Smtp-Source: ABdhPJyl15Z6smhcysQnbBt1AsqsmRZrZrxWlgV27/VcBT4dyJsMj1sku8B1bfQCdnR8E9LoaapeKA==
+X-Received: by 2002:a17:90a:c588:: with SMTP id l8mr3360711pjt.205.1604072260996;
+        Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x7sm6543867pfr.61.2020.10.30.08.37.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
+Message-ID: <5f9c3344.1c69fb81.f26d8.fb64@mx.google.com>
+Date:   Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20201030123849.770769-1-mic@digikod.net> <20201030123849.770769-3-mic@digikod.net>
-In-Reply-To: <20201030123849.770769-3-mic@digikod.net>
-From:   Jann Horn <jannh@google.com>
-Date:   Fri, 30 Oct 2020 16:34:03 +0100
-Message-ID: <CAG48ez3nBq7_LN6KeY1hdM5T1F+mAm8b_Yg2oY9npxG77ZcvJw@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] seccomp: Set PF_SUPERPRIV when checking capability
-To:     =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Will Drewry <wad@chromium.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.154
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y baseline: 175 runs, 1 regressions (v4.19.154)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 1:39 PM Micka=C3=ABl Sala=C3=BCn <mic@digikod.net> =
-wrote:
-> Replace the use of security_capable(current_cred(), ...) with
-> ns_capable_noaudit() which set PF_SUPERPRIV.
->
-> Since commit 98f368e9e263 ("kernel: Add noaudit variant of
-> ns_capable()"), a new ns_capable_noaudit() helper is available.  Let's
-> use it!
->
-> Cc: Jann Horn <jannh@google.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
-> Cc: Will Drewry <wad@chromium.org>
-> Cc: stable@vger.kernel.org
-> Fixes: e2cfabdfd075 ("seccomp: add system call filtering using BPF")
-> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@linux.microsoft.com>
+stable/linux-4.19.y baseline: 175 runs, 1 regressions (v4.19.154)
 
-Reviewed-by: Jann Horn <jannh@google.com>
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.154/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.154
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      f5d8eef067acee3fda37137f4a08c0d3f6427a8e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9bff8807d6439857381182
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.154/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.154/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9bff8807d6439=
+857381189
+        failing since 15 days (last pass: v4.19.150, first fail: v4.19.151)
+        2 lines =
+
+ =20
