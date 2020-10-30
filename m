@@ -2,85 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D4E22A0EB0
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 20:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 423642A103E
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 22:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727390AbgJ3Tbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 15:31:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727450AbgJ3Taf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 15:30:35 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002F2C0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 12:30:34 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id t22so3436756plr.9
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 12:30:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ysr7bKM2lzNExseYzJ/9rb4f5LUk91heylbWQW32gL0=;
-        b=PT8GKpUxNBmOZcZcqeGjYmWIOI+RmJY6OrXfE6mvOTPb5t/nrRZCcUoR+WtJNdxoNA
-         YZZcfcYqgWvcx/nNY0/BOupXKJBwxOKCNXtrDBFI2ClrbdXicbDXUPneujuZfALTTPeb
-         xQ9DiBZIwo05kw86W+mPGctr8j2CoSAGcObWZWg0j9gCpSGqS4hGOX2bbbDZ8ZwokkNs
-         7da2ZvN8jt9qz2/UfOT/+IyFeqeYi5S0IWlKaSqFSRQr+oYph39OsXE6kXzETE7q8RrN
-         YHgYNDHRYaFpU+CkGw55aIKbawiPhDbmFS0t+1eG4HAOo2Mwgu8cGFnz7L4rUaCNQLxX
-         XO8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ysr7bKM2lzNExseYzJ/9rb4f5LUk91heylbWQW32gL0=;
-        b=iXwpYg//eL6VOjZPlmYR2iyEtwn4uuUK8oqWhWOTgiYZVZVoFesNNsRR6eAofefwsF
-         djimBgZUVtvvhq8cn5dINRrFd1xYc48O9CaK58wsl2Sl3DSTlXz30Enz72mmMcGPrL1Y
-         USzzv9wIjsb7WeSOcBXCreR5BoyZH3TbE/USj7kqEhobSNDX1fj/sNSjh3em5+oVCqty
-         JZ4b4Ez/UNlG+K+O1CMPLA40XIDLRjRZSyIO/NADN6Dmdkq6Jh+nlZy2oZmH4eCEStxT
-         z15IcR35TuVw/WL7wBh1H1RaWHcyv4eqZ/Va10Cng/svdTPmpPFAGCW17PTAq4ZqMtcX
-         yBTw==
-X-Gm-Message-State: AOAM532U1zcKkOz3urgEhBpltzu1w2tDJfRVrJqdys3Nh9ky6cszOpR6
-        Zsat2SwALccKgYX455VNxsRA3zHsIye4wzI8GMFReg==
-X-Google-Smtp-Source: ABdhPJxh5kzc2t9fnqgU/0q2i5JfwzsIns6sTtRB36RN5DppjCt1PdKACpcKDN3va6abHDLvYCMzOuNsAsubRxRXdSc=
-X-Received: by 2002:a17:902:8a8b:b029:d5:f871:92bd with SMTP id
- p11-20020a1709028a8bb02900d5f87192bdmr10310927plo.10.1604086234238; Fri, 30
- Oct 2020 12:30:34 -0700 (PDT)
+        id S1727790AbgJ3VcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 17:32:17 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14218 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727727AbgJ3VcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 17:32:17 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09ULVxMO045243;
+        Fri, 30 Oct 2020 17:32:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=t/Ayp5kcFJCu9kbie7CBaetV7Ow8xMQcbD2R/cFgOqw=;
+ b=i+7HZuTs11h5kjzZNnkK38BZC0QkJ0//UBKPKkAIESQRQRNUttXYmZAZbEhoZoLMtYtP
+ vP5VrGR4P39RJNZoptvIhpYlfLwBTVfMe2SI9saQo1oVNlHGtJDEeqFGwCwh91TdUt0n
+ 8W4L5eP87JHStecYr3IrDoTVVtX9AI4Qa2GRUPGAluPPYKTp9cGZDr1PFEPO1AsJoyM8
+ n1OZhtg1P52SiD8Ebj/ucFRQLLPYOfrIGsGKDuT1OrD1hEGtwN1sC4S4G4sNYMK7XGJO
+ BpKKqW1Wy9X3pADcSQtS2bWU9OOJorFBJIBfHCc+K+gOHgExs999COJdAfhjQXLayCKJ 9Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34gtr304pe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 17:32:08 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09ULW7KD045624;
+        Fri, 30 Oct 2020 17:32:07 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34gtr304np-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 17:32:07 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09ULW5NR028701;
+        Fri, 30 Oct 2020 21:32:05 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 34f7s3sbc0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Oct 2020 21:32:05 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09ULW2t528705130
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Oct 2020 21:32:02 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A6A14C046;
+        Fri, 30 Oct 2020 21:32:02 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFEB04C040;
+        Fri, 30 Oct 2020 21:32:01 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.56.109])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 30 Oct 2020 21:32:01 +0000 (GMT)
+Date:   Fri, 30 Oct 2020 23:31:59 +0200
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH] ARM: highmem: avoid clobbering non-page aligned memory
+ reservations
+Message-ID: <20201030213159.GA14584@linux.ibm.com>
+References: <20201029110334.4118-1-ardb@kernel.org>
+ <CAMj1kXGiJtqp51h2FA35Q44VDrsx8Kd3Pi=e45Trn6MLN=iV9A@mail.gmail.com>
+ <013f82d6-d20f-1242-2cdd-9ea9c2ab9f9c@gmail.com>
+ <CAMj1kXEQveNVAbH=uZzqz4-KVFK+bbafGQ2-U7fCnD530PPq_g@mail.gmail.com>
+ <20201030151822.GA16907@linux.ibm.com>
+ <CAMj1kXEOnSPvkjY7Wd3gpOj+JfpU6bNNtoZ68cEhTK8rin3dTw@mail.gmail.com>
 MIME-Version: 1.0
-References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
- <20201029110153.GA3840801@kroah.com> <CAKwvOdkQ5M+ujYZgg7T80W-uNgsn_mmv8R+-15HJjPoPDpES1Q@mail.gmail.com>
- <20201029233635.GF87646@sasha-vm> <CAKwvOd=MLOKH-JoaiQcahz3bxXiCoH_hkfw2Q_Wu7514vP3zkg@mail.gmail.com>
- <20201030004124.GG87646@sasha-vm> <CA+SOCLJqVjy9QRssE9AZ1nQBwZB5mAcanpVTVOd4kO3=r5jrfA@mail.gmail.com>
- <20201030014930.GB2519055@ubuntu-m3-large-x86> <CA+SOCL+b_qvvEHFz5g416Kdfzy3nZQnizow9-C9k1pw=ZeoKJA@mail.gmail.com>
-In-Reply-To: <CA+SOCL+b_qvvEHFz5g416Kdfzy3nZQnizow9-C9k1pw=ZeoKJA@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Fri, 30 Oct 2020 12:30:23 -0700
-Message-ID: <CAKwvOdmK5i9debF+8X6HVmKyAeVYQOf7d1HHFLNUCGN-DhhitA@mail.gmail.com>
-Subject: Re: Backport 44623b2818f4a442726639572f44fd9b6d0ef68c to kernel 5.4
-To:     Jian Cai <jiancai@google.com>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEOnSPvkjY7Wd3gpOj+JfpU6bNNtoZ68cEhTK8rin3dTw@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-10-30_10:2020-10-30,2020-10-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 suspectscore=5 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999 bulkscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010300157
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 12:24 PM Jian Cai <jiancai@google.com> wrote:
->
-> Hi Nathan,
->
-> Thanks for all the tips! I have fixed the issues mentioned in your comments and used git send-email to resend the patch as recommended. FYI I used the Message ID of this thread but it created a new thread anyway.
+On Fri, Oct 30, 2020 at 04:22:37PM +0100, Ard Biesheuvel wrote:
+> On Fri, 30 Oct 2020 at 16:18, Mike Rapoport <rppt@linux.ibm.com> wrote:
+> >
+> > Hi Ard,
+> >
+> > > > On 10/29/2020 4:14 AM, Ard Biesheuvel wrote:
+> > > > > On Thu, 29 Oct 2020 at 12:03, Ard Biesheuvel <ardb@kernel.org> wrote:
+> > > > >>
+> > > > >> free_highpages() iterates over the free memblock regions in high
+> > > > >> memory, and marks each page as available for the memory management
+> > > > >> system. However, as it rounds the end of each region downwards, we
+> > > > >> may end up freeing a page that is memblock_reserve()d, resulting
+> > > > >> in memory corruption. So align the end of the range to the next
+> > > > >> page instead.
+> > > > >>
+> > > > >> Cc: <stable@vger.kernel.org>
+> > > > >> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > > >> ---
+> > > > >>  arch/arm/mm/init.c | 2 +-
+> > > > >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > >>
+> > > > >> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+> > > > >> index a391804c7ce3..d41781cb5496 100644
+> > > > >> --- a/arch/arm/mm/init.c
+> > > > >> +++ b/arch/arm/mm/init.c
+> > > > >> @@ -354,7 +354,7 @@ static void __init free_highpages(void)
+> > > > >>         for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+> > > > >>                                 &range_start, &range_end, NULL) {
+> > > > >>                 unsigned long start = PHYS_PFN(range_start);
+> > > > >> -               unsigned long end = PHYS_PFN(range_end);
+> > > > >> +               unsigned long end = PHYS_PFN(PAGE_ALIGN(range_end));
+> > > > >>
+> > > > >
+> > > > > Apologies, this should be
+> > > > >
+> > > > > -               unsigned long start = PHYS_PFN(range_start);
+> > > > > +               unsigned long start = PHYS_PFN(PAGE_ALIGN(range_start));
+> > > > >                 unsigned long end = PHYS_PFN(range_end);
+> > > > >
+> > > > >
+> > > > > Strangely enough, the wrong version above also fixed the issue I was
+> > > > > seeing, but it is start that needs rounding up, not end.
+> > > >
+> > > > Is there a particular commit that you identified which could be used as
+> > > >  Fixes: tag to ease the back porting of such a change?
+> > >
+> > > Ah hold on. This appears to be a very recent regression, in
+> > > cddb5ddf2b76debdb8cad1728ad0a9321383d933, added in v5.10-rc1.
+> > >
+> > > The old code was
+> > >
+> > > unsigned long start = memblock_region_memory_base_pfn(mem);
+> > >
+> > > which uses PFN_UP() to round up, whereas the new code rounds down.
+> > >
+> > > Looks like this is broken on a lot of platforms.
+> > >
+> > > Mike?
+> >
+> > I've reviewed again the whole series and it seems that only highmem
+> > initialization on arm and xtensa (that copied this code from arm) have
+> > this problem. I might have missed something again, though.
+> >
+> > So, to restore the original behaviour I think the fix should be
+> >
+> >         for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+> >                                 &range_start, &range_end, NULL) {
+> >                 unsigned long start = PHYS_UP(range_start);
+> >                 unsigned long end = PHYS_DOWN(range_end);
+> >
+> >
+> 
+> PHYS_UP and PHYS_DOWN don't exist.
+> 
+> Could you please send a patch that fixes this everywhere where it's broken?
 
-No, I'll bet you're using gmail which has issues showing threads when
-the subject is changed or is not `Re: <old subject>`. If you look at
-lore, it's correct:
-https://lore.kernel.org/stable/20201030014930.GB2519055@ubuntu-m3-large-x86/T/#t
-Just that you forgot to cc stable. :^P  Don't worry about it; I forget
-to do that still myself.
+Argh, this should have been PFN_{UP,DOWN}.
+With the patch below qemu-system-arm boots for me. Does it fix your
+setup as well?
+
+I kept your authorship as you did the heavy lifting here :)
+
+With acks from ARM and xtensa maintainers I can take it via memblock
+tree.
+
+From 5399699b9f8de405819c59c3feddecaac0ed1399 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Fri, 30 Oct 2020 22:53:02 +0200
+Subject: [PATCH] ARM, xtensa: highmem: avoid clobbering non-page aligned
+ memory reservations
+
+free_highpages() iterates over the free memblock regions in high
+memory, and marks each page as available for the memory management
+system.
+
+Until commit cddb5ddf2b76 ("arm, xtensa: simplify initialization of
+high memory pages") it rounded beginning of each region upwards and end of
+each region downwards.
+
+However, after that commit free_highmem() rounds the beginning and end of
+each region downwards, we and may end up freeing a page that is
+memblock_reserve()d, resulting in memory corruption.
+
+Restore the original rounding of the region boundaries to avoid freeing
+reserved pages.
+
+Fixes: cddb5ddf2b76 ("arm, xtensa: simplify initialization of high memory pages")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Co-developed-by:  Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/arm/mm/init.c    | 4 ++--
+ arch/xtensa/mm/init.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index d57112a276f5..c23dbf8bebee 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -354,8 +354,8 @@ static void __init free_highpages(void)
+ 	/* set highmem page free */
+ 	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+ 				&range_start, &range_end, NULL) {
+-		unsigned long start = PHYS_PFN(range_start);
+-		unsigned long end = PHYS_PFN(range_end);
++		unsigned long start = PFN_UP(range_start);
++		unsigned long end = PFN_DOWN(range_end);
+ 
+ 		/* Ignore complete lowmem entries */
+ 		if (end <= max_low)
+diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
+index c6fc83efee0c..8731b7ad9308 100644
+--- a/arch/xtensa/mm/init.c
++++ b/arch/xtensa/mm/init.c
+@@ -89,8 +89,8 @@ static void __init free_highpages(void)
+ 	/* set highmem page free */
+ 	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+ 				&range_start, &range_end, NULL) {
+-		unsigned long start = PHYS_PFN(range_start);
+-		unsigned long end = PHYS_PFN(range_end);
++		unsigned long start = PFN_UP(range_start);
++		unsigned long end = PFN_DOWN(range_end);
+ 
+ 		/* Ignore complete lowmem entries */
+ 		if (end <= max_low)
 -- 
-Thanks,
-~Nick Desaulniers
+2.28.0
+
+
+-- 
+Sincerely yours,
+Mike.
