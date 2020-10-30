@@ -2,219 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4AA12A0778
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 167672A077C
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 15:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726772AbgJ3OI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 10:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726653AbgJ3OI6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 10:08:58 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697F9C0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 07:08:58 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id i7so3367554pgh.6
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 07:08:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Ikny6+P9/EmzsXxPBtj+pYawibXhP9rVIWyelWiVDE0=;
-        b=MhFVBqNf4pGg5lkkIfq29KD/tDraCO9f1lEaVueyZLlx9PON0/ZIcioq3N8QQAfllj
-         EIEJHBPvoeLS5PJW93YoEqjB7xEQhfhqlRf5mfifxLH0ngWC1JQ494gX7BVyWA/+LDEh
-         vksFGGdNevShFuZ1uTR8tTUoUkkExeKuG4ETl8oXyBA/to0B0etkpsy20VHuue/nWZVq
-         5TL3liKKOsVnk0v+THaoR071oS+S4Gbo4G3I0D8ESnGRVV27UYADQ1nCOS1U9qumMyPe
-         JaXzpwf0m+QnVd6RALMK17+Lt6mkAAjAFf/R5s4kFGXN1wffQXKvfX74OF/3uv4WeNmO
-         z9vQ==
+        id S1726362AbgJ3OKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 10:10:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24883 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725939AbgJ3OKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 10:10:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604067029;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=oE7zJnELOj3JSr2Ymb2+NJIOFKcpsBSnN86Rkhl8axs=;
+        b=OorXOklm+xoyx3z3G6aTPyW6vywT119EPPvga/WPSnOeEqFi/5qMYTBguD0AXXUNoUOkMf
+        0QVlGsJlTRxk8eE+uq6Y6rRa+JHH0w7Qx9Zs4wirUFNttgRm1pB90IkuTn+M1vOjQBuMvE
+        HnKSseRyyU+zDbDgXBj+wwGN5LP7u3g=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-557-G-vCxO6QOeagAnLapSRo_g-1; Fri, 30 Oct 2020 10:10:28 -0400
+X-MC-Unique: G-vCxO6QOeagAnLapSRo_g-1
+Received: by mail-pg1-f198.google.com with SMTP id j5so4736114pgt.4
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 07:10:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Ikny6+P9/EmzsXxPBtj+pYawibXhP9rVIWyelWiVDE0=;
-        b=aK7NSsPe2s7bZi3BsFwwofKWyFVXWtk2ccQNg7mWFLMq6zFTekVsF9qNxBF/CQ4XuV
-         pR4o10vLeamYcCAQcMHPOAQo8FYKgC36pblDt3zLvJ44JCuT2khljPBErbtcaN2PWMF3
-         IUf6GS4tVKHXygbXcm/2nv7zFS4DVLTlpBntsqNLxJlYzOIUIGQ+6/jJuEHFoJ4Bi1u+
-         MykiNQv2VvKZvAKzPMrLlDH4vZeTHLOv1wn9cmF/FjeT1UUJQwH3fZHGCgyCdCiSKu/7
-         icwcTHU0Brnw8Iy71qm1abG+o9kTx+EYbTJAnyTPhK+U3CAH+rod6EndoKrVbgtN4U6a
-         NyQA==
-X-Gm-Message-State: AOAM533yiPAaKdZpKMl39zLiRhqCAS6xeumZRImNLelYrL9GPlMQYjdY
-        29YzcEgIRiLSJ6s6MTc6TyytrkrU63ydCw==
-X-Google-Smtp-Source: ABdhPJzqpTWAkeeWPwdzNWkKSUtAqCWjXRS8L6qocNLy493+vUbzEvTGo7EpUNWRs/gdQuPtLCQx1w==
-X-Received: by 2002:a17:90b:3542:: with SMTP id lt2mr3054695pjb.187.1604066937630;
-        Fri, 30 Oct 2020 07:08:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k8sm5734572pgi.39.2020.10.30.07.08.56
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=oE7zJnELOj3JSr2Ymb2+NJIOFKcpsBSnN86Rkhl8axs=;
+        b=i1MYcC/rLKphDb13hdMxrY2tCrVkHdhdpo7Gw8hy6lEkyZIAuY/YDWmYX7U18oBINl
+         1s4KVWFw16iM7yWvYa0e2D9sznwhoilHkZFHbOYPadJ0uis8dAY+ZG8KrEDA4teSUF4r
+         f/k2d1Iy/Lcg4IjJ18s6GQhw2GwbGtqG1WkZLnprETi+l4HliU9WtwJh77PLvc2vTzVx
+         siOT2W3DFFEUPwuP6ffZR8SQJ4Y0spwqcqXhgF22+x7JlgPyjNR5of4ChZRKIcxPfx5X
+         UfVDgXge84Cp4dydsCVox3ZvGNJ6HrpAJs9Qz0W/b5YuNF3EaVVM9KBRZZlWpUbTxGhU
+         58yA==
+X-Gm-Message-State: AOAM532swq66MOvm3/KpNKhV7SaOU01PI8dFrUTfY0Ggze8mBtcL8cU1
+        YFc37kjQRJAJwiIALJg28n6l088/6Uuex/miOjqymtdZoCnbC1EQVVRaWDW91/xxCSlrfS0ffuA
+        WZm3tcrjVgDSNA7bB
+X-Received: by 2002:a17:902:6b84:b029:d5:ef85:1a79 with SMTP id p4-20020a1709026b84b02900d5ef851a79mr9345448plk.32.1604067026849;
+        Fri, 30 Oct 2020 07:10:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw/z761PmX0cKUlUg1KK66JGCtUiz7/Ov5sHMUFfjPd16VSFCbQsCyxL7bzJDnjhvp8e02ulw==
+X-Received: by 2002:a17:902:6b84:b029:d5:ef85:1a79 with SMTP id p4-20020a1709026b84b02900d5ef851a79mr9345377plk.32.1604067025973;
+        Fri, 30 Oct 2020 07:10:25 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id mz23sm3376896pjb.3.2020.10.30.07.10.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 07:08:57 -0700 (PDT)
-Message-ID: <5f9c1e79.1c69fb81.8d5fe.ca59@mx.google.com>
-Date:   Fri, 30 Oct 2020 07:08:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 30 Oct 2020 07:10:25 -0700 (PDT)
+Date:   Fri, 30 Oct 2020 22:10:15 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     Vladimir Zapolskiy <vladimir@tuxera.com>
+Cc:     linux-erofs@lists.ozlabs.org, Gao Xiang <hsiangkao@aol.com>,
+        stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] erofs: fix setting up pcluster for temporary pages
+Message-ID: <20201030141015.GC133455@xiangao.remote.csb>
+References: <20201022145724.27284-1-hsiangkao.ref@aol.com>
+ <20201022145724.27284-1-hsiangkao@aol.com>
+ <ba952daf-c55d-c251-9dfc-3bf199a2d4ff@tuxera.com>
+ <20201030124745.GB133455@xiangao.remote.csb>
+ <02427b81-7854-1d97-662f-ab2d2b868514@tuxera.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.73-9-g812d5e88da7e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 195 runs,
- 3 regressions (v5.4.73-9-g812d5e88da7e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <02427b81-7854-1d97-662f-ab2d2b868514@tuxera.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 195 runs, 3 regressions (v5.4.73-9-g812d5e88d=
-a7e)
+On Fri, Oct 30, 2020 at 03:32:55PM +0200, Vladimir Zapolskiy wrote:
+> Hi Gao Xiang,
+> 
+> On 10/30/20 2:47 PM, Gao Xiang wrote:
+> > Hi Vladimir,
+> > 
+> > On Fri, Oct 30, 2020 at 02:20:31PM +0200, Vladimir Zapolskiy wrote:
+> > > Hello Gao Xiang,
+> > > 
+> > > On 10/22/20 5:57 PM, Gao Xiang via Linux-erofs wrote:
+> > > > From: Gao Xiang <hsiangkao@redhat.com>
+> > > > 
+> > > > pcluster should be only set up for all managed pages instead of
+> > > > temporary pages. Since it currently uses page->mapping to identify,
+> > > > the impact is minor for now.
+> > > > 
+> > > > Fixes: 5ddcee1f3a1c ("erofs: get rid of __stagingpage_alloc helper")
+> > > > Cc: <stable@vger.kernel.org> # 5.5+
+> > > > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+> > > 
+> > > I was looking exactly at this problem recently, my change is one-to-one
+> > > to your fix, thus I can provide a tag:
+> > > 
+> > > Tested-by: Vladimir Zapolskiy <vladimir@tuxera.com>
+> > 
+> > Many thanks for confirming this!
+> > I found this when I was killing magical stagingpage page->mapping,
+> > it's somewhat late :-)
+> > 
+> 
+> sure, for me it was an exciting immersion into the filesystem code :)
 
-Regressions Summary
--------------------
+Thanks for your effort on this!
 
-platform              | arch  | lab          | compiler | defconfig        =
-  | regressions
-----------------------+-------+--------------+----------+------------------=
---+------------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
-  | 1          =
+You could also post related kernel message in advance and
+I will definitly look into that as well. :)
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
-  | 1          =
+> 
+> > > 
+> > > 
+> > > The fixed problem is minor, but the kernel log becomes polluted, if
+> > > a page allocation debug option is enabled:
+> > > 
+> > >      % md5sum ~/erofs/testfile
+> > >      BUG: Bad page state in process kworker/u9:0  pfn:687de
+> > >      page:0000000057b8bcb4 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x687de
+> > >      flags: 0x4000000000002000(private)
+> > >      raw: 4000000000002000 dead000000000100 dead000000000122 0000000000000000
+> > >      raw: 0000000000000000 ffff888066758690 00000000ffffffff 0000000000000000
+> > >      page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+> > >      Modules linked in:
+> > >      CPU: 1 PID: 602 Comm: kworker/u9:0 Not tainted 5.9.1 #2
+> > >      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+> > >      Workqueue: erofs_unzipd z_erofs_decompressqueue_work
+> > >      Call Trace:
+> > >       dump_stack+0x84/0xba
+> > >       bad_page.cold+0xac/0xb1
+> > >       check_free_page_bad+0xb0/0xc0
+> > >       free_pcp_prepare+0x2c8/0x2d0
+> > >       free_unref_page+0x18/0xf0
+> > >       put_pages_list+0x11a/0x120
+> > >       z_erofs_decompressqueue_work+0xc9/0x110
+> > >       ? z_erofs_decompress_pcluster.isra.0+0xf10/0xf10
+> > >       ? read_word_at_a_time+0x12/0x20
+> > >       ? strscpy+0xc7/0x1a0
+> > >       process_one_work+0x30c/0x730
+> > >       worker_thread+0x91/0x640
+> > >       ? __kasan_check_read+0x11/0x20
+> > >       ? rescuer_thread+0x8a0/0x8a0
+> > >       kthread+0x1dd/0x200
+> > >       ? kthread_unpark+0xa0/0xa0
+> > >       ret_from_fork+0x1f/0x30
+> > >      Disabling lock debugging due to kernel taint
+> > 
+> > Yeah, I can make a pull-request to Linus if you need this to be in master
+> > now, or I can post it for v5.11-rc1 since 5.4 LTS isn't effected (and it
+> > would be only a print problem with debugging option.)
+> > 
+> 
+> As for myself I don't utterly need this fix on the master branch ASAP, however
+> it might be reasonable to get it included right into the next v5.10 release,
+> because I believe it'll be an LTS. Eventually it's up to you to make a decision,
+> from my side I won't urge you, the fixed issue is obviously a non-critical one.
+> 
+> Thank you for the original fix and taking my opinion into consideration :)
 
-stm32mp157c-dk2       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
-g | 1          =
+Yeah, v5.10 is a LTS version, and you are right, I will try to make a
+pull-request after I get Chao's RVB.
 
+Thanks,
+Gao Xiang
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.73-9-g812d5e88da7e/plan/baseline/
+> 
+> --
+> Best wishes,
+> Vladimir
+> 
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.73-9-g812d5e88da7e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      812d5e88da7e4742f168ef8764d79a496f9c3fc4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | regressions
-----------------------+-------+--------------+----------+------------------=
---+------------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bea8dc87425b5dd38104e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9bea8dc87425b5dd381=
-04f
-        failing since 1 day (last pass: v5.4.72-409-gbbe9df5e07cf, first fa=
-il: v5.4.72-409-ga6e47f533653) =
-
- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | regressions
-----------------------+-------+--------------+----------+------------------=
---+------------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9be8e4eb7ca811f238102b
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f9be8e4eb7ca811=
-f2381030
-        new failure (last pass: v5.4.73-9-ga9c55e5daa9c)
-        1 lines
-
-    2020-10-30 10:18:21.395000+00:00  Connected to bcm2837-rpi-3-b console =
-[channel connected] (~$quit to exit)
-    2020-10-30 10:18:21.395000+00:00  (user:khilman) is already connected
-    2020-10-30 10:18:37.762000+00:00  =00
-    2020-10-30 10:18:37.763000+00:00  =
-
-    2020-10-30 10:18:37.763000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
-2 -0800)
-    2020-10-30 10:18:37.763000+00:00  =
-
-    2020-10-30 10:18:37.763000+00:00  DRAM:  948 MiB
-    2020-10-30 10:18:37.779000+00:00  RPI 3 Model B (0xa02082)
-    2020-10-30 10:18:37.866000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
-0: 1
-    2020-10-30 10:18:37.898000+00:00  Loading Environment from FAT... *** W=
-arning - bad CRC, using default environment =
-
-    ... (379 line(s) more)  =
-
- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig        =
-  | regressions
-----------------------+-------+--------------+----------+------------------=
---+------------
-stm32mp157c-dk2       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bee6723374fad0a38101d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157=
-c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.73-9-=
-g812d5e88da7e/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157=
-c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f9bee6723374fad0a381=
-01e
-        failing since 4 days (last pass: v5.4.72-54-gc97bc0eb3ef2, first fa=
-il: v5.4.72-402-g22eb6f319bc6) =
-
- =20
