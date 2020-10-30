@@ -2,135 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 040A12A067F
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 14:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0842E2A069D
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 14:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgJ3NdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 09:33:24 -0400
-Received: from mgw-02.mpynet.fi ([82.197.21.91]:57544 "EHLO mgw-02.mpynet.fi"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725939AbgJ3NdX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Oct 2020 09:33:23 -0400
-Received: from pps.filterd (mgw-02.mpynet.fi [127.0.0.1])
-        by mgw-02.mpynet.fi (8.16.0.42/8.16.0.42) with SMTP id 09UDRJwN082960;
-        Fri, 30 Oct 2020 15:32:56 +0200
-Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
-        by mgw-02.mpynet.fi with ESMTP id 34c7xwfyab-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Fri, 30 Oct 2020 15:32:55 +0200
-Received: from [192.168.108.50] (194.100.106.190) by tuxera-exch.ad.tuxera.com
- (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 30 Oct
- 2020 15:32:55 +0200
-Subject: Re: [PATCH 1/4] erofs: fix setting up pcluster for temporary pages
-To:     Gao Xiang <hsiangkao@redhat.com>
-CC:     <linux-erofs@lists.ozlabs.org>, Gao Xiang <hsiangkao@aol.com>,
-        <stable@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20201022145724.27284-1-hsiangkao.ref@aol.com>
- <20201022145724.27284-1-hsiangkao@aol.com>
- <ba952daf-c55d-c251-9dfc-3bf199a2d4ff@tuxera.com>
- <20201030124745.GB133455@xiangao.remote.csb>
-From:   Vladimir Zapolskiy <vladimir@tuxera.com>
-Message-ID: <02427b81-7854-1d97-662f-ab2d2b868514@tuxera.com>
-Date:   Fri, 30 Oct 2020 15:32:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1726101AbgJ3NkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 09:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726078AbgJ3NkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 09:40:12 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C95C0613CF
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 06:40:12 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id g12so5219351pgm.8
+        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 06:40:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=K507i6YpLgsPsc9E0ixbTLMS/tJLr8s5x2QMSyIvE7c=;
+        b=Y4QDB3cGZV2/skFWLHT0W1Mpn2kXAXkFZM+J0lPYwb4qjddoukClPYwhflV/j2gpfw
+         +zq7OALWV6l2mWcvWUnJCS4topol6Obd0D8pVBL7X9RrtS53VaCEYoGgTbAmJB00CvjA
+         jSXbzwYERrR6/+0u+19Tdg3R8vlznKEdv0tdutxyG7whxRYDKfi8XVhSO+U3HFqdCCCK
+         gBlUo+OCuqQuAoKvBrYsyF7PlXAe+ArkyKQvLQaec0aiyE3oLaD5G4xhEanIqwkptVfL
+         Kk11KSlKY4gUDXaiFGhuHCxHrwpuk1JgJClAkp/0xPE3BLpwNNSTx1bUh4hBo5t9fP/+
+         8/lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=K507i6YpLgsPsc9E0ixbTLMS/tJLr8s5x2QMSyIvE7c=;
+        b=M8zG+MNjmlLqd+7U5Qc2u+gUnSGV9Fy0l6Wia7Vwe9LQgPtQJQWLNy485/5OfmVQCT
+         pfUySZWxAUdXXld+aPYGxU6XoIt4WfplwLG8Sv42arlC5fAFLBXd78bSJp536RcmBaaO
+         s9tshcc1fSNt9t7fxJIiyrsskAGByAKZmPDCQ+uDSyqFZXuhRWL/qusBWALPb6pd+4re
+         nN6xJF+4aw/Io5ddsHpI5AxSMe5jKsOx4LpWb+mxVPfg9eNs8tGgbxJr60IaORBPPubs
+         sUjGrTD3pArbq9CgBlw5QUbSFL+tHjRRDIKhBSSdJ94p9qoGaUpQtYUgvQ/RO2uOSzY8
+         j+0g==
+X-Gm-Message-State: AOAM532Mv11orY7OHpNExrw6PMkZD7Exzk16e8Z+Ix5Mwa+kOYe23JEG
+        Opq62PmB5bN+xpMXUkJssho2cleCbrMgwA==
+X-Google-Smtp-Source: ABdhPJyfbsOLswq6Y7lq4OzH7i1DQXtCDVX7rG01lJCT8o/j/AsRQrb58zUr24C0Y61EJW+R0mq/eQ==
+X-Received: by 2002:a17:90a:66c8:: with SMTP id z8mr2512483pjl.8.1604065211722;
+        Fri, 30 Oct 2020 06:40:11 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e5sm3907226pjd.0.2020.10.30.06.40.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2020 06:40:11 -0700 (PDT)
+Message-ID: <5f9c17bb.1c69fb81.a3dea.9027@mx.google.com>
+Date:   Fri, 30 Oct 2020 06:40:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201030124745.GB133455@xiangao.remote.csb>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [194.100.106.190]
-X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
- tuxera-exch.ad.tuxera.com (10.20.48.11)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-10-30_04:2020-10-30,2020-10-30 signatures=0
-X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 mlxlogscore=999 malwarescore=0
- spamscore=0 bulkscore=0 adultscore=0 suspectscore=2 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010300101
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.241-4-gc1c109eb9867
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 132 runs,
+ 1 regressions (v4.9.241-4-gc1c109eb9867)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Gao Xiang,
+stable-rc/queue/4.9 baseline: 132 runs, 1 regressions (v4.9.241-4-gc1c109eb=
+9867)
 
-On 10/30/20 2:47 PM, Gao Xiang wrote:
-> Hi Vladimir,
-> 
-> On Fri, Oct 30, 2020 at 02:20:31PM +0200, Vladimir Zapolskiy wrote:
->> Hello Gao Xiang,
->>
->> On 10/22/20 5:57 PM, Gao Xiang via Linux-erofs wrote:
->>> From: Gao Xiang <hsiangkao@redhat.com>
->>>
->>> pcluster should be only set up for all managed pages instead of
->>> temporary pages. Since it currently uses page->mapping to identify,
->>> the impact is minor for now.
->>>
->>> Fixes: 5ddcee1f3a1c ("erofs: get rid of __stagingpage_alloc helper")
->>> Cc: <stable@vger.kernel.org> # 5.5+
->>> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
->>
->> I was looking exactly at this problem recently, my change is one-to-one
->> to your fix, thus I can provide a tag:
->>
->> Tested-by: Vladimir Zapolskiy <vladimir@tuxera.com>
-> 
-> Many thanks for confirming this!
-> I found this when I was killing magical stagingpage page->mapping,
-> it's somewhat late :-)
-> 
+Regressions Summary
+-------------------
 
-sure, for me it was an exciting immersion into the filesystem code :)
+platform              | arch | lab          | compiler | defconfig       | =
+regressions
+----------------------+------+--------------+----------+-----------------+-=
+-----------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+1          =
 
->>
->>
->> The fixed problem is minor, but the kernel log becomes polluted, if
->> a page allocation debug option is enabled:
->>
->>      % md5sum ~/erofs/testfile
->>      BUG: Bad page state in process kworker/u9:0  pfn:687de
->>      page:0000000057b8bcb4 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x687de
->>      flags: 0x4000000000002000(private)
->>      raw: 4000000000002000 dead000000000100 dead000000000122 0000000000000000
->>      raw: 0000000000000000 ffff888066758690 00000000ffffffff 0000000000000000
->>      page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
->>      Modules linked in:
->>      CPU: 1 PID: 602 Comm: kworker/u9:0 Not tainted 5.9.1 #2
->>      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
->>      Workqueue: erofs_unzipd z_erofs_decompressqueue_work
->>      Call Trace:
->>       dump_stack+0x84/0xba
->>       bad_page.cold+0xac/0xb1
->>       check_free_page_bad+0xb0/0xc0
->>       free_pcp_prepare+0x2c8/0x2d0
->>       free_unref_page+0x18/0xf0
->>       put_pages_list+0x11a/0x120
->>       z_erofs_decompressqueue_work+0xc9/0x110
->>       ? z_erofs_decompress_pcluster.isra.0+0xf10/0xf10
->>       ? read_word_at_a_time+0x12/0x20
->>       ? strscpy+0xc7/0x1a0
->>       process_one_work+0x30c/0x730
->>       worker_thread+0x91/0x640
->>       ? __kasan_check_read+0x11/0x20
->>       ? rescuer_thread+0x8a0/0x8a0
->>       kthread+0x1dd/0x200
->>       ? kthread_unpark+0xa0/0xa0
->>       ret_from_fork+0x1f/0x30
->>      Disabling lock debugging due to kernel taint
-> 
-> Yeah, I can make a pull-request to Linus if you need this to be in master
-> now, or I can post it for v5.11-rc1 since 5.4 LTS isn't effected (and it
-> would be only a print problem with debugging option.)
-> 
 
-As for myself I don't utterly need this fix on the master branch ASAP, however
-it might be reasonable to get it included right into the next v5.10 release,
-because I believe it'll be an LTS. Eventually it's up to you to make a decision,
-from my side I won't urge you, the fixed issue is obviously a non-critical one.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.241-4-gc1c109eb9867/plan/baseline/
 
-Thank you for the original fix and taking my opinion into consideration :)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.241-4-gc1c109eb9867
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c1c109eb9867b5803229bea711acfc521c8a48f5 =
 
---
-Best wishes,
-Vladimir
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig       | =
+regressions
+----------------------+------+--------------+----------+-----------------+-=
+-----------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9be44b98a5dfc433381021
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-4=
+-gc1c109eb9867/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-4=
+-gc1c109eb9867/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9be44b98a5dfc433381=
+022
+        failing since 1 day (last pass: v4.9.240-139-gd719c4ad8056, first f=
+ail: v4.9.240-139-g65bd9a74252c) =
+
+ =20
