@@ -2,126 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 253C22A0A35
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:48:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C942A0A5D
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgJ3PsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 11:48:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47036 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726955AbgJ3PsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:48:15 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D25CC0613D2
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:48:15 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id h6so8477267lfj.3
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:48:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=j9MvZAkv2TdlLOuFExl51d6NRInBubzjQm2bixjf9+o=;
-        b=rxzca7Mj48CKK/QQLljwWpghniXvYG/RGO5+vvBYzc/9s4+mpm0fkR0dgk/DfzxYWP
-         IqqYxx5NetaKo+Kj4QUbAY129RlDND5Jpjx002AGSO+tkMj4Zxy66J96kuqiVEauhCzB
-         0jAqo0GgwtvsRp3QIcRtrJku33OqrN1ha6LH8sJkFoYKqIKAP9W6xREVUgyOe0cAIoZz
-         l1HvbfK0EBuyJzdUydBS7uQjca69aFfZz9UTTOsacwMLyqijMErLPqB1bD40Ykc63/dz
-         E70l71DDEtZs5IXWrcqEuJYgL1nbKuge2d7Axn0V8HHoBrE88iLw7OtcWY/bgTuYtKsx
-         tz5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=j9MvZAkv2TdlLOuFExl51d6NRInBubzjQm2bixjf9+o=;
-        b=ApslS6/2yyHbea1/OEN+jtP/Avk9aBWnmrJiHuO4F3X21y4DM8NNNFAcUZdRUBC040
-         Blqaayy2eIg1/YN+wgp8iZkitFgz6JLu/eMeaFy+o4qIAhl++nUDCduyhiYMI1iUan1P
-         rS05p+hm6hOXPu8+GbxT6Cgr8wP5U5LLeXK8KwB1jxagxpGQnHqrnVFFdeX4yuEq6+1k
-         rvruF4yICgLV9/7PPRTjd4YUowNDP4ej8JoAOMGP1VUXHIlgWUvYwUb+A0nY/dGFJ7E6
-         dMwrmLBDphWfgWE1jzt/qKY39kbkPuXAsB2gsWj5v8MoWekbD4ObAgVoHU4GJqoCXJtZ
-         NlXQ==
-X-Gm-Message-State: AOAM533aqdLZ6TgfapU3l6cPOTUuHrQF2JxnYSozE7mIJKDgtVYTkAfG
-        Hus/1Du0iWpS0zmJ0/YcTM2HCw9fTEUedC76sP0Qmw==
-X-Google-Smtp-Source: ABdhPJzb/fuhiHNaRkHEFJu3oBYeUtAYlX2L3AZnVTS9zYsBAVeRmiA9g8smAyZlnBMtKPUXAnzCGfID1DLYdpZgi4M=
-X-Received: by 2002:a05:6512:1182:: with SMTP id g2mr1155386lfr.198.1604072893836;
- Fri, 30 Oct 2020 08:48:13 -0700 (PDT)
+        id S1727204AbgJ3Ptg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 11:49:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727195AbgJ3Ptf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 11:49:35 -0400
+Received: from localhost.localdomain (HSI-KBW-46-223-126-90.hsi.kabel-badenwuerttemberg.de [46.223.126.90])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95439221EB;
+        Fri, 30 Oct 2020 15:49:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604072974;
+        bh=V6qzY14LfJ5Qyf+Zp/oXQxezqCq4VbzoDYPwNxOKOhw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rHMmLQWj/hrKi5keJjlqsxQMjXZrNmlZKbjy2paFODhj+RqM7NouoGE8VKn2UoUkM
+         rESg3IOM/PSjlrHek6TbvICXdfd2VegMQXfqY/RnZzQhXYViEg8hDoitR7Ygtfhc1T
+         mukGs/RapqPzH4p9SMRx1iDhzwju+1vManV9j6Zs=
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Russell King <linux@armlinux.org.uk>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        viro@zeniv.linux.org.uk, linus.walleij@linaro.org, arnd@arndb.de,
+        stable@vger.kernel.org
+Subject: [PATCH 3/9] ARM: oabi-compat: add epoll_pwait handler
+Date:   Fri, 30 Oct 2020 16:49:13 +0100
+Message-Id: <20201030154919.1246645-3-arnd@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201030154919.1246645-1-arnd@kernel.org>
+References: <20201030154519.1245983-1-arnd@kernel.org>
+ <20201030154919.1246645-1-arnd@kernel.org>
 MIME-Version: 1.0
-References: <20201030123849.770769-1-mic@digikod.net> <20201030123849.770769-2-mic@digikod.net>
-In-Reply-To: <20201030123849.770769-2-mic@digikod.net>
-From:   Jann Horn <jannh@google.com>
-Date:   Fri, 30 Oct 2020 16:47:47 +0100
-Message-ID: <CAG48ez1LFAKoi-nvipsar2SAH0eNhKkOzWj4Fuf9wNCtpWsH9A@mail.gmail.com>
-Subject: Re: [PATCH v1 1/2] ptrace: Set PF_SUPERPRIV when checking capability
-To:     =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Will Drewry <wad@chromium.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 1:39 PM Micka=C3=ABl Sala=C3=BCn <mic@digikod.net> =
-wrote:
-> Commit 69f594a38967 ("ptrace: do not audit capability check when outputin=
-g
-> /proc/pid/stat") replaced the use of ns_capable() with
-> has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
->
-> Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials=
- in
-> ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
-> security_capable(), which doesn't set PF_SUPERPRIV neither.
->
-> Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()")=
-, a
-> new ns_capable_noaudit() helper is available.  Let's use it!
->
-> As a result, the signature of ptrace_has_cap() is restored to its origina=
-l one.
->
-> Cc: Christian Brauner <christian.brauner@ubuntu.com>
-> Cc: Eric Paris <eparis@redhat.com>
-> Cc: Jann Horn <jannh@google.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Cc: Serge E. Hallyn <serge@hallyn.com>
-> Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials=
- in ptrace_has_cap()")
-> Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputin=
-g /proc/pid/stat")
-> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@linux.microsoft.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-Yeah... I guess this makes sense. (We'd have to undo or change it if
-we ever end up needing to use a different set of credentials, e.g.
-from ->f_cred, but I guess that's really something we should avoid
-anyway.)
+The epoll_wait() syscall has a special version for OABI compat
+mode to convert the arguments to the EABI structure layout
+of the kernel. However, the later epoll_pwait() syscall was
+added in arch/arm in linux-2.6.32 without this conversion.
 
-Reviewed-by: Jann Horn <jannh@google.com>
+Use the same kind of handler for both.
 
-with one nit:
+Fixes: 369842658a36 ("ARM: 5677/1: ARM support for TIF_RESTORE_SIGMASK/pselect6/ppoll/epoll_pwait")
+Cc: stable@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/arm/kernel/sys_oabi-compat.c | 37 ++++++++++++++++++++++++++++---
+ arch/arm/tools/syscall.tbl        |  2 +-
+ 2 files changed, 35 insertions(+), 4 deletions(-)
 
+diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
+index 0203e545bbc8..a2b1ae01e5bf 100644
+--- a/arch/arm/kernel/sys_oabi-compat.c
++++ b/arch/arm/kernel/sys_oabi-compat.c
+@@ -264,9 +264,8 @@ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+ 	return do_epoll_ctl(epfd, op, fd, &kernel, false);
+ }
+ 
+-asmlinkage long sys_oabi_epoll_wait(int epfd,
+-				    struct oabi_epoll_event __user *events,
+-				    int maxevents, int timeout)
++static long do_oabi_epoll_wait(int epfd, struct oabi_epoll_event __user *events,
++			       int maxevents, int timeout)
+ {
+ 	struct epoll_event *kbuf;
+ 	struct oabi_epoll_event e;
+@@ -299,6 +298,38 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
+ 	return err ? -EFAULT : ret;
+ }
+ 
++SYSCALL_DEFINE4(oabi_epoll_wait, int, epfd,
++		struct oabi_epoll_event __user *, events,
++		int, maxevents, int, timeout)
++{
++	return do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++}
++
++/*
++ * Implement the event wait interface for the eventpoll file. It is the kernel
++ * part of the user space epoll_pwait(2).
++ */
++SYSCALL_DEFINE6(oabi_epoll_pwait, int, epfd,
++		struct oabi_epoll_event __user *, events, int, maxevents,
++		int, timeout, const sigset_t __user *, sigmask,
++		size_t, sigsetsize)
++{
++	int error;
++
++	/*
++	 * If the caller wants a certain signal mask to be set during the wait,
++	 * we apply it here.
++	 */
++	error = set_user_sigmask(sigmask, sigsetsize);
++	if (error)
++		return error;
++
++	error = do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++	restore_saved_sigmask_unless(error == -EINTR);
++
++	return error;
++}
++
+ struct oabi_sembuf {
+ 	unsigned short	sem_num;
+ 	short		sem_op;
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index d056a548358e..330cf0aa04c4 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -360,7 +360,7 @@
+ 343	common	vmsplice		sys_vmsplice
+ 344	common	move_pages		sys_move_pages
+ 345	common	getcpu			sys_getcpu
+-346	common	epoll_pwait		sys_epoll_pwait
++346	common	epoll_pwait		sys_epoll_pwait		sys_oabi_epoll_pwait
+ 347	common	kexec_load		sys_kexec_load
+ 348	common	utimensat		sys_utimensat_time32
+ 349	common	signalfd		sys_signalfd
+-- 
+2.27.0
 
-[...]
->  /* Returns 0 on success, -errno on denial. */
->  static int __ptrace_may_access(struct task_struct *task, unsigned int mo=
-de)
->  {
-> -       const struct cred *cred =3D current_cred(), *tcred;
-> +       const struct cred *const cred =3D current_cred(), *tcred;
-
-This is an unrelated change, and almost no kernel code marks local
-pointer variables as "const". I would drop this change from the patch.
-
->         struct mm_struct *mm;
->         kuid_t caller_uid;
->         kgid_t caller_gid;
