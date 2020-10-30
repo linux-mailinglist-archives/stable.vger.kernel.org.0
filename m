@@ -2,124 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CB02A0A0A
-	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3CD2A0A24
+	for <lists+stable@lfdr.de>; Fri, 30 Oct 2020 16:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgJ3Phm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 11:37:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgJ3Phl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 11:37:41 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14BDC0613CF
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:37:41 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id b3so5645229pfo.2
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 08:37:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=r9/ySKSK8zz3zokw5WuzYA4KqwUtBy+kTmOV4ySXNlg=;
-        b=CqChE21yOeBeQ2iMPJtAph6B4TIXJkwF6wIEajfSlGJNGvH0MOei7REzOhw9xZ0a2t
-         lO7cyZYbBHZAOSy8U3f4ZDp8ehK+pZiviJLqWsCvwWFLPadYMivYZTg0KoSUDbXOOV/7
-         JkHtnTVpAzB1AocYwJbIZHK/n7WQ8TIaNg5gHaZXTQtSvGZdGHpgxb5yDVT7M4mVSj78
-         Yox/gW7BLWPiEQ7E1p6oGgFqesqp9tPtYqbzITd4uMnUh8wKUvsweDmsabJUO+gnp0C2
-         VYJ9fHdeFucIGnuCcrI8pxeWex2uGy9qjz64EY0ubPpErMnLpQwXBWf5z2nSeVBkUtY2
-         mBww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=r9/ySKSK8zz3zokw5WuzYA4KqwUtBy+kTmOV4ySXNlg=;
-        b=G5u6x++jfIS8HQa27VjPGqTfYcYRT0H6tD5xl82CjDzUrnOv7ZzRjDdxxw+g3tMSly
-         PAgRJs8k5MYHPeZS9MMCVoxmPOImmGOb8P3nLbrvjY+yxnoeCiT0pSATv1BAYr/48R7v
-         TswCVfoBZzhYfQO29uR9vkKRoQTrWHZk5t8y2Ir73opBgi0GMzY7UmDufmGtV2vzVgPb
-         Y7Q66xTzU3L1bXTAfWxdNpdGepTqnIGDGXqtEizrfqTrSytpILuUvWYCfUPU4AT7kSSZ
-         OcWq9R/d1iaXSMnl1Xh5ZiGK2aEBtnR3oQPMoEvipk1f17sDJqkgPBZy0MLLpVFjhOXj
-         FM9A==
-X-Gm-Message-State: AOAM532Qgo9Tm3cn0lzd30tigdwCAyT98/Y5h8w25NMZfRVmr1KIJKXe
-        noSHlrsrohGMhecD2eEV1rzK3HqX6EYZ5w==
-X-Google-Smtp-Source: ABdhPJyl15Z6smhcysQnbBt1AsqsmRZrZrxWlgV27/VcBT4dyJsMj1sku8B1bfQCdnR8E9LoaapeKA==
-X-Received: by 2002:a17:90a:c588:: with SMTP id l8mr3360711pjt.205.1604072260996;
-        Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x7sm6543867pfr.61.2020.10.30.08.37.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
-Message-ID: <5f9c3344.1c69fb81.f26d8.fb64@mx.google.com>
-Date:   Fri, 30 Oct 2020 08:37:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726703AbgJ3Ppz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 11:45:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726674AbgJ3Ppx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Oct 2020 11:45:53 -0400
+Received: from localhost.localdomain (HSI-KBW-46-223-126-90.hsi.kabel-badenwuerttemberg.de [46.223.126.90])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B90A221EB;
+        Fri, 30 Oct 2020 15:45:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604072752;
+        bh=V6qzY14LfJ5Qyf+Zp/oXQxezqCq4VbzoDYPwNxOKOhw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tuB2UH3uNYtQyxJSjWb0uv+4ikINrjEAMJGcKVb+8yprI9NCvDYnrKA25a3q8yBwg
+         UmjLFqZ0f97RsPoNsMbuybZjbt2XSsnx8tN5/c76uIexhIez3jdFURPMZxrwIDK7uf
+         DK20C5JJj5i59pP3SvGVFzQpFcf94z1id5j2K5AY=
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Russell King <linux@armlinux.org.uk>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+Subject: [PATCH 3/9] ARM: oabi-compat: add epoll_pwait handler
+Date:   Fri, 30 Oct 2020 16:45:13 +0100
+Message-Id: <20201030154519.1245983-4-arnd@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201030154519.1245983-1-arnd@kernel.org>
+References: <20201030154519.1245983-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.154
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y baseline: 175 runs, 1 regressions (v4.19.154)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 175 runs, 1 regressions (v4.19.154)
+From: Arnd Bergmann <arnd@arndb.de>
 
-Regressions Summary
--------------------
+The epoll_wait() syscall has a special version for OABI compat
+mode to convert the arguments to the EABI structure layout
+of the kernel. However, the later epoll_pwait() syscall was
+added in arch/arm in linux-2.6.32 without this conversion.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Use the same kind of handler for both.
+
+Fixes: 369842658a36 ("ARM: 5677/1: ARM support for TIF_RESTORE_SIGMASK/pselect6/ppoll/epoll_pwait")
+Cc: stable@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+ arch/arm/kernel/sys_oabi-compat.c | 37 ++++++++++++++++++++++++++++---
+ arch/arm/tools/syscall.tbl        |  2 +-
+ 2 files changed, 35 insertions(+), 4 deletions(-)
 
+diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
+index 0203e545bbc8..a2b1ae01e5bf 100644
+--- a/arch/arm/kernel/sys_oabi-compat.c
++++ b/arch/arm/kernel/sys_oabi-compat.c
+@@ -264,9 +264,8 @@ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+ 	return do_epoll_ctl(epfd, op, fd, &kernel, false);
+ }
+ 
+-asmlinkage long sys_oabi_epoll_wait(int epfd,
+-				    struct oabi_epoll_event __user *events,
+-				    int maxevents, int timeout)
++static long do_oabi_epoll_wait(int epfd, struct oabi_epoll_event __user *events,
++			       int maxevents, int timeout)
+ {
+ 	struct epoll_event *kbuf;
+ 	struct oabi_epoll_event e;
+@@ -299,6 +298,38 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
+ 	return err ? -EFAULT : ret;
+ }
+ 
++SYSCALL_DEFINE4(oabi_epoll_wait, int, epfd,
++		struct oabi_epoll_event __user *, events,
++		int, maxevents, int, timeout)
++{
++	return do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++}
++
++/*
++ * Implement the event wait interface for the eventpoll file. It is the kernel
++ * part of the user space epoll_pwait(2).
++ */
++SYSCALL_DEFINE6(oabi_epoll_pwait, int, epfd,
++		struct oabi_epoll_event __user *, events, int, maxevents,
++		int, timeout, const sigset_t __user *, sigmask,
++		size_t, sigsetsize)
++{
++	int error;
++
++	/*
++	 * If the caller wants a certain signal mask to be set during the wait,
++	 * we apply it here.
++	 */
++	error = set_user_sigmask(sigmask, sigsetsize);
++	if (error)
++		return error;
++
++	error = do_oabi_epoll_wait(epfd, events, maxevents, timeout);
++	restore_saved_sigmask_unless(error == -EINTR);
++
++	return error;
++}
++
+ struct oabi_sembuf {
+ 	unsigned short	sem_num;
+ 	short		sem_op;
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index d056a548358e..330cf0aa04c4 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -360,7 +360,7 @@
+ 343	common	vmsplice		sys_vmsplice
+ 344	common	move_pages		sys_move_pages
+ 345	common	getcpu			sys_getcpu
+-346	common	epoll_pwait		sys_epoll_pwait
++346	common	epoll_pwait		sys_epoll_pwait		sys_oabi_epoll_pwait
+ 347	common	kexec_load		sys_kexec_load
+ 348	common	utimensat		sys_utimensat_time32
+ 349	common	signalfd		sys_signalfd
+-- 
+2.27.0
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.154/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.154
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      f5d8eef067acee3fda37137f4a08c0d3f6427a8e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f9bff8807d6439857381182
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.154/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.154/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9bff8807d6439=
-857381189
-        failing since 15 days (last pass: v4.19.150, first fail: v4.19.151)
-        2 lines =
-
- =20
