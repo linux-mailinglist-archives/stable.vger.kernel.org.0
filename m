@@ -2,109 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4902A11CA
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 00:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1AD72A12D8
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 03:29:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725888AbgJ3XzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 19:55:19 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:17054 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725536AbgJ3XzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 19:55:18 -0400
-Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09UNt7hn001089
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 16:55:18 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=facebook; bh=kfzmbO32XIWIQv7ky/UlidEbiXsVDoIt2XZLJ7ZnmjM=;
- b=MCn8rgXJQxIiP071XT16L81QlAWmKVNPSrG+/nm/RFY9O3Puq4DfrLohHG+usMjW3D4y
- 8grbVmsfPqijKIAPbMA6+wd4dZo4q0P9zmY9XPFRpgHE9blcqkxkOQ2Wlr0NL0sqD15R
- L7pl0rbabcRPcOPYCV0qLoX+wlw06/uL+Ac= 
-Received: from mail.thefacebook.com ([163.114.132.120])
-        by mx0a-00082601.pphosted.com with ESMTP id 34gpc0j3r1-5
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 16:55:18 -0700
-Received: from intmgw005.03.ash8.facebook.com (2620:10d:c085:108::8) by
- mail.thefacebook.com (2620:10d:c085:21d::7) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Fri, 30 Oct 2020 16:54:40 -0700
-Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
-        id 7470162E5680; Fri, 30 Oct 2020 16:54:34 -0700 (PDT)
-From:   Song Liu <songliubraving@fb.com>
-To:     <linux-kernel@vger.kernel.org>
-CC:     Song Liu <songliubraving@fb.com>, stable <stable@vger.kernel.org>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH] perf: increase size of buf in perf_evsel__hists_browse()
-Date:   Fri, 30 Oct 2020 16:54:31 -0700
-Message-ID: <20201030235431.534417-1-songliubraving@fb.com>
-X-Mailer: git-send-email 2.24.1
+        id S1725800AbgJaC3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Oct 2020 22:29:31 -0400
+Received: from 93804.cloudwaysapps.com ([178.62.255.238]:56342 "EHLO
+        93804.cloudwaysapps.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725536AbgJaC3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 22:29:31 -0400
+Received: from 127.0.0.1 (93804.cloudwaysapps.com [127.0.0.1])
+        by 93804.cloudwaysapps.com (Postfix) with SMTP id AF746255A0;
+        Fri, 30 Oct 2020 19:45:00 +0000 (UTC)
+Received: from (HELO r1b) [231.179.220.79] by 127.0.0.1 SMTP id uQCGxkFpbcN1f1; Fri, 30 Oct 2020 22:39:14 +0200
+Message-ID: <13$$ox3-pg00-70n4th$$7r0o856$-a@qs66n.6hdzf>
+From:   "JOHN PHIL" <gerradfinancialplanning@gmail.com>
+Reply-To: "JOHN PHIL" <gerradfinancialplanning@gmail.com>
+To:     stabile@mackinawtrailwinery.com
+Subject: November Equity Investment 20-20 
+Date:   Fri, 30 Oct 20 22:39:14 GMT
+X-Mailer: eGroups Message Poster
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-10-30_13:2020-10-30,2020-10-30 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 mlxlogscore=994
- impostorscore=0 malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0
- priorityscore=1501 clxscore=1015 adultscore=0 mlxscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010300182
-X-FB-Internal: deliver
+Content-Type: multipart/alternative;
+        boundary="EBE1.AE7A_.6BE9.B05.3__"
+X-Priority: 1
+X-MSMail-Priority: High
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Making perf with gcc-9.1.1 generates the following warning:
 
-  CC       ui/browsers/hists.o
-ui/browsers/hists.c: In function 'perf_evsel__hists_browse':
-ui/browsers/hists.c:3078:61: error: '%d' directive output may be \
-truncated writing between 1 and 11 bytes into a region of size \
-between 2 and 12 [-Werror=3Dformat-truncation=3D]
+--EBE1.AE7A_.6BE9.B05.3__
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
- 3078 |       "Max event group index to sort is %d (index from 0 to %d)",
-      |                                                             ^~
-ui/browsers/hists.c:3078:7: note: directive argument in the range [-21474=
-83648, 8]
- 3078 |       "Max event group index to sort is %d (index from 0 to %d)",
-      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In file included from /usr/include/stdio.h:937,
-                 from ui/browsers/hists.c:5:
+How are you doing today I have a proposal which i think may interest you a=
+nd benefit you.I will like to give you full details of this via email:  ge=
+rradfinancialplanning@gmail.com
+Thanks.
 
-IOW, the string in line 3078 might be too long for buf[] of 64 bytes.
+John PHIL
 
-Fix this by increasing the size of buf[] to 128.
-
-Fixes: dbddf1747441  ("perf report/top TUI: Support hotkeys to let user s=
-elect any event for sorting")
-Cc: stable <stable@vger.kernel.org> # v5.7+
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Signed-off-by: Song Liu <songliubraving@fb.com>
----
- tools/perf/ui/browsers/hists.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/perf/ui/browsers/hists.c b/tools/perf/ui/browsers/hist=
-s.c
-index a07626f072087..b0e1880cf992b 100644
---- a/tools/perf/ui/browsers/hists.c
-+++ b/tools/perf/ui/browsers/hists.c
-@@ -2963,7 +2963,7 @@ static int perf_evsel__hists_browse(struct evsel *e=
-vsel, int nr_events,
- 	struct popup_action actions[MAX_OPTIONS];
- 	int nr_options =3D 0;
- 	int key =3D -1;
--	char buf[64];
-+	char buf[128];
- 	int delay_secs =3D hbt ? hbt->refresh : 0;
-=20
- #define HIST_BROWSER_HELP_COMMON					\
---=20
-2.24.1
+--EBE1.AE7A_.6BE9.B05.3__--
 
