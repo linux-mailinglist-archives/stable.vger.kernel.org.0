@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A46392A16B6
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE5F2A16E5
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbgJaLsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:48:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
+        id S1727747AbgJaLlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727692AbgJaLo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:28 -0400
+        id S1727413AbgJaLlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B813820731;
-        Sat, 31 Oct 2020 11:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311FF20731;
+        Sat, 31 Oct 2020 11:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144668;
-        bh=xwM64GQzTCAI0uFNMIB8AGN4Z0EtKBRMvZIDNQA4AHc=;
+        s=default; t=1604144512;
+        bh=fgousYZLKRtIMFXA2rAx+Eo+oB53Dy4D7PQho9usL18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONHhGMALc3z8F8Pc4Wwsd1iiCOthNOH5lA4kdhxdp4lfrqoIppO1XD29S4vSdpHZX
-         oh8XNkfB4PB6UUwRcKjpGZC/nhbhqbxh7WaznHCVD9kzQ79JGQGZ+KkWbZPbT0d919
-         OC7qbUqTGE4oCRgpwgYEDz6u372ZqWf4ixm3FSL8=
+        b=SkBljzl9LAJknnFJe3nwiiAjSBD+Z9s4JWvTVinBEyNnlar4RETvFpfrmb3wzaCYg
+         A5TjZYe6mOO2AkRqF8pL9cITMGTpmtRUZQomRZtcHCdJJo1aBM/Mrbk74gGCQoFlG4
+         Dr+N3WXPKcXHJO1YHdOVHrZzWPGLTdgkBCnIvCgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Fujiwara <fujiwara.masahiro@gmail.com>,
+        stable@vger.kernel.org, Arjun Roy <arjunroy@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 36/74] gtp: fix an use-before-init in gtp_newlink()
+Subject: [PATCH 5.8 46/70] tcp: Prevent low rmem stalls with SO_RCVLOWAT.
 Date:   Sat, 31 Oct 2020 12:36:18 +0100
-Message-Id: <20201031113501.775612520@linuxfoundation.org>
+Message-Id: <20201031113501.703702684@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
+From: Arjun Roy <arjunroy@google.com>
 
-[ Upstream commit 51467431200b91682b89d31317e35dcbca1469ce ]
+[ Upstream commit 435ccfa894e35e3d4a1799e6ac030e48a7b69ef5 ]
 
-*_pdp_find() from gtp_encap_recv() would trigger a crash when a peer
-sends GTP packets while creating new GTP device.
+With SO_RCVLOWAT, under memory pressure,
+it is possible to enter a state where:
 
-RIP: 0010:gtp1_pdp_find.isra.0+0x68/0x90 [gtp]
-<SNIP>
-Call Trace:
- <IRQ>
- gtp_encap_recv+0xc2/0x2e0 [gtp]
- ? gtp1_pdp_find.isra.0+0x90/0x90 [gtp]
- udp_queue_rcv_one_skb+0x1fe/0x530
- udp_queue_rcv_skb+0x40/0x1b0
- udp_unicast_rcv_skb.isra.0+0x78/0x90
- __udp4_lib_rcv+0x5af/0xc70
- udp_rcv+0x1a/0x20
- ip_protocol_deliver_rcu+0xc5/0x1b0
- ip_local_deliver_finish+0x48/0x50
- ip_local_deliver+0xe5/0xf0
- ? ip_protocol_deliver_rcu+0x1b0/0x1b0
+1. We have not received enough bytes to satisfy SO_RCVLOWAT.
+2. We have not entered buffer pressure (see tcp_rmem_pressure()).
+3. But, we do not have enough buffer space to accept more packets.
 
-gtp_encap_enable() should be called after gtp_hastable_new() otherwise
-*_pdp_find() will access the uninitialized hash table.
+In this case, we advertise 0 rwnd (due to #3) but the application does
+not drain the receive queue (no wakeup because of #1 and #2) so the
+flow stalls.
 
-Fixes: 1e3a3abd8b28 ("gtp: make GTP sockets in gtp_newlink optional")
-Signed-off-by: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
-Link: https://lore.kernel.org/r/20201027114846.3924-1-fujiwara.masahiro@gmail.com
+Modify the heuristic for SO_RCVLOWAT so that, if we are advertising
+rwnd<=rcv_mss, force a wakeup to prevent a stall.
+
+Without this patch, setting tcp_rmem to 6143 and disabling TCP
+autotune causes a stalled flow. With this patch, no stall occurs. This
+is with RPC-style traffic with large messages.
+
+Fixes: 03f45c883c6f ("tcp: avoid extra wakeups for SO_RCVLOWAT users")
+Signed-off-by: Arjun Roy <arjunroy@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20201023184709.217614-1-arjunroy.kdev@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/ipv4/tcp.c       |    2 ++
+ net/ipv4/tcp_input.c |    3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -663,10 +663,6 @@ static int gtp_newlink(struct net *src_n
- 
- 	gtp = netdev_priv(dev);
- 
--	err = gtp_encap_enable(gtp, data);
--	if (err < 0)
--		return err;
--
- 	if (!data[IFLA_GTP_PDP_HASHSIZE]) {
- 		hashsize = 1024;
- 	} else {
-@@ -677,12 +673,16 @@ static int gtp_newlink(struct net *src_n
- 
- 	err = gtp_hashtable_new(gtp, hashsize);
- 	if (err < 0)
--		goto out_encap;
-+		return err;
-+
-+	err = gtp_encap_enable(gtp, data);
-+	if (err < 0)
-+		goto out_hashtable;
- 
- 	err = register_netdevice(dev);
- 	if (err < 0) {
- 		netdev_dbg(dev, "failed to register new netdev %d\n", err);
--		goto out_hashtable;
-+		goto out_encap;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -483,6 +483,8 @@ static inline bool tcp_stream_is_readabl
+ 			return true;
+ 		if (tcp_rmem_pressure(sk))
+ 			return true;
++		if (tcp_receive_window(tp) <= inet_csk(sk)->icsk_ack.rcv_mss)
++			return true;
  	}
+ 	if (sk->sk_prot->stream_memory_read)
+ 		return sk->sk_prot->stream_memory_read(sk);
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -4790,7 +4790,8 @@ void tcp_data_ready(struct sock *sk)
+ 	int avail = tp->rcv_nxt - tp->copied_seq;
  
- 	gn = net_generic(dev_net(dev), gtp_net_id);
-@@ -693,11 +693,11 @@ static int gtp_newlink(struct net *src_n
+ 	if (avail < sk->sk_rcvlowat && !tcp_rmem_pressure(sk) &&
+-	    !sock_flag(sk, SOCK_DONE))
++	    !sock_flag(sk, SOCK_DONE) &&
++	    tcp_receive_window(tp) > inet_csk(sk)->icsk_ack.rcv_mss)
+ 		return;
  
- 	return 0;
- 
-+out_encap:
-+	gtp_encap_disable(gtp);
- out_hashtable:
- 	kfree(gtp->addr_hash);
- 	kfree(gtp->tid_hash);
--out_encap:
--	gtp_encap_disable(gtp);
- 	return err;
- }
- 
+ 	sk->sk_data_ready(sk);
 
 
