@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182C62A15E1
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8809F2A158E
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726913AbgJaLjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:39:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33562 "EHLO mail.kernel.org"
+        id S1727094AbgJaLfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:35:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727073AbgJaLfp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:35:45 -0400
+        id S1727039AbgJaLfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:35:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F81120825;
-        Sat, 31 Oct 2020 11:35:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF22C20791;
+        Sat, 31 Oct 2020 11:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144144;
-        bh=MnY4bX63UIm6jeULYPgpLSJJxTqgXqr8EBqPkuD6EFg=;
+        s=default; t=1604144147;
+        bh=6SBh8zVV0znelh6YRk7fTPVve7Ihj0UtpV7z8FVnwrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/KHzEFvoga1qEdS0V7YkNYCA9R3elfKRpwJwwWz3STZ1aqImzAlMAgrgk6uo4did
-         dnfE9FsfEUpZcCKMCdNZZNChMAfhdiAs7yd7dLdgedO2+Yt4aT2hW7KQZh5c4J0JZD
-         V2msjF4xZ4AulmI0TbzYWyBZ9dFE6uN1dNoCPOnI=
+        b=b2j2dhgbs4YkbCdLt6tw3QD9uIRanZd6Y44hmQrDFNRhPojBqr7rIKxLIEF79YL3p
+         69LjC993J9mVvGC3uMTkmwmHSEt0Is1JUf45EMkdJshV1iBxnrN5Jv/grEFxgqvwa8
+         /zaLjTaGx1/qFEzToRFMJgtZ7sTwFEAvd8DUb18U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 21/49] r8169: fix issue with forced threading in combination with shared interrupts
-Date:   Sat, 31 Oct 2020 12:35:17 +0100
-Message-Id: <20201031113456.469569028@linuxfoundation.org>
+Subject: [PATCH 5.4 22/49] ravb: Fix bit fields checking in ravb_hwtstamp_get()
+Date:   Sat, 31 Oct 2020 12:35:18 +0100
+Message-Id: <20201031113456.517150565@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -44,49 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-[ Upstream commit 2734a24e6e5d18522fbf599135c59b82ec9b2c9e ]
+[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
 
-As reported by Serge flag IRQF_NO_THREAD causes an error if the
-interrupt is actually shared and the other driver(s) don't have this
-flag set. This situation can occur if a PCI(e) legacy interrupt is
-used in combination with forced threading.
-There's no good way to deal with this properly, therefore we have to
-remove flag IRQF_NO_THREAD. For fixing the original forced threading
-issue switch to napi_schedule().
+In the function ravb_hwtstamp_get() in ravb_main.c with the existing
+values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
+(0x6)
 
-Fixes: 424a646e072a ("r8169: fix operation under forced interrupt threading")
-Link: https://www.spinics.net/lists/netdev/msg694960.html
-Reported-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Tested-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
-Link: https://lore.kernel.org/r/b5b53bfe-35ac-3768-85bf-74d1290cf394@gmail.com
+if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
+	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
+	config.rx_filter = HWTSTAMP_FILTER_ALL;
+
+if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
+it will never be reached.
+
+This issue can be verified with 'hwtstamp_config' testing program
+(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
+to ALL and subsequent retrieving it gives incorrect value:
+
+$ hwtstamp_config eth0 OFF ALL
+flags = 0
+tx_type = OFF
+rx_filter = ALL
+$ hwtstamp_config eth0
+flags = 0
+tx_type = OFF
+rx_filter = PTP_V2_L2_EVENT
+
+Correct this by converting if-else's to switch.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -6264,7 +6264,7 @@ static irqreturn_t rtl8169_interrupt(int
- 	}
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1741,12 +1741,16 @@ static int ravb_hwtstamp_get(struct net_
+ 	config.flags = 0;
+ 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
+ 						HWTSTAMP_TX_OFF;
+-	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
++	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
++	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
+ 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+-	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
++		break;
++	case RAVB_RXTSTAMP_TYPE_ALL:
+ 		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-	else
++		break;
++	default:
+ 		config.rx_filter = HWTSTAMP_FILTER_NONE;
++	}
  
- 	rtl_irq_disable(tp);
--	napi_schedule_irqoff(&tp->napi);
-+	napi_schedule(&tp->napi);
- out:
- 	rtl_ack_events(tp, status);
- 
-@@ -6470,7 +6470,7 @@ static int rtl_open(struct net_device *d
- 	rtl_request_firmware(tp);
- 
- 	retval = request_irq(pci_irq_vector(pdev, 0), rtl8169_interrupt,
--			     IRQF_NO_THREAD | IRQF_SHARED, dev->name, tp);
-+			     IRQF_SHARED, dev->name, tp);
- 	if (retval < 0)
- 		goto err_release_fw_2;
- 
+ 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
+ 		-EFAULT : 0;
 
 
