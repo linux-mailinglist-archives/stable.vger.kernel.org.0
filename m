@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F61D2A1696
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 271832A1692
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728322AbgJaLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47156 "EHLO mail.kernel.org"
+        id S1728334AbgJaLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728310AbgJaLp5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:57 -0400
+        id S1728330AbgJaLqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:46:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5122520731;
-        Sat, 31 Oct 2020 11:45:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96351205F4;
+        Sat, 31 Oct 2020 11:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144756;
-        bh=yBSRb5Pm6ij4DhhXk5+q8ZjX0tNxxnvypfUKoPIA8bE=;
+        s=default; t=1604144759;
+        bh=EJ9LeitW/sDScSg81JqdnN0qFEWoI+F3KiLnatf3fug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JwPIlW8fIf7fiMX57c1ITp6D/lrHxvbpuyAv6zsHZmsl76rwdfIgYe/1p7kVrwIWt
-         jm0f/SS0hEw+1rVLkoHsHAIl7KhO05fzC6NUXvIiC41B/MT5x5IY3J13IYiTEJF0g+
-         74cjSnPIyCKR8NbDwoX+LLOBf/hYumfOqOC+X+BM=
+        b=l+kv1So1hYVpkfZ3BU2Skqjsuh8Q/M6oFmY33s7D+31DahVtw5fqeeLFD23YO/P58
+         i4VhxIrdi21e2pi9kDsrFU7sqL6bg74uqqzA92XYlcgZikDeICd+gKDW71v44E29K5
+         ss5zu8wBQHMT0IGdxVu0R9YrcyVMRXhOmB/LjehI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.9 70/74] mm: mark async iocb read as NOWAIT once some data has been copied
-Date:   Sat, 31 Oct 2020 12:36:52 +0100
-Message-Id: <20201031113503.388678549@linuxfoundation.org>
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Juergen Gross <jgross@suse.com>,
+        David Vrabel <david.vrabel@citrix.com>
+Subject: [PATCH 5.9 71/74] xen/gntdev.c: Mark pages as dirty
+Date:   Sat, 31 Oct 2020 12:36:53 +0100
+Message-Id: <20201031113503.437524772@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
 References: <20201031113500.031279088@linuxfoundation.org>
@@ -43,45 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-commit 13bd691421bc191a402d2e0d3da5f248d170a632 upstream.
+commit 779055842da5b2e508f3ccf9a8153cb1f704f566 upstream.
 
-Once we've copied some data for an iocb that is marked with IOCB_WAITQ,
-we should no longer attempt to async lock a new page. Instead make sure
-we return the copied amount, and let the caller retry, instead of
-returning -EIOCBQUEUED for a new page.
+There seems to be a bug in the original code when gntdev_get_page()
+is called with writeable=true then the page needs to be marked dirty
+before being put.
 
-This should only be possible with read-ahead disabled on the below
-device, and multiple threads racing on the same file. Haven't been able
-to reproduce on anything else.
+To address this, a bool writeable is added in gnt_dev_copy_batch, set
+it in gntdev_grant_copy_seg() (and drop `writeable` argument to
+gntdev_get_page()) and then, based on batch->writeable, use
+set_page_dirty_lock().
 
-Cc: stable@vger.kernel.org # v5.9
-Fixes: 1a0a7853b901 ("mm: support async buffered reads in generic_file_buffered_read()")
-Reported-by: Kent Overstreet <kent.overstreet@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: a4cdb556cae0 (xen/gntdev: add ioctl for grant copy)
+Suggested-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: David Vrabel <david.vrabel@citrix.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1599375114-32360-1-git-send-email-jrdr.linux@gmail.com
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/filemap.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/xen/gntdev.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2179,6 +2179,14 @@ ssize_t generic_file_buffered_read(struc
- 	last_index = (*ppos + iter->count + PAGE_SIZE-1) >> PAGE_SHIFT;
- 	offset = *ppos & ~PAGE_MASK;
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -720,17 +720,18 @@ struct gntdev_copy_batch {
+ 	s16 __user *status[GNTDEV_COPY_BATCH];
+ 	unsigned int nr_ops;
+ 	unsigned int nr_pages;
++	bool writeable;
+ };
  
-+	/*
-+	 * If we've already successfully copied some data, then we
-+	 * can no longer safely return -EIOCBQUEUED. Hence mark
-+	 * an async read NOWAIT at that point.
-+	 */
-+	if (written && (iocb->ki_flags & IOCB_WAITQ))
-+		iocb->ki_flags |= IOCB_NOWAIT;
-+
- 	for (;;) {
- 		struct page *page;
- 		pgoff_t end_index;
+ static int gntdev_get_page(struct gntdev_copy_batch *batch, void __user *virt,
+-			   bool writeable, unsigned long *gfn)
++				unsigned long *gfn)
+ {
+ 	unsigned long addr = (unsigned long)virt;
+ 	struct page *page;
+ 	unsigned long xen_pfn;
+ 	int ret;
+ 
+-	ret = get_user_pages_fast(addr, 1, writeable ? FOLL_WRITE : 0, &page);
++	ret = get_user_pages_fast(addr, 1, batch->writeable ? FOLL_WRITE : 0, &page);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -746,9 +747,13 @@ static void gntdev_put_pages(struct gntd
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < batch->nr_pages; i++)
++	for (i = 0; i < batch->nr_pages; i++) {
++		if (batch->writeable && !PageDirty(batch->pages[i]))
++			set_page_dirty_lock(batch->pages[i]);
+ 		put_page(batch->pages[i]);
++	}
+ 	batch->nr_pages = 0;
++	batch->writeable = false;
+ }
+ 
+ static int gntdev_copy(struct gntdev_copy_batch *batch)
+@@ -837,8 +842,9 @@ static int gntdev_grant_copy_seg(struct
+ 			virt = seg->source.virt + copied;
+ 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
+ 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
++			batch->writeable = false;
+ 
+-			ret = gntdev_get_page(batch, virt, false, &gfn);
++			ret = gntdev_get_page(batch, virt, &gfn);
+ 			if (ret < 0)
+ 				return ret;
+ 
+@@ -856,8 +862,9 @@ static int gntdev_grant_copy_seg(struct
+ 			virt = seg->dest.virt + copied;
+ 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
+ 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
++			batch->writeable = true;
+ 
+-			ret = gntdev_get_page(batch, virt, true, &gfn);
++			ret = gntdev_get_page(batch, virt, &gfn);
+ 			if (ret < 0)
+ 				return ret;
+ 
 
 
