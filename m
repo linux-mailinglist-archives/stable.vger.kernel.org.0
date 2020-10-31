@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F99D2A16DF
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9AC2A16A5
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727679AbgJaLl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
+        id S1727871AbgJaLpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:45:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727667AbgJaLlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:24 -0400
+        id S1728005AbgJaLpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:45:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B3A720719;
-        Sat, 31 Oct 2020 11:41:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3010B20739;
+        Sat, 31 Oct 2020 11:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144484;
-        bh=xwM64GQzTCAI0uFNMIB8AGN4Z0EtKBRMvZIDNQA4AHc=;
+        s=default; t=1604144723;
+        bh=G3P4MoamZRbhF09JUZQrLzlhHsn0SlkUTzcqxSWXGS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhyEvggF+Mp/IyXO0lypmzKb/2PtyirZIZEnBWUgE/thkrmczP2ZFkZaNC/doY+/P
-         m/0ywlqZLiZ5FccBifc+vd//sZouFsTiBuv7PnhHQ4qGOBzXdX2g75S87tprIKkFeC
-         uC896pDEme0pUxuap4lJkSuNsOpf8X+TTNAuLk34=
+        b=MLp73RSf7SibyGFnrHtOHBQ4sfaK4z4UE3hMXronb/kuExXn8UW6l60EoUd8m4I2m
+         ypUou2MEARhJAOxJTPvH4xdL6KfcO/otxIQN126PwisZpC+ObU9Gk7ShxAdK1BQX0+
+         y7CqyesKB9BD6jp9eQAmzvJ+DLmIabA5q+1qwLfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Fujiwara <fujiwara.masahiro@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 36/70] gtp: fix an use-before-init in gtp_newlink()
+        stable@vger.kernel.org, Michael Schaller <misch@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 5.9 26/74] efivarfs: Replace invalid slashes with exclamation marks in dentries.
 Date:   Sat, 31 Oct 2020 12:36:08 +0100
-Message-Id: <20201031113501.227412766@linuxfoundation.org>
+Message-Id: <20201031113501.301392049@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
+From: Michael Schaller <misch@google.com>
 
-[ Upstream commit 51467431200b91682b89d31317e35dcbca1469ce ]
+commit 336af6a4686d885a067ecea8c3c3dd129ba4fc75 upstream.
 
-*_pdp_find() from gtp_encap_recv() would trigger a crash when a peer
-sends GTP packets while creating new GTP device.
+Without this patch efivarfs_alloc_dentry creates dentries with slashes in
+their name if the respective EFI variable has slashes in its name. This in
+turn causes EIO on getdents64, which prevents a complete directory listing
+of /sys/firmware/efi/efivars/.
 
-RIP: 0010:gtp1_pdp_find.isra.0+0x68/0x90 [gtp]
-<SNIP>
-Call Trace:
- <IRQ>
- gtp_encap_recv+0xc2/0x2e0 [gtp]
- ? gtp1_pdp_find.isra.0+0x90/0x90 [gtp]
- udp_queue_rcv_one_skb+0x1fe/0x530
- udp_queue_rcv_skb+0x40/0x1b0
- udp_unicast_rcv_skb.isra.0+0x78/0x90
- __udp4_lib_rcv+0x5af/0xc70
- udp_rcv+0x1a/0x20
- ip_protocol_deliver_rcu+0xc5/0x1b0
- ip_local_deliver_finish+0x48/0x50
- ip_local_deliver+0xe5/0xf0
- ? ip_protocol_deliver_rcu+0x1b0/0x1b0
+This patch replaces the invalid shlashes with exclamation marks like
+kobject_set_name_vargs does for /sys/firmware/efi/vars/ to have consistently
+named dentries under /sys/firmware/efi/vars/ and /sys/firmware/efi/efivars/.
 
-gtp_encap_enable() should be called after gtp_hastable_new() otherwise
-*_pdp_find() will access the uninitialized hash table.
-
-Fixes: 1e3a3abd8b28 ("gtp: make GTP sockets in gtp_newlink optional")
-Signed-off-by: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
-Link: https://lore.kernel.org/r/20201027114846.3924-1-fujiwara.masahiro@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Michael Schaller <misch@google.com>
+Link: https://lore.kernel.org/r/20200925074502.150448-1-misch@google.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/gtp.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -663,10 +663,6 @@ static int gtp_newlink(struct net *src_n
+---
+ fs/efivarfs/super.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/fs/efivarfs/super.c
++++ b/fs/efivarfs/super.c
+@@ -141,6 +141,9 @@ static int efivarfs_callback(efi_char16_
  
- 	gtp = netdev_priv(dev);
+ 	name[len + EFI_VARIABLE_GUID_LEN+1] = '\0';
  
--	err = gtp_encap_enable(gtp, data);
--	if (err < 0)
--		return err;
--
- 	if (!data[IFLA_GTP_PDP_HASHSIZE]) {
- 		hashsize = 1024;
- 	} else {
-@@ -677,12 +673,16 @@ static int gtp_newlink(struct net *src_n
- 
- 	err = gtp_hashtable_new(gtp, hashsize);
- 	if (err < 0)
--		goto out_encap;
-+		return err;
++	/* replace invalid slashes like kobject_set_name_vargs does for /sys/firmware/efi/vars. */
++	strreplace(name, '/', '!');
 +
-+	err = gtp_encap_enable(gtp, data);
-+	if (err < 0)
-+		goto out_hashtable;
- 
- 	err = register_netdevice(dev);
- 	if (err < 0) {
- 		netdev_dbg(dev, "failed to register new netdev %d\n", err);
--		goto out_hashtable;
-+		goto out_encap;
- 	}
- 
- 	gn = net_generic(dev_net(dev), gtp_net_id);
-@@ -693,11 +693,11 @@ static int gtp_newlink(struct net *src_n
- 
- 	return 0;
- 
-+out_encap:
-+	gtp_encap_disable(gtp);
- out_hashtable:
- 	kfree(gtp->addr_hash);
- 	kfree(gtp->tid_hash);
--out_encap:
--	gtp_encap_disable(gtp);
- 	return err;
- }
- 
+ 	inode = efivarfs_get_inode(sb, d_inode(root), S_IFREG | 0644, 0,
+ 				   is_removable);
+ 	if (!inode)
 
 
