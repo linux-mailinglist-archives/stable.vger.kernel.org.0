@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CB12A15B4
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9F52A1596
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbgJaLh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
+        id S1727160AbgJaLgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727244AbgJaLhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:37:19 -0400
+        id S1727157AbgJaLgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34D64206E3;
-        Sat, 31 Oct 2020 11:37:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A040920739;
+        Sat, 31 Oct 2020 11:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144235;
-        bh=XwsO16vFYkcmkpzL10zm3joqEYy5N+X1XHqq8Ki0M54=;
+        s=default; t=1604144175;
+        bh=jUZI62qU0tkpZOo0uu76V5+0jUUE8u0pZ7uj2QDev6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gk9xI19/2MgvGbN0IG5CTVx5GmpsrY1YZj/nJDI1chRrmuvlD6Igz1IFLrlktDPY7
-         UmS+wxwSmsQsIaW7VPZCca5YiKJLaLD52oFm0+yE8Tx9KYuAlx9YDAtTpG3T04HCRa
-         JD4GbcHVUOWtFMu2HsVpgbzR851zh4agq61nXwq8=
+        b=Q3DLlpsHrYZruITwh6ZKWptjlReK/wjn21BcLvau76ncLK2ISdbQP7n2olb1YVYq9
+         41ZI3CYru98IaANxEnNx1Dz5p4b13eqw3IXmDTCXWvpCjJqnjAj/G90mNtgDQfvs5+
+         Fvbt6nyuIUdW/zkyo5LIlPJXrx80SxfgYK6pTRVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 25/49] net: hns3: Clear the CMDQ registers before unmapping BAR region
-Date:   Sat, 31 Oct 2020 12:35:21 +0100
-Message-Id: <20201031113456.656663992@linuxfoundation.org>
+Subject: [PATCH 5.4 26/49] bnxt_en: Re-write PCI BARs after PCI fatal error.
+Date:   Sat, 31 Oct 2020 12:35:22 +0100
+Message-Id: <20201031113456.703253226@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -42,94 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit e3364c5ff3ff975b943a7bf47e21a2a4bf20f3fe ]
+[ Upstream commit f75d9a0aa96721d20011cd5f8c7a24eb32728589 ]
 
-When unbinding the hns3 driver with the HNS3 VF, I got the following
-kernel panic:
+When a PCIe fatal error occurs, the internal latched BAR addresses
+in the chip get reset even though the BAR register values in config
+space are retained.
 
-[  265.709989] Unable to handle kernel paging request at virtual address ffff800054627000
-[  265.717928] Mem abort info:
-[  265.720740]   ESR = 0x96000047
-[  265.723810]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  265.729126]   SET = 0, FnV = 0
-[  265.732195]   EA = 0, S1PTW = 0
-[  265.735351] Data abort info:
-[  265.738227]   ISV = 0, ISS = 0x00000047
-[  265.742071]   CM = 0, WnR = 1
-[  265.745055] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000009b54000
-[  265.751753] [ffff800054627000] pgd=0000202ffffff003, p4d=0000202ffffff003, pud=00002020020eb003, pmd=00000020a0dfc003, pte=0000000000000000
-[  265.764314] Internal error: Oops: 96000047 [#1] SMP
-[  265.830357] CPU: 61 PID: 20319 Comm: bash Not tainted 5.9.0+ #206
-[  265.836423] Hardware name: Huawei TaiShan 2280 V2/BC82AMDDA, BIOS 1.05 09/18/2019
-[  265.843873] pstate: 80400009 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-[  265.843890] pc : hclgevf_cmd_uninit+0xbc/0x300
-[  265.861988] lr : hclgevf_cmd_uninit+0xb0/0x300
-[  265.861992] sp : ffff80004c983b50
-[  265.881411] pmr_save: 000000e0
-[  265.884453] x29: ffff80004c983b50 x28: ffff20280bbce500
-[  265.889744] x27: 0000000000000000 x26: 0000000000000000
-[  265.895034] x25: ffff800011a1f000 x24: ffff800011a1fe90
-[  265.900325] x23: ffff0020ce9b00d8 x22: ffff0020ce9b0150
-[  265.905616] x21: ffff800010d70e90 x20: ffff800010d70e90
-[  265.910906] x19: ffff0020ce9b0080 x18: 0000000000000004
-[  265.916198] x17: 0000000000000000 x16: ffff800011ae32e8
-[  265.916201] x15: 0000000000000028 x14: 0000000000000002
-[  265.916204] x13: ffff800011ae32e8 x12: 0000000000012ad8
-[  265.946619] x11: ffff80004c983b50 x10: 0000000000000000
-[  265.951911] x9 : ffff8000115d0888 x8 : 0000000000000000
-[  265.951914] x7 : ffff800011890b20 x6 : c0000000ffff7fff
-[  265.951917] x5 : ffff80004c983930 x4 : 0000000000000001
-[  265.951919] x3 : ffffa027eec1b000 x2 : 2b78ccbbff369100
-[  265.964487] x1 : 0000000000000000 x0 : ffff800054627000
-[  265.964491] Call trace:
-[  265.964494]  hclgevf_cmd_uninit+0xbc/0x300
-[  265.964496]  hclgevf_uninit_ae_dev+0x9c/0xe8
-[  265.964501]  hnae3_unregister_ae_dev+0xb0/0x130
-[  265.964516]  hns3_remove+0x34/0x88 [hns3]
-[  266.009683]  pci_device_remove+0x48/0xf0
-[  266.009692]  device_release_driver_internal+0x114/0x1e8
-[  266.030058]  device_driver_detach+0x28/0x38
-[  266.034224]  unbind_store+0xd4/0x108
-[  266.037784]  drv_attr_store+0x40/0x58
-[  266.041435]  sysfs_kf_write+0x54/0x80
-[  266.045081]  kernfs_fop_write+0x12c/0x250
-[  266.049076]  vfs_write+0xc4/0x248
-[  266.052378]  ksys_write+0x74/0xf8
-[  266.055677]  __arm64_sys_write+0x24/0x30
-[  266.059584]  el0_svc_common.constprop.3+0x84/0x270
-[  266.064354]  do_el0_svc+0x34/0xa0
-[  266.067658]  el0_svc+0x38/0x40
-[  266.070700]  el0_sync_handler+0x8c/0xb0
-[  266.074519]  el0_sync+0x140/0x180
+pci_restore_state() will not rewrite the BAR addresses if the
+BAR address values are valid, causing the chip's internal BAR addresses
+to stay invalid.  So we need to zero the BAR registers during PCIe fatal
+error to force pci_restore_state() to restore the BAR addresses.  These
+write cycles to the BAR registers will cause the proper BAR addresses to
+latch internally.
 
-It looks like the BAR memory region had already been unmapped before we
-start clearing CMDQ registers in it, which is pretty bad and the kernel
-happily kills itself because of a Current EL Data Abort (on arm64).
-
-Moving the CMDQ uninitialization a bit early fixes the issue for me.
-
-Fixes: 862d969a3a4d ("net: hns3: do VF's pci re-initialization while PF doing FLR")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Link: https://lore.kernel.org/r/20201023051550.793-1-yuzenghui@huawei.com
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |   19 ++++++++++++++++++-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h |    1 +
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2782,8 +2782,8 @@ static void hclgevf_uninit_hdev(struct h
- 		hclgevf_uninit_msi(hdev);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -12049,6 +12049,9 @@ static pci_ers_result_t bnxt_io_error_de
+ 		return PCI_ERS_RESULT_DISCONNECT;
  	}
  
--	hclgevf_pci_uninit(hdev);
- 	hclgevf_cmd_uninit(hdev);
-+	hclgevf_pci_uninit(hdev);
- }
++	if (state == pci_channel_io_frozen)
++		set_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN, &bp->state);
++
+ 	if (netif_running(netdev))
+ 		bnxt_close(netdev);
  
- static int hclgevf_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+@@ -12072,7 +12075,7 @@ static pci_ers_result_t bnxt_io_slot_res
+ {
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct bnxt *bp = netdev_priv(netdev);
+-	int err = 0;
++	int err = 0, off;
+ 	pci_ers_result_t result = PCI_ERS_RESULT_DISCONNECT;
+ 
+ 	netdev_info(bp->dev, "PCI Slot Reset\n");
+@@ -12084,6 +12087,20 @@ static pci_ers_result_t bnxt_io_slot_res
+ 			"Cannot re-enable PCI device after reset.\n");
+ 	} else {
+ 		pci_set_master(pdev);
++		/* Upon fatal error, our device internal logic that latches to
++		 * BAR value is getting reset and will restore only upon
++		 * rewritting the BARs.
++		 *
++		 * As pci_restore_state() does not re-write the BARs if the
++		 * value is same as saved value earlier, driver needs to
++		 * write the BARs to 0 to force restore, in case of fatal error.
++		 */
++		if (test_and_clear_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN,
++				       &bp->state)) {
++			for (off = PCI_BASE_ADDRESS_0;
++			     off <= PCI_BASE_ADDRESS_5; off += 4)
++				pci_write_config_dword(bp->pdev, off, 0);
++		}
+ 		pci_restore_state(pdev);
+ 		pci_save_state(pdev);
+ 
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1627,6 +1627,7 @@ struct bnxt {
+ #define BNXT_STATE_IN_FW_RESET	4
+ #define BNXT_STATE_ABORT_ERR	5
+ #define BNXT_STATE_FW_FATAL_COND	6
++#define BNXT_STATE_PCI_CHANNEL_IO_FROZEN	8
+ 
+ #define BNXT_NO_FW_ACCESS(bp)					\
+ 	(test_bit(BNXT_STATE_FW_FATAL_COND, &(bp)->state) ||	\
 
 
