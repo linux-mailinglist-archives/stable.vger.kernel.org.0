@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2E62A1602
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C7E2A15BF
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727168AbgJaLky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S1727179AbgJaLgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727498AbgJaLku (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:40:50 -0400
+        id S1727212AbgJaLgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BDB820719;
-        Sat, 31 Oct 2020 11:40:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15BD120791;
+        Sat, 31 Oct 2020 11:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144448;
-        bh=JQvI5Rk/d6St9vPLXEzLK1SBRQD9N9wzQA1u74yXnlE=;
+        s=default; t=1604144198;
+        bh=r1xItn96tnp6noRlanmyu9eUicvbYli/qrwchptdiw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mz2rnvnEXedl+W5VY6aqp3N+QXckAtUz2OwboPzme3FBVz3/Df1ya4ErprHhXxn9A
-         EybUBJIxZaZARiT1Nu7Y8Kj7OtcR01L5AaE29lX1/vn5PwrYpAP9NevJ3Yn1qYwZF5
-         OxBpyQYXVlkKEDZg0+Ymi+c9ad0veAAS/YcfwraQ=
+        b=kWEwbW5/I8//RfJjTkw0xdaKG9Hi0Jx2MWWj2LId5QQsiMgymhILgIOHKgHBIA1ov
+         c1+/09dXUVDrAtsxApZeb1qk/0FJTsjXZuvkq3aT2PSSBLvsswPdlEe1Jk8ArLHNI4
+         EcZeUVxwCzsniyjmkXOu+Nlw3sTxbNDdpZXRPqbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 07/70] io_uring: return cancelation status from poll/timeout/files handlers
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 43/49] PM: runtime: Fix timer_expires data type on 32-bit arches
 Date:   Sat, 31 Oct 2020 12:35:39 +0100
-Message-Id: <20201031113459.847920459@linuxfoundation.org>
+Message-Id: <20201031113457.519718770@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
+References: <20201031113455.439684970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-commit 76e1b6427fd8246376a97e3227049d49188dfb9c upstream.
+commit 6b61d49a55796dbbc479eeb4465e59fd656c719c upstream.
 
-Return whether we found and canceled requests or not. This is in
-preparation for using this information, no functional changes in this
-patch.
+Commit 8234f6734c5d ("PM-runtime: Switch autosuspend over to using
+hrtimers") switched PM runtime autosuspend to use hrtimers and all
+related time accounting in ns, but missed to update the timer_expires
+data type in struct dev_pm_info to u64.
 
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This causes the timer_expires value to be truncated on 32-bit
+architectures when assignment is done from u64 values:
+
+rpm_suspend()
+|- dev->power.timer_expires = expires;
+
+Fix it by changing the timer_expires type to u64.
+
+Fixes: 8234f6734c5d ("PM-runtime: Switch autosuspend over to using hrtimers")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/io_uring.c |   30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1143,15 +1143,23 @@ static bool io_task_match(struct io_kioc
- 	return false;
- }
- 
--static void io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+/*
-+ * Returns true if we found and killed one or more timeouts
-+ */
-+static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
- {
- 	struct io_kiocb *req, *tmp;
-+	int canceled = 0;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list)
--		if (io_task_match(req, tsk))
-+	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list) {
-+		if (io_task_match(req, tsk)) {
- 			io_kill_timeout(req);
-+			canceled++;
-+		}
-+	}
- 	spin_unlock_irq(&ctx->completion_lock);
-+	return canceled != 0;
- }
- 
- static void __io_queue_deferred(struct io_ring_ctx *ctx)
-@@ -4650,7 +4658,10 @@ static bool io_poll_remove_one(struct io
- 	return do_complete;
- }
- 
--static void io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+/*
-+ * Returns true if we found and killed one or more poll requests
-+ */
-+static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
- {
- 	struct hlist_node *tmp;
- 	struct io_kiocb *req;
-@@ -4670,6 +4681,8 @@ static void io_poll_remove_all(struct io
- 
- 	if (posted)
- 		io_cqring_ev_posted(ctx);
-+
-+	return posted != 0;
- }
- 
- static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
-@@ -7744,11 +7757,14 @@ static void io_cancel_defer_files(struct
- 	}
- }
- 
--static void io_uring_cancel_files(struct io_ring_ctx *ctx,
-+/*
-+ * Returns true if we found and killed one or more files pinning requests
-+ */
-+static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
- 	if (list_empty_careful(&ctx->inflight_list))
--		return;
-+		return false;
- 
- 	io_cancel_defer_files(ctx, files);
- 	/* cancel all at once, should be faster than doing it one by one*/
-@@ -7811,6 +7827,8 @@ static void io_uring_cancel_files(struct
- 		schedule();
- 		finish_wait(&ctx->inflight_wait, &wait);
- 	}
-+
-+	return true;
- }
- 
- static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+---
+ include/linux/pm.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -598,7 +598,7 @@ struct dev_pm_info {
+ #endif
+ #ifdef CONFIG_PM
+ 	struct hrtimer		suspend_timer;
+-	unsigned long		timer_expires;
++	u64			timer_expires;
+ 	struct work_struct	work;
+ 	wait_queue_head_t	wait_queue;
+ 	struct wake_irq		*wakeirq;
 
 
