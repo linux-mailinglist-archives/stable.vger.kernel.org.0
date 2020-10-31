@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C1B2A16C4
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A46392A16B6
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgJaLsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
+        id S1727174AbgJaLsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:48:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727143AbgJaLo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:26 -0400
+        id S1727692AbgJaLo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:44:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39450205F4;
-        Sat, 31 Oct 2020 11:44:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B813820731;
+        Sat, 31 Oct 2020 11:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144665;
-        bh=eZuEbVqdql/C5fb7DV+pJFRaOgJpVhvc+6R1ziIwecg=;
+        s=default; t=1604144668;
+        bh=xwM64GQzTCAI0uFNMIB8AGN4Z0EtKBRMvZIDNQA4AHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiMvr7T4txa4n3nIKsXG4Rul1H0LFyr0Y6TWpz3+EFM0VQM1OHzRzjNHTHXc7mwKg
-         VdjPw4YUHYbXgUry7kgZMwU1mR79eF/w5ns9FyZ6x40c4bY7a4uEt6q3dlIe0wwlyM
-         sd5JLx0ME3vw2I0ODJHoAeFIz7TkixjGNkyqKBzM=
+        b=ONHhGMALc3z8F8Pc4Wwsd1iiCOthNOH5lA4kdhxdp4lfrqoIppO1XD29S4vSdpHZX
+         oh8XNkfB4PB6UUwRcKjpGZC/nhbhqbxh7WaznHCVD9kzQ79JGQGZ+KkWbZPbT0d919
+         OC7qbUqTGE4oCRgpwgYEDz6u372ZqWf4ixm3FSL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        stable@vger.kernel.org,
+        Masahiro Fujiwara <fujiwara.masahiro@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 35/74] cxgb4: set up filter action after rewrites
-Date:   Sat, 31 Oct 2020 12:36:17 +0100
-Message-Id: <20201031113501.724136242@linuxfoundation.org>
+Subject: [PATCH 5.9 36/74] gtp: fix an use-before-init in gtp_newlink()
+Date:   Sat, 31 Oct 2020 12:36:18 +0100
+Message-Id: <20201031113501.775612520@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
 References: <20201031113500.031279088@linuxfoundation.org>
@@ -42,153 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+From: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
 
-[ Upstream commit 937d8420588421eaa5c7aa5c79b26b42abb288ef ]
+[ Upstream commit 51467431200b91682b89d31317e35dcbca1469ce ]
 
-The current code sets up the filter action field before
-rewrites are set up. When the action 'switch' is used
-with rewrites, this may result in initial few packets
-that get switched out don't have rewrites applied
-on them.
+*_pdp_find() from gtp_encap_recv() would trigger a crash when a peer
+sends GTP packets while creating new GTP device.
 
-So, make sure filter action is set up along with rewrites
-or only after everything else is set up for rewrites.
+RIP: 0010:gtp1_pdp_find.isra.0+0x68/0x90 [gtp]
+<SNIP>
+Call Trace:
+ <IRQ>
+ gtp_encap_recv+0xc2/0x2e0 [gtp]
+ ? gtp1_pdp_find.isra.0+0x90/0x90 [gtp]
+ udp_queue_rcv_one_skb+0x1fe/0x530
+ udp_queue_rcv_skb+0x40/0x1b0
+ udp_unicast_rcv_skb.isra.0+0x78/0x90
+ __udp4_lib_rcv+0x5af/0xc70
+ udp_rcv+0x1a/0x20
+ ip_protocol_deliver_rcu+0xc5/0x1b0
+ ip_local_deliver_finish+0x48/0x50
+ ip_local_deliver+0xe5/0xf0
+ ? ip_protocol_deliver_rcu+0x1b0/0x1b0
 
-Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
-Link: https://lore.kernel.org/r/20201023115852.18262-1-rajur@chelsio.com
+gtp_encap_enable() should be called after gtp_hastable_new() otherwise
+*_pdp_find() will access the uninitialized hash table.
+
+Fixes: 1e3a3abd8b28 ("gtp: make GTP sockets in gtp_newlink optional")
+Signed-off-by: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
+Link: https://lore.kernel.org/r/20201027114846.3924-1-fujiwara.masahiro@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |   56 ++++++++++------------
- drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h       |    4 +
- 2 files changed, 31 insertions(+), 29 deletions(-)
+ drivers/net/gtp.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -145,13 +145,13 @@ static int configure_filter_smac(struct
- 	int err;
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -663,10 +663,6 @@ static int gtp_newlink(struct net *src_n
  
- 	/* do a set-tcb for smac-sel and CWR bit.. */
--	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
--	if (err)
--		goto smac_err;
+ 	gtp = netdev_priv(dev);
+ 
+-	err = gtp_encap_enable(gtp, data);
+-	if (err < 0)
+-		return err;
 -
- 	err = set_tcb_field(adap, f, f->tid, TCB_SMAC_SEL_W,
- 			    TCB_SMAC_SEL_V(TCB_SMAC_SEL_M),
- 			    TCB_SMAC_SEL_V(f->smt->idx), 1);
-+	if (err)
-+		goto smac_err;
-+
-+	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
- 	if (!err)
- 		return 0;
+ 	if (!data[IFLA_GTP_PDP_HASHSIZE]) {
+ 		hashsize = 1024;
+ 	} else {
+@@ -677,12 +673,16 @@ static int gtp_newlink(struct net *src_n
  
-@@ -865,6 +865,7 @@ int set_filter_wr(struct adapter *adapte
- 		      FW_FILTER_WR_DIRSTEERHASH_V(f->fs.dirsteerhash) |
- 		      FW_FILTER_WR_LPBK_V(f->fs.action == FILTER_SWITCH) |
- 		      FW_FILTER_WR_DMAC_V(f->fs.newdmac) |
-+		      FW_FILTER_WR_SMAC_V(f->fs.newsmac) |
- 		      FW_FILTER_WR_INSVLAN_V(f->fs.newvlan == VLAN_INSERT ||
- 					     f->fs.newvlan == VLAN_REWRITE) |
- 		      FW_FILTER_WR_RMVLAN_V(f->fs.newvlan == VLAN_REMOVE ||
-@@ -882,7 +883,7 @@ int set_filter_wr(struct adapter *adapte
- 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
- 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
- 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
--	fwr->smac_sel = 0;
-+	fwr->smac_sel = f->smt->idx;
- 	fwr->rx_chan_rx_rpl_iq =
- 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
- 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
-@@ -1326,11 +1327,8 @@ static void mk_act_open_req6(struct filt
- 			    TX_QUEUE_V(f->fs.nat_mode) |
- 			    T5_OPT_2_VALID_F |
- 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
--			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
--					 (f->fs.dirsteer << 1)) |
- 			    PACE_V((f->fs.maskhash) |
--				   ((f->fs.dirsteerhash) << 1)) |
--			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
-+				   ((f->fs.dirsteerhash) << 1)));
+ 	err = gtp_hashtable_new(gtp, hashsize);
+ 	if (err < 0)
+-		goto out_encap;
++		return err;
++
++	err = gtp_encap_enable(gtp, data);
++	if (err < 0)
++		goto out_hashtable;
+ 
+ 	err = register_netdevice(dev);
+ 	if (err < 0) {
+ 		netdev_dbg(dev, "failed to register new netdev %d\n", err);
+-		goto out_hashtable;
++		goto out_encap;
+ 	}
+ 
+ 	gn = net_generic(dev_net(dev), gtp_net_id);
+@@ -693,11 +693,11 @@ static int gtp_newlink(struct net *src_n
+ 
+ 	return 0;
+ 
++out_encap:
++	gtp_encap_disable(gtp);
+ out_hashtable:
+ 	kfree(gtp->addr_hash);
+ 	kfree(gtp->tid_hash);
+-out_encap:
+-	gtp_encap_disable(gtp);
+ 	return err;
  }
  
- static void mk_act_open_req(struct filter_entry *f, struct sk_buff *skb,
-@@ -1366,11 +1364,8 @@ static void mk_act_open_req(struct filte
- 			    TX_QUEUE_V(f->fs.nat_mode) |
- 			    T5_OPT_2_VALID_F |
- 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
--			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
--					 (f->fs.dirsteer << 1)) |
- 			    PACE_V((f->fs.maskhash) |
--				   ((f->fs.dirsteerhash) << 1)) |
--			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
-+				   ((f->fs.dirsteerhash) << 1)));
- }
- 
- static int cxgb4_set_hash_filter(struct net_device *dev,
-@@ -2042,6 +2037,20 @@ void hash_filter_rpl(struct adapter *ada
- 			}
- 			return;
- 		}
-+		switch (f->fs.action) {
-+		case FILTER_PASS:
-+			if (f->fs.dirsteer)
-+				set_tcb_tflag(adap, f, tid,
-+					      TF_DIRECT_STEER_S, 1, 1);
-+			break;
-+		case FILTER_DROP:
-+			set_tcb_tflag(adap, f, tid, TF_DROP_S, 1, 1);
-+			break;
-+		case FILTER_SWITCH:
-+			set_tcb_tflag(adap, f, tid, TF_LPBK_S, 1, 1);
-+			break;
-+		}
-+
- 		break;
- 
- 	default:
-@@ -2109,22 +2118,11 @@ void filter_rpl(struct adapter *adap, co
- 			if (ctx)
- 				ctx->result = 0;
- 		} else if (ret == FW_FILTER_WR_FLT_ADDED) {
--			int err = 0;
--
--			if (f->fs.newsmac)
--				err = configure_filter_smac(adap, f);
--
--			if (!err) {
--				f->pending = 0;  /* async setup completed */
--				f->valid = 1;
--				if (ctx) {
--					ctx->result = 0;
--					ctx->tid = idx;
--				}
--			} else {
--				clear_filter(adap, f);
--				if (ctx)
--					ctx->result = err;
-+			f->pending = 0;  /* async setup completed */
-+			f->valid = 1;
-+			if (ctx) {
-+				ctx->result = 0;
-+				ctx->tid = idx;
- 			}
- 		} else {
- 			/* Something went wrong.  Issue a warning about the
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
-@@ -50,6 +50,10 @@
- #define TCB_T_FLAGS_M		0xffffffffffffffffULL
- #define TCB_T_FLAGS_V(x)	((__u64)(x) << TCB_T_FLAGS_S)
- 
-+#define TF_DROP_S		22
-+#define TF_DIRECT_STEER_S	23
-+#define TF_LPBK_S		59
-+
- #define TF_CCTRL_ECE_S		60
- #define TF_CCTRL_CWR_S		61
- #define TF_CCTRL_RFR_S		62
 
 
