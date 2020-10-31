@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74AFD2A164B
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:44:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 039152A16ED
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728106AbgJaLoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:44:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44246 "EHLO mail.kernel.org"
+        id S1727858AbgJaLmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:42:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727065AbgJaLoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:03 -0400
+        id S1727332AbgJaLmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:42:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFC6205F4;
-        Sat, 31 Oct 2020 11:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38153205F4;
+        Sat, 31 Oct 2020 11:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144642;
-        bh=1e27utaQ9tJp9kp1bR9gN77QNOeihN6Zfi5+HFYj4K8=;
+        s=default; t=1604144543;
+        bh=lyN8fzdZVm2iK4kV+7mrPWBQYhkvGH4kdoLeQtrO2uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybizDPp3zQwmQgN97BK/JjjRMYR2ALQAoqhvTMUN5ahN/8QMPkOQCj40U+G8tElNW
-         d857d/0Uv9BEZi0r7k6GjCpxu67haL1/jOPwWLQcvMjdCKqJA7FpyflSI4g2TC3lzE
-         hT2AyE3wCw/PWTFBIB/DhRIu10VAm4stTu/uX5Is=
+        b=OoS1tClKWSB0hbhVO62QoubylVBgx7f7O4EY3mTP+59sIO9BIPjyx4NLzx2fbdjF1
+         ZUkM03pJ2/elm89Uj0oKv3rvweUtLP5qt68K5qZtrQ+C/MxYeYtphQd7XydOWk2CSi
+         xgP2co5LccEnXeECpSspf1UThLvfWxhfIJGD0FUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.9 08/74] io_uring: enable task/files specific overflow flushing
+        stable@vger.kernel.org, Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.8 18/70] efi/arm64: libstub: Deal gracefully with EFI_RNG_PROTOCOL failure
 Date:   Sat, 31 Oct 2020 12:35:50 +0100
-Message-Id: <20201031113500.441612345@linuxfoundation.org>
+Message-Id: <20201031113500.381102391@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit e6c8aa9ac33bd7c968af7816240fc081401fddcd upstream.
+commit d32de9130f6c79533508e2c7879f18997bfbe2a0 upstream.
 
-This allows us to selectively flush out pending overflows, depending on
-the task and/or files_struct being passed in.
+Currently, on arm64, we abort on any failure from efi_get_random_bytes()
+other than EFI_NOT_FOUND when it comes to setting the physical seed for
+KASLR, but ignore such failures when obtaining the seed for virtual
+KASLR or for early seeding of the kernel's entropy pool via the config
+table. This is inconsistent, and may lead to unexpected boot failures.
 
-No intended functional changes in this patch.
+So let's permit any failure for the physical seed, and simply report
+the error code if it does not equal EFI_NOT_FOUND.
 
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org> # v5.8+
+Reported-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/io_uring.c |   41 +++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1344,12 +1344,24 @@ static void io_cqring_mark_overflow(stru
- 	}
- }
+---
+ drivers/firmware/efi/libstub/arm64-stub.c |    8 +++++---
+ drivers/firmware/efi/libstub/fdt.c        |    4 +---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/drivers/firmware/efi/libstub/arm64-stub.c
++++ b/drivers/firmware/efi/libstub/arm64-stub.c
+@@ -62,10 +62,12 @@ efi_status_t handle_kernel_image(unsigne
+ 			status = efi_get_random_bytes(sizeof(phys_seed),
+ 						      (u8 *)&phys_seed);
+ 			if (status == EFI_NOT_FOUND) {
+-				efi_info("EFI_RNG_PROTOCOL unavailable, no randomness supplied\n");
++				efi_info("EFI_RNG_PROTOCOL unavailable, KASLR will be disabled\n");
++				efi_nokaslr = true;
+ 			} else if (status != EFI_SUCCESS) {
+-				efi_err("efi_get_random_bytes() failed\n");
+-				return status;
++				efi_err("efi_get_random_bytes() failed (0x%lx), KASLR will be disabled\n",
++					status);
++				efi_nokaslr = true;
+ 			}
+ 		} else {
+ 			efi_info("KASLR disabled on kernel command line\n");
+--- a/drivers/firmware/efi/libstub/fdt.c
++++ b/drivers/firmware/efi/libstub/fdt.c
+@@ -136,7 +136,7 @@ static efi_status_t update_fdt(void *ori
+ 	if (status)
+ 		goto fdt_set_fail;
  
-+static inline bool io_match_files(struct io_kiocb *req,
-+				       struct files_struct *files)
-+{
-+	if (!files)
-+		return true;
-+	if (req->flags & REQ_F_WORK_INITIALIZED)
-+		return req->work.files == files;
-+	return false;
-+}
-+
- /* Returns true if there are no backlogged entries after the flush */
--static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
-+static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+				     struct task_struct *tsk,
-+				     struct files_struct *files)
- {
- 	struct io_rings *rings = ctx->rings;
-+	struct io_kiocb *req, *tmp;
- 	struct io_uring_cqe *cqe;
--	struct io_kiocb *req;
- 	unsigned long flags;
- 	LIST_HEAD(list);
+-	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
++	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE) && !efi_nokaslr) {
+ 		efi_status_t efi_status;
  
-@@ -1368,13 +1380,16 @@ static bool io_cqring_overflow_flush(str
- 		ctx->cq_overflow_flushed = 1;
- 
- 	cqe = NULL;
--	while (!list_empty(&ctx->cq_overflow_list)) {
-+	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
-+		if (tsk && req->task != tsk)
-+			continue;
-+		if (!io_match_files(req, files))
-+			continue;
-+
- 		cqe = io_get_cqring(ctx);
- 		if (!cqe && !force)
- 			break;
- 
--		req = list_first_entry(&ctx->cq_overflow_list, struct io_kiocb,
--						compl.list);
- 		list_move(&req->compl.list, &list);
- 		if (cqe) {
- 			WRITE_ONCE(cqe->user_data, req->user_data);
-@@ -1988,7 +2003,7 @@ static unsigned io_cqring_events(struct
- 		if (noflush && !list_empty(&ctx->cq_overflow_list))
- 			return -1U;
- 
--		io_cqring_overflow_flush(ctx, false);
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
+ 		efi_status = efi_get_random_bytes(sizeof(fdt_val64),
+@@ -145,8 +145,6 @@ static efi_status_t update_fdt(void *ori
+ 			status = fdt_setprop_var(fdt, node, "kaslr-seed", fdt_val64);
+ 			if (status)
+ 				goto fdt_set_fail;
+-		} else if (efi_status != EFI_NOT_FOUND) {
+-			return efi_status;
+ 		}
  	}
  
- 	/* See comment at the top of this file */
-@@ -6489,7 +6504,7 @@ static int io_submit_sqes(struct io_ring
- 	/* if we have a backlog and couldn't flush it all, return BUSY */
- 	if (test_bit(0, &ctx->sq_check_overflow)) {
- 		if (!list_empty(&ctx->cq_overflow_list) &&
--		    !io_cqring_overflow_flush(ctx, false))
-+		    !io_cqring_overflow_flush(ctx, false, NULL, NULL))
- 			return -EBUSY;
- 	}
- 
-@@ -7993,7 +8008,7 @@ static void io_ring_exit_work(struct wor
- 	 */
- 	do {
- 		if (ctx->rings)
--			io_cqring_overflow_flush(ctx, true);
-+			io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 		io_iopoll_try_reap_events(ctx);
- 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
- 	io_ring_ctx_free(ctx);
-@@ -8013,7 +8028,7 @@ static void io_ring_ctx_wait_and_kill(st
- 
- 	/* if we failed setting up the ctx, we might not have any rings */
- 	if (ctx->rings)
--		io_cqring_overflow_flush(ctx, true);
-+		io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 	io_iopoll_try_reap_events(ctx);
- 	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
- 
-@@ -8069,12 +8084,6 @@ static bool io_match_link(struct io_kioc
- 	return false;
- }
- 
--static inline bool io_match_files(struct io_kiocb *req,
--				       struct files_struct *files)
--{
--	return (req->flags & REQ_F_WORK_INITIALIZED) && req->work.files == files;
--}
--
- static bool io_match_link_files(struct io_kiocb *req,
- 				struct files_struct *files)
- {
-@@ -8365,7 +8374,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned
- 	ret = 0;
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		if (!list_empty_careful(&ctx->cq_overflow_list))
--			io_cqring_overflow_flush(ctx, false);
-+			io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 		if (flags & IORING_ENTER_SQ_WAKEUP)
- 			wake_up(&ctx->sqo_wait);
- 		submitted = to_submit;
 
 
