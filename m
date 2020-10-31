@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5432A1659
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:45:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A03E2A1713
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727407AbgJaLom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:44:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45070 "EHLO mail.kernel.org"
+        id S1727434AbgJaLud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728191AbgJaLoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:39 -0400
+        id S1727624AbgJaLlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B9B3205F4;
-        Sat, 31 Oct 2020 11:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EF0820719;
+        Sat, 31 Oct 2020 11:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144678;
-        bh=ow25wOT9xQi0ASWc0Mbvg770YA+wjWXgttwOe8o3log=;
+        s=default; t=1604144473;
+        bh=U15Lu1DZVZ07ITKi+DQJlpVIP+YXEL/G7W7b4jkm63c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ns3VG9FwW1L+R4dWNkBY+SIEgR3+7Hv4xfXlZSC+DFaBmjh1eheQddjIzim5eRhRn
-         z3N+dXxVkQaSmY4kWoRPOVdKJUnOy+E//WYlglgNy/LbPfCViS1v2oZQFnxBRD+9Dr
-         uuddPNROcgoAsSrzGrXYHKEtQvUUEm8r4wkIXz0s=
+        b=wYOdXipM2JC4Sne0WF/PhE3EiflN7aHlZAvyku9eTjko/7YrhB3ZU+HYFJZFkBaJQ
+         UnI+K/WfU7tV72KjL8kwQUfnQ0lf/VM2HnZ5Xjo84eUy/VPvvAR/SoYkoJcLTgGvA3
+         4ICKAd3CHR8NO5jt9kPoEp8F+FJM4Zq9bi5eOluw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.9 22/74] arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
+        stable@vger.kernel.org,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 32/70] chelsio/chtls: fix deadlock issue
 Date:   Sat, 31 Oct 2020 12:36:04 +0100
-Message-Id: <20201031113501.108512551@linuxfoundation.org>
+Message-Id: <20201031113501.040725487@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-commit 3b92fa7485eba16b05166fddf38ab42f2ff6ab95 upstream.
+[ Upstream commit 28e9dcd9172028263c8225c15c4e329e08475e89 ]
 
-With CONFIG_EXPERT=y, CONFIG_KASAN=y, CONFIG_RANDOMIZE_BASE=n,
-CONFIG_RELOCATABLE=n, we observe the following failure when trying to
-link the kernel image with LD=ld.lld:
+In chtls_pass_establish() we hold child socket lock using bh_lock_sock
+and we are again trying bh_lock_sock in add_to_reap_list, causing deadlock.
+Remove bh_lock_sock in add_to_reap_list() as lock is already held.
 
-error: section: .exit.data is not contiguous with other relro sections
-
-ld.lld defaults to -z relro while ld.bfd defaults to -z norelro. This
-was previously fixed, but only for CONFIG_RELOCATABLE=y.
-
-Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201016175339.2429280-1-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Link: https://lore.kernel.org/r/20201025193538.31112-1-vinay.yadav@chelsio.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/Makefile |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -10,14 +10,14 @@
- #
- # Copyright (C) 1995-2001 by Russell King
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -1513,7 +1513,6 @@ static void add_to_reap_list(struct sock
+ 	struct chtls_sock *csk = sk->sk_user_data;
  
--LDFLAGS_vmlinux	:=--no-undefined -X
-+LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
- CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
+ 	local_bh_disable();
+-	bh_lock_sock(sk);
+ 	release_tcp_port(sk); /* release the port immediately */
  
- ifeq ($(CONFIG_RELOCATABLE), y)
- # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
- # for relative relocs, since this leads to better Image compression
- # with the relocation offsets always being zero.
--LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
-+LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext \
- 			$(call ld-option, --no-apply-dynamic-relocs)
- endif
+ 	spin_lock(&reap_list_lock);
+@@ -1522,7 +1521,6 @@ static void add_to_reap_list(struct sock
+ 	if (!csk->passive_reap_next)
+ 		schedule_work(&reap_task);
+ 	spin_unlock(&reap_list_lock);
+-	bh_unlock_sock(sk);
+ 	local_bh_enable();
+ }
  
 
 
