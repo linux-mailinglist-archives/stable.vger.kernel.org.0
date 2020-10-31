@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E1D2A16E2
+	by mail.lfdr.de (Postfix) with ESMTP id E0F302A16E3
 	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbgJaLlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
+        id S1727746AbgJaLls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727720AbgJaLlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:45 -0400
+        id S1727735AbgJaLls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEA8B20731;
-        Sat, 31 Oct 2020 11:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F2F420791;
+        Sat, 31 Oct 2020 11:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144505;
-        bh=Shky6g4OVk/6gYK00B9yQQdG33qHJEk0/XWJz/WoXB8=;
+        s=default; t=1604144507;
+        bh=WOeR5q4Stn4rnNDEQqHOr44KHoF273FAr4WbkJsmNAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPzE+P/9HrIlHpX8OyZS5VUdaZD4UU7gJk5O6Fpvb62R3MagKe/lwVofYn7zpzSJ8
-         mSBABev4b0pA/Eqkt+XKQlW9ia/PSYHgDTFks9wmjhd3SeHzxgK+yHLrOxC/emK/+g
-         98DbnqU+53i8lai5gouUi6ty6HzbAmuSQLarrU0c=
+        b=PnsYs+PZsPUlEZy2PgdtWMkoKtu+EeSuf6Wwsq7sIjGBgRILv/x1S6Vo3Mi/HQ6Fv
+         ghX+8KHqF0k2jQY7ZFgywUq8LjxLyZ15XL/NGSElWW+eh4kt8uiYiIjPWWyknNO/Cp
+         Ni68XkzcjWr4KvR/iOZEC0+yMlWW9P/vO37oszgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        stable@vger.kernel.org,
+        Serge Belyshev <belyshev@depni.sinp.msu.ru>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 43/70] net/sched: act_mpls: Add softdep on mpls_gso.ko
-Date:   Sat, 31 Oct 2020 12:36:15 +0100
-Message-Id: <20201031113501.559927528@linuxfoundation.org>
+Subject: [PATCH 5.8 44/70] r8169: fix issue with forced threading in combination with shared interrupts
+Date:   Sat, 31 Oct 2020 12:36:16 +0100
+Message-Id: <20201031113501.608327456@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
 References: <20201031113459.481803250@linuxfoundation.org>
@@ -42,32 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-TCA_MPLS_ACT_PUSH and TCA_MPLS_ACT_MAC_PUSH might be used on gso
-packets. Such packets will thus require mpls_gso.ko for segmentation.
+[ Upstream commit 2734a24e6e5d18522fbf599135c59b82ec9b2c9e ]
 
-v2: Drop dependency on CONFIG_NET_MPLS_GSO in Kconfig (from Jakub and
-    David).
+As reported by Serge flag IRQF_NO_THREAD causes an error if the
+interrupt is actually shared and the other driver(s) don't have this
+flag set. This situation can occur if a PCI(e) legacy interrupt is
+used in combination with forced threading.
+There's no good way to deal with this properly, therefore we have to
+remove flag IRQF_NO_THREAD. For fixing the original forced threading
+issue switch to napi_schedule().
 
-Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Link: https://lore.kernel.org/r/1f6cab15bbd15666795061c55563aaf6a386e90e.1603708007.git.gnault@redhat.com
+Fixes: 424a646e072a ("r8169: fix operation under forced interrupt threading")
+Link: https://www.spinics.net/lists/netdev/msg694960.html
+Reported-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Tested-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
+Link: https://lore.kernel.org/r/b5b53bfe-35ac-3768-85bf-74d1290cf394@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_mpls.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/realtek/r8169_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sched/act_mpls.c
-+++ b/net/sched/act_mpls.c
-@@ -408,6 +408,7 @@ static void __exit mpls_cleanup_module(v
- module_init(mpls_init_module);
- module_exit(mpls_cleanup_module);
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -4559,7 +4559,7 @@ static irqreturn_t rtl8169_interrupt(int
+ 	}
  
-+MODULE_SOFTDEP("post: mpls_gso");
- MODULE_AUTHOR("Netronome Systems <oss-drivers@netronome.com>");
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("MPLS manipulation actions");
+ 	rtl_irq_disable(tp);
+-	napi_schedule_irqoff(&tp->napi);
++	napi_schedule(&tp->napi);
+ out:
+ 	rtl_ack_events(tp, status);
+ 
+@@ -4727,7 +4727,7 @@ static int rtl_open(struct net_device *d
+ 	rtl_request_firmware(tp);
+ 
+ 	retval = request_irq(pci_irq_vector(pdev, 0), rtl8169_interrupt,
+-			     IRQF_NO_THREAD | IRQF_SHARED, dev->name, tp);
++			     IRQF_SHARED, dev->name, tp);
+ 	if (retval < 0)
+ 		goto err_release_fw_2;
+ 
 
 
