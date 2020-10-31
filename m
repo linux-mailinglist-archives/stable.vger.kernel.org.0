@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F692A16AE
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 091722A1637
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727997AbgJaLrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S1727959AbgJaLnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727970AbgJaLpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:05 -0400
+        id S1727958AbgJaLnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:43:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B23E20739;
-        Sat, 31 Oct 2020 11:45:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE26020739;
+        Sat, 31 Oct 2020 11:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144704;
-        bh=tLe4UjHfaP1L6JDkFsgInBOXWJARSnPmbin4YN2jjzk=;
+        s=default; t=1604144590;
+        bh=e2Rk9PNlPqMnrxoDg8bwy03tmY6Hby9b57Vg85fF3OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Se5VZKePghQMys4CE9LO198UvjbYXY5dBzURSXZVtlSjgSS+c80gwGe44MPJWWT+W
-         /AMUyH5yUPBhGeAoz9I7YKW5vCcdZwKaD9Y2iV+gTTrg6vsseeXRRbIE5R0ygH4lkz
-         MJt6zMCh2+7XTR6Gqo+Fpj0I5Hi8nC8sWKxhdMEM=
+        b=sqzkqO9IjVUc/Toa+ZBi+WkrJoDJ4+VZmxnLtQJDziGQuuC+Qxq45cl/k9a3Vf9vi
+         vyUJZ//i0QdQfd4iKLoyHBwBJ3CvKG7xxbxdGeliO33vt/dw/BH3k8PVv8J2+RnunS
+         V+WhUd6IXZAIW2zM2BXtq7WAd5tcxVyh7p3OixXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 49/74] net/smc: fix invalid return code in smcd_new_buf_create()
+        stable@vger.kernel.org, Frederic Barrat <fbarrat@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.8 59/70] cxl: Rework error message for incompatible slots
 Date:   Sat, 31 Oct 2020 12:36:31 +0100
-Message-Id: <20201031113502.388439261@linuxfoundation.org>
+Message-Id: <20201031113502.327234671@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Frederic Barrat <fbarrat@linux.ibm.com>
 
-[ Upstream commit 6b1bbf94ab369d97ed3bdaa561521a52c27ef619 ]
+commit 40ac790d99c6dd16b367d5c2339e446a5f1b0593 upstream.
 
-smc_ism_register_dmb() returns error codes set by the ISM driver which
-are not guaranteed to be negative or in the errno range. Such values
-would not be handled by ERR_PTR() and finally the return code will be
-used as a memory address.
-Fix that by using a valid negative errno value with ERR_PTR().
+Improve the error message shown if a capi adapter is plugged on a
+capi-incompatible slot directly under the PHB (no intermediate switch).
 
-Fixes: 72b7f6c48708 ("net/smc: unique reason code for exceeded max dmb count")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 5632874311db ("cxl: Add support for POWER9 DD2")
+Cc: stable@vger.kernel.org # 4.14+
+Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200407115601.25453-1-fbarrat@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/smc/smc_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1616,7 +1616,8 @@ static struct smc_buf_desc *smcd_new_buf
- 		rc = smc_ism_register_dmb(lgr, bufsize, buf_desc);
- 		if (rc) {
- 			kfree(buf_desc);
--			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) : ERR_PTR(rc);
-+			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) :
-+						 ERR_PTR(-EIO);
- 		}
- 		buf_desc->pages = virt_to_page(buf_desc->cpu_addr);
- 		/* CDC header stored in buf. So, pretend it was smaller */
+---
+ drivers/misc/cxl/pci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/misc/cxl/pci.c
++++ b/drivers/misc/cxl/pci.c
+@@ -393,8 +393,8 @@ int cxl_calc_capp_routing(struct pci_dev
+ 	*capp_unit_id = get_capp_unit_id(np, *phb_index);
+ 	of_node_put(np);
+ 	if (!*capp_unit_id) {
+-		pr_err("cxl: invalid capp unit id (phb_index: %d)\n",
+-		       *phb_index);
++		pr_err("cxl: No capp unit found for PHB[%lld,%d]. Make sure the adapter is on a capi-compatible slot\n",
++		       *chipid, *phb_index);
+ 		return -ENODEV;
+ 	}
+ 
 
 
