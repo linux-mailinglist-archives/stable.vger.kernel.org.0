@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309232A1631
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:43:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24252A168A
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:46:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727225AbgJaLmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
+        id S1728370AbgJaLqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727042AbgJaLmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:42:50 -0400
+        id S1727320AbgJaLqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:46:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1A13205F4;
-        Sat, 31 Oct 2020 11:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AE2120739;
+        Sat, 31 Oct 2020 11:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144570;
-        bh=d+MRtzD7Pk3lm4OSWL1yHP5iUYh2DznGTlcV/iBkqFk=;
+        s=default; t=1604144779;
+        bh=I7ef5RP+nZYYyssBBSxTSJttzDcyY9c8ZJO+3R3iCgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5D+w+GZOEA3FxOtfGb0B6fRfwpeaIyZtPqv0wZx9M0Le8gM2+y72p83yVmBlO1OY
-         JBqgpEQIBlKDtSFZdQDLaMwNqSbOlRofoxkvEpxoxfFmHsliWjdWVwP6LNJr+T4ovi
-         n5KXCyZIi+edTCeMyw6w7Evc/kztUubTsz2z/YpY=
+        b=YMAVwQpVmka0p6Oy6zn2gO3LTdpCOv1e8aU6kWJuCUFBoOJDyDKZHm9HvXDgbnpaa
+         BflcBR6qKfPE/YSHO7n514noUG8XO77RP9PTdPLkggFHqY2QbXJ9bZewwFjmQRibtY
+         UtvqR4v39hA3Zmw2HhjGreG1uqwSGr0NzUR86Pos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricky Wu <ricky_wu@realtek.com>,
-        Chris Clayton <chris2553@googlemail.com>
-Subject: [PATCH 5.8 69/70] misc: rtsx: do not setting OC_POWER_DOWN reg in rtsx_pci_init_ocp()
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.9 59/74] bpf: Fix comment for helper bpf_current_task_under_cgroup()
 Date:   Sat, 31 Oct 2020 12:36:41 +0100
-Message-Id: <20201031113502.789434092@linuxfoundation.org>
+Message-Id: <20201031113502.859072000@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricky Wu <ricky_wu@realtek.com>
+From: Song Liu <songliubraving@fb.com>
 
-commit 551b6729578a8981c46af964c10bf7d5d9ddca83 upstream.
+commit 1aef5b4391f0c75c0a1523706a7b0311846ee12f upstream.
 
-this power saving action in rtsx_pci_init_ocp() cause INTEL-NUC6 platform
-missing card reader
+This should be "current" not "skb".
 
-Signed-off-by: Ricky Wu <ricky_wu@realtek.com>
-Link: https://lore.kernel.org/r/20200824030006.30033-1-ricky_wu@realtek.com
-Cc: Chris Clayton <chris2553@googlemail.com>
+Fixes: c6b5fb8690fa ("bpf: add documentation for eBPF helpers (42-50)")
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/bpf/20200910203314.70018-1-songliubraving@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/cardreader/rtsx_pcr.c |    4 ----
- 1 file changed, 4 deletions(-)
+ include/uapi/linux/bpf.h       |    4 ++--
+ tools/include/uapi/linux/bpf.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/misc/cardreader/rtsx_pcr.c
-+++ b/drivers/misc/cardreader/rtsx_pcr.c
-@@ -1172,10 +1172,6 @@ void rtsx_pci_init_ocp(struct rtsx_pcr *
- 			rtsx_pci_write_register(pcr, REG_OCPGLITCH,
- 				SD_OCP_GLITCH_MASK, pcr->hw_param.ocp_glitch);
- 			rtsx_pci_enable_ocp(pcr);
--		} else {
--			/* OC power down */
--			rtsx_pci_write_register(pcr, FPDCTL, OC_POWER_DOWN,
--				OC_POWER_DOWN);
- 		}
- 	}
- }
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -1438,8 +1438,8 @@ union bpf_attr {
+  * 	Return
+  * 		The return value depends on the result of the test, and can be:
+  *
+- * 		* 0, if the *skb* task belongs to the cgroup2.
+- * 		* 1, if the *skb* task does not belong to the cgroup2.
++ *		* 0, if current task belongs to the cgroup2.
++ *		* 1, if current task does not belong to the cgroup2.
+  * 		* A negative error code, if an error occurred.
+  *
+  * long bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -1438,8 +1438,8 @@ union bpf_attr {
+  * 	Return
+  * 		The return value depends on the result of the test, and can be:
+  *
+- * 		* 0, if the *skb* task belongs to the cgroup2.
+- * 		* 1, if the *skb* task does not belong to the cgroup2.
++ *		* 0, if current task belongs to the cgroup2.
++ *		* 1, if current task does not belong to the cgroup2.
+  * 		* A negative error code, if an error occurred.
+  *
+  * long bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
 
 
