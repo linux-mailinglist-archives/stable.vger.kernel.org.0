@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB4A2A1673
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3D32A1698
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727900AbgJaLpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
+        id S1728288AbgJaLpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728285AbgJaLpk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:40 -0400
+        id S1728271AbgJaLpo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:45:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40E8B20739;
-        Sat, 31 Oct 2020 11:45:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E450205F4;
+        Sat, 31 Oct 2020 11:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144739;
-        bh=IBDCAtZAeG0/LGaYSQXF5LKZWfH9gmejTmW2vzUoc1o=;
+        s=default; t=1604144742;
+        bh=ImkCi6wVJfwB6SBF9cHHXCHQVVWly6Y7DHUD+gkteAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koZoFvdwJat/SwEyn6z143whN3xYmDPvB9oyITdix9ruZZ2YOKDfxcsVJ00lgZ6BX
-         laYz0xLSzRYenLqo4VSTSLO/p15BLDKUhnjI0YejRLLyzVzN0qS34KWEc8K1RlJpxj
-         JjPxwoRSA+C78Ik33RRbEZjCB3bE5uHLkMBJI7UU=
+        b=GoFyJjJFpUh5rzOdl2eG3FcgopPd25pAiFRXxWeD4bQNf1wjqbx1zaylA4NeDGibD
+         2M4Ys64RC5kil0/HQ8N7QnE42HBfa1VRovRC2tJ7oAZendPgXYZEsTG53lX2VBgPye
+         aF+hFj6YrgGlOciuhhDoqaz8g4UdCOzr45oMcVVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.9 63/74] RDMA/addr: Fix race with netevent_callback()/rdma_addr_cancel()
-Date:   Sat, 31 Oct 2020 12:36:45 +0100
-Message-Id: <20201031113503.048337338@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.9 64/74] mtd: lpddr: Fix bad logic in print_drs_error
+Date:   Sat, 31 Oct 2020 12:36:46 +0100
+Message-Id: <20201031113503.096279772@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
 References: <20201031113500.031279088@linuxfoundation.org>
@@ -43,71 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 2ee9bf346fbfd1dad0933b9eb3a4c2c0979b633e upstream.
+commit 1c9c02bb22684f6949d2e7ddc0a3ff364fd5a6fc upstream.
 
-This three thread race can result in the work being run once the callback
-becomes NULL:
+Update logic for broken test. Use a more common logging style.
 
-       CPU1                 CPU2                   CPU3
- netevent_callback()
-                     process_one_req()       rdma_addr_cancel()
-                      [..]
-     spin_lock_bh()
-  	set_timeout()
-     spin_unlock_bh()
+It appears the logic in this function is broken for the
+consecutive tests of
 
-						spin_lock_bh()
-						list_del_init(&req->list);
-						spin_unlock_bh()
+        if (prog_status & 0x3)
+                ...
+        else if (prog_status & 0x2)
+                ...
+        else (prog_status & 0x1)
+                ...
 
-		     req->callback = NULL
-		     spin_lock_bh()
-		       if (!list_empty(&req->list))
-                         // Skipped!
-		         // cancel_delayed_work(&req->work);
-		     spin_unlock_bh()
+Likely the first test should be
 
-		    process_one_req() // again
-		     req->callback() // BOOM
-						cancel_delayed_work_sync()
+        if ((prog_status & 0x3) == 0x3)
 
-The solution is to always cancel the work once it is completed so any
-in between set_timeout() does not result in it running again.
+Found by inspection of include files using printk.
 
+Fixes: eb3db27507f7 ("[MTD] LPDDR PFOW definition")
 Cc: stable@vger.kernel.org
-Fixes: 44e75052bc2a ("RDMA/rdma_cm: Make rdma_addr_cancel into a fence")
-Link: https://lore.kernel.org/r/20200930072007.1009692-1-leon@kernel.org
-Reported-by: Dan Aloni <dan@kernelim.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/3fb0e29f5b601db8be2938a01d974b00c8788501.1588016644.git.gustavo@embeddedor.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/addr.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ include/linux/mtd/pfow.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -647,13 +647,12 @@ static void process_one_req(struct work_
- 	req->callback = NULL;
+--- a/include/linux/mtd/pfow.h
++++ b/include/linux/mtd/pfow.h
+@@ -128,7 +128,7 @@ static inline void print_drs_error(unsig
  
- 	spin_lock_bh(&lock);
-+	/*
-+	 * Although the work will normally have been canceled by the workqueue,
-+	 * it can still be requeued as long as it is on the req_list.
-+	 */
-+	cancel_delayed_work(&req->work);
- 	if (!list_empty(&req->list)) {
--		/*
--		 * Although the work will normally have been canceled by the
--		 * workqueue, it can still be requeued as long as it is on the
--		 * req_list.
--		 */
--		cancel_delayed_work(&req->work);
- 		list_del_init(&req->list);
- 		kfree(req);
- 	}
+ 	if (!(dsr & DSR_AVAILABLE))
+ 		printk(KERN_NOTICE"DSR.15: (0) Device not Available\n");
+-	if (prog_status & 0x03)
++	if ((prog_status & 0x03) == 0x03)
+ 		printk(KERN_NOTICE"DSR.9,8: (11) Attempt to program invalid "
+ 						"half with 41h command\n");
+ 	else if (prog_status & 0x02)
 
 
