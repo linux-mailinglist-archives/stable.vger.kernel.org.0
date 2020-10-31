@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3352A1A38
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 20:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1D02A1A3C
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 20:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbgJaTGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 15:06:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
+        id S1728396AbgJaTLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 15:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726627AbgJaTGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 15:06:41 -0400
+        id S1726627AbgJaTLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 15:11:46 -0400
 Received: from sol.attlocal.net (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31A69205ED;
-        Sat, 31 Oct 2020 19:06:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2476F205ED;
+        Sat, 31 Oct 2020 19:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604171200;
-        bh=d+/c+7Fnv4byX9qUFUAXwzitQsidOMxkPzy0wEio50U=;
+        s=default; t=1604171505;
+        bh=XkwFt4rK1J9jVbURMKmmgN1/KeTkwcAknpfiuAlKp3Q=;
         h=From:To:Cc:Subject:Date:From;
-        b=tNv9IGUMgz+Awi7f6uxEot7BrEGYOdzdEY1KqSThPkjB4AAfrYIXbZn9jtMDXLG3+
-         HBgq/TR719ltnm0sQKqZgetNiLisLXGPP/3KEjr9TkKgoveaz3nEQYxYc2tULaUvJu
-         kRgbztkG9xc0GezgsL7vjiFuMgebIKoHKi8khUf8=
+        b=Of/2Ly7FQEy9YnPDUEzhA/Z1pY5E/e3hBNfPAIJBuM8CRghcPw0vOGoBRVnbznkxX
+         e01fKPdxFzeQ/XVNFG7qpAo5FmSdTmxUw5apL78y8HZwYcYV+Xiy2DnSkE/UUsls/U
+         60/+EjqVbpqTKoRxfoK/iPaE3v8mgiQamYbKI9sA=
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linux-fscrypt@vger.kernel.org
-Subject: [PATCH 4.9] fscrypt: return -EXDEV for incompatible rename or link into encrypted dir
-Date:   Sat, 31 Oct 2020 12:06:22 -0700
-Message-Id: <20201031190622.256948-1-ebiggers@kernel.org>
+Subject: [PATCH 4.4] fscrypt: return -EXDEV for incompatible rename or link into encrypted dir
+Date:   Sat, 31 Oct 2020 12:10:19 -0700
+Message-Id: <20201031191019.283648-1-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.29.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -39,10 +39,10 @@ X-Mailing-List: stable@vger.kernel.org
 From: Eric Biggers <ebiggers@google.com>
 
 commit f5e55e777cc93eae1416f0fa4908e8846b6d7825 upstream.
-[Please apply to 4.9-stable.  This is an important fix to have,
+[Please apply to 4.4-stable.  This is an important fix to have,
 and it will be needed for xfstest generic/398 to pass if
 https://lkml.kernel.org/r/20201031054141.695517-1-ebiggers@kernel.org
-is applied.  Note, this commit had to be reworked to apply to 4.9.]
+is applied.  Note, this commit had to be reworked to apply to 4.4.]
 
 Currently, trying to rename or link a regular file, directory, or
 symlink into an encrypted directory fails with EPERM when the source
@@ -94,87 +94,72 @@ Cc: Michael Halcrow <mhalcrow@google.com>
 Cc: Joe Richey <joerichey@google.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- fs/crypto/policy.c | 3 +--
- fs/ext4/namei.c    | 6 +++---
- fs/f2fs/namei.c    | 6 +++---
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ fs/ext4/namei.c | 6 +++---
+ fs/f2fs/namei.c | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
-index 57a97b38a2fa2..51f4463718e84 100644
---- a/fs/crypto/policy.c
-+++ b/fs/crypto/policy.c
-@@ -180,8 +180,7 @@ EXPORT_SYMBOL(fscrypt_get_policy);
-  * malicious offline violations of this constraint, while the link and rename
-  * checks are needed to prevent online violations of this constraint.
-  *
-- * Return: 1 if permitted, 0 if forbidden.  If forbidden, the caller must fail
-- * the filesystem operation with EPERM.
-+ * Return: 1 if permitted, 0 if forbidden.
-  */
- int fscrypt_has_permitted_context(struct inode *parent, struct inode *child)
- {
 diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 157dbbe235f90..8ded38ac4cdef 100644
+index 061b026e464c5..96d77a42ecdea 100644
 --- a/fs/ext4/namei.c
 +++ b/fs/ext4/namei.c
-@@ -3259,7 +3259,7 @@ static int ext4_link(struct dentry *old_dentry,
+@@ -3218,7 +3218,7 @@ static int ext4_link(struct dentry *old_dentry,
  		return -EMLINK;
  	if (ext4_encrypted_inode(dir) &&
- 			!fscrypt_has_permitted_context(dir, inode))
+ 	    !ext4_is_child_context_consistent_with_parent(dir, inode))
 -		return -EPERM;
 +		return -EXDEV;
- 
-        if ((ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT)) &&
- 	   (!projid_eq(EXT4_I(dir)->i_projid,
-@@ -3597,7 +3597,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if ((old.dir != new.dir) &&
+ 	err = dquot_initialize(dir);
+ 	if (err)
+ 		return err;
+@@ -3537,7 +3537,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
  	    ext4_encrypted_inode(new.dir) &&
- 	    !fscrypt_has_permitted_context(new.dir, old.inode)) {
+ 	    !ext4_is_child_context_consistent_with_parent(new.dir,
+ 							  old.inode)) {
 -		retval = -EPERM;
 +		retval = -EXDEV;
  		goto end_rename;
  	}
  
-@@ -3776,7 +3776,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	    (old_dir != new_dir) &&
- 	    (!fscrypt_has_permitted_context(new_dir, old.inode) ||
- 	     !fscrypt_has_permitted_context(old_dir, new.inode)))
+@@ -3718,7 +3718,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 							   old.inode) ||
+ 	     !ext4_is_child_context_consistent_with_parent(old_dir,
+ 							   new.inode)))
 -		return -EPERM;
 +		return -EXDEV;
  
- 	if ((ext4_test_inode_flag(new_dir, EXT4_INODE_PROJINHERIT) &&
- 	     !projid_eq(EXT4_I(new_dir)->i_projid,
+ 	retval = dquot_initialize(old.dir);
+ 	if (retval)
 diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index ccb99d5cfd8b0..ce0957318771c 100644
+index e5553cd8fe4ed..1475a00ae7c8e 100644
 --- a/fs/f2fs/namei.c
 +++ b/fs/f2fs/namei.c
-@@ -177,7 +177,7 @@ static int f2fs_link(struct dentry *old_dentry, struct inode *dir,
+@@ -169,7 +169,7 @@ static int f2fs_link(struct dentry *old_dentry, struct inode *dir,
  
  	if (f2fs_encrypted_inode(dir) &&
- 			!fscrypt_has_permitted_context(dir, inode))
+ 		!f2fs_is_child_context_consistent_with_parent(dir, inode))
 -		return -EPERM;
 +		return -EXDEV;
  
- 	f2fs_balance_fs(sbi, true);
+ 	f2fs_balance_fs(sbi);
  
-@@ -667,7 +667,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 
+@@ -597,7 +597,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
  	if ((old_dir != new_dir) && f2fs_encrypted_inode(new_dir) &&
- 			!fscrypt_has_permitted_context(new_dir, old_inode)) {
+ 		!f2fs_is_child_context_consistent_with_parent(new_dir,
+ 							old_inode)) {
 -		err = -EPERM;
 +		err = -EXDEV;
  		goto out;
  	}
  
-@@ -855,7 +855,7 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			(old_dir != new_dir) &&
- 			(!fscrypt_has_permitted_context(new_dir, old_inode) ||
- 			 !fscrypt_has_permitted_context(old_dir, new_inode)))
+@@ -758,7 +758,7 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 								old_inode) ||
+ 		!f2fs_is_child_context_consistent_with_parent(old_dir,
+ 								new_inode)))
 -		return -EPERM;
 +		return -EXDEV;
  
- 	old_entry = f2fs_find_entry(old_dir, &old_dentry->d_name, &old_page);
- 	if (!old_entry) {
+ 	f2fs_balance_fs(sbi);
+ 
 -- 
 2.29.1
 
