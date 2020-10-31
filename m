@@ -2,86 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 647332A1351
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 04:20:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 464C12A1370
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 06:09:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725794AbgJaDUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Oct 2020 23:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41464 "EHLO
+        id S1725924AbgJaFJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 01:09:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725536AbgJaDUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Oct 2020 23:20:03 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8064C0613D5
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 20:20:02 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id dk16so10661374ejb.12
-        for <stable@vger.kernel.org>; Fri, 30 Oct 2020 20:20:02 -0700 (PDT)
+        with ESMTP id S1725794AbgJaFJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 01:09:18 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4D7C0613D5;
+        Fri, 30 Oct 2020 22:09:18 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id r3so4026272plo.1;
+        Fri, 30 Oct 2020 22:09:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=TDcAJjhMsLp+2nal+1Wxuq+uw18VER9VuNQouCQgD2k=;
-        b=GdpPdOcSuDi9n46b2TVDaSaotejm7tC1yJHw5b9aPbPTDkgi3U38Mch29Ab6C0E9Y2
-         qrTNxnVDSRINXKK9dPuV6cwKHHGLwkBmTwPbE9PIRglpv9Bb7Epat8xKyST+LyZE3PS2
-         ebbCcRWiCIPaZ/QSyDELdCaViIPJOBkfyCsrvMWq2r5IXa5HyRTittRjTBmZBg2iQY7t
-         8DVzFqnLL5GbZaoSa8hpfPaaNRwrm21jVjFxaaKoez7FePKxGcW9DKcaBoSvPx85lCQS
-         Dg2vIDhJpFlYp7by4v7wBhZbfHhUGJ1aKnNJxEzRRZiuez2VNiMqv9ZthkaPbj8rS4IZ
-         0x3A==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/QYgX7jmDmZ/5C2esaRsn+aOZTolMLn2ocrsNfVvcy0=;
+        b=gKWgHftbGrOdn834mddCqRUieroHULWR3rrAPXb3w7r3m0Sw3CyB7zMOnssmvgQ5Ff
+         k8YdO1+h3m4g1Y2yPhdBxC8yCo0pGNvi9XJ2RA3S4GvMx7lJLPyPrHt+6HKBHyzK6VNj
+         5kL4/aEWEuhBwzMabtYRZD5vKRvCc1iP75L3SdrBh/T1nLsb5CXIVSwibILpHHeJQ8Uv
+         oKQETHvaI6+vl+GTtP0ENWBefbqdLvhqGsxqDQJNRU7ZTM4WOHCmhG9PkQwfOPJhz8XC
+         tM2yGrknIOMj34EkjubaK0L+v/GTb2wSFtvdyuVrRqAhRJxA1xnS+qPopf9r3MZ/yeSC
+         645g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=TDcAJjhMsLp+2nal+1Wxuq+uw18VER9VuNQouCQgD2k=;
-        b=TcufRzfG35yv6fsI2GBhzDFo8lTnhE8B3JqnXY6Ms7tTaKAHJ/Ojs44UPM91NH3cbn
-         L/OuLbSEEUfqsDqXUj24Q8D7pt1BnB8Any7JGar72WQiv/Vbt7VUws7zzAWjr56+4bL8
-         6uQI4Mn5gu9/Gw6x+eORmgk0Fq0CocSG9pVvJ8B2oYBQvQHEBI31HKBx39DNso5T1ged
-         jBqsxyNYgos/MWfGxj96BXbFTsD+qIPt46RHRkB8aHonLhVSVHYN8yMX6v1EJMxQvAFe
-         PZ8vhWGLAAhNFqswKoej9Io3aPzKvmyEsXG6gaz7akmVW6u8/IZ9n4rCVAR+08QUNq8g
-         B/SA==
-X-Gm-Message-State: AOAM533WQb1Ks2BYSkI86wTJ9r/97EExD/PCDcaIte4qPopvdeaFoH6c
-        1orclIemRoJ6Xb+IbXxQFBLNYW6n43UT6/svoIM=
-X-Google-Smtp-Source: ABdhPJyZIKTdk9T4jW+htXiW0uz3QYJ6ohab9a+X13M8QM+wCs3BZ09rMY3/w6JYZrld5djzgY+GGWa+LXXeFjZg5bI=
-X-Received: by 2002:a17:907:4186:: with SMTP id mz6mr4570363ejb.175.1604114401686;
- Fri, 30 Oct 2020 20:20:01 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/QYgX7jmDmZ/5C2esaRsn+aOZTolMLn2ocrsNfVvcy0=;
+        b=fBeuZL8Ds3VRgotm0QBudDxtlijDywlbIHKPRl5gN7gR/Ky8UphwEoO+cR0XhKeOsB
+         ANqtCn+3sz2FbKCkIVtGyKgSF3yCl7crQssDJ6LiZVM2nt4FP1RnesewOZJwpGZmfKIZ
+         98z512hP603yrc3PKNYcs8XZXpR0gmn0wRlcuXzRw8cm7g7AZgqnnvKMyaHLWoWAoH3X
+         kc0COhVin/R7lKjbV1QP1OpPvJ6ALV+cLY5SirgEP2phFNhkt9ATrp6g4cVMP4qLJzd/
+         16Cgo7k1OgMX/P8HXu6oVJ7A5MJ7GuF3FNVERXkGQB+FbKGXfLhn94QNE1cGKB7aD8lW
+         UaPw==
+X-Gm-Message-State: AOAM5322C0bqqp/10lMSslYlCWwT3NYwNcn/4fRj2kvGaFtyLjdyUQeh
+        KwYEqrgUFGDM+MhRn/LKcTJPWdOKyHSf
+X-Google-Smtp-Source: ABdhPJxnkRrn5aCmJrl9Oj4kSF2BOlH0RmWcFy9bYvGaXSp9grFE/PqWRxELe56IO5T3n+Epa8WJPQ==
+X-Received: by 2002:a17:90a:fd02:: with SMTP id cv2mr626350pjb.176.1604120957620;
+        Fri, 30 Oct 2020 22:09:17 -0700 (PDT)
+Received: from PWN (59-125-13-244.HINET-IP.hinet.net. [59.125.13.244])
+        by smtp.gmail.com with ESMTPSA id 17sm7342488pfj.49.2020.10.30.22.09.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2020 22:09:16 -0700 (PDT)
+Date:   Sat, 31 Oct 2020 01:09:10 -0400
+From:   Peilin Ye <yepeilin.cs@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>, daniel.vetter@ffwll.ch,
+        gregkh@linuxfoundation.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        yepeilin.cs@gmail.com
+Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const
+ qualifier
+Message-ID: <20201031050910.GA1289347@PWN>
+References: <20201030181822.570402-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Received: by 2002:aa7:dc08:0:0:0:0:0 with HTTP; Fri, 30 Oct 2020 20:20:00
- -0700 (PDT)
-Reply-To: mrs.chantala2055@gmail.com
-From:   "mrs.chantala" <mrpoabc@gmail.com>
-Date:   Sat, 31 Oct 2020 03:20:01 +0000
-Message-ID: <CA+6H3KV2MhgujyUv8Xg29jrA1w=2v+ZhywzC4BSgW=0p=ce0tQ@mail.gmail.com>
-Subject: Dear Friend......
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201030181822.570402-1-lee.jones@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We bring greetings to you in the name of the lord. This message is
-sent to you as a notification that you have been chosen to benefit
-from our charity project aimed at touching lives and helping
+Hi Lee,
 
-those that we can across the world as God has blessed us. I won the
-Powerball lottery of $150Million on November 2, 2019 and I have
-voluntarily decided to donate the sum of $75Million to
+On Fri, Oct 30, 2020 at 06:18:22PM +0000, Lee Jones wrote:
+> Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
+> built-in fonts") introduced the following error when building
+> rpc_defconfig (only this build appears to be affected):
+> 
+>  `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+>     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+>  `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+>     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+>  make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+>  make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+>  make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
+> 
+> The .data section is discarded at link time.  Reinstating
+> acorndata_8x8 as const ensures it is still available after linking.
 
-charity, I try to reach people randomly from different sources and
-modes so as to touch lives from different angles, Hence you are
-getting a message here.
+Thanks a lot for fixing this up! I wasn't aware that the symbol is being
+referenced in arch/arm/boot/compressed/ll_char_wr.S. I'm sorry for the
+trouble. The patch is,
 
-You have been listed as one of the lucky recipients to receive $9.6 M
-This donation is made out to you so to enable you strengthen your
-personal issues and mostly to generously help us extend
+> Cc: <stable@vger.kernel.org>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-hands of giving to the less privileged, orphans and charity
-organizations within your locality To verify
-https://www.powerball.com/winner-story/150-million-powerball-ticket-claimed
+Tested-by: Peilin Ye <yepeilin.cs@gmail.com>
 
-Get back to me on how to receive the donation through our official
-email address below You can also contact us via our
-Whatsapp number +19 71  24 58 139 and email address (
-mrschantal066@gmail.com)  The earlier you contact our email the
-earlier you receieve your donation
+Thank you,
+Peilin Ye
 
-Thanks
-
-Bill.Chantal Lawrence
