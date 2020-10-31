@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC602A1616
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:41:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09B62A1650
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727309AbgJaLlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S1728159AbgJaLoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727713AbgJaLln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:43 -0400
+        id S1727232AbgJaLoS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:44:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B4D820731;
-        Sat, 31 Oct 2020 11:41:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CE9620731;
+        Sat, 31 Oct 2020 11:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144502;
-        bh=RGwWFbdTSeMYnT/6ONWYsBZIACDMa+Zj1OA7PoJPVqU=;
+        s=default; t=1604144658;
+        bh=BZaia0VGdkH2dsmtDYK+qDMiJcBp4k+u/wtEFlDVaGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vftPKv1tn+SOok/HnrzQulc9JLWbhPxsTzN0va0f1hi8Zzba9FLJWhZoWWRAy9o38
-         8omgGlLS2Y6inLyQgIX7JUiPhwfKQjO2JTOActOLcXNBeaRau9Mmqf8lzJTO8VQ/QI
-         MVj4RwbCvxRfy3YEA99H9KKhPCx338UIIeXScs0Y=
+        b=vJQnAGonZsXlJMRXarEX3z6hb6VsZS9ksbEDhPldk9vwXMXSQoU+AdOdKhjtWjCqq
+         V7pqTe9Sb4TyEZaCp/XNDeiRZb541G3vZauPYdWwG6OFrVh+dMDGb4H4BfG7XE5kfk
+         EfaDIE3+pYnSdpFcxOg0REue/H40nkAwCClzHTiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Alex Elder <elder@linaro.org>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 42/70] net: ipa: command payloads already mapped
+        stable@vger.kernel.org,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 32/74] chelsio/chtls: fix deadlock issue
 Date:   Sat, 31 Oct 2020 12:36:14 +0100
-Message-Id: <20201031113501.512901001@linuxfoundation.org>
+Message-Id: <20201031113501.582935104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-[ Upstream commit df833050cced27e1b343cc8bc41f90191b289334 ]
+[ Upstream commit 28e9dcd9172028263c8225c15c4e329e08475e89 ]
 
-IPA transactions describe actions to be performed by the IPA
-hardware.  Three cases use IPA transactions:  transmitting a socket
-buffer; providing a page to receive packet data; and issuing an IPA
-immediate command.  An IPA transaction contains a scatter/gather
-list (SGL) to hold the set of actions to be performed.
+In chtls_pass_establish() we hold child socket lock using bh_lock_sock
+and we are again trying bh_lock_sock in add_to_reap_list, causing deadlock.
+Remove bh_lock_sock in add_to_reap_list() as lock is already held.
 
-We map buffers in the SGL for DMA at the time they are added to the
-transaction.  For skb TX transactions, we fill the SGL with a call
-to skb_to_sgvec().  Page RX transactions involve a single page
-pointer, and that is recorded in the SGL with sg_set_page().  In
-both of these cases we then map the SGL for DMA with a call to
-dma_map_sg().
-
-Immediate commands are different.  The payload for an immediate
-command comes from a region of coherent DMA memory, which must
-*not* be mapped for DMA.  For that reason, gsi_trans_cmd_add()
-sort of hand-crafts each SGL entry added to a command transaction.
-
-This patch fixes a problem with the code that crafts the SGL entry
-for an immediate command.  Previously a portion of the SGL entry was
-updated using sg_set_buf().  However this is not valid because it
-includes a call to virt_to_page() on the buffer, but the command
-buffer pointer is not a linear address.
-
-Since we never actually map the SGL for command transactions, there
-are very few fields in the SGL we need to fill.  Specifically, we
-only need to record the DMA address and the length, so they can be
-used by __gsi_trans_commit() to fill a TRE.  We additionally need to
-preserve the SGL flags so for_each_sg() still works.  For that we
-can simply assign a null page pointer for command SGL entries.
-
-Fixes: 9dd441e4ed575 ("soc: qcom: ipa: GSI transactions")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Alex Elder <elder@linaro.org>
-Link: https://lore.kernel.org/r/20201022010029.11877-1-elder@linaro.org
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Link: https://lore.kernel.org/r/20201025193538.31112-1-vinay.yadav@chelsio.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/gsi_trans.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/net/ipa/gsi_trans.c
-+++ b/drivers/net/ipa/gsi_trans.c
-@@ -398,15 +398,24 @@ void gsi_trans_cmd_add(struct gsi_trans
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -1514,7 +1514,6 @@ static void add_to_reap_list(struct sock
+ 	struct chtls_sock *csk = sk->sk_user_data;
  
- 	/* assert(which < trans->tre_count); */
+ 	local_bh_disable();
+-	bh_lock_sock(sk);
+ 	release_tcp_port(sk); /* release the port immediately */
  
--	/* Set the page information for the buffer.  We also need to fill in
--	 * the DMA address and length for the buffer (something dma_map_sg()
--	 * normally does).
-+	/* Commands are quite different from data transfer requests.
-+	 * Their payloads come from a pool whose memory is allocated
-+	 * using dma_alloc_coherent().  We therefore do *not* map them
-+	 * for DMA (unlike what we do for pages and skbs).
-+	 *
-+	 * When a transaction completes, the SGL is normally unmapped.
-+	 * A command transaction has direction DMA_NONE, which tells
-+	 * gsi_trans_complete() to skip the unmapping step.
-+	 *
-+	 * The only things we use directly in a command scatter/gather
-+	 * entry are the DMA address and length.  We still need the SG
-+	 * table flags to be maintained though, so assign a NULL page
-+	 * pointer for that purpose.
- 	 */
- 	sg = &trans->sgl[which];
--
--	sg_set_buf(sg, buf, size);
-+	sg_assign_page(sg, NULL);
- 	sg_dma_address(sg) = addr;
--	sg_dma_len(sg) = sg->length;
-+	sg_dma_len(sg) = size;
+ 	spin_lock(&reap_list_lock);
+@@ -1523,7 +1522,6 @@ static void add_to_reap_list(struct sock
+ 	if (!csk->passive_reap_next)
+ 		schedule_work(&reap_task);
+ 	spin_unlock(&reap_list_lock);
+-	bh_unlock_sock(sk);
+ 	local_bh_enable();
+ }
  
- 	info = &trans->info[which];
- 	info->opcode = opcode;
 
 
