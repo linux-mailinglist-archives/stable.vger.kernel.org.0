@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 271832A1692
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 585D42A167C
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:46:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgJaLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:46:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
+        id S1728343AbgJaLqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:46:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728330AbgJaLqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:46:00 -0400
+        id S1728335AbgJaLqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:46:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96351205F4;
-        Sat, 31 Oct 2020 11:45:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07CCD2074F;
+        Sat, 31 Oct 2020 11:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144759;
-        bh=EJ9LeitW/sDScSg81JqdnN0qFEWoI+F3KiLnatf3fug=;
+        s=default; t=1604144761;
+        bh=mD/6nzptLuU1T7vST7dSm16Yk48MWkSFc6PueFYV63U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+kv1So1hYVpkfZ3BU2Skqjsuh8Q/M6oFmY33s7D+31DahVtw5fqeeLFD23YO/P58
-         i4VhxIrdi21e2pi9kDsrFU7sqL6bg74uqqzA92XYlcgZikDeICd+gKDW71v44E29K5
-         ss5zu8wBQHMT0IGdxVu0R9YrcyVMRXhOmB/LjehI=
+        b=k+7W3eX8hwBicXayNZNmrtJSB3aeIvV69LzdStGQdV83w7sMu4/3QcnlWToQQlwq9
+         Ly85zv3mkVhb8Em1IPaf6zUhELH33HyTneSdX/vGcMW3LXEQF6yI4uyX50EAB0/kdg
+         vtT8olL2UJPgGB2B+iEu5WPeOfKf+w0rUIlvBLbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Juergen Gross <jgross@suse.com>,
-        David Vrabel <david.vrabel@citrix.com>
-Subject: [PATCH 5.9 71/74] xen/gntdev.c: Mark pages as dirty
-Date:   Sat, 31 Oct 2020 12:36:53 +0100
-Message-Id: <20201031113503.437524772@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.9 72/74] io_uring: dont reuse linked_timeout
+Date:   Sat, 31 Oct 2020 12:36:54 +0100
+Message-Id: <20201031113503.485405748@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
 References: <20201031113500.031279088@linuxfoundation.org>
@@ -46,95 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder <jrdr.linux@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 779055842da5b2e508f3ccf9a8153cb1f704f566 upstream.
+commit ff5771613cd7b3a76cd16cb54aa81d30d3c11d48 upstream.
 
-There seems to be a bug in the original code when gntdev_get_page()
-is called with writeable=true then the page needs to be marked dirty
-before being put.
+Clear linked_timeout for next requests in __io_queue_sqe() so we won't
+queue it up unnecessary when it's going to be punted.
 
-To address this, a bool writeable is added in gnt_dev_copy_batch, set
-it in gntdev_grant_copy_seg() (and drop `writeable` argument to
-gntdev_get_page()) and then, based on batch->writeable, use
-set_page_dirty_lock().
-
-Fixes: a4cdb556cae0 (xen/gntdev: add ioctl for grant copy)
-Suggested-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: David Vrabel <david.vrabel@citrix.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1599375114-32360-1-git-send-email-jrdr.linux@gmail.com
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: stable@vger.kernel.org # v5.9
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/gntdev.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ fs/io_uring.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -720,17 +720,18 @@ struct gntdev_copy_batch {
- 	s16 __user *status[GNTDEV_COPY_BATCH];
- 	unsigned int nr_ops;
- 	unsigned int nr_pages;
-+	bool writeable;
- };
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6249,8 +6249,10 @@ err:
+ 	if (nxt) {
+ 		req = nxt;
  
- static int gntdev_get_page(struct gntdev_copy_batch *batch, void __user *virt,
--			   bool writeable, unsigned long *gfn)
-+				unsigned long *gfn)
- {
- 	unsigned long addr = (unsigned long)virt;
- 	struct page *page;
- 	unsigned long xen_pfn;
- 	int ret;
- 
--	ret = get_user_pages_fast(addr, 1, writeable ? FOLL_WRITE : 0, &page);
-+	ret = get_user_pages_fast(addr, 1, batch->writeable ? FOLL_WRITE : 0, &page);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -746,9 +747,13 @@ static void gntdev_put_pages(struct gntd
- {
- 	unsigned int i;
- 
--	for (i = 0; i < batch->nr_pages; i++)
-+	for (i = 0; i < batch->nr_pages; i++) {
-+		if (batch->writeable && !PageDirty(batch->pages[i]))
-+			set_page_dirty_lock(batch->pages[i]);
- 		put_page(batch->pages[i]);
-+	}
- 	batch->nr_pages = 0;
-+	batch->writeable = false;
- }
- 
- static int gntdev_copy(struct gntdev_copy_batch *batch)
-@@ -837,8 +842,9 @@ static int gntdev_grant_copy_seg(struct
- 			virt = seg->source.virt + copied;
- 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
- 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
-+			batch->writeable = false;
- 
--			ret = gntdev_get_page(batch, virt, false, &gfn);
-+			ret = gntdev_get_page(batch, virt, &gfn);
- 			if (ret < 0)
- 				return ret;
- 
-@@ -856,8 +862,9 @@ static int gntdev_grant_copy_seg(struct
- 			virt = seg->dest.virt + copied;
- 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
- 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
-+			batch->writeable = true;
- 
--			ret = gntdev_get_page(batch, virt, true, &gfn);
-+			ret = gntdev_get_page(batch, virt, &gfn);
- 			if (ret < 0)
- 				return ret;
- 
+-		if (req->flags & REQ_F_FORCE_ASYNC)
++		if (req->flags & REQ_F_FORCE_ASYNC) {
++			linked_timeout = NULL;
+ 			goto punt;
++		}
+ 		goto again;
+ 	}
+ exit:
 
 
