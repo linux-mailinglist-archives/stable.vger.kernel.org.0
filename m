@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11FA92A168F
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C952A16FE
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbgJaLqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:46:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47482 "EHLO mail.kernel.org"
+        id S1728116AbgJaLtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:49:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbgJaLqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:46:14 -0400
+        id S1726928AbgJaLmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:42:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B313205F4;
-        Sat, 31 Oct 2020 11:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69925205F4;
+        Sat, 31 Oct 2020 11:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144774;
-        bh=SMfhHhQwtwwMYs3J42tcHlFTpIPOsdFSqU6SIl2UIY8=;
+        s=default; t=1604144564;
+        bh=EJ9LeitW/sDScSg81JqdnN0qFEWoI+F3KiLnatf3fug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMqCwToCinzmLb8f5yOiwu0YaPQG+DT2sdvC2NJN/bjWeJaM/t4r82tXfKibPQySk
-         j8esOa1m81wQT+xQ3eKvjIFWUt80zSqoFxvZb+OUeXMfgs+FPaQy5f4bcl16UJ1LlL
-         oVdYxk4hVMmmCIQA6PeGJyHMihJWk8t1/Wp6nCxk=
+        b=HI0SCPJ6LIB0bRtfCVFUt9hRKE4PWaNvJEuQfTuGbuQ6XQmW+BQnEjckkIZ6bBthb
+         q47yaiS4tL7DxcVWII5kzl3WJnB2cBDtPfmcaJPfdURYoti5zu6+YkYc/w464hMgjX
+         znFjJEcq6sy9ebudQZNF1gXSjs1+B/svlyneESN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Tomasz Maciej Nowak <tmn505@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.9 57/74] ata: ahci: mvebu: Make SATA PHY optional for Armada 3720
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Juergen Gross <jgross@suse.com>,
+        David Vrabel <david.vrabel@citrix.com>
+Subject: [PATCH 5.8 67/70] xen/gntdev.c: Mark pages as dirty
 Date:   Sat, 31 Oct 2020 12:36:39 +0100
-Message-Id: <20201031113502.764538603@linuxfoundation.org>
+Message-Id: <20201031113502.692937855@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-commit 45aefe3d2251e4e229d7662052739f96ad1d08d9 upstream.
+commit 779055842da5b2e508f3ccf9a8153cb1f704f566 upstream.
 
-Older ATF does not provide SMC call for SATA phy power on functionality and
-therefore initialization of ahci_mvebu is failing when older version of ATF
-is using. In this case phy_power_on() function returns -EOPNOTSUPP.
+There seems to be a bug in the original code when gntdev_get_page()
+is called with writeable=true then the page needs to be marked dirty
+before being put.
 
-This patch adds a new hflag AHCI_HFLAG_IGN_NOTSUPP_POWER_ON which cause
-that ahci_platform_enable_phys() would ignore -EOPNOTSUPP errors from
-phy_power_on() call.
+To address this, a bool writeable is added in gnt_dev_copy_batch, set
+it in gntdev_grant_copy_seg() (and drop `writeable` argument to
+gntdev_get_page()) and then, based on batch->writeable, use
+set_page_dirty_lock().
 
-It fixes initialization of ahci_mvebu on Espressobin boards where is older
-Marvell's Arm Trusted Firmware without SMC call for SATA phy power.
-
-This is regression introduced in commit 8e18c8e58da64 ("arm64: dts: marvell:
-armada-3720-espressobin: declare SATA PHY property") where SATA phy was
-defined and therefore ahci_platform_enable_phys() on Espressobin started
-failing.
-
-Fixes: 8e18c8e58da64 ("arm64: dts: marvell: armada-3720-espressobin: declare SATA PHY property")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: a4cdb556cae0 (xen/gntdev: add ioctl for grant copy)
+Suggested-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: David Vrabel <david.vrabel@citrix.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1599375114-32360-1-git-send-email-jrdr.linux@gmail.com
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/ahci.h             |    2 ++
- drivers/ata/ahci_mvebu.c       |    2 +-
- drivers/ata/libahci_platform.c |    2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/xen/gntdev.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -240,6 +240,8 @@ enum {
- 							as default lpm_policy */
- 	AHCI_HFLAG_SUSPEND_PHYS		= (1 << 26), /* handle PHYs during
- 							suspend/resume */
-+	AHCI_HFLAG_IGN_NOTSUPP_POWER_ON	= (1 << 27), /* ignore -EOPNOTSUPP
-+							from phy_power_on() */
- 
- 	/* ap->flags bits */
- 
---- a/drivers/ata/ahci_mvebu.c
-+++ b/drivers/ata/ahci_mvebu.c
-@@ -227,7 +227,7 @@ static const struct ahci_mvebu_plat_data
- 
- static const struct ahci_mvebu_plat_data ahci_mvebu_armada_3700_plat_data = {
- 	.plat_config = ahci_mvebu_armada_3700_config,
--	.flags = AHCI_HFLAG_SUSPEND_PHYS,
-+	.flags = AHCI_HFLAG_SUSPEND_PHYS | AHCI_HFLAG_IGN_NOTSUPP_POWER_ON,
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -720,17 +720,18 @@ struct gntdev_copy_batch {
+ 	s16 __user *status[GNTDEV_COPY_BATCH];
+ 	unsigned int nr_ops;
+ 	unsigned int nr_pages;
++	bool writeable;
  };
  
- static const struct of_device_id ahci_mvebu_of_match[] = {
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -59,7 +59,7 @@ int ahci_platform_enable_phys(struct ahc
- 		}
+ static int gntdev_get_page(struct gntdev_copy_batch *batch, void __user *virt,
+-			   bool writeable, unsigned long *gfn)
++				unsigned long *gfn)
+ {
+ 	unsigned long addr = (unsigned long)virt;
+ 	struct page *page;
+ 	unsigned long xen_pfn;
+ 	int ret;
  
- 		rc = phy_power_on(hpriv->phys[i]);
--		if (rc) {
-+		if (rc && !(rc == -EOPNOTSUPP && (hpriv->flags & AHCI_HFLAG_IGN_NOTSUPP_POWER_ON))) {
- 			phy_exit(hpriv->phys[i]);
- 			goto disable_phys;
- 		}
+-	ret = get_user_pages_fast(addr, 1, writeable ? FOLL_WRITE : 0, &page);
++	ret = get_user_pages_fast(addr, 1, batch->writeable ? FOLL_WRITE : 0, &page);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -746,9 +747,13 @@ static void gntdev_put_pages(struct gntd
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < batch->nr_pages; i++)
++	for (i = 0; i < batch->nr_pages; i++) {
++		if (batch->writeable && !PageDirty(batch->pages[i]))
++			set_page_dirty_lock(batch->pages[i]);
+ 		put_page(batch->pages[i]);
++	}
+ 	batch->nr_pages = 0;
++	batch->writeable = false;
+ }
+ 
+ static int gntdev_copy(struct gntdev_copy_batch *batch)
+@@ -837,8 +842,9 @@ static int gntdev_grant_copy_seg(struct
+ 			virt = seg->source.virt + copied;
+ 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
+ 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
++			batch->writeable = false;
+ 
+-			ret = gntdev_get_page(batch, virt, false, &gfn);
++			ret = gntdev_get_page(batch, virt, &gfn);
+ 			if (ret < 0)
+ 				return ret;
+ 
+@@ -856,8 +862,9 @@ static int gntdev_grant_copy_seg(struct
+ 			virt = seg->dest.virt + copied;
+ 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
+ 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
++			batch->writeable = true;
+ 
+-			ret = gntdev_get_page(batch, virt, true, &gfn);
++			ret = gntdev_get_page(batch, virt, &gfn);
+ 			if (ret < 0)
+ 				return ret;
+ 
 
 
