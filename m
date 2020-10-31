@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B71D22A15CF
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF332A15CE
 	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbgJaLid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727086AbgJaLid (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 31 Oct 2020 07:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727128AbgJaLgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:05 -0400
+        id S1727033AbgJaLgI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FC552087D;
-        Sat, 31 Oct 2020 11:36:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2638B20739;
+        Sat, 31 Oct 2020 11:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144165;
-        bh=dAckfZUvuQTzjuGDQr/NoLlGwNVuu2+sA3yLjksJmoA=;
+        s=default; t=1604144167;
+        bh=ETpU0BXfRtZxD2EQRg6oathVavk99g4z1nxhq8Anb7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTD5e57vWul6tz2SgKOTKK2I22Q7f0+rQEDg+HUnUe8ITwavadZVZGR2uaW6bj5+p
-         ZDBkYGjgM3NN6R8/igtZ7R+Xoi90PlqRKpcZWZoJ9nv+KbpwKYJeZtshBLW4/EgEfA
-         yZXjKqS7Q5Nr8WHqiirdiAGglRQgfSRIH3FSuxL0=
+        b=YbekUnRRs+bAZ4OZ7onNLf7MEhZ3389rAe4czctEN1vHzNev2DzaVFNwJOT5bWEo1
+         Y2P44fKEyoGFIY7wfozfQCYfPz4/ZdXv8UCvmN95RjQZ1GZUZ/mTqTGhDvKUsl9SQC
+         rS/7RpACilkAenBLV4JLzhLDsHecbhft+jJOSbM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 07/49] arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
-Date:   Sat, 31 Oct 2020 12:35:03 +0100
-Message-Id: <20201031113455.801329619@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jesse Barnes <jsbarnes@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Len Brown <lenb@kernel.org>,
+        Arjan van de Ven <arjan@linux.intel.com>
+Subject: [PATCH 5.4 08/49] x86/PCI: Fix intel_mid_pci.c build error when ACPI is not enabled
+Date:   Sat, 31 Oct 2020 12:35:04 +0100
+Message-Id: <20201031113455.847749218@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -42,49 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 3b92fa7485eba16b05166fddf38ab42f2ff6ab95 upstream.
+commit 035fff1f7aab43e420e0098f0854470a5286fb83 upstream.
 
-With CONFIG_EXPERT=y, CONFIG_KASAN=y, CONFIG_RANDOMIZE_BASE=n,
-CONFIG_RELOCATABLE=n, we observe the following failure when trying to
-link the kernel image with LD=ld.lld:
+Fix build error when CONFIG_ACPI is not set/enabled by adding the header
+file <asm/acpi.h> which contains a stub for the function in the build
+error.
 
-error: section: .exit.data is not contiguous with other relro sections
+    ../arch/x86/pci/intel_mid_pci.c: In function ‘intel_mid_pci_init’:
+    ../arch/x86/pci/intel_mid_pci.c:303:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
+      acpi_noirq_set();
 
-ld.lld defaults to -z relro while ld.bfd defaults to -z norelro. This
-was previously fixed, but only for CONFIG_RELOCATABLE=y.
-
-Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201016175339.2429280-1-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: a912a7584ec3 ("x86/platform/intel-mid: Move PCI initialization to arch_init()")
+Link: https://lore.kernel.org/r/ea903917-e51b-4cc9-2680-bc1e36efa026@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jesse Barnes <jsbarnes@google.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org	# v4.16+
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Jesse Barnes <jsbarnes@google.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/Makefile |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/pci/intel_mid_pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -10,7 +10,7 @@
- #
- # Copyright (C) 1995-2001 by Russell King
+--- a/arch/x86/pci/intel_mid_pci.c
++++ b/arch/x86/pci/intel_mid_pci.c
+@@ -33,6 +33,7 @@
+ #include <asm/hw_irq.h>
+ #include <asm/io_apic.h>
+ #include <asm/intel-mid.h>
++#include <asm/acpi.h>
  
--LDFLAGS_vmlinux	:=--no-undefined -X
-+LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
- CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
- GZFLAGS		:=-9
- 
-@@ -18,7 +18,7 @@ ifeq ($(CONFIG_RELOCATABLE), y)
- # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
- # for relative relocs, since this leads to better Image compression
- # with the relocation offsets always being zero.
--LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
-+LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext \
- 			$(call ld-option, --no-apply-dynamic-relocs)
- endif
+ #define PCIE_CAP_OFFSET	0x100
  
 
 
