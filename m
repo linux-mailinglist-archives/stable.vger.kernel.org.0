@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF342A15D2
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B71D22A15CF
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727010AbgJaLim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33916 "EHLO mail.kernel.org"
+        id S1727100AbgJaLid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:38:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727135AbgJaLgD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:03 -0400
+        id S1727128AbgJaLgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE0A420853;
-        Sat, 31 Oct 2020 11:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC552087D;
+        Sat, 31 Oct 2020 11:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144162;
-        bh=NYE5j1Z3BSi1jVFY5WUzr0792wkNuSZhgzk6hR+tAlU=;
+        s=default; t=1604144165;
+        bh=dAckfZUvuQTzjuGDQr/NoLlGwNVuu2+sA3yLjksJmoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zR1IanhGd3siiBnYle+TuQevMCtS8RsOvTdFTCLOQAI1v84D4Q0Y3iTIyulC9LByk
-         +y/8+QAHcwHPoSHuSTc2FUgbnoKZUhoe6MDsWaBqW8sWoo+/hNW4rpA6OMXox+fWxf
-         q6HTuP0q9bkZRSd6wAq2hiwQZ8iJP0W891+pQpII=
+        b=YTD5e57vWul6tz2SgKOTKK2I22Q7f0+rQEDg+HUnUe8ITwavadZVZGR2uaW6bj5+p
+         ZDBkYGjgM3NN6R8/igtZ7R+Xoi90PlqRKpcZWZoJ9nv+KbpwKYJeZtshBLW4/EgEfA
+         yZXjKqS7Q5Nr8WHqiirdiAGglRQgfSRIH3FSuxL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 06/49] arm64: Run ARCH_WORKAROUND_2 enabling code on all CPUs
-Date:   Sat, 31 Oct 2020 12:35:02 +0100
-Message-Id: <20201031113455.758690185@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 07/49] arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
+Date:   Sat, 31 Oct 2020 12:35:03 +0100
+Message-Id: <20201031113455.801329619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -42,55 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 39533e12063be7f55e3d6ae21ffe067799d542a4 upstream.
+commit 3b92fa7485eba16b05166fddf38ab42f2ff6ab95 upstream.
 
-Commit 606f8e7b27bf ("arm64: capabilities: Use linear array for
-detection and verification") changed the way we deal with per-CPU errata
-by only calling the .matches() callback until one CPU is found to be
-affected. At this point, .matches() stop being called, and .cpu_enable()
-will be called on all CPUs.
+With CONFIG_EXPERT=y, CONFIG_KASAN=y, CONFIG_RANDOMIZE_BASE=n,
+CONFIG_RELOCATABLE=n, we observe the following failure when trying to
+link the kernel image with LD=ld.lld:
 
-This breaks the ARCH_WORKAROUND_2 handling, as only a single CPU will be
-mitigated.
+error: section: .exit.data is not contiguous with other relro sections
 
-In order to address this, forcefully call the .matches() callback from a
-.cpu_enable() callback, which brings us back to the original behaviour.
+ld.lld defaults to -z relro while ld.bfd defaults to -z norelro. This
+was previously fixed, but only for CONFIG_RELOCATABLE=y.
 
-Fixes: 606f8e7b27bf ("arm64: capabilities: Use linear array for detection and verification")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201016175339.2429280-1-ndesaulniers@google.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/cpu_errata.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -492,6 +492,12 @@ out_printmsg:
- 	return required;
- }
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -10,7 +10,7 @@
+ #
+ # Copyright (C) 1995-2001 by Russell King
  
-+static void cpu_enable_ssbd_mitigation(const struct arm64_cpu_capabilities *cap)
-+{
-+	if (ssbd_state != ARM64_SSBD_FORCE_DISABLE)
-+		cap->matches(cap, SCOPE_LOCAL_CPU);
-+}
-+
- /* known invulnerable cores */
- static const struct midr_range arm64_ssb_cpus[] = {
- 	MIDR_ALL_VERSIONS(MIDR_CORTEX_A35),
-@@ -918,6 +924,7 @@ const struct arm64_cpu_capabilities arm6
- 		.capability = ARM64_SSBD,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = has_ssbd_mitigation,
-+		.cpu_enable = cpu_enable_ssbd_mitigation,
- 		.midr_range_list = arm64_ssb_cpus,
- 	},
- #ifdef CONFIG_ARM64_ERRATUM_1418040
+-LDFLAGS_vmlinux	:=--no-undefined -X
++LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
+ CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
+ GZFLAGS		:=-9
+ 
+@@ -18,7 +18,7 @@ ifeq ($(CONFIG_RELOCATABLE), y)
+ # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
+ # for relative relocs, since this leads to better Image compression
+ # with the relocation offsets always being zero.
+-LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
++LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext \
+ 			$(call ld-option, --no-apply-dynamic-relocs)
+ endif
+ 
 
 
