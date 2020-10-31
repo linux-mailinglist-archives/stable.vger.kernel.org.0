@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C38D32A169F
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 777BB2A170D
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727687AbgJaLr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:47:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S1727494AbgJaLuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbgJaLpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:33 -0400
+        id S1727279AbgJaLlf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7FC720739;
-        Sat, 31 Oct 2020 11:45:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4652320719;
+        Sat, 31 Oct 2020 11:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144731;
-        bh=peeePRJgods2PYQpXPOoJBI7mDwCAABd2hYXp4gqP9s=;
+        s=default; t=1604144494;
+        bh=71/fyqCFGCStXvo4eThWyQuIuR+H/ksjOPKGbkCyXF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UolZ1eYmOM+3gZ1efT+rXVKqRi5MyssTu61AzsUG/tszdDxh2uNCtvPjT6GuZ+R/6
-         03Yj0Qz1Ds6mGPNjDhHwOp20TC//rE01eaOqFcypDpMTo8l4YdwN16sIDunW5roMMw
-         tJKCQchS3Md7he3Gs2R4+oFSDyBt8Gv3c5xh/w0Q=
+        b=hw1UV/9nHiYYCuaSI70Dr0ARDz2m7g+YiWuIRp3gDklQgbwiN0C8N0tD5b06L6YrQ
+         uKTGFfa5t2IUO5jy/uJHtQS5YR2OHPdMWFCbYvyWn05QEbwPPKL3cg3SRsx3KApwk3
+         qpup4BReK41qKQjNDLKWpmuOFxfz9l0Jf7TB+X+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Oleksandr Shamray <oleksandrs@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 29/74] bnxt_en: Invoke cancel_delayed_work_sync() for PFs also.
+Subject: [PATCH 5.8 39/70] mlxsw: core: Fix memory leak on module removal
 Date:   Sat, 31 Oct 2020 12:36:11 +0100
-Message-Id: <20201031113501.440846400@linuxfoundation.org>
+Message-Id: <20201031113501.370477307@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 631ce27a3006fc0b732bfd589c6df505f62eadd9 ]
+[ Upstream commit adc80b6cfedff6dad8b93d46a5ea2775fd5af9ec ]
 
-As part of the commit b148bb238c02
-("bnxt_en: Fix possible crash in bnxt_fw_reset_task()."),
-cancel_delayed_work_sync() is called only for VFs to fix a possible
-crash by cancelling any pending delayed work items. It was assumed
-by mistake that the flush_workqueue() call on the PF would flush
-delayed work items as well.
+Free the devlink instance during the teardown sequence in the non-reload
+case to avoid the following memory leak.
 
-As flush_workqueue() does not cancel the delayed workqueue, extend
-the fix for PFs. This fix will avoid the system crash, if there are
-any pending delayed work items in fw_reset_task() during driver's
-.remove() call.
+unreferenced object 0xffff888232895000 (size 2048):
+  comm "modprobe", pid 1073, jiffies 4295568857 (age 164.871s)
+  hex dump (first 32 bytes):
+    00 01 00 00 00 00 ad de 22 01 00 00 00 00 ad de  ........".......
+    10 50 89 32 82 88 ff ff 10 50 89 32 82 88 ff ff  .P.2.....P.2....
+  backtrace:
+    [<00000000c704e9a6>] __kmalloc+0x13a/0x2a0
+    [<00000000ee30129d>] devlink_alloc+0xff/0x760
+    [<0000000092ab3e5d>] 0xffffffffa042e5b0
+    [<000000004f3f8a31>] 0xffffffffa042f6ad
+    [<0000000092800b4b>] 0xffffffffa0491df3
+    [<00000000c4843903>] local_pci_probe+0xcb/0x170
+    [<000000006993ded7>] pci_device_probe+0x2c2/0x4e0
+    [<00000000a8e0de75>] really_probe+0x2c5/0xf90
+    [<00000000d42ba75d>] driver_probe_device+0x1eb/0x340
+    [<00000000bcc95e05>] device_driver_attach+0x294/0x300
+    [<000000000e2bc177>] __driver_attach+0x167/0x2f0
+    [<000000007d44cd6e>] bus_for_each_dev+0x148/0x1f0
+    [<000000003cd5a91e>] driver_attach+0x45/0x60
+    [<000000000041ce51>] bus_add_driver+0x3b8/0x720
+    [<00000000f5215476>] driver_register+0x230/0x4e0
+    [<00000000d79356f5>] __pci_register_driver+0x190/0x200
 
-Unify the workqueue cleanup logic for both PF and VF by calling
-cancel_work_sync() and cancel_delayed_work_sync() directly in
-bnxt_remove_one().
-
-Fixes: b148bb238c02 ("bnxt_en: Fix possible crash in bnxt_fw_reset_task().")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: a22712a96291 ("mlxsw: core: Fix devlink unregister flow")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reported-by: Vadim Pasternak <vadimp@nvidia.com>
+Tested-by: Oleksandr Shamray <oleksandrs@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1158,16 +1158,6 @@ static void bnxt_queue_sp_work(struct bn
- 		schedule_work(&bp->sp_task);
- }
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
+@@ -1483,6 +1483,8 @@ void mlxsw_core_bus_device_unregister(st
+ 	if (!reload)
+ 		devlink_resources_unregister(devlink, NULL);
+ 	mlxsw_core->bus->fini(mlxsw_core->bus_priv);
++	if (!reload)
++		devlink_free(devlink);
  
--static void bnxt_cancel_sp_work(struct bnxt *bp)
--{
--	if (BNXT_PF(bp)) {
--		flush_workqueue(bnxt_pf_wq);
--	} else {
--		cancel_work_sync(&bp->sp_task);
--		cancel_delayed_work_sync(&bp->fw_reset_task);
--	}
--}
--
- static void bnxt_sched_reset(struct bnxt *bp, struct bnxt_rx_ring_info *rxr)
- {
- 	if (!rxr->bnapi->in_reset) {
-@@ -11796,7 +11786,8 @@ static void bnxt_remove_one(struct pci_d
- 	unregister_netdev(dev);
- 	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
- 	/* Flush any pending tasks */
--	bnxt_cancel_sp_work(bp);
-+	cancel_work_sync(&bp->sp_task);
-+	cancel_delayed_work_sync(&bp->fw_reset_task);
- 	bp->sp_event = 0;
+ 	return;
  
- 	bnxt_dl_fw_reporters_destroy(bp, true);
 
 
