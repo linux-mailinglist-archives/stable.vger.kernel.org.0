@@ -2,64 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCAB82A182A
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 15:31:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A0152A1833
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 15:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727356AbgJaObg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 10:31:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59634 "EHLO
+        id S1727355AbgJaOeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 10:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgJaObf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 10:31:35 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED81C0617A6;
-        Sat, 31 Oct 2020 07:31:35 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id g43so582696otg.13;
-        Sat, 31 Oct 2020 07:31:35 -0700 (PDT)
+        with ESMTP id S1726115AbgJaOeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 10:34:06 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C817DC0617A6
+        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id n15so8321167otl.8
+        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=mkpAKNQWAXd1e0DuF5o8hmnhnjSq3v1PpopqWN1V8+E=;
-        b=KRFpmuGaQ5raW601ZJMDEJD1AV2N/jp13lax1YGQia+QUl3JbYsW6yaoZ155vIWyn7
-         MCYvoHaNDnasgM1p3I+UdqSkh976c5JmCvdMKQsHvmh1rovj+Aav9RiBIuFtqNKcUzfc
-         VpmA1GcRIKO/I/lHdgIUY2y6VpvvhBpqCcxdPl37asX/80oyi8VET/pjjCygD6WXceFg
-         6nYQYa8hp852AOQBHj8WjtzKLuagytoAHdDWxbASWZRgqQwxaLCQjhtFYlC616sfNK/l
-         L+sbPPkTh2RBGqsI9+mPShkgJl+f8ZqdLeLrI6cTasFikJ04v85b5cVZGFaL+qkWnRGr
-         K3Aw==
+        h=sender:to:from:subject:autocrypt:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=924eZeRu6KyEwKJnMXQDMEBbrpCdGEm4txun0HNTnCE=;
+        b=e4+b+Vxc3UWktiebidTKIsui90IV1RJz+7T/oXIRFP+F1wbVHy03E3aDgL/UxHW3/N
+         aCXHl7jWMk/pif8xVY0Q5bJMwxpCrFAjdhmS/EgtwQix4W5vh6PO6JlOmfKR/Ikf5oGN
+         cCreIhmqKz99aTuWDnZomlVT3TgQUpihqtJv84xIGttD/92VzquMu2cPBApoNnjLDO/Z
+         MrXiLTrBOets/vHR34ZlP2e7sB3ap89IhLyN3/JRjJukxgRRZC/SO/GYWsvev+HzYt71
+         OkRXbCPJ8nxI5LWEcRJYn+h3+Fv2LRm6V7kPCrtPqQxm3MHDCI/1tL7TkQDTK8bnYIOB
+         9WFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=mkpAKNQWAXd1e0DuF5o8hmnhnjSq3v1PpopqWN1V8+E=;
-        b=fWRgojQKRvA6AzLuk8h4CSQTeKTgT8+LunVsEdHRCrn/64gsWFPuIJe3DKzF1AqbHc
-         EN5Ue/5WnrECZgsP9NXUaDnxEYmSGaFppOaTVkX0tp9JaVJMAZN+TcrEtLZNohh0mwKc
-         41jg2dF/o2J+70S15G0zzpsxs3HBM8dkm0Xy6ohn3UPmNIYoBZ9mnV5IH7uiOta+Ii6Y
-         X6Da4UfVAiU/qSswJyxPZK6lJHC6jbRFf3uYiPSlkNFKQ/dG3pRrLeKouN8S94d37BLm
-         jttzfUAX80ieIzOhjygX3NAb535FZMPpooA+U8rZ7e7fpsxFxtXPOs3NvwE7bz4OUxqh
-         EwrQ==
-X-Gm-Message-State: AOAM533JhOfFhW0e+byordPKkQF5M3XXjdikDGzmjFc+p57qV7mJAuwW
-        AETbrFkBWw73LE3e2g0oNYIVlBE2Co8=
-X-Google-Smtp-Source: ABdhPJzPJ7cca9KGmEmkFiEHLrxjkCpkf2Em8Bp13xGDo2jpIaswfsCnvhvfyRfle/Gqm83iwyPtng==
-X-Received: by 2002:a9d:2a88:: with SMTP id e8mr5363785otb.122.1604154694917;
-        Sat, 31 Oct 2020 07:31:34 -0700 (PDT)
+        h=x-gm-message-state:sender:to:from:subject:autocrypt:message-id:date
+         :user-agent:mime-version:content-language:content-transfer-encoding;
+        bh=924eZeRu6KyEwKJnMXQDMEBbrpCdGEm4txun0HNTnCE=;
+        b=bPm+pQGF4JA2R+9D1nM33AezdXg2kJem7h21lcB3ch0SfPZ5sEue0j4UCXRzw8SfYA
+         N+RFNq5Pr5oea6bvIgN0w3VcEy8DjrySosHAHiMAOTtGMT/rVfxrQuyAL35kYIWhSara
+         ynjpBgZvNp1GsvjezWteFgRG3C1i6PhKekkWez9oHVGOqi1FTGIG6UvtehSOWiwgh046
+         IHt0umjEeQeWLVH0o3/qI+8IyPSnc0jvcolgPJVlO9jGuf2YveEn/ws1d9bA2EiCljuG
+         QbqIPE72SQyT3h6y6TWP8PLs0DjvggrK3L3dPx/vuA5alLtum94jiMWvLWXlbIhQTZ+u
+         8npA==
+X-Gm-Message-State: AOAM531fgcg2QO8Gfs4PEdFi7PQKeHILiUJOqzHRfIN+1mmv+hYDb4T/
+        RRz8KFt+imyAZCDYBNqgN1o=
+X-Google-Smtp-Source: ABdhPJy8c5Cb4LQ19iQD6vYXvZObIcBOhNC+A5j+GeH/Pn+4tckAo2iGrMr0DucOzSRtw3cwVTD7Iw==
+X-Received: by 2002:a9d:1b48:: with SMTP id l66mr5282320otl.349.1604154844306;
+        Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h6sm2223620oia.51.2020.10.31.07.31.33
+        by smtp.gmail.com with ESMTPSA id i14sm2211530ota.59.2020.10.31.07.34.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 31 Oct 2020 07:31:34 -0700 (PDT)
+        Sat, 31 Oct 2020 07:34:03 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 4.19 000/264] 4.19.153-rc1 review
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-References: <20201027135430.632029009@linuxfoundation.org>
- <20201028171035.GD118534@roeck-us.net> <20201028195619.GC124982@roeck-us.net>
- <20201031094500.GA271135@eldamar.lan>
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
 From:   Guenter Roeck <linux@roeck-us.net>
+Subject: v4.4.241 build failures
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -103,12 +96,11 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <7608060e-f48b-1a7c-1a92-9c41d81d9a40@roeck-us.net>
-Date:   Sat, 31 Oct 2020 07:31:32 -0700
+Message-ID: <1f557058-aae5-cae7-8d1c-36d06a84cff8@roeck-us.net>
+Date:   Sat, 31 Oct 2020 07:34:02 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201031094500.GA271135@eldamar.lan>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -116,60 +108,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/31/20 2:45 AM, Salvatore Bonaccorso wrote:
-> Hi Greg,
-> 
-> On Wed, Oct 28, 2020 at 12:56:19PM -0700, Guenter Roeck wrote:
->> Retry.
->>
->> On Wed, Oct 28, 2020 at 10:10:35AM -0700, Guenter Roeck wrote:
->>> On Tue, Oct 27, 2020 at 02:50:58PM +0100, Greg Kroah-Hartman wrote:
->>>> This is the start of the stable review cycle for the 4.19.153 release.
->>>> There are 264 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->>>>
->>>> Responses should be made by Thu, 29 Oct 2020 13:53:47 +0000.
->>>> Anything received after that time might be too late.
->>>>
->>>
->>> Build results:
->>> 	total: 155 pass: 152 fail: 3
->>> Failed builds:
->>> 	i386:tools/perf
->>> 	powerpc:ppc6xx_defconfig
->>> 	x86_64:tools/perf
->>> Qemu test results:
->>> 	total: 417 pass: 417 fail: 0
->>>
->>> perf failures are as usual. powerpc:
-> 
-> Regarding the perf failures, do you plan to revert b801d568c7d8 ("perf
-> cs-etm: Move definition of 'traceid_list' global variable from header
-> file") included in 4.19.152 or is a bugfix underway?
-> 
-
-The problem is:
-
-In file included from util/evlist.h:15:0,
-                 from util/evsel.c:30:
-util/evsel.c: In function ‘perf_evsel__exit’:
-util/util.h:25:28: error: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
-/usr/include/stdlib.h:563:13: note: expected ‘void *’ but argument is of type ‘const char *’
- extern void free (void *__ptr) __THROW;
-
-This is seen with older versions of gcc (6.5.0 in my case). I have no idea why
-newer versions of gcc/glibc accept this (afaics free() still expects a char *,
-not a const char *). The underlying problem is that pmu_name should not be
-declared const char *, but char *, since it is allocated. The upstream version
-of perf no longer uses the same definition of zfree(). It was changed from
-	#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
-to
-	#define zfree(ptr) __zfree((void **)(ptr))
-which does the necessary typecast. The fix would be to either change the definition
-of zfree to add the typecast, or to change the definition of pmu_name to drop the const.
-Both would only apply to v4.19.y. I don't know if either would be acceptable.
-
-Either case, reverting b801d568c7d8 won't solve that problem.
-
-Guenter
+Building powerpc:defconfig ... failed
+--------------
+Error log:
+arch/powerpc/platforms/powernv/opal-dump.c: In function ‘process_dump’:
+arch/powerpc/platforms/powernv/opal-dump.c:409:7: error: void value not ignored as it ought to be
+  dump = create_dump_obj(dump_id, dump_size, dump_type);
