@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 188EF2A161A
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C1B2A16C4
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgJaLly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
+        id S1727804AbgJaLsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:48:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727318AbgJaLlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:50 -0400
+        id S1727143AbgJaLo0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:44:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E0E020719;
-        Sat, 31 Oct 2020 11:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39450205F4;
+        Sat, 31 Oct 2020 11:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144510;
-        bh=WeHnhktlaLP40UbvEfH3d86BOIfU0gD+BrC+KSdjyrY=;
+        s=default; t=1604144665;
+        bh=eZuEbVqdql/C5fb7DV+pJFRaOgJpVhvc+6R1ziIwecg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJlxi0DwDXv2MKrZGcrGejrpa8pJSsOC5fh7WX0WtSDg+A+j6obSb7OeTA9tWkAIC
-         XWYVMNzNiyOLFmNrir3RpO6q5AGzHwevOUkTtT/LAYKqao5p2DlR2/UjngygFJ+72/
-         PnjD8MU/N3QDCeWrj7EJdd9q7i+v9wumMWGQzXnc=
+        b=wiMvr7T4txa4n3nIKsXG4Rul1H0LFyr0Y6TWpz3+EFM0VQM1OHzRzjNHTHXc7mwKg
+         VdjPw4YUHYbXgUry7kgZMwU1mR79eF/w5ns9FyZ6x40c4bY7a4uEt6q3dlIe0wwlyM
+         sd5JLx0ME3vw2I0ODJHoAeFIz7TkixjGNkyqKBzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 45/70] ravb: Fix bit fields checking in ravb_hwtstamp_get()
+Subject: [PATCH 5.9 35/74] cxgb4: set up filter action after rewrites
 Date:   Sat, 31 Oct 2020 12:36:17 +0100
-Message-Id: <20201031113501.656565409@linuxfoundation.org>
+Message-Id: <20201031113501.724136242@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +42,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
+[ Upstream commit 937d8420588421eaa5c7aa5c79b26b42abb288ef ]
 
-In the function ravb_hwtstamp_get() in ravb_main.c with the existing
-values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
-(0x6)
+The current code sets up the filter action field before
+rewrites are set up. When the action 'switch' is used
+with rewrites, this may result in initial few packets
+that get switched out don't have rewrites applied
+on them.
 
-if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
-else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-	config.rx_filter = HWTSTAMP_FILTER_ALL;
+So, make sure filter action is set up along with rewrites
+or only after everything else is set up for rewrites.
 
-if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
-it will never be reached.
-
-This issue can be verified with 'hwtstamp_config' testing program
-(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
-to ALL and subsequent retrieving it gives incorrect value:
-
-$ hwtstamp_config eth0 OFF ALL
-flags = 0
-tx_type = OFF
-rx_filter = ALL
-$ hwtstamp_config eth0
-flags = 0
-tx_type = OFF
-rx_filter = PTP_V2_L2_EVENT
-
-Correct this by converting if-else's to switch.
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Reported-by: Julia Lawall <julia.lawall@inria.fr>
-Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
+Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Link: https://lore.kernel.org/r/20201023115852.18262-1-rajur@chelsio.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |   56 ++++++++++------------
+ drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h       |    4 +
+ 2 files changed, 31 insertions(+), 29 deletions(-)
 
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1747,12 +1747,16 @@ static int ravb_hwtstamp_get(struct net_
- 	config.flags = 0;
- 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
- 						HWTSTAMP_TX_OFF;
--	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-+	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
-+	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
- 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
--	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-+		break;
-+	case RAVB_RXTSTAMP_TYPE_ALL:
- 		config.rx_filter = HWTSTAMP_FILTER_ALL;
--	else
-+		break;
-+	default:
- 		config.rx_filter = HWTSTAMP_FILTER_NONE;
-+	}
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -145,13 +145,13 @@ static int configure_filter_smac(struct
+ 	int err;
  
- 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
- 		-EFAULT : 0;
+ 	/* do a set-tcb for smac-sel and CWR bit.. */
+-	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
+-	if (err)
+-		goto smac_err;
+-
+ 	err = set_tcb_field(adap, f, f->tid, TCB_SMAC_SEL_W,
+ 			    TCB_SMAC_SEL_V(TCB_SMAC_SEL_M),
+ 			    TCB_SMAC_SEL_V(f->smt->idx), 1);
++	if (err)
++		goto smac_err;
++
++	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
+ 	if (!err)
+ 		return 0;
+ 
+@@ -865,6 +865,7 @@ int set_filter_wr(struct adapter *adapte
+ 		      FW_FILTER_WR_DIRSTEERHASH_V(f->fs.dirsteerhash) |
+ 		      FW_FILTER_WR_LPBK_V(f->fs.action == FILTER_SWITCH) |
+ 		      FW_FILTER_WR_DMAC_V(f->fs.newdmac) |
++		      FW_FILTER_WR_SMAC_V(f->fs.newsmac) |
+ 		      FW_FILTER_WR_INSVLAN_V(f->fs.newvlan == VLAN_INSERT ||
+ 					     f->fs.newvlan == VLAN_REWRITE) |
+ 		      FW_FILTER_WR_RMVLAN_V(f->fs.newvlan == VLAN_REMOVE ||
+@@ -882,7 +883,7 @@ int set_filter_wr(struct adapter *adapte
+ 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
+ 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
+ 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
+-	fwr->smac_sel = 0;
++	fwr->smac_sel = f->smt->idx;
+ 	fwr->rx_chan_rx_rpl_iq =
+ 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
+ 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
+@@ -1326,11 +1327,8 @@ static void mk_act_open_req6(struct filt
+ 			    TX_QUEUE_V(f->fs.nat_mode) |
+ 			    T5_OPT_2_VALID_F |
+ 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
+-			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
+-					 (f->fs.dirsteer << 1)) |
+ 			    PACE_V((f->fs.maskhash) |
+-				   ((f->fs.dirsteerhash) << 1)) |
+-			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
++				   ((f->fs.dirsteerhash) << 1)));
+ }
+ 
+ static void mk_act_open_req(struct filter_entry *f, struct sk_buff *skb,
+@@ -1366,11 +1364,8 @@ static void mk_act_open_req(struct filte
+ 			    TX_QUEUE_V(f->fs.nat_mode) |
+ 			    T5_OPT_2_VALID_F |
+ 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
+-			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
+-					 (f->fs.dirsteer << 1)) |
+ 			    PACE_V((f->fs.maskhash) |
+-				   ((f->fs.dirsteerhash) << 1)) |
+-			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
++				   ((f->fs.dirsteerhash) << 1)));
+ }
+ 
+ static int cxgb4_set_hash_filter(struct net_device *dev,
+@@ -2042,6 +2037,20 @@ void hash_filter_rpl(struct adapter *ada
+ 			}
+ 			return;
+ 		}
++		switch (f->fs.action) {
++		case FILTER_PASS:
++			if (f->fs.dirsteer)
++				set_tcb_tflag(adap, f, tid,
++					      TF_DIRECT_STEER_S, 1, 1);
++			break;
++		case FILTER_DROP:
++			set_tcb_tflag(adap, f, tid, TF_DROP_S, 1, 1);
++			break;
++		case FILTER_SWITCH:
++			set_tcb_tflag(adap, f, tid, TF_LPBK_S, 1, 1);
++			break;
++		}
++
+ 		break;
+ 
+ 	default:
+@@ -2109,22 +2118,11 @@ void filter_rpl(struct adapter *adap, co
+ 			if (ctx)
+ 				ctx->result = 0;
+ 		} else if (ret == FW_FILTER_WR_FLT_ADDED) {
+-			int err = 0;
+-
+-			if (f->fs.newsmac)
+-				err = configure_filter_smac(adap, f);
+-
+-			if (!err) {
+-				f->pending = 0;  /* async setup completed */
+-				f->valid = 1;
+-				if (ctx) {
+-					ctx->result = 0;
+-					ctx->tid = idx;
+-				}
+-			} else {
+-				clear_filter(adap, f);
+-				if (ctx)
+-					ctx->result = err;
++			f->pending = 0;  /* async setup completed */
++			f->valid = 1;
++			if (ctx) {
++				ctx->result = 0;
++				ctx->tid = idx;
+ 			}
+ 		} else {
+ 			/* Something went wrong.  Issue a warning about the
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
+@@ -50,6 +50,10 @@
+ #define TCB_T_FLAGS_M		0xffffffffffffffffULL
+ #define TCB_T_FLAGS_V(x)	((__u64)(x) << TCB_T_FLAGS_S)
+ 
++#define TF_DROP_S		22
++#define TF_DIRECT_STEER_S	23
++#define TF_LPBK_S		59
++
+ #define TF_CCTRL_ECE_S		60
+ #define TF_CCTRL_CWR_S		61
+ #define TF_CCTRL_RFR_S		62
 
 
