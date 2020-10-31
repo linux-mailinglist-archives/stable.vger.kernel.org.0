@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4DA82A16A9
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E22C2A16DD
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbgJaLpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:45:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46018 "EHLO mail.kernel.org"
+        id S1727109AbgJaLlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727980AbgJaLpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:09 -0400
+        id S1727646AbgJaLlQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEEF520739;
-        Sat, 31 Oct 2020 11:45:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ECC120719;
+        Sat, 31 Oct 2020 11:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144707;
-        bh=ETpU0BXfRtZxD2EQRg6oathVavk99g4z1nxhq8Anb7A=;
+        s=default; t=1604144476;
+        bh=Ze60y2mI3LTiXlkco5PSOa3oUKSgq0I/299naj4iKYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5JFFOo5egmqiG/o2MRB7wCHp6ZhQrcvTNGUb5n1WOVAH2b9ohqilquva4cDBvoFb
-         jRD/riljUq20uNdvVnOxFJXc3vgq9ZfMZm7jjZnaKqdhiuRnV34P18zvNxF5cnL8Eu
-         9mAuvPOiwk/RXmgF+gK3cKwARSGnz1dFXNaJgbEA=
+        b=QNan2N1s4AeDqYiksam4qyFOv2jkVgi2TFuMyu4kEfW3bQTponBgsnFDq7rPgP04t
+         XUVOXbOL3V21jXhTTbrZOKkv7IGuVUKy+Qz5wLNlk15YH4SlYIKj4SjfJJvxx1lkjP
+         j55XZtsYiEEp9fx+3P8E5f3GfCos809K6t6mf/0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jesse Barnes <jsbarnes@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Len Brown <lenb@kernel.org>,
-        Arjan van de Ven <arjan@linux.intel.com>
-Subject: [PATCH 5.9 23/74] x86/PCI: Fix intel_mid_pci.c build error when ACPI is not enabled
+        stable@vger.kernel.org,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 33/70] chelsio/chtls: fix memory leaks in CPL handlers
 Date:   Sat, 31 Oct 2020 12:36:05 +0100
-Message-Id: <20201031113501.158596059@linuxfoundation.org>
+Message-Id: <20201031113501.084979443@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,45 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-commit 035fff1f7aab43e420e0098f0854470a5286fb83 upstream.
+[ Upstream commit 6daa1da4e262b0cd52ef0acc1989ff22b5540264 ]
 
-Fix build error when CONFIG_ACPI is not set/enabled by adding the header
-file <asm/acpi.h> which contains a stub for the function in the build
-error.
+CPL handler functions chtls_pass_open_rpl() and
+chtls_close_listsrv_rpl() should return CPL_RET_BUF_DONE
+so that caller function will do skb free to avoid leak.
 
-    ../arch/x86/pci/intel_mid_pci.c: In function ‘intel_mid_pci_init’:
-    ../arch/x86/pci/intel_mid_pci.c:303:2: error: implicit declaration of function ‘acpi_noirq_set’; did you mean ‘acpi_irq_get’? [-Werror=implicit-function-declaration]
-      acpi_noirq_set();
-
-Fixes: a912a7584ec3 ("x86/platform/intel-mid: Move PCI initialization to arch_init()")
-Link: https://lore.kernel.org/r/ea903917-e51b-4cc9-2680-bc1e36efa026@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Jesse Barnes <jsbarnes@google.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org	# v4.16+
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Jesse Barnes <jsbarnes@google.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Link: https://lore.kernel.org/r/20201025194228.31271-1-vinay.yadav@chelsio.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/pci/intel_mid_pci.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |   27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
---- a/arch/x86/pci/intel_mid_pci.c
-+++ b/arch/x86/pci/intel_mid_pci.c
-@@ -33,6 +33,7 @@
- #include <asm/hw_irq.h>
- #include <asm/io_apic.h>
- #include <asm/intel-mid.h>
-+#include <asm/acpi.h>
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -772,14 +772,13 @@ static int chtls_pass_open_rpl(struct ch
+ 	if (rpl->status != CPL_ERR_NONE) {
+ 		pr_info("Unexpected PASS_OPEN_RPL status %u for STID %u\n",
+ 			rpl->status, stid);
+-		return CPL_RET_BUF_DONE;
++	} else {
++		cxgb4_free_stid(cdev->tids, stid, listen_ctx->lsk->sk_family);
++		sock_put(listen_ctx->lsk);
++		kfree(listen_ctx);
++		module_put(THIS_MODULE);
+ 	}
+-	cxgb4_free_stid(cdev->tids, stid, listen_ctx->lsk->sk_family);
+-	sock_put(listen_ctx->lsk);
+-	kfree(listen_ctx);
+-	module_put(THIS_MODULE);
+-
+-	return 0;
++	return CPL_RET_BUF_DONE;
+ }
  
- #define PCIE_CAP_OFFSET	0x100
+ static int chtls_close_listsrv_rpl(struct chtls_dev *cdev, struct sk_buff *skb)
+@@ -796,15 +795,13 @@ static int chtls_close_listsrv_rpl(struc
+ 	if (rpl->status != CPL_ERR_NONE) {
+ 		pr_info("Unexpected CLOSE_LISTSRV_RPL status %u for STID %u\n",
+ 			rpl->status, stid);
+-		return CPL_RET_BUF_DONE;
++	} else {
++		cxgb4_free_stid(cdev->tids, stid, listen_ctx->lsk->sk_family);
++		sock_put(listen_ctx->lsk);
++		kfree(listen_ctx);
++		module_put(THIS_MODULE);
+ 	}
+-
+-	cxgb4_free_stid(cdev->tids, stid, listen_ctx->lsk->sk_family);
+-	sock_put(listen_ctx->lsk);
+-	kfree(listen_ctx);
+-	module_put(THIS_MODULE);
+-
+-	return 0;
++	return CPL_RET_BUF_DONE;
+ }
  
+ static void chtls_purge_wr_queue(struct sock *sk)
 
 
