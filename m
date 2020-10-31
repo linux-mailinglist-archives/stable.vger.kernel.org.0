@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447942A16E6
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 252B92A16B5
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727782AbgJaLl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41222 "EHLO mail.kernel.org"
+        id S1727439AbgJaLoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:44:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727767AbgJaLl4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:56 -0400
+        id S1727119AbgJaLob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:44:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED2C520719;
-        Sat, 31 Oct 2020 11:41:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65AA620739;
+        Sat, 31 Oct 2020 11:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144515;
-        bh=owFw9jy5wvXy7h/hS8+rijyv14Ko20ItMZf4qlDxZW8=;
+        s=default; t=1604144670;
+        bh=/eWSMNuw7hAI76MfM3ORRrqREp2ulmo2HGI74xNA2bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eU7jqDDRwF1uxu0cT7FdoGVTbHe1AzqnPZDCLHQ9y8pZFJYmuJaeBSCrdFBP/toHT
-         kriisNjC44k7r8FCyiB+U7exL3wsriQ0h9ZHVq5Ok2nKeEhzmY8i7i4XmHj+Bj+DSz
-         7FyLptvYsCqSUYb9cOasqTUz2t63d4ZcqbL4xMR4=
+        b=oVj7AQKzMaB4sU+gNOEDBaebvthwc2Jv5DT+0waBShwjgK9uB6xSw0Iha9wUHYROt
+         gSJ0NxC6sGuvHsGzJKolg9gim/lN7oyO/GwYmsYFbaRQnVlRvmYu4HLWkcVRry3sNf
+         AQ/Ks9wvzbmQQUtxy9jZewtsKNKXRoDn26MfZShA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Thang Hoang Ngo <thang.h.ngo@dektech.com.au>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        Xin Long <lucien.xin@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 47/70] tipc: fix memory leak caused by tipc_buf_append()
+Subject: [PATCH 5.9 37/74] ibmveth: Fix use of ibmveth in a bridge.
 Date:   Sat, 31 Oct 2020 12:36:19 +0100
-Message-Id: <20201031113501.751220303@linuxfoundation.org>
+Message-Id: <20201031113501.823280545@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit ceb1eb2fb609c88363e06618b8d4bbf7815a4e03 ]
+[ Upstream commit 2ac8af0967aaa2b67cb382727e784900d2f4d0da ]
 
-Commit ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
-replaced skb_unshare() with skb_copy() to not reduce the data reference
-counter of the original skb intentionally. This is not the correct
-way to handle the cloned skb because it causes memory leak in 2
-following cases:
- 1/ Sending multicast messages via broadcast link
-  The original skb list is cloned to the local skb list for local
-  destination. After that, the data reference counter of each skb
-  in the original list has the value of 2. This causes each skb not
-  to be freed after receiving ACK:
-  tipc_link_advance_transmq()
-  {
-   ...
-   /* release skb */
-   __skb_unlink(skb, &l->transmq);
-   kfree_skb(skb); <-- memory exists after being freed
-  }
+The check for src mac address in ibmveth_is_packet_unsupported is wrong.
+Commit 6f2275433a2f wanted to shut down messages for loopback packets,
+but now suppresses bridged frames, which are accepted by the hypervisor
+otherwise bridging won't work at all.
 
- 2/ Sending multicast messages via replicast link
-  Similar to the above case, each skb cannot be freed after purging
-  the skb list:
-  tipc_mcast_xmit()
-  {
-   ...
-   __skb_queue_purge(pkts); <-- memory exists after being freed
-  }
-
-This commit fixes this issue by using skb_unshare() instead. Besides,
-to avoid use-after-free error reported by KASAN, the pointer to the
-fragment is set to NULL before calling skb_unshare() to make sure that
-the original skb is not freed after freeing the fragment 2 times in
-case skb_unshare() returns NULL.
-
-Fixes: ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Reported-by: Thang Hoang Ngo <thang.h.ngo@dektech.com.au>
-Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Link: https://lore.kernel.org/r/20201027032403.1823-1-tung.q.nguyen@dektech.com.au
+Fixes: 6f2275433a2f ("ibmveth: Detect unsupported packets before sending to the hypervisor")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Link: https://lore.kernel.org/r/20201026104221.26570-1-msuchanek@suse.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/msg.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ibm/ibmveth.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -150,12 +150,11 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		if (skb_cloned(frag))
--			frag = skb_copy(frag, GFP_ATOMIC);
-+		*buf = NULL;
-+		frag = skb_unshare(frag, GFP_ATOMIC);
- 		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
--		*buf = NULL;
- 		TIPC_SKB_CB(head)->tail = NULL;
- 		if (skb_is_nonlinear(head)) {
- 			skb_walk_frags(head, tail) {
+--- a/drivers/net/ethernet/ibm/ibmveth.c
++++ b/drivers/net/ethernet/ibm/ibmveth.c
+@@ -1031,12 +1031,6 @@ static int ibmveth_is_packet_unsupported
+ 		ret = -EOPNOTSUPP;
+ 	}
+ 
+-	if (!ether_addr_equal(ether_header->h_source, netdev->dev_addr)) {
+-		netdev_dbg(netdev, "source packet MAC address does not match veth device's, dropping packet.\n");
+-		netdev->stats.tx_dropped++;
+-		ret = -EOPNOTSUPP;
+-	}
+-
+ 	return ret;
+ }
+ 
 
 
