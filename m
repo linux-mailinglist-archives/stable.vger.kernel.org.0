@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C282A164A
+	by mail.lfdr.de (Postfix) with ESMTP id 74AFD2A164B
 	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727757AbgJaLoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44212 "EHLO mail.kernel.org"
+        id S1728106AbgJaLoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728092AbgJaLoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:00 -0400
+        id S1727065AbgJaLoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:44:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EF8C20731;
-        Sat, 31 Oct 2020 11:43:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BFC6205F4;
+        Sat, 31 Oct 2020 11:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144640;
-        bh=rEnBkTSpGPRpp+R0p+iiDUWxVjbCZ3g87SpKhyJDfbc=;
+        s=default; t=1604144642;
+        bh=1e27utaQ9tJp9kp1bR9gN77QNOeihN6Zfi5+HFYj4K8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPt5fJfiUTeo0o3Mn3FzlSLB5ognnLuLJX3ujCIdju6Q9gdbPj0afr6vfL2+CDttZ
-         OYrW+xa1yexVsh8y2CZhZ0j3VNxAKS5uhDsgzEQ+fIEZj4aoZ8l2fx87WattvyJCQk
-         HT2kwnIJMgT9BOEUFCKoo4EVg2GvB3NiB8C5hO2k=
+        b=ybizDPp3zQwmQgN97BK/JjjRMYR2ALQAoqhvTMUN5ahN/8QMPkOQCj40U+G8tElNW
+         d857d/0Uv9BEZi0r7k6GjCpxu67haL1/jOPwWLQcvMjdCKqJA7FpyflSI4g2TC3lzE
+         hT2AyE3wCw/PWTFBIB/DhRIu10VAm4stTu/uX5Is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.9 07/74] io_uring: return cancelation status from poll/timeout/files handlers
-Date:   Sat, 31 Oct 2020 12:35:49 +0100
-Message-Id: <20201031113500.389730131@linuxfoundation.org>
+Subject: [PATCH 5.9 08/74] io_uring: enable task/files specific overflow flushing
+Date:   Sat, 31 Oct 2020 12:35:50 +0100
+Message-Id: <20201031113500.441612345@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
 References: <20201031113500.031279088@linuxfoundation.org>
@@ -44,93 +44,126 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 76e1b6427fd8246376a97e3227049d49188dfb9c upstream.
+commit e6c8aa9ac33bd7c968af7816240fc081401fddcd upstream.
 
-Return whether we found and canceled requests or not. This is in
-preparation for using this information, no functional changes in this
-patch.
+This allows us to selectively flush out pending overflows, depending on
+the task and/or files_struct being passed in.
+
+No intended functional changes in this patch.
 
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ fs/io_uring.c |   41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1229,16 +1229,23 @@ static bool io_task_match(struct io_kioc
+@@ -1344,12 +1344,24 @@ static void io_cqring_mark_overflow(stru
+ 	}
+ }
+ 
++static inline bool io_match_files(struct io_kiocb *req,
++				       struct files_struct *files)
++{
++	if (!files)
++		return true;
++	if (req->flags & REQ_F_WORK_INITIALIZED)
++		return req->work.files == files;
++	return false;
++}
++
+ /* Returns true if there are no backlogged entries after the flush */
+-static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
++static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
++				     struct task_struct *tsk,
++				     struct files_struct *files)
+ {
+ 	struct io_rings *rings = ctx->rings;
++	struct io_kiocb *req, *tmp;
+ 	struct io_uring_cqe *cqe;
+-	struct io_kiocb *req;
+ 	unsigned long flags;
+ 	LIST_HEAD(list);
+ 
+@@ -1368,13 +1380,16 @@ static bool io_cqring_overflow_flush(str
+ 		ctx->cq_overflow_flushed = 1;
+ 
+ 	cqe = NULL;
+-	while (!list_empty(&ctx->cq_overflow_list)) {
++	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
++		if (tsk && req->task != tsk)
++			continue;
++		if (!io_match_files(req, files))
++			continue;
++
+ 		cqe = io_get_cqring(ctx);
+ 		if (!cqe && !force)
+ 			break;
+ 
+-		req = list_first_entry(&ctx->cq_overflow_list, struct io_kiocb,
+-						compl.list);
+ 		list_move(&req->compl.list, &list);
+ 		if (cqe) {
+ 			WRITE_ONCE(cqe->user_data, req->user_data);
+@@ -1988,7 +2003,7 @@ static unsigned io_cqring_events(struct
+ 		if (noflush && !list_empty(&ctx->cq_overflow_list))
+ 			return -1U;
+ 
+-		io_cqring_overflow_flush(ctx, false);
++		io_cqring_overflow_flush(ctx, false, NULL, NULL);
+ 	}
+ 
+ 	/* See comment at the top of this file */
+@@ -6489,7 +6504,7 @@ static int io_submit_sqes(struct io_ring
+ 	/* if we have a backlog and couldn't flush it all, return BUSY */
+ 	if (test_bit(0, &ctx->sq_check_overflow)) {
+ 		if (!list_empty(&ctx->cq_overflow_list) &&
+-		    !io_cqring_overflow_flush(ctx, false))
++		    !io_cqring_overflow_flush(ctx, false, NULL, NULL))
+ 			return -EBUSY;
+ 	}
+ 
+@@ -7993,7 +8008,7 @@ static void io_ring_exit_work(struct wor
+ 	 */
+ 	do {
+ 		if (ctx->rings)
+-			io_cqring_overflow_flush(ctx, true);
++			io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 		io_iopoll_try_reap_events(ctx);
+ 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+ 	io_ring_ctx_free(ctx);
+@@ -8013,7 +8028,7 @@ static void io_ring_ctx_wait_and_kill(st
+ 
+ 	/* if we failed setting up the ctx, we might not have any rings */
+ 	if (ctx->rings)
+-		io_cqring_overflow_flush(ctx, true);
++		io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 	io_iopoll_try_reap_events(ctx);
+ 	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
+ 
+@@ -8069,12 +8084,6 @@ static bool io_match_link(struct io_kioc
  	return false;
  }
  
--static void io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+/*
-+ * Returns true if we found and killed one or more timeouts
-+ */
-+static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
+-static inline bool io_match_files(struct io_kiocb *req,
+-				       struct files_struct *files)
+-{
+-	return (req->flags & REQ_F_WORK_INITIALIZED) && req->work.files == files;
+-}
+-
+ static bool io_match_link_files(struct io_kiocb *req,
+ 				struct files_struct *files)
  {
- 	struct io_kiocb *req, *tmp;
-+	int canceled = 0;
- 
- 	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
--		if (io_task_match(req, tsk))
-+		if (io_task_match(req, tsk)) {
- 			io_kill_timeout(req);
-+			canceled++;
-+		}
- 	}
- 	spin_unlock_irq(&ctx->completion_lock);
-+	return canceled != 0;
- }
- 
- static void __io_queue_deferred(struct io_ring_ctx *ctx)
-@@ -5013,7 +5020,10 @@ static bool io_poll_remove_one(struct io
- 	return do_complete;
- }
- 
--static void io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
-+/*
-+ * Returns true if we found and killed one or more poll requests
-+ */
-+static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
- {
- 	struct hlist_node *tmp;
- 	struct io_kiocb *req;
-@@ -5033,6 +5043,8 @@ static void io_poll_remove_all(struct io
- 
- 	if (posted)
- 		io_cqring_ev_posted(ctx);
-+
-+	return posted != 0;
- }
- 
- static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
-@@ -8178,11 +8190,14 @@ static void io_cancel_defer_files(struct
- 	}
- }
- 
--static void io_uring_cancel_files(struct io_ring_ctx *ctx,
-+/*
-+ * Returns true if we found and killed one or more files pinning requests
-+ */
-+static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
- {
- 	if (list_empty_careful(&ctx->inflight_list))
--		return;
-+		return false;
- 
- 	io_cancel_defer_files(ctx, files);
- 	/* cancel all at once, should be faster than doing it one by one*/
-@@ -8218,6 +8233,8 @@ static void io_uring_cancel_files(struct
- 		schedule();
- 		finish_wait(&ctx->inflight_wait, &wait);
- 	}
-+
-+	return true;
- }
- 
- static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+@@ -8365,7 +8374,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned
+ 	ret = 0;
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		if (!list_empty_careful(&ctx->cq_overflow_list))
+-			io_cqring_overflow_flush(ctx, false);
++			io_cqring_overflow_flush(ctx, false, NULL, NULL);
+ 		if (flags & IORING_ENTER_SQ_WAKEUP)
+ 			wake_up(&ctx->sqo_wait);
+ 		submitted = to_submit;
 
 
