@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 202282A168B
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:46:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F332A16F2
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727982AbgJaLqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        id S1727103AbgJaLmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:42:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728355AbgJaLqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:46:17 -0400
+        id S1727342AbgJaLms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:42:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14501205F4;
-        Sat, 31 Oct 2020 11:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3062F20731;
+        Sat, 31 Oct 2020 11:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144776;
-        bh=hSLxWkerlkKsPDjUKT0hD7QonBWMhEzCMqL/hrYaWm0=;
+        s=default; t=1604144567;
+        bh=5sYGZ8RU2vIqUVsw7t71gFMAPZQxxErK7vl1GhC8G3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYFOlzmbVMlWP1jCD8YslCvxThNO5Cll5xNy8ir4+gWtvka+lWfv9NicQ9a3toRkf
-         V3Jjh8BqyZENSddU3FGQGWZ8LncVYHUQI0eTGPWNtKFybSqmMOxuXX4ckn1x6ZKFHK
-         I2boZAcBnu9NgMPFXMBLy7LrFSEIRbZWyymm2euI=
+        b=FKd95eNLZW9wPimY4jSkKIF2bd9y7PaYl0qEugY+5wmdnoGyBmst/kDoxBojiji68
+         Ya/ZceDg2oJWuxAaOTQNEF2iFLARkUL4Tv1mwNI7CMKUIGBP5KFd3GJuA3qPseRI2v
+         18ZKCDXwsBCt4CKRxNFZ8v0Y8GEfZDb+xTxTdPfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pradeep P V K <ppvk@codeaurora.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.9 58/74] fuse: fix page dereference after free
+        stable@vger.kernel.org, Stafford Horne <shorne@gmail.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Subject: [PATCH 5.8 68/70] openrisc: Fix issue with get_user for 64-bit values
 Date:   Sat, 31 Oct 2020 12:36:40 +0100
-Message-Id: <20201031113502.812234126@linuxfoundation.org>
+Message-Id: <20201031113502.741451469@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Stafford Horne <shorne@gmail.com>
 
-commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
+commit d877322bc1adcab9850732275670409e8bcca4c4 upstream.
 
-After unlock_request() pages from the ap->pages[] array may be put (e.g. by
-aborting the connection) and the pages can be freed.
+A build failure was raised by kbuild with the following error.
 
-Prevent use after free by grabbing a reference to the page before calling
-unlock_request().
+    drivers/android/binder.c: Assembler messages:
+    drivers/android/binder.c:3861: Error: unrecognized keyword/register name `l.lwz ?ap,4(r24)'
+    drivers/android/binder.c:3866: Error: unrecognized keyword/register name `l.addi ?ap,r0,0'
 
-The original patch was created by Pradeep P V K.
+The issue is with 64-bit get_user() calls on openrisc.  I traced this to
+a problem where in the internally in the get_user macros there is a cast
+to long __gu_val this causes GCC to think the get_user call is 32-bit.
+This binder code is really long and GCC allocates register r30, which
+triggers the issue. The 64-bit get_user asm tries to get the 64-bit pair
+register, which for r30 overflows the general register names and returns
+the dummy register ?ap.
 
-Reported-by: Pradeep P V K <ppvk@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+The fix here is to move the temporary variables into the asm macros.  We
+use a 32-bit __gu_tmp for 32-bit and smaller macro and a 64-bit tmp in
+the 64-bit macro.  The cast in the 64-bit macro has a trick of casting
+through __typeof__((x)-(x)) which avoids the below warning.  This was
+barrowed from riscv.
+
+    arch/openrisc/include/asm/uaccess.h:240:8: warning: cast to pointer from integer of different size
+
+I tested this in a small unit test to check reading between 64-bit and
+32-bit pointers to 64-bit and 32-bit values in all combinations.  Also I
+ran make C=1 to confirm no new sparse warnings came up.  It all looks
+clean to me.
+
+Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp@intel.com/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/fuse/dev.c |   28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -785,15 +785,16 @@ static int fuse_try_move_page(struct fus
- 	struct page *newpage;
- 	struct pipe_buffer *buf = cs->pipebufs;
+---
+ arch/openrisc/include/asm/uaccess.h |   35 ++++++++++++++++++++++-------------
+ 1 file changed, 22 insertions(+), 13 deletions(-)
+
+--- a/arch/openrisc/include/asm/uaccess.h
++++ b/arch/openrisc/include/asm/uaccess.h
+@@ -164,19 +164,19 @@ struct __large_struct {
  
-+	get_page(oldpage);
- 	err = unlock_request(cs->req);
- 	if (err)
--		return err;
-+		goto out_put_old;
+ #define __get_user_nocheck(x, ptr, size)			\
+ ({								\
+-	long __gu_err, __gu_val;				\
+-	__get_user_size(__gu_val, (ptr), (size), __gu_err);	\
+-	(x) = (__force __typeof__(*(ptr)))__gu_val;		\
++	long __gu_err;						\
++	__get_user_size((x), (ptr), (size), __gu_err);		\
+ 	__gu_err;						\
+ })
  
- 	fuse_copy_finish(cs);
+ #define __get_user_check(x, ptr, size)					\
+ ({									\
+-	long __gu_err = -EFAULT, __gu_val = 0;				\
+-	const __typeof__(*(ptr)) * __gu_addr = (ptr);			\
+-	if (access_ok(__gu_addr, size))			\
+-		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
+-	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
++	long __gu_err = -EFAULT;					\
++	const __typeof__(*(ptr)) *__gu_addr = (ptr);			\
++	if (access_ok(__gu_addr, size))					\
++		__get_user_size((x), __gu_addr, (size), __gu_err);	\
++	else								\
++		(x) = (__typeof__(*(ptr))) 0;				\
+ 	__gu_err;							\
+ })
  
- 	err = pipe_buf_confirm(cs->pipe, buf);
- 	if (err)
--		return err;
-+		goto out_put_old;
+@@ -190,11 +190,13 @@ do {									\
+ 	case 2: __get_user_asm(x, ptr, retval, "l.lhz"); break;		\
+ 	case 4: __get_user_asm(x, ptr, retval, "l.lwz"); break;		\
+ 	case 8: __get_user_asm2(x, ptr, retval); break;			\
+-	default: (x) = __get_user_bad();				\
++	default: (x) = (__typeof__(*(ptr)))__get_user_bad();		\
+ 	}								\
+ } while (0)
  
- 	BUG_ON(!cs->nr_segs);
- 	cs->currbuf = buf;
-@@ -833,7 +834,7 @@ static int fuse_try_move_page(struct fus
- 	err = replace_page_cache_page(oldpage, newpage, GFP_KERNEL);
- 	if (err) {
- 		unlock_page(newpage);
--		return err;
-+		goto out_put_old;
- 	}
+ #define __get_user_asm(x, addr, err, op)		\
++{							\
++	unsigned long __gu_tmp;				\
+ 	__asm__ __volatile__(				\
+ 		"1:	"op" %1,0(%2)\n"		\
+ 		"2:\n"					\
+@@ -208,10 +210,14 @@ do {									\
+ 		"	.align 2\n"			\
+ 		"	.long 1b,3b\n"			\
+ 		".previous"				\
+-		: "=r"(err), "=r"(x)			\
+-		: "r"(addr), "i"(-EFAULT), "0"(err))
++		: "=r"(err), "=r"(__gu_tmp)		\
++		: "r"(addr), "i"(-EFAULT), "0"(err));	\
++	(x) = (__typeof__(*(addr)))__gu_tmp;		\
++}
  
- 	get_page(newpage);
-@@ -852,14 +853,19 @@ static int fuse_try_move_page(struct fus
- 	if (err) {
- 		unlock_page(newpage);
- 		put_page(newpage);
--		return err;
-+		goto out_put_old;
- 	}
+ #define __get_user_asm2(x, addr, err)			\
++{							\
++	unsigned long long __gu_tmp;			\
+ 	__asm__ __volatile__(				\
+ 		"1:	l.lwz %1,0(%2)\n"		\
+ 		"2:	l.lwz %H1,4(%2)\n"		\
+@@ -228,8 +234,11 @@ do {									\
+ 		"	.long 1b,4b\n"			\
+ 		"	.long 2b,4b\n"			\
+ 		".previous"				\
+-		: "=r"(err), "=&r"(x)			\
+-		: "r"(addr), "i"(-EFAULT), "0"(err))
++		: "=r"(err), "=&r"(__gu_tmp)		\
++		: "r"(addr), "i"(-EFAULT), "0"(err));	\
++	(x) = (__typeof__(*(addr)))(			\
++		(__typeof__((x)-(x)))__gu_tmp);		\
++}
  
- 	unlock_page(oldpage);
-+	/* Drop ref for ap->pages[] array */
- 	put_page(oldpage);
- 	cs->len = 0;
+ /* more complex routines */
  
--	return 0;
-+	err = 0;
-+out_put_old:
-+	/* Drop ref obtained in this function */
-+	put_page(oldpage);
-+	return err;
- 
- out_fallback_unlock:
- 	unlock_page(newpage);
-@@ -868,10 +874,10 @@ out_fallback:
- 	cs->offset = buf->offset;
- 
- 	err = lock_request(cs->req);
--	if (err)
--		return err;
-+	if (!err)
-+		err = 1;
- 
--	return 1;
-+	goto out_put_old;
- }
- 
- static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
-@@ -883,14 +889,16 @@ static int fuse_ref_page(struct fuse_cop
- 	if (cs->nr_segs >= cs->pipe->max_usage)
- 		return -EIO;
- 
-+	get_page(page);
- 	err = unlock_request(cs->req);
--	if (err)
-+	if (err) {
-+		put_page(page);
- 		return err;
-+	}
- 
- 	fuse_copy_finish(cs);
- 
- 	buf = cs->pipebufs;
--	get_page(page);
- 	buf->page = page;
- 	buf->offset = offset;
- 	buf->len = count;
 
 
