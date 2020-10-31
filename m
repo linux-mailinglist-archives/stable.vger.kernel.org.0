@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2222A15E8
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91BFD2A1589
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:35:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726997AbgJaLfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:35:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33286 "EHLO mail.kernel.org"
+        id S1727049AbgJaLfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:35:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727022AbgJaLfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:35:30 -0400
+        id S1727039AbgJaLfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:35:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E256120739;
-        Sat, 31 Oct 2020 11:35:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DC9620739;
+        Sat, 31 Oct 2020 11:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144129;
-        bh=xwM64GQzTCAI0uFNMIB8AGN4Z0EtKBRMvZIDNQA4AHc=;
+        s=default; t=1604144131;
+        bh=QHwXpG47XfDbtamJzkp8qGbSqk72OGM8Sm0HWrGPTW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kboD9l4EHxum62TskhyAHy9HqvJeG4VWQV5bB9JndAb3lF49Y9A21NpjOZKB9cqNs
-         y9W7uYOpcXahMUZFPm7qgksCTpgrf/HYknONW9blC5hVQ/dXvLsW9dPD2vX8oWxKgI
-         mWsYaY0T1SA1uprGrBGnoP/TxM0YZ4lPBHrIRZBQ=
+        b=yaRxLYgLVHUN8jxiLSXXPn5fdnWO/3DZmO3PxO4egSQLQXEVGxUuiROOj222p2hbB
+         awW9aW08oLjed7+FxKYUPlqIW6GG0x0BFm5dVz5cUoTRLv3EGzWjHodOeGQro8DxuR
+         1izCkaSvXNKntH1nB+C35oXqe4+zDXGs73Xi/ypE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Fujiwara <fujiwara.masahiro@gmail.com>,
+        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 16/49] gtp: fix an use-before-init in gtp_newlink()
-Date:   Sat, 31 Oct 2020 12:35:12 +0100
-Message-Id: <20201031113456.231051332@linuxfoundation.org>
+Subject: [PATCH 5.4 17/49] ibmvnic: fix ibmvnic_set_mac
+Date:   Sat, 31 Oct 2020 12:35:13 +0100
+Message-Id: <20201031113456.279111953@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -43,86 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
+From: Lijun Pan <ljp@linux.ibm.com>
 
-[ Upstream commit 51467431200b91682b89d31317e35dcbca1469ce ]
+[ Upstream commit 8fc3672a8ad3e782bac80e979bc2a2c10960cbe9 ]
 
-*_pdp_find() from gtp_encap_recv() would trigger a crash when a peer
-sends GTP packets while creating new GTP device.
+Jakub Kicinski brought up a concern in ibmvnic_set_mac().
+ibmvnic_set_mac() does this:
 
-RIP: 0010:gtp1_pdp_find.isra.0+0x68/0x90 [gtp]
-<SNIP>
-Call Trace:
- <IRQ>
- gtp_encap_recv+0xc2/0x2e0 [gtp]
- ? gtp1_pdp_find.isra.0+0x90/0x90 [gtp]
- udp_queue_rcv_one_skb+0x1fe/0x530
- udp_queue_rcv_skb+0x40/0x1b0
- udp_unicast_rcv_skb.isra.0+0x78/0x90
- __udp4_lib_rcv+0x5af/0xc70
- udp_rcv+0x1a/0x20
- ip_protocol_deliver_rcu+0xc5/0x1b0
- ip_local_deliver_finish+0x48/0x50
- ip_local_deliver+0xe5/0xf0
- ? ip_protocol_deliver_rcu+0x1b0/0x1b0
+	ether_addr_copy(adapter->mac_addr, addr->sa_data);
+	if (adapter->state != VNIC_PROBED)
+		rc = __ibmvnic_set_mac(netdev, addr->sa_data);
 
-gtp_encap_enable() should be called after gtp_hastable_new() otherwise
-*_pdp_find() will access the uninitialized hash table.
+So if state == VNIC_PROBED, the user can assign an invalid address to
+adapter->mac_addr, and ibmvnic_set_mac() will still return 0.
 
-Fixes: 1e3a3abd8b28 ("gtp: make GTP sockets in gtp_newlink optional")
-Signed-off-by: Masahiro Fujiwara <fujiwara.masahiro@gmail.com>
-Link: https://lore.kernel.org/r/20201027114846.3924-1-fujiwara.masahiro@gmail.com
+The fix is to validate ethernet address at the beginning of
+ibmvnic_set_mac(), and move the ether_addr_copy to
+the case of "adapter->state != VNIC_PROBED".
+
+Fixes: c26eba03e407 ("ibmvnic: Update reset infrastructure to support tunable parameters")
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+Link: https://lore.kernel.org/r/20201027220456.71450-1-ljp@linux.ibm.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -663,10 +663,6 @@ static int gtp_newlink(struct net *src_n
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1735,9 +1735,13 @@ static int ibmvnic_set_mac(struct net_de
+ 	int rc;
  
- 	gtp = netdev_priv(dev);
- 
--	err = gtp_encap_enable(gtp, data);
--	if (err < 0)
--		return err;
--
- 	if (!data[IFLA_GTP_PDP_HASHSIZE]) {
- 		hashsize = 1024;
- 	} else {
-@@ -677,12 +673,16 @@ static int gtp_newlink(struct net *src_n
- 
- 	err = gtp_hashtable_new(gtp, hashsize);
- 	if (err < 0)
--		goto out_encap;
-+		return err;
+ 	rc = 0;
+-	ether_addr_copy(adapter->mac_addr, addr->sa_data);
+-	if (adapter->state != VNIC_PROBED)
++	if (!is_valid_ether_addr(addr->sa_data))
++		return -EADDRNOTAVAIL;
 +
-+	err = gtp_encap_enable(gtp, data);
-+	if (err < 0)
-+		goto out_hashtable;
++	if (adapter->state != VNIC_PROBED) {
++		ether_addr_copy(adapter->mac_addr, addr->sa_data);
+ 		rc = __ibmvnic_set_mac(netdev, addr->sa_data);
++	}
  
- 	err = register_netdevice(dev);
- 	if (err < 0) {
- 		netdev_dbg(dev, "failed to register new netdev %d\n", err);
--		goto out_hashtable;
-+		goto out_encap;
- 	}
- 
- 	gn = net_generic(dev_net(dev), gtp_net_id);
-@@ -693,11 +693,11 @@ static int gtp_newlink(struct net *src_n
- 
- 	return 0;
- 
-+out_encap:
-+	gtp_encap_disable(gtp);
- out_hashtable:
- 	kfree(gtp->addr_hash);
- 	kfree(gtp->tid_hash);
--out_encap:
--	gtp_encap_disable(gtp);
- 	return err;
+ 	return rc;
  }
- 
 
 
