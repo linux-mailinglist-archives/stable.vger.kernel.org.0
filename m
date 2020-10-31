@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AECA92A16B2
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D532A16E7
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728185AbgJaLoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45020 "EHLO mail.kernel.org"
+        id S1727365AbgJaLmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727407AbgJaLog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:36 -0400
+        id S1727810AbgJaLmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:42:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50E3E205F4;
-        Sat, 31 Oct 2020 11:44:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BDDA20731;
+        Sat, 31 Oct 2020 11:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144675;
-        bh=AFn7TU78QOPe/9XtIxDUBlm3bOJKJhXPZkbt50WEjEU=;
+        s=default; t=1604144525;
+        bh=ELnbaPvLmgekO9zPLjNiFxIvLeYzSV+8Djt2I6YDpOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8zc4yZ7oDDAnK7v/tJyLW8DpkAymi3iSqFHsmL1ZaEyRWyfZDCh70UUXEOUJSWlH
-         sGtjPAoi6pxaDiwcX7s06Q/qkMFtfjJCKeWz/ytjODc/H26nc/THLYrRKgi2xR9Au3
-         VWYaxGcaVDsMxVQkQIjORCP0D78subCfSqkLQEpA=
+        b=oEDNzVnwwilKyB8wkEWka0lnIY93lV7T3huUlePQ+WaR0LWbRDpB1LPpaD3RfSVxs
+         qBFMIQ5xg/s75xLURf1/fLI09E07aK1wdwj3r1z2gZyDVj1Tt+MFCRbZ7sVsnCyL+A
+         FF+rLmWam2vrXJVy5Y8js5Xh1/Iyc3uJLEjZ0hDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Oleksandr Shamray <oleksandrs@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 39/74] mlxsw: core: Fix memory leak on module removal
-Date:   Sat, 31 Oct 2020 12:36:21 +0100
-Message-Id: <20201031113501.917972216@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stephane Eranian <stephane.eranian@google.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.8 50/70] arch/x86/amd/ibs: Fix re-arming IBS Fetch
+Date:   Sat, 31 Oct 2020 12:36:22 +0100
+Message-Id: <20201031113501.896701678@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit adc80b6cfedff6dad8b93d46a5ea2775fd5af9ec ]
+commit 221bfce5ebbdf72ff08b3bf2510ae81058ee568b upstream.
 
-Free the devlink instance during the teardown sequence in the non-reload
-case to avoid the following memory leak.
+Stephane Eranian found a bug in that IBS' current Fetch counter was not
+being reset when the driver would write the new value to clear it along
+with the enable bit set, and found that adding an MSR write that would
+first disable IBS Fetch would make IBS Fetch reset its current count.
 
-unreferenced object 0xffff888232895000 (size 2048):
-  comm "modprobe", pid 1073, jiffies 4295568857 (age 164.871s)
-  hex dump (first 32 bytes):
-    00 01 00 00 00 00 ad de 22 01 00 00 00 00 ad de  ........".......
-    10 50 89 32 82 88 ff ff 10 50 89 32 82 88 ff ff  .P.2.....P.2....
-  backtrace:
-    [<00000000c704e9a6>] __kmalloc+0x13a/0x2a0
-    [<00000000ee30129d>] devlink_alloc+0xff/0x760
-    [<0000000092ab3e5d>] 0xffffffffa042e5b0
-    [<000000004f3f8a31>] 0xffffffffa042f6ad
-    [<0000000092800b4b>] 0xffffffffa0491df3
-    [<00000000c4843903>] local_pci_probe+0xcb/0x170
-    [<000000006993ded7>] pci_device_probe+0x2c2/0x4e0
-    [<00000000a8e0de75>] really_probe+0x2c5/0xf90
-    [<00000000d42ba75d>] driver_probe_device+0x1eb/0x340
-    [<00000000bcc95e05>] device_driver_attach+0x294/0x300
-    [<000000000e2bc177>] __driver_attach+0x167/0x2f0
-    [<000000007d44cd6e>] bus_for_each_dev+0x148/0x1f0
-    [<000000003cd5a91e>] driver_attach+0x45/0x60
-    [<000000000041ce51>] bus_add_driver+0x3b8/0x720
-    [<00000000f5215476>] driver_register+0x230/0x4e0
-    [<00000000d79356f5>] __pci_register_driver+0x190/0x200
+Indeed, the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54 - Sep 12,
+2019 states "The periodic fetch counter is set to IbsFetchCnt [...] when
+IbsFetchEn is changed from 0 to 1."
 
-Fixes: a22712a96291 ("mlxsw: core: Fix devlink unregister flow")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reported-by: Vadim Pasternak <vadimp@nvidia.com>
-Tested-by: Oleksandr Shamray <oleksandrs@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Explicitly set IbsFetchEn to 0 and then to 1 when re-enabling IBS Fetch,
+so the driver properly resets the internal counter to 0 and IBS
+Fetch starts counting again.
+
+A family 15h machine tested does not have this problem, and the extra
+wrmsr is also not needed on Family 19h, so only do the extra wrmsr on
+families 16h through 18h.
+
+Reported-by: Stephane Eranian <stephane.eranian@google.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+[peterz: optimized]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlxsw/core.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -1485,6 +1485,8 @@ void mlxsw_core_bus_device_unregister(st
- 	if (!reload)
- 		devlink_resources_unregister(devlink, NULL);
- 	mlxsw_core->bus->fini(mlxsw_core->bus_priv);
-+	if (!reload)
-+		devlink_free(devlink);
+---
+ arch/x86/events/amd/ibs.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -89,6 +89,7 @@ struct perf_ibs {
+ 	u64				max_period;
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
++	unsigned int			fetch_count_reset_broken : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
  
- 	return;
+ 	struct attribute		**format_attrs;
+@@ -363,7 +364,12 @@ perf_ibs_event_update(struct perf_ibs *p
+ static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
+ 					 struct hw_perf_event *hwc, u64 config)
+ {
+-	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
++	u64 tmp = hwc->config | config;
++
++	if (perf_ibs->fetch_count_reset_broken)
++		wrmsrl(hwc->config_base, tmp & ~perf_ibs->enable_mask);
++
++	wrmsrl(hwc->config_base, tmp | perf_ibs->enable_mask);
+ }
  
+ /*
+@@ -733,6 +739,13 @@ static __init void perf_event_ibs_init(v
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
+ 
++	/*
++	 * Some chips fail to reset the fetch count when it is written; instead
++	 * they need a 0-1 transition of IbsFetchEn.
++	 */
++	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
++		perf_ibs_fetch.fetch_count_reset_broken = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
 
 
