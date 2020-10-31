@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9949F2A15C7
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4032A15C2
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbgJaLiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34866 "EHLO mail.kernel.org"
+        id S1727222AbgJaLiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:38:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727199AbgJaLge (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:34 -0400
+        id S1727206AbgJaLgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06C1420791;
-        Sat, 31 Oct 2020 11:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E06A20853;
+        Sat, 31 Oct 2020 11:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144193;
-        bh=vFKivAGTnfH8SxFCCnnszja2lgxQzHu9V9uCveD6v8E=;
+        s=default; t=1604144196;
+        bh=VaJBdPvv6oADudM62GhWYNgpH+/EyjWa0c704nJQWw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q77Y37nnVCOF3O5dYu1UVNpPehAp2aKCDzJkdMtVsjlfXe4x6ViAewXPUMPAlntoz
-         b5lOhSEucvrr0YrMD/ADE4Dktmj5YNZeTDHEiz/U+OZe1wMw7iNVIorVItALjd2Yqc
-         p3m9e9T/NaunMmWb+JrEYATJ9YTXh/2nPy3T948E=
+        b=ajMwhNXFX/489ECKgikT4BMz3cw7WUUE0Wlk5jqTdIzRav50QKeW/Foj0KpNCASc0
+         JYzJi0k7FyaFHr5u9oB1+ekSTCmTAoGyiU7XQCooS59EuUxTwF4CsDrHXBiVC1OYwn
+         qDZ2fctMs+2Cyk1Vsw0srw17tNzsDaPnFXy9+bH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paras Sharma <parashar@codeaurora.org>,
-        Akash Asthana <akashast@codeaurora.org>
-Subject: [PATCH 5.4 41/49] serial: qcom_geni_serial: To correct QUP Version detection logic
-Date:   Sat, 31 Oct 2020 12:35:37 +0100
-Message-Id: <20201031113457.422443341@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 42/49] serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
+Date:   Sat, 31 Oct 2020 12:35:38 +0100
+Message-Id: <20201031113457.471013483@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -42,57 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paras Sharma <parashar@codeaurora.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit c9ca43d42ed8d5fd635d327a664ed1d8579eb2af upstream.
+commit 534cf755d9df99e214ddbe26b91cd4d81d2603e2 upstream.
 
-For QUP IP versions 2.5 and above the oversampling rate is
-halved from 32 to 16.
+Issuing a magic-sysrq via the PL011 causes the following lockdep splat,
+which is easily reproducible under QEMU:
 
-Commit ce734600545f ("tty: serial: qcom_geni_serial: Update
-the oversampling rate") is pushed to handle this scenario.
-But the existing logic is failing to classify QUP Version 3.0
-into the correct group ( 2.5 and above).
+  | sysrq: Changing Loglevel
+  | sysrq: Loglevel set to 9
+  |
+  | ======================================================
+  | WARNING: possible circular locking dependency detected
+  | 5.9.0-rc7 #1 Not tainted
+  | ------------------------------------------------------
+  | systemd-journal/138 is trying to acquire lock:
+  | ffffab133ad950c0 (console_owner){-.-.}-{0:0}, at: console_lock_spinning_enable+0x34/0x70
+  |
+  | but task is already holding lock:
+  | ffff0001fd47b098 (&port_lock_key){-.-.}-{2:2}, at: pl011_int+0x40/0x488
+  |
+  | which lock already depends on the new lock.
 
-As result Serial Engine clocks are not configured properly for
-baud rate and garbage data is sampled to FIFOs from the line.
+  [...]
 
-So, fix the logic to detect QUP with versions 2.5 and above.
+  |  Possible unsafe locking scenario:
+  |
+  |        CPU0                    CPU1
+  |        ----                    ----
+  |   lock(&port_lock_key);
+  |                                lock(console_owner);
+  |                                lock(&port_lock_key);
+  |   lock(console_owner);
+  |
+  |  *** DEADLOCK ***
 
-Fixes: ce734600545f ("tty: serial: qcom_geni_serial: Update the oversampling rate")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Paras Sharma <parashar@codeaurora.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
-Link: https://lore.kernel.org/r/1601445926-23673-1-git-send-email-parashar@codeaurora.org
+The issue being that CPU0 takes 'port_lock' on the irq path in pl011_int()
+before taking 'console_owner' on the printk() path, whereas CPU1 takes
+the two locks in the opposite order on the printk() path due to setting
+the "console_owner" prior to calling into into the actual console driver.
+
+Fix this in the same way as the msm-serial driver by dropping 'port_lock'
+before handling the sysrq.
+
+Cc: <stable@vger.kernel.org> # 4.19+
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20200811101313.GA6970@willie-the-truck
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Tested-by: Will Deacon <will@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20200930120432.16551-1-will@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/qcom_geni_serial.c |    2 +-
- include/linux/qcom-geni-se.h          |    3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/amba-pl011.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -970,7 +970,7 @@ static void qcom_geni_serial_set_termios
- 	sampling_rate = UART_OVERSAMPLING;
- 	/* Sampling rate is halved for IP versions >= 2.5 */
- 	ver = geni_se_get_qup_hw_version(&port->se);
--	if (GENI_SE_VERSION_MAJOR(ver) >= 2 && GENI_SE_VERSION_MINOR(ver) >= 5)
-+	if (ver >= QUP_SE_VERSION_2_5)
- 		sampling_rate /= 2;
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -313,8 +313,9 @@ static void pl011_write(unsigned int val
+  */
+ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
+ {
+-	u16 status;
+ 	unsigned int ch, flag, fifotaken;
++	int sysrq;
++	u16 status;
  
- 	clk_rate = get_clk_div_rate(baud, sampling_rate, &clk_div);
---- a/include/linux/qcom-geni-se.h
-+++ b/include/linux/qcom-geni-se.h
-@@ -229,6 +229,9 @@ struct geni_se {
- #define GENI_SE_VERSION_MINOR(ver) ((ver & HW_VER_MINOR_MASK) >> HW_VER_MINOR_SHFT)
- #define GENI_SE_VERSION_STEP(ver) (ver & HW_VER_STEP_MASK)
+ 	for (fifotaken = 0; fifotaken != 256; fifotaken++) {
+ 		status = pl011_read(uap, REG_FR);
+@@ -349,10 +350,12 @@ static int pl011_fifo_to_tty(struct uart
+ 				flag = TTY_FRAME;
+ 		}
  
-+/* QUP SE VERSION value for major number 2 and minor number 5 */
-+#define QUP_SE_VERSION_2_5                  0x20050000
-+
- #if IS_ENABLED(CONFIG_QCOM_GENI_SE)
+-		if (uart_handle_sysrq_char(&uap->port, ch & 255))
+-			continue;
++		spin_unlock(&uap->port.lock);
++		sysrq = uart_handle_sysrq_char(&uap->port, ch & 255);
++		spin_lock(&uap->port.lock);
  
- u32 geni_se_get_qup_hw_version(struct geni_se *se);
+-		uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
++		if (!sysrq)
++			uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
+ 	}
+ 
+ 	return fifotaken;
 
 
