@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F123D2A1608
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 148882A16CA
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727605AbgJaLlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
+        id S1727115AbgJaLsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:48:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727589AbgJaLlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:04 -0400
+        id S1728050AbgJaLnk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:43:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD80920739;
-        Sat, 31 Oct 2020 11:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2042420731;
+        Sat, 31 Oct 2020 11:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144463;
-        bh=hDsSuFOiU2bx7zeexXPGlU3WmkPNixaSJZu5uAMn42s=;
+        s=default; t=1604144620;
+        bh=lyN8fzdZVm2iK4kV+7mrPWBQYhkvGH4kdoLeQtrO2uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG9ClcpIg3NA+ZoFY/WwYHH08JXtmpcIZIE6FQKfo3O0nzQYHoIiM6+ztiBEdxE/Q
-         Zs+rbOtmM3yU5+kUeRstWBYQUilgspKuRBXQFafotlzuHxgi/dEiIpU2V0aG3pYd6c
-         5NzrUgWNWR/SZgwkUVVsJ9ioIRug0RjyAItWuH8I=
+        b=Qf0XWdQC9FjF8TQ2VbkQVS/nEYGvD+uk1lSLIxDY9QOxfeD5VNwZD58ZMPAt/St0F
+         ibpImJGYZm4s+A2xRrcn3Bqq1j1kkTN47Y/giUuidz3GovOUzAoSL0jjSbcjDTvihP
+         bETj5EsgGcydN6ocN1JGxhA0NBmgSDNjqTwvsvek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 28/70] bnxt_en: Fix regression in workqueue cleanup logic in bnxt_remove_one().
+        stable@vger.kernel.org, Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.9 18/74] efi/arm64: libstub: Deal gracefully with EFI_RNG_PROTOCOL failure
 Date:   Sat, 31 Oct 2020 12:36:00 +0100
-Message-Id: <20201031113500.852416396@linuxfoundation.org>
+Message-Id: <20201031113500.927808908@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 21d6a11e2cadfb8446265a3efff0e2aad206e15e ]
+commit d32de9130f6c79533508e2c7879f18997bfbe2a0 upstream.
 
-A recent patch has moved the workqueue cleanup logic before
-calling unregister_netdev() in bnxt_remove_one().  This caused a
-regression because the workqueue can be restarted if the device is
-still open.  Workqueue cleanup must be done after unregister_netdev().
-The workqueue will not restart itself after the device is closed.
+Currently, on arm64, we abort on any failure from efi_get_random_bytes()
+other than EFI_NOT_FOUND when it comes to setting the physical seed for
+KASLR, but ignore such failures when obtaining the seed for virtual
+KASLR or for early seeding of the kernel's entropy pool via the config
+table. This is inconsistent, and may lead to unexpected boot failures.
 
-Call bnxt_cancel_sp_work() after unregister_netdev() and
-call bnxt_dl_fw_reporters_destroy() after that.  This fixes the
-regession and the original NULL ptr dereference issue.
+So let's permit any failure for the physical seed, and simply report
+the error code if it does not equal EFI_NOT_FOUND.
 
-Fixes: b16939b59cc0 ("bnxt_en: Fix NULL ptr dereference crash in bnxt_fw_reset_task()")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: <stable@vger.kernel.org> # v5.8+
+Reported-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11508,15 +11508,16 @@ static void bnxt_remove_one(struct pci_d
- 	if (BNXT_PF(bp))
- 		bnxt_sriov_disable(bp);
+---
+ drivers/firmware/efi/libstub/arm64-stub.c |    8 +++++---
+ drivers/firmware/efi/libstub/fdt.c        |    4 +---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/drivers/firmware/efi/libstub/arm64-stub.c
++++ b/drivers/firmware/efi/libstub/arm64-stub.c
+@@ -62,10 +62,12 @@ efi_status_t handle_kernel_image(unsigne
+ 			status = efi_get_random_bytes(sizeof(phys_seed),
+ 						      (u8 *)&phys_seed);
+ 			if (status == EFI_NOT_FOUND) {
+-				efi_info("EFI_RNG_PROTOCOL unavailable, no randomness supplied\n");
++				efi_info("EFI_RNG_PROTOCOL unavailable, KASLR will be disabled\n");
++				efi_nokaslr = true;
+ 			} else if (status != EFI_SUCCESS) {
+-				efi_err("efi_get_random_bytes() failed\n");
+-				return status;
++				efi_err("efi_get_random_bytes() failed (0x%lx), KASLR will be disabled\n",
++					status);
++				efi_nokaslr = true;
+ 			}
+ 		} else {
+ 			efi_info("KASLR disabled on kernel command line\n");
+--- a/drivers/firmware/efi/libstub/fdt.c
++++ b/drivers/firmware/efi/libstub/fdt.c
+@@ -136,7 +136,7 @@ static efi_status_t update_fdt(void *ori
+ 	if (status)
+ 		goto fdt_set_fail;
  
-+	if (BNXT_PF(bp))
-+		devlink_port_type_clear(&bp->dl_port);
-+	pci_disable_pcie_error_reporting(pdev);
-+	unregister_netdev(dev);
- 	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
-+	/* Flush any pending tasks */
- 	bnxt_cancel_sp_work(bp);
- 	bp->sp_event = 0;
+-	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
++	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE) && !efi_nokaslr) {
+ 		efi_status_t efi_status;
  
- 	bnxt_dl_fw_reporters_destroy(bp, true);
--	if (BNXT_PF(bp))
--		devlink_port_type_clear(&bp->dl_port);
--	pci_disable_pcie_error_reporting(pdev);
--	unregister_netdev(dev);
- 	bnxt_dl_unregister(bp);
- 	bnxt_shutdown_tc(bp);
+ 		efi_status = efi_get_random_bytes(sizeof(fdt_val64),
+@@ -145,8 +145,6 @@ static efi_status_t update_fdt(void *ori
+ 			status = fdt_setprop_var(fdt, node, "kaslr-seed", fdt_val64);
+ 			if (status)
+ 				goto fdt_set_fail;
+-		} else if (efi_status != EFI_NOT_FOUND) {
+-			return efi_status;
+ 		}
+ 	}
  
 
 
