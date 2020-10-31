@@ -2,55 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEFD62A1ADF
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 22:45:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3812A1AED
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 23:09:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726345AbgJaVpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 17:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33752 "EHLO mail.kernel.org"
+        id S1725949AbgJaWJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 18:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725996AbgJaVpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 17:45:53 -0400
-Subject: Re: [GIT PULL] vhost,vdpa: fixes
+        id S1725782AbgJaWJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 18:09:53 -0400
+Received: from sol.attlocal.net (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96A282072C;
+        Sat, 31 Oct 2020 22:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604180753;
-        bh=K1pHC+h1KmbMEQrr0pjOapUULKG871SA5i/eGG5pEnA=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=e3a3E3ALw7FxGXqXJf9uLhhvh28wO9qKWyyXoHJY1JhuEcINp0Ozlls0gutouAxxj
-         EQinLecNxQRfQta/7NdOdEoj2m4CjjveGfNKUbvBEnunf0jEHqnjcjezpswCJJBDx0
-         x892mviiUhRBq7mwbx/jZBrizaycQPVj/q98Rt6g=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20201031155940-mutt-send-email-mst@kernel.org>
-References: <20201031155940-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20201031155940-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 0c86d774883fa17e7c81b0c8838b88d06c2c911e
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: c2dc4c073fb71b50904493657a7622b481b346e3
-Message-Id: <160418075297.5586.994529741826670733.pr-tracker-bot@kernel.org>
-Date:   Sat, 31 Oct 2020 21:45:52 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dan.carpenter@oracle.com, elic@nvidia.com, jasowang@redhat.com,
-        jingxiangfeng@huawei.com, lingshan.zhu@intel.com, lkp@intel.com,
-        lvivier@redhat.com, mst@redhat.com, stable@vger.kernel.org
+        s=default; t=1604182192;
+        bh=S03k1YGXaJQvf3NAsk0rAuPNkYHGojNJSpqWlOKkY6Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=a8mMgEQtpZ3jNyytBfAA07mZtl+9vbm6YLLv+FzNDnWsLRWKesdnQyD8DGDQ9NlKo
+         NBZjY049c5RkEWrHQHTQiUYaXvEuh5HHjNvlFxn20MOKcGS2hg5wFkYa2cWehnnO0k
+         uwKX3GPe/Eyo28ZG698zXqwWlaIL66HoIPdZkgxU=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-mtd@lists.infradead.org
+Subject: [PATCH 4.19 0/5] backport some more fscrypt fixes to 4.19
+Date:   Sat, 31 Oct 2020 15:05:48 -0700
+Message-Id: <20201031220553.1085782-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.29.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pull request you sent on Sat, 31 Oct 2020 15:59:40 -0400:
+Backport some fscrypt fixes from upstream 5.2 to 4.19-stable.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+This is needed to get 'kvm-xfstests -c ext4,f2fs,ubifs -g encrypt' to
+fully pass on 4.19-stable.  Before, generic/397 and generic/429 failed
+on UBIFS due to missing "fscrypt: fix race where ->lookup() marks
+plaintext dentry as ciphertext".
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/c2dc4c073fb71b50904493657a7622b481b346e3
+This also fixes some bugs that aren't yet covered by the xfstests.
+E.g., "fs, fscrypt: clear DCACHE_ENCRYPTED_NAME when unaliasing
+directory" fixes a bug that caused real-world problems on Chrome OS.
 
-Thank you!
+Some relatively straightforward adjustments were needed to the patches,
+mainly due to the refactoring of fscrypt.h that was done in 5.1.
+
+Eric Biggers (5):
+  fscrypt: clean up and improve dentry revalidation
+  fscrypt: fix race allowing rename() and link() of ciphertext dentries
+  fs, fscrypt: clear DCACHE_ENCRYPTED_NAME when unaliasing directory
+  fscrypt: only set dentry_operations on ciphertext dentries
+  fscrypt: fix race where ->lookup() marks plaintext dentry as
+    ciphertext
+
+ fs/crypto/crypto.c              | 58 +++++++++++++------------
+ fs/crypto/fname.c               |  1 +
+ fs/crypto/hooks.c               | 28 ++++++++----
+ fs/dcache.c                     | 15 +++++++
+ fs/ext4/ext4.h                  | 62 ++++++++++++++++++++-------
+ fs/ext4/namei.c                 | 76 ++++++++++++++++++++++-----------
+ fs/f2fs/namei.c                 | 17 +++++---
+ fs/ubifs/dir.c                  |  8 ++--
+ include/linux/dcache.h          |  2 +-
+ include/linux/fscrypt.h         | 30 +++++++------
+ include/linux/fscrypt_notsupp.h |  9 ++--
+ include/linux/fscrypt_supp.h    |  6 ++-
+ 12 files changed, 205 insertions(+), 107 deletions(-)
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.29.1
+
