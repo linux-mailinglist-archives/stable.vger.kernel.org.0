@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77E72A16D8
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2E62A1602
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:40:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727485AbgJaLkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:40:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
+        id S1727168AbgJaLky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:40:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727385AbgJaLkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:40:46 -0400
+        id S1727498AbgJaLku (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:40:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D61420719;
-        Sat, 31 Oct 2020 11:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BDB820719;
+        Sat, 31 Oct 2020 11:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144446;
-        bh=p0XT68h0Mei8BYXd1WcCkIhpTs1B7gWCRgc7R6YQYCY=;
+        s=default; t=1604144448;
+        bh=JQvI5Rk/d6St9vPLXEzLK1SBRQD9N9wzQA1u74yXnlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMg3nJZO7AXMPXG3NSUXfRLCVmizpG+ZqMix0CBWfbWSVbodT+KCH+57d3fxI8LJe
-         rJGD/b9biIdmG1zanQCFM6TmWufUmBXIub/1I7nvsHXuGsxIUBxKIMw5WtbWH/B9Zp
-         HUOBN7Iw3n0TxOpmoTRBKo/NvdpHn1uZugBZOl7Q=
+        b=Mz2rnvnEXedl+W5VY6aqp3N+QXckAtUz2OwboPzme3FBVz3/Df1ya4ErprHhXxn9A
+         EybUBJIxZaZARiT1Nu7Y8Kj7OtcR01L5AaE29lX1/vn5PwrYpAP9NevJ3Yn1qYwZF5
+         OxBpyQYXVlkKEDZg0+Ymi+c9ad0veAAS/YcfwraQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 06/70] io_uring: unconditionally grab req->task
-Date:   Sat, 31 Oct 2020 12:35:38 +0100
-Message-Id: <20201031113459.798371952@linuxfoundation.org>
+Subject: [PATCH 5.8 07/70] io_uring: return cancelation status from poll/timeout/files handlers
+Date:   Sat, 31 Oct 2020 12:35:39 +0100
+Message-Id: <20201031113459.847920459@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
 References: <20201031113459.481803250@linuxfoundation.org>
@@ -44,102 +44,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit e3bc8e9dad7f2f83cc807111d4472164c9210153 upstream.
+commit 76e1b6427fd8246376a97e3227049d49188dfb9c upstream.
 
-Sometimes we assign a weak reference to it, sometimes we grab a
-reference to it. Clean this up and make it unconditional, and drop the
-flag related to tracking this state.
+Return whether we found and canceled requests or not. This is in
+preparation for using this information, no functional changes in this
+patch.
 
 Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ fs/io_uring.c |   30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -550,7 +550,6 @@ enum {
- 	REQ_F_NO_FILE_TABLE_BIT,
- 	REQ_F_QUEUE_TIMEOUT_BIT,
- 	REQ_F_WORK_INITIALIZED_BIT,
--	REQ_F_TASK_PINNED_BIT,
- 
- 	/* not a real bit, just to check we're not overflowing the space */
- 	__REQ_F_LAST_BIT,
-@@ -608,8 +607,6 @@ enum {
- 	REQ_F_QUEUE_TIMEOUT	= BIT(REQ_F_QUEUE_TIMEOUT_BIT),
- 	/* io_wq_work is initialized */
- 	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
--	/* req->task is refcounted */
--	REQ_F_TASK_PINNED	= BIT(REQ_F_TASK_PINNED_BIT),
- };
- 
- struct async_poll {
-@@ -924,21 +921,6 @@ struct sock *io_uring_get_socket(struct
+@@ -1143,15 +1143,23 @@ static bool io_task_match(struct io_kioc
+ 	return false;
  }
- EXPORT_SYMBOL(io_uring_get_socket);
  
--static void io_get_req_task(struct io_kiocb *req)
--{
--	if (req->flags & REQ_F_TASK_PINNED)
+-static void io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
++/*
++ * Returns true if we found and killed one or more timeouts
++ */
++static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
+ {
+ 	struct io_kiocb *req, *tmp;
++	int canceled = 0;
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+-	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list)
+-		if (io_task_match(req, tsk))
++	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, list) {
++		if (io_task_match(req, tsk)) {
+ 			io_kill_timeout(req);
++			canceled++;
++		}
++	}
+ 	spin_unlock_irq(&ctx->completion_lock);
++	return canceled != 0;
+ }
+ 
+ static void __io_queue_deferred(struct io_ring_ctx *ctx)
+@@ -4650,7 +4658,10 @@ static bool io_poll_remove_one(struct io
+ 	return do_complete;
+ }
+ 
+-static void io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
++/*
++ * Returns true if we found and killed one or more poll requests
++ */
++static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
+ {
+ 	struct hlist_node *tmp;
+ 	struct io_kiocb *req;
+@@ -4670,6 +4681,8 @@ static void io_poll_remove_all(struct io
+ 
+ 	if (posted)
+ 		io_cqring_ev_posted(ctx);
++
++	return posted != 0;
+ }
+ 
+ static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
+@@ -7744,11 +7757,14 @@ static void io_cancel_defer_files(struct
+ 	}
+ }
+ 
+-static void io_uring_cancel_files(struct io_ring_ctx *ctx,
++/*
++ * Returns true if we found and killed one or more files pinning requests
++ */
++static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct files_struct *files)
+ {
+ 	if (list_empty_careful(&ctx->inflight_list))
 -		return;
--	get_task_struct(req->task);
--	req->flags |= REQ_F_TASK_PINNED;
--}
--
--/* not idempotent -- it doesn't clear REQ_F_TASK_PINNED */
--static void __io_put_req_task(struct io_kiocb *req)
--{
--	if (req->flags & REQ_F_TASK_PINNED)
--		put_task_struct(req->task);
--}
--
- static void io_file_put_work(struct work_struct *work);
++		return false;
  
- /*
-@@ -1455,7 +1437,7 @@ static void __io_req_aux_free(struct io_
- 	kfree(req->io);
- 	if (req->file)
- 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
--	__io_put_req_task(req);
-+	put_task_struct(req->task);
- 	io_req_work_drop_env(req);
+ 	io_cancel_defer_files(ctx, files);
+ 	/* cancel all at once, should be faster than doing it one by one*/
+@@ -7811,6 +7827,8 @@ static void io_uring_cancel_files(struct
+ 		schedule();
+ 		finish_wait(&ctx->inflight_wait, &wait);
+ 	}
++
++	return true;
  }
  
-@@ -1765,7 +1747,7 @@ static inline bool io_req_multi_free(str
- 	if ((req->flags & REQ_F_LINK_HEAD) || io_is_fallback_req(req))
- 		return false;
- 
--	if (req->file || req->io)
-+	if (req->file || req->io || req->task)
- 		rb->need_iter++;
- 
- 	rb->reqs[rb->to_free++] = req;
-@@ -4584,7 +4566,6 @@ static bool io_arm_poll_handler(struct i
- 	if (req->flags & REQ_F_WORK_INITIALIZED)
- 		memcpy(&apoll->work, &req->work, sizeof(req->work));
- 
--	io_get_req_task(req);
- 	req->apoll = apoll;
- 	INIT_HLIST_NODE(&req->hash_node);
- 
-@@ -4774,8 +4755,6 @@ static int io_poll_add_prep(struct io_ki
- 
- 	events = READ_ONCE(sqe->poll_events);
- 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
--
--	io_get_req_task(req);
- 	return 0;
- }
- 
-@@ -6057,6 +6036,7 @@ static int io_init_req(struct io_ring_ct
- 	/* one is dropped after submission, the other at completion */
- 	refcount_set(&req->refs, 2);
- 	req->task = current;
-+	get_task_struct(req->task);
- 	req->result = 0;
- 
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
+ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
 
 
