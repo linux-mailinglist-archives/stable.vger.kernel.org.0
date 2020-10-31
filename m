@@ -2,64 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A02142A1528
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 11:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CE602A1530
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 11:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726699AbgJaK1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 06:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49952 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726697AbgJaK1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 06:27:13 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAC6C0613D5;
-        Sat, 31 Oct 2020 03:27:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=CqFzFNPPPP+ktKGHhXOQeGBYQqisZzJcB4N3q49VwVk=; b=finovtMJqE27potrRVBMaWX0D
-        Gz4KnojpmwAYlcZUv2G7ZXX2qGnGR1Fy+CYmYTwJBFHJjLruN+Z6K5Wx+0D/hUiwviOQd7/6UgqAA
-        IH2KciI9MFHve1hNVpMSWwv6kFQpvUfrdpkn8Lwv98qvz+5cwe9djms4MyS3BIhxftkMCf4XNSC2q
-        Y11EvdLii2vq/KDKQaQj6bGcnBbamnFVyG5Iz35H+Ml/+Dl4jzVcjyb7XEJb+envbkH72vx/Zxv5L
-        iy+oB/NouYRBFJxeko1QnoJ+rC+PwVFN5X9nSlb50DLh7C7iOjTj7/oafn112whYuaAZsPyOhhsLs
-        4GoRsvM3w==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:53272)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1kYo6I-00074P-QJ; Sat, 31 Oct 2020 10:27:10 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1kYo6H-00087U-Ss; Sat, 31 Oct 2020 10:27:09 +0000
-Date:   Sat, 31 Oct 2020 10:27:09 +0000
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     daniel.vetter@ffwll.ch, gregkh@linuxfoundation.org,
-        yepeilin.cs@gmail.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const
- qualifier
-Message-ID: <20201031102709.GH1551@shell.armlinux.org.uk>
-References: <20201030181822.570402-1-lee.jones@linaro.org>
+        id S1726757AbgJaK3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 06:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57638 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726752AbgJaK3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 06:29:35 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 805FA20885;
+        Sat, 31 Oct 2020 10:29:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604140175;
+        bh=b5dW76EIFokZI+6FzLfCv4T51iLrydrrJrULF4T46VI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SunlFEtnH6MidXcF2p8JxBTCbWNCNAaCSaM59tj5CeVMVEmn9dPqSgXAWUGig1q7T
+         QX7G5WxguTjefZzfX2nvVgNc+2jEZ0O3MAvR8jHEjefOzxOBGNOkhd+KZgVDWzWAvx
+         mc77LtD+LtPx6ghshdUkXehHaMGUpr5vfmWt8ZfE=
+Date:   Sat, 31 Oct 2020 11:30:20 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Luis Lozano <llozano@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Jian Cai <jiancai@google.com>
+Subject: Re: [PATCH] crypto: x86/crc32c - fix building with clang ias
+Message-ID: <20201031103020.GA961225@kroah.com>
+References: <CA+SOCLLXnxcf=bTazCT1amY7B4_37HTEXL2OwHowVGCb8SLSQQ@mail.gmail.com>
+ <20201030190245.92967-1-jiancai@google.com>
+ <CAKwvOdmduyqjn7d6mG6CrSqCJC3ikJRphjWfKnqxvC2P=yoU2g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201030181822.570402-1-lee.jones@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+In-Reply-To: <CAKwvOdmduyqjn7d6mG6CrSqCJC3ikJRphjWfKnqxvC2P=yoU2g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 06:18:22PM +0000, Lee Jones wrote:
-> Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
+On Fri, Oct 30, 2020 at 12:06:28PM -0700, Nick Desaulniers wrote:
+> + stable
+> 
+> On Fri, Oct 30, 2020 at 12:04 PM Jian Cai <caij2003@gmail.com> wrote:
+> >
+> > From: Arnd Bergmann <arnd@arndb.de>
+> >
+> > commit 44623b2818f4 ("crypto: x86/crc32c - fix building with clang ias")
+> > upstream
+> >
+> > The clang integrated assembler complains about movzxw:
+> >
+> > arch/x86/crypto/crc32c-pcl-intel-asm_64.S:173:2: error: invalid instruction mnemonic 'movzxw'
+> >
+> > It seems that movzwq is the mnemonic that it expects instead,
+> > and this is what objdump prints when disassembling the file.
+> >
+> > Fixes: 6a8ce1ef3940 ("crypto: crc32c - Optimize CRC32C calculation with PCLMULQDQ instruction")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> > [jc: Fixed conflicts due to lack of 34fdce6981b969]
 
-Your commit ID does not exist in mainline kernels, which makes this
-confusing. The commit ID you should be using is 6735b4632def.
+Nit, please spell out commit ids as the documentation asks you to.  I've
+edited it and done that now...
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+thanks,
+
+greg k-h
