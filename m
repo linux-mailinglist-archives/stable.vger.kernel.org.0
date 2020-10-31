@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51052A15B7
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFC42A15AA
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:37:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727288AbgJaLhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35722 "EHLO mail.kernel.org"
+        id S1727318AbgJaLhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727303AbgJaLg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:58 -0400
+        id S1727307AbgJaLhB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:37:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 825912074F;
-        Sat, 31 Oct 2020 11:36:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E7E120739;
+        Sat, 31 Oct 2020 11:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144218;
-        bh=IZ0uu34NUPgNEqhypuyUPgyAi1WaNjI9ykBsrIT4VIk=;
+        s=default; t=1604144220;
+        bh=cGhOKTRW40cD0lhMTa4QTllFZlDMJSEHYok7z5/T8jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koPtn7uEWIvGMCsTkcB1KxPyAQ/tZW3RavKH7BujV2/Uca/OpSQ5xwg8QeKbwXLE7
-         rEnguFD4kbIfSFhWs6g2RI5QToC9WnWVxJXZx5hcFboLQq6XtbuYjKEJDAuy097xyi
-         zzoy/zl+fzQeYZa166PeiMv0hFmZK08/XOklZVSM=
+        b=jfY6HzH3qI+E0ipccMnBnBmITfyN6oWiaiTxwDVKf0Jt8uDT9ZivLLY6GjSlFLHpP
+         jWxzuNdQmP6BeH5PHHvh7egiqPW+eK3YqhBpzVecJ5NqIJZjTF2byViaU9QhnLMCp1
+         /ZcaGsCLGaOvMamixPnpF6SUnWnMigJiArqizpYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 28/49] bnxt_en: Invoke cancel_delayed_work_sync() for PFs also.
-Date:   Sat, 31 Oct 2020 12:35:24 +0100
-Message-Id: <20201031113456.799078717@linuxfoundation.org>
+        stable@vger.kernel.org, Hongyu Jin <hongyu.jin@unisoc.com>,
+        Chao Yu <yuchao0@huawei.com>, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 5.4 29/49] erofs: avoid duplicated permission check for "trusted." xattrs
+Date:   Sat, 31 Oct 2020 12:35:25 +0100
+Message-Id: <20201031113456.846597516@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -45,65 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-[ Upstream commit 631ce27a3006fc0b732bfd589c6df505f62eadd9 ]
+commit d578b46db69d125a654f509bdc9091d84e924dc8 upstream.
 
-As part of the commit b148bb238c02
-("bnxt_en: Fix possible crash in bnxt_fw_reset_task()."),
-cancel_delayed_work_sync() is called only for VFs to fix a possible
-crash by cancelling any pending delayed work items. It was assumed
-by mistake that the flush_workqueue() call on the PF would flush
-delayed work items as well.
+Don't recheck it since xattr_permission() already
+checks CAP_SYS_ADMIN capability.
 
-As flush_workqueue() does not cancel the delayed workqueue, extend
-the fix for PFs. This fix will avoid the system crash, if there are
-any pending delayed work items in fw_reset_task() during driver's
-.remove() call.
+Just follow 5d3ce4f70172 ("f2fs: avoid duplicated permission check for "trusted." xattrs")
 
-Unify the workqueue cleanup logic for both PF and VF by calling
-cancel_work_sync() and cancel_delayed_work_sync() directly in
-bnxt_remove_one().
-
-Fixes: b148bb238c02 ("bnxt_en: Fix possible crash in bnxt_fw_reset_task().")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Hongyu Jin <hongyu.jin@unisoc.com>
+[ Gao Xiang: since it could cause some complex Android overlay
+  permission issue as well on android-5.4+, it'd be better to
+  backport to 5.4+ rather than pure cleanup on mainline. ]
+Cc: <stable@vger.kernel.org> # 5.4+
+Link: https://lore.kernel.org/r/20200811070020.6339-1-hsiangkao@redhat.com
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1160,16 +1160,6 @@ static void bnxt_queue_sp_work(struct bn
- 		schedule_work(&bp->sp_task);
- }
- 
--static void bnxt_cancel_sp_work(struct bnxt *bp)
--{
--	if (BNXT_PF(bp)) {
--		flush_workqueue(bnxt_pf_wq);
--	} else {
--		cancel_work_sync(&bp->sp_task);
--		cancel_delayed_work_sync(&bp->fw_reset_task);
--	}
--}
--
- static void bnxt_sched_reset(struct bnxt *bp, struct bnxt_rx_ring_info *rxr)
- {
- 	if (!rxr->bnapi->in_reset) {
-@@ -11400,7 +11390,8 @@ static void bnxt_remove_one(struct pci_d
- 	unregister_netdev(dev);
- 	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
- 	/* Flush any pending tasks */
--	bnxt_cancel_sp_work(bp);
-+	cancel_work_sync(&bp->sp_task);
-+	cancel_delayed_work_sync(&bp->fw_reset_task);
- 	bp->sp_event = 0;
- 
- 	bnxt_dl_fw_reporters_destroy(bp, true);
+---
+ fs/erofs/xattr.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -473,8 +473,6 @@ static int erofs_xattr_generic_get(const
+ 			return -EOPNOTSUPP;
+ 		break;
+ 	case EROFS_XATTR_INDEX_TRUSTED:
+-		if (!capable(CAP_SYS_ADMIN))
+-			return -EPERM;
+ 		break;
+ 	case EROFS_XATTR_INDEX_SECURITY:
+ 		break;
 
 
