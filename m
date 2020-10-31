@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B90382A16DA
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D7B2A169E
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727566AbgJaLlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40104 "EHLO mail.kernel.org"
+        id S1728276AbgJaLph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727329AbgJaLlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:09 -0400
+        id S1727740AbgJaLpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:45:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE5A620791;
-        Sat, 31 Oct 2020 11:41:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50EA2205F4;
+        Sat, 31 Oct 2020 11:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144468;
-        bh=u4LAuafSZn8+T0csQ5y0gTcOXyb6hkF6KO30E1jQtx4=;
+        s=default; t=1604144733;
+        bh=rR9Jkf50UQUAjHa+cVXaYgU+m5D2ACXE+ASeeNmOUfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9F4m4vcx4JrBURY9kuM9vwfwi0gvGRYBKxaGx9XAfvNuvvqu4OIexJQRfvQpwBJN
-         +NIteHLeUHtvhP6XXmhN4q20nBgitJoz0K8agWmwi5Af1Vi0heX2ZFbEGCRuXguJpd
-         1w/Ey3+YCfa21PRtzGyl2o3uJklb6ErhbyMUs0sg=
+        b=ev2cUF+ifOH1sLDHsLzF0OuNFcmLiMiAWltQ0LKtBPTbRFNBBh64vNIn9Oa5xxzsX
+         JP/u34J4u2b/hn0LqxlmnED3vXVLExj10NDVNcvPzQp48BJbK979rn5zCQ2kkAE+gK
+         xK85wpy3rswmsiTKsN35TL6Wd9UWrFhcnQxXG8e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 30/70] bnxt_en: Re-write PCI BARs after PCI fatal error.
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.9 20/74] arm64: Run ARCH_WORKAROUND_1 enabling code on all CPUs
 Date:   Sat, 31 Oct 2020 12:36:02 +0100
-Message-Id: <20201031113500.946611144@linuxfoundation.org>
+Message-Id: <20201031113501.025162343@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
-References: <20201031113459.481803250@linuxfoundation.org>
+In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
+References: <20201031113500.031279088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit f75d9a0aa96721d20011cd5f8c7a24eb32728589 ]
+commit 18fce56134c987e5b4eceddafdbe4b00c07e2ae1 upstream.
 
-When a PCIe fatal error occurs, the internal latched BAR addresses
-in the chip get reset even though the BAR register values in config
-space are retained.
+Commit 73f381660959 ("arm64: Advertise mitigation of Spectre-v2, or lack
+thereof") changed the way we deal with ARCH_WORKAROUND_1, by moving most
+of the enabling code to the .matches() callback.
 
-pci_restore_state() will not rewrite the BAR addresses if the
-BAR address values are valid, causing the chip's internal BAR addresses
-to stay invalid.  So we need to zero the BAR registers during PCIe fatal
-error to force pci_restore_state() to restore the BAR addresses.  These
-write cycles to the BAR registers will cause the proper BAR addresses to
-latch internally.
+This has the unfortunate effect that the workaround gets only enabled on
+the first affected CPU, and no other.
 
-Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In order to address this, forcefully call the .matches() callback from a
+.cpu_enable() callback, which brings us back to the original behaviour.
+
+Fixes: 73f381660959 ("arm64: Advertise mitigation of Spectre-v2, or lack thereof")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   19 ++++++++++++++++++-
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    1 +
- 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -12233,6 +12233,9 @@ static pci_ers_result_t bnxt_io_error_de
- 		return PCI_ERS_RESULT_DISCONNECT;
- 	}
+---
+ arch/arm64/kernel/cpu_errata.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -599,6 +599,12 @@ check_branch_predictor(const struct arm6
+ 	return (need_wa > 0);
+ }
  
-+	if (state == pci_channel_io_frozen)
-+		set_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN, &bp->state);
++static void
++cpu_enable_branch_predictor_hardening(const struct arm64_cpu_capabilities *cap)
++{
++	cap->matches(cap, SCOPE_LOCAL_CPU);
++}
 +
- 	if (netif_running(netdev))
- 		bnxt_close(netdev);
- 
-@@ -12259,7 +12262,7 @@ static pci_ers_result_t bnxt_io_slot_res
- {
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct bnxt *bp = netdev_priv(netdev);
--	int err = 0;
-+	int err = 0, off;
- 	pci_ers_result_t result = PCI_ERS_RESULT_DISCONNECT;
- 
- 	netdev_info(bp->dev, "PCI Slot Reset\n");
-@@ -12271,6 +12274,20 @@ static pci_ers_result_t bnxt_io_slot_res
- 			"Cannot re-enable PCI device after reset.\n");
- 	} else {
- 		pci_set_master(pdev);
-+		/* Upon fatal error, our device internal logic that latches to
-+		 * BAR value is getting reset and will restore only upon
-+		 * rewritting the BARs.
-+		 *
-+		 * As pci_restore_state() does not re-write the BARs if the
-+		 * value is same as saved value earlier, driver needs to
-+		 * write the BARs to 0 to force restore, in case of fatal error.
-+		 */
-+		if (test_and_clear_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN,
-+				       &bp->state)) {
-+			for (off = PCI_BASE_ADDRESS_0;
-+			     off <= PCI_BASE_ADDRESS_5; off += 4)
-+				pci_write_config_dword(bp->pdev, off, 0);
-+		}
- 		pci_restore_state(pdev);
- 		pci_save_state(pdev);
- 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1672,6 +1672,7 @@ struct bnxt {
- #define BNXT_STATE_ABORT_ERR	5
- #define BNXT_STATE_FW_FATAL_COND	6
- #define BNXT_STATE_DRV_REGISTERED	7
-+#define BNXT_STATE_PCI_CHANNEL_IO_FROZEN	8
- 
- #define BNXT_NO_FW_ACCESS(bp)					\
- 	(test_bit(BNXT_STATE_FW_FATAL_COND, &(bp)->state) ||	\
+ static const __maybe_unused struct midr_range tx2_family_cpus[] = {
+ 	MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
+ 	MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
+@@ -890,9 +896,11 @@ const struct arm64_cpu_capabilities arm6
+ 	},
+ #endif
+ 	{
++		.desc = "Branch predictor hardening",
+ 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
+ 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
+ 		.matches = check_branch_predictor,
++		.cpu_enable = cpu_enable_branch_predictor_hardening,
+ 	},
+ #ifdef CONFIG_RANDOMIZE_BASE
+ 	{
 
 
