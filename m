@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43FDA2A1A2F
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 19:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3352A1A38
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 20:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728422AbgJaS7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 14:59:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39904 "EHLO mail.kernel.org"
+        id S1728415AbgJaTGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 15:06:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728367AbgJaS7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 14:59:05 -0400
+        id S1726627AbgJaTGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 15:06:41 -0400
 Received: from sol.attlocal.net (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AC8D20706;
-        Sat, 31 Oct 2020 18:59:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A69205ED;
+        Sat, 31 Oct 2020 19:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604170744;
-        bh=xy7svfVPN6OAAkbB72PLGrRJX3MIPY7aJ0Ho1xLYM5A=;
+        s=default; t=1604171200;
+        bh=d+/c+7Fnv4byX9qUFUAXwzitQsidOMxkPzy0wEio50U=;
         h=From:To:Cc:Subject:Date:From;
-        b=LWA8SvaPFoD0fiGvkjYVIwrIT0yULQnZYPf3nQiXdpBsMXRCozQznfqzwTfSZlPlT
-         f2CjnFGI3rMHk+9Ia5+8Yhk6oO4pHAHvL5kX70D3aQERVK633tU6knIZlBwfvzFJMl
-         XuFabnpqtVcrPN2qSZTr7mwiz4lDHxEpX6Gur1+Y=
+        b=tNv9IGUMgz+Awi7f6uxEot7BrEGYOdzdEY1KqSThPkjB4AAfrYIXbZn9jtMDXLG3+
+         HBgq/TR719ltnm0sQKqZgetNiLisLXGPP/3KEjr9TkKgoveaz3nEQYxYc2tULaUvJu
+         kRgbztkG9xc0GezgsL7vjiFuMgebIKoHKi8khUf8=
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linux-fscrypt@vger.kernel.org
-Subject: [PATCH 4.14] fscrypt: return -EXDEV for incompatible rename or link into encrypted dir
-Date:   Sat, 31 Oct 2020 11:58:23 -0700
-Message-Id: <20201031185823.231316-1-ebiggers@kernel.org>
+Subject: [PATCH 4.9] fscrypt: return -EXDEV for incompatible rename or link into encrypted dir
+Date:   Sat, 31 Oct 2020 12:06:22 -0700
+Message-Id: <20201031190622.256948-1-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.29.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -39,10 +39,10 @@ X-Mailing-List: stable@vger.kernel.org
 From: Eric Biggers <ebiggers@google.com>
 
 commit f5e55e777cc93eae1416f0fa4908e8846b6d7825 upstream.
-[Please apply to 4.14-stable.  This is an important fix to have,
+[Please apply to 4.9-stable.  This is an important fix to have,
 and it will be needed for xfstest generic/398 to pass if
 https://lkml.kernel.org/r/20201031054141.695517-1-ebiggers@kernel.org
-is applied.  Note, this commit had to be reworked to apply to 4.14.]
+is applied.  Note, this commit had to be reworked to apply to 4.9.]
 
 Currently, trying to rename or link a regular file, directory, or
 symlink into an encrypted directory fails with EPERM when the source
@@ -97,14 +97,13 @@ Signed-off-by: Eric Biggers <ebiggers@google.com>
  fs/crypto/policy.c | 3 +--
  fs/ext4/namei.c    | 6 +++---
  fs/f2fs/namei.c    | 6 +++---
- fs/ubifs/dir.c     | 6 +++---
- 4 files changed, 10 insertions(+), 11 deletions(-)
+ 3 files changed, 7 insertions(+), 8 deletions(-)
 
 diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
-index d13a154c84240..4cda0e960bc26 100644
+index 57a97b38a2fa2..51f4463718e84 100644
 --- a/fs/crypto/policy.c
 +++ b/fs/crypto/policy.c
-@@ -153,8 +153,7 @@ EXPORT_SYMBOL(fscrypt_ioctl_get_policy);
+@@ -180,8 +180,7 @@ EXPORT_SYMBOL(fscrypt_get_policy);
   * malicious offline violations of this constraint, while the link and rename
   * checks are needed to prevent online violations of this constraint.
   *
@@ -115,10 +114,10 @@ index d13a154c84240..4cda0e960bc26 100644
  int fscrypt_has_permitted_context(struct inode *parent, struct inode *child)
  {
 diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 3f999053457b6..6936de30fcf0d 100644
+index 157dbbe235f90..8ded38ac4cdef 100644
 --- a/fs/ext4/namei.c
 +++ b/fs/ext4/namei.c
-@@ -3280,7 +3280,7 @@ static int ext4_link(struct dentry *old_dentry,
+@@ -3259,7 +3259,7 @@ static int ext4_link(struct dentry *old_dentry,
  		return -EMLINK;
  	if (ext4_encrypted_inode(dir) &&
  			!fscrypt_has_permitted_context(dir, inode))
@@ -127,7 +126,7 @@ index 3f999053457b6..6936de30fcf0d 100644
  
         if ((ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT)) &&
  	   (!projid_eq(EXT4_I(dir)->i_projid,
-@@ -3618,7 +3618,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+@@ -3597,7 +3597,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
  	if ((old.dir != new.dir) &&
  	    ext4_encrypted_inode(new.dir) &&
  	    !fscrypt_has_permitted_context(new.dir, old.inode)) {
@@ -136,7 +135,7 @@ index 3f999053457b6..6936de30fcf0d 100644
  		goto end_rename;
  	}
  
-@@ -3798,7 +3798,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
+@@ -3776,7 +3776,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
  	    (old_dir != new_dir) &&
  	    (!fscrypt_has_permitted_context(new_dir, old.inode) ||
  	     !fscrypt_has_permitted_context(old_dir, new.inode)))
@@ -146,19 +145,19 @@ index 3f999053457b6..6936de30fcf0d 100644
  	if ((ext4_test_inode_flag(new_dir, EXT4_INODE_PROJINHERIT) &&
  	     !projid_eq(EXT4_I(new_dir)->i_projid,
 diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index b13383948fca3..9fb98fce70965 100644
+index ccb99d5cfd8b0..ce0957318771c 100644
 --- a/fs/f2fs/namei.c
 +++ b/fs/f2fs/namei.c
-@@ -222,7 +222,7 @@ static int f2fs_link(struct dentry *old_dentry, struct inode *dir,
+@@ -177,7 +177,7 @@ static int f2fs_link(struct dentry *old_dentry, struct inode *dir,
  
  	if (f2fs_encrypted_inode(dir) &&
  			!fscrypt_has_permitted_context(dir, inode))
 -		return -EPERM;
 +		return -EXDEV;
  
- 	if (is_inode_flag_set(dir, FI_PROJ_INHERIT) &&
- 			(!projid_eq(F2FS_I(dir)->i_projid,
-@@ -746,7 +746,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	f2fs_balance_fs(sbi, true);
+ 
+@@ -667,7 +667,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
  
  	if ((old_dir != new_dir) && f2fs_encrypted_inode(new_dir) &&
  			!fscrypt_has_permitted_context(new_dir, old_inode)) {
@@ -167,46 +166,15 @@ index b13383948fca3..9fb98fce70965 100644
  		goto out;
  	}
  
-@@ -942,7 +942,7 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
+@@ -855,7 +855,7 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
  			(old_dir != new_dir) &&
  			(!fscrypt_has_permitted_context(new_dir, old_inode) ||
  			 !fscrypt_has_permitted_context(old_dir, new_inode)))
 -		return -EPERM;
 +		return -EXDEV;
  
- 	if ((is_inode_flag_set(new_dir, FI_PROJ_INHERIT) &&
- 			!projid_eq(F2FS_I(new_dir)->i_projid,
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 358abc26dbc0b..9d5face7fdc01 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -747,7 +747,7 @@ static int ubifs_link(struct dentry *old_dentry, struct inode *dir,
- 
- 	if (ubifs_crypt_is_encrypted(dir) &&
- 	    !fscrypt_has_permitted_context(dir, inode))
--		return -EPERM;
-+		return -EXDEV;
- 
- 	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
- 	if (err)
-@@ -1357,7 +1357,7 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (old_dir != new_dir) {
- 		if (ubifs_crypt_is_encrypted(new_dir) &&
- 		    !fscrypt_has_permitted_context(new_dir, old_inode))
--			return -EPERM;
-+			return -EXDEV;
- 	}
- 
- 	if (unlink && is_dir) {
-@@ -1579,7 +1579,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 	    (old_dir != new_dir) &&
- 	    (!fscrypt_has_permitted_context(new_dir, fst_inode) ||
- 	     !fscrypt_has_permitted_context(old_dir, snd_inode)))
--		return -EPERM;
-+		return -EXDEV;
- 
- 	err = fscrypt_setup_filename(old_dir, &old_dentry->d_name, 0, &fst_nm);
- 	if (err)
+ 	old_entry = f2fs_find_entry(old_dir, &old_dentry->d_name, &old_page);
+ 	if (!old_entry) {
 -- 
 2.29.1
 
