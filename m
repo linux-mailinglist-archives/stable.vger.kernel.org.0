@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A052A16A2
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A582D2A16DE
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728239AbgJaLpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
+        id S1727646AbgJaLlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727861AbgJaLpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:45:23 -0400
+        id S1727652AbgJaLlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 780A020731;
-        Sat, 31 Oct 2020 11:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFAAD20719;
+        Sat, 31 Oct 2020 11:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144721;
-        bh=nw28/nv4RREXmCNiONjPEjIKWC5A66d799+PkDq2d94=;
+        s=default; t=1604144481;
+        bh=/y+m4Tc8gvyMdyoG2Hzp3h2LIVq/0DJcNK+cd7IdjjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RM8d+2rtMYGzhtRMp8nvvqZ6CZBtsd+0V/wQH8GcwbZuy+2DXkw/kM2DOVIRFzFE7
-         Am53GctLBcKQF1I12wa6OotjDX0VQHBQ3SQuCFQwEtQUFP3Zlzvkwjhnymm31NAhlY
-         Fsi/+tWGhrOUgA2LyUhcReXkuvsTNiK2yiOmsrN0=
+        b=d7/RiHYAm+ysYLkK4f9BmlGiPN1B84Y3zfebE6mlJEJOqwfw5o9VeCaQJSmHyR2AZ
+         +DjtbVzPwlJ0QU2q7aBIr/Rd5XpKk8uawzqUrwBVlk7mPsgyzYJPTBotr69+BZ3fHK
+         njnJ27etJOfIe9kKKambYxSLbQMX9dJBcuYW1TEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erwin Tsaur <erwin.tsaur@intel.com>,
-        0day robot <lkp@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.9 25/74] x86/copy_mc: Introduce copy_mc_enhanced_fast_string()
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 35/70] cxgb4: set up filter action after rewrites
 Date:   Sat, 31 Oct 2020 12:36:07 +0100
-Message-Id: <20201031113501.254066033@linuxfoundation.org>
+Message-Id: <20201031113501.178874014@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,182 +42,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-commit 5da8e4a658109e3b7e1f45ae672b7c06ac3e7158 upstream.
+[ Upstream commit 937d8420588421eaa5c7aa5c79b26b42abb288ef ]
 
-The motivations to go rework memcpy_mcsafe() are that the benefit of
-doing slow and careful copies is obviated on newer CPUs, and that the
-current opt-in list of CPUs to instrument recovery is broken relative to
-those CPUs.  There is no need to keep an opt-in list up to date on an
-ongoing basis if pmem/dax operations are instrumented for recovery by
-default. With recovery enabled by default the old "mcsafe_key" opt-in to
-careful copying can be made a "fragile" opt-out. Where the "fragile"
-list takes steps to not consume poison across cachelines.
+The current code sets up the filter action field before
+rewrites are set up. When the action 'switch' is used
+with rewrites, this may result in initial few packets
+that get switched out don't have rewrites applied
+on them.
 
-The discussion with Linus made clear that the current "_mcsafe" suffix
-was imprecise to a fault. The operations that are needed by pmem/dax are
-to copy from a source address that might throw #MC to a destination that
-may write-fault, if it is a user page.
+So, make sure filter action is set up along with rewrites
+or only after everything else is set up for rewrites.
 
-So copy_to_user_mcsafe() becomes copy_mc_to_user() to indicate
-the separate precautions taken on source and destination.
-copy_mc_to_kernel() is introduced as a non-SMAP version that does not
-expect write-faults on the destination, but is still prepared to abort
-with an error code upon taking #MC.
-
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platforms that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
-
-Introduce copy_mc_enhanced_fast_string() as the fast default
-implementation of copy_mc_to_kernel() and finalize the transition of
-copy_mc_fragile() to be a platform quirk to indicate 'copy-carefully'.
-With this in place, copy_mc_to_kernel() is fast and recovery-ready by
-default regardless of hardware capability.
-
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler(). Thanks to the 0day robot for catching a
-performance bug in the x86/copy_mc_to_user implementation.
-
- [ bp: Add the "why" for this change from the 0/2th message, massage. ]
-
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Reported-by: 0day robot <lkp@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/160195562556.2163339.18063423034951948973.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Link: https://lore.kernel.org/r/20201023115852.18262-1-rajur@chelsio.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/lib/copy_mc.c    |   32 +++++++++++++++++++++++---------
- arch/x86/lib/copy_mc_64.S |   36 ++++++++++++++++++++++++++++++++++++
- tools/objtool/check.c     |    1 +
- 3 files changed, 60 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |   56 ++++++++++------------
+ drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h       |    4 +
+ 2 files changed, 31 insertions(+), 29 deletions(-)
 
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -45,6 +45,8 @@ void enable_copy_mc_fragile(void)
- #define copy_mc_fragile_enabled (0)
- #endif
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -145,13 +145,13 @@ static int configure_filter_smac(struct
+ 	int err;
  
-+unsigned long copy_mc_enhanced_fast_string(void *dst, const void *src, unsigned len);
+ 	/* do a set-tcb for smac-sel and CWR bit.. */
+-	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
+-	if (err)
+-		goto smac_err;
+-
+ 	err = set_tcb_field(adap, f, f->tid, TCB_SMAC_SEL_W,
+ 			    TCB_SMAC_SEL_V(TCB_SMAC_SEL_M),
+ 			    TCB_SMAC_SEL_V(f->smt->idx), 1);
++	if (err)
++		goto smac_err;
 +
- /**
-  * copy_mc_to_kernel - memory copy that handles source exceptions
-  *
-@@ -52,9 +54,11 @@ void enable_copy_mc_fragile(void)
-  * @src:	source address
-  * @len:	number of bytes to copy
-  *
-- * Call into the 'fragile' version on systems that have trouble
-- * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * Call into the 'fragile' version on systems that benefit from avoiding
-+ * corner case poison consumption scenarios, For example, accessing
-+ * poison across 2 cachelines with a single instruction. Almost all
-+ * other uses case can use copy_mc_enhanced_fast_string() for a fast
-+ * recoverable copy, or fallback to plain memcpy.
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -63,6 +67,8 @@ unsigned long __must_check copy_mc_to_ke
- {
- 	if (copy_mc_fragile_enabled)
- 		return copy_mc_fragile(dst, src, len);
-+	if (static_cpu_has(X86_FEATURE_ERMS))
-+		return copy_mc_enhanced_fast_string(dst, src, len);
- 	memcpy(dst, src, len);
- 	return 0;
++	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
+ 	if (!err)
+ 		return 0;
+ 
+@@ -865,6 +865,7 @@ int set_filter_wr(struct adapter *adapte
+ 		      FW_FILTER_WR_DIRSTEERHASH_V(f->fs.dirsteerhash) |
+ 		      FW_FILTER_WR_LPBK_V(f->fs.action == FILTER_SWITCH) |
+ 		      FW_FILTER_WR_DMAC_V(f->fs.newdmac) |
++		      FW_FILTER_WR_SMAC_V(f->fs.newsmac) |
+ 		      FW_FILTER_WR_INSVLAN_V(f->fs.newvlan == VLAN_INSERT ||
+ 					     f->fs.newvlan == VLAN_REWRITE) |
+ 		      FW_FILTER_WR_RMVLAN_V(f->fs.newvlan == VLAN_REMOVE ||
+@@ -882,7 +883,7 @@ int set_filter_wr(struct adapter *adapte
+ 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
+ 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
+ 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
+-	fwr->smac_sel = 0;
++	fwr->smac_sel = f->smt->idx;
+ 	fwr->rx_chan_rx_rpl_iq =
+ 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
+ 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
+@@ -1321,11 +1322,8 @@ static void mk_act_open_req6(struct filt
+ 			    TX_QUEUE_V(f->fs.nat_mode) |
+ 			    T5_OPT_2_VALID_F |
+ 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
+-			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
+-					 (f->fs.dirsteer << 1)) |
+ 			    PACE_V((f->fs.maskhash) |
+-				   ((f->fs.dirsteerhash) << 1)) |
+-			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
++				   ((f->fs.dirsteerhash) << 1)));
  }
-@@ -72,11 +78,19 @@ unsigned long __must_check copy_mc_to_us
- {
- 	unsigned long ret;
  
--	if (!copy_mc_fragile_enabled)
--		return copy_user_generic(dst, src, len);
-+	if (copy_mc_fragile_enabled) {
-+		__uaccess_begin();
-+		ret = copy_mc_fragile(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
-+
-+	if (static_cpu_has(X86_FEATURE_ERMS)) {
-+		__uaccess_begin();
-+		ret = copy_mc_enhanced_fast_string(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
- 
--	__uaccess_begin();
--	ret = copy_mc_fragile(dst, src, len);
--	__uaccess_end();
--	return ret;
-+	return copy_user_generic(dst, src, len);
+ static void mk_act_open_req(struct filter_entry *f, struct sk_buff *skb,
+@@ -1361,11 +1359,8 @@ static void mk_act_open_req(struct filte
+ 			    TX_QUEUE_V(f->fs.nat_mode) |
+ 			    T5_OPT_2_VALID_F |
+ 			    RX_CHANNEL_V(cxgb4_port_e2cchan(f->dev)) |
+-			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
+-					 (f->fs.dirsteer << 1)) |
+ 			    PACE_V((f->fs.maskhash) |
+-				   ((f->fs.dirsteerhash) << 1)) |
+-			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
++				   ((f->fs.dirsteerhash) << 1)));
  }
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -124,4 +124,40 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
- #endif /* CONFIG_X86_MCE */
+ 
+ static int cxgb4_set_hash_filter(struct net_device *dev,
+@@ -2037,6 +2032,20 @@ void hash_filter_rpl(struct adapter *ada
+ 			}
+ 			return;
+ 		}
++		switch (f->fs.action) {
++		case FILTER_PASS:
++			if (f->fs.dirsteer)
++				set_tcb_tflag(adap, f, tid,
++					      TF_DIRECT_STEER_S, 1, 1);
++			break;
++		case FILTER_DROP:
++			set_tcb_tflag(adap, f, tid, TF_DROP_S, 1, 1);
++			break;
++		case FILTER_SWITCH:
++			set_tcb_tflag(adap, f, tid, TF_LPBK_S, 1, 1);
++			break;
++		}
 +
-+/*
-+ * copy_mc_enhanced_fast_string - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_enhanced_fast_string)
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_enhanced_fast_string)
+ 		break;
+ 
+ 	default:
+@@ -2104,22 +2113,11 @@ void filter_rpl(struct adapter *adap, co
+ 			if (ctx)
+ 				ctx->result = 0;
+ 		} else if (ret == FW_FILTER_WR_FLT_ADDED) {
+-			int err = 0;
+-
+-			if (f->fs.newsmac)
+-				err = configure_filter_smac(adap, f);
+-
+-			if (!err) {
+-				f->pending = 0;  /* async setup completed */
+-				f->valid = 1;
+-				if (ctx) {
+-					ctx->result = 0;
+-					ctx->tid = idx;
+-				}
+-			} else {
+-				clear_filter(adap, f);
+-				if (ctx)
+-					ctx->result = err;
++			f->pending = 0;  /* async setup completed */
++			f->valid = 1;
++			if (ctx) {
++				ctx->result = 0;
++				ctx->tid = idx;
+ 			}
+ 		} else {
+ 			/* Something went wrong.  Issue a warning about the
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
+@@ -50,6 +50,10 @@
+ #define TCB_T_FLAGS_M		0xffffffffffffffffULL
+ #define TCB_T_FLAGS_V(x)	((__u64)(x) << TCB_T_FLAGS_S)
+ 
++#define TF_DROP_S		22
++#define TF_DIRECT_STEER_S	23
++#define TF_LPBK_S		59
 +
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_mc_generic() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif /* !CONFIG_UML */
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -550,6 +550,7 @@ static const char *uaccess_safe_builtin[
- 	"csum_partial_copy_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
-+	"copy_mc_enhanced_fast_string",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
- 	NULL
- };
+ #define TF_CCTRL_ECE_S		60
+ #define TF_CCTRL_CWR_S		61
+ #define TF_CCTRL_RFR_S		62
 
 
