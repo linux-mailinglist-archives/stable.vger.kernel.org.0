@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9F52A1596
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A246D2A15BD
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727160AbgJaLgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S1727238AbgJaLgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727157AbgJaLgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:16 -0400
+        id S1727212AbgJaLgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:36:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A040920739;
-        Sat, 31 Oct 2020 11:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BEAD2074F;
+        Sat, 31 Oct 2020 11:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144175;
-        bh=jUZI62qU0tkpZOo0uu76V5+0jUUE8u0pZ7uj2QDev6o=;
+        s=default; t=1604144203;
+        bh=0H3vMGOtnmO2H/4O1vTXfyTjrjsMD8Qm7PsAvf8oSVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3DLlpsHrYZruITwh6ZKWptjlReK/wjn21BcLvau76ncLK2ISdbQP7n2olb1YVYq9
-         41ZI3CYru98IaANxEnNx1Dz5p4b13eqw3IXmDTCXWvpCjJqnjAj/G90mNtgDQfvs5+
-         Fvbt6nyuIUdW/zkyo5LIlPJXrx80SxfgYK6pTRVs=
+        b=FnMtCb0hnVktOMW8fRXSDQWBJT5WhC26SW0DXA0Y+vBU3VgdMmpCbzgCElWaWDm4a
+         8xrrXvDMd7+AL5WI14VSiELCpNvg5qmVsBv+hH7dVnGf0VdRSLJ/tKj2HJqwzYQxL9
+         +ZIfpSV0VI8w8HlxGfhDgVPq7Kw/IjSvOs1ai5x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 26/49] bnxt_en: Re-write PCI BARs after PCI fatal error.
-Date:   Sat, 31 Oct 2020 12:35:22 +0100
-Message-Id: <20201031113456.703253226@linuxfoundation.org>
+Subject: [PATCH 5.4 27/49] bnxt_en: Fix regression in workqueue cleanup logic in bnxt_remove_one().
+Date:   Sat, 31 Oct 2020 12:35:23 +0100
+Message-Id: <20201031113456.751587426@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
 References: <20201031113455.439684970@linuxfoundation.org>
@@ -46,80 +46,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit f75d9a0aa96721d20011cd5f8c7a24eb32728589 ]
+[ Upstream commit 21d6a11e2cadfb8446265a3efff0e2aad206e15e ]
 
-When a PCIe fatal error occurs, the internal latched BAR addresses
-in the chip get reset even though the BAR register values in config
-space are retained.
+A recent patch has moved the workqueue cleanup logic before
+calling unregister_netdev() in bnxt_remove_one().  This caused a
+regression because the workqueue can be restarted if the device is
+still open.  Workqueue cleanup must be done after unregister_netdev().
+The workqueue will not restart itself after the device is closed.
 
-pci_restore_state() will not rewrite the BAR addresses if the
-BAR address values are valid, causing the chip's internal BAR addresses
-to stay invalid.  So we need to zero the BAR registers during PCIe fatal
-error to force pci_restore_state() to restore the BAR addresses.  These
-write cycles to the BAR registers will cause the proper BAR addresses to
-latch internally.
+Call bnxt_cancel_sp_work() after unregister_netdev() and
+call bnxt_dl_fw_reporters_destroy() after that.  This fixes the
+regession and the original NULL ptr dereference issue.
 
-Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Fixes: b16939b59cc0 ("bnxt_en: Fix NULL ptr dereference crash in bnxt_fw_reset_task()")
 Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   19 ++++++++++++++++++-
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    1 +
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -12049,6 +12049,9 @@ static pci_ers_result_t bnxt_io_error_de
- 		return PCI_ERS_RESULT_DISCONNECT;
- 	}
+@@ -11396,13 +11396,14 @@ static void bnxt_remove_one(struct pci_d
+ 	if (BNXT_PF(bp))
+ 		bnxt_sriov_disable(bp);
  
-+	if (state == pci_channel_io_frozen)
-+		set_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN, &bp->state);
-+
- 	if (netif_running(netdev))
- 		bnxt_close(netdev);
++	pci_disable_pcie_error_reporting(pdev);
++	unregister_netdev(dev);
+ 	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
++	/* Flush any pending tasks */
+ 	bnxt_cancel_sp_work(bp);
+ 	bp->sp_event = 0;
  
-@@ -12072,7 +12075,7 @@ static pci_ers_result_t bnxt_io_slot_res
- {
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct bnxt *bp = netdev_priv(netdev);
--	int err = 0;
-+	int err = 0, off;
- 	pci_ers_result_t result = PCI_ERS_RESULT_DISCONNECT;
+ 	bnxt_dl_fw_reporters_destroy(bp, true);
+-	pci_disable_pcie_error_reporting(pdev);
+-	unregister_netdev(dev);
+ 	bnxt_dl_unregister(bp);
+ 	bnxt_shutdown_tc(bp);
  
- 	netdev_info(bp->dev, "PCI Slot Reset\n");
-@@ -12084,6 +12087,20 @@ static pci_ers_result_t bnxt_io_slot_res
- 			"Cannot re-enable PCI device after reset.\n");
- 	} else {
- 		pci_set_master(pdev);
-+		/* Upon fatal error, our device internal logic that latches to
-+		 * BAR value is getting reset and will restore only upon
-+		 * rewritting the BARs.
-+		 *
-+		 * As pci_restore_state() does not re-write the BARs if the
-+		 * value is same as saved value earlier, driver needs to
-+		 * write the BARs to 0 to force restore, in case of fatal error.
-+		 */
-+		if (test_and_clear_bit(BNXT_STATE_PCI_CHANNEL_IO_FROZEN,
-+				       &bp->state)) {
-+			for (off = PCI_BASE_ADDRESS_0;
-+			     off <= PCI_BASE_ADDRESS_5; off += 4)
-+				pci_write_config_dword(bp->pdev, off, 0);
-+		}
- 		pci_restore_state(pdev);
- 		pci_save_state(pdev);
- 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1627,6 +1627,7 @@ struct bnxt {
- #define BNXT_STATE_IN_FW_RESET	4
- #define BNXT_STATE_ABORT_ERR	5
- #define BNXT_STATE_FW_FATAL_COND	6
-+#define BNXT_STATE_PCI_CHANNEL_IO_FROZEN	8
- 
- #define BNXT_NO_FW_ACCESS(bp)					\
- 	(test_bit(BNXT_STATE_FW_FATAL_COND, &(bp)->state) ||	\
 
 
