@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C29202A1511
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 11:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E495D2A1512
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 11:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbgJaKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 06:03:01 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:43893 "EHLO
+        id S1726673AbgJaKDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 06:03:09 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:36883 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726475AbgJaKDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 06:03:00 -0400
+        by vger.kernel.org with ESMTP id S1726475AbgJaKDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 06:03:08 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8B7CD1942173;
-        Sat, 31 Oct 2020 06:02:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 31 Oct 2020 06:02:59 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id AD13519425B6;
+        Sat, 31 Oct 2020 06:03:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 31 Oct 2020 06:03:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=v0mdGZ
-        CZ9UbQe9zDMsao3sfBfWy5Vbls7+c0+WGOfgc=; b=KAJYrQTOdIMuYJroDwMnCR
-        z+yWGWxOeLAB3+SO/Wv7nVIz563ZLkHdEPM1Xkk49tN4+vs01VVpatbcnIgVDZG0
-        jAD4horfJZ69CMmvJCLEDRdxQ77EfoR/ep2SLnRfUJRkOxbNVhf+HqNvBlX98Pnm
-        6Y6CdGKczgI7BKi0Cu0Ua7OoElRpRKw5x3csZP1X2j5dgulbkZPAOdUOxS4CVBLo
-        f5N6062o1pTkTqId087kSjXGndFxTavNy63+iY/dWNtMdrVc8MA3t/xmAAFwerrb
-        Bz+9yBVA34v1TFMckGni4r1iV4Ewd9rqrWK/s/xelOjsc0HQ1hYsjToNsOA6JUsA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Mzpo0+
+        uOCgEAtBykeLlc11IpRdOtGQLmfqbyf7cMGEA=; b=IeBO3njblf/oNOhaSzh6Vi
+        sXraabEV59Dfc59L7Ii++MGt2hXPEYjvJip1Vf4pH6KF58rvGZX3Pg+ZKcMHYDgt
+        JIAPmqm06bNmD9LPYG7d0inWDetFxxay4ya7TEO72mhXycKjR/VZYRne1izBSS0R
+        HVYXMhP/gokFhbDng5usTsoxRGTTb/EseLqKK/MF7r8F/gAG+KvcNH4SB2IBHsf3
+        SiqiqsWH8i/mXla0SbY4q/xFNQqIxyQga0rikQYSmhFS+71rmOq7P8x1BmTf742F
+        A4eYvq40a4RxghtXEgd0inkTxov/NR4oNIF4wPUi2z1pdqKM8BoKQiHpDXyRLQnQ
         ==
-X-ME-Sender: <xms:UjadXx-qbQueugZCQBbD4Oucg-owBY0ihy380Q1q3NjvMmxPGcd8ZA>
-    <xme:UjadX1tlE2NO29Zyb7f4y2S9UITpn09FYDQ8pwvtvU9BUrRdtBPDpJsxWDRECWuaD
-    vUCSLSt4aioaA>
+X-ME-Sender: <xms:WzadX_3tQu5E7lNi7_cR7GQ2nVa6P1aGhhDaOnmjOCrt6uiImcL-3A>
+    <xme:WzadX-G-gqfp_0Oa8RvjegnOA_MZTlMOCPFUQW6WFsN-ydZjYpZGM39HYVUNv21EF
+    4yconeCvI0zBA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrleejgdduudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:UjadX_BBlu10cnt-d017lHwPYwRH6Dg5BJzgJ7FqTiKfcb_PR5ZnIg>
-    <xmx:UjadX1cfW1bUXWKzs_oWwa-8KOL85dPV5NTXl7uc5NwtFGyItmI5lQ>
-    <xmx:UjadX2NGbDVyoc7OEE7bPWHhRfTSaT02ridxWIGOhNpHDldm9l1tLA>
-    <xmx:UzadXzriXMPVsWrnUlvGOCfiqyoNIeKx8GxdUBSiQqpF2CbT8hoZ5w>
+X-ME-Proxy: <xmx:WzadX_7D9dYwltdCUjeKyw15B5FeDeNhp5js1dx4_rTyTgGfWdDRtA>
+    <xmx:WzadX00Txou6IB9YYz0hgB9CjX8qjeJlRL94ZvnzAOhcsY32KDi-iA>
+    <xmx:WzadXyEq7UW5uTlqkTxJZtzFzZTBqWCxBz4fvCN6SW4G6YZFimQsmg>
+    <xmx:WzadX-DkuToBABJMuowvXy-JOKoetDe259oMoqTmYJJORA9XHtZLJw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 74E343280059;
-        Sat, 31 Oct 2020 06:02:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] xen/gntdev.c: Mark pages as dirty" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2F7303064684;
+        Sat, 31 Oct 2020 06:03:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xen/gntdev.c: Mark pages as dirty" failed to apply to 4.9-stable tree
 To:     jrdr.linux@gmail.com, boris.ostrovsky@oracle.com,
         david.vrabel@citrix.com, jgross@suse.com, jhubbard@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 31 Oct 2020 11:03:45 +0100
-Message-ID: <160413862539217@kroah.com>
+Date:   Sat, 31 Oct 2020 11:03:46 +0100
+Message-ID: <160413862616810@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
