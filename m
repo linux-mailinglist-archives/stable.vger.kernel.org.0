@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0152A1833
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 15:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 393232A1838
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 15:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727355AbgJaOeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 10:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
+        id S1727823AbgJaOgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 10:36:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgJaOeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 10:34:06 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C817DC0617A6
-        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id n15so8321167otl.8
-        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
+        with ESMTP id S1727827AbgJaOgA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 10:36:00 -0400
+Received: from mail-oo1-xc43.google.com (mail-oo1-xc43.google.com [IPv6:2607:f8b0:4864:20::c43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4915CC0617A6
+        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:36:00 -0700 (PDT)
+Received: by mail-oo1-xc43.google.com with SMTP id p73so2287259oop.7
+        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 07:36:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:to:from:subject:autocrypt:message-id:date:user-agent
          :mime-version:content-language:content-transfer-encoding;
-        bh=924eZeRu6KyEwKJnMXQDMEBbrpCdGEm4txun0HNTnCE=;
-        b=e4+b+Vxc3UWktiebidTKIsui90IV1RJz+7T/oXIRFP+F1wbVHy03E3aDgL/UxHW3/N
-         aCXHl7jWMk/pif8xVY0Q5bJMwxpCrFAjdhmS/EgtwQix4W5vh6PO6JlOmfKR/Ikf5oGN
-         cCreIhmqKz99aTuWDnZomlVT3TgQUpihqtJv84xIGttD/92VzquMu2cPBApoNnjLDO/Z
-         MrXiLTrBOets/vHR34ZlP2e7sB3ap89IhLyN3/JRjJukxgRRZC/SO/GYWsvev+HzYt71
-         OkRXbCPJ8nxI5LWEcRJYn+h3+Fv2LRm6V7kPCrtPqQxm3MHDCI/1tL7TkQDTK8bnYIOB
-         9WFA==
+        bh=O3hMXrdVoKGMF8uhbWZsCI1P13NFCjhUdHBMbhH1UNE=;
+        b=W/7DQ0TWiRC4mayPWW9qzaiWl6Mp4h3hAjzYKwMX40ZgWC1HxyAu1Hl7pYwZwkSPg1
+         oglN4tdasRZn54kOAjrNW64SNFb8adYrnj+lEu3k21Hp8joICALmimQEsxaiiTVzrscv
+         rrcbqgg3EYNYwDBhBcsEaBeQR4sw+4bwW84mxlyQJ7ug4m9AJR6H2mdPx7gYy5EO016d
+         9KYZjvglhQ39Y46nOj5sGePQdNl+K6rB0LEwQxjHm0KvwmN8hrCsxUeH01jtnJ/vFwFs
+         fOoVfjvUD0mODV8G6dWFoLguB1YjdU1YoLh3hgCj+NsMXYQLA8SCSDKks2ved77KjlpC
+         aurA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:to:from:subject:autocrypt:message-id:date
          :user-agent:mime-version:content-language:content-transfer-encoding;
-        bh=924eZeRu6KyEwKJnMXQDMEBbrpCdGEm4txun0HNTnCE=;
-        b=bPm+pQGF4JA2R+9D1nM33AezdXg2kJem7h21lcB3ch0SfPZ5sEue0j4UCXRzw8SfYA
-         N+RFNq5Pr5oea6bvIgN0w3VcEy8DjrySosHAHiMAOTtGMT/rVfxrQuyAL35kYIWhSara
-         ynjpBgZvNp1GsvjezWteFgRG3C1i6PhKekkWez9oHVGOqi1FTGIG6UvtehSOWiwgh046
-         IHt0umjEeQeWLVH0o3/qI+8IyPSnc0jvcolgPJVlO9jGuf2YveEn/ws1d9bA2EiCljuG
-         QbqIPE72SQyT3h6y6TWP8PLs0DjvggrK3L3dPx/vuA5alLtum94jiMWvLWXlbIhQTZ+u
-         8npA==
-X-Gm-Message-State: AOAM531fgcg2QO8Gfs4PEdFi7PQKeHILiUJOqzHRfIN+1mmv+hYDb4T/
-        RRz8KFt+imyAZCDYBNqgN1o=
-X-Google-Smtp-Source: ABdhPJy8c5Cb4LQ19iQD6vYXvZObIcBOhNC+A5j+GeH/Pn+4tckAo2iGrMr0DucOzSRtw3cwVTD7Iw==
-X-Received: by 2002:a9d:1b48:: with SMTP id l66mr5282320otl.349.1604154844306;
-        Sat, 31 Oct 2020 07:34:04 -0700 (PDT)
+        bh=O3hMXrdVoKGMF8uhbWZsCI1P13NFCjhUdHBMbhH1UNE=;
+        b=jQbaIMRtMojvpmQSDwYB+aR9IRmWn5a5o0Q51zlbVDt6gFAek7tIqSV0NNsnL2cVCu
+         CqI/keVEjwBeotEBVgrPDIzoKUr71VwWMTmm+J60qiWCh3K0N6RWFlNwH5pUNeh99kji
+         p4OUNDmZGzb4USw0JmeqnPEMvUncdZuRytjmYgq8HDIdIdNirNz+sTl6CxsibEKmxg5Y
+         YYCRlKBnCxVw43+k4ol1lZ9oES4pOZv4GoLsr3me118eRn/grjQvihXfbhM4U7HrPq7R
+         2ntxzzt18BP+YIg4mB7SftggxOrJ10WfKuxCckjY4ZK0UHTkMQZ6zxgSseFmtbKjN+4i
+         l19Q==
+X-Gm-Message-State: AOAM533cSj6XqftBNC867Ad/D3vfpXBW9iVHOhVPi9ElumuErS6FzIUf
+        c6+BORlu4rNDSMG7Sz+hTxU=
+X-Google-Smtp-Source: ABdhPJyzuAibqCVTGCTsRxna2k04Pqam/DbqWs5pYn/OjgUuInVzHUVFedbQWr2ShHDqZUeEiqJVWg==
+X-Received: by 2002:a4a:d815:: with SMTP id f21mr5751464oov.44.1604154959772;
+        Sat, 31 Oct 2020 07:35:59 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i14sm2211530ota.59.2020.10.31.07.34.03
+        by smtp.gmail.com with ESMTPSA id s186sm2205881oih.34.2020.10.31.07.35.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 31 Oct 2020 07:34:03 -0700 (PDT)
+        Sat, 31 Oct 2020 07:35:59 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 To:     stable <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 From:   Guenter Roeck <linux@roeck-us.net>
-Subject: v4.4.241 build failures
+Subject: v4.9.241 build failures
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -96,8 +96,8 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <1f557058-aae5-cae7-8d1c-36d06a84cff8@roeck-us.net>
-Date:   Sat, 31 Oct 2020 07:34:02 -0700
+Message-ID: <d7a693e2-9f4d-afc4-c1e1-a1c04122f472@roeck-us.net>
+Date:   Sat, 31 Oct 2020 07:35:58 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
@@ -109,8 +109,10 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Building powerpc:defconfig ... failed
+Building powerpc:allmodconfig ... failed
 --------------
 Error log:
 arch/powerpc/platforms/powernv/opal-dump.c: In function ‘process_dump’:
 arch/powerpc/platforms/powernv/opal-dump.c:409:7: error: void value not ignored as it ought to be
   dump = create_dump_obj(dump_id, dump_size, dump_type);
+
