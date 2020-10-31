@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B010E2A16B7
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188EF2A161A
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728154AbgJaLo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:44:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
+        id S1726991AbgJaLly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727232AbgJaLoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:44:24 -0400
+        id S1727318AbgJaLlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C791B20731;
-        Sat, 31 Oct 2020 11:44:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E0E020719;
+        Sat, 31 Oct 2020 11:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144663;
-        bh=tas5cm9xxl8iJAKYimul3Q9oDvKpwNk4kkBAmDm6xj4=;
+        s=default; t=1604144510;
+        bh=WeHnhktlaLP40UbvEfH3d86BOIfU0gD+BrC+KSdjyrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoeMIvqGVPoiZni11NIEQuw7nzc5N1UOo1RhP9r9/QxN9XKa02eTcXbwQ1gD6Bcp2
-         L/Z5X4p6JE1qzoyK0au1k8bAxmYwKW3fiukIVZX1U2Ah5FPaSvdRHraYKwxVVruAni
-         kFQsaV41bBwsZQeBJSCvsaYvAIola2Gd1tpZmzkA=
+        b=KJlxi0DwDXv2MKrZGcrGejrpa8pJSsOC5fh7WX0WtSDg+A+j6obSb7OeTA9tWkAIC
+         XWYVMNzNiyOLFmNrir3RpO6q5AGzHwevOUkTtT/LAYKqao5p2DlR2/UjngygFJ+72/
+         PnjD8MU/N3QDCeWrj7EJdd9q7i+v9wumMWGQzXnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 34/74] chelsio/chtls: fix tls record info to user
-Date:   Sat, 31 Oct 2020 12:36:16 +0100
-Message-Id: <20201031113501.677773951@linuxfoundation.org>
+Subject: [PATCH 5.8 45/70] ravb: Fix bit fields checking in ravb_hwtstamp_get()
+Date:   Sat, 31 Oct 2020 12:36:17 +0100
+Message-Id: <20201031113501.656565409@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113500.031279088@linuxfoundation.org>
-References: <20201031113500.031279088@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-[ Upstream commit 4f3391ce8f5a69e7e6d66d0a3fc654eb6dbdc919 ]
+[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
 
-chtls_pt_recvmsg() receives a skb with tls header and subsequent
-skb with data, need to finalize the data copy whenever next skb
-with tls header is available. but here current tls header is
-overwritten by next available tls header, ends up corrupting
-user buffer data. fixing it by finalizing current record whenever
-next skb contains tls header.
+In the function ravb_hwtstamp_get() in ravb_main.c with the existing
+values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
+(0x6)
 
-v1->v2:
-- Improved commit message.
+if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
+	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
+	config.rx_filter = HWTSTAMP_FILTER_ALL;
 
-Fixes: 17a7d24aa89d ("crypto: chtls - generic handling of data and hdr")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Link: https://lore.kernel.org/r/20201022190556.21308-1-vinay.yadav@chelsio.com
+if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
+it will never be reached.
+
+This issue can be verified with 'hwtstamp_config' testing program
+(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
+to ALL and subsequent retrieving it gives incorrect value:
+
+$ hwtstamp_config eth0 OFF ALL
+flags = 0
+tx_type = OFF
+rx_filter = ALL
+$ hwtstamp_config eth0
+flags = 0
+tx_type = OFF
+rx_filter = PTP_V2_L2_EVENT
+
+Correct this by converting if-else's to switch.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_io.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_io.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_io.c
-@@ -1585,6 +1585,7 @@ skip_copy:
- 			tp->urg_data = 0;
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1747,12 +1747,16 @@ static int ravb_hwtstamp_get(struct net_
+ 	config.flags = 0;
+ 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
+ 						HWTSTAMP_TX_OFF;
+-	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
++	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
++	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
+ 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+-	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
++		break;
++	case RAVB_RXTSTAMP_TYPE_ALL:
+ 		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-	else
++		break;
++	default:
+ 		config.rx_filter = HWTSTAMP_FILTER_NONE;
++	}
  
- 		if ((avail + offset) >= skb->len) {
-+			struct sk_buff *next_skb;
- 			if (ULP_SKB_CB(skb)->flags & ULPCB_FLAG_TLS_HDR) {
- 				tp->copied_seq += skb->len;
- 				hws->rcvpld = skb->hdr_len;
-@@ -1595,8 +1596,10 @@ skip_copy:
- 			chtls_free_skb(sk, skb);
- 			buffers_freed++;
- 			hws->copied_seq = 0;
--			if (copied >= target &&
--			    !skb_peek(&sk->sk_receive_queue))
-+			next_skb = skb_peek(&sk->sk_receive_queue);
-+			if (copied >= target && !next_skb)
-+				break;
-+			if (ULP_SKB_CB(next_skb)->flags & ULPCB_FLAG_TLS_HDR)
- 				break;
- 		}
- 	} while (len > 0);
+ 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
+ 		-EFAULT : 0;
 
 
