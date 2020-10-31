@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4032A15C2
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C77E72A16D8
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727222AbgJaLiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
+        id S1727485AbgJaLkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727206AbgJaLgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:36:36 -0400
+        id S1727385AbgJaLkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:40:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E06A20853;
-        Sat, 31 Oct 2020 11:36:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D61420719;
+        Sat, 31 Oct 2020 11:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144196;
-        bh=VaJBdPvv6oADudM62GhWYNgpH+/EyjWa0c704nJQWw0=;
+        s=default; t=1604144446;
+        bh=p0XT68h0Mei8BYXd1WcCkIhpTs1B7gWCRgc7R6YQYCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajMwhNXFX/489ECKgikT4BMz3cw7WUUE0Wlk5jqTdIzRav50QKeW/Foj0KpNCASc0
-         JYzJi0k7FyaFHr5u9oB1+ekSTCmTAoGyiU7XQCooS59EuUxTwF4CsDrHXBiVC1OYwn
-         qDZ2fctMs+2Cyk1Vsw0srw17tNzsDaPnFXy9+bH0=
+        b=fMg3nJZO7AXMPXG3NSUXfRLCVmizpG+ZqMix0CBWfbWSVbodT+KCH+57d3fxI8LJe
+         rJGD/b9biIdmG1zanQCFM6TmWufUmBXIub/1I7nvsHXuGsxIUBxKIMw5WtbWH/B9Zp
+         HUOBN7Iw3n0TxOpmoTRBKo/NvdpHn1uZugBZOl7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 42/49] serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.8 06/70] io_uring: unconditionally grab req->task
 Date:   Sat, 31 Oct 2020 12:35:38 +0100
-Message-Id: <20201031113457.471013483@linuxfoundation.org>
+Message-Id: <20201031113459.798371952@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201031113455.439684970@linuxfoundation.org>
-References: <20201031113455.439684970@linuxfoundation.org>
+In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
+References: <20201031113459.481803250@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 534cf755d9df99e214ddbe26b91cd4d81d2603e2 upstream.
+commit e3bc8e9dad7f2f83cc807111d4472164c9210153 upstream.
 
-Issuing a magic-sysrq via the PL011 causes the following lockdep splat,
-which is easily reproducible under QEMU:
+Sometimes we assign a weak reference to it, sometimes we grab a
+reference to it. Clean this up and make it unconditional, and drop the
+flag related to tracking this state.
 
-  | sysrq: Changing Loglevel
-  | sysrq: Loglevel set to 9
-  |
-  | ======================================================
-  | WARNING: possible circular locking dependency detected
-  | 5.9.0-rc7 #1 Not tainted
-  | ------------------------------------------------------
-  | systemd-journal/138 is trying to acquire lock:
-  | ffffab133ad950c0 (console_owner){-.-.}-{0:0}, at: console_lock_spinning_enable+0x34/0x70
-  |
-  | but task is already holding lock:
-  | ffff0001fd47b098 (&port_lock_key){-.-.}-{2:2}, at: pl011_int+0x40/0x488
-  |
-  | which lock already depends on the new lock.
-
-  [...]
-
-  |  Possible unsafe locking scenario:
-  |
-  |        CPU0                    CPU1
-  |        ----                    ----
-  |   lock(&port_lock_key);
-  |                                lock(console_owner);
-  |                                lock(&port_lock_key);
-  |   lock(console_owner);
-  |
-  |  *** DEADLOCK ***
-
-The issue being that CPU0 takes 'port_lock' on the irq path in pl011_int()
-before taking 'console_owner' on the printk() path, whereas CPU1 takes
-the two locks in the opposite order on the printk() path due to setting
-the "console_owner" prior to calling into into the actual console driver.
-
-Fix this in the same way as the msm-serial driver by dropping 'port_lock'
-before handling the sysrq.
-
-Cc: <stable@vger.kernel.org> # 4.19+
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20200811101313.GA6970@willie-the-truck
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Tested-by: Will Deacon <will@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200930120432.16551-1-will@kernel.org
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/amba-pl011.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/io_uring.c |   26 +++-----------------------
+ 1 file changed, 3 insertions(+), 23 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -313,8 +313,9 @@ static void pl011_write(unsigned int val
-  */
- static int pl011_fifo_to_tty(struct uart_amba_port *uap)
- {
--	u16 status;
- 	unsigned int ch, flag, fifotaken;
-+	int sysrq;
-+	u16 status;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -550,7 +550,6 @@ enum {
+ 	REQ_F_NO_FILE_TABLE_BIT,
+ 	REQ_F_QUEUE_TIMEOUT_BIT,
+ 	REQ_F_WORK_INITIALIZED_BIT,
+-	REQ_F_TASK_PINNED_BIT,
  
- 	for (fifotaken = 0; fifotaken != 256; fifotaken++) {
- 		status = pl011_read(uap, REG_FR);
-@@ -349,10 +350,12 @@ static int pl011_fifo_to_tty(struct uart
- 				flag = TTY_FRAME;
- 		}
+ 	/* not a real bit, just to check we're not overflowing the space */
+ 	__REQ_F_LAST_BIT,
+@@ -608,8 +607,6 @@ enum {
+ 	REQ_F_QUEUE_TIMEOUT	= BIT(REQ_F_QUEUE_TIMEOUT_BIT),
+ 	/* io_wq_work is initialized */
+ 	REQ_F_WORK_INITIALIZED	= BIT(REQ_F_WORK_INITIALIZED_BIT),
+-	/* req->task is refcounted */
+-	REQ_F_TASK_PINNED	= BIT(REQ_F_TASK_PINNED_BIT),
+ };
  
--		if (uart_handle_sysrq_char(&uap->port, ch & 255))
--			continue;
-+		spin_unlock(&uap->port.lock);
-+		sysrq = uart_handle_sysrq_char(&uap->port, ch & 255);
-+		spin_lock(&uap->port.lock);
+ struct async_poll {
+@@ -924,21 +921,6 @@ struct sock *io_uring_get_socket(struct
+ }
+ EXPORT_SYMBOL(io_uring_get_socket);
  
--		uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
-+		if (!sysrq)
-+			uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
- 	}
+-static void io_get_req_task(struct io_kiocb *req)
+-{
+-	if (req->flags & REQ_F_TASK_PINNED)
+-		return;
+-	get_task_struct(req->task);
+-	req->flags |= REQ_F_TASK_PINNED;
+-}
+-
+-/* not idempotent -- it doesn't clear REQ_F_TASK_PINNED */
+-static void __io_put_req_task(struct io_kiocb *req)
+-{
+-	if (req->flags & REQ_F_TASK_PINNED)
+-		put_task_struct(req->task);
+-}
+-
+ static void io_file_put_work(struct work_struct *work);
  
- 	return fifotaken;
+ /*
+@@ -1455,7 +1437,7 @@ static void __io_req_aux_free(struct io_
+ 	kfree(req->io);
+ 	if (req->file)
+ 		io_put_file(req, req->file, (req->flags & REQ_F_FIXED_FILE));
+-	__io_put_req_task(req);
++	put_task_struct(req->task);
+ 	io_req_work_drop_env(req);
+ }
+ 
+@@ -1765,7 +1747,7 @@ static inline bool io_req_multi_free(str
+ 	if ((req->flags & REQ_F_LINK_HEAD) || io_is_fallback_req(req))
+ 		return false;
+ 
+-	if (req->file || req->io)
++	if (req->file || req->io || req->task)
+ 		rb->need_iter++;
+ 
+ 	rb->reqs[rb->to_free++] = req;
+@@ -4584,7 +4566,6 @@ static bool io_arm_poll_handler(struct i
+ 	if (req->flags & REQ_F_WORK_INITIALIZED)
+ 		memcpy(&apoll->work, &req->work, sizeof(req->work));
+ 
+-	io_get_req_task(req);
+ 	req->apoll = apoll;
+ 	INIT_HLIST_NODE(&req->hash_node);
+ 
+@@ -4774,8 +4755,6 @@ static int io_poll_add_prep(struct io_ki
+ 
+ 	events = READ_ONCE(sqe->poll_events);
+ 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP;
+-
+-	io_get_req_task(req);
+ 	return 0;
+ }
+ 
+@@ -6057,6 +6036,7 @@ static int io_init_req(struct io_ring_ct
+ 	/* one is dropped after submission, the other at completion */
+ 	refcount_set(&req->refs, 2);
+ 	req->task = current;
++	get_task_struct(req->task);
+ 	req->result = 0;
+ 
+ 	if (unlikely(req->opcode >= IORING_OP_LAST))
 
 
