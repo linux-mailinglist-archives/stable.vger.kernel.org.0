@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE5F2A16E5
-	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 447942A16E6
+	for <lists+stable@lfdr.de>; Sat, 31 Oct 2020 12:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727747AbgJaLlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 07:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41152 "EHLO mail.kernel.org"
+        id S1727782AbgJaLl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Oct 2020 07:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727413AbgJaLlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Oct 2020 07:41:53 -0400
+        id S1727767AbgJaLl4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 31 Oct 2020 07:41:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 311FF20731;
-        Sat, 31 Oct 2020 11:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED2C520719;
+        Sat, 31 Oct 2020 11:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604144512;
-        bh=fgousYZLKRtIMFXA2rAx+Eo+oB53Dy4D7PQho9usL18=;
+        s=default; t=1604144515;
+        bh=owFw9jy5wvXy7h/hS8+rijyv14Ko20ItMZf4qlDxZW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkBljzl9LAJknnFJe3nwiiAjSBD+Z9s4JWvTVinBEyNnlar4RETvFpfrmb3wzaCYg
-         A5TjZYe6mOO2AkRqF8pL9cITMGTpmtRUZQomRZtcHCdJJo1aBM/Mrbk74gGCQoFlG4
-         Dr+N3WXPKcXHJO1YHdOVHrZzWPGLTdgkBCnIvCgs=
+        b=eU7jqDDRwF1uxu0cT7FdoGVTbHe1AzqnPZDCLHQ9y8pZFJYmuJaeBSCrdFBP/toHT
+         kriisNjC44k7r8FCyiB+U7exL3wsriQ0h9ZHVq5Ok2nKeEhzmY8i7i4XmHj+Bj+DSz
+         7FyLptvYsCqSUYb9cOasqTUz2t63d4ZcqbL4xMR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arjun Roy <arjunroy@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Thang Hoang Ngo <thang.h.ngo@dektech.com.au>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Xin Long <lucien.xin@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.8 46/70] tcp: Prevent low rmem stalls with SO_RCVLOWAT.
-Date:   Sat, 31 Oct 2020 12:36:18 +0100
-Message-Id: <20201031113501.703702684@linuxfoundation.org>
+Subject: [PATCH 5.8 47/70] tipc: fix memory leak caused by tipc_buf_append()
+Date:   Sat, 31 Oct 2020 12:36:19 +0100
+Message-Id: <20201031113501.751220303@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201031113459.481803250@linuxfoundation.org>
 References: <20201031113459.481803250@linuxfoundation.org>
@@ -45,63 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arjun Roy <arjunroy@google.com>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit 435ccfa894e35e3d4a1799e6ac030e48a7b69ef5 ]
+[ Upstream commit ceb1eb2fb609c88363e06618b8d4bbf7815a4e03 ]
 
-With SO_RCVLOWAT, under memory pressure,
-it is possible to enter a state where:
+Commit ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
+replaced skb_unshare() with skb_copy() to not reduce the data reference
+counter of the original skb intentionally. This is not the correct
+way to handle the cloned skb because it causes memory leak in 2
+following cases:
+ 1/ Sending multicast messages via broadcast link
+  The original skb list is cloned to the local skb list for local
+  destination. After that, the data reference counter of each skb
+  in the original list has the value of 2. This causes each skb not
+  to be freed after receiving ACK:
+  tipc_link_advance_transmq()
+  {
+   ...
+   /* release skb */
+   __skb_unlink(skb, &l->transmq);
+   kfree_skb(skb); <-- memory exists after being freed
+  }
 
-1. We have not received enough bytes to satisfy SO_RCVLOWAT.
-2. We have not entered buffer pressure (see tcp_rmem_pressure()).
-3. But, we do not have enough buffer space to accept more packets.
+ 2/ Sending multicast messages via replicast link
+  Similar to the above case, each skb cannot be freed after purging
+  the skb list:
+  tipc_mcast_xmit()
+  {
+   ...
+   __skb_queue_purge(pkts); <-- memory exists after being freed
+  }
 
-In this case, we advertise 0 rwnd (due to #3) but the application does
-not drain the receive queue (no wakeup because of #1 and #2) so the
-flow stalls.
+This commit fixes this issue by using skb_unshare() instead. Besides,
+to avoid use-after-free error reported by KASAN, the pointer to the
+fragment is set to NULL before calling skb_unshare() to make sure that
+the original skb is not freed after freeing the fragment 2 times in
+case skb_unshare() returns NULL.
 
-Modify the heuristic for SO_RCVLOWAT so that, if we are advertising
-rwnd<=rcv_mss, force a wakeup to prevent a stall.
-
-Without this patch, setting tcp_rmem to 6143 and disabling TCP
-autotune causes a stalled flow. With this patch, no stall occurs. This
-is with RPC-style traffic with large messages.
-
-Fixes: 03f45c883c6f ("tcp: avoid extra wakeups for SO_RCVLOWAT users")
-Signed-off-by: Arjun Roy <arjunroy@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201023184709.217614-1-arjunroy.kdev@gmail.com
+Fixes: ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Reported-by: Thang Hoang Ngo <thang.h.ngo@dektech.com.au>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Link: https://lore.kernel.org/r/20201027032403.1823-1-tung.q.nguyen@dektech.com.au
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c       |    2 ++
- net/ipv4/tcp_input.c |    3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ net/tipc/msg.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -483,6 +483,8 @@ static inline bool tcp_stream_is_readabl
- 			return true;
- 		if (tcp_rmem_pressure(sk))
- 			return true;
-+		if (tcp_receive_window(tp) <= inet_csk(sk)->icsk_ack.rcv_mss)
-+			return true;
- 	}
- 	if (sk->sk_prot->stream_memory_read)
- 		return sk->sk_prot->stream_memory_read(sk);
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -4790,7 +4790,8 @@ void tcp_data_ready(struct sock *sk)
- 	int avail = tp->rcv_nxt - tp->copied_seq;
- 
- 	if (avail < sk->sk_rcvlowat && !tcp_rmem_pressure(sk) &&
--	    !sock_flag(sk, SOCK_DONE))
-+	    !sock_flag(sk, SOCK_DONE) &&
-+	    tcp_receive_window(tp) > inet_csk(sk)->icsk_ack.rcv_mss)
- 		return;
- 
- 	sk->sk_data_ready(sk);
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -150,12 +150,11 @@ int tipc_buf_append(struct sk_buff **hea
+ 	if (fragid == FIRST_FRAGMENT) {
+ 		if (unlikely(head))
+ 			goto err;
+-		if (skb_cloned(frag))
+-			frag = skb_copy(frag, GFP_ATOMIC);
++		*buf = NULL;
++		frag = skb_unshare(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+-		*buf = NULL;
+ 		TIPC_SKB_CB(head)->tail = NULL;
+ 		if (skb_is_nonlinear(head)) {
+ 			skb_walk_frags(head, tail) {
 
 
