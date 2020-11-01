@@ -2,108 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6422A218D
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 21:34:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B49832A2194
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 21:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727048AbgKAUeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Nov 2020 15:34:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52842 "EHLO
+        id S1727004AbgKAUkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 15:40:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726848AbgKAUeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Nov 2020 15:34:31 -0500
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BCAEC0617A6;
-        Sun,  1 Nov 2020 12:34:31 -0800 (PST)
-Received: by mail-ot1-x344.google.com with SMTP id f37so10715994otf.12;
-        Sun, 01 Nov 2020 12:34:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=y2KX4eXqEBFd3N13MAMD1R601G4yAEV0IrtHFCZnFDw=;
-        b=WTNRjYOvOvfJfW/uQCnnLn/hrs6xZLE9pkoQ7q/ylkdswhadxSLO1XwQTIGu50qDw3
-         AoHv1AV8CiZ3OBaX7W2wRgLPH6PVd3Kss1YRhEyKZt33vcVlQoJ6czp3By0P1HoV2GTe
-         /BKAZPwkxrJ5BV6UkEfMmNwHA78E28hCeKPfk6CyM+4OXzRi/XD3b5WUb9hhHEg8PGrg
-         3dgFLvZM9N/9GSmYwnWm/kvaThfDCu7G4gZ7b3yNPac64+h5ErWW/lL425jVMN7Tk6wD
-         w1jrp9W2BdLaHGqPIzVyaRrbGe6svIyEkt7RLgSG7RsaFr4M6CWZA524vxxaSDdfItFv
-         dwrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=y2KX4eXqEBFd3N13MAMD1R601G4yAEV0IrtHFCZnFDw=;
-        b=tUB6aT5xZDCxRajlc4bsnXcInIc6W6ytw0pSVgHUDuqPyfNNSPABNp9ucVZTQsmOxL
-         TXOOaIl0pIAe5B7QYZVJ5ncxk5WPmpj/7/3Zu8rbcVMNK90sRHgJ3yrYlDwn42HdLPjS
-         gCrFSQFYcUJRWpFVtjTr9xgk4g0md5oybZU0TFPHuWs+9m2Sr2U3ysMd4Q+Ob7raDJQN
-         m/2WiRHsweiwBQzQzhqUIl0xauiQLAe+MNV/Pr/CAmpciJN3N1ejVFphGeEWorvLzoOk
-         xRvyzZIIAA69+8wr77qh/QkmAiuc3i/HX5h91gFtIaFxq5Mmgj+CyS18Ci9mM84Yl911
-         xytw==
-X-Gm-Message-State: AOAM530lwqNKt0HkMMdqsLeATCxCDwQHo2tG+ybK52ZClqgEk5HCZ/Lp
-        HRBR5oL1P7XAc0PXPGsIEUU=
-X-Google-Smtp-Source: ABdhPJzyb2JemqyuUeg+2PxSrG0wLHyouKTEH7+fGf1hXm2RID51Ma7cSz4FXlsIk6QZJl9w/O0o/A==
-X-Received: by 2002:a9d:828:: with SMTP id 37mr8952103oty.147.1604262870362;
-        Sun, 01 Nov 2020 12:34:30 -0800 (PST)
-Received: from ?IPv6:2600:1700:4a30:eaf0::41? ([2600:1700:4a30:eaf0::41])
-        by smtp.gmail.com with ESMTPSA id h7sm2959273oop.40.2020.11.01.12.34.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Nov 2020 12:34:29 -0800 (PST)
-Subject: Re: [PATCH] Add devices for HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
-To:     Greg KH <greg@kroah.com>
-Cc:     Chris Ye <lzye@google.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, trivial@kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-References: <20201028235113.660272-1-lzye@google.com>
- <20201029054147.GB3039992@kroah.com>
- <CAFFudd+7DrJ+vYZ5wQ58mei6VMkMPGCpS1d7DwZMrzM-FVKzqQ@mail.gmail.com>
- <20201029191413.GB986195@kroah.com>
- <8975d128-e47f-c97c-fbd9-6045de67f34a@gmail.com>
- <20201030104831.GD2395528@kroah.com>
-From:   Chris Ye <linzhao.ye@gmail.com>
-Message-ID: <a18b62e9-2c40-c20c-9822-13e0a9930aeb@gmail.com>
-Date:   Sun, 1 Nov 2020 12:34:28 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+        with ESMTP id S1726848AbgKAUkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Nov 2020 15:40:40 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F802C0617A6;
+        Sun,  1 Nov 2020 12:40:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description;
+        bh=Et5K4+QvGR3JhUa1dRvhlOlucT8riZ7B3HV1KexVIq0=; b=MWHF81qvj8GEnZmZfZKCoElmVj
+        KyShdZpDxmITbNDu0mtUxegzHCRJfMf7mrT3C2O7evXVpFDKblP6+FVMrPE96eEwp3kMGkS6P+Wt0
+        ZrqA9o3Rb8s1QNqx7eLRJUva2mSR8VA3gT5S4juaDNzJIW7ymWGDJxsSoXrBil73YfiWuIpPkKA+3
+        zqpMc/Cag7ggKJsRBY27doIgbX5oEGhIbmDs3vGwZcZCaKHt0c8zGaEy9Vw/C2zNjD9V2OtoTqvj0
+        MItZH5F0aJ2y+qfHweL5rEPIsPNl6iPqXq1Hjk4G4jD0PTYgYfCJdShUMrXg7nEgHUwshOFZYeo3w
+        jRK13nPA==;
+Received: from [2601:1c0:6280:3f0::60d5]
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kZK9J-0004M0-VZ; Sun, 01 Nov 2020 20:40:27 +0000
+Subject: Re: [PATCH] compiler.h: Move barrier() back into compiler-*.h
+To:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     kernel test robot <lkp@intel.com>, linux-next@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        kbuild-all@lists.01.org,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+References: <202010312104.Dk9VQJYb-lkp@intel.com>
+ <20201101173105.1723648-1-nivedita@alum.mit.edu>
+ <20201101173835.GC27442@casper.infradead.org>
+ <20201101195110.GA1751707@rani.riverdale.lan>
+ <20201101195215.GE27442@casper.infradead.org>
+ <20201101195948.GA1760144@rani.riverdale.lan>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <eff5fa5f-2eec-81a9-c6d9-7ec45df61e80@infradead.org>
+Date:   Sun, 1 Nov 2020 12:40:19 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-In-Reply-To: <20201030104831.GD2395528@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201101195948.GA1760144@rani.riverdale.lan>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Greg,  I just sent out the v2 version of patches, to maintainers 
-of HID core layer.
+On 11/1/20 11:59 AM, Arvind Sankar wrote:
+> On Sun, Nov 01, 2020 at 07:52:15PM +0000, Matthew Wilcox wrote:
+>> On Sun, Nov 01, 2020 at 02:51:10PM -0500, Arvind Sankar wrote:
+>>> Ok. So I still send it as a separate patch and he does the folding, or
+>>> should I send a revised patch that replaces the original one?
+>>
+>> I think Randy's patch should be merged instead of this patch.
+> 
+> Ok, if that one works then it's better I agree.
+> 
+
+Do I need to resend it to Andrew?
 
 
-On 10/30/20 3:48 AM, Greg KH wrote:
-> A: http://en.wikipedia.org/wiki/Top_post
-> Q: Were do I find info about this thing called top-posting?
-> A: Because it messes up the order in which people normally read text.
-> Q: Why is top-posting such a bad thing?
-> A: Top-posting.
-> Q: What is the most annoying thing in e-mail?
->
-> A: No.
-> Q: Should I include quotations after my reply?
->
-> http://daringfireball.net/2007/07/on_top
->
-> On Thu, Oct 29, 2020 at 01:04:06PM -0700, Chris Ye wrote:
->> Hi Greg,
->>
->> Yes, I can see them on https://lore.kernel.org/linux-input/ now.
->>
->> But I didn't put [PATCH v1] in subject,  should I sent them again with
->> version?
-> It should be v2 at the least, right?  And please read the documentation
-> for how to do that properly.
->
-> thanks,
->
-> greg k-h
+--
+~Randy
+
