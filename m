@@ -2,89 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 575662A1B5F
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 01:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 583622A1C20
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 06:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726123AbgKAAX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Oct 2020 20:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37606 "EHLO
+        id S1725773AbgKAFiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 01:38:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbgKAAX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Oct 2020 20:23:58 -0400
-Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E17C0C0617A6
-        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 17:23:57 -0700 (PDT)
-Received: by mail-oo1-xc42.google.com with SMTP id j12so2492111oou.6
-        for <stable@vger.kernel.org>; Sat, 31 Oct 2020 17:23:57 -0700 (PDT)
+        with ESMTP id S1725681AbgKAFiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Nov 2020 01:38:14 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C8CC0617A6;
+        Sat, 31 Oct 2020 22:38:14 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id f38so8185174pgm.2;
+        Sat, 31 Oct 2020 22:38:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=kvYr3I1y8+ehhIyg5Sv32VzMWe/yxI9bnjmJEWtO5UM=;
-        b=qY8eWwh8jpi7rNFjftXpcMSotFc53mCQweSVjR2R4B2pKPVBRXNnlkVL6YeMDxe7Cc
-         Baca0UAFlY9JHEzNFStSI0pYpEXRdaERmtrWbDRnbWRJvjGQH+65aRzsleNlp0kFPHSt
-         xN1vh+BvcNSeYFDo2lNzjIndDdTwFELcePgUPpHibdjuZRELjp7eN00H6QqVsofMp9AS
-         TypjpKw93Po4gjpkjfMqkbmHrIlVGPyVRlRqCXUe2LPY9I2tzRO9pW5d5QHdyJixqLH9
-         QaNDHmAnt7xFPXBSfPUagZTzMAmgM8yKCt7Wl5A9KhvTb6Mke1LLWe31IAiAaJY4PBU1
-         PbUA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=h0UPMaHl9sQ1QYtD72P2Gtya64wSdEwNqN6m40oRNsA=;
+        b=WhG+3QfgIcd8FEd+xMfq2+PFDMbU3yKbbZSIlonfA1ApWGA4gU1bW0orKx/iLuiuD1
+         Z+kjTIvH09Gw9KTvvDBtEec3691SQzjLUZBGw/M87/jtqzjNrPdDEfygAnZqXqa+v8Fm
+         L7pfJ7kdI04aA4mKAmUbHrzVV86KOwkiAlsUM6WlcfNYb5IRDkdaLEJjiiOcLbwQMT2C
+         DLiMRmRu9mGbcexKK2oVWj8TCW3xfQPpDQpKqu0niH8PeGQLJV/jz2M9KyX7rx6jSk7d
+         K1cCNXqPI4WtOBwKxTBf5wFldIH2LoDdnC7I2C7CC7thtXwRrIXcPiBFAmC9+lxcXOht
+         uUtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kvYr3I1y8+ehhIyg5Sv32VzMWe/yxI9bnjmJEWtO5UM=;
-        b=BDxH1rISEXL7hxvOH0PSVhviHNlHIJ14WV0knNBMF/T9VbD6P5HwTMl0lGrO/vAO4P
-         f9JhQe2yZq5k1PpkL8Bw3seKka6bP5ATxQ41FvOJQtPsqHrl+ajAutxGcN9NRaj/Ip0D
-         e49Heucghl8J12+TeI/tHIWIISedjicluzGmguGHpEiGZxZixr3Uis5W4wHcg5lSFBW9
-         55mdobj1ggZ53EL9dIPVIvZmd1vS6M6yUQW9jL2ALd5UTOXxRuTE6Bb5ro0Vjf9o+sDl
-         nz/M+gnRQ1kH1bbrIwOlnGUJ2KOEce6vDU664LdDRgXdrT2KnyclIaaPGGchBuuEo6fq
-         3kSA==
-X-Gm-Message-State: AOAM530oEQrxYsV8QyjyuvD1Ub9hneruM2+lBvTwODVvu4XXoNYBnUrF
-        7x3+Ttc4UB2Mf14+yCQYFGFc1Blj4Cc=
-X-Google-Smtp-Source: ABdhPJw86vhXl1RC+mYDHEbjziK75gCERyVvS2mVIpaAXRIndSHugk4ONYfxGfVRcYNsZVCJGdFXoA==
-X-Received: by 2002:a4a:ea81:: with SMTP id r1mr7216755ooh.16.1604190236078;
-        Sat, 31 Oct 2020 17:23:56 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f34sm645624otb.34.2020.10.31.17.23.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 31 Oct 2020 17:23:55 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: v4.9.241 build failures
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <d7a693e2-9f4d-afc4-c1e1-a1c04122f472@roeck-us.net>
- <20201101001414.GA2092@sasha-vm>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <7cad0337-8ed4-386a-2bb3-88092b758a0c@roeck-us.net>
-Date:   Sat, 31 Oct 2020 17:23:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=h0UPMaHl9sQ1QYtD72P2Gtya64wSdEwNqN6m40oRNsA=;
+        b=hlrW1K9Kd0aj2LUPyywIp54wQJQLCEIqy6NC0LOEQK231TSTDEiOFMiZXhqSUbcidL
+         F79g8RyQ1Yj/icH5XnY1VYEAJvRPr3t+5PeAKwKjw8Oo2sObpYM3rEr+VcmyEmUQbcqe
+         /nCt6YlxQEDiDGvlzUiHEUQgkoom8hEW0nzkBR1nrLR1k4rCRoC8cMbXwGiE9H2hqMF8
+         TQbWMFCwZjLziDq72UrF9ya/LCcNAJxRyNAetG3ieMRe0W0XR6wafXoX7uAUHLO1vbqe
+         5xp/2AmnIISEpMhKmGK0/56K47x665lMzL90wbHNujkEUHzwnBMxsa6zDiCnllx1TKhB
+         2rrA==
+X-Gm-Message-State: AOAM530SYuvy5RxSuv6Yvsp8gItvjC0IRHOnJ/qPSrErsYTfPeFZ6akk
+        8nAMVL413/Z5wN3FBrsf08w=
+X-Google-Smtp-Source: ABdhPJz8JY5kc/jUUwoCuti7DG3VKLSeM35nguxL7NxmueK5tY+OX9jYzu40IOaFEDMs65Fuk77CtQ==
+X-Received: by 2002:a62:aa0f:0:b029:162:ecc2:4d44 with SMTP id e15-20020a62aa0f0000b0290162ecc24d44mr16564428pff.52.1604209093832;
+        Sat, 31 Oct 2020 22:38:13 -0700 (PDT)
+Received: from clanlab.dyndns.org ([140.119.175.157])
+        by smtp.gmail.com with ESMTPSA id e5sm8486972pjd.0.2020.10.31.22.38.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 31 Oct 2020 22:38:13 -0700 (PDT)
+From:   Macpaul Lin <macpaul@gmail.com>
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org,
+        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Cc:     Eddie Hung <eddie.hung@mediatek.com>,
+        Peter Chen <peter.chen@nxp.com>, stable@vger.kernel.org
+Subject: [RESEND PATCH v2] usb: gadget: configfs: Fix use-after-free issue with udc_name
+Date:   Sun,  1 Nov 2020 13:37:28 +0800
+Message-Id: <20201101053728.2387434-1-macpaul@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <1595040303-23046-1-git-send-email-macpaul.lin@mediatek.com>
+References: <1595040303-23046-1-git-send-email-macpaul.lin@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20201101001414.GA2092@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/31/20 5:14 PM, Sasha Levin wrote:
-> On Sat, Oct 31, 2020 at 07:35:58AM -0700, Guenter Roeck wrote:
->> Building powerpc:defconfig ... failed
->> Building powerpc:allmodconfig ... failed
->> --------------
->> Error log:
->> arch/powerpc/platforms/powernv/opal-dump.c: In function ‘process_dump’:
->> arch/powerpc/platforms/powernv/opal-dump.c:409:7: error: void value not ignored as it ought to be
->>  dump = create_dump_obj(dump_id, dump_size, dump_type);
->>
-> 
-> I see that Greg already took b29336c0e178 ("powerpc/powernv/opal-dump :
-> Use IRQ_HANDLED instead of numbers in interrupt handler") for 4.9 and
-> 4.4, which should fix this issue.
-> 
+From: Eddie Hung <eddie.hung@mediatek.com>
 
-Correct, it is fixed now. Sorry for the noise.
+There is a use-after-free issue, if access udc_name
+in function gadget_dev_desc_UDC_store after another context
+free udc_name in function unregister_gadget.
 
-Guenter
+Context 1:
+gadget_dev_desc_UDC_store()->unregister_gadget()->
+free udc_name->set udc_name to NULL
+
+Context 2:
+gadget_dev_desc_UDC_show()-> access udc_name
+
+Call trace:
+dump_backtrace+0x0/0x340
+show_stack+0x14/0x1c
+dump_stack+0xe4/0x134
+print_address_description+0x78/0x478
+__kasan_report+0x270/0x2ec
+kasan_report+0x10/0x18
+__asan_report_load1_noabort+0x18/0x20
+string+0xf4/0x138
+vsnprintf+0x428/0x14d0
+sprintf+0xe4/0x12c
+gadget_dev_desc_UDC_show+0x54/0x64
+configfs_read_file+0x210/0x3a0
+__vfs_read+0xf0/0x49c
+vfs_read+0x130/0x2b4
+SyS_read+0x114/0x208
+el0_svc_naked+0x34/0x38
+
+Add mutex_lock to protect this kind of scenario.
+
+Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Cc: stable@vger.kernel.org
+---
+Changes for v2:
+  - Fix typo %s/contex/context, Thanks Peter.
+
+ drivers/usb/gadget/configfs.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index cbff3b02840d..8501b27f3c95 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -230,9 +230,16 @@ static ssize_t gadget_dev_desc_bcdUSB_store(struct config_item *item,
+ 
+ static ssize_t gadget_dev_desc_UDC_show(struct config_item *item, char *page)
+ {
+-	char *udc_name = to_gadget_info(item)->composite.gadget_driver.udc_name;
++	struct gadget_info *gi = to_gadget_info(item);
++	char *udc_name;
++	int ret;
++
++	mutex_lock(&gi->lock);
++	udc_name = gi->composite.gadget_driver.udc_name;
++	ret = sprintf(page, "%s\n", udc_name ?: "");
++	mutex_unlock(&gi->lock);
+ 
+-	return sprintf(page, "%s\n", udc_name ?: "");
++	return ret;
+ }
+ 
+ static int unregister_gadget(struct gadget_info *gi)
+-- 
+2.26.2
+
