@@ -2,79 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F5E2A1D73
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B092A1DA6
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 12:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726392AbgKAKyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Nov 2020 05:54:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726145AbgKAKyw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Nov 2020 05:54:52 -0500
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787CAC0617A6
-        for <stable@vger.kernel.org>; Sun,  1 Nov 2020 02:54:52 -0800 (PST)
-Received: by mail-qt1-x843.google.com with SMTP id m65so7294385qte.11
-        for <stable@vger.kernel.org>; Sun, 01 Nov 2020 02:54:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
-        b=W7St2yppi5S7FN6uFo37PQu/ge6731maqWCWVtniD4PXb8sk0iZKfgmghJkWl9XUjF
-         iFll2jXO6+VLejLd64W6FkaKz9Uo8Z3TfL2pvx+R+I+4dy7REmBWMGvIKb5ikli0Qsh+
-         pKsbWyOuVvQxPFSIv/6LHdlEmsdm7pOUrmoIOhwJjBOaMBUqFxIYAq8iyPjR2TNPy4JS
-         NJlgJKfAncfkDFo4LqyGW9jjrvi2IIebLvDDGZznvDC1940ui5dBNmB/JDf3p6I5eOcX
-         KF7DbH6bsXocmV3n5jX3y5iKYbQtfOYlj2CbNwtV/ZQOkaHNDo0GWuFcH0ezzAi4/hXY
-         wf3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
-        b=iHjjjH+KgSTeJGNjZ85OPY0DtaAeqKiRpg0EfPBLOvXOLOTsQaIh6HHU4FSRZZF0oD
-         ktQP5hWI6cDEdZZ+FunsEW6fPx11gnQlaYP2OUJr/m8B5ugMo/8CeahKCk9k3PMc947n
-         1wk+5kQQHalVYLSmarmO6nOl1sDICBdjX3E2tMg4lMbcv85b6wMdaa6TJVYLv/v0Hkfc
-         flYBU1o3Fb8k/8SVE/W35X+MiI8pa8SHA6HsjhfAHKJw8qu9nY/tOcajpBdVQ03Hy7Yt
-         mUJPU+OvLnB1E8N66Wuzhpb1pAfEQA/4gx6DPEhACuFYKJ0dm7pxgYOvAWxLyNm6JCTL
-         jzyg==
-X-Gm-Message-State: AOAM532EcPSBDrIqpmBpFjhonUFAKsr91SZxVM0bMjgbrD7cJZsgYDYe
-        +3k4Be/law25stM7mApZcforwjqQ5l9y1zdgJCw=
-X-Google-Smtp-Source: ABdhPJwD9t61X7M3jj8yJnCJW4wmEkuSgnqGdPZM5ujtWgo9gWBkMW0pOEKHYUiGooVK1or4dofsLMJqGUta0jScD0k=
-X-Received: by 2002:ac8:4791:: with SMTP id k17mr10276032qtq.264.1604228091577;
- Sun, 01 Nov 2020 02:54:51 -0800 (PST)
+        id S1726394AbgKALoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 06:44:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40740 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726159AbgKALoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Nov 2020 06:44:17 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B78952084C;
+        Sun,  1 Nov 2020 11:44:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604231056;
+        bh=jmpQOf07cbza+nXlnWFb2FMcUubuLDfVHDkFOAGlhis=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jwGUW22/UqdCNuDKzpPhsAD3X4Mv3ZfsxvkimeHA03SXZH0CMHzBJj9ZIDB+dHOsN
+         uHxRyruhZlduXrJ4lcsbZWEmSLn+SJIGHPZeGnTAy9i1Ix9L6PjgBO6iH8sY/UtI2d
+         +mpa7/RCIToi7pHvjMHKDKgP41v8fCGi1ja1wsPw=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.4.74
+Date:   Sun,  1 Nov 2020 12:44:58 +0100
+Message-Id: <160423109766120@kroah.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Received: by 2002:aed:2d05:0:0:0:0:0 with HTTP; Sun, 1 Nov 2020 02:54:51 -0800 (PST)
-Reply-To: dunawattara96@outlook.com
-From:   "Mr. Duna Wattara" <mrjacksonwhite670@gmail.com>
-Date:   Sun, 1 Nov 2020 02:54:51 -0800
-Message-ID: <CAG8J7tVaQLSwS88ipnXS4LKva_P2=qGv+sW1c3Fi5FqgvYWwyw@mail.gmail.com>
-Subject: Hello friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+I'm announcing the release of the 5.4.74 kernel.
 
-I know that this mail will come to you as a surprise as we have never
-met before, but need not to worry as I am contacting you independently
-of my investigation and no one is informed of this communication.
+All users of the 5.4 kernel series must upgrade.
 
-I need your urgent assistance in transferring the sum of $11.3million
-immediately to your private account.The money has been here in our
-Bank lying dormant for years now without anybody coming for the claim of it.
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-I want to release the money to you as the relative to our deceased
-customer (the account owner) who died a long with his supposed NEXT OF
-KIN since 16th October 2005. The Banking laws here does not allow such
-money to stay more than 15 years, because the money will be recalled
-to the Bank treasury account as unclaimed fund.
+thanks,
 
-By indicating your interest I will send you the full details on how
-the business will be executed.
+greg k-h
 
-Please respond urgently and delete if you are not interested.
+------------
 
-Best Regards,
-Mr. Duna Wattara.
+ Makefile                                                  |    2 
+ arch/arm64/Makefile                                       |    4 -
+ arch/arm64/kernel/cpu_errata.c                            |   15 +++
+ arch/openrisc/include/asm/uaccess.h                       |   35 +++++---
+ arch/x86/crypto/crc32c-pcl-intel-asm_64.S                 |    2 
+ arch/x86/events/amd/ibs.c                                 |   15 +++
+ arch/x86/pci/intel_mid_pci.c                              |    1 
+ arch/x86/xen/enlighten_pv.c                               |    9 ++
+ drivers/ata/ahci.h                                        |    2 
+ drivers/ata/ahci_mvebu.c                                  |    2 
+ drivers/ata/libahci_platform.c                            |    2 
+ drivers/ata/sata_rcar.c                                   |    2 
+ drivers/crypto/chelsio/chtls/chtls_cm.c                   |   29 +++----
+ drivers/crypto/chelsio/chtls/chtls_io.c                   |    7 +
+ drivers/infiniband/core/addr.c                            |   11 +-
+ drivers/misc/cardreader/rtsx_pcr.c                        |    4 -
+ drivers/misc/cxl/pci.c                                    |    4 -
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c                 |   45 +++++++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h                 |    1 
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c         |   56 ++++++--------
+ drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h               |    4 +
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    2 
+ drivers/net/ethernet/ibm/ibmvnic.c                        |    8 +-
+ drivers/net/ethernet/mellanox/mlxsw/core.c                |    2 
+ drivers/net/ethernet/realtek/r8169_main.c                 |    4 -
+ drivers/net/ethernet/renesas/ravb_main.c                  |   10 +-
+ drivers/net/gtp.c                                         |   16 ++--
+ drivers/net/wireless/intersil/p54/p54pci.c                |    4 -
+ drivers/phy/marvell/phy-mvebu-a3700-comphy.c              |   14 ++-
+ drivers/phy/marvell/phy-mvebu-cp110-comphy.c              |   14 ++-
+ drivers/tty/serial/amba-pl011.c                           |   11 +-
+ drivers/tty/serial/qcom_geni_serial.c                     |    2 
+ drivers/xen/gntdev.c                                      |   17 +++-
+ fs/efivarfs/super.c                                       |    3 
+ fs/erofs/xattr.c                                          |    2 
+ fs/fuse/dev.c                                             |   28 ++++---
+ include/linux/mtd/pfow.h                                  |    2 
+ include/linux/pm.h                                        |    2 
+ include/linux/qcom-geni-se.h                              |    3 
+ include/net/netfilter/nf_tables.h                         |    6 +
+ include/uapi/linux/bpf.h                                  |    4 -
+ net/core/sock.c                                           |    1 
+ net/ipv4/tcp.c                                            |    2 
+ net/ipv4/tcp_input.c                                      |    3 
+ net/netfilter/nf_tables_api.c                             |    6 -
+ net/netfilter/nf_tables_offload.c                         |    4 -
+ net/sched/act_mpls.c                                      |    1 
+ net/sched/sch_netem.c                                     |    9 ++
+ net/tipc/msg.c                                            |    5 -
+ scripts/setlocalversion                                   |   21 ++++-
+ security/integrity/evm/evm_main.c                         |    6 +
+ tools/include/uapi/linux/bpf.h                            |    4 -
+ tools/objtool/orc_gen.c                                   |   33 ++++++--
+ 53 files changed, 330 insertions(+), 171 deletions(-)
+
+Aleksandr Nogikh (1):
+      netem: fix zero division in tabledist
+
+Andrew Gabbasov (1):
+      ravb: Fix bit fields checking in ravb_hwtstamp_get()
+
+Arjun Roy (1):
+      tcp: Prevent low rmem stalls with SO_RCVLOWAT.
+
+Arnd Bergmann (1):
+      crypto: x86/crc32c - fix building with clang ias
+
+Christian Eggers (1):
+      socket: don't clear SOCK_TSTAMP_NEW when SO_TIMESTAMPNS is disabled
+
+Frederic Barrat (1):
+      cxl: Rework error message for incompatible slots
+
+Gao Xiang (1):
+      erofs: avoid duplicated permission check for "trusted." xattrs
+
+Geert Uytterhoeven (1):
+      ata: sata_rcar: Fix DMA boundary mask
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.74
+
+Grygorii Strashko (1):
+      PM: runtime: Fix timer_expires data type on 32-bit arches
+
+Guillaume Nault (1):
+      net/sched: act_mpls: Add softdep on mpls_gso.ko
+
+Gustavo A. R. Silva (1):
+      mtd: lpddr: Fix bad logic in print_drs_error
+
+Heiner Kallweit (1):
+      r8169: fix issue with forced threading in combination with shared interrupts
+
+Ido Schimmel (1):
+      mlxsw: core: Fix memory leak on module removal
+
+Jason Gunthorpe (1):
+      RDMA/addr: Fix race with netevent_callback()/rdma_addr_cancel()
+
+Jia-Ju Bai (1):
+      p54: avoid accessing the data mapped to streaming DMA
+
+Josh Poimboeuf (1):
+      objtool: Support Clang non-section symbols in ORC generation
+
+Juergen Gross (1):
+      x86/xen: disable Firmware First mode for correctable memory errors
+
+Kim Phillips (1):
+      arch/x86/amd/ibs: Fix re-arming IBS Fetch
+
+Lijun Pan (1):
+      ibmvnic: fix ibmvnic_set_mac
+
+Marc Zyngier (2):
+      arm64: Run ARCH_WORKAROUND_1 enabling code on all CPUs
+      arm64: Run ARCH_WORKAROUND_2 enabling code on all CPUs
+
+Masahiro Fujiwara (1):
+      gtp: fix an use-before-init in gtp_newlink()
+
+Michael Chan (1):
+      bnxt_en: Check abort error state in bnxt_open_nic().
+
+Michael Schaller (1):
+      efivarfs: Replace invalid slashes with exclamation marks in dentries.
+
+Miklos Szeredi (1):
+      fuse: fix page dereference after free
+
+Nick Desaulniers (1):
+      arm64: link with -z norelro regardless of CONFIG_RELOCATABLE
+
+Pali Rohár (2):
+      ata: ahci: mvebu: Make SATA PHY optional for Armada 3720
+      phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+
+Paras Sharma (1):
+      serial: qcom_geni_serial: To correct QUP Version detection logic
+
+Peter Zijlstra (1):
+      serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
+
+Raju Rangoju (1):
+      cxgb4: set up filter action after rewrites
+
+Randy Dunlap (1):
+      x86/PCI: Fix intel_mid_pci.c build error when ACPI is not enabled
+
+Rasmus Villemoes (1):
+      scripts/setlocalversion: make git describe output more reliable
+
+Ricky Wu (1):
+      misc: rtsx: do not setting OC_POWER_DOWN reg in rtsx_pci_init_ocp()
+
+Roberto Sassu (1):
+      evm: Check size of security.evm before using it
+
+Saeed Mirzamohammadi (1):
+      netfilter: nftables_offload: KASAN slab-out-of-bounds Read in nft_flow_rule_create
+
+Song Liu (1):
+      bpf: Fix comment for helper bpf_current_task_under_cgroup()
+
+Souptick Joarder (1):
+      xen/gntdev.c: Mark pages as dirty
+
+Stafford Horne (1):
+      openrisc: Fix issue with get_user for 64-bit values
+
+Tung Nguyen (1):
+      tipc: fix memory leak caused by tipc_buf_append()
+
+Vasundhara Volam (4):
+      bnxt_en: Send HWRM_FUNC_RESET fw command unconditionally.
+      bnxt_en: Re-write PCI BARs after PCI fatal error.
+      bnxt_en: Fix regression in workqueue cleanup logic in bnxt_remove_one().
+      bnxt_en: Invoke cancel_delayed_work_sync() for PFs also.
+
+Vinay Kumar Yadav (3):
+      chelsio/chtls: fix deadlock issue
+      chelsio/chtls: fix memory leaks in CPL handlers
+      chelsio/chtls: fix tls record info to user
+
+Zenghui Yu (1):
+      net: hns3: Clear the CMDQ registers before unmapping BAR region
+
