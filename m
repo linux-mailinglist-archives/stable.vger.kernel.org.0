@@ -2,88 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D7132A1D66
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:44:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F5E2A1D73
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726154AbgKAKoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Nov 2020 05:44:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726145AbgKAKoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Nov 2020 05:44:04 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4154B2072C;
-        Sun,  1 Nov 2020 10:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604227443;
-        bh=67tkhz7sy2VLerpPlvTKstXVL5NUfJRmG4tYNesA66Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qB/ksqpBxiXuLMJW1lqI3VM0RwzOgfYi3lir47FczaS+9bTIUQhUJZ5l5uWHCUXcv
-         iMMn+7im9M1xki8T4lMQWFXvYRqRN7HfjSI7wL71mmvlBz7csxj1RQbd1gS8taq/IE
-         c0j85WHjF3gqYr/R+vdBqiYP6OJraI/eeAJJer0M=
-Date:   Sun, 1 Nov 2020 11:44:47 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc:     Jari Ruusu <jariruusu@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: Linux 4.19.154
-Message-ID: <20201101104447.GC2689688@kroah.com>
-References: <160405368022942@kroah.com>
- <160405368043128@kroah.com>
- <5F9D6341.71F2A54E@users.sourceforge.net>
- <9996e46f-e493-e3b3-c23a-31415668db7d@i-love.sakura.ne.jp>
+        id S1726392AbgKAKyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 05:54:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbgKAKyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Nov 2020 05:54:52 -0500
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787CAC0617A6
+        for <stable@vger.kernel.org>; Sun,  1 Nov 2020 02:54:52 -0800 (PST)
+Received: by mail-qt1-x843.google.com with SMTP id m65so7294385qte.11
+        for <stable@vger.kernel.org>; Sun, 01 Nov 2020 02:54:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=W7St2yppi5S7FN6uFo37PQu/ge6731maqWCWVtniD4PXb8sk0iZKfgmghJkWl9XUjF
+         iFll2jXO6+VLejLd64W6FkaKz9Uo8Z3TfL2pvx+R+I+4dy7REmBWMGvIKb5ikli0Qsh+
+         pKsbWyOuVvQxPFSIv/6LHdlEmsdm7pOUrmoIOhwJjBOaMBUqFxIYAq8iyPjR2TNPy4JS
+         NJlgJKfAncfkDFo4LqyGW9jjrvi2IIebLvDDGZznvDC1940ui5dBNmB/JDf3p6I5eOcX
+         KF7DbH6bsXocmV3n5jX3y5iKYbQtfOYlj2CbNwtV/ZQOkaHNDo0GWuFcH0ezzAi4/hXY
+         wf3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=iHjjjH+KgSTeJGNjZ85OPY0DtaAeqKiRpg0EfPBLOvXOLOTsQaIh6HHU4FSRZZF0oD
+         ktQP5hWI6cDEdZZ+FunsEW6fPx11gnQlaYP2OUJr/m8B5ugMo/8CeahKCk9k3PMc947n
+         1wk+5kQQHalVYLSmarmO6nOl1sDICBdjX3E2tMg4lMbcv85b6wMdaa6TJVYLv/v0Hkfc
+         flYBU1o3Fb8k/8SVE/W35X+MiI8pa8SHA6HsjhfAHKJw8qu9nY/tOcajpBdVQ03Hy7Yt
+         mUJPU+OvLnB1E8N66Wuzhpb1pAfEQA/4gx6DPEhACuFYKJ0dm7pxgYOvAWxLyNm6JCTL
+         jzyg==
+X-Gm-Message-State: AOAM532EcPSBDrIqpmBpFjhonUFAKsr91SZxVM0bMjgbrD7cJZsgYDYe
+        +3k4Be/law25stM7mApZcforwjqQ5l9y1zdgJCw=
+X-Google-Smtp-Source: ABdhPJwD9t61X7M3jj8yJnCJW4wmEkuSgnqGdPZM5ujtWgo9gWBkMW0pOEKHYUiGooVK1or4dofsLMJqGUta0jScD0k=
+X-Received: by 2002:ac8:4791:: with SMTP id k17mr10276032qtq.264.1604228091577;
+ Sun, 01 Nov 2020 02:54:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9996e46f-e493-e3b3-c23a-31415668db7d@i-love.sakura.ne.jp>
+Received: by 2002:aed:2d05:0:0:0:0:0 with HTTP; Sun, 1 Nov 2020 02:54:51 -0800 (PST)
+Reply-To: dunawattara96@outlook.com
+From:   "Mr. Duna Wattara" <mrjacksonwhite670@gmail.com>
+Date:   Sun, 1 Nov 2020 02:54:51 -0800
+Message-ID: <CAG8J7tVaQLSwS88ipnXS4LKva_P2=qGv+sW1c3Fi5FqgvYWwyw@mail.gmail.com>
+Subject: Hello friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 31, 2020 at 11:02:56PM +0900, Tetsuo Handa wrote:
-> On 2020/10/31 22:14, Jari Ruusu wrote:
-> > Greg Kroah-Hartman wrote:
-> >> --- a/block/blk-core.c
-> >> +++ b/block/blk-core.c
-> >> @@ -2127,11 +2127,10 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
-> >>  {
-> >>         char b[BDEVNAME_SIZE];
-> >>
-> >> -       printk(KERN_INFO "attempt to access beyond end of device\n");
-> >> -       printk(KERN_INFO "%s: rw=%d, want=%Lu, limit=%Lu\n",
-> >> -                       bio_devname(bio, b), bio->bi_opf,
-> >> -                       (unsigned long long)bio_end_sector(bio),
-> >> -                       (long long)maxsector);
-> >> +       pr_info_ratelimited("attempt to access beyond end of device\n"
-> >> +                           "%s: rw=%d, want=%llu, limit=%llu\n",
-> >> +                           bio_devname(bio, b), bio->bi_opf,
-> >> +                           bio_end_sector(bio), maxsector);
-> >>  }
-> >>
-> >>  #ifdef CONFIG_FAIL_MAKE_REQUEST
-> > 
-> > Above change "block: ratelimit handle_bad_sector() message"
-> > upstream commit f4ac712e4fe009635344b9af5d890fe25fcc8c0d
-> > in 4.19.154 kernel is not completely OK.
-> > 
-> > Removing casts from arguments 4 and 5 produces these compile warnings:
-> > 
-> (...snipped...)
-> > For 64 bit systems it is only compile time cosmetic warning. For 32 bit
-> > system + CONFIG_LBDAF=n it introduces bugs: output formats are "%llu" and
-> > passed parameters are 32 bits. That is not OK.
-> > 
-> > Upstream kernels have hardcoded 64 bit sector_t. In older stable trees
-> > sector_t can be either 64 or 32 bit. In other words, backport of above patch
-> > needs to keep those original casts.
-> 
-> Indeed, commit f4ac712e4fe00963 ("block: ratelimit handle_bad_sector() message")
-> depends on commit 72deb455b5ec619f ("block: remove CONFIG_LBDAF") which was merged
-> into 5.2 kernel.
+Dear Friend,
 
-Good catch, I'll go revert this now, sorry about it.
+I know that this mail will come to you as a surprise as we have never
+met before, but need not to worry as I am contacting you independently
+of my investigation and no one is informed of this communication.
 
-greg k-h
+I need your urgent assistance in transferring the sum of $11.3million
+immediately to your private account.The money has been here in our
+Bank lying dormant for years now without anybody coming for the claim of it.
+
+I want to release the money to you as the relative to our deceased
+customer (the account owner) who died a long with his supposed NEXT OF
+KIN since 16th October 2005. The Banking laws here does not allow such
+money to stay more than 15 years, because the money will be recalled
+to the Bank treasury account as unclaimed fund.
+
+By indicating your interest I will send you the full details on how
+the business will be executed.
+
+Please respond urgently and delete if you are not interested.
+
+Best Regards,
+Mr. Duna Wattara.
