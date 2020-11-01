@@ -2,68 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C162A1D46
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:30:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E71432A1D4F
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726391AbgKAKaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Nov 2020 05:30:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49236 "EHLO mail.kernel.org"
+        id S1726438AbgKAKba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 05:31:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726138AbgKAKaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Nov 2020 05:30:21 -0500
+        id S1726426AbgKAKb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Nov 2020 05:31:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A957E20709;
-        Sun,  1 Nov 2020 10:30:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5EA320709;
+        Sun,  1 Nov 2020 10:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604226621;
-        bh=uBOxgKGox72Khbv7lHPCWHnvMnC3J+LhFgAQQopAVW0=;
+        s=default; t=1604226689;
+        bh=DPX6AqOeUcQoNkcotTpifBY//U9/BpeCO3qRgX3yETM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PsZc0CNMRSOPIv5SATUZJDagBRiPVhMPpvYxGP99Rcv0eGc6EZl9qE7oqL/xu8MGk
-         UUdAcmz7buYJ05NClfswKpy601VQ96XPxL+xhlBJSXCrwztcGRm1GpsWPekHzqqfvn
-         FCtbvR0HETcrhosbUWm8Tglq1ys0oNS6Aoli8J+s=
-Date:   Sun, 1 Nov 2020 11:31:04 +0100
+        b=HSPlMPRnh6lZBTO0HHm1VH7uN3qQbhGx6+ZMKKu29QmsNqP0+U2jn3ArQzYfa8bqp
+         3/BahxDNmZ8gLeU+N6HWEbUn/ZPpjlK/RBpgOk+GHAzBsvgO3eodF/Nd5/TITb/Rcf
+         VDl22aIO+2YZRBk7JDddg9drkKagJEhxScR00uHQ=
+Date:   Sun, 1 Nov 2020 11:32:13 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-fscrypt@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: Re: [PATCH 4.4] f2fs crypto: avoid unneeded memory allocation in
- ->readdir
-Message-ID: <20201101103104.GB2558892@kroah.com>
-References: <20201031195809.377983-1-ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-fscrypt@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4.9 0/2] backport some more fscrypt fixes to 4.9
+Message-ID: <20201101103213.GC2558892@kroah.com>
+References: <20201031231124.1199710-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201031195809.377983-1-ebiggers@kernel.org>
+In-Reply-To: <20201031231124.1199710-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 31, 2020 at 12:58:09PM -0700, Eric Biggers wrote:
-> From: Chao Yu <yuchao0@huawei.com>
+On Sat, Oct 31, 2020 at 04:11:22PM -0700, Eric Biggers wrote:
+> Backport some fscrypt fixes from 4.10 and 4.11 to 4.9-stable.
+> These will be needed for xfstest generic/395 to pass if
+> https://lkml.kernel.org/fstests/20201031054018.695314-1-ebiggers@kernel.org
+> is applied.
 > 
-> commit e06f86e61d7a67fe6e826010f57aa39c674f4b1b upstream.
-> [This backport fixes a regression in 4.4-stable caused by commit
-> 11a6e8f89521 ("f2fs: check memory boundary by insane namelen"), which
-> depended on this missing commit.  This bad backport broke f2fs
-> encryption because it moved the incrementing of 'bit_pos' to earlier in
-> f2fs_fill_dentries() without accounting for it being used in the
-> encrypted dir case.  This caused readdir() on encrypted directories to
-> start failing.  Tested with 'kvm-xfstests -c f2fs -g encrypt'.]
+> These are clean cherry picks.
 > 
-> When decrypting dirents in ->readdir, fscrypt_fname_disk_to_usr won't
-> change content of original encrypted dirent, we don't need to allocate
-> additional buffer for storing mirror of it, so get rid of it.
+> Tested with 'kvm-xfstests -c ext4,f2fs -g encrypt'.
 > 
-> Signed-off-by: Chao Yu <yuchao0@huawei.com>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->  fs/f2fs/dir.c | 7 -------
->  1 file changed, 7 deletions(-)
+> Eric Biggers (2):
+>   fscrypto: move ioctl processing more fully into common code
+>   fscrypt: use EEXIST when file already uses different policy
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
