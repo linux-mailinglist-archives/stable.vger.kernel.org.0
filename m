@@ -2,98 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0878F2A1D62
-	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D7132A1D66
+	for <lists+stable@lfdr.de>; Sun,  1 Nov 2020 11:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726154AbgKAKkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Nov 2020 05:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53636 "EHLO mail.kernel.org"
+        id S1726154AbgKAKoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Nov 2020 05:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726145AbgKAKkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Nov 2020 05:40:39 -0500
+        id S1726145AbgKAKoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Nov 2020 05:44:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C34FD2071A;
-        Sun,  1 Nov 2020 10:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4154B2072C;
+        Sun,  1 Nov 2020 10:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604227238;
-        bh=a34Fa8zSUoEFOWkQ64CFIi3bkN0UU0QPhpXYCisAipE=;
+        s=default; t=1604227443;
+        bh=67tkhz7sy2VLerpPlvTKstXVL5NUfJRmG4tYNesA66Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ijQgrX+ZVWGBnYXrg4sfmIWLdKfFQemfI0JwJzVI9xbDUwUZIqJLa4mbIT4oXBydx
-         gSvP91Y4RsnOzuREFw8BCJW+lb8fqU1Gj1XL3R04WAtFfDgymIXhi1xRbj9DgC6qiF
-         MRPmFTMkWIBDqLV4fvNRCQn1xPnjHeRksxvHV80s=
-Date:   Sun, 1 Nov 2020 11:41:21 +0100
+        b=qB/ksqpBxiXuLMJW1lqI3VM0RwzOgfYi3lir47FczaS+9bTIUQhUJZ5l5uWHCUXcv
+         iMMn+7im9M1xki8T4lMQWFXvYRqRN7HfjSI7wL71mmvlBz7csxj1RQbd1gS8taq/IE
+         c0j85WHjF3gqYr/R+vdBqiYP6OJraI/eeAJJer0M=
+Date:   Sun, 1 Nov 2020 11:44:47 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.9 00/74] 5.9.3-rc1 review
-Message-ID: <20201101104121.GB2689688@kroah.com>
-References: <20201031113500.031279088@linuxfoundation.org>
- <ca2501e512973270c6b7b7cc05c7f50791541a66.camel@rajagiritech.edu.in>
+To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc:     Jari Ruusu <jariruusu@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: Linux 4.19.154
+Message-ID: <20201101104447.GC2689688@kroah.com>
+References: <160405368022942@kroah.com>
+ <160405368043128@kroah.com>
+ <5F9D6341.71F2A54E@users.sourceforge.net>
+ <9996e46f-e493-e3b3-c23a-31415668db7d@i-love.sakura.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ca2501e512973270c6b7b7cc05c7f50791541a66.camel@rajagiritech.edu.in>
+In-Reply-To: <9996e46f-e493-e3b3-c23a-31415668db7d@i-love.sakura.ne.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 31, 2020 at 10:41:38PM +0530, Jeffrin Jose T wrote:
-> On Sat, 2020-10-31 at 12:35 +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.9.3 release.
-> > There are 74 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied,
-> > please
-> > let me know.
+On Sat, Oct 31, 2020 at 11:02:56PM +0900, Tetsuo Handa wrote:
+> On 2020/10/31 22:14, Jari Ruusu wrote:
+> > Greg Kroah-Hartman wrote:
+> >> --- a/block/blk-core.c
+> >> +++ b/block/blk-core.c
+> >> @@ -2127,11 +2127,10 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
+> >>  {
+> >>         char b[BDEVNAME_SIZE];
+> >>
+> >> -       printk(KERN_INFO "attempt to access beyond end of device\n");
+> >> -       printk(KERN_INFO "%s: rw=%d, want=%Lu, limit=%Lu\n",
+> >> -                       bio_devname(bio, b), bio->bi_opf,
+> >> -                       (unsigned long long)bio_end_sector(bio),
+> >> -                       (long long)maxsector);
+> >> +       pr_info_ratelimited("attempt to access beyond end of device\n"
+> >> +                           "%s: rw=%d, want=%llu, limit=%llu\n",
+> >> +                           bio_devname(bio, b), bio->bi_opf,
+> >> +                           bio_end_sector(bio), maxsector);
+> >>  }
+> >>
+> >>  #ifdef CONFIG_FAIL_MAKE_REQUEST
 > > 
-> > Responses should be made by Mon, 02 Nov 2020 11:34:42 +0000.
-> > Anything received after that time might be too late.
+> > Above change "block: ratelimit handle_bad_sector() message"
+> > upstream commit f4ac712e4fe009635344b9af5d890fe25fcc8c0d
+> > in 4.19.154 kernel is not completely OK.
 > > 
-> > The whole patch series can be found in one patch at:
-> > 	
-> > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.3-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> > stable-rc.git linux-5.9.y
-> > and the diffstat can be found below.
+> > Removing casts from arguments 4 and 5 produces these compile warnings:
 > > 
-> > thanks,
+> (...snipped...)
+> > For 64 bit systems it is only compile time cosmetic warning. For 32 bit
+> > system + CONFIG_LBDAF=n it introduces bugs: output formats are "%llu" and
+> > passed parameters are 32 bits. That is not OK.
 > > 
-> > greg k-h
+> > Upstream kernels have hardcoded 64 bit sector_t. In older stable trees
+> > sector_t can be either 64 or 32 bit. In other words, backport of above patch
+> > needs to keep those original casts.
 > 
-> hello,
-> i have build using ktest. but then i did the normal compile.
-> compiled and booted 5.9.3-rc1+ . dmesg -l err is clear.
-> 
-> some lines from dmesg output related  
-> ----------x------------------x---------------------------x---
-> video: module verification failed: signature and/or required key
-> missing - tainting kernel
-> sdhci-pci 0000:00:1e.6: failed to setup card detect gpio
-> --------x-------------------------------x-----------------x---
-> 
-> 
-> Now something related to kernel build and install..
-> ----------x---------------------x--------------------------x-------
-> WARNING: modpost: EXPORT symbol "copy_mc_fragile" [vmlinux] version
-> generation failed, symbol will not be versioned.
-> W: Possible missing firmware /lib/firmware/i915/rkl_dmc_ver2_01.bin for
-> module i915
-> -------------x-------------------x-------------------------x---------
-> 
-> Now one thing during boot..
-> -----------x------------x---- 
-> unable to start nftables
-> -x-----------------------x---
-> 
-> iam attaching a file....please see...
+> Indeed, commit f4ac712e4fe00963 ("block: ratelimit handle_bad_sector() message")
+> depends on commit 72deb455b5ec619f ("block: remove CONFIG_LBDAF") which was merged
+> into 5.2 kernel.
 
-Is this any different from 5.9.2?
-
-thanks,
+Good catch, I'll go revert this now, sorry about it.
 
 greg k-h
