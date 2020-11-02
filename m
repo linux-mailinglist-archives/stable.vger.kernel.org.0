@@ -2,105 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 966932A2841
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 11:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 554A12A284D
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 11:31:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgKBKaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 05:30:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39558 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728132AbgKBKae (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 05:30:34 -0500
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853F4C0617A6;
-        Mon,  2 Nov 2020 02:30:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=gH6cU0WjGIcLU1WLwkM2Gr2ClysO1THsAmJqx+M+7fA=; b=V0s1igeCcWjchc3yKAAw+HG+S
-        Y+vuhHjJul7EwUWak7bzSsvc8pQKqvZYJHEuETqek8B+nwPHsr7/b1FRqQamr2sm5A4cJnhmmW4yK
-        vM+vZKRpyyDBqAlEEVw3CU279DQ//50Dffb/rcs4HhFApBiqNBmIlqY+esNPDHtyjannYD3Lm20a6
-        vBFQc0QwE4NTnyx5XxJjxdq4KJOBj4e/4c9j2pHf904vWwHrKKWuU+YPjd5oIOpwSdBMNY34K6R+G
-        Mg6ZEesLOFvHUnHybGZuUI3QmqG2jcCFwnMcuEaI3zsR4/RFId8fQYKAHG7HH/F5ldxsb1szNI7Hy
-        RzieoJ2zw==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:54096)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1kZX6e-0000RB-Ld; Mon, 02 Nov 2020 10:30:32 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1kZX6d-0001gp-TX; Mon, 02 Nov 2020 10:30:32 +0000
-Date:   Mon, 2 Nov 2020 10:30:31 +0000
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     daniel.vetter@ffwll.ch, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        yepeilin.cs@gmail.com, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const
- qualifier
-Message-ID: <20201102103031.GL1551@shell.armlinux.org.uk>
-References: <20201030181822.570402-1-lee.jones@linaro.org>
- <20201031102709.GH1551@shell.armlinux.org.uk>
- <20201101131122.GD4127@dell>
- <20201102102343.GK1551@shell.armlinux.org.uk>
+        id S1728183AbgKBKbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 05:31:53 -0500
+Received: from smtp112.iad3a.emailsrvr.com ([173.203.187.112]:48554 "EHLO
+        smtp112.iad3a.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728156AbgKBKbw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 05:31:52 -0500
+X-Greylist: delayed 385 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Nov 2020 05:31:52 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1604312727;
+        bh=1iPAZQdymRK4SMK3HljywvaZpxIg/V54cJQz7Xq3clc=;
+        h=Subject:To:From:Date:From;
+        b=LdDLn21RTRd75avsOEC78Rdy1cZHBfqoiUy1jHCZwO+gGwkI738bZi9SG6mQhHnOQ
+         AkKKXvcRiZJH7j/UKF82rW5vINE/aAsR3+RgDqzWWBH/QkzGl4verYdAMnea0W5P1x
+         M0CmJ1MaMo1t6qa04gNWrJ1qSqISGQLAH0D9n00k=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp23.relay.iad3a.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 8730324EDF;
+        Mon,  2 Nov 2020 05:25:26 -0500 (EST)
+Subject: Re: [PATCH] staging: comedi: cb_pcidas: reinstate delay removed from
+ trimpot setting
+To:     devel@driverdev.osuosl.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        H Hartley Sweeten <hsweeten@visionengravers.com>,
+        stable@vger.kernel.org
+References: <20201029141833.126856-1-abbotti@mev.co.uk>
+From:   Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+Message-ID: <3d7cf15a-c389-ec2c-5e29-8838e8466790@mev.co.uk>
+Date:   Mon, 2 Nov 2020 10:25:25 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201102102343.GK1551@shell.armlinux.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+In-Reply-To: <20201029141833.126856-1-abbotti@mev.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: 860e8a4e-d374-4e47-a4e7-608e1eb206c8-1-1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 02, 2020 at 10:23:43AM +0000, Russell King - ARM Linux admin wrote:
-> On Sun, Nov 01, 2020 at 01:11:22PM +0000, Lee Jones wrote:
-> > On Sat, 31 Oct 2020, Russell King - ARM Linux admin wrote:
-> > 
-> > > On Fri, Oct 30, 2020 at 06:18:22PM +0000, Lee Jones wrote:
-> > > > Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
-> > > 
-> > > Your commit ID does not exist in mainline kernels, which makes this
-> > > confusing. The commit ID you should be using is 6735b4632def.
-> > 
-> > Ah yes, quite right.  That is the ID from android-3.18 where this
-> > issue was first seen and fixed against.  I will fix it up for
-> > Mainline.
-> > 
-> > Does the fix look okay to you though Russell?
+On 29/10/2020 14:18, Ian Abbott wrote:
+> Commit eddd2a4c675c ("staging: comedi: cb_pcidas: refactor
+> write_calibration_bitstream()") inadvertently removed one of the
+> `udelay(1)` calls when writing to the calibration register in
+> `cb_pcidas_calib_write()`.  Reinstate the delay.  It may seem strange
+> that the delay is placed before the register write, but this function is
+> called in a loop so the extra delay can make a difference.
 > 
-> Frankly, I don't know. Looking at the commit itself, it looks safe,
-> but it depends what this "extra" data is being used for. From what
-> I can see, the commit in question just adds the additional opaque
-> data as a member named "extra", and one is left to guess what it's
-> use as.
-> 
-> I'd have thought a small structure with named members would have
-> been the minimum given our standards for in-kernel code.
-> 
-> Why was the "const" dropped in the first place? Does this "extra"
-> member get written to somewhere?
-> 
-> So, sorry, no idea. This looks to me like a very unsatisfactory
-> commit, and probably something that got a very poor review.
+> This _might_ solve reported issues reading analog inputs on a
+> PCIe-DAS1602/16 card where the analog input values "were scaled in a
+> strange way that didn't make sense".  On the same hardware running a
+> system with a 3.13 kernel, and then a system with a 4.4 kernel, but with
+> the same application software, the system with the 3.13 kernel was fine,
+> but the one with the 4.4 kernel exhibited the problem.  Of the 90
+> changes to the driver between those kernel versions, this change looked
+> like the most likely culprit.
 
-Also, the commit description is missing a chunk:
+Actually, I've realized that this patch will have no effect on the 
+PCIe-DAS1602/16 card because it uses a different driver - cb_pcimdas, 
+not cb_pcidas.
 
-    For user-provided fonts, the framebuffer layer resolves this issue by
-    reserving four extra words at the beginning of data buffers. Later,
-    whenever a function needs to access them, it simply uses the following
-    macros:
-
-    Recently we have gathered all the above macros to <linux/font.h>.
-
-So what were these macros that have been nicely removed from the commit
-description? I guess they started with a '#' character and git thought
-they were a comment.
+Greg, you might as well drop this patch if you haven't already applied 
+it, since it was only a hunch that it fixed a problem.
 
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
