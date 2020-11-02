@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526B42A274C
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 10:46:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 995E92A2752
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 10:46:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728189AbgKBJql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 04:46:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:59296 "EHLO mx2.suse.de"
+        id S1728132AbgKBJqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 04:46:43 -0500
+Received: from mx2.suse.de ([195.135.220.15]:59304 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728253AbgKBJql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 04:46:41 -0500
+        id S1728288AbgKBJqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 04:46:42 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
         t=1604310399;
@@ -18,18 +18,18 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=UeWBUvRVBSoNdA5m2sVGijHDYTZVRN+GbpRW/O02QHk=;
-        b=L7L98miB8XSOkjPBtmARzF+bbaR4TCvRJ52oVRLzRAtH4dxJKG8S0OdK34+uuiCbyQP8zz
-        NnDaugsbxzjqENJOpjPLH5aGIWqNUIufgpxxtret52IFvmSH+Ai4wUzbRSvq5cK1TdczBf
-        v0+tlxbdTZ2ZRT3kSNJGyW6g8Y1+gPw=
+        bh=8umOZV+4jPNBlbx1apBxZCz0A5elr35bbrf+ZyePvGs=;
+        b=kH8JcZgFUm+OIJr1lUkIQFJruZzzp4XFqoZfjsrZ5G2VM2VHPiKAv71LdN6PiPoSbKSAYc
+        SgLz2tl9kf5pFeMEV/ijVJ0JlDBAtWruHUWFXT36oCA+GUA1cJdbTUck8fuVTJS+8f6Zi4
+        Edj8wxlgK3VYBlO+C5musS73sU6jtC4=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 24954B1DC
+        by mx2.suse.de (Postfix) with ESMTP id 3A7EDB1DD
         for <stable@vger.kernel.org>; Mon,  2 Nov 2020 09:46:39 +0000 (UTC)
 From:   Juergen Gross <jgross@suse.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 08/13] xen/pvcallsback: use lateeoi irq binding
-Date:   Mon,  2 Nov 2020 10:46:33 +0100
-Message-Id: <20201102094638.3355-9-jgross@suse.com>
+Subject: [PATCH 09/13] xen/pciback: use lateeoi irq binding
+Date:   Mon,  2 Nov 2020 10:46:34 +0100
+Message-Id: <20201102094638.3355-10-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201102094638.3355-1-jgross@suse.com>
 References: <20201102094638.3355-1-jgross@suse.com>
@@ -40,228 +40,230 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving pvcallsfront use the lateeoi
-irq binding for pvcallsback and unmask the event channel only after
-handling all write requests, which are the ones coming in via an irq.
+to event storms triggered by a misbehaving pcifront use the lateeoi irq
+binding for pciback and unmask the event channel only just before
+leaving the event handling function.
 
-This requires modifying the logic a little bit to not require an event
-for each write request, but to keep the ioworker running until no
-further data is found on the ring page to be processed.
+Restructure the handling to support that scheme. Basically an event can
+come in for two reasons: either a normal request for a pciback action,
+which is handled in a worker, or in case the guest has finished an AER
+request which was requested by pciback.
+
+When an AER request is issued to the guest and a normal pciback action
+is currently active issue an EOI early in order to be able to receive
+another event when the AER request has been finished by the guest.
+
+Let the worker processing the normal requests run until no further
+request is pending, instead of starting a new worker ion that case.
+Issue the EOI only just before leaving the worker.
+
+This scheme allows to drop calling the generic function
+xen_pcibk_test_and_schedule_op() after processing of any request as
+the handling of both request types is now separated more cleanly.
 
 This is part of XSA-332.
 
-This is upstream commit c8d647a326f06a39a8e5f0f1af946eacfa1835f8
+This is upstream commit c2711441bc961b37bba0615dd7135857d189035f
 
 Cc: stable@vger.kernel.org
 Reported-by: Julien Grall <julien@xen.org>
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Reviewed-by: Wei Liu <wl@xen.org>
 ---
- drivers/xen/pvcalls-back.c | 76 +++++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 30 deletions(-)
+ drivers/xen/xen-pciback/pci_stub.c    | 14 ++++----
+ drivers/xen/xen-pciback/pciback.h     | 12 +++++--
+ drivers/xen/xen-pciback/pciback_ops.c | 48 +++++++++++++++++++++------
+ drivers/xen/xen-pciback/xenbus.c      |  2 +-
+ 4 files changed, 56 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
-index ffe9bd843922..9439de2ca0e4 100644
---- a/drivers/xen/pvcalls-back.c
-+++ b/drivers/xen/pvcalls-back.c
-@@ -66,6 +66,7 @@ struct sock_mapping {
- 	atomic_t write;
- 	atomic_t io;
- 	atomic_t release;
-+	atomic_t eoi;
- 	void (*saved_data_ready)(struct sock *sk);
- 	struct pvcalls_ioworker ioworker;
- };
-@@ -87,7 +88,7 @@ static int pvcalls_back_release_active(struct xenbus_device *dev,
- 				       struct pvcalls_fedata *fedata,
- 				       struct sock_mapping *map);
+diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
+index 097410a7cdb7..adf3aae2939f 100644
+--- a/drivers/xen/xen-pciback/pci_stub.c
++++ b/drivers/xen/xen-pciback/pci_stub.c
+@@ -733,10 +733,17 @@ static pci_ers_result_t common_process(struct pcistub_device *psdev,
+ 	wmb();
+ 	notify_remote_via_irq(pdev->evtchn_irq);
  
--static void pvcalls_conn_back_read(void *opaque)
-+static bool pvcalls_conn_back_read(void *opaque)
- {
- 	struct sock_mapping *map = (struct sock_mapping *)opaque;
- 	struct msghdr msg;
-@@ -107,17 +108,17 @@ static void pvcalls_conn_back_read(void *opaque)
- 	virt_mb();
- 
- 	if (error)
--		return;
-+		return false;
- 
- 	size = pvcalls_queued(prod, cons, array_size);
- 	if (size >= array_size)
--		return;
-+		return false;
- 	spin_lock_irqsave(&map->sock->sk->sk_receive_queue.lock, flags);
- 	if (skb_queue_empty(&map->sock->sk->sk_receive_queue)) {
- 		atomic_set(&map->read, 0);
- 		spin_unlock_irqrestore(&map->sock->sk->sk_receive_queue.lock,
- 				flags);
--		return;
-+		return true;
- 	}
- 	spin_unlock_irqrestore(&map->sock->sk->sk_receive_queue.lock, flags);
- 	wanted = array_size - size;
-@@ -141,7 +142,7 @@ static void pvcalls_conn_back_read(void *opaque)
- 	ret = inet_recvmsg(map->sock, &msg, wanted, MSG_DONTWAIT);
- 	WARN_ON(ret > wanted);
- 	if (ret == -EAGAIN) /* shouldn't happen */
--		return;
-+		return true;
- 	if (!ret)
- 		ret = -ENOTCONN;
- 	spin_lock_irqsave(&map->sock->sk->sk_receive_queue.lock, flags);
-@@ -160,10 +161,10 @@ static void pvcalls_conn_back_read(void *opaque)
- 	virt_wmb();
- 	notify_remote_via_irq(map->irq);
- 
--	return;
-+	return true;
- }
- 
--static void pvcalls_conn_back_write(struct sock_mapping *map)
-+static bool pvcalls_conn_back_write(struct sock_mapping *map)
- {
- 	struct pvcalls_data_intf *intf = map->ring;
- 	struct pvcalls_data *data = &map->data;
-@@ -180,7 +181,7 @@ static void pvcalls_conn_back_write(struct sock_mapping *map)
- 	array_size = XEN_FLEX_RING_SIZE(map->ring_order);
- 	size = pvcalls_queued(prod, cons, array_size);
- 	if (size == 0)
--		return;
-+		return false;
- 
- 	memset(&msg, 0, sizeof(msg));
- 	msg.msg_flags |= MSG_DONTWAIT;
-@@ -198,12 +199,11 @@ static void pvcalls_conn_back_write(struct sock_mapping *map)
- 
- 	atomic_set(&map->write, 0);
- 	ret = inet_sendmsg(map->sock, &msg, size);
--	if (ret == -EAGAIN || (ret >= 0 && ret < size)) {
-+	if (ret == -EAGAIN) {
- 		atomic_inc(&map->write);
- 		atomic_inc(&map->io);
-+		return true;
- 	}
--	if (ret == -EAGAIN)
--		return;
- 
- 	/* write the data, then update the indexes */
- 	virt_wmb();
-@@ -216,9 +216,13 @@ static void pvcalls_conn_back_write(struct sock_mapping *map)
- 	}
- 	/* update the indexes, then notify the other end */
- 	virt_wmb();
--	if (prod != cons + ret)
-+	if (prod != cons + ret) {
- 		atomic_inc(&map->write);
-+		atomic_inc(&map->io);
-+	}
- 	notify_remote_via_irq(map->irq);
++	/* Enable IRQ to signal "request done". */
++	xen_pcibk_lateeoi(pdev, 0);
 +
-+	return true;
- }
+ 	ret = wait_event_timeout(xen_pcibk_aer_wait_queue,
+ 				 !(test_bit(_XEN_PCIB_active, (unsigned long *)
+ 				 &sh_info->flags)), 300*HZ);
  
- static void pvcalls_back_ioworker(struct work_struct *work)
-@@ -227,6 +231,7 @@ static void pvcalls_back_ioworker(struct work_struct *work)
- 		struct pvcalls_ioworker, register_work);
- 	struct sock_mapping *map = container_of(ioworker, struct sock_mapping,
- 		ioworker);
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
- 	while (atomic_read(&map->io) > 0) {
- 		if (atomic_read(&map->release) > 0) {
-@@ -234,10 +239,18 @@ static void pvcalls_back_ioworker(struct work_struct *work)
- 			return;
- 		}
- 
--		if (atomic_read(&map->read) > 0)
--			pvcalls_conn_back_read(map);
--		if (atomic_read(&map->write) > 0)
--			pvcalls_conn_back_write(map);
-+		if (atomic_read(&map->read) > 0 &&
-+		    pvcalls_conn_back_read(map))
-+			eoi_flags = 0;
-+		if (atomic_read(&map->write) > 0 &&
-+		    pvcalls_conn_back_write(map))
-+			eoi_flags = 0;
++	/* Enable IRQ for pcifront request if not already active. */
++	if (!test_bit(_PDEVF_op_active, &pdev->flags))
++		xen_pcibk_lateeoi(pdev, 0);
 +
-+		if (atomic_read(&map->eoi) > 0 && !atomic_read(&map->write)) {
-+			atomic_set(&map->eoi, 0);
-+			xen_irq_lateeoi(map->irq, eoi_flags);
-+			eoi_flags = XEN_EOI_FLAG_SPURIOUS;
-+		}
- 
- 		atomic_dec(&map->io);
+ 	if (!ret) {
+ 		if (test_bit(_XEN_PCIB_active,
+ 			(unsigned long *)&sh_info->flags)) {
+@@ -750,13 +757,6 @@ static pci_ers_result_t common_process(struct pcistub_device *psdev,
  	}
-@@ -334,12 +347,9 @@ static struct sock_mapping *pvcalls_new_active_socket(
- 		goto out;
- 	map->bytes = page;
+ 	clear_bit(_PCIB_op_pending, (unsigned long *)&pdev->flags);
  
--	ret = bind_interdomain_evtchn_to_irqhandler(fedata->dev->otherend_id,
--						    evtchn,
--						    pvcalls_back_conn_event,
--						    0,
--						    "pvcalls-backend",
--						    map);
-+	ret = bind_interdomain_evtchn_to_irqhandler_lateeoi(
-+			fedata->dev->otherend_id, evtchn,
-+			pvcalls_back_conn_event, 0, "pvcalls-backend", map);
- 	if (ret < 0)
- 		goto out;
- 	map->irq = ret;
-@@ -873,15 +883,18 @@ static irqreturn_t pvcalls_back_event(int irq, void *dev_id)
+-	if (test_bit(_XEN_PCIF_active,
+-		(unsigned long *)&sh_info->flags)) {
+-		dev_dbg(&psdev->dev->dev,
+-			"schedule pci_conf service in " DRV_NAME "\n");
+-		xen_pcibk_test_and_schedule_op(psdev->pdev);
+-	}
+-
+ 	res = (pci_ers_result_t)aer_op->err;
+ 	return res;
+ }
+diff --git a/drivers/xen/xen-pciback/pciback.h b/drivers/xen/xen-pciback/pciback.h
+index 263c059bff90..235cdfe13494 100644
+--- a/drivers/xen/xen-pciback/pciback.h
++++ b/drivers/xen/xen-pciback/pciback.h
+@@ -14,6 +14,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/workqueue.h>
+ #include <linux/atomic.h>
++#include <xen/events.h>
+ #include <xen/interface/io/pciif.h>
+ 
+ #define DRV_NAME	"xen-pciback"
+@@ -27,6 +28,8 @@ struct pci_dev_entry {
+ #define PDEVF_op_active		(1<<(_PDEVF_op_active))
+ #define _PCIB_op_pending	(1)
+ #define PCIB_op_pending		(1<<(_PCIB_op_pending))
++#define _EOI_pending		(2)
++#define EOI_pending		(1<<(_EOI_pending))
+ 
+ struct xen_pcibk_device {
+ 	void *pci_dev_data;
+@@ -182,12 +185,17 @@ static inline void xen_pcibk_release_devices(struct xen_pcibk_device *pdev)
+ irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id);
+ void xen_pcibk_do_op(struct work_struct *data);
+ 
++static inline void xen_pcibk_lateeoi(struct xen_pcibk_device *pdev,
++				     unsigned int eoi_flag)
++{
++	if (test_and_clear_bit(_EOI_pending, &pdev->flags))
++		xen_irq_lateeoi(pdev->evtchn_irq, eoi_flag);
++}
++
+ int xen_pcibk_xenbus_register(void);
+ void xen_pcibk_xenbus_unregister(void);
+ 
+ extern int verbose_request;
+-
+-void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev);
+ #endif
+ 
+ /* Handles shared IRQs that can to device domain and control domain. */
+diff --git a/drivers/xen/xen-pciback/pciback_ops.c b/drivers/xen/xen-pciback/pciback_ops.c
+index 787966f44589..c4ed2c634ca7 100644
+--- a/drivers/xen/xen-pciback/pciback_ops.c
++++ b/drivers/xen/xen-pciback/pciback_ops.c
+@@ -297,26 +297,41 @@ int xen_pcibk_disable_msix(struct xen_pcibk_device *pdev,
+ 	return 0;
+ }
+ #endif
++
++static inline bool xen_pcibk_test_op_pending(struct xen_pcibk_device *pdev)
++{
++	return test_bit(_XEN_PCIF_active,
++			(unsigned long *)&pdev->sh_info->flags) &&
++	       !test_and_set_bit(_PDEVF_op_active, &pdev->flags);
++}
++
+ /*
+ * Now the same evtchn is used for both pcifront conf_read_write request
+ * as well as pcie aer front end ack. We use a new work_queue to schedule
+ * xen_pcibk conf_read_write service for avoiding confict with aer_core
+ * do_recovery job which also use the system default work_queue
+ */
+-void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
++static void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
  {
- 	struct xenbus_device *dev = dev_id;
- 	struct pvcalls_fedata *fedata = NULL;
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
--	if (dev == NULL)
--		return IRQ_HANDLED;
-+	if (dev) {
-+		fedata = dev_get_drvdata(&dev->dev);
-+		if (fedata) {
-+			pvcalls_back_work(fedata);
-+			eoi_flags = 0;
-+		}
-+	}
- 
--	fedata = dev_get_drvdata(&dev->dev);
--	if (fedata == NULL)
--		return IRQ_HANDLED;
-+	xen_irq_lateeoi(irq, eoi_flags);
- 
--	pvcalls_back_work(fedata);
- 	return IRQ_HANDLED;
++	bool eoi = true;
++
+ 	/* Check that frontend is requesting an operation and that we are not
+ 	 * already processing a request */
+-	if (test_bit(_XEN_PCIF_active, (unsigned long *)&pdev->sh_info->flags)
+-	    && !test_and_set_bit(_PDEVF_op_active, &pdev->flags)) {
++	if (xen_pcibk_test_op_pending(pdev)) {
+ 		schedule_work(&pdev->op_work);
++		eoi = false;
+ 	}
+ 	/*_XEN_PCIB_active should have been cleared by pcifront. And also make
+ 	sure xen_pcibk is waiting for ack by checking _PCIB_op_pending*/
+ 	if (!test_bit(_XEN_PCIB_active, (unsigned long *)&pdev->sh_info->flags)
+ 	    && test_bit(_PCIB_op_pending, &pdev->flags)) {
+ 		wake_up(&xen_pcibk_aer_wait_queue);
++		eoi = false;
+ 	}
++
++	/* EOI if there was nothing to do. */
++	if (eoi)
++		xen_pcibk_lateeoi(pdev, XEN_EOI_FLAG_SPURIOUS);
  }
  
-@@ -891,12 +904,15 @@ static irqreturn_t pvcalls_back_conn_event(int irq, void *sock_map)
- 	struct pvcalls_ioworker *iow;
+ /* Performing the configuration space reads/writes must not be done in atomic
+@@ -324,10 +339,8 @@ void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
+  * use of semaphores). This function is intended to be called from a work
+  * queue in process context taking a struct xen_pcibk_device as a parameter */
  
- 	if (map == NULL || map->sock == NULL || map->sock->sk == NULL ||
--		map->sock->sk->sk_user_data != map)
-+		map->sock->sk->sk_user_data != map) {
-+		xen_irq_lateeoi(irq, 0);
- 		return IRQ_HANDLED;
-+	}
+-void xen_pcibk_do_op(struct work_struct *data)
++static void xen_pcibk_do_one_op(struct xen_pcibk_device *pdev)
+ {
+-	struct xen_pcibk_device *pdev =
+-		container_of(data, struct xen_pcibk_device, op_work);
+ 	struct pci_dev *dev;
+ 	struct xen_pcibk_dev_data *dev_data = NULL;
+ 	struct xen_pci_op *op = &pdev->op;
+@@ -400,16 +413,31 @@ void xen_pcibk_do_op(struct work_struct *data)
+ 	smp_mb__before_atomic(); /* /after/ clearing PCIF_active */
+ 	clear_bit(_PDEVF_op_active, &pdev->flags);
+ 	smp_mb__after_atomic(); /* /before/ final check for work */
++}
  
- 	iow = &map->ioworker;
+-	/* Check to see if the driver domain tried to start another request in
+-	 * between clearing _XEN_PCIF_active and clearing _PDEVF_op_active.
+-	*/
+-	xen_pcibk_test_and_schedule_op(pdev);
++void xen_pcibk_do_op(struct work_struct *data)
++{
++	struct xen_pcibk_device *pdev =
++		container_of(data, struct xen_pcibk_device, op_work);
++
++	do {
++		xen_pcibk_do_one_op(pdev);
++	} while (xen_pcibk_test_op_pending(pdev));
++
++	xen_pcibk_lateeoi(pdev, 0);
+ }
  
- 	atomic_inc(&map->write);
-+	atomic_inc(&map->eoi);
- 	atomic_inc(&map->io);
- 	queue_work(iow->wq, &iow->register_work);
+ irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id)
+ {
+ 	struct xen_pcibk_device *pdev = dev_id;
++	bool eoi;
++
++	/* IRQs might come in before pdev->evtchn_irq is written. */
++	if (unlikely(pdev->evtchn_irq != irq))
++		pdev->evtchn_irq = irq;
++
++	eoi = test_and_set_bit(_EOI_pending, &pdev->flags);
++	WARN(eoi, "IRQ while EOI pending\n");
  
-@@ -931,7 +947,7 @@ static int backend_connect(struct xenbus_device *dev)
- 		goto error;
- 	}
+ 	xen_pcibk_test_and_schedule_op(pdev);
  
--	err = bind_interdomain_evtchn_to_irq(dev->otherend_id, evtchn);
-+	err = bind_interdomain_evtchn_to_irq_lateeoi(dev->otherend_id, evtchn);
- 	if (err < 0)
- 		goto error;
- 	fedata->irq = err;
+diff --git a/drivers/xen/xen-pciback/xenbus.c b/drivers/xen/xen-pciback/xenbus.c
+index 833b2d2c4318..e7a670235965 100644
+--- a/drivers/xen/xen-pciback/xenbus.c
++++ b/drivers/xen/xen-pciback/xenbus.c
+@@ -123,7 +123,7 @@ static int xen_pcibk_do_attach(struct xen_pcibk_device *pdev, int gnt_ref,
+ 
+ 	pdev->sh_info = vaddr;
+ 
+-	err = bind_interdomain_evtchn_to_irqhandler(
++	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+ 		pdev->xdev->otherend_id, remote_evtchn, xen_pcibk_handle_event,
+ 		0, DRV_NAME, pdev);
+ 	if (err < 0) {
 -- 
 2.26.2
 
