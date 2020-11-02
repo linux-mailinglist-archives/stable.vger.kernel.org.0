@@ -2,153 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5897D2A2A8A
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D4B2A2A93
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728751AbgKBMR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 07:17:28 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48154 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728765AbgKBMR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 07:17:27 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604319444;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=32gDaZ5RaxED3DRKT3CTC/miGtK0GC5Qi66VCdWG6Vw=;
-        b=aYvr0v2SuecFVnb2WcaEc4xWJg0UCRz+bnz4ALCNLmOlH/ewkkbCzhfr+S1smo2f+1iDfN
-        i28oOwaKKh8MikPKhmNhA2P4eFyUebprM2c3wPHDUX3oXPfl1ajrXj2qEnAb/F3j+4ymen
-        /uKs3PXYza/hHEwryr4U7/WOXNKyIfg=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A563FB30E
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 12:17:24 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 14/14] xen/events: block rogue events for some time
-Date:   Mon,  2 Nov 2020 13:17:22 +0100
-Message-Id: <20201102121722.10940-15-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201102121722.10940-1-jgross@suse.com>
-References: <20201102121722.10940-1-jgross@suse.com>
+        id S1728601AbgKBMSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 07:18:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728600AbgKBMSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 07:18:52 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4283C0617A6
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 04:18:52 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id w4so408106pgg.13
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 04:18:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mmuWvPFQ6i/jgGYXodirc8wfjuyXjXWrtEeMm6/9ots=;
+        b=1smgJcy1XBhGfl4EIxySUzUeBfkhZORweNA1kfBUNdPOGvoeygby8AUd21gJhyNLBM
+         0UIyNKyzv/upnzX3X2ntcgNo3VkFZ+oZfZ2Gj9LZySZ4Irv0rEQ3T1Ee9dN6pIyiYyuU
+         Dt8RuPbEtP+SMdFT9OHCC2GT1w4Ut4bDfnfvnShfoBfRE4YP17EhIRXRhCCxZE5Llm3H
+         ApWL+x0x7ZJCZf81JjPdVjZgU/gxOFU86hIev4rsBNLl7qKS1if5WnEEYdpxJXM1y8Em
+         aKpmnS9y/kxFFQEFcWbjsDueeozb1j+V/rEHsKDO+CRCZaMRSlc54HjnGc0U6GCjS/QX
+         gtdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mmuWvPFQ6i/jgGYXodirc8wfjuyXjXWrtEeMm6/9ots=;
+        b=XePlFrnoJNVansio5vxf+wLTNHzKfK6ezKeh5Y2uEaHKEwvwwkOWPtsN3Qh25YbGO9
+         BIxIFRkR3bB4NZqI2hPiXqn3jyBrmcXfDKtfDlj5V8OaaDQDzeacMcYkhWBHx9wVAoA1
+         vc9Dg7O0cWV+hJ0R/grkiIEPLBITtOZ05Yxp4z7GRRiJRrd9+PvRIpsfwOeDXrlPE5PC
+         m1Ez1p+Vtj+3xpErdAgLXAYmzplaPNGgfpe1i0zZg6hKr7ZGdpDRcFShajxajebvqMOQ
+         6MsckXlhjill310kgy7QSZB8/46TN458Xfh5Sh2MrOfYnsY/PT8XC2H0btjjutkxnmeY
+         bZpA==
+X-Gm-Message-State: AOAM530ZUKb2e3HGemiyAObY3jsKuU8cC5czSLK6eL0wFrKrhRd7yqk/
+        XTHzK8W6quTK9res2dSPEtZjtynMc0kxow==
+X-Google-Smtp-Source: ABdhPJzL+c8+04ZSoekPbWpn8OxaUgaX4ZD81oMduVdfJoJZlXZ2alWXoIOymnQlrEzLBDWt9xDySA==
+X-Received: by 2002:a17:90a:aa85:: with SMTP id l5mr17664238pjq.119.1604319531873;
+        Mon, 02 Nov 2020 04:18:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 1sm8172417pfp.40.2020.11.02.04.18.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2020 04:18:51 -0800 (PST)
+Message-ID: <5f9ff92b.1c69fb81.f70ed.8946@mx.google.com>
+Date:   Mon, 02 Nov 2020 04:18:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.74-82-g6b43b55dd0d7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 204 runs,
+ 3 regressions (v5.4.74-82-g6b43b55dd0d7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
+stable-rc/queue/5.4 baseline: 204 runs, 3 regressions (v5.4.74-82-g6b43b55d=
+d0d7)
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
+Regressions Summary
+-------------------
 
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
+platform              | arch  | lab          | compiler | defconfig        =
+  | regressions
+----------------------+-------+--------------+----------+------------------=
+--+------------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
+  | 1          =
 
-This is part of XSA-332.
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
+  | 1          =
 
-This is upstream commit 5f7f77400ab5b357b5fdb7122c3442239672186c
+stm32mp157c-dk2       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
- drivers/xen/events/events_base.c     | 27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |  3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 758268185298..cef70f4b52ef 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -459,17 +459,34 @@ static void lateeoi_list_add(struct irq_info *info)
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
- 
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
- 
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
- 
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -506,7 +523,7 @@ static void xen_irq_lateeoi_worker(struct work_struct *work)
- 
- 		info->eoi_time = 0;
- 
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
- 
- 	if (info)
-@@ -535,7 +552,7 @@ void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1438,7 +1455,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
-diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
-index 2cb9c2d2c5c0..b9b4f5919893 100644
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -33,7 +33,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
--- 
-2.26.2
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.74-82-g6b43b55dd0d7/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.74-82-g6b43b55dd0d7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b43b55dd0d7bd4aaa47c533661200adbc2b3214 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig        =
+  | regressions
+----------------------+-------+--------------+----------+------------------=
+--+------------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig  =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9fc3afb78b22b56a3fe7dd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9fc3afb78b22b56a3fe=
+7de
+        failing since 4 days (last pass: v5.4.72-409-gbbe9df5e07cf, first f=
+ail: v5.4.72-409-ga6e47f533653) =
+
+ =
+
+
+
+platform              | arch  | lab          | compiler | defconfig        =
+  | regressions
+----------------------+-------+--------------+----------+------------------=
+--+------------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig        =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9fc3a68d06afc6343fe7d5
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f9fc3a68d06afc6=
+343fe7da
+        failing since 0 day (last pass: v5.4.73-48-g1a794ced991d, first fai=
+l: v5.4.73-48-g756e19810764)
+        1 lines
+
+    2020-11-02 08:28:20.681000+00:00  Connected to bcm2837-rpi-3-b console =
+[channel connected] (~$quit to exit)
+    2020-11-02 08:28:20.682000+00:00  (user:khilman) is already connected
+    2020-11-02 08:28:36.608000+00:00  =00
+    2020-11-02 08:28:36.609000+00:00  =
+
+    2020-11-02 08:28:36.609000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
+2 -0800)
+    2020-11-02 08:28:36.609000+00:00  =
+
+    2020-11-02 08:28:36.609000+00:00  DRAM:  948 MiB
+    2020-11-02 08:28:36.624000+00:00  RPI 3 Model B (0xa02082)
+    2020-11-02 08:28:36.710000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
+0: 1
+    2020-11-02 08:28:36.742000+00:00  Loading Environment from FAT... *** W=
+arning - bad CRC, using default environment =
+
+    ... (377 line(s) more)  =
+
+ =
+
+
+
+platform              | arch  | lab          | compiler | defconfig        =
+  | regressions
+----------------------+-------+--------------+----------+------------------=
+--+------------
+stm32mp157c-dk2       | arm   | lab-baylibre | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9fc90c0413358b9c3fe7f6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
+7c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-82=
+-g6b43b55dd0d7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
+7c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f9fc90c0413358b9c3fe=
+7f7
+        failing since 7 days (last pass: v5.4.72-54-gc97bc0eb3ef2, first fa=
+il: v5.4.72-402-g22eb6f319bc6) =
+
+ =20
