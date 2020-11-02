@@ -2,158 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40D52A30CB
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 18:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E302A3174
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 18:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727288AbgKBREV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 12:04:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:25505 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727258AbgKBREV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 12:04:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604336660;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cTWdDmfFyU10xuhsQywfT5+4dHaUGI2TXBXRg+/NdXo=;
-        b=HU0JsEdVRdrIKgWqbOL7YyaZaCKvDpykZXN7787vO5Tl2pnP/j4EQnvI2ldHNlqnlbt6ob
-        RUkCSY51WUzMlFLG6JfQKv5snIRk5nsGmy5cu7IKvtvJVZyt6awSwE3BlOH3jmyMTlvHPM
-        hBfYz+GHjaZMhTmCjrTgCy9bpJSnLz4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-262-SMK3Xnq2NJ61Oca76S6UbA-1; Mon, 02 Nov 2020 12:04:17 -0500
-X-MC-Unique: SMK3Xnq2NJ61Oca76S6UbA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 55265186840A
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 17:04:16 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4CD62672C0
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 17:04:16 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 147C044A43
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 17:04:16 +0000 (UTC)
-Date:   Mon, 2 Nov 2020 12:04:13 -0500 (EST)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Message-ID: <971679390.17141775.1604336653221.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.DDA75A7FB6.0XD3MFOTWJ@redhat.com>
-References: <cki.DDA75A7FB6.0XD3MFOTWJ@redhat.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kernel_5.9.3_(stable-queue)?=
+        id S1727221AbgKBRZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 12:25:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48316 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726860AbgKBRZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 12:25:35 -0500
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7E4C0617A6
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 09:25:35 -0800 (PST)
+Received: by mail-ej1-x643.google.com with SMTP id p5so20001054ejj.2
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 09:25:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=dGFTgGcRujaKVNM6ipjz6OavsqjZpLAuWJIkLwgW8fc=;
+        b=nBrcflb8afVATOltRGZ6FEKK+0Fx1p1z/KiU9yE2u9G5v/pKoUysrjSfboOzTBodWS
+         sC099IMaOYypLyLmRulghq/0uaXXZrYjsyaDEV9HU9LFwOxEySaDKGLolUWk9xguNeKj
+         D7EiSrbt5VY4PoJ5Ijl00fzevVqjWRZYoaEYjzODlXF43TaMBQ3Pcs/2KisKFtSHdkyX
+         /J8Bl+mUSpbS/y29YX2ov0sk7v1dr7fEm8xWai2+0v9FO8nsJFsY+/7+4KbfYv55e0mQ
+         y0OhQnTMq5cJoWlOM//RbhakVz6oOFpwV32wQ2E1ltOQ2+ueDM1py/pV6wQVAFO5Nndj
+         ZmbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=dGFTgGcRujaKVNM6ipjz6OavsqjZpLAuWJIkLwgW8fc=;
+        b=mjkCgsSZT7Qrw0g4KBK3RYELgj9hvOW935Ex89odmKF2zQAvOqdCkIQsqBDWiZs43V
+         rfZjSZ6VB80aXKQDVzWr3d8XpbRAhzcwU2vIia01wsLZQZT8JufVvbjm+u7tOy/yqiZe
+         YpuF0sYS+dOHci1z6C2KqD9N7riLEfB/WAdbn3RfuqH9tFOM1Do2HeSh/U1J41XlsoqI
+         aPMj/hJaVrParNHKztWNQ7LJgENvu3mH67iAYP5rHmaagr2EHibz1HAaOxNDufJWMNos
+         qqUimM6gVHfHLQpbhgKwANbEBzBdY8zYlyihFmVVsRqJRMJePr6rWhEebnPAtFMvkJtg
+         hizg==
+X-Gm-Message-State: AOAM5302Lz9mkvxsbkoQBb6dGnx72rwkjPinmoXPw+jJXlcFnIkyAsTd
+        3Vy2Hcwo4HB+QsHSZKGMz3/AGwxBUjZepzI0HCA=
+X-Google-Smtp-Source: ABdhPJwDj0rwOkYrYKr1CXGqzhmRaKLBA/QUsTH8vMQ+4ehTTwfo/1uOW10T+eJaWdNVWaKsvUrw63tAR0cvp1ppksQ=
+X-Received: by 2002:a17:906:b190:: with SMTP id w16mr16021123ejy.53.1604337934377;
+ Mon, 02 Nov 2020 09:25:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [10.40.193.104, 10.4.195.18]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.9.3 (stable-queue)
-Thread-Index: InC9IJvsGhqW0ZafFuDK0aN9JWcp0Q==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Received: by 2002:a17:907:2059:0:0:0:0 with HTTP; Mon, 2 Nov 2020 09:25:33
+ -0800 (PST)
+Reply-To: suzara.wankind@gmail.com
+From:   Mrs Suzara Maling Wan <sinegoamachamber.bf1@gmail.com>
+Date:   Mon, 2 Nov 2020 09:25:33 -0800
+Message-ID: <CAM9fJ_sMct6KLZ7ERB5m6TUCVBWgsT+vh6Bo8yZyXzC=ruBfug@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+I am Mrs Suzara Maling Wan from (Philippine) but based in West Africa
+Country since eight years as a business woman dealing with gold
+exportation, I have a dream and desire of building an orphanage home
+in your country, and i have a deposit fund to the project, but
+presently my health condition we not allow me to carry out the project
+my self, now my doctor has already told me that I have just few period
+of time to leave because of my ovarian cancer disease, can you help
+fulfill this project.
 
+If you have the mind to help me in this project, contact me privet
+email address  for more details on the way forward
 
------ Original Message -----
-> From: "CKI Project" <cki-project@redhat.com>
-> To: "Linux Stable maillist" <stable@vger.kernel.org>
-> Sent: Monday, November 2, 2020 6:03:09 PM
-> Subject: =E2=9D=8C FAIL: Test report for kernel 5.9.3 (stable-queue)
->=20
->=20
-> Hello,
->=20
-> We ran automated tests on a recent commit from this kernel tree:
->=20
->        Kernel repo:
->        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
->             Commit: 7a177c028851 - nvme-rdma: fix crash when connect reje=
-cted
->=20
-> The results of these automated tests are provided below.
->=20
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: FAILED
->=20
-> All kernel binaries, config files, and logs are available for download he=
-re:
->=20
->   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?p=
-refix=3Ddatawarehouse-public/2020/11/02/616599
->=20
-> We attempted to compile the kernel for multiple architectures, but the
-> compile
-> failed on one or more architectures:
->=20
->             x86_64: FAILED (see build-x86_64.log.xz attachment)
->=20
-
-00:01:58 sound/soc/sof/intel/hda-codec.c: In function =E2=80=98hda_codec_pr=
-obe=E2=80=99:
-00:01:58 sound/soc/sof/intel/hda-codec.c:177:4: error: label =E2=80=98error=
-=E2=80=99 used but not defined
-00:01:58   177 |    goto error;
-00:01:58       |    ^~~~
-00:01:58 make[6]: *** [scripts/Makefile.build:283: sound/soc/sof/intel/hda-=
-codec.o] Error 1
-00:01:58 make[5]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Err=
-or 2
-00:01:58 make[4]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2
-00:01:58   CC [M]  net/ieee802154/6lowpan/core.o
-00:01:58 make[3]: *** [scripts/Makefile.build:500: sound/soc] Error 2
-00:01:58   CC [M]  drivers/mfd/sm501.o
-00:01:58 make[2]: *** [Makefile:1784: sound] Error 2
-
-
-Hi,
-
-looks to be introduced by
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
-commit/?h=3Dqueue/5.9&id=3Dfac9325d3013de4a4ffe8ed82fb386a7e9fce246
-
-
-Veronika
-
-> We hope that these logs can help you find the problem quickly. For the fu=
-ll
-> detail on our testing procedures, please scroll to the bottom of this
-> message.
->=20
-> Please reply to this email if you have any questions about the tests that=
- we
-> ran or if you have any suggestions on how to make future tests more
-> effective.
->=20
->         ,-.   ,-.
->        ( C ) ( K )  Continuous
->         `-',-.`-'   Kernel
->           ( I )     Integration
->            `-'
-> _________________________________________________________________________=
-_____
->=20
-> Compile testing
-> ---------------
->=20
-> We compiled the kernel for 4 architectures:
->=20
->     aarch64:
->       make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     ppc64le:
->       make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     s390x:
->       make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     x86_64:
->       make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->=20
->=20
-
+With kind Regards,
+Mrs Suzara Maling Wan
