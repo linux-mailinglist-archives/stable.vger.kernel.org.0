@@ -2,83 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06FB02A2B34
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 14:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7619A2A2B76
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 14:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728421AbgKBNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 08:07:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54462 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728359AbgKBNHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 08:07:16 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 4E233B810;
-        Mon,  2 Nov 2020 13:07:14 +0000 (UTC)
-Subject: Re: [PATCH v3 2/2] mm/compaction: stop isolation if too many pages
- are isolated and we have pages to migrate.
-To:     Zi Yan <ziy@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>,
-        linux-mm@kvack.org
-Cc:     Yang Shi <shy828301@gmail.com>, Michal Hocko <mhocko@suse.com>,
-        Rik van Riel <riel@surriel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20201030183809.3616803-1-zi.yan@sent.com>
- <20201030183809.3616803-2-zi.yan@sent.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <ea9c8972-9166-49bb-4b33-900e58cf1c8c@suse.cz>
-Date:   Mon, 2 Nov 2020 14:07:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        id S1726064AbgKBN0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 08:26:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbgKBN0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 08:26:41 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21249C0617A6
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 05:26:41 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id 72so4413214pfv.7
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 05:26:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JhuyAeHV66W343i0xhl6CpTlwC4wUWXdeBWhW+GwgmU=;
+        b=t/AboD5N+f0gRo8XrOhat7JMLeGJgD9c2zhKdPeWfXdTI6jDY0oRhCKeZPtR+BD2sG
+         Y1Gd20v9lHbv0asw9lsuWuRctq8OaUpGc2P+NgyVC0Spqam5KyPH1w7AJNLfGM5mAw8o
+         A1Efy1qmg90ZBWbqlpG+H/wpd5LDu4AOow98eJ4r4QrddH7DBUJXJF/UDxcPqgFL2ya5
+         50mFYNFxI8WpPGuPsdPbj0fv6XcoYEZRmInLNlxxtWIiFaLw6RA+RH7oPiCClutZYG3S
+         mSBEadgrfSKveedd/4/EeKywJUhE57ng0ZD7xp0pjLrDBu3PR1Wdk6V/P5j4c1T0AqVO
+         /p8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JhuyAeHV66W343i0xhl6CpTlwC4wUWXdeBWhW+GwgmU=;
+        b=rNgtbef6s2LzmL3AhCuKpBxpgoAGlvOTPQYGSOE5PvmNu4EF9DKSOLLVTOA2kK5acm
+         q1yTJmSsEQEV6+AktMr676OAmr0tyZ63usEUs1R8wjdBBM+mIidcCHvu6PDdQWn79qt+
+         2kwYevJ+0RmVoROi3RzPUYdG2rfPp8XEgcWZ9+zk52c5zk+aKBOy1ljjjLJfvMSpr7ny
+         fqDulIDVlpqVvF/ECVp0BdbLgPvjhQi6SzktCZA6RoqR0fNSt+Yq+FZv0LPlnz759SWm
+         aOLRgWa/BhCgZZJyJAGgoLnLfgLaloa+urUQiEYcKO6VJbI2vk0MWP8HqC4dJ2EBmu0V
+         jYuw==
+X-Gm-Message-State: AOAM532WufspoHIwFLqkWwV9Lm1jd5qUNa/R+ADZhVqgd3ETZ0yZMXD0
+        5sIiMQiMwKH5EbA1UB8XI6QZv8aR1lwSLA==
+X-Google-Smtp-Source: ABdhPJwjyPOXdiVGXrbl6JfsfHySkA+4xVmLo9exHxq3crZWa5MI/1jMWA2Pa3oFXK4unz3OzXIYUQ==
+X-Received: by 2002:aa7:8b17:0:b029:15b:c0ba:f2f4 with SMTP id f23-20020aa78b170000b029015bc0baf2f4mr21765215pfd.22.1604323600221;
+        Mon, 02 Nov 2020 05:26:40 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w13sm4448639pfd.49.2020.11.02.05.26.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2020 05:26:39 -0800 (PST)
+Message-ID: <5fa0090f.1c69fb81.95def.e5fb@mx.google.com>
+Date:   Mon, 02 Nov 2020 05:26:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201030183809.3616803-2-zi.yan@sent.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.203-60-g079291b3e475
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 169 runs,
+ 1 regressions (v4.14.203-60-g079291b3e475)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/30/20 7:38 PM, Zi Yan wrote:
-> From: Zi Yan <ziy@nvidia.com>
-> 
-> In isolate_migratepages_block, if we have too many isolated pages and
-> nr_migratepages is not zero, we should try to migrate what we have
-> without wasting time on isolating.
+stable-rc/queue/4.14 baseline: 169 runs, 1 regressions (v4.14.203-60-g07929=
+1b3e475)
 
-As you CC stable, there should be a stronger reason (strictly speaking the 
-problem should have been observed in practice, but this is a simple patch, so 
-they could accept it), so I suggest Andrew adds the following paragraph:
+Regressions Summary
+-------------------
 
-In theory it's possible that multiple parallel compactions will cause 
-too_many_isolated() to become true even if each has isolated less than 
-COMPACT_CLUSTER_MAX, and loop forever in the while loop. Bailing immediately 
-prevents that.
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-> Fixes: 1da2f328fa64 (“mm,thp,compaction,cma: allow THP migration for CMA allocations”)
-> Suggested-by: Vlastimil Babka <vbabka@suse.cz>
-> Signed-off-by: Zi Yan <ziy@nvidia.com>
-> Cc: <stable@vger.kernel.org>
 
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.203-60-g079291b3e475/plan/baseline/
 
-> ---
->   mm/compaction.c | 4 ++++
->   1 file changed, 4 insertions(+)
-> 
-> diff --git a/mm/compaction.c b/mm/compaction.c
-> index 3e834ac402f1..4d237a7c3830 100644
-> --- a/mm/compaction.c
-> +++ b/mm/compaction.c
-> @@ -817,6 +817,10 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
->   	 * delay for some time until fewer pages are isolated
->   	 */
->   	while (unlikely(too_many_isolated(pgdat))) {
-> +		/* stop isolation if there are still pages not migrated */
-> +		if (cc->nr_migratepages)
-> +			return 0;
-> +
->   		/* async migration should just abort */
->   		if (cc->mode == MIGRATE_ASYNC)
->   			return 0;
-> 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.203-60-g079291b3e475
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      079291b3e4751681435a4289bea6c091e881e95a =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f9fd653f0843bad5c3fe80e
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
+-60-g079291b3e475/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.203=
+-60-g079291b3e475/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f9fd654f0843ba=
+d5c3fe815
+        failing since 2 days (last pass: v4.14.203-3-gd24321bfc541, first f=
+ail: v4.14.203-3-gad7f808825a3)
+        2 lines =
+
+ =20
