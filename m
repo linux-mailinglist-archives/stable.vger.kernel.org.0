@@ -2,97 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DABD62A2AC9
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 629F62A2ACF
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728359AbgKBMfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 07:35:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47406 "EHLO mail.kernel.org"
+        id S1728626AbgKBMha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 07:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728511AbgKBMfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 07:35:55 -0500
+        id S1728561AbgKBMha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 07:37:30 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6E7C2076E;
-        Mon,  2 Nov 2020 12:35:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68147223B0;
+        Mon,  2 Nov 2020 12:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604320554;
-        bh=x+FcpbP4yMTRQ4BKyiIinjWUQrKXV2xbjbJ78Yjjh2Y=;
-        h=Subject:To:From:Date:From;
-        b=OV8Kbr64OGLRkpL1qvHYjZW4OxE6KR161M1niCln+aJWQuF0UyoxpmreLjHxGRvWp
-         kg6HN8VC7zAcxG8CpOucalvE611qOiuPFFC2N5dN6WcqcZP28WTt28QgXxWYk+sF1Q
-         kYi8UxJkgR7s6BQqvaNAKItwnJvqU0w9ZZb1AGjM=
-Subject: patch "usb: dwc3: ep0: Fix delay status handling" added to usb-linus
-To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Nov 2020 13:36:42 +0100
-Message-ID: <160432060210138@kroah.com>
+        s=default; t=1604320650;
+        bh=1igenCLWym4AnoSYMY198x2kDAPbJWttXtHAz+KaFZU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=foP9xlYMjZwjS5ODAihURoJjhIU1w4IFe2+kPHPXr2A9/+n3QuBaovrL3cJRqxXdW
+         OMK1czLHLh3qt4E0qpS0vJ6yAgqczhi/Y6ybaeUthJdyxPegW/LTqN1lelrz6QE7LQ
+         TftuxRRn4Z25jqtiVleCOcdiPwvfpJF9m68LRujA=
+Date:   Mon, 2 Nov 2020 13:38:24 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/48] 5.4.74-rc2 review
+Message-ID: <20201102123824.GA754567@kroah.com>
+References: <20201031114242.348422479@linuxfoundation.org>
+ <d51554c67f17476198038de0eda9bc7c@HQMAIL105.nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d51554c67f17476198038de0eda9bc7c@HQMAIL105.nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 02, 2020 at 09:53:53AM +0000, Jon Hunter wrote:
+> On Sat, 31 Oct 2020 12:51:00 +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.74 release.
+> > There are 48 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Mon, 02 Nov 2020 11:42:20 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.74-rc2.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests passing for Tegra ...
+> 
+> Test results for stable-v5.4:
+>     15 builds:	15 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     56 tests:	56 pass, 0 fail
+> 
+> Linux version:	5.4.74-rc2-gbf5ca41e70cb
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
+> 
+> Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-This is a note to let you know that I've just added the patch titled
+Thanks for testing all of these and letting me know.
 
-    usb: dwc3: ep0: Fix delay status handling
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From fa27e2f6c5e674f3f1225f9ca7a7821faaf393bb Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Thu, 22 Oct 2020 15:44:59 -0700
-Subject: usb: dwc3: ep0: Fix delay status handling
-
-If we want to send a control status on our own time (through
-delayed_status), make sure to handle a case where we may queue the
-delayed status before the host requesting for it (when XferNotReady
-is generated). Otherwise, the driver won't send anything because it's
-not EP0_STATUS_PHASE yet. To resolve this, regardless whether
-dwc->ep0state is EP0_STATUS_PHASE, make sure to clear the
-dwc->delayed_status flag if dwc3_ep0_send_delayed_status() is called.
-The control status can be sent when the host requests it later.
-
-Cc: <stable@vger.kernel.org>
-Fixes: d97c78a1908e ("usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
----
- drivers/usb/dwc3/ep0.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/ep0.c b/drivers/usb/dwc3/ep0.c
-index 7be3903cb842..8b668ef46f7f 100644
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -1058,10 +1058,11 @@ void dwc3_ep0_send_delayed_status(struct dwc3 *dwc)
- {
- 	unsigned int direction = !dwc->ep0_expect_in;
- 
-+	dwc->delayed_status = false;
-+
- 	if (dwc->ep0state != EP0_STATUS_PHASE)
- 		return;
- 
--	dwc->delayed_status = false;
- 	__dwc3_ep0_do_control_status(dwc, dwc->eps[direction]);
- }
- 
--- 
-2.29.2
-
-
+greg k-h
