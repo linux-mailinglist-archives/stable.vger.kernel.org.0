@@ -2,153 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1DB2A2753
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 10:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4352A277E
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 10:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728293AbgKBJqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 04:46:43 -0500
-Received: from mx2.suse.de ([195.135.220.15]:59290 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728239AbgKBJqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 04:46:43 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604310399;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8iqnQe8Qguu3dvcGW8iaD4P2eyctiqhbZ2BfU+NPqrc=;
-        b=QlbpM6YWLhTpHLt1suvoTQCkaObfA9Fr+Kx0uzGWTSyhEpZOcKub3zDWNmljNJT6Vd+mT/
-        llqL1Ym4cmeOOmy9Ua7Lns0wnsJx//K3x5n1jJ4LVo9xdxxd0loHmAzqkEMiH9hjpehEyv
-        p0AIVm+no3SoXIEbvnREkmsFGT/uP1k=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 9688BB23A
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 09:46:39 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 13/13] xen/events: block rogue events for some time
-Date:   Mon,  2 Nov 2020 10:46:38 +0100
-Message-Id: <20201102094638.3355-14-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201102094638.3355-1-jgross@suse.com>
-References: <20201102094638.3355-1-jgross@suse.com>
+        id S1728005AbgKBJxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 04:53:54 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:9369 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728132AbgKBJxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 04:53:54 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f9fd7320002>; Mon, 02 Nov 2020 01:53:54 -0800
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 2 Nov
+ 2020 09:53:53 +0000
+Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 2 Nov 2020 09:53:53 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/48] 5.4.74-rc2 review
+In-Reply-To: <20201031114242.348422479@linuxfoundation.org>
+References: <20201031114242.348422479@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <d51554c67f17476198038de0eda9bc7c@HQMAIL105.nvidia.com>
+Date:   Mon, 2 Nov 2020 09:53:53 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1604310834; bh=xVFgsKy7LLtsUoh3tRpSdwj8ppeYTQOv7oMN3FYbM1Y=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=iXwBvHRfHjoEGVtYTVmzpz0cgWbX5B2NQIulFlEJQzlwGcgxi4F48qkUGIXGrd1Ia
+         dtTUy4etaK3HDpBnQ4gltaivjINt8T4gKIDiRTAi6lwdpGbe9Q9i5Gfix57xiiWd3I
+         jpZmW0ddHXvuJ0Y2wqSHMNlUw+a/m4ptAr0KsD0xZV5Uj/wNqCn7tE1scPVPFcc8lN
+         xf50qmcU0bEQrovHMVLptOnLnTTp7RxrBw8G85X9+1OOJEiC+g7yn/7OIejqHW4bkW
+         L/YPivoJI8ts3TwWlBbRMgo45rBD7jaCXacGDw9Bte8iygSM9csPSlFi/rf406WQpj
+         4nUZi7cixN3Bg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
+On Sat, 31 Oct 2020 12:51:00 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.74 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 02 Nov 2020 11:42:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.74-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
+All tests passing for Tegra ...
 
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
+Test results for stable-v5.4:
+    15 builds:	15 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
 
-This is part of XSA-332.
+Linux version:	5.4.74-rc2-gbf5ca41e70cb
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-This is upstream commit 5f7f77400ab5b357b5fdb7122c3442239672186c
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
- drivers/xen/events/events_base.c     | 27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |  3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 8dbf0d119fab..5e8e016d1935 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -460,17 +460,34 @@ static void lateeoi_list_add(struct irq_info *info)
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
- 
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
- 
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
- 
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -507,7 +524,7 @@ static void xen_irq_lateeoi_worker(struct work_struct *work)
- 
- 		info->eoi_time = 0;
- 
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
- 
- 	if (info)
-@@ -536,7 +553,7 @@ void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1439,7 +1456,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
-diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
-index 756c87532d33..a35c8c7ac606 100644
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -31,7 +31,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
--- 
-2.26.2
-
+Jon
