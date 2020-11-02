@@ -2,92 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B692A2F66
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 17:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7FD2A2F4E
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 17:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbgKBQMR convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 2 Nov 2020 11:12:17 -0500
-Received: from 162.187.176.175.netplus.co.in ([175.176.187.162]:33284 "EHLO
-        mail.cmcldhudhiana.in" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726385AbgKBQMR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 11:12:17 -0500
-X-Greylist: delayed 44867 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Nov 2020 11:12:16 EST
-Received: from internet.lu (unknown [103.153.78.194])
-        by mail.cmcldhudhiana.in (Postfix) with ESMTPA id 3EB8814328BF
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 08:48:56 +0530 (IST)
-Reply-To: andreasmedicus@fnbccs.net
-From:   Mr Andreas Medicus <dsolito@internet.lu>
-To:     stable@vger.kernel.org
-Subject: From Mr Andreas Medicus 
-Date:   01 Nov 2020 19:19:03 -0800
-Message-ID: <20201101191902.5E3002847FAC87F7@internet.lu>
+        id S1726613AbgKBQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 11:07:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726751AbgKBQGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 11:06:53 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D7F02225E;
+        Mon,  2 Nov 2020 16:06:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604333213;
+        bh=x8f88ndVTtTtF6ELNU18qL4UwNl/+m+W7mskQUfUYAI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PDecE+owTqEF+PpLSXRK37J8c9QMRIqK52MkvN8feHvzzQrPQHQZt6v3fKLHDSeug
+         HGYTTkmvbO7+b2n8UV0aAPEfYawJHVSF0xXf6Fu7gSWv2NExzFvg1hOWDAzjguxeTt
+         PFwruMjLAhfNjrHqByqkSGcFV5UwZlv8obXhONSA=
+Date:   Mon, 2 Nov 2020 17:07:47 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ross Lagerwall <ross.lagerwall@citrix.com>
+Cc:     =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>,
+        stable@vger.kernel.org
+Subject: Re: Stable backport request for "xen/events: don't use chip_data for
+ legacy IRQs"
+Message-ID: <20201102160747.GA1845823@kroah.com>
+References: <0e4837c4-b750-4889-bb8c-8a36c73c7110@citrix.com>
+ <1a63ad59-c0d3-893b-8098-97146920214b@suse.com>
+ <20201031100314.GA3847955@kroah.com>
+ <fd6482d4-d28e-d1bd-9e08-daf7a36f9b79@citrix.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fd6482d4-d28e-d1bd-9e08-daf7a36f9b79@citrix.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-GOOD DAY
+On Mon, Nov 02, 2020 at 01:40:07PM +0000, Ross Lagerwall wrote:
+> On 2020-10-31 10:03, Greg KH wrote:
+> > [CAUTION - EXTERNAL EMAIL] DO NOT reply, click links, or open attachments unless you have verified the sender and know the content is safe.
+> > 
+> > On Fri, Oct 30, 2020 at 03:17:09PM +0100, Jürgen Groß wrote:
+> >> On 30.10.20 14:29, Ross Lagerwall wrote:
+> >>> Hi,
+> >>>
+> >>> Please backport [1] to 4.4, 4.9, 4.14, 4.19.
+> >>>
+> >>> It fixes a commit that has been backported to all the current stable releases but for some reason the fixup was only backported to 5.4 & 5.8.
+> >>
+> >> Greg has told me he queued my backport already.
+> > 
+> > I did?  I don't see that commit backported anywhere, did you get
+> > confused with some other patch?
+> > 
+> > I need a backported version of this patch if we are able to accept it,
+> > as it does not apply cleanly to those kernel releases.  Can someone
+> > please provide it and send it?
+> > 
+> 
+> The clean backport to older releases was sent by Jürgen on Oct 5th (subject [PATCH] xen/events: don't use chip_data for legacy IRQs).
+> 
+> https://lists.linaro.org/pipermail/linux-stable-mirror/2020-October/221081.html
+> 
+> It was queued for 5.4 but not older releases even though it applies cleanly to 4.4..4.19.
 
+Can you please resend it, that's long out of my mboxes...
 
-My name is  Mr Andreas Medicus, I really do not mean to waste
-your time.
-Considering the fact that this is a $5,500,000.00dollars. deal
-shear rate 50/50 % and i would like you to be honest with me.
+thanks,
 
-I carefully contact you due to many Internet frauds nowadays.but
-i put my faith in God because all things in life is by risk but
-don't let me down now or after,  This is Mr. Plavia Shakunthala
-Lobo  and his family was involved in plan crash 22nd of May 2010
-in List of passengers on Air India Express flight that crash
-32.Plaviashakunthala  Lobo  33. Venishanikola Lobo 34.
-Vishalfloid Lobo (child) and all family died without any
-inheritance or next of kin so i want you to work together with me
-been an attorney so this is Mr. Plaviashakunthala Lobo account
-details:
-
-Bank name:      Orabank Benin
-Bank Address:    Cotonou Benin Republic
-Account name:    Plavia Shakunthala Lobo
-Account Number:  5820006534
-Account Balance: $5,500,000.00 dollars
-Date of deposit:  19th December, 2009
-Account officer:  Mrs Jessica Clement
-
-I was with  Mr.  Plaviashakunthala  Lobo as a legal witness when
-this money was deposited as fixed deposit in 2009. Since his
-demise, I have visited this bank three times. Contact the bank
-and ask for the confirmation of his involvement in the plane
-crash.check the website:
-http://www.thehindu.com/news/national/list-of-passengers-on-air-india-express-flight/article435569.ece
-
-Upon the receipt of your information,i will give you the Account
-password of the Account number above to Login to the Account for
-view of the said fund online to enable us to move
-move forward.
-
-Kindly send your information as soon as you receive this letter
-for us move forward.
-
-May the good Lord bless you and your family.
-Best Regards.
-
-Mr Andreas Medicus
-You can contact me with my private email:
-andreasmedicu@fnbccs.net
-
-
-
-â€œDISCLAIMER: This e-mel and any files transmitted with it are
-intended only for the use of the recipient(s) named above and may
-contain confidential information. You are hereby notified that
-the taking of any action in reliance upon, or any review,
-retransmission, dissemination, distribution, printing or copying
-of this message or any part thereof by anyone other than the
-recipient(s) is strictly prohibited. If you have received this
-message in error, you should delete it immediately and advise the
-sender by return e-mel. Opinions, conclusions and other
-information in this message that do not relate to the MBSP shall
-be understood as neither given nor endorsed by the MBSP.
+greg k-h
