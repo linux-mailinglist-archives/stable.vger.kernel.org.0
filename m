@@ -2,158 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD2F2A2A81
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 884BC2A2A84
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 13:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728624AbgKBMRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728359AbgKBMRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 2 Nov 2020 07:17:25 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48052 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:48062 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728484AbgKBMRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 07:17:24 -0500
+        id S1728626AbgKBMRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 07:17:25 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
         t=1604319443;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/VP6WSc6DvlLF9yrIYqTd35xwvJM48FVR6NQTa6cRdE=;
-        b=ReLQ8Om15HXZPA9FTUonOR+FgyYpyPtt2n4aDXs4x2U33Qn/XtV/aNM0C8qOwbMjYOYeii
-        be0cuvAwMQF6bvcQ+ptsXF6FrZ8fQAUjandfQAyGLUycns91HkNjbzMmU1P5EtMdFyw6d2
-        tmed+GQugmffLDD+rswt5YvWuyBk5p0=
+        bh=PFyLwh4kPOhMumz4Kjuj/7SzN2WgUKA80deEKk/G/X4=;
+        b=mVcUuHhzD8+1pW88JHoWuHH2Rsg9qHbYYTRad9RQjwpIQX7A6y/ucXmQdFlceEemlDQii5
+        mFg+LT1qWB/YV3aahgjpo6MY0+C4QgAW6fF1xgIIaH5uH3/f/ShmU9U5AF3i3pYtPWpMWT
+        tzQWPaZiiK+dFIpAL4ejuIk0dNh0Iz4=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7588DAE35
+        by mx2.suse.de (Postfix) with ESMTP id 8D01FAE69
         for <stable@vger.kernel.org>; Mon,  2 Nov 2020 12:17:23 +0000 (UTC)
 From:   Juergen Gross <jgross@suse.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 01/14] xen/events: don't use chip_data for legacy IRQs
-Date:   Mon,  2 Nov 2020 13:17:09 +0100
-Message-Id: <20201102121722.10940-2-jgross@suse.com>
+Subject: [PATCH 02/14] xen/events: avoid removing an event channel while  handling it
+Date:   Mon,  2 Nov 2020 13:17:10 +0100
+Message-Id: <20201102121722.10940-3-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201102121722.10940-1-jgross@suse.com>
 References: <20201102121722.10940-1-jgross@suse.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Xen is using the chip_data pointer for storing IRQ specific data. When
-running as a HVM domain this can result in problems for legacy IRQs, as
-those might use chip_data for their own purposes.
+Today it can happen that an event channel is being removed from the
+system while the event handling loop is active. This can lead to a
+race resulting in crashes or WARN() splats when trying to access the
+irq_info structure related to the event channel.
 
-Use a local array for this purpose in case of legacy IRQs, avoiding the
-double use.
+Fix this problem by using a rwlock taken as reader in the event
+handling loop and as writer when deallocating the irq_info structure.
 
-This is upstream commit 0891fb39ba67bd7ae023ea0d367297ffff010781
+As the observed problem was a NULL dereference in evtchn_from_irq()
+make this function more robust against races by testing the irq_info
+pointer to be not NULL before dereferencing it.
+
+And finally make all accesses to evtchn_to_irq[row][col] atomic ones
+in order to avoid seeing partial updates of an array element in irq
+handling. Note that irq handling can be entered only for event channels
+which have been valid before, so any not populated row isn't a problem
+in this regard, as rows are only ever added and never removed.
+
+This is XSA-331.
+
+This is upstream commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2
 
 Cc: stable@vger.kernel.org
-Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reported-by: Jinoh Kang <luke1337@theori.io>
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefan Bader <stefan.bader@canonical.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Wei Liu <wl@xen.org>
 ---
- drivers/xen/events/events_base.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/xen/events/events_base.c | 41 ++++++++++++++++++++++++++++----
+ 1 file changed, 36 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 95e5a9300ff0..fdeeef2b9947 100644
+index fdeeef2b9947..048c05615b77 100644
 --- a/drivers/xen/events/events_base.c
 +++ b/drivers/xen/events/events_base.c
-@@ -90,6 +90,8 @@ static bool (*pirq_needs_eoi)(unsigned irq);
- /* Xen will never allocate port zero for any purpose. */
- #define VALID_EVTCHN(chn)	((chn) != 0)
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
++#include <linux/spinlock.h>
  
-+static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -69,6 +70,23 @@ const struct evtchn_ops *evtchn_ops;
+  */
+ static DEFINE_MUTEX(irq_mapping_update_lock);
+ 
++/*
++ * Lock protecting event handling loop against removing event channels.
++ * Adding of event channels is no issue as the associated IRQ becomes active
++ * only after everything is setup (before request_[threaded_]irq() the handler
++ * can't be entered for an event, as the event channel will be unmasked only
++ * then).
++ */
++static DEFINE_RWLOCK(evtchn_rwlock);
 +
- static struct irq_chip xen_dynamic_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
-@@ -154,7 +156,18 @@ int get_evtchn_to_irq(unsigned evtchn)
++/*
++ * Lock hierarchy:
++ *
++ * irq_mapping_update_lock
++ *   evtchn_rwlock
++ *     IRQ-desc lock
++ */
++
+ static LIST_HEAD(xen_irq_list_head);
+ 
+ /* IRQ <-> VIRQ mapping. */
+@@ -103,7 +121,7 @@ static void clear_evtchn_to_irq_row(unsigned row)
+ 	unsigned col;
+ 
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		evtchn_to_irq[row][col] = -1;
++		WRITE_ONCE(evtchn_to_irq[row][col], -1);
+ }
+ 
+ static void clear_evtchn_to_irq_all(void)
+@@ -140,7 +158,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ 		clear_evtchn_to_irq_row(row);
+ 	}
+ 
+-	evtchn_to_irq[row][col] = irq;
++	WRITE_ONCE(evtchn_to_irq[row][col], irq);
+ 	return 0;
+ }
+ 
+@@ -150,7 +168,7 @@ int get_evtchn_to_irq(unsigned evtchn)
+ 		return -1;
+ 	if (evtchn_to_irq[EVTCHN_ROW(evtchn)] == NULL)
+ 		return -1;
+-	return evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)];
++	return READ_ONCE(evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)]);
+ }
+ 
  /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
+@@ -259,10 +277,14 @@ static void xen_irq_info_cleanup(struct irq_info *info)
+  */
+ unsigned int evtchn_from_irq(unsigned irq)
  {
--	return irq_get_chip_data(irq);
-+	if (irq < nr_legacy_irqs())
-+		return legacy_info_ptrs[irq];
-+	else
-+		return irq_get_chip_data(irq);
-+}
+-	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
++	const struct irq_info *info = NULL;
 +
-+static void set_info_for_irq(unsigned int irq, struct irq_info *info)
-+{
-+	if (irq < nr_legacy_irqs())
-+		legacy_info_ptrs[irq] = info;
-+	else
-+		irq_set_chip_data(irq, info);
++	if (likely(irq < nr_irqs))
++		info = info_for_irq(irq);
++	if (!info)
+ 		return 0;
+ 
+-	return info_for_irq(irq)->evtchn;
++	return info->evtchn;
  }
  
- /* Constructors for packed IRQ information. */
-@@ -375,7 +388,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
- 
--	irq_set_chip_data(irq, info);
-+	set_info_for_irq(irq, info);
- 
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -424,14 +437,14 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
- 
+ unsigned irq_from_evtchn(unsigned int evtchn)
+@@ -438,16 +460,21 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
  static void xen_free_irq(unsigned irq)
  {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+ 	struct irq_info *info = info_for_irq(irq);
++	unsigned long flags;
  
  	if (WARN_ON(!info))
  		return;
  
++	write_lock_irqsave(&evtchn_rwlock, flags);
++
  	list_del(&info->list);
  
--	irq_set_chip_data(irq, NULL);
-+	set_info_for_irq(irq, NULL);
+ 	set_info_for_irq(irq, NULL);
  
  	WARN_ON(info->refcnt > 0);
  
-@@ -601,7 +614,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
++	write_unlock_irqrestore(&evtchn_rwlock, flags);
++
+ 	kfree(info);
  
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1105,7 +1118,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
+ 	/* Legacy IRQ descriptors are managed by the arch. */
+@@ -1233,6 +1260,8 @@ static void __xen_evtchn_do_upcall(void)
+ 	int cpu = get_cpu();
+ 	unsigned count;
  
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
++	read_lock(&evtchn_rwlock);
++
+ 	do {
+ 		vcpu_info->evtchn_upcall_pending = 0;
  
- 	if (WARN_ON(!info))
- 		return;
-@@ -1139,7 +1152,7 @@ int evtchn_make_refcounted(unsigned int evtchn)
- 	if (irq == -1)
- 		return -ENOENT;
+@@ -1247,6 +1276,8 @@ static void __xen_evtchn_do_upcall(void)
+ 		__this_cpu_write(xed_nesting_count, 0);
+ 	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
  
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
++	read_unlock(&evtchn_rwlock);
++
+ out:
  
- 	if (!info)
- 		return -ENOENT;
-@@ -1167,7 +1180,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		goto done;
+ 	put_cpu();
 -- 
 2.26.2
 
