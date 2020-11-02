@@ -2,232 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6830B2A36C8
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 23:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B3D2A36E2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 00:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725807AbgKBWv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 17:51:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42906 "EHLO
+        id S1725841AbgKBXCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 18:02:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725785AbgKBWv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 17:51:28 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7112C0617A6
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 14:51:28 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id 72so5775423pfv.7
-        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 14:51:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zBm0NUBIEdzf4J74peUX3jNdxUXnTI9tpQtXmEcp2ck=;
-        b=EK20XlJTo3tRNCqpda2eMnTfnyV44wOF6KS7DjX1QUEgLdyl7I2MLvyySmx7eT+X6C
-         ZPqbYBohD0wb0kEDGFF8+jbn1zT/70AhbjIz00ZM0vTlCCN9ezGXN6KkDvtDK3/8XeSX
-         Z/CQyVI9zvRZi9FfCKDsd0do9zy5aphWU3r3kQsJ4fEVdNxX2Ek3bk9+1bNejo7HrPFG
-         LPqjHdmOO9+ceU1EbDo8NXRK/rH3iHPTsI0KDj47K194tro2KjSMpVYgJ0EWHW+zoV6F
-         41tAt2e0f3XM9i8ZKrTk7wfl4tAQpnWfzVRNe6/Ea+SxLeibkRlrznd34ssasuKEBaV9
-         skRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zBm0NUBIEdzf4J74peUX3jNdxUXnTI9tpQtXmEcp2ck=;
-        b=SWPdhPgfqEvYE1KnSogvwKR+En4wG0kKYH1ynbrwKloW+/jqN7ZWKNhofVHd/e+VcK
-         WO3Ne9UNQokyn+TMReRDPXSVD5YjswhI/ZEKvyaHS5sbEKtCEC1ka4oVrpUXlIiBQOuw
-         PJycsOQFi1Cmwme9yvUYbqCH+yecJLXc/tAh+eNmS9jyBYO3t5Tda23iuzMk1N19DplB
-         cSfAxoJu6WuitW/u1212D0P4B14buTcmehtMoE3wp3TFU9IzTIi+/hblPeCi8/JFIsIe
-         6ZKafqh75egotEaY6nv8H5cGS0beiCTN5i6MXdEjw7A0nrfGvp6MaDVVDmQjhtx1tGrz
-         6gaw==
-X-Gm-Message-State: AOAM531XzV3hGdl8ThRFoCzRFZ+gDAGBWJZb/IKTJZeDz41gLd3vxt2k
-        PiCcAZrnbu2v46ZwMtofUsu0oyXEx15l6g==
-X-Google-Smtp-Source: ABdhPJxETTCjHR9ofJRz9EG7+ufn27hYNmEYqbye2tRZdul0FxfBnP+F4/M6u2mYt27HWwC9fNqo2A==
-X-Received: by 2002:a63:e650:: with SMTP id p16mr5721785pgj.295.1604357487977;
-        Mon, 02 Nov 2020 14:51:27 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j6sm13763699pgt.77.2020.11.02.14.51.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2020 14:51:27 -0800 (PST)
-Message-ID: <5fa08d6f.1c69fb81.3936a.4422@mx.google.com>
-Date:   Mon, 02 Nov 2020 14:51:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1725829AbgKBXCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 18:02:20 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EAEDC0617A6;
+        Mon,  2 Nov 2020 15:02:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
+        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=nHw9E+SMjN1sJhbbhpds3rD7YZc0/4l28nHNGj6UXLE=; b=ccPUVU4psoDYSLUoK48h6aUBu
+        sBDa+NYAvYR3q/7Dk8reRPbcHCUJ3afwrBOSwd/vhbg6HuGb6Uh83p2wFxv76QtfYwUGrT3a1wS/6
+        vcYYmzZVrULHolgq0ON9FNl1HLgLnLkxcSaHPFvAR769j5VGj3P+/uyI5a+kHKa2lb0RSV8gUiVwH
+        ftkyRKoe6jnChL5hfpS3Q74znV+WhmNHpsCGlk4sEWwkU61DfIMkbrYo0OB5tmqo0cZXmwJ5AD5ih
+        iVJHOcJ6AdwTF86so2OM69m1kb25lWt9Sp9axUTFYMrgHLsI5Qsavk46A+B0KJCYVkmd8bJd0Jn/9
+        hN/MisQ6A==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:54306)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1kZiq5-00015y-4p; Mon, 02 Nov 2020 23:02:13 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1kZiq1-000299-Cm; Mon, 02 Nov 2020 23:02:09 +0000
+Date:   Mon, 2 Nov 2020 23:02:09 +0000
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Marcin Wojtas <mw@semihalf.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Gabor Samu <samu_gabor@yahoo.ca>,
+        Jon Nettleton <jon@solid-run.com>,
+        Andrew Elwell <andrew.elwell@gmail.com>
+Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port()
+ helper
+Message-ID: <20201102230209.GM1551@shell.armlinux.org.uk>
+References: <20200620092047.GR1551@shell.armlinux.org.uk>
+ <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
+ <CAPv3WKdJKAEwCoj5z6NzP2xRFfT1HG+2o0wigt=Czi4bG7EQcg@mail.gmail.com>
+ <CAPv3WKfEN22cKbM8=+qDANefQE67KQ1zwURrCqAsrbo1+gBCDA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.74-95-g49cb9af04b0c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 208 runs,
- 4 regressions (v5.4.74-95-g49cb9af04b0c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPv3WKfEN22cKbM8=+qDANefQE67KQ1zwURrCqAsrbo1+gBCDA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 208 runs, 4 regressions (v5.4.74-95-g49cb9af0=
-4b0c)
+On Mon, Nov 02, 2020 at 06:38:54PM +0100, Marcin Wojtas wrote:
+> Hi Greg and Sasha,
+> 
+> pt., 9 paź 2020 o 05:43 Marcin Wojtas <mw@semihalf.com> napisał(a):
+> >
+> > Hi,
+> >
+> > sob., 20 cze 2020 o 11:21 Russell King <rmk+kernel@armlinux.org.uk> napisał(a):
+> > >
+> > > Add a helper to convert the struct phylink_config pointer passed in
+> > > from phylink to the drivers internal struct mvpp2_port.
+> > >
+> > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> > > ---
+> > >  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 29 +++++++++----------
+> > >  1 file changed, 14 insertions(+), 15 deletions(-)
+> > >
+> > > diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > > index 7653277d03b7..313f5a60a605 100644
+> > > --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > > +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > > @@ -4767,12 +4767,16 @@ static void mvpp2_port_copy_mac_addr(struct net_device *dev, struct mvpp2 *priv,
+> > >         eth_hw_addr_random(dev);
+> > >  }
+> > >
+> > > +static struct mvpp2_port *mvpp2_phylink_to_port(struct phylink_config *config)
+> > > +{
+> > > +       return container_of(config, struct mvpp2_port, phylink_config);
+> > > +}
+> > > +
+> > >  static void mvpp2_phylink_validate(struct phylink_config *config,
+> > >                                    unsigned long *supported,
+> > >                                    struct phylink_link_state *state)
+> > >  {
+> > > -       struct mvpp2_port *port = container_of(config, struct mvpp2_port,
+> > > -                                              phylink_config);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >         __ETHTOOL_DECLARE_LINK_MODE_MASK(mask) = { 0, };
+> > >
+> > >         /* Invalid combinations */
+> > > @@ -4913,8 +4917,7 @@ static void mvpp2_gmac_pcs_get_state(struct mvpp2_port *port,
+> > >  static void mvpp2_phylink_mac_pcs_get_state(struct phylink_config *config,
+> > >                                             struct phylink_link_state *state)
+> > >  {
+> > > -       struct mvpp2_port *port = container_of(config, struct mvpp2_port,
+> > > -                                              phylink_config);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >
+> > >         if (port->priv->hw_version == MVPP22 && port->gop_id == 0) {
+> > >                 u32 mode = readl(port->base + MVPP22_XLG_CTRL3_REG);
+> > > @@ -4931,8 +4934,7 @@ static void mvpp2_phylink_mac_pcs_get_state(struct phylink_config *config,
+> > >
+> > >  static void mvpp2_mac_an_restart(struct phylink_config *config)
+> > >  {
+> > > -       struct mvpp2_port *port = container_of(config, struct mvpp2_port,
+> > > -                                              phylink_config);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >         u32 val = readl(port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+> > >
+> > >         writel(val | MVPP2_GMAC_IN_BAND_RESTART_AN,
+> > > @@ -5105,13 +5107,12 @@ static void mvpp2_gmac_config(struct mvpp2_port *port, unsigned int mode,
+> > >  static void mvpp2_mac_config(struct phylink_config *config, unsigned int mode,
+> > >                              const struct phylink_link_state *state)
+> > >  {
+> > > -       struct net_device *dev = to_net_dev(config->dev);
+> > > -       struct mvpp2_port *port = netdev_priv(dev);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >         bool change_interface = port->phy_interface != state->interface;
+> > >
+> > >         /* Check for invalid configuration */
+> > >         if (mvpp2_is_xlg(state->interface) && port->gop_id != 0) {
+> > > -               netdev_err(dev, "Invalid mode on %s\n", dev->name);
+> > > +               netdev_err(port->dev, "Invalid mode on %s\n", port->dev->name);
+> > >                 return;
+> > >         }
+> > >
+> > > @@ -5151,8 +5152,7 @@ static void mvpp2_mac_link_up(struct phylink_config *config,
+> > >                               int speed, int duplex,
+> > >                               bool tx_pause, bool rx_pause)
+> > >  {
+> > > -       struct net_device *dev = to_net_dev(config->dev);
+> > > -       struct mvpp2_port *port = netdev_priv(dev);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >         u32 val;
+> > >
+> > >         if (mvpp2_is_xlg(interface)) {
+> > > @@ -5199,14 +5199,13 @@ static void mvpp2_mac_link_up(struct phylink_config *config,
+> > >
+> > >         mvpp2_egress_enable(port);
+> > >         mvpp2_ingress_enable(port);
+> > > -       netif_tx_wake_all_queues(dev);
+> > > +       netif_tx_wake_all_queues(port->dev);
+> > >  }
+> > >
+> > >  static void mvpp2_mac_link_down(struct phylink_config *config,
+> > >                                 unsigned int mode, phy_interface_t interface)
+> > >  {
+> > > -       struct net_device *dev = to_net_dev(config->dev);
+> > > -       struct mvpp2_port *port = netdev_priv(dev);
+> > > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> > >         u32 val;
+> > >
+> > >         if (!phylink_autoneg_inband(mode)) {
+> > > @@ -5223,7 +5222,7 @@ static void mvpp2_mac_link_down(struct phylink_config *config,
+> > >                 }
+> > >         }
+> > >
+> > > -       netif_tx_stop_all_queues(dev);
+> > > +       netif_tx_stop_all_queues(port->dev);
+> > >         mvpp2_egress_disable(port);
+> > >         mvpp2_ingress_disable(port);
+> > >
+> > > --
+> > > 2.20.1
+> > >
+> >
+> > This patch fixes a regression that was introduced in v5.3:
+> > Commit 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK API")
+> >
+> > Above results in a NULL pointer dereference when booting the
+> > Armada7k8k/CN913x with ACPI between 5.3 and 5.8, which will be
+> > problematic especially for the distros using LTSv5.4 and above (the
+> > issue was reported on Fedora 32).
+> >
+> > Please help with backporting to the stable v5.3+ branches (it applies
+> > smoothly on v5.4/v5.6/v5.8).
+> 
+> Any chances to backport this patch to relevant v5.3+ stable branches?
 
-Regressions Summary
--------------------
+Who are you asking to do the backport? I guess you're asking me to
+backport it, but I don't generally follow the stable kernels, and
+I don't use ACPI on ARM systems, so I wouldn't be in a position to
+test that a backported version fixes the problem you are reporting.
 
-platform               | arch   | lab           | compiler | defconfig     =
-     | regressions
------------------------+--------+---------------+----------+---------------=
------+------------
-at91-sama5d4_xplained  | arm    | lab-baylibre  | gcc-8    | sama5_defconfi=
-g    | 1          =
-
-hip07-d05              | arm64  | lab-collabora | gcc-8    | defconfig     =
-     | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconf=
-ig   | 1          =
-
-stm32mp157c-dk2        | arm    | lab-baylibre  | gcc-8    | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.74-95-g49cb9af04b0c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.74-95-g49cb9af04b0c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      49cb9af04b0cb05cea07fe8e0e25feec7d0d05e7 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-     | regressions
------------------------+--------+---------------+----------+---------------=
------+------------
-at91-sama5d4_xplained  | arm    | lab-baylibre  | gcc-8    | sama5_defconfi=
-g    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa05a52d9a613a90d3fe83b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
-_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa05a52d9a613a90d3fe=
-83c
-        failing since 4 days (last pass: v5.4.72-409-gbbe9df5e07cf, first f=
-ail: v5.4.72-409-ga6e47f533653) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-     | regressions
------------------------+--------+---------------+----------+---------------=
------+------------
-hip07-d05              | arm64  | lab-collabora | gcc-8    | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa05912e98d8d4e203fe7f6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa05912e98d8d4e203fe=
-7f7
-        new failure (last pass: v5.4.74-82-g6b43b55dd0d7) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-     | regressions
------------------------+--------+---------------+----------+---------------=
------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconf=
-ig   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa05a5a869217a7103fe7df
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86=
-_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa05a5a869217a7103fe=
-7e0
-        new failure (last pass: v5.4.74-82-g6b43b55dd0d7) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-     | regressions
------------------------+--------+---------------+----------+---------------=
------+------------
-stm32mp157c-dk2        | arm    | lab-baylibre  | gcc-8    | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa05bf4ac94b8cd983fe829
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
-7c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.74-95=
--g49cb9af04b0c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
-7c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa05bf4ac94b8cd983fe=
-82a
-        failing since 7 days (last pass: v5.4.72-54-gc97bc0eb3ef2, first fa=
-il: v5.4.72-402-g22eb6f319bc6) =
-
- =20
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
