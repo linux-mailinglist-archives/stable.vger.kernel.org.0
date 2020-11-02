@@ -2,69 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F39D2A2E90
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 16:45:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B99C12A2E91
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 16:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbgKBPpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 10:45:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726385AbgKBPpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 10:45:09 -0500
+        id S1726385AbgKBPp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 10:45:27 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:33693 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726070AbgKBPp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 10:45:27 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id EB3C1542;
+        Mon,  2 Nov 2020 10:45:26 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 02 Nov 2020 10:45:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=kgcyn2A6hUjwzxMhOEWIOy63TI5
+        xgJeupbyhah+d99s=; b=N09gBhxq9xGStJrSz/GA5M0hb28SJCEt+rdsbWAKqW2
+        zxK3GluCCY9dVVbyQPn8r8diwJ6LieTMV1JyhSgAp08qbRqrVoctYHTB2EmJCirL
+        fh2mgBG7YiYF37sHiD4GHA1USogzqp4l9O29PL6hVvGk9XLbWtII9iYlEfEtFCOS
+        LwW3KAWe7f5yWpZEEBzL+RWqseSqGsgIi4iwYx4BHvvggljcsWtHpBtlVAB8F2BD
+        3KCLAMekC+C64ErRFuYQL9i/YlwXf4gnJ4xkAN2cRO8QoByJPFprg3avqBtP9E7d
+        C9DURV96Tiz4/unl026aXLvLEXRSJTRFtozI3YvpnCw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=kgcyn2
+        A6hUjwzxMhOEWIOy63TI5xgJeupbyhah+d99s=; b=exL/bwqY3UO/DbrhjxZrp7
+        20WsTTZDoHwkePuP1bbqa0/ImDDPt40Xt5Jepzeaj314EJYFSoH3DJlk1aVL2uci
+        0hPpU2bsZ/cgB28CP9repcRcGZf3n2GFm961hhPrHQK9JeS1hMpFiXwtkXl4EL67
+        pfbcPd/8fEA0XTSFp1Eo4+gacMKZEm4L8fwidmzflkCq4kaDwf88LLn+bnX52l+K
+        TDHEWNv+C/hIKpL6m0eGaQJz8YS13YL7nwzYq36wfT0PnFusutFdKvs1vEcUbB3L
+        1XVVBUqZw24RvOk0coNs+bcQ8zFKT63G6teGFFs4eT2Cs4QyLuWXpu1ZNd97KP4w
+        ==
+X-ME-Sender: <xms:limgX6yxf-2DbhHXrAqaetlrfC-CqDXo0fbM6PkfVtKgd5FKoxjJ0Q>
+    <xme:limgX2RKhRPW0PmheleUFREdBjgQGBnQayTNrLEQBfgd9iq5kecWSjAHVRwPZYa3M
+    WkDR3RtfXYfZg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtuddgjeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:limgX8XcJlSO_Cm2cKVrrmzU47boqhDgrYDwraOnCPWG8pzfJnDmeg>
+    <xmx:limgXwhqZF_zq-x7rUbO-NLlr9BmXbZD3II_phFtjVCJgwwkFvm1Iw>
+    <xmx:limgX8AZqMD_UkNkREJ-4eh1LoDKKYYXB7-itpYJGxy_GiHD307Utw>
+    <xmx:limgX7_lmpmpw5qy5D-ARzVUryUHOrzvGQ31vFKYVByB1x4nTS1xPg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 774DE22275;
-        Mon,  2 Nov 2020 15:45:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604331909;
-        bh=NHBoMt9UTVGy1kD3jge9XPqP7VCl7znpnAomLOCjr9M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tq9sxXmINPupSZX/kWYJMqz6Fj+jYL8qus0mHqRq4h9aWqUULMT1PHHupeXdya6JU
-         yaRnOX0D8F608G0BdlQx8k3obZ9rlV5mkP4ZHkNn7Fx1TnXivMzZLeN34KleknN1Ft
-         4mSeF6imyYH+qoPA+Et1DN+/mAM5t2OatLRrpQmA=
-Date:   Mon, 2 Nov 2020 16:46:04 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 06DD03064687;
+        Mon,  2 Nov 2020 10:45:25 -0500 (EST)
+Date:   Mon, 2 Nov 2020 16:46:19 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Juergen Gross <jgross@suse.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: Please add XSA fixes to stable branches 5.8 and 5.9
-Message-ID: <20201102154604.GA1488920@kroah.com>
-References: <3c023ab7-5daf-da7b-4b3b-66c0c2e6a97c@suse.com>
+Subject: Re: [PATCH 00/13] Backport of patch series for stable 5.4 branch
+Message-ID: <20201102154619.GB1488920@kroah.com>
+References: <20201102094638.3355-1-jgross@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3c023ab7-5daf-da7b-4b3b-66c0c2e6a97c@suse.com>
+In-Reply-To: <20201102094638.3355-1-jgross@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 02, 2020 at 07:43:35AM +0100, Jürgen Groß wrote:
-> Hi Greg,
+On Mon, Nov 02, 2020 at 10:46:25AM +0100, Juergen Gross wrote:
+> Juergen Gross (13):
+>   xen/events: avoid removing an event channel while handling it
+>   xen/events: add a proper barrier to 2-level uevent unmasking
+>   xen/events: fix race in evtchn_fifo_unmask()
+>   xen/events: add a new "late EOI" evtchn framework
+>   xen/blkback: use lateeoi irq binding
+>   xen/netback: use lateeoi irq binding
+>   xen/scsiback: use lateeoi irq binding
+>   xen/pvcallsback: use lateeoi irq binding
+>   xen/pciback: use lateeoi irq binding
+>   xen/events: switch user event channels to lateeoi model
+>   xen/events: use a common cpu hotplug hook for event channels
+>   xen/events: defer eoi in case of excessive number of events
+>   xen/events: block rogue events for some time
 > 
-> even while tagged with "Cc: stable@vger.kernel.org" you didn't take
-> some upstream patches from 5.10-rc1 for the recent 5.8 and 5.9 stable
-> branches:
+>  .../admin-guide/kernel-parameters.txt         |   8 +
+>  drivers/block/xen-blkback/blkback.c           |  22 +-
+>  drivers/block/xen-blkback/xenbus.c            |   5 +-
+>  drivers/net/xen-netback/common.h              |  15 +
+>  drivers/net/xen-netback/interface.c           |  61 ++-
+>  drivers/net/xen-netback/netback.c             |  11 +-
+>  drivers/net/xen-netback/rx.c                  |  13 +-
+>  drivers/xen/events/events_2l.c                |   9 +-
+>  drivers/xen/events/events_base.c              | 422 ++++++++++++++++--
+>  drivers/xen/events/events_fifo.c              |  83 ++--
+>  drivers/xen/events/events_internal.h          |  20 +-
+>  drivers/xen/evtchn.c                          |   7 +-
+>  drivers/xen/pvcalls-back.c                    |  76 ++--
+>  drivers/xen/xen-pciback/pci_stub.c            |  14 +-
+>  drivers/xen/xen-pciback/pciback.h             |  12 +-
+>  drivers/xen/xen-pciback/pciback_ops.c         |  48 +-
+>  drivers/xen/xen-pciback/xenbus.c              |   2 +-
+>  drivers/xen/xen-scsiback.c                    |  23 +-
+>  include/xen/events.h                          |  29 +-
+>  19 files changed, 710 insertions(+), 170 deletions(-)
 > 
-> 073d0552ead5bfc7a3a9c01de590e924f11b5dd2
-> 4d3fe31bd993ef504350989786858aefdb877daa
-> f01337197419b7e8a492e83089552b77d3b5fb90
-> 54c9de89895e0a36047fcc4ae754ea5b8655fb9d
-> 01263a1fabe30b4d542f34c7e2364a22587ddaf2
-> 23025393dbeb3b8b3b60ebfa724cdae384992e27
-> 86991b6e7ea6c613b7692f65106076943449b6b7
-> c8d647a326f06a39a8e5f0f1af946eacfa1835f8
-> c2711441bc961b37bba0615dd7135857d189035f
-> c44b849cee8c3ac587da3b0980e01f77500d158c
-> 7beb290caa2adb0a399e735a1e175db9aae0523a
-> e99502f76271d6bc4e374fe368c50c67a1fd3070
-> 5f7f77400ab5b357b5fdb7122c3442239672186c
-> 
-> Could you please add them? They are fixing some security issues. I have
-> tested them to apply cleanly.
-> 
-> For the older stable branches I'll supply backports.
 
-5.8 is now end-of-life, but I've added these all to 5.9.y now, thanks.
+All now queued up, thanks for the backports.
 
 greg k-h
