@@ -2,110 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3ADB2A2891
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 11:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B32702A28C1
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 12:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728239AbgKBK5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 05:57:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43638 "EHLO
+        id S1728297AbgKBLJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 06:09:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728156AbgKBK5D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 05:57:03 -0500
-Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0418BC0617A6
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 02:57:02 -0800 (PST)
-Received: by mail-oo1-xc41.google.com with SMTP id j41so3251300oof.12
-        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 02:57:02 -0800 (PST)
+        with ESMTP id S1728253AbgKBLJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 06:09:22 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D0FC061A04
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 03:09:20 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id w14so14060016wrs.9
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 03:09:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZpPBU3QM3/7qelIiuBLBizPgHkVin6kKZK0Z8ZdghC4=;
-        b=c0hABj4YUTmfLgWLVwl+kg4Iwq5XcEo8JRKJyzK647r/RzUc5JTtqQ4MA71A46Qij8
-         oO2ULOpQ75/pFkjH07OEUAeu/XvoJdJhuVKH4/veKatdzx1boVwJAhEaVRJoWPhZVBTN
-         ky/COJ7kJFWF+IQCME4E1WGbVSM/RNG5VABGg=
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=VNKBzuaah0h5Gb4hoIVZS3da51nQlrhYLCe3rboP11A=;
+        b=SFTaJqUZtfkkrRI+Q9PY7VNO+a17R1kSjOtcGWcaK+CHErqUB/F2Sa3e/th8FMVcft
+         TmgOCOTjq94XbgaUawLyPonyp5k6zXmfsTXV2c5U2H+oduVvMBHQfZoavcR4nCSVOAxY
+         e9miCE9Iipq2MYWzeP+MDbIykjcYJY+WAAjOiKwHs2xr6UcrxbOO0I4ouSqA68j46mYC
+         azb5mdF9wHULmZ2Cz6u54K2cSvx11STFdyPcDl9bInHXHq70Q98O+NKEk1Fq5YRZnsyK
+         jacisaqaE9vTEUxs00HqwMo7MjuVoK8RkPC2yy5gcPU41D7lRiAA0z6d6utzoX9PXCjd
+         w/bA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZpPBU3QM3/7qelIiuBLBizPgHkVin6kKZK0Z8ZdghC4=;
-        b=eBgutecexk0bTCGtF+5tDRaGx51VrhhvIcLI2Lu6wLliKjKqZrHwf/7oSA8KboF4rZ
-         UNuAejOY0MycB0R9OP5tTr0Asx4W0G270aY3j4lTIvdZq447yqwdE1E2nivS1NNvL5x1
-         jFWrYDx8hwoT7Vx+d369TEK5aYK2nJwqAhNK4to1ajCOp/vWsr4IdIq0f//Wfkl1pzjT
-         w8v1YhOqnxbkNNdn1JtteNNQ/+z6TDOM2v2v4eugiXhwO3eDz8L3Rr49s9XY7Jwk/3b2
-         tPnI4y8neUviGYzhN7wKBCuLQ6bZyInGhooZ5M2yvJ5TuCHwEOYei3b0iAU664YH7t06
-         As+w==
-X-Gm-Message-State: AOAM532jMpQRDPc+UTwkKxO1Sw7fUYzHlClKZcDuH99UseWkj2aM/5ca
-        HRd4ZAYAz1WUVvOnjA5idj/I7eWmVMQiiHV0xsw0BQ==
-X-Google-Smtp-Source: ABdhPJzuWqQobkfk12bxO0YScYGHHffBlLOot4xLqfI3ygrAVAhO1WltLroxHgFNMa0u0wHQQ+InlzJyHaxjLHnTb54=
-X-Received: by 2002:a4a:b503:: with SMTP id r3mr11468650ooo.28.1604314622422;
- Mon, 02 Nov 2020 02:57:02 -0800 (PST)
-MIME-Version: 1.0
-References: <20201030181822.570402-1-lee.jones@linaro.org>
-In-Reply-To: <20201030181822.570402-1-lee.jones@linaro.org>
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Mon, 2 Nov 2020 11:56:51 +0100
-Message-ID: <CAKMK7uFN31B0WNoY5P0hizLCVxVkaFkcYjhgYVo1c2W+1d7jxA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const qualifier
-To:     Lee Jones <lee.jones@linaro.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=VNKBzuaah0h5Gb4hoIVZS3da51nQlrhYLCe3rboP11A=;
+        b=sqn29mQGBLILjOPbdwdNMwBISdC553kzgb5SYW2Ca4pMeiC+BC9l+EVLGddgzQYowh
+         uog4UBx6G+limBOPvab0IFvnSlXKXuL3IDgCvDQpzxijShdmjgOgWORIRER7cxy9evWh
+         kDiCPceANqN8tjdCsfC8bKLi/9w2Ezb0BPuDBNpoDM/My5v6FZgVozImuBFONWk+tg+j
+         Pn5SLi2/CV5n3rpXlcX93rTtI/c2Ql/kDK8DjvJdPcP476TmPk7KoLg9Cf95+6Xno2d3
+         0ApIgeq40C/WD7Iw6eP658GTyL6kWhJWgDCMSwGgqMdoUsI+dOtiY3drrLSANj6fYc1l
+         wRjw==
+X-Gm-Message-State: AOAM532EgCn4WGP/ZPc4TEH7LwnLbP4K3yZwrVWxd2u2PiZ6db9W9Bz+
+        SPI2Y/VqdaJL0HXVEzs0wr5Djw==
+X-Google-Smtp-Source: ABdhPJxNCPU3ugtaw5SbDq9bRqIQsbfrQpZvvzXXHChVJFEpTyYgy/+pQ1unhh72pfJOI5cuZzTiTw==
+X-Received: by 2002:adf:df91:: with SMTP id z17mr18923542wrl.379.1604315359142;
+        Mon, 02 Nov 2020 03:09:19 -0800 (PST)
+Received: from dell ([91.110.221.242])
+        by smtp.gmail.com with ESMTPSA id y185sm14706772wmb.29.2020.11.02.03.09.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2020 03:09:18 -0800 (PST)
+Date:   Mon, 2 Nov 2020 11:09:16 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
 Cc:     Greg KH <gregkh@linuxfoundation.org>,
         Peilin Ye <yepeilin.cs@gmail.com>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>,
         Russell King <linux@armlinux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const
+ qualifier
+Message-ID: <20201102110916.GK4127@dell>
+References: <20201030181822.570402-1-lee.jones@linaro.org>
+ <CAKMK7uFN31B0WNoY5P0hizLCVxVkaFkcYjhgYVo1c2W+1d7jxA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKMK7uFN31B0WNoY5P0hizLCVxVkaFkcYjhgYVo1c2W+1d7jxA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 7:18 PM Lee Jones <lee.jones@linaro.org> wrote:
->
-> Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
-> built-in fonts") introduced the following error when building
-> rpc_defconfig (only this build appears to be affected):
->
->  `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
->     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
->  `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
->     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
->  make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
->  make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
->  make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
->
-> The .data section is discarded at link time.  Reinstating
-> acorndata_8x8 as const ensures it is still available after linking.
->
-> Cc: <stable@vger.kernel.org>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+On Mon, 02 Nov 2020, Daniel Vetter wrote:
 
-Shouldn't we add the const to all of them, for consistency?
--Daniel
+> On Fri, Oct 30, 2020 at 7:18 PM Lee Jones <lee.jones@linaro.org> wrote:
+> >
+> > Commit 09e5b3fd5672 ("Fonts: Support FONT_EXTRA_WORDS macros for
+> > built-in fonts") introduced the following error when building
+> > rpc_defconfig (only this build appears to be affected):
+> >
+> >  `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+> >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+> >  `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+> >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+> >  make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+> >  make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+> >  make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
+> >
+> > The .data section is discarded at link time.  Reinstating
+> > acorndata_8x8 as const ensures it is still available after linking.
+> >
+> > Cc: <stable@vger.kernel.org>
+> > Cc: Russell King <linux@armlinux.org.uk>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> 
+> Shouldn't we add the const to all of them, for consistency?
 
-> ---
->  lib/fonts/font_acorn_8x8.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/lib/fonts/font_acorn_8x8.c b/lib/fonts/font_acorn_8x8.c
-> index 069b3e80c4344..fb395f0d40317 100644
-> --- a/lib/fonts/font_acorn_8x8.c
-> +++ b/lib/fonts/font_acorn_8x8.c
-> @@ -5,7 +5,7 @@
->
->  #define FONTDATAMAX 2048
->
-> -static struct font_data acorndata_8x8 = {
-> +static const struct font_data acorndata_8x8 = {
->  { 0, 0, FONTDATAMAX, 0 }, {
->  /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
->  /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
-> --
-> 2.25.1
->
-
+The thought did cross my mind.  However, I do not see any further
+issues which need addressing.  Nor do I have any visibility into what
+issues may be caused by doing so.  The only thing I know for sure is
+that this patch fixes the compile error pertained to in the commit
+message, and I'd like for this fix to be as atomic as possible, as
+it's designed to be routed through the Stable/LTS trees.
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
