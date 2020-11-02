@@ -2,76 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F842A2F90
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 17:19:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8371B2A2FB7
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 17:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726753AbgKBQTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 11:19:36 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:64210 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726862AbgKBQTg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 11:19:36 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22871149-1500050 
-        for multiple; Mon, 02 Nov 2020 16:19:35 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Hold onto an explicit ref to i915_vma_work.pinned
-Date:   Mon,  2 Nov 2020 16:19:31 +0000
-Message-Id: <20201102161931.30031-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1726998AbgKBQYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 11:24:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726886AbgKBQYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 11:24:51 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B13A6C061A04
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 08:24:50 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id x7so15342446wrl.3
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 08:24:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=6B9B6xuPKWn9Z1hQbFYBWRVk7wJc1I2DJdaNL5Vf090=;
+        b=xJpkjKZJXEIWzSsoKii8LKrf4Jcm8iKK9Yb8XxpMDNCkMT/a1/Uy+tWMzrtzwzC4Rl
+         IP13GfWoBi/R9e7gogLcaXGCEc0esLWDkQsf3Mk9lxL026lnwlzoLVIAwOFrdUTNxx1o
+         +QvqLw9Xf60kT8FlCXG0PCdu1XH5fLxpxRDJOMSITkXfYYbnjHwBZ4dFGwSLVHzhNCDl
+         YkovEbjpX9Ju7H1HWjOuXhdCc41aTfL2154Muj6dDiW9sw9ECWZEGkhIsGpugeq08O1k
+         tDSuvqD+xxSi9yjyNNFrVGtA4pj6Fnp17kKAyrmQVIwhbM2IgWClwWRZP+XWu2zYp009
+         VNog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=6B9B6xuPKWn9Z1hQbFYBWRVk7wJc1I2DJdaNL5Vf090=;
+        b=cD7C2Y9S2b8jA48MaWL0pqNiRkIQPLXyFh+d7x6gpOq+8KltC3CKIswtqtpHWyfaM8
+         1JolD4j/HfFw4HYX7FP+/qwKnzXa7HoQeXMQ7bgZle1u9AuPgy2vzjTEdjcCXPxNRSHm
+         9RJLhbIOF8rE/Y6eFgPEBO9NeJ5Q14suOREpR4SWWUwDn3vZk3ADpdCli5nmj28nE/q5
+         o5L0+hB8HzsoJyrhMLJM/3K9HmxJFeIG8pUGRwyYvZEkzGNzm/YuhXrk2AbSl3YxKEnn
+         UcJ61XCf3abgNKItWKE5gr7Wgal7TF6xZQy7H6oAs1cZcjHfGnT1i1carcIW7NdhDkXj
+         hLVw==
+X-Gm-Message-State: AOAM533Q7yZ+s7WmI/dyxCaHLS8evGFCIw58SYS+tFBoxFHMvFTKo/ok
+        mSGLw63C8tZR3Nl9LiGdJpYtMw==
+X-Google-Smtp-Source: ABdhPJz1CKgAn04v8cOE+DaSgJh0msqgAlx0sD70ALpMQonZFOno+U4Xz68tjpbcSViHuDBVoOKrnw==
+X-Received: by 2002:adf:93c1:: with SMTP id 59mr20968071wrp.369.1604334289467;
+        Mon, 02 Nov 2020 08:24:49 -0800 (PST)
+Received: from dell ([91.110.221.242])
+        by smtp.gmail.com with ESMTPSA id y201sm17228166wmd.27.2020.11.02.08.24.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2020 08:24:48 -0800 (PST)
+Date:   Mon, 2 Nov 2020 16:24:47 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Peilin Ye <yepeilin.cs@gmail.com>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>
+Subject: Re: [PATCH 1/1] Fonts: font_acorn_8x8: Replace discarded const
+ qualifier
+Message-ID: <20201102162447.GE4488@dell>
+References: <20201030181822.570402-1-lee.jones@linaro.org>
+ <CAKMK7uFN31B0WNoY5P0hizLCVxVkaFkcYjhgYVo1c2W+1d7jxA@mail.gmail.com>
+ <20201102110916.GK4127@dell>
+ <CAKMK7uFhpt5J8TcN4MRMeERE9DtNar+pBAmE6QRvD0zkGR5iNQ@mail.gmail.com>
+ <20201102113034.GL4127@dell>
+ <CAKMK7uHo2MMmBUic9EiFqcUh8mJeu1+=ZQfH7bWA=zdJTyRyvA@mail.gmail.com>
+ <20201102161734.GA1563823@PWN>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201102161734.GA1563823@PWN>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since __vma_release is run by a kworker after the fence has been
-signaled, it is no longer protected by the active reference on the vma,
-and so the alias of vw->pinned to vma->obj is also not protected by a
-reference on the object. Add an explicit reference for vw->pinned so it
-will always be safe.
+On Mon, 02 Nov 2020, Peilin Ye wrote:
 
-Found by inspection.
+> On Mon, Nov 02, 2020 at 03:50:49PM +0100, Daniel Vetter wrote:
+> > Maybe Peilin is going to include the full re-cosntification in a
+> > cleanup series, dunno.
+> 
+> Sure, I will do it in a separate patch.
 
-Fixes: 54d7195f8c64 ("drm/i915: Unpin vma->obj on early error")
-Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/i915_vma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Are you happy to conduct a proper clean-up on top of this patch?
 
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index ffb5287e055a..caa9b041616b 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -314,8 +314,10 @@ static void __vma_release(struct dma_fence_work *work)
- {
- 	struct i915_vma_work *vw = container_of(work, typeof(*vw), base);
- 
--	if (vw->pinned)
-+	if (vw->pinned) {
- 		__i915_gem_object_unpin_pages(vw->pinned);
-+		i915_gem_object_put(vw->pinned);
-+	}
- 
- 	i915_vm_free_pt_stash(vw->vm, &vw->stash);
- 	i915_vm_put(vw->vm);
-@@ -431,7 +433,7 @@ int i915_vma_bind(struct i915_vma *vma,
- 
- 		if (vma->obj) {
- 			__i915_gem_object_pin_pages(vma->obj);
--			work->pinned = vma->obj;
-+			work->pinned = i915_gem_object_get(vma->obj);
- 		}
- 	} else {
- 		vma->ops->bind_vma(vma->vm, NULL, vma, cache_level, bind_flags);
+This is currently broken in all of the LTS kernels, which I would like
+to have fixed post-haste.
+
 -- 
-2.20.1
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
