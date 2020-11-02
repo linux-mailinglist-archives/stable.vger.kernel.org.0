@@ -2,76 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C326F2A2D6A
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 15:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F39D2A2E90
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 16:45:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725805AbgKBOxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 09:53:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbgKBOxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 09:53:54 -0500
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E56C061A04
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 06:53:54 -0800 (PST)
-Received: by mail-qk1-x743.google.com with SMTP id x20so11678103qkn.1
-        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 06:53:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=YHxPSiLzL6UyVOLU18aI0dXWGCzMvP56YeVAPyhGboE=;
-        b=cP4g7ajqTAS2T+cEaynRW0WHobCWzhzW0xXb4AUwsZcoqFxFbHC2nv7LP+arWopMwF
-         F1HixtYVqRTX2+mcHYOrGNZCofr8xLmUpTiXS1TzbYFtYIs5+5UVvmMdwzarqfv//hUV
-         q62SZ42dlrvKzFKYnAIIs3aTAE/NwmD/a86oTmaEtUuudu+Soa1OLE5c3OV73rwh3JNB
-         6yTW6MpkDCIf/6fqZ77GCHeMUEDjIenFwMOn2k3FGD7AslfN/HT8vU4iqSKxhmG2GRTH
-         UZQa4xCFZJuSevF5OrfFd6kXbfnHnFK4cpX5qKhqcYEn7A3/KJFy1yrjlY1o1tQC2PJG
-         Exag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=YHxPSiLzL6UyVOLU18aI0dXWGCzMvP56YeVAPyhGboE=;
-        b=oL6F6vwSI4+6AC3pajOW8DfIiZhfxAv1xg6Db/1la3fFjgfy42fJ0lLeQbhnxl8zcD
-         r0vaajeiFiG8l9swtMhQBMuIkvKAgIE4jlRbEzxRg0cFHPrigw04WsUjkAKO0DQeC53G
-         ESErnbuIPMMWxmcG/gvkL/lV7uXCkZZPfiZJW/fCjJP9H9kHa+xmzIeMhdJEnh5WlSkE
-         0O63oS9PTgaBzVwFS9FIGF9h7JhSEIYYtNfRqWmR0zpAzsgoNnP1dyfWj9NVcxO2mtJH
-         D8PCi/xz6dMKY+uxgNyW8j0PBZfvBCF8/8z/hs+AdtgeWXcX74lxnFV04hvCiLM/C1/w
-         YQpw==
-X-Gm-Message-State: AOAM533H1SkHk+J9Ib6L0VQ1sMmNcXqezZo17VWQq4DDBOTSWHJjWzh1
-        RhyegDLmrb7zPZ+qEdIuAZxvePPzj19TYSWDyw==
-X-Google-Smtp-Source: ABdhPJzz2/X4T+mY4/NiGOOLl0RB6ykUjrjEVyGExJny+vhRTVgcjf11SJPasoUMRSuxVluc62xUtNCScz7fwj7oj5Y=
-X-Received: by 2002:a37:88c:: with SMTP id 134mr14776869qki.17.1604328833935;
- Mon, 02 Nov 2020 06:53:53 -0800 (PST)
+        id S1726473AbgKBPpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 10:45:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726385AbgKBPpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 10:45:09 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 774DE22275;
+        Mon,  2 Nov 2020 15:45:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604331909;
+        bh=NHBoMt9UTVGy1kD3jge9XPqP7VCl7znpnAomLOCjr9M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tq9sxXmINPupSZX/kWYJMqz6Fj+jYL8qus0mHqRq4h9aWqUULMT1PHHupeXdya6JU
+         yaRnOX0D8F608G0BdlQx8k3obZ9rlV5mkP4ZHkNn7Fx1TnXivMzZLeN34KleknN1Ft
+         4mSeF6imyYH+qoPA+Et1DN+/mAM5t2OatLRrpQmA=
+Date:   Mon, 2 Nov 2020 16:46:04 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please add XSA fixes to stable branches 5.8 and 5.9
+Message-ID: <20201102154604.GA1488920@kroah.com>
+References: <3c023ab7-5daf-da7b-4b3b-66c0c2e6a97c@suse.com>
 MIME-Version: 1.0
-Received: by 2002:ac8:5a51:0:0:0:0:0 with HTTP; Mon, 2 Nov 2020 06:53:53 -0800 (PST)
-Reply-To: mberry26394@yahoo.com
-From:   Barrister Robert Richter UN Attorney Law Court-Benin 
-        <info.zennitbankplcnigerian@gmail.com>
-Date:   Mon, 2 Nov 2020 15:53:53 +0100
-Message-ID: <CABHzvrkf0bL4A+-z5bkUprKPF96HUu-brFJLi7TomxY4VVgyrA@mail.gmail.com>
-Subject: Attn Beneficiary.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3c023ab7-5daf-da7b-4b3b-66c0c2e6a97c@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attn Beneficiary.
-Good-News,You are uplifted and God blessing you with your family.
-Your ATM Card delivery is already approved this morning,02/11/2020.
-Finally, you hereby advised to Contact our international UN diplomatic
-agent Mr. Mark Berry to receive
-your ATM MASTER DEBIT Card WORTH $20.850,000M US DOLLARS.
-Contact person, UN diplomatic agent Mr. Mark Berry
-Email: mberry26394@yahoo.com
-His PHONE Numbers Below: (903) 412-0571, Call or Text Him once you
-receive this message.
-Delivery fee to your address is $50.00 only, send to him urgent.
-Contact Him urgent With your complete address!
-Full Name______________________________
-Address_______________________
-Phone N0#______________________________
-Let me know once you receive your total funds from the office.
-YOUR FAITHFUL
-Barrister Robert Richter UN Attorney Law Court-Benin
-Dir.UBA Bank-Benin
+On Mon, Nov 02, 2020 at 07:43:35AM +0100, Jürgen Groß wrote:
+> Hi Greg,
+> 
+> even while tagged with "Cc: stable@vger.kernel.org" you didn't take
+> some upstream patches from 5.10-rc1 for the recent 5.8 and 5.9 stable
+> branches:
+> 
+> 073d0552ead5bfc7a3a9c01de590e924f11b5dd2
+> 4d3fe31bd993ef504350989786858aefdb877daa
+> f01337197419b7e8a492e83089552b77d3b5fb90
+> 54c9de89895e0a36047fcc4ae754ea5b8655fb9d
+> 01263a1fabe30b4d542f34c7e2364a22587ddaf2
+> 23025393dbeb3b8b3b60ebfa724cdae384992e27
+> 86991b6e7ea6c613b7692f65106076943449b6b7
+> c8d647a326f06a39a8e5f0f1af946eacfa1835f8
+> c2711441bc961b37bba0615dd7135857d189035f
+> c44b849cee8c3ac587da3b0980e01f77500d158c
+> 7beb290caa2adb0a399e735a1e175db9aae0523a
+> e99502f76271d6bc4e374fe368c50c67a1fd3070
+> 5f7f77400ab5b357b5fdb7122c3442239672186c
+> 
+> Could you please add them? They are fixing some security issues. I have
+> tested them to apply cleanly.
+> 
+> For the older stable branches I'll supply backports.
+
+5.8 is now end-of-life, but I've added these all to 5.9.y now, thanks.
+
+greg k-h
