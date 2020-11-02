@@ -2,153 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B692A2EC3
-	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 16:57:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B692A2F66
+	for <lists+stable@lfdr.de>; Mon,  2 Nov 2020 17:12:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbgKBP5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 10:57:11 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39138 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726541AbgKBP5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 10:57:10 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604332627;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=32gDaZ5RaxED3DRKT3CTC/miGtK0GC5Qi66VCdWG6Vw=;
-        b=kgBDyMd67jY/j+7r8PPUU3O4H1+l0NDxWHc7DRJl5knnSrUE02ojFtn9Q6CEMlp3aKtQfu
-        nz34GSyCox+4VXz+t6Y6I1+NvesnR4DKNoqKnY/KjKuHAPjTFk5QEHXcguIRcdvoFwSBCs
-        IEB20KGPYvYaFfCtf173elJ9Sdu7YYw=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 86062B1AB
-        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 15:57:07 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
+        id S1726710AbgKBQMR convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 2 Nov 2020 11:12:17 -0500
+Received: from 162.187.176.175.netplus.co.in ([175.176.187.162]:33284 "EHLO
+        mail.cmcldhudhiana.in" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726385AbgKBQMR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Nov 2020 11:12:17 -0500
+X-Greylist: delayed 44867 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Nov 2020 11:12:16 EST
+Received: from internet.lu (unknown [103.153.78.194])
+        by mail.cmcldhudhiana.in (Postfix) with ESMTPA id 3EB8814328BF
+        for <stable@vger.kernel.org>; Mon,  2 Nov 2020 08:48:56 +0530 (IST)
+Reply-To: andreasmedicus@fnbccs.net
+From:   Mr Andreas Medicus <dsolito@internet.lu>
 To:     stable@vger.kernel.org
-Subject: [PATCH 14/14] xen/events: block rogue events for some time
-Date:   Mon,  2 Nov 2020 16:57:05 +0100
-Message-Id: <20201102155705.8578-15-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201102155705.8578-1-jgross@suse.com>
-References: <20201102155705.8578-1-jgross@suse.com>
+Subject: From Mr Andreas Medicus 
+Date:   01 Nov 2020 19:19:03 -0800
+Message-ID: <20201101191902.5E3002847FAC87F7@internet.lu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
+GOOD DAY
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
 
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
+My name is  Mr Andreas Medicus, I really do not mean to waste
+your time.
+Considering the fact that this is a $5,500,000.00dollars. deal
+shear rate 50/50 % and i would like you to be honest with me.
 
-This is part of XSA-332.
+I carefully contact you due to many Internet frauds nowadays.but
+i put my faith in God because all things in life is by risk but
+don't let me down now or after,  This is Mr. Plavia Shakunthala
+Lobo  and his family was involved in plan crash 22nd of May 2010
+in List of passengers on Air India Express flight that crash
+32.Plaviashakunthala  Lobo  33. Venishanikola Lobo 34.
+Vishalfloid Lobo (child) and all family died without any
+inheritance or next of kin so i want you to work together with me
+been an attorney so this is Mr. Plaviashakunthala Lobo account
+details:
 
-This is upstream commit 5f7f77400ab5b357b5fdb7122c3442239672186c
+Bank name:      Orabank Benin
+Bank Address:    Cotonou Benin Republic
+Account name:    Plavia Shakunthala Lobo
+Account Number:  5820006534
+Account Balance: $5,500,000.00 dollars
+Date of deposit:  19th December, 2009
+Account officer:  Mrs Jessica Clement
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
- drivers/xen/events/events_base.c     | 27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |  3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
+I was with  Mr.  Plaviashakunthala  Lobo as a legal witness when
+this money was deposited as fixed deposit in 2009. Since his
+demise, I have visited this bank three times. Contact the bank
+and ask for the confirmation of his involvement in the plane
+crash.check the website:
+http://www.thehindu.com/news/national/list-of-passengers-on-air-india-express-flight/article435569.ece
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 758268185298..cef70f4b52ef 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -459,17 +459,34 @@ static void lateeoi_list_add(struct irq_info *info)
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
- 
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
- 
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
- 
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -506,7 +523,7 @@ static void xen_irq_lateeoi_worker(struct work_struct *work)
- 
- 		info->eoi_time = 0;
- 
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
- 
- 	if (info)
-@@ -535,7 +552,7 @@ void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1438,7 +1455,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
-diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
-index 2cb9c2d2c5c0..b9b4f5919893 100644
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -33,7 +33,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
--- 
-2.26.2
+Upon the receipt of your information,i will give you the Account
+password of the Account number above to Login to the Account for
+view of the said fund online to enable us to move
+move forward.
 
+Kindly send your information as soon as you receive this letter
+for us move forward.
+
+May the good Lord bless you and your family.
+Best Regards.
+
+Mr Andreas Medicus
+You can contact me with my private email:
+andreasmedicu@fnbccs.net
+
+
+
+“DISCLAIMER: This e-mel and any files transmitted with it are
+intended only for the use of the recipient(s) named above and may
+contain confidential information. You are hereby notified that
+the taking of any action in reliance upon, or any review,
+retransmission, dissemination, distribution, printing or copying
+of this message or any part thereof by anyone other than the
+recipient(s) is strictly prohibited. If you have received this
+message in error, you should delete it immediately and advise the
+sender by return e-mel. Opinions, conclusions and other
+information in this message that do not relate to the MBSP shall
+be understood as neither given nor endorsed by the MBSP.
