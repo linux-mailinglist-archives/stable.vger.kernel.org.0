@@ -2,130 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1DA2A54B7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A21452A54B5
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389283AbgKCVNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:13:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
+        id S2388761AbgKCVN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:13:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389265AbgKCVN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:13:29 -0500
+        id S2388530AbgKCVN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:13:56 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5014622226;
-        Tue,  3 Nov 2020 21:13:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCA43206B5;
+        Tue,  3 Nov 2020 21:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604438008;
-        bh=BDLB54T1EWmlc3IeLKus4LZ2V9cyZMOIskMySVU+lDs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeICqmar/Ed7TcLLX7gnY7Y5Xvk//29AOKwqL3nkm0b2+T6rq/EYXaC+Y9pWZC/oO
-         cgK5HPKThxDlxrTeP5Pz/1+c04w2mDEJ+uSB4vf/oi118cVoMKBIfNxPT7if7hflfU
-         8rFUiZywq5Y1X7DSRZUxb8xIlgrGwhZDlEQQhTPw=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: [PATCH 4.14 125/125] staging: octeon: Drop on uncorrectable alignment or FCS error
-Date:   Tue,  3 Nov 2020 21:38:22 +0100
-Message-Id: <20201103203215.514681563@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=default; t=1604438036;
+        bh=93ZExvM+6bmjvOPadcQ5VBQMS3/9d1fs67z2XBaxVzM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ApCaW4UVijB0Abbg876PS3Vx3ZfKvASLkwfweLdV2BJ8dQ1efX1FQ+r7SCQh0unrs
+         EJu4FnlT5JqNe3D3aIvm066VDnch5yX6YTXA/Akh71NNJ9G64GoS5aE+QzLxVj4spr
+         4wTKkXwHqmnklfKJ0KHe3snmys801+/ORQ7+jZJ4=
+Date:   Tue, 3 Nov 2020 22:01:00 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Costa Sapuntzakis <costa@purestorage.com>
+Cc:     stable@vger.kernel.org, Jan Kara <jack@suse.cz>
+Subject: Re: Fwd: remove ext4-fix-superblock-checksum-calculation-race.patch ?
+Message-ID: <20201103210100.GA666918@kroah.com>
+References: <CAABuPhZKJncNoVb3-um8WTdyvffvcYqPKDUA_AcpmEZQrMshTg@mail.gmail.com>
+ <CAABuPhZZG13uxa-NpiH1k1HbNYx2QDLEOLURsVnBmu8ynZcaig@mail.gmail.com>
+ <20201103183028.GB83845@kroah.com>
+ <CAABuPhb-mRsrFjPLeXaObbCEDQX0XWYFOO+xJVTcbQ1W2tqosw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAABuPhb-mRsrFjPLeXaObbCEDQX0XWYFOO+xJVTcbQ1W2tqosw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+On Tue, Nov 03, 2020 at 12:45:24PM -0800, Costa Sapuntzakis wrote:
+> On Tue, Nov 3, 2020 at 10:30 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Nov 03, 2020 at 09:24:57AM -0800, Costa Sapuntzakis wrote:
+> > > syzbot found https://syzkaller.appspot.com/bug?extid=7a4ba6a239b91a126c28
+> > > which shows we can try to sleep under a spinlock in an error path.
+> >
+> > Do you have a patch for this?
+> 
+> Sorry, I put too much in the subject. I received e-mail this morning
+> (Pacific Standard Time) that
+> ext4-fix-superblock-checksum-calculation-race.patch had been
+> incorporated into various stable branches. Yesterday, I received an
+> e-mail from Hillf Danton (hdanton@sina.com) that syzbot had found a
+> bug in the patch.
+> 
+> Hillf Danton (hdanton@sina.com) has made a patch for the patch and it
+> is being reviewed.
 
-commit 49d28ebdf1e30d806410eefc7de0a7a1ca5d747c upstream.
+We will be glad to queue up the fix when it hits Linus's tree as well.
 
-Currently in case of alignment or FCS error if the packet cannot be
-corrected it's still not dropped. Report the error properly and drop the
-packet while making the code around a little bit more readable.
+thanks,
 
-Fixes: 80ff0fd3ab64 ("Staging: Add octeon-ethernet driver files.")
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201016145630.41852-1-alexander.sverdlin@nokia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/staging/octeon/ethernet-rx.c |   34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
-
---- a/drivers/staging/octeon/ethernet-rx.c
-+++ b/drivers/staging/octeon/ethernet-rx.c
-@@ -83,15 +83,17 @@ static inline int cvm_oct_check_rcv_erro
- 	else
- 		port = work->word1.cn38xx.ipprt;
- 
--	if ((work->word2.snoip.err_code == 10) && (work->word1.len <= 64)) {
-+	if ((work->word2.snoip.err_code == 10) && (work->word1.len <= 64))
- 		/*
- 		 * Ignore length errors on min size packets. Some
- 		 * equipment incorrectly pads packets to 64+4FCS
- 		 * instead of 60+4FCS.  Note these packets still get
- 		 * counted as frame errors.
- 		 */
--	} else if (work->word2.snoip.err_code == 5 ||
--		   work->word2.snoip.err_code == 7) {
-+		return 0;
-+
-+	if (work->word2.snoip.err_code == 5 ||
-+	    work->word2.snoip.err_code == 7) {
- 		/*
- 		 * We received a packet with either an alignment error
- 		 * or a FCS error. This may be signalling that we are
-@@ -122,7 +124,10 @@ static inline int cvm_oct_check_rcv_erro
- 				/* Port received 0xd5 preamble */
- 				work->packet_ptr.s.addr += i + 1;
- 				work->word1.len -= i + 5;
--			} else if ((*ptr & 0xf) == 0xd) {
-+				return 0;
-+			}
-+
-+			if ((*ptr & 0xf) == 0xd) {
- 				/* Port received 0xd preamble */
- 				work->packet_ptr.s.addr += i;
- 				work->word1.len -= i + 4;
-@@ -132,21 +137,20 @@ static inline int cvm_oct_check_rcv_erro
- 					    ((*(ptr + 1) & 0xf) << 4);
- 					ptr++;
- 				}
--			} else {
--				printk_ratelimited("Port %d unknown preamble, packet dropped\n",
--						   port);
--				cvm_oct_free_work(work);
--				return 1;
-+				return 0;
- 			}
-+
-+			printk_ratelimited("Port %d unknown preamble, packet dropped\n",
-+					   port);
-+			cvm_oct_free_work(work);
-+			return 1;
- 		}
--	} else {
--		printk_ratelimited("Port %d receive error code %d, packet dropped\n",
--				   port, work->word2.snoip.err_code);
--		cvm_oct_free_work(work);
--		return 1;
- 	}
- 
--	return 0;
-+	printk_ratelimited("Port %d receive error code %d, packet dropped\n",
-+			   port, work->word2.snoip.err_code);
-+	cvm_oct_free_work(work);
-+	return 1;
- }
- 
- static void copy_segments_to_skb(cvmx_wqe_t *work, struct sk_buff *skb)
-
-
+greg k-h
