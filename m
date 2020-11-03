@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C5A2A530F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:56:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B982A524E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:49:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732417AbgKCU4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:56:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57270 "EHLO mail.kernel.org"
+        id S1731593AbgKCUss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:48:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732425AbgKCU4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:01 -0500
+        id S1731629AbgKCUsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 830F622226;
-        Tue,  3 Nov 2020 20:56:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F9E4223FD;
+        Tue,  3 Nov 2020 20:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436961;
-        bh=1Fse/cScQSnSiOUmk897t/n13Oub6PCbMtekjJHJvkU=;
+        s=default; t=1604436525;
+        bh=13wYM5hiUOT/GmIzWu4aVniKeTvXXf4/7Fi7zvDYtuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mscrguLwmkAhbn9Kq7FLXbi3nQXsILXhwgufMaNow3QO/gaV8gGqNsZz0vsV/HOex
-         hzITC7/+d+5gLS4wNjjILJLYFi3tuGCYm0x0FpYCm9DopNO2yzHL5qHEk7bFgqLFDZ
-         ZjS1fkD4FFBKgOyi9iDrEAMPIj33oxGE0+6IdIrI=
+        b=wg1gxKmLKU5HGemYt7tkNDb6wpPufRpmf0pMtglrWtM9D4ScQe4OLpoBDLWpuP7/w
+         P+dD7Sy4QXa1zamwTDuXLgMl62Cl7luQwKukmhJX1/xZ9X2J5lzQ6ta+PF8yAy10l9
+         HKHcFQWkt6Scqstu7kZqdxrrOVGvzmElzJfYPvdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/214] ARM: dts: omap4: Fix sgx clock rate for 4430
-Date:   Tue,  3 Nov 2020 21:35:35 +0100
-Message-Id: <20201103203258.529018774@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 288/391] powerpc/memhotplug: Make lmb size 64bit
+Date:   Tue,  3 Nov 2020 21:35:39 +0100
+Message-Id: <20201103203406.481942387@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 19d3e9a0bdd57b90175f30390edeb06851f5f9f3 ]
+commit 301d2ea6572386245c5d2d2dc85c3b5a737b85ac upstream.
 
-We currently have a different clock rate for droid4 compared to the
-stock v3.0.8 based Android Linux kernel:
+Similar to commit 89c140bbaeee ("pseries: Fix 64 bit logical memory block panic")
+make sure different variables tracking lmb_size are updated to be 64 bit.
 
-# cat /sys/kernel/debug/clk/dpll_*_m7x2_ck/clk_rate
-266666667
-307200000
-# cat /sys/kernel/debug/clk/l3_gfx_cm:clk:0000:0/clk_rate
-307200000
+This was found by code audit.
 
-Let's fix this by configuring sgx to use 153.6 MHz instead of 307.2 MHz.
-Looks like also at least duover needs this change to avoid hangs, so
-let's apply it for all 4430.
+Cc: stable@vger.kernel.org
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201007114836.282468-3-aneesh.kumar@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This helps a bit with thermal issues that seem to be related to memory
-corruption when using sgx. It seems that other driver related issues
-still remain though.
-
-Cc: Arthur Demchenkov <spinal.by@gmail.com>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap4.dtsi    |  2 +-
- arch/arm/boot/dts/omap443x.dtsi | 10 ++++++++++
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |   43 ++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index e5506ab669fc6..904852006b9b1 100644
---- a/arch/arm/boot/dts/omap4.dtsi
-+++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -328,7 +328,7 @@
- 			status = "disabled";
- 		};
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -277,7 +277,7 @@ static int dlpar_offline_lmb(struct drme
+ 	return dlpar_change_lmb_state(lmb, false);
+ }
  
--		target-module@56000000 {
-+		sgx_module: target-module@56000000 {
- 			compatible = "ti,sysc-omap4", "ti,sysc";
- 			reg = <0x5600fe00 0x4>,
- 			      <0x5600fe10 0x4>;
-diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
-index cbcdcb4e7d1c2..86b9caf461dfa 100644
---- a/arch/arm/boot/dts/omap443x.dtsi
-+++ b/arch/arm/boot/dts/omap443x.dtsi
-@@ -74,3 +74,13 @@
- };
+-static int pseries_remove_memblock(unsigned long base, unsigned int memblock_size)
++static int pseries_remove_memblock(unsigned long base, unsigned long memblock_size)
+ {
+ 	unsigned long block_sz, start_pfn;
+ 	int sections_per_block;
+@@ -308,10 +308,11 @@ out:
  
- /include/ "omap443x-clocks.dtsi"
+ static int pseries_remove_mem_node(struct device_node *np)
+ {
+-	const __be32 *regs;
++	const __be32 *prop;
+ 	unsigned long base;
+-	unsigned int lmb_size;
++	unsigned long lmb_size;
+ 	int ret = -EINVAL;
++	int addr_cells, size_cells;
+ 
+ 	/*
+ 	 * Check to see if we are actually removing memory
+@@ -322,12 +323,19 @@ static int pseries_remove_mem_node(struc
+ 	/*
+ 	 * Find the base address and size of the memblock
+ 	 */
+-	regs = of_get_property(np, "reg", NULL);
+-	if (!regs)
++	prop = of_get_property(np, "reg", NULL);
++	if (!prop)
+ 		return ret;
+ 
+-	base = be64_to_cpu(*(unsigned long *)regs);
+-	lmb_size = be32_to_cpu(regs[3]);
++	addr_cells = of_n_addr_cells(np);
++	size_cells = of_n_size_cells(np);
 +
-+/*
-+ * Use dpll_per for sgx at 153.6MHz like droid4 stock v3.0.8 Android kernel
-+ */
-+&sgx_module {
-+	assigned-clocks = <&l3_gfx_clkctrl OMAP4_GPU_CLKCTRL 24>,
-+			  <&dpll_per_m7x2_ck>;
-+	assigned-clock-rates = <0>, <153600000>;
-+	assigned-clock-parents = <&dpll_per_m7x2_ck>;
-+};
--- 
-2.27.0
-
++	/*
++	 * "reg" property represents (addr,size) tuple.
++	 */
++	base = of_read_number(prop, addr_cells);
++	prop += addr_cells;
++	lmb_size = of_read_number(prop, size_cells);
+ 
+ 	pseries_remove_memblock(base, lmb_size);
+ 	return 0;
+@@ -564,7 +572,7 @@ static int dlpar_memory_remove_by_ic(u32
+ 
+ #else
+ static inline int pseries_remove_memblock(unsigned long base,
+-					  unsigned int memblock_size)
++					  unsigned long memblock_size)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -886,10 +894,11 @@ int dlpar_memory(struct pseries_hp_error
+ 
+ static int pseries_add_mem_node(struct device_node *np)
+ {
+-	const __be32 *regs;
++	const __be32 *prop;
+ 	unsigned long base;
+-	unsigned int lmb_size;
++	unsigned long lmb_size;
+ 	int ret = -EINVAL;
++	int addr_cells, size_cells;
+ 
+ 	/*
+ 	 * Check to see if we are actually adding memory
+@@ -900,12 +909,18 @@ static int pseries_add_mem_node(struct d
+ 	/*
+ 	 * Find the base and size of the memblock
+ 	 */
+-	regs = of_get_property(np, "reg", NULL);
+-	if (!regs)
++	prop = of_get_property(np, "reg", NULL);
++	if (!prop)
+ 		return ret;
+ 
+-	base = be64_to_cpu(*(unsigned long *)regs);
+-	lmb_size = be32_to_cpu(regs[3]);
++	addr_cells = of_n_addr_cells(np);
++	size_cells = of_n_size_cells(np);
++	/*
++	 * "reg" property represents (addr,size) tuple.
++	 */
++	base = of_read_number(prop, addr_cells);
++	prop += addr_cells;
++	lmb_size = of_read_number(prop, size_cells);
+ 
+ 	/*
+ 	 * Update memory region to represent the memory add
 
 
