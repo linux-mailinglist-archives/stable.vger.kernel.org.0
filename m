@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A76DD2A38F9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECCAC2A38ED
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbgKCBWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:22:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S1728356AbgKCBVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:21:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728347AbgKCBVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:21:11 -0500
+        id S1727312AbgKCBVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:21:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07F8E2242E;
-        Tue,  3 Nov 2020 01:21:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 447B522453;
+        Tue,  3 Nov 2020 01:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366470;
-        bh=m4phLv8FUPrGZMKDqhmhak7euiy1IqbmK6lazu0t8v4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dwgdI5tj65jyosDQR0HyQ6i2OQc6iasG2VewHHl7tm9jbIt7HLN/TmLCALcLEeHFv
-         F7YJi5M7Chn+N9lRSEBzy5JmXVsyoTVatDUnu6j8L5wWgH405t78W7GRxOp9w04ogp
-         4a2abp6BdCScu7kJrTyRhQ+JTPrsJtxRbP2yTevw=
+        s=default; t=1604366471;
+        bh=ou48oTC5DtY++5q6fw2mIlvdI6jtnTRTnw7hAOhFVEE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=q8s0rVPcbb/12QNGZBAOs82g2oMWD0HYzpRKbBHdjAEWGKKaa4JmxmI3tZqe2dMW0
+         Ao3kBwsF8tKz6j/HrO7JF618VpKKSK+wyIryn31w+5bS3B8XSk/FHMBdwPesI76y/p
+         0YNCdnKMgknboafhuqxjp0lxikXvolGoMFKWWeIc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 1/7] ARM: dts: sun4i-a10: fix cpu_alert temperature
-Date:   Mon,  2 Nov 2020 20:21:02 -0500
-Message-Id: <20201103012108.183942-1-sashal@kernel.org>
+Cc:     Kairui Song <kasong@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 2/7] x86/kexec: Use up-to-dated screen_info copy to fill boot params
+Date:   Mon,  2 Nov 2020 20:21:03 -0500
+Message-Id: <20201103012108.183942-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201103012108.183942-1-sashal@kernel.org>
+References: <20201103012108.183942-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,38 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Kairui Song <kasong@redhat.com>
 
-[ Upstream commit dea252fa41cd8ce332d148444e4799235a8a03ec ]
+[ Upstream commit afc18069a2cb7ead5f86623a5f3d4ad6e21f940d ]
 
-When running dtbs_check thermal_zone warn about the
-temperature declared.
+kexec_file_load() currently reuses the old boot_params.screen_info,
+but if drivers have change the hardware state, boot_param.screen_info
+could contain invalid info.
 
-thermal-zones: cpu-thermal:trips:cpu-alert0:temperature:0:0: 850000 is greater than the maximum of 200000
+For example, the video type might be no longer VGA, or the frame buffer
+address might be changed. If the kexec kernel keeps using the old screen_info,
+kexec'ed kernel may attempt to write to an invalid framebuffer
+memory region.
 
-It's indeed wrong the real value is 85°C and not 850°C.
+There are two screen_info instances globally available, boot_params.screen_info
+and screen_info. Later one is a copy, and is updated by drivers.
 
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20201003100332.431178-1-peron.clem@gmail.com
+So let kexec_file_load use the updated copy.
+
+[ mingo: Tidied up the changelog. ]
+
+Signed-off-by: Kairui Song <kasong@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014092429.1415040-2-kasong@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/kexec-bzimage64.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 7e7dfc2b43db0..d1af56d2f25e5 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -144,7 +144,7 @@ map0 {
- 			trips {
- 				cpu_alert0: cpu_alert0 {
- 					/* milliCelsius */
--					temperature = <850000>;
-+					temperature = <85000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index 167ecc270ca55..316c05b8b728b 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -211,8 +211,7 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
+ 	params->hdr.hardware_subarch = boot_params.hdr.hardware_subarch;
+ 
+ 	/* Copying screen_info will do? */
+-	memcpy(&params->screen_info, &boot_params.screen_info,
+-				sizeof(struct screen_info));
++	memcpy(&params->screen_info, &screen_info, sizeof(struct screen_info));
+ 
+ 	/* Fill in memsize later */
+ 	params->screen_info.ext_mem_k = 0;
 -- 
 2.27.0
 
