@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDF12A5891
+	by mail.lfdr.de (Postfix) with ESMTP id 7F39D2A5892
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730143AbgKCUqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35990 "EHLO mail.kernel.org"
+        id S1731230AbgKCUqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731218AbgKCUqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:32 -0500
+        id S1731221AbgKCUqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70C6620719;
-        Tue,  3 Nov 2020 20:46:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7C3F223EA;
+        Tue,  3 Nov 2020 20:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436391;
-        bh=HBlQ9LZsfl6/uypx/JWOg6euGZccDjx7Bv6yZdb66PY=;
+        s=default; t=1604436394;
+        bh=UYHJx1+MfmfoVH/1sbF6RoRj3ch51FiLn3oGum1AZI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWbw1kZrPEozQ8kKlX4zMOS6SfTgJYW9qvYgmbZU7NuwN3KVg+mTBmYF7imdNJ6Zr
-         kNPJeRSx8N32b5OIidbm7JHlnMj9SrVUQ2z6iOmdg4jmuIvuJhvDLt2gM02rX86g4r
-         d1xiJMrfrJF6Di/zMk4WngyRFMiLWb4dFeFMG4SI=
+        b=jlp7PTsrdD0yIl4zzoROzXcMiP0ReVPjhvfeRSOCxusURaSs8LtiudfjxUOqvScSy
+         n9Q7kjHepaM74hSrZr0cXJjrTDSq5vzSTFBQYJgXCFRSW8sv1bgVS5lSn9nD5jFBWE
+         zGIebHQkHtjiQ2I8Nh9ST3vtE/ufpv3ruFtHaNx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.9 231/391] btrfs: reschedule when cloning lots of extents
-Date:   Tue,  3 Nov 2020 21:34:42 +0100
-Message-Id: <20201103203402.572794776@linuxfoundation.org>
+Subject: [PATCH 5.9 232/391] btrfs: cleanup cow block on error
+Date:   Tue,  3 Nov 2020 21:34:43 +0100
+Message-Id: <20201103203402.642374787@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,94 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 6b613cc97f0ace77f92f7bc112b8f6ad3f52baf8 upstream.
+commit 572c83acdcdafeb04e70aa46be1fa539310be20c upstream.
 
-We have several occurrences of a soft lockup from fstest's generic/175
-testcase, which look more or less like this one:
+In fstest btrfs/064 a transaction abort in __btrfs_cow_block could lead
+to a system lockup. It gets stuck trying to write back inodes, and the
+write back thread was trying to lock an extent buffer:
 
-  watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [xfs_io:10030]
-  Kernel panic - not syncing: softlockup: hung tasks
-  CPU: 0 PID: 10030 Comm: xfs_io Tainted: G             L    5.9.0-rc5+ #768
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   <IRQ>
-   dump_stack+0x77/0xa0
-   panic+0xfa/0x2cb
-   watchdog_timer_fn.cold+0x85/0xa5
-   ? lockup_detector_update_enable+0x50/0x50
-   __hrtimer_run_queues+0x99/0x4c0
-   ? recalibrate_cpu_khz+0x10/0x10
-   hrtimer_run_queues+0x9f/0xb0
-   update_process_times+0x28/0x80
-   tick_handle_periodic+0x1b/0x60
-   __sysvec_apic_timer_interrupt+0x76/0x210
-   asm_call_on_stack+0x12/0x20
-   </IRQ>
-   sysvec_apic_timer_interrupt+0x7f/0x90
-   asm_sysvec_apic_timer_interrupt+0x12/0x20
-  RIP: 0010:btrfs_tree_unlock+0x91/0x1a0 [btrfs]
-  RSP: 0018:ffffc90007123a58 EFLAGS: 00000282
-  RAX: ffff8881cea2fbe0 RBX: ffff8881cea2fbe0 RCX: 0000000000000000
-  RDX: ffff8881d23fd200 RSI: ffffffff82045220 RDI: ffff8881cea2fba0
-  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000032
-  R10: 0000160000000000 R11: 0000000000001000 R12: 0000000000001000
-  R13: ffff8882357fd5b0 R14: ffff88816fa76e70 R15: ffff8881cea2fad0
-   ? btrfs_tree_unlock+0x15b/0x1a0 [btrfs]
-   btrfs_release_path+0x67/0x80 [btrfs]
-   btrfs_insert_replace_extent+0x177/0x2c0 [btrfs]
-   btrfs_replace_file_extents+0x472/0x7c0 [btrfs]
-   btrfs_clone+0x9ba/0xbd0 [btrfs]
-   btrfs_clone_files.isra.0+0xeb/0x140 [btrfs]
-   ? file_update_time+0xcd/0x120
-   btrfs_remap_file_range+0x322/0x3b0 [btrfs]
-   do_clone_file_range+0xb7/0x1e0
-   vfs_clone_file_range+0x30/0xa0
-   ioctl_file_clone+0x8a/0xc0
-   do_vfs_ioctl+0x5b2/0x6f0
-   __x64_sys_ioctl+0x37/0xa0
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f87977fc247
-  RSP: 002b:00007ffd51a2f6d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f87977fc247
-  RDX: 00007ffd51a2f710 RSI: 000000004020940d RDI: 0000000000000003
-  RBP: 0000000000000004 R08: 00007ffd51a79080 R09: 0000000000000000
-  R10: 00005621f11352f2 R11: 0000000000000206 R12: 0000000000000000
-  R13: 0000000000000000 R14: 00005621f128b958 R15: 0000000080000000
-  Kernel Offset: disabled
-  ---[ end Kernel panic - not syncing: softlockup: hung tasks ]---
+  $ cat /proc/2143497/stack
+  [<0>] __btrfs_tree_lock+0x108/0x250
+  [<0>] lock_extent_buffer_for_io+0x35e/0x3a0
+  [<0>] btree_write_cache_pages+0x15a/0x3b0
+  [<0>] do_writepages+0x28/0xb0
+  [<0>] __writeback_single_inode+0x54/0x5c0
+  [<0>] writeback_sb_inodes+0x1e8/0x510
+  [<0>] wb_writeback+0xcc/0x440
+  [<0>] wb_workfn+0xd7/0x650
+  [<0>] process_one_work+0x236/0x560
+  [<0>] worker_thread+0x55/0x3c0
+  [<0>] kthread+0x13a/0x150
+  [<0>] ret_from_fork+0x1f/0x30
 
-All of these lockup reports have the call chain btrfs_clone_files() ->
-btrfs_clone() in common. btrfs_clone_files() calls btrfs_clone() with
-both source and destination extents locked and loops over the source
-extent to create the clones.
+This is because we got an error while COWing a block, specifically here
 
-Conditionally reschedule in the btrfs_clone() loop, to give some time back
-to other processes.
+        if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+                ret = btrfs_reloc_cow_block(trans, root, buf, cow);
+                if (ret) {
+                        btrfs_abort_transaction(trans, ret);
+                        return ret;
+                }
+        }
+
+  [16402.241552] BTRFS: Transaction aborted (error -2)
+  [16402.242362] WARNING: CPU: 1 PID: 2563188 at fs/btrfs/ctree.c:1074 __btrfs_cow_block+0x376/0x540
+  [16402.249469] CPU: 1 PID: 2563188 Comm: fsstress Not tainted 5.9.0-rc6+ #8
+  [16402.249936] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  [16402.250525] RIP: 0010:__btrfs_cow_block+0x376/0x540
+  [16402.252417] RSP: 0018:ffff9cca40e578b0 EFLAGS: 00010282
+  [16402.252787] RAX: 0000000000000025 RBX: 0000000000000002 RCX: ffff9132bbd19388
+  [16402.253278] RDX: 00000000ffffffd8 RSI: 0000000000000027 RDI: ffff9132bbd19380
+  [16402.254063] RBP: ffff9132b41a49c0 R08: 0000000000000000 R09: 0000000000000000
+  [16402.254887] R10: 0000000000000000 R11: ffff91324758b080 R12: ffff91326ef17ce0
+  [16402.255694] R13: ffff91325fc0f000 R14: ffff91326ef176b0 R15: ffff9132815e2000
+  [16402.256321] FS:  00007f542c6d7b80(0000) GS:ffff9132bbd00000(0000) knlGS:0000000000000000
+  [16402.256973] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [16402.257374] CR2: 00007f127b83f250 CR3: 0000000133480002 CR4: 0000000000370ee0
+  [16402.257867] Call Trace:
+  [16402.258072]  btrfs_cow_block+0x109/0x230
+  [16402.258356]  btrfs_search_slot+0x530/0x9d0
+  [16402.258655]  btrfs_lookup_file_extent+0x37/0x40
+  [16402.259155]  __btrfs_drop_extents+0x13c/0xd60
+  [16402.259628]  ? btrfs_block_rsv_migrate+0x4f/0xb0
+  [16402.259949]  btrfs_replace_file_extents+0x190/0x820
+  [16402.260873]  btrfs_clone+0x9ae/0xc00
+  [16402.261139]  btrfs_extent_same_range+0x66/0x90
+  [16402.261771]  btrfs_remap_file_range+0x353/0x3b1
+  [16402.262333]  vfs_dedupe_file_range_one.part.0+0xd5/0x140
+  [16402.262821]  vfs_dedupe_file_range+0x189/0x220
+  [16402.263150]  do_vfs_ioctl+0x552/0x700
+  [16402.263662]  __x64_sys_ioctl+0x62/0xb0
+  [16402.264023]  do_syscall_64+0x33/0x40
+  [16402.264364]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [16402.264862] RIP: 0033:0x7f542c7d15cb
+  [16402.266901] RSP: 002b:00007ffd35944ea8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [16402.267627] RAX: ffffffffffffffda RBX: 00000000009d1968 RCX: 00007f542c7d15cb
+  [16402.268298] RDX: 00000000009d2490 RSI: 00000000c0189436 RDI: 0000000000000003
+  [16402.268958] RBP: 00000000009d2520 R08: 0000000000000036 R09: 00000000009d2e64
+  [16402.269726] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000002
+  [16402.270659] R13: 000000000001f000 R14: 00000000009d1970 R15: 00000000009d2e80
+  [16402.271498] irq event stamp: 0
+  [16402.271846] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+  [16402.272497] hardirqs last disabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
+  [16402.273343] softirqs last  enabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
+  [16402.273905] softirqs last disabled at (0): [<0000000000000000>] 0x0
+  [16402.274338] ---[ end trace 737874a5a41a8236 ]---
+  [16402.274669] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.276179] BTRFS info (device dm-9): forced readonly
+  [16402.277046] BTRFS: error (device dm-9) in btrfs_replace_file_extents:2723: errno=-2 No such entry
+  [16402.278744] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.279968] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.280582] BTRFS info (device dm-9): balance: ended with status: -30
+
+The problem here is that as soon as we allocate the new block it is
+locked and marked dirty in the btree inode.  This means that we could
+attempt to writeback this block and need to lock the extent buffer.
+However we're not unlocking it here and thus we deadlock.
+
+Fix this by unlocking the cow block if we have any errors inside of
+__btrfs_cow_block, and also free it so we do not leak it.
 
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/reflink.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/ctree.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -520,6 +520,8 @@ process_slot:
- 			ret = -EINTR;
- 			goto out;
- 		}
-+
-+		cond_resched();
- 	}
- 	ret = 0;
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1061,6 +1061,8 @@ static noinline int __btrfs_cow_block(st
  
+ 	ret = update_ref_for_cow(trans, root, buf, cow, &last_ref);
+ 	if (ret) {
++		btrfs_tree_unlock(cow);
++		free_extent_buffer(cow);
+ 		btrfs_abort_transaction(trans, ret);
+ 		return ret;
+ 	}
+@@ -1068,6 +1070,8 @@ static noinline int __btrfs_cow_block(st
+ 	if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+ 		ret = btrfs_reloc_cow_block(trans, root, buf, cow);
+ 		if (ret) {
++			btrfs_tree_unlock(cow);
++			free_extent_buffer(cow);
+ 			btrfs_abort_transaction(trans, ret);
+ 			return ret;
+ 		}
+@@ -1100,6 +1104,8 @@ static noinline int __btrfs_cow_block(st
+ 		if (last_ref) {
+ 			ret = tree_mod_log_free_eb(buf);
+ 			if (ret) {
++				btrfs_tree_unlock(cow);
++				free_extent_buffer(cow);
+ 				btrfs_abort_transaction(trans, ret);
+ 				return ret;
+ 			}
 
 
