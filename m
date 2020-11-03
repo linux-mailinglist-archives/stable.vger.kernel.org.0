@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF27B2A3953
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8638B2A394E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728323AbgKCBYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:24:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34734 "EHLO mail.kernel.org"
+        id S1728079AbgKCBYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:24:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbgKCBUN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:13 -0500
+        id S1728029AbgKCBUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CBF72225E;
-        Tue,  3 Nov 2020 01:20:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2564223EA;
+        Tue,  3 Nov 2020 01:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366412;
-        bh=6DeDSTSwYGVjvtDfoLsoMXbXKqoiKXXexcJfFQMJ99w=;
+        s=default; t=1604366413;
+        bh=sLdD2WHhyZznq7z3KqCeqdwr5+xOdL5zrp3tEJEMszE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRicXTAMQ9wJ1e1XFNnn8DGQZ/RBoqAqjk9xfjxKzlM6+sfdyTNhMFlCuEQpGNVvl
-         mQhPK/2vryfx1CHOQiTU92o+GKsnC9kAJMGE39P6gE2c4+hSFvX2IAJ7bc0G3SKquB
-         HB9PgVGFCVn2P1MYiesVDgMSb06jf1SSssVV28b0=
+        b=U4z3FbweP6ZigvdgS6MsbXOkCzTANY0acU1ECLFZmBlj93PAn9hTzIun3bVjecMws
+         sftvN9u3dQdWXCHo045qFbKqPwBSVvgy2AOuZsAtPvDcuwDMIRT0iZjsIgn7xK19Bl
+         ARpe2+GK55X1QtUsYfDX9e69IlA3Dza8njePyGW0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+Cc:     Scott K Logan <logans@cottsay.net>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 03/24] arm64: dts: meson-axg-s400: enable USB OTG
-Date:   Mon,  2 Nov 2020 20:19:46 -0500
-Message-Id: <20201103012007.183429-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 04/24] arm64: dts: meson: add missing g12 rng clock
+Date:   Mon,  2 Nov 2020 20:19:47 -0500
+Message-Id: <20201103012007.183429-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012007.183429-1-sashal@kernel.org>
 References: <20201103012007.183429-1-sashal@kernel.org>
@@ -44,34 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Scott K Logan <logans@cottsay.net>
 
-[ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
+[ Upstream commit a1afbbb0285797e01313779c71287d936d069245 ]
 
-This enables USB OTG on the S400 board.
+This adds the missing perpheral clock for the RNG for Amlogic G12. As
+stated in amlogic,meson-rng.yaml, this isn't always necessary for the
+RNG to function, but is better to have in case the clock is disabled for
+some reason prior to loading.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Scott K Logan <logans@cottsay.net>
+Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/520a1a8ec7a958b3d918d89563ec7e93a4100a45.camel@cottsay.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-index 4cd2d59518228..de4b40d4f48c6 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-@@ -584,3 +584,9 @@ &uart_AO {
- 	pinctrl-0 = <&uart_ao_a_pins>;
- 	pinctrl-names = "default";
- };
-+
-+&usb {
-+	status = "okay";
-+	dr_mode = "otg";
-+	vbus-supply = <&usb_pwr>;
-+};
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+index 1234bc7974294..354ef2f3eac67 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+@@ -167,6 +167,8 @@ apb_efuse: bus@30000 {
+ 				hwrng: rng@218 {
+ 					compatible = "amlogic,meson-rng";
+ 					reg = <0x0 0x218 0x0 0x4>;
++					clocks = <&clkc CLKID_RNG0>;
++					clock-names = "core";
+ 				};
+ 			};
+ 
 -- 
 2.27.0
 
