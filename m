@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6A32A553F
+	by mail.lfdr.de (Postfix) with ESMTP id D74B92A5540
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388282AbgKCVHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46564 "EHLO mail.kernel.org"
+        id S2387967AbgKCVHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:07:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387708AbgKCVHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:07:22 -0500
+        id S2387939AbgKCVHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07968205ED;
-        Tue,  3 Nov 2020 21:07:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 635D0206B5;
+        Tue,  3 Nov 2020 21:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437641;
-        bh=Yv/f268HFJkN+1vSeyywKjbrMmMCXFppzKgHQgZDufA=;
+        s=default; t=1604437643;
+        bh=8xoFGuuiqs5pCe7oxvt61+EtQ2jCHbdmKs+YFeRVgIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEK0GstQQF1Se1CQoZJSfZ6Pu2aoLZTIKV5HVSrHVg842vgqFPQ8V9Ux+heyPcPDe
-         3+ofn6xu3GJ8eVsKD9EdESzK0CByLLOStHYP2hBmoTbidWG5xrXjrwqDwbFJD3PaiP
-         pbIqYFW1vjWgthfqCR6rnOSRs9vkYbX0HEog3ICk=
+        b=MwMxD/dS0Qn+fXIJwSTvf0twjsGVRIt95/y5dM2aQE6HYr0jmP58pDmxrV8X6KxwM
+         pR3jSBGwOwrt6/0yGiRXA1LX0lHsSsTxALEVcluRLZ/sqoFo0jcWyY3std6SSSY8ta
+         hZ1XKRHWR4+Wm3hX3ax0+BqlfHu+H5id+Xt8Hlj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Hagen Paul Pfeifer <hagen@jauu.net>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.19 162/191] perf python scripting: Fix printable strings in python3 scripts
-Date:   Tue,  3 Nov 2020 21:37:34 +0100
-Message-Id: <20201103203247.627003357@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.19 163/191] ubi: check kthread_should_stop() after the setting of task state
+Date:   Tue,  3 Nov 2020 21:37:35 +0100
+Message-Id: <20201103203247.703993784@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -48,62 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 6fcd5ddc3b1467b3586972ef785d0d926ae4cdf4 upstream.
+commit d005f8c6588efcfbe88099b6edafc6f58c84a9c1 upstream.
 
-Hagen reported broken strings in python3 tracepoint scripts:
+A detach hung is possible when a race occurs between the detach process
+and the ubi background thread. The following sequences outline the race:
 
-  make PYTHON=python3
-  perf record -e sched:sched_switch -a -- sleep 5
-  perf script --gen-script py
-  perf script -s ./perf-script.py
+  ubi thread: if (list_empty(&ubi->works)...
 
-  [..]
-  sched__sched_switch      7 563231.759525792        0 swapper   prev_comm=bytearray(b'swapper/7\x00\x00\x00\x00\x00\x00\x00'), prev_pid=0, prev_prio=120, prev_state=, next_comm=bytearray(b'mutex-thread-co\x00'),
+  ubi detach: set_bit(KTHREAD_SHOULD_STOP, &kthread->flags)
+              => by kthread_stop()
+              wake_up_process()
+              => ubi thread is still running, so 0 is returned
 
-The problem is in the is_printable_array function that does not take the
-zero byte into account and claim such string as not printable, so the
-code will create byte array instead of string.
+  ubi thread: set_current_state(TASK_INTERRUPTIBLE)
+              schedule()
+              => ubi thread will never be scheduled again
 
-Committer testing:
+  ubi detach: wait_for_completion()
+              => hung task!
 
-After this fix:
+To fix that, we need to check kthread_should_stop() after we set the
+task state, so the ubi thread will either see the stop bit and exit or
+the task state is reset to runnable such that it isn't scheduled out
+indefinitely.
 
-sched__sched_switch 3 484522.497072626  1158680 kworker/3:0-eve  prev_comm=kworker/3:0, prev_pid=1158680, prev_prio=120, prev_state=I, next_comm=swapper/3, next_pid=0, next_prio=120
-Sample: {addr=0, cpu=3, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1158680, tid=1158680, time=484522497072626, transaction=0, values=[(0, 0)], weight=0}
-
-sched__sched_switch 4 484522.497085610  1225814 perf             prev_comm=perf, prev_pid=1225814, prev_prio=120, prev_state=, next_comm=migration/4, next_pid=30, next_prio=0
-Sample: {addr=0, cpu=4, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1225814, tid=1225814, time=484522497085610, transaction=0, values=[(0, 0)], weight=0}
-
-Fixes: 249de6e07458 ("perf script python: Fix string vs byte array resolving")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Tested-by: Hagen Paul Pfeifer <hagen@jauu.net>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200928201135.3633850-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 801c135ce73d5df1ca ("UBI: Unsorted Block Images")
+Reported-by: syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/print_binary.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/ubi/wl.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/tools/perf/util/print_binary.c
-+++ b/tools/perf/util/print_binary.c
-@@ -50,7 +50,7 @@ int is_printable_array(char *p, unsigned
- 
- 	len--;
- 
--	for (i = 0; i < len; i++) {
-+	for (i = 0; i < len && p[i]; i++) {
- 		if (!isprint(p[i]) && !isspace(p[i]))
- 			return 0;
- 	}
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -1471,6 +1471,19 @@ int ubi_thread(void *u)
+ 		    !ubi->thread_enabled || ubi_dbg_is_bgt_disabled(ubi)) {
+ 			set_current_state(TASK_INTERRUPTIBLE);
+ 			spin_unlock(&ubi->wl_lock);
++
++			/*
++			 * Check kthread_should_stop() after we set the task
++			 * state to guarantee that we either see the stop bit
++			 * and exit or the task state is reset to runnable such
++			 * that it's not scheduled out indefinitely and detects
++			 * the stop bit at kthread_should_stop().
++			 */
++			if (kthread_should_stop()) {
++				set_current_state(TASK_RUNNING);
++				break;
++			}
++
+ 			schedule();
+ 			continue;
+ 		}
 
 
