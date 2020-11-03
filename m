@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5222A5740
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:40:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DA22A5744
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:40:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732703AbgKCU43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:56:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58164 "EHLO mail.kernel.org"
+        id S1731019AbgKCVkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731988AbgKCU42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:28 -0500
+        id S1732721AbgKCU43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADD3F20732;
-        Tue,  3 Nov 2020 20:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5FC820732;
+        Tue,  3 Nov 2020 20:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436987;
-        bh=9CXD83r7/hEiAg1O5gJNxnZkiFr/YrvW/sKfL3+bIbI=;
+        s=default; t=1604436989;
+        bh=jCh3GPxe7Xy+C+hwntiI4Tqu9vycF/OM7TydPDkmcTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJuK1Bv0jqnc6mAdUvXKOX352xjBM9E8NY3sA3jZba7uE5RFG5oliwH3Cmybi5Ec3
-         202dH+Etxvk2evudQYEcyS+jqlYTAwlzlAMVy15gbfZzFgWzKnJF3p5i4hpIxna941
-         ktA/ZCJOWGz9xvYNPfDi7ost0kb1sE+P63wfcRDs=
+        b=JBri5T3EBXnza1BqRQRGQLX7WzZNXkyFOpuV3Z5qiKFaPaiC/utp7PR4E3ZwhhrQV
+         4trJPxiymTE+R12EbzdK9/nES+u/yyIuA0JkgMwiOWCjXHik8jw5fjYYvzhMIVYN4D
+         DRYltOs2YVvi49NwQcx1kMoFGeFrmJtBREDjHHPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 097/214] mmc: sdhci: Add LTR support for some Intel BYT based controllers
-Date:   Tue,  3 Nov 2020 21:35:45 +0100
-Message-Id: <20201103203259.604544706@linuxfoundation.org>
+Subject: [PATCH 5.4 098/214] mmc: sdhci-acpi: AMDI0040: Set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+Date:   Tue,  3 Nov 2020 21:35:46 +0100
+Message-Id: <20201103203259.699593182@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -42,252 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-commit 46f4a69ec8ed6ab9f6a6172afe50df792c8bc1b6 upstream.
+commit f23cc3ba491af77395cea3f9d51204398729f26b upstream.
 
-Some Intel BYT based host controllers support the setting of latency
-tolerance.  Accordingly, implement the PM QoS ->set_latency_tolerance()
-callback.  The raw register values are also exposed via debugfs.
+This change fixes HS400 tuning for devices with invalid presets.
 
-Intel EHL controllers require this support.
+SDHCI presets are not currently used for eMMC HS/HS200/HS400, but are
+used for DDR52. The HS400 retuning sequence is:
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: cb3a7d4a0aec4e ("mmc: sdhci-pci: Add support for Intel EHL")
+    HS400->DDR52->HS->HS200->Perform Tuning->HS->HS400
+
+This means that when HS400 tuning happens, we transition through DDR52
+for a very brief period. This causes presets to be enabled
+unintentionally and stay enabled when transitioning back to HS200 or
+HS400. Some firmware has invalid presets, so we end up with driver
+strengths that can cause I/O problems.
+
+Fixes: 34597a3f60b1 ("mmc: sdhci-acpi: Add support for ACPI HID of AMD Controller with HS400")
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200818104508.7149-1-adrian.hunter@intel.com
+Link: https://lore.kernel.org/r/20200928154718.1.Icc21d4b2f354e83e26e57e270dc952f5fe0b0a40@changeid
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-core.c |  154 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 154 insertions(+)
+ drivers/mmc/host/sdhci-acpi.c |   37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -24,6 +24,8 @@
- #include <linux/iopoll.h>
- #include <linux/gpio.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pm_qos.h>
-+#include <linux/debugfs.h>
- #include <linux/mmc/slot-gpio.h>
- #include <linux/mmc/sdhci-pci-data.h>
- #include <linux/acpi.h>
-@@ -520,6 +522,8 @@ struct intel_host {
- 	bool	rpm_retune_ok;
- 	u32	glk_rx_ctrl1;
- 	u32	glk_tun_val;
-+	u32	active_ltr;
-+	u32	idle_ltr;
- };
+--- a/drivers/mmc/host/sdhci-acpi.c
++++ b/drivers/mmc/host/sdhci-acpi.c
+@@ -658,6 +658,43 @@ static int sdhci_acpi_emmc_amd_probe_slo
+ 	    (host->mmc->caps & MMC_CAP_1_8V_DDR))
+ 		host->mmc->caps2 = MMC_CAP2_HS400_1_8V;
  
- static const guid_t intel_dsm_guid =
-@@ -764,6 +768,108 @@ static int intel_execute_tuning(struct m
- 	return 0;
- }
- 
-+#define INTEL_ACTIVELTR		0x804
-+#define INTEL_IDLELTR		0x808
-+
-+#define INTEL_LTR_REQ		BIT(15)
-+#define INTEL_LTR_SCALE_MASK	GENMASK(11, 10)
-+#define INTEL_LTR_SCALE_1US	(2 << 10)
-+#define INTEL_LTR_SCALE_32US	(3 << 10)
-+#define INTEL_LTR_VALUE_MASK	GENMASK(9, 0)
-+
-+static void intel_cache_ltr(struct sdhci_pci_slot *slot)
-+{
-+	struct intel_host *intel_host = sdhci_pci_priv(slot);
-+	struct sdhci_host *host = slot->host;
-+
-+	intel_host->active_ltr = readl(host->ioaddr + INTEL_ACTIVELTR);
-+	intel_host->idle_ltr = readl(host->ioaddr + INTEL_IDLELTR);
-+}
-+
-+static void intel_ltr_set(struct device *dev, s32 val)
-+{
-+	struct sdhci_pci_chip *chip = dev_get_drvdata(dev);
-+	struct sdhci_pci_slot *slot = chip->slots[0];
-+	struct intel_host *intel_host = sdhci_pci_priv(slot);
-+	struct sdhci_host *host = slot->host;
-+	u32 ltr;
-+
-+	pm_runtime_get_sync(dev);
-+
 +	/*
-+	 * Program latency tolerance (LTR) accordingly what has been asked
-+	 * by the PM QoS layer or disable it in case we were passed
-+	 * negative value or PM_QOS_LATENCY_ANY.
++	 * There are two types of presets out in the wild:
++	 * 1) Default/broken presets.
++	 *    These presets have two sets of problems:
++	 *    a) The clock divisor for SDR12, SDR25, and SDR50 is too small.
++	 *       This results in clock frequencies that are 2x higher than
++	 *       acceptable. i.e., SDR12 = 25 MHz, SDR25 = 50 MHz, SDR50 =
++	 *       100 MHz.x
++	 *    b) The HS200 and HS400 driver strengths don't match.
++	 *       By default, the SDR104 preset register has a driver strength of
++	 *       A, but the (internal) HS400 preset register has a driver
++	 *       strength of B. As part of initializing HS400, HS200 tuning
++	 *       needs to be performed. Having different driver strengths
++	 *       between tuning and operation is wrong. It results in different
++	 *       rise/fall times that lead to incorrect sampling.
++	 * 2) Firmware with properly initialized presets.
++	 *    These presets have proper clock divisors. i.e., SDR12 => 12MHz,
++	 *    SDR25 => 25 MHz, SDR50 => 50 MHz. Additionally the HS200 and
++	 *    HS400 preset driver strengths match.
++	 *
++	 *    Enabling presets for HS400 doesn't work for the following reasons:
++	 *    1) sdhci_set_ios has a hard coded list of timings that are used
++	 *       to determine if presets should be enabled.
++	 *    2) sdhci_get_preset_value is using a non-standard register to
++	 *       read out HS400 presets. The AMD controller doesn't support this
++	 *       non-standard register. In fact, it doesn't expose the HS400
++	 *       preset register anywhere in the SDHCI memory map. This results
++	 *       in reading a garbage value and using the wrong presets.
++	 *
++	 *       Since HS400 and HS200 presets must be identical, we could
++	 *       instead use the the SDR104 preset register.
++	 *
++	 *    If the above issues are resolved we could remove this quirk for
++	 *    firmware that that has valid presets (i.e., SDR12 <= 12 MHz).
 +	 */
-+	ltr = readl(host->ioaddr + INTEL_ACTIVELTR);
++	host->quirks2 |= SDHCI_QUIRK2_PRESET_VALUE_BROKEN;
 +
-+	if (val == PM_QOS_LATENCY_ANY || val < 0) {
-+		ltr &= ~INTEL_LTR_REQ;
-+	} else {
-+		ltr |= INTEL_LTR_REQ;
-+		ltr &= ~INTEL_LTR_SCALE_MASK;
-+		ltr &= ~INTEL_LTR_VALUE_MASK;
-+
-+		if (val > INTEL_LTR_VALUE_MASK) {
-+			val >>= 5;
-+			if (val > INTEL_LTR_VALUE_MASK)
-+				val = INTEL_LTR_VALUE_MASK;
-+			ltr |= INTEL_LTR_SCALE_32US | val;
-+		} else {
-+			ltr |= INTEL_LTR_SCALE_1US | val;
-+		}
-+	}
-+
-+	if (ltr == intel_host->active_ltr)
-+		goto out;
-+
-+	writel(ltr, host->ioaddr + INTEL_ACTIVELTR);
-+	writel(ltr, host->ioaddr + INTEL_IDLELTR);
-+
-+	/* Cache the values into lpss structure */
-+	intel_cache_ltr(slot);
-+out:
-+	pm_runtime_put_autosuspend(dev);
-+}
-+
-+static bool intel_use_ltr(struct sdhci_pci_chip *chip)
-+{
-+	switch (chip->pdev->device) {
-+	case PCI_DEVICE_ID_INTEL_BYT_EMMC:
-+	case PCI_DEVICE_ID_INTEL_BYT_EMMC2:
-+	case PCI_DEVICE_ID_INTEL_BYT_SDIO:
-+	case PCI_DEVICE_ID_INTEL_BYT_SD:
-+	case PCI_DEVICE_ID_INTEL_BSW_EMMC:
-+	case PCI_DEVICE_ID_INTEL_BSW_SDIO:
-+	case PCI_DEVICE_ID_INTEL_BSW_SD:
-+		return false;
-+	default:
-+		return true;
-+	}
-+}
-+
-+static void intel_ltr_expose(struct sdhci_pci_chip *chip)
-+{
-+	struct device *dev = &chip->pdev->dev;
-+
-+	if (!intel_use_ltr(chip))
-+		return;
-+
-+	dev->power.set_latency_tolerance = intel_ltr_set;
-+	dev_pm_qos_expose_latency_tolerance(dev);
-+}
-+
-+static void intel_ltr_hide(struct sdhci_pci_chip *chip)
-+{
-+	struct device *dev = &chip->pdev->dev;
-+
-+	if (!intel_use_ltr(chip))
-+		return;
-+
-+	dev_pm_qos_hide_latency_tolerance(dev);
-+	dev->power.set_latency_tolerance = NULL;
-+}
-+
- static void byt_probe_slot(struct sdhci_pci_slot *slot)
- {
- 	struct mmc_host_ops *ops = &slot->host->mmc_host_ops;
-@@ -778,6 +884,43 @@ static void byt_probe_slot(struct sdhci_
- 	ops->start_signal_voltage_switch = intel_start_signal_voltage_switch;
- 
- 	device_property_read_u32(dev, "max-frequency", &mmc->f_max);
-+
-+	if (!mmc->slotno) {
-+		slot->chip->slots[mmc->slotno] = slot;
-+		intel_ltr_expose(slot->chip);
-+	}
-+}
-+
-+static void byt_add_debugfs(struct sdhci_pci_slot *slot)
-+{
-+	struct intel_host *intel_host = sdhci_pci_priv(slot);
-+	struct mmc_host *mmc = slot->host->mmc;
-+	struct dentry *dir = mmc->debugfs_root;
-+
-+	if (!intel_use_ltr(slot->chip))
-+		return;
-+
-+	debugfs_create_x32("active_ltr", 0444, dir, &intel_host->active_ltr);
-+	debugfs_create_x32("idle_ltr", 0444, dir, &intel_host->idle_ltr);
-+
-+	intel_cache_ltr(slot);
-+}
-+
-+static int byt_add_host(struct sdhci_pci_slot *slot)
-+{
-+	int ret = sdhci_add_host(slot->host);
-+
-+	if (!ret)
-+		byt_add_debugfs(slot);
-+	return ret;
-+}
-+
-+static void byt_remove_slot(struct sdhci_pci_slot *slot, int dead)
-+{
-+	struct mmc_host *mmc = slot->host->mmc;
-+
-+	if (!mmc->slotno)
-+		intel_ltr_hide(slot->chip);
- }
- 
- static int byt_emmc_probe_slot(struct sdhci_pci_slot *slot)
-@@ -859,6 +1002,8 @@ static int glk_emmc_add_host(struct sdhc
- 	if (ret)
- 		goto cleanup;
- 
-+	byt_add_debugfs(slot);
-+
- 	return 0;
- 
- cleanup:
-@@ -1036,6 +1181,8 @@ static const struct sdhci_pci_fixes sdhc
- #endif
- 	.allow_runtime_pm = true,
- 	.probe_slot	= byt_emmc_probe_slot,
-+	.add_host	= byt_add_host,
-+	.remove_slot	= byt_remove_slot,
- 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC |
- 			  SDHCI_QUIRK_NO_LED,
- 	.quirks2	= SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
-@@ -1049,6 +1196,7 @@ static const struct sdhci_pci_fixes sdhc
- 	.allow_runtime_pm	= true,
- 	.probe_slot		= glk_emmc_probe_slot,
- 	.add_host		= glk_emmc_add_host,
-+	.remove_slot		= byt_remove_slot,
- #ifdef CONFIG_PM_SLEEP
- 	.suspend		= sdhci_cqhci_suspend,
- 	.resume			= sdhci_cqhci_resume,
-@@ -1079,6 +1227,8 @@ static const struct sdhci_pci_fixes sdhc
- 			  SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
- 	.allow_runtime_pm = true,
- 	.probe_slot	= ni_byt_sdio_probe_slot,
-+	.add_host	= byt_add_host,
-+	.remove_slot	= byt_remove_slot,
- 	.ops		= &sdhci_intel_byt_ops,
- 	.priv_size	= sizeof(struct intel_host),
- };
-@@ -1096,6 +1246,8 @@ static const struct sdhci_pci_fixes sdhc
- 			SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
- 	.allow_runtime_pm = true,
- 	.probe_slot	= byt_sdio_probe_slot,
-+	.add_host	= byt_add_host,
-+	.remove_slot	= byt_remove_slot,
- 	.ops		= &sdhci_intel_byt_ops,
- 	.priv_size	= sizeof(struct intel_host),
- };
-@@ -1115,6 +1267,8 @@ static const struct sdhci_pci_fixes sdhc
- 	.allow_runtime_pm = true,
- 	.own_cd_for_runtime_pm = true,
- 	.probe_slot	= byt_sd_probe_slot,
-+	.add_host	= byt_add_host,
-+	.remove_slot	= byt_remove_slot,
- 	.ops		= &sdhci_intel_byt_ops,
- 	.priv_size	= sizeof(struct intel_host),
- };
+ 	host->mmc_host_ops.select_drive_strength = amd_select_drive_strength;
+ 	host->mmc_host_ops.set_ios = amd_set_ios;
+ 	host->mmc_host_ops.execute_tuning = amd_sdhci_execute_tuning;
 
 
