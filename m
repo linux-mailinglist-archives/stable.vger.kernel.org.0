@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CB22A52FB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9861D2A5258
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:49:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732679AbgKCUzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:55:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55082 "EHLO mail.kernel.org"
+        id S1731694AbgKCUtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732671AbgKCUzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:06 -0500
+        id S1731401AbgKCUsA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2EF8223BD;
-        Tue,  3 Nov 2020 20:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A38220719;
+        Tue,  3 Nov 2020 20:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436906;
-        bh=4Jxw72oNKrHSViVlrye7VjWtEQ+cRo52KU5GDCZ1/bQ=;
+        s=default; t=1604436480;
+        bh=UUZhJu7PlHJEOTeScATk6/XWUhsNVq7I6xnmh+OhpVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCjNBCGXhUfrHl2/WEF47pFvUa/Gve1HscGZ89z9fja/K4ahBwHRsmIGs3XUhwWad
-         3I2R55jPTwBvIumVlKGy9EyG4ZmgwL00HDOCPhhUBaopK2P+UUcUAL6vGys5WkwTRk
-         2Ku3PMlYPdaG0jkngH8gPmTeYEvkk305qOPxPNz4=
+        b=Ar2zxCfrAW/3pMDIcjvchfrXr/XuFfsbbt2xWrrPFU5r5i7UDXuUEH5BySP0ehWAx
+         Ex0c2Ox7MLJT4izf5OlRrhYUjU8OI3d9bsx9lvHV48j5ztuO6eDeRV+A1svyOmTy7X
+         059NW8PLZ2f/4GlUteqCnaAENPExwqq42B1Prwlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/214] SUNRPC: Mitigate cond_resched() in xprt_transmit()
-Date:   Tue,  3 Nov 2020 21:35:09 +0100
-Message-Id: <20201103203256.087374718@linuxfoundation.org>
+        stable@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.9 261/391] tracing: Fix race in trace_open and buffer resize call
+Date:   Tue,  3 Nov 2020 21:35:12 +0100
+Message-Id: <20201103203404.635910328@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Gaurav Kohli <gkohli@codeaurora.org>
 
-[ Upstream commit 6f9f17287e78e5049931af2037b15b26d134a32a ]
+commit bbeb97464eefc65f506084fd9f18f21653e01137 upstream.
 
-The original purpose of this expensive call is to prevent a long
-queue of requests from blocking other work.
+Below race can come, if trace_open and resize of
+cpu buffer is running parallely on different cpus
+CPUX                                CPUY
+				    ring_buffer_resize
+				    atomic_read(&buffer->resize_disabled)
+tracing_open
+tracing_reset_online_cpus
+ring_buffer_reset_cpu
+rb_reset_cpu
+				    rb_update_pages
+				    remove/insert pages
+resetting pointer
 
-The cond_resched() call is unnecessary after just a single send
-operation.
+This race can cause data abort or some times infinte loop in
+rb_remove_pages and rb_insert_pages while checking pages
+for sanity.
 
-For longer queues, instead of invoking the kernel scheduler, simply
-release the transport send lock and return to the RPC scheduler.
+Take buffer lock to fix this.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/1601976833-24377-1-git-send-email-gkohli@codeaurora.org
+
+Cc: stable@vger.kernel.org
+Fixes: b23d7a5f4a07a ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
+Signed-off-by: Gaurav Kohli <gkohli@codeaurora.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/sunrpc/xprt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/ring_buffer.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 41df4c507193b..a6fee86f400ec 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1503,10 +1503,13 @@ xprt_transmit(struct rpc_task *task)
- {
- 	struct rpc_rqst *next, *req = task->tk_rqstp;
- 	struct rpc_xprt	*xprt = req->rq_xprt;
--	int status;
-+	int counter, status;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4866,6 +4866,9 @@ void ring_buffer_reset_cpu(struct trace_
+ 	if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 		return;
  
- 	spin_lock(&xprt->queue_lock);
-+	counter = 0;
- 	while (!list_empty(&xprt->xmit_queue)) {
-+		if (++counter == 20)
-+			break;
- 		next = list_first_entry(&xprt->xmit_queue,
- 				struct rpc_rqst, rq_xmit);
- 		xprt_pin_rqst(next);
-@@ -1514,7 +1517,6 @@ xprt_transmit(struct rpc_task *task)
- 		status = xprt_request_transmit(next, task);
- 		if (status == -EBADMSG && next != req)
- 			status = 0;
--		cond_resched();
- 		spin_lock(&xprt->queue_lock);
- 		xprt_unpin_rqst(next);
- 		if (status == 0) {
--- 
-2.27.0
-
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
++
+ 	atomic_inc(&cpu_buffer->resize_disabled);
+ 	atomic_inc(&cpu_buffer->record_disabled);
+ 
+@@ -4876,6 +4879,8 @@ void ring_buffer_reset_cpu(struct trace_
+ 
+ 	atomic_dec(&cpu_buffer->record_disabled);
+ 	atomic_dec(&cpu_buffer->resize_disabled);
++
++	mutex_unlock(&buffer->mutex);
+ }
+ EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ 
+@@ -4889,6 +4894,9 @@ void ring_buffer_reset_online_cpus(struc
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	int cpu;
+ 
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
++
+ 	for_each_online_buffer_cpu(buffer, cpu) {
+ 		cpu_buffer = buffer->buffers[cpu];
+ 
+@@ -4907,6 +4915,8 @@ void ring_buffer_reset_online_cpus(struc
+ 		atomic_dec(&cpu_buffer->record_disabled);
+ 		atomic_dec(&cpu_buffer->resize_disabled);
+ 	}
++
++	mutex_unlock(&buffer->mutex);
+ }
+ 
+ /**
 
 
