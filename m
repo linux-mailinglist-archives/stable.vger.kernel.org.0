@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6301D2A52A6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:52:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68AF62A5344
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731208AbgKCUvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:51:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
+        id S1730942AbgKCU7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730308AbgKCUvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:51:48 -0500
+        id S1733101AbgKCU7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DADD82053B;
-        Tue,  3 Nov 2020 20:51:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F6422226;
+        Tue,  3 Nov 2020 20:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436708;
-        bh=ZEG/PITrBrNEmPAiZ7Xuy2CVBKPYhPVhfGll2w7GYr0=;
+        s=default; t=1604437160;
+        bh=Yv/f268HFJkN+1vSeyywKjbrMmMCXFppzKgHQgZDufA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSHqNe1EjlA46QDoQmNMxuo02sRMkXhYbNAwWQF02k9lGx+27Fr/jkwPBEW+tJDDt
-         h6hooG2UhqPOUEWaLl/UwufuY0tVOkxQAldHj/I2KjfJjT6lHLqiMSIFwTBiVrAfc8
-         bNJn9uyZ9SPy95GX6C9DJeE5FLAI55fjpGQfrM0s=
+        b=BF/BKOh59UJcyNXIwT9z/2+fCmmN/Tq12322XWYp+QllnPGfMgdI1eDNc6PNshc1a
+         75vdZiSsQEFEg8rMonzMFtcvAZeIav3OPNA2mbvtwOPsv+hcwO/TGewf8qSD3PZP0I
+         JD4migetOmba3J/nZl7ABq4L6JkcCy/urFPnIaSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.9 368/391] ARM: dts: s5pv210: fix pinctrl property of "vibrator-en" regulator in Aries
-Date:   Tue,  3 Nov 2020 21:36:59 +0100
-Message-Id: <20201103203411.979640211@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Hagen Paul Pfeifer <hagen@jauu.net>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.4 173/214] perf python scripting: Fix printable strings in python3 scripts
+Date:   Tue,  3 Nov 2020 21:37:01 +0100
+Message-Id: <20201103203306.949707119@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit 2c6658c607a3af2ed7bd41dc57a3dd31537d023e upstream.
+commit 6fcd5ddc3b1467b3586972ef785d0d926ae4cdf4 upstream.
 
-Fix typo in pinctrl property of "vibrator-en" fixed regulator in Aries
-family of boards.  The error caused lack of pin configuration for the
-GPIO used in vibrator.
+Hagen reported broken strings in python3 tracepoint scripts:
 
-Fixes: 04568cb58a43 ("ARM: dts: s5pv210: Disable pull for vibrator enable GPIO on Aries boards")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200907161141.31034-5-krzk@kernel.org
+  make PYTHON=python3
+  perf record -e sched:sched_switch -a -- sleep 5
+  perf script --gen-script py
+  perf script -s ./perf-script.py
+
+  [..]
+  sched__sched_switch      7 563231.759525792        0 swapper   prev_comm=bytearray(b'swapper/7\x00\x00\x00\x00\x00\x00\x00'), prev_pid=0, prev_prio=120, prev_state=, next_comm=bytearray(b'mutex-thread-co\x00'),
+
+The problem is in the is_printable_array function that does not take the
+zero byte into account and claim such string as not printable, so the
+code will create byte array instead of string.
+
+Committer testing:
+
+After this fix:
+
+sched__sched_switch 3 484522.497072626  1158680 kworker/3:0-eve  prev_comm=kworker/3:0, prev_pid=1158680, prev_prio=120, prev_state=I, next_comm=swapper/3, next_pid=0, next_prio=120
+Sample: {addr=0, cpu=3, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1158680, tid=1158680, time=484522497072626, transaction=0, values=[(0, 0)], weight=0}
+
+sched__sched_switch 4 484522.497085610  1225814 perf             prev_comm=perf, prev_pid=1225814, prev_prio=120, prev_state=, next_comm=migration/4, next_pid=30, next_prio=0
+Sample: {addr=0, cpu=4, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1225814, tid=1225814, time=484522497085610, transaction=0, values=[(0, 0)], weight=0}
+
+Fixes: 249de6e07458 ("perf script python: Fix string vs byte array resolving")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Hagen Paul Pfeifer <hagen@jauu.net>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200928201135.3633850-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/s5pv210-aries.dtsi |    2 +-
+ tools/perf/util/print_binary.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/s5pv210-aries.dtsi
-+++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
-@@ -66,7 +66,7 @@
- 		gpio = <&gpj1 1 GPIO_ACTIVE_HIGH>;
+--- a/tools/perf/util/print_binary.c
++++ b/tools/perf/util/print_binary.c
+@@ -50,7 +50,7 @@ int is_printable_array(char *p, unsigned
  
- 		pinctrl-names = "default";
--		pinctr-0 = <&vibrator_ena>;
-+		pinctrl-0 = <&vibrator_ena>;
- 	};
+ 	len--;
  
- 	touchkey_vdd: regulator-fixed-1 {
+-	for (i = 0; i < len; i++) {
++	for (i = 0; i < len && p[i]; i++) {
+ 		if (!isprint(p[i]) && !isspace(p[i]))
+ 			return 0;
+ 	}
 
 
