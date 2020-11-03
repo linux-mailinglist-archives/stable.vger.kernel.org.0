@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 571DF2A552C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070A42A5411
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388716AbgKCVKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:10:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51204 "EHLO mail.kernel.org"
+        id S2388318AbgKCVHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:07:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388713AbgKCVKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:23 -0500
+        id S2388311AbgKCVHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39A4D206B5;
-        Tue,  3 Nov 2020 21:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F382205ED;
+        Tue,  3 Nov 2020 21:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437822;
-        bh=8Ps6fibaEDvruRC1CSgKQZmovHRxfu5kwG0uq6P269M=;
+        s=default; t=1604437658;
+        bh=DkaiWdgXdPpmYkXen4EmdiCbkbN3LFjCEHg6J12kaFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3GAf/8cA6iMbq7wrmpPfo5CVfMGvkNS1ACXBUEzqP3lDqOI33uJcrk8Q3aeX31LD
-         p5Bw1McZdjrfGnDWeTMIQrSJhy+8n239BciMmpqeatLky+/05xsYrkygpqDCqFnkJc
-         X1x4A8t22UW4Kkn4T4PlTeupAD8o/AHifl3RVFkQ=
+        b=NiIUaNqwQINs2PaBh/w8/IkWBKGyP/3PeSgfhUvsxW0pdXtxmwh16Dzc3+8qxO8J1
+         tLIBcF/Nts4CON3l8ZNoho9OvCCxEQTGt4AJaT7NY6EeuiswlN5rdoXmXw7YaWWz/1
+         T4bWzq1aUO9zkhVfmE3pd3I/NRVMo5d4wobjmSWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Tero Kristo <t-kristo@ti.com>, Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/125] clk: ti: clockdomain: fix static checker warning
+        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 132/191] btrfs: use kvzalloc() to allocate clone_roots in btrfs_ioctl_send()
 Date:   Tue,  3 Nov 2020 21:37:04 +0100
-Message-Id: <20201103203203.771712549@linuxfoundation.org>
+Message-Id: <20201103203245.418735460@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Denis Efremov <efremov@linux.com>
 
-[ Upstream commit b7a7943fe291b983b104bcbd2f16e8e896f56590 ]
+commit 8eb2fd00153a3a96a19c62ac9c6d48c2efebe5e8 upstream.
 
-Fix a memory leak induced by not calling clk_put after doing of_clk_get.
+btrfs_ioctl_send() used open-coded kvzalloc implementation earlier.
+The code was accidentally replaced with kzalloc() call [1]. Restore
+the original code by using kvzalloc() to allocate sctx->clone_roots.
 
-Reported-by: Dan Murphy <dmurphy@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lore.kernel.org/r/20200907082600.454-3-t-kristo@ti.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://patchwork.kernel.org/patch/9757891/#20529627
+
+Fixes: 818e010bf9d0 ("btrfs: replace opencoded kvzalloc with the helper")
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/ti/clockdomain.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/send.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ti/clockdomain.c b/drivers/clk/ti/clockdomain.c
-index 07a805125e98c..11d92311e162f 100644
---- a/drivers/clk/ti/clockdomain.c
-+++ b/drivers/clk/ti/clockdomain.c
-@@ -146,10 +146,12 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
- 		if (clk_hw_get_flags(clk_hw) & CLK_IS_BASIC) {
- 			pr_warn("can't setup clkdm for basic clk %s\n",
- 				__clk_get_name(clk));
-+			clk_put(clk);
- 			continue;
- 		}
- 		to_clk_hw_omap(clk_hw)->clkdm_name = clkdm_name;
- 		omap2_init_clk_clkdm(clk_hw);
-+		clk_put(clk);
- 	}
- }
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -6859,7 +6859,7 @@ long btrfs_ioctl_send(struct file *mnt_f
  
--- 
-2.27.0
-
+ 	alloc_size = sizeof(struct clone_root) * (arg->clone_sources_count + 1);
+ 
+-	sctx->clone_roots = kzalloc(alloc_size, GFP_KERNEL);
++	sctx->clone_roots = kvzalloc(alloc_size, GFP_KERNEL);
+ 	if (!sctx->clone_roots) {
+ 		ret = -ENOMEM;
+ 		goto out;
 
 
