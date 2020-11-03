@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D8C2A5259
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3826A2A523E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731697AbgKCUtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:49:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39330 "EHLO mail.kernel.org"
+        id S1729927AbgKCUsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:48:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731583AbgKCUsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:09 -0500
+        id S1731648AbgKCUsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BBFB22404;
-        Tue,  3 Nov 2020 20:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 598FD2242A;
+        Tue,  3 Nov 2020 20:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436489;
-        bh=KEtK5hdAZfsIrtGMreF2YXohOfq3j5+ktLYhH8ZE8NA=;
+        s=default; t=1604436491;
+        bh=GtkWJF9pzV0zi9XILsfhW7l8ZFg4k0EpSUF4Xj2UImA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZMHc8I8fsPxjsJWvJKdaQqyqHCSE65BZS9pvye5wLfPjY3r2AlRG7O96KrtkEx+D
-         jorZ6re+D9seHWSeZSPzDkNU72uL59gCNNfO49pruMnw68/Qx3cbqsIzDNX/OdedkD
-         b0D8z3E9PTFbTcjAOk0Ui0n7r8+yBKHESwRDIQx0=
+        b=HfxCX8AhC6SIrckefnMuPAZ9r8hSMfFBe+nykIO3tnHF539iwDdCRviFBefo0Jocv
+         4OfQBM+Js8lueHbFl5/i74TkHLkHiL7881V0gtvTpXHphqSB01fBa5mBnpI+14EFMX
+         82fahfAFSVMliclKQYCvJlj+H88eHzMomNTRhGBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Jordan <kernel@cdqe.de>,
-        Stable@vger.kernel.org,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.9 273/391] iio: adc: gyroadc: fix leak of device node iterator
-Date:   Tue,  3 Nov 2020 21:35:24 +0100
-Message-Id: <20201103203405.453669064@linuxfoundation.org>
+Subject: [PATCH 5.9 274/391] iio: ad7292: Fix of_node refcounting
+Date:   Tue,  3 Nov 2020 21:35:25 +0100
+Message-Id: <20201103203405.522185815@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,98 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Jordan <kernel@cdqe.de>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit da4410d4078ba4ead9d6f1027d6db77c5a74ecee upstream.
+commit b8a533f3c24b3b8f1fdbefc5ada6a7d5733d63e6 upstream.
 
-Add missing of_node_put calls when exiting the for_each_child_of_node
-loop in rcar_gyroadc_parse_subdevs early.
+When returning or breaking early from a
+`for_each_available_child_of_node()` loop, we need to explicitly call
+`of_node_put()` on the child node to possibly release the node.
 
-Also add goto-exception handling for the error paths in that loop.
-
-Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
-Signed-off-by: Tobias Jordan <kernel@cdqe.de>
-Link: https://lore.kernel.org/r/20200926161946.GA10240@agrajag.zerfleddert.de
-Cc: <Stable@vger.kernel.org>
+Fixes: 506d2e317a0a0 ("iio: adc: Add driver support for AD7292")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200925091045.302-2-nuno.sa@analog.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/rcar-gyroadc.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/iio/adc/ad7292.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/rcar-gyroadc.c
-+++ b/drivers/iio/adc/rcar-gyroadc.c
-@@ -357,7 +357,7 @@ static int rcar_gyroadc_parse_subdevs(st
- 			num_channels = ARRAY_SIZE(rcar_gyroadc_iio_channels_3);
- 			break;
- 		default:
--			return -EINVAL;
-+			goto err_e_inval;
- 		}
+--- a/drivers/iio/adc/ad7292.c
++++ b/drivers/iio/adc/ad7292.c
+@@ -310,8 +310,10 @@ static int ad7292_probe(struct spi_devic
  
- 		/*
-@@ -374,7 +374,7 @@ static int rcar_gyroadc_parse_subdevs(st
- 				dev_err(dev,
- 					"Failed to get child reg property of ADC \"%pOFn\".\n",
- 					child);
--				return ret;
-+				goto err_of_node_put;
- 			}
- 
- 			/* Channel number is too high. */
-@@ -382,7 +382,7 @@ static int rcar_gyroadc_parse_subdevs(st
- 				dev_err(dev,
- 					"Only %i channels supported with %pOFn, but reg = <%i>.\n",
- 					num_channels, child, reg);
--				return -EINVAL;
-+				goto err_e_inval;
- 			}
- 		}
- 
-@@ -391,7 +391,7 @@ static int rcar_gyroadc_parse_subdevs(st
- 			dev_err(dev,
- 				"Channel %i uses different ADC mode than the rest.\n",
- 				reg);
--			return -EINVAL;
-+			goto err_e_inval;
- 		}
- 
- 		/* Channel is valid, grab the regulator. */
-@@ -401,7 +401,8 @@ static int rcar_gyroadc_parse_subdevs(st
- 		if (IS_ERR(vref)) {
- 			dev_dbg(dev, "Channel %i 'vref' supply not connected.\n",
- 				reg);
--			return PTR_ERR(vref);
-+			ret = PTR_ERR(vref);
-+			goto err_of_node_put;
- 		}
- 
- 		priv->vref[reg] = vref;
-@@ -425,8 +426,10 @@ static int rcar_gyroadc_parse_subdevs(st
- 		 * attached to the GyroADC at a time, so if we found it,
- 		 * we can stop parsing here.
- 		 */
--		if (childmode == RCAR_GYROADC_MODE_SELECT_1_MB88101A)
-+		if (childmode == RCAR_GYROADC_MODE_SELECT_1_MB88101A) {
+ 	for_each_available_child_of_node(spi->dev.of_node, child) {
+ 		diff_channels = of_property_read_bool(child, "diff-channels");
+-		if (diff_channels)
++		if (diff_channels) {
 +			of_node_put(child);
  			break;
 +		}
  	}
  
- 	if (first) {
-@@ -435,6 +438,12 @@ static int rcar_gyroadc_parse_subdevs(st
- 	}
- 
- 	return 0;
-+
-+err_e_inval:
-+	ret = -EINVAL;
-+err_of_node_put:
-+	of_node_put(child);
-+	return ret;
- }
- 
- static void rcar_gyroadc_deinit_supplies(struct iio_dev *indio_dev)
+ 	if (diff_channels) {
 
 
