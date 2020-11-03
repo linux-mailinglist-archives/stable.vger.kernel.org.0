@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D15B2A57F4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 991B12A5816
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731784AbgKCUuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:50:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
+        id S1732097AbgKCVsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:48:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbgKCUuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:50:19 -0500
+        id S1731287AbgKCUuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:50:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB21B20719;
-        Tue,  3 Nov 2020 20:50:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFEFE20719;
+        Tue,  3 Nov 2020 20:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436619;
-        bh=2lLin1UMFgZxZN/6MIvzU0Oxp7YEYHcbfIz7hkiIpf4=;
+        s=default; t=1604436621;
+        bh=OMTqSajG1lCHhZJ0KW8Cav0eH77NUzurjbVwVAwb5rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfiID4/BFtwM/ZZMP2v3eXfnjqt/fvIN5wHpATjNH8pZuRUxELFVUU4P4mHRs8vut
-         hd8DUiPszgo67TVpwWeihKlm+4v1Le+mUyric0v8M8u2NJLsEc9tbKpuHbutaosOVj
-         Ak5n2fTVIJvwNSNuUrGMA6lOtta7YCvMg9O34EG8=
+        b=POrNWb9eOXbe/K8BhyGGp61dP/wtba2XhVbMN2dPV8w5DnB/GVfJL5ffwik3C/pnl
+         dgpzAU+EUFoGBO3NXCZuvLNHmv9xb6h8di+UpK/8LkDg2CAKURwbh8pEtydGRABqRo
+         Sy7livNEqryqScUkaU+AZR1FBLlEyk+oTbuI+5xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 5.9 329/391] libceph: clear con->out_msg on Policy::stateful_server faults
-Date:   Tue,  3 Nov 2020 21:36:20 +0100
-Message-Id: <20201103203409.324535544@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.9 330/391] 9P: Cast to loff_t before multiplying
+Date:   Tue,  3 Nov 2020 21:36:21 +0100
+Message-Id: <20201103203409.390559336@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -42,57 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 28e1581c3b4ea5f98530064a103c6217bedeea73 upstream.
+commit f5f7ab168b9a60e12a4b8f2bb6fcc91321dc23c1 upstream.
 
-con->out_msg must be cleared on Policy::stateful_server
-(!CEPH_MSG_CONNECT_LOSSY) faults.  Not doing so botches the
-reconnection attempt, because after writing the banner the
-messenger moves on to writing the data section of that message
-(either from where it got interrupted by the connection reset or
-from the beginning) instead of writing struct ceph_msg_connect.
-This results in a bizarre error message because the server
-sends CEPH_MSGR_TAG_BADPROTOVER but we think we wrote struct
-ceph_msg_connect:
+On 32-bit systems, this multiplication will overflow for files larger
+than 4GB.
 
-  libceph: mds0 (1)172.21.15.45:6828 socket error on write
-  ceph: mds0 reconnect start
-  libceph: mds0 (1)172.21.15.45:6829 socket closed (con state OPEN)
-  libceph: mds0 (1)172.21.15.45:6829 protocol version mismatch, my 32 != server's 32
-  libceph: mds0 (1)172.21.15.45:6829 protocol version mismatch
-
-AFAICT this bug goes back to the dawn of the kernel client.
-The reason it survived for so long is that only MDS sessions
-are stateful and only two MDS messages have a data section:
-CEPH_MSG_CLIENT_RECONNECT (always, but reconnecting is rare)
-and CEPH_MSG_CLIENT_REQUEST (only when xattrs are involved).
-The connection has to get reset precisely when such message
-is being sent -- in this case it was the former.
-
+Link: http://lkml.kernel.org/r/20201004180428.14494-2-willy@infradead.org
 Cc: stable@vger.kernel.org
-Link: https://tracker.ceph.com/issues/47723
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Fixes: fb89b45cdfdc ("9P: introduction of a new cache=mmap model.")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ceph/messenger.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/9p/vfs_file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ceph/messenger.c
-+++ b/net/ceph/messenger.c
-@@ -2998,6 +2998,11 @@ static void con_fault(struct ceph_connec
- 		ceph_msg_put(con->in_msg);
- 		con->in_msg = NULL;
- 	}
-+	if (con->out_msg) {
-+		BUG_ON(con->out_msg->con != con);
-+		ceph_msg_put(con->out_msg);
-+		con->out_msg = NULL;
-+	}
+--- a/fs/9p/vfs_file.c
++++ b/fs/9p/vfs_file.c
+@@ -612,9 +612,9 @@ static void v9fs_mmap_vm_close(struct vm
+ 	struct writeback_control wbc = {
+ 		.nr_to_write = LONG_MAX,
+ 		.sync_mode = WB_SYNC_ALL,
+-		.range_start = vma->vm_pgoff * PAGE_SIZE,
++		.range_start = (loff_t)vma->vm_pgoff * PAGE_SIZE,
+ 		 /* absolute end, byte at end included */
+-		.range_end = vma->vm_pgoff * PAGE_SIZE +
++		.range_end = (loff_t)vma->vm_pgoff * PAGE_SIZE +
+ 			(vma->vm_end - vma->vm_start - 1),
+ 	};
  
- 	/* Requeue anything that hasn't been acked */
- 	list_splice_init(&con->out_sent, &con->out_queue);
 
 
