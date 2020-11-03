@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E27E2A51A7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 350132A51A9
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgKCUmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
+        id S1730597AbgKCUm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:42:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgKCUmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:51 -0500
+        id S1730592AbgKCUmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:42:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 742622224E;
-        Tue,  3 Nov 2020 20:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF04C223AC;
+        Tue,  3 Nov 2020 20:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436171;
-        bh=p8r48/0O0bFuRYbXSO15mbWvfUOyDkFCWdH+Jt+GNHI=;
+        s=default; t=1604436173;
+        bh=OciS+22kPt/cqDa1LKTGI61esaQCpAFxigNTqlL3T+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2jU70/jN6bfzQBfcxCp9GT2a8oOQjZYjPCmPDjYC0zbFUzimRkk25jAuM8PDo/v18
-         I75TK6ouv7qpcefX+tSuNDNsDTG1/74mSvjpuvL+AseYrzlRK9GMU1hYRQJD02bpK1
-         r1Mz7FALqjFKAFwI4QzTQe7Gnbe3MTlwbt9gCD3k=
+        b=BA/2ElpcZwp7cJHB/fsLohpL1i1i1L0hux1UP0LPeiqLONBEHecri9uYmzOnFZEne
+         4wfHyZyUwmAkQ3z21FQYAocRkcTaG61OrcH4onOD8xBuqPHNxVK9Zvxj1GDsrZrUXX
+         1Ei4SjrAC+sGJxBxhFIEk5wajmYQT1WHehayF3Z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Li Jun <jun.li@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 132/391] drivers/net/wan/hdlc_fr: Correctly handle special skb->protocol values
-Date:   Tue,  3 Nov 2020 21:33:03 +0100
-Message-Id: <20201103203355.735118010@linuxfoundation.org>
+Subject: [PATCH 5.9 133/391] usb: dwc3: core: do not queue work if dr_mode is not USB_DR_MODE_OTG
+Date:   Tue,  3 Nov 2020 21:33:04 +0100
+Message-Id: <20201103203355.803855607@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,185 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Li Jun <jun.li@nxp.com>
 
-[ Upstream commit 8306266c1d51aac9aa7aa907fe99032a58c6382c ]
+[ Upstream commit dc336b19e82d0454ea60270cd18fbb4749e162f6 ]
 
-The fr_hard_header function is used to prepend the header to skbs before
-transmission. It is used in 3 situations:
-1) When a control packet is generated internally in this driver;
-2) When a user sends an skb on an Ethernet-emulating PVC device;
-3) When a user sends an skb on a normal PVC device.
+Do not try to queue a drd work if dr_mode is not USB_DR_MODE_OTG
+because the work is not inited, this may be triggered by user try
+to change mode file of debugfs on a single role port, which will
+cause below kernel dump:
+[   60.115529] ------------[ cut here ]------------
+[   60.120166] WARNING: CPU: 1 PID: 627 at kernel/workqueue.c:1473
+__queue_work+0x46c/0x520
+[   60.128254] Modules linked in:
+[   60.131313] CPU: 1 PID: 627 Comm: sh Not tainted
+5.7.0-rc4-00022-g914a586-dirty #135
+[   60.139054] Hardware name: NXP i.MX8MQ EVK (DT)
+[   60.143585] pstate: a0000085 (NzCv daIf -PAN -UAO)
+[   60.148376] pc : __queue_work+0x46c/0x520
+[   60.152385] lr : __queue_work+0x314/0x520
+[   60.156393] sp : ffff8000124ebc40
+[   60.159705] x29: ffff8000124ebc40 x28: ffff800011808018
+[   60.165018] x27: ffff800011819ef8 x26: ffff800011d39980
+[   60.170331] x25: ffff800011808018 x24: 0000000000000100
+[   60.175643] x23: 0000000000000013 x22: 0000000000000001
+[   60.180955] x21: ffff0000b7c08e00 x20: ffff0000b6c31080
+[   60.186267] x19: ffff0000bb99bc00 x18: 0000000000000000
+[   60.191579] x17: 0000000000000000 x16: 0000000000000000
+[   60.196891] x15: 0000000000000000 x14: 0000000000000000
+[   60.202202] x13: 0000000000000000 x12: 0000000000000000
+[   60.207515] x11: 0000000000000000 x10: 0000000000000040
+[   60.212827] x9 : ffff800011d55460 x8 : ffff800011d55458
+[   60.218138] x7 : ffff0000b7800028 x6 : 0000000000000000
+[   60.223450] x5 : ffff0000b7800000 x4 : 0000000000000000
+[   60.228762] x3 : ffff0000bb997cc0 x2 : 0000000000000001
+[   60.234074] x1 : 0000000000000000 x0 : ffff0000b6c31088
+[   60.239386] Call trace:
+[   60.241834]  __queue_work+0x46c/0x520
+[   60.245496]  queue_work_on+0x6c/0x90
+[   60.249075]  dwc3_set_mode+0x48/0x58
+[   60.252651]  dwc3_mode_write+0xf8/0x150
+[   60.256489]  full_proxy_write+0x5c/0xa8
+[   60.260327]  __vfs_write+0x18/0x40
+[   60.263729]  vfs_write+0xdc/0x1c8
+[   60.267045]  ksys_write+0x68/0xf0
+[   60.270360]  __arm64_sys_write+0x18/0x20
+[   60.274286]  el0_svc_common.constprop.0+0x68/0x160
+[   60.279077]  do_el0_svc+0x20/0x80
+[   60.282394]  el0_sync_handler+0x10c/0x178
+[   60.286403]  el0_sync+0x140/0x180
+[   60.289716] ---[ end trace 70b155582e2b7988 ]---
 
-These 3 situations need to be handled differently by fr_hard_header.
-Different headers should be prepended to the skb in different situations.
-
-Currently fr_hard_header distinguishes these 3 situations using
-skb->protocol. For situation 1 and 2, a special skb->protocol value
-will be assigned before calling fr_hard_header, so that it can recognize
-these 2 situations. All skb->protocol values other than these special ones
-are treated by fr_hard_header as situation 3.
-
-However, it is possible that in situation 3, the user sends an skb with
-one of the special skb->protocol values. In this case, fr_hard_header
-would incorrectly treat it as situation 1 or 2.
-
-This patch tries to solve this issue by using skb->dev instead of
-skb->protocol to distinguish between these 3 situations. For situation
-1, skb->dev would be NULL; for situation 2, skb->dev->type would be
-ARPHRD_ETHER; and for situation 3, skb->dev->type would be ARPHRD_DLCI.
-
-This way fr_hard_header would be able to distinguish these 3 situations
-correctly regardless what skb->protocol value the user tries to use in
-situation 3.
-
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_fr.c | 98 ++++++++++++++++++++-------------------
- 1 file changed, 51 insertions(+), 47 deletions(-)
+ drivers/usb/dwc3/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index d6cfd51613ed8..3a44dad87602d 100644
---- a/drivers/net/wan/hdlc_fr.c
-+++ b/drivers/net/wan/hdlc_fr.c
-@@ -273,63 +273,69 @@ static inline struct net_device **get_dev_p(struct pvc_device *pvc,
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 2f9f4ad562d4e..6dd02a8802f4b 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -121,9 +121,6 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 	int ret;
+ 	u32 reg;
  
- static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
+-	if (dwc->dr_mode != USB_DR_MODE_OTG)
+-		return;
+-
+ 	pm_runtime_get_sync(dwc->dev);
+ 
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+@@ -209,6 +206,9 @@ void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
  {
--	u16 head_len;
- 	struct sk_buff *skb = *skb_p;
+ 	unsigned long flags;
  
--	switch (skb->protocol) {
--	case cpu_to_be16(NLPID_CCITT_ANSI_LMI):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_CCITT_ANSI_LMI;
--		break;
--
--	case cpu_to_be16(NLPID_CISCO_LMI):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_CISCO_LMI;
--		break;
--
--	case cpu_to_be16(ETH_P_IP):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_IP;
--		break;
--
--	case cpu_to_be16(ETH_P_IPV6):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_IPV6;
--		break;
--
--	case cpu_to_be16(ETH_P_802_3):
--		head_len = 10;
--		if (skb_headroom(skb) < head_len) {
--			struct sk_buff *skb2 = skb_realloc_headroom(skb,
--								    head_len);
-+	if (!skb->dev) { /* Control packets */
-+		switch (dlci) {
-+		case LMI_CCITT_ANSI_DLCI:
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_CCITT_ANSI_LMI;
-+			break;
++	if (dwc->dr_mode != USB_DR_MODE_OTG)
++		return;
 +
-+		case LMI_CISCO_DLCI:
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_CISCO_LMI;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+		}
-+
-+	} else if (skb->dev->type == ARPHRD_DLCI) {
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP):
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_IP;
-+			break;
-+
-+		case htons(ETH_P_IPV6):
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_IPV6;
-+			break;
-+
-+		default:
-+			skb_push(skb, 10);
-+			skb->data[3] = FR_PAD;
-+			skb->data[4] = NLPID_SNAP;
-+			/* OUI 00-00-00 indicates an Ethertype follows */
-+			skb->data[5] = 0x00;
-+			skb->data[6] = 0x00;
-+			skb->data[7] = 0x00;
-+			/* This should be an Ethertype: */
-+			*(__be16 *)(skb->data + 8) = skb->protocol;
-+		}
-+
-+	} else if (skb->dev->type == ARPHRD_ETHER) {
-+		if (skb_headroom(skb) < 10) {
-+			struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
- 			if (!skb2)
- 				return -ENOBUFS;
- 			dev_kfree_skb(skb);
- 			skb = *skb_p = skb2;
- 		}
--		skb_push(skb, head_len);
-+		skb_push(skb, 10);
- 		skb->data[3] = FR_PAD;
- 		skb->data[4] = NLPID_SNAP;
--		skb->data[5] = FR_PAD;
-+		/* OUI 00-80-C2 stands for the 802.1 organization */
-+		skb->data[5] = 0x00;
- 		skb->data[6] = 0x80;
- 		skb->data[7] = 0xC2;
-+		/* PID 00-07 stands for Ethernet frames without FCS */
- 		skb->data[8] = 0x00;
--		skb->data[9] = 0x07; /* bridged Ethernet frame w/out FCS */
--		break;
-+		skb->data[9] = 0x07;
- 
--	default:
--		head_len = 10;
--		skb_push(skb, head_len);
--		skb->data[3] = FR_PAD;
--		skb->data[4] = NLPID_SNAP;
--		skb->data[5] = FR_PAD;
--		skb->data[6] = FR_PAD;
--		skb->data[7] = FR_PAD;
--		*(__be16*)(skb->data + 8) = skb->protocol;
-+	} else {
-+		return -EINVAL;
- 	}
- 
- 	dlci_to_q922(skb->data, dlci);
-@@ -425,8 +431,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
- 				skb_put(skb, pad);
- 				memset(skb->data + len, 0, pad);
- 			}
--			skb->protocol = cpu_to_be16(ETH_P_802_3);
- 		}
-+		skb->dev = dev;
- 		if (!fr_hard_header(&skb, pvc->dlci)) {
- 			dev->stats.tx_bytes += skb->len;
- 			dev->stats.tx_packets++;
-@@ -494,10 +500,8 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
- 	memset(skb->data, 0, len);
- 	skb_reserve(skb, 4);
- 	if (lmi == LMI_CISCO) {
--		skb->protocol = cpu_to_be16(NLPID_CISCO_LMI);
- 		fr_hard_header(&skb, LMI_CISCO_DLCI);
- 	} else {
--		skb->protocol = cpu_to_be16(NLPID_CCITT_ANSI_LMI);
- 		fr_hard_header(&skb, LMI_CCITT_ANSI_DLCI);
- 	}
- 	data = skb_tail_pointer(skb);
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 	dwc->desired_dr_role = mode;
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
 -- 
 2.27.0
 
