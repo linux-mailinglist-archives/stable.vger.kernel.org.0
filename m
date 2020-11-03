@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDDDE2A566D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 816FC2A556D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387745AbgKCV2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36240 "EHLO mail.kernel.org"
+        id S2389008AbgKCVRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:17:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733199AbgKCVA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:28 -0500
+        id S2388570AbgKCVJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34EA6223FD;
-        Tue,  3 Nov 2020 21:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79F5A205ED;
+        Tue,  3 Nov 2020 21:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437227;
-        bh=h8VO8aKLMLf4XmZjmCqV56IrKC+YonT/HRfwBjcxFM0=;
+        s=default; t=1604437790;
+        bh=EqpoSY+0nIOrkRInuI/MEOI+lSxb6GgoPW5b9GgvjLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjTbktvr0vqYhXBGScjD3wmujtEFYhOj29Cwgy2QVRJZZ87V4AwSxuYAq9CEdKBpL
-         ZmmXwSJn+d5QDuSq3lktTBdXdOZsVXtxK1/SoDiCk+Vmlhnfn5OB39/nXXsFZL2x1K
-         LlXV4b1uVdA4dCMqSTfWVURXKutvBzf5eJ1Dtayo=
+        b=fri9AwkwLcl1kJtIzKg2ktmw4VCjoBHhStZAPrhSdJJ2ECy8/uOan5nl63RhxGKsC
+         3pnvZ5ExT1xRpDMxsHkuqGDpMukPsHkQAkgQ0jiP5VewRk7FgvExT2gj2Nr9LeP8vs
+         arcMBivusvRA6UgCHFqqLtbikj0ih8pkcn521U7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 163/214] powerpc: Fix undetected data corruption with P9N DD2.1 VSX CI load emulation
+        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 034/125] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
 Date:   Tue,  3 Nov 2020 21:36:51 +0100
-Message-Id: <20201103203306.048306295@linuxfoundation.org>
+Message-Id: <20201103203201.982946815@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Neuling <mikey@neuling.org>
+From: Antonio Borneo <antonio.borneo@st.com>
 
-commit 1da4a0272c5469169f78cd76cf175ff984f52f06 upstream.
+[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
 
-__get_user_atomic_128_aligned() stores to kaddr using stvx which is a
-VMX store instruction, hence kaddr must be 16 byte aligned otherwise
-the store won't occur as expected.
+Current code enables the HS clock when video mode is started or to
+send out a HS command, and disables the HS clock to send out a LP
+command. This is not what DSI spec specify.
 
-Unfortunately when we call __get_user_atomic_128_aligned() in
-p9_hmi_special_emu(), the buffer we pass as kaddr (ie. vbuf) isn't
-guaranteed to be 16B aligned. This means that the write to vbuf in
-__get_user_atomic_128_aligned() has the bottom bits of the address
-truncated. This results in other local variables being
-overwritten. Also vbuf will not contain the correct data which results
-in the userspace emulation being wrong and hence undetected user data
-corruption.
+Enable HS clock either in command and in video mode.
+Set automatic HS clock management for panels and devices that
+support non-continuous HS clock.
 
-In the past we've been mostly lucky as vbuf has ended up aligned but
-this is fragile and isn't always true. CONFIG_STACKPROTECTOR in
-particular can change the stack arrangement enough that our luck runs
-out.
-
-This issue only occurs on POWER9 Nimbus <= DD2.1 bare metal.
-
-The fix is to align vbuf to a 16 byte boundary.
-
-Fixes: 5080332c2c89 ("powerpc/64s: Add workaround for P9 vector CI load issue")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201013043741.743413-1-mikey@neuling.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/traps.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -877,7 +877,7 @@ static void p9_hmi_special_emu(struct pt
- {
- 	unsigned int ra, rb, t, i, sel, instr, rc;
- 	const void __user *addr;
--	u8 vbuf[16], *vdst;
-+	u8 vbuf[16] __aligned(16), *vdst;
- 	unsigned long ea, msr, msr_mask;
- 	bool swap;
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+index 63c7a01b7053e..d95b0703d0255 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
+@@ -311,7 +311,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
+ 	if (lpm)
+ 		val |= CMD_MODE_ALL_LP;
  
+-	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
+ 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
+ }
+ 
+@@ -468,16 +467,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
+ static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
+ 				 unsigned long mode_flags)
+ {
++	u32 val;
++
+ 	dsi_write(dsi, DSI_PWR_UP, RESET);
+ 
+ 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
+ 		dw_mipi_dsi_video_mode_config(dsi);
+-		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
+ 	} else {
+ 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
+ 	}
+ 
++	val = PHY_TXREQUESTCLKHS;
++	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
++		val |= AUTO_CLKLANE_CTRL;
++	dsi_write(dsi, DSI_LPCLK_CTRL, val);
++
+ 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
+ }
+ 
+-- 
+2.27.0
+
 
 
