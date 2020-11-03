@@ -2,103 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4972A44B6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 13:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 823E22A44D0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 13:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728931AbgKCMC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 07:02:26 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47826 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728930AbgKCMCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 07:02:25 -0500
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id E47B91F45647;
-        Tue,  3 Nov 2020 12:02:23 +0000 (GMT)
-Date:   Tue, 3 Nov 2020 13:02:21 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH v3] drm/panfrost: Move the GPU reset bits outside the
- timeout handler
-Message-ID: <20201103130221.3367da07@collabora.com>
-In-Reply-To: <20201103110847.GG401619@phenom.ffwll.local>
-References: <20201103081347.1000139-1-boris.brezillon@collabora.com>
-        <20201103102540.GB401619@phenom.ffwll.local>
-        <20201103120326.10037005@collabora.com>
-        <20201103110847.GG401619@phenom.ffwll.local>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1728422AbgKCMKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 07:10:42 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:40003 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728354AbgKCMKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 07:10:41 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 0195CC79;
+        Tue,  3 Nov 2020 07:10:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 07:10:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fvan++
+        3cH5YPVkH5ggFC4fz7Nek+OshMXXGrOS//cu0=; b=mnpdGK4/PSy7ZTYCp8ltXB
+        iX8dqPJEpXsFSR3f5ZCU6MeaC4oEVAzkuIElfZ/ILNBUC7LyTPNqbF/1dBE6wz2l
+        TbzajRK+XEU+1gI+pO5GSMQxs0g7dXh9qqft9V5hhAul/IQVii+UCaU0ploDORUQ
+        3M4KG6OTlMEqaCS6gkt2bGUeAoM4jG4XIxt8ZJ3VVs+CWbkJyckYhQwfqLkKvy5f
+        z+wtPq2TsiZfxCMFpQSPjfBy+EV5dTNbpCjaGfPhc8Y4H7Dqo4SeMZG9zdjPTwxW
+        wouYylOGS+8kUMq6DBojwpY+B/4WmiI5KbECeTabR5QEpexxx3k3F9kFmaOthVFg
+        ==
+X-ME-Sender: <xms:wEihX0sy3fa33QYVNxcRZc-m_nRjRixMXsQnK22G5Ix2GQpG3Ueq_Q>
+    <xme:wEihXxfod4YgMYM8d5bZlZ8unh5TwHzJLkRAI3nHmj1mwCthfCDfoHWNeQqsbCmGO
+    DmBHpejniLoHA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgfeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:wEihX_zTJtoS69bmS5TTes7lHYmZzzt8NC1LFONo_3Wm9x7o-NpSXA>
+    <xmx:wEihX3MWMP5If1x2gs8yATpuOVPMQeoVdODJ9rHFICWLm8TdDdRa5A>
+    <xmx:wEihX0-l7BYtiNZKwqnBxH1JBEK5LzO7sBHULi5fC6EPCkn6vIbguA>
+    <xmx:wEihX5H0Y4xKtufAhTOcsXStmDEiDZcgD4AnQnwBT1gSOTCRRLFpyUJwuF8>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B39E33064610;
+        Tue,  3 Nov 2020 07:10:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] w1: mxc_w1: Fix timeout resolution problem leading to bus" failed to apply to 4.19-stable tree
+To:     martin.fuzzey@flowbird.group, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Nov 2020 13:11:30 +0100
+Message-ID: <1604405490163203@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 3 Nov 2020 12:08:47 +0100
-Daniel Vetter <daniel@ffwll.ch> wrote:
 
-> On Tue, Nov 03, 2020 at 12:03:26PM +0100, Boris Brezillon wrote:
-> > On Tue, 3 Nov 2020 11:25:40 +0100
-> > Daniel Vetter <daniel@ffwll.ch> wrote:
-> >   
-> > > On Tue, Nov 03, 2020 at 09:13:47AM +0100, Boris Brezillon wrote:  
-> > > > We've fixed many races in panfrost_job_timedout() but some remain.
-> > > > Instead of trying to fix it again, let's simplify the logic and move
-> > > > the reset bits to a separate work scheduled when one of the queue
-> > > > reports a timeout.
-> > > > 
-> > > > v3:
-> > > > - Replace the atomic_cmpxchg() by an atomic_xchg() (Robin Murphy)
-> > > > - Add Steven's R-b
-> > > > 
-> > > > v2:
-> > > > - Use atomic_cmpxchg() to conditionally schedule the reset work (Steven Price)
-> > > > 
-> > > > Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
-> > > > Cc: <stable@vger.kernel.org>
-> > > > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > > > Reviewed-by: Steven Price <steven.price@arm.com>    
-> > > 
-> > > Sprinkling the dma_fence annotations over this would be really nice ...  
-> > 
-> > You mean something like that?  
-> 
-> That's just the irq annotations, i.e. the one that's already guaranteed by
-> the irq vs. locks checks. So this does nothing.
-> 
-> What I mean is annotating your new reset work (it's part of the critical
-> path to complete batches, since it's holding up other batches that are
-> stuck in the scheduler still), and the drm/scheduler annotations I've
-> floated a while ago. The drm/scheduler annotations are stuck somewhat for
-> lack of feedback from any of the driver teams using it though :-/
-> 
-> The thing is pulling something out into a worker of it's own generally
-> doesn't fix any deadlocks, it just hides them from lockdep.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Hm, except that's not exactly a deadlock we were trying to fix here (as
-in, not a situation where 2 threads try to acquire locks in different
-orders), just a situation where the scheduler stops dequeuing jobs
-because it ends up in an inconsistent state (which is caused by a
-bad/lack-of synchronization between timeout handlers). The problem here
-is that we have 3 schedulers (one per HW queue) but when a timeout
-occurs on one of them, we need to reset them all, thus requiring some
-synchronization between the different timeout works. Moving the reset
-logic to a separate work simplifies the synchronization.
+thanks,
 
-> So it would be
-> good to make sure lockdep can see through your maze again.
+greg k-h
 
-Okay, but it's not clear to me which part of the panfrost_reset()
-function should be annotated. I mean, I probably call functions that
-can signal fences, but I don't call dma_signal_fence() directly. Are
-callers of the dma_sched_xxx() helpers expected to place such
-annotations?
+------------------ original commit in Linus's tree ------------------
+
+From c9723750a699c3bd465493ac2be8992b72ccb105 Mon Sep 17 00:00:00 2001
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Date: Wed, 30 Sep 2020 10:36:46 +0200
+Subject: [PATCH] w1: mxc_w1: Fix timeout resolution problem leading to bus
+ error
+
+On my platform (i.MX53) bus access sometimes fails with
+	w1_search: max_slave_count 64 reached, will continue next search.
+
+The reason is the use of jiffies to implement a 200us timeout in
+mxc_w1_ds2_touch_bit().
+On some platforms the jiffies timer resolution is insufficient for this.
+
+Fix by replacing jiffies by ktime_get().
+
+For consistency apply the same change to the other use of jiffies in
+mxc_w1_ds2_reset_bus().
+
+Fixes: f80b2581a706 ("w1: mxc_w1: Optimize mxc_w1_ds2_touch_bit()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Link: https://lore.kernel.org/r/1601455030-6607-1-git-send-email-martin.fuzzey@flowbird.group
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/w1/masters/mxc_w1.c b/drivers/w1/masters/mxc_w1.c
+index 1ca880e01476..090cbbf9e1e2 100644
+--- a/drivers/w1/masters/mxc_w1.c
++++ b/drivers/w1/masters/mxc_w1.c
+@@ -7,7 +7,7 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+-#include <linux/jiffies.h>
++#include <linux/ktime.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
+ #include <linux/platform_device.h>
+@@ -40,12 +40,12 @@ struct mxc_w1_device {
+ static u8 mxc_w1_ds2_reset_bus(void *data)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_RPP, dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for reset sequence 511+512us, use 1500us for sure */
+-	timeout = jiffies + usecs_to_jiffies(1500);
++	timeout = ktime_add_us(ktime_get(), 1500);
+ 
+ 	udelay(511 + 512);
+ 
+@@ -55,7 +55,7 @@ static u8 mxc_w1_ds2_reset_bus(void *data)
+ 		/* PST bit is valid after the RPP bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_RPP))
+ 			return !(ctrl & MXC_W1_CONTROL_PST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 1;
+ }
+@@ -68,12 +68,12 @@ static u8 mxc_w1_ds2_reset_bus(void *data)
+ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_WR(bit), dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for read/write bit (60us, Max 120us), use 200us for sure */
+-	timeout = jiffies + usecs_to_jiffies(200);
++	timeout = ktime_add_us(ktime_get(), 200);
+ 
+ 	udelay(60);
+ 
+@@ -83,7 +83,7 @@ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ 		/* RDST bit is valid after the WR1/RD bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_WR(bit)))
+ 			return !!(ctrl & MXC_W1_CONTROL_RDST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 0;
+ }
+
