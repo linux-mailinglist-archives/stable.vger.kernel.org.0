@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE64D2A5169
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F732A516B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729844AbgKCUkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52058 "EHLO mail.kernel.org"
+        id S1730252AbgKCUkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbgKCUkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:40:39 -0500
+        id S1730244AbgKCUkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE8C22226;
-        Tue,  3 Nov 2020 20:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 745FA22226;
+        Tue,  3 Nov 2020 20:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436038;
-        bh=MvTsDodUIbN0+ytdtfzjfZbMHKo0QtHflkva6NlDow8=;
+        s=default; t=1604436040;
+        bh=R9sLG81i/Fu/zeZgY3mte7zmJ2PcCWLH6UWw9kYVtmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFFeYI2lcFqfBKQNXphyJ9jjxYKWKn41D/1WB1VUBzgmeTbJcodCC4r506giMhyGh
-         DMmJdNRxJ7I2hpJR5i7NzJUGwOSkvDfjlMbdv7PUgmv3eQqjnbx5Gqt4K5T4ZGbJ29
-         tZpRTWngibZZ+LnvNxoMCoBpwj38Z+/yt2VRgKDo=
+        b=0XvdfFLXzOC3k4wId5kY8g/lec5Ww9OrqMeOd6omHMKL3kdIRwmWsxMPb8J63wYU8
+         L/gNbUHdCpcXaFb9AY8m2sc1xcHZq9g84VyLaDeknZ+LgA3vgLssQUjfRoRPNzkSST
+         QZGotZgNHlTaC9r4eD+1zBVhQjXXks7uvbLu/p5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        stable@vger.kernel.org,
+        Sathishkumar Muruganandam <murugana@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 076/391] ath10k: start recovery process when payload length exceeds max htc length for sdio
-Date:   Tue,  3 Nov 2020 21:32:07 +0100
-Message-Id: <20201103203352.292204880@linuxfoundation.org>
+Subject: [PATCH 5.9 077/391] ath10k: fix VHT NSS calculation when STBC is enabled
+Date:   Tue,  3 Nov 2020 21:32:08 +0100
+Message-Id: <20201103203352.345452632@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,82 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Sathishkumar Muruganandam <murugana@codeaurora.org>
 
-[ Upstream commit 2fd3c8f34d08af0a6236085f9961866ad92ef9ec ]
+[ Upstream commit 99f41b8e43b8b4b31262adb8ac3e69088fff1289 ]
 
-When simulate random transfer fail for sdio write and read, it happened
-"payload length exceeds max htc length" and recovery later sometimes.
+When STBC is enabled, NSTS_SU value need to be accounted for VHT NSS
+calculation for SU case.
 
-Test steps:
-1. Add config and update kernel:
-CONFIG_FAIL_MMC_REQUEST=y
-CONFIG_FAULT_INJECTION=y
-CONFIG_FAULT_INJECTION_DEBUG_FS=y
+Without this fix, 1SS + STBC enabled case was reported wrongly as 2SS
+in radiotap header on monitor mode capture.
 
-2. Run simulate fail:
-cd /sys/kernel/debug/mmc1/fail_mmc_request
-echo 10 > probability
-echo 10 > times # repeat until hitting issues
+Tested-on: QCA9984 10.4-3.10-00047
 
-3. It happened payload length exceeds max htc length.
-[  199.935506] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
-....
-[  264.990191] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
-
-4. after some time, such as 60 seconds, it start recovery which triggered
-by wmi command timeout for periodic scan.
-[  269.229232] ieee80211 phy0: Hardware restart was requested
-[  269.734693] ath10k_sdio mmc1:0001:1: device successfully recovered
-
-The simulate fail of sdio is not a real sdio transter fail, it only
-set an error status in mmc_should_fail_request after the transfer end,
-actually the transfer is success, then sdio_io_rw_ext_helper will
-return error status and stop transfer the left data. For example,
-the really RX len is 286 bytes, then it will split to 2 blocks in
-sdio_io_rw_ext_helper, one is 256 bytes, left is 30 bytes, if the
-first 256 bytes get an error status by mmc_should_fail_request,then
-the left 30 bytes will not read in this RX operation. Then when the
-next RX arrive, the left 30 bytes will be considered as the header
-of the read, the top 4 bytes of the 30 bytes will be considered as
-lookaheads, but actually the 4 bytes is not the lookaheads, so the len
-from this lookaheads is not correct, it exceeds max htc length 4088
-sometimes. When happened exceeds, the buffer chain is not matched between
-firmware and ath10k, then it need to start recovery ASAP. Recently then
-recovery will be started by wmi command timeout, but it will be long time
-later, for example, it is 60+ seconds later from the periodic scan, if
-it does not have periodic scan, it will be longer.
-
-Start recovery when it happened "payload length exceeds max htc length"
-will be reasonable.
-
-This patch only effect sdio chips.
-
-Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
-
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200108031957.22308-3-wgong@codeaurora.org
+Link: https://lore.kernel.org/r/1597392971-3897-1-git-send-email-murugana@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/ath10k/htt_rx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index 63f882c690bff..0841e69b10b1a 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -557,6 +557,10 @@ static int ath10k_sdio_mbox_rx_alloc(struct ath10k *ar,
- 				    le16_to_cpu(htc_hdr->len),
- 				    ATH10K_HTC_MBOX_MAX_PAYLOAD_LENGTH);
- 			ret = -ENOMEM;
-+
-+			queue_work(ar->workqueue, &ar->restart_work);
-+			ath10k_warn(ar, "exceeds length, start recovery\n");
-+
- 			goto err;
- 		}
+diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
+index 69ad4ca1a87c1..a00498338b1cc 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -949,6 +949,7 @@ static void ath10k_htt_rx_h_rates(struct ath10k *ar,
+ 	u8 preamble = 0;
+ 	u8 group_id;
+ 	u32 info1, info2, info3;
++	u32 stbc, nsts_su;
  
+ 	info1 = __le32_to_cpu(rxd->ppdu_start.info1);
+ 	info2 = __le32_to_cpu(rxd->ppdu_start.info2);
+@@ -993,11 +994,16 @@ static void ath10k_htt_rx_h_rates(struct ath10k *ar,
+ 		 */
+ 		bw = info2 & 3;
+ 		sgi = info3 & 1;
++		stbc = (info2 >> 3) & 1;
+ 		group_id = (info2 >> 4) & 0x3F;
+ 
+ 		if (GROUP_ID_IS_SU_MIMO(group_id)) {
+ 			mcs = (info3 >> 4) & 0x0F;
+-			nss = ((info2 >> 10) & 0x07) + 1;
++			nsts_su = ((info2 >> 10) & 0x07);
++			if (stbc)
++				nss = (nsts_su >> 2) + 1;
++			else
++				nss = (nsts_su + 1);
+ 		} else {
+ 			/* Hardware doesn't decode VHT-SIG-B into Rx descriptor
+ 			 * so it's impossible to decode MCS. Also since
 -- 
 2.27.0
 
