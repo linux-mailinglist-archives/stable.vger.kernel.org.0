@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F1F2A55D6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:24:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0751C2A56A8
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733176AbgKCVWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:22:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
+        id S1730265AbgKCV3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:29:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732706AbgKCVFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:12 -0500
+        id S1732239AbgKCU6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F3E3205ED;
-        Tue,  3 Nov 2020 21:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70FE92053B;
+        Tue,  3 Nov 2020 20:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437512;
-        bh=iDgrYRZJ8qBsgk7xPw/ojIMR0LaiwnxmtGDZobuGfn0=;
+        s=default; t=1604437118;
+        bh=V6YAqLlPazLFt0SqEKR9ID7rLQepHXZAToxSoBQElGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFkteBSn5L9tWIPbDCHcfPbBD2/wfzGXaUj6PZwJ0VJ3Gar4S4xXE7bv9CpvEOvGo
-         JEKkihaP/63FBJ3nLpG83HXbVrJIihYnodl2GVOJi3aI9B9voB71QdiOu6dd3Ilxhs
-         gaZJtYPVARw7TD3c63hfJRDDGZl6vJB7kSDx8/oQ=
+        b=S4RetmfZVo4LvXt8rgXxWQDZBQxQQpzwLlrrW5Iot1MUiwRlyv3A2n8Ry0T9Hhjo4
+         CYaeAvO3+Pv0BDk5HYpg1YloUU/4BlM6q6coUWIsKiCdr6jqjLVHWpG8NdBxDH79X4
+         kUkzE0TUhXJGdY90tjmBpbtfcmIqNOHE3/4lN4Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/191] ARM: dts: s5pv210: remove dedicated audio-subsystem node
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>, Stable@vger.kernel.org
+Subject: [PATCH 5.4 152/214] iio:adc:ti-adc0832 Fix alignment issue with timestamp
 Date:   Tue,  3 Nov 2020 21:36:40 +0100
-Message-Id: <20201103203243.662207642@linuxfoundation.org>
+Message-Id: <20201103203305.031549466@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 6c17a2974abf68a58517f75741b15c4aba42b4b8 ]
+commit 39e91f3be4cba51c1560bcda3a343ed1f64dc916 upstream.
 
-The 'audio-subsystem' node is an artificial creation, not representing
-real hardware.  The hardware is described by its nodes - AUDSS clock
-controller and I2S0.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
 
-Remove the 'audio-subsystem' node along with its undocumented compatible
-to fix dtbs_check warnings like:
+We fix this issues by moving to a suitable structure in the iio_priv()
+data with alignment explicitly requested.  This data is allocated
+with kzalloc so no data can leak apart from previous readings.
+Note that previously no data could leak 'including' previous readings
+but I don't think it is an issue to potentially leak them like
+this now does.
 
-  audio-subsystem: $nodename:0: 'audio-subsystem' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+In this case the postioning of the timestamp is depends on what
+other channels are enabled. As such we cannot use a structure to
+make the alignment explicit as it would be missleading by suggesting
+only one possible location for the timestamp.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Tested-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/20200907161141.31034-9-krzk@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 815bbc87462a ("iio: ti-adc0832: add triggered buffer support")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-25-jic23@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/s5pv210.dtsi | 65 +++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 36 deletions(-)
+ drivers/iio/adc/ti-adc0832.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
-index 37d251b1f74a7..020a864623ff4 100644
---- a/arch/arm/boot/dts/s5pv210.dtsi
-+++ b/arch/arm/boot/dts/s5pv210.dtsi
-@@ -217,43 +217,36 @@
- 			status = "disabled";
- 		};
+--- a/drivers/iio/adc/ti-adc0832.c
++++ b/drivers/iio/adc/ti-adc0832.c
+@@ -28,6 +28,12 @@ struct adc0832 {
+ 	struct regulator *reg;
+ 	struct mutex lock;
+ 	u8 mux_bits;
++	/*
++	 * Max size needed: 16x 1 byte ADC data + 8 bytes timestamp
++	 * May be shorter if not all channels are enabled subject
++	 * to the timestamp remaining 8 byte aligned.
++	 */
++	u8 data[24] __aligned(8);
  
--		audio-subsystem {
--			compatible = "samsung,s5pv210-audss", "simple-bus";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges;
--
--			clk_audss: clock-controller@eee10000 {
--				compatible = "samsung,s5pv210-audss-clock";
--				reg = <0xeee10000 0x1000>;
--				clock-names = "hclk", "xxti",
--						"fout_epll",
--						"sclk_audio0";
--				clocks = <&clocks DOUT_HCLKP>, <&xxti>,
--						<&clocks FOUT_EPLL>,
--						<&clocks SCLK_AUDIO0>;
--				#clock-cells = <1>;
--			};
-+		clk_audss: clock-controller@eee10000 {
-+			compatible = "samsung,s5pv210-audss-clock";
-+			reg = <0xeee10000 0x1000>;
-+			clock-names = "hclk", "xxti",
-+				      "fout_epll",
-+				      "sclk_audio0";
-+			clocks = <&clocks DOUT_HCLKP>, <&xxti>,
-+				 <&clocks FOUT_EPLL>,
-+				 <&clocks SCLK_AUDIO0>;
-+			#clock-cells = <1>;
-+		};
+ 	u8 tx_buf[2] ____cacheline_aligned;
+ 	u8 rx_buf[2];
+@@ -199,7 +205,6 @@ static irqreturn_t adc0832_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct adc0832 *adc = iio_priv(indio_dev);
+-	u8 data[24] = { }; /* 16x 1 byte ADC data + 8 bytes timestamp */
+ 	int scan_index;
+ 	int i = 0;
  
--			i2s0: i2s@eee30000 {
--				compatible = "samsung,s5pv210-i2s";
--				reg = <0xeee30000 0x1000>;
--				interrupt-parent = <&vic2>;
--				interrupts = <16>;
--				dma-names = "rx", "tx", "tx-sec";
--				dmas = <&pdma1 9>, <&pdma1 10>, <&pdma1 11>;
--				clock-names = "iis",
--						"i2s_opclk0",
--						"i2s_opclk1";
--				clocks = <&clk_audss CLK_I2S>,
--						<&clk_audss CLK_I2S>,
--						<&clk_audss CLK_DOUT_AUD_BUS>;
--				samsung,idma-addr = <0xc0010000>;
--				pinctrl-names = "default";
--				pinctrl-0 = <&i2s0_bus>;
--				#sound-dai-cells = <0>;
--				status = "disabled";
--			};
-+		i2s0: i2s@eee30000 {
-+			compatible = "samsung,s5pv210-i2s";
-+			reg = <0xeee30000 0x1000>;
-+			interrupt-parent = <&vic2>;
-+			interrupts = <16>;
-+			dma-names = "rx", "tx", "tx-sec";
-+			dmas = <&pdma1 9>, <&pdma1 10>, <&pdma1 11>;
-+			clock-names = "iis",
-+				      "i2s_opclk0",
-+				      "i2s_opclk1";
-+			clocks = <&clk_audss CLK_I2S>,
-+				 <&clk_audss CLK_I2S>,
-+				 <&clk_audss CLK_DOUT_AUD_BUS>;
-+			samsung,idma-addr = <0xc0010000>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2s0_bus>;
-+			#sound-dai-cells = <0>;
-+			status = "disabled";
- 		};
+@@ -217,10 +222,10 @@ static irqreturn_t adc0832_trigger_handl
+ 			goto out;
+ 		}
  
- 		i2s1: i2s@e2100000 {
--- 
-2.27.0
-
+-		data[i] = ret;
++		adc->data[i] = ret;
+ 		i++;
+ 	}
+-	iio_push_to_buffers_with_timestamp(indio_dev, data,
++	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
+ 					   iio_get_time_ns(indio_dev));
+ out:
+ 	mutex_unlock(&adc->lock);
 
 
