@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532592A550D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 243DE2A540A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733204AbgKCVQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:16:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52946 "EHLO mail.kernel.org"
+        id S2388261AbgKCVHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388846AbgKCVLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:20 -0500
+        id S2388264AbgKCVHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D8B5206B5;
-        Tue,  3 Nov 2020 21:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A0B3206B5;
+        Tue,  3 Nov 2020 21:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437879;
-        bh=etcV+UXLV/zln4LlNdKqT0jAuZ2p6sIfPoGh2eAn/UY=;
+        s=default; t=1604437629;
+        bh=y7ZK+pDC5G/MNWFHAgykspgjpyRitgHR80fbbwpq6o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=to3BmABvD98nQaoBo/7Rb7psBMftwT7FeWNTgvHoRoW7egxycRCCcAF5J5pJv1itv
-         +KztOf9EQ4SVEOaMJIarKDWu/rVVV4Miu5XcuQHirurrg2iDhPz8HT1nEvTCVH2KOe
-         QR9fKm5n/UqLEii2pZ63kNWbr0flC5JPHASTYLgo=
+        b=Nx27K3wcbu+twqUiYfBMQB629M6Ilc5jj813I4KWM7nEzaDQWzfhdOfAk7tC6qRgv
+         To7vY/BJ8LV7Q2w7EmCebJ4GQplxTs3D1FviZ3PvDHmn03mlp5204K8FJlm7ypNgkJ
+         HWO2coZMoKP8eFy2U8e50FcRjUmILfHFzPpkx7dQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 072/125] scsi: mptfusion: Fix null pointer dereferences in mptscsih_remove()
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 157/191] powerpc/powernv/elog: Fix race while processing OPAL error log event.
 Date:   Tue,  3 Nov 2020 21:37:29 +0100
-Message-Id: <20201103203207.402781535@linuxfoundation.org>
+Message-Id: <20201103203247.241977386@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 
-commit 2f4843b172c2c0360ee7792ad98025fae7baefde upstream.
+commit aea948bb80b478ddc2448f7359d574387521a52d upstream.
 
-The mptscsih_remove() function triggers a kernel oops if the Scsi_Host
-pointer (ioc->sh) is NULL, as can be seen in this syslog:
+Every error log reported by OPAL is exported to userspace through a
+sysfs interface and notified using kobject_uevent(). The userspace
+daemon (opal_errd) then reads the error log and acknowledges the error
+log is saved safely to disk. Once acknowledged the kernel removes the
+respective sysfs file entry causing respective resources to be
+released including kobject.
 
- ioc0: LSI53C1030 B2: Capabilities={Initiator,Target}
- Begin: Waiting for root file system ...
- scsi host2: error handler thread failed to spawn, error = -4
- mptspi: ioc0: WARNING - Unable to register controller with SCSI subsystem
- Backtrace:
-  [<000000001045b7cc>] mptspi_probe+0x248/0x3d0 [mptspi]
-  [<0000000040946470>] pci_device_probe+0x1ac/0x2d8
-  [<0000000040add668>] really_probe+0x1bc/0x988
-  [<0000000040ade704>] driver_probe_device+0x160/0x218
-  [<0000000040adee24>] device_driver_attach+0x160/0x188
-  [<0000000040adef90>] __driver_attach+0x144/0x320
-  [<0000000040ad7c78>] bus_for_each_dev+0xd4/0x158
-  [<0000000040adc138>] driver_attach+0x4c/0x80
-  [<0000000040adb3ec>] bus_add_driver+0x3e0/0x498
-  [<0000000040ae0130>] driver_register+0xf4/0x298
-  [<00000000409450c4>] __pci_register_driver+0x78/0xa8
-  [<000000000007d248>] mptspi_init+0x18c/0x1c4 [mptspi]
+However it's possible the userspace daemon may already be scanning
+elog entries when a new sysfs elog entry is created by the kernel.
+User daemon may read this new entry and ack it even before kernel can
+notify userspace about it through kobject_uevent() call. If that
+happens then we have a potential race between
+elog_ack_store->kobject_put() and kobject_uevent which can lead to
+use-after-free of a kernfs object resulting in a kernel crash. eg:
 
-This patch adds the necessary NULL-pointer checks.  Successfully tested on
-a HP C8000 parisc workstation with buggy SCSI drives.
+  BUG: Unable to handle kernel data access on read at 0x6b6b6b6b6b6b6bfb
+  Faulting instruction address: 0xc0000000008ff2a0
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
+  CPU: 27 PID: 805 Comm: irq/29-opal-elo Not tainted 5.9.0-rc2-gcc-8.2.0-00214-g6f56a67bcbb5-dirty #363
+  ...
+  NIP kobject_uevent_env+0xa0/0x910
+  LR  elog_event+0x1f4/0x2d0
+  Call Trace:
+    0x5deadbeef0000122 (unreliable)
+    elog_event+0x1f4/0x2d0
+    irq_thread_fn+0x4c/0xc0
+    irq_thread+0x1c0/0x2b0
+    kthread+0x1c4/0x1d0
+    ret_from_kernel_thread+0x5c/0x6c
 
-Link: https://lore.kernel.org/r/20201022090005.GA9000@ls3530.fritz.box
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch fixes this race by protecting the sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
+
+The function create_elog_obj() returns the elog object which if used
+by caller function will end up in use-after-free problem again.
+However, the return value of create_elog_obj() function isn't being
+used today and there is no need as well. Hence change it to return
+void to make this fix complete.
+
+Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
+Cc: stable@vger.kernel.org # v3.15+
+Reported-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+[mpe: Rework the logic to use a single return, reword comments, add oops]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201006122051.190176-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/message/fusion/mptscsih.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/powerpc/platforms/powernv/opal-elog.c |   33 ++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
 
---- a/drivers/message/fusion/mptscsih.c
-+++ b/drivers/message/fusion/mptscsih.c
-@@ -1174,8 +1174,10 @@ mptscsih_remove(struct pci_dev *pdev)
- 	MPT_SCSI_HOST		*hd;
- 	int sz1;
- 
--	if((hd = shost_priv(host)) == NULL)
--		return;
-+	if (host == NULL)
-+		hd = NULL;
-+	else
-+		hd = shost_priv(host);
- 
- 	mptscsih_shutdown(pdev);
- 
-@@ -1191,14 +1193,15 @@ mptscsih_remove(struct pci_dev *pdev)
- 	    "Free'd ScsiLookup (%d) memory\n",
- 	    ioc->name, sz1));
- 
--	kfree(hd->info_kbuf);
-+	if (hd)
-+		kfree(hd->info_kbuf);
- 
- 	/* NULL the Scsi_Host pointer
- 	 */
- 	ioc->sh = NULL;
- 
--	scsi_host_put(host);
--
-+	if (host)
-+		scsi_host_put(host);
- 	mpt_detach(pdev);
- 
+--- a/arch/powerpc/platforms/powernv/opal-elog.c
++++ b/arch/powerpc/platforms/powernv/opal-elog.c
+@@ -183,14 +183,14 @@ static ssize_t raw_attr_read(struct file
+ 	return count;
  }
+ 
+-static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
++static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
+ {
+ 	struct elog_obj *elog;
+ 	int rc;
+ 
+ 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
+ 	if (!elog)
+-		return NULL;
++		return;
+ 
+ 	elog->kobj.kset = elog_kset;
+ 
+@@ -223,18 +223,37 @@ static struct elog_obj *create_elog_obj(
+ 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
+ 	if (rc) {
+ 		kobject_put(&elog->kobj);
+-		return NULL;
++		return;
+ 	}
+ 
++	/*
++	 * As soon as the sysfs file for this elog is created/activated there is
++	 * a chance the opal_errd daemon (or any userspace) might read and
++	 * acknowledge the elog before kobject_uevent() is called. If that
++	 * happens then there is a potential race between
++	 * elog_ack_store->kobject_put() and kobject_uevent() which leads to a
++	 * use-after-free of a kernfs object resulting in a kernel crash.
++	 *
++	 * To avoid that, we need to take a reference on behalf of the bin file,
++	 * so that our reference remains valid while we call kobject_uevent().
++	 * We then drop our reference before exiting the function, leaving the
++	 * bin file to drop the last reference (if it hasn't already).
++	 */
++
++	/* Take a reference for the bin file */
++	kobject_get(&elog->kobj);
+ 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
+-	if (rc) {
++	if (rc == 0) {
++		kobject_uevent(&elog->kobj, KOBJ_ADD);
++	} else {
++		/* Drop the reference taken for the bin file */
+ 		kobject_put(&elog->kobj);
+-		return NULL;
+ 	}
+ 
+-	kobject_uevent(&elog->kobj, KOBJ_ADD);
++	/* Drop our reference */
++	kobject_put(&elog->kobj);
+ 
+-	return elog;
++	return;
+ }
+ 
+ static irqreturn_t elog_event(int irq, void *data)
 
 
