@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D86C2A5911
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB34E2A5906
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:04:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730699AbgKCUnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:43:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56864 "EHLO mail.kernel.org"
+        id S1730186AbgKCWES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 17:04:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729967AbgKCUnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:43:21 -0500
+        id S1730765AbgKCUnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:43:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 169952224E;
-        Tue,  3 Nov 2020 20:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0D06223BF;
+        Tue,  3 Nov 2020 20:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436200;
-        bh=igF921TXROWhmKPIpqLWNTsZaYu2639iJ/eTAfAtvzk=;
+        s=default; t=1604436226;
+        bh=25N4Vvri0gRYCZrj0IkTnJpS6ULGpkG8P8RToVsM2Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmc9IEeEcObjxPCit37MsklxkA9bPYUz1YxnR5RIn/9e6bDsOJKQo6W3xM6qsU24w
-         898z2n/JjN7CuVo/cb6ckQvFHTdxZiY3cNPwcdiz7h7EqjP7rpI2J1DVDEnnThm2eh
-         dT8AymWPfbTroDtDMG7T+oBmNx7jxoXxeqE9NmWE=
+        b=rNlMvpDwjKPpHkQB/ktoMIAPZB/lSknuVwQVp0QzozOXMGHEKoGGFBCASQ9pcEPeH
+         lsdfxZF8ixzCHsOVKwFEn2FAkc+dKiSL0S7AczY9/zkHMUTjyA9v7ndQijMD2Xrtm+
+         uIgek1nv0laBO1dLJU/9aoQGmodnXBoqBHszOZSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 139/391] drm/amd/display: Avoid set zero in the requested clk
-Date:   Tue,  3 Nov 2020 21:33:10 +0100
-Message-Id: <20201103203356.210599632@linuxfoundation.org>
+Subject: [PATCH 5.9 140/391] ARC: [dts] fix the errors detected by dtbs_check
+Date:   Tue,  3 Nov 2020 21:33:11 +0100
+Message-Id: <20201103203356.278406600@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -46,53 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 2f8be0e516803cc3fd87c1671247896571a5a8fb ]
+[ Upstream commit 05b1be68c4d6d76970025e6139bfd735c2256ee5 ]
 
-[Why]
-Sometimes CRTCs can be disabled due to display unplugging or temporarily
-transition in the userspace; in these circumstances, DCE tries to set
-the minimum clock threshold. When we have this situation, the function
-bw_calcs is invoked with number_of_displays set to zero, making DCE set
-dispclk_khz and sclk_khz to zero. For these reasons, we have seen some
-ATOM bios errors that look like:
+xxx/arc/boot/dts/axs101.dt.yaml: dw-apb-ictl@e0012000: $nodename:0: \
+'dw-apb-ictl@e0012000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
+ From schema: xxx/interrupt-controller/snps,dw-apb-ictl.yaml
 
-[drm:atom_op_jump [amdgpu]] *ERROR* atombios stuck in loop for more than
-5secs aborting
-[drm:amdgpu_atom_execute_table_locked [amdgpu]] *ERROR* atombios stuck
-executing EA8A (len 761, WS 0, PS 0) @ 0xEABA
+The node name of the interrupt controller must start with
+"interrupt-controller" instead of "dw-apb-ictl".
 
-[How]
-This error happens due to an attempt to optimize the bandwidth using the
-sclk, and the dispclk clock set to zero. Technically we handle this in
-the function dce112_set_clock, but we are not considering the case that
-this value is set to zero. This commit fixes this issue by ensuring that
-we never set a minimum value below the minimum clock threshold.
-
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dce112/dce112_clk_mgr.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arc/boot/dts/axc001.dtsi         | 2 +-
+ arch/arc/boot/dts/axc003.dtsi         | 2 +-
+ arch/arc/boot/dts/axc003_idu.dtsi     | 2 +-
+ arch/arc/boot/dts/vdk_axc003.dtsi     | 2 +-
+ arch/arc/boot/dts/vdk_axc003_idu.dtsi | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dce112/dce112_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dce112/dce112_clk_mgr.c
-index d031bd3d30724..807dca8f7d7aa 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dce112/dce112_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dce112/dce112_clk_mgr.c
-@@ -79,8 +79,7 @@ int dce112_set_clock(struct clk_mgr *clk_mgr_base, int requested_clk_khz)
- 	memset(&dce_clk_params, 0, sizeof(dce_clk_params));
+diff --git a/arch/arc/boot/dts/axc001.dtsi b/arch/arc/boot/dts/axc001.dtsi
+index 79ec27c043c1d..2a151607b0805 100644
+--- a/arch/arc/boot/dts/axc001.dtsi
++++ b/arch/arc/boot/dts/axc001.dtsi
+@@ -91,7 +91,7 @@
+ 	 * avoid duplicating the MB dtsi file given that IRQ from
+ 	 * this intc to cpu intc are different for axs101 and axs103
+ 	 */
+-	mb_intc: dw-apb-ictl@e0012000 {
++	mb_intc: interrupt-controller@e0012000 {
+ 		#interrupt-cells = <1>;
+ 		compatible = "snps,dw-apb-ictl";
+ 		reg = < 0x0 0xe0012000 0x0 0x200 >;
+diff --git a/arch/arc/boot/dts/axc003.dtsi b/arch/arc/boot/dts/axc003.dtsi
+index ac8e1b463a709..cd1edcf4f95ef 100644
+--- a/arch/arc/boot/dts/axc003.dtsi
++++ b/arch/arc/boot/dts/axc003.dtsi
+@@ -129,7 +129,7 @@
+ 	 * avoid duplicating the MB dtsi file given that IRQ from
+ 	 * this intc to cpu intc are different for axs101 and axs103
+ 	 */
+-	mb_intc: dw-apb-ictl@e0012000 {
++	mb_intc: interrupt-controller@e0012000 {
+ 		#interrupt-cells = <1>;
+ 		compatible = "snps,dw-apb-ictl";
+ 		reg = < 0x0 0xe0012000 0x0 0x200 >;
+diff --git a/arch/arc/boot/dts/axc003_idu.dtsi b/arch/arc/boot/dts/axc003_idu.dtsi
+index 9da21e7fd246f..70779386ca796 100644
+--- a/arch/arc/boot/dts/axc003_idu.dtsi
++++ b/arch/arc/boot/dts/axc003_idu.dtsi
+@@ -135,7 +135,7 @@
+ 	 * avoid duplicating the MB dtsi file given that IRQ from
+ 	 * this intc to cpu intc are different for axs101 and axs103
+ 	 */
+-	mb_intc: dw-apb-ictl@e0012000 {
++	mb_intc: interrupt-controller@e0012000 {
+ 		#interrupt-cells = <1>;
+ 		compatible = "snps,dw-apb-ictl";
+ 		reg = < 0x0 0xe0012000 0x0 0x200 >;
+diff --git a/arch/arc/boot/dts/vdk_axc003.dtsi b/arch/arc/boot/dts/vdk_axc003.dtsi
+index f8be7ba8dad49..c21d0eb07bf67 100644
+--- a/arch/arc/boot/dts/vdk_axc003.dtsi
++++ b/arch/arc/boot/dts/vdk_axc003.dtsi
+@@ -46,7 +46,7 @@
  
- 	/* Make sure requested clock isn't lower than minimum threshold*/
--	if (requested_clk_khz > 0)
--		requested_clk_khz = max(requested_clk_khz,
-+	requested_clk_khz = max(requested_clk_khz,
- 				clk_mgr_dce->base.dentist_vco_freq_khz / 62);
+ 	};
  
- 	dce_clk_params.target_clock_frequency = requested_clk_khz;
+-	mb_intc: dw-apb-ictl@e0012000 {
++	mb_intc: interrupt-controller@e0012000 {
+ 		#interrupt-cells = <1>;
+ 		compatible = "snps,dw-apb-ictl";
+ 		reg = < 0xe0012000 0x200 >;
+diff --git a/arch/arc/boot/dts/vdk_axc003_idu.dtsi b/arch/arc/boot/dts/vdk_axc003_idu.dtsi
+index 0afa3e53a4e39..4d348853ac7c5 100644
+--- a/arch/arc/boot/dts/vdk_axc003_idu.dtsi
++++ b/arch/arc/boot/dts/vdk_axc003_idu.dtsi
+@@ -54,7 +54,7 @@
+ 
+ 	};
+ 
+-	mb_intc: dw-apb-ictl@e0012000 {
++	mb_intc: interrupt-controller@e0012000 {
+ 		#interrupt-cells = <1>;
+ 		compatible = "snps,dw-apb-ictl";
+ 		reg = < 0xe0012000 0x200 >;
 -- 
 2.27.0
 
