@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DB22A54F9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDCC2A5482
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733273AbgKCVPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:15:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
+        id S2388950AbgKCVL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388681AbgKCVLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:55 -0500
+        id S2388945AbgKCVL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:58 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E71F205ED;
-        Tue,  3 Nov 2020 21:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F16206B5;
+        Tue,  3 Nov 2020 21:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437915;
-        bh=KWaRCCHd41F6UqxgvZjcc7BERVdpeQtdTzZKmogmbxk=;
+        s=default; t=1604437917;
+        bh=RFBUn9nQ9UEvmhsRqgxmIbzZdl7faCjeCRUgBX4r9YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7Q9J63dDCeG0933GA1o8j4R411362C/3O4leXkcESOqSNRATfp7f2VWzMI9syKIF
-         LlM3ZgDRjMVRyP+AULKLvuKt/zxS+M2ta9O4QrMUJSyOeY5U3DC/ajkRS2LhEfPE2L
-         f+5lneJbs7udeF/tVaIFOYPxj2iKy5xJiJlm28Sg=
+        b=yNxYQBuGi+jpJM3WDu8sLlcLyUUyIpCPn5/hcde/z01RnFjxcJEw2LMV2BHEqRgSc
+         rgp4H/6AXqNXCUvulBacpLRzIwQfjLsD7TEKtEtSlY+o539ava5syu/XtnpDV4t1uo
+         PRyXNnzVFgxMx1lMW1qMscz1Y+Z8X65MklgKnrL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.14 086/125] dmaengine: dma-jz4780: Fix race in jz4780_dma_tx_status
-Date:   Tue,  3 Nov 2020 21:37:43 +0100
-Message-Id: <20201103203209.338254750@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.14 087/125] iio:light:si1145: Fix timestamp alignment and prevent data leak.
+Date:   Tue,  3 Nov 2020 21:37:44 +0100
+Message-Id: <20201103203209.479553219@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -43,57 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit baf6fd97b16ea8f981b8a8b04039596f32fc2972 upstream.
+commit 0456ecf34d466261970e0ff92b2b9c78a4908637 upstream.
 
-The jz4780_dma_tx_status() function would check if a channel's cookie
-state was set to 'completed', and if not, it would enter the critical
-section. However, in that time frame, the jz4780_dma_chan_irq() function
-was able to set the cookie to 'completed', and clear the jzchan->vchan
-pointer, which was deferenced in the critical section of the first
-function.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 24 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable array in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-Fix this race by checking the channel's cookie state after entering the
-critical function and not before.
+Depending on the enabled channels, the  location of the timestamp
+can be at various aligned offsets through the buffer.  As such we
+any use of a structure to enforce this alignment would incorrectly
+suggest a single location for the timestamp.  Comments adjusted to
+express this clearly in the code.
 
-Fixes: d894fc6046fe ("dmaengine: jz4780: add driver for the Ingenic JZ4780 DMA controller")
-Cc: stable@vger.kernel.org # v4.0
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reported-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Link: https://lore.kernel.org/r/20201004140307.885556-1-paul@crapouillou.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: ac45e57f1590 ("iio: light: Add driver for Silabs si1132, si1141/2/3 and si1145/6/7 ambient light, uv index and proximity sensors")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-9-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dma-jz4780.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/light/si1145.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -567,11 +567,11 @@ static enum dma_status jz4780_dma_tx_sta
- 	enum dma_status status;
- 	unsigned long flags;
+--- a/drivers/iio/light/si1145.c
++++ b/drivers/iio/light/si1145.c
+@@ -172,6 +172,7 @@ struct si1145_part_info {
+  * @part_info:	Part information
+  * @trig:	Pointer to iio trigger
+  * @meas_rate:	Value of MEAS_RATE register. Only set in HW in auto mode
++ * @buffer:	Used to pack data read from sensor.
+  */
+ struct si1145_data {
+ 	struct i2c_client *client;
+@@ -183,6 +184,14 @@ struct si1145_data {
+ 	bool autonomous;
+ 	struct iio_trigger *trig;
+ 	int meas_rate;
++	/*
++	 * Ensure timestamp will be naturally aligned if present.
++	 * Maximum buffer size (may be only partly used if not all
++	 * channels are enabled):
++	 *   6*2 bytes channels data + 4 bytes alignment +
++	 *   8 bytes timestamp
++	 */
++	u8 buffer[24] __aligned(8);
+ };
  
-+	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if ((status == DMA_COMPLETE) || (txstate == NULL))
--		return status;
--
--	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+		goto out_unlock_irqrestore;
+ /**
+@@ -444,12 +453,6 @@ static irqreturn_t si1145_trigger_handle
+ 	struct iio_poll_func *pf = private;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct si1145_data *data = iio_priv(indio_dev);
+-	/*
+-	 * Maximum buffer size:
+-	 *   6*2 bytes channels data + 4 bytes alignment +
+-	 *   8 bytes timestamp
+-	 */
+-	u8 buffer[24];
+ 	int i, j = 0;
+ 	int ret;
+ 	u8 irq_status = 0;
+@@ -482,7 +485,7 @@ static irqreturn_t si1145_trigger_handle
  
- 	vdesc = vchan_find_desc(&jzchan->vchan, cookie);
- 	if (vdesc) {
-@@ -588,6 +588,7 @@ static enum dma_status jz4780_dma_tx_sta
- 	    && jzchan->desc->status & (JZ_DMA_DCS_AR | JZ_DMA_DCS_HLT))
- 		status = DMA_ERROR;
+ 		ret = i2c_smbus_read_i2c_block_data_or_emulated(
+ 				data->client, indio_dev->channels[i].address,
+-				sizeof(u16) * run, &buffer[j]);
++				sizeof(u16) * run, &data->buffer[j]);
+ 		if (ret < 0)
+ 			goto done;
+ 		j += run * sizeof(u16);
+@@ -497,7 +500,7 @@ static irqreturn_t si1145_trigger_handle
+ 			goto done;
+ 	}
  
-+out_unlock_irqrestore:
- 	spin_unlock_irqrestore(&jzchan->vchan.lock, flags);
- 	return status;
- }
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+ 		iio_get_time_ns(indio_dev));
+ 
+ done:
 
 
