@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCF82A589B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D79102A575F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728564AbgKCVxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:53:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S1732286AbgKCUz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:55:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730445AbgKCUqa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:30 -0500
+        id S1732025AbgKCUz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 309AD223FD;
-        Tue,  3 Nov 2020 20:46:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AC57223AC;
+        Tue,  3 Nov 2020 20:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436389;
-        bh=suf4uR6m2goLtvNXLbQiDTKtTkkFSuWPwkDjO2wOHZ0=;
+        s=default; t=1604436926;
+        bh=3cJNs5WJfk7fnCmX4ZKRy16i+ndqJctSZH0IppXC6dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ju+HHvdwmeB6kjitRETszpJtXdOZBgcZWzjVNsX/iSls1CrbyQkcaezt8iFcg+Z6O
-         uuE2IsKEg95wDloJfJv+6tBF+pJi9qVrHFhsO85rFTIWOShSYICq78rvRA+osYd82j
-         iZdH14vkv+P/zz/qK7pRZQAQ+kPOTcSvzAFWh2SY=
+        b=EsXC9snlBEVp16k6tNMZFnuT6YF2W/ACvY+sXU7KsnsD0ad285jkk4hnZqjNT66DM
+         nfhHaO7nHT17PCeXC9429/jxPWcT0hFbUv8DQ68xTgJfaCEbTonojD/vyvQ7ir8EXr
+         40/QGRPRaRRk3Wa1yR1frBw9XgiyA74VhBigeV+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Steigerwald <martin@lichtvoll.de>,
-        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.9 230/391] btrfs: tree-checker: fix false alert caused by legacy btrfs root item
-Date:   Tue,  3 Nov 2020 21:34:41 +0100
-Message-Id: <20201103203402.503130926@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/214] xfs: fix realtime bitmap/summary file truncation when growing rt volume
+Date:   Tue,  3 Nov 2020 21:34:42 +0100
+Message-Id: <20201103203253.297781748@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 1465af12e254a68706e110846f59cf0f09683184 upstream.
+[ Upstream commit f4c32e87de7d66074d5612567c5eac7325024428 ]
 
-Commit 259ee7754b67 ("btrfs: tree-checker: Add ROOT_ITEM check")
-introduced btrfs root item size check, however btrfs root item has two
-versions, the legacy one which just ends before generation_v2 member, is
-smaller than current btrfs root item size.
+The realtime bitmap and summary files are regular files that are hidden
+away from the directory tree.  Since they're regular files, inode
+inactivation will try to purge what it thinks are speculative
+preallocations beyond the incore size of the file.  Unfortunately,
+xfs_growfs_rt forgets to update the incore size when it resizes the
+inodes, with the result that inactivating the rt inodes at unmount time
+will cause their contents to be truncated.
 
-This caused btrfs kernel to reject valid but old tree root leaves.
+Fix this by updating the incore size when we change the ondisk size as
+part of updating the superblock.  Note that we don't do this when we're
+allocating blocks to the rt inodes because we actually want those blocks
+to get purged if the growfs fails.
 
-Fix this problem by also allowing legacy root item, since kernel can
-already handle them pretty well and upgrade to newer root item format
-when needed.
+This fixes corruption complaints from the online rtsummary checker when
+running xfs/233.  Since that test requires rmap, one can also trigger
+this by growing an rt volume, cycling the mount, and creating rt files.
 
-Reported-by: Martin Steigerwald <martin@lichtvoll.de>
-Fixes: 259ee7754b67 ("btrfs: tree-checker: Add ROOT_ITEM check")
-CC: stable@vger.kernel.org # 5.4+
-Tested-By: Martin Steigerwald <martin@lichtvoll.de>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-checker.c         |   17 ++++++++++++-----
- include/uapi/linux/btrfs_tree.h |   14 ++++++++++++++
- 2 files changed, 26 insertions(+), 5 deletions(-)
+ fs/xfs/xfs_rtalloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -1035,7 +1035,7 @@ static int check_root_item(struct extent
- 			   int slot)
- {
- 	struct btrfs_fs_info *fs_info = leaf->fs_info;
--	struct btrfs_root_item ri;
-+	struct btrfs_root_item ri = { 0 };
- 	const u64 valid_root_flags = BTRFS_ROOT_SUBVOL_RDONLY |
- 				     BTRFS_ROOT_SUBVOL_DEAD;
- 	int ret;
-@@ -1044,14 +1044,21 @@ static int check_root_item(struct extent
- 	if (ret < 0)
- 		return ret;
- 
--	if (btrfs_item_size_nr(leaf, slot) != sizeof(ri)) {
-+	if (btrfs_item_size_nr(leaf, slot) != sizeof(ri) &&
-+	    btrfs_item_size_nr(leaf, slot) != btrfs_legacy_root_item_size()) {
- 		generic_err(leaf, slot,
--			    "invalid root item size, have %u expect %zu",
--			    btrfs_item_size_nr(leaf, slot), sizeof(ri));
-+			    "invalid root item size, have %u expect %zu or %u",
-+			    btrfs_item_size_nr(leaf, slot), sizeof(ri),
-+			    btrfs_legacy_root_item_size());
- 	}
- 
-+	/*
-+	 * For legacy root item, the members starting at generation_v2 will be
-+	 * all filled with 0.
-+	 * And since we allow geneartion_v2 as 0, it will still pass the check.
-+	 */
- 	read_extent_buffer(leaf, &ri, btrfs_item_ptr_offset(leaf, slot),
--			   sizeof(ri));
-+			   btrfs_item_size_nr(leaf, slot));
- 
- 	/* Generation related */
- 	if (btrfs_root_generation(&ri) >
---- a/include/uapi/linux/btrfs_tree.h
-+++ b/include/uapi/linux/btrfs_tree.h
-@@ -4,6 +4,11 @@
- 
- #include <linux/btrfs.h>
- #include <linux/types.h>
-+#ifdef __KERNEL__
-+#include <linux/stddef.h>
-+#else
-+#include <stddef.h>
-+#endif
- 
- /*
-  * This header contains the structure definitions and constants used
-@@ -645,6 +650,15 @@ struct btrfs_root_item {
- } __attribute__ ((__packed__));
- 
- /*
-+ * Btrfs root item used to be smaller than current size.  The old format ends
-+ * at where member generation_v2 is.
-+ */
-+static inline __u32 btrfs_legacy_root_item_size(void)
-+{
-+	return offsetof(struct btrfs_root_item, generation_v2);
-+}
-+
-+/*
-  * this is used for both forward and backward root refs
-  */
- struct btrfs_root_ref {
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index b583669370825..6d5ddc4e5135a 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1021,10 +1021,13 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the bitmap inode's size.
++		 * Update the bitmap inode's size ondisk and incore.  We need
++		 * to update the incore size so that inode inactivation won't
++		 * punch what it thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rbmip->i_d.di_size =
+ 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
++		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Get the summary inode into the transaction.
+@@ -1032,9 +1035,12 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the summary inode's size.
++		 * Update the summary inode's size.  We need to update the
++		 * incore size so that inode inactivation won't punch what it
++		 * thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
++		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Copy summary data from old to new sizes.
+-- 
+2.27.0
+
 
 
