@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E37B2A52AE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:52:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 180102A52B0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732027AbgKCUwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:52:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
+        id S1731664AbgKCUwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:52:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732039AbgKCUwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:08 -0500
+        id S1732045AbgKCUwK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:52:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C1D62053B;
-        Tue,  3 Nov 2020 20:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A187D2071E;
+        Tue,  3 Nov 2020 20:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436726;
-        bh=da8E9zlyOcK/RBh5Vt8g09p0Jickl8KEWZ8hJrxot38=;
+        s=default; t=1604436729;
+        bh=vqpjTQgjyfwkOk0kbiAhwxr37jvcJoqE8pNkFagWw28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZYhHv/mBVptqphL1ooyEIWSbR/cs4AC5ZFrYI9YS5iwJRgidAbIh+TL/gyxkyA/e
-         EtUVI5EGP83Tw7Ni96G4Gif5a2sjB3V1R0oWZSlgXTAC3r01+qFoduQojc7EbwaLdP
-         k1rlL4EcysvxkxagIFHJ3dDTisJpcpvmaWKxZmus=
+        b=CbHI1aBglUGZuP3DBpXr6SGXT8z8qbj/i7Ic9ZbZXpqia5qhWkCmj6XFJv8hh+hWE
+         OXrS4Le2nFCZOgAHAz2H/eBdqLKo+T6fhOkAp+7sHZZ+3fFu6B/m3aBpLuhM4SJcGb
+         f4uiajVC30YKrknxEIVsrEGJVuu9fnlSpuPXMwLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.9 375/391] coresight: cti: Initialize dynamic sysfs attributes
-Date:   Tue,  3 Nov 2020 21:37:06 +0100
-Message-Id: <20201103203412.467959246@linuxfoundation.org>
+        stable@vger.kernel.org, Ferry Toth <fntoth@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.9 376/391] device property: Keep secondary firmware node secondary by type
+Date:   Tue,  3 Nov 2020 21:37:07 +0100
+Message-Id: <20201103203412.533941859@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,77 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 80624263fa289b3416f7ca309491f1b75e579477 upstream.
+commit d5dcce0c414fcbfe4c2037b66ac69ea5f9b3f75c upstream.
 
-With LOCKDEP enabled, CTI driver triggers the following splat due
-to uninitialized lock class for dynamically allocated attribute
-objects.
+Behind primary and secondary we understand the type of the nodes
+which might define their ordering. However, if primary node gone,
+we can't maintain the ordering by definition of the linked list.
+Thus, by ordering secondary node becomes first in the list.
+But in this case the meaning of it is still secondary (or auxiliary).
+The type of the node is maintained by the secondary pointer in it:
 
-[    5.372901] coresight etm0: CPU0: ETM v4.0 initialized
-[    5.376694] coresight etm1: CPU1: ETM v4.0 initialized
-[    5.380785] coresight etm2: CPU2: ETM v4.0 initialized
-[    5.385851] coresight etm3: CPU3: ETM v4.0 initialized
-[    5.389808] BUG: key ffff00000564a798 has not been registered!
-[    5.392456] ------------[ cut here ]------------
-[    5.398195] DEBUG_LOCKS_WARN_ON(1)
-[    5.398233] WARNING: CPU: 1 PID: 32 at kernel/locking/lockdep.c:4623 lockdep_init_map_waits+0x14c/0x260
-[    5.406149] Modules linked in:
-[    5.415411] CPU: 1 PID: 32 Comm: kworker/1:1 Not tainted 5.9.0-12034-gbbe85027ce80 #51
-[    5.418553] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[    5.426453] Workqueue: events amba_deferred_retry_func
-[    5.433299] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
-[    5.438252] pc : lockdep_init_map_waits+0x14c/0x260
-[    5.444410] lr : lockdep_init_map_waits+0x14c/0x260
-[    5.449007] sp : ffff800012bbb720
-...
+	secondary pointer		Meaning
+	NULL or valid			primary node
+	ERR_PTR(-ENODEV)		secondary node
 
-[    5.531561] Call trace:
-[    5.536847]  lockdep_init_map_waits+0x14c/0x260
-[    5.539027]  __kernfs_create_file+0xa8/0x1c8
-[    5.543539]  sysfs_add_file_mode_ns+0xd0/0x208
-[    5.548054]  internal_create_group+0x118/0x3c8
-[    5.552307]  internal_create_groups+0x58/0xb8
-[    5.556733]  sysfs_create_groups+0x2c/0x38
-[    5.561160]  device_add+0x2d8/0x768
-[    5.565148]  device_register+0x28/0x38
-[    5.568537]  coresight_register+0xf8/0x320
-[    5.572358]  cti_probe+0x1b0/0x3f0
+So, if by some reason we do the following sequence of calls
 
-...
+	set_primary_fwnode(dev, NULL);
+	set_primary_fwnode(dev, primary);
 
-Fix this by initializing the attributes when they are allocated.
+we should preserve secondary node.
 
-Fixes: 3c5597e39812 ("coresight: cti: Add connection information to sysfs")
-Reported-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201029164559.1268531-2-mathieu.poirier@linaro.org
+This concept is supported by the description of set_primary_fwnode()
+along with implementation of set_secondary_fwnode(). Hence, fix
+the commit c15e1bdda436 to follow this as well.
+
+Fixes: c15e1bdda436 ("device property: Fix the secondary firmware node handling in set_primary_fwnode()")
+Cc: Ferry Toth <fntoth@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Tested-by: Ferry Toth <fntoth@gmail.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/hwtracing/coresight/coresight-cti-sysfs.c |    7 +++++++
- 1 file changed, 7 insertions(+)
 
---- a/drivers/hwtracing/coresight/coresight-cti-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
-@@ -1065,6 +1065,13 @@ static int cti_create_con_sysfs_attr(str
- 	}
- 	eattr->var = con;
- 	con->con_attrs[attr_idx] = &eattr->attr.attr;
-+	/*
-+	 * Initialize the dynamically allocated attribute
-+	 * to avoid LOCKDEP splat. See include/linux/sysfs.h
-+	 * for more details.
-+	 */
-+	sysfs_attr_init(con->con_attrs[attr_idx]);
-+
- 	return 0;
- }
- 
+---
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -4274,7 +4274,7 @@ void set_primary_fwnode(struct device *d
+ 	} else {
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+-			fn->secondary = NULL;
++			fn->secondary = ERR_PTR(-ENODEV);
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
