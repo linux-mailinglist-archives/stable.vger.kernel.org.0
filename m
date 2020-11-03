@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A43FF2A538F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BEA62A562B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbgKCVCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:02:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
+        id S1730526AbgKCVZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:25:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732120AbgKCVCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:02:16 -0500
+        id S2387614AbgKCVCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:02:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2201020658;
-        Tue,  3 Nov 2020 21:02:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9762220658;
+        Tue,  3 Nov 2020 21:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437335;
-        bh=GXn9SUQ/vYrUY9YRnVP4GX2jDPIuBGR1SZxsAW7cmqk=;
+        s=default; t=1604437340;
+        bh=NCgEeXgIGtG26G81EP7Rjb5PupTf60OODIdNFZgVuYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQltznUzBHSlRXiwGhVQag5y9AGYX+hjAWNEP1jxYO7pRf2OtaXQNW01lFowvz4jE
-         FgIFP818Ey34PXzeFMyzOcACgyhTF/kGZ29R6UJZHNT/QvRAVbfuHO/gFcQbYlNRoR
-         qDLKWZyUgID1bJZkK8CYM/zyHikcxhpybNqjkdQY=
+        b=ke4pVpumifRFuJA06vdJ+TMgX7AfGmt1vdggeQZt7lVQP4OU2/dPXL+hBC0uhiZjk
+         nS3fFIteQ2GaAknP9gk0GMLl/sbgc4/z7s53LkpyhZlrL+QTNq+LxufidPQfi+xlAQ
+         yJxUCO+MlB6X0SbZC4qnUvlB7UMmjdNS+wilAhX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sarthak Kukreti <sarthakkukreti@chromium.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 032/191] fs, fscrypt: clear DCACHE_ENCRYPTED_NAME when unaliasing directory
-Date:   Tue,  3 Nov 2020 21:35:24 +0100
-Message-Id: <20201103203236.879284047@linuxfoundation.org>
+        "linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mtd@lists.infradead.org,
+        Theodore Tso" <tytso@mit.edu>, Eric Biggers <ebiggers@google.com>,
+        Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH 4.19 033/191] fscrypt: only set dentry_operations on ciphertext dentries
+Date:   Tue,  3 Nov 2020 21:35:25 +0100
+Message-Id: <20201103203237.007655514@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -45,59 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 0bf3d5c1604ecbbd4e49e9f5b3c79152b87adb0d upstream.
+commit d456a33f041af4b54f3ce495a86d00c246165032 upstream.
 
-Make __d_move() clear DCACHE_ENCRYPTED_NAME on the source dentry.  This
-is needed for when d_splice_alias() moves a directory's encrypted alias
-to its decrypted alias as a result of the encryption key being added.
+Plaintext dentries are always valid, so only set fscrypt_d_ops on
+ciphertext dentries.
 
-Otherwise, the decrypted alias will incorrectly be invalidated on the
-next lookup, causing problems such as unmounting a mount the user just
-mount()ed there.
+Besides marginally improved performance, this allows overlayfs to use an
+fscrypt-encrypted upperdir, provided that all the following are true:
 
-Note that we don't have to support arbitrary moves of this flag because
-fscrypt doesn't allow dentries with DCACHE_ENCRYPTED_NAME to be the
-source or target of a rename().
+    (1) The fscrypt encryption key is placed in the keyring before
+	mounting overlayfs, and remains while the overlayfs is mounted.
 
-Fixes: 28b4c263961c ("ext4 crypto: revalidate dentry after adding or removing the key")
-Reported-by: Sarthak Kukreti <sarthakkukreti@chromium.org>
+    (2) The overlayfs workdir uses the same encryption policy.
+
+    (3) No dentries for the ciphertext names of subdirectories have been
+	created in the upperdir or workdir yet.  (Since otherwise
+	d_splice_alias() will reuse the old dentry with ->d_op set.)
+
+One potential use case is using an ephemeral encryption key to encrypt
+all files created or changed by a container, so that they can be
+securely erased ("crypto-shredded") after the container stops.
+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dcache.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/crypto/hooks.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -2713,6 +2713,20 @@ static void copy_name(struct dentry *den
+--- a/fs/crypto/hooks.c
++++ b/fs/crypto/hooks.c
+@@ -115,9 +115,8 @@ int __fscrypt_prepare_lookup(struct inod
+ 		spin_lock(&dentry->d_lock);
+ 		dentry->d_flags |= DCACHE_ENCRYPTED_NAME;
+ 		spin_unlock(&dentry->d_lock);
++		d_set_d_op(dentry, &fscrypt_d_ops);
+ 	}
+-
+-	d_set_d_op(dentry, &fscrypt_d_ops);
+ 	return 0;
  }
- 
- /*
-+ * When d_splice_alias() moves a directory's encrypted alias to its decrypted
-+ * alias as a result of the encryption key being added, DCACHE_ENCRYPTED_NAME
-+ * must be cleared.  Note that we don't have to support arbitrary moves of this
-+ * flag because fscrypt doesn't allow encrypted aliases to be the source or
-+ * target of a rename().
-+ */
-+static inline void fscrypt_handle_d_move(struct dentry *dentry)
-+{
-+#if IS_ENABLED(CONFIG_FS_ENCRYPTION)
-+	dentry->d_flags &= ~DCACHE_ENCRYPTED_NAME;
-+#endif
-+}
-+
-+/*
-  * __d_move - move a dentry
-  * @dentry: entry to move
-  * @target: new dentry
-@@ -2787,6 +2801,7 @@ static void __d_move(struct dentry *dent
- 	list_move(&dentry->d_child, &dentry->d_parent->d_subdirs);
- 	__d_rehash(dentry);
- 	fsnotify_update_flags(dentry);
-+	fscrypt_handle_d_move(dentry);
- 
- 	write_seqcount_end(&target->d_seq);
- 	write_seqcount_end(&dentry->d_seq);
+ EXPORT_SYMBOL_GPL(__fscrypt_prepare_lookup);
 
 
