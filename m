@@ -2,103 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 562F52A4B73
+	by mail.lfdr.de (Postfix) with ESMTP id D62822A4B74
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 17:29:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbgKCQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 11:29:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37878 "EHLO
+        id S1727883AbgKCQ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 11:29:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727883AbgKCQ3M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:29:12 -0500
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9DBC0613D1
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 08:29:12 -0800 (PST)
-Received: by mail-qk1-x743.google.com with SMTP id 12so11289237qkl.8
+        with ESMTP id S1726126AbgKCQ3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:29:13 -0500
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 034E3C0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 08:29:13 -0800 (PST)
+Received: by mail-qk1-x744.google.com with SMTP id s14so15157702qkg.11
         for <stable@vger.kernel.org>; Tue, 03 Nov 2020 08:29:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JiRzfR09Qc2pF+19ltfDThXVly8u3TNa2NmUVV+PfKg=;
-        b=lwV6Po06e/9ghyO6L9YCrceE9VbyVtfU00TPhDciHMZhT+/kygSm2wO4E/hjGLm98+
-         oOwENyl1TjuyHjx2wrngpbQ6SZAa3VMKybq5K/IBJDHBr+OYpI3XDozP0G/f0OuCh26J
-         CBDAw/Ek9bHHidM5ZBDi7kd7D45OcsNW0Y6fKKBQ5evgK8sp9LXvIXNhYyhyBrN5xTT/
-         V0RQ9b7gKq+O7DWtgMpaPXfaUkz3icd3afP1jjQfDpwovQ4elzXRFHR6HUexcbanKIVA
-         NLLqk50y7MtiDae6p03iCUXVF7Rts4xEc9FhO9CDuzKVx2RUv7kPViZlUKvPk/IJgYAq
-         NP7g==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=z4o3K+SXk1EZriNkflBZWyIPiJPUVnsfHwzI5+HZSis=;
+        b=Ws16bs5qHA+wRdZlLBmsaco6AEAFeNrQvEKstV99yhhhN6JUM3FGQ05tZgnsIb7yKm
+         q711Hs+XrKHeN4oVtwma/IcMSP7Csxg0ABCFT88EnOtNqXJZnSKGf5/0jBF6vAXKMJtW
+         CW2t/siGskKIyVRh81loAICW1v189FxdanqOHNjxh6uu5pBAuRJOj03myjc6JT7H2Id5
+         FD9GaGpEaB3XAH+xUQox6fDPjD0ZLmeNroccKqD4rdf3X4dqqM9N7pHiTwPjO058vmmW
+         Q7yUhmky8jrci9bw4h/hJu92/bpgUpzijMishxxZyY1gCZZ8tU1O0y8P56kBr4JmlLl6
+         gT0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JiRzfR09Qc2pF+19ltfDThXVly8u3TNa2NmUVV+PfKg=;
-        b=sOzNHM5im7lAhS0s3zQ6w32dAGgV6ulUnzSg7k1SBL9lwlVPOXNs4tL0QIQE6dwR0+
-         4vIFsRBMJYHQxsqT8uh4RE1DQbOl4eJ31Z01jqVkxvyabuRqt0ILGwid2gp9qf/A02VB
-         0yoQ0qEWffXy9IX+K2VxPS1DH9E61HwIuqAdkTsnnYx60a6ug8h72PSLdUk3RdExdoFw
-         s8RgJ2daUdOItv62pjQVFEtBxWDaixfKJTX0IzbT5nXF1JkrzzAQ2N0I5XfBfSK7Knh/
-         wqWuC9C+xFXBo5G8FzLbBSrzwkHcEe1tZ6ImaLi06sl6AbEVQC6RglKSIRj6BwJtd1zD
-         ttdQ==
-X-Gm-Message-State: AOAM533K7Nn+BUFkIGpQqXXG7cilfrBv0/QTBlefYyLs2KN4vlaZjSqR
-        dcSXhu9rstQ/zcQCUbdQNkseaMLI47k=
-X-Google-Smtp-Source: ABdhPJyddLPjKzLn38ZuGWCtQgSoDTnYnQRZhWLHFR9FFuUgwG1vS/xyMIARHmUGq3RS41kAriFJLQ==
-X-Received: by 2002:a37:4b4f:: with SMTP id y76mr21155397qka.108.1604420951075;
-        Tue, 03 Nov 2020 08:29:11 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=z4o3K+SXk1EZriNkflBZWyIPiJPUVnsfHwzI5+HZSis=;
+        b=amhWRBQ5rSXaheSEDtSknJCt+VHOh7+AmEMKJkAHRO3Q4/RHnFoXUIqWWyToH/FbLh
+         JlaYn5Rfi5T/kvjgJ/eZ0OLRexwyl6M08e/aUV133UavhRxTVXrBF7GB4uqqIyDaZeUx
+         hCH7MreFmo+wULLoeQL83tj1Zn7r1NrR+hEMoEtwZ53h4ev/SgiNMf+VU6xlF1tALwtL
+         tcoBhi96GsqkmMz37eZgKGsTlOeyUm+0yXb34LW3kUSurHDrfy/iOeIHm+S/ampH+jiS
+         ZIcDit+RfngZWaZFcQbRja2+1/xLsEMy2MALGxgdqMg+sTnT3upVX60ZIqy3qjGCNc2Y
+         7fDg==
+X-Gm-Message-State: AOAM530PpbJO9fDz9s+VOaBN5sK8fMC9tm+2w6ksLHwqi7HkMaSh2/fV
+        1VVR9xEvZeVRWUD4liTeTxClcryFlhw=
+X-Google-Smtp-Source: ABdhPJwMNXSWE6jpNL6zAh5dJ0q9BVlo4xkvLewL6q0YfQmXdnjVvdDmXBit5y4iacsKK+eEZxblyg==
+X-Received: by 2002:a37:65d1:: with SMTP id z200mr20184887qkb.103.1604420952018;
+        Tue, 03 Nov 2020 08:29:12 -0800 (PST)
 Received: from localhost.localdomain ([71.219.66.138])
-        by smtp.gmail.com with ESMTPSA id d48sm10171434qta.26.2020.11.03.08.29.10
+        by smtp.gmail.com with ESMTPSA id d48sm10171434qta.26.2020.11.03.08.29.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 08:29:10 -0800 (PST)
+        Tue, 03 Nov 2020 08:29:11 -0800 (PST)
 From:   Alex Deucher <alexdeucher@gmail.com>
 X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
 To:     stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 0/7] backports of upstream fixes for stable
-Date:   Tue,  3 Nov 2020 11:28:55 -0500
-Message-Id: <20201103162903.687752-1-alexander.deucher@amd.com>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>
+Subject: [PATCH 1/7] drm/amdgpu/swsmu: drop smu i2c bus on navi1x
+Date:   Tue,  3 Nov 2020 11:28:56 -0500
+Message-Id: <20201103162903.687752-2-alexander.deucher@amd.com>
 X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20201103162903.687752-1-alexander.deucher@amd.com>
+References: <20201103162903.687752-1-alexander.deucher@amd.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These commits failed to apply cleanly to stable so I have
-cherry-picked them from Linus' tree and fixed up the conflicts.
-The original uptream commit is referenced in the commit message
-as I used cherry-pick -x.
+Stop registering the SMU i2c bus on navi1x.  This leads to instability
+issues when userspace processes mess with the bus and also seems to
+cause display stability issues in some cases.
 
-Please apply!
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1314
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1341
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+(cherry picked from commit 10105d0c9763f058f6a9a09f78397d5bf94dc94c)
+---
+ drivers/gpu/drm/amd/powerplay/navi10_ppt.c | 26 ----------------------
+ 1 file changed, 26 deletions(-)
 
-Thanks,
-
-Alex
-
-Alex Deucher (1):
-  drm/amdgpu/swsmu: drop smu i2c bus on navi1x
-
-Andrey Grodzovsky (1):
-  drm/amd/psp: Fix sysfs: cannot create duplicate filename
-
-Evan Quan (1):
-  drm/amd/pm: increase mclk switch threshold to 200 us
-
-Kenneth Feng (1):
-  drm/amd/pm: fix pp_dpm_fclk
-
-Kevin Wang (1):
-  drm/amd/swsmu: add missing feature map for sienna_cichlid
-
-Likun Gao (2):
-  drm/amdgpu: add function to program pbb mode for sienna cichlid
-  drm/amdgpu: correct the cu and rb info for sienna cichlid
-
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c       |  3 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c        | 71 +++++++++++++++++++
- .../gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c  |  2 +-
- drivers/gpu/drm/amd/powerplay/inc/smu_types.h |  1 +
- drivers/gpu/drm/amd/powerplay/navi10_ppt.c    | 26 -------
- .../drm/amd/powerplay/sienna_cichlid_ppt.c    |  6 ++
- 6 files changed, 81 insertions(+), 28 deletions(-)
-
+diff --git a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+index b1547a83e721..e0992cd7914e 100644
+--- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+@@ -2463,37 +2463,11 @@ static const struct i2c_algorithm navi10_i2c_algo = {
+ 	.functionality = navi10_i2c_func,
+ };
+ 
+-static int navi10_i2c_control_init(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	struct amdgpu_device *adev = to_amdgpu_device(control);
+-	int res;
+-
+-	control->owner = THIS_MODULE;
+-	control->class = I2C_CLASS_SPD;
+-	control->dev.parent = &adev->pdev->dev;
+-	control->algo = &navi10_i2c_algo;
+-	snprintf(control->name, sizeof(control->name), "AMDGPU SMU");
+-
+-	res = i2c_add_adapter(control);
+-	if (res)
+-		DRM_ERROR("Failed to register hw i2c, err: %d\n", res);
+-
+-	return res;
+-}
+-
+-static void navi10_i2c_control_fini(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	i2c_del_adapter(control);
+-}
+-
+-
+ static const struct pptable_funcs navi10_ppt_funcs = {
+ 	.get_allowed_feature_mask = navi10_get_allowed_feature_mask,
+ 	.set_default_dpm_table = navi10_set_default_dpm_table,
+ 	.dpm_set_vcn_enable = navi10_dpm_set_vcn_enable,
+ 	.dpm_set_jpeg_enable = navi10_dpm_set_jpeg_enable,
+-	.i2c_init = navi10_i2c_control_init,
+-	.i2c_fini = navi10_i2c_control_fini,
+ 	.print_clk_levels = navi10_print_clk_levels,
+ 	.force_clk_levels = navi10_force_clk_levels,
+ 	.populate_umd_state_clk = navi10_populate_umd_state_clk,
 -- 
 2.25.4
 
