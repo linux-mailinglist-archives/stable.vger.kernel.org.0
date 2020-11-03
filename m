@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA412A578C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E682A5880
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732573AbgKCVnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
+        id S1731283AbgKCUrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:47:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731913AbgKCUy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:54:27 -0500
+        id S1731282AbgKCUrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:47:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 921F8223C7;
-        Tue,  3 Nov 2020 20:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8420720719;
+        Tue,  3 Nov 2020 20:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436867;
-        bh=lWaxjMV6jz9O4Lg2o8mIDYZ4MlB9Mz6+R/IFqZugWQY=;
+        s=default; t=1604436422;
+        bh=gVcnKTRxt1r1U9E0KMjttxOctmywkcGA+mmXOXBkcKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyw/bdrE9FVkmxOw5WbKFyhmeBG2NDutYvfAqCFWt4yblnlPCL5VfRhoBdokC1+Pa
-         nTtl5za9JkVcd3LY80bFkmZAf9amU4lwZwtGBc50FxB2PQbw0qtEZpI+ZMiWjoISAR
-         uZ8tHvbih8jJUqnWjTEIQ+NC6TWQ9l6VGP8u6AYc=
+        b=Yc1N4zfd9V1JtWEtuE0GMVJvEweL4vDZZpIGxhiJMufNIeFI+0RDXKEUgPDh3n7lT
+         ClRkpk8MUtH88taZSCw8C3bOz6G0VdnNBHtu+G3DojNwWgqYl9J7saydOAQLfcU8WE
+         je2gq+hX1IcwPo6Q5bJRKLKXGSNYwLDGml0MZyE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/214] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
+        stable@vger.kernel.org, Li Jun <jun.li@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.9 243/391] usb: dwc3: core: add phy cleanup for probe error handling
 Date:   Tue,  3 Nov 2020 21:34:54 +0100
-Message-Id: <20201103203254.424706984@linuxfoundation.org>
+Message-Id: <20201103203403.404723259@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Li Jun <jun.li@nxp.com>
 
-[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
+commit 03c1fd622f72c7624c81b64fdba4a567ae5ee9cb upstream.
 
-Current code enables the HS clock when video mode is started or to
-send out a HS command, and disables the HS clock to send out a LP
-command. This is not what DSI spec specify.
+Add the phy cleanup if dwc3 mode init fail, which is the missing part of
+de-init for dwc3 core init.
 
-Enable HS clock either in command and in video mode.
-Set automatic HS clock management for panels and devices that
-support non-continuous HS clock.
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Tested-by: Philippe Cornu <philippe.cornu@st.com>
-Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/core.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-index 675442bfc1bd7..77384c49fb8dd 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-@@ -365,7 +365,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
- 	if (lpm)
- 		val |= CMD_MODE_ALL_LP;
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1564,6 +1564,17 @@ static int dwc3_probe(struct platform_de
  
--	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
- 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
- }
- 
-@@ -541,16 +540,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
- static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
- 				 unsigned long mode_flags)
- {
-+	u32 val;
+ err5:
+ 	dwc3_event_buffers_cleanup(dwc);
 +
- 	dsi_write(dsi, DSI_PWR_UP, RESET);
- 
- 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
- 		dw_mipi_dsi_video_mode_config(dsi);
--		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
- 	} else {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
- 	}
- 
-+	val = PHY_TXREQUESTCLKHS;
-+	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
-+		val |= AUTO_CLKLANE_CTRL;
-+	dsi_write(dsi, DSI_LPCLK_CTRL, val);
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
 +
- 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
- }
++	usb_phy_set_suspend(dwc->usb2_phy, 1);
++	usb_phy_set_suspend(dwc->usb3_phy, 1);
++	phy_power_off(dwc->usb2_generic_phy);
++	phy_power_off(dwc->usb3_generic_phy);
++
+ 	dwc3_ulpi_exit(dwc);
  
--- 
-2.27.0
-
+ err4:
 
 
