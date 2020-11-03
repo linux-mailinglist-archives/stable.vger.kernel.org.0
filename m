@@ -2,101 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F28B42A3C37
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 06:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E913B2A3C44
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 06:55:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725968AbgKCFxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 00:53:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51456 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725953AbgKCFx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 00:53:29 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747DBC0617A6;
-        Mon,  2 Nov 2020 21:53:29 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id a71so11633709edf.9;
-        Mon, 02 Nov 2020 21:53:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mbxSfoSmP856zGHTji+nbwksNv1J/cgE4QrDKUz3wMU=;
-        b=pEKAMK9h4oND5JtBLHzwr/fUGb2DM09YmSHv3ArjvKMG9vaS0nm2LuK1Zob+ogPTyM
-         C3V+TPBbmwtFHLfHM6/qTxkkMN4bXr210KplfSXPAIDr1MtJPlvj0FHAPPmTl4M/ml6n
-         fTlLOYI9Kbx3H0V9JnADqFQcVo556nLvo517cWhoBWc88B/cLRTPPkQeBdiaX0vgBPse
-         pz5uA1zkrGuYtVyZn0kMhScGoRYI4GYLo03trae98B+R2p25XqtfwXGywMGGhjnGqbHq
-         YwuuL2ihpcy8FXxQjOe8md3UZqBVc4dVV8E8FTtbPXcCeglAIvY2zq0S/pAlJJoQ7mZc
-         fh7w==
+        id S1725993AbgKCFzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 00:55:21 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:50649 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725958AbgKCFzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 00:55:20 -0500
+Received: from mail-pl1-f197.google.com ([209.85.214.197])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1kZpHr-0004fq-5R
+        for stable@vger.kernel.org; Tue, 03 Nov 2020 05:55:19 +0000
+Received: by mail-pl1-f197.google.com with SMTP id m7so7023441pls.12
+        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 21:55:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mbxSfoSmP856zGHTji+nbwksNv1J/cgE4QrDKUz3wMU=;
-        b=fFKvnruVSrbIqguCUk33DcW1YM3C7B9mVLj+JvR8kFFzaChG0UBabCoDIXZhRgehPi
-         nfQQ2bPoUau9KGdxjiCbXTDyZvDGz2Mil8jEEL/LKIPoql7ituKbUAHJP9+Z7ffUMVVS
-         MUBLXjh13Yt9bb7oOQTdIXnj/J8j00PSWV5TO0KZ9GwMBB1dLxSNTrbMHoMAFaqQfUn2
-         aZzK2kbXpZY3SO59rhuTP2BIEWp8m7qMVTGoBoJVatGBW3+3lmNKWdr7MazTaW7CZyTX
-         6iG5A3DXi5UbYHnAzv+0lJp7+4yLQqPS/rnm7lrVDmIHWWIFVdKiXsA9GzP/Gul5N9Co
-         UoBQ==
-X-Gm-Message-State: AOAM5315Ukqs3EeYlprbh93QtBJ+D9n/h1Gs0X0jp5GxYzrIerUM314n
-        GccZf3wVz8QRxd7ywLFcSwrCSezGbplb267W3/o=
-X-Google-Smtp-Source: ABdhPJy5sXxaVPqPLCAlm8CNwM3kf6fo5mZgVh3EF7GepdVE9byq/HTWl0sU+0PF/k7PfOQLgL/x4TJgK1+G2QcJEkA=
-X-Received: by 2002:aa7:cb0f:: with SMTP id s15mr16272969edt.338.1604382808165;
- Mon, 02 Nov 2020 21:53:28 -0800 (PST)
-MIME-Version: 1.0
-References: <20201103012007.183429-1-sashal@kernel.org> <20201103012007.183429-5-sashal@kernel.org>
-In-Reply-To: <20201103012007.183429-5-sashal@kernel.org>
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date:   Tue, 3 Nov 2020 06:53:17 +0100
-Message-ID: <CAFBinCCZiO9Xe1WKT8MZ-90c7m1u_m1Mt-OXf=Pyuo0vukQQ5g@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 05/24] arm64: dts: amlogic: meson-g12: use the
- G12A specific dwmac compatible
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:content-transfer-encoding:mime-version
+         :subject:message-id:date:to;
+        bh=AbK/zWUvmIpjrbo5g2wX98DKGLUNFBag7fCLSiUwV6A=;
+        b=UlRDYX1CK+2lvJt2qisjFJSOCMFjtVCkQ1tvgSsID07pULXyIPvGqS/U9c0YkKUoJn
+         tToPJVg/oqJ3FibsfN7AddMcXjRrG1H7DNAObkNGV+jspLnuqOXUtV8aOaptlE8H1kqV
+         zgCxj1OGMQn/iSpMCqdKJR3+nhobxiGTUOjj7hMFjxvdXFhQacR4mUiiOBo8wEBxc/Vz
+         JCDeVcjPWrqt1pecljdBmCU3qTgvyt3vkSLLtO3vDaDlaQHwXMbYYhK9Esf1UOWv2IHo
+         sINQnBdrmsoPxejgUk4amE2NCZYRQgRJEmeP/Dyp/SiwleMdr7GJ71v+NDKfOuclGu+h
+         gFLg==
+X-Gm-Message-State: AOAM5334ktRPEpbFd4uxSK4zoMLYw9xRYW0Txft75sTE4DEMAPJlmJyr
+        j12I7kE/AvPo/jsAXg3HXmdhRN4ZI/4qofGqq1uWK6qeMrFRlpm7XegdfS0ooJIUCjNeR8DgupB
+        LoKUfm06GJDa8d8hEe6NywBQXm58af8Xadg==
+X-Received: by 2002:a63:f1d:: with SMTP id e29mr3538346pgl.445.1604382917613;
+        Mon, 02 Nov 2020 21:55:17 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx6OCGS51kW6LHiB2B3ib0miq84C2jF0PrjkTQq4/mFe+2o9BCSLq225Si85Zpjmw9t+BED1w==
+X-Received: by 2002:a63:f1d:: with SMTP id e29mr3538329pgl.445.1604382917289;
+        Mon, 02 Nov 2020 21:55:17 -0800 (PST)
+Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
+        by smtp.gmail.com with ESMTPSA id u14sm4019522pfc.87.2020.11.02.21.55.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 02 Nov 2020 21:55:16 -0800 (PST)
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Stable backport request for 44492e70adc8 ("rtw88: pci: Power cycle
+ device during shutdown")
+Message-Id: <747E6F28-BE7E-424B-A879-7EA9DE015DB0@canonical.com>
+Date:   Tue, 3 Nov 2020 13:55:14 +0800
+To:     linux-stable <stable@vger.kernel.org>
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Hi,
 
-On Tue, Nov 3, 2020 at 2:20 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->
-> [ Upstream commit 1fdc97ae450ede2b4911d6737a57e6fca63b5f4a ]
->
-> We have a dedicated "amlogic,meson-g12a-dwmac" compatible string for the
-> Ethernet controller since commit 3efdb92426bf4 ("dt-bindings: net:
-> dwmac-meson: Add a compatible string for G12A onwards").
-> Using the AXG compatible string worked fine so far because the
-> dwmac-meson8b driver doesn't handle the newly introduced register bits
-> for G12A. However, once that changes the driver must be probed with the
-> correct compatible string to manage these new register bits.
->
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-> Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-> Link: https://lore.kernel.org/r/20200925211743.537496-1-martin.blumenstingl@googlemail.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-if this patch will be included in 5.4-stable then please also backport
-the following two commits:
-- 3efdb92426bf4 ("dt-bindings: net: dwmac-meson: Add a compatible
-string for G12A onwards")
-- a4f63342d03d2d ("net: stmmac: dwmac-meson8b: add a compatible string
-for G12A SoCs")
+Please backport 44492e70adc8 to 5.4 stable.
 
-Without these above two commits we'll lose Ethernet connectivity
-because there's no G12A compatible string in 5.4 yet
+The commit fixes broken WiFi for many users.
+Currently only stable 5.4 misses this patch, older kernels don't have rtw88.
 
-The quick solution would be to not backport this patch because the
-driver in question doesn't do anything with the new compatible string
-yet.
-
-
-Best regards,
-Martin
+Kai-Heng
