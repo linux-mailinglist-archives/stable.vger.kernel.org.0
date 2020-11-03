@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A30F2A56ED
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD5172A56E6
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731197AbgKCVcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:32:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59684 "EHLO mail.kernel.org"
+        id S1732893AbgKCVb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:31:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732160AbgKCU5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:57:24 -0500
+        id S1731197AbgKCU51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:57:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F2612053B;
-        Tue,  3 Nov 2020 20:57:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9DE422226;
+        Tue,  3 Nov 2020 20:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437043;
-        bh=fDVkSL4OoH29SROqNLFPW+q5KCXRY4XKiT46PihVJVw=;
+        s=default; t=1604437046;
+        bh=Nk7GJ56FL6bO416JxPfEHDNHf6hSKJl4spwhPgoxE84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVXhskhA+CpNl3EW2XPtnxWOShkyO9orXVnUaEehcXJu6IOf10F3lw5PzMBMnTMUg
-         CI0HnM2tnVUqh0ibHx2JnzG951a4C1YRMKlP/0Hx4tHDcOGEh6QCrhBTydyK8wueCt
-         S8llGQU0Uerz7rW3xXaQK2AtiAHL37ixgeY5udaE=
+        b=MbDTjB+U7uKzESlN524dzM8DHcC3cpCfwN42XYeeJhkiX0iR/Iec0zq7Pe7ToE+Sj
+         +b4Dd7AwAzJVWJ5MFsOByXfN0dhF2s8NL87C5HBFY10SxXczVGDXARVv+lZ7gXAyWR
+         PTt42fajIHN9N0lmr/Oi+mtvtewZ4QzJsGCudd+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 123/214] btrfs: improve device scanning messages
-Date:   Tue,  3 Nov 2020 21:36:11 +0100
-Message-Id: <20201103203302.395004126@linuxfoundation.org>
+Subject: [PATCH 5.4 124/214] btrfs: reschedule if necessary when logging directory items
+Date:   Tue,  3 Nov 2020 21:36:12 +0100
+Message-Id: <20201103203302.489988110@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -42,59 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 79dae17d8d44b2d15779e332180080af45df5352 upstream.
+commit bb56f02f26fe23798edb1b2175707419b28c752a upstream.
 
-Systems booting without the initramfs seems to scan an unusual kind
-of device path (/dev/root). And at a later time, the device is updated
-to the correct path. We generally print the process name and PID of the
-process scanning the device but we don't capture the same information if
-the device path is rescanned with a different pathname.
+Logging directories with many entries can take a significant amount of
+time, and in some cases monopolize a cpu/core for a long time if the
+logging task doesn't happen to block often enough.
 
-The current message is too long, so drop the unnecessary UUID and add
-process name and PID.
+Johannes and Lu Fengqi reported test case generic/041 triggering a soft
+lockup when the kernel has CONFIG_SOFTLOCKUP_DETECTOR=y. For this test
+case we log an inode with 3002 hard links, and because the test removed
+one hard link before fsyncing the file, the inode logging causes the
+parent directory do be logged as well, which has 6004 directory items to
+log (3002 BTRFS_DIR_ITEM_KEY items plus 3002 BTRFS_DIR_INDEX_KEY items),
+so it can take a significant amount of time and trigger the soft lockup.
 
-While at this also update the duplicate device warning to include the
-process name and PID so the messages are consistent
+So just make tree-log.c:log_dir_items() reschedule when necessary,
+releasing the current search path before doing so and then resume from
+where it was before the reschedule.
 
-CC: stable@vger.kernel.org # 4.19+
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=89721
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+The stack trace produced when the soft lockup happens is the following:
+
+[10480.277653] watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [xfs_io:28172]
+[10480.279418] Modules linked in: dm_thin_pool dm_persistent_data (...)
+[10480.284915] irq event stamp: 29646366
+[10480.285987] hardirqs last  enabled at (29646365): [<ffffffff85249b66>] __slab_alloc.constprop.0+0x56/0x60
+[10480.288482] hardirqs last disabled at (29646366): [<ffffffff8579b00d>] irqentry_enter+0x1d/0x50
+[10480.290856] softirqs last  enabled at (4612): [<ffffffff85a00323>] __do_softirq+0x323/0x56c
+[10480.293615] softirqs last disabled at (4483): [<ffffffff85800dbf>] asm_call_on_stack+0xf/0x20
+[10480.296428] CPU: 2 PID: 28172 Comm: xfs_io Not tainted 5.9.0-rc4-default+ #1248
+[10480.298948] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+[10480.302455] RIP: 0010:__slab_alloc.constprop.0+0x19/0x60
+[10480.304151] Code: 86 e8 31 75 21 00 66 66 2e 0f 1f 84 00 00 00 (...)
+[10480.309558] RSP: 0018:ffffadbe09397a58 EFLAGS: 00000282
+[10480.311179] RAX: ffff8a495ab92840 RBX: 0000000000000282 RCX: 0000000000000006
+[10480.313242] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff85249b66
+[10480.315260] RBP: ffff8a497d04b740 R08: 0000000000000001 R09: 0000000000000001
+[10480.317229] R10: ffff8a497d044800 R11: ffff8a495ab93c40 R12: 0000000000000000
+[10480.319169] R13: 0000000000000000 R14: 0000000000000c40 R15: ffffffffc01daf70
+[10480.321104] FS:  00007fa1dc5c0e40(0000) GS:ffff8a497da00000(0000) knlGS:0000000000000000
+[10480.323559] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[10480.325235] CR2: 00007fa1dc5befb8 CR3: 0000000004f8a006 CR4: 0000000000170ea0
+[10480.327259] Call Trace:
+[10480.328286]  ? overwrite_item+0x1f0/0x5a0 [btrfs]
+[10480.329784]  __kmalloc+0x831/0xa20
+[10480.331009]  ? btrfs_get_32+0xb0/0x1d0 [btrfs]
+[10480.332464]  overwrite_item+0x1f0/0x5a0 [btrfs]
+[10480.333948]  log_dir_items+0x2ee/0x570 [btrfs]
+[10480.335413]  log_directory_changes+0x82/0xd0 [btrfs]
+[10480.336926]  btrfs_log_inode+0xc9b/0xda0 [btrfs]
+[10480.338374]  ? init_once+0x20/0x20 [btrfs]
+[10480.339711]  btrfs_log_inode_parent+0x8d3/0xd10 [btrfs]
+[10480.341257]  ? dget_parent+0x97/0x2e0
+[10480.342480]  btrfs_log_dentry_safe+0x3a/0x50 [btrfs]
+[10480.343977]  btrfs_sync_file+0x24b/0x5e0 [btrfs]
+[10480.345381]  do_fsync+0x38/0x70
+[10480.346483]  __x64_sys_fsync+0x10/0x20
+[10480.347703]  do_syscall_64+0x2d/0x70
+[10480.348891]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[10480.350444] RIP: 0033:0x7fa1dc80970b
+[10480.351642] Code: 0f 05 48 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 (...)
+[10480.356952] RSP: 002b:00007fffb3d081d0 EFLAGS: 00000293 ORIG_RAX: 000000000000004a
+[10480.359458] RAX: ffffffffffffffda RBX: 0000562d93d45e40 RCX: 00007fa1dc80970b
+[10480.361426] RDX: 0000562d93d44ab0 RSI: 0000562d93d45e60 RDI: 0000000000000003
+[10480.363367] RBP: 0000000000000001 R08: 0000000000000000 R09: 00007fa1dc7b2a40
+[10480.365317] R10: 0000562d93d0e366 R11: 0000000000000293 R12: 0000000000000001
+[10480.367299] R13: 0000562d93d45290 R14: 0000562d93d45e40 R15: 0000562d93d45e60
+
+Link: https://lore.kernel.org/linux-btrfs/20180713090216.GC575@fnst.localdomain/
+Reported-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+CC: stable@vger.kernel.org # 4.4+
+Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ fs/btrfs/tree-log.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1123,16 +1123,18 @@ static noinline struct btrfs_device *dev
- 				bdput(path_bdev);
- 				mutex_unlock(&fs_devices->device_list_mutex);
- 				btrfs_warn_in_rcu(device->fs_info,
--			"duplicate device fsid:devid for %pU:%llu old:%s new:%s",
--					disk_super->fsid, devid,
--					rcu_str_deref(device->name), path);
-+	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
-+						  path, devid, found_transid,
-+						  current->comm,
-+						  task_pid_nr(current));
- 				return ERR_PTR(-EEXIST);
- 			}
- 			bdput(path_bdev);
- 			btrfs_info_in_rcu(device->fs_info,
--				"device fsid %pU devid %llu moved old:%s new:%s",
--				disk_super->fsid, devid,
--				rcu_str_deref(device->name), path);
-+	"devid %llu device path %s changed to %s scanned by %s (%d)",
-+					  devid, rcu_str_deref(device->name),
-+					  path, current->comm,
-+					  task_pid_nr(current));
- 		}
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3639,6 +3639,7 @@ static noinline int log_dir_items(struct
+ 	 * search and this search we'll not find the key again and can just
+ 	 * bail.
+ 	 */
++search:
+ 	ret = btrfs_search_slot(NULL, root, &min_key, path, 0, 0);
+ 	if (ret != 0)
+ 		goto done;
+@@ -3658,6 +3659,13 @@ static noinline int log_dir_items(struct
  
- 		name = rcu_string_strdup(path, GFP_NOFS);
+ 			if (min_key.objectid != ino || min_key.type != key_type)
+ 				goto done;
++
++			if (need_resched()) {
++				btrfs_release_path(path);
++				cond_resched();
++				goto search;
++			}
++
+ 			ret = overwrite_item(trans, log, dst_path, src, i,
+ 					     &min_key);
+ 			if (ret) {
 
 
