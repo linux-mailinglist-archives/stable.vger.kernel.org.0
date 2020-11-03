@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 837682A475E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CAE02A4752
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbgKCOKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729455AbgKCOKa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 09:10:30 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:58565 "EHLO
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:32881 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729512AbgKCOJa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:09:30 -0500
+        by vger.kernel.org with ESMTP id S1729514AbgKCOJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:09:31 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 34465A22;
-        Tue,  3 Nov 2020 09:09:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:09:29 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id DECA9D0F;
+        Tue,  3 Nov 2020 09:09:30 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:09:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=22u11R
-        +izFVEP0hmRFeqcVKcoHL87GXw0fspEGkp8ms=; b=bS0N5GXmny6yDdLOZ+EkD3
-        wIHSVqJVb8BcehWjNvI27rIWwLQrXg3yFL55POUZnOjApWH9OBD6EXnQUiDai76B
-        vFHDTpQQ7eY9QyYXjbrPzGgLkExUh4pyMkkmyCcXjxV3X7ui/I3n71xwVr6c8X/p
-        0/quXqJEh96SZC70W7du56oGdrzI93aKzxA2Rx+D9MUPbeuyYb8bjc0xjl2hK6GF
-        yq+476ume/TRH2MsXd38zhxxlbrKIu7qrtNfrbXfQTiPlv12avbBpRkdAtZLJPEQ
-        teAUbVKYUWH4uo/LsXW8eudViHUusBmojIqTGo1rCvfbT4T565+XzABjmm8G5VZg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xoNa4t
+        bYR+3v/jRuAZ37YemyucAZBMB9Goz729HQGRg=; b=MYM4cNd8Fd3tDv4rWnxn/U
+        z9h0mvAMj6DKkBu1k0Mq1o176HV9tWUB2ymccWRwX+WRbtZ4CiHrd0t4IVL8/+Vn
+        i/9Kb+eBEZOoSl42iD3awpSMoIa0K3AWkxyDsOhhFZ7HNODS3za6fXFBIuVH7EO1
+        rQcgNl491t1Kk9DHWzCY27ZPLOVbePwnKkZOwrWTa94x/gVQDvdN9utQLXVDKlsQ
+        KTJwiEXnQdak2Alim6QAj8mPPjRdB62k2XtnYF/zKkuqenRjlzZQygUaeFOLgEtw
+        oHXJVWwwOJ9aEne3Y+5Ru162KyjwzDsbjZBMHdfxhF4Esm7nabBELOe6dx/K92pw
         ==
-X-ME-Sender: <xms:mGShX6wMG2DI6axATQQHPJw0NQ8dtswipx_acN5YSFcuaUP76xnePg>
-    <xme:mGShX2QJbVfyCZXxTvHc4XmGaKhMu3oqYvJRekOn6p0XKNWaicD3UboctUhqXCB9z
-    DLlsug4RJzFBg>
+X-ME-Sender: <xms:mmShX9nrtw3WZw2lBQNHTEO6rqOcMg3e8QvDNmSrm6_3S2hDLcMfBQ>
+    <xme:mmShX419NvfTNZD4t9xa920lhbW1evSojOy4aZz5AAlSoQDlZfbC8HIiTubOP4_Qc
+    EoEk_zm6Mbj8A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheekucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:mGShX8UvbYeODRjvrL_5CXQ26HeQxNK6VQWVwBRBdCuf408KHL5DEw>
-    <xmx:mGShXwjB5-aTvR5L0eMYW_1wBlcbr5jv-p2zpcTHhLMuM-eoBBlXLw>
-    <xmx:mGShX8AkvqcrEjWWYD59GKqq6k28uprU71OdQmb-Gi5yYJR3hCzs4Q>
-    <xmx:mGShX3qghLD0w0aJ6uTPXSEKv3cCLhbYRCfLEVbiTgfGEV3pmzPPAxVEzq8>
+X-ME-Proxy: <xmx:mmShXzp7XDKkAf4Yo6qsuHp4cHvtHG-EZMPGV-15-kasq7_YkBZj9w>
+    <xmx:mmShX9n_cbLdQ6-s_4zYvuy-j6gpg6jbt4UurTwK8-Pe64x_2_wFdw>
+    <xmx:mmShX72ptqx14q4BfagYMejXCUegyI4rBIMJEFcNzitSqrw4m1sPhw>
+    <xmx:mmShX48FJOx-WzyjWJ9JyIcppyBQGSA84gKO_H-owcmuwQtg298RiGcgddk>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3D6B03280065;
-        Tue,  3 Nov 2020 09:09:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Reclaim extra TRBs after request" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2CE183064610;
+        Tue,  3 Nov 2020 09:09:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Reclaim extra TRBs after request" failed to apply to 4.9-stable tree
 To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:10:09 +0100
-Message-ID: <1604412609189172@kroah.com>
+Date:   Tue, 03 Nov 2020 15:10:10 +0100
+Message-ID: <160441261075157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
