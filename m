@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793E32A5753
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F38702A5871
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732404AbgKCUzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:55:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56818 "EHLO mail.kernel.org"
+        id S1731428AbgKCVvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:51:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732393AbgKCUzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:47 -0500
+        id S1731449AbgKCUsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF812223BD;
-        Tue,  3 Nov 2020 20:55:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E75022409;
+        Tue,  3 Nov 2020 20:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436947;
-        bh=nYkXlxOPZSUitD2CzHzQdz7UHLr8qkdADdbtwTfJVOg=;
+        s=default; t=1604436501;
+        bh=BKfdIyt5z62L/599YN5431rgr0e3luTrifZW3PySgKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vtLphLZZf0/nfUAqV/kItOoeRonBOxQF/+RNf+kgK55eEKvSrMA8G7A+aLFOMmy0
-         SzErquvprso9NIrVhMPxJ0zdB+DGVNElu3g5DjVSTJpCovehp5LOMXXtgz6fXTTCs6
-         EPXWojVMtGuD0POQhoqTTk4ybXBggxmFWO0jfzLs=
+        b=STqlmSUfP06TL4aDJ2swdTbs6GkSwI7eMJA71x1w8MKOLmhzgR6r/oYOiFlURiMcb
+         6CbEALWu8lbWSlJqlQUGMPH0bd81K1llTG1O7Uyl1slUFpk5EkdyREaFChJu5K0hG3
+         Agw31IvMvFmJLHn4SHcNO27Z6UdrsOGaWdhWe92M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/214] ext4: Detect already used quota file early
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.9 278/391] iio:gyro:itg3200: Fix timestamp alignment and prevent data leak.
 Date:   Tue,  3 Nov 2020 21:35:29 +0100
-Message-Id: <20201103203257.945943373@linuxfoundation.org>
+Message-Id: <20201103203405.793226857@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit e0770e91424f694b461141cbc99adf6b23006b60 ]
+commit 10ab7cfd5522f0041028556dac864a003e158556 upstream.
 
-When we try to use file already used as a quota file again (for the same
-or different quota type), strange things can happen. At the very least
-lockdep annotations may be wrong but also inode flags may be wrongly set
-/ reset. When the file is used for two quota types at once we can even
-corrupt the file and likely crash the kernel. Catch all these cases by
-checking whether passed file is already used as quota file and bail
-early in that case.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 16 byte array of smaller elements on the stack.
+This is fixed by using an explicit c structure. As there are no
+holes in the structure, there is no possiblity of data leakage
+in this case.
 
-This fixes occasional generic/219 failure due to lockdep complaint.
+The explicit alignment of ts is not strictly necessary but potentially
+makes the code slightly less fragile.  It also removes the possibility
+of this being cut and paste into another driver where the alignment
+isn't already true.
 
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201015110330.28716-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 36e0371e7764 ("iio:itg3200: Use iio_push_to_buffers_with_timestamp()")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-6-jic23@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/super.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/gyro/itg3200_buffer.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 4aae7e3e89a12..2603537b1f66b 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5856,6 +5856,11 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
- 	/* Quotafile not on the same filesystem? */
- 	if (path->dentry->d_sb != sb)
- 		return -EXDEV;
-+
-+	/* Quota already enabled for this file? */
-+	if (IS_NOQUOTA(d_inode(path->dentry)))
-+		return -EBUSY;
-+
- 	/* Journaling quota? */
- 	if (EXT4_SB(sb)->s_qf_names[type]) {
- 		/* Quotafile not in fs root? */
--- 
-2.27.0
-
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -46,13 +46,20 @@ static irqreturn_t itg3200_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct itg3200 *st = iio_priv(indio_dev);
+-	__be16 buf[ITG3200_SCAN_ELEMENTS + sizeof(s64)/sizeof(u16)];
++	/*
++	 * Ensure correct alignment and padding including for the
++	 * timestamp that may be inserted.
++	 */
++	struct {
++		__be16 buf[ITG3200_SCAN_ELEMENTS];
++		s64 ts __aligned(8);
++	} scan;
+ 
+-	int ret = itg3200_read_all_channels(st->i2c, buf);
++	int ret = itg3200_read_all_channels(st->i2c, scan.buf);
+ 	if (ret < 0)
+ 		goto error_ret;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 
 
