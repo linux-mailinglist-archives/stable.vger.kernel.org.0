@@ -2,159 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AEC32A4712
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E99492A4721
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729399AbgKCN5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:57:49 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:41383 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729378AbgKCN5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:57:02 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id C24C3C2A;
-        Tue,  3 Nov 2020 08:57:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:57:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qpBAHa
-        gDqbugiCuPCgJfHPcImnFxS8rEnVvUa7gIPgQ=; b=IxgqO/GWLBwp3Gyk3L3vC9
-        lCVxGF9HuaJhx1irdTQ7YYqFzT7akheOSRfMc0m3L865HQe+PsEN1Dx1N9l6MpCx
-        wVKJ8Y1LGcHBaiNxTQ7Wzub+DST58J+AKfVjSIL8nTnsoIof91v9lwNwPw+GTMIl
-        zUEInmWKnKolmdiEaGYXzgorX7uxmky8jhZNVmnpUAkqJ/ASdxx4s9cFMF6oJzy4
-        fREoCpYu+1H7jjqOfFZSrtVqflBacvMUckmV86kUdqFfyKgwsfS7MnlyddZo+cfn
-        qYz2KBbcnpvfwQ1bEArfSMPObgff3FMiU9shHJzvsMhXNXwaANZ8yAYXxypbZZQg
-        ==
-X-ME-Sender: <xms:rWGhX1a_cfP3AaZXRKdeWkxaCOh4NQdGgzUfwb_300zC85Wtwt3OUQ>
-    <xme:rWGhX8bXkxhvG8srb-ImcW-n65YUYSGqmT5NBnsFgZeXzDdPWQeytx_pofxwb8GUc
-    vPtHEoZTnTJPQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:rWGhX38bt-BWdEO_YNI7dQcmfemKXx3XZj-PpcbetgyfJlSMUVlaWA>
-    <xmx:rWGhXzo7ovCAQKWRGROWDSR3AgTLd7gCSVtNq-vnGDNye8qHZ_VM4w>
-    <xmx:rWGhXwoYBVgRuGirTQAgQAswiE26Sg0pGoQRTK2KkD8IdQb9Kilkag>
-    <xmx:rWGhX9Cza3jMu9BKW9L8M2WQGJijJzKwxJOL_sGVx74So0TSJoIpnOhI48w>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 057CD306467E;
-        Tue,  3 Nov 2020 08:57:00 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: skip devices without magic signature when mounting" failed to apply to 4.19-stable tree
-To:     anand.jain@oracle.com, dsterba@suse.com, josef@toxicpanda.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:57:47 +0100
-Message-ID: <160441186710208@kroah.com>
+        id S1729368AbgKCN7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:59:37 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41000 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727986AbgKCN6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 08:58:14 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1604411892;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4tAgfDjpBMR+qSnc1MkiG5FfxRM5aK21s8veR+9mj5w=;
+        b=HudxpmGStHwp8jGHSPWTEindOOe91aMGcAvFKZ1Ar2V1liOp437LXNPe6EmpZGZC3BmsBQ
+        t7xlUONGGyvbOsunexBikb1ar80lDd1mUYc3pGxZ9s+bqtbdAptt+Kd/oGa6H7GnDrXkzT
+        tBOE8zG6+kCLVm5SdUWRdkdl9FYfQdU=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id D13A2ABF4;
+        Tue,  3 Nov 2020 13:58:12 +0000 (UTC)
+Subject: Re: [PATCH 02/13] xen/events: avoid removing an event channel while
+ handling it
+To:     Pavel Machek <pavel@denx.de>, marmarek@invisiblethingslab.com,
+        luke1337@theori.io, sstabellini@kernel.org, wl@xen.org,
+        Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org
+References: <20201103084150.8625-1-jgross@suse.com>
+ <20201103084150.8625-3-jgross@suse.com> <20201103131501.GA30723@duo.ucw.cz>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <66f6fc98-6005-b70d-4036-32a3599ca6c9@suse.com>
+Date:   Tue, 3 Nov 2020 14:58:11 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201103131501.GA30723@duo.ucw.cz>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 03.11.20 14:15, Pavel Machek wrote:
+> Hi!
+> 
+>> Today it can happen that an event channel is being removed from the
+>> system while the event handling loop is active. This can lead to a
+>> race resulting in crashes or WARN() splats when trying to access the
+>> irq_info structure related to the event channel.
+>>
+>> Fix this problem by using a rwlock taken as reader in the event
+>> handling loop and as writer when deallocating the irq_info structure.
+>>
+>> As the observed problem was a NULL dereference in evtchn_from_irq()
+>> make this function more robust against races by testing the irq_info
+>> pointer to be not NULL before dereferencing it.
+>>
+>> And finally make all accesses to evtchn_to_irq[row][col] atomic ones
+>> in order to avoid seeing partial updates of an array element in irq
+>> handling. Note that irq handling can be entered only for event channels
+>> which have been valid before, so any not populated row isn't a problem
+>> in this regard, as rows are only ever added and never removed.
+>>
+>> This is XSA-331.
+>>
+>> This is upstream commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2
+> 
+> This one is mismerged.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Thanks for noticing!
 
-thanks,
+Greg, do you want me to send the series again or only this patch?
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
+Juergen
 
-From 96c2e067ed3e3e004580a643c76f58729206b829 Mon Sep 17 00:00:00 2001
-From: Anand Jain <anand.jain@oracle.com>
-Date: Wed, 30 Sep 2020 21:09:52 +0800
-Subject: [PATCH] btrfs: skip devices without magic signature when mounting
-
-Many things can happen after the device is scanned and before the device
-is mounted.  One such thing is losing the BTRFS_MAGIC on the device.
-If it happens we still won't free that device from the memory and cause
-the userland confusion.
-
-For example: As the BTRFS_IOC_DEV_INFO still carries the device path
-which does not have the BTRFS_MAGIC, 'btrfs fi show' still lists
-device which does not belong to the filesystem anymore:
-
-  $ mkfs.btrfs -fq -draid1 -mraid1 /dev/sda /dev/sdb
-  $ wipefs -a /dev/sdb
-  # /dev/sdb does not contain magic signature
-  $ mount -o degraded /dev/sda /btrfs
-  $ btrfs fi show -m
-  Label: none  uuid: 470ec6fb-646b-4464-b3cb-df1b26c527bd
-	  Total devices 2 FS bytes used 128.00KiB
-	  devid    1 size 3.00GiB used 571.19MiB path /dev/sda
-	  devid    2 size 3.00GiB used 571.19MiB path /dev/sdb
-
-We need to distinguish the missing signature and invalid superblock, so
-add a specific error code ENODATA for that. This also fixes failure of
-fstest btrfs/198.
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 3d39f5d47ad3..764001609a15 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3424,8 +3424,12 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
- 		return ERR_CAST(page);
- 
- 	super = page_address(page);
--	if (btrfs_super_bytenr(super) != bytenr ||
--		    btrfs_super_magic(super) != BTRFS_MAGIC) {
-+	if (btrfs_super_magic(super) != BTRFS_MAGIC) {
-+		btrfs_release_disk_super(super);
-+		return ERR_PTR(-ENODATA);
-+	}
-+
-+	if (btrfs_super_bytenr(super) != bytenr) {
- 		btrfs_release_disk_super(super);
- 		return ERR_PTR(-EINVAL);
- 	}
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 46f4efd58652..58b9c419a2b6 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1198,17 +1198,23 @@ static int open_fs_devices(struct btrfs_fs_devices *fs_devices,
- {
- 	struct btrfs_device *device;
- 	struct btrfs_device *latest_dev = NULL;
-+	struct btrfs_device *tmp_device;
- 
- 	flags |= FMODE_EXCL;
- 
--	list_for_each_entry(device, &fs_devices->devices, dev_list) {
--		/* Just open everything we can; ignore failures here */
--		if (btrfs_open_one_device(fs_devices, device, flags, holder))
--			continue;
-+	list_for_each_entry_safe(device, tmp_device, &fs_devices->devices,
-+				 dev_list) {
-+		int ret;
- 
--		if (!latest_dev ||
--		    device->generation > latest_dev->generation)
-+		ret = btrfs_open_one_device(fs_devices, device, flags, holder);
-+		if (ret == 0 &&
-+		    (!latest_dev || device->generation > latest_dev->generation)) {
- 			latest_dev = device;
-+		} else if (ret == -ENODATA) {
-+			fs_devices->num_devices--;
-+			list_del(&device->dev_list);
-+			btrfs_free_device(device);
-+		}
- 	}
- 	if (fs_devices->open_devices == 0)
- 		return -EINVAL;
+> 
+> 
+>> @@ -1242,6 +1269,8 @@ static void __xen_evtchn_do_upcall(void)
+>>   	int cpu = get_cpu();
+>>   	unsigned count;
+>>   
+>> +	read_lock(&evtchn_rwlock);
+>> +
+>>   	do {
+>>   		vcpu_info->evtchn_upcall_pending = 0;
+>>   
+>> @@ -1256,6 +1285,8 @@ static void __xen_evtchn_do_upcall(void)
+>>   		__this_cpu_write(xed_nesting_count, 0);
+>>   	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
+>>   
+>> +	read_unlock(&evtchn_rwlock);
+>> +
+>>   out:
+> 
+> read_unlock needs to be after the out: label. Or better yet, goto can
+> be avoided.
+> 
+> Best regards,
+> 								Pavel
+> Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+> 
+> diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+> index cef70f4b52ef..ba36bdd49d22 100644
+> --- a/drivers/xen/events/events_base.c
+> +++ b/drivers/xen/events/events_base.c
+> @@ -1556,8 +1556,8 @@ static void __xen_evtchn_do_upcall(void)
+>   	do {
+>   		vcpu_info->evtchn_upcall_pending = 0;
+>   
+> -		if (__this_cpu_inc_return(xed_nesting_count) - 1)
+> -			goto out;
+> +		if (__this_cpu_inc_return(xed_nesting_count) != 1)
+> +			break;
+>   
+>   		xen_evtchn_handle_events(cpu, &ctrl);
+>   
+> @@ -1568,8 +1568,6 @@ static void __xen_evtchn_do_upcall(void)
+>   	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
+>   
+>   	read_unlock(&evtchn_rwlock);
+> -
+> -out:
+>   	/*
+>   	 * Increment irq_epoch only now to defer EOIs only for
+>   	 * xen_irq_lateeoi() invocations occurring from inside the loop
+> 
+> 
 
