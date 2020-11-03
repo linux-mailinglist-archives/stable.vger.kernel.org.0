@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AEEE2A567E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6164A2A5529
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729653AbgKCV2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:28:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
+        id S2388726AbgKCVK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:10:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733121AbgKCU7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:33 -0500
+        id S2388719AbgKCVKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 020E522226;
-        Tue,  3 Nov 2020 20:59:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8715F20757;
+        Tue,  3 Nov 2020 21:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437172;
-        bh=JR4T5gEPqDRh5LsJJ2sCGiS8NiCyDyheY+/rh/QCPuU=;
+        s=default; t=1604437825;
+        bh=ldbfVxCHWclsfky4ZRik+tnCaJc9KReeUo/FwE6SWGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3ZTKs11vJpKHmjaHdtyul4bhGnLxGum3FKVVAn95jNo1XT6ldAhv1sshPx5lD5GL
-         m93xA1yEldFADhWfjIOLyN1luH2lsQavahtp+v9/oz4u81OY703KyfHZ0DNcPvrI4Y
-         Q1g+B8+xFTyuY/W7mOcH4xjv0JYM+G+n1s3G53ME=
+        b=lxobM6QIcKzHV+UbzJVCS9ERL28uLSxUVNxkCKMJrvZVu45C48x9sf9OvgNgLkzCF
+         9xEfhTzEm4DNFZfxDotc40g6yEQtpVJg1nS919iKIMZTb3r3+Xh+iXj9QC4SSOGBkc
+         7l5YsKuuNTGDuW/Ts+MB3Y72y8/KYxeiGBpIQQl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.4 177/214] rtc: rx8010: dont modify the global rtc ops
+        George Cherian <george.cherian@marvell.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 048/125] asm-generic/io.h: Fix !CONFIG_GENERIC_IOMAP pci_iounmap() implementation
 Date:   Tue,  3 Nov 2020 21:37:05 +0100
-Message-Id: <20201103203307.304517193@linuxfoundation.org>
+Message-Id: <20201103203203.906791090@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +48,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-commit d3b14296da69adb7825022f3224ac6137eb30abf upstream.
+[ Upstream commit f5810e5c329238b8553ebd98b914bdbefd8e6737 ]
 
-The way the driver is implemented is buggy for the (admittedly unlikely)
-use case where there are two RTCs with one having an interrupt configured
-and the second not. This is caused by the fact that we use a global
-rtc_class_ops struct which we modify depending on whether the irq number
-is present or not.
+For arches that do not select CONFIG_GENERIC_IOMAP, the current
+pci_iounmap() function does nothing causing obvious memory leaks
+for mapped regions that are backed by MMIO physical space.
 
-Fix it by using two const ops structs with and without alarm operations.
-While at it: not being able to request a configured interrupt is an error
-so don't ignore it and bail out of probe().
+In order to detect if a mapped pointer is IO vs MMIO, a check must made
+available to the pci_iounmap() function so that it can actually detect
+whether the pointer has to be unmapped.
 
-Fixes: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver")
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200914154601.32245-2-brgl@bgdev.pl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In configurations where CONFIG_HAS_IOPORT_MAP && !CONFIG_GENERIC_IOMAP,
+a mapped port is detected using an ioport_map() stub defined in
+asm-generic/io.h.
 
+Use the same logic to implement a stub (ie __pci_ioport_unmap()) that
+detects if the passed in pointer in pci_iounmap() is IO vs MMIO to
+iounmap conditionally and call it in pci_iounmap() fixing the issue.
+
+Leave __pci_ioport_unmap() as a NOP for all other config options.
+
+Tested-by: George Cherian <george.cherian@marvell.com>
+Link: https://lore.kernel.org/lkml/20200905024811.74701-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/lkml/20200824132046.3114383-1-george.cherian@marvell.com
+Link: https://lore.kernel.org/r/a9daf8d8444d0ebd00bc6d64e336ec49dbb50784.1600254147.git.lorenzo.pieralisi@arm.com
+Reported-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: George Cherian <george.cherian@marvell.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-rx8010.c |   24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ include/asm-generic/io.h | 39 +++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
---- a/drivers/rtc/rtc-rx8010.c
-+++ b/drivers/rtc/rtc-rx8010.c
-@@ -424,16 +424,26 @@ static int rx8010_ioctl(struct device *d
- 	}
- }
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index b4531e3b21209..1eafea2bf3ac2 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -767,18 +767,6 @@ static inline void iowrite64_rep(volatile void __iomem *addr,
+ #include <linux/vmalloc.h>
+ #define __io_virt(x) ((void __force *)(x))
  
--static struct rtc_class_ops rx8010_rtc_ops = {
-+static const struct rtc_class_ops rx8010_rtc_ops_default = {
- 	.read_time = rx8010_get_time,
- 	.set_time = rx8010_set_time,
- 	.ioctl = rx8010_ioctl,
- };
- 
-+static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
-+	.read_time = rx8010_get_time,
-+	.set_time = rx8010_set_time,
-+	.ioctl = rx8010_ioctl,
-+	.read_alarm = rx8010_read_alarm,
-+	.set_alarm = rx8010_set_alarm,
-+	.alarm_irq_enable = rx8010_alarm_irq_enable,
-+};
-+
- static int rx8010_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
+-#ifndef CONFIG_GENERIC_IOMAP
+-struct pci_dev;
+-extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+-
+-#ifndef pci_iounmap
+-#define pci_iounmap pci_iounmap
+-static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
+-{
+-}
+-#endif
+-#endif /* CONFIG_GENERIC_IOMAP */
+-
+ /*
+  * Change virtual addresses to physical addresses and vv.
+  * These are pretty trivial
+@@ -901,6 +889,16 @@ static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
  {
- 	struct i2c_adapter *adapter = client->adapter;
-+	const struct rtc_class_ops *rtc_ops;
- 	struct rx8010_data *rx8010;
- 	int err = 0;
- 
-@@ -464,16 +474,16 @@ static int rx8010_probe(struct i2c_clien
- 
- 		if (err) {
- 			dev_err(&client->dev, "unable to request IRQ\n");
--			client->irq = 0;
--		} else {
--			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
--			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
--			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
-+			return err;
- 		}
+ 	return PCI_IOBASE + (port & IO_SPACE_LIMIT);
+ }
++#define __pci_ioport_unmap __pci_ioport_unmap
++static inline void __pci_ioport_unmap(void __iomem *p)
++{
++	uintptr_t start = (uintptr_t) PCI_IOBASE;
++	uintptr_t addr = (uintptr_t) p;
 +
-+		rtc_ops = &rx8010_rtc_ops_alarm;
-+	} else {
-+		rtc_ops = &rx8010_rtc_ops_default;
- 	}
++	if (addr >= start && addr < start + IO_SPACE_LIMIT)
++		return;
++	iounmap(p);
++}
+ #endif
  
- 	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
--		&rx8010_rtc_ops, THIS_MODULE);
-+					       rtc_ops, THIS_MODULE);
+ #ifndef ioport_unmap
+@@ -915,6 +913,23 @@ extern void ioport_unmap(void __iomem *p);
+ #endif /* CONFIG_GENERIC_IOMAP */
+ #endif /* CONFIG_HAS_IOPORT_MAP */
  
- 	if (IS_ERR(rx8010->rtc)) {
- 		dev_err(&client->dev, "unable to register the class device\n");
++#ifndef CONFIG_GENERIC_IOMAP
++struct pci_dev;
++extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
++
++#ifndef __pci_ioport_unmap
++static inline void __pci_ioport_unmap(void __iomem *p) {}
++#endif
++
++#ifndef pci_iounmap
++#define pci_iounmap pci_iounmap
++static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
++{
++	__pci_ioport_unmap(p);
++}
++#endif
++#endif /* CONFIG_GENERIC_IOMAP */
++
+ /*
+  * Convert a virtual cached pointer to an uncached pointer
+  */
+-- 
+2.27.0
+
 
 
