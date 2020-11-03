@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983662A557F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 277C02A5504
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388673AbgKCVTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:19:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48300 "EHLO mail.kernel.org"
+        id S2388913AbgKCVLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388599AbgKCVIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:48 -0500
+        id S2388911AbgKCVLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36E1F207BC;
-        Tue,  3 Nov 2020 21:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24CF8205ED;
+        Tue,  3 Nov 2020 21:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437727;
-        bh=3KSKvUm5ZkRkwxCc0W0Zk+dSy3snRkDj8hsCqDGc6w4=;
+        s=default; t=1604437905;
+        bh=XgqivWphlhBxKy56iG2H0agN9XDtO3Gpwbhw7LIjMNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woAVHHx95rsP7sjIS0gjA5FBrXPRnmZlUmu3dwieeBYT2HUg4yAtSUsTr871UiQ+J
-         F++uOoVNp/HNL/DI8bPNxEoqUUyckRl/gop+R3DDuuDprfqkegvAYE3mXVjvPCowVy
-         4dO3kwE/LY/plL2858IpXTqkepTut2hHf6G+f74I=
+        b=dHJn09dpSEyJD0Moo03gBSbE/z7f3atYmzx9mP/xHuluh19ZiF32kokmIB62WFH+B
+         23x72Eq891gfVEregAUueZfSUnCeq1es0ZhNi78RtFoK/Y45mHsmoUiNKDEcKnP1V0
+         S5N96Zsjcn/mB74fcZafylfZ4tpkXwNunejVj4bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 167/191] drm/amd/display: Dont invoke kgdb_breakpoint() unconditionally
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Ran Wang <ran.wang_1@nxp.com>
+Subject: [PATCH 4.14 082/125] usb: host: fsl-mph-dr-of: check return of dma_set_mask()
 Date:   Tue,  3 Nov 2020 21:37:39 +0100
-Message-Id: <20201103203248.105268892@linuxfoundation.org>
+Message-Id: <20201103203208.800084716@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ran Wang <ran.wang_1@nxp.com>
 
-commit 8b7dc1fe1a5c1093551f6cd7dfbb941bd9081c2e upstream.
+commit 3cd54a618834430a26a648d880dd83d740f2ae30 upstream.
 
-ASSERT_CRITICAL() invokes kgdb_breakpoint() whenever either
-CONFIG_KGDB or CONFIG_HAVE_KGDB is set.  This, however, may lead to a
-kernel panic when no kdb stuff is attached, since the
-kgdb_breakpoint() call issues INT3.  It's nothing but a surprise for
-normal end-users.
+fsl_usb2_device_register() should stop init if dma_set_mask() return
+error.
 
-For avoiding the pitfall, make the kgdb_breakpoint() call only when
-CONFIG_DEBUG_KERNEL_DC is set.
-
-https://bugzilla.opensuse.org/show_bug.cgi?id=1177973
-Cc: <stable@vger.kernel.org>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: cae058610465 ("drivers/usb/host: fsl: Set DMA_MASK of usb platform device")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Link: https://lore.kernel.org/r/20201010060308.33693-1-ran.wang_1@nxp.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/dc/os_types.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/fsl-mph-dr-of.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/os_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/os_types.h
-@@ -57,7 +57,7 @@
-  * general debug capabilities
-  *
-  */
--#if defined(CONFIG_HAVE_KGDB) || defined(CONFIG_KGDB)
-+#if defined(CONFIG_DEBUG_KERNEL_DC) && (defined(CONFIG_HAVE_KGDB) || defined(CONFIG_KGDB))
- #define ASSERT_CRITICAL(expr) do {	\
- 	if (WARN_ON(!(expr))) { \
- 		kgdb_breakpoint(); \
+--- a/drivers/usb/host/fsl-mph-dr-of.c
++++ b/drivers/usb/host/fsl-mph-dr-of.c
+@@ -98,10 +98,13 @@ static struct platform_device *fsl_usb2_
+ 
+ 	pdev->dev.coherent_dma_mask = ofdev->dev.coherent_dma_mask;
+ 
+-	if (!pdev->dev.dma_mask)
++	if (!pdev->dev.dma_mask) {
+ 		pdev->dev.dma_mask = &ofdev->dev.coherent_dma_mask;
+-	else
+-		dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++	} else {
++		retval = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++		if (retval)
++			goto error;
++	}
+ 
+ 	retval = platform_device_add_data(pdev, pdata, sizeof(*pdata));
+ 	if (retval)
 
 
