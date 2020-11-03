@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F002A5877
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BEB92A5851
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730623AbgKCVwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:52:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38000 "EHLO mail.kernel.org"
+        id S1730511AbgKCUrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:47:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731341AbgKCUrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:47:32 -0500
+        id S1731352AbgKCUrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:47:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 655642242E;
-        Tue,  3 Nov 2020 20:47:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE19A20719;
+        Tue,  3 Nov 2020 20:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436451;
-        bh=cdwq7e+MxYCBy7Mn8XuxZ/5qELbyFyuJUbTwgl7F0Ks=;
+        s=default; t=1604436454;
+        bh=5fK79m+5E9BogoI86LILJfXfRx4KDEPqdPAPrzc+1qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDO/7MQWmESH6RLvOlDzQwaEolle9sJcXjuAPRRtK0jPPjhQL+IQHRMdzmE9TNxMn
-         0Vns/gYChZYXkdJiWVGiwTzT6vldeHofGJhH609eEe9hWBFKN0zQlKAvhYNatBeug0
-         Ki46EIOTpdxyGLvqdBey7xxMf8sLD4CCqb1WrPfk=
+        b=QWUyQOyMp1kf5qUt9xScbpX1O3avo6TaWSzb95r9xxRxhDm70ApzLRjGbAoH5MoxB
+         RmYDM53BlLb9lHAkw1p80+Gg46Z6ve86/q4dDvaygMl987wATQ7m7KOEKDuX0VBveZ
+         kZCU+M1qW15JRTNCF3gsm0mILA3/jTZMF796SzcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        stable@vger.kernel.org, Fabian Vogt <fvogt@suse.com>,
         Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.9 255/391] vt: keyboard, extend func_buf_lock to readers
-Date:   Tue,  3 Nov 2020 21:35:06 +0100
-Message-Id: <20201103203404.228554758@linuxfoundation.org>
+Subject: [PATCH 5.9 256/391] vt_ioctl: fix GIO_UNIMAP regression
+Date:   Tue,  3 Nov 2020 21:35:07 +0100
+Message-Id: <20201103203404.296513919@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,92 +44,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiri Slaby <jslaby@suse.cz>
 
-commit 82e61c3909db51d91b9d3e2071557b6435018b80 upstream.
+commit d54654790302ccaa72589380dce060d376ef8716 upstream.
 
-Both read-side users of func_table/func_buf need locking. Without that,
-one can easily confuse the code by repeatedly setting altering strings
-like:
-while (1)
-	for (a = 0; a < 2; a++) {
-		struct kbsentry kbs = {};
-		strcpy((char *)kbs.kb_string, a ? ".\n" : "88888\n");
-		ioctl(fd, KDSKBSENT, &kbs);
-	}
+In commit 5ba127878722, we shuffled with the check of 'perm'. But my
+brain somehow inverted the condition in 'do_unimap_ioctl' (I thought
+it is ||, not &&), so GIO_UNIMAP stopped working completely.
 
-When that program runs, one can get unexpected output by holding F1
-(note the unxpected period on the last line):
-.
-88888
-.8888
+Move the 'perm' checks back to do_unimap_ioctl and do them right again.
+In fact, this reverts this part of code to the pre-5ba127878722 state.
+Except 'perm' is now a bool.
 
-So protect all accesses to 'func_table' (and func_buf) by preexisting
-'func_buf_lock'.
-
-It is easy in 'k_fn' handler as 'puts_queue' is expected not to sleep.
-On the other hand, KDGKBSENT needs a local (atomic) copy of the string
-because copy_to_user can sleep. Use already allocated, but unused
-'kbs->kb_string' for that purpose.
-
-Note that the program above needs at least CAP_SYS_TTY_CONFIG.
-
-This depends on the previous patch and on the func_buf_lock lock added
-in commit 46ca3f735f34 (tty/vt: fix write/write race in ioctl(KDSKBSENT)
-handler) in 5.2.
-
-Likely fixes CVE-2020-25656.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Fixes: 5ba127878722 ("vt_ioctl: move perm checks level up")
+Cc: stable@vger.kernel.org
+Reported-by: Fabian Vogt <fvogt@suse.com>
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201019085517.10176-2-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20201026055419.30518-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/keyboard.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -743,8 +743,13 @@ static void k_fn(struct vc_data *vc, uns
- 		return;
- 
- 	if ((unsigned)value < ARRAY_SIZE(func_table)) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
- 		if (func_table[value])
- 			puts_queue(vc, func_table[value]);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
-+
- 	} else
- 		pr_err("k_fn called with value=%d\n", value);
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -550,7 +550,7 @@ static int vt_io_fontreset(struct consol
  }
-@@ -1991,7 +1996,7 @@ out:
- #undef s
- #undef v
  
--/* FIXME: This one needs untangling and locking */
-+/* FIXME: This one needs untangling */
- int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
+ static inline int do_unimap_ioctl(int cmd, struct unimapdesc __user *user_ud,
+-		struct vc_data *vc)
++		bool perm, struct vc_data *vc)
  {
- 	struct kbsentry *kbs;
-@@ -2023,10 +2028,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 	struct unimapdesc tmp;
+ 
+@@ -558,9 +558,11 @@ static inline int do_unimap_ioctl(int cm
+ 		return -EFAULT;
  	switch (cmd) {
- 	case KDGKBSENT: {
- 		/* size should have been a struct member */
--		unsigned char *from = func_table[i] ? : "";
-+		ssize_t len = sizeof(user_kdgkb->kb_string);
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
-+		len = strlcpy(kbs->kb_string, func_table[i] ? : "", len);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
+ 	case PIO_UNIMAP:
++		if (!perm)
++			return -EPERM;
+ 		return con_set_unimap(vc, tmp.entry_ct, tmp.entries);
+ 	case GIO_UNIMAP:
+-		if (fg_console != vc->vc_num)
++		if (!perm && fg_console != vc->vc_num)
+ 			return -EPERM;
+ 		return con_get_unimap(vc, tmp.entry_ct, &(user_ud->entry_ct),
+ 				tmp.entries);
+@@ -640,10 +642,7 @@ static int vt_io_ioctl(struct vc_data *v
  
--		ret = copy_to_user(user_kdgkb->kb_string, from,
--				strlen(from) + 1) ? -EFAULT : 0;
-+		ret = copy_to_user(user_kdgkb->kb_string, kbs->kb_string,
-+				len + 1) ? -EFAULT : 0;
+ 	case PIO_UNIMAP:
+ 	case GIO_UNIMAP:
+-		if (!perm)
+-			return -EPERM;
+-
+-		return do_unimap_ioctl(cmd, up, vc);
++		return do_unimap_ioctl(cmd, up, perm, vc);
  
- 		goto reterr;
- 	}
+ 	default:
+ 		return -ENOIOCTLCMD;
 
 
