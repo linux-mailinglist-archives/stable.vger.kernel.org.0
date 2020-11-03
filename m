@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C11002A4700
+	by mail.lfdr.de (Postfix) with ESMTP id 521D72A46FF
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727986AbgKCNyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:54:23 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45965 "EHLO
+        id S1729431AbgKCNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:54:22 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55251 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729414AbgKCNws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:52:48 -0500
+        by vger.kernel.org with ESMTP id S1729429AbgKCNxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:53:40 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 6137AB12;
-        Tue,  3 Nov 2020 08:52:47 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:52:47 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 647AA9CA;
+        Tue,  3 Nov 2020 08:53:39 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:53:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=YRz9o5
-        y42F5ONkK/QdvvhPf+wtBJjV9VtT5JWgpFjxE=; b=nuAMdhsjVFX/Ov1lk6m1DT
-        EF7JBchGGd3QdY370R7jJNDEHQxcK57ejf4Zd+pjzgr2oBPFyVlZtj2NGxTAVlWa
-        8KcZ+0rPSkxrTBmu6LegVmUStYo1ohPzg8js0y/HX/qAdX/OEUqC+cYWI9LabM5i
-        Du7dr4NOHT/4bR3cXuWJomR0dfjng5lN8KlnMN0lm4fjcu4B8/h7/uT2AO7a9k6b
-        ZjOPPCM9Uj90YN/PLlMRCp183Qa4EZw/UiKmqdCJlFhH2k2dC7DF4qc8lzFeF7+l
-        aRYIaKS8brYQG/m1CgG220nXAvHNH0Ym62ne2gta2tkj981cLU1OgrjarJV0rbWA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7yKDFd
+        6DOOTZVUFYxc9AbIOk4gCTcKodZjVRNR12Sx8=; b=pL5M13yaTEN9wXAfHYIRvw
+        PZZ5Vl3aSeTr+N17e1/ognQm8RxJvc8AbLazja697OJXV2SLliQwEctXdTiLQeNr
+        2bp5dDY4TYIAQ4n3PJ7zxPkVKP1cB0izFPVT/Xp7tnLsDVlrIz6/Vbi1d8YLsx9G
+        vDSj0hHrjnNep6LuLRat/2Zh0g+K1bVD1iXnOQBjzE6whiH5n6pOFnuCQGoNapKd
+        QABwVFDo2yibicpD39u6KPPT/YOrGCxMYZHzA/hyP/MLoeZ17BmkGoQ7q0R3FBnD
+        Td+iLI4BELT2t2Wg1kuEJYSrW48praAWbhWhDzDjU278iEW+IuejbEGxzjY/mVbw
         ==
-X-ME-Sender: <xms:rmChXxOuhexOR4tFlaIy-dKwM_HzfPSCYzF9bs0mQsM9S_ncGNsalQ>
-    <xme:rmChXz9MygqRdHjg_HB5cEy438BgQVUSzm23I2Zh1ZDQzkAB2065iHZ1Vk8Y9wrsX
-    dEcfPjTWjKGWg>
+X-ME-Sender: <xms:4mChX5M4JnWhJeN84N9HlZ46dItPrc2gIs9lWzBW4C7470Z5q_H7Uw>
+    <xme:4mChX79ElCGFIAoa71b_4xapXchSD4PtxFoErL4gaa7BqGwJkZeMTckEbt2QtPLUP
+    0waii2-1ZBYeg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepuddtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:rmChXwRpFzweR7jRFk2XGcUaR7bGFY6sM-Klwf-xO7bCsfmE6n1FAA>
-    <xmx:rmChX9u65CrD9hVUyuGXvtj-vTQAbT7O__0H5s6JbvCITHSewk088g>
-    <xmx:rmChX5cVbCsWgwfUrj3r51o6L-kZnAD82J2tFzgyABlVHBFStfIwIQ>
-    <xmx:rmChX5EmiLlmpfZvo22sTGPbPmdlhSUVPvkzRtZyrbmbjeldkBD_HIqCy-8>
+    gheqnecuggftrfgrthhtvghrnhepledthedtvdduudeiffeljeffueduleduvdejkeetud
+    euleeiveelvdeigfevtdefnecuffhomhgrihhnpedvheelrdhmvhdpohhpvghrrghtihho
+    nhhsrdhmvhenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:4mChX4Q3WXsS1uE6VkrlRsaSY-TXto_sp6_0VLxi0cdMDR_D7HI9dw>
+    <xmx:4mChX1uncJfzrpYC1GZHaVJ7PYWkYf8knK_AAL6vV_Rh9IDF5301Cw>
+    <xmx:4mChXxfIeh_cD73AW1ViGGG1NJD4Yl1BOcUO9eHNWv_J1SrPQd0NQA>
+    <xmx:42ChXxEj9U1MCcte0fyYrOdT-XsIERmCq2O3bHt6lp3bwkF4iPV2iKydlsM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 542D13280066;
-        Tue,  3 Nov 2020 08:52:46 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: tracepoints: output proper root owner for" failed to apply to 5.4-stable tree
-To:     wqu@suse.com, dsterba@suse.com, hans@knorrie.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1FD373064684;
+        Tue,  3 Nov 2020 08:53:38 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: send, orphanize first all conflicting inodes when" failed to apply to 4.19-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:53:40 +0100
-Message-ID: <160441162020482@kroah.com>
+Date:   Tue, 03 Nov 2020 14:54:31 +0100
+Message-ID: <1604411671525@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,119 +70,271 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 437490fed3b0c9ae21af8f70e0f338d34560842b Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Tue, 28 Jul 2020 09:42:49 +0800
-Subject: [PATCH] btrfs: tracepoints: output proper root owner for
- trace_find_free_extent()
+From 98272bb77bf4cc20ed1ffca89832d713e70ebf09 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 21 Sep 2020 14:13:29 +0100
+Subject: [PATCH] btrfs: send, orphanize first all conflicting inodes when
+ processing references
 
-The current trace event always output result like this:
+When doing an incremental send it is possible that when processing the new
+references for an inode we end up issuing rename or link operations that
+have an invalid path, which contains the orphanized name of a directory
+before we actually orphanized it, causing the receiver to fail.
 
- find_free_extent: root=2(EXTENT_TREE) len=16384 empty_size=0 flags=4(METADATA)
- find_free_extent: root=2(EXTENT_TREE) len=16384 empty_size=0 flags=4(METADATA)
- find_free_extent: root=2(EXTENT_TREE) len=8192 empty_size=0 flags=1(DATA)
- find_free_extent: root=2(EXTENT_TREE) len=8192 empty_size=0 flags=1(DATA)
- find_free_extent: root=2(EXTENT_TREE) len=4096 empty_size=0 flags=1(DATA)
- find_free_extent: root=2(EXTENT_TREE) len=4096 empty_size=0 flags=1(DATA)
+The following reproducer triggers such scenario:
 
-T's saying we're allocating data extent for EXTENT tree, which is not
-even possible.
+  $ cat reproducer.sh
+  #!/bin/bash
 
-It's because we always use EXTENT tree as the owner for
-trace_find_free_extent() without using the @root from
-btrfs_reserve_extent().
+  mkfs.btrfs -f /dev/sdi >/dev/null
+  mount /dev/sdi /mnt/sdi
 
-This patch will change the parameter to use proper @root for
-trace_find_free_extent():
+  touch /mnt/sdi/a
+  touch /mnt/sdi/b
+  mkdir /mnt/sdi/testdir
+  # We want "a" to have a lower inode number then "testdir" (257 vs 259).
+  mv /mnt/sdi/a /mnt/sdi/testdir/a
 
-Now it looks much better:
+  # Filesystem looks like:
+  #
+  # .                           (ino 256)
+  # |----- testdir/             (ino 259)
+  # |          |----- a         (ino 257)
+  # |
+  # |----- b                    (ino 258)
 
- find_free_extent: root=5(FS_TREE) len=16384 empty_size=0 flags=36(METADATA|DUP)
- find_free_extent: root=5(FS_TREE) len=8192 empty_size=0 flags=1(DATA)
- find_free_extent: root=5(FS_TREE) len=16384 empty_size=0 flags=1(DATA)
- find_free_extent: root=5(FS_TREE) len=4096 empty_size=0 flags=1(DATA)
- find_free_extent: root=5(FS_TREE) len=8192 empty_size=0 flags=1(DATA)
- find_free_extent: root=5(FS_TREE) len=16384 empty_size=0 flags=36(METADATA|DUP)
- find_free_extent: root=7(CSUM_TREE) len=16384 empty_size=0 flags=36(METADATA|DUP)
- find_free_extent: root=2(EXTENT_TREE) len=16384 empty_size=0 flags=36(METADATA|DUP)
- find_free_extent: root=1(ROOT_TREE) len=16384 empty_size=0 flags=36(METADATA|DUP)
+  btrfs subvolume snapshot -r /mnt/sdi /mnt/sdi/snap1
+  btrfs send -f /tmp/snap1.send /mnt/sdi/snap1
 
-Reported-by: Hans van Kranenburg <hans@knorrie.org>
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+  # Now rename 259 to "testdir_2", then change the name of 257 to
+  # "testdir" and make it a direct descendant of the root inode (256).
+  # Also create a new link for inode 257 with the old name of inode 258.
+  # By swapping the names and location of several inodes and create a
+  # nasty dependency chain of rename and link operations.
+  mv /mnt/sdi/testdir/a /mnt/sdi/a2
+  touch /mnt/sdi/testdir/a
+  mv /mnt/sdi/b /mnt/sdi/b2
+  ln /mnt/sdi/a2 /mnt/sdi/b
+  mv /mnt/sdi/testdir /mnt/sdi/testdir_2
+  mv /mnt/sdi/a2 /mnt/sdi/testdir
+
+  # Filesystem now looks like:
+  #
+  # .                            (ino 256)
+  # |----- testdir_2/            (ino 259)
+  # |          |----- a          (ino 260)
+  # |
+  # |----- testdir               (ino 257)
+  # |----- b                     (ino 257)
+  # |----- b2                    (ino 258)
+
+  btrfs subvolume snapshot -r /mnt/sdi /mnt/sdi/snap2
+  btrfs send -f /tmp/snap2.send -p /mnt/sdi/snap1 /mnt/sdi/snap2
+
+  mkfs.btrfs -f /dev/sdj >/dev/null
+  mount /dev/sdj /mnt/sdj
+
+  btrfs receive -f /tmp/snap1.send /mnt/sdj
+  btrfs receive -f /tmp/snap2.send /mnt/sdj
+
+  umount /mnt/sdi
+  umount /mnt/sdj
+
+When running the reproducer, the receive of the incremental send stream
+fails:
+
+  $ ./reproducer.sh
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
+  At subvol /mnt/sdi/snap1
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
+  At subvol /mnt/sdi/snap2
+  At subvol snap1
+  At snapshot snap2
+  ERROR: link b -> o259-6-0/a failed: No such file or directory
+
+The problem happens because of the following:
+
+1) Before we start iterating the list of new references for inode 257,
+   we generate its current path and store it at @valid_path, done at
+   the very beginning of process_recorded_refs(). The generated path
+   is "o259-6-0/a", containing the orphanized name for inode 259;
+
+2) Then we iterate over the list of new references, which has the
+   references "b" and "testdir" in that specific order;
+
+3) We process reference "b" first, because it is in the list before
+   reference "testdir". We then issue a link operation to create
+   the new reference "b" using a target path corresponding to the
+   content at @valid_path, which corresponds to "o259-6-0/a".
+   However we haven't yet orphanized inode 259, its name is still
+   "testdir", and not "o259-6-0". The orphanization of 259 did not
+   happen yet because we will process the reference named "testdir"
+   for inode 257 only in the next iteration of the loop that goes
+   over the list of new references.
+
+Fix the issue by having a preliminar iteration over all the new references
+at process_recorded_refs(). This iteration is responsible only for doing
+the orphanization of other inodes that have and old reference that
+conflicts with one of the new references of the inode we are currently
+processing. The emission of rename and link operations happen now in the
+next iteration of the new references.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 780b9c9a98fe..dbff61d36cab 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3918,11 +3918,12 @@ static int prepare_allocation(struct btrfs_fs_info *fs_info,
-  * |- Push harder to find free extents
-  *    |- If not found, re-iterate all block groups
-  */
--static noinline int find_free_extent(struct btrfs_fs_info *fs_info,
-+static noinline int find_free_extent(struct btrfs_root *root,
- 				u64 ram_bytes, u64 num_bytes, u64 empty_size,
- 				u64 hint_byte_orig, struct btrfs_key *ins,
- 				u64 flags, int delalloc)
- {
-+	struct btrfs_fs_info *fs_info = root->fs_info;
- 	int ret = 0;
- 	int cache_block_group_error = 0;
- 	struct btrfs_block_group *block_group = NULL;
-@@ -3954,7 +3955,7 @@ static noinline int find_free_extent(struct btrfs_fs_info *fs_info,
- 	ins->objectid = 0;
- 	ins->offset = 0;
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 9f1ee52482c9..f9c14c33e753 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3873,52 +3873,56 @@ static int process_recorded_refs(struct send_ctx *sctx, int *pending_move)
+ 			goto out;
+ 	}
  
--	trace_find_free_extent(fs_info, num_bytes, empty_size, flags);
-+	trace_find_free_extent(root, num_bytes, empty_size, flags);
++	/*
++	 * Before doing any rename and link operations, do a first pass on the
++	 * new references to orphanize any unprocessed inodes that may have a
++	 * reference that conflicts with one of the new references of the current
++	 * inode. This needs to happen first because a new reference may conflict
++	 * with the old reference of a parent directory, so we must make sure
++	 * that the path used for link and rename commands don't use an
++	 * orphanized name when an ancestor was not yet orphanized.
++	 *
++	 * Example:
++	 *
++	 * Parent snapshot:
++	 *
++	 * .                                                      (ino 256)
++	 * |----- testdir/                                        (ino 259)
++	 * |          |----- a                                    (ino 257)
++	 * |
++	 * |----- b                                               (ino 258)
++	 *
++	 * Send snapshot:
++	 *
++	 * .                                                      (ino 256)
++	 * |----- testdir_2/                                      (ino 259)
++	 * |          |----- a                                    (ino 260)
++	 * |
++	 * |----- testdir                                         (ino 257)
++	 * |----- b                                               (ino 257)
++	 * |----- b2                                              (ino 258)
++	 *
++	 * Processing the new reference for inode 257 with name "b" may happen
++	 * before processing the new reference with name "testdir". If so, we
++	 * must make sure that by the time we send a link command to create the
++	 * hard link "b", inode 259 was already orphanized, since the generated
++	 * path in "valid_path" already contains the orphanized name for 259.
++	 * We are processing inode 257, so only later when processing 259 we do
++	 * the rename operation to change its temporary (orphanized) name to
++	 * "testdir_2".
++	 */
+ 	list_for_each_entry(cur, &sctx->new_refs, list) {
+-		/*
+-		 * We may have refs where the parent directory does not exist
+-		 * yet. This happens if the parent directories inum is higher
+-		 * than the current inum. To handle this case, we create the
+-		 * parent directory out of order. But we need to check if this
+-		 * did already happen before due to other refs in the same dir.
+-		 */
+ 		ret = get_cur_inode_state(sctx, cur->dir, cur->dir_gen);
+ 		if (ret < 0)
+ 			goto out;
+-		if (ret == inode_state_will_create) {
+-			ret = 0;
+-			/*
+-			 * First check if any of the current inodes refs did
+-			 * already create the dir.
+-			 */
+-			list_for_each_entry(cur2, &sctx->new_refs, list) {
+-				if (cur == cur2)
+-					break;
+-				if (cur2->dir == cur->dir) {
+-					ret = 1;
+-					break;
+-				}
+-			}
+-
+-			/*
+-			 * If that did not happen, check if a previous inode
+-			 * did already create the dir.
+-			 */
+-			if (!ret)
+-				ret = did_create_dir(sctx, cur->dir);
+-			if (ret < 0)
+-				goto out;
+-			if (!ret) {
+-				ret = send_create_inode(sctx, cur->dir);
+-				if (ret < 0)
+-					goto out;
+-			}
+-		}
++		if (ret == inode_state_will_create)
++			continue;
  
- 	space_info = btrfs_find_space_info(fs_info, flags);
- 	if (!space_info) {
-@@ -4203,7 +4204,7 @@ int btrfs_reserve_extent(struct btrfs_root *root, u64 ram_bytes,
- 	flags = get_alloc_profile_by_root(root, is_data);
- again:
- 	WARN_ON(num_bytes < fs_info->sectorsize);
--	ret = find_free_extent(fs_info, ram_bytes, num_bytes, empty_size,
-+	ret = find_free_extent(root, ram_bytes, num_bytes, empty_size,
- 			       hint_byte, ins, flags, delalloc);
- 	if (!ret && !is_data) {
- 		btrfs_dec_block_group_reservations(fs_info, ins->objectid);
-diff --git a/include/trace/events/btrfs.h b/include/trace/events/btrfs.h
-index 863335ecb7e8..b9241836d4f7 100644
---- a/include/trace/events/btrfs.h
-+++ b/include/trace/events/btrfs.h
-@@ -1176,25 +1176,27 @@ DEFINE_EVENT(btrfs__reserved_extent,  btrfs_reserved_extent_free,
+ 		/*
+-		 * Check if this new ref would overwrite the first ref of
+-		 * another unprocessed inode. If yes, orphanize the
+-		 * overwritten inode. If we find an overwritten ref that is
+-		 * not the first ref, simply unlink it.
++		 * Check if this new ref would overwrite the first ref of another
++		 * unprocessed inode. If yes, orphanize the overwritten inode.
++		 * If we find an overwritten ref that is not the first ref,
++		 * simply unlink it.
+ 		 */
+ 		ret = will_overwrite_ref(sctx, cur->dir, cur->dir_gen,
+ 				cur->name, cur->name_len,
+@@ -3997,6 +4001,49 @@ static int process_recorded_refs(struct send_ctx *sctx, int *pending_move)
+ 			}
+ 		}
  
- TRACE_EVENT(find_free_extent,
- 
--	TP_PROTO(const struct btrfs_fs_info *fs_info, u64 num_bytes,
-+	TP_PROTO(const struct btrfs_root *root, u64 num_bytes,
- 		 u64 empty_size, u64 data),
- 
--	TP_ARGS(fs_info, num_bytes, empty_size, data),
-+	TP_ARGS(root, num_bytes, empty_size, data),
- 
- 	TP_STRUCT__entry_btrfs(
-+		__field(	u64,	root_objectid		)
- 		__field(	u64,	num_bytes		)
- 		__field(	u64,	empty_size		)
- 		__field(	u64,	data			)
- 	),
- 
--	TP_fast_assign_btrfs(fs_info,
-+	TP_fast_assign_btrfs(root->fs_info,
-+		__entry->root_objectid	= root->root_key.objectid;
- 		__entry->num_bytes	= num_bytes;
- 		__entry->empty_size	= empty_size;
- 		__entry->data		= data;
- 	),
- 
- 	TP_printk_btrfs("root=%llu(%s) len=%llu empty_size=%llu flags=%llu(%s)",
--		  show_root_type(BTRFS_EXTENT_TREE_OBJECTID),
-+		  show_root_type(__entry->root_objectid),
- 		  __entry->num_bytes, __entry->empty_size, __entry->data,
- 		  __print_flags((unsigned long)__entry->data, "|",
- 				 BTRFS_GROUP_FLAGS))
++	}
++
++	list_for_each_entry(cur, &sctx->new_refs, list) {
++		/*
++		 * We may have refs where the parent directory does not exist
++		 * yet. This happens if the parent directories inum is higher
++		 * than the current inum. To handle this case, we create the
++		 * parent directory out of order. But we need to check if this
++		 * did already happen before due to other refs in the same dir.
++		 */
++		ret = get_cur_inode_state(sctx, cur->dir, cur->dir_gen);
++		if (ret < 0)
++			goto out;
++		if (ret == inode_state_will_create) {
++			ret = 0;
++			/*
++			 * First check if any of the current inodes refs did
++			 * already create the dir.
++			 */
++			list_for_each_entry(cur2, &sctx->new_refs, list) {
++				if (cur == cur2)
++					break;
++				if (cur2->dir == cur->dir) {
++					ret = 1;
++					break;
++				}
++			}
++
++			/*
++			 * If that did not happen, check if a previous inode
++			 * did already create the dir.
++			 */
++			if (!ret)
++				ret = did_create_dir(sctx, cur->dir);
++			if (ret < 0)
++				goto out;
++			if (!ret) {
++				ret = send_create_inode(sctx, cur->dir);
++				if (ret < 0)
++					goto out;
++			}
++		}
++
+ 		if (S_ISDIR(sctx->cur_inode_mode) && sctx->parent_root) {
+ 			ret = wait_for_dest_dir_move(sctx, cur, is_orphan);
+ 			if (ret < 0)
 
