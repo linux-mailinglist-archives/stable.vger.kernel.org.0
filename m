@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEEA2A550F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3FE2A5503
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388619AbgKCVLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:11:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52784 "EHLO mail.kernel.org"
+        id S2388266AbgKCVLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733204AbgKCVLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:15 -0500
+        id S2388398AbgKCVLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6288C206B5;
-        Tue,  3 Nov 2020 21:11:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66C17205ED;
+        Tue,  3 Nov 2020 21:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437874;
-        bh=5E6Ms5SfmAhlWvxTxvU+REQ6RjzNmk5P07PNfAQXR/o=;
+        s=default; t=1604437900;
+        bh=6rNd4o7O/nJdHTvd066oq4yGIUTiomwg9SXw8dtb9T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vep0Jbv3lOqrsO0YIFh5KPpINCGx3Uab7vQ6/9mUYxqSJOgs+QncAiiiPOu8Zv17V
-         4eZ4U0QgBkBPZhfbKC9GNT1ur+HTMyJiMrR5EYnKTnwg7QNVIonATX4ijAIO/M+H9y
-         o5db6tOFTkpBUteRItMtAKv2Na9jh6hhjIloLg3E=
+        b=WSaLY0t5KMuwATECjTVN36RWqhA87CaGyy5bQOU8qS1ffysABIT+6wDEsBoYPF+wq
+         2GIZDHr5OzaBJPmt0NO12zCZZLo80iHH7EvmvAfxJehKXwm5+8qBfD+nssXq4Aw4Ek
+         DRSNq8e0yqpd+vDh0voJfI5wkQzQ0V9VV2ZDTu48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        stable@vger.kernel.org,
+        Stephane Eranian <stephane.eranian@google.com>,
+        Kim Phillips <kim.phillips@amd.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.14 062/125] perf/x86/amd/ibs: Dont include randomized bits in get_ibs_op_count()
-Date:   Tue,  3 Nov 2020 21:37:19 +0100
-Message-Id: <20201103203205.932699323@linuxfoundation.org>
+Subject: [PATCH 4.14 063/125] perf/x86/amd/ibs: Fix raw sample data accumulation
+Date:   Tue,  3 Nov 2020 21:37:20 +0100
+Message-Id: <20201103203206.074448153@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -44,49 +46,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kim Phillips <kim.phillips@amd.com>
 
-commit 680d69635005ba0e58fe3f4c52fc162b8fc743b0 upstream.
+commit 36e1be8ada994d509538b3b1d0af8b63c351e729 upstream.
 
-get_ibs_op_count() adds hardware's current count (IbsOpCurCnt) bits
-to its count regardless of hardware's valid status.
+Neither IbsBrTarget nor OPDATA4 are populated in IBS Fetch mode.
+Don't accumulate them into raw sample user data in that case.
 
-According to the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54,
-if the counter rolls over, valid status is set, and the lower 7 bits
-of IbsOpCurCnt are randomized by hardware.
+Also, in Fetch mode, add saving the IBS Fetch Control Extended MSR.
 
-Don't include those bits in the driver's event count.
+Technically, there is an ABI change here with respect to the IBS raw
+sample data format, but I don't see any perf driver version information
+being included in perf.data file headers, but, existing users can detect
+whether the size of the sample record has reduced by 8 bytes to
+determine whether the IBS driver has this fix.
 
-Fixes: 8b1e13638d46 ("perf/x86-ibs: Fix usage of IBS op current count")
+Fixes: 904cb3677f3a ("perf/x86/amd/ibs: Update IBS MSRs and feature definitions")
+Reported-by: Stephane Eranian <stephane.eranian@google.com>
 Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Link: https://lkml.kernel.org/r/20200908214740.18097-6-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/amd/ibs.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/x86/events/amd/ibs.c        |   26 ++++++++++++++++----------
+ arch/x86/include/asm/msr-index.h |    1 +
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
 --- a/arch/x86/events/amd/ibs.c
 +++ b/arch/x86/events/amd/ibs.c
-@@ -347,11 +347,15 @@ static u64 get_ibs_op_count(u64 config)
- {
- 	u64 count = 0;
- 
+@@ -647,18 +647,24 @@ fail:
+ 				       perf_ibs->offset_max,
+ 				       offset + 1);
+ 	} while (offset < offset_max);
 +	/*
-+	 * If the internal 27-bit counter rolled over, the count is MaxCnt
-+	 * and the lower 7 bits of CurCnt are randomized.
-+	 * Otherwise CurCnt has the full 27-bit current counter value.
++	 * Read IbsBrTarget, IbsOpData4, and IbsExtdCtl separately
++	 * depending on their availability.
++	 * Can't add to offset_max as they are staggered
 +	 */
- 	if (config & IBS_OP_VAL)
--		count += (config & IBS_OP_MAX_CNT) << 4; /* cnt rolled over */
--
--	if (ibs_caps & IBS_CAPS_RDWROPCNT)
--		count += (config & IBS_OP_CUR_CNT) >> 32;
-+		count = (config & IBS_OP_MAX_CNT) << 4;
-+	else if (ibs_caps & IBS_CAPS_RDWROPCNT)
-+		count = (config & IBS_OP_CUR_CNT) >> 32;
+ 	if (event->attr.sample_type & PERF_SAMPLE_RAW) {
+-		/*
+-		 * Read IbsBrTarget and IbsOpData4 separately
+-		 * depending on their availability.
+-		 * Can't add to offset_max as they are staggered
+-		 */
+-		if (ibs_caps & IBS_CAPS_BRNTRGT) {
+-			rdmsrl(MSR_AMD64_IBSBRTARGET, *buf++);
+-			size++;
++		if (perf_ibs == &perf_ibs_op) {
++			if (ibs_caps & IBS_CAPS_BRNTRGT) {
++				rdmsrl(MSR_AMD64_IBSBRTARGET, *buf++);
++				size++;
++			}
++			if (ibs_caps & IBS_CAPS_OPDATA4) {
++				rdmsrl(MSR_AMD64_IBSOPDATA4, *buf++);
++				size++;
++			}
+ 		}
+-		if (ibs_caps & IBS_CAPS_OPDATA4) {
+-			rdmsrl(MSR_AMD64_IBSOPDATA4, *buf++);
++		if (perf_ibs == &perf_ibs_fetch && (ibs_caps & IBS_CAPS_FETCHCTLEXTD)) {
++			rdmsrl(MSR_AMD64_ICIBSEXTDCTL, *buf++);
+ 			size++;
+ 		}
+ 	}
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -377,6 +377,7 @@
+ #define MSR_AMD64_IBSOP_REG_MASK	((1UL<<MSR_AMD64_IBSOP_REG_COUNT)-1)
+ #define MSR_AMD64_IBSCTL		0xc001103a
+ #define MSR_AMD64_IBSBRTARGET		0xc001103b
++#define MSR_AMD64_ICIBSEXTDCTL		0xc001103c
+ #define MSR_AMD64_IBSOPDATA4		0xc001103d
+ #define MSR_AMD64_IBS_REG_COUNT_MAX	8 /* includes MSR_AMD64_IBSBRTARGET */
  
- 	return count;
- }
 
 
