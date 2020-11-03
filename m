@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F492A5583
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 511672A54F2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388510AbgKCVTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:19:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S2388957AbgKCVMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730019AbgKCVIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:41 -0500
+        id S2388501AbgKCVMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12287206B5;
-        Tue,  3 Nov 2020 21:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30050207BC;
+        Tue,  3 Nov 2020 21:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437720;
-        bh=RzEuN25/ar48nnIB8Nmiu0Rm9ojCIu5D57M0usXW0lg=;
+        s=default; t=1604437924;
+        bh=/y7H92Kxy/9wo+t0QSJYuIYPw2TgRjpkBGgOFB+T/No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcvnIqN4FbOG3J+gP2o/Yg/Xdjj7h4dwy4rcVOrb196f5BMld6J6sR0pnoBrIzmnY
-         yMBLkzi3W3kG6MfRiisfECdjEDO3PI5/jvSx4/+7M4/lJa/umJifrWg0RFVicvK4PB
-         wknn+62WPtghVdRybldnHe3mArE7CzAqZ8EueU8c=
+        b=JAAX0Pu1vhG6ebZgfGPxNr30oQa0nbiBQUeOANvLplovf2VErBIHZz6sUfd4Yy1BT
+         ir8ydpf8PEWVT/Os6XsNljs5etwrKu+ZTLB4ohGYPTqzeDPJGEXAHapyu7s6l/DGJ2
+         pZgxkZmmps8lgPF2jYNUM7+B24Iq2qkyw9NRxQHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 174/191] ext4: fix error handling code in add_new_gdb
-Date:   Tue,  3 Nov 2020 21:37:46 +0100
-Message-Id: <20201103203248.889470846@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.14 090/125] iio:gyro:itg3200: Fix timestamp alignment and prevent data leak.
+Date:   Tue,  3 Nov 2020 21:37:47 +0100
+Message-Id: <20201103203209.894822746@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit c9e87161cc621cbdcfc472fa0b2d81c63780c8f5 upstream.
+commit 10ab7cfd5522f0041028556dac864a003e158556 upstream.
 
-When ext4_journal_get_write_access() fails, we should
-terminate the execution flow and release n_group_desc,
-iloc.bh, dind and gdb_bh.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 16 byte array of smaller elements on the stack.
+This is fixed by using an explicit c structure. As there are no
+holes in the structure, there is no possiblity of data leakage
+in this case.
 
-Cc: stable@kernel.org
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20200829025403.3139-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+The explicit alignment of ts is not strictly necessary but potentially
+makes the code slightly less fragile.  It also removes the possibility
+of this being cut and paste into another driver where the alignment
+isn't already true.
+
+Fixes: 36e0371e7764 ("iio:itg3200: Use iio_push_to_buffers_with_timestamp()")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-6-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/resize.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/gyro/itg3200_buffer.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -861,8 +861,10 @@ static int add_new_gdb(handle_t *handle,
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -49,13 +49,20 @@ static irqreturn_t itg3200_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct itg3200 *st = iio_priv(indio_dev);
+-	__be16 buf[ITG3200_SCAN_ELEMENTS + sizeof(s64)/sizeof(u16)];
++	/*
++	 * Ensure correct alignment and padding including for the
++	 * timestamp that may be inserted.
++	 */
++	struct {
++		__be16 buf[ITG3200_SCAN_ELEMENTS];
++		s64 ts __aligned(8);
++	} scan;
  
- 	BUFFER_TRACE(dind, "get_write_access");
- 	err = ext4_journal_get_write_access(handle, dind);
--	if (unlikely(err))
-+	if (unlikely(err)) {
- 		ext4_std_error(sb, err);
-+		goto errout;
-+	}
+-	int ret = itg3200_read_all_channels(st->i2c, buf);
++	int ret = itg3200_read_all_channels(st->i2c, scan.buf);
+ 	if (ret < 0)
+ 		goto error_ret;
  
- 	/* ext4_reserve_inode_write() gets a reference on the iloc */
- 	err = ext4_reserve_inode_write(handle, inode, &iloc);
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 
 
