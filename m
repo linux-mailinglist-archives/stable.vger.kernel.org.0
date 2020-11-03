@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B5F2A55C3
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF7D2A545F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387753AbgKCVFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:05:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43558 "EHLO mail.kernel.org"
+        id S2388734AbgKCVK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:10:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387744AbgKCVFK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:10 -0500
+        id S2388731AbgKCVK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F18720658;
-        Tue,  3 Nov 2020 21:05:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF0AA206B5;
+        Tue,  3 Nov 2020 21:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437509;
-        bh=NAhw3e8OykgrGifFP5hMPdAujVct43T6yb6ojDOMcys=;
+        s=default; t=1604437827;
+        bh=8IoPhvaNi50VZ4kDbgG2391J0F0bfxVrFVK+xANb+9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQP5bSuKN6/GK9dsO+hluajyZqvbzTMmQU5kriurXbc3zFdy9/JotAg/OkJJrXxIU
-         GtUjxSlmNXksxp/3164+oe8Pq2yy8HRd/jGxbjQXFzlsD2t17p8T9mMMKoZ5wqOaIr
-         cyzD7A0bd5uHy6Q+ZXVHIO9dJL0c0QQMZpJaTJM8=
+        b=hoVc+I8l5SerM8LR9SDMjJhhOP0szRKElV0pbfIPSi0WjRlMv2NKc5aAZr8uGWW/b
+         l7PGSIldTYexgEZDj/H/LS9v3XXOgej/FL/trVapAjVLew981gyohGvcN06x1spiep
+         N8jnpkwKRZZ+TZvlSdJ90MUzowoJ5lsLcG+h1ydY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Jonathan Bakker <xc-racer2@live.ca>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of clock controller
+Subject: [PATCH 4.14 022/125] um: change sigio_spinlock to a mutex
 Date:   Tue,  3 Nov 2020 21:36:39 +0100
-Message-Id: <20201103203243.594174920@linuxfoundation.org>
+Message-Id: <20201103203159.931746512@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit bb98fff84ad1ea321823759edaba573a16fa02bd ]
+[ Upstream commit f2d05059e15af3f70502074f4e3a504530af504a ]
 
-The Power Management Unit (PMU) is a separate device which has little
-common with clock controller.  Moving it to one level up (from clock
-controller child to SoC) allows to remove fake simple-bus compatible and
-dtbs_check warnings like:
+Lockdep complains at boot:
 
-  clock-controller@e0100000: $nodename:0:
-    'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+=============================
+[ BUG: Invalid wait context ]
+5.7.0-05093-g46d91ecd597b #98 Not tainted
+-----------------------------
+swapper/1 is trying to lock:
+0000000060931b98 (&desc[i].request_mutex){+.+.}-{3:3}, at: __setup_irq+0x11d/0x623
+other info that might help us debug this:
+context-{4:4}
+1 lock held by swapper/1:
+ #0: 000000006074fed8 (sigio_spinlock){+.+.}-{2:2}, at: sigio_lock+0x1a/0x1c
+stack backtrace:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0-05093-g46d91ecd597b #98
+Stack:
+ 7fa4fab0 6028dfd1 0000002a 6008bea5
+ 7fa50700 7fa50040 7fa4fac0 6028e016
+ 7fa4fb50 6007f6da 60959c18 00000000
+Call Trace:
+ [<60023a0e>] show_stack+0x13b/0x155
+ [<6028e016>] dump_stack+0x2a/0x2c
+ [<6007f6da>] __lock_acquire+0x515/0x15f2
+ [<6007eb50>] lock_acquire+0x245/0x273
+ [<6050d9f1>] __mutex_lock+0xbd/0x325
+ [<6050dc76>] mutex_lock_nested+0x1d/0x1f
+ [<6008e27e>] __setup_irq+0x11d/0x623
+ [<6008e8ed>] request_threaded_irq+0x169/0x1a6
+ [<60021eb0>] um_request_irq+0x1ee/0x24b
+ [<600234ee>] write_sigio_irq+0x3b/0x76
+ [<600383ca>] sigio_broken+0x146/0x2e4
+ [<60020bd8>] do_one_initcall+0xde/0x281
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Tested-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/20200907161141.31034-8-krzk@kernel.org
+Because we hold sigio_spinlock and then get into requesting
+an interrupt with a mutex.
+
+Change the spinlock to a mutex to avoid that.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/s5pv210.dtsi | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/um/kernel/sigio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
-index 67f70683a2c45..37d251b1f74a7 100644
---- a/arch/arm/boot/dts/s5pv210.dtsi
-+++ b/arch/arm/boot/dts/s5pv210.dtsi
-@@ -98,19 +98,16 @@
- 		};
+diff --git a/arch/um/kernel/sigio.c b/arch/um/kernel/sigio.c
+index b5e0cbb343828..476ded92affac 100644
+--- a/arch/um/kernel/sigio.c
++++ b/arch/um/kernel/sigio.c
+@@ -36,14 +36,14 @@ int write_sigio_irq(int fd)
+ }
  
- 		clocks: clock-controller@e0100000 {
--			compatible = "samsung,s5pv210-clock", "simple-bus";
-+			compatible = "samsung,s5pv210-clock";
- 			reg = <0xe0100000 0x10000>;
- 			clock-names = "xxti", "xusbxti";
- 			clocks = <&xxti>, <&xusbxti>;
- 			#clock-cells = <1>;
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges;
-+		};
+ /* These are called from os-Linux/sigio.c to protect its pollfds arrays. */
+-static DEFINE_SPINLOCK(sigio_spinlock);
++static DEFINE_MUTEX(sigio_mutex);
  
--			pmu_syscon: syscon@e0108000 {
--				compatible = "samsung-s5pv210-pmu", "syscon";
--				reg = <0xe0108000 0x8000>;
--			};
-+		pmu_syscon: syscon@e0108000 {
-+			compatible = "samsung-s5pv210-pmu", "syscon";
-+			reg = <0xe0108000 0x8000>;
- 		};
+ void sigio_lock(void)
+ {
+-	spin_lock(&sigio_spinlock);
++	mutex_lock(&sigio_mutex);
+ }
  
- 		pinctrl0: pinctrl@e0200000 {
+ void sigio_unlock(void)
+ {
+-	spin_unlock(&sigio_spinlock);
++	mutex_unlock(&sigio_mutex);
+ }
 -- 
 2.27.0
 
