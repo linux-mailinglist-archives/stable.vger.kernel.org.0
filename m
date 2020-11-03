@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AE12A588C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F22D2A588D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730048AbgKCUqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35362 "EHLO mail.kernel.org"
+        id S1731167AbgKCUqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731164AbgKCUqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:13 -0500
+        id S1730575AbgKCUqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9F1122404;
-        Tue,  3 Nov 2020 20:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B7DC223EA;
+        Tue,  3 Nov 2020 20:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436373;
-        bh=npeycUYnJbqY8UGJ9xukoSNEpWRYml6uA0DH6nGrIMM=;
+        s=default; t=1604436375;
+        bh=GvYhnV1FHtvFNjREAgiYTGTSeLvsO5aoJbmCfj2vzwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtMImW8rQ37AweqQ8XzavskERDSPV+/m2IB16VSGkY4ls+Z9ovy/iD4o958a73KdT
-         bxvdA+6zoOpuedKzg3+2EUZ6EomXclYyEC/7YUM/tQbkKkxttiWY3RBl5vBUVVEyT8
-         /un2aWQDAnm3dXZwaXHK54eSUQRAZI+70RwMs39M=
+        b=LvZPoRMKWNjI+cxCi67UE3E80Ru5JHQrqLjYCURLaiOudwaTSMynsuCZhEwC1dzcO
+         dEiryahhCx9iGmgMnjRXTdALstmGWZ1O6DMFLXzqYoqOhaLfSU9c4IYOMTLt8dMOLR
+         gxQuPiBzS13xPq243NywDjsytNXps3E/FtswD0mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        stable@vger.kernel.org, KoWei Sung <winders@amazon.com>,
         Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.9 184/391] md: fix the checking of wrong work queue
-Date:   Tue,  3 Nov 2020 21:33:55 +0100
-Message-Id: <20201103203359.299471245@linuxfoundation.org>
+Subject: [PATCH 5.9 185/391] md/raid5: fix oops during stripe resizing
+Date:   Tue,  3 Nov 2020 21:33:56 +0100
+Message-Id: <20201103203359.368162448@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,32 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Song Liu <songliubraving@fb.com>
 
-commit cf0b9b4821a2955f8a23813ef8f422208ced9bd7 upstream.
+commit b44c018cdf748b96b676ba09fdbc5b34fc443ada upstream.
 
-It should check md_rdev_misc_wq instead of md_misc_wq.
+KoWei reported crash during raid5 reshape:
 
-Fixes: cc1ffe61c026 ("md: add new workqueue for delete rdev")
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+[ 1032.252932] Oops: 0002 [#1] SMP PTI
+[...]
+[ 1032.252943] RIP: 0010:memcpy_erms+0x6/0x10
+[...]
+[ 1032.252947] RSP: 0018:ffffba1ac0c03b78 EFLAGS: 00010286
+[ 1032.252949] RAX: 0000784ac0000000 RBX: ffff91bec3d09740 RCX: 0000000000001000
+[ 1032.252951] RDX: 0000000000001000 RSI: ffff91be6781c000 RDI: 0000784ac0000000
+[ 1032.252953] RBP: ffffba1ac0c03bd8 R08: 0000000000001000 R09: ffffba1ac0c03bf8
+[ 1032.252954] R10: 0000000000000000 R11: 0000000000000000 R12: ffffba1ac0c03bf8
+[ 1032.252955] R13: 0000000000001000 R14: 0000000000000000 R15: 0000000000000000
+[ 1032.252958] FS:  0000000000000000(0000) GS:ffff91becf500000(0000) knlGS:0000000000000000
+[ 1032.252959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1032.252961] CR2: 0000784ac0000000 CR3: 000000031780a002 CR4: 00000000001606e0
+[ 1032.252962] Call Trace:
+[ 1032.252969]  ? async_memcpy+0x179/0x1000 [async_memcpy]
+[ 1032.252977]  ? raid5_release_stripe+0x8e/0x110 [raid456]
+[ 1032.252982]  handle_stripe_expansion+0x15a/0x1f0 [raid456]
+[ 1032.252988]  handle_stripe+0x592/0x1270 [raid456]
+[ 1032.252993]  handle_active_stripes.isra.0+0x3cb/0x5a0 [raid456]
+[ 1032.252999]  raid5d+0x35c/0x550 [raid456]
+[ 1032.253002]  ? schedule+0x42/0xb0
+[ 1032.253006]  ? schedule_timeout+0x10e/0x160
+[ 1032.253011]  md_thread+0x97/0x160
+[ 1032.253015]  ? wait_woken+0x80/0x80
+[ 1032.253019]  kthread+0x104/0x140
+[ 1032.253022]  ? md_start_sync+0x60/0x60
+[ 1032.253024]  ? kthread_park+0x90/0x90
+[ 1032.253027]  ret_from_fork+0x35/0x40
+
+This is because cache_size_mutex was unlocked too early in resize_stripes,
+which races with grow_one_stripe() that grow_one_stripe() allocates a
+stripe with wrong pool_size.
+
+Fix this issue by unlocking cache_size_mutex after updating pool_size.
+
+Cc: <stable@vger.kernel.org> # v4.4+
+Reported-by: KoWei Sung <winders@amazon.com>
 Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/raid5.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9545,7 +9545,7 @@ static int __init md_init(void)
- 		goto err_misc_wq;
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2429,8 +2429,6 @@ static int resize_stripes(struct r5conf
+ 	} else
+ 		err = -ENOMEM;
  
- 	md_rdev_misc_wq = alloc_workqueue("md_rdev_misc", 0, 0);
--	if (!md_misc_wq)
-+	if (!md_rdev_misc_wq)
- 		goto err_rdev_misc_wq;
+-	mutex_unlock(&conf->cache_size_mutex);
+-
+ 	conf->slab_cache = sc;
+ 	conf->active_name = 1-conf->active_name;
  
- 	if ((ret = register_blkdev(MD_MAJOR, "md")) < 0)
+@@ -2453,6 +2451,8 @@ static int resize_stripes(struct r5conf
+ 
+ 	if (!err)
+ 		conf->pool_size = newsize;
++	mutex_unlock(&conf->cache_size_mutex);
++
+ 	return err;
+ }
+ 
 
 
