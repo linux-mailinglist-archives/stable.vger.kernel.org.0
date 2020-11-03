@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623CB2A5677
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F16CF2A5465
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732587AbgKCU7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:59:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35110 "EHLO mail.kernel.org"
+        id S2388772AbgKCVKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:10:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733148AbgKCU7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:46 -0500
+        id S2388771AbgKCVKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66BA522226;
-        Tue,  3 Nov 2020 20:59:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8838820757;
+        Tue,  3 Nov 2020 21:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437185;
-        bh=VN2joP1QwjsTsFMr9W1EBaKAcBuzynY8faArlkwSbJo=;
+        s=default; t=1604437844;
+        bh=oxBdY+G5TUPJU4yyxcw3vLqsHGdsuh9g/ctvYn2H+oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjwC6anBCamWjrl/E+fc2gRkXVEkS/1M4fhZmerbQANbwAbqaXKNtDdLCUWF/eMvc
-         cvYgx01/EZQxOceWH8ptNd2I6PMXvrJecAh381k4vV/olQw0Ih44K9vHH1CgTMejIM
-         mbv+0CGr8fWN2UMA3oBNrkBqEfWCFBoVkCM1h9wU=
+        b=OHtXWKOo742otXwuLrPVtvyDQ3YZ5aLnQmFa1X6PTne4Ps1RTPNV7+gwRMo3Uf2O0
+         KgqUeeRi2QYPp1wOh0x4+CMBaZs35sNEVMowX6oOv01KvM7FdzXL4TIbM9AetZGuEn
+         dHKnIE8KipemWYsxoXDpBfwJf6l4s318tMHAm5/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 183/214] drm/amd/display: Avoid MST manager resource leak.
-Date:   Tue,  3 Nov 2020 21:37:11 +0100
-Message-Id: <20201103203307.859116601@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 055/125] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
+Date:   Tue,  3 Nov 2020 21:37:12 +0100
+Message-Id: <20201103203204.950092760@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 5dff80bdce9e385af5716ed083f9e33e814484ab upstream.
+[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
 
-On connector destruction call drm_dp_mst_topology_mgr_destroy
-to release resources allocated in drm_dp_mst_topology_mgr_init.
-Do it only if MST manager was initilized before otherwsie a crash
-is seen on driver unload/device unplug.
+There is no need to keep DMA controller nodes under AMBA bus node.
+Remove the "amba" node to fix dtschema warnings like:
 
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3956,6 +3956,13 @@ static void amdgpu_dm_connector_destroy(
- 	struct amdgpu_device *adev = connector->dev->dev_private;
- 	struct amdgpu_display_manager *dm = &adev->dm;
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index b290a5abb9016..c13d888e69628 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -129,35 +129,28 @@
+ 			};
+ 		};
  
-+	/*
-+	 * Call only if mst_mgr was iniitalized before since it's not done
-+	 * for all connector types.
-+	 */
-+	if (aconnector->mst_mgr.dev)
-+		drm_dp_mst_topology_mgr_destroy(&aconnector->mst_mgr);
-+
- #if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) ||\
- 	defined(CONFIG_BACKLIGHT_CLASS_DEVICE_MODULE)
+-		amba {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges;
+-
+-			pdma0: dma@e0900000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0900000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <19>;
+-				clocks = <&clocks CLK_PDMA0>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma0: dma@e0900000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0900000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <19>;
++			clocks = <&clocks CLK_PDMA0>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
++		};
  
+-			pdma1: dma@e0a00000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0a00000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <20>;
+-				clocks = <&clocks CLK_PDMA1>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma1: dma@e0a00000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0a00000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <20>;
++			clocks = <&clocks CLK_PDMA1>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
+ 		};
+ 
+ 		spi0: spi@e1300000 {
+-- 
+2.27.0
+
 
 
