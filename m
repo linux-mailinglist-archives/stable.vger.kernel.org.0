@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A18962A58A7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BC32A577B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731079AbgKCUpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:45:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
+        id S1732247AbgKCUzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:55:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731093AbgKCUpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:45:51 -0500
+        id S1732444AbgKCUxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38DE122409;
-        Tue,  3 Nov 2020 20:45:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B59E3223AC;
+        Tue,  3 Nov 2020 20:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436350;
-        bh=WdwCxymOisvVg8TfyswblyVhpOSOHwB2WgqMZDnYqME=;
+        s=default; t=1604436793;
+        bh=wxicaN8Xq01Q9Z8XES/h1oYBUXwh7kb/qivCuBkce54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drhfMldm1YeOWPp5rQmtPOP/BFSk9s8iBmqNqEZvk2upNW1a9h3GfSe56NyhGdHMc
-         BK5RAdp+UG+QTeSNIstaj56XNKdIRR+Iz/pKFA6Yi6RFkMXcZmuqzgvnrYLBGzVKxz
-         OOSGZ+gScguhS3qFLyNpcQOIVgXmZjKs5ZhGYUVM=
+        b=dVQn4+4a+IMdwpU1gGp/y3UdkwbohK/H+Q9Sr7eiQHYvzqu+a694l3yYPDpMDMf1Z
+         cdUDdFz9zwUOSPu8acFWhpJEke98ke6ccmZwgGNUF+II+Au2bJdTbwxbrz5A5DCKDg
+         vMWBAPw5wOGLK2oGuQzKLmlvwtFKybtFZxisS6qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.9 211/391] ACPI: EC: PM: Drop ec_no_wakeup check from acpi_ec_dispatch_gpe()
+        Etienne Carriere <etienne.carriere@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 014/214] firmware: arm_scmi: Fix ARCH_COLD_RESET
 Date:   Tue,  3 Nov 2020 21:34:22 +0100
-Message-Id: <20201103203401.151280339@linuxfoundation.org>
+Message-Id: <20201103203251.081486503@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Etienne Carriere <etienne.carriere@linaro.org>
 
-commit e0e9ce390d7bc6a705653d4a8aa4ea92c9a65e53 upstream.
+[ Upstream commit 45b9e04d5ba0b043783dfe2b19bb728e712cb32e ]
 
-It turns out that in some cases there are EC events to flush in
-acpi_ec_dispatch_gpe() even though the ec_no_wakeup kernel parameter
-is set and the EC GPE is disabled while sleeping, so drop the
-ec_no_wakeup check that prevents those events from being processed
-from acpi_ec_dispatch_gpe().
+The defination for ARCH_COLD_RESET is wrong. Let us fix it according to
+the SCMI specification.
 
-Reported-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20201008143722.21888-5-etienne.carriere@linaro.org
+Fixes: 95a15d80aa0d ("firmware: arm_scmi: Add RESET protocol in SCMI v2.0")
+Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/firmware/arm_scmi/reset.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2011,9 +2011,6 @@ bool acpi_ec_dispatch_gpe(void)
- 	if (acpi_any_gpe_status_set(first_ec->gpe))
- 		return true;
+diff --git a/drivers/firmware/arm_scmi/reset.c b/drivers/firmware/arm_scmi/reset.c
+index ab42c21c55175..6d223f345b6c9 100644
+--- a/drivers/firmware/arm_scmi/reset.c
++++ b/drivers/firmware/arm_scmi/reset.c
+@@ -35,9 +35,7 @@ struct scmi_msg_reset_domain_reset {
+ #define EXPLICIT_RESET_ASSERT	BIT(1)
+ #define ASYNCHRONOUS_RESET	BIT(2)
+ 	__le32 reset_state;
+-#define ARCH_RESET_TYPE		BIT(31)
+-#define COLD_RESET_STATE	BIT(0)
+-#define ARCH_COLD_RESET		(ARCH_RESET_TYPE | COLD_RESET_STATE)
++#define ARCH_COLD_RESET		0
+ };
  
--	if (ec_no_wakeup)
--		return false;
--
- 	/*
- 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
- 	 * to allow the caller to process events properly after that.
+ struct reset_dom_info {
+-- 
+2.27.0
+
 
 
