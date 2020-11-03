@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD9E2A54D3
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 325A22A5370
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388385AbgKCVMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55184 "EHLO mail.kernel.org"
+        id S1733045AbgKCVBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:01:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389054AbgKCVMm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:42 -0500
+        id S1732410AbgKCVA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:00:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46CE2206B5;
-        Tue,  3 Nov 2020 21:12:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89923223C7;
+        Tue,  3 Nov 2020 21:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437960;
-        bh=cEYcqo0HfhMWwa15jk3JBkbvGR1AGq4Ir29tctpU3jU=;
+        s=default; t=1604437257;
+        bh=qAe2rnN958PsgWxtKniFbsM/EczxHG/amxzn10O82I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/WHPx2CxUIE+IUyGiA0EF1FyvQU/zegmT5C7FKXUhV0IbJXmwYBtKBnDFJcTb6qC
-         6hq+DSWROR81Bx9nNeQLmyE6HXD4WrEi2/PS/ULLR4sDF6I8X9C+JUcOGS4RLyuxTD
-         /djPnaTXiO9cUND3OERc8vP9oIgtFOGLvjX0jIVQ=
+        b=floNHrDg87EVZx3eySHDl/T1Fr5TxuNb6Mf+DXWSG8B8wNkbig7FT5eVCj3T1FBAC
+         g7GFKs3puTqX3rwZDVDfugu5RuVm/CrzsvMRpnFVmHO75NVR891kmwkVUbTzAg3Xxl
+         OQfuVfsnUZoSd5qs/eKfxBhfrCR9e0EqMECD2uvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jim@photojim.ca,
-        Ben Hutchings <ben@decadent.org.uk>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 067/125] ACPI / extlog: Check for RDMSR failure
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.4 196/214] drm/ttm: fix eviction valuable range check.
 Date:   Tue,  3 Nov 2020 21:37:24 +0100
-Message-Id: <20201103203206.543556763@linuxfoundation.org>
+Message-Id: <20201103203309.020978087@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 7cecb47f55e00282f972a1e0b09136c8cd938221 upstream.
+commit fea456d82c19d201c21313864105876deabe148b upstream.
 
-extlog_init() uses rdmsrl() to read an MSR, which on older CPUs
-provokes a error message at boot:
+This was adding size to start, but pfn and start are in pages,
+so it should be using num_pages.
 
-    unchecked MSR access error: RDMSR from 0x179 at rIP: 0xcd047307 (native_read_msr+0x7/0x40)
+Not sure this fixes anything in the real world, just noticed it
+during refactoring.
 
-Use rdmsrl_safe() instead, and return -ENODEV if it fails.
-
-Reported-by: jim@photojim.ca
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20201019222257.1684769-2-airlied@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_extlog.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -224,9 +224,9 @@ static int __init extlog_init(void)
- 	u64 cap;
- 	int rc;
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -761,7 +761,7 @@ bool ttm_bo_eviction_valuable(struct ttm
+ 	/* Don't evict this BO if it's outside of the
+ 	 * requested placement range
+ 	 */
+-	if (place->fpfn >= (bo->mem.start + bo->mem.size) ||
++	if (place->fpfn >= (bo->mem.start + bo->mem.num_pages) ||
+ 	    (place->lpfn && place->lpfn <= bo->mem.start))
+ 		return false;
  
--	rdmsrl(MSR_IA32_MCG_CAP, cap);
--
--	if (!(cap & MCG_ELOG_P) || !extlog_get_l1addr())
-+	if (rdmsrl_safe(MSR_IA32_MCG_CAP, &cap) ||
-+	    !(cap & MCG_ELOG_P) ||
-+	    !extlog_get_l1addr())
- 		return -ENODEV;
- 
- 	if (edac_get_report_status() == EDAC_REPORTING_FORCE) {
 
 
