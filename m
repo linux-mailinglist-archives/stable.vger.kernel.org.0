@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503F12A59BF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:10:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1EE2A59BE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:09:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729824AbgKCUiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:38:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
+        id S1729888AbgKCUiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:38:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729876AbgKCUiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:38:04 -0500
+        id S1729864AbgKCUiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:38:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FBD42224E;
-        Tue,  3 Nov 2020 20:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0C5122226;
+        Tue,  3 Nov 2020 20:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604435883;
-        bh=zfJuloXClB7aFVYq/TyXuVNHAJDMc1ICC7OdoGMRBhk=;
+        s=default; t=1604435888;
+        bh=aFdSBfAYL1JIBQZPl9OLo9j9t2k6oXvMLTRkzYYckwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOHnvpg+C2WfRrENRF2Y7TUPYeZCcFhabHoPNhZ+wqaPXBAIkO+nF5dZJh0orZRdW
-         IfQ8J50PKp2RRrdi+EFhuMW6rrjqOZka+pDWn6SwHkYa2zl6Zgam9Mu8voq5JAutkV
-         lW+h4hsKqpOgRXaFEtiJGvVbnvikNqIqQ+yBzg6I=
+        b=P1AtBwAb2pluepiQkOfIzfQ42yJSqDHBhXZTbdNPJgYJU2PFkS1Pu+bTYTsa16a8Q
+         HWqk6+ChO3X5jXRS+QC6JYS8J9nlVoT3xUuLv/b2Fomp5gdTI1CrAKTV2jBY3Y/Cwq
+         ni6devjVb5UeJKRhJKrrgIbX6XUMIsCCJHdhhIeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 025/391] tracing, synthetic events: Replace buggy strcat() with seq_buf operations
-Date:   Tue,  3 Nov 2020 21:31:16 +0100
-Message-Id: <20201103203349.539681890@linuxfoundation.org>
+Subject: [PATCH 5.9 027/391] afs: Fix afs_launder_page to not clear PG_writeback
+Date:   Tue,  3 Nov 2020 21:31:18 +0100
+Message-Id: <20201103203349.646715753@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,122 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 761a8c58db6bc884994b28cd6d9707b467d680c1 ]
+From: David Howells <dhowells@redhat.com>
 
-There was a memory corruption bug happening while running the synthetic
-event selftests:
+[ Upstream commit d383e346f97d6bb0d654bb3d63c44ab106d92d29 ]
 
- kmemleak: Cannot insert 0xffff8c196fa2afe5 into the object search tree (overlaps existing)
- CPU: 5 PID: 6866 Comm: ftracetest Tainted: G        W         5.9.0-rc5-test+ #577
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
- Call Trace:
-  dump_stack+0x8d/0xc0
-  create_object.cold+0x3b/0x60
-  slab_post_alloc_hook+0x57/0x510
-  ? tracing_map_init+0x178/0x340
-  __kmalloc+0x1b1/0x390
-  tracing_map_init+0x178/0x340
-  event_hist_trigger_func+0x523/0xa40
-  trigger_process_regex+0xc5/0x110
-  event_trigger_write+0x71/0xd0
-  vfs_write+0xca/0x210
-  ksys_write+0x70/0xf0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7fef0a63a487
- Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
- RSP: 002b:00007fff76f18398 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
- RAX: ffffffffffffffda RBX: 0000000000000039 RCX: 00007fef0a63a487
- RDX: 0000000000000039 RSI: 000055eb3b26d690 RDI: 0000000000000001
- RBP: 000055eb3b26d690 R08: 000000000000000a R09: 0000000000000038
- R10: 000055eb3b2cdb80 R11: 0000000000000246 R12: 0000000000000039
- R13: 00007fef0a70b500 R14: 0000000000000039 R15: 00007fef0a70b700
- kmemleak: Kernel memory leak detector disabled
- kmemleak: Object 0xffff8c196fa2afe0 (size 8):
- kmemleak:   comm "ftracetest", pid 6866, jiffies 4295082531
- kmemleak:   min_count = 1
- kmemleak:   count = 0
- kmemleak:   flags = 0x1
- kmemleak:   checksum = 0
- kmemleak:   backtrace:
-      __kmalloc+0x1b1/0x390
-      tracing_map_init+0x1be/0x340
-      event_hist_trigger_func+0x523/0xa40
-      trigger_process_regex+0xc5/0x110
-      event_trigger_write+0x71/0xd0
-      vfs_write+0xca/0x210
-      ksys_write+0x70/0xf0
-      do_syscall_64+0x33/0x40
-      entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Fix afs_launder_page() to not clear PG_writeback on the page it is
+laundering as the flag isn't set in this case.
 
-The cause came down to a use of strcat() that was adding an string that was
-shorten, but the strcat() did not take that into account.
-
-strcat() is extremely dangerous as it does not care how big the buffer is.
-Replace it with seq_buf operations that prevent the buffer from being
-overwritten if what is being written is bigger than the buffer.
-
-Fixes: 10819e25799a ("tracing: Handle synthetic event array field type checking correctly")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Tested-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 4343d00872e1 ("afs: Get rid of the afs_writeback record")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_synth.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ fs/afs/internal.h |  1 +
+ fs/afs/write.c    | 10 ++++++----
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/trace_events_synth.c b/kernel/trace/trace_events_synth.c
-index c8892156db341..65e8c27141c02 100644
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -465,6 +465,7 @@ static struct synth_field *parse_synth_field(int argc, const char **argv,
- 	struct synth_field *field;
- 	const char *prefix = NULL, *field_type = argv[0], *field_name, *array;
- 	int len, ret = 0;
-+	struct seq_buf s;
- 	ssize_t size;
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 06e617ee4cd1e..c8acb58ac5d8f 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -811,6 +811,7 @@ struct afs_operation {
+ 			pgoff_t		last;		/* last page in mapping to deal with */
+ 			unsigned	first_offset;	/* offset into mapping[first] */
+ 			unsigned	last_to;	/* amount of mapping[last] */
++			bool		laundering;	/* Laundering page, PG_writeback not set */
+ 		} store;
+ 		struct {
+ 			struct iattr	*attr;
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index da12abd6db213..b937ec047ec98 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -396,7 +396,8 @@ static void afs_store_data_success(struct afs_operation *op)
+ 	op->ctime = op->file[0].scb.status.mtime_client;
+ 	afs_vnode_commit_status(op, &op->file[0]);
+ 	if (op->error == 0) {
+-		afs_pages_written_back(vnode, op->store.first, op->store.last);
++		if (!op->store.laundering)
++			afs_pages_written_back(vnode, op->store.first, op->store.last);
+ 		afs_stat_v(vnode, n_stores);
+ 		atomic_long_add((op->store.last * PAGE_SIZE + op->store.last_to) -
+ 				(op->store.first * PAGE_SIZE + op->store.first_offset),
+@@ -415,7 +416,7 @@ static const struct afs_operation_ops afs_store_data_operation = {
+  */
+ static int afs_store_data(struct address_space *mapping,
+ 			  pgoff_t first, pgoff_t last,
+-			  unsigned offset, unsigned to)
++			  unsigned offset, unsigned to, bool laundering)
+ {
+ 	struct afs_vnode *vnode = AFS_FS_I(mapping->host);
+ 	struct afs_operation *op;
+@@ -448,6 +449,7 @@ static int afs_store_data(struct address_space *mapping,
+ 	op->store.last = last;
+ 	op->store.first_offset = offset;
+ 	op->store.last_to = to;
++	op->store.laundering = laundering;
+ 	op->mtime = vnode->vfs_inode.i_mtime;
+ 	op->flags |= AFS_OPERATION_UNINTR;
+ 	op->ops = &afs_store_data_operation;
+@@ -601,7 +603,7 @@ no_more:
+ 	if (end > i_size)
+ 		to = i_size & ~PAGE_MASK;
  
- 	if (field_type[0] == ';')
-@@ -503,13 +504,9 @@ static struct synth_field *parse_synth_field(int argc, const char **argv,
- 		field_type++;
- 	len = strlen(field_type) + 1;
+-	ret = afs_store_data(mapping, first, last, offset, to);
++	ret = afs_store_data(mapping, first, last, offset, to, false);
+ 	switch (ret) {
+ 	case 0:
+ 		ret = count;
+@@ -921,7 +923,7 @@ int afs_launder_page(struct page *page)
  
--        if (array) {
--                int l = strlen(array);
-+	if (array)
-+		len += strlen(array);
- 
--                if (l && array[l - 1] == ';')
--                        l--;
--                len += l;
--        }
- 	if (prefix)
- 		len += strlen(prefix);
- 
-@@ -518,14 +515,18 @@ static struct synth_field *parse_synth_field(int argc, const char **argv,
- 		ret = -ENOMEM;
- 		goto free;
+ 		trace_afs_page_dirty(vnode, tracepoint_string("launder"),
+ 				     page->index, priv);
+-		ret = afs_store_data(mapping, page->index, page->index, t, f);
++		ret = afs_store_data(mapping, page->index, page->index, t, f, true);
  	}
-+	seq_buf_init(&s, field->type, len);
- 	if (prefix)
--		strcat(field->type, prefix);
--	strcat(field->type, field_type);
-+		seq_buf_puts(&s, prefix);
-+	seq_buf_puts(&s, field_type);
- 	if (array) {
--		strcat(field->type, array);
--		if (field->type[len - 1] == ';')
--			field->type[len - 1] = '\0';
-+		seq_buf_puts(&s, array);
-+		if (s.buffer[s.len - 1] == ';')
-+			s.len--;
- 	}
-+	if (WARN_ON_ONCE(!seq_buf_buffer_left(&s)))
-+		goto free;
-+	s.buffer[s.len] = '\0';
  
- 	size = synth_field_size(field->type);
- 	if (size <= 0) {
+ 	trace_afs_page_dirty(vnode, tracepoint_string("laundered"),
 -- 
 2.27.0
 
