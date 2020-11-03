@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1848B2A59A1
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCE22A59A0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730098AbgKCUkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:40:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
+        id S1729662AbgKCUkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730127AbgKCUj7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:39:59 -0500
+        id S1730118AbgKCUkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 983932224E;
-        Tue,  3 Nov 2020 20:39:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D9D223EA;
+        Tue,  3 Nov 2020 20:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604435999;
-        bh=+2fPEDkeuBa0U3jZ0ahFGPzrljTJ2aqNeor3jcAZEDs=;
+        s=default; t=1604436001;
+        bh=BziPCTJLCAWSER9QJjLifg+x9+tNUm0Ng0iRmcdDZAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sp3rn0eSoKksPvvqKqI9QYtfAqDFJhX16TdIQFmWrJgZuy6x+XZvw3k95U4Ay3/o+
-         XbLul5me7hAt0keTfQNq8mrETUFBQPtvlqidsyBvHQpB/9ILx5QaE6wHBU8nilLQdy
-         cmFL4jDZeF6KwZeAUd3BKmwN1DwaTzhiUnWd4rn0=
+        b=WqM1jl4Uv3AyAvOZxETQtibs5IyPvNX+lLkBVuaN0LHAJ3s9E8Bt7W86jUnD+5iiL
+         HZsezUAd8XZgbuSZfRnfcuUHitmncGIcyZ5QVpiBbbjkePs8sYAGwfOyKcmY3AY26i
+         DH9FGic8iSV6+Jdx+Ra9DemhlHl99qIJCGDbMRHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 021/391] x86/alternative: Dont call text_poke() in lazy TLB mode
-Date:   Tue,  3 Nov 2020 21:31:12 +0100
-Message-Id: <20201103203349.326507694@linuxfoundation.org>
+Subject: [PATCH 5.9 022/391] ionic: no rx flush in deinit
+Date:   Tue,  3 Nov 2020 21:31:13 +0100
+Message-Id: <20201103203349.379559871@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,58 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+[ Upstream commit 43ecf7b46f2688fd37909801aee264f288b3917b ]
 
-[ Upstream commit abee7c494d8c41bb388839bccc47e06247f0d7de ]
+Kmemleak pointed out to us that ionic_rx_flush() is sending
+skbs into napi_gro_XXX with a disabled napi context, and these
+end up getting lost and leaked.  We can safely remove the flush.
 
-When running in lazy TLB mode the currently active page tables might
-be the ones of a previous process, e.g. when running a kernel thread.
-
-This can be problematic in case kernel code is being modified via
-text_poke() in a kernel thread, and on another processor exit_mmap()
-is active for the process which was running on the first cpu before
-the kernel thread.
-
-As text_poke() is using a temporary address space and the former
-address space (obtained via cpu_tlbstate.loaded_mm) is restored
-afterwards, there is a race possible in case the cpu on which
-exit_mmap() is running wants to make sure there are no stale
-references to that address space on any cpu active (this e.g. is
-required when running as a Xen PV guest, where this problem has been
-observed and analyzed).
-
-In order to avoid that, drop off TLB lazy mode before switching to the
-temporary address space.
-
-Fixes: cefa929c034eb5d ("x86/mm: Introduce temporary mm structs")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201009144225.12019-1-jgross@suse.com
+Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/alternative.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c  |  1 -
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c | 13 -------------
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.h |  1 -
+ 3 files changed, 15 deletions(-)
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index cdaab30880b91..cd6be6f143e85 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -807,6 +807,15 @@ static inline temp_mm_state_t use_temporary_mm(struct mm_struct *mm)
- 	temp_mm_state_t temp_state;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 26988ad7ec979..8867d4ac871c1 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1512,7 +1512,6 @@ static void ionic_txrx_deinit(struct ionic_lif *lif)
+ 	if (lif->rxqcqs) {
+ 		for (i = 0; i < lif->nxqs; i++) {
+ 			ionic_lif_qcq_deinit(lif, lif->rxqcqs[i].qcq);
+-			ionic_rx_flush(&lif->rxqcqs[i].qcq->cq);
+ 			ionic_rx_empty(&lif->rxqcqs[i].qcq->q);
+ 		}
+ 	}
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index def65fee27b5a..39e85870c15e9 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -253,19 +253,6 @@ static bool ionic_rx_service(struct ionic_cq *cq, struct ionic_cq_info *cq_info)
+ 	return true;
+ }
  
- 	lockdep_assert_irqs_disabled();
-+
-+	/*
-+	 * Make sure not to be in TLB lazy mode, as otherwise we'll end up
-+	 * with a stale address space WITHOUT being in lazy mode after
-+	 * restoring the previous mm.
-+	 */
-+	if (this_cpu_read(cpu_tlbstate.is_lazy))
-+		leave_mm(smp_processor_id());
-+
- 	temp_state.mm = this_cpu_read(cpu_tlbstate.loaded_mm);
- 	switch_mm_irqs_off(NULL, mm, current);
+-void ionic_rx_flush(struct ionic_cq *cq)
+-{
+-	struct ionic_dev *idev = &cq->lif->ionic->idev;
+-	u32 work_done;
+-
+-	work_done = ionic_cq_service(cq, cq->num_descs,
+-				     ionic_rx_service, NULL, NULL);
+-
+-	if (work_done)
+-		ionic_intr_credits(idev->intr_ctrl, cq->bound_intr->index,
+-				   work_done, IONIC_INTR_CRED_RESET_COALESCE);
+-}
+-
+ static struct page *ionic_rx_page_alloc(struct ionic_queue *q,
+ 					dma_addr_t *dma_addr)
+ {
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.h b/drivers/net/ethernet/pensando/ionic/ionic_txrx.h
+index a5883be0413f6..7667b72232b8a 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.h
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.h
+@@ -4,7 +4,6 @@
+ #ifndef _IONIC_TXRX_H_
+ #define _IONIC_TXRX_H_
  
+-void ionic_rx_flush(struct ionic_cq *cq);
+ void ionic_tx_flush(struct ionic_cq *cq);
+ 
+ void ionic_rx_fill(struct ionic_queue *q);
 -- 
 2.27.0
 
