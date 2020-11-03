@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12BA32A57DA
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9904C2A57D9
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732648AbgKCVqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:46:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S1732054AbgKCVqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:46:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732039AbgKCUwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:17 -0500
+        id S1732068AbgKCUwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:52:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8EFF2071E;
-        Tue,  3 Nov 2020 20:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AA862236F;
+        Tue,  3 Nov 2020 20:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436736;
-        bh=2q1v40z+OY4TjbHK4lKbE5D1FzgIZhELt5pKXY7sr70=;
+        s=default; t=1604436738;
+        bh=Me2iG8T7EH6M0qz1inYpkb2a5RQLwzVtJ7yiKOSh94I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CI6ppAWoMnAsfw9fCEIQBiF1aXg/3iK0EL1KwxDX25hiKePLiCPdy0NvGiL9H1OIX
-         4jcDXUY+Qa+Tc9+5/0dzo8hB/a4K2p7e+mAEmiiTbIZGuN2G4GDWtG8cCPIQWy/RH0
-         taLQaC1dugtM4zmDNniVINc6cfUFCnZJtZBCeKpE=
+        b=0C/NFS1Ic2wC6D5yE3JNQloCgHWNmBnQaQytwjfrGfZL98brD0mrd3ZDlILAPnzI8
+         opF7rt8yrg3KF5YiHGdUcdNxnFG9tTpRHQLkXcaCloFW+FFgdWnrwLTonL17IuMbSm
+         wFP33rBjo0cqKIhDB6J+4f/Xc4Q4vnhoGZKhJpbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.9 379/391] KVM: arm64: Fix AArch32 handling of DBGD{CCINT,SCRext} and DBGVCR
-Date:   Tue,  3 Nov 2020 21:37:10 +0100
-Message-Id: <20201103203412.739474378@linuxfoundation.org>
+        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Atish Patra <atish.patra@wdc.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.9 380/391] stop_machine, rcu: Mark functions as notrace
+Date:   Tue,  3 Nov 2020 21:37:11 +0100
+Message-Id: <20201103203412.807084409@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -41,59 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Zong Li <zong.li@sifive.com>
 
-commit 4a1c2c7f63c52ccb11770b5ae25920a6b79d3548 upstream.
+commit 4230e2deaa484b385aa01d598b2aea8e7f2660a6 upstream.
 
-The DBGD{CCINT,SCRext} and DBGVCR register entries in the cp14 array
-are missing their target register, resulting in all accesses being
-targetted at the guard sysreg (indexed by __INVALID_SYSREG__).
+Some architectures assume that the stopped CPUs don't make function calls
+to traceable functions when they are in the stopped state. See also commit
+cb9d7fd51d9f ("watchdog: Mark watchdog touch functions as notrace").
 
-Point the emulation code at the actual register entries.
+Violating this assumption causes kernel crashes when switching tracer on
+RISC-V.
 
-Fixes: bdfb4b389c8d ("arm64: KVM: add trap handlers for AArch32 debug registers")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Mark rcu_momentary_dyntick_idle() and stop_machine_yield() notrace to
+prevent this.
+
+Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
+Fixes: 366237e7b083 ("stop_machine: Provide RCU quiescent state in multi_cpu_stop()")
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Atish Patra <atish.patra@wdc.com>
+Tested-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201029172409.2768336-1-maz@kernel.org
+Link: https://lore.kernel.org/r/20201021073839.43935-1-zong.li@sifive.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ kernel/rcu/tree.c     |    2 +-
+ kernel/stop_machine.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -231,6 +231,7 @@ enum vcpu_sysreg {
- #define cp14_DBGWCR0	(DBGWCR0_EL1 * 2)
- #define cp14_DBGWVR0	(DBGWVR0_EL1 * 2)
- #define cp14_DBGDCCINT	(MDCCINT_EL1 * 2)
-+#define cp14_DBGVCR	(DBGVCR32_EL2 * 2)
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -416,7 +416,7 @@ bool rcu_eqs_special_set(int cpu)
+  *
+  * The caller must have disabled interrupts and must not be idle.
+  */
+-void rcu_momentary_dyntick_idle(void)
++notrace void rcu_momentary_dyntick_idle(void)
+ {
+ 	int special;
  
- #define NR_COPRO_REGS	(NR_SYS_REGS * 2)
+--- a/kernel/stop_machine.c
++++ b/kernel/stop_machine.c
+@@ -178,7 +178,7 @@ static void ack_state(struct multi_stop_
+ 		set_state(msdata, msdata->state + 1);
+ }
  
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1881,9 +1881,9 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 1), Op2( 0), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(1),
- 	/* DBGDCCINT */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32, NULL, cp14_DBGDCCINT },
- 	/* DBGDSCRext */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32, NULL, cp14_DBGDSCRext },
- 	DBG_BCR_BVR_WCR_WVR(2),
- 	/* DBGDTR[RT]Xint */
- 	{ Op1( 0), CRn( 0), CRm( 3), Op2( 0), trap_raz_wi },
-@@ -1898,7 +1898,7 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 6), Op2( 2), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(6),
- 	/* DBGVCR */
--	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32, NULL, cp14_DBGVCR },
- 	DBG_BCR_BVR_WCR_WVR(7),
- 	DBG_BCR_BVR_WCR_WVR(8),
- 	DBG_BCR_BVR_WCR_WVR(9),
+-void __weak stop_machine_yield(const struct cpumask *cpumask)
++notrace void __weak stop_machine_yield(const struct cpumask *cpumask)
+ {
+ 	cpu_relax();
+ }
 
 
