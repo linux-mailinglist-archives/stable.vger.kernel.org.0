@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B452A5434
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74812A56B5
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388636AbgKCVIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:08:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48516 "EHLO mail.kernel.org"
+        id S1732259AbgKCVab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:30:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388632AbgKCVIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:53 -0500
+        id S1732822AbgKCU6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6CAC21534;
-        Tue,  3 Nov 2020 21:08:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42FC6223AC;
+        Tue,  3 Nov 2020 20:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437732;
-        bh=Mq9T2I5lz78Cwv1Ns8Lttt5Ot8InoesOyxtqrAR41+s=;
+        s=default; t=1604437083;
+        bh=vtbQ9rDNVPi+7e9cw7/1BDc9XPgJvcQ1yasgkOTW7Qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBqmfJsivNqCAGsSX4iYvRjb0JtaK1wdn7+UclCRACiFDlITnEkqQ76F+AyYt9pe5
-         qybO4fkr+LSPc5uP+PG2qTVpiyTmoaULuIBFR9fALrcX96ukZLgCM7eDWoaGfzPr56
-         hX27yWyV01iOVMCYNqSD7k31IRQPnE48dHMmKUMM=
+        b=I6X+Ur/1LEcNyfqVvG2d7aKNTkLD/uBnbzji9DgYfr+gc+shCqtjNlfT90nzrWQ/L
+         PiMkuhwHSsqzmdvj6spH/vbEDPJPjYLZ5JjY3VehIvumXuNXVvNxBw6q9VaB/jPwE8
+         qAy1Uom9D0DCo8mao7sdP1a+DWoLl9lw+5+xtjWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 010/125] p54: avoid accessing the data mapped to streaming DMA
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 139/214] usb: dwc3: gadget: Resume pending requests after CLEAR_STALL
 Date:   Tue,  3 Nov 2020 21:36:27 +0100
-Message-Id: <20201103203158.241313300@linuxfoundation.org>
+Message-Id: <20201103203303.858633715@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 478762855b5ae9f68fa6ead1edf7abada70fcd5f upstream.
+commit c503672abe1348f10f5a54a662336358c6e1a297 upstream.
 
-In p54p_tx(), skb->data is mapped to streaming DMA on line 337:
-  mapping = pci_map_single(..., skb->data, ...);
+The function driver may queue new requests right after halting the
+endpoint (i.e. queue new requests while the endpoint is stalled).
+There's no restriction preventing it from doing so. However, dwc3
+currently drops those requests after CLEAR_STALL. The driver should only
+drop started requests. Keep the pending requests in the pending list to
+resume and process them after the host issues ClearFeature(Halt) to the
+endpoint.
 
-Then skb->data is accessed on line 349:
-  desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
-
-This access may cause data inconsistency between CPU cache and hardware.
-
-To fix this problem, ((struct p54_hdr *)skb->data)->req_id is stored in
-a local variable before DMA mapping, and then the driver accesses this
-local variable instead of skb->data.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200802132949.26788-1-baijiaju@tsinghua.edu.cn
+Cc: stable@vger.kernel.org
+Fixes: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intersil/p54/p54pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/drivers/net/wireless/intersil/p54/p54pci.c
-+++ b/drivers/net/wireless/intersil/p54/p54pci.c
-@@ -332,10 +332,12 @@ static void p54p_tx(struct ieee80211_hw
- 	struct p54p_desc *desc;
- 	dma_addr_t mapping;
- 	u32 idx, i;
-+	__le32 device_addr;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1521,8 +1521,13 @@ static int __dwc3_gadget_ep_queue(struct
+ 	list_add_tail(&req->list, &dep->pending_list);
+ 	req->status = DWC3_REQUEST_STATUS_QUEUED;
  
- 	spin_lock_irqsave(&priv->lock, flags);
- 	idx = le32_to_cpu(ring_control->host_idx[1]);
- 	i = idx % ARRAY_SIZE(ring_control->tx_data);
-+	device_addr = ((struct p54_hdr *)skb->data)->req_id;
+-	/* Start the transfer only after the END_TRANSFER is completed */
+-	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING) {
++	/*
++	 * Start the transfer only after the END_TRANSFER is completed
++	 * and endpoint STALL is cleared.
++	 */
++	if ((dep->flags & DWC3_EP_END_TRANSFER_PENDING) ||
++	    (dep->flags & DWC3_EP_WEDGE) ||
++	    (dep->flags & DWC3_EP_STALL)) {
+ 		dep->flags |= DWC3_EP_DELAY_START;
+ 		return 0;
+ 	}
+@@ -1728,13 +1733,14 @@ int __dwc3_gadget_ep_set_halt(struct dwc
+ 		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
+ 			dwc3_gadget_move_cancelled_request(req);
  
- 	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
- 				 PCI_DMA_TODEVICE);
-@@ -349,7 +351,7 @@ static void p54p_tx(struct ieee80211_hw
+-		list_for_each_entry_safe(req, tmp, &dep->pending_list, list)
+-			dwc3_gadget_move_cancelled_request(req);
+-
+-		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING)) {
+-			dep->flags &= ~DWC3_EP_DELAY_START;
++		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+ 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+-		}
++
++		if ((dep->flags & DWC3_EP_DELAY_START) &&
++		    !usb_endpoint_xfer_isoc(dep->endpoint.desc))
++			__dwc3_gadget_kick_transfer(dep);
++
++		dep->flags &= ~DWC3_EP_DELAY_START;
+ 	}
  
- 	desc = &ring_control->tx_data[i];
- 	desc->host_addr = cpu_to_le32(mapping);
--	desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
-+	desc->device_addr = device_addr;
- 	desc->len = cpu_to_le16(skb->len);
- 	desc->flags = 0;
- 
+ 	return ret;
 
 
