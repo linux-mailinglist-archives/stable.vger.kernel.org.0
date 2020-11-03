@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D95432A53BC
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C982A55EC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387946AbgKCVEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:04:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42050 "EHLO mail.kernel.org"
+        id S2387910AbgKCVXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387934AbgKCVEH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:07 -0500
+        id S2387948AbgKCVEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:04:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A1F205ED;
-        Tue,  3 Nov 2020 21:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB45B205ED;
+        Tue,  3 Nov 2020 21:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437446;
-        bh=G0hKEocJOUMprmAm11qcgWIdf9z60khcyTW2MwaoTns=;
+        s=default; t=1604437449;
+        bh=HIdxGsPh3dLmu5Mvr40uHDIRJNb8g73/lmYsiUUoTtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aC2ex9TwkyyLQUAMvBZrI8KZAhtrPgYBrkXEAI6J7uYy7G8LFIF9sgIvZzxeosmbv
-         SoPNQ7pt64jClJdkSKRohVNmzbBtxs+VlyRr0FETqztlxwi3JoEm6ZoOtaAcEMjYIV
-         N0Gz7wFch/fvcZ0nASY1SfAhTqoAocKWl04Wf7ss=
+        b=g/Bisenc9dBX7KttjuF25Kpuw8Oo0quiuQIMbTZR5jsYehcXTHwvUnswsKJwje7ad
+         KirT0APFYL6g/ONs8FRDjK2XR93fRdtzAVrIzD3UZcranMheCR+i67QPXK+Y0r4AQ3
+         fleAbgtpT1cID8CcdK7QIJJ2hP3ShyUcN0UYMJ3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org,
+        "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/191] kgdb: Make "kgdbcon" work properly with "kgdb_earlycon"
-Date:   Tue,  3 Nov 2020 21:36:11 +0100
-Message-Id: <20201103203241.632487385@linuxfoundation.org>
+Subject: [PATCH 4.19 080/191] media: uvcvideo: Fix dereference of out-of-bound list iterator
+Date:   Tue,  3 Nov 2020 21:36:12 +0100
+Message-Id: <20201103203241.704909550@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -43,68 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
 
-[ Upstream commit b18b099e04f450cdc77bec72acefcde7042bd1f3 ]
+[ Upstream commit f875bcc375c738bf2f599ff2e1c5b918dbd07c45 ]
 
-On my system the kernel processes the "kgdb_earlycon" parameter before
-the "kgdbcon" parameter.  When we setup "kgdb_earlycon" we'll end up
-in kgdb_register_callbacks() and "kgdb_use_con" won't have been set
-yet so we'll never get around to starting "kgdbcon".  Let's remedy
-this by detecting that the IO module was already registered when
-setting "kgdb_use_con" and registering the console then.
+Fixes the following coccinelle report:
 
-As part of this, to avoid pre-declaring things, move the handling of
-the "kgdbcon" further down in the file.
+drivers/media/usb/uvc/uvc_ctrl.c:1860:5-11:
+ERROR: invalid reference to the index variable of the iterator on line 1854
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200630151422.1.I4aa062751ff5e281f5116655c976dff545c09a46@changeid
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+by adding a boolean variable to check if the loop has found the
+
+Found using - Coccinelle (http://coccinelle.lip6.fr)
+
+[Replace cursor variable with bool found]
+
+Signed-off-by: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/debug/debug_core.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index fbb1bfdd2fa53..8c76141c99c8c 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -95,14 +95,6 @@ int dbg_switch_cpu;
- /* Use kdb or gdbserver mode */
- int dbg_kdb_mode = 1;
- 
--static int __init opt_kgdb_con(char *str)
--{
--	kgdb_use_con = 1;
--	return 0;
--}
--
--early_param("kgdbcon", opt_kgdb_con);
--
- module_param(kgdb_use_con, int, 0644);
- module_param(kgdbreboot, int, 0644);
- 
-@@ -820,6 +812,20 @@ static struct console kgdbcons = {
- 	.index		= -1,
- };
- 
-+static int __init opt_kgdb_con(char *str)
-+{
-+	kgdb_use_con = 1;
-+
-+	if (kgdb_io_module_registered && !kgdb_con_registered) {
-+		register_console(&kgdbcons);
-+		kgdb_con_registered = 1;
-+	}
-+
-+	return 0;
-+}
-+
-+early_param("kgdbcon", opt_kgdb_con);
-+
- #ifdef CONFIG_MAGIC_SYSRQ
- static void sysrq_handle_dbg(int key)
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index abfc49901222e..843dc19bada05 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1853,30 +1853,35 @@ int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
  {
+ 	struct uvc_entity *entity;
+ 	struct uvc_control *ctrl;
+-	unsigned int i, found = 0;
++	unsigned int i;
++	bool found;
+ 	u32 reqflags;
+ 	u16 size;
+ 	u8 *data = NULL;
+ 	int ret;
+ 
+ 	/* Find the extension unit. */
++	found = false;
+ 	list_for_each_entry(entity, &chain->entities, chain) {
+ 		if (UVC_ENTITY_TYPE(entity) == UVC_VC_EXTENSION_UNIT &&
+-		    entity->id == xqry->unit)
++		    entity->id == xqry->unit) {
++			found = true;
+ 			break;
++		}
+ 	}
+ 
+-	if (entity->id != xqry->unit) {
++	if (!found) {
+ 		uvc_trace(UVC_TRACE_CONTROL, "Extension unit %u not found.\n",
+ 			xqry->unit);
+ 		return -ENOENT;
+ 	}
+ 
+ 	/* Find the control and perform delayed initialization if needed. */
++	found = false;
+ 	for (i = 0; i < entity->ncontrols; ++i) {
+ 		ctrl = &entity->controls[i];
+ 		if (ctrl->index == xqry->selector - 1) {
+-			found = 1;
++			found = true;
+ 			break;
+ 		}
+ 	}
 -- 
 2.27.0
 
