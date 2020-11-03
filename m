@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC692A55F6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0822A53B6
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387528AbgKCVDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:03:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
+        id S2387907AbgKCVD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:03:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733274AbgKCVDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:03:51 -0500
+        id S2387903AbgKCVDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:03:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1673422226;
-        Tue,  3 Nov 2020 21:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0630206B5;
+        Tue,  3 Nov 2020 21:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437430;
-        bh=DpHkQOwzxUaz1MEXJtLnP9egLMImF6ntRtFcCZN60YU=;
+        s=default; t=1604437435;
+        bh=MXGjkdP4xr4nOyOFnNoA6nDzkUpX2aqE63/WbExOqi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehjuYBmrsXKbCTp8vH8CDBaEkkh0LQOBFMunferxQRvhPbtWBefUu9jmsOEMocHBv
-         mlVE4GwBeWkk6QfMtLGcByNmmGmw5B+n41joTFCxykwX1wlSH7pGQAAHjNsLKJNRL4
-         Dh9nmDxv48avK4++gVK+RULX9BTVQU3aTQHiagg4=
+        b=UPDucQqZ7qyVLt3HYyZaklQaJv4KKEe6JgLXvNLKg9kLJBoWpSxBvewChiQxEZ+Vg
+         yy3dyHlWKfHvIZH0kAtG0HoH6GF0zMmL9D6/iPjkmvV1JeeehzIIUpoTOHHxxJhnVJ
+         MKVPsmZfy6Jge6Mt7rUI1w9488val7v8s3QSranU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/191] media: imx274: fix frame interval handling
-Date:   Tue,  3 Nov 2020 21:36:05 +0100
-Message-Id: <20201103203241.209557099@linuxfoundation.org>
+Subject: [PATCH 4.19 074/191] mmc: via-sdmmc: Fix data race bug
+Date:   Tue,  3 Nov 2020 21:36:06 +0100
+Message-Id: <20201103203241.279879792@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -45,52 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 49b20d981d723fae5a93843c617af2b2c23611ec ]
+[ Upstream commit 87d7ad089b318b4f319bf57f1daa64eb6d1d10ad ]
 
-1) the numerator and/or denominator might be 0, in that case
-   fall back to the default frame interval. This is per the spec
-   and this caused a v4l2-compliance failure.
+via_save_pcictrlreg() should be called with host->lock held
+as it writes to pm_pcictrl_reg, otherwise there can be a race
+condition between via_sd_suspend() and via_sdc_card_detect().
+The same pattern is used in the function via_reset_pcictrl()
+as well, where via_save_pcictrlreg() is called with host->lock
+held.
 
-2) the updated frame interval wasn't returned in the s_frame_interval
-   subdev op.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200822061528.7035-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx274.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mmc/host/via-sdmmc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/imx274.c b/drivers/media/i2c/imx274.c
-index 8cc3bdb7f608c..0fe8b869245b8 100644
---- a/drivers/media/i2c/imx274.c
-+++ b/drivers/media/i2c/imx274.c
-@@ -1239,6 +1239,8 @@ static int imx274_s_frame_interval(struct v4l2_subdev *sd,
- 	ret = imx274_set_frame_interval(imx274, fi->interval);
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index 246dc6255e696..9fdb92729c28b 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -1273,11 +1273,14 @@ static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
+ static int via_sd_suspend(struct pci_dev *pcidev, pm_message_t state)
+ {
+ 	struct via_crdr_mmc_host *host;
++	unsigned long flags;
  
- 	if (!ret) {
-+		fi->interval = imx274->frame_interval;
-+
- 		/*
- 		 * exposure time range is decided by frame interval
- 		 * need to update it after frame interval changes
-@@ -1760,9 +1762,9 @@ static int imx274_set_frame_interval(struct stimx274 *priv,
- 		__func__, frame_interval.numerator,
- 		frame_interval.denominator);
+ 	host = pci_get_drvdata(pcidev);
  
--	if (frame_interval.numerator == 0) {
--		err = -EINVAL;
--		goto fail;
-+	if (frame_interval.numerator == 0 || frame_interval.denominator == 0) {
-+		frame_interval.denominator = IMX274_DEF_FRAME_RATE;
-+		frame_interval.numerator = 1;
- 	}
++	spin_lock_irqsave(&host->lock, flags);
+ 	via_save_pcictrlreg(host);
+ 	via_save_sdcreg(host);
++	spin_unlock_irqrestore(&host->lock, flags);
  
- 	req_frame_rate = (u32)(frame_interval.denominator
+ 	pci_save_state(pcidev);
+ 	pci_enable_wake(pcidev, pci_choose_state(pcidev, state), 0);
 -- 
 2.27.0
 
