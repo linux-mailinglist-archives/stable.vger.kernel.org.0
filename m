@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7527E2A3F62
+	by mail.lfdr.de (Postfix) with ESMTP id E1F852A3F63
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgKCIzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 03:55:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51320 "EHLO
+        id S1727323AbgKCIzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 03:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725993AbgKCIzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:55:36 -0500
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18176C0617A6
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:55:35 -0800 (PST)
-Received: by mail-wm1-x344.google.com with SMTP id 205so4197479wma.4
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:55:35 -0800 (PST)
+        with ESMTP id S1727109AbgKCIzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:55:42 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1873EC0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:55:42 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id a9so17546081wrg.12
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:55:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:autocrypt:organization:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=kuYtgCpIKch8L3KdMYqCnVDWB/+/69UJrXOkwHI9/a8=;
-        b=PO9nvJP5d9o/g7+8Usmpy1ldpGR3/BVgq+/D9Vg7awdpKYmbFt2QSD3HS0oeA8Vdmt
-         PGBC0ZdHfdkWTiNzR/jQWgm5Ciq7zZNx2E3GCJFDyj9QBwm6Qsl+XnNr/0y3mepHanTX
-         rX40wYLNWSFc04CrCDdhfbCH5mSjG1Hyr7hcTknWr+WWFW/sVB3mTPgkSJwathU+vG7m
-         194oKsC6yyF5jKguAG1kisFnlmm2uxbsDIEo/A0gDfhGIa9tjI90gckwfObwowVe9n4P
-         sth+3t8++cjus7RLysEOXAJv+eTVkCyO9bnYc+Vla1Un3954Duy3LR8Tax8ikkrnTUoA
-         Xprg==
+        bh=nAO62rx76gG3IwVfbaiFdenCQckJTYGDgc1MMGKd8RY=;
+        b=NjHZi0c4GX5/70WcVeTidKUYcz4ayrAgjD+dTCLZq2mVkwXdSQummLOkdYqGO96hph
+         oX32Vyvg+1GtPxzbDzqicJK+92qqriq7od78dF1xo0CbOa/SEUIvnirlPFHvyExMWnwq
+         jJYM++k84Wg6LA0jph75sX6vcKBC65RJiNIxSPwZp3TrRn82SlNj6QMrUevmAL9t/7cW
+         JbAX/LgINpMaOvJVMHeb2buGFAVs0Ncm7mLcrNSZ6hRQ8qoa6M85uig+kIEnPNnMooVG
+         hMbOr5kpEqkuQyPqSmws6xmFX3F+vhZcVLYWkbasyJJhMYwgjHFkhcPrAX083hadjXxJ
+         cc8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :organization:message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=kuYtgCpIKch8L3KdMYqCnVDWB/+/69UJrXOkwHI9/a8=;
-        b=KNSyFKpE7P2f5iTFAqwyMaqhE3aB7db4dFJOjQFu9JM5Q/5kRPVcP1ahRlvipWVfEb
-         iV55cUGA1XyMZYrcZRSKfWHO1drECIKDarQJdGPEOUnWn469hRTMnLzgfRgmXul/+8Ft
-         vXCbrnXRjsQFA6HTKH4ZP7hpLPWnht5ws4z1qQfhtuIG3e2m5Q9741nw84dPayNj6/kX
-         Cx4shqgz8mqIgdIjE5aD8Mkc2BtP3IgsfFRSnTSG7vZtg51T5DQlVR7iEp2ylD8SoBex
-         YyglFCUy69DjW7npzPQazRC6JpF3uTEwC9/jlz9jZuDDgxbJSZRS5U4dcOffwZwX3S+X
-         JYrw==
-X-Gm-Message-State: AOAM531xZHQRTMBC5UL+/TxJULTxGG18E3OdLOgoS7P6guth9ayTZdSn
-        UgwSwO66bVxx6gwb/iZ94sv5+ld3aavY/VCO
-X-Google-Smtp-Source: ABdhPJyRi4bNNlz1RWZnfyvpWtdQzso7c9176gkHynUg3N3j3iHMDYxx3ufibQCDbV214nsMsgI67w==
-X-Received: by 2002:a1c:c906:: with SMTP id f6mr2514741wmb.9.1604393733604;
-        Tue, 03 Nov 2020 00:55:33 -0800 (PST)
+        bh=nAO62rx76gG3IwVfbaiFdenCQckJTYGDgc1MMGKd8RY=;
+        b=MOuLMaAbl8T/4yuPZXFxW0em0EFi3MrRAqjoxWnA/NFlnQoMegYv7lxDnySIjym57w
+         G8pM9irGp5kENli4oEcgL1QXVEaCb2cUU1CyPGmowJJuzBEyrq8ILXrTRcG5Dwn9Y1a/
+         YC+wA5nTamfJpbZjfqb5ilFRH8jThcEpKuwIvmY2v5ALCKKThfs0kGHMDIfoB8o0nvAR
+         3y7e/kGZVEcZVFAf8yXT+BdwTgfqfyZ+Sc2iPqkqn6V4lftWBsNAfvtxYfrUILGb9yhg
+         zHmFqTgg+s/2WhmHzRIEMFPnFzltHCIvcdo3jtj8XpkLGII9n6B+KUpVtToN58Ay50Ks
+         /GFA==
+X-Gm-Message-State: AOAM532kwQAJzNQD5kQnEyMTCcDa8fir1MJbMbW1w4mqePq8kyeSEYW2
+        LQwrpQ6iSbLoKOakzU7g8ZvDAA==
+X-Google-Smtp-Source: ABdhPJzlhuWxm/Uib5SER6IG8R0vTOHAte/vFrAx3KyRic+2K2TAlRDd+xdx0gslt0JQP1HAWYxH2g==
+X-Received: by 2002:adf:9e08:: with SMTP id u8mr24137135wre.282.1604393740712;
+        Tue, 03 Nov 2020 00:55:40 -0800 (PST)
 Received: from ?IPv6:2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3? ([2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3])
-        by smtp.gmail.com with ESMTPSA id t19sm2332982wmi.26.2020.11.03.00.55.32
+        by smtp.gmail.com with ESMTPSA id 109sm82898wra.29.2020.11.03.00.55.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Nov 2020 00:55:32 -0800 (PST)
-Subject: Re: [PATCH AUTOSEL 5.4 02/24] arm64: dts: meson-axg: add USB nodes
+        Tue, 03 Nov 2020 00:55:40 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 5.4 03/24] arm64: dts: meson-axg-s400: enable USB
+ OTG
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Kevin Hilman <khilman@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+Cc:     Kevin Hilman <khilman@baylibre.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
 References: <20201103012007.183429-1-sashal@kernel.org>
- <20201103012007.183429-2-sashal@kernel.org>
+ <20201103012007.183429-3-sashal@kernel.org>
 From:   Neil Armstrong <narmstrong@baylibre.com>
 Autocrypt: addr=narmstrong@baylibre.com; prefer-encrypt=mutual; keydata=
  mQENBE1ZBs8BCAD78xVLsXPwV/2qQx2FaO/7mhWL0Qodw8UcQJnkrWmgTFRobtTWxuRx8WWP
@@ -109,12 +109,12 @@ Autocrypt: addr=narmstrong@baylibre.com; prefer-encrypt=mutual; keydata=
  VsbXrP9BZ6snXyHfebPnno/te5XRqZTL9aJOytB/1iUna+1MAwBxGFPvqeEUUyT+gx1l3Acl
  ZaTUOEkgIor5losDrePdPgE=
 Organization: Baylibre
-Message-ID: <454088be-6ff1-4fae-e0e3-a26211001d20@baylibre.com>
-Date:   Tue, 3 Nov 2020 09:55:31 +0100
+Message-ID: <c82fc121-6f42-31d5-b756-fbd89255f67b@baylibre.com>
+Date:   Tue, 3 Nov 2020 09:55:39 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201103012007.183429-2-sashal@kernel.org>
+In-Reply-To: <20201103012007.183429-3-sashal@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -125,90 +125,33 @@ X-Mailing-List: stable@vger.kernel.org
 On 03/11/2020 02:19, Sasha Levin wrote:
 > From: Neil Armstrong <narmstrong@baylibre.com>
 > 
-> [ Upstream commit 1b208bab34dc3f4ef8f408105017d4a7b72b2a2f ]
+> [ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
 > 
-> This adds the USB Glue node, with the USB2 & USB3 controllers along the single
-> USB2 PHY node.
+> This enables USB OTG on the S400 board.
 > 
 > Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 > Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-> Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 > Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 50 ++++++++++++++++++++++
->  1 file changed, 50 insertions(+)
+>  arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-> index 502c4ac45c29e..af1c50428eb7e 100644
-> --- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-> +++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-> @@ -170,6 +170,46 @@ soc {
->  		#size-cells = <2>;
->  		ranges;
->  
-> +		usb: usb@ffe09080 {
-> +			compatible = "amlogic,meson-axg-usb-ctrl";
-> +			reg = <0x0 0xffe09080 0x0 0x20>;
-> +			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <2>;
-> +			#size-cells = <2>;
-> +			ranges;
+> diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
+> index 4cd2d59518228..de4b40d4f48c6 100644
+> --- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
+> +++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
+> @@ -584,3 +584,9 @@ &uart_AO {
+>  	pinctrl-0 = <&uart_ao_a_pins>;
+>  	pinctrl-names = "default";
+>  };
 > +
-> +			clocks = <&clkc CLKID_USB>, <&clkc CLKID_USB1_DDR_BRIDGE>;
-> +			clock-names = "usb_ctrl", "ddr";
-> +			resets = <&reset RESET_USB_OTG>;
-> +
-> +			dr_mode = "otg";
-> +
-> +			phys = <&usb2_phy1>;
-> +			phy-names = "usb2-phy1";
-> +
-> +			dwc2: usb@ff400000 {
-> +				compatible = "amlogic,meson-g12a-usb", "snps,dwc2";
-> +				reg = <0x0 0xff400000 0x0 0x40000>;
-> +				interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-> +				clocks = <&clkc CLKID_USB1>;
-> +				clock-names = "otg";
-> +				phys = <&usb2_phy1>;
-> +				dr_mode = "peripheral";
-> +				g-rx-fifo-size = <192>;
-> +				g-np-tx-fifo-size = <128>;
-> +				g-tx-fifo-size = <128 128 16 16 16>;
-> +			};
-> +
-> +			dwc3: usb@ff500000 {
-> +				compatible = "snps,dwc3";
-> +				reg = <0x0 0xff500000 0x0 0x100000>;
-> +				interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-> +				dr_mode = "host";
-> +				maximum-speed = "high-speed";
-> +				snps,dis_u2_susphy_quirk;
-> +			};
-> +		};
-> +
->  		ethmac: ethernet@ff3f0000 {
->  			compatible = "amlogic,meson-axg-dwmac",
->  				     "snps,dwmac-3.70a",
-> @@ -1725,6 +1765,16 @@ sd_emmc_c: mmc@7000 {
->  				clock-names = "core", "clkin0", "clkin1";
->  				resets = <&reset RESET_SD_EMMC_C>;
->  			};
-> +
-> +			usb2_phy1: phy@9020 {
-> +				compatible = "amlogic,meson-gxl-usb2-phy";
-> +				#phy-cells = <0>;
-> +				reg = <0x0 0x9020 0x0 0x20>;
-> +				clocks = <&clkc CLKID_USB>;
-> +				clock-names = "phy";
-> +				resets = <&reset RESET_USB_OTG>;
-> +				reset-names = "phy";
-> +			};
->  		};
->  
->  		sram: sram@fffc0000 {
+> +&usb {
+> +	status = "okay";
+> +	dr_mode = "otg";
+> +	vbus-supply = <&usb_pwr>;
+> +};
 > 
-
 
 Hi Sasha,
 
