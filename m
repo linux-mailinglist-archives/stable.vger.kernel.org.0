@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5252A55A6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8A02A551D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388128AbgKCVGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:06:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45266 "EHLO mail.kernel.org"
+        id S2388755AbgKCVQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388139AbgKCVGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:06:20 -0500
+        id S2388767AbgKCVKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E26206B5;
-        Tue,  3 Nov 2020 21:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 302D6206B5;
+        Tue,  3 Nov 2020 21:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437580;
-        bh=LKUmMnFXVOxYaju0nDXGbsj2PEhcS8DdZXsmLE7XBNY=;
+        s=default; t=1604437841;
+        bh=ZVere6ll14sNmvx4SfE3bvqZth8xPm0Z1tgh+hKBV20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vzLgxunNkqpOGvQ5ugqu+rkghqBIOf2oziDrqFRaxn6MT46X4r6jKpsUTvzeOMen
-         JjCextckLUB3bH/ZW5ZsivpeLktnZjC4FPcJE5cY+8BjUJdmkknX+cgijNcdONfF74
-         zzuyCRWP8f80CvGOyXA0+l81kEb6dt7tG7fzJSKA=
+        b=z5P/n4mU7mrHzviPmbyJiI/MWCzNzK2fsK1Cf2mp+h9q5X5eupKfeyLmApJXS6jxa
+         B6rNPRE6TOw4vVUPDyitZGl7AsckvFEFtt5GoN2Q8uwfXbAhT1Nr7JP/YLzDO2jVK7
+         TbggnoKIMQFkGgReqYONef6AwA5V7L/q6acde074=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Jun <jun.li@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 138/191] usb: dwc3: core: add phy cleanup for probe error handling
-Date:   Tue,  3 Nov 2020 21:37:10 +0100
-Message-Id: <20201103203245.852784602@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 054/125] memory: emif: Remove bogus debugfs error handling
+Date:   Tue,  3 Nov 2020 21:37:11 +0100
+Message-Id: <20201103203204.810312655@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 03c1fd622f72c7624c81b64fdba4a567ae5ee9cb upstream.
+[ Upstream commit fd22781648080cc400772b3c68aa6b059d2d5420 ]
 
-Add the phy cleanup if dwc3 mode init fail, which is the missing part of
-de-init for dwc3 core init.
+Callers are generally not supposed to check the return values from
+debugfs functions.  Debugfs functions never return NULL so this error
+handling will never trigger.  (Historically debugfs functions used to
+return a mix of NULL and error pointers but it was eventually deemed too
+complicated for something which wasn't intended to be used in normal
+situations).
 
-Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Delete all the error handling.
 
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Link: https://lore.kernel.org/r/20200826113759.GF393664@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/memory/emif.c | 33 +++++----------------------------
+ 1 file changed, 5 insertions(+), 28 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1507,6 +1507,17 @@ static int dwc3_probe(struct platform_de
+diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
+index 04644e7b42b12..88c32b8dc88a1 100644
+--- a/drivers/memory/emif.c
++++ b/drivers/memory/emif.c
+@@ -165,35 +165,12 @@ static const struct file_operations emif_mr4_fops = {
  
- err5:
- 	dwc3_event_buffers_cleanup(dwc);
-+
-+	usb_phy_shutdown(dwc->usb2_phy);
-+	usb_phy_shutdown(dwc->usb3_phy);
-+	phy_exit(dwc->usb2_generic_phy);
-+	phy_exit(dwc->usb3_generic_phy);
-+
-+	usb_phy_set_suspend(dwc->usb2_phy, 1);
-+	usb_phy_set_suspend(dwc->usb3_phy, 1);
-+	phy_power_off(dwc->usb2_generic_phy);
-+	phy_power_off(dwc->usb3_generic_phy);
-+
- 	dwc3_ulpi_exit(dwc);
+ static int __init_or_module emif_debugfs_init(struct emif_data *emif)
+ {
+-	struct dentry	*dentry;
+-	int		ret;
+-
+-	dentry = debugfs_create_dir(dev_name(emif->dev), NULL);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err0;
+-	}
+-	emif->debugfs_root = dentry;
+-
+-	dentry = debugfs_create_file("regcache_dump", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_regdump_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
+-	dentry = debugfs_create_file("mr4", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_mr4_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
++	emif->debugfs_root = debugfs_create_dir(dev_name(emif->dev), NULL);
++	debugfs_create_file("regcache_dump", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_regdump_fops);
++	debugfs_create_file("mr4", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_mr4_fops);
+ 	return 0;
+-err1:
+-	debugfs_remove_recursive(emif->debugfs_root);
+-err0:
+-	return ret;
+ }
  
- err4:
+ static void __exit emif_debugfs_exit(struct emif_data *emif)
+-- 
+2.27.0
+
 
 
