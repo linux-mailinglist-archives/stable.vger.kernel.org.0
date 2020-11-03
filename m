@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C919E2A56AE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0936A2A5577
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729952AbgKCVaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:30:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60980 "EHLO mail.kernel.org"
+        id S1730091AbgKCVSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:18:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732951AbgKCU6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:20 -0500
+        id S2387910AbgKCVJH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EBA2223BF;
-        Tue,  3 Nov 2020 20:58:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D5A8205ED;
+        Tue,  3 Nov 2020 21:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437100;
-        bh=3KC4q/WKvwirtoZYm5qwm0oGZDlEH+sS+/qPASVN8PI=;
+        s=default; t=1604437746;
+        bh=ACCQKB0WI3QQDH1LpYwUo8Ei2lz8ycZmkcMhQYgGSxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2hfCC0sJ1ocyIK6Bou03/Z0YRRjhTwc6S761Or/oropdCtnI4hmVBTCe4QMWQZ7Q
-         dE7+vzLWvUrLe63y76gO3pAr80mUgmpFVqTCt3gFrFPqk3zT1eT6cL3dy4c/uDKaTj
-         9NRuepsE1OWcNlcOI82eYue5kIbYtlFK6u6DAFys=
+        b=b0q47ttzTmY3AghbW06SIpjQkfHcEKMo3vKSvd0ijefIq0ykpIRRsPHAsFuLVCIFK
+         Tuyx8BOyCXwcpGC9dZikoN4YGX0+59s/Muz0mEhaaQmzpcXHED68tGCFFYfrhGjXG3
+         2NLcNdUDmgQ3u5sO6pLpchj8x6oNXFHgKkCbiquY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 145/214] vt: keyboard, simplify vt_kdgkbsent
+        stable@vger.kernel.org, Mateusz Nosek <mateusznosek0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 016/125] futex: Fix incorrect should_fail_futex() handling
 Date:   Tue,  3 Nov 2020 21:36:33 +0100
-Message-Id: <20201103203304.398464393@linuxfoundation.org>
+Message-Id: <20201103203159.107223146@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Mateusz Nosek <mateusznosek0@gmail.com>
 
-commit 6ca03f90527e499dd5e32d6522909e2ad390896b upstream.
+[ Upstream commit 921c7ebd1337d1a46783d7e15a850e12aed2eaa0 ]
 
-Use 'strlen' of the string, add one for NUL terminator and simply do
-'copy_to_user' instead of the explicit 'for' loop. This makes the
-KDGKBSENT case more compact.
+If should_futex_fail() returns true in futex_wake_pi(), then the 'ret'
+variable is set to -EFAULT and then immediately overwritten. So the failure
+injection is non-functional.
 
-The only thing we need to take care about is NULL 'func_table[i]'. Use
-an empty string in that case.
+Fix it by actually leaving the function and returning -EFAULT.
 
-The original check for overflow could never trigger as the func_buf
-strings are always shorter or equal to 'struct kbsentry's.
+The Fixes tag is kinda blury because the initial commit which introduced
+failure injection was already sloppy, but the below mentioned commit broke
+it completely.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201019085517.10176-1-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ tglx: Massaged changelog ]
 
+Fixes: 6b4f4bc9cb22 ("locking/futex: Allow low-level atomic operations to return -EAGAIN")
+Signed-off-by: Mateusz Nosek <mateusznosek0@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200927000858.24219-1-mateusznosek0@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/keyboard.c |   28 +++++++++-------------------
- 1 file changed, 9 insertions(+), 19 deletions(-)
+ kernel/futex.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -1994,9 +1994,7 @@ out:
- int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- {
- 	struct kbsentry *kbs;
--	char *p;
- 	u_char *q;
--	u_char __user *up;
- 	int sz, fnw_sz;
- 	int delta;
- 	char *first_free, *fj, *fnw;
-@@ -2022,23 +2020,15 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 	i = kbs->kb_func;
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 2921ebaa14676..8f0e62c59a55b 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1595,8 +1595,10 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
+ 	 */
+ 	newval = FUTEX_WAITERS | task_pid_vnr(new_owner);
  
- 	switch (cmd) {
--	case KDGKBSENT:
--		sz = sizeof(kbs->kb_string) - 1; /* sz should have been
--						  a struct member */
--		up = user_kdgkb->kb_string;
--		p = func_table[i];
--		if(p)
--			for ( ; *p && sz; p++, sz--)
--				if (put_user(*p, up++)) {
--					ret = -EFAULT;
--					goto reterr;
--				}
--		if (put_user('\0', up)) {
--			ret = -EFAULT;
--			goto reterr;
--		}
--		kfree(kbs);
--		return ((p && *p) ? -EOVERFLOW : 0);
-+	case KDGKBSENT: {
-+		/* size should have been a struct member */
-+		unsigned char *from = func_table[i] ? : "";
-+
-+		ret = copy_to_user(user_kdgkb->kb_string, from,
-+				strlen(from) + 1) ? -EFAULT : 0;
-+
-+		goto reterr;
+-	if (unlikely(should_fail_futex(true)))
++	if (unlikely(should_fail_futex(true))) {
+ 		ret = -EFAULT;
++		goto out_unlock;
 +	}
- 	case KDSKBSENT:
- 		if (!perm) {
- 			ret = -EPERM;
+ 
+ 	ret = cmpxchg_futex_value_locked(&curval, uaddr, uval, newval);
+ 	if (!ret && (curval != uval)) {
+-- 
+2.27.0
+
 
 
