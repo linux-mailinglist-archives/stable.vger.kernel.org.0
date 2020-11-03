@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A3A2A56D4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB782A5832
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732765AbgKCVbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:31:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
+        id S1731611AbgKCUth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731750AbgKCU5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:57:45 -0500
+        id S1731607AbgKCUtg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BAE32053B;
-        Tue,  3 Nov 2020 20:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C73A922404;
+        Tue,  3 Nov 2020 20:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437064;
-        bh=OF1UzrEkpvQY/H024MBR+tM08Hv99WeM2oKPJDlgaAM=;
+        s=default; t=1604436576;
+        bh=1C8r9xI3AEIUJPKi37mcrxU88njAYtT2vNbfJ4mxwQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQWPJsbZzHMmSV3XXyVQV50GHj3X2LimmqASXpTCu8EMgwrqSbLIA7qEuGopNauGq
-         Xkd/m21wVYD5EszOrFlQk0awr4YU3AmOTsuphfrL14jAr46BiXfS7j2laZBDcq3H1w
-         R+qgWgcF4pPESwsBUJ6w24W1Dz4jb0hVUyGvQwpM=
+        b=2VQtO8zZ7B9UfCsRYMy6I/AsU+ZD/IX4d0soDJVreqc5B3skjiUDzVwiBQitxF0iq
+         OPAJC0J+1yvzIyu4w88YMsrOxD35n+9vvN0FP1J0jatmqltNUFNWrRV7ph8UurbZjU
+         lUs5W3cHuwHAgmofg3aBp7mvrYKks4U3acGOX2Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Zakhrov <aaron.zakhrov@gmail.com>,
-        Michal Rostecki <mrostecki@suse.com>,
-        Shai Coleman <git@shaicoleman.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Arthur Borsboom <arthurborsboom@gmail.com>,
-        matoro <matoro@airmail.cc>
-Subject: [PATCH 5.4 114/214] PCI/ACPI: Whitelist hotplug ports for D3 if power managed by ACPI
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.9 311/391] ARC: perf: redo the pct irq missing in device-tree handling
 Date:   Tue,  3 Nov 2020 21:36:02 +0100
-Message-Id: <20201103203301.578517893@linuxfoundation.org>
+Message-Id: <20201103203408.096030270@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit c6e331312ebfb52b7186e5d82d517d68b4d2f2d8 upstream.
+commit 8c42a5c02bec6c7eccf08957be3c6c8fccf9790b upstream.
 
-Recent laptops with dual AMD GPUs fail to suspend the discrete GPU, thus
-causing lockups on system sleep and high power consumption at runtime.
-The discrete GPU would normally be suspended to D3cold by turning off
-ACPI _PR3 Power Resources of the Root Port above the GPU.
+commit feb92d7d3813456c11dce21 "(ARC: perf: don't bail setup if pct irq
+missing in device-tree)" introduced a silly brown-paper bag bug:
+The assignment and comparison in an if statement were not bracketed
+correctly leaving the order of evaluation undefined.
 
-However on affected systems, the Root Port is hotplug-capable and
-pci_bridge_d3_possible() only allows hotplug ports to go to D3 if they
-belong to a Thunderbolt device or if the Root Port possesses a
-"HotPlugSupportInD3" ACPI property.  Neither is the case on affected
-laptops.  The reason for whitelisting only specific, known to work
-hotplug ports for D3 is that there have been reports of SkyLake Xeon-SP
-systems raising Hardware Error NMIs upon suspending their hotplug ports:
-https://lore.kernel.org/linux-pci/20170503180426.GA4058@otc-nc-03/
+|
+| if (has_interrupts && (irq = platform_get_irq(pdev, 0) >= 0)) {
+|                           ^^^                         ^^^^
 
-But if a hotplug port is power manageable by ACPI (as can be detected
-through presence of Power Resources and corresponding _PS0 and _PS3
-methods) then it ought to be safe to suspend it to D3.  To this end,
-amend acpi_pci_bridge_d3() to whitelist such ports for D3.
+And given such a chance, the compiler will bite you hard, fully entitled
+to generating this piece of beauty:
 
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1222
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1252
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1304
-Reported-and-tested-by: Arthur Borsboom <arthurborsboom@gmail.com>
-Reported-and-tested-by: matoro <matoro@airmail.cc>
-Reported-by: Aaron Zakhrov <aaron.zakhrov@gmail.com>
-Reported-by: Michal Rostecki <mrostecki@suse.com>
-Reported-by: Shai Coleman <git@shaicoleman.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+|
+| # if (has_interrupts && (irq = platform_get_irq(pdev, 0) >= 0)) {
+|
+| bl.d @platform_get_irq  <-- irq returned in r0
+|
+| setge r2, r0, 0   	<-- r2 is bool 1 or 0 if irq >= 0 true/false
+| brlt.d r0, 0, @.L114
+|
+| st_s	r2,[sp]    	<-- irq saved is bool 1 or 0, not actual return val
+| st	1,[r3,160]   	# arc_pmu.18_29->irq <-- drops bool and assumes 1
+|
+| # return __request_percpu_irq(irq, handler, 0,
+|
+| bl.d @__request_percpu_irq;
+| mov_s	r0,1	   <-- drops even bool and assumes 1 which fails
+
+With the snafu fixed, everything is as expected.
+
+| bl.d @platform_get_irq	<-- returns irq in r0
+|
+| mov_s	r2,r0
+| brlt.d r2, 0, @.L112
+|
+| st_s	r0,[sp]			<-- irq isaved is actual return value above
+| st	r0,[r13,160]	#arc_pmu.18_27->irq
+|
+| bl.d @__request_percpu_irq	<-- r0 unchanged so actual irq returned
+| add r4,r4,r12	#, tmp363, __ptr
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci-acpi.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arc/kernel/perf_event.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -944,6 +944,16 @@ static bool acpi_pci_bridge_d3(struct pc
- 	if (!dev->is_hotplug_bridge)
- 		return false;
+--- a/arch/arc/kernel/perf_event.c
++++ b/arch/arc/kernel/perf_event.c
+@@ -562,7 +562,7 @@ static int arc_pmu_device_probe(struct p
+ {
+ 	struct arc_reg_pct_build pct_bcr;
+ 	struct arc_reg_cc_build cc_bcr;
+-	int i, has_interrupts, irq;
++	int i, has_interrupts, irq = -1;
+ 	int counter_size;	/* in bits */
  
-+	/* Assume D3 support if the bridge is power-manageable by ACPI. */
-+	adev = ACPI_COMPANION(&dev->dev);
-+	if (!adev && !pci_dev_is_added(dev)) {
-+		adev = acpi_pci_find_companion(&dev->dev);
-+		ACPI_COMPANION_SET(&dev->dev, adev);
+ 	union cc_name {
+@@ -637,18 +637,27 @@ static int arc_pmu_device_probe(struct p
+ 		.attr_groups	= arc_pmu->attr_groups,
+ 	};
+ 
+-	if (has_interrupts && (irq = platform_get_irq(pdev, 0) >= 0)) {
++	if (has_interrupts) {
++		irq = platform_get_irq(pdev, 0);
++		if (irq >= 0) {
++			int ret;
++
++			arc_pmu->irq = irq;
++
++			/* intc map function ensures irq_set_percpu_devid() called */
++			ret = request_percpu_irq(irq, arc_pmu_intr, "ARC perf counters",
++						 this_cpu_ptr(&arc_pmu_cpu));
++
++			if (!ret)
++				on_each_cpu(arc_cpu_pmu_irq_init, &irq, 1);
++			else
++				irq = -1;
++		}
+ 
+-		arc_pmu->irq = irq;
+-
+-		/* intc map function ensures irq_set_percpu_devid() called */
+-		request_percpu_irq(irq, arc_pmu_intr, "ARC perf counters",
+-				   this_cpu_ptr(&arc_pmu_cpu));
 +	}
-+
-+	if (adev && acpi_device_power_manageable(adev))
-+		return true;
-+
+ 
+-		on_each_cpu(arc_cpu_pmu_irq_init, &irq, 1);
+-	} else {
++	if (irq == -1)
+ 		arc_pmu->pmu.capabilities |= PERF_PMU_CAP_NO_INTERRUPT;
+-	}
+ 
  	/*
- 	 * Look for a special _DSD property for the root port and if it
- 	 * is set we know the hierarchy behind it supports D3 just fine.
+ 	 * perf parser doesn't really like '-' symbol in events name, so let's
 
 
