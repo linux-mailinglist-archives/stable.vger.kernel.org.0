@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3EF12A5836
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0684B2A577F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgKCVtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:49:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1732240AbgKCVm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:42:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731581AbgKCUtc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:32 -0500
+        id S1732227AbgKCUzL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C8DD20719;
-        Tue,  3 Nov 2020 20:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CE9C223BD;
+        Tue,  3 Nov 2020 20:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436571;
-        bh=QYyRrFbcyXrX73ICqkPVtJdE0djkzXrE+AgOOO/FjuE=;
+        s=default; t=1604436910;
+        bh=Yccps9gYgPKpigz26JRSlXIy0z/IxumpcoIbGKZUwcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFWrpcFHu6kJt/EKmgsAAglx+eSiJDyc9iIEzY8yYlxEibIhCgQl73/vXH+l2ZJzb
-         PL2LG02PVQgomGf2w3GLf8skW2J3h8mUILq+Cs6+hlY1KBzaIi7QOkQFj5YunjZaKD
-         wrf7lsyuja5lY+P4ztx4XskQYcBMf3PMX5rjeBOE=
+        b=nLUJheRKFwMW6kv/OA4LdG9oEV3C0vpPSiR6FlqppYIjynfJDodYg5Dzltex8SD2Q
+         71Aaeufh+SpZEtTMN4SqEDp4iYqH16/oVwdnFMrOlCXioZ0i9+a5XpOOFEfiTLfn10
+         d5DsSZyz0fmfl62+zY14dx+8AcwOGYQRHojwuRso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>
-Subject: [PATCH 5.9 260/391] tty: serial: fsl_lpuart: LS1021A has a FIFO size of 16 words, like LS1028A
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/214] can: flexcan: disable clocks during stop mode
 Date:   Tue,  3 Nov 2020 21:35:11 +0100
-Message-Id: <20201103203404.568391592@linuxfoundation.org>
+Message-Id: <20201103203256.273290458@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit c97f2a6fb3dfbfbbc88edc8ea62ef2b944e18849 upstream.
+[ Upstream commit 02f71c6605e1f8259c07f16178330db766189a74 ]
 
-Prior to the commit that this one fixes, the FIFO size was derived from
-the read-only register LPUARTx_FIFO[TXFIFOSIZE] using the following
-formula:
+Disable clocks while CAN core is in stop mode.
 
-TX FIFO size = 2 ^ (LPUARTx_FIFO[TXFIFOSIZE] - 1)
-
-The documentation for LS1021A is a mess. Under chapter 26.1.3 LS1021A
-LPUART module special consideration, it mentions TXFIFO_SZ and RXFIFO_SZ
-being equal to 4, and in the register description for LPUARTx_FIFO, it
-shows the out-of-reset value of TXFIFOSIZE and RXFIFOSIZE fields as "011",
-even though these registers read as "101" in reality.
-
-And when LPUART on LS1021A was working, the "101" value did correspond
-to "16 datawords", by applying the formula above, even though the
-documentation is wrong again (!!!!) and says that "101" means 64 datawords
-(hint: it doesn't).
-
-So the "new" formula created by commit f77ebb241ce0 has all the premises
-of being wrong for LS1021A, because it relied only on false data and no
-actual experimentation.
-
-Interestingly, in commit c2f448cff22a ("tty: serial: fsl_lpuart: add
-LS1028A support"), Michael Walle applied a workaround to this by manually
-setting the FIFO widths for LS1028A. It looks like the same values are
-used by LS1021A as well, in fact.
-
-When the driver thinks that it has a deeper FIFO than it really has,
-getty (user space) output gets truncated.
-
-Many thanks to Michael for pointing out where to look.
-
-Fixes: f77ebb241ce0 ("tty: serial: fsl_lpuart: correct the FIFO depth size")
-Suggested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20201023013429.3551026-1-vladimir.oltean@nxp.com
-Reviewed-by：Fugang Duan <fugang.duan@nxp.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Tested-by: Sean Nyekjaer <sean@geanix.com>
+Link: https://lore.kernel.org/r/20191210085721.9853-2-qiangqing.zhang@nxp.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/can/flexcan.c | 30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -314,9 +314,10 @@ MODULE_DEVICE_TABLE(of, lpuart_dt_ids);
- /* Forward declare this for the dma callbacks*/
- static void lpuart_dma_tx_complete(void *arg);
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index aaa7ed1dc97ee..d59c6c87164f4 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1703,8 +1703,6 @@ static int __maybe_unused flexcan_suspend(struct device *device)
+ 			err = flexcan_chip_disable(priv);
+ 			if (err)
+ 				return err;
+-
+-			err = pm_runtime_force_suspend(device);
+ 		}
+ 		netif_stop_queue(dev);
+ 		netif_device_detach(dev);
+@@ -1730,10 +1728,6 @@ static int __maybe_unused flexcan_resume(struct device *device)
+ 			if (err)
+ 				return err;
+ 		} else {
+-			err = pm_runtime_force_resume(device);
+-			if (err)
+-				return err;
+-
+ 			err = flexcan_chip_enable(priv);
+ 		}
+ 	}
+@@ -1764,8 +1758,16 @@ static int __maybe_unused flexcan_noirq_suspend(struct device *device)
+ 	struct net_device *dev = dev_get_drvdata(device);
+ 	struct flexcan_priv *priv = netdev_priv(dev);
  
--static inline bool is_ls1028a_lpuart(struct lpuart_port *sport)
-+static inline bool is_layerscape_lpuart(struct lpuart_port *sport)
- {
--	return sport->devtype == LS1028A_LPUART;
-+	return (sport->devtype == LS1021A_LPUART ||
-+		sport->devtype == LS1028A_LPUART);
+-	if (netif_running(dev) && device_may_wakeup(device))
+-		flexcan_enable_wakeup_irq(priv, true);
++	if (netif_running(dev)) {
++		int err;
++
++		if (device_may_wakeup(device))
++			flexcan_enable_wakeup_irq(priv, true);
++
++		err = pm_runtime_force_suspend(device);
++		if (err)
++			return err;
++	}
+ 
+ 	return 0;
  }
+@@ -1775,8 +1777,16 @@ static int __maybe_unused flexcan_noirq_resume(struct device *device)
+ 	struct net_device *dev = dev_get_drvdata(device);
+ 	struct flexcan_priv *priv = netdev_priv(dev);
  
- static inline bool is_imx8qxp_lpuart(struct lpuart_port *sport)
-@@ -1644,11 +1645,11 @@ static int lpuart32_startup(struct uart_
- 					    UARTFIFO_FIFOSIZE_MASK);
+-	if (netif_running(dev) && device_may_wakeup(device))
+-		flexcan_enable_wakeup_irq(priv, false);
++	if (netif_running(dev)) {
++		int err;
++
++		err = pm_runtime_force_resume(device);
++		if (err)
++			return err;
++
++		if (device_may_wakeup(device))
++			flexcan_enable_wakeup_irq(priv, false);
++	}
  
- 	/*
--	 * The LS1028A has a fixed length of 16 words. Although it supports the
--	 * RX/TXSIZE fields their encoding is different. Eg the reference manual
--	 * states 0b101 is 16 words.
-+	 * The LS1021A and LS1028A have a fixed FIFO depth of 16 words.
-+	 * Although they support the RX/TXSIZE fields, their encoding is
-+	 * different. Eg the reference manual states 0b101 is 16 words.
- 	 */
--	if (is_ls1028a_lpuart(sport)) {
-+	if (is_layerscape_lpuart(sport)) {
- 		sport->rxfifo_size = 16;
- 		sport->txfifo_size = 16;
- 		sport->port.fifosize = sport->txfifo_size;
+ 	return 0;
+ }
+-- 
+2.27.0
+
 
 
