@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91DC52A56CA
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D53C2A543D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732755AbgKCVbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:31:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
+        id S1731194AbgKCVJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:09:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731475AbgKCU5w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:57:52 -0500
+        id S1731184AbgKCVJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C76AE223AC;
-        Tue,  3 Nov 2020 20:57:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87D89205ED;
+        Tue,  3 Nov 2020 21:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437072;
-        bh=i6Il6kjpPM77yfeullmaYgn7IGlIDL4NLgMvuN8Hpnc=;
+        s=default; t=1604437761;
+        bh=dsuCJHkNZA7PKvITJVdCaMr9N1fGyRZ5sZxrIp3EQQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zI7gSVhQ4Z6k7RhClzFIRbgIdxezdp1Z+JhdXImqtHOdQ02LUQfVCfjvKDYaxkxLU
-         I1dAQ46CjiKhnxy6gxICKqZdWET/lL6L2RSlRDXasrK0NZFjlnU8szlqq2Z0ZVvc1f
-         pvT9jNmsEkFq5iwl3kCozj6eKANbars7Zz8UlKAA=
+        b=hWhzv570UxKXOH18H/ChFUOr6TD2wbKVdJjjvgtbPWpVu8hs7MqWnnifUS+Nd21hO
+         ch8MrIXhETm9STF+jiB9otsoFSQwfSHQE9zB+pHmFCNUDM9iya+7hRaarGNK5a0ANM
+         1B5vNXfNbgCNcH5/DsC8iM3bf8HU8/n1N5RoYZQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 134/214] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM method for PM functionality
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 005/125] ravb: Fix bit fields checking in ravb_hwtstamp_get()
 Date:   Tue,  3 Nov 2020 21:36:22 +0100
-Message-Id: <20201103203303.402427062@linuxfoundation.org>
+Message-Id: <20201103203157.177666868@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Tan <raymond.tan@intel.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-commit a609ce2a13360d639b384b6ca783b38c1247f2db upstream.
+[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
 
-Similar to some other IA platforms, Elkhart Lake too depends on the
-PMU register write to request transition of Dx power state.
+In the function ravb_hwtstamp_get() in ravb_main.c with the existing
+values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
+(0x6)
 
-Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
-shall execute the ACPI _DSM method during D0/D3 sequence.
+if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
+	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
+	config.rx_filter = HWTSTAMP_FILTER_ALL;
 
-[heikki.krogerus@linux.intel.com: included Fixes tag]
+if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
+it will never be reached.
 
-Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake Devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Raymond Tan <raymond.tan@intel.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+This issue can be verified with 'hwtstamp_config' testing program
+(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
+to ALL and subsequent retrieving it gives incorrect value:
+
+$ hwtstamp_config eth0 OFF ALL
+flags = 0
+tx_type = OFF
+rx_filter = ALL
+$ hwtstamp_config eth0
+flags = 0
+tx_type = OFF
+rx_filter = PTP_V2_L2_EVENT
+
+Correct this by converting if-else's to switch.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/dwc3/dwc3-pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -147,7 +147,8 @@ static int dwc3_pci_quirks(struct dwc3_p
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1768,12 +1768,16 @@ static int ravb_hwtstamp_get(struct net_
+ 	config.flags = 0;
+ 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
+ 						HWTSTAMP_TX_OFF;
+-	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
++	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
++	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
+ 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+-	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
++		break;
++	case RAVB_RXTSTAMP_TYPE_ALL:
+ 		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-	else
++		break;
++	default:
+ 		config.rx_filter = HWTSTAMP_FILTER_NONE;
++	}
  
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
- 		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
--				pdev->device == PCI_DEVICE_ID_INTEL_BXT_M) {
-+		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
-+		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
- 			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
- 			dwc->has_dsm_for_pm = true;
- 		}
+ 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
+ 		-EFAULT : 0;
 
 
