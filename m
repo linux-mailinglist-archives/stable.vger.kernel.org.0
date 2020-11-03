@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB562A53B9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F140F2A5693
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387921AbgKCVD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41788 "EHLO mail.kernel.org"
+        id S1733015AbgKCU6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387915AbgKCVD6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:03:58 -0500
+        id S1732997AbgKCU6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13BD4206B5;
-        Tue,  3 Nov 2020 21:03:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA8CA22226;
+        Tue,  3 Nov 2020 20:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437437;
-        bh=yqBwzzgFt+eDq0D+gtUwTG62XzSszG/FzkUVBMHpgT4=;
+        s=default; t=1604437128;
+        bh=YkS84B6gPhb9qI/dC69aWOSXOl/O9S/iJ9jY484Xs38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPIJh1orQ9cOHL4RoQDHxbBaLZLZlKJgQos34bWmopmXI8PuHtTfuztxjlwNhBDqV
-         OCFUa44iQAD9wqaF6S9gQHHvniKyJc+COcMZGlTK8vsiy2p/knJetBwatbkG/VSr0n
-         nXq89xq7SzzQoBWx17Bh65+XDc49kDOZ8tPEWiB4=
+        b=qL0zG2Jx5iUzLjqqz8zyGRPfjiHBnh30Z3130663I8cWE9a33Tr0ZRC/PwEgrvN13
+         u83kbUltQ6BnD/CoK6J2844FH2UPEJ4Xpj5WTPOTphUchrjkcXs6lpNv66pEgqcGeH
+         aeJfj0T7wvWIjrHz2xdxzawl2MoAIcqlt5UMg51E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/191] drm/bridge/synopsys: dsi: add support for non-continuous HS clock
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 119/214] scsi: mptfusion: Fix null pointer dereferences in mptscsih_remove()
 Date:   Tue,  3 Nov 2020 21:36:07 +0100
-Message-Id: <20201103203241.349550764@linuxfoundation.org>
+Message-Id: <20201103203302.037847763@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit c6d94e37bdbb6dfe7e581e937a915ab58399b8a5 ]
+commit 2f4843b172c2c0360ee7792ad98025fae7baefde upstream.
 
-Current code enables the HS clock when video mode is started or to
-send out a HS command, and disables the HS clock to send out a LP
-command. This is not what DSI spec specify.
+The mptscsih_remove() function triggers a kernel oops if the Scsi_Host
+pointer (ioc->sh) is NULL, as can be seen in this syslog:
 
-Enable HS clock either in command and in video mode.
-Set automatic HS clock management for panels and devices that
-support non-continuous HS clock.
+ ioc0: LSI53C1030 B2: Capabilities={Initiator,Target}
+ Begin: Waiting for root file system ...
+ scsi host2: error handler thread failed to spawn, error = -4
+ mptspi: ioc0: WARNING - Unable to register controller with SCSI subsystem
+ Backtrace:
+  [<000000001045b7cc>] mptspi_probe+0x248/0x3d0 [mptspi]
+  [<0000000040946470>] pci_device_probe+0x1ac/0x2d8
+  [<0000000040add668>] really_probe+0x1bc/0x988
+  [<0000000040ade704>] driver_probe_device+0x160/0x218
+  [<0000000040adee24>] device_driver_attach+0x160/0x188
+  [<0000000040adef90>] __driver_attach+0x144/0x320
+  [<0000000040ad7c78>] bus_for_each_dev+0xd4/0x158
+  [<0000000040adc138>] driver_attach+0x4c/0x80
+  [<0000000040adb3ec>] bus_add_driver+0x3e0/0x498
+  [<0000000040ae0130>] driver_register+0xf4/0x298
+  [<00000000409450c4>] __pci_register_driver+0x78/0xa8
+  [<000000000007d248>] mptspi_init+0x18c/0x1c4 [mptspi]
 
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Tested-by: Philippe Cornu <philippe.cornu@st.com>
-Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200701194234.18123-1-yannick.fertre@st.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds the necessary NULL-pointer checks.  Successfully tested on
+a HP C8000 parisc workstation with buggy SCSI drives.
+
+Link: https://lore.kernel.org/r/20201022090005.GA9000@ls3530.fritz.box
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/message/fusion/mptscsih.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-index fd7999642cf8a..8b5f9241a8876 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c
-@@ -326,7 +326,6 @@ static void dw_mipi_message_config(struct dw_mipi_dsi *dsi,
- 	if (lpm)
- 		val |= CMD_MODE_ALL_LP;
+--- a/drivers/message/fusion/mptscsih.c
++++ b/drivers/message/fusion/mptscsih.c
+@@ -1176,8 +1176,10 @@ mptscsih_remove(struct pci_dev *pdev)
+ 	MPT_SCSI_HOST		*hd;
+ 	int sz1;
  
--	dsi_write(dsi, DSI_LPCLK_CTRL, lpm ? 0 : PHY_TXREQUESTCLKHS);
- 	dsi_write(dsi, DSI_CMD_MODE_CFG, val);
+-	if((hd = shost_priv(host)) == NULL)
+-		return;
++	if (host == NULL)
++		hd = NULL;
++	else
++		hd = shost_priv(host);
+ 
+ 	mptscsih_shutdown(pdev);
+ 
+@@ -1193,14 +1195,15 @@ mptscsih_remove(struct pci_dev *pdev)
+ 	    "Free'd ScsiLookup (%d) memory\n",
+ 	    ioc->name, sz1));
+ 
+-	kfree(hd->info_kbuf);
++	if (hd)
++		kfree(hd->info_kbuf);
+ 
+ 	/* NULL the Scsi_Host pointer
+ 	 */
+ 	ioc->sh = NULL;
+ 
+-	scsi_host_put(host);
+-
++	if (host)
++		scsi_host_put(host);
+ 	mpt_detach(pdev);
+ 
  }
- 
-@@ -488,16 +487,22 @@ static void dw_mipi_dsi_video_mode_config(struct dw_mipi_dsi *dsi)
- static void dw_mipi_dsi_set_mode(struct dw_mipi_dsi *dsi,
- 				 unsigned long mode_flags)
- {
-+	u32 val;
-+
- 	dsi_write(dsi, DSI_PWR_UP, RESET);
- 
- 	if (mode_flags & MIPI_DSI_MODE_VIDEO) {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_VIDEO_MODE);
- 		dw_mipi_dsi_video_mode_config(dsi);
--		dsi_write(dsi, DSI_LPCLK_CTRL, PHY_TXREQUESTCLKHS);
- 	} else {
- 		dsi_write(dsi, DSI_MODE_CFG, ENABLE_CMD_MODE);
- 	}
- 
-+	val = PHY_TXREQUESTCLKHS;
-+	if (dsi->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS)
-+		val |= AUTO_CLKLANE_CTRL;
-+	dsi_write(dsi, DSI_LPCLK_CTRL, val);
-+
- 	dsi_write(dsi, DSI_PWR_UP, POWERUP);
- }
- 
--- 
-2.27.0
-
 
 
