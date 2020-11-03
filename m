@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCF92A554A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B492A54DE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388367AbgKCVIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:08:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47452 "EHLO mail.kernel.org"
+        id S2389018AbgKCVM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388386AbgKCVIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:02 -0500
+        id S2389005AbgKCVMW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 564EE20757;
-        Tue,  3 Nov 2020 21:08:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F599205ED;
+        Tue,  3 Nov 2020 21:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437681;
-        bh=IIAOtgt89gqbo9vAelAbodztDRMXT2h/qI7NZYHRdWQ=;
+        s=default; t=1604437941;
+        bh=QcjLQQs54DO6qhBzR6vK6PffrElmeiwiHpPcSJKYfdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNwjLo9bzvKSUlLTJOYKWN0NWqQ2rDsZn8rDSVYqGQDU8W0hTIvKwX1GZSzeeG9PK
-         yvp8iLU/Drt1m29YgkHDGt+Lytpx3g3ZtZZwh5CvovUI7Gla1wHeNfr1BEg4lKnJPy
-         NP8FiqEiQgI7rsNWX30dZwV1oazv44jKbaLA4bRY=
+        b=HgAbPXu9tXqpYrvu8/60UTEDfCku9adwyXszCz1Qp9JyVPv0A6nKGwIp59P/GXNzY
+         /iJxmQoV3CtEgoPi4Gv6ViIb+WLXpj24+NMqbPkQAq5RfjVaDBTGhcThoLzPjOJ03W
+         9YsUd+vZadSmUbZYrPfZN3Mq7cCUZPrDG0k2o7/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 181/191] cachefiles: Handle readpage error correctly
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.14 096/125] NFSD: Add missing NFSv2 .pc_func methods
 Date:   Tue,  3 Nov 2020 21:37:53 +0100
-Message-Id: <20201103203249.646289926@linuxfoundation.org>
+Message-Id: <20201103203210.905108227@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 9480b4e75b7108ee68ecf5bc6b4bd68e8031c521 upstream.
+commit 6b3dccd48de8a4c650b01499a0b09d1e2279649e upstream.
 
-If ->readpage returns an error, it has already unlocked the page.
+There's no protection in nfsd_dispatch() against a NULL .pc_func
+helpers. A malicious NFS client can trigger a crash by invoking the
+unused/unsupported NFSv2 ROOT or WRITECACHE procedures.
 
-Fixes: 5e929b33c393 ("CacheFiles: Handle truncate unlocking the page we're reading")
-Cc: stable@vger.kernel.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The current NFSD dispatcher does not support returning a void reply
+to a non-NULL procedure, so the reply to both of these is wrong, for
+the moment.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cachefiles/rdwr.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfsd/nfsproc.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/fs/cachefiles/rdwr.c
-+++ b/fs/cachefiles/rdwr.c
-@@ -125,7 +125,7 @@ static int cachefiles_read_reissue(struc
- 		_debug("reissue read");
- 		ret = bmapping->a_ops->readpage(NULL, backpage);
- 		if (ret < 0)
--			goto unlock_discard;
-+			goto discard;
- 	}
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -118,6 +118,13 @@ done:
+ 	return nfsd_return_attrs(nfserr, resp);
+ }
  
- 	/* but the page may have been read before the monitor was installed, so
-@@ -142,6 +142,7 @@ static int cachefiles_read_reissue(struc
++/* Obsolete, replaced by MNTPROC_MNT. */
++static __be32
++nfsd_proc_root(struct svc_rqst *rqstp)
++{
++	return nfs_ok;
++}
++
+ /*
+  * Look up a path name component
+  * Note: the dentry in the resp->fh may be negative if the file
+@@ -201,6 +208,13 @@ nfsd_proc_read(struct svc_rqst *rqstp)
+ 	return fh_getattr(&resp->fh, &resp->stat);
+ }
  
- unlock_discard:
- 	unlock_page(backpage);
-+discard:
- 	spin_lock_irq(&object->work_lock);
- 	list_del(&monitor->op_link);
- 	spin_unlock_irq(&object->work_lock);
++/* Reserved */
++static __be32
++nfsd_proc_writecache(struct svc_rqst *rqstp)
++{
++	return nfs_ok;
++}
++
+ /*
+  * Write data to a file
+  * N.B. After this call resp->fh needs an fh_put
+@@ -605,6 +619,7 @@ static const struct svc_procedure nfsd_p
+ 		.pc_xdrressize = ST+AT,
+ 	},
+ 	[NFSPROC_ROOT] = {
++		.pc_func = nfsd_proc_root,
+ 		.pc_decode = nfssvc_decode_void,
+ 		.pc_encode = nfssvc_encode_void,
+ 		.pc_argsize = sizeof(struct nfsd_void),
+@@ -642,6 +657,7 @@ static const struct svc_procedure nfsd_p
+ 		.pc_xdrressize = ST+AT+1+NFSSVC_MAXBLKSIZE_V2/4,
+ 	},
+ 	[NFSPROC_WRITECACHE] = {
++		.pc_func = nfsd_proc_writecache,
+ 		.pc_decode = nfssvc_decode_void,
+ 		.pc_encode = nfssvc_encode_void,
+ 		.pc_argsize = sizeof(struct nfsd_void),
 
 
