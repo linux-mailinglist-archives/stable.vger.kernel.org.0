@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C1E2A57AE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6052A57A7
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732360AbgKCVpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:45:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
+        id S1732384AbgKCVox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:44:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732367AbgKCUxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:53:34 -0500
+        id S1732398AbgKCUxj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 600BC223AC;
-        Tue,  3 Nov 2020 20:53:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08AC2223AC;
+        Tue,  3 Nov 2020 20:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436813;
-        bh=f0Gbn9jbJqxfQbUcd7yt9h1zWmYOK/yFEO9uOh39WtA=;
+        s=default; t=1604436818;
+        bh=FDjv7/GP74kViAPyzHTiGNcwb3r9wz+Yjof7yOL2894=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvIfjH3Elgn5Ma1GY7fOzVgEdJgPvOAjcVEk8DahveWSjSGeoYRVjTI2ExSx/N2uR
-         yNQcL+nRou7J3xwwhxQJ4WuoWsQDjOfKBPA30UGQcJyw8Nh1rXiRDJ+0MesArZd16m
-         bA369D/XabXKvN2ZbtMreMLO5hZUQZWyaYHGYBxA=
+        b=L7glqPhcVB9Nb4EahAKotU7jdRr50e57pAQcCgWM3GumTgsrwAhUu5wCi5xUlHzoV
+         x3XY4kLFz38XG0PvM+Si/qGJ8Y2UGW1QEQt5RJs2ut3/vR/EuwM2Hdqszs35DaYNR1
+         161IauF5kPcjVhIzOoF30umR8VyNMeBObovHwGAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/214] mm: fix exec activate_mm vs TLB shootdown and lazy tlb switching race
-Date:   Tue,  3 Nov 2020 21:34:30 +0100
-Message-Id: <20201103203252.045316664@linuxfoundation.org>
+Subject: [PATCH 5.4 024/214] sparc64: remove mm_cpumask clearing to fix kthread_use_mm race
+Date:   Tue,  3 Nov 2020 21:34:32 +0100
+Message-Id: <20201103203252.262953314@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -46,112 +46,175 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit d53c3dfb23c45f7d4f910c3a3ca84bf0a99c6143 ]
+[ Upstream commit bafb056ce27940c9994ea905336aa8f27b4f7275 ]
 
-Reading and modifying current->mm and current->active_mm and switching
-mm should be done with irqs off, to prevent races seeing an intermediate
-state.
+The de facto (and apparently uncommented) standard for using an mm had,
+thanks to this code in sparc if nothing else, been that you must have a
+reference on mm_users *and that reference must have been obtained with
+mmget()*, i.e., from a thread with a reference to mm_users that had used
+the mm.
 
-This is similar to commit 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB
-invalidate"). At exec-time when the new mm is activated, the old one
-should usually be single-threaded and no longer used, unless something
-else is holding an mm_users reference (which may be possible).
+The introduction of mmget_not_zero() in commit d2005e3f41d4
+("userfaultfd: don't pin the user memory in userfaultfd_file_create()")
+allowed mm_count holders to aoperate on user mappings asynchronously
+from the actual threads using the mm, but they were not to load those
+mappings into their TLB (i.e., walking vmas and page tables is okay,
+kthread_use_mm() is not).
 
-Absent other mm_users, there is also a race with preemption and lazy tlb
-switching. Consider the kernel_execve case where the current thread is
-using a lazy tlb active mm:
+io_uring 2b188cc1bb857 ("Add io_uring IO interface") added code which
+does a kthread_use_mm() from a mmget_not_zero() refcount.
 
-  call_usermodehelper()
-    kernel_execve()
-      old_mm = current->mm;
-      active_mm = current->active_mm;
-      *** preempt *** -------------------->  schedule()
-                                               prev->active_mm = NULL;
-                                               mmdrop(prev active_mm);
-                                             ...
-                      <--------------------  schedule()
-      current->mm = mm;
-      current->active_mm = mm;
-      if (!old_mm)
-          mmdrop(active_mm);
+The problem with this is code which previously assumed mm == current->mm
+and mm->mm_users == 1 implies the mm will remain single-threaded at
+least until this thread creates another mm_users reference, has now
+broken.
 
-If we switch back to the kernel thread from a different mm, there is a
-double free of the old active_mm, and a missing free of the new one.
+arch/sparc/kernel/smp_64.c:
 
-Closing this race only requires interrupts to be disabled while ->mm
-and ->active_mm are being switched, but the TLB problem requires also
-holding interrupts off over activate_mm. Unfortunately not all archs
-can do that yet, e.g., arm defers the switch if irqs are disabled and
-expects finish_arch_post_lock_switch() to be called to complete the
-flush; um takes a blocking lock in activate_mm().
+    if (atomic_read(&mm->mm_users) == 1) {
+        cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
+        goto local_flush_and_out;
+    }
 
-So as a first step, disable interrupts across the mm/active_mm updates
-to close the lazy tlb preempt race, and provide an arch option to
-extend that to activate_mm which allows architectures doing IPI based
-TLB shootdowns to close the second race.
+vs fs/io_uring.c
 
-This is a bit ugly, but in the interest of fixing the bug and backporting
-before all architectures are converted this is a compromise.
+    if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
+                 !mmget_not_zero(ctx->sqo_mm)))
+        return -EFAULT;
+    kthread_use_mm(ctx->sqo_mm);
+
+mmget_not_zero() could come in right after the mm_users == 1 test, then
+kthread_use_mm() which sets its CPU in the mm_cpumask. That update could
+be lost if cpumask_copy() occurs afterward.
+
+I propose we fix this by allowing mmget_not_zero() to be a first-class
+reference, and not have this obscure undocumented and unchecked
+restriction.
+
+The basic fix for sparc64 is to remove its mm_cpumask clearing code. The
+optimisation could be effectively restored by sending IPIs to mm_cpumask
+members and having them remove themselves from mm_cpumask. This is more
+tricky so I leave it as an exercise for someone with a sparc64 SMP.
+powerpc has a (currently similarly broken) example.
 
 Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-2-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20200914045219.3736466-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/Kconfig |  7 +++++++
- fs/exec.c    | 17 +++++++++++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ arch/sparc/kernel/smp_64.c | 65 ++++++++------------------------------
+ 1 file changed, 14 insertions(+), 51 deletions(-)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 238dccfa76910..84653a823d3b0 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -405,6 +405,13 @@ config MMU_GATHER_NO_RANGE
- config HAVE_MMU_GATHER_NO_GATHER
- 	bool
+diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
+index a8275fea4b70c..aa81c25b44cf3 100644
+--- a/arch/sparc/kernel/smp_64.c
++++ b/arch/sparc/kernel/smp_64.c
+@@ -1039,38 +1039,9 @@ void smp_fetch_global_pmu(void)
+  * are flush_tlb_*() routines, and these run after flush_cache_*()
+  * which performs the flushw.
+  *
+- * The SMP TLB coherency scheme we use works as follows:
+- *
+- * 1) mm->cpu_vm_mask is a bit mask of which cpus an address
+- *    space has (potentially) executed on, this is the heuristic
+- *    we use to avoid doing cross calls.
+- *
+- *    Also, for flushing from kswapd and also for clones, we
+- *    use cpu_vm_mask as the list of cpus to make run the TLB.
+- *
+- * 2) TLB context numbers are shared globally across all processors
+- *    in the system, this allows us to play several games to avoid
+- *    cross calls.
+- *
+- *    One invariant is that when a cpu switches to a process, and
+- *    that processes tsk->active_mm->cpu_vm_mask does not have the
+- *    current cpu's bit set, that tlb context is flushed locally.
+- *
+- *    If the address space is non-shared (ie. mm->count == 1) we avoid
+- *    cross calls when we want to flush the currently running process's
+- *    tlb state.  This is done by clearing all cpu bits except the current
+- *    processor's in current->mm->cpu_vm_mask and performing the
+- *    flush locally only.  This will force any subsequent cpus which run
+- *    this task to flush the context from the local tlb if the process
+- *    migrates to another cpu (again).
+- *
+- * 3) For shared address spaces (threads) and swapping we bite the
+- *    bullet for most cases and perform the cross call (but only to
+- *    the cpus listed in cpu_vm_mask).
+- *
+- *    The performance gain from "optimizing" away the cross call for threads is
+- *    questionable (in theory the big win for threads is the massive sharing of
+- *    address space state across processors).
++ * mm->cpu_vm_mask is a bit mask of which cpus an address
++ * space has (potentially) executed on, this is the heuristic
++ * we use to limit cross calls.
+  */
  
-+config ARCH_WANT_IRQS_OFF_ACTIVATE_MM
-+	bool
-+	help
-+	  Temporary select until all architectures can be converted to have
-+	  irqs disabled over activate_mm. Architectures that do IPI based TLB
-+	  shootdowns should enable this.
+ /* This currently is only used by the hugetlb arch pre-fault
+@@ -1080,18 +1051,13 @@ void smp_fetch_global_pmu(void)
+ void smp_flush_tlb_mm(struct mm_struct *mm)
+ {
+ 	u32 ctx = CTX_HWBITS(mm->context);
+-	int cpu = get_cpu();
+ 
+-	if (atomic_read(&mm->mm_users) == 1) {
+-		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
+-		goto local_flush_and_out;
+-	}
++	get_cpu();
+ 
+ 	smp_cross_call_masked(&xcall_flush_tlb_mm,
+ 			      ctx, 0, 0,
+ 			      mm_cpumask(mm));
+ 
+-local_flush_and_out:
+ 	__flush_tlb_mm(ctx, SECONDARY_CONTEXT);
+ 
+ 	put_cpu();
+@@ -1114,17 +1080,15 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
+ {
+ 	u32 ctx = CTX_HWBITS(mm->context);
+ 	struct tlb_pending_info info;
+-	int cpu = get_cpu();
 +
- config ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	bool
++	get_cpu();
  
-diff --git a/fs/exec.c b/fs/exec.c
-index de833553ae27d..2441eb1a1e2d0 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1044,11 +1044,24 @@ static int exec_mmap(struct mm_struct *mm)
- 	}
+ 	info.ctx = ctx;
+ 	info.nr = nr;
+ 	info.vaddrs = vaddrs;
  
- 	task_lock(tsk);
--	active_mm = tsk->active_mm;
- 	membarrier_exec_mmap(mm);
--	tsk->mm = mm;
+-	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
+-		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
+-	else
+-		smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
+-				       &info, 1);
++	smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
++			       &info, 1);
+ 
+ 	__flush_tlb_pending(ctx, nr, vaddrs);
+ 
+@@ -1134,14 +1098,13 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
+ void smp_flush_tlb_page(struct mm_struct *mm, unsigned long vaddr)
+ {
+ 	unsigned long context = CTX_HWBITS(mm->context);
+-	int cpu = get_cpu();
+ 
+-	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
+-		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
+-	else
+-		smp_cross_call_masked(&xcall_flush_tlb_page,
+-				      context, vaddr, 0,
+-				      mm_cpumask(mm));
++	get_cpu();
 +
-+	local_irq_disable();
-+	active_mm = tsk->active_mm;
- 	tsk->active_mm = mm;
-+	tsk->mm = mm;
-+	/*
-+	 * This prevents preemption while active_mm is being loaded and
-+	 * it and mm are being updated, which could cause problems for
-+	 * lazy tlb mm refcounting when these are updated by context
-+	 * switches. Not all architectures can handle irqs off over
-+	 * activate_mm yet.
-+	 */
-+	if (!IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
-+		local_irq_enable();
- 	activate_mm(active_mm, mm);
-+	if (IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
-+		local_irq_enable();
- 	tsk->mm->vmacache_seqnum = 0;
- 	vmacache_flush(tsk);
- 	task_unlock(tsk);
++	smp_cross_call_masked(&xcall_flush_tlb_page,
++			      context, vaddr, 0,
++			      mm_cpumask(mm));
++
+ 	__flush_tlb_page(context, vaddr);
+ 
+ 	put_cpu();
 -- 
 2.27.0
 
