@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D60A2A5205
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B0B02A52CC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730596AbgKCUqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34866 "EHLO mail.kernel.org"
+        id S1732296AbgKCUx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:53:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731125AbgKCUqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:00 -0500
+        id S1732263AbgKCUxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BEFA22404;
-        Tue,  3 Nov 2020 20:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27EE8223BD;
+        Tue,  3 Nov 2020 20:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436359;
-        bh=CActLLvD+q74dzhnUMx7ltTT/sprag6VygVBUVQD3HI=;
+        s=default; t=1604436804;
+        bh=pad5wb2kwB7Ic5WG+XZQfY9Tr/exb1vs9d3gQhxGlKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REigPqKFDuP+L2WCZyhnFHTAVeLK6WhvBkZJhfM5OBkEIkk0HMxAnVCbVC9fli3R+
-         6krt8KW+DgWqHChDTt98ScPjrhh+gIOf4M9G1cYUM7KKLk2l7Aoy77OZZGNsViAzv4
-         HMWevrvtY1j/ibOpGBvMd8SrnxOU0XnDCDzP3re0=
+        b=v4uM06+Axn6FxO/71068x6mjBY1Vf95ZEPbStHKkxXU4uRaKJu8GK5s4+C6CBLMZN
+         SRKiA4qKF/Hmovn4aj/oQl5WG9XOv6yPMzJz4t2k5MoNBbp3h2x3B/JfJ2MZibyplB
+         1kEe4mDLQZaeK8V/8hyxLz4VLw3btxhmvSDqy7KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Scott Branden <scott.branden@broadcom.com>
-Subject: [PATCH 5.9 215/391] fs/kernel_read_file: Remove FIRMWARE_PREALLOC_BUFFER enum
-Date:   Tue,  3 Nov 2020 21:34:26 +0100
-Message-Id: <20201103203401.441677789@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 019/214] ata: sata_nv: Fix retrieving of active qcs
+Date:   Tue,  3 Nov 2020 21:34:27 +0100
+Message-Id: <20201103203251.704787997@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,159 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit c307459b9d1fcb8bbf3ea5a4162979532322ef77 upstream.
+[ Upstream commit 8e4c309f9f33b76c09daa02b796ef87918eee494 ]
 
-FIRMWARE_PREALLOC_BUFFER is a "how", not a "what", and confuses the LSMs
-that are interested in filtering between types of things. The "how"
-should be an internal detail made uninteresting to the LSMs.
+ata_qc_complete_multiple() has to be called with the tags physically
+active, that is the hw tag is at bit 0. ap->qc_active has the same tag
+at bit ATA_TAG_INTERNAL instead, so call ata_qc_get_active() to fix that
+up. This is done in the vein of 8385d756e114 ("libata: Fix retrieving of
+active qcs").
 
-Fixes: a098ecd2fa7d ("firmware: support loading into a pre-allocated buffer")
-Fixes: fd90bc559bfb ("ima: based on policy verify firmware signatures (pre-allocated buffer)")
-Fixes: 4f0496d8ffa3 ("ima: based on policy warn about loading firmware (pre-allocated buffer)")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Acked-by: Scott Branden <scott.branden@broadcom.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201002173828.2099543-2-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 28361c403683 ("libata: add extra internal command")
+Tested-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/firmware_loader/main.c |    5 ++---
- fs/exec.c                           |    7 ++++---
- include/linux/fs.h                  |    1 -
- kernel/module.c                     |    2 +-
- security/integrity/digsig.c         |    2 +-
- security/integrity/ima/ima_fs.c     |    2 +-
- security/integrity/ima/ima_main.c   |    6 ++----
- 7 files changed, 11 insertions(+), 14 deletions(-)
+ drivers/ata/sata_nv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -470,14 +470,12 @@ fw_get_filesystem_firmware(struct device
- 	int i, len;
- 	int rc = -ENOENT;
- 	char *path;
--	enum kernel_read_file_id id = READING_FIRMWARE;
- 	size_t msize = INT_MAX;
- 	void *buffer = NULL;
+diff --git a/drivers/ata/sata_nv.c b/drivers/ata/sata_nv.c
+index 18b147c182b96..0514aa7e80e39 100644
+--- a/drivers/ata/sata_nv.c
++++ b/drivers/ata/sata_nv.c
+@@ -2100,7 +2100,7 @@ static int nv_swncq_sdbfis(struct ata_port *ap)
+ 	pp->dhfis_bits &= ~done_mask;
+ 	pp->dmafis_bits &= ~done_mask;
+ 	pp->sdbfis_bits |= done_mask;
+-	ata_qc_complete_multiple(ap, ap->qc_active ^ done_mask);
++	ata_qc_complete_multiple(ap, ata_qc_get_active(ap) ^ done_mask);
  
- 	/* Already populated data member means we're loading into a buffer */
- 	if (!decompress && fw_priv->data) {
- 		buffer = fw_priv->data;
--		id = READING_FIRMWARE_PREALLOC_BUFFER;
- 		msize = fw_priv->allocated_size;
- 	}
- 
-@@ -501,7 +499,8 @@ fw_get_filesystem_firmware(struct device
- 
- 		/* load firmware files from the mount namespace of init */
- 		rc = kernel_read_file_from_path_initns(path, &buffer,
--						       &size, msize, id);
-+						       &size, msize,
-+						       READING_FIRMWARE);
- 		if (rc) {
- 			if (rc != -ENOENT)
- 				dev_warn(device, "loading %s failed with error %d\n",
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -955,6 +955,7 @@ int kernel_read_file(struct file *file,
- {
- 	loff_t i_size, pos;
- 	ssize_t bytes = 0;
-+	void *allocated = NULL;
- 	int ret;
- 
- 	if (!S_ISREG(file_inode(file)->i_mode) || max_size < 0)
-@@ -978,8 +979,8 @@ int kernel_read_file(struct file *file,
- 		goto out;
- 	}
- 
--	if (id != READING_FIRMWARE_PREALLOC_BUFFER)
--		*buf = vmalloc(i_size);
-+	if (!*buf)
-+		*buf = allocated = vmalloc(i_size);
- 	if (!*buf) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -1008,7 +1009,7 @@ int kernel_read_file(struct file *file,
- 
- out_free:
- 	if (ret < 0) {
--		if (id != READING_FIRMWARE_PREALLOC_BUFFER) {
-+		if (allocated) {
- 			vfree(*buf);
- 			*buf = NULL;
- 		}
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2861,7 +2861,6 @@ extern int do_pipe_flags(int *, int);
- #define __kernel_read_file_id(id) \
- 	id(UNKNOWN, unknown)		\
- 	id(FIRMWARE, firmware)		\
--	id(FIRMWARE_PREALLOC_BUFFER, firmware)	\
- 	id(MODULE, kernel-module)		\
- 	id(KEXEC_IMAGE, kexec-image)		\
- 	id(KEXEC_INITRAMFS, kexec-initramfs)	\
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -4028,7 +4028,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, c
- {
- 	struct load_info info = { };
- 	loff_t size;
--	void *hdr;
-+	void *hdr = NULL;
- 	int err;
- 
- 	err = may_init_module();
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -169,7 +169,7 @@ int __init integrity_add_key(const unsig
- 
- int __init integrity_load_x509(const unsigned int id, const char *path)
- {
--	void *data;
-+	void *data = NULL;
- 	loff_t size;
- 	int rc;
- 	key_perm_t perm;
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -272,7 +272,7 @@ static const struct file_operations ima_
- 
- static ssize_t ima_read_policy(char *path)
- {
--	void *data;
-+	void *data = NULL;
- 	char *datap;
- 	loff_t size;
- 	int rc, pathlen = strlen(path);
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -621,19 +621,17 @@ void ima_post_path_mknod(struct dentry *
- int ima_read_file(struct file *file, enum kernel_read_file_id read_id)
- {
- 	/*
--	 * READING_FIRMWARE_PREALLOC_BUFFER
--	 *
- 	 * Do devices using pre-allocated memory run the risk of the
- 	 * firmware being accessible to the device prior to the completion
- 	 * of IMA's signature verification any more than when using two
--	 * buffers?
-+	 * buffers? It may be desirable to include the buffer address
-+	 * in this API and walk all the dma_map_single() mappings to check.
- 	 */
- 	return 0;
- }
- 
- const int read_idmap[READING_MAX_ID] = {
- 	[READING_FIRMWARE] = FIRMWARE_CHECK,
--	[READING_FIRMWARE_PREALLOC_BUFFER] = FIRMWARE_CHECK,
- 	[READING_MODULE] = MODULE_CHECK,
- 	[READING_KEXEC_IMAGE] = KEXEC_KERNEL_CHECK,
- 	[READING_KEXEC_INITRAMFS] = KEXEC_INITRAMFS_CHECK,
+ 	if (!ap->qc_active) {
+ 		DPRINTK("over\n");
+-- 
+2.27.0
+
 
 
