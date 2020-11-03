@@ -2,130 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA272A4C3A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 18:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E9B2A4C62
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 18:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbgKCREh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 12:04:37 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33862 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728066AbgKCREh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 12:04:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604423076;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=P6Nqd/GTymSo6mkhELu0bxwV3r/gwkmZPBYT64Awjzw=;
-        b=HeLwgTjMWvS9joUSbXxBccGlOhrjx6Ozo7/Fj7AFn4UpJyx0ZwBb8RTtacfdnOCrREGPkr
-        ZsThG3Ff4FWNV+2iHFeNFL7D5TOVBOisAUBp/rEL6xFt6RhtV1H1Uy1q1vVdxlvH9tGDkC
-        xUP/VstOqX+yJU2RGvwlut4TXlMC50c=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-223-KpLTPoZWOfupDhFsdP9b-g-1; Tue, 03 Nov 2020 12:04:34 -0500
-X-MC-Unique: KpLTPoZWOfupDhFsdP9b-g-1
-Received: by mail-pf1-f197.google.com with SMTP id x9so1765165pff.10
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 09:04:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=P6Nqd/GTymSo6mkhELu0bxwV3r/gwkmZPBYT64Awjzw=;
-        b=JgqH0eKVesNOrmJ/a/q2ISROHzPfoFv4zShnLHfeeJN8e7UMe/gbfT9jJ6EO5CXUrU
-         076RfltGykzfkHpZvCOrTKVFrUIuN8GqcMJSNO38tFjQYeVzyy4nxW7l3A9IGFgIerO4
-         kUtGSARF9TmsCtxlgOwngvGIU5Qg+qYwoZDDNVZBLTsSVHlC75YftVTLENopQg9uqG15
-         mk9RgyFCvTFy1yXbJJDkftVsS/xP6saT1WcunUhdfGwRD2tUvCUT19fXkjwOBpH7Emk9
-         94wOKXsVpTy7iVZ/7rJp5/YgfBUGhe54lBkKPY+d8TKZSpqa0qqomof3UbTJMieTaX00
-         A2jw==
-X-Gm-Message-State: AOAM530DavPano4OWY1R0W6VqENjEczu9oy8czmGepk9oIfCuDjugE6Z
-        O/MFdkwPM6zAdl4qQlTvreitkVDrFUHcfc9d//UsXpsr0D5OQsnWD4yP7z6nIc/kIjw4GH9TjTx
-        hNFVCxBRk8cY9qtb8
-X-Received: by 2002:a17:90a:7089:: with SMTP id g9mr160163pjk.4.1604423072875;
-        Tue, 03 Nov 2020 09:04:32 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzKrStQIiawQJXfEFp92+BAuOv0tSVW7WzCsy3loX2ZPEWNt9Fyvdp3RWqxou54wmyvUe6r9g==
-X-Received: by 2002:a17:90a:7089:: with SMTP id g9mr160141pjk.4.1604423072675;
-        Tue, 03 Nov 2020 09:04:32 -0800 (PST)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id v24sm15775598pgi.91.2020.11.03.09.04.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 09:04:31 -0800 (PST)
-Date:   Wed, 4 Nov 2020 01:04:21 +0800
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Chao Yu <chao@kernel.org>
-Cc:     Chao Yu <yuchao0@huawei.com>, linux-erofs@lists.ozlabs.org,
-        LKML <linux-kernel@vger.kernel.org>, nl6720 <nl6720@gmail.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] erofs: derive atime instead of leaving it empty
-Message-ID: <20201103170421.GB886627@xiangao.remote.csb>
-References: <20201031195102.21221-1-hsiangkao.ref@aol.com>
- <20201031195102.21221-1-hsiangkao@aol.com>
- <20201103025033.GA788000@xiangao.remote.csb>
- <275b73d7-9865-91c0-ecf2-bceed09a4dae@kernel.org>
+        id S1727706AbgKCRL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 12:11:58 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37636 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727530AbgKCRL6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 12:11:58 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A3H4rTv155482;
+        Tue, 3 Nov 2020 12:11:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7t6VQbq+UBMcFU+y3HOIFcGYkl/sQCQCIRqMqJzFNpU=;
+ b=ZxIx8/86AdM8NgrtMHAVOjSE6ZucjR7JjpHqJFK4zf3I5/OfRhgUeMtrsKmJ36ffpf8k
+ C9NBHxjYr6tPsuYbqckjzu+mdPKPYwsXiTS28uY/noqrWhLUsUEmTQ0GA0r1l+eX/khz
+ UDXJHJM+LzTy6iKiXxqnBbeiiF4MxrqTfNRvlrOaR4HXaVemD403g0cuH69dMTwgM974
+ t/GR8iR4Lw4gCuvgMwKkCbyJn7hl6oTRjBpiwEScxTpLZLs9/Z4oqpBs7qQHLS3za7Tr
+ IRheA2KlZd0TpHHUOfSCMFnO7tTYtzKhnlCmyxCVvLNH54jWhLl29qoIsjnJ33fCsdo6 Rw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34k12uuv2r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Nov 2020 12:11:21 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A3H7Qhh018964;
+        Tue, 3 Nov 2020 17:11:19 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 34hm6haqfp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Nov 2020 17:11:18 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A3HBGxE2687652
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Nov 2020 17:11:16 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A1B51A4055;
+        Tue,  3 Nov 2020 17:11:16 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19EC4A404D;
+        Tue,  3 Nov 2020 17:11:16 +0000 (GMT)
+Received: from pomme.local (unknown [9.145.79.178])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  3 Nov 2020 17:11:16 +0000 (GMT)
+Subject: Re: [PATCH] x86/mpx: fix recursive munmap() corruption
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, mhocko@suse.com,
+        rguenther@suse.de, x86@kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        luto@amacapital.net, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev@lists.ozlabs.org, vbabka@suse.cz
+References: <20190401141549.3F4721FE@viggo.jf.intel.com>
+ <alpine.DEB.2.21.1904191248090.3174@nanos.tec.linutronix.de>
+ <87d0lht1c0.fsf@concordia.ellerman.id.au>
+ <6718ede2-1fcb-1a8f-a116-250eef6416c7@linux.vnet.ibm.com>
+ <4f43d4d4-832d-37bc-be7f-da0da735bbec@intel.com>
+ <4e1bbb14-e14f-8643-2072-17b4cdef5326@linux.vnet.ibm.com>
+ <87k1faa2i0.fsf@concordia.ellerman.id.au>
+ <9c2b2826-4083-fc9c-5a4d-c101858dd560@linux.vnet.ibm.com>
+ <12313ba8-75b5-d44d-dbc0-0bf2c87dfb59@csgroup.eu>
+From:   Laurent Dufour <ldufour@linux.vnet.ibm.com>
+Message-ID: <452b347c-0a86-c710-16ba-5a98c12a47e3@linux.vnet.ibm.com>
+Date:   Tue, 3 Nov 2020 18:11:15 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <275b73d7-9865-91c0-ecf2-bceed09a4dae@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <12313ba8-75b5-d44d-dbc0-0bf2c87dfb59@csgroup.eu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-03_08:2020-11-03,2020-11-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999
+ priorityscore=1501 clxscore=1011 impostorscore=0 phishscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011030110
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chao,
-
-On Tue, Nov 03, 2020 at 11:58:42PM +0800, Chao Yu wrote:
-> Hi Xiang,
+Le 23/10/2020 à 14:28, Christophe Leroy a écrit :
+> Hi Laurent
 > 
-> On 2020-11-3 10:50, Gao Xiang wrote:
-> > Hi Chao,
-> > 
-> > On Sun, Nov 01, 2020 at 03:51:02AM +0800, Gao Xiang wrote:
-> > > From: Gao Xiang <hsiangkao@redhat.com>
-> > > 
-> > > EROFS has _only one_ ondisk timestamp (ctime is currently
-> > > documented and recorded, we might also record mtime instead
-> > > with a new compat feature if needed) for each extended inode
-> > > since EROFS isn't mainly for archival purposes so no need to
-> > > keep all timestamps on disk especially for Android scenarios
-> > > due to security concerns. Also, romfs/cramfs don't have their
-> > > own on-disk timestamp, and squashfs only records mtime instead.
-> > > 
-> > > Let's also derive access time from ondisk timestamp rather than
-> > > leaving it empty, and if mtime/atime for each file are really
-> > > needed for specific scenarios as well, we can also use xattrs
-> > > to record them then.
-> > > 
-> > > Reported-by: nl6720 <nl6720@gmail.com>
-> > > [ Gao Xiang: It'd be better to backport for user-friendly concern. ]
-> > > Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-> > > Cc: stable <stable@vger.kernel.org> # 4.19+
-> > > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-> > 
-> > May I ask for some extra free slots to review this patch plus
-> > [PATCH 1/4] of
-> > https://lore.kernel.org/r/20201022145724.27284-1-hsiangkao@aol.com
-> > 
-> > since it'd be also in linux-next for a while before sending out
-> > to Linus. And the debugging messages may also be an annoying
-> > thing for users.
+> Le 07/05/2019 à 18:35, Laurent Dufour a écrit :
+>> Le 01/05/2019 à 12:32, Michael Ellerman a écrit :
+>>> Laurent Dufour <ldufour@linux.vnet.ibm.com> writes:
+>>>> Le 23/04/2019 à 18:04, Dave Hansen a écrit :
+>>>>> On 4/23/19 4:16 AM, Laurent Dufour wrote:
+>>> ...
+>>>>>> There are 2 assumptions here:
+>>>>>>    1. 'start' and 'end' are page aligned (this is guaranteed by 
+>>>>>> __do_munmap().
+>>>>>>    2. the VDSO is 1 page (this is guaranteed by the union vdso_data_store 
+>>>>>> on powerpc)
+>>>>>
+>>>>> Are you sure about #2?  The 'vdso64_pages' variable seems rather
+>>>>> unnecessary if the VDSO is only 1 page. ;)
+>>>>
+>>>> Hum, not so sure now ;)
+>>>> I got confused, only the header is one page.
+>>>> The test is working as a best effort, and don't cover the case where
+>>>> only few pages inside the VDSO are unmmapped (start >
+>>>> mm->context.vdso_base). This is not what CRIU is doing and so this was
+>>>> enough for CRIU support.
+>>>>
+>>>> Michael, do you think there is a need to manage all the possibility
+>>>> here, since the only user is CRIU and unmapping the VDSO is not a so
+>>>> good idea for other processes ?
+>>>
+>>> Couldn't we implement the semantic that if any part of the VDSO is
+>>> unmapped then vdso_base is set to zero? That should be fairly easy, eg:
+>>>
+>>>     if (start < vdso_end && end >= mm->context.vdso_base)
+>>>         mm->context.vdso_base = 0;
+>>>
+>>>
+>>> We might need to add vdso_end to the mm->context, but that should be OK.
+>>>
+>>> That seems like it would work for CRIU and make sense in general?
+>>
+>> Sorry for the late answer, yes this would make more sense.
+>>
+>> Here is a patch doing that.
+>>
 > 
-> Sorry for the delay review, will check the details tomorrow. :)
-
-No problem, thanks! If we'd like to submit a -fixes pull request,
-it'd be better not to be in the latter half of 5.10 rc... And
-considering that it'd be stayed in linux-next for almost a week,
-so yeah... (Only these 2 patches are considered for -fixes for now.)
-
-Thanks.
-Gao Xiang
-
+> In your patch, the test seems overkill:
 > 
-> Thanks,
+> +    if ((start <= vdso_base && vdso_end <= end) ||  /* 1   */
+> +        (vdso_base <= start && start < vdso_end) || /* 3,4 */
+> +        (vdso_base < end && end <= vdso_end))       /* 2,3 */
+> +        mm->context.vdso_base = mm->context.vdso_end = 0;
 > 
-> > 
-> > Thanks a lot!
-> > 
-> > Thanks,
-> > Gao Xiang
-> > 
+> What about
 > 
+>      if (start < vdso_end && vdso_start < end)
+>          mm->context.vdso_base = mm->context.vdso_end = 0;
+> 
+> This should cover all cases, or am I missing something ?
+> 
+> 
+> And do we really need to store vdso_end in the context ?
+> I think it should be possible to re-calculate it: the size of the VDSO should be 
+> (&vdso32_end - &vdso32_start) + PAGE_SIZE for 32 bits VDSO, and (&vdso64_end - 
+> &vdso64_start) + PAGE_SIZE for the 64 bits VDSO.
 
+Thanks Christophe for the advise.
+
+That is covering all the cases, and indeed is similar to the Michael's proposal 
+I missed last year.
+
+I'll send a patch fixing this issue following your proposal.
+
+Cheers,
+Laurent.
