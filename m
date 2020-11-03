@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8A02A3F21
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:42:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391002A3F1E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727486AbgKCIl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 03:41:56 -0500
-Received: from mx2.suse.de ([195.135.220.15]:51128 "EHLO mx2.suse.de"
+        id S1726211AbgKCIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 03:41:55 -0500
+Received: from mx2.suse.de ([195.135.220.15]:51126 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726018AbgKCIly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 03:41:54 -0500
+        id S1727438AbgKCIlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 03:41:53 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
         t=1604392911;
@@ -18,18 +18,18 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=LxbAfCJEI3uTWLzbBAtEO6QWYOJCDsfJ30Ersr2IcUk=;
-        b=I1ajyRK/xH0bdOq1vALkCktEizfc0Fb2akVD+ZN4UKXzC1+rn6aJlCzvFlPwbU5sLHpmh5
-        E+Elu+Gwmdf3/ryI6wxEX2A1yIJxWK43MRN4ZytTIqRkChaYprnja0ztN4/tr/3XR+BIWz
-        DeuAqCyWm1ltR4AaciBO9jsBAPrxTGc=
+        bh=9xfDQC9VA6njrT5UUyux7fh3A70PklCSZb7nYFgiRGM=;
+        b=ezdQGCxu4pOv+guXmkDfiQhyffQBELYdw8EssnAsqUd/ERrn0GMQdImXpSJCBfpj7084OD
+        DHoV/oKNT/o2F6c4uKsGbJhmaN9G/ghFqvv9GD78Rbvfejky2Iv4Oskqe0mCN7M58/uHH0
+        TcA5Rv+tp8maD08Szy2ojqQ5MZToNH8=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 55F80B1EA
+        by mx2.suse.de (Postfix) with ESMTP id 6AC99B1EC
         for <stable@vger.kernel.org>; Tue,  3 Nov 2020 08:41:51 +0000 (UTC)
 From:   Juergen Gross <jgross@suse.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 07/13] xen/netback: use lateeoi irq binding
-Date:   Tue,  3 Nov 2020 09:41:44 +0100
-Message-Id: <20201103084150.8625-8-jgross@suse.com>
+Subject: [PATCH 08/13] xen/scsiback: use lateeoi irq binding
+Date:   Tue,  3 Nov 2020 09:41:45 +0100
+Message-Id: <20201103084150.8625-9-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201103084150.8625-1-jgross@suse.com>
 References: <20201103084150.8625-1-jgross@suse.com>
@@ -40,19 +40,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving netfront use the lateeoi
-irq binding for netback and unmask the event channel only just before
-going to sleep waiting for new events.
+to event storms triggered by a misbehaving scsifront use the lateeoi
+irq binding for scsiback and unmask the event channel only just before
+leaving the event handling function.
 
-Make sure not to issue an EOI when none is pending by introducing an
-eoi_pending element to struct xenvif_queue.
-
-When no request has been consumed set the spurious flag when sending
-the EOI for an interrupt.
+In case of a ring protocol error don't issue an EOI in order to avoid
+the possibility to use that for producing an event storm. This at once
+will result in no further call of scsiback_irq_fn(), so the ring_error
+struct member can be dropped and scsiback_do_cmd_fn() can signal the
+protocol error via a negative return value.
 
 This is part of XSA-332.
 
-This is upstream commit 23025393dbeb3b8b3b60ebfa724cdae384992e27
+This is upstream commit 86991b6e7ea6c613b7692f65106076943449b6b7
 
 Cc: stable@vger.kernel.org
 Reported-by: Julien Grall <julien@xen.org>
@@ -60,240 +60,84 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Reviewed-by: Wei Liu <wl@xen.org>
 ---
- drivers/net/xen-netback/common.h    | 15 +++++++
- drivers/net/xen-netback/interface.c | 61 ++++++++++++++++++++++++-----
- drivers/net/xen-netback/netback.c   | 11 +++++-
- drivers/net/xen-netback/rx.c        | 13 ++++--
- 4 files changed, 86 insertions(+), 14 deletions(-)
+ drivers/xen/xen-scsiback.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index 5b1d2e8402d9..347c796afd4e 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -140,6 +140,20 @@ struct xenvif_queue { /* Per-queue data for xenvif */
- 	char name[QUEUE_NAME_SIZE]; /* DEVNAME-qN */
- 	struct xenvif *vif; /* Parent VIF */
+diff --git a/drivers/xen/xen-scsiback.c b/drivers/xen/xen-scsiback.c
+index 992cb8fa272c..3243d917651a 100644
+--- a/drivers/xen/xen-scsiback.c
++++ b/drivers/xen/xen-scsiback.c
+@@ -91,7 +91,6 @@ struct vscsibk_info {
+ 	unsigned int irq;
  
-+	/*
-+	 * TX/RX common EOI handling.
-+	 * When feature-split-event-channels = 0, interrupt handler sets
-+	 * NETBK_COMMON_EOI, otherwise NETBK_RX_EOI and NETBK_TX_EOI are set
-+	 * by the RX and TX interrupt handlers.
-+	 * RX and TX handler threads will issue an EOI when either
-+	 * NETBK_COMMON_EOI or their specific bits (NETBK_RX_EOI or
-+	 * NETBK_TX_EOI) are set and they will reset those bits.
-+	 */
-+	atomic_t eoi_pending;
-+#define NETBK_RX_EOI		0x01
-+#define NETBK_TX_EOI		0x02
-+#define NETBK_COMMON_EOI	0x04
-+
- 	/* Use NAPI for guest TX */
- 	struct napi_struct napi;
- 	/* When feature-split-event-channels = 0, tx_irq = rx_irq. */
-@@ -356,6 +370,7 @@ int xenvif_dealloc_kthread(void *data);
+ 	struct vscsiif_back_ring ring;
+-	int ring_error;
  
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
- 
-+bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
- void xenvif_rx_action(struct xenvif_queue *queue);
- void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index 46008f284550..e61073c75142 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -76,12 +76,28 @@ int xenvif_schedulable(struct xenvif *vif)
- 		!vif->disabled;
+ 	spinlock_t ring_lock;
+ 	atomic_t nr_unreplied_reqs;
+@@ -723,7 +722,8 @@ static struct vscsibk_pend *prepare_pending_reqs(struct vscsibk_info *info,
+ 	return pending_req;
  }
  
-+static bool xenvif_handle_tx_interrupt(struct xenvif_queue *queue)
-+{
-+	bool rc;
-+
-+	rc = RING_HAS_UNCONSUMED_REQUESTS(&queue->tx);
-+	if (rc)
-+		napi_schedule(&queue->napi);
-+	return rc;
-+}
-+
- static irqreturn_t xenvif_tx_interrupt(int irq, void *dev_id)
+-static int scsiback_do_cmd_fn(struct vscsibk_info *info)
++static int scsiback_do_cmd_fn(struct vscsibk_info *info,
++			      unsigned int *eoi_flags)
  {
- 	struct xenvif_queue *queue = dev_id;
-+	int old;
+ 	struct vscsiif_back_ring *ring = &info->ring;
+ 	struct vscsiif_request ring_req;
+@@ -740,11 +740,12 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info)
+ 		rc = ring->rsp_prod_pvt;
+ 		pr_warn("Dom%d provided bogus ring requests (%#x - %#x = %u). Halting ring processing\n",
+ 			   info->domid, rp, rc, rp - rc);
+-		info->ring_error = 1;
+-		return 0;
++		return -EINVAL;
+ 	}
  
--	if (RING_HAS_UNCONSUMED_REQUESTS(&queue->tx))
--		napi_schedule(&queue->napi);
-+	old = atomic_fetch_or(NETBK_TX_EOI, &queue->eoi_pending);
-+	WARN(old & NETBK_TX_EOI, "Interrupt while EOI pending\n");
+ 	while ((rc != rp)) {
++		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
 +
-+	if (!xenvif_handle_tx_interrupt(queue)) {
-+		atomic_andnot(NETBK_TX_EOI, &queue->eoi_pending);
-+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
-+	}
+ 		if (RING_REQUEST_CONS_OVERFLOW(ring, rc))
+ 			break;
  
- 	return IRQ_HANDLED;
- }
-@@ -115,19 +131,46 @@ static int xenvif_poll(struct napi_struct *napi, int budget)
- 	return work_done;
- }
- 
-+static bool xenvif_handle_rx_interrupt(struct xenvif_queue *queue)
-+{
-+	bool rc;
-+
-+	rc = xenvif_have_rx_work(queue, false);
-+	if (rc)
-+		xenvif_kick_thread(queue);
-+	return rc;
-+}
-+
- static irqreturn_t xenvif_rx_interrupt(int irq, void *dev_id)
+@@ -803,13 +804,16 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info)
+ static irqreturn_t scsiback_irq_fn(int irq, void *dev_id)
  {
- 	struct xenvif_queue *queue = dev_id;
-+	int old;
+ 	struct vscsibk_info *info = dev_id;
++	int rc;
++	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
  
--	xenvif_kick_thread(queue);
-+	old = atomic_fetch_or(NETBK_RX_EOI, &queue->eoi_pending);
-+	WARN(old & NETBK_RX_EOI, "Interrupt while EOI pending\n");
+-	if (info->ring_error)
+-		return IRQ_HANDLED;
+-
+-	while (scsiback_do_cmd_fn(info))
++	while ((rc = scsiback_do_cmd_fn(info, &eoi_flags)) > 0)
+ 		cond_resched();
+ 
++	/* In case of a ring error we keep the event channel masked. */
++	if (!rc)
++		xen_irq_lateeoi(irq, eoi_flags);
 +
-+	if (!xenvif_handle_rx_interrupt(queue)) {
-+		atomic_andnot(NETBK_RX_EOI, &queue->eoi_pending);
-+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
-+	}
- 
  	return IRQ_HANDLED;
  }
  
- irqreturn_t xenvif_interrupt(int irq, void *dev_id)
- {
--	xenvif_tx_interrupt(irq, dev_id);
--	xenvif_rx_interrupt(irq, dev_id);
-+	struct xenvif_queue *queue = dev_id;
-+	int old;
-+
-+	old = atomic_fetch_or(NETBK_COMMON_EOI, &queue->eoi_pending);
-+	WARN(old, "Interrupt while EOI pending\n");
-+
-+	/* Use bitwise or as we need to call both functions. */
-+	if ((!xenvif_handle_tx_interrupt(queue) |
-+	     !xenvif_handle_rx_interrupt(queue))) {
-+		atomic_andnot(NETBK_COMMON_EOI, &queue->eoi_pending);
-+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
-+	}
+@@ -830,7 +834,7 @@ static int scsiback_init_sring(struct vscsibk_info *info, grant_ref_t ring_ref,
+ 	sring = (struct vscsiif_sring *)area;
+ 	BACK_RING_INIT(&info->ring, sring, PAGE_SIZE);
  
- 	return IRQ_HANDLED;
- }
-@@ -583,7 +626,7 @@ int xenvif_connect_ctrl(struct xenvif *vif, grant_ref_t ring_ref,
- 	shared = (struct xen_netif_ctrl_sring *)addr;
- 	BACK_RING_INIT(&vif->ctrl, shared, XEN_PAGE_SIZE);
- 
--	err = bind_interdomain_evtchn_to_irq(vif->domid, evtchn);
-+	err = bind_interdomain_evtchn_to_irq_lateeoi(vif->domid, evtchn);
+-	err = bind_interdomain_evtchn_to_irq(info->domid, evtchn);
++	err = bind_interdomain_evtchn_to_irq_lateeoi(info->domid, evtchn);
  	if (err < 0)
- 		goto err_unmap;
+ 		goto unmap_page;
  
-@@ -641,7 +684,7 @@ int xenvif_connect_data(struct xenvif_queue *queue,
+@@ -1253,7 +1257,6 @@ static int scsiback_probe(struct xenbus_device *dev,
  
- 	if (tx_evtchn == rx_evtchn) {
- 		/* feature-split-event-channels == 0 */
--		err = bind_interdomain_evtchn_to_irqhandler(
-+		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
- 			queue->vif->domid, tx_evtchn, xenvif_interrupt, 0,
- 			queue->name, queue);
- 		if (err < 0)
-@@ -652,7 +695,7 @@ int xenvif_connect_data(struct xenvif_queue *queue,
- 		/* feature-split-event-channels == 1 */
- 		snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
- 			 "%s-tx", queue->name);
--		err = bind_interdomain_evtchn_to_irqhandler(
-+		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
- 			queue->vif->domid, tx_evtchn, xenvif_tx_interrupt, 0,
- 			queue->tx_irq_name, queue);
- 		if (err < 0)
-@@ -662,7 +705,7 @@ int xenvif_connect_data(struct xenvif_queue *queue,
- 
- 		snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
- 			 "%s-rx", queue->name);
--		err = bind_interdomain_evtchn_to_irqhandler(
-+		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
- 			queue->vif->domid, rx_evtchn, xenvif_rx_interrupt, 0,
- 			queue->rx_irq_name, queue);
- 		if (err < 0)
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index a469fbe1abaf..fd2ac6cd0c69 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -162,6 +162,10 @@ void xenvif_napi_schedule_or_enable_events(struct xenvif_queue *queue)
- 
- 	if (more_to_do)
- 		napi_schedule(&queue->napi);
-+	else if (atomic_fetch_andnot(NETBK_TX_EOI | NETBK_COMMON_EOI,
-+				     &queue->eoi_pending) &
-+		 (NETBK_TX_EOI | NETBK_COMMON_EOI))
-+		xen_irq_lateeoi(queue->tx_irq, 0);
- }
- 
- static void tx_add_credit(struct xenvif_queue *queue)
-@@ -1615,9 +1619,14 @@ static bool xenvif_ctrl_work_todo(struct xenvif *vif)
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data)
- {
- 	struct xenvif *vif = data;
-+	unsigned int eoi_flag = XEN_EOI_FLAG_SPURIOUS;
- 
--	while (xenvif_ctrl_work_todo(vif))
-+	while (xenvif_ctrl_work_todo(vif)) {
- 		xenvif_ctrl_action(vif);
-+		eoi_flag = 0;
-+	}
-+
-+	xen_irq_lateeoi(irq, eoi_flag);
- 
- 	return IRQ_HANDLED;
- }
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index b1cf7c6f407a..f152246c7dfb 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -490,13 +490,13 @@ static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
- 	return queue->stalled && prod - cons >= 1;
- }
- 
--static bool xenvif_have_rx_work(struct xenvif_queue *queue)
-+bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
- {
- 	return xenvif_rx_ring_slots_available(queue) ||
- 		(queue->vif->stall_timeout &&
- 		 (xenvif_rx_queue_stalled(queue) ||
- 		  xenvif_rx_queue_ready(queue))) ||
--		kthread_should_stop() ||
-+		(test_kthread && kthread_should_stop()) ||
- 		queue->vif->disabled;
- }
- 
-@@ -527,15 +527,20 @@ static void xenvif_wait_for_rx_work(struct xenvif_queue *queue)
- {
- 	DEFINE_WAIT(wait);
- 
--	if (xenvif_have_rx_work(queue))
-+	if (xenvif_have_rx_work(queue, true))
- 		return;
- 
- 	for (;;) {
- 		long ret;
- 
- 		prepare_to_wait(&queue->wq, &wait, TASK_INTERRUPTIBLE);
--		if (xenvif_have_rx_work(queue))
-+		if (xenvif_have_rx_work(queue, true))
- 			break;
-+		if (atomic_fetch_andnot(NETBK_RX_EOI | NETBK_COMMON_EOI,
-+					&queue->eoi_pending) &
-+		    (NETBK_RX_EOI | NETBK_COMMON_EOI))
-+			xen_irq_lateeoi(queue->rx_irq, 0);
-+
- 		ret = schedule_timeout(xenvif_rx_queue_timeout(queue));
- 		if (!ret)
- 			break;
+ 	info->domid = dev->otherend_id;
+ 	spin_lock_init(&info->ring_lock);
+-	info->ring_error = 0;
+ 	atomic_set(&info->nr_unreplied_reqs, 0);
+ 	init_waitqueue_head(&info->waiting_to_free);
+ 	info->dev = dev;
 -- 
 2.26.2
 
