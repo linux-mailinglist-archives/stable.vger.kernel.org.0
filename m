@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4432A55C0
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB052A56AC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388045AbgKCVE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:04:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43198 "EHLO mail.kernel.org"
+        id S1731425AbgKCVaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:30:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387474AbgKCVE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:56 -0500
+        id S1732964AbgKCU6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B5A206B5;
-        Tue,  3 Nov 2020 21:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C16FE223C6;
+        Tue,  3 Nov 2020 20:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437495;
-        bh=ekXZWsUQPuYCNr0MTOi0LUt2p+uqRVQrtiTXrYDrISQ=;
+        s=default; t=1604437102;
+        bh=/Ks8KETB+CKrRYrGo2T+5rqEmySgJfur65rlwYhBuKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nO86FKi+S/fu/94CVxphorwQj/DVr252xxIaIEN+A119DBq0BuBLn68xDVlQdoGxw
-         2U6H0NwxeW4ZD0IutJCzPLWZTfK1hZw7rJN4hzgdzt3OLdHPcXE0pjMh84R2qUeXzV
-         RGE+XwP6I0VRfxnobpGMgBZpVRsfUbbeQ6aATLM4=
+        b=J9E4hQ39tqeGl6+ASEaax1zQ6aSPpmHYJC4zDUegocLhOIAJJcxplBK20ne4axIRa
+         +FMYoZfhr4UDf0cZgwHLPn9XCBugaKxF2wlqjzeN1WtCQjDqTUVHCTs8tFHVR/DIgv
+         6B97OiGW7+Y3RiHLtZTxgdg8qxoiVX94fWNM8CZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/191] cifs: handle -EINTR in cifs_setattr
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 146/214] vt: keyboard, extend func_buf_lock to readers
 Date:   Tue,  3 Nov 2020 21:36:34 +0100
-Message-Id: <20201103203243.225750535@linuxfoundation.org>
+Message-Id: <20201103203304.496720491@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit c6cc4c5a72505a0ecefc9b413f16bec512f38078 ]
+commit 82e61c3909db51d91b9d3e2071557b6435018b80 upstream.
 
-RHBZ: 1848178
+Both read-side users of func_table/func_buf need locking. Without that,
+one can easily confuse the code by repeatedly setting altering strings
+like:
+while (1)
+	for (a = 0; a < 2; a++) {
+		struct kbsentry kbs = {};
+		strcpy((char *)kbs.kb_string, a ? ".\n" : "88888\n");
+		ioctl(fd, KDSKBSENT, &kbs);
+	}
 
-Some calls that set attributes, like utimensat(), are not supposed to return
--EINTR and thus do not have handlers for this in glibc which causes us
-to leak -EINTR to the applications which are also unprepared to handle it.
+When that program runs, one can get unexpected output by holding F1
+(note the unxpected period on the last line):
+.
+88888
+.8888
 
-For example tar will break if utimensat() return -EINTR and abort unpacking
-the archive. Other applications may break too.
+So protect all accesses to 'func_table' (and func_buf) by preexisting
+'func_buf_lock'.
 
-To handle this we add checks, and retry, for -EINTR in cifs_setattr()
+It is easy in 'k_fn' handler as 'puts_queue' is expected not to sleep.
+On the other hand, KDGKBSENT needs a local (atomic) copy of the string
+because copy_to_user can sleep. Use already allocated, but unused
+'kbs->kb_string' for that purpose.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that the program above needs at least CAP_SYS_TTY_CONFIG.
+
+This depends on the previous patch and on the func_buf_lock lock added
+in commit 46ca3f735f34 (tty/vt: fix write/write race in ioctl(KDSKBSENT)
+handler) in 5.2.
+
+Likely fixes CVE-2020-25656.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20201019085517.10176-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/cifs/inode.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/tty/vt/keyboard.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index 4a38f16d944db..d30eb43506562 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2550,13 +2550,18 @@ cifs_setattr(struct dentry *direntry, struct iattr *attrs)
- {
- 	struct cifs_sb_info *cifs_sb = CIFS_SB(direntry->d_sb);
- 	struct cifs_tcon *pTcon = cifs_sb_master_tcon(cifs_sb);
-+	int rc, retries = 0;
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -742,8 +742,13 @@ static void k_fn(struct vc_data *vc, uns
+ 		return;
  
--	if (pTcon->unix_ext)
--		return cifs_setattr_unix(direntry, attrs);
--
--	return cifs_setattr_nounix(direntry, attrs);
-+	do {
-+		if (pTcon->unix_ext)
-+			rc = cifs_setattr_unix(direntry, attrs);
-+		else
-+			rc = cifs_setattr_nounix(direntry, attrs);
-+		retries++;
-+	} while (is_retryable_error(rc) && retries < 2);
- 
- 	/* BB: add cifs_setattr_legacy for really old servers */
-+	return rc;
+ 	if ((unsigned)value < ARRAY_SIZE(func_table)) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&func_buf_lock, flags);
+ 		if (func_table[value])
+ 			puts_queue(vc, func_table[value]);
++		spin_unlock_irqrestore(&func_buf_lock, flags);
++
+ 	} else
+ 		pr_err("k_fn called with value=%d\n", value);
  }
+@@ -1990,7 +1995,7 @@ out:
+ #undef s
+ #undef v
  
- #if 0
--- 
-2.27.0
-
+-/* FIXME: This one needs untangling and locking */
++/* FIXME: This one needs untangling */
+ int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
+ {
+ 	struct kbsentry *kbs;
+@@ -2022,10 +2027,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 	switch (cmd) {
+ 	case KDGKBSENT: {
+ 		/* size should have been a struct member */
+-		unsigned char *from = func_table[i] ? : "";
++		ssize_t len = sizeof(user_kdgkb->kb_string);
++
++		spin_lock_irqsave(&func_buf_lock, flags);
++		len = strlcpy(kbs->kb_string, func_table[i] ? : "", len);
++		spin_unlock_irqrestore(&func_buf_lock, flags);
+ 
+-		ret = copy_to_user(user_kdgkb->kb_string, from,
+-				strlen(from) + 1) ? -EFAULT : 0;
++		ret = copy_to_user(user_kdgkb->kb_string, kbs->kb_string,
++				len + 1) ? -EFAULT : 0;
+ 
+ 		goto reterr;
+ 	}
 
 
