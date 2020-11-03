@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C83722A46EF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FAAA2A46E9
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729425AbgKCNwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:52:17 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:47903 "EHLO
+        id S1729424AbgKCNwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:52:15 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52471 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729426AbgKCNvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:04 -0500
+        by vger.kernel.org with ESMTP id S1729456AbgKCNvk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:40 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id EAAEE228;
-        Tue,  3 Nov 2020 08:51:02 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:03 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 8C2DCA26;
+        Tue,  3 Nov 2020 08:51:39 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fNySr3
-        1T58peVktKHL+Tspgu9RGd0NDwPP27sL4e9Rc=; b=PfTqBBm7Agpyc+G6AWqAeY
-        O+bZN7M7T9BckeeVdakesurunNvvkbu8E8k6DYsygW0cI/suarvxoUhRmTEgbTHv
-        eYyxG99eyKQwQJbqlXkthQh4Ixz4pXmZHoyZGdjpobVVy2tRdXVIquYLvgk3EgbX
-        Tm5uCovobC0AjfmACVSgW40OSMxi2cIF9/DkmOyTCyhUVeQiP3dOeXzPR9KiW6/j
-        HRTRAsKQHrSLIF0ngXqlZC4NMZjeGUz3owpSbUSkTYSegi7xLcS6MFG016mYsNFm
-        IVmQHXb7ofC/ZDB2Ueo1NHYEpg4qPDzyAmG4Dk5dljcES8g6aHD9NjO3GnGh7UrQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=L/ceD+
+        xqkFbUJHPOEx6AIjTCNpKFbSPexRt+/9oua8U=; b=mi1nJVQudD+YzPynM19chP
+        ZYX24lSSZl+qUw2p7F/1lEDuhqKYr9qg85fM9otJc1t/RHKcCEohWpJHcoDwIMwl
+        isNRUZdsVdhJ+6fOZRP2yZ2shzCWl3S3+wpQrX5z7ShpljQLezS37TGfqJeUdphL
+        pzpQ6ykFdphJvs87uNV7mgZEMq27FVUDO3p9GsSKZbM6oJ2j+UqKoYXupn4uSucL
+        eNpbQulX0PIAXMb3YdULn01ixPWHKfCUwH7vFvNBl6+mcjfs+DYFdObyKutGu3t3
+        8/KILDnIFVCxtEq0stPKmIKLm1IeQjYle15Pa6xsqBbbo2Mnr+8DGl+KYy7YdbMw
         ==
-X-ME-Sender: <xms:RmChXyeUUE7D21xN6Uwq_HYpbi94-mNZLT2CofpkQjewNyWyfRjNcA>
-    <xme:RmChX8M6VGuKp13WIuCPtGsOskjMJGDvFNb4bVeaxSS51JwTV1l-CfrZM2VipcpPp
-    LZfmJmTKe2O7A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:a2ChX2c7PEcfdMC0LpGg6nWYF9MC4eWkrAu_MJ4bHP1RfiNEbzIwqQ>
+    <xme:a2ChXwPx7c6o2NxB8Iqqpp-ZhnbRDBPCPTrv8MALdNOIobS25ke2ug3LnBiuno0i4
+    ae8G5dBNQWcgw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:RmChXziPzJwvG0jt6aSy_cHAw7VLp6xuQeQIYAlZ3apajnVIaRVLhQ>
-    <xmx:RmChX_-2SGjkTUREXUugaKYF5J_A3EkyyxwXXGmSSSsIL36oyjfKKw>
-    <xmx:RmChX-vItsyWtjFjmBaRgYr5aoodIvlywPb_9tXBi3yMKJis9vIUGw>
-    <xmx:RmChXzUDOopO9Il0Hx4dC2ksmYfYJCC3O2Yr2VVsnnoMlv3ZmLe9Yv0KpN4>
+X-ME-Proxy: <xmx:a2ChX3io_KFDzTRuZveK7Zcb3eCoM1x6FPJ8eq82P_6VQk0zf_NIoQ>
+    <xmx:a2ChXz_3cptQz7Zcl_Qcg4-OKvQKDYjFmZmxJatLYcbJTgq6jvP0QQ>
+    <xmx:a2ChXyukbUayyFBlW1ywIcj5ImTSR1zdhnM3bdpdyyT59qf-kYJBkg>
+    <xmx:a2ChX41c2dedh4pqOy5oNqCkjxXHl89eXQCSxSMUaG1KMO4f7ykH9ruq9OU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 22D3F3064610;
-        Tue,  3 Nov 2020 08:51:02 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix qgroup meta rsv leak for subvolume" failed to apply to 4.19-stable tree
-To:     wqu@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id BE20C3280064;
+        Tue,  3 Nov 2020 08:51:38 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: sysfs, rename device_link add/remove functions" failed to apply to 5.4-stable tree
+To:     anand.jain@oracle.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:51:48 +0100
-Message-ID: <160441150821188@kroah.com>
+Date:   Tue, 03 Nov 2020 14:52:32 +0100
+Message-ID: <160441155213511@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,156 +70,144 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e85fde5162bf1b242cbd6daf7dba0f9b457d592b Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Fri, 24 Jul 2020 14:46:10 +0800
-Subject: [PATCH] btrfs: qgroup: fix qgroup meta rsv leak for subvolume
- operations
+From f3cd2c58110dad14ee37cc47fd1473d90ee68ccb Mon Sep 17 00:00:00 2001
+From: Anand Jain <anand.jain@oracle.com>
+Date: Wed, 12 Feb 2020 17:28:13 +0800
+Subject: [PATCH] btrfs: sysfs, rename device_link add/remove functions
 
-[BUG]
-When quota is enabled for TEST_DEV, generic/013 sometimes fails like this:
+Since commit 668e48af7a94 ("btrfs: sysfs, add devid/dev_state kobject and
+device attributes"), the functions btrfs_sysfs_add_device_link() and
+btrfs_sysfs_rm_device_link() do more than just adding and removing the
+device link as its name indicated. Rename them to be more specific
+that's about the directory with the attirbutes
 
-  generic/013 14s ... _check_dmesg: something found in dmesg (see xfstests-dev/results//generic/013.dmesg)
-
-And with the following metadata leak:
-
-  BTRFS warning (device dm-3): qgroup 0/1370 has unreleased space, type 2 rsv 49152
-  ------------[ cut here ]------------
-  WARNING: CPU: 2 PID: 47912 at fs/btrfs/disk-io.c:4078 close_ctree+0x1dc/0x323 [btrfs]
-  Call Trace:
-   btrfs_put_super+0x15/0x17 [btrfs]
-   generic_shutdown_super+0x72/0x110
-   kill_anon_super+0x18/0x30
-   btrfs_kill_super+0x17/0x30 [btrfs]
-   deactivate_locked_super+0x3b/0xa0
-   deactivate_super+0x40/0x50
-   cleanup_mnt+0x135/0x190
-   __cleanup_mnt+0x12/0x20
-   task_work_run+0x64/0xb0
-   __prepare_exit_to_usermode+0x1bc/0x1c0
-   __syscall_return_slowpath+0x47/0x230
-   do_syscall_64+0x64/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace a6cfd45ba80e4e06 ]---
-  BTRFS error (device dm-3): qgroup reserved space leaked
-  BTRFS info (device dm-3): disk space caching is enabled
-  BTRFS info (device dm-3): has skinny extents
-
-[CAUSE]
-The qgroup preallocated meta rsv operations of that offending root are:
-
-  btrfs_delayed_inode_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=131072
-  btrfs_delayed_inode_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=131072
-  btrfs_subvolume_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=49152
-  btrfs_delayed_inode_release_metadata: convert_meta_prealloc root=1370 num_bytes=-131072
-  btrfs_delayed_inode_release_metadata: convert_meta_prealloc root=1370 num_bytes=-131072
-
-It's pretty obvious that, we reserve qgroup meta rsv in
-btrfs_subvolume_reserve_metadata(), but doesn't have corresponding
-release/convert calls in btrfs_subvolume_release_metadata().
-
-This leads to the leakage.
-
-[FIX]
-To fix this bug, we should follow what we're doing in
-btrfs_delalloc_reserve_metadata(), where we reserve qgroup space, and
-add it to block_rsv->qgroup_rsv_reserved.
-
-And free the qgroup reserved metadata space when releasing the
-block_rsv.
-
-To do this, we need to change the btrfs_subvolume_release_metadata() to
-accept btrfs_root, and record the qgroup_to_release number, and call
-btrfs_qgroup_convert_reserved_meta() for it.
-
-Fixes: 733e03a0b26a ("btrfs: qgroup: Split meta rsv type into meta_prealloc and meta_pertrans")
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index eb7adc069926..f9d4e0958e2e 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -2622,7 +2622,7 @@ enum btrfs_flush_state {
- int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
- 				     struct btrfs_block_rsv *rsv,
- 				     int nitems, bool use_global_rsv);
--void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
-+void btrfs_subvolume_release_metadata(struct btrfs_root *root,
- 				      struct btrfs_block_rsv *rsv);
- void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes);
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index 2aad07cdaea8..db93909b25e0 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -512,7 +512,7 @@ static int btrfs_dev_replace_start(struct btrfs_fs_info *fs_info,
+ 	atomic64_set(&dev_replace->num_uncorrectable_read_errors, 0);
+ 	up_write(&dev_replace->rwsem);
  
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a50a40f8bef2..123521aa5595 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4051,7 +4051,7 @@ int btrfs_delete_subvolume(struct inode *dir, struct dentry *dentry)
- 		err = ret;
- 	inode->i_flags |= S_DEAD;
- out_release:
--	btrfs_subvolume_release_metadata(fs_info, &block_rsv);
-+	btrfs_subvolume_release_metadata(root, &block_rsv);
- out_up_write:
- 	up_write(&fs_info->subvol_sem);
- 	if (err) {
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index a5355a16eabb..3779a6c12184 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -618,7 +618,7 @@ static noinline int create_subvol(struct inode *dir,
- 	trans = btrfs_start_transaction(root, 0);
- 	if (IS_ERR(trans)) {
- 		ret = PTR_ERR(trans);
--		btrfs_subvolume_release_metadata(fs_info, &block_rsv);
-+		btrfs_subvolume_release_metadata(root, &block_rsv);
- 		goto fail_free;
- 	}
- 	trans->block_rsv = &block_rsv;
-@@ -742,7 +742,7 @@ static noinline int create_subvol(struct inode *dir,
- 	kfree(root_item);
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
--	btrfs_subvolume_release_metadata(fs_info, &block_rsv);
-+	btrfs_subvolume_release_metadata(root, &block_rsv);
+-	ret = btrfs_sysfs_add_device_link(tgt_device->fs_devices, tgt_device);
++	ret = btrfs_sysfs_add_devices_dir(tgt_device->fs_devices, tgt_device);
+ 	if (ret)
+ 		btrfs_err(fs_info, "kobj add dev failed %d", ret);
  
- 	err = btrfs_commit_transaction(trans);
- 	if (err && !ret)
-@@ -856,7 +856,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
- 	if (ret && pending_snapshot->snap)
- 		pending_snapshot->snap->anon_dev = 0;
- 	btrfs_put_root(pending_snapshot->snap);
--	btrfs_subvolume_release_metadata(fs_info, &pending_snapshot->block_rsv);
-+	btrfs_subvolume_release_metadata(root, &pending_snapshot->block_rsv);
- free_pending:
- 	if (pending_snapshot->anon_dev)
- 		free_anon_bdev(pending_snapshot->anon_dev);
-diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
-index c89697486366..702dc5441f03 100644
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -512,11 +512,20 @@ int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
- 	if (ret && qgroup_num_bytes)
- 		btrfs_qgroup_free_meta_prealloc(root, qgroup_num_bytes);
+@@ -743,7 +743,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
+ 	mutex_unlock(&fs_info->fs_devices->device_list_mutex);
  
-+	if (!ret) {
-+		spin_lock(&rsv->lock);
-+		rsv->qgroup_rsv_reserved += qgroup_num_bytes;
-+		spin_unlock(&rsv->lock);
-+	}
- 	return ret;
+ 	/* replace the sysfs entry */
+-	btrfs_sysfs_rm_device_link(fs_info->fs_devices, src_device);
++	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, src_device);
+ 	btrfs_sysfs_update_devid(tgt_device);
+ 	btrfs_rm_dev_replace_free_srcdev(src_device);
+ 
+diff --git a/fs/btrfs/sysfs.c b/fs/btrfs/sysfs.c
+index 119edd4341d6..651aa65b1f3f 100644
+--- a/fs/btrfs/sysfs.c
++++ b/fs/btrfs/sysfs.c
+@@ -960,7 +960,7 @@ void btrfs_sysfs_remove_mounted(struct btrfs_fs_info *fs_info)
+ 	addrm_unknown_feature_attrs(fs_info, false);
+ 	sysfs_remove_group(&fs_info->fs_devices->fsid_kobj, &btrfs_feature_attr_group);
+ 	sysfs_remove_files(&fs_info->fs_devices->fsid_kobj, btrfs_attrs);
+-	btrfs_sysfs_rm_device_link(fs_info->fs_devices, NULL);
++	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, NULL);
  }
  
--void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
-+void btrfs_subvolume_release_metadata(struct btrfs_root *root,
- 				      struct btrfs_block_rsv *rsv)
+ static const char * const btrfs_feature_set_names[FEAT_MAX] = {
+@@ -1149,7 +1149,7 @@ int btrfs_sysfs_add_space_info_type(struct btrfs_fs_info *fs_info,
+ 
+ /* when one_device is NULL, it removes all device links */
+ 
+-int btrfs_sysfs_rm_device_link(struct btrfs_fs_devices *fs_devices,
++int btrfs_sysfs_remove_devices_dir(struct btrfs_fs_devices *fs_devices,
+ 		struct btrfs_device *one_device)
  {
--	btrfs_block_rsv_release(fs_info, rsv, (u64)-1, NULL);
-+	struct btrfs_fs_info *fs_info = root->fs_info;
-+	u64 qgroup_to_release;
-+
-+	btrfs_block_rsv_release(fs_info, rsv, (u64)-1, &qgroup_to_release);
-+	btrfs_qgroup_convert_reserved_meta(root, qgroup_to_release);
- }
+ 	struct hd_struct *disk;
+@@ -1269,7 +1269,7 @@ static struct kobj_type devid_ktype = {
+ 	.release	= btrfs_release_devid_kobj,
+ };
+ 
+-int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
++int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
+ 				struct btrfs_device *one_device)
+ {
+ 	int error = 0;
+@@ -1395,13 +1395,13 @@ int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
+ 
+ 	btrfs_set_fs_info_ptr(fs_info);
+ 
+-	error = btrfs_sysfs_add_device_link(fs_devs, NULL);
++	error = btrfs_sysfs_add_devices_dir(fs_devs, NULL);
+ 	if (error)
+ 		return error;
+ 
+ 	error = sysfs_create_files(fsid_kobj, btrfs_attrs);
+ 	if (error) {
+-		btrfs_sysfs_rm_device_link(fs_devs, NULL);
++		btrfs_sysfs_remove_devices_dir(fs_devs, NULL);
+ 		return error;
+ 	}
+ 
+diff --git a/fs/btrfs/sysfs.h b/fs/btrfs/sysfs.h
+index c68582add92e..718a26c97833 100644
+--- a/fs/btrfs/sysfs.h
++++ b/fs/btrfs/sysfs.h
+@@ -14,9 +14,9 @@ enum btrfs_feature_set {
+ 
+ char *btrfs_printable_features(enum btrfs_feature_set set, u64 flags);
+ const char * const btrfs_feature_set_name(enum btrfs_feature_set set);
+-int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
++int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
+ 		struct btrfs_device *one_device);
+-int btrfs_sysfs_rm_device_link(struct btrfs_fs_devices *fs_devices,
++int btrfs_sysfs_remove_devices_dir(struct btrfs_fs_devices *fs_devices,
+                 struct btrfs_device *one_device);
+ int btrfs_sysfs_add_fsid(struct btrfs_fs_devices *fs_devs);
+ void btrfs_sysfs_remove_fsid(struct btrfs_fs_devices *fs_devs);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index b092021e41e9..387f80656476 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2054,7 +2054,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
+ 	if (device->bdev) {
+ 		cur_devices->open_devices--;
+ 		/* remove sysfs entry */
+-		btrfs_sysfs_rm_device_link(fs_devices, device);
++		btrfs_sysfs_remove_devices_dir(fs_devices, device);
+ 	}
+ 
+ 	num_devices = btrfs_super_num_devices(fs_info->super_copy) - 1;
+@@ -2174,7 +2174,7 @@ void btrfs_destroy_dev_replace_tgtdev(struct btrfs_device *tgtdev)
+ 
+ 	mutex_lock(&fs_devices->device_list_mutex);
+ 
+-	btrfs_sysfs_rm_device_link(fs_devices, tgtdev);
++	btrfs_sysfs_remove_devices_dir(fs_devices, tgtdev);
+ 
+ 	if (tgtdev->bdev)
+ 		fs_devices->open_devices--;
+@@ -2522,7 +2522,7 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 				    orig_super_num_devices + 1);
+ 
+ 	/* add sysfs device entry */
+-	btrfs_sysfs_add_device_link(fs_devices, device);
++	btrfs_sysfs_add_devices_dir(fs_devices, device);
+ 
+ 	/*
+ 	 * we've got more storage, clear any full flags on the space
+@@ -2590,7 +2590,7 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	return ret;
+ 
+ error_sysfs:
+-	btrfs_sysfs_rm_device_link(fs_devices, device);
++	btrfs_sysfs_remove_devices_dir(fs_devices, device);
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	mutex_lock(&fs_info->chunk_mutex);
+ 	list_del_rcu(&device->dev_list);
 
