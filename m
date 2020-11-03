@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB3E2A4FE0
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 20:18:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A27B2A5007
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 20:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728645AbgKCTSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 14:18:55 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:41415 "EHLO
+        id S1729102AbgKCTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 14:23:01 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:47869 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729484AbgKCTSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 14:18:55 -0500
+        by vger.kernel.org with ESMTP id S1725957AbgKCTXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 14:23:01 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id DF0401942B62;
-        Tue,  3 Nov 2020 14:18:53 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 14:18:53 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 59B231942731;
+        Tue,  3 Nov 2020 14:23:00 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 14:23:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hXGKWI
-        vNEYLkAcadNnCtil+34bJXH99YSP5uHZc8/Do=; b=XqYuqodoay28WaDLGVNc5S
-        klNGZ/9h3JtxL5iMYciwnP94EZjPKYv1VOHWAz0kElHipaKrH0I0xJHfZvEfV3JK
-        VnlzxH/HFmI7MSDlfqGJrlg90YzwgdIlmlvFZ/VH2Yltw40bL2olA1Vrcqm1Zj6q
-        B4+euB9WpW3CF4g95ggdkXEO801fCorg5Mtl5IwRCLvFupQmNwsEcdTbIAZ7tVwU
-        qR1y+ADpR+Jfg/CHuzVvW9t5zKYsnHCjQOJA1zUjAulEcDfliKBKWxvbd9pssEdU
-        Ou+ESKL2cSJuYM+WorOMNkuFzKuxH1pRud93Mwe/o54OUdz2Iy8QlpyjPL1NKcpA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/AeCff
+        c9z7+e7zu+YaIscVPKDQMIweOueptuE1xUpq8=; b=NVaLBNWnktLCNrLgSmOr5e
+        XCUmJDSkM5hWPfxGJFGHRT6xadTPt10lcpuEC3ju4KLHmMvGKhKPhjsLEjtTyFnm
+        J7XMf9C4lcA9QF1euz9dLfj0no8weRO1OAuQ0LtHOnsOWEWAy+CFvkg4qFDqVM3W
+        sR5/0bLCt2ct1kMLAVmIfcuIcw/H5EFRxGA0+wuI27xcQ3HIbfjY3lwXhP54bhQm
+        jKpeFZvWq2ZcBKtPx/WQEcJzbkiRtBzXQD6B1mscDPGlBkdPVEEHq+Rj9jMlKCCS
+        /O1EUPHSGOtsMLDO7pIjynTavnugRW2ZboIcHccNZv9i9MzCgB5hZJGQOvfYM7+w
         ==
-X-ME-Sender: <xms:Ha2hX8aARnS2NxfHYAUAzE8l20n530Y2mg9y82a_44Oe24a1BU6TJw>
-    <xme:Ha2hX3bUNIylE8zUGFtp05_2KZpYoySoNo91qBJDWfuolBfQ7aV34AdnFEFNgCdcd
-    N-Zi77BYd4ZbA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedguddvudcutefuodetggdotefrod
+X-ME-Sender: <xms:E66hX1XbC1rJVbUVKyvA-Bcrt-XWathxCLSKJUK8ooa30W9mNRGXsg>
+    <xme:E66hX1ndbC4nwSPO9rmjeWNqReT9AkZ7j8QE5cYFiBHcBepTsCZLjiESO9bRhrzi1
+    3snilCrQ3ab3g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeigeehteeuvddtveevteeihfeukeelvdejuedvtd
-    euueeuuefgffelfefhfedtueenucffohhmrghinheprghrmhdrtghomhdpkhgvrhhnvghl
-    rdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptd
-    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Ha2hX2_SiFH2u4iXhwzwQw5nPr7toe0BrNu4575kxYM5WfnVEUhvDg>
-    <xmx:Ha2hX2q_iCmuuQ9pKGt1rweF9nv9Qd3BxCJqkBxRw6EU40gZw1Unbg>
-    <xmx:Ha2hX3qALimltpZEet0pLZ9Fk0JtqB7WUt8jgxJyQle9FNS-0qaF-g>
-    <xmx:Ha2hX2UW8QIzGdRHZR6NHdY6OuBsAaRC2Xxa1VX6ZLBw1ZcyK0NM3g>
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:E66hXxaNpMZTnDOCEjvn1eY3ocDXpOnoey_fHjELaoKbu9EqvwShEQ>
+    <xmx:E66hX4VC_dP8181V-3ihKoODdjLT3uXR76NjO7_LxYaID5ngxJukyQ>
+    <xmx:E66hX_mUeLGCdABwYi2ZfenmJlnbxLzyubGMU6KnZi2HyTM8ywyQCA>
+    <xmx:FK6hX3s5hvNZl3lDOkiZ2Sl_e50lNRd1_p1f9XdmJa2f1FaCJf26SQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7CAE3306467E;
-        Tue,  3 Nov 2020 14:18:53 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return" failed to apply to 5.4-stable tree
-To:     swboyd@chromium.org, andre.przywara@arm.com, maz@kernel.org,
-        steven.price@arm.com, will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 921433280115;
+        Tue,  3 Nov 2020 14:22:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: arm64: Force PTE mapping on fault resulting in a device" failed to apply to 5.4-stable tree
+To:     sashukla@nvidia.com, gshan@redhat.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 20:18:52 +0100
-Message-ID: <160443113279202@kroah.com>
+Date:   Tue, 03 Nov 2020 20:22:58 +0100
+Message-ID: <160443137851161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,95 +70,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1de111b51b829bcf01d2e57971f8fd07a665fa3f Mon Sep 17 00:00:00 2001
-From: Stephen Boyd <swboyd@chromium.org>
-Date: Fri, 23 Oct 2020 08:47:50 -0700
-Subject: [PATCH] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return
- SMCCC_RET_NOT_REQUIRED
+From 91a2c34b7d6fadc9c5d9433c620ea4c32ee7cae8 Mon Sep 17 00:00:00 2001
+From: Santosh Shukla <sashukla@nvidia.com>
+Date: Mon, 26 Oct 2020 16:54:07 +0530
+Subject: [PATCH] KVM: arm64: Force PTE mapping on fault resulting in a device
+ mapping
 
-According to the SMCCC spec[1](7.5.2 Discovery) the
-ARM_SMCCC_ARCH_WORKAROUND_1 function id only returns 0, 1, and
-SMCCC_RET_NOT_SUPPORTED.
+VFIO allows a device driver to resolve a fault by mapping a MMIO
+range. This can be subsequently result in user_mem_abort() to
+try and compute a huge mapping based on the MMIO pfn, which is
+a sure recipe for things to go wrong.
 
- 0 is "workaround required and safe to call this function"
- 1 is "workaround not required but safe to call this function"
- SMCCC_RET_NOT_SUPPORTED is "might be vulnerable or might not be, who knows, I give up!"
+Instead, force a PTE mapping when the pfn faulted in has a device
+mapping.
 
-SMCCC_RET_NOT_SUPPORTED might as well mean "workaround required, except
-calling this function may not work because it isn't implemented in some
-cases". Wonderful. We map this SMC call to
-
- 0 is SPECTRE_MITIGATED
- 1 is SPECTRE_UNAFFECTED
- SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
-
-For KVM hypercalls (hvc), we've implemented this function id to return
-SMCCC_RET_NOT_SUPPORTED, 0, and SMCCC_RET_NOT_REQUIRED. One of those
-isn't supposed to be there. Per the code we call
-arm64_get_spectre_v2_state() to figure out what to return for this
-feature discovery call.
-
- 0 is SPECTRE_MITIGATED
- SMCCC_RET_NOT_REQUIRED is SPECTRE_UNAFFECTED
- SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
-
-Let's clean this up so that KVM tells the guest this mapping:
-
- 0 is SPECTRE_MITIGATED
- 1 is SPECTRE_UNAFFECTED
- SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
-
-Note: SMCCC_RET_NOT_AFFECTED is 1 but isn't part of the SMCCC spec
-
-Fixes: c118bbb52743 ("arm64: KVM: Propagate full Spectre v2 workaround state to KVM guests")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: Andre Przywara <andre.przywara@arm.com>
-Cc: Steven Price <steven.price@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
+Fixes: 6d674e28f642 ("KVM: arm/arm64: Properly handle faulting of device mappings")
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Santosh Shukla <sashukla@nvidia.com>
+[maz: rewritten commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://developer.arm.com/documentation/den0028/latest [1]
-Link: https://lore.kernel.org/r/20201023154751.1973872-1-swboyd@chromium.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/1603711447-11998-2-git-send-email-sashukla@nvidia.com
 
-diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
-index 25f3c80b5ffe..c18eb7d41274 100644
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -135,8 +135,6 @@ static enum mitigation_state spectre_v2_get_cpu_hw_mitigation_state(void)
- 	return SPECTRE_VULNERABLE;
- }
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index e431d2d8e368..c7c6df6309d5 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -851,6 +851,7 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
  
--#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	(1)
--
- static enum mitigation_state spectre_v2_get_cpu_fw_mitigation_state(void)
- {
- 	int ret;
-diff --git a/arch/arm64/kvm/hypercalls.c b/arch/arm64/kvm/hypercalls.c
-index 9824025ccc5c..25ea4ecb6449 100644
---- a/arch/arm64/kvm/hypercalls.c
-+++ b/arch/arm64/kvm/hypercalls.c
-@@ -31,7 +31,7 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
- 				val = SMCCC_RET_SUCCESS;
- 				break;
- 			case SPECTRE_UNAFFECTED:
--				val = SMCCC_RET_NOT_REQUIRED;
-+				val = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
- 				break;
- 			}
- 			break;
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-index 885c9ffc835c..f860645f6512 100644
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -87,6 +87,8 @@
- 			   ARM_SMCCC_SMC_32,				\
- 			   0, 0x7fff)
- 
-+#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
-+
- /* Paravirtualised time calls (defined by ARM DEN0057A) */
- #define ARM_SMCCC_HV_PV_TIME_FEATURES				\
- 	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
+ 	if (kvm_is_device_pfn(pfn)) {
+ 		device = true;
++		force_pte = true;
+ 	} else if (logging_active && !write_fault) {
+ 		/*
+ 		 * Only actually map the page as writable if this was a write
 
