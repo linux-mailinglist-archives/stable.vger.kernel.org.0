@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 597602A394A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 667482A3948
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728046AbgKCBUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:20:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34902 "EHLO mail.kernel.org"
+        id S1727032AbgKCBY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:24:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728018AbgKCBUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:18 -0500
+        id S1728045AbgKCBUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4B012225E;
-        Tue,  3 Nov 2020 01:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB7D122460;
+        Tue,  3 Nov 2020 01:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366417;
-        bh=WFcMG/uHux1Zw6I0DA2/RfogX4z10mHTe1x9UJyN2rg=;
+        s=default; t=1604366418;
+        bh=gdMGDMwySHdmXhfimYPXmMMVR+X1bgogAYC8Oh5fkF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLtxSfQEjGAVRCf9rFUTg+oByWZ5EVAD5FJMphqeo1NcEjoOp0DFJ4YdzEyfooCCL
-         RJUXvMOittAa3WjPL6ndhl29x0uwbkroBj777nBtrfl3CKgTCDDwispfOZ1UkYGKQS
-         of+/t7F/77reGjr9DuehC9L3187+0EKN/iV0cTcw=
+        b=RA+5XxcRymd8tFPGbw6CqA4gJ7mHc/odk4bzMSAS5w1dKxM3ljVMANRIsNd48e/7a
+         W6x8Df795N6c+2QMDwGYvYFHXuAYAxPc7KtQi/i0wF1NXQXBnFgrxQhspp4STn3R9M
+         zgh2hLic8pMGhH9gxdaprWhKxu7DRH3Tr3vkARI8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/24] of: Fix reserved-memory overlap detection
-Date:   Mon,  2 Nov 2020 20:19:50 -0500
-Message-Id: <20201103012007.183429-7-sashal@kernel.org>
+Cc:     Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 08/24] drm/sun4i: frontend: Rework a bit the phase data
+Date:   Mon,  2 Nov 2020 20:19:51 -0500
+Message-Id: <20201103012007.183429-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012007.183429-1-sashal@kernel.org>
 References: <20201103012007.183429-1-sashal@kernel.org>
@@ -42,83 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit ca05f33316559a04867295dd49f85aeedbfd6bfd ]
+[ Upstream commit 84c971b356379c621df595bd00c3114579dfa59f ]
 
-The reserved-memory overlap detection code fails to detect overlaps if
-either of the regions starts at address 0x0.  The code explicitly checks
-for and ignores such regions, apparently in order to ignore dynamically
-allocated regions which have an address of 0x0 at this point.  These
-dynamically allocated regions also have a size of 0x0 at this point, so
-fix this by removing the check and sorting the dynamically allocated
-regions ahead of any static regions at address 0x0.
+The scaler filter phase setup in the allwinner kernel has two different
+cases for setting up the scaler filter, the first one using different phase
+parameters for the two channels, and the second one reusing the first
+channel parameters on the second channel.
 
-For example, there are two overlaps in this case but they are not
-currently reported:
+The allwinner kernel has a third option where the horizontal phase of the
+second channel will be set to a different value than the vertical one (and
+seems like it's the same value than one used on the first channel).
+However, that code path seems to never be taken, so we can ignore it for
+now, and it's essentially what we're doing so far as well.
 
-	foo@0 {
-	        reg = <0x0 0x2000>;
-	};
+Since we will have always the same values across each components of the
+filter setup for a given channel, we can simplify a bit our frontend
+structure by only storing the phase value we want to apply to a given
+channel.
 
-	bar@0 {
-	        reg = <0x0 0x1000>;
-	};
-
-	baz@1000 {
-	        reg = <0x1000 0x1000>;
-	};
-
-	quux {
-	        size = <0x1000>;
-	};
-
-but they are after this patch:
-
- OF: reserved mem: OVERLAP DETECTED!
- bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x00002000)
- OF: reserved mem: OVERLAP DETECTED!
- foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x00002000)
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/ded6fd6b47b58741aabdcc6967f73eca6a3f311e.1603273666.git-series.vincent.whitchurch@axis.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201015093642.261440-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/of_reserved_mem.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_frontend.c | 34 ++++++--------------------
+ drivers/gpu/drm/sun4i/sun4i_frontend.h |  6 +----
+ 2 files changed, 9 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 6bd610ee2cd73..3fb5d8caffd53 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -200,6 +200,16 @@ static int __init __rmem_cmp(const void *a, const void *b)
- 	if (ra->base > rb->base)
- 		return 1;
+diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.c b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+index ec2a032e07b97..7462801b1fa8e 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_frontend.c
++++ b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+@@ -443,17 +443,17 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+ 	 * related to the scaler FIR filter phase parameters.
+ 	 */
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZPHASE_REG,
+-		     frontend->data->ch_phase[0].horzphase);
++		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZPHASE_REG,
+-		     frontend->data->ch_phase[1].horzphase);
++		     frontend->data->ch_phase[1]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE0_REG,
+-		     frontend->data->ch_phase[0].vertphase[0]);
++		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE0_REG,
+-		     frontend->data->ch_phase[1].vertphase[0]);
++		     frontend->data->ch_phase[1]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE1_REG,
+-		     frontend->data->ch_phase[0].vertphase[1]);
++		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE1_REG,
+-		     frontend->data->ch_phase[1].vertphase[1]);
++		     frontend->data->ch_phase[1]);
  
-+	/*
-+	 * Put the dynamic allocations (address == 0, size == 0) before static
-+	 * allocations at address 0x0 so that overlap detection works
-+	 * correctly.
-+	 */
-+	if (ra->size < rb->size)
-+		return -1;
-+	if (ra->size > rb->size)
-+		return 1;
-+
- 	return 0;
- }
+ 	/*
+ 	 * Checking the input format is sufficient since we currently only
+@@ -687,30 +687,12 @@ static const struct dev_pm_ops sun4i_frontend_pm_ops = {
+ };
  
-@@ -217,8 +227,7 @@ static void __init __rmem_check_for_overlap(void)
+ static const struct sun4i_frontend_data sun4i_a10_frontend = {
+-	.ch_phase		= {
+-		{
+-			.horzphase = 0,
+-			.vertphase = { 0, 0 },
+-		},
+-		{
+-			.horzphase = 0xfc000,
+-			.vertphase = { 0xfc000, 0xfc000 },
+-		},
+-	},
++	.ch_phase		= { 0x000, 0xfc000 },
+ 	.has_coef_rdy		= true,
+ };
  
- 		this = &reserved_mem[i];
- 		next = &reserved_mem[i + 1];
--		if (!(this->base && next->base))
--			continue;
-+
- 		if (this->base + this->size > next->base) {
- 			phys_addr_t this_end, next_end;
+ static const struct sun4i_frontend_data sun8i_a33_frontend = {
+-	.ch_phase		= {
+-		{
+-			.horzphase = 0x400,
+-			.vertphase = { 0x400, 0x400 },
+-		},
+-		{
+-			.horzphase = 0x400,
+-			.vertphase = { 0x400, 0x400 },
+-		},
+-	},
++	.ch_phase		= { 0x400, 0x400 },
+ 	.has_coef_access_ctrl	= true,
+ };
  
+diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.h b/drivers/gpu/drm/sun4i/sun4i_frontend.h
+index 0c382c1ddb0fe..2e7b76e50c2ba 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_frontend.h
++++ b/drivers/gpu/drm/sun4i/sun4i_frontend.h
+@@ -115,11 +115,7 @@ struct reset_control;
+ struct sun4i_frontend_data {
+ 	bool	has_coef_access_ctrl;
+ 	bool	has_coef_rdy;
+-
+-	struct {
+-		u32	horzphase;
+-		u32	vertphase[2];
+-	} ch_phase[2];
++	u32	ch_phase[2];
+ };
+ 
+ struct sun4i_frontend {
 -- 
 2.27.0
 
