@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E6D2A53CB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A9E2A5432
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388002AbgKCVEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:04:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42754 "EHLO mail.kernel.org"
+        id S2388224AbgKCVIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:08:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387998AbgKCVEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:37 -0500
+        id S2388601AbgKCVIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:08:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CB7A20658;
-        Tue,  3 Nov 2020 21:04:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8924420757;
+        Tue,  3 Nov 2020 21:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437477;
-        bh=gkPEqAXJN9EPTh7XGZIwCLPEEsQ7pPhdG9e2tiRjWY8=;
+        s=default; t=1604437730;
+        bh=iKu5MqBtl/4hCSBKRUyPCLxrStMYy5wqnUdU7kNxxUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYVD4zPuB/nqY9M6ns8UKt4QePtNsKQw64eSISNRqdky8CPAaegMly6il9YdyTgLv
-         Am7PYSyHLUe0rymG0j49E3cuQdn6vy+nr93jQSkIzsYEyDqgJbUxNIlWiUS074vSla
-         Rrnj47VEePORlM4wK26leINccOj2YxJtaXGCNvpY=
+        b=w2PTNAnzzOMcq5X8H8BuDeYMrQOI1upvSfKRlU4jaE70hMZ4uVbfjWT3nrswbbopP
+         0wo/0fiEId5U89W+ASZSz92omlspFSQ9Gk6mG8ZGjG+6oon2h9xLM67YelhfIwFoDV
+         2TQ8K8XDPldV7V3X9TfTm3qcUAD4SSQFYP8ibnOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>,
-        Gavin Shan <gshan@redhat.com>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 086/191] arm64/mm: return cpu_all_mask when node is NUMA_NO_NODE
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.14 001/125] scripts/setlocalversion: make git describe output more reliable
 Date:   Tue,  3 Nov 2020 21:36:18 +0100
-Message-Id: <20201103203242.125528550@linuxfoundation.org>
+Message-Id: <20201103203156.547256706@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,61 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit a194c5f2d2b3a05428805146afcabe5140b5d378 ]
+commit 548b8b5168c90c42e88f70fcf041b4ce0b8e7aa8 upstream.
 
-The @node passed to cpumask_of_node() can be NUMA_NO_NODE, in that
-case it will trigger the following WARN_ON(node >= nr_node_ids) due to
-mismatched data types of @node and @nr_node_ids. Actually we should
-return cpu_all_mask just like most other architectures do if passed
-NUMA_NO_NODE.
+When building for an embedded target using Yocto, we're sometimes
+observing that the version string that gets built into vmlinux (and
+thus what uname -a reports) differs from the path under /lib/modules/
+where modules get installed in the rootfs, but only in the length of
+the -gabc123def suffix. Hence modprobe always fails.
 
-Also add a similar check to the inline cpumask_of_node() in numa.h.
+The problem is that Yocto has the concept of "sstate" (shared state),
+which allows different developers/buildbots/etc. to share build
+artifacts, based on a hash of all the metadata that went into building
+that artifact - and that metadata includes all dependencies (e.g. the
+compiler used etc.). That normally works quite well; usually a clean
+build (without using any sstate cache) done by one developer ends up
+being binary identical to a build done on another host. However, one
+thing that can cause two developers to end up with different builds
+[and thus make one's vmlinux package incompatible with the other's
+kernel-dev package], which is not captured by the metadata hashing, is
+this `git describe`: The output of that can be affected by
 
-Signed-off-by: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
-Reviewed-by: Gavin Shan <gshan@redhat.com>
-Link: https://lore.kernel.org/r/20200921023936.21846-1-liuzhengyuan@tj.kylinos.cn
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+(1) git version: before 2.11 git defaulted to a minimum of 7, since
+2.11 (git.git commit e6c587) the default is dynamic based on the
+number of objects in the repo
+(2) hence even if both run the same git version, the output can differ
+based on how many remotes are being tracked (or just lots of local
+development branches or plain old garbage)
+(3) and of course somebody could have a core.abbrev config setting in
+~/.gitconfig
+
+So in order to avoid `uname -a` output relying on such random details
+of the build environment which are rather hard to ensure are
+consistent between developers and buildbots, make sure the abbreviated
+sha1 always consists of exactly 12 hex characters. That is consistent
+with the current rule for -stable patches, and is almost always enough
+to identify the head commit unambigously - in the few cases where it
+does not, the v5.4.3-00021- prefix would certainly nail it down.
+
+[Adapt to `` vs $() differences between 5.4 and upstream.]
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/include/asm/numa.h | 3 +++
- arch/arm64/mm/numa.c          | 6 +++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ scripts/setlocalversion |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
-index 626ad01e83bf0..dd870390d639f 100644
---- a/arch/arm64/include/asm/numa.h
-+++ b/arch/arm64/include/asm/numa.h
-@@ -25,6 +25,9 @@ const struct cpumask *cpumask_of_node(int node);
- /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
- static inline const struct cpumask *cpumask_of_node(int node)
- {
-+	if (node == NUMA_NO_NODE)
-+		return cpu_all_mask;
-+
- 	return node_to_cpumask_map[node];
- }
- #endif
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 54529b4ed5130..15eaf1e09d0ca 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -58,7 +58,11 @@ EXPORT_SYMBOL(node_to_cpumask_map);
-  */
- const struct cpumask *cpumask_of_node(int node)
- {
--	if (WARN_ON(node >= nr_node_ids))
-+
-+	if (node == NUMA_NO_NODE)
-+		return cpu_all_mask;
-+
-+	if (WARN_ON(node < 0 || node >= nr_node_ids))
- 		return cpu_none_mask;
+--- a/scripts/setlocalversion
++++ b/scripts/setlocalversion
+@@ -45,7 +45,7 @@ scm_version()
  
- 	if (WARN_ON(node_to_cpumask_map[node] == NULL))
--- 
-2.27.0
-
+ 	# Check for git and a git repo.
+ 	if test -z "$(git rev-parse --show-cdup 2>/dev/null)" &&
+-	   head=`git rev-parse --verify --short HEAD 2>/dev/null`; then
++	   head=$(git rev-parse --verify HEAD 2>/dev/null); then
+ 
+ 		# If we are at a tagged commit (like "v2.6.30-rc6"), we ignore
+ 		# it, because this version is defined in the top level Makefile.
+@@ -59,11 +59,22 @@ scm_version()
+ 			fi
+ 			# If we are past a tagged commit (like
+ 			# "v2.6.30-rc5-302-g72357d5"), we pretty print it.
+-			if atag="`git describe 2>/dev/null`"; then
+-				echo "$atag" | awk -F- '{printf("-%05d-%s", $(NF-1),$(NF))}'
++			#
++			# Ensure the abbreviated sha1 has exactly 12
++			# hex characters, to make the output
++			# independent of git version, local
++			# core.abbrev settings and/or total number of
++			# objects in the current repository - passing
++			# --abbrev=12 ensures a minimum of 12, and the
++			# awk substr() then picks the 'g' and first 12
++			# hex chars.
++			if atag="$(git describe --abbrev=12 2>/dev/null)"; then
++				echo "$atag" | awk -F- '{printf("-%05d-%s", $(NF-1),substr($(NF),0,13))}'
+ 
+-			# If we don't have a tag at all we print -g{commitish}.
++			# If we don't have a tag at all we print -g{commitish},
++			# again using exactly 12 hex chars.
+ 			else
++				head="$(echo $head | cut -c1-12)"
+ 				printf '%s%s' -g $head
+ 			fi
+ 		fi
 
 
