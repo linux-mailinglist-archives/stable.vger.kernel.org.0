@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1CEC2A5920
+	by mail.lfdr.de (Postfix) with ESMTP id 756952A591F
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728206AbgKCWFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 17:05:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55502 "EHLO mail.kernel.org"
+        id S1730576AbgKCUmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbgKCUmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:46 -0500
+        id S1730594AbgKCUmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:42:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2ADB2224E;
-        Tue,  3 Nov 2020 20:42:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1560E223AC;
+        Tue,  3 Nov 2020 20:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436166;
-        bh=Vrk3r+vuqxXxA3MPMei+k9geHt8hjXGiV2M7Aipgi5Y=;
+        s=default; t=1604436168;
+        bh=XgAZ/GcK4aq8ik1JlvQ9A2VtPmDNskl/QdJEF5E0Va4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPAmdqbNQ2OFJ5oMrcdqg4TtHXEELfe9BWK1T9dedToTqa+U8bfwB5BNCB6GWKE34
-         /S1gd1BvttZMjAt003hGozWFGxJ5NfEEWA9kBUzWr6Q5gmYJZh+CZ4EBIBuYLO9E8V
-         7N07d23ElR5lvuCnoQ2c7GMwHs85XwdodxUsRivE=
+        b=vlNl+0imPva1NHn8XewmZhGQZrFO9+7IURMyOFJIeJU8Lyf2pJaB8ksTL1Lc6Cru7
+         Hb8FXRV1O/Ku1ykvUoWCUXkrpnJ9DuO3gNqc1L+4M03iK0lTz/uYoeWxUyvfMM+RMC
+         syQSkY2RIklDfHMjpYUJrdY4OvZyCNogrTRsfTIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 130/391] ath11k: fix warning caused by lockdep_assert_held
-Date:   Tue,  3 Nov 2020 21:33:01 +0100
-Message-Id: <20201103203355.599445994@linuxfoundation.org>
+Subject: [PATCH 5.9 131/391] ath11k: change to disable softirqs for ath11k_regd_update to solve deadlock
+Date:   Tue,  3 Nov 2020 21:33:02 +0100
+Message-Id: <20201103203355.666708533@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,75 +43,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit 2f588660e34a982377109872757f1b99d7748d21 ]
+[ Upstream commit df648808c6b9989555e247530d8ca0ad0094b361 ]
 
-Fix warning caused by lockdep_assert_held when CONFIG_LOCKDEP is enabled.
+After base_lock which occupy by ath11k_regd_update, the softirq run for
+WMI_REG_CHAN_LIST_CC_EVENTID maybe arrived and it also need to accuire
+the spin lock, then deadlock happend, change to disable softirqis to solve it.
 
-[  271.940647] WARNING: CPU: 6 PID: 0 at drivers/net/wireless/ath/ath11k/hal.c:818 ath11k_hal_srng_access_begin+0x31/0x40 [ath11k]
-[  271.940655] Modules linked in: qrtr_mhi qrtr ns ath11k_pci mhi ath11k qmi_helpers nvme nvme_core
-[  271.940675] CPU: 6 PID: 0 Comm: swapper/6 Kdump: loaded Tainted: G        W         5.9.0-rc5-kalle-bringup-wt-ath+ #4
-[  271.940682] Hardware name: Dell Inc. Inspiron 7590/08717F, BIOS 1.3.0 07/22/2019
-[  271.940698] RIP: 0010:ath11k_hal_srng_access_begin+0x31/0x40 [ath11k]
-[  271.940708] Code: 48 89 f3 85 c0 75 11 48 8b 83 a8 00 00 00 8b 00 89 83 b0 00 00 00 5b c3 48 8d 7e 58 be ff ff ff ff e8 53 24 ec fa 85 c0 75 dd <0f> 0b eb d9 90 66 2e 0f 1f 84 00 00 00 00 00 55 53 48 89 f3 8b 35
-[  271.940718] RSP: 0018:ffffbdf0c0230df8 EFLAGS: 00010246
-[  271.940727] RAX: 0000000000000000 RBX: ffffa12b34e67680 RCX: ffffa12b57a0d800
-[  271.940735] RDX: 0000000000000000 RSI: 00000000ffffffff RDI: ffffa12b34e676d8
-[  271.940742] RBP: ffffa12b34e60000 R08: 0000000000000001 R09: 0000000000000001
-[  271.940753] R10: 0000000000000001 R11: 0000000000000046 R12: 0000000000000000
-[  271.940763] R13: ffffa12b34e60000 R14: ffffa12b34e60000 R15: 0000000000000000
-[  271.940774] FS:  0000000000000000(0000) GS:ffffa12b5a400000(0000) knlGS:0000000000000000
-[  271.940788] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  271.940798] CR2: 00007f8bef282008 CR3: 00000001f4224004 CR4: 00000000003706e0
-[  271.940805] Call Trace:
-[  271.940813]  <IRQ>
-[  271.940835]  ath11k_dp_tx_completion_handler+0x9e/0x950 [ath11k]
-[  271.940847]  ? lock_acquire+0xba/0x3b0
-[  271.940876]  ath11k_dp_service_srng+0x5a/0x2e0 [ath11k]
-[  271.940893]  ath11k_pci_ext_grp_napi_poll+0x1e/0x80 [ath11k_pci]
-[  271.940908]  net_rx_action+0x283/0x4f0
-[  271.940931]  __do_softirq+0xcb/0x499
-[  271.940950]  asm_call_on_stack+0x12/0x20
-[  271.940963]  </IRQ>
-[  271.940979]  do_softirq_own_stack+0x4d/0x60
-[  271.940991]  irq_exit_rcu+0xb0/0xc0
-[  271.941001]  common_interrupt+0xce/0x190
-[  271.941014]  asm_common_interrupt+0x1e/0x40
-[  271.941026] RIP: 0010:cpuidle_enter_state+0x115/0x500
+[  235.576990] ================================
+[  235.576991] WARNING: inconsistent lock state
+[  235.576993] 5.9.0-rc5-wt-ath+ #196 Not tainted
+[  235.576994] --------------------------------
+[  235.576995] inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
+[  235.576997] kworker/u16:1/98 [HC0[0]:SC0[0]:HE1:SE1] takes:
+[  235.576998] ffff9655f75cad98 (&ab->base_lock){+.?.}-{2:2}, at: ath11k_regd_update+0x28/0x1d0 [ath11k]
+[  235.577009] {IN-SOFTIRQ-W} state was registered at:
+[  235.577013]   __lock_acquire+0x219/0x6e0
+[  235.577015]   lock_acquire+0xb6/0x270
+[  235.577018]   _raw_spin_lock+0x2c/0x70
+[  235.577023]   ath11k_reg_chan_list_event.isra.0+0x10d/0x1e0 [ath11k]
+[  235.577028]   ath11k_wmi_tlv_op_rx+0x3c3/0x560 [ath11k]
+[  235.577033]   ath11k_htc_rx_completion_handler+0x207/0x370 [ath11k]
+[  235.577039]   ath11k_ce_recv_process_cb+0x15e/0x1e0 [ath11k]
+[  235.577041]   ath11k_pci_ce_tasklet+0x10/0x30 [ath11k_pci]
+[  235.577043]   tasklet_action_common.constprop.0+0xd4/0xf0
+[  235.577045]   __do_softirq+0xc9/0x482
+[  235.577046]   asm_call_on_stack+0x12/0x20
+[  235.577048]   do_softirq_own_stack+0x49/0x60
+[  235.577049]   irq_exit_rcu+0x9a/0xd0
+[  235.577050]   common_interrupt+0xa1/0x190
+[  235.577052]   asm_common_interrupt+0x1e/0x40
+[  235.577053]   cpu_idle_poll.isra.0+0x2e/0x60
+[  235.577055]   do_idle+0x5f/0xe0
+[  235.577056]   cpu_startup_entry+0x14/0x20
+[  235.577058]   start_kernel+0x443/0x464
+[  235.577060]   secondary_startup_64+0xa4/0xb0
+[  235.577061] irq event stamp: 432035
+[  235.577063] hardirqs last  enabled at (432035): [<ffffffff968d12b4>] _raw_spin_unlock_irqrestore+0x34/0x40
+[  235.577064] hardirqs last disabled at (432034): [<ffffffff968d10d3>] _raw_spin_lock_irqsave+0x63/0x80
+[  235.577066] softirqs last  enabled at (431998): [<ffffffff967115c1>] inet6_fill_ifla6_attrs+0x3f1/0x430
+[  235.577067] softirqs last disabled at (431996): [<ffffffff9671159f>] inet6_fill_ifla6_attrs+0x3cf/0x430
+[  235.577068]
+[  235.577068] other info that might help us debug this:
+[  235.577069]  Possible unsafe locking scenario:
+[  235.577069]
+[  235.577070]        CPU0
+[  235.577070]        ----
+[  235.577071]   lock(&ab->base_lock);
+[  235.577072]   <Interrupt>
+[  235.577073]     lock(&ab->base_lock);
+[  235.577074]
+[  235.577074]  *** DEADLOCK ***
+[  235.577074]
+[  235.577075] 3 locks held by kworker/u16:1/98:
+[  235.577076]  #0: ffff9655f75b1d48 ((wq_completion)ath11k_qmi_driver_event){+.+.}-{0:0}, at: process_one_work+0x1d3/0x5d0
+[  235.577079]  #1: ffffa33cc02f3e70 ((work_completion)(&ab->qmi.event_work)){+.+.}-{0:0}, at: process_one_work+0x1d3/0x5d0
+[  235.577081]  #2: ffff9655f75cad50 (&ab->core_lock){+.+.}-{3:3}, at: ath11k_core_qmi_firmware_ready.part.0+0x4e/0x160 [ath11k]
+[  235.577087]
+[  235.577087] stack backtrace:
+[  235.577088] CPU: 3 PID: 98 Comm: kworker/u16:1 Not tainted 5.9.0-rc5-wt-ath+ #196
+[  235.577089] Hardware name: Intel(R) Client Systems NUC8i7HVK/NUC8i7HVB, BIOS HNKBLi70.86A.0049.2018.0801.1601 08/01/2018
+[  235.577095] Workqueue: ath11k_qmi_driver_event ath11k_qmi_driver_event_work [ath11k]
+[  235.577096] Call Trace:
+[  235.577100]  dump_stack+0x77/0xa0
+[  235.577102]  mark_lock_irq.cold+0x15/0x3c
+[  235.577104]  mark_lock+0x1d7/0x540
+[  235.577105]  mark_usage+0xc7/0x140
+[  235.577107]  __lock_acquire+0x219/0x6e0
+[  235.577108]  ? sched_clock_cpu+0xc/0xb0
+[  235.577110]  lock_acquire+0xb6/0x270
+[  235.577116]  ? ath11k_regd_update+0x28/0x1d0 [ath11k]
+[  235.577118]  ? atomic_notifier_chain_register+0x2d/0x40
+[  235.577120]  _raw_spin_lock+0x2c/0x70
+[  235.577125]  ? ath11k_regd_update+0x28/0x1d0 [ath11k]
+[  235.577130]  ath11k_regd_update+0x28/0x1d0 [ath11k]
+[  235.577136]  __ath11k_mac_register+0x3fb/0x480 [ath11k]
+[  235.577141]  ath11k_mac_register+0x119/0x180 [ath11k]
+[  235.577146]  ath11k_core_pdev_create+0x17/0xe0 [ath11k]
+[  235.577150]  ath11k_core_qmi_firmware_ready.part.0+0x65/0x160 [ath11k]
+[  235.577155]  ath11k_qmi_driver_event_work+0x1c5/0x230 [ath11k]
+[  235.577158]  process_one_work+0x265/0x5d0
+[  235.577160]  worker_thread+0x49/0x300
+[  235.577161]  ? process_one_work+0x5d0/0x5d0
+[  235.577163]  kthread+0x135/0x150
+[  235.577164]  ? kthread_create_worker_on_cpu+0x60/0x60
+[  235.577166]  ret_from_fork+0x22/0x30
 
 Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
 
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1601463073-12106-5-git-send-email-kvalo@codeaurora.org
+Link: https://lore.kernel.org/r/1601399736-3210-7-git-send-email-kvalo@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_tx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/ath11k/reg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
-index 1af76775b1a87..99cff8fb39773 100644
---- a/drivers/net/wireless/ath/ath11k/dp_tx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
-@@ -514,6 +514,8 @@ void ath11k_dp_tx_completion_handler(struct ath11k_base *ab, int ring_id)
- 	u32 msdu_id;
- 	u8 mac_id;
+diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
+index 7c9dc91cc48a9..c79a7c7eb56ee 100644
+--- a/drivers/net/wireless/ath/ath11k/reg.c
++++ b/drivers/net/wireless/ath/ath11k/reg.c
+@@ -206,7 +206,7 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
+ 	ab = ar->ab;
+ 	pdev_id = ar->pdev_idx;
  
-+	spin_lock_bh(&status_ring->lock);
-+
- 	ath11k_hal_srng_access_begin(ab, status_ring);
+-	spin_lock(&ab->base_lock);
++	spin_lock_bh(&ab->base_lock);
  
- 	while ((ATH11K_TX_COMPL_NEXT(tx_ring->tx_status_head) !=
-@@ -533,6 +535,8 @@ void ath11k_dp_tx_completion_handler(struct ath11k_base *ab, int ring_id)
+ 	if (init) {
+ 		/* Apply the regd received during init through
+@@ -227,7 +227,7 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
  
- 	ath11k_hal_srng_access_end(ab, status_ring);
+ 	if (!regd) {
+ 		ret = -EINVAL;
+-		spin_unlock(&ab->base_lock);
++		spin_unlock_bh(&ab->base_lock);
+ 		goto err;
+ 	}
  
-+	spin_unlock_bh(&status_ring->lock);
-+
- 	while (ATH11K_TX_COMPL_NEXT(tx_ring->tx_status_tail) != tx_ring->tx_status_head) {
- 		struct hal_wbm_release_ring *tx_status;
- 		u32 desc_id;
+@@ -238,7 +238,7 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
+ 	if (regd_copy)
+ 		ath11k_copy_regd(regd, regd_copy);
+ 
+-	spin_unlock(&ab->base_lock);
++	spin_unlock_bh(&ab->base_lock);
+ 
+ 	if (!regd_copy) {
+ 		ret = -ENOMEM;
 -- 
 2.27.0
 
