@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3FFB2A5824
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEEF42A57ED
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731001AbgKCUtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:49:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43218 "EHLO mail.kernel.org"
+        id S1731246AbgKCUtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731647AbgKCUts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:48 -0500
+        id S1731700AbgKCUtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E34F223FD;
-        Tue,  3 Nov 2020 20:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA0222404;
+        Tue,  3 Nov 2020 20:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436587;
-        bh=eAxzmhxaZ1kV6zsX3y87pIkAiEU459Pq/otXWw1pE+o=;
+        s=default; t=1604436589;
+        bh=UhyYgVp+1KR7j5IDTpEgX1c8mS2WPI5TB7Sqf8WcqCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gn7fZaEvQhe1CMTk266dUvN3M8msrwpjzyHMk/NOvyQVvqIRvvY2P2UT9yIhw3G/F
-         vwTKeetjGHm+329Slrlz2w1kI5hFpFcBz+HHQGTjN1ctbzc+qO0q1TKRZRkZNt0/TB
-         Vx42wK5W/vUnxwvEDG8hk/EdSwef1hT3qaiH4Zt4=
+        b=yS5LSSLrLkpnZm98ExgoXsOtkN6MJ0phrUpr9jsUxStsgfcyAeVr5aY0scoRe5J20
+         BDnxqxWG1h2ro05aZ6B9FHzPC5uSSBNZIgd+pkLB0SW2tZkRzw95Pa42/K8isgMUZV
+         42xHCgUcVfCeKAdzDZxhGkFbr2zrki8yBE1M18gY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Madhav Chauhan <madhav.chauhan@amd.com>,
+        stable@vger.kernel.org, David Galiffi <David.Galiffi@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.9 316/391] drm/amdgpu: dont map BO in reserved region
-Date:   Tue,  3 Nov 2020 21:36:07 +0100
-Message-Id: <20201103203408.434205405@linuxfoundation.org>
+Subject: [PATCH 5.9 317/391] drm/amd/display: Fix incorrect backlight register offset for DCN
+Date:   Tue,  3 Nov 2020 21:36:08 +0100
+Message-Id: <20201103203408.501224393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,48 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhav Chauhan <madhav.chauhan@amd.com>
+From: David Galiffi <David.Galiffi@amd.com>
 
-commit c4aa8dff6091cc9536aeb255e544b0b4ba29faf4 upstream.
+commit 651111be24aa4c8b62c10f6fff51d9ad82411249 upstream.
 
-2MB area is reserved at top inside VM.
+[Why]
+Typo in backlight refactor introduced wrong register offset.
 
-Suggested-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Madhav Chauhan <madhav.chauhan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+[How]
+SR(BIOS_SCRATCH_2) to NBIO_SR(BIOS_SCRATCH_2).
+
+Signed-off-by: David Galiffi <David.Galiffi@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-@@ -596,6 +596,7 @@ int amdgpu_gem_va_ioctl(struct drm_devic
- 	struct ww_acquire_ctx ticket;
- 	struct list_head list, duplicates;
- 	uint64_t va_flags;
-+	uint64_t vm_size;
- 	int r = 0;
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h
+@@ -54,7 +54,7 @@
+ 	SR(BL_PWM_CNTL2), \
+ 	SR(BL_PWM_PERIOD_CNTL), \
+ 	SR(BL_PWM_GRP1_REG_LOCK), \
+-	SR(BIOS_SCRATCH_2)
++	NBIO_SR(BIOS_SCRATCH_2)
  
- 	if (args->va_address < AMDGPU_VA_RESERVED_SIZE) {
-@@ -616,6 +617,15 @@ int amdgpu_gem_va_ioctl(struct drm_devic
- 
- 	args->va_address &= AMDGPU_GMC_HOLE_MASK;
- 
-+	vm_size = adev->vm_manager.max_pfn * AMDGPU_GPU_PAGE_SIZE;
-+	vm_size -= AMDGPU_VA_RESERVED_SIZE;
-+	if (args->va_address + args->map_size > vm_size) {
-+		dev_dbg(&dev->pdev->dev,
-+			"va_address 0x%llx is in top reserved area 0x%llx\n",
-+			args->va_address + args->map_size, vm_size);
-+		return -EINVAL;
-+	}
-+
- 	if ((args->flags & ~valid_flags) && (args->flags & ~prt_flags)) {
- 		dev_dbg(&dev->pdev->dev, "invalid flags combination 0x%08X\n",
- 			args->flags);
+ #define DCE_PANEL_CNTL_SF(reg_name, field_name, post_fix)\
+ 	.field_name = reg_name ## __ ## field_name ## post_fix
 
 
