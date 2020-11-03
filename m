@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A502A556B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 288DC2A55CB
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731655AbgKCVRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:17:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50394 "EHLO mail.kernel.org"
+        id S2387858AbgKCVWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:22:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387859AbgKCVJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:09:57 -0500
+        id S2388065AbgKCVFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:05:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3999206B5;
-        Tue,  3 Nov 2020 21:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A172620658;
+        Tue,  3 Nov 2020 21:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437797;
-        bh=zdg92P/vxc+dxJT+bzylolB4z50kOpufn6f2r2lzS5I=;
+        s=default; t=1604437547;
+        bh=vJNDHtA8dIwtrwZJCs7FdcTmW+Ou1/G9CnSb63A9HRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwjB7GDoUgUXGGeGk2X9VNPX/+274LnvXhOTGQIoLLFDnaIXyTUHcgVbJtZAAFfLF
-         P31nIMeREqvDm1Ra7Ay3zUkK0ZK+aI1oIOXoHjyfCWa/5WpjOkCJtgoodd3cqYIblf
-         lFIYLFGbLkx4MvAXrsH11FP8kyYHWLtAkB7ih2LI=
+        b=MAYgqtg7opERgfHYhnuoXG1+BPAU952lxFPYsZ28h6GPBTWqjwWMDvVAgfdDte+zn
+         vTN40i7P4zJCoWuyWqF/vvPrkh8rFVso3tJ7kr+y4d/bEZArCymYO3WSKRhXRdn23E
+         tJtHLb7bRhwTvvs+uYdfA7AQZ3FuCfnDJa/ay1jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <avolmat@me.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/125] cpufreq: sti-cpufreq: add stih418 support
+        stable@vger.kernel.org, Alex Hung <alex.hung@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 122/191] ACPI: video: use ACPI backlight for HP 635 Notebook
 Date:   Tue,  3 Nov 2020 21:36:54 +0100
-Message-Id: <20201103203202.394381646@linuxfoundation.org>
+Message-Id: <20201103203244.697783509@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <avolmat@me.com>
+From: Alex Hung <alex.hung@canonical.com>
 
-[ Upstream commit 01a163c52039e9426c7d3d3ab16ca261ad622597 ]
+commit b226faab4e7890bbbccdf794e8b94276414f9058 upstream.
 
-The STiH418 can be controlled the same way as STiH407 &
-STiH410 regarding cpufreq.
+The default backlight interface is AMD's radeon_bl0 which does not
+work on this system, so use the ACPI backlight interface on it
+instead.
 
-Signed-off-by: Alain Volmat <avolmat@me.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugs.launchpad.net/bugs/1894667
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rjw: Changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpufreq/sti-cpufreq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/video_detect.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
-index 47105735df126..6b5d241c30b70 100644
---- a/drivers/cpufreq/sti-cpufreq.c
-+++ b/drivers/cpufreq/sti-cpufreq.c
-@@ -144,7 +144,8 @@ static const struct reg_field sti_stih407_dvfs_regfields[DVFS_MAX_REGFIELDS] = {
- static const struct reg_field *sti_cpufreq_match(void)
- {
- 	if (of_machine_is_compatible("st,stih407") ||
--	    of_machine_is_compatible("st,stih410"))
-+	    of_machine_is_compatible("st,stih410") ||
-+	    of_machine_is_compatible("st,stih418"))
- 		return sti_stih407_dvfs_regfields;
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -274,6 +274,15 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "530U4E/540U4E"),
+ 		},
+ 	},
++	/* https://bugs.launchpad.net/bugs/1894667 */
++	{
++	 .callback = video_detect_force_video,
++	 .ident = "HP 635 Notebook",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
++		},
++	},
  
- 	return NULL;
-@@ -261,7 +262,8 @@ static int sti_cpufreq_init(void)
- 	int ret;
- 
- 	if ((!of_machine_is_compatible("st,stih407")) &&
--		(!of_machine_is_compatible("st,stih410")))
-+		(!of_machine_is_compatible("st,stih410")) &&
-+		(!of_machine_is_compatible("st,stih418")))
- 		return -ENODEV;
- 
- 	ddata.cpu = get_cpu_device(0);
--- 
-2.27.0
-
+ 	/* Non win8 machines which need native backlight nevertheless */
+ 	{
 
 
