@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0772A5882
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A204F2A5772
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730479AbgKCUqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36710 "EHLO mail.kernel.org"
+        id S1731442AbgKCUy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:54:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730376AbgKCUqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:53 -0500
+        id S1732567AbgKCUyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:54:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39FB822404;
-        Tue,  3 Nov 2020 20:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F765223BD;
+        Tue,  3 Nov 2020 20:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436412;
-        bh=i6Il6kjpPM77yfeullmaYgn7IGlIDL4NLgMvuN8Hpnc=;
+        s=default; t=1604436860;
+        bh=PKXvgJAXqK8j6bX7Dlte8tO2NmsT5qMcDgFiPVCEyCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0wTnDZllarW5W+0E/Blu65EhBoUNLllWVhlPtKIkomFksi43+i1nQ+nH8yHx1gb6
-         gt0CQYYy7gh2wT5cMYxgaB2+w8Z9Y4hd6VNk3roo/MsLM3PWMtzURdkjaHBrimXckF
-         RzSyC/y7d3D/T2050UXVLcVUBflbaf7nmdbzy/fA=
+        b=VMgOSlGXaNomCioEtUIWd93Id9tRBlsjp/N2J0pzYwCE0U+VilqE/r+xmjCwnsPM+
+         9bPMG6pXTjzauz301v1baBn2q4JLddDMoIJto5a/CbIWzDDuAaioij8wsKsC8/PoY6
+         sddxUy2fvPziBk2dqntwZ1K3QdF8L1D+yV3AorNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.9 239/391] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM method for PM functionality
-Date:   Tue,  3 Nov 2020 21:34:50 +0100
-Message-Id: <20201103203403.132715049@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/214] media: tw5864: check status of tw5864_frameinterval_get
+Date:   Tue,  3 Nov 2020 21:34:51 +0100
+Message-Id: <20201103203254.131220594@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Tan <raymond.tan@intel.com>
+From: Tom Rix <trix@redhat.com>
 
-commit a609ce2a13360d639b384b6ca783b38c1247f2db upstream.
+[ Upstream commit 780d815dcc9b34d93ae69385a8465c38d423ff0f ]
 
-Similar to some other IA platforms, Elkhart Lake too depends on the
-PMU register write to request transition of Dx power state.
+clang static analysis reports this problem
 
-Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
-shall execute the ACPI _DSM method during D0/D3 sequence.
+tw5864-video.c:773:32: warning: The left expression of the compound
+  assignment is an uninitialized value.
+  The computed value will also be garbage
+        fintv->stepwise.max.numerator *= std_max_fps;
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
 
-[heikki.krogerus@linux.intel.com: included Fixes tag]
+stepwise.max is set with frameinterval, which comes from
 
-Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake Devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Raymond Tan <raymond.tan@intel.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	ret = tw5864_frameinterval_get(input, &frameinterval);
+	fintv->stepwise.step = frameinterval;
+	fintv->stepwise.min = frameinterval;
+	fintv->stepwise.max = frameinterval;
+	fintv->stepwise.max.numerator *= std_max_fps;
 
+When tw5864_frameinterval_get() fails, frameinterval is not
+set. So check the status and fix another similar problem.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/pci/tw5864/tw5864-video.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -147,7 +147,8 @@ static int dwc3_pci_quirks(struct dwc3_p
+diff --git a/drivers/media/pci/tw5864/tw5864-video.c b/drivers/media/pci/tw5864/tw5864-video.c
+index 09732eed7eb4f..656142c7a2cc7 100644
+--- a/drivers/media/pci/tw5864/tw5864-video.c
++++ b/drivers/media/pci/tw5864/tw5864-video.c
+@@ -767,6 +767,9 @@ static int tw5864_enum_frameintervals(struct file *file, void *priv,
+ 	fintv->type = V4L2_FRMIVAL_TYPE_STEPWISE;
  
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
- 		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
--				pdev->device == PCI_DEVICE_ID_INTEL_BXT_M) {
-+		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
-+		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
- 			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
- 			dwc->has_dsm_for_pm = true;
- 		}
+ 	ret = tw5864_frameinterval_get(input, &frameinterval);
++	if (ret)
++		return ret;
++
+ 	fintv->stepwise.step = frameinterval;
+ 	fintv->stepwise.min = frameinterval;
+ 	fintv->stepwise.max = frameinterval;
+@@ -785,6 +788,9 @@ static int tw5864_g_parm(struct file *file, void *priv,
+ 	cp->capability = V4L2_CAP_TIMEPERFRAME;
+ 
+ 	ret = tw5864_frameinterval_get(input, &cp->timeperframe);
++	if (ret)
++		return ret;
++
+ 	cp->timeperframe.numerator *= input->frame_interval;
+ 	cp->capturemode = 0;
+ 	cp->readbuffers = 2;
+-- 
+2.27.0
+
 
 
