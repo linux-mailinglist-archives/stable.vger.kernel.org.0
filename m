@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E61E2A5512
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9A82A5534
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388806AbgKCVLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:11:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
+        id S2388193AbgKCVGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:06:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388801AbgKCVK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:59 -0500
+        id S1733232AbgKCVGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:06:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4253205ED;
-        Tue,  3 Nov 2020 21:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06980206CB;
+        Tue,  3 Nov 2020 21:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437858;
-        bh=o+sPWNuhJrxeaQQyJe9A6YyQApEibGYmU08j5EeU9tA=;
+        s=default; t=1604437596;
+        bh=/Ks8KETB+CKrRYrGo2T+5rqEmySgJfur65rlwYhBuKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJg6gfyARAXYBhHos6G0pyJiaxdTmto7p9gjYv9knWsUFSUgVBJUuqkOI3dvXrWCP
-         loB9/UP4k553FsRC3FfNdBGdVB8TMMuhmU4pbkkVWEpsIOz083pnytP78w/jhKgR+L
-         5At6zulhgEje/Ly3VQTy69s/lr/DW5zv74jWsBvU=
+        b=e+CtMD5PPzONh4bXbEtZGYNpKl9vEtnZot8v/72C9rJC32zW6/n7ElnA0t3fmAMP+
+         T5wLeJVjzYAU2eoSKmjHGvLpS+ZZEiwjhbTJmDU6Kx/vDZLC1F0EAR/K9Xh6VIBVqT
+         CBbPmEW+fd8i3GXSDnEOp3Wav8s7lZ2zjIqC2k+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 060/125] nvme-rdma: fix crash when connect rejected
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.19 145/191] vt: keyboard, extend func_buf_lock to readers
 Date:   Tue,  3 Nov 2020 21:37:17 +0100
-Message-Id: <20201103203205.652315238@linuxfoundation.org>
+Message-Id: <20201103203246.361801167@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 43efdb8e870ee0f58633fd579aa5b5185bf5d39e ]
+commit 82e61c3909db51d91b9d3e2071557b6435018b80 upstream.
 
-A crash can happened when a connect is rejected.   The host establishes
-the connection after received ConnectReply, and then continues to send
-the fabrics Connect command.  If the controller does not receive the
-ReadyToUse capsule, host may receive a ConnectReject reply.
+Both read-side users of func_table/func_buf need locking. Without that,
+one can easily confuse the code by repeatedly setting altering strings
+like:
+while (1)
+	for (a = 0; a < 2; a++) {
+		struct kbsentry kbs = {};
+		strcpy((char *)kbs.kb_string, a ? ".\n" : "88888\n");
+		ioctl(fd, KDSKBSENT, &kbs);
+	}
 
-Call nvme_rdma_destroy_queue_ib after the host received the
-RDMA_CM_EVENT_REJECTED event.  Then when the fabrics Connect command
-times out, nvme_rdma_timeout calls nvme_rdma_complete_rq to fail the
-request.  A crash happenes due to use after free in
-nvme_rdma_complete_rq.
+When that program runs, one can get unexpected output by holding F1
+(note the unxpected period on the last line):
+.
+88888
+.8888
 
-nvme_rdma_destroy_queue_ib is redundant when handling the
-RDMA_CM_EVENT_REJECTED event as nvme_rdma_destroy_queue_ib is already
-called in connection failure handler.
+So protect all accesses to 'func_table' (and func_buf) by preexisting
+'func_buf_lock'.
 
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is easy in 'k_fn' handler as 'puts_queue' is expected not to sleep.
+On the other hand, KDGKBSENT needs a local (atomic) copy of the string
+because copy_to_user can sleep. Use already allocated, but unused
+'kbs->kb_string' for that purpose.
+
+Note that the program above needs at least CAP_SYS_TTY_CONFIG.
+
+This depends on the previous patch and on the func_buf_lock lock added
+in commit 46ca3f735f34 (tty/vt: fix write/write race in ioctl(KDSKBSENT)
+handler) in 5.2.
+
+Likely fixes CVE-2020-25656.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20201019085517.10176-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/rdma.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/tty/vt/keyboard.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index c91bfd839cabe..564e457f1345e 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1545,7 +1545,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		complete(&queue->cm_done);
- 		return 0;
- 	case RDMA_CM_EVENT_REJECTED:
--		nvme_rdma_destroy_queue_ib(queue);
- 		cm_error = nvme_rdma_conn_rejected(queue, ev);
- 		break;
- 	case RDMA_CM_EVENT_ROUTE_ERROR:
--- 
-2.27.0
-
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -742,8 +742,13 @@ static void k_fn(struct vc_data *vc, uns
+ 		return;
+ 
+ 	if ((unsigned)value < ARRAY_SIZE(func_table)) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&func_buf_lock, flags);
+ 		if (func_table[value])
+ 			puts_queue(vc, func_table[value]);
++		spin_unlock_irqrestore(&func_buf_lock, flags);
++
+ 	} else
+ 		pr_err("k_fn called with value=%d\n", value);
+ }
+@@ -1990,7 +1995,7 @@ out:
+ #undef s
+ #undef v
+ 
+-/* FIXME: This one needs untangling and locking */
++/* FIXME: This one needs untangling */
+ int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
+ {
+ 	struct kbsentry *kbs;
+@@ -2022,10 +2027,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 	switch (cmd) {
+ 	case KDGKBSENT: {
+ 		/* size should have been a struct member */
+-		unsigned char *from = func_table[i] ? : "";
++		ssize_t len = sizeof(user_kdgkb->kb_string);
++
++		spin_lock_irqsave(&func_buf_lock, flags);
++		len = strlcpy(kbs->kb_string, func_table[i] ? : "", len);
++		spin_unlock_irqrestore(&func_buf_lock, flags);
+ 
+-		ret = copy_to_user(user_kdgkb->kb_string, from,
+-				strlen(from) + 1) ? -EFAULT : 0;
++		ret = copy_to_user(user_kdgkb->kb_string, kbs->kb_string,
++				len + 1) ? -EFAULT : 0;
+ 
+ 		goto reterr;
+ 	}
 
 
