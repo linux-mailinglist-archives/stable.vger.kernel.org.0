@@ -2,50 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B000A2A4F56
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 19:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66BD12A4FB0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 20:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729079AbgKCSta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 13:49:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51758 "EHLO mail.kernel.org"
+        id S1729383AbgKCTGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 14:06:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725892AbgKCSt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 13:49:29 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        id S1727852AbgKCTGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 14:06:18 -0500
+Received: from kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net (unknown [163.114.132.5])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 682062074B;
-        Tue,  3 Nov 2020 18:49:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 506C32074B;
+        Tue,  3 Nov 2020 19:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604429369;
-        bh=eFnlY2lTBk3LPIoYXWPFok0OkwLeC9Cp15kAiPARqRk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X6sjtRSUlFN6VVoqPCP/XoZOfol3j1IHqveZ7FDaPCzx4JgM66I+M6Lb+N72YzOgL
-         YRPJvlOUyEiybatBxi/rbiQZYu/cR6iFCuft8qG1VNnXcJGYbm1FQojFHilvckVjKU
-         FqesS0B9O7C7kXS6+cslCHLkt51/i6nURktCyRXs=
-Date:   Tue, 3 Nov 2020 19:49:25 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alex Deucher <alexdeucher@gmail.com>
-Cc:     stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: Re: [PATCH 0/7] backports of upstream fixes for stable
-Message-ID: <20201103184925.GB173459@kroah.com>
-References: <20201103162903.687752-1-alexander.deucher@amd.com>
+        s=default; t=1604430377;
+        bh=O4tzWsceM+EicjZDWWaCFCmvVgWSvK/e5QxW68BvAEA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=gjL36NCstFyCcg4iSzkApJpED4wi8whZrV6dHqpkxE4LgXmNzTH5nhmjhbBxoS+Xv
+         +RdmJbD4waCm3t8hAX3/GkeiuEd5/iCELGhzw1PGn0nNNg7tRCXxPQYrt/V+eRCaKh
+         aT76FGPIJD/heUQQ1Hh0S2nBMPNQONOmAA6Du5cs=
+Date:   Tue, 3 Nov 2020 11:06:14 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Yunsheng Lin <linyunsheng@huawei.com>
+Cc:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
+        <vpai@akamai.com>, <Joakim.Tjernlund@infinera.com>,
+        <xiyou.wangcong@gmail.com>, <johunt@akamai.com>,
+        <jhs@mojatatu.com>, <jiri@resnulli.us>, <davem@davemloft.net>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linuxarm@huawei.com>, <john.fastabend@gmail.com>,
+        <eric.dumazet@gmail.com>, <dsahern@gmail.com>
+Subject: Re: [PATCH stable] net: sch_generic: fix the missing new qdisc
+ assignment bug
+Message-ID: <20201103110614.49116c3c@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <1604373938-211588-1-git-send-email-linyunsheng@huawei.com>
+References: <1604373938-211588-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201103162903.687752-1-alexander.deucher@amd.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 11:28:55AM -0500, Alex Deucher wrote:
-> These commits failed to apply cleanly to stable so I have
-> cherry-picked them from Linus' tree and fixed up the conflicts.
-> The original uptream commit is referenced in the commit message
-> as I used cherry-pick -x.
+On Tue, 3 Nov 2020 11:25:38 +0800 Yunsheng Lin wrote:
+> commit 2fb541c862c9 ("net: sch_generic: aviod concurrent reset and enqueue op for lockless qdisc")
+> 
+> When the above upstream commit is backported to stable kernel,
+> one assignment is missing, which causes two problems reported
+> by Joakim and Vishwanath, see [1] and [2].
+> 
+> So add the assignment back to fix it.
+> 
+> 1. https://www.spinics.net/lists/netdev/msg693916.html
+> 2. https://www.spinics.net/lists/netdev/msg695131.html
+> 
+> Fixes: 749cc0b0c7f3 ("net: sch_generic: aviod concurrent reset and enqueue op for lockless qdisc")
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 
-What stable tree(s) should these go to?
-
-thanks,
-
-greg k-h
+Acked-by: Jakub Kicinski <kuba@kernel.org>
