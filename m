@@ -2,118 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C89532A50BF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:12:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC732A50C2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725997AbgKCUMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:12:52 -0500
-Received: from aposti.net ([89.234.176.197]:50666 "EHLO aposti.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729061AbgKCUMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:12:52 -0500
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Artur Rojek <contact@artur-rojek.eu>
-Cc:     od@zcrc.me, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org
-Subject: [PATCH] iio/adc: ingenic: Fix AUX/VBAT readings when touchscreen is used
-Date:   Tue,  3 Nov 2020 20:12:38 +0000
-Message-Id: <20201103201238.161083-1-paul@crapouillou.net>
+        id S1729298AbgKCUNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:13:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44960 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728206AbgKCUNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 15:13:52 -0500
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9F6C0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 12:13:50 -0800 (PST)
+Received: by mail-pf1-x444.google.com with SMTP id 13so15258615pfy.4
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 12:13:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iY26nL+9rKEWM0m+3lcxk7+Si62rVJe06Mcu42M6bNU=;
+        b=eLps2WPRfz+UhZMN+rFlFEz/QpJyAuk8NikrNmy+Uac2l/kduJHngw5wklm60V7Rk5
+         skpT2065abhdrZOb+hzvc/8TpjDB8qNYqntbu4QZDkYx2Kz1BAYwSHrNUo4WF2eW0df9
+         E5kA7WnKapMrZjqBRq6CnHXYYGIJ5K+zvHfwE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iY26nL+9rKEWM0m+3lcxk7+Si62rVJe06Mcu42M6bNU=;
+        b=t8mSx4FRgRvMh5bxrO+2+NGQXsEirmtyYsTL+eiOWq5V/LRq3Cl9XBDotkb6s6YNlc
+         Xn+WobZcp/MAk+5cN6hF1UbdjXHZEuIcGCdO2jXmqb65bc4cWrRYnj2BDxn72vRMRWK7
+         t288Q6Ckz26brmEfVM2U8q1yBvtfrR5mgIp2UYkSCx3nx1+t/Il0QfYNYFQzeijuqlLE
+         KBxXU9YfmSDQVrEtnQoijENKV2qwt6ZHL4R2q5JrWCZzBhxESCKn/eEPK5P1xXrqgnRk
+         DODF0BTwRHN0vhKjZEzfYoHwKvbMDHqo/jLfb2uaYWveT7HAfbPpgNq+3/T+E+sCmaBo
+         GKKg==
+X-Gm-Message-State: AOAM531uwEoF0rzKpIAo55vGd+am8BVHS1qMCUdEZfFM/CQHhCfX+qt9
+        0zkGap066SUeOinPrYtwDF5jf5BhzQE1aA==
+X-Google-Smtp-Source: ABdhPJwNYtsd3305IATRHfux5291SeUk86YsRXGwGoMu6xiGVy+o0U44zhE3ifbVx40ASduNSPGJOg==
+X-Received: by 2002:a62:fb12:0:b029:160:4c48:b9e1 with SMTP id x18-20020a62fb120000b02901604c48b9e1mr26086509pfm.8.1604434429988;
+        Tue, 03 Nov 2020 12:13:49 -0800 (PST)
+Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
+        by smtp.gmail.com with ESMTPSA id y5sm11622919pfc.165.2020.11.03.12.13.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2020 12:13:49 -0800 (PST)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH stable 5.4] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return SMCCC_RET_NOT_REQUIRED
+Date:   Tue,  3 Nov 2020 12:13:48 -0800
+Message-Id: <20201103201348.371557-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the command feature of the ADC is used, it is possible to program
-the ADC, and specify at each step what input should be processed, and in
-comparison to what reference.
+commit 1de111b51b829bcf01d2e57971f8fd07a665fa3f upstream.
 
-This broke the AUX and battery readings when the touchscreen was
-enabled, most likely because the CMD feature would change the VREF all
-the time.
+According to the SMCCC spec[1](7.5.2 Discovery) the
+ARM_SMCCC_ARCH_WORKAROUND_1 function id only returns 0, 1, and
+SMCCC_RET_NOT_SUPPORTED.
 
-Now, when AUX or battery are read, we temporarily disable the CMD
-feature, which means that we won't get touchscreen readings in that time
-frame. But it now gives correct values for AUX / battery, and the
-touchscreen isn't disabled for long enough to be an actual issue.
+ 0 is "workaround required and safe to call this function"
+ 1 is "workaround not required but safe to call this function"
+ SMCCC_RET_NOT_SUPPORTED is "might be vulnerable or might not be, who knows, I give up!"
 
-Fixes: b96952f498db ("IIO: Ingenic JZ47xx: Add touchscreen mode.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+SMCCC_RET_NOT_SUPPORTED might as well mean "workaround required, except
+calling this function may not work because it isn't implemented in some
+cases". Wonderful. We map this SMC call to
+
+ 0 is SPECTRE_MITIGATED
+ 1 is SPECTRE_UNAFFECTED
+ SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
+
+For KVM hypercalls (hvc), we've implemented this function id to return
+SMCCC_RET_NOT_SUPPORTED, 0, and SMCCC_RET_NOT_REQUIRED. One of those
+isn't supposed to be there. Per the code we call
+arm64_get_spectre_v2_state() to figure out what to return for this
+feature discovery call.
+
+ 0 is SPECTRE_MITIGATED
+ SMCCC_RET_NOT_REQUIRED is SPECTRE_UNAFFECTED
+ SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
+
+Let's clean this up so that KVM tells the guest this mapping:
+
+ 0 is SPECTRE_MITIGATED
+ 1 is SPECTRE_UNAFFECTED
+ SMCCC_RET_NOT_SUPPORTED is SPECTRE_VULNERABLE
+
+Note: SMCCC_RET_NOT_AFFECTED is 1 but isn't part of the SMCCC spec
+
+Fixes: c118bbb52743 ("arm64: KVM: Propagate full Spectre v2 workaround state to KVM guests")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Andre Przywara <andre.przywara@arm.com>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://developer.arm.com/documentation/den0028/latest [1]
+Link: https://lore.kernel.org/r/20201023154751.1973872-1-swboyd@chromium.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 ---
- drivers/iio/adc/ingenic-adc.c | 33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ include/linux/arm-smccc.h | 2 ++
+ virt/kvm/arm/psci.c       | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index 92b25083e23f..ecaff6a9b716 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -177,13 +177,12 @@ static void ingenic_adc_set_config(struct ingenic_adc *adc,
- 	mutex_unlock(&adc->lock);
- }
+diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
+index 080012a6f025..157e4a6a83f6 100644
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -76,6 +76,8 @@
+ 			   ARM_SMCCC_SMC_32,				\
+ 			   0, 0x7fff)
  
--static void ingenic_adc_enable(struct ingenic_adc *adc,
--			       int engine,
--			       bool enabled)
-+static void ingenic_adc_enable_unlocked(struct ingenic_adc *adc,
-+					int engine,
-+					bool enabled)
- {
- 	u8 val;
- 
--	mutex_lock(&adc->lock);
- 	val = readb(adc->base + JZ_ADC_REG_ENABLE);
- 
- 	if (enabled)
-@@ -192,20 +191,42 @@ static void ingenic_adc_enable(struct ingenic_adc *adc,
- 		val &= ~BIT(engine);
- 
- 	writeb(val, adc->base + JZ_ADC_REG_ENABLE);
-+}
++#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
 +
-+static void ingenic_adc_enable(struct ingenic_adc *adc,
-+			       int engine,
-+			       bool enabled)
-+{
-+	mutex_lock(&adc->lock);
-+	ingenic_adc_enable_unlocked(adc, engine, enabled);
- 	mutex_unlock(&adc->lock);
- }
+ #ifndef __ASSEMBLY__
  
- static int ingenic_adc_capture(struct ingenic_adc *adc,
- 			       int engine)
- {
-+	u32 cfg;
- 	u8 val;
- 	int ret;
- 
--	ingenic_adc_enable(adc, engine, true);
-+	/*
-+	 * Disable CMD_SEL temporarily, because it causes wrong VBAT readings,
-+	 * probably due to the switch of VREF. We must keep the lock here to
-+	 * avoid races with the buffer enable/disable functions.
-+	 */
-+	mutex_lock(&adc->lock);
-+	cfg = readl(adc->base + JZ_ADC_REG_CFG);
-+	writel(cfg & ~JZ_ADC_REG_CFG_CMD_SEL, adc->base + JZ_ADC_REG_CFG);
-+
-+
-+	ingenic_adc_enable_unlocked(adc, engine, true);
- 	ret = readb_poll_timeout(adc->base + JZ_ADC_REG_ENABLE, val,
- 				 !(val & BIT(engine)), 250, 1000);
- 	if (ret)
--		ingenic_adc_enable(adc, engine, false);
-+		ingenic_adc_enable_unlocked(adc, engine, false);
-+
-+	writel(cfg, adc->base + JZ_ADC_REG_CFG);
-+	mutex_unlock(&adc->lock);
- 
- 	return ret;
- }
+ #include <linux/linkage.h>
+diff --git a/virt/kvm/arm/psci.c b/virt/kvm/arm/psci.c
+index 87927f7e1ee7..48fde38d64c3 100644
+--- a/virt/kvm/arm/psci.c
++++ b/virt/kvm/arm/psci.c
+@@ -408,7 +408,7 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
+ 				val = SMCCC_RET_SUCCESS;
+ 				break;
+ 			case KVM_BP_HARDEN_NOT_REQUIRED:
+-				val = SMCCC_RET_NOT_REQUIRED;
++				val = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
+ 				break;
+ 			}
+ 			break;
 -- 
-2.28.0
+Sent by a computer, using git, on the internet
 
