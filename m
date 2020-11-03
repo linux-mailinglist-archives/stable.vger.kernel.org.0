@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFCF2A3976
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3832D2A397C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727899AbgKCBTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:19:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
+        id S1727905AbgKCBTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:19:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727889AbgKCBTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:19:49 -0500
+        id S1727128AbgKCBTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:19:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827302242A;
-        Tue,  3 Nov 2020 01:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA4B22264;
+        Tue,  3 Nov 2020 01:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366387;
-        bh=8/XxZrMWmbEm2u/T/j5IpGZgB8+swR5JPrIqQL/u2ME=;
+        s=default; t=1604366388;
+        bh=qcbdQJkPEzwCb7hg1LS9ez+BtB+G8ki/aIpW5rjdbdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yad/Fm/Q2vEIEWX1UpKUFJCTaXf6QWKhykdEkjAOteRCT90QS+3ttvpHTLDzz7EeE
-         Bsuuo+/0yum1Cjs4NFn1nTHOB/veFBeCS+1BQb4nsvORfwGgdc4i5iea15ax0BkZx2
-         WbS6e5O7uqi2wCng4llVwzvPMyOaIEoOKTi9JGRE=
+        b=00Ve/23aWEkt7X7OY+pM86TCCWcnQWhMkUyVo2aGhtlLu3ywi0p5SjubHarGRSfyh
+         KUWmDqmtGp8HlCp3IfGTplmMxXRP6+oDNLgk5k2qdrWxENS2H6RtfazhbTadmz3HSL
+         tc+nQKrwbehJJFRfoWXUPYxEnLR2TaN/lIjy1/08=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 14/29] drm/v3d: Fix double free in v3d_submit_cl_ioctl()
-Date:   Mon,  2 Nov 2020 20:19:13 -0500
-Message-Id: <20201103011928.183145-14-sashal@kernel.org>
+Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 15/29] blk-cgroup: Fix memleak on error path
+Date:   Mon,  2 Nov 2020 20:19:14 -0500
+Message-Id: <20201103011928.183145-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103011928.183145-1-sashal@kernel.org>
 References: <20201103011928.183145-1-sashal@kernel.org>
@@ -43,33 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Gabriel Krisman Bertazi <krisman@collabora.com>
 
-[ Upstream commit 897dbea6b716c0f2c5bcd4ba1eb4d809caba290c ]
+[ Upstream commit 52abfcbd57eefdd54737fc8c2dc79d8f46d4a3e5 ]
 
-Originally this error path used to leak "bin" but then we accidentally
-applied two separate commits to fix it and ended up with a double free.
+If new_blkg allocation raced with blk_policy change and
+blkg_lookup_check fails, new_blkg is leaked.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201026094905.GA1634423@mwanda
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/v3d/v3d_gem.c | 1 -
- 1 file changed, 1 deletion(-)
+ block/blk-cgroup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/v3d/v3d_gem.c b/drivers/gpu/drm/v3d/v3d_gem.c
-index 09a7639cf161f..0e0f1cc3e283a 100644
---- a/drivers/gpu/drm/v3d/v3d_gem.c
-+++ b/drivers/gpu/drm/v3d/v3d_gem.c
-@@ -568,7 +568,6 @@ v3d_submit_cl_ioctl(struct drm_device *dev, void *data,
- 		ret = v3d_job_init(v3d, file_priv, &bin->base,
- 				   v3d_job_free, args->in_sync_bcl);
- 		if (ret) {
--			kfree(bin);
- 			v3d_job_put(&render->base);
- 			kfree(bin);
- 			return ret;
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 6e8f5e60b0982..67619f4e24907 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -682,6 +682,7 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
+ 		blkg = blkg_lookup_check(pos, pol, q);
+ 		if (IS_ERR(blkg)) {
+ 			ret = PTR_ERR(blkg);
++			blkg_free(new_blkg);
+ 			goto fail_unlock;
+ 		}
+ 
 -- 
 2.27.0
 
