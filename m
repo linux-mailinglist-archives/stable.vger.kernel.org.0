@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2AA42A5763
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6D92A5893
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731190AbgKCVmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:42:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56248 "EHLO mail.kernel.org"
+        id S1731227AbgKCUqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732347AbgKCUze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:34 -0500
+        id S1729890AbgKCUqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA162053B;
-        Tue,  3 Nov 2020 20:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB1420719;
+        Tue,  3 Nov 2020 20:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436933;
-        bh=dCYLeY072XrE7+AikUkihMIe+SEKqmLlDz2iX5VssR0=;
+        s=default; t=1604436396;
+        bh=IQaslEXhTR1j6g1c53PL4N2DWWmyWZvGrkYSbSSVvWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHi15PVYyq7/v3PUWh1k3o/Ry164dRdsHWthJp0jpWQiucxGYy3QpI3ECqIXlVLRf
-         VW2qZsVvj4dZpPFD3CI9ZLYhZtzsY2wRruIxxToKMz5gvmNJFLyPnsn2Wd9AR7OF3/
-         IHvW/xSwoobzTk4M2PR4wyADjp72CqNWf/3kXsJM=
+        b=cDGUVeZaYV6MBhGZKzmYiGqtzMJg1qounYvOY8E7XTmr6ctdQOK2rRQVSYxoOSiyc
+         MUJQMuvwySqLgTrgEmkcgGIVVM5HA63PCsftSrrTeturckPLg+glXAXyA1HqGkadAE
+         TPf35WNJSzVnqZ6gop8ybFHGAP49DG0kavA1OaVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/214] ath10k: start recovery process when payload length exceeds max htc length for sdio
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.9 233/391] btrfs: skip devices without magic signature when mounting
 Date:   Tue,  3 Nov 2020 21:34:44 +0100
-Message-Id: <20201103203253.463085472@linuxfoundation.org>
+Message-Id: <20201103203402.712420655@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 2fd3c8f34d08af0a6236085f9961866ad92ef9ec ]
+commit 96c2e067ed3e3e004580a643c76f58729206b829 upstream.
 
-When simulate random transfer fail for sdio write and read, it happened
-"payload length exceeds max htc length" and recovery later sometimes.
+Many things can happen after the device is scanned and before the device
+is mounted.  One such thing is losing the BTRFS_MAGIC on the device.
+If it happens we still won't free that device from the memory and cause
+the userland confusion.
 
-Test steps:
-1. Add config and update kernel:
-CONFIG_FAIL_MMC_REQUEST=y
-CONFIG_FAULT_INJECTION=y
-CONFIG_FAULT_INJECTION_DEBUG_FS=y
+For example: As the BTRFS_IOC_DEV_INFO still carries the device path
+which does not have the BTRFS_MAGIC, 'btrfs fi show' still lists
+device which does not belong to the filesystem anymore:
 
-2. Run simulate fail:
-cd /sys/kernel/debug/mmc1/fail_mmc_request
-echo 10 > probability
-echo 10 > times # repeat until hitting issues
+  $ mkfs.btrfs -fq -draid1 -mraid1 /dev/sda /dev/sdb
+  $ wipefs -a /dev/sdb
+  # /dev/sdb does not contain magic signature
+  $ mount -o degraded /dev/sda /btrfs
+  $ btrfs fi show -m
+  Label: none  uuid: 470ec6fb-646b-4464-b3cb-df1b26c527bd
+	  Total devices 2 FS bytes used 128.00KiB
+	  devid    1 size 3.00GiB used 571.19MiB path /dev/sda
+	  devid    2 size 3.00GiB used 571.19MiB path /dev/sdb
 
-3. It happened payload length exceeds max htc length.
-[  199.935506] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
-....
-[  264.990191] ath10k_sdio mmc1:0001:1: payload length 57005 exceeds max htc length: 4088
+We need to distinguish the missing signature and invalid superblock, so
+add a specific error code ENODATA for that. This also fixes failure of
+fstest btrfs/198.
 
-4. after some time, such as 60 seconds, it start recovery which triggered
-by wmi command timeout for periodic scan.
-[  269.229232] ieee80211 phy0: Hardware restart was requested
-[  269.734693] ath10k_sdio mmc1:0001:1: device successfully recovered
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The simulate fail of sdio is not a real sdio transter fail, it only
-set an error status in mmc_should_fail_request after the transfer end,
-actually the transfer is success, then sdio_io_rw_ext_helper will
-return error status and stop transfer the left data. For example,
-the really RX len is 286 bytes, then it will split to 2 blocks in
-sdio_io_rw_ext_helper, one is 256 bytes, left is 30 bytes, if the
-first 256 bytes get an error status by mmc_should_fail_request,then
-the left 30 bytes will not read in this RX operation. Then when the
-next RX arrive, the left 30 bytes will be considered as the header
-of the read, the top 4 bytes of the 30 bytes will be considered as
-lookaheads, but actually the 4 bytes is not the lookaheads, so the len
-from this lookaheads is not correct, it exceeds max htc length 4088
-sometimes. When happened exceeds, the buffer chain is not matched between
-firmware and ath10k, then it need to start recovery ASAP. Recently then
-recovery will be started by wmi command timeout, but it will be long time
-later, for example, it is 60+ seconds later from the periodic scan, if
-it does not have periodic scan, it will be longer.
-
-Start recovery when it happened "payload length exceeds max htc length"
-will be reasonable.
-
-This patch only effect sdio chips.
-
-Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
-
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200108031957.22308-3-wgong@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/disk-io.c |    8 ++++++--
+ fs/btrfs/volumes.c |   18 ++++++++++++------
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index 8fe626deadeb0..24b1927a07518 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -550,6 +550,10 @@ static int ath10k_sdio_mbox_rx_alloc(struct ath10k *ar,
- 				    le16_to_cpu(htc_hdr->len),
- 				    ATH10K_HTC_MBOX_MAX_PAYLOAD_LENGTH);
- 			ret = -ENOMEM;
-+
-+			queue_work(ar->workqueue, &ar->restart_work);
-+			ath10k_warn(ar, "exceeds length, start recovery\n");
-+
- 			goto err;
- 		}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3482,8 +3482,12 @@ struct btrfs_super_block *btrfs_read_dev
+ 		return ERR_CAST(page);
  
--- 
-2.27.0
-
+ 	super = page_address(page);
+-	if (btrfs_super_bytenr(super) != bytenr ||
+-		    btrfs_super_magic(super) != BTRFS_MAGIC) {
++	if (btrfs_super_magic(super) != BTRFS_MAGIC) {
++		btrfs_release_disk_super(super);
++		return ERR_PTR(-ENODATA);
++	}
++
++	if (btrfs_super_bytenr(super) != bytenr) {
+ 		btrfs_release_disk_super(super);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1200,17 +1200,23 @@ static int open_fs_devices(struct btrfs_
+ {
+ 	struct btrfs_device *device;
+ 	struct btrfs_device *latest_dev = NULL;
++	struct btrfs_device *tmp_device;
+ 
+ 	flags |= FMODE_EXCL;
+ 
+-	list_for_each_entry(device, &fs_devices->devices, dev_list) {
+-		/* Just open everything we can; ignore failures here */
+-		if (btrfs_open_one_device(fs_devices, device, flags, holder))
+-			continue;
++	list_for_each_entry_safe(device, tmp_device, &fs_devices->devices,
++				 dev_list) {
++		int ret;
+ 
+-		if (!latest_dev ||
+-		    device->generation > latest_dev->generation)
++		ret = btrfs_open_one_device(fs_devices, device, flags, holder);
++		if (ret == 0 &&
++		    (!latest_dev || device->generation > latest_dev->generation)) {
+ 			latest_dev = device;
++		} else if (ret == -ENODATA) {
++			fs_devices->num_devices--;
++			list_del(&device->dev_list);
++			btrfs_free_device(device);
++		}
+ 	}
+ 	if (fs_devices->open_devices == 0)
+ 		return -EINVAL;
 
 
