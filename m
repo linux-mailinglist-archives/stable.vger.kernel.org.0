@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BE42A485D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4948F2A485F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbgKCOhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:37:52 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57975 "EHLO
+        id S1726312AbgKCOhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:37:51 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:44669 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727385AbgKCOhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:37:20 -0500
+        by vger.kernel.org with ESMTP id S1727553AbgKCOh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:37:27 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 05C65CCF;
-        Tue,  3 Nov 2020 09:37:18 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:37:19 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id BE555C6A;
+        Tue,  3 Nov 2020 09:37:26 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:37:26 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OSlNHz
-        ctN5j00S+jg0A49zwXZc3QBlODadRzp9BFMdQ=; b=NIzBLgja4d0HB9Q4LsNwoJ
-        mDFNaSmRzZPxcKIHwIqTqiwI/c96qu+7aDJEJgfzasdr2/u6k2g6kWjCcSlArVuF
-        JYf6t9wNFYv/LZTq0RlyVwbbWSMaujKUm0msU6/ZeBvwT5BYps60g8JA1aEcS7ef
-        RJen1WSNO3Csj8+02LvUmGcGTcUB/DdFQ8W9GdtRrbAJzmsMBr5GhJcRnMcUmygN
-        W09bYrNupSdLxtsZ+nEmzhm7CIUSYt+icA0lPMijI4iw3YrPhPQO56citlPEIiM7
-        kcmXvSmhYVp5fGZtGUVFC2H8ysB1cNBRZrX+ROFKtiGAFZfTIvetecRnlyokQlcA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JHQxIC
+        ikMaTwvIT4Ff1v+iOOkSmEi4ENMc4sZh4gnBg=; b=ofoMSpCkX2O/QKSTa1boMW
+        nWO35L+IPr1od02u6Igi+/tpAVYjiwH1+9/fB8/xsLA/xU59mTp7XM3PXRmdBnwu
+        DpvM2IoX6MiYDW4tpTR2azpUTzbRyW/i6jvGj+ETd/piUfuBlkoo/zEhS9YKwyjw
+        pGoJcaUTTamM+GclbJd7L8g+SpXc8vSZ8Jl+S6bCzWwTNbdJIMOyn1HWNivjrxlv
+        PUNKgoUmAjRZoRFHWx5/XOHJ7kvONaz8LIk/9dy955cFOkTcz+k022k1b0e/wK5w
+        jVAW9dLh0UU9Q8bZyDRVTclNex4kXRtH5bgGv7xwA8504aKTpMD9HqEUX0Kt5CLA
         ==
-X-ME-Sender: <xms:HmuhXzWEHKPxZ6c1Hv0jLB3Gmq1TYThnhjAv-7MARK5CQY_PIWsOdg>
-    <xme:HmuhX7kEvjAcZIf9d7-0-QmKPY0KFYR1B6U5nG3VTE29cyUPJY8yDUKv6I3SojDfU
-    dXY-wcls6C6Mw>
+X-ME-Sender: <xms:JmuhX7NYH8U0FRBHMJtGwntdDOqwDBeEJEudgVDk2pRqQefwQrBuNA>
+    <xme:JmuhX1-yA1-F0oJ5X4289KA8CZGQaIlEg0TKeXF2W-WdqfZCVsh386H3SZt2Y6NKe
+    3fPijDOJLT4hA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgieegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:HmuhX_aQEjmpnPL9Fi5ewgj-3XOfq5AI8jhvp5GoOfjXMipmGhMADQ>
-    <xmx:HmuhX-Uo0DYiIaDYK6D9UMZSyXsdGbOimosKlcWXNThisysofcRWRg>
-    <xmx:HmuhX9nrvuDNVrBda5_WV0YmLWAOQVa8T1l4zOStgGpebqhjgV6epQ>
-    <xmx:HmuhX8uWSMkzxBdvw8oiX0Qs7neps7e-bJ3EAHJrAwiFxwY_ULPiZxrxt5Q>
+X-ME-Proxy: <xmx:JmuhX6SkyI-NRtwiog1sExvsvsfQNgQqUjH8xDFtjjYLQa0UN6HwTw>
+    <xmx:JmuhX_vdbMDGlbzI9yinC2aIEvPhkGsrseA9rBBA4YDPn9J9jcpJsw>
+    <xmx:JmuhXzfKcUc2V3VwuuyH5T5RyIW5uxCuw19mbnhorItqafzKq4hpLA>
+    <xmx:JmuhXzkyIPd_xgngYLHVgS9T0NBspel5GEwQsXrG4s_4i5A4_-VXiF-PwnY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A622D328005E;
-        Tue,  3 Nov 2020 09:37:17 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ubifs: xattr: Fix some potential memory leaks while iterating" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id F2F993064610;
+        Tue,  3 Nov 2020 09:37:25 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ubifs: xattr: Fix some potential memory leaks while iterating" failed to apply to 4.14-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:38:11 +0100
-Message-ID: <1604414291189130@kroah.com>
+Date:   Tue, 03 Nov 2020 15:38:12 +0100
+Message-ID: <160441429218120@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
