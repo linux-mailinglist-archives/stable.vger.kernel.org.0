@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AB32A566E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 926512A53E5
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388110AbgKCV2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36196 "EHLO mail.kernel.org"
+        id S2387844AbgKCVFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730638AbgKCVA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:26 -0500
+        id S2387889AbgKCVFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:05:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D740322226;
-        Tue,  3 Nov 2020 21:00:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98DA3205ED;
+        Tue,  3 Nov 2020 21:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437225;
-        bh=tyT+9KtALDmDCNBfaegf02PsUy4jq+TDq24kxtafaIs=;
+        s=default; t=1604437540;
+        bh=6yNpOKm4tr/TBozL8nohTeanZGCz0M3PhgGIBz13FYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1TD2Apn5Eab0KzmsJeYsBmNqc8l7Fd8HCMwIKun3TtVcePVYjfys/FfMKPDsjXeA
-         N2k9kg20zpMmr8tfNN5dZEVC2wlD8eP9bFMOilWEMZlEij2E76POYy50fio3/A+eo8
-         ohBSmaya9m0Yz41OksP2E2LpkKByn3lP8LoYoIsI=
+        b=abcqKEZUbzRTLHAEixdWfltR/Aei4+aQRou0mqV0TQz30FORc5FwIBJYQnNYBD+bb
+         am6SxWh85BDkTZjcQLdTKxKLAMT98ejjWd8QHKa3WfUqHEeFUIgEoW0Xw6i9xLUjSm
+         KLY9eZJdPbaLG9L85ndS1ZLCWXndPl6nUB4zm2FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 162/214] powerpc/powermac: Fix low_sleep_handler with KUAP and KUEP
-Date:   Tue,  3 Nov 2020 21:36:50 +0100
-Message-Id: <20201103203305.958952009@linuxfoundation.org>
+        stable@vger.kernel.org, Ashish Sangwan <ashishsangwan2@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 119/191] NFS: fix nfs_path in case of a rename retry
+Date:   Tue,  3 Nov 2020 21:36:51 +0100
+Message-Id: <20201103203244.480461936@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Ashish Sangwan <ashishsangwan2@gmail.com>
 
-commit 2c637d2df4ee4830e9d3eb2bd5412250522ce96e upstream.
+commit 247db73560bc3e5aef6db50c443c3c0db115bc93 upstream.
 
-low_sleep_handler() has an hardcoded restore of segment registers
-that doesn't take KUAP and KUEP into account.
+We are generating incorrect path in case of rename retry because
+we are restarting from wrong dentry. We should restart from the
+dentry which was received in the call to nfs_path.
 
-Use head_32's load_segment_registers() routine instead.
-
-Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
-Fixes: 31ed2b13c48d ("powerpc/32s: Implement Kernel Userspace Execution Prevention.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/21b05f7298c1b18f73e6e5b4cd5005aafa24b6da.1599820109.git.christophe.leroy@csgroup.eu
+CC: stable@vger.kernel.org
+Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/head_32.S           |    2 +-
- arch/powerpc/platforms/powermac/sleep.S |    9 +--------
- 2 files changed, 2 insertions(+), 9 deletions(-)
+ fs/nfs/namespace.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/head_32.S
-+++ b/arch/powerpc/kernel/head_32.S
-@@ -843,7 +843,7 @@ BEGIN_MMU_FTR_SECTION
- END_MMU_FTR_SECTION_IFSET(MMU_FTR_USE_HIGH_BATS)
- 	blr
+--- a/fs/nfs/namespace.c
++++ b/fs/nfs/namespace.c
+@@ -30,9 +30,9 @@ int nfs_mountpoint_expiry_timeout = 500
+ /*
+  * nfs_path - reconstruct the path given an arbitrary dentry
+  * @base - used to return pointer to the end of devname part of path
+- * @dentry - pointer to dentry
++ * @dentry_in - pointer to dentry
+  * @buffer - result buffer
+- * @buflen - length of buffer
++ * @buflen_in - length of buffer
+  * @flags - options (see below)
+  *
+  * Helper function for constructing the server pathname
+@@ -47,15 +47,19 @@ int nfs_mountpoint_expiry_timeout = 500
+  *		       the original device (export) name
+  *		       (if unset, the original name is returned verbatim)
+  */
+-char *nfs_path(char **p, struct dentry *dentry, char *buffer, ssize_t buflen,
+-	       unsigned flags)
++char *nfs_path(char **p, struct dentry *dentry_in, char *buffer,
++	       ssize_t buflen_in, unsigned flags)
+ {
+ 	char *end;
+ 	int namelen;
+ 	unsigned seq;
+ 	const char *base;
++	struct dentry *dentry;
++	ssize_t buflen;
  
--load_segment_registers:
-+_GLOBAL(load_segment_registers)
- 	li	r0, NUM_USER_SEGMENTS /* load up user segment register values */
- 	mtctr	r0		/* for context 0 */
- 	li	r3, 0		/* Kp = 0, Ks = 0, VSID = 0 */
---- a/arch/powerpc/platforms/powermac/sleep.S
-+++ b/arch/powerpc/platforms/powermac/sleep.S
-@@ -293,14 +293,7 @@ grackle_wake_up:
- 	 * we do any r1 memory access as we are not sure they
- 	 * are in a sane state above the first 256Mb region
- 	 */
--	li	r0,16		/* load up segment register values */
--	mtctr	r0		/* for context 0 */
--	lis	r3,0x2000	/* Ku = 1, VSID = 0 */
--	li	r4,0
--3:	mtsrin	r3,r4
--	addi	r3,r3,0x111	/* increment VSID */
--	addis	r4,r4,0x1000	/* address of next segment */
--	bdnz	3b
-+	bl	load_segment_registers
- 	sync
- 	isync
- 
+ rename_retry:
++	buflen = buflen_in;
++	dentry = dentry_in;
+ 	end = buffer+buflen;
+ 	*--end = '\0';
+ 	buflen--;
 
 
