@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 617182A575A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0722A579A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730802AbgKCVmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:42:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56598 "EHLO mail.kernel.org"
+        id S1731586AbgKCUyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:54:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732055AbgKCUzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:43 -0500
+        id S1732534AbgKCUyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:54:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AD0222226;
-        Tue,  3 Nov 2020 20:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 641402053B;
+        Tue,  3 Nov 2020 20:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436942;
-        bh=UF9k1jimG33NR+B01t3IBLaw3xUqSgNa+NY9u22Q8qo=;
+        s=default; t=1604436850;
+        bh=0BQGRLlQs4ClqhBsUyuqQFxXohJtSEZI/hshUZDRu1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpjZ9meKt5fY4uifM8Qp1//LKWoY3Tx3xoPa5rE+VnfOf2jTkcBhn1TuUYGVgM3W8
-         ZcErkDcONviQwqaePwEXQPuDDKTZ+i/2EyEsozIAT/oPAG+h4cIjdmF9cAlqIYP1P8
-         kAoPuTIlixJSC/HNGInrRpfLdv2r0g9GizQNKPf8=
+        b=TWT1cL5jbDz8/kKWNii6SUf/47egAJRUlKKe4qNoVNMc6s0OEj6Lk3CbaKhRm/R2R
+         8FVdGGBhGSfiyUKWkVMloaau8CmGiySaII3mCowGgtr6uVGQa/efbvuSBBi5AQa2Xu
+         clQ0YXEmlg5D9Dq8qqXbVbzMcJaQJfNRWdRnS/+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Will Deacon <will@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/214] f2fs: handle errors of f2fs_get_meta_page_nofail
-Date:   Tue,  3 Nov 2020 21:34:38 +0100
-Message-Id: <20201103203252.907563273@linuxfoundation.org>
+Subject: [PATCH 5.4 031/214] ARM: 8997/2: hw_breakpoint: Handle inexact watchpoint addresses
+Date:   Tue,  3 Nov 2020 21:34:39 +0100
+Message-Id: <20201103203253.001258242@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -44,129 +45,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 86f33603f8c51537265ff7ac0320638fd2cbdb1b ]
+[ Upstream commit 22c9e58299e5f18274788ce54c03d4fb761e3c5d ]
 
-First problem is we hit BUG_ON() in f2fs_get_sum_page given EIO on
-f2fs_get_meta_page_nofail().
+This is commit fdfeff0f9e3d ("arm64: hw_breakpoint: Handle inexact
+watchpoint addresses") but ported to arm32, which has the same
+problem.
 
-Quick fix was not to give any error with infinite loop, but syzbot caught
-a case where it goes to that loop from fuzzed image. In turned out we abused
-f2fs_get_meta_page_nofail() like in the below call stack.
+This problem was found by Android CTS tests, notably the
+"watchpoint_imprecise" test [1].  I tested locally against a copycat
+(simplified) version of the test though.
 
-- f2fs_fill_super
- - f2fs_build_segment_manager
-  - build_sit_entries
-   - get_current_sit_page
+[1] https://android.googlesource.com/platform/bionic/+/master/tests/sys_ptrace_test.cpp
 
-INFO: task syz-executor178:6870 can't die for more than 143 seconds.
-task:syz-executor178 state:R
- stack:26960 pid: 6870 ppid:  6869 flags:0x00004006
-Call Trace:
+Link: https://lkml.kernel.org/r/20191019111216.1.I82eae759ca6dc28a245b043f485ca490e3015321@changeid
 
-Showing all locks held in the system:
-1 lock held by khungtaskd/1179:
- #0: ffffffff8a554da0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6242
-1 lock held by systemd-journal/3920:
-1 lock held by in:imklog/6769:
- #0: ffff88809eebc130 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:930
-1 lock held by syz-executor178/6870:
- #0: ffff8880925120e0 (&type->s_umount_key#47/1){+.+.}-{3:3}, at: alloc_super+0x201/0xaf0 fs/super.c:229
-
-Actually, we didn't have to use _nofail in this case, since we could return
-error to mount(2) already with the error handler.
-
-As a result, this patch tries to 1) remove _nofail callers as much as possible,
-2) deal with error case in last remaining caller, f2fs_get_sum_page().
-
-Reported-by: syzbot+ee250ac8137be41d7b13@syzkaller.appspotmail.com
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |  2 +-
- fs/f2fs/f2fs.h       |  2 +-
- fs/f2fs/node.c       |  2 +-
- fs/f2fs/segment.c    | 12 +++++++++---
- 4 files changed, 12 insertions(+), 6 deletions(-)
+ arch/arm/kernel/hw_breakpoint.c | 100 +++++++++++++++++++++++---------
+ 1 file changed, 72 insertions(+), 28 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 6d9be7783d25c..c966ccc44c157 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -108,7 +108,7 @@ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index)
- 	return __get_meta_page(sbi, index, true);
+diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
+index 5f95e4b911a0b..7021ef0b4e71b 100644
+--- a/arch/arm/kernel/hw_breakpoint.c
++++ b/arch/arm/kernel/hw_breakpoint.c
+@@ -680,6 +680,40 @@ static void disable_single_step(struct perf_event *bp)
+ 	arch_install_hw_breakpoint(bp);
  }
  
--struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index)
-+struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index)
++/*
++ * Arm32 hardware does not always report a watchpoint hit address that matches
++ * one of the watchpoints set. It can also report an address "near" the
++ * watchpoint if a single instruction access both watched and unwatched
++ * addresses. There is no straight-forward way, short of disassembling the
++ * offending instruction, to map that address back to the watchpoint. This
++ * function computes the distance of the memory access from the watchpoint as a
++ * heuristic for the likelyhood that a given access triggered the watchpoint.
++ *
++ * See this same function in the arm64 platform code, which has the same
++ * problem.
++ *
++ * The function returns the distance of the address from the bytes watched by
++ * the watchpoint. In case of an exact match, it returns 0.
++ */
++static u32 get_distance_from_watchpoint(unsigned long addr, u32 val,
++					struct arch_hw_breakpoint_ctrl *ctrl)
++{
++	u32 wp_low, wp_high;
++	u32 lens, lene;
++
++	lens = __ffs(ctrl->len);
++	lene = __fls(ctrl->len);
++
++	wp_low = val + lens;
++	wp_high = val + lene;
++	if (addr < wp_low)
++		return wp_low - addr;
++	else if (addr > wp_high)
++		return addr - wp_high;
++	else
++		return 0;
++}
++
+ static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
+ 				       struct arch_hw_breakpoint *info)
  {
- 	struct page *page;
- 	int count = 0;
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index b3b7e63394be7..63440abe58c42 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3149,7 +3149,7 @@ enum rw_hint f2fs_io_type_to_rw_hint(struct f2fs_sb_info *sbi,
- void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
- struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
--struct page *f2fs_get_meta_page_nofail(struct f2fs_sb_info *sbi, pgoff_t index);
-+struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_tmp_page(struct f2fs_sb_info *sbi, pgoff_t index);
- bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type);
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index ed12e96681842..2a4a382f28fed 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -109,7 +109,7 @@ static void clear_node_page_dirty(struct page *page)
- 
- static struct page *get_current_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
+@@ -689,23 +723,25 @@ static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
+ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 			       struct pt_regs *regs)
  {
--	return f2fs_get_meta_page_nofail(sbi, current_nat_addr(sbi, nid));
-+	return f2fs_get_meta_page(sbi, current_nat_addr(sbi, nid));
- }
+-	int i, access;
+-	u32 val, ctrl_reg, alignment_mask;
++	int i, access, closest_match = 0;
++	u32 min_dist = -1, dist;
++	u32 val, ctrl_reg;
+ 	struct perf_event *wp, **slots;
+ 	struct arch_hw_breakpoint *info;
+ 	struct arch_hw_breakpoint_ctrl ctrl;
  
- static struct page *get_next_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 7d85784012678..5ba677f85533c 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -2310,7 +2310,9 @@ int f2fs_npages_for_summary_flush(struct f2fs_sb_info *sbi, bool for_ra)
-  */
- struct page *f2fs_get_sum_page(struct f2fs_sb_info *sbi, unsigned int segno)
- {
--	return f2fs_get_meta_page_nofail(sbi, GET_SUM_BLOCK(sbi, segno));
-+	if (unlikely(f2fs_cp_error(sbi)))
-+		return ERR_PTR(-EIO);
-+	return f2fs_get_meta_page_retry(sbi, GET_SUM_BLOCK(sbi, segno));
- }
+ 	slots = this_cpu_ptr(wp_on_reg);
  
- void f2fs_update_meta_page(struct f2fs_sb_info *sbi,
-@@ -2582,7 +2584,11 @@ static void change_curseg(struct f2fs_sb_info *sbi, int type)
- 	__next_free_blkoff(sbi, curseg, 0);
++	/*
++	 * Find all watchpoints that match the reported address. If no exact
++	 * match is found. Attribute the hit to the closest watchpoint.
++	 */
++	rcu_read_lock();
+ 	for (i = 0; i < core_num_wrps; ++i) {
+-		rcu_read_lock();
+-
+ 		wp = slots[i];
+-
+ 		if (wp == NULL)
+-			goto unlock;
++			continue;
  
- 	sum_page = f2fs_get_sum_page(sbi, new_segno);
--	f2fs_bug_on(sbi, IS_ERR(sum_page));
-+	if (IS_ERR(sum_page)) {
-+		/* GC won't be able to use stale summary pages by cp_error */
-+		memset(curseg->sum_blk, 0, SUM_ENTRY_SIZE);
-+		return;
+-		info = counter_arch_bp(wp);
+ 		/*
+ 		 * The DFAR is an unknown value on debug architectures prior
+ 		 * to 7.1. Since we only allow a single watchpoint on these
+@@ -714,33 +750,31 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 		 */
+ 		if (debug_arch < ARM_DEBUG_ARCH_V7_1) {
+ 			BUG_ON(i > 0);
++			info = counter_arch_bp(wp);
+ 			info->trigger = wp->attr.bp_addr;
+ 		} else {
+-			if (info->ctrl.len == ARM_BREAKPOINT_LEN_8)
+-				alignment_mask = 0x7;
+-			else
+-				alignment_mask = 0x3;
+-
+-			/* Check if the watchpoint value matches. */
+-			val = read_wb_reg(ARM_BASE_WVR + i);
+-			if (val != (addr & ~alignment_mask))
+-				goto unlock;
+-
+-			/* Possible match, check the byte address select. */
+-			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
+-			decode_ctrl_reg(ctrl_reg, &ctrl);
+-			if (!((1 << (addr & alignment_mask)) & ctrl.len))
+-				goto unlock;
+-
+ 			/* Check that the access type matches. */
+ 			if (debug_exception_updates_fsr()) {
+ 				access = (fsr & ARM_FSR_ACCESS_MASK) ?
+ 					  HW_BREAKPOINT_W : HW_BREAKPOINT_R;
+ 				if (!(access & hw_breakpoint_type(wp)))
+-					goto unlock;
++					continue;
+ 			}
+ 
++			val = read_wb_reg(ARM_BASE_WVR + i);
++			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
++			decode_ctrl_reg(ctrl_reg, &ctrl);
++			dist = get_distance_from_watchpoint(addr, val, &ctrl);
++			if (dist < min_dist) {
++				min_dist = dist;
++				closest_match = i;
++			}
++			/* Is this an exact match? */
++			if (dist != 0)
++				continue;
++
+ 			/* We have a winner. */
++			info = counter_arch_bp(wp);
+ 			info->trigger = addr;
+ 		}
+ 
+@@ -762,13 +796,23 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 		 * we can single-step over the watchpoint trigger.
+ 		 */
+ 		if (!is_default_overflow_handler(wp))
+-			goto unlock;
+-
++			continue;
+ step:
+ 		enable_single_step(wp, instruction_pointer(regs));
+-unlock:
+-		rcu_read_unlock();
+ 	}
++
++	if (min_dist > 0 && min_dist != -1) {
++		/* No exact match found. */
++		wp = slots[closest_match];
++		info = counter_arch_bp(wp);
++		info->trigger = addr;
++		pr_debug("watchpoint fired: address = 0x%x\n", info->trigger);
++		perf_bp_event(wp, regs);
++		if (is_default_overflow_handler(wp))
++			enable_single_step(wp, instruction_pointer(regs));
 +	}
- 	sum_node = (struct f2fs_summary_block *)page_address(sum_page);
- 	memcpy(curseg->sum_blk, sum_node, SUM_ENTRY_SIZE);
- 	f2fs_put_page(sum_page, 1);
-@@ -3713,7 +3719,7 @@ int f2fs_lookup_journal_in_cursum(struct f2fs_journal *journal, int type,
- static struct page *get_current_sit_page(struct f2fs_sb_info *sbi,
- 					unsigned int segno)
- {
--	return f2fs_get_meta_page_nofail(sbi, current_sit_addr(sbi, segno));
-+	return f2fs_get_meta_page(sbi, current_sit_addr(sbi, segno));
++
++	rcu_read_unlock();
  }
  
- static struct page *get_next_sit_page(struct f2fs_sb_info *sbi,
+ static void watchpoint_single_step_handler(unsigned long pc)
 -- 
 2.27.0
 
