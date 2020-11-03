@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F16DD2A5708
+	by mail.lfdr.de (Postfix) with ESMTP id 83EAE2A5707
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732145AbgKCVdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:33:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59032 "EHLO mail.kernel.org"
+        id S1731745AbgKCVdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:33:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731190AbgKCU44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:56 -0500
+        id S1731286AbgKCU47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A69E92053B;
-        Tue,  3 Nov 2020 20:56:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E20982053B;
+        Tue,  3 Nov 2020 20:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437016;
-        bh=wckzC39GFGHqWU0KEpBCK8E57m64cHZTVwf5aaZZpo0=;
+        s=default; t=1604437018;
+        bh=FYnfaWj9hIFTq7lxbQiNo5DLprayYMNENJGzvwrpY2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVWPVVi7RnbnNox7kaarOjDySMWPJFkbU7oHGN/i+0fngO1lV+8j3wgHSIBPUAKga
-         fB4LDttQKVDdGC4+IhZKjO75e+x7Z8K72qaf0k3kmkx2eUVW0bo3PQXoDIXOYhYtCs
-         He2izo8oO8BQc5ByiZ1+ufEvSlGbCz+v1HmznZPM=
+        b=LNQ1fUudDkH9JQSp57JY3K7k0jT/NU1EV/FbsETE4d0FnPU+mHUgq11V0gWvH7kFy
+         BiTAkDssYBL6GSkA8PHLe0QwTdPk74G+O+jhRsnTjIjHlYe5EamJftbO1gHrBYxyoK
+         7Ue+9hU8eIWqlVxjkh7LO5TTxzK2OgPUYfJTE3Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashish Sangwan <ashishsangwan2@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 109/214] NFS: fix nfs_path in case of a rename retry
-Date:   Tue,  3 Nov 2020 21:35:57 +0100
-Message-Id: <20201103203301.151917125@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 110/214] ACPI: button: fix handling lid state changes when input device closed
+Date:   Tue,  3 Nov 2020 21:35:58 +0100
+Message-Id: <20201103203301.231200104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -42,58 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashish Sangwan <ashishsangwan2@gmail.com>
+From: dmitry.torokhov@gmail.com <dmitry.torokhov@gmail.com>
 
-commit 247db73560bc3e5aef6db50c443c3c0db115bc93 upstream.
+commit 21988a8e51479ceffe7b0568b170effabb708dfe upstream.
 
-We are generating incorrect path in case of rename retry because
-we are restarting from wrong dentry. We should restart from the
-dentry which was received in the call to nfs_path.
+The original intent of 84d3f6b76447 was to delay evaluating lid state until
+all drivers have been loaded, with input device being opened from userspace
+serving as a signal for this condition. Let's ensure that state updates
+happen even if userspace closed (or in the future inhibited) input device.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Note that if we go through suspend/resume cycle we assume the system has
+been fully initialized even if LID input device has not been opened yet.
+
+This has a side-effect of fixing access to input->users outside of
+input->mutex protections by the way of eliminating said accesses and using
+driver private flag.
+
+Fixes: 84d3f6b76447 ("ACPI / button: Delay acpi_lid_initialize_state() until first user space open")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/namespace.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/acpi/button.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -31,9 +31,9 @@ int nfs_mountpoint_expiry_timeout = 500
- /*
-  * nfs_path - reconstruct the path given an arbitrary dentry
-  * @base - used to return pointer to the end of devname part of path
-- * @dentry - pointer to dentry
-+ * @dentry_in - pointer to dentry
-  * @buffer - result buffer
-- * @buflen - length of buffer
-+ * @buflen_in - length of buffer
-  * @flags - options (see below)
-  *
-  * Helper function for constructing the server pathname
-@@ -48,15 +48,19 @@ int nfs_mountpoint_expiry_timeout = 500
-  *		       the original device (export) name
-  *		       (if unset, the original name is returned verbatim)
-  */
--char *nfs_path(char **p, struct dentry *dentry, char *buffer, ssize_t buflen,
--	       unsigned flags)
-+char *nfs_path(char **p, struct dentry *dentry_in, char *buffer,
-+	       ssize_t buflen_in, unsigned flags)
- {
- 	char *end;
- 	int namelen;
- 	unsigned seq;
- 	const char *base;
-+	struct dentry *dentry;
-+	ssize_t buflen;
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -136,6 +136,7 @@ struct acpi_button {
+ 	int last_state;
+ 	ktime_t last_time;
+ 	bool suspended;
++	bool lid_state_initialized;
+ };
  
- rename_retry:
-+	buflen = buflen_in;
-+	dentry = dentry_in;
- 	end = buffer+buflen;
- 	*--end = '\0';
- 	buflen--;
+ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
+@@ -391,6 +392,8 @@ static int acpi_lid_update_state(struct
+ 
+ static void acpi_lid_initialize_state(struct acpi_device *device)
+ {
++	struct acpi_button *button = acpi_driver_data(device);
++
+ 	switch (lid_init_state) {
+ 	case ACPI_BUTTON_LID_INIT_OPEN:
+ 		(void)acpi_lid_notify_state(device, 1);
+@@ -402,13 +405,14 @@ static void acpi_lid_initialize_state(st
+ 	default:
+ 		break;
+ 	}
++
++	button->lid_state_initialized = true;
+ }
+ 
+ static void acpi_button_notify(struct acpi_device *device, u32 event)
+ {
+ 	struct acpi_button *button = acpi_driver_data(device);
+ 	struct input_dev *input;
+-	int users;
+ 
+ 	switch (event) {
+ 	case ACPI_FIXED_HARDWARE_EVENT:
+@@ -417,10 +421,7 @@ static void acpi_button_notify(struct ac
+ 	case ACPI_BUTTON_NOTIFY_STATUS:
+ 		input = button->input;
+ 		if (button->type == ACPI_BUTTON_TYPE_LID) {
+-			mutex_lock(&button->input->mutex);
+-			users = button->input->users;
+-			mutex_unlock(&button->input->mutex);
+-			if (users)
++			if (button->lid_state_initialized)
+ 				acpi_lid_update_state(device, true);
+ 		} else {
+ 			int keycode;
+@@ -465,7 +466,7 @@ static int acpi_button_resume(struct dev
+ 	struct acpi_button *button = acpi_driver_data(device);
+ 
+ 	button->suspended = false;
+-	if (button->type == ACPI_BUTTON_TYPE_LID && button->input->users) {
++	if (button->type == ACPI_BUTTON_TYPE_LID) {
+ 		button->last_state = !!acpi_lid_evaluate_state(device);
+ 		button->last_time = ktime_get();
+ 		acpi_lid_initialize_state(device);
 
 
