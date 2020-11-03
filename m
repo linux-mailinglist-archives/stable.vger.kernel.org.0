@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 194BA2A5525
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB662A567B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389168AbgKCVRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:17:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51664 "EHLO mail.kernel.org"
+        id S1730862AbgKCV2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:28:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388748AbgKCVKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:37 -0500
+        id S1729585AbgKCU7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B03E206B5;
-        Tue,  3 Nov 2020 21:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB0952053B;
+        Tue,  3 Nov 2020 20:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437837;
-        bh=vw2uco8VbAYvvg1ZPp5VtM0nQ/bOfZ0pJKl6LrYeppc=;
+        s=default; t=1604437181;
+        bh=L5ms5j8ReJco365fFQYVbJCEw0Wt1/KFNY135X55fwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrjNICxJEYV3wNeizAGyN8oWrFQ6n7m0JWG30yrKwv2l7m3sUD/gcKjkZ9Inu80Zw
-         fAIwXNqIttccX0xxaCq7LWbQ2I4fzVyBv5PYDa/lAq2++7XSpzFo+Acq9V9jcRCySm
-         YsNbsL6AwlMJM9OgpCOBxJ/qIgVzQRriv0fIdDGg=
+        b=Cwa02dHa+gg7ZDHdubLApG1gj3Tf1XOmoJgqD9MSFOiti19DUP3M7MMlkQo2X5H8x
+         jEtW2tk2Tv2L6M567Kh8JtWCUuS03RmNft4iMqHpgfOlKPndvtmF6JD6mfYazhD9vA
+         A4+szNqQx2nBIIl84GAIAJhoyU8bPZGeAUW3wn4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/125] gfs2: add validation checks for size of superblock
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Jane Jian <Jane.Jian@amd.com>
+Subject: [PATCH 5.4 181/214] drm/amdgpu: correct the gpu reset handling for job != NULL case
 Date:   Tue,  3 Nov 2020 21:37:09 +0100
-Message-Id: <20201103203204.533629797@linuxfoundation.org>
+Message-Id: <20201103203307.677176739@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
+commit 207ac684792560acdb9e06f9d707ebf63c84b0e0 upstream.
 
-In gfs2_check_sb(), no validation checks are performed with regards to
-the size of the superblock.
-syzkaller detected a slab-out-of-bounds bug that was primarily caused
-because the block size for a superblock was set to zero.
-A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
-Performing validation checks and ensuring that the size of the superblock
-is valid fixes this bug.
+Current code wrongly treat all cases as job == NULL.
 
-Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Suggested-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-[Minor code reordering.]
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-and-tested-by: Jane Jian <Jane.Jian@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/gfs2/ops_fstype.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 2de67588ac2d8..0b5c37ceb3ed3 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -161,15 +161,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		return -EINVAL;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3890,7 +3890,7 @@ retry:	/* Rest of adevs pre asic reset f
  
--	/*  If format numbers match exactly, we're done.  */
--
--	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
--	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
--		return 0;
-+	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
-+	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
-+		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+		return -EINVAL;
-+	}
- 
--	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
-+	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
-+		pr_warn("Invalid superblock size\n");
-+		return -EINVAL;
-+	}
- 
--	return -EINVAL;
-+	return 0;
- }
- 
- static void end_bio_io_page(struct bio *bio)
--- 
-2.27.0
-
+ 		amdgpu_device_lock_adev(tmp_adev, false);
+ 		r = amdgpu_device_pre_asic_reset(tmp_adev,
+-						 NULL,
++						 (tmp_adev == adev) ? job : NULL,
+ 						 &need_full_reset);
+ 		/*TODO Should we stop ?*/
+ 		if (r) {
 
 
