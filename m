@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F322A5717
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:34:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE432A583B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732470AbgKCVeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:34:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58682 "EHLO mail.kernel.org"
+        id S1730821AbgKCUtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732169AbgKCU4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:43 -0500
+        id S1731515AbgKCUtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 121B92080D;
-        Tue,  3 Nov 2020 20:56:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF55720719;
+        Tue,  3 Nov 2020 20:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437002;
-        bh=kcskiwX7bdMvjhRCV6N6pCuJXa2NDRQFDRAqPYhFQD4=;
+        s=default; t=1604436558;
+        bh=HePFGk/7Ox50I1nfd/BRrMQxdtgsuScb9PBwP6v/v98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4WYvmxIRpbqQWfA++8cmtmVhKBk7HJfeOZNukzjZhtYcJsDL7WczLR0RtFsfJtVb
-         iKRAr+97Lrh1OqGUfXQlfcasiugmYQr/aAfGCCeXplX4IJKxLf9rXK6/GkjX9rBhZe
-         iSuESm+QfxNmhd/ttuBJG/Zfjw+Vxi+/7NOMGTfo=
+        b=k2RydcmgQiKC+m8dt6f/Ow8a4gXZwhz/dvl3XAozqq0KJNXgPeTDlxs+NpKIVmedc
+         qDb7oe5vajKleQbmS5CYdLakvhq6rWKy1ajT5FlTxofVUFuU+ePTVGp1nviTlwv/hi
+         v0kUcFSdSqgYm5ozQfI+Ah3GJuyyyA7PDpiF4MUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Eranian <stephane.eranian@google.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 103/214] perf/x86/amd/ibs: Fix raw sample data accumulation
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.9 300/391] NFSv4: Wait for stateid updates after CLOSE/OPEN_DOWNGRADE
 Date:   Tue,  3 Nov 2020 21:35:51 +0100
-Message-Id: <20201103203300.397882535@linuxfoundation.org>
+Message-Id: <20201103203407.327284940@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +42,231 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit 36e1be8ada994d509538b3b1d0af8b63c351e729 upstream.
+commit b4868b44c5628995fdd8ef2e24dda73cef963a75 upstream.
 
-Neither IbsBrTarget nor OPDATA4 are populated in IBS Fetch mode.
-Don't accumulate them into raw sample user data in that case.
+Since commit 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in
+CLOSE/OPEN_DOWNGRADE") the following livelock may occur if a CLOSE races
+with the update of the nfs_state:
 
-Also, in Fetch mode, add saving the IBS Fetch Control Extended MSR.
+Process 1           Process 2           Server
+=========           =========           ========
+ OPEN file
+                    OPEN file
+                                        Reply OPEN (1)
+                                        Reply OPEN (2)
+ Update state (1)
+ CLOSE file (1)
+                                        Reply OLD_STATEID (1)
+ CLOSE file (2)
+                                        Reply CLOSE (-1)
+                    Update state (2)
+                    wait for state change
+ OPEN file
+                    wake
+ CLOSE file
+ OPEN file
+                    wake
+ CLOSE file
+ ...
+                    ...
 
-Technically, there is an ABI change here with respect to the IBS raw
-sample data format, but I don't see any perf driver version information
-being included in perf.data file headers, but, existing users can detect
-whether the size of the sample record has reduced by 8 bytes to
-determine whether the IBS driver has this fix.
+We can avoid this situation by not issuing an immediate retry with a bumped
+seqid when CLOSE/OPEN_DOWNGRADE receives NFS4ERR_OLD_STATEID.  Instead,
+take the same approach used by OPEN and wait at least 5 seconds for
+outstanding stateid updates to complete if we can detect that we're out of
+sequence.
 
-Fixes: 904cb3677f3a ("perf/x86/amd/ibs: Update IBS MSRs and feature definitions")
-Reported-by: Stephane Eranian <stephane.eranian@google.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200908214740.18097-6-kim.phillips@amd.com
+Note that after this change it is still possible (though unlikely) that
+CLOSE waits a full 5 seconds, bumps the seqid, and retries -- and that
+attempt races with another OPEN at the same time.  In order to avoid this
+race (which would result in the livelock), update
+nfs_need_update_open_stateid() to handle the case where:
+ - the state is NFS_OPEN_STATE, and
+ - the stateid doesn't match the current open stateid
+
+Finally, nfs_need_update_open_stateid() is modified to be idempotent and
+renamed to better suit the purpose of signaling that the stateid passed
+is the next stateid in sequence.
+
+Fixes: 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in CLOSE/OPEN_DOWNGRADE")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/amd/ibs.c        |   26 ++++++++++++++++----------
- arch/x86/include/asm/msr-index.h |    1 +
- 2 files changed, 17 insertions(+), 10 deletions(-)
+ fs/nfs/nfs4_fs.h   |    8 +++++
+ fs/nfs/nfs4proc.c  |   81 ++++++++++++++++++++++++++++++-----------------------
+ fs/nfs/nfs4trace.h |    1 
+ 3 files changed, 56 insertions(+), 34 deletions(-)
 
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -636,18 +636,24 @@ fail:
- 				       perf_ibs->offset_max,
- 				       offset + 1);
- 	} while (offset < offset_max);
-+	/*
-+	 * Read IbsBrTarget, IbsOpData4, and IbsExtdCtl separately
-+	 * depending on their availability.
-+	 * Can't add to offset_max as they are staggered
-+	 */
- 	if (event->attr.sample_type & PERF_SAMPLE_RAW) {
--		/*
--		 * Read IbsBrTarget and IbsOpData4 separately
--		 * depending on their availability.
--		 * Can't add to offset_max as they are staggered
--		 */
--		if (ibs_caps & IBS_CAPS_BRNTRGT) {
--			rdmsrl(MSR_AMD64_IBSBRTARGET, *buf++);
--			size++;
-+		if (perf_ibs == &perf_ibs_op) {
-+			if (ibs_caps & IBS_CAPS_BRNTRGT) {
-+				rdmsrl(MSR_AMD64_IBSBRTARGET, *buf++);
-+				size++;
-+			}
-+			if (ibs_caps & IBS_CAPS_OPDATA4) {
-+				rdmsrl(MSR_AMD64_IBSOPDATA4, *buf++);
-+				size++;
-+			}
- 		}
--		if (ibs_caps & IBS_CAPS_OPDATA4) {
--			rdmsrl(MSR_AMD64_IBSOPDATA4, *buf++);
-+		if (perf_ibs == &perf_ibs_fetch && (ibs_caps & IBS_CAPS_FETCHCTLEXTD)) {
-+			rdmsrl(MSR_AMD64_ICIBSEXTDCTL, *buf++);
- 			size++;
- 		}
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -599,6 +599,14 @@ static inline bool nfs4_stateid_is_newer
+ 	return (s32)(be32_to_cpu(s1->seqid) - be32_to_cpu(s2->seqid)) > 0;
+ }
+ 
++static inline bool nfs4_stateid_is_next(const nfs4_stateid *s1, const nfs4_stateid *s2)
++{
++	u32 seq1 = be32_to_cpu(s1->seqid);
++	u32 seq2 = be32_to_cpu(s2->seqid);
++
++	return seq2 == seq1 + 1U || (seq2 == 1U && seq1 == 0xffffffffU);
++}
++
+ static inline bool nfs4_stateid_match_or_older(const nfs4_stateid *dst, const nfs4_stateid *src)
+ {
+ 	return nfs4_stateid_match_other(dst, src) &&
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1547,19 +1547,6 @@ static void nfs_state_log_update_open_st
+ 		wake_up_all(&state->waitq);
+ }
+ 
+-static void nfs_state_log_out_of_order_open_stateid(struct nfs4_state *state,
+-		const nfs4_stateid *stateid)
+-{
+-	u32 state_seqid = be32_to_cpu(state->open_stateid.seqid);
+-	u32 stateid_seqid = be32_to_cpu(stateid->seqid);
+-
+-	if (stateid_seqid == state_seqid + 1U ||
+-	    (stateid_seqid == 1U && state_seqid == 0xffffffffU))
+-		nfs_state_log_update_open_stateid(state);
+-	else
+-		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+-}
+-
+ static void nfs_test_and_clear_all_open_stateid(struct nfs4_state *state)
+ {
+ 	struct nfs_client *clp = state->owner->so_server->nfs_client;
+@@ -1585,21 +1572,19 @@ static void nfs_test_and_clear_all_open_
+  * i.e. The stateid seqids have to be initialised to 1, and
+  * are then incremented on every state transition.
+  */
+-static bool nfs_need_update_open_stateid(struct nfs4_state *state,
++static bool nfs_stateid_is_sequential(struct nfs4_state *state,
+ 		const nfs4_stateid *stateid)
+ {
+-	if (test_bit(NFS_OPEN_STATE, &state->flags) == 0 ||
+-	    !nfs4_stateid_match_other(stateid, &state->open_stateid)) {
++	if (test_bit(NFS_OPEN_STATE, &state->flags)) {
++		/* The common case - we're updating to a new sequence number */
++		if (nfs4_stateid_match_other(stateid, &state->open_stateid) &&
++			nfs4_stateid_is_next(&state->open_stateid, stateid)) {
++			return true;
++		}
++	} else {
++		/* This is the first OPEN in this generation */
+ 		if (stateid->seqid == cpu_to_be32(1))
+-			nfs_state_log_update_open_stateid(state);
+-		else
+-			set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+-		return true;
+-	}
+-
+-	if (nfs4_stateid_is_newer(stateid, &state->open_stateid)) {
+-		nfs_state_log_out_of_order_open_stateid(state, stateid);
+-		return true;
++			return true;
  	}
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -432,6 +432,7 @@
- #define MSR_AMD64_IBSOP_REG_MASK	((1UL<<MSR_AMD64_IBSOP_REG_COUNT)-1)
- #define MSR_AMD64_IBSCTL		0xc001103a
- #define MSR_AMD64_IBSBRTARGET		0xc001103b
-+#define MSR_AMD64_ICIBSEXTDCTL		0xc001103c
- #define MSR_AMD64_IBSOPDATA4		0xc001103d
- #define MSR_AMD64_IBS_REG_COUNT_MAX	8 /* includes MSR_AMD64_IBSBRTARGET */
- #define MSR_AMD64_SEV			0xc0010131
+ 	return false;
+ }
+@@ -1673,16 +1658,16 @@ static void nfs_set_open_stateid_locked(
+ 	int status = 0;
+ 	for (;;) {
+ 
+-		if (!nfs_need_update_open_stateid(state, stateid))
+-			return;
+-		if (!test_bit(NFS_STATE_CHANGE_WAIT, &state->flags))
++		if (nfs_stateid_is_sequential(state, stateid))
+ 			break;
++
+ 		if (status)
+ 			break;
+ 		/* Rely on seqids for serialisation with NFSv4.0 */
+ 		if (!nfs4_has_session(NFS_SERVER(state->inode)->nfs_client))
+ 			break;
+ 
++		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+ 		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
+ 		/*
+ 		 * Ensure we process the state changes in the same order
+@@ -1693,6 +1678,7 @@ static void nfs_set_open_stateid_locked(
+ 		spin_unlock(&state->owner->so_lock);
+ 		rcu_read_unlock();
+ 		trace_nfs4_open_stateid_update_wait(state->inode, stateid, 0);
++
+ 		if (!signal_pending(current)) {
+ 			if (schedule_timeout(5*HZ) == 0)
+ 				status = -EAGAIN;
+@@ -3435,7 +3421,8 @@ static bool nfs4_refresh_open_old_statei
+ 	__be32 seqid_open;
+ 	u32 dst_seqid;
+ 	bool ret;
+-	int seq;
++	int seq, status = -EAGAIN;
++	DEFINE_WAIT(wait);
+ 
+ 	for (;;) {
+ 		ret = false;
+@@ -3447,15 +3434,41 @@ static bool nfs4_refresh_open_old_statei
+ 				continue;
+ 			break;
+ 		}
++
++		write_seqlock(&state->seqlock);
+ 		seqid_open = state->open_stateid.seqid;
+-		if (read_seqretry(&state->seqlock, seq))
+-			continue;
+ 
+ 		dst_seqid = be32_to_cpu(dst->seqid);
+-		if ((s32)(dst_seqid - be32_to_cpu(seqid_open)) >= 0)
+-			dst->seqid = cpu_to_be32(dst_seqid + 1);
+-		else
++
++		/* Did another OPEN bump the state's seqid?  try again: */
++		if ((s32)(be32_to_cpu(seqid_open) - dst_seqid) > 0) {
+ 			dst->seqid = seqid_open;
++			write_sequnlock(&state->seqlock);
++			ret = true;
++			break;
++		}
++
++		/* server says we're behind but we haven't seen the update yet */
++		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
++		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
++		write_sequnlock(&state->seqlock);
++		trace_nfs4_close_stateid_update_wait(state->inode, dst, 0);
++
++		if (signal_pending(current))
++			status = -EINTR;
++		else
++			if (schedule_timeout(5*HZ) != 0)
++				status = 0;
++
++		finish_wait(&state->waitq, &wait);
++
++		if (!status)
++			continue;
++		if (status == -EINTR)
++			break;
++
++		/* we slept the whole 5 seconds, we must have lost a seqid */
++		dst->seqid = cpu_to_be32(dst_seqid + 1);
+ 		ret = true;
+ 		break;
+ 	}
+--- a/fs/nfs/nfs4trace.h
++++ b/fs/nfs/nfs4trace.h
+@@ -1511,6 +1511,7 @@ DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_set
+ DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_delegreturn);
+ DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_open_stateid_update);
+ DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_open_stateid_update_wait);
++DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_close_stateid_update_wait);
+ 
+ DECLARE_EVENT_CLASS(nfs4_getattr_event,
+ 		TP_PROTO(
 
 
