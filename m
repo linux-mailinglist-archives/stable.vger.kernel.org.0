@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A442A398A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B51062A398C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727825AbgKCBTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:19:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33562 "EHLO mail.kernel.org"
+        id S1728276AbgKCB0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:26:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727774AbgKCBTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:19:36 -0500
+        id S1727821AbgKCBTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:19:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEDD5223AB;
-        Tue,  3 Nov 2020 01:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 563FD2240C;
+        Tue,  3 Nov 2020 01:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366375;
-        bh=ciz0Hq87QYdXx/TDRlLaRC+TrlVmErU6VQ0NfyW5GK4=;
+        s=default; t=1604366376;
+        bh=fu1X88HwblEGyDKmT0nXc63ooYPumtIElocBOMRl/WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxH9J5a8306iqlm2XFY2fhc2JPG/iNjHJX/E3AN6u2/Yv3F/HgIVqoaiKgRl7eU0i
-         uuHimvIsscKcGlfQj+TekvCwnGbD2TgBDLammz9xLu3jVqu6W4twUIrELi7T9VDOjd
-         Ago4dU3i78M8XQcUVC0eqxLLTJRC0wbRHoVrTPJo=
+        b=hlnhPEfHidTG1F+twV5KbaEX5v/sY5KLOkrpipmhoBvOs5gQKwtZFDcNbP+9ZSlL9
+         uyhp2tNmskTvOwHBJBuoJZHNyzhbNIoQM4nM38kljoO7R70egQYRfHJoFVJayrWoBb
+         mQj2GfqlYv95GkUlmSI+1otwun8dtpq7SUQBCB84=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 05/29] arm64: dts: amlogic: meson-g12: use the G12A specific dwmac compatible
-Date:   Mon,  2 Nov 2020 20:19:04 -0500
-Message-Id: <20201103011928.183145-5-sashal@kernel.org>
+Cc:     Kairui Song <kasong@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 06/29] x86/kexec: Use up-to-dated screen_info copy to fill boot params
+Date:   Mon,  2 Nov 2020 20:19:05 -0500
+Message-Id: <20201103011928.183145-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103011928.183145-1-sashal@kernel.org>
 References: <20201103011928.183145-1-sashal@kernel.org>
@@ -45,40 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Kairui Song <kasong@redhat.com>
 
-[ Upstream commit 1fdc97ae450ede2b4911d6737a57e6fca63b5f4a ]
+[ Upstream commit afc18069a2cb7ead5f86623a5f3d4ad6e21f940d ]
 
-We have a dedicated "amlogic,meson-g12a-dwmac" compatible string for the
-Ethernet controller since commit 3efdb92426bf4 ("dt-bindings: net:
-dwmac-meson: Add a compatible string for G12A onwards").
-Using the AXG compatible string worked fine so far because the
-dwmac-meson8b driver doesn't handle the newly introduced register bits
-for G12A. However, once that changes the driver must be probed with the
-correct compatible string to manage these new register bits.
+kexec_file_load() currently reuses the old boot_params.screen_info,
+but if drivers have change the hardware state, boot_param.screen_info
+could contain invalid info.
 
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200925211743.537496-1-martin.blumenstingl@googlemail.com
+For example, the video type might be no longer VGA, or the frame buffer
+address might be changed. If the kexec kernel keeps using the old screen_info,
+kexec'ed kernel may attempt to write to an invalid framebuffer
+memory region.
+
+There are two screen_info instances globally available, boot_params.screen_info
+and screen_info. Later one is a copy, and is updated by drivers.
+
+So let kexec_file_load use the updated copy.
+
+[ mingo: Tidied up the changelog. ]
+
+Signed-off-by: Kairui Song <kasong@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014092429.1415040-2-kasong@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/kexec-bzimage64.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-index 6ec40af658ba0..748bcdf5fa285 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -176,7 +176,7 @@ map {
- 		};
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index db6578d45157e..7d520bada6bfc 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -209,8 +209,7 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
+ 	params->hdr.hardware_subarch = boot_params.hdr.hardware_subarch;
  
- 		ethmac: ethernet@ff3f0000 {
--			compatible = "amlogic,meson-axg-dwmac",
-+			compatible = "amlogic,meson-g12a-dwmac",
- 				     "snps,dwmac-3.70a",
- 				     "snps,dwmac";
- 			reg = <0x0 0xff3f0000 0x0 0x10000>,
+ 	/* Copying screen_info will do? */
+-	memcpy(&params->screen_info, &boot_params.screen_info,
+-				sizeof(struct screen_info));
++	memcpy(&params->screen_info, &screen_info, sizeof(struct screen_info));
+ 
+ 	/* Fill in memsize later */
+ 	params->screen_info.ext_mem_k = 0;
 -- 
 2.27.0
 
