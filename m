@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAA52A5510
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 599082A53DC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733213AbgKCVLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:11:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
+        id S2387814AbgKCVF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:05:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388832AbgKCVLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:10 -0500
+        id S2387735AbgKCVF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:05:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABAFB207BC;
-        Tue,  3 Nov 2020 21:11:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA87F205ED;
+        Tue,  3 Nov 2020 21:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437870;
-        bh=nzp28d2X08fYjfIAM5S0jS5CbBVb1+KgCSY2J8t2AOI=;
+        s=default; t=1604437526;
+        bh=5E6Ms5SfmAhlWvxTxvU+REQ6RjzNmk5P07PNfAQXR/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkcOlbL1O/E3IpLksiuoLiMfK9jCPVj7n3IvFFzft02ZMC2WS1EP2yjh3SeA5U67R
-         N63PnLAfMbg0IMyR7P2SnVNyS0MUe4UTYMB9ksLoS+Bot8T8ffft33hL5OwuF0dZ9m
-         p5ZSodFXlSNRBA9XXEa+Sr3WRUOHoZyTsHaBgVgs=
+        b=JoKUof71QkzIhQn5K/Qe/2VnRCrJ1yGaYLYKEWLWZeaWc+kQlOODM56PJG7V2F2yn
+         e31c4jXUuqyKHXS1kujDbXlqSikBPxYxeQ3y6cxsfCn4oW/1sMoAinYaA9bKseF4t2
+         8dpEuZ0OQUabZ6x7Nag7WsZLDKvJMCm4OKOaLdns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/125] drm/brige/megachips: Add checking if ge_b850v3_lvds_init() is working correctly
-Date:   Tue,  3 Nov 2020 21:36:45 +0100
-Message-Id: <20201103203200.790358467@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 114/191] perf/x86/amd/ibs: Dont include randomized bits in get_ibs_op_count()
+Date:   Tue,  3 Nov 2020 21:36:46 +0100
+Message-Id: <20201103203244.086262036@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit f688a345f0d7a6df4dd2aeca8e4f3c05e123a0ee ]
+commit 680d69635005ba0e58fe3f4c52fc162b8fc743b0 upstream.
 
-If ge_b850v3_lvds_init() does not allocate memory for ge_b850v3_lvds_ptr,
-then a null pointer dereference is accessed.
+get_ibs_op_count() adds hardware's current count (IbsOpCurCnt) bits
+to its count regardless of hardware's valid status.
 
-The patch adds checking of the return value of ge_b850v3_lvds_init().
+According to the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54,
+if the counter rolls over, valid status is set, and the lower 7 bits
+of IbsOpCurCnt are randomized by hardware.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Don't include those bits in the driver's event count.
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200819143756.30626-1-lutovinova@ispras.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8b1e13638d46 ("perf/x86-ibs: Fix usage of IBS op current count")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/events/amd/ibs.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 7ccadba7c98cd..9f522372a4884 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -306,8 +306,12 @@ static int stdp4028_ge_b850v3_fw_probe(struct i2c_client *stdp4028_i2c,
- 				       const struct i2c_device_id *id)
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -347,11 +347,15 @@ static u64 get_ibs_op_count(u64 config)
  {
- 	struct device *dev = &stdp4028_i2c->dev;
-+	int ret;
-+
-+	ret = ge_b850v3_lvds_init(dev);
+ 	u64 count = 0;
  
--	ge_b850v3_lvds_init(dev);
-+	if (ret)
-+		return ret;
++	/*
++	 * If the internal 27-bit counter rolled over, the count is MaxCnt
++	 * and the lower 7 bits of CurCnt are randomized.
++	 * Otherwise CurCnt has the full 27-bit current counter value.
++	 */
+ 	if (config & IBS_OP_VAL)
+-		count += (config & IBS_OP_MAX_CNT) << 4; /* cnt rolled over */
+-
+-	if (ibs_caps & IBS_CAPS_RDWROPCNT)
+-		count += (config & IBS_OP_CUR_CNT) >> 32;
++		count = (config & IBS_OP_MAX_CNT) << 4;
++	else if (ibs_caps & IBS_CAPS_RDWROPCNT)
++		count = (config & IBS_OP_CUR_CNT) >> 32;
  
- 	ge_b850v3_lvds_ptr->stdp4028_i2c = stdp4028_i2c;
- 	i2c_set_clientdata(stdp4028_i2c, ge_b850v3_lvds_ptr);
-@@ -365,8 +369,12 @@ static int stdp2690_ge_b850v3_fw_probe(struct i2c_client *stdp2690_i2c,
- 				       const struct i2c_device_id *id)
- {
- 	struct device *dev = &stdp2690_i2c->dev;
-+	int ret;
-+
-+	ret = ge_b850v3_lvds_init(dev);
- 
--	ge_b850v3_lvds_init(dev);
-+	if (ret)
-+		return ret;
- 
- 	ge_b850v3_lvds_ptr->stdp2690_i2c = stdp2690_i2c;
- 	i2c_set_clientdata(stdp2690_i2c, ge_b850v3_lvds_ptr);
--- 
-2.27.0
-
+ 	return count;
+ }
 
 
