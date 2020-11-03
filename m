@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8222A5286
+	by mail.lfdr.de (Postfix) with ESMTP id CBF4F2A5287
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731857AbgKCUun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:50:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S1731841AbgKCUuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:50:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731851AbgKCUum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:50:42 -0500
+        id S1731860AbgKCUuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:50:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F7C622404;
-        Tue,  3 Nov 2020 20:50:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E599522404;
+        Tue,  3 Nov 2020 20:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436642;
-        bh=74KF8pX5Ws56tLv45is/0QJDtB5rGm0h+2J+LFmRumM=;
+        s=default; t=1604436644;
+        bh=N7BSukAVL4No7yZyqirfSQxMblTs3avvPEdBWkdnasY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AS0kW0iaTbAYSt5ecvAMHbbhN6Ip4XzGGuKUWx2WXD1rG71pOFsvc8pLLjVZj0afH
-         XThHHLf7W/66XLcOZvbEDcbwbtoxDmAwu5D5SdbRAGeHe5Kg5r2e5KlkNINt6ktUpV
-         Hxph9oIuNk8pDNoP20qvBLMIqKh8z+KWg7zWb9pw=
+        b=rBPp9R1Y7QzxNMpg3lvt0d2UfGaI6lpgIOPbWc+zGMOKyS66yyKh1x9oxHqootLJ6
+         DB3coKXs6B4CMunQcnRs4bQfQH+8E3+7D8/srkEF4lCE/HRyTTriWad9hQjMvHKXqU
+         gwaQopEop8GRBqIQhpjld3ZKV22rO0epk1TPK1qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.9 338/391] cpufreq: intel_pstate: Avoid missing HWP max updates in passive mode
-Date:   Tue,  3 Nov 2020 21:36:29 +0100
-Message-Id: <20201103203409.939835927@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.9 339/391] vringh: fix __vringh_iov() when riov and wiov are different
+Date:   Tue,  3 Nov 2020 21:36:30 +0100
+Message-Id: <20201103203410.009238898@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,77 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit e0be38ed4ab413ddd492118cf146369b86ee0ab5 upstream.
+commit 5745bcfbbf89b158416075374254d3c013488f21 upstream.
 
-If the cpufreq policy max limit is changed when intel_pstate operates
-in the passive mode with HWP enabled and the "powersave" governor is
-used on top of it, the HWP max limit is not updated as appropriate.
+If riov and wiov are both defined and they point to different
+objects, only riov is initialized. If the wiov is not initialized
+by the caller, the function fails returning -EINVAL and printing
+"Readable desc 0x... after writable" error message.
 
-Namely, in the "powersave" governor case, the target P-state
-is always equal to the policy min limit, so if the latter does
-not change, intel_cpufreq_adjust_hwp() is not invoked to update
-the HWP Request MSR due to the "target_pstate != old_pstate" check
-in intel_cpufreq_update_pstate(), so the HWP max limit is not
-updated as a result.
+This issue happens when descriptors have both readable and writable
+buffers (eg. virtio-blk devices has virtio_blk_outhdr in the readable
+buffer and status as last byte of writable buffer) and we call
+__vringh_iov() to get both type of buffers in two different iovecs.
 
-Also, if the CPUFREQ_NEED_UPDATE_LIMITS flag is not set for the
-driver and the target frequency does not change along with the
-policy max limit, the "target_freq == policy->cur" check in
-__cpufreq_driver_target() prevents the driver's ->target() callback
-from being invoked at all, so the HWP max limit is not updated.
+Let's replace the 'else if' clause with 'if' to initialize both
+riov and wiov if they are not NULL.
 
-To prevent that occurring, set the CPUFREQ_NEED_UPDATE_LIMITS flag
-in the intel_cpufreq driver structure if HWP is enabled and modify
-intel_cpufreq_update_pstate() to do the "target_pstate != old_pstate"
-check only in the non-HWP case and let intel_cpufreq_adjust_hwp()
-always run in the HWP case (it will update HWP Request only if the
-cached value of the register is different from the new one including
-the limits, so if neither the target P-state value nor the max limit
-changes, the register write will still be avoided).
+As checkpatch pointed out, we also avoid crashing the kernel
+when riov and wiov are both NULL, replacing BUG() with WARN_ON()
+and returning -EINVAL.
 
-Fixes: f6ebbcf08f37 ("cpufreq: intel_pstate: Implement passive mode with HWP enabled")
-Reported-by: Zhang Rui <rui.zhang@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+: 1c534352f47f cpufreq: Introduce CPUFREQ_NEED_UPDATE_LIMITS ...
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
+Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20201008204256.162292-1-sgarzare@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/intel_pstate.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/vhost/vringh.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -2550,14 +2550,12 @@ static int intel_cpufreq_update_pstate(s
- 	int old_pstate = cpu->pstate.current_pstate;
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -284,13 +284,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 	desc_max = vrh->vring.num;
+ 	up_next = -1;
  
- 	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
--	if (target_pstate != old_pstate) {
-+	if (hwp_active) {
-+		intel_cpufreq_adjust_hwp(cpu, target_pstate, fast_switch);
-+		cpu->pstate.current_pstate = target_pstate;
-+	} else if (target_pstate != old_pstate) {
-+		intel_cpufreq_adjust_perf_ctl(cpu, target_pstate, fast_switch);
- 		cpu->pstate.current_pstate = target_pstate;
--		if (hwp_active)
--			intel_cpufreq_adjust_hwp(cpu, target_pstate,
--						 fast_switch);
--		else
--			intel_cpufreq_adjust_perf_ctl(cpu, target_pstate,
--						      fast_switch);
- 	}
++	/* You must want something! */
++	if (WARN_ON(!riov && !wiov))
++		return -EINVAL;
++
+ 	if (riov)
+ 		riov->i = riov->used = 0;
+-	else if (wiov)
++	if (wiov)
+ 		wiov->i = wiov->used = 0;
+-	else
+-		/* You must want something! */
+-		BUG();
  
- 	intel_cpufreq_trace(cpu, fast_switch ? INTEL_PSTATE_TRACE_FAST_SWITCH :
-@@ -3014,6 +3012,7 @@ static int __init intel_pstate_init(void
- 			hwp_mode_bdw = id->driver_data;
- 			intel_pstate.attr = hwp_cpufreq_attrs;
- 			intel_cpufreq.attr = hwp_cpufreq_attrs;
-+			intel_cpufreq.flags |= CPUFREQ_NEED_UPDATE_LIMITS;
- 			if (!default_driver)
- 				default_driver = &intel_pstate;
- 
+ 	for (;;) {
+ 		void *addr;
 
 
