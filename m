@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CC82A58FE
+	by mail.lfdr.de (Postfix) with ESMTP id 2103C2A58FC
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgKCUoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:44:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58542 "EHLO mail.kernel.org"
+        id S1729110AbgKCWDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 17:03:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730810AbgKCUoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:44:00 -0500
+        id S1730828AbgKCUoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:44:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FA1D223BD;
-        Tue,  3 Nov 2020 20:43:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06EC9223EA;
+        Tue,  3 Nov 2020 20:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436240;
-        bh=SszlHjj0P9/SzAxyK6PRfcf2jLRolRlfYE8hPAcMXWQ=;
+        s=default; t=1604436244;
+        bh=SuTF/ZQvEP2QRNHtC1kbCGO9N/BK4wXOq4jLihueTIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMmVdqUu1SaYoX04qQaMfF97oToj4Ok66x7PPPsUZyuJn/k1Xxr1UQefkp3vza0tW
-         WYTWP5MXSNjA/cEuR5sZsYRm9uGrBqwwUl2D3vRYES92tW+FoCCpg3q1Asss4psZxn
-         DQx/z8FTSlKS1yBhnv8l1nyVT2Q01cvtbdJDSZ+8=
+        b=QugptlhP2qn6QXLNGsU5cohGd0ciaNGLaKRgStr7W229FjIubqf95LKwITc4AifWS
+         Wm1X5Qgb/ZD6eS3B+us2bBoTzNGSRfv0f6IGrIG4ayPAiMeEpFnAebGXKko1fDuvT8
+         +3QhdVZ40KQd3UGxYqZ/TUsp3iLP+pw6z0ROv14c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 163/391] cifs: handle -EINTR in cifs_setattr
-Date:   Tue,  3 Nov 2020 21:33:34 +0100
-Message-Id: <20201103203357.846420878@linuxfoundation.org>
+Subject: [PATCH 5.9 165/391] ARM: dts: omap4: Fix sgx clock rate for 4430
+Date:   Tue,  3 Nov 2020 21:33:36 +0100
+Message-Id: <20201103203357.981764968@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,55 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit c6cc4c5a72505a0ecefc9b413f16bec512f38078 ]
+[ Upstream commit 19d3e9a0bdd57b90175f30390edeb06851f5f9f3 ]
 
-RHBZ: 1848178
+We currently have a different clock rate for droid4 compared to the
+stock v3.0.8 based Android Linux kernel:
 
-Some calls that set attributes, like utimensat(), are not supposed to return
--EINTR and thus do not have handlers for this in glibc which causes us
-to leak -EINTR to the applications which are also unprepared to handle it.
+# cat /sys/kernel/debug/clk/dpll_*_m7x2_ck/clk_rate
+266666667
+307200000
+# cat /sys/kernel/debug/clk/l3_gfx_cm:clk:0000:0/clk_rate
+307200000
 
-For example tar will break if utimensat() return -EINTR and abort unpacking
-the archive. Other applications may break too.
+Let's fix this by configuring sgx to use 153.6 MHz instead of 307.2 MHz.
+Looks like also at least duover needs this change to avoid hangs, so
+let's apply it for all 4430.
 
-To handle this we add checks, and retry, for -EINTR in cifs_setattr()
+This helps a bit with thermal issues that seem to be related to memory
+corruption when using sgx. It seems that other driver related issues
+still remain though.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/inode.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi    |  2 +-
+ arch/arm/boot/dts/omap443x.dtsi | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index 1f75b25e559a7..daec31be85718 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2883,13 +2883,18 @@ cifs_setattr(struct dentry *direntry, struct iattr *attrs)
- {
- 	struct cifs_sb_info *cifs_sb = CIFS_SB(direntry->d_sb);
- 	struct cifs_tcon *pTcon = cifs_sb_master_tcon(cifs_sb);
-+	int rc, retries = 0;
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 0282b9de3384f..52e8298275050 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -410,7 +410,7 @@
+ 			status = "disabled";
+ 		};
  
--	if (pTcon->unix_ext)
--		return cifs_setattr_unix(direntry, attrs);
--
--	return cifs_setattr_nounix(direntry, attrs);
-+	do {
-+		if (pTcon->unix_ext)
-+			rc = cifs_setattr_unix(direntry, attrs);
-+		else
-+			rc = cifs_setattr_nounix(direntry, attrs);
-+		retries++;
-+	} while (is_retryable_error(rc) && retries < 2);
+-		target-module@56000000 {
++		sgx_module: target-module@56000000 {
+ 			compatible = "ti,sysc-omap4", "ti,sysc";
+ 			reg = <0x5600fe00 0x4>,
+ 			      <0x5600fe10 0x4>;
+diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
+index 8ed510ab00c52..cb309743de5da 100644
+--- a/arch/arm/boot/dts/omap443x.dtsi
++++ b/arch/arm/boot/dts/omap443x.dtsi
+@@ -74,3 +74,13 @@
+ };
  
- 	/* BB: add cifs_setattr_legacy for really old servers */
-+	return rc;
- }
- 
- #if 0
+ /include/ "omap443x-clocks.dtsi"
++
++/*
++ * Use dpll_per for sgx at 153.6MHz like droid4 stock v3.0.8 Android kernel
++ */
++&sgx_module {
++	assigned-clocks = <&l3_gfx_clkctrl OMAP4_GPU_CLKCTRL 24>,
++			  <&dpll_per_m7x2_ck>;
++	assigned-clock-rates = <0>, <153600000>;
++	assigned-clock-parents = <&dpll_per_m7x2_ck>;
++};
 -- 
 2.27.0
 
