@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 367402A5326
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAC02A5293
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732940AbgKCU6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:58:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60890 "EHLO mail.kernel.org"
+        id S1731918AbgKCUvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:51:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732116AbgKCU6R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:17 -0500
+        id S1731362AbgKCUvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E509D2053B;
-        Tue,  3 Nov 2020 20:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9114220719;
+        Tue,  3 Nov 2020 20:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437095;
-        bh=JhqZYrzLoq7d1IA7dJCErI9pM2rLwGx0q5SNQ8neXAs=;
+        s=default; t=1604436667;
+        bh=wiBx9A2lhebuSmXPGder/2NCRifMq+OyrZyXrFNON5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zV6Bgfqrclvqs79taYP41ddyEwhZBMhkCLZJNK8YiJ9gzIyViAio3IbHAZuaopXjZ
-         L0iABn7dB0LvfF//aKVB99Sa1ZiUYBZQpR7f4Cm6mqeUUIjwv57QUGITIgT1y/3NDM
-         CAuonkj44gAooIuIDmnciVShFDzeVL+ZLyA5bSQc=
+        b=ovYslY7wGskhWaY6Byltkuq53kKV93KZJpIo9Cpck53SBj5wTDr9pyqMioIrUhT7X
+         5M2PH+S5sXwc4/sMLUQ8Amr+sjq6yJbi5Vnu/Q6dn210JVVUGHxk3LmJzf39ebYvnb
+         jVt8psHTZ89+b0/cF0u71+c7/0aEBXpLP3T6pE58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Ran Wang <ran.wang_1@nxp.com>
-Subject: [PATCH 5.4 143/214] usb: host: fsl-mph-dr-of: check return of dma_set_mask()
-Date:   Tue,  3 Nov 2020 21:36:31 +0100
-Message-Id: <20201103203304.218947273@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Luo Meng <luomeng12@huawei.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.9 343/391] ext4: fix invalid inode checksum
+Date:   Tue,  3 Nov 2020 21:36:34 +0100
+Message-Id: <20201103203410.282363210@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Wang <ran.wang_1@nxp.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-commit 3cd54a618834430a26a648d880dd83d740f2ae30 upstream.
+commit 1322181170bb01bce3c228b82ae3d5c6b793164f upstream.
 
-fsl_usb2_device_register() should stop init if dma_set_mask() return
-error.
+During the stability test, there are some errors:
+  ext4_lookup:1590: inode #6967: comm fsstress: iget: checksum invalid.
 
-Fixes: cae058610465 ("drivers/usb/host: fsl: Set DMA_MASK of usb platform device")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
-Link: https://lore.kernel.org/r/20201010060308.33693-1-ran.wang_1@nxp.com
-Cc: stable <stable@vger.kernel.org>
+If the inode->i_iblocks too big and doesn't set huge file flag, checksum
+will not be recalculated when update the inode information to it's buffer.
+If other inode marks the buffer dirty, then the inconsistent inode will
+be flushed to disk.
+
+Fix this problem by checking i_blocks in advance.
+
+Cc: stable@kernel.org
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Link: https://lore.kernel.org/r/20201020013631.3796673-1-luomeng12@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/fsl-mph-dr-of.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/host/fsl-mph-dr-of.c
-+++ b/drivers/usb/host/fsl-mph-dr-of.c
-@@ -94,10 +94,13 @@ static struct platform_device *fsl_usb2_
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4982,6 +4982,12 @@ static int ext4_do_update_inode(handle_t
+ 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
+ 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
  
- 	pdev->dev.coherent_dma_mask = ofdev->dev.coherent_dma_mask;
- 
--	if (!pdev->dev.dma_mask)
-+	if (!pdev->dev.dma_mask) {
- 		pdev->dev.dma_mask = &ofdev->dev.coherent_dma_mask;
--	else
--		dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	} else {
-+		retval = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
-+		if (retval)
-+			goto error;
++	err = ext4_inode_blocks_set(handle, raw_inode, ei);
++	if (err) {
++		spin_unlock(&ei->i_raw_lock);
++		goto out_brelse;
 +	}
++
+ 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+ 	i_uid = i_uid_read(inode);
+ 	i_gid = i_gid_read(inode);
+@@ -5015,11 +5021,6 @@ static int ext4_do_update_inode(handle_t
+ 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
+ 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
  
- 	retval = platform_device_add_data(pdev, pdata, sizeof(*pdata));
- 	if (retval)
+-	err = ext4_inode_blocks_set(handle, raw_inode, ei);
+-	if (err) {
+-		spin_unlock(&ei->i_raw_lock);
+-		goto out_brelse;
+-	}
+ 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+ 	raw_inode->i_flags = cpu_to_le32(ei->i_flags & 0xFFFFFFFF);
+ 	if (likely(!test_opt2(inode->i_sb, HURD_COMPAT)))
 
 
