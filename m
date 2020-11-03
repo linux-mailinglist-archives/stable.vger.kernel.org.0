@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D542A481A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CCBB2A4818
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728088AbgKCO2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729340AbgKCO2r (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 09:28:47 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45069 "EHLO
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:43239 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729286AbgKCO11 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 3 Nov 2020 09:27:27 -0500
+        by vger.kernel.org with ESMTP id S1729341AbgKCO1i (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 3 Nov 2020 09:27:38 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 428E1D1B;
-        Tue,  3 Nov 2020 09:27:26 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:27:26 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 336C3CBC;
+        Tue,  3 Nov 2020 09:27:37 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:27:37 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=de+CZi
-        DqVeVKaa8e+AmgaxcZV/zIb1RfK0dlopmOX90=; b=Egfvuu37yCw9PwuDXC4A4r
-        uEIn7rAFmOZi6fpti430qMfIAk97jjxD+xYNHKJkXQXsrnvtm+9ycgWkKVlywkmP
-        TjAPbLjTwxb9qzzhpJUH7gkCCEjLAYd8u5iVF2YrPgVQT1LLEBfLjk6Fye4/Nq/P
-        MuwyHnryDghx6TjXmB/jBxX7kaCPmhPmi4tfSN/JvCNGXiYu53+PXq/OQDrHGwn3
-        RXWx0JnyeiaTdMaeAqCCdduCz5aS6/Inmx9mjDXnjIKd7q0Tb6+pL9dFwd82L/Xl
-        HEbWFsKUw+ynHlYUPTK4wZ6OAvuXBDkahVEJmgYTcLXbU0/4EwY+U2tFx2WE65jg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iiILx2
+        6cndAOwW5lbPXWCL9pPyXsFB3m1FMzgUXR8rI=; b=ARCQRQP8WLlbAXxOs1/j6i
+        SIVm18cNDAEqzHCheiH1bNRCK8gHnLqhL6cA45Sq3hvdNOf9Ct54nbn09UlZC+fs
+        u4hkjL/KjhsdDXMZepVnwtkLJIwJDAriqE+HCt2s7d8oKWN7O5eFsqFkTs2QOM1K
+        ZXtfzqTv0Awn1yGmG9JLrrsucq4FiL2ITVZWIh7wIJmrvOIrbksfttohT/cRmpkU
+        DoHz4B+T4IzCcEpj5iUBzwn8gEPgLM2RWB4FONMVNkWamFqBcXwVKhrw172ylQlF
+        5aSc/GCOEF2+XOiErmtcTodjXmGm/DsFf8g1TQLLYhyWFGtQimRjgqx9iGWSMHfg
         ==
-X-ME-Sender: <xms:zWihXwxOY6Q5NYHhu8KvTCd1SFJd0p3VmW8cCbpBhMrQYkgqEuTtEg>
-    <xme:zWihX0QfbdnhqMCDSbnM-6i9xZAfRkAecV9IdxP626zoNNV7AjcpXjfpz7_f_kLuL
-    rsJdbf5UaIWIw>
+X-ME-Sender: <xms:2GihX7zQOs0rKMcutXdr-8CR4ARlIebfGF6f_L83iGUN0SxxKXUpGQ>
+    <xme:2GihXzTk2fZXyIBKZI0O7_M13lO-cQjlMekKosg9_JmaggLu8oZZ7eyK1JlMrbmPE
+    qIUFwU4vkP_Fg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeehnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeeinecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:zWihXyXAnV_EC8ZSgIszaU5Qd2enVahViW1aZ1VmelB_Tt2KB49HXg>
-    <xmx:zWihX-h5y-1PHL6zaEOwhQOpsiIK5UPOdkqY2qNxlmKqKXv2tm2QkQ>
-    <xmx:zWihXyAcTd04fQ1QeQMoRPKv68zLM-q4T7xl6LAECmm4fW9ZzOh9eQ>
-    <xmx:zWihX9rcUjZ5RFsyK8Qiao25Ea_C5x2SDD3PXCcMQ3jFr5TcbSOTtS5rbxM>
+X-ME-Proxy: <xmx:2GihX1U6HU0VKRDDBWpTeHoD_12Qa4bCv6Flvc_AM94gswJ6xNSoQA>
+    <xmx:2GihX1igGdmMDspDxv11J0HHt-QG4zfsipfGUB52MIWMMutA8PYpJQ>
+    <xmx:2GihX9AZXNOvh8WGFgxkJGAhzN3BxQu9XgV2D2EF2lNXj50oZvMLMw>
+    <xmx:2GihXwptlXmF8WAeXt_lrXEmmpn9fVTcWeDqJrOaqVTL9QRbnLMsEJQ95wo>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5EE9D3280060;
-        Tue,  3 Nov 2020 09:27:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: adc: gyroadc: fix leak of device node iterator" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6DD733064610;
+        Tue,  3 Nov 2020 09:27:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: adc: gyroadc: fix leak of device node iterator" failed to apply to 4.14-stable tree
 To:     kernel@cdqe.de, Jonathan.Cameron@huawei.com, Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:28:19 +0100
-Message-ID: <16044136997174@kroah.com>
+Date:   Tue, 03 Nov 2020 15:28:20 +0100
+Message-ID: <16044137009175@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
