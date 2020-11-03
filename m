@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76B52A576C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608EC2A576D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731737AbgKCUzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:55:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55592 "EHLO mail.kernel.org"
+        id S1731846AbgKCVmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:42:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732016AbgKCUzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:18 -0500
+        id S1732278AbgKCUzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C27B2053B;
-        Tue,  3 Nov 2020 20:55:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 806DE223BD;
+        Tue,  3 Nov 2020 20:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436917;
-        bh=WYiJwE9DBiw6w8jvK/vQddDO1Ft7twNhSM2ANKM0Zfo=;
+        s=default; t=1604436920;
+        bh=p8r48/0O0bFuRYbXSO15mbWvfUOyDkFCWdH+Jt+GNHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHAJtmxDE3yMtsaXwNd/QO2BCfL+JpdUIWuDenO0GeaPEhpoZdrqLHow9hEHse6yN
-         Ykfu3S9QgH9/szVcaHpV6sSIJigv8E3rHJgoji2QP96YbGtkO5Ys80PnkEHyRzqwzX
-         oUMvUuS4xGZ0DbMRtFFAtDTx/n5DOn1VZVjOJits=
+        b=VDQr3Xp/xIT6Fvm3Hn9BsQTSpWqVA/MFMLk5VeO/gZLRhLUEkkzQW8K8sFy1OlJsv
+         nJ4wvXUwG6qwVk827oY9njboXiwZTpsf/dUs2VihOYfFGER9t6wpZxbwxxXz0E1kpS
+         wX7LtjNQBeUL5kQECZjxZ6ywpUpY118h9onkt2q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wright Feng <wright.feng@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/214] brcmfmac: Fix warning message after dongle setup failed
-Date:   Tue,  3 Nov 2020 21:35:14 +0100
-Message-Id: <20201103203256.576438167@linuxfoundation.org>
+Subject: [PATCH 5.4 067/214] drivers/net/wan/hdlc_fr: Correctly handle special skb->protocol values
+Date:   Tue,  3 Nov 2020 21:35:15 +0100
+Message-Id: <20201103203256.667064609@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -44,74 +44,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wright Feng <wright.feng@cypress.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 6aa5a83a7ed8036c1388a811eb8bdfa77b21f19c ]
+[ Upstream commit 8306266c1d51aac9aa7aa907fe99032a58c6382c ]
 
-Brcmfmac showed warning message in fweh.c when checking the size of event
-queue which is not initialized. Therefore, we only cancel the worker and
-reset event handler only when it is initialized.
+The fr_hard_header function is used to prepend the header to skbs before
+transmission. It is used in 3 situations:
+1) When a control packet is generated internally in this driver;
+2) When a user sends an skb on an Ethernet-emulating PVC device;
+3) When a user sends an skb on a normal PVC device.
 
-[  145.505899] brcmfmac 0000:02:00.0: brcmf_pcie_setup: Dongle setup
-[  145.929970] ------------[ cut here ]------------
-[  145.929994] WARNING: CPU: 0 PID: 288 at drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c:312
-brcmf_fweh_detach+0xbc/0xd0 [brcmfmac]
-...
-[  145.930029] Call Trace:
-[  145.930036]  brcmf_detach+0x77/0x100 [brcmfmac]
-[  145.930043]  brcmf_pcie_remove+0x79/0x130 [brcmfmac]
-[  145.930046]  pci_device_remove+0x39/0xc0
-[  145.930048]  device_release_driver_internal+0x141/0x200
-[  145.930049]  device_release_driver+0x12/0x20
-[  145.930054]  brcmf_pcie_setup+0x101/0x3c0 [brcmfmac]
-[  145.930060]  brcmf_fw_request_done+0x11d/0x1f0 [brcmfmac]
-[  145.930062]  ? lock_timer_base+0x7d/0xa0
-[  145.930063]  ? internal_add_timer+0x1f/0xa0
-[  145.930064]  ? add_timer+0x11a/0x1d0
-[  145.930066]  ? __kmalloc_track_caller+0x18c/0x230
-[  145.930068]  ? kstrdup_const+0x23/0x30
-[  145.930069]  ? add_dr+0x46/0x80
-[  145.930070]  ? devres_add+0x3f/0x50
-[  145.930072]  ? usermodehelper_read_unlock+0x15/0x20
-[  145.930073]  ? _request_firmware+0x288/0xa20
-[  145.930075]  request_firmware_work_func+0x36/0x60
-[  145.930077]  process_one_work+0x144/0x360
-[  145.930078]  worker_thread+0x4d/0x3c0
-[  145.930079]  kthread+0x112/0x150
-[  145.930080]  ? rescuer_thread+0x340/0x340
-[  145.930081]  ? kthread_park+0x60/0x60
-[  145.930083]  ret_from_fork+0x25/0x30
+These 3 situations need to be handled differently by fr_hard_header.
+Different headers should be prepended to the skb in different situations.
 
-Signed-off-by: Wright Feng <wright.feng@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200928054922.44580-3-wright.feng@cypress.com
+Currently fr_hard_header distinguishes these 3 situations using
+skb->protocol. For situation 1 and 2, a special skb->protocol value
+will be assigned before calling fr_hard_header, so that it can recognize
+these 2 situations. All skb->protocol values other than these special ones
+are treated by fr_hard_header as situation 3.
+
+However, it is possible that in situation 3, the user sends an skb with
+one of the special skb->protocol values. In this case, fr_hard_header
+would incorrectly treat it as situation 1 or 2.
+
+This patch tries to solve this issue by using skb->dev instead of
+skb->protocol to distinguish between these 3 situations. For situation
+1, skb->dev would be NULL; for situation 2, skb->dev->type would be
+ARPHRD_ETHER; and for situation 3, skb->dev->type would be ARPHRD_DLCI.
+
+This way fr_hard_header would be able to distinguish these 3 situations
+correctly regardless what skb->protocol value the user tries to use in
+situation 3.
+
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmfmac/fweh.c    | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/wan/hdlc_fr.c | 98 ++++++++++++++++++++-------------------
+ 1 file changed, 51 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-index 79c8a858b6d6f..a30fcfbf2ee7c 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-@@ -304,10 +304,12 @@ void brcmf_fweh_detach(struct brcmf_pub *drvr)
+diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
+index d6cfd51613ed8..3a44dad87602d 100644
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -273,63 +273,69 @@ static inline struct net_device **get_dev_p(struct pvc_device *pvc,
+ 
+ static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
  {
- 	struct brcmf_fweh_info *fweh = &drvr->fweh;
+-	u16 head_len;
+ 	struct sk_buff *skb = *skb_p;
  
--	/* cancel the worker */
--	cancel_work_sync(&fweh->event_work);
--	WARN_ON(!list_empty(&fweh->event_q));
--	memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
-+	/* cancel the worker if initialized */
-+	if (fweh->event_work.func) {
-+		cancel_work_sync(&fweh->event_work);
-+		WARN_ON(!list_empty(&fweh->event_q));
-+		memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
-+	}
- }
+-	switch (skb->protocol) {
+-	case cpu_to_be16(NLPID_CCITT_ANSI_LMI):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_CCITT_ANSI_LMI;
+-		break;
+-
+-	case cpu_to_be16(NLPID_CISCO_LMI):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_CISCO_LMI;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_IP):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_IP;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_IPV6):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_IPV6;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_802_3):
+-		head_len = 10;
+-		if (skb_headroom(skb) < head_len) {
+-			struct sk_buff *skb2 = skb_realloc_headroom(skb,
+-								    head_len);
++	if (!skb->dev) { /* Control packets */
++		switch (dlci) {
++		case LMI_CCITT_ANSI_DLCI:
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_CCITT_ANSI_LMI;
++			break;
++
++		case LMI_CISCO_DLCI:
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_CISCO_LMI;
++			break;
++
++		default:
++			return -EINVAL;
++		}
++
++	} else if (skb->dev->type == ARPHRD_DLCI) {
++		switch (skb->protocol) {
++		case htons(ETH_P_IP):
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_IP;
++			break;
++
++		case htons(ETH_P_IPV6):
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_IPV6;
++			break;
++
++		default:
++			skb_push(skb, 10);
++			skb->data[3] = FR_PAD;
++			skb->data[4] = NLPID_SNAP;
++			/* OUI 00-00-00 indicates an Ethertype follows */
++			skb->data[5] = 0x00;
++			skb->data[6] = 0x00;
++			skb->data[7] = 0x00;
++			/* This should be an Ethertype: */
++			*(__be16 *)(skb->data + 8) = skb->protocol;
++		}
++
++	} else if (skb->dev->type == ARPHRD_ETHER) {
++		if (skb_headroom(skb) < 10) {
++			struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
+ 			if (!skb2)
+ 				return -ENOBUFS;
+ 			dev_kfree_skb(skb);
+ 			skb = *skb_p = skb2;
+ 		}
+-		skb_push(skb, head_len);
++		skb_push(skb, 10);
+ 		skb->data[3] = FR_PAD;
+ 		skb->data[4] = NLPID_SNAP;
+-		skb->data[5] = FR_PAD;
++		/* OUI 00-80-C2 stands for the 802.1 organization */
++		skb->data[5] = 0x00;
+ 		skb->data[6] = 0x80;
+ 		skb->data[7] = 0xC2;
++		/* PID 00-07 stands for Ethernet frames without FCS */
+ 		skb->data[8] = 0x00;
+-		skb->data[9] = 0x07; /* bridged Ethernet frame w/out FCS */
+-		break;
++		skb->data[9] = 0x07;
  
- /**
+-	default:
+-		head_len = 10;
+-		skb_push(skb, head_len);
+-		skb->data[3] = FR_PAD;
+-		skb->data[4] = NLPID_SNAP;
+-		skb->data[5] = FR_PAD;
+-		skb->data[6] = FR_PAD;
+-		skb->data[7] = FR_PAD;
+-		*(__be16*)(skb->data + 8) = skb->protocol;
++	} else {
++		return -EINVAL;
+ 	}
+ 
+ 	dlci_to_q922(skb->data, dlci);
+@@ -425,8 +431,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
+ 				skb_put(skb, pad);
+ 				memset(skb->data + len, 0, pad);
+ 			}
+-			skb->protocol = cpu_to_be16(ETH_P_802_3);
+ 		}
++		skb->dev = dev;
+ 		if (!fr_hard_header(&skb, pvc->dlci)) {
+ 			dev->stats.tx_bytes += skb->len;
+ 			dev->stats.tx_packets++;
+@@ -494,10 +500,8 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
+ 	memset(skb->data, 0, len);
+ 	skb_reserve(skb, 4);
+ 	if (lmi == LMI_CISCO) {
+-		skb->protocol = cpu_to_be16(NLPID_CISCO_LMI);
+ 		fr_hard_header(&skb, LMI_CISCO_DLCI);
+ 	} else {
+-		skb->protocol = cpu_to_be16(NLPID_CCITT_ANSI_LMI);
+ 		fr_hard_header(&skb, LMI_CCITT_ANSI_DLCI);
+ 	}
+ 	data = skb_tail_pointer(skb);
 -- 
 2.27.0
 
