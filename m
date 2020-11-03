@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71372A5283
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 409452A5324
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731813AbgKCUug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:50:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44756 "EHLO mail.kernel.org"
+        id S1732936AbgKCU6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731828AbgKCUuf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:50:35 -0500
+        id S1731121AbgKCU6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7AF920719;
-        Tue,  3 Nov 2020 20:50:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989E52053B;
+        Tue,  3 Nov 2020 20:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436635;
-        bh=5st3HmEUuVyb2esr98GZDzB8tLM/xbdUSP4xACTT7cI=;
+        s=default; t=1604437086;
+        bh=skUxmWK3uMQLNfiAm43a28Pzoz9TI0jZMxaY7vlP97Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7jOY5UDcE8/t7KGLXq5tPwiYdXfYcoZRhKsRQGzrEW0GMVuSz7krLLqjzfdfIZtz
-         rlplt3rZj3fxUaHv0hKJxxwEoPC3CSBBhH9dHPwnpMpJpuV5f88tLvJaoOA86pt+LB
-         UcLt4DaLjtrU88vWertTs7QQjGu9bWoW3uPx2w/c=
+        b=E3F3t8lvZXK0PsJXjLX4YsNqfgsdv9+Xrmhm9mY7KZpUEwhi2aBa20crsH6DGHjnF
+         eUNkOLRneq1I7uNLdVDk7hJUE373wtkCIe9juHTE9+Z8tng5WqY0TUu0tK0zzGTFqT
+         noWpqPjqbJlX7DuDwS9HL9CTpcI8Fc83M2g0n870=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pengfei Xu <pengfei.xu@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.9 335/391] intel_idle: Fix max_cstate for processor models without C-state tables
-Date:   Tue,  3 Nov 2020 21:36:26 +0100
-Message-Id: <20201103203409.731879412@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 140/214] usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command
+Date:   Tue,  3 Nov 2020 21:36:28 +0100
+Message-Id: <20201103203303.956391252@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 4e0ba5577dba686f96c1c10ef4166380667fdec7 upstream.
+commit d97c78a1908e59a1fdbcbece87cd0440b5d7a1f2 upstream.
 
-Currently intel_idle driver gets the c-state information from ACPI
-_CST if the processor model is not recognized by it. However the
-c-state in _CST starts with index 1 which is different from the
-index in intel_idle driver's internal c-state table.
+According the programming guide (for all DWC3 IPs), when the driver
+handles ClearFeature(halt) request, it should issue CLEAR_STALL command
+_after_ the END_TRANSFER command completes. The END_TRANSFER command may
+take some time to complete. So, delay the ClearFeature(halt) request
+control status stage and wait for END_TRANSFER command completion
+interrupt. Only after END_TRANSFER command completes that the driver
+may issue CLEAR_STALL command.
 
-While intel_idle_max_cstate_reached() was previously introduced to
-deal with intel_idle driver's internal c-state table, re-using
-this function directly on _CST is incorrect.
-
-Fix this by subtracting 1 from the index when checking max_cstate
-in the _CST case.
-
-For example, append intel_idle.max_cstate=1 in boot command line,
-Before the patch:
-grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/name
-POLL
-After the patch:
-grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/name
-/sys/devices/system/cpu/cpu0/cpuidle/state0/name:POLL
-/sys/devices/system/cpu/cpu0/cpuidle/state1/name:C1_ACPI
-
-Fixes: 18734958e9bf ("intel_idle: Use ACPI _CST for processor models without C-state tables")
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Cc: 5.6+ <stable@vger.kernel.org> # 5.6+
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-[ rjw: Changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/idle/intel_idle.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/core.h   |    1 +
+ drivers/usb/dwc3/ep0.c    |   16 ++++++++++++++++
+ drivers/usb/dwc3/gadget.c |   40 ++++++++++++++++++++++++++++++++--------
+ drivers/usb/dwc3/gadget.h |    1 +
+ 4 files changed, 50 insertions(+), 8 deletions(-)
 
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -1235,7 +1235,7 @@ static void __init intel_idle_init_cstat
- 		struct acpi_processor_cx *cx;
- 		struct cpuidle_state *state;
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -700,6 +700,7 @@ struct dwc3_ep {
+ #define DWC3_EP_END_TRANSFER_PENDING BIT(4)
+ #define DWC3_EP_PENDING_REQUEST	BIT(5)
+ #define DWC3_EP_DELAY_START	BIT(6)
++#define DWC3_EP_PENDING_CLEAR_STALL	BIT(11)
  
--		if (intel_idle_max_cstate_reached(cstate))
-+		if (intel_idle_max_cstate_reached(cstate - 1))
- 			break;
+ 	/* This last one is specific to EP0 */
+ #define DWC3_EP0_DIR_IN		BIT(31)
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -524,6 +524,11 @@ static int dwc3_ep0_handle_endpoint(stru
+ 		ret = __dwc3_gadget_ep_set_halt(dep, set, true);
+ 		if (ret)
+ 			return -EINVAL;
++
++		/* ClearFeature(Halt) may need delayed status */
++		if (!set && (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
++			return USB_GADGET_DELAYED_STATUS;
++
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -1049,6 +1054,17 @@ static void dwc3_ep0_do_control_status(s
+ 	__dwc3_ep0_do_control_status(dwc, dep);
+ }
  
- 		cx = &acpi_state_table.states[cstate];
++void dwc3_ep0_send_delayed_status(struct dwc3 *dwc)
++{
++	unsigned int direction = !dwc->ep0_expect_in;
++
++	if (dwc->ep0state != EP0_STATUS_PHASE)
++		return;
++
++	dwc->delayed_status = false;
++	__dwc3_ep0_do_control_status(dwc, dwc->eps[direction]);
++}
++
+ static void dwc3_ep0_end_control_data(struct dwc3 *dwc, struct dwc3_ep *dep)
+ {
+ 	struct dwc3_gadget_ep_cmd_params params;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1719,6 +1719,18 @@ int __dwc3_gadget_ep_set_halt(struct dwc
+ 			return 0;
+ 		}
+ 
++		dwc3_stop_active_transfer(dep, true, true);
++
++		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
++			dwc3_gadget_move_cancelled_request(req);
++
++		if (dep->flags & DWC3_EP_END_TRANSFER_PENDING) {
++			dep->flags |= DWC3_EP_PENDING_CLEAR_STALL;
++			return 0;
++		}
++
++		dwc3_gadget_ep_cleanup_cancelled_requests(dep);
++
+ 		ret = dwc3_send_clear_stall_ep_cmd(dep);
+ 		if (ret) {
+ 			dev_err(dwc->dev, "failed to clear STALL on %s\n",
+@@ -1728,14 +1740,6 @@ int __dwc3_gadget_ep_set_halt(struct dwc
+ 
+ 		dep->flags &= ~(DWC3_EP_STALL | DWC3_EP_WEDGE);
+ 
+-		dwc3_stop_active_transfer(dep, true, true);
+-
+-		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
+-			dwc3_gadget_move_cancelled_request(req);
+-
+-		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+-			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+-
+ 		if ((dep->flags & DWC3_EP_DELAY_START) &&
+ 		    !usb_endpoint_xfer_isoc(dep->endpoint.desc))
+ 			__dwc3_gadget_kick_transfer(dep);
+@@ -2767,6 +2771,26 @@ static void dwc3_endpoint_interrupt(stru
+ 			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
+ 			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+ 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
++
++			if (dep->flags & DWC3_EP_PENDING_CLEAR_STALL) {
++				struct dwc3 *dwc = dep->dwc;
++
++				dep->flags &= ~DWC3_EP_PENDING_CLEAR_STALL;
++				if (dwc3_send_clear_stall_ep_cmd(dep)) {
++					struct usb_ep *ep0 = &dwc->eps[0]->endpoint;
++
++					dev_err(dwc->dev, "failed to clear STALL on %s\n",
++						dep->name);
++					if (dwc->delayed_status)
++						__dwc3_gadget_ep0_set_halt(ep0, 1);
++					return;
++				}
++
++				dep->flags &= ~(DWC3_EP_STALL | DWC3_EP_WEDGE);
++				if (dwc->delayed_status)
++					dwc3_ep0_send_delayed_status(dwc);
++			}
++
+ 			if ((dep->flags & DWC3_EP_DELAY_START) &&
+ 			    !usb_endpoint_xfer_isoc(dep->endpoint.desc))
+ 				__dwc3_gadget_kick_transfer(dep);
+--- a/drivers/usb/dwc3/gadget.h
++++ b/drivers/usb/dwc3/gadget.h
+@@ -111,6 +111,7 @@ int dwc3_gadget_ep0_set_halt(struct usb_
+ int dwc3_gadget_ep0_queue(struct usb_ep *ep, struct usb_request *request,
+ 		gfp_t gfp_flags);
+ int __dwc3_gadget_ep_set_halt(struct dwc3_ep *dep, int value, int protocol);
++void dwc3_ep0_send_delayed_status(struct dwc3 *dwc);
+ 
+ /**
+  * dwc3_gadget_ep_get_transfer_index - Gets transfer index from HW
 
 
