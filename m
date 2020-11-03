@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5E02A46CC
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1A22A46EB
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729424AbgKCNsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:48:30 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39003 "EHLO
+        id S1729488AbgKCNwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:52:16 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45375 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729422AbgKCNsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:48:24 -0500
+        by vger.kernel.org with ESMTP id S1729425AbgKCNu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:50:57 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id CC116C85;
-        Tue,  3 Nov 2020 08:48:23 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:48:24 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 2E8C7CBA;
+        Tue,  3 Nov 2020 08:50:56 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:50:56 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+d5PYT
-        7mJHW3qNBqmPg+4zWjC8Dt6noJnJVTlz+kYac=; b=qyhXEjKZ7rfULMW4pjOkIv
-        D7WXs7+CPWSrJy41UvbD7LIR/CNbf3UztwIm6qKBQFkgtDWnilwZ+nmSdV6dZsHf
-        p6d4vUMuJmgMavj8hoOXYFJZrDUscDmATrTCi+kLJ/MfzKH4tU+3Uf3iEWSVkrU2
-        slRBDXafUIU6H84Ab5GT/qVchmMxU2r4n6Ucs3DoLokrp1Zeog96nhTH2Pd73iBD
-        WL2SX1Wj30UhtiTAg9MY9+lzqIi/aGHuppcmkEIJ0nSaakuMYuUwRoVz+mVyCONK
-        5xFx1EIXTFkOQ/+P5egDCk+QOviJeCPnKZmy8+P2XDShLVkyyd1HBnNuoHJmh3gw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=AtFo0b
+        fKf4SClwddoTxjRLvjh61QdY2WTwNtQexJFbk=; b=JbWvh2Avore8IYhU0xMNP9
+        MlkovqxkjPwBMMUyvxojxGHeY7GcWCWw9NQ6bo3qY/+Zw72AyJJQAPf9LWNbqHvn
+        qByoJJs+6zLJo4s+iq9FG7vKIMdtIADBiGdoFg1JVv8WADeadZWlC3+fM6bHCagk
+        mjTMuumnvGs1lo68YabLq8OC94GpD3nAVdBw3SemaHbZKoDfRdZbuTvOCDRU4R1f
+        5Wq75DtOkVIcEVtZUMvgDVb7sKlTy8MQrtn2pbAY2mmjrU2EhshzAAqmMKvTP+mK
+        n0d8O2osCIqDIbETNTDQtFzc2Y/6wbKmAbgD01blYjPLQjaGRXnrr0QamgxFfcng
         ==
-X-ME-Sender: <xms:p1-hXx9zW-ZVHV3Fp4Y302rilskPio0pyqLMVVP9ND97meszto0fhA>
-    <xme:p1-hX1v654gq0wpmoscxwjlsKOSCpNO4gTCf6j3CXFvkhdLXjX-EtsBSuKLwV6Vz7
-    GYSs6EQGu_GuA>
+X-ME-Sender: <xms:P2ChXxtjivR_mTmkOxw5dQnnxzQtvoL7XjJJthdasZ_hC8JBPA5jnA>
+    <xme:P2ChX6eQ0ILbLZlfYlTHwNONqgVwgWXIefjH_8ROT0VM6Iv42VOffMSlNrywX5NcI
+    mTfF8wsgjCp6g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:p1-hX_Cy92Is0fadckjTPzLGtCD7vpF7W_QwU987VJkesAvuMedLRw>
-    <xmx:p1-hX1c8Xgj6T3p8n4fDf3Qm6sjCM8hQ5tQOldHIDoOFok5TRN54WA>
-    <xmx:p1-hX2OfzYhcqrOLHo_TFt3LTamGQWyEPBmfxfzjXZ8myY_PGsuLnA>
-    <xmx:p1-hX_YVmpvorbDGa4zuhI6ehEY1Hond7ApDOUuxTyyXFOrFNC9cyzAY9YU>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:P2ChX0z5FzhFmLtfX6dUN6-KJbz_7zcGGR39DUDhq415KiQb_XB8Tg>
+    <xmx:P2ChX4PZImsag1F24_g2VjX4210s-gEt-o1NWlU6je9nGrprNk2-PA>
+    <xmx:P2ChXx8TSkjclSNAJir-o4NFXQxkioyyt4VpWbG0MnC7MGz_JYVqLg>
+    <xmx:P2ChXzly3FzUM1zFWXZVWhOWFPK371GF769J1tliAiPtqMjoe3sHj99VoS8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BD9EC3280066;
-        Tue,  3 Nov 2020 08:48:22 -0500 (EST)
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash on session cleanup with unload" failed to apply to 4.14-stable tree
-To:     qutran@marvell.com, himanshu.madhani@oracle.com,
-        martin.petersen@oracle.com, njavali@marvell.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3FE56306467E;
+        Tue,  3 Nov 2020 08:50:55 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix qgroup meta rsv leak for subvolume" failed to apply to 5.4-stable tree
+To:     wqu@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:49:17 +0100
-Message-ID: <160441135710188@kroah.com>
+Date:   Tue, 03 Nov 2020 14:51:46 +0100
+Message-ID: <1604411506133181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,46 +70,156 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 50457dab670f396557e60c07f086358460876353 Mon Sep 17 00:00:00 2001
-From: Quinn Tran <qutran@marvell.com>
-Date: Tue, 29 Sep 2020 03:21:50 -0700
-Subject: [PATCH] scsi: qla2xxx: Fix crash on session cleanup with unload
+From e85fde5162bf1b242cbd6daf7dba0f9b457d592b Mon Sep 17 00:00:00 2001
+From: Qu Wenruo <wqu@suse.com>
+Date: Fri, 24 Jul 2020 14:46:10 +0800
+Subject: [PATCH] btrfs: qgroup: fix qgroup meta rsv leak for subvolume
+ operations
 
-On unload, session cleanup prematurely gave the signal for driver unload
-path to advance.
+[BUG]
+When quota is enabled for TEST_DEV, generic/013 sometimes fails like this:
 
-Link: https://lore.kernel.org/r/20200929102152.32278-6-njavali@marvell.com
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  generic/013 14s ... _check_dmesg: something found in dmesg (see xfstests-dev/results//generic/013.dmesg)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 1ef39a96c4c2..eb4aa97bc71f 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1231,14 +1231,15 @@ void qlt_schedule_sess_for_deletion(struct fc_port *sess)
- 	case DSC_DELETE_PEND:
- 		return;
- 	case DSC_DELETED:
--		if (tgt && tgt->tgt_stop && (tgt->sess_count == 0))
--			wake_up_all(&tgt->waitQ);
--		if (sess->vha->fcport_count == 0)
--			wake_up_all(&sess->vha->fcport_waitQ);
--
- 		if (!sess->plogi_link[QLT_PLOGI_LINK_SAME_WWN] &&
--			!sess->plogi_link[QLT_PLOGI_LINK_CONFLICT])
-+			!sess->plogi_link[QLT_PLOGI_LINK_CONFLICT]) {
-+			if (tgt && tgt->tgt_stop && tgt->sess_count == 0)
-+				wake_up_all(&tgt->waitQ);
+And with the following metadata leak:
+
+  BTRFS warning (device dm-3): qgroup 0/1370 has unreleased space, type 2 rsv 49152
+  ------------[ cut here ]------------
+  WARNING: CPU: 2 PID: 47912 at fs/btrfs/disk-io.c:4078 close_ctree+0x1dc/0x323 [btrfs]
+  Call Trace:
+   btrfs_put_super+0x15/0x17 [btrfs]
+   generic_shutdown_super+0x72/0x110
+   kill_anon_super+0x18/0x30
+   btrfs_kill_super+0x17/0x30 [btrfs]
+   deactivate_locked_super+0x3b/0xa0
+   deactivate_super+0x40/0x50
+   cleanup_mnt+0x135/0x190
+   __cleanup_mnt+0x12/0x20
+   task_work_run+0x64/0xb0
+   __prepare_exit_to_usermode+0x1bc/0x1c0
+   __syscall_return_slowpath+0x47/0x230
+   do_syscall_64+0x64/0xb0
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  ---[ end trace a6cfd45ba80e4e06 ]---
+  BTRFS error (device dm-3): qgroup reserved space leaked
+  BTRFS info (device dm-3): disk space caching is enabled
+  BTRFS info (device dm-3): has skinny extents
+
+[CAUSE]
+The qgroup preallocated meta rsv operations of that offending root are:
+
+  btrfs_delayed_inode_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=131072
+  btrfs_delayed_inode_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=131072
+  btrfs_subvolume_reserve_metadata: rsv_meta_prealloc root=1370 num_bytes=49152
+  btrfs_delayed_inode_release_metadata: convert_meta_prealloc root=1370 num_bytes=-131072
+  btrfs_delayed_inode_release_metadata: convert_meta_prealloc root=1370 num_bytes=-131072
+
+It's pretty obvious that, we reserve qgroup meta rsv in
+btrfs_subvolume_reserve_metadata(), but doesn't have corresponding
+release/convert calls in btrfs_subvolume_release_metadata().
+
+This leads to the leakage.
+
+[FIX]
+To fix this bug, we should follow what we're doing in
+btrfs_delalloc_reserve_metadata(), where we reserve qgroup space, and
+add it to block_rsv->qgroup_rsv_reserved.
+
+And free the qgroup reserved metadata space when releasing the
+block_rsv.
+
+To do this, we need to change the btrfs_subvolume_release_metadata() to
+accept btrfs_root, and record the qgroup_to_release number, and call
+btrfs_qgroup_convert_reserved_meta() for it.
+
+Fixes: 733e03a0b26a ("btrfs: qgroup: Split meta rsv type into meta_prealloc and meta_pertrans")
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index eb7adc069926..f9d4e0958e2e 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -2622,7 +2622,7 @@ enum btrfs_flush_state {
+ int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
+ 				     struct btrfs_block_rsv *rsv,
+ 				     int nitems, bool use_global_rsv);
+-void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
++void btrfs_subvolume_release_metadata(struct btrfs_root *root,
+ 				      struct btrfs_block_rsv *rsv);
+ void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes);
+ 
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index a50a40f8bef2..123521aa5595 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4051,7 +4051,7 @@ int btrfs_delete_subvolume(struct inode *dir, struct dentry *dentry)
+ 		err = ret;
+ 	inode->i_flags |= S_DEAD;
+ out_release:
+-	btrfs_subvolume_release_metadata(fs_info, &block_rsv);
++	btrfs_subvolume_release_metadata(root, &block_rsv);
+ out_up_write:
+ 	up_write(&fs_info->subvol_sem);
+ 	if (err) {
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index a5355a16eabb..3779a6c12184 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -618,7 +618,7 @@ static noinline int create_subvol(struct inode *dir,
+ 	trans = btrfs_start_transaction(root, 0);
+ 	if (IS_ERR(trans)) {
+ 		ret = PTR_ERR(trans);
+-		btrfs_subvolume_release_metadata(fs_info, &block_rsv);
++		btrfs_subvolume_release_metadata(root, &block_rsv);
+ 		goto fail_free;
+ 	}
+ 	trans->block_rsv = &block_rsv;
+@@ -742,7 +742,7 @@ static noinline int create_subvol(struct inode *dir,
+ 	kfree(root_item);
+ 	trans->block_rsv = NULL;
+ 	trans->bytes_reserved = 0;
+-	btrfs_subvolume_release_metadata(fs_info, &block_rsv);
++	btrfs_subvolume_release_metadata(root, &block_rsv);
+ 
+ 	err = btrfs_commit_transaction(trans);
+ 	if (err && !ret)
+@@ -856,7 +856,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
+ 	if (ret && pending_snapshot->snap)
+ 		pending_snapshot->snap->anon_dev = 0;
+ 	btrfs_put_root(pending_snapshot->snap);
+-	btrfs_subvolume_release_metadata(fs_info, &pending_snapshot->block_rsv);
++	btrfs_subvolume_release_metadata(root, &pending_snapshot->block_rsv);
+ free_pending:
+ 	if (pending_snapshot->anon_dev)
+ 		free_anon_bdev(pending_snapshot->anon_dev);
+diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
+index c89697486366..702dc5441f03 100644
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -512,11 +512,20 @@ int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
+ 	if (ret && qgroup_num_bytes)
+ 		btrfs_qgroup_free_meta_prealloc(root, qgroup_num_bytes);
+ 
++	if (!ret) {
++		spin_lock(&rsv->lock);
++		rsv->qgroup_rsv_reserved += qgroup_num_bytes;
++		spin_unlock(&rsv->lock);
++	}
+ 	return ret;
+ }
+ 
+-void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
++void btrfs_subvolume_release_metadata(struct btrfs_root *root,
+ 				      struct btrfs_block_rsv *rsv)
+ {
+-	btrfs_block_rsv_release(fs_info, rsv, (u64)-1, NULL);
++	struct btrfs_fs_info *fs_info = root->fs_info;
++	u64 qgroup_to_release;
 +
-+			if (sess->vha->fcport_count == 0)
-+				wake_up_all(&sess->vha->fcport_waitQ);
- 			return;
-+		}
- 		break;
- 	case DSC_UPD_FCPORT:
- 		/*
++	btrfs_block_rsv_release(fs_info, rsv, (u64)-1, &qgroup_to_release);
++	btrfs_qgroup_convert_reserved_meta(root, qgroup_to_release);
+ }
 
