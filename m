@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14932A5995
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E381E2A598C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730223AbgKCUkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:40:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51878 "EHLO mail.kernel.org"
+        id S1729558AbgKCUkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbgKCUkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:40:32 -0500
+        id S1730255AbgKCUkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5300422226;
-        Tue,  3 Nov 2020 20:40:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B3992236F;
+        Tue,  3 Nov 2020 20:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436031;
-        bh=K8Qm99nZlFsLcr3tHOpBLRNE8KeIUfRgLcW6fKBPqmI=;
+        s=default; t=1604436045;
+        bh=bsmJsPbH0u3/Zqb1jRX4ZEi7lf7A2VEA92xYPAEa1JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbHpHmjnM/pdyFXkD5wsN4Ajr3HOQ8G9OpBPwt9iNCFY+TUhP9k8k8MgkCr4kdG3M
-         SQhnDaxfS2eM2KIRtdIMPCFA3EOIafW41RX2+Qf30Z5lkfhxlb0iqwLVHTM2Xb/fmX
-         uWjfcX1HbR+75ntMyFFvhZxdwpzEkXoFv6rvRHCw=
+        b=dCJY2Fdfz525KyxvCrupulAvMpiypTNJH5UnzEgikyDm8vp3MABjRHcOqIFUF81yS
+         OrwzLwZh/ZIQStGMZ0saHKWaLCBWDe7go73UHOU7LCEdj191hQE8QPbxsITppXHG9b
+         CNg+u7rDsFhPRFE2TVxMBb/7WDJXn6hunZbjM63Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 074/391] drm/amdgpu: restore ras flags when user resets eeprom(v2)
-Date:   Tue,  3 Nov 2020 21:32:05 +0100
-Message-Id: <20201103203352.185549880@linuxfoundation.org>
+Subject: [PATCH 5.9 079/391] drm/brige/megachips: Add checking if ge_b850v3_lvds_init() is working correctly
+Date:   Tue,  3 Nov 2020 21:32:10 +0100
+Message-Id: <20201103203352.452333518@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,50 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Nadezda Lutovinova <lutovinova@ispras.ru>
 
-[ Upstream commit bf0b91b78f002faa1be1902a75eeb0797f9fbcf3 ]
+[ Upstream commit f688a345f0d7a6df4dd2aeca8e4f3c05e123a0ee ]
 
-RAS flags needs to be cleaned as well when user requires
-one clean eeprom.
+If ge_b850v3_lvds_init() does not allocate memory for ge_b850v3_lvds_ptr,
+then a null pointer dereference is accessed.
 
-v2: RAS flags shall be restored after eeprom reset succeeds.
+The patch adds checking of the return value of ge_b850v3_lvds_init().
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200819143756.30626-1-lutovinova@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ .../gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index 1bedb416eebd0..b4fb5a473df5a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -367,12 +367,19 @@ static ssize_t amdgpu_ras_debugfs_ctrl_write(struct file *f, const char __user *
- static ssize_t amdgpu_ras_debugfs_eeprom_write(struct file *f, const char __user *buf,
- 		size_t size, loff_t *pos)
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index 6200f12a37e69..ab8174831cf40 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -302,8 +302,12 @@ static int stdp4028_ge_b850v3_fw_probe(struct i2c_client *stdp4028_i2c,
+ 				       const struct i2c_device_id *id)
  {
--	struct amdgpu_device *adev = (struct amdgpu_device *)file_inode(f)->i_private;
-+	struct amdgpu_device *adev =
-+		(struct amdgpu_device *)file_inode(f)->i_private;
- 	int ret;
+ 	struct device *dev = &stdp4028_i2c->dev;
++	int ret;
++
++	ret = ge_b850v3_lvds_init(dev);
  
--	ret = amdgpu_ras_eeprom_reset_table(&adev->psp.ras.ras->eeprom_control);
-+	ret = amdgpu_ras_eeprom_reset_table(
-+			&(amdgpu_ras_get_context(adev)->eeprom_control));
+-	ge_b850v3_lvds_init(dev);
++	if (ret)
++		return ret;
  
--	return ret == 1 ? size : -EIO;
-+	if (ret == 1) {
-+		amdgpu_ras_get_context(adev)->flags = RAS_DEFAULT_FLAGS;
-+		return size;
-+	} else {
-+		return -EIO;
-+	}
- }
+ 	ge_b850v3_lvds_ptr->stdp4028_i2c = stdp4028_i2c;
+ 	i2c_set_clientdata(stdp4028_i2c, ge_b850v3_lvds_ptr);
+@@ -361,8 +365,12 @@ static int stdp2690_ge_b850v3_fw_probe(struct i2c_client *stdp2690_i2c,
+ 				       const struct i2c_device_id *id)
+ {
+ 	struct device *dev = &stdp2690_i2c->dev;
++	int ret;
++
++	ret = ge_b850v3_lvds_init(dev);
  
- static const struct file_operations amdgpu_ras_debugfs_ctrl_ops = {
+-	ge_b850v3_lvds_init(dev);
++	if (ret)
++		return ret;
+ 
+ 	ge_b850v3_lvds_ptr->stdp2690_i2c = stdp2690_i2c;
+ 	i2c_set_clientdata(stdp2690_i2c, ge_b850v3_lvds_ptr);
 -- 
 2.27.0
 
