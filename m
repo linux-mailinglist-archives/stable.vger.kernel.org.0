@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64EF2A5647
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3232A5649
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387507AbgKCVBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38420 "EHLO mail.kernel.org"
+        id S2387503AbgKCVBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:01:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387501AbgKCVBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:41 -0500
+        id S1731068AbgKCVBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:01:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8135421534;
-        Tue,  3 Nov 2020 21:01:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9DF620757;
+        Tue,  3 Nov 2020 21:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437301;
-        bh=CecjKyAvlWAKQTtQf0iP9h9WYD6bopjVvK0S3YdEjJU=;
+        s=default; t=1604437303;
+        bh=qoNFdR949SAk67fHkLcz4zmS5MAph+w0wkiEwieyGS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jutue4gx/fBGKIqr3k0X11cY+FXENHymWzZ+DPFmvwRRJtQecTLfse1XbHTZF86X5
-         9KZAWV1aM/nxV69jEYDT7QcIr6KDEJ/uU/IRXAo6S8MP0Irnckn6bEuLSdKsVZQ26H
-         RyTQtYgX4hcORdAcRrfZ97SMtxSvtFxQQTK3xSwU=
+        b=MXnPLMUYGTmcB4kHUah3omGMR03YZWA1sKMr+cJMqszSbQ27N5k69iolJ2kGxI7VN
+         qaif/NsEU2KOZr4bS0ayG+rFCrj70RqbYJVw7Kqe6uSHR0yU+qHpdfM7pr85ArcGCm
+         gdpjBfQcDuvOJOsDZNtuPSAzH2ZrQS7juiPhUSSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Eranian <stephane.eranian@google.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.19 018/191] arch/x86/amd/ibs: Fix re-arming IBS Fetch
-Date:   Tue,  3 Nov 2020 21:35:10 +0100
-Message-Id: <20201103203235.041843307@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.19 019/191] x86/xen: disable Firmware First mode for correctable memory errors
+Date:   Tue,  3 Nov 2020 21:35:11 +0100
+Message-Id: <20201103203235.166657602@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -44,76 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 221bfce5ebbdf72ff08b3bf2510ae81058ee568b upstream.
+commit d759af38572f97321112a0852353613d18126038 upstream.
 
-Stephane Eranian found a bug in that IBS' current Fetch counter was not
-being reset when the driver would write the new value to clear it along
-with the enable bit set, and found that adding an MSR write that would
-first disable IBS Fetch would make IBS Fetch reset its current count.
+When running as Xen dom0 the kernel isn't responsible for selecting the
+error handling mode, this should be handled by the hypervisor.
 
-Indeed, the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54 - Sep 12,
-2019 states "The periodic fetch counter is set to IbsFetchCnt [...] when
-IbsFetchEn is changed from 0 to 1."
+So disable setting FF mode when running as Xen pv guest. Not doing so
+might result in boot splats like:
 
-Explicitly set IbsFetchEn to 0 and then to 1 when re-enabling IBS Fetch,
-so the driver properly resets the internal counter to 0 and IBS
-Fetch starts counting again.
+[    7.509696] HEST: Enabling Firmware First mode for corrected errors.
+[    7.510382] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 2.
+[    7.510383] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 3.
+[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 4.
+[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 5.
+[    7.510385] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 6.
+[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 7.
+[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 8.
 
-A family 15h machine tested does not have this problem, and the extra
-wrmsr is also not needed on Family 19h, so only do the extra wrmsr on
-families 16h through 18h.
+Reason is that the HEST ACPI table contains the real number of MCA
+banks, while the hypervisor is emulating only 2 banks for guests.
 
-Reported-by: Stephane Eranian <stephane.eranian@google.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-[peterz: optimized]
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20200925140751.31381-1-jgross@suse.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/amd/ibs.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/x86/xen/enlighten_pv.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -89,6 +89,7 @@ struct perf_ibs {
- 	u64				max_period;
- 	unsigned long			offset_mask[1];
- 	int				offset_max;
-+	unsigned int			fetch_count_reset_broken : 1;
- 	struct cpu_perf_ibs __percpu	*pcpu;
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1383,6 +1383,15 @@ asmlinkage __visible void __init xen_sta
+ 		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
  
- 	struct attribute		**format_attrs;
-@@ -375,7 +376,12 @@ perf_ibs_event_update(struct perf_ibs *p
- static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
- 					 struct hw_perf_event *hwc, u64 config)
- {
--	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
-+	u64 tmp = hwc->config | config;
+ 		xen_boot_params_init_edd();
 +
-+	if (perf_ibs->fetch_count_reset_broken)
-+		wrmsrl(hwc->config_base, tmp & ~perf_ibs->enable_mask);
-+
-+	wrmsrl(hwc->config_base, tmp | perf_ibs->enable_mask);
- }
++#ifdef CONFIG_ACPI
++		/*
++		 * Disable selecting "Firmware First mode" for correctable
++		 * memory errors, as this is the duty of the hypervisor to
++		 * decide.
++		 */
++		acpi_disable_cmcff = 1;
++#endif
+ 	}
  
- /*
-@@ -744,6 +750,13 @@ static __init void perf_event_ibs_init(v
- {
- 	struct attribute **attr = ibs_op_format_attrs;
- 
-+	/*
-+	 * Some chips fail to reset the fetch count when it is written; instead
-+	 * they need a 0-1 transition of IbsFetchEn.
-+	 */
-+	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
-+		perf_ibs_fetch.fetch_count_reset_broken = 1;
-+
- 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
- 
- 	if (ibs_caps & IBS_CAPS_OPCNT) {
+ 	if (!boot_params.screen_info.orig_video_isVGA)
 
 
