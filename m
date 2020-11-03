@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DA22A5744
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:40:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B02DC2A5848
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731019AbgKCVkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
+        id S1731447AbgKCVu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:50:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732721AbgKCU43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:29 -0500
+        id S1731698AbgKCUtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5FC820732;
-        Tue,  3 Nov 2020 20:56:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CB2622409;
+        Tue,  3 Nov 2020 20:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436989;
-        bh=jCh3GPxe7Xy+C+hwntiI4Tqu9vycF/OM7TydPDkmcTw=;
+        s=default; t=1604436544;
+        bh=lRKm451vu1f1JKGLJl5/kCC2LtHcU9tMwssg2HTV1HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBri5T3EBXnza1BqRQRGQLX7WzZNXkyFOpuV3Z5qiKFaPaiC/utp7PR4E3ZwhhrQV
-         4trJPxiymTE+R12EbzdK9/nES+u/yyIuA0JkgMwiOWCjXHik8jw5fjYYvzhMIVYN4D
-         DRYltOs2YVvi49NwQcx1kMoFGeFrmJtBREDjHHPw=
+        b=Bj36V8wwTHgl77+0HmCjBsUYgiztHLJHqrx8zZGf7efPq6WcFOYOSVPjwanYJJCgu
+         JRYuyQi9jol6eiP8XnV7bsTYbQXG4EKZq6lhokZzKfMgR4yRqgUErAc+RZHlqAd86f
+         GPQP3e+32ZM3OjZf1+DXRwCorwUCXBZB0BDawppw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 098/214] mmc: sdhci-acpi: AMDI0040: Set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.9 295/391] block: advance iov_iter on bio_add_hw_page failure
 Date:   Tue,  3 Nov 2020 21:35:46 +0100
-Message-Id: <20201103203259.699593182@linuxfoundation.org>
+Message-Id: <20201103203406.980145598@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit f23cc3ba491af77395cea3f9d51204398729f26b upstream.
+commit 4977d121bc9bc5138d4d48b85469123001859573 upstream.
 
-This change fixes HS400 tuning for devices with invalid presets.
+When the bio's size reaches max_append_sectors, bio_add_hw_page returns
+0 then __bio_iov_append_get_pages returns -EINVAL. This is an expected
+result of building a small enough bio not to be split in the IO path.
+However, iov_iter is not advanced in this case, causing the same pages
+are filled for the bio again and again.
 
-SDHCI presets are not currently used for eMMC HS/HS200/HS400, but are
-used for DDR52. The HS400 retuning sequence is:
+Fix the case by properly advancing the iov_iter for already processed
+pages.
 
-    HS400->DDR52->HS->HS200->Perform Tuning->HS->HS400
-
-This means that when HS400 tuning happens, we transition through DDR52
-for a very brief period. This causes presets to be enabled
-unintentionally and stay enabled when transitioning back to HS200 or
-HS400. Some firmware has invalid presets, so we end up with driver
-strengths that can cause I/O problems.
-
-Fixes: 34597a3f60b1 ("mmc: sdhci-acpi: Add support for ACPI HID of AMD Controller with HS400")
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200928154718.1.Icc21d4b2f354e83e26e57e270dc952f5fe0b0a40@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 0512a75b98f8 ("block: Introduce REQ_OP_ZONE_APPEND")
+Cc: stable@vger.kernel.org # 5.8+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-acpi.c |   37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ block/bio.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/host/sdhci-acpi.c
-+++ b/drivers/mmc/host/sdhci-acpi.c
-@@ -658,6 +658,43 @@ static int sdhci_acpi_emmc_amd_probe_slo
- 	    (host->mmc->caps & MMC_CAP_1_8V_DDR))
- 		host->mmc->caps2 = MMC_CAP2_HS400_1_8V;
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1046,6 +1046,7 @@ static int __bio_iov_append_get_pages(st
+ 	ssize_t size, left;
+ 	unsigned len, i;
+ 	size_t offset;
++	int ret = 0;
  
-+	/*
-+	 * There are two types of presets out in the wild:
-+	 * 1) Default/broken presets.
-+	 *    These presets have two sets of problems:
-+	 *    a) The clock divisor for SDR12, SDR25, and SDR50 is too small.
-+	 *       This results in clock frequencies that are 2x higher than
-+	 *       acceptable. i.e., SDR12 = 25 MHz, SDR25 = 50 MHz, SDR50 =
-+	 *       100 MHz.x
-+	 *    b) The HS200 and HS400 driver strengths don't match.
-+	 *       By default, the SDR104 preset register has a driver strength of
-+	 *       A, but the (internal) HS400 preset register has a driver
-+	 *       strength of B. As part of initializing HS400, HS200 tuning
-+	 *       needs to be performed. Having different driver strengths
-+	 *       between tuning and operation is wrong. It results in different
-+	 *       rise/fall times that lead to incorrect sampling.
-+	 * 2) Firmware with properly initialized presets.
-+	 *    These presets have proper clock divisors. i.e., SDR12 => 12MHz,
-+	 *    SDR25 => 25 MHz, SDR50 => 50 MHz. Additionally the HS200 and
-+	 *    HS400 preset driver strengths match.
-+	 *
-+	 *    Enabling presets for HS400 doesn't work for the following reasons:
-+	 *    1) sdhci_set_ios has a hard coded list of timings that are used
-+	 *       to determine if presets should be enabled.
-+	 *    2) sdhci_get_preset_value is using a non-standard register to
-+	 *       read out HS400 presets. The AMD controller doesn't support this
-+	 *       non-standard register. In fact, it doesn't expose the HS400
-+	 *       preset register anywhere in the SDHCI memory map. This results
-+	 *       in reading a garbage value and using the wrong presets.
-+	 *
-+	 *       Since HS400 and HS200 presets must be identical, we could
-+	 *       instead use the the SDR104 preset register.
-+	 *
-+	 *    If the above issues are resolved we could remove this quirk for
-+	 *    firmware that that has valid presets (i.e., SDR12 <= 12 MHz).
-+	 */
-+	host->quirks2 |= SDHCI_QUIRK2_PRESET_VALUE_BROKEN;
-+
- 	host->mmc_host_ops.select_drive_strength = amd_select_drive_strength;
- 	host->mmc_host_ops.set_ios = amd_set_ios;
- 	host->mmc_host_ops.execute_tuning = amd_sdhci_execute_tuning;
+ 	if (WARN_ON_ONCE(!max_append_sectors))
+ 		return 0;
+@@ -1068,15 +1069,17 @@ static int __bio_iov_append_get_pages(st
+ 
+ 		len = min_t(size_t, PAGE_SIZE - offset, left);
+ 		if (bio_add_hw_page(q, bio, page, len, offset,
+-				max_append_sectors, &same_page) != len)
+-			return -EINVAL;
++				max_append_sectors, &same_page) != len) {
++			ret = -EINVAL;
++			break;
++		}
+ 		if (same_page)
+ 			put_page(page);
+ 		offset = 0;
+ 	}
+ 
+-	iov_iter_advance(iter, size);
+-	return 0;
++	iov_iter_advance(iter, size - left);
++	return ret;
+ }
+ 
+ /**
 
 
