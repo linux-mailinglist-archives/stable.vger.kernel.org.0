@@ -2,167 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 237332A43CB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 12:13:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4E12A43E1
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 12:18:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728202AbgKCLMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 06:12:35 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:50751 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725988AbgKCLMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 06:12:35 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 9E737B74;
-        Tue,  3 Nov 2020 06:12:34 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 06:12:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4azPS5
-        SU5WXSjNIrNts16KhWtnXxukGfZZDKFTFVGUQ=; b=pSPxrV5qzTWjTMbbbk4qb2
-        fP8iBK8i8no1Mc6eTS90FbNRqTTkVvNIAldBkefQRgNWUtGQxnW3Nxqqb4VoYl26
-        gWM2Ezk6XTWLKnRHQYY6KWvH3INFGpmswylCQTTzi+VZReIwmKzby+fE4DXEHbhW
-        h92IVoUGGJ/TE4/i3ZRl1gT0faBJNPdCiAySAygZKXbPVLIaRYsUOkUWFmgZKcgj
-        LkZvfm0rC9imCcvUqAubnqTe5UHFTqvscQ9RkyS/XH0D4Hqyq0P/T/ahv+4NqMHa
-        /iHUEJySo+8jkfiOfj0U6/IUHVGlyki6kT9U1Cg59e4xNluodP1F9iOxhoTBShSQ
-        ==
-X-ME-Sender: <xms:IjuhX8ItK7kVIBbN7bRmmN55HMOvaaVuPsrQxi0a0cHyEOH7CxYnrA>
-    <xme:IjuhX8LjTFX_LDhUW1uuRz4zvMUAquppeUcDRIUON4SoeMjrsx80G327Fr_THbwSd
-    CmFeCfxyl6sgQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgvdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:IjuhX8udlZDtBtSPZ_JtlRCelEAc-4I4ZRYX2MEfVq7fWSp_ebpMSw>
-    <xmx:IjuhX5b9f8GWVJ3Ra2SV9Sl8Z249plW9FQ4mF1Yw2oLcRfvle3Si1A>
-    <xmx:IjuhXzaB33fM5IWgkIOon3abyDewPfM8sENOE412__A24HlLkvG_mg>
-    <xmx:IjuhX0CJ7ps2BXTw7NBirnp1BzN3eUQCnzS6MBx8Kaxz05a90ro3A3Ul1BE>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DED2B3280064;
-        Tue,  3 Nov 2020 06:12:33 -0500 (EST)
-Subject: FAILED: patch "[PATCH] perf/amd/uncore: Set all slices and threads to restore perf" failed to apply to 4.14-stable tree
-To:     kim.phillips@amd.com, peterz@infradead.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 12:13:20 +0100
-Message-ID: <1604402000211185@kroah.com>
+        id S1728092AbgKCLSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 06:18:24 -0500
+Received: from foss.arm.com ([217.140.110.172]:46920 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725988AbgKCLSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 06:18:24 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6AB62101E;
+        Tue,  3 Nov 2020 03:18:23 -0800 (PST)
+Received: from arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9FEAE3F66E;
+        Tue,  3 Nov 2020 03:18:22 -0800 (PST)
+Date:   Tue, 3 Nov 2020 11:18:19 +0000
+From:   Dave Martin <Dave.Martin@arm.com>
+To:     Andrew Jones <drjones@redhat.com>
+Cc:     kvmarm@lists.cs.columbia.edu, maz@kernel.org, xu910121@sina.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] KVM: arm64: Don't hide ID registers from userspace
+Message-ID: <20201103111816.GG6882@arm.com>
+References: <20201102185037.49248-1-drjones@redhat.com>
+ <20201102185037.49248-2-drjones@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201102185037.49248-2-drjones@redhat.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 02, 2020 at 07:50:35PM +0100, Andrew Jones wrote:
+> ID registers are RAZ until they've been allocated a purpose, but
+> that doesn't mean they should be removed from the KVM_GET_REG_LIST
+> list. So far we only have one register, SYS_ID_AA64ZFR0_EL1, that
+> is hidden from userspace when its function is not present. Removing
+> the userspace visibility checks is enough to reexpose it, as it
+> already behaves as RAZ when the function is not present.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Pleae state what the patch does.  (The subject line serves as a summary
+of that, but the commit message should make sense without it.)
 
-thanks,
+Also, how exactly !vcpu_has_sve() causes ID_AA64ZFR0_EL1 to behave as
+RAZ with this change?  (I'm not saying it doesn't, but the code is not
+trivial to follow...)
 
-greg k-h
+> 
+> Fixes: 73433762fcae ("KVM: arm64/sve: System register context switch and access support")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Reported-by: 张东旭 <xu910121@sina.com>
+> Signed-off-by: Andrew Jones <drjones@redhat.com>
+> ---
+>  arch/arm64/kvm/sys_regs.c | 18 +-----------------
+>  1 file changed, 1 insertion(+), 17 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index fb12d3ef423a..6ff0c15531ca 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -1195,16 +1195,6 @@ static unsigned int sve_visibility(const struct kvm_vcpu *vcpu,
+>  	return REG_HIDDEN_USER | REG_HIDDEN_GUEST;
+>  }
+>  
+> -/* Visibility overrides for SVE-specific ID registers */
+> -static unsigned int sve_id_visibility(const struct kvm_vcpu *vcpu,
+> -				      const struct sys_reg_desc *rd)
+> -{
+> -	if (vcpu_has_sve(vcpu))
+> -		return 0;
+> -
+> -	return REG_HIDDEN_USER;
 
------------------- original commit in Linus's tree ------------------
+In light of this change, I think that REG_HIDDEN_GUEST and
+REG_HIDDEN_USER are always either both set or both clear.  Given the
+discussion on this issue, I'm thinking it probably doesn't even make
+sense for these to be independent (?)
 
-From c8fe99d0701fec9fb849ec880a86bc5592530496 Mon Sep 17 00:00:00 2001
-From: Kim Phillips <kim.phillips@amd.com>
-Date: Tue, 8 Sep 2020 16:47:34 -0500
-Subject: [PATCH] perf/amd/uncore: Set all slices and threads to restore perf
- stat -a behaviour
+If REG_HIDDEN_USER is really redundant, I suggest stripping it out and
+simplifying the code appropriately.
 
-Commit 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for
-F17h L3 PMCs") inadvertently changed the uncore driver's behaviour
-wrt perf tool invocations with or without a CPU list, specified with
--C / --cpu=.
+(In effect, I think your RAZ flag will do correctly what REG_HIDDEN_USER
+was trying to achieve.)
 
-Change the behaviour of the driver to assume the former all-cpu (-a)
-case, which is the more commonly desired default.  This fixes
-'-a -A' invocations without explicit cpu lists (-C) to not count
-L3 events only on behalf of the first thread of the first core
-in the L3 domain.
+> -}
+> -
+>  /* Generate the emulated ID_AA64ZFR0_EL1 value exposed to the guest */
+>  static u64 guest_id_aa64zfr0_el1(const struct kvm_vcpu *vcpu)
+>  {
+> @@ -1231,9 +1221,6 @@ static int get_id_aa64zfr0_el1(struct kvm_vcpu *vcpu,
+>  {
+>  	u64 val;
+>  
+> -	if (WARN_ON(!vcpu_has_sve(vcpu)))
+> -		return -ENOENT;
+> -
+>  	val = guest_id_aa64zfr0_el1(vcpu);
+>  	return reg_to_user(uaddr, &val, reg->id);
+>  }
+> @@ -1246,9 +1233,6 @@ static int set_id_aa64zfr0_el1(struct kvm_vcpu *vcpu,
+>  	int err;
+>  	u64 val;
+>  
+> -	if (WARN_ON(!vcpu_has_sve(vcpu)))
+> -		return -ENOENT;
+> -
+>  	err = reg_from_user(&val, uaddr, id);
+>  	if (err)
+>  		return err;
+> @@ -1518,7 +1502,7 @@ static const struct sys_reg_desc sys_reg_descs[] = {
+>  	ID_SANITISED(ID_AA64PFR1_EL1),
+>  	ID_UNALLOCATED(4,2),
+>  	ID_UNALLOCATED(4,3),
+> -	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, .visibility = sve_id_visibility },
+> +	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, },
+>  	ID_UNALLOCATED(4,5),
+>  	ID_UNALLOCATED(4,6),
+>  	ID_UNALLOCATED(4,7),
 
-BEFORE:
+Otherwise looks reasonable.
 
-Activity performed by the first thread of the last core (CPU#43) in
-CPU#40's L3 domain is not reported by CPU#40:
-
-sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
-...
-CPU36                 21,835      l3_request_g1.caching_l3_cache_accesses
-CPU40                 87,066      l3_request_g1.caching_l3_cache_accesses
-CPU44                 17,360      l3_request_g1.caching_l3_cache_accesses
-...
-
-AFTER:
-
-The L3 domain activity is now reported by CPU#40:
-
-sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
-...
-CPU36                354,891      l3_request_g1.caching_l3_cache_accesses
-CPU40              1,780,870      l3_request_g1.caching_l3_cache_accesses
-CPU44                315,062      l3_request_g1.caching_l3_cache_accesses
-...
-
-Fixes: 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for F17h L3 PMCs")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200908214740.18097-2-kim.phillips@amd.com
-
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index 76400c052b0e..e7e61c8b56bd 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -181,28 +181,16 @@ static void amd_uncore_del(struct perf_event *event, int flags)
- }
- 
- /*
-- * Convert logical CPU number to L3 PMC Config ThreadMask format
-+ * Return a full thread and slice mask until per-CPU is
-+ * properly supported.
-  */
--static u64 l3_thread_slice_mask(int cpu)
-+static u64 l3_thread_slice_mask(void)
- {
--	u64 thread_mask, core = topology_core_id(cpu);
--	unsigned int shift, thread = 0;
-+	if (boot_cpu_data.x86 <= 0x18)
-+		return AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK;
- 
--	if (topology_smt_supported() && !topology_is_primary_thread(cpu))
--		thread = 1;
--
--	if (boot_cpu_data.x86 <= 0x18) {
--		shift = AMD64_L3_THREAD_SHIFT + 2 * (core % 4) + thread;
--		thread_mask = BIT_ULL(shift);
--
--		return AMD64_L3_SLICE_MASK | thread_mask;
--	}
--
--	core = (core << AMD64_L3_COREID_SHIFT) & AMD64_L3_COREID_MASK;
--	shift = AMD64_L3_THREAD_SHIFT + thread;
--	thread_mask = BIT_ULL(shift);
--
--	return AMD64_L3_EN_ALL_SLICES | core | thread_mask;
-+	return AMD64_L3_EN_ALL_SLICES | AMD64_L3_EN_ALL_CORES |
-+	       AMD64_L3_F19H_THREAD_MASK;
- }
- 
- static int amd_uncore_event_init(struct perf_event *event)
-@@ -232,7 +220,7 @@ static int amd_uncore_event_init(struct perf_event *event)
- 	 * For other events, the two fields do not affect the count.
- 	 */
- 	if (l3_mask && is_llc_event(event))
--		hwc->config |= l3_thread_slice_mask(event->cpu);
-+		hwc->config |= l3_thread_slice_mask();
- 
- 	uncore = event_to_amd_uncore(event);
- 	if (!uncore)
-
+Cheers
+---Dave
