@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2322A54DD
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C15A72A550E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389083AbgKCVMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55384 "EHLO mail.kernel.org"
+        id S1733224AbgKCVLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389082AbgKCVMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:48 -0500
+        id S2388361AbgKCVLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 958F421534;
-        Tue,  3 Nov 2020 21:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF54521534;
+        Tue,  3 Nov 2020 21:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437968;
-        bh=/T3SJ1buyA6YHXT6XGq5baauNt1qHSf3vwSNRPlvzJw=;
+        s=default; t=1604437877;
+        bh=TG50nwkbsifVMv6k6jdz5GTFDBMqrGJndteAx42ttsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDwbxkxqGr69h5NAt9GVmEb6kymrofBpM4m1QxTrgZaQM5hL3OOVhN5cNN8hilPMn
-         FarXa8q5uQB5RbGI6WcJQq3s6H4FAoacXasjJ7psJwR/rMHIBfWVimz5yPtL/FVuLa
-         zTO5TpIbbeXp0SDle26/BHcp/UC6RRNvseyuCc7c=
+        b=wjFOdm1b/pVSy1Zhm0N7mRNVu6aNlU3i8za7aHJ/Hl2OE9SjEuTTrJG11BVCXdxSO
+         9A324EfwRwBfV7kecUo7dHxYV2SUfj+GpLEGJ/QGjrt0RuNhO1aNRNsAmoYD/dQAuK
+         orDE/mxsJYmbz9X0Kk+mad1PXZyxcUrZnCUZ8E9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Huang <wei.huang2@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 070/125] acpi-cpufreq: Honor _PSD table setting on new AMD CPUs
-Date:   Tue,  3 Nov 2020 21:37:27 +0100
-Message-Id: <20201103203207.027912350@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>
+Subject: [PATCH 4.14 071/125] w1: mxc_w1: Fix timeout resolution problem leading to bus error
+Date:   Tue,  3 Nov 2020 21:37:28 +0100
+Message-Id: <20201103203207.265575603@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -42,37 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Huang <wei.huang2@amd.com>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 5368512abe08a28525d9b24abbfc2a72493e8dba upstream.
+commit c9723750a699c3bd465493ac2be8992b72ccb105 upstream.
 
-acpi-cpufreq has a old quirk that overrides the _PSD table supplied by
-BIOS on AMD CPUs. However the _PSD table of new AMD CPUs (Family 19h+)
-now accurately reports the P-state dependency of CPU cores. Hence this
-quirk needs to be fixed in order to support new CPUs' frequency control.
+On my platform (i.MX53) bus access sometimes fails with
+	w1_search: max_slave_count 64 reached, will continue next search.
 
-Fixes: acd316248205 ("acpi-cpufreq: Add quirk to disable _PSD usage on all AMD CPUs")
-Signed-off-by: Wei Huang <wei.huang2@amd.com>
-[ rjw: Subject edit ]
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The reason is the use of jiffies to implement a 200us timeout in
+mxc_w1_ds2_touch_bit().
+On some platforms the jiffies timer resolution is insufficient for this.
+
+Fix by replacing jiffies by ktime_get().
+
+For consistency apply the same change to the other use of jiffies in
+mxc_w1_ds2_reset_bus().
+
+Fixes: f80b2581a706 ("w1: mxc_w1: Optimize mxc_w1_ds2_touch_bit()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Link: https://lore.kernel.org/r/1601455030-6607-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/acpi-cpufreq.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/w1/masters/mxc_w1.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/cpufreq/acpi-cpufreq.c
-+++ b/drivers/cpufreq/acpi-cpufreq.c
-@@ -701,7 +701,8 @@ static int acpi_cpufreq_cpu_init(struct
- 		cpumask_copy(policy->cpus, topology_core_cpumask(cpu));
- 	}
+--- a/drivers/w1/masters/mxc_w1.c
++++ b/drivers/w1/masters/mxc_w1.c
+@@ -15,7 +15,7 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+-#include <linux/jiffies.h>
++#include <linux/ktime.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
  
--	if (check_amd_hwpstate_cpu(cpu) && !acpi_pstate_strict) {
-+	if (check_amd_hwpstate_cpu(cpu) && boot_cpu_data.x86 < 0x19 &&
-+	    !acpi_pstate_strict) {
- 		cpumask_clear(policy->cpus);
- 		cpumask_set_cpu(cpu, policy->cpus);
- 		cpumask_copy(data->freqdomain_cpus,
+@@ -47,12 +47,12 @@ struct mxc_w1_device {
+ static u8 mxc_w1_ds2_reset_bus(void *data)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_RPP, dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for reset sequence 511+512us, use 1500us for sure */
+-	timeout = jiffies + usecs_to_jiffies(1500);
++	timeout = ktime_add_us(ktime_get(), 1500);
+ 
+ 	udelay(511 + 512);
+ 
+@@ -62,7 +62,7 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
+ 		/* PST bit is valid after the RPP bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_RPP))
+ 			return !(ctrl & MXC_W1_CONTROL_PST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 1;
+ }
+@@ -75,12 +75,12 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
+ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_WR(bit), dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for read/write bit (60us, Max 120us), use 200us for sure */
+-	timeout = jiffies + usecs_to_jiffies(200);
++	timeout = ktime_add_us(ktime_get(), 200);
+ 
+ 	udelay(60);
+ 
+@@ -90,7 +90,7 @@ static u8 mxc_w1_ds2_touch_bit(void *dat
+ 		/* RDST bit is valid after the WR1/RD bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_WR(bit)))
+ 			return !!(ctrl & MXC_W1_CONTROL_RDST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 0;
+ }
 
 
