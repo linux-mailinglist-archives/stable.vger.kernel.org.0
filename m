@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B547D2A535C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B706E2A5298
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733204AbgKCVAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35970 "EHLO mail.kernel.org"
+        id S1730245AbgKCUvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:51:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733199AbgKCVAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:19 -0500
+        id S1731941AbgKCUvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFDA722226;
-        Tue,  3 Nov 2020 21:00:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0848D2053B;
+        Tue,  3 Nov 2020 20:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437218;
-        bh=UZwC1BRGNu+cfL6LMrplE7QsUP/WDAzBR/EDPltJrmE=;
+        s=default; t=1604436678;
+        bh=bm52BDMSfPZiN5lPyEDL7IsEW9Njy8zDk84FpC/hdNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfsYjFWyt162tA6mEJkOgz2kvgXgX0bHFbGaHIZ5ISBADAihJnl77sR8GuVk9i/j+
-         ugscZhGEQTuMDhMZJo4My44PVtAOG0At8zX5zuiblI6auZSExdPZGHnjP19o95Klug
-         e5R9o/ltJDyHYNQcrWISUVfQgPRCAWjK1DnEt+c0=
+        b=rEdaLdAICfx8mZ8iBf21NVvBvrKOW2lhVfs5jpbvG9uY09jOpyJ+CA/wCV37CGk7h
+         ZjW4qkRHf/5GubcAafwX7DboaXU9Lgdre4h5Ek8PgyrSBkOf/XYm8jpCVmvV/k3ksG
+         EjT1Nf6MN7zVMiIecUYG2CKwZOkGgbn4Cyjz6HD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 159/214] powerpc: Warn about use of smt_snooze_delay
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 356/391] drm/amdgpu/swsmu: drop smu i2c bus on navi1x
 Date:   Tue,  3 Nov 2020 21:36:47 +0100
-Message-Id: <20201103203305.693586293@linuxfoundation.org>
+Message-Id: <20201103203411.156608458@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
+commit 10105d0c9763f058f6a9a09f78397d5bf94dc94c upstream.
 
-It's not done anything for a long time. Save the percpu variable, and
-emit a warning to remind users to not expect it to do anything.
+Stop registering the SMU i2c bus on navi1x.  This leads to instability
+issues when userspace processes mess with the bus and also seems to
+cause display stability issues in some cases.
 
-This uses pr_warn_once instead of pr_warn_ratelimit as testing
-'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
-to be noisy, as the online/offline loop is slow.
-
-Fixes: 3fa8cad82b94 ("powerpc/pseries/cpuidle: smt-snooze-delay cleanup.")
-Cc: stable@vger.kernel.org # v3.14
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200902000012.3440389-1-joel@jms.id.au
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1314
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1341
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/sysfs.c |   42 +++++++++++++++++-------------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/amd/powerplay/navi10_ppt.c |   26 --------------------------
+ 1 file changed, 26 deletions(-)
 
---- a/arch/powerpc/kernel/sysfs.c
-+++ b/arch/powerpc/kernel/sysfs.c
-@@ -31,29 +31,27 @@
+--- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+@@ -2463,37 +2463,11 @@ static const struct i2c_algorithm navi10
+ 	.functionality = navi10_i2c_func,
+ };
  
- static DEFINE_PER_CPU(struct cpu, cpu_devices);
- 
--/*
-- * SMT snooze delay stuff, 64-bit only for now
-- */
+-static int navi10_i2c_control_init(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	struct amdgpu_device *adev = to_amdgpu_device(control);
+-	int res;
 -
- #ifdef CONFIG_PPC64
- 
--/* Time in microseconds we delay before sleeping in the idle loop */
--static DEFINE_PER_CPU(long, smt_snooze_delay) = { 100 };
-+/*
-+ * Snooze delay has not been hooked up since 3fa8cad82b94 ("powerpc/pseries/cpuidle:
-+ * smt-snooze-delay cleanup.") and has been broken even longer. As was foretold in
-+ * 2014:
-+ *
-+ *  "ppc64_util currently utilises it. Once we fix ppc64_util, propose to clean
-+ *  up the kernel code."
-+ *
-+ * powerpc-utils stopped using it as of 1.3.8. At some point in the future this
-+ * code should be removed.
-+ */
- 
- static ssize_t store_smt_snooze_delay(struct device *dev,
- 				      struct device_attribute *attr,
- 				      const char *buf,
- 				      size_t count)
- {
--	struct cpu *cpu = container_of(dev, struct cpu, dev);
--	ssize_t ret;
--	long snooze;
+-	control->owner = THIS_MODULE;
+-	control->class = I2C_CLASS_SPD;
+-	control->dev.parent = &adev->pdev->dev;
+-	control->algo = &navi10_i2c_algo;
+-	snprintf(control->name, sizeof(control->name), "AMDGPU SMU");
 -
--	ret = sscanf(buf, "%ld", &snooze);
--	if (ret != 1)
--		return -EINVAL;
+-	res = i2c_add_adapter(control);
+-	if (res)
+-		DRM_ERROR("Failed to register hw i2c, err: %d\n", res);
 -
--	per_cpu(smt_snooze_delay, cpu->dev.id) = snooze;
-+	pr_warn_once("%s (%d) stored to unsupported smt_snooze_delay, which has no effect.\n",
-+		     current->comm, current->pid);
- 	return count;
- }
- 
-@@ -61,9 +59,9 @@ static ssize_t show_smt_snooze_delay(str
- 				     struct device_attribute *attr,
- 				     char *buf)
- {
--	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-	return res;
+-}
 -
--	return sprintf(buf, "%ld\n", per_cpu(smt_snooze_delay, cpu->dev.id));
-+	pr_warn_once("%s (%d) read from unsupported smt_snooze_delay\n",
-+		     current->comm, current->pid);
-+	return sprintf(buf, "100\n");
- }
- 
- static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
-@@ -71,16 +69,10 @@ static DEVICE_ATTR(smt_snooze_delay, 064
- 
- static int __init setup_smt_snooze_delay(char *str)
- {
--	unsigned int cpu;
--	long snooze;
+-static void navi10_i2c_control_fini(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	i2c_del_adapter(control);
+-}
 -
- 	if (!cpu_has_feature(CPU_FTR_SMT))
- 		return 1;
- 
--	snooze = simple_strtol(str, NULL, 10);
--	for_each_possible_cpu(cpu)
--		per_cpu(smt_snooze_delay, cpu) = snooze;
 -
-+	pr_warn("smt-snooze-delay command line option has no effect\n");
- 	return 1;
- }
- __setup("smt-snooze-delay=", setup_smt_snooze_delay);
+ static const struct pptable_funcs navi10_ppt_funcs = {
+ 	.get_allowed_feature_mask = navi10_get_allowed_feature_mask,
+ 	.set_default_dpm_table = navi10_set_default_dpm_table,
+ 	.dpm_set_vcn_enable = navi10_dpm_set_vcn_enable,
+ 	.dpm_set_jpeg_enable = navi10_dpm_set_jpeg_enable,
+-	.i2c_init = navi10_i2c_control_init,
+-	.i2c_fini = navi10_i2c_control_fini,
+ 	.print_clk_levels = navi10_print_clk_levels,
+ 	.force_clk_levels = navi10_force_clk_levels,
+ 	.populate_umd_state_clk = navi10_populate_umd_state_clk,
 
 
