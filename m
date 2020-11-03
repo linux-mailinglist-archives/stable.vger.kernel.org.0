@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B22B32A4A36
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2149B2A4A3A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbgKCPoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:44:13 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45369 "EHLO
+        id S1727883AbgKCPo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:44:56 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:55591 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727901AbgKCPoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:44:13 -0500
+        by vger.kernel.org with ESMTP id S1727470AbgKCPo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:44:56 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D9AE71942B01;
-        Tue,  3 Nov 2020 10:44:11 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:44:11 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 144531942BEB;
+        Tue,  3 Nov 2020 10:44:55 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:44:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gFKqZa
-        rjeF3i3sDhBQ1T64wRQIiNFCAjC9H/9fA4lE8=; b=YiPC7z7ULK5yDJATiCv+WB
-        vUWyP5S6VNVmUjzRC7JGtN7jC/hR4c1f+iM9PYvfgxLRxMF/PnFO5nIDHETrcllv
-        zTkioN/O7WvX+FllcCFiX3jg6YEgFkhPi9XRtrfPhanEOrEBy5Xn4N8+SqdpWO0J
-        9sRysZnZxZYWH0/ytZYxpbK1sm+VVquegEjW00ps9i9jy6/rJiBVAUuEKpatoc55
-        6ORGEoBrfOL1LdyXL6qSCmjpPfr2/I1GPuzE66ll8D6EBztBZhMgtVaBjIJoI7pN
-        j7tOchDi6dO/hIZYJqQT8kSedRxSfO3o/MdOjhRNCxoi+4hKABC4KJKL5eqQ0fsg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=51pNoe
+        ZiQOUSc8pnBCy0YZBtisyOGzLQGQ6Mw60c7Ik=; b=G2nnCTMrJZGyeJaF5Mj6SW
+        jzg3VowblIEpYPnuj9SV1NfWi460UO/azBCYgoXt7Rd4CQhFLk1a1leG0CictC59
+        Eln00Mw/+6h/szfpFNyCDNYRyXUtz94lC3Tf2nmz907MxArp5FUk8aLqzzg6vyxf
+        Z3wtVN/MhA+jGFTWlcx/ezSJbt4Mys5qLGno5sgZMhn8yKKnHwTafvLQype15Zd/
+        4aeoNUj4UdDhjKT2p8V7Vlx3gDW8MLF3LvXvXcwZaUfNuooFl3ddRq2TUF1GXHA4
+        F6HiAcUyajzEviZX9feWdLzOpJK0Yr5VgHQ1MAZHZxDgdOf/DjHdwUCe5D0ohCrg
         ==
-X-ME-Sender: <xms:y3qhX_JpjoWbmJH_moZMuOf1X8OQoLCtVeoi_2QXdVT9AvGNbocOfw>
-    <xme:y3qhXzKk4J_2AKzCMCkVbNLN0xyz5UGdbTIfLIwLsQUtD5oo7la0vLpg9Ajf4cKSc
-    j21FOCwRe4XSw>
+X-ME-Sender: <xms:9nqhXzB9i3juwxW4WapRRkzPT3dNVIYlQBG9K1YrraWJ3aBbkKvZZQ>
+    <xme:9nqhX5iJE_Y3tu7qWelgXJOUdsTmGbDtf1mAcU1sxThkU3jrm0EmgnLW6EIiLDnko
+    DF6MPtDzDOlRA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepkeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:y3qhX3sto5c_MMbbohebTTaW0vFdCd8nZAQpe-e5YXZGbkxMUKM37A>
-    <xmx:y3qhX4ZLngeHj60LM_8hbceXIRfveK3GFuaC8fK6B_0iaUsNgn4jUg>
-    <xmx:y3qhX2ZQDIapR_u_jh1qi_gio0G9BNfq-DzdAG_Gr0ATek7GumK1Hg>
-    <xmx:y3qhX1nEDqOg04O2v25T7cOvUEspQzdgrNRT214_IzEWkCwOkX47qw>
+X-ME-Proxy: <xmx:9nqhX-l9cPMCEe64V1ISdD0qAz49gzQDCtQ-rXpz0IOdEm6NBCoe6Q>
+    <xmx:9nqhX1xetB1Iam2IRWgASTAg9C00wub_IBWzpdr7zV1JjKFpFGAIfg>
+    <xmx:9nqhX4SZprMy0ylQZW5_9RuIahXquOtus1SZk0MbdpX80AY8erSTzA>
+    <xmx:93qhXzfTsYopTGQIoHGO1BbUhMXB_EnjeaN5v3kmQjJN-nT8qiLLFg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5828E328005A;
-        Tue,  3 Nov 2020 10:44:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: fix pow() crashing when given base 0" failed to apply to 5.9-stable tree
-To:     Krunoslav.Kovac@amd.com, Anthony.Koo@amd.com,
-        Rodrigo.Siqueira@amd.com, alexander.deucher@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 762223064684;
+        Tue,  3 Nov 2020 10:44:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Blank stream before destroying HDCP session" failed to apply to 5.9-stable tree
+To:     jaehyun.chung@amd.com, Alvin.Lee2@amd.com,
+        alexander.deucher@amd.com, qingqing.zhuo@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:45:05 +0100
-Message-ID: <16044183051247@kroah.com>
+Date:   Tue, 03 Nov 2020 16:45:45 +0100
+Message-ID: <160441834515249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,33 +71,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5ab7943187f22b572fd12d517bd699771b88ce91 Mon Sep 17 00:00:00 2001
-From: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Date: Thu, 6 Aug 2020 17:54:47 -0400
-Subject: [PATCH] drm/amd/display: fix pow() crashing when given base 0
+From 8db2d634ed29eeaed56fdbeaf63da7ae9e65280b Mon Sep 17 00:00:00 2001
+From: Jaehyun Chung <jaehyun.chung@amd.com>
+Date: Thu, 30 Jul 2020 16:31:29 -0400
+Subject: [PATCH] drm/amd/display: Blank stream before destroying HDCP session
 
-[Why&How]
-pow(a,x) is implemented as exp(x*log(a)). log(0) will crash.
-So return 0^x = 0, unless x=0, convention seems to be 0^0 = 1.
+[Why]
+Stream disable sequence incorretly destroys HDCP session while stream is
+not blanked and while audio is not muted. This sequence causes a flash
+of corruption during mode change and an audio click.
+
+[How]
+Change sequence to blank stream before destroying HDCP session. Audio will
+also be muted by blanking the stream.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Jaehyun Chung <jaehyun.chung@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-diff --git a/drivers/gpu/drm/amd/display/include/fixed31_32.h b/drivers/gpu/drm/amd/display/include/fixed31_32.h
-index 89ef9f6860e5..16df2a485dd0 100644
---- a/drivers/gpu/drm/amd/display/include/fixed31_32.h
-+++ b/drivers/gpu/drm/amd/display/include/fixed31_32.h
-@@ -431,6 +431,9 @@ struct fixed31_32 dc_fixpt_log(struct fixed31_32 arg);
-  */
- static inline struct fixed31_32 dc_fixpt_pow(struct fixed31_32 arg1, struct fixed31_32 arg2)
- {
-+	if (arg1.value == 0)
-+		return arg2.value == 0 ? dc_fixpt_one : dc_fixpt_zero;
-+
- 	return dc_fixpt_exp(
- 		dc_fixpt_mul(
- 			dc_fixpt_log(arg1),
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 4bd6e03a7ef3..117d8aaf2a9b 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3286,12 +3286,11 @@ void core_link_disable_stream(struct pipe_ctx *pipe_ctx)
+ 		core_link_set_avmute(pipe_ctx, true);
+ 	}
+ 
++	dc->hwss.blank_stream(pipe_ctx);
+ #if defined(CONFIG_DRM_AMD_DC_HDCP)
+ 	update_psp_stream_config(pipe_ctx, true);
+ #endif
+ 
+-	dc->hwss.blank_stream(pipe_ctx);
+-
+ 	if (pipe_ctx->stream->signal == SIGNAL_TYPE_DISPLAY_PORT_MST)
+ 		deallocate_mst_payload(pipe_ctx);
+ 
 
