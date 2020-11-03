@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE1F2A51DF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3FB2A51CC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730323AbgKCUou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:44:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60522 "EHLO mail.kernel.org"
+        id S1730847AbgKCUoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:44:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730941AbgKCUou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:44:50 -0500
+        id S1730837AbgKCUoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:44:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D727223C6;
-        Tue,  3 Nov 2020 20:44:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C31D9223EA;
+        Tue,  3 Nov 2020 20:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436289;
-        bh=Ga1lqezWK56VHxgJMXTy1lhGsiX2XcK52Smt/6B7GwA=;
+        s=default; t=1604436251;
+        bh=O18V/B1uPA6UmIdoBoEGVsjQvG52VQilORM5dHDeLiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QICHjCIynYZ+iMhiHGMWRCz9JY7KBaQh0txGzQZHURT5VHkNd8H+2dlAsoEoSmgoJ
-         ffEIcK56F2fGmzErQnHuO7Vs8XCvrXESfJEZFgAGvRdUxLQhfjzjmwinDj7FfrNfwU
-         /zSGoJTgGF/7/nzb0a17fB1KU50WNlDvH27uTWak=
+        b=E943kb9UEB7xhkGM/iQAZkLqGCrBt84jwizVuYu672bNVpU7ezNYS4++H/ySPGOYI
+         69O42IwMPWUpT/d6VqnitzIy8VvDftJju6qvqFLW94yPjhKeaZWbt++5l3idkv7rCK
+         NfiTNGgBjHLtsdPPkDCjuKnCsTw+mluJdGB2arso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangzhi Zuo <Jerry.Zuo@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>, Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 138/391] drm/amd/display: HDMI remote sink need mode validation for Linux
-Date:   Tue,  3 Nov 2020 21:33:09 +0100
-Message-Id: <20201103203356.143124722@linuxfoundation.org>
+Subject: [PATCH 5.9 141/391] block: Consider only dispatched requests for inflight statistic
+Date:   Tue,  3 Nov 2020 21:33:12 +0100
+Message-Id: <20201103203356.346165802@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangzhi Zuo <Jerry.Zuo@amd.com>
+From: Gabriel Krisman Bertazi <krisman@collabora.com>
 
-[ Upstream commit 95d620adb48f7728e67d82f56f756e8d451cf8d2 ]
+[ Upstream commit a926c7afffcc0f2e35e6acbccb16921bacf34617 ]
 
-[Why]
-Currently mode validation is bypassed if remote sink exists. That
-leads to mode set issue when a BW bottle neck exists in the link path,
-e.g., a DP-to-HDMI converter that only supports HDMI 1.4.
+According to Documentation/block/stat.rst, inflight should not include
+I/O requests that are in the queue but not yet dispatched to the device,
+but blk-mq identifies as inflight any request that has a tag allocated,
+which, for queues without elevator, happens at request allocation time
+and before it is queued in the ctx (default case in blk_mq_submit_bio).
 
-Any invalid mode passed to Linux user space will cause the modeset
-failure due to limitation of Linux user space implementation.
+In addition, current behavior is different for queues with elevator from
+queues without it, since for the former the driver tag is allocated at
+dispatch time.  A more precise approach would be to only consider
+requests with state MQ_RQ_IN_FLIGHT.
 
-[How]
-Mode validation is skipped only if in edid override. For real remote
-sink, clock limit check should be done for HDMI remote sink.
+This effectively reverts commit 6131837b1de6 ("blk-mq: count allocated
+but not started requests in iostats inflight") to consolidate blk-mq
+behavior with itself (elevator case) and with original documentation,
+but it differs from the behavior used by the legacy path.
 
-Have HDMI related remote sink going through mode validation to
-elimiate modes which pixel clock exceeds BW limitation.
+This version differs from v1 by using blk_mq_rq_state to access the
+state attribute.  Avoid using blk_mq_request_started, which was
+suggested, since we don't want to include MQ_RQ_COMPLETE.
 
-Signed-off-by: Fangzhi Zuo <Jerry.Zuo@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Cc: Omar Sandoval <osandov@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 2 +-
+ block/blk-mq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 437d1a7a16fe7..b0f8bfd48d102 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -2441,7 +2441,7 @@ enum dc_status dc_link_validate_mode_timing(
- 	/* A hack to avoid failing any modes for EDID override feature on
- 	 * topology change such as lower quality cable for DP or different dongle
- 	 */
--	if (link->remote_sinks[0])
-+	if (link->remote_sinks[0] && link->remote_sinks[0]->sink_signal == SIGNAL_TYPE_VIRTUAL)
- 		return DC_OK;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 94a53d779c12b..ca2fdb58e7af5 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -105,7 +105,7 @@ static bool blk_mq_check_inflight(struct blk_mq_hw_ctx *hctx,
+ {
+ 	struct mq_inflight *mi = priv;
  
- 	/* Passive Dongle */
+-	if (rq->part == mi->part)
++	if (rq->part == mi->part && blk_mq_rq_state(rq) == MQ_RQ_IN_FLIGHT)
+ 		mi->inflight[rq_data_dir(rq)]++;
+ 
+ 	return true;
 -- 
 2.27.0
 
