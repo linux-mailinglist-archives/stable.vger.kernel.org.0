@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A25792A55D4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A76372A546D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733070AbgKCVWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:22:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43732 "EHLO mail.kernel.org"
+        id S2388815AbgKCVLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733172AbgKCVFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:17 -0500
+        id S2388814AbgKCVLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5842B20658;
-        Tue,  3 Nov 2020 21:05:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E46205ED;
+        Tue,  3 Nov 2020 21:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437516;
-        bh=XWKBGVT0fLlUqbteaHTUAI/g2Q91q7n4qRD6yK2GNdI=;
+        s=default; t=1604437863;
+        bh=rjGzAkNUt5fTm0sg3WqjWOeaUg/q5/VYxtTQpDCaIks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tp7j302UnQj3vjnjAWxdv/Xy8xOckMJ46WwwGHLUNtwftNuyH+otCZFu7KgGR8GuY
-         1O+3RigkxsrQftWIObVEFiw9MbQEXcEmeuH4OlL7HXJ5sI+JXpjCjyU8mDWMAY8J2b
-         daQOdwmGHavm2iApKt8SE6KCrthztVVymTrtWxjg=
+        b=NqkH1UBJjMprAmO6t1zOt50MfuDdEwULw22Mkbist+y98RDfTfhFahPq4Wg5p1YdU
+         mW/xGX0R0fnA1l5rWqTSsQZ/j0bQgudw4ZhcUkgdNDZqA8SLEongT1ZHOoAnK8hDab
+         +/zQ27rnhGKJ/OmJJjmb2thYOQgbLnmpZtFVPN74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/191] sgl_alloc_order: fix memory leak
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 025/125] video: fbdev: pvr2fb: initialize variables
 Date:   Tue,  3 Nov 2020 21:36:42 +0100
-Message-Id: <20201103203243.802362900@linuxfoundation.org>
+Message-Id: <20201103203200.372617775@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Gilbert <dgilbert@interlog.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit b2a182a40278bc5849730e66bca01a762188ed86 ]
+[ Upstream commit 8e1ba47c60bcd325fdd097cd76054639155e5d2e ]
 
-sgl_alloc_order() can fail when 'length' is large on a memory
-constrained system. When order > 0 it will potentially be
-making several multi-page allocations with the later ones more
-likely to fail than the earlier one. So it is important that
-sgl_alloc_order() frees up any pages it has obtained before
-returning NULL. In the case when order > 0 it calls the wrong
-free page function and leaks. In testing the leak was
-sufficient to bring down my 8 GiB laptop with OOM.
+clang static analysis reports this repesentative error
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+pvr2fb.c:1049:2: warning: 1st function call argument
+  is an uninitialized value [core.CallAndMessage]
+        if (*cable_arg)
+        ^~~~~~~~~~~~~~~
+
+Problem is that cable_arg depends on the input loop to
+set the cable_arg[0].  If it does not, then some random
+value from the stack is used.
+
+A similar problem exists for output_arg.
+
+So initialize cable_arg and output_arg.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200720191845.20115-1-trix@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/scatterlist.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/pvr2fb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/lib/scatterlist.c b/lib/scatterlist.c
-index 60e7eca2f4bed..3b859201f84c6 100644
---- a/lib/scatterlist.c
-+++ b/lib/scatterlist.c
-@@ -506,7 +506,7 @@ struct scatterlist *sgl_alloc_order(unsigned long long length,
- 		elem_len = min_t(u64, length, PAGE_SIZE << order);
- 		page = alloc_pages(gfp, order);
- 		if (!page) {
--			sgl_free(sgl);
-+			sgl_free_order(sgl, order);
- 			return NULL;
- 		}
+diff --git a/drivers/video/fbdev/pvr2fb.c b/drivers/video/fbdev/pvr2fb.c
+index 867c5218968f7..426e79061bc88 100644
+--- a/drivers/video/fbdev/pvr2fb.c
++++ b/drivers/video/fbdev/pvr2fb.c
+@@ -1029,6 +1029,8 @@ static int __init pvr2fb_setup(char *options)
+ 	if (!options || !*options)
+ 		return 0;
  
++	cable_arg[0] = output_arg[0] = 0;
++
+ 	while ((this_opt = strsep(&options, ","))) {
+ 		if (!*this_opt)
+ 			continue;
 -- 
 2.27.0
 
