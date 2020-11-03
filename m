@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB052A56AC
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E15C2A53D2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731425AbgKCVaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:30:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32812 "EHLO mail.kernel.org"
+        id S2388049AbgKCVE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:04:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732964AbgKCU6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:24 -0500
+        id S2387682AbgKCVE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:04:58 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C16FE223C6;
-        Tue,  3 Nov 2020 20:58:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A70E20658;
+        Tue,  3 Nov 2020 21:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437102;
-        bh=/Ks8KETB+CKrRYrGo2T+5rqEmySgJfur65rlwYhBuKo=;
+        s=default; t=1604437498;
+        bh=k721Juu+tMq7na9v1YvFmeYLwHIhdFFr7+AYj54quJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9E4hQ39tqeGl6+ASEaax1zQ6aSPpmHYJC4zDUegocLhOIAJJcxplBK20ne4axIRa
-         +FMYoZfhr4UDf0cZgwHLPn9XCBugaKxF2wlqjzeN1WtCQjDqTUVHCTs8tFHVR/DIgv
-         6B97OiGW7+Y3RiHLtZTxgdg8qxoiVX94fWNM8CZA=
+        b=nAP0xVTfB5IE3XKPF8rjSc0Vx9+wPrx59BGKcX9TZSZh1m7EfQpIg+HM7lkOjyFPC
+         IysFsXDqGcFrp664LlOIK+WTXuObWmaCF2hi9wADic8Ar1icqmche8+JHU71fWZF48
+         ASIbcrcCcdZhGGskR3OxWrhx/NmboIfBiwJ0Z9ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 146/214] vt: keyboard, extend func_buf_lock to readers
-Date:   Tue,  3 Nov 2020 21:36:34 +0100
-Message-Id: <20201103203304.496720491@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 103/191] arm64: dts: renesas: ulcb: add full-pwr-cycle-in-suspend into eMMC nodes
+Date:   Tue,  3 Nov 2020 21:36:35 +0100
+Message-Id: <20201103203243.299911364@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 82e61c3909db51d91b9d3e2071557b6435018b80 upstream.
+[ Upstream commit 992d7a8b88c83c05664b649fc54501ce58e19132 ]
 
-Both read-side users of func_table/func_buf need locking. Without that,
-one can easily confuse the code by repeatedly setting altering strings
-like:
-while (1)
-	for (a = 0; a < 2; a++) {
-		struct kbsentry kbs = {};
-		strcpy((char *)kbs.kb_string, a ? ".\n" : "88888\n");
-		ioctl(fd, KDSKBSENT, &kbs);
-	}
+Add full-pwr-cycle-in-suspend property to do a graceful shutdown of
+the eMMC device in system suspend.
 
-When that program runs, one can get unexpected output by holding F1
-(note the unxpected period on the last line):
-.
-88888
-.8888
-
-So protect all accesses to 'func_table' (and func_buf) by preexisting
-'func_buf_lock'.
-
-It is easy in 'k_fn' handler as 'puts_queue' is expected not to sleep.
-On the other hand, KDGKBSENT needs a local (atomic) copy of the string
-because copy_to_user can sleep. Use already allocated, but unused
-'kbs->kb_string' for that purpose.
-
-Note that the program above needs at least CAP_SYS_TTY_CONFIG.
-
-This depends on the previous patch and on the func_buf_lock lock added
-in commit 46ca3f735f34 (tty/vt: fix write/write race in ioctl(KDSKBSENT)
-handler) in 5.2.
-
-Likely fixes CVE-2020-25656.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201019085517.10176-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1594989201-24228-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/keyboard.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/renesas/ulcb.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -742,8 +742,13 @@ static void k_fn(struct vc_data *vc, uns
- 		return;
+diff --git a/arch/arm64/boot/dts/renesas/ulcb.dtsi b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+index 0ead552d7eae9..600adc25eaeff 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+@@ -430,6 +430,7 @@
+ 	bus-width = <8>;
+ 	mmc-hs200-1_8v;
+ 	non-removable;
++	full-pwr-cycle-in-suspend;
+ 	status = "okay";
+ };
  
- 	if ((unsigned)value < ARRAY_SIZE(func_table)) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
- 		if (func_table[value])
- 			puts_queue(vc, func_table[value]);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
-+
- 	} else
- 		pr_err("k_fn called with value=%d\n", value);
- }
-@@ -1990,7 +1995,7 @@ out:
- #undef s
- #undef v
- 
--/* FIXME: This one needs untangling and locking */
-+/* FIXME: This one needs untangling */
- int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
- {
- 	struct kbsentry *kbs;
-@@ -2022,10 +2027,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 	switch (cmd) {
- 	case KDGKBSENT: {
- 		/* size should have been a struct member */
--		unsigned char *from = func_table[i] ? : "";
-+		ssize_t len = sizeof(user_kdgkb->kb_string);
-+
-+		spin_lock_irqsave(&func_buf_lock, flags);
-+		len = strlcpy(kbs->kb_string, func_table[i] ? : "", len);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
- 
--		ret = copy_to_user(user_kdgkb->kb_string, from,
--				strlen(from) + 1) ? -EFAULT : 0;
-+		ret = copy_to_user(user_kdgkb->kb_string, kbs->kb_string,
-+				len + 1) ? -EFAULT : 0;
- 
- 		goto reterr;
- 	}
+-- 
+2.27.0
+
 
 
