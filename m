@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC2D2A5855
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E702A5781
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbgKCUrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:47:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
+        id S1731395AbgKCVnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:43:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731381AbgKCUro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:47:44 -0500
+        id S1732677AbgKCUzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 270AC20719;
-        Tue,  3 Nov 2020 20:47:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDED7223C6;
+        Tue,  3 Nov 2020 20:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436463;
-        bh=4iIu57LZw99xO5TmaDLQ9Qk6BI5wQNdxRHxlLCn9hHE=;
+        s=default; t=1604436908;
+        bh=eIZYUGgER0xy5USWci4+NdIIG5c/xEh1I9vNq5bjvA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVdajZ/TxltMi+ZnRegGJomz/a4gDEbOfxIzoDxs9rzYa79wOsk3sX8O2oiLdXN5k
-         gK0s2A8vJ+EEogSeaDPLuwOyqyA5eIMaRA7Fp/+qODEdOegwqpcAK0lB3ZHMFvwniC
-         9BqqszM8h59jDBXny3wnwzVCTvL3VKuW1NIj1kbA=
+        b=SB4O3HSUvowP29LB8GC/sRvDu0nezFoP2sIigATr32UPtCxdi3lmQO9uS7o0/yfXD
+         y2H6iwrB+WTF9aiOtInzVV2qkB6q1C2HA/TZ8E2lvSLkfOeopyqCbHaBptUVGmeFNS
+         1LIQIiWEzZLhIyqgagcBKpphWFSVXBrAl2j5noB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.9 259/391] tty: serial: 21285: fix lockup on open
+        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>,
+        Gavin Shan <gshan@redhat.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 062/214] arm64/mm: return cpu_all_mask when node is NUMA_NO_NODE
 Date:   Tue,  3 Nov 2020 21:35:10 +0100
-Message-Id: <20201103203404.500668101@linuxfoundation.org>
+Message-Id: <20201103203256.173576176@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
 
-commit 82776f6c75a90e1d2103e689b84a689de8f1aa02 upstream.
+[ Upstream commit a194c5f2d2b3a05428805146afcabe5140b5d378 ]
 
-Commit 293f89959483 ("tty: serial: 21285: stop using the unused[]
-variable from struct uart_port") introduced a bug which stops the
-transmit interrupt being disabled when there are no characters to
-transmit - disabling the transmit interrupt at the interrupt controller
-is the only way to stop an interrupt storm. If this interrupt is not
-disabled when there are no transmit characters, we end up with an
-interrupt storm which prevents the machine making forward progress.
+The @node passed to cpumask_of_node() can be NUMA_NO_NODE, in that
+case it will trigger the following WARN_ON(node >= nr_node_ids) due to
+mismatched data types of @node and @nr_node_ids. Actually we should
+return cpu_all_mask just like most other architectures do if passed
+NUMA_NO_NODE.
 
-Fixes: 293f89959483 ("tty: serial: 21285: stop using the unused[] variable from struct uart_port")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/E1kU4GS-0006lE-OO@rmk-PC.armlinux.org.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also add a similar check to the inline cpumask_of_node() in numa.h.
 
+Signed-off-by: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
+Link: https://lore.kernel.org/r/20200921023936.21846-1-liuzhengyuan@tj.kylinos.cn
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/21285.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/numa.h | 3 +++
+ arch/arm64/mm/numa.c          | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/21285.c
-+++ b/drivers/tty/serial/21285.c
-@@ -50,25 +50,25 @@ static const char serial21285_name[] = "
- 
- static bool is_enabled(struct uart_port *port, int bit)
+diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
+index 626ad01e83bf0..dd870390d639f 100644
+--- a/arch/arm64/include/asm/numa.h
++++ b/arch/arm64/include/asm/numa.h
+@@ -25,6 +25,9 @@ const struct cpumask *cpumask_of_node(int node);
+ /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+ static inline const struct cpumask *cpumask_of_node(int node)
  {
--	unsigned long private_data = (unsigned long)port->private_data;
-+	unsigned long *private_data = (unsigned long *)&port->private_data;
- 
--	if (test_bit(bit, &private_data))
-+	if (test_bit(bit, private_data))
- 		return true;
- 	return false;
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
+ 	return node_to_cpumask_map[node];
  }
- 
- static void enable(struct uart_port *port, int bit)
+ #endif
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index 4decf16597008..53ebb4babf3a7 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -46,7 +46,11 @@ EXPORT_SYMBOL(node_to_cpumask_map);
+  */
+ const struct cpumask *cpumask_of_node(int node)
  {
--	unsigned long private_data = (unsigned long)port->private_data;
-+	unsigned long *private_data = (unsigned long *)&port->private_data;
+-	if (WARN_ON(node >= nr_node_ids))
++
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
++	if (WARN_ON(node < 0 || node >= nr_node_ids))
+ 		return cpu_none_mask;
  
--	set_bit(bit, &private_data);
-+	set_bit(bit, private_data);
- }
- 
- static void disable(struct uart_port *port, int bit)
- {
--	unsigned long private_data = (unsigned long)port->private_data;
-+	unsigned long *private_data = (unsigned long *)&port->private_data;
- 
--	clear_bit(bit, &private_data);
-+	clear_bit(bit, private_data);
- }
- 
- #define is_tx_enabled(port)	is_enabled(port, tx_enabled_bit)
+ 	if (WARN_ON(node_to_cpumask_map[node] == NULL))
+-- 
+2.27.0
+
 
 
