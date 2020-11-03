@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8767B2A5184
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7841A2A515C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730360AbgKCUld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:41:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+        id S1730159AbgKCUkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729995AbgKCUlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:41:32 -0500
+        id S1730169AbgKCUkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C89B2224E;
-        Tue,  3 Nov 2020 20:41:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 888932236F;
+        Tue,  3 Nov 2020 20:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436091;
-        bh=VUGwMPfZGW+1mMj7jlP06cHUXqmzfN8zHnrsmoHawts=;
+        s=default; t=1604436013;
+        bh=YfCK3/s3YRC/xrO+Mqfu3S76C6okP1k+p6y0U08jYpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYhUsM4Co788fVCCnvBv4N1oyxReOomjLLdZCbUbM8xlfvZrT2nkibh+s5qpgYiaK
-         gfFjTkE7GWA4i77zv54lvkoUzozIB3o2OFOpy86uS7RkNHhAWJH0o1ME63I6UuTS3q
-         /4pPAsKYBuXxsAGeUNYUQucip88HPCNPmL4yh6pw=
+        b=v+mIiiDyXpc4w0leV3fBuaNVU8TEySKAb68V1CL7Ar5NxJn2tYSmjkoUaC8+MrXv1
+         Ci5xWwPgjATG0a0qn2ltGuGDxVHYBG6JQjrJR9tmlNbvMuV8IWJODwX08TmljJDOkd
+         FerETuA3GSlVlDMJ3CVQXrbPJKIhWv5m2BI+WQWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 061/391] powerpc/64s: handle ISA v3.1 local copy-paste context switches
-Date:   Tue,  3 Nov 2020 21:31:52 +0100
-Message-Id: <20201103203351.480716817@linuxfoundation.org>
+Subject: [PATCH 5.9 066/391] xfs: log new intent items created as part of finishing recovered intent items
+Date:   Tue,  3 Nov 2020 21:31:57 +0100
+Message-Id: <20201103203351.758438818@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,98 +45,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit dc462267d2d7aacffc3c1d99b02d7a7c59db7c66 ]
+[ Upstream commit 93293bcbde93567efaf4e6bcd58cad270e1fcbf5 ]
 
-The ISA v3.1 the copy-paste facility has a new memory move functionality
-which allows the copy buffer to be pasted to domestic memory (RAM) as
-opposed to foreign memory (accelerator).
+During a code inspection, I found a serious bug in the log intent item
+recovery code when an intent item cannot complete all the work and
+decides to requeue itself to get that done.  When this happens, the
+item recovery creates a new incore deferred op representing the
+remaining work and attaches it to the transaction that it allocated.  At
+the end of _item_recover, it moves the entire chain of deferred ops to
+the dummy parent_tp that xlog_recover_process_intents passed to it, but
+fail to log a new intent item for the remaining work before committing
+the transaction for the single unit of work.
 
-This means the POWER9 trick of avoiding the cp_abort on context switch if
-the process had not mapped foreign memory does not work on POWER10. Do the
-cp_abort unconditionally there.
+xlog_finish_defer_ops logs those new intent items once recovery has
+finished dealing with the intent items that it recovered, but this isn't
+sufficient.  If the log is forced to disk after a recovered log item
+decides to requeue itself and the system goes down before we call
+xlog_finish_defer_ops, the second log recovery will never see the new
+intent item and therefore has no idea that there was more work to do.
+It will finish recovery leaving the filesystem in a corrupted state.
 
-KVM must also cp_abort on guest exit to prevent copy buffer state leaking
-between contexts.
+The same logic applies to /any/ deferred ops added during intent item
+recovery, not just the one handling the remaining work.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200825075535.224536-1-npiggin@gmail.com
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/process.c           | 16 +++++++++-------
- arch/powerpc/kvm/book3s_hv.c            |  7 +++++++
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |  8 ++++++++
- 3 files changed, 24 insertions(+), 7 deletions(-)
+ fs/xfs/libxfs/xfs_defer.c  | 26 ++++++++++++++++++++++++--
+ fs/xfs/libxfs/xfs_defer.h  |  6 ++++++
+ fs/xfs/xfs_bmap_item.c     |  2 +-
+ fs/xfs/xfs_refcount_item.c |  2 +-
+ 4 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index 73a57043ee662..3f2dc0675ea7a 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -1256,15 +1256,17 @@ struct task_struct *__switch_to(struct task_struct *prev,
- 		restore_math(current->thread.regs);
+diff --git a/fs/xfs/libxfs/xfs_defer.c b/fs/xfs/libxfs/xfs_defer.c
+index d8f586256add7..29e9762f3b77c 100644
+--- a/fs/xfs/libxfs/xfs_defer.c
++++ b/fs/xfs/libxfs/xfs_defer.c
+@@ -186,8 +186,9 @@ xfs_defer_create_intent(
+ {
+ 	const struct xfs_defer_op_type	*ops = defer_op_types[dfp->dfp_type];
  
- 		/*
--		 * The copy-paste buffer can only store into foreign real
--		 * addresses, so unprivileged processes can not see the
--		 * data or use it in any way unless they have foreign real
--		 * mappings. If the new process has the foreign real address
--		 * mappings, we must issue a cp_abort to clear any state and
--		 * prevent snooping, corruption or a covert channel.
-+		 * On POWER9 the copy-paste buffer can only paste into
-+		 * foreign real addresses, so unprivileged processes can not
-+		 * see the data or use it in any way unless they have
-+		 * foreign real mappings. If the new process has the foreign
-+		 * real address mappings, we must issue a cp_abort to clear
-+		 * any state and prevent snooping, corruption or a covert
-+		 * channel. ISA v3.1 supports paste into local memory.
- 		 */
- 		if (current->mm &&
--			atomic_read(&current->mm->context.vas_windows))
-+			(cpu_has_feature(CPU_FTR_ARCH_31) ||
-+			atomic_read(&current->mm->context.vas_windows)))
- 			asm volatile(PPC_CP_ABORT);
+-	dfp->dfp_intent = ops->create_intent(tp, &dfp->dfp_work,
+-			dfp->dfp_count, sort);
++	if (!dfp->dfp_intent)
++		dfp->dfp_intent = ops->create_intent(tp, &dfp->dfp_work,
++						     dfp->dfp_count, sort);
+ }
+ 
+ /*
+@@ -390,6 +391,7 @@ xfs_defer_finish_one(
+ 			list_add(li, &dfp->dfp_work);
+ 			dfp->dfp_count++;
+ 			dfp->dfp_done = NULL;
++			dfp->dfp_intent = NULL;
+ 			xfs_defer_create_intent(tp, dfp, false);
+ 		}
+ 
+@@ -552,3 +554,23 @@ xfs_defer_move(
+ 
+ 	xfs_defer_reset(stp);
+ }
++
++/*
++ * Prepare a chain of fresh deferred ops work items to be completed later.  Log
++ * recovery requires the ability to put off until later the actual finishing
++ * work so that it can process unfinished items recovered from the log in
++ * correct order.
++ *
++ * Create and log intent items for all the work that we're capturing so that we
++ * can be assured that the items will get replayed if the system goes down
++ * before log recovery gets a chance to finish the work it put off.  Then we
++ * move the chain from stp to dtp.
++ */
++void
++xfs_defer_capture(
++	struct xfs_trans	*dtp,
++	struct xfs_trans	*stp)
++{
++	xfs_defer_create_intents(stp);
++	xfs_defer_move(dtp, stp);
++}
+diff --git a/fs/xfs/libxfs/xfs_defer.h b/fs/xfs/libxfs/xfs_defer.h
+index 6b2ca580f2b06..3164199162b61 100644
+--- a/fs/xfs/libxfs/xfs_defer.h
++++ b/fs/xfs/libxfs/xfs_defer.h
+@@ -63,4 +63,10 @@ extern const struct xfs_defer_op_type xfs_rmap_update_defer_type;
+ extern const struct xfs_defer_op_type xfs_extent_free_defer_type;
+ extern const struct xfs_defer_op_type xfs_agfl_free_defer_type;
+ 
++/*
++ * Functions to capture a chain of deferred operations and continue them later.
++ * This doesn't normally happen except log recovery.
++ */
++void xfs_defer_capture(struct xfs_trans *dtp, struct xfs_trans *stp);
++
+ #endif /* __XFS_DEFER_H__ */
+diff --git a/fs/xfs/xfs_bmap_item.c b/fs/xfs/xfs_bmap_item.c
+index ec3691372e7c0..815a0563288f4 100644
+--- a/fs/xfs/xfs_bmap_item.c
++++ b/fs/xfs/xfs_bmap_item.c
+@@ -534,7 +534,7 @@ xfs_bui_item_recover(
+ 		xfs_bmap_unmap_extent(tp, ip, &irec);
  	}
- #endif /* CONFIG_PPC_BOOK3S_64 */
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 4ba06a2a306cf..3bd3118c76330 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3530,6 +3530,13 @@ static int kvmhv_load_hv_regs_and_go(struct kvm_vcpu *vcpu, u64 time_limit,
- 	 */
- 	asm volatile("eieio; tlbsync; ptesync");
  
-+	/*
-+	 * cp_abort is required if the processor supports local copy-paste
-+	 * to clear the copy buffer that was under control of the guest.
-+	 */
-+	if (cpu_has_feature(CPU_FTR_ARCH_31))
-+		asm volatile(PPC_CP_ABORT);
-+
- 	mtspr(SPRN_LPID, vcpu->kvm->arch.host_lpid);	/* restore host LPID */
- 	isync();
+-	xfs_defer_move(parent_tp, tp);
++	xfs_defer_capture(parent_tp, tp);
+ 	error = xfs_trans_commit(tp);
+ 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ 	xfs_irele(ip);
+diff --git a/fs/xfs/xfs_refcount_item.c b/fs/xfs/xfs_refcount_item.c
+index ca93b64883774..492d80a0b4060 100644
+--- a/fs/xfs/xfs_refcount_item.c
++++ b/fs/xfs/xfs_refcount_item.c
+@@ -555,7 +555,7 @@ xfs_cui_item_recover(
+ 	}
  
-diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-index 799d6d0f4eade..cd9995ee84419 100644
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -1830,6 +1830,14 @@ END_FTR_SECTION_IFSET(CPU_FTR_P9_RADIX_PREFETCH_BUG)
- 2:
- #endif /* CONFIG_PPC_RADIX_MMU */
+ 	xfs_refcount_finish_one_cleanup(tp, rcur, error);
+-	xfs_defer_move(parent_tp, tp);
++	xfs_defer_capture(parent_tp, tp);
+ 	error = xfs_trans_commit(tp);
+ 	return error;
  
-+	/*
-+	 * cp_abort is required if the processor supports local copy-paste
-+	 * to clear the copy buffer that was under control of the guest.
-+	 */
-+BEGIN_FTR_SECTION
-+	PPC_CP_ABORT
-+END_FTR_SECTION_IFSET(CPU_FTR_ARCH_31)
-+
- 	/*
- 	 * POWER7/POWER8 guest -> host partition switch code.
- 	 * We don't have to lock against tlbies but we do
 -- 
 2.27.0
 
