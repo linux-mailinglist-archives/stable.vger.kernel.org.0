@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0830D2A533D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8042F2A52A0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733065AbgKCU7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:59:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33872 "EHLO mail.kernel.org"
+        id S1731420AbgKCUvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733058AbgKCU7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:03 -0500
+        id S1731192AbgKCUvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD49F2053B;
-        Tue,  3 Nov 2020 20:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 834D32053B;
+        Tue,  3 Nov 2020 20:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437142;
-        bh=eM6w+HbpO30a66/rFp2xskdZ1nI9nPo89xz2YciUCNc=;
+        s=default; t=1604436697;
+        bh=T9a+mzwIToS8WQYW0JKBfSH6DNDxsqYF2AMibSJN4tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9COULfr+0oMrbdzhGaDgVPUqB1JZwi+YW1lsHecQqblgnX+1u7eVkf4oLYphMoZ2
-         IpaqaW87jGh2/O8KXP42avvdZBxiN9R2nnI2vJlE8Q7BjX5xinF2XBnngyCeBoCywE
-         e0mSntlrfAqjQEvNw019k8ZV3ofvOCFMkHimBREg=
+        b=NKF8q2HvLTgiaMOiGNqoUYlFqVW3lktQQuhiTsDj1QPJWjjtySh16eb0lueztdwog
+         MbSmlcGonyvinvPkoQ9rbn3/MjW1/hYKyVuQIwPq3rRpVAyBvjkB9RdSMqBSJjmQWw
+         gZ+r5KCMhaeDy7vgg4lUynYxsGA/wSe+h2QXt4PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 165/214] NFSv4.2: support EXCHGID4_FLAG_SUPP_FENCE_OPS 4.2 EXCHANGE_ID flag
-Date:   Tue,  3 Nov 2020 21:36:53 +0100
-Message-Id: <20201103203306.244619789@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.9 363/391] arm64: berlin: Select DW_APB_TIMER_OF
+Date:   Tue,  3 Nov 2020 21:36:54 +0100
+Message-Id: <20201103203411.637534300@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-commit 8c39076c276be0b31982e44654e2c2357473258a upstream.
+commit b0fc70ce1f028e14a37c186d9f7a55e51439b83a upstream.
 
-RFC 7862 introduced a new flag that either client or server is
-allowed to set: EXCHGID4_FLAG_SUPP_FENCE_OPS.
+Berlin SoCs always contain some DW APB timers which can be used as an
+always-on broadcast timer.
 
-Client needs to update its bitmask to allow for this flag value.
-
-v2: changed minor version argument to unsigned int
-
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Link: https://lore.kernel.org/r/20201009150536.214181fb@xhacker.debian
+Cc: <stable@vger.kernel.org> # v3.14+
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4proc.c         |    9 ++++++---
- include/uapi/linux/nfs4.h |    3 +++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/Kconfig.platforms |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -7859,9 +7859,11 @@ int nfs4_proc_secinfo(struct inode *dir,
-  * both PNFS and NON_PNFS flags set, and not having one of NON_PNFS, PNFS, or
-  * DS flags set.
-  */
--static int nfs4_check_cl_exchange_flags(u32 flags)
-+static int nfs4_check_cl_exchange_flags(u32 flags, u32 version)
- {
--	if (flags & ~EXCHGID4_FLAG_MASK_R)
-+	if (version >= 2 && (flags & ~EXCHGID4_2_FLAG_MASK_R))
-+		goto out_inval;
-+	else if (version < 2 && (flags & ~EXCHGID4_FLAG_MASK_R))
- 		goto out_inval;
- 	if ((flags & EXCHGID4_FLAG_USE_PNFS_MDS) &&
- 	    (flags & EXCHGID4_FLAG_USE_NON_PNFS))
-@@ -8274,7 +8276,8 @@ static int _nfs4_proc_exchange_id(struct
- 	if (status  != 0)
- 		goto out;
- 
--	status = nfs4_check_cl_exchange_flags(resp->flags);
-+	status = nfs4_check_cl_exchange_flags(resp->flags,
-+			clp->cl_mvops->minor_version);
- 	if (status  != 0)
- 		goto out;
- 
---- a/include/uapi/linux/nfs4.h
-+++ b/include/uapi/linux/nfs4.h
-@@ -136,6 +136,8 @@
- 
- #define EXCHGID4_FLAG_UPD_CONFIRMED_REC_A	0x40000000
- #define EXCHGID4_FLAG_CONFIRMED_R		0x80000000
-+
-+#define EXCHGID4_FLAG_SUPP_FENCE_OPS		0x00000004
- /*
-  * Since the validity of these bits depends on whether
-  * they're set in the argument or response, have separate
-@@ -143,6 +145,7 @@
-  */
- #define EXCHGID4_FLAG_MASK_A			0x40070103
- #define EXCHGID4_FLAG_MASK_R			0x80070103
-+#define EXCHGID4_2_FLAG_MASK_R			0x80070107
- 
- #define SEQ4_STATUS_CB_PATH_DOWN		0x00000001
- #define SEQ4_STATUS_CB_GSS_CONTEXTS_EXPIRING	0x00000002
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -54,6 +54,7 @@ config ARCH_BCM_IPROC
+ config ARCH_BERLIN
+ 	bool "Marvell Berlin SoC Family"
+ 	select DW_APB_ICTL
++	select DW_APB_TIMER_OF
+ 	select GPIOLIB
+ 	select PINCTRL
+ 	help
 
 
