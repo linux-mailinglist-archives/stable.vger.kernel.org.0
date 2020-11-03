@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 636592A569A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3943C2A5454
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733077AbgKCU7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:59:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
+        id S1731626AbgKCVKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:10:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733072AbgKCU7K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:10 -0500
+        id S2388614AbgKCVKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E202822226;
-        Tue,  3 Nov 2020 20:59:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C074206B5;
+        Tue,  3 Nov 2020 21:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437149;
-        bh=jXUjiPtxynW4AdqW9KM6Th1BPteywzmQp9HJnobJPbQ=;
+        s=default; t=1604437804;
+        bh=/XL4hkKKgI8VIEVaGhzIKtnulfGHlhePJe1s95SEA/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLLqaWatPtt+XEbRZS2RwVU32lPOftzbHBHTvMyovafNrOBkr/bNd4EYvwN2x6H3G
-         41PeRiaz0yuffTYNkk36cWBIAe2HF7QkylwLhXWOn4AsWg5xD2cE6vD21p/zrCl4oE
-         v90/MdhX/Fk3Bqd2Mcrddo+i67cB2xZPTgNE8/xE=
+        b=CxSzKQ9EdVTQpxScGcynDEpbSlZw6FBxJQEoLOry5QYfh46UzA8ZvE4+nqb1zIOsn
+         GedHixeKuqOsFCDaic55z1RJjX3p+n4bpao0cez4EY1VVJe84/M4axTo+x8yJXaoF5
+         jP1FN+3G1h/yp+lSiJK15oTiwbtPmWm1hA6OIN6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 168/214] ubifs: xattr: Fix some potential memory leaks while iterating entries
+        stable@vger.kernel.org, Lang Dai <lang.dai@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 039/125] uio: free uio id after uio file node is freed
 Date:   Tue,  3 Nov 2020 21:36:56 +0100
-Message-Id: <20201103203306.515423776@linuxfoundation.org>
+Message-Id: <20201103203202.675297682@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,107 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Lang Dai <lang.dai@intel.com>
 
-commit f2aae745b82c842221f4f233051f9ac641790959 upstream.
+[ Upstream commit 8fd0e2a6df262539eaa28b0a2364cca10d1dc662 ]
 
-Fix some potential memory leaks in error handling branches while
-iterating xattr entries. For example, function ubifs_tnc_remove_ino()
-forgets to free pxent if it exists. Similar problems also exist in
-ubifs_purge_xattrs(), ubifs_add_orphan() and ubifs_jnl_write_inode().
+uio_register_device() do two things.
+1) get an uio id from a global pool, e.g. the id is <A>
+2) create file nodes like /sys/class/uio/uio<A>
 
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-Signed-off-by: Richard Weinberger <richard@nod.at>
+uio_unregister_device() do two things.
+1) free the uio id <A> and return it to the global pool
+2) free the file node /sys/class/uio/uio<A>
+
+There is a situation is that one worker is calling uio_unregister_device(),
+and another worker is calling uio_register_device().
+If the two workers are X and Y, they go as below sequence,
+1) X free the uio id <AAA>
+2) Y get an uio id <AAA>
+3) Y create file node /sys/class/uio/uio<AAA>
+4) X free the file note /sys/class/uio/uio<AAA>
+Then it will failed at the 3rd step and cause the phenomenon we saw as it
+is creating a duplicated file node.
+
+Failure reports as follows:
+sysfs: cannot create duplicate filename '/class/uio/uio10'
+Call Trace:
+   sysfs_do_create_link_sd.isra.2+0x9e/0xb0
+   sysfs_create_link+0x25/0x40
+   device_add+0x2c4/0x640
+   __uio_register_device+0x1c5/0x576 [uio]
+   adf_uio_init_bundle_dev+0x231/0x280 [intel_qat]
+   adf_uio_register+0x1c0/0x340 [intel_qat]
+   adf_dev_start+0x202/0x370 [intel_qat]
+   adf_dev_start_async+0x40/0xa0 [intel_qat]
+   process_one_work+0x14d/0x410
+   worker_thread+0x4b/0x460
+   kthread+0x105/0x140
+ ? process_one_work+0x410/0x410
+ ? kthread_bind+0x40/0x40
+ ret_from_fork+0x1f/0x40
+ Code: 85 c0 48 89 c3 74 12 b9 00 10 00 00 48 89 c2 31 f6 4c 89 ef
+ e8 ec c4 ff ff 4c 89 e2 48 89 de 48 c7 c7 e8 b4 ee b4 e8 6a d4 d7
+ ff <0f> 0b 48 89 df e8 20 fa f3 ff 5b 41 5c 41 5d 5d c3 66 0f 1f 84
+---[ end trace a7531c1ed5269e84 ]---
+ c6xxvf b002:00:00.0: Failed to register UIO devices
+ c6xxvf b002:00:00.0: Failed to register UIO devices
+
+Signed-off-by: Lang Dai <lang.dai@intel.com>
+
+Link: https://lore.kernel.org/r/1600054002-17722-1-git-send-email-lang.dai@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/journal.c |    2 ++
- fs/ubifs/orphan.c  |    2 ++
- fs/ubifs/tnc.c     |    3 +++
- fs/ubifs/xattr.c   |    2 ++
- 4 files changed, 9 insertions(+)
+ drivers/uio/uio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ubifs/journal.c
-+++ b/fs/ubifs/journal.c
-@@ -894,6 +894,7 @@ int ubifs_jnl_write_inode(struct ubifs_i
- 				if (err == -ENOENT)
- 					break;
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index 7c18536a3742a..4fc94b5e15ef4 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -1009,8 +1009,6 @@ void uio_unregister_device(struct uio_info *info)
  
-+				kfree(pxent);
- 				goto out_release;
- 			}
+ 	idev = info->uio_dev;
  
-@@ -906,6 +907,7 @@ int ubifs_jnl_write_inode(struct ubifs_i
- 				ubifs_err(c, "dead directory entry '%s', error %d",
- 					  xent->name, err);
- 				ubifs_ro_mode(c, err);
-+				kfree(pxent);
- 				kfree(xent);
- 				goto out_release;
- 			}
---- a/fs/ubifs/orphan.c
-+++ b/fs/ubifs/orphan.c
-@@ -173,6 +173,7 @@ int ubifs_add_orphan(struct ubifs_info *
- 			err = PTR_ERR(xent);
- 			if (err == -ENOENT)
- 				break;
-+			kfree(pxent);
- 			return err;
- 		}
+-	uio_free_minor(idev);
+-
+ 	mutex_lock(&idev->info_lock);
+ 	uio_dev_del_attributes(idev);
  
-@@ -182,6 +183,7 @@ int ubifs_add_orphan(struct ubifs_info *
+@@ -1022,6 +1020,8 @@ void uio_unregister_device(struct uio_info *info)
  
- 		xattr_orphan = orphan_add(c, xattr_inum, orphan);
- 		if (IS_ERR(xattr_orphan)) {
-+			kfree(pxent);
- 			kfree(xent);
- 			return PTR_ERR(xattr_orphan);
- 		}
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -2885,6 +2885,7 @@ int ubifs_tnc_remove_ino(struct ubifs_in
- 			err = PTR_ERR(xent);
- 			if (err == -ENOENT)
- 				break;
-+			kfree(pxent);
- 			return err;
- 		}
+ 	device_unregister(&idev->dev);
  
-@@ -2898,6 +2899,7 @@ int ubifs_tnc_remove_ino(struct ubifs_in
- 		fname_len(&nm) = le16_to_cpu(xent->nlen);
- 		err = ubifs_tnc_remove_nm(c, &key1, &nm);
- 		if (err) {
-+			kfree(pxent);
- 			kfree(xent);
- 			return err;
- 		}
-@@ -2906,6 +2908,7 @@ int ubifs_tnc_remove_ino(struct ubifs_in
- 		highest_ino_key(c, &key2, xattr_inum);
- 		err = ubifs_tnc_remove_range(c, &key1, &key2);
- 		if (err) {
-+			kfree(pxent);
- 			kfree(xent);
- 			return err;
- 		}
---- a/fs/ubifs/xattr.c
-+++ b/fs/ubifs/xattr.c
-@@ -522,6 +522,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 				  xent->name, err);
- 			ubifs_ro_mode(c, err);
- 			kfree(pxent);
-+			kfree(xent);
- 			return err;
- 		}
- 
-@@ -531,6 +532,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 		err = remove_xattr(c, host, xino, &nm);
- 		if (err) {
- 			kfree(pxent);
-+			kfree(xent);
- 			iput(xino);
- 			ubifs_err(c, "cannot remove xattr, error %d", err);
- 			return err;
++	uio_free_minor(idev);
++
+ 	return;
+ }
+ EXPORT_SYMBOL_GPL(uio_unregister_device);
+-- 
+2.27.0
+
 
 
