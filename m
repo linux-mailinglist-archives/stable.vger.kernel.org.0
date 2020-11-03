@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2892A5363
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6444A2A5367
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732284AbgKCVAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:00:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
+        id S1733273AbgKCVAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:00:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733254AbgKCVAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:39 -0500
+        id S1733288AbgKCVAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:00:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83D9C223AC;
-        Tue,  3 Nov 2020 21:00:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EBF6223AC;
+        Tue,  3 Nov 2020 21:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437239;
-        bh=GsDGekbOxDFlHRtiW08cyRUdLzeVEzMuX+z7MK/O+5I=;
+        s=default; t=1604437248;
+        bh=2Yz2xEErkZQJQOISDsFOjOtFmt+uEt/xKpdPrlvAbeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhzGGMozxWm/LU6jLGe5drSKX3HFTpf+mB+DQi1ZLzSR0/c0bURp/eD15bf09N7c8
-         2njVSmT6otKymwkucJOBrxSuT3P9ExBsUaZCNQ326f3GvW4wrgulNBAxJU2VEXIzq5
-         X+fXMVhPT6a5rfrQB7JkAg0Kk3N+ipFsq8kMdUA0=
+        b=xP8zwcefFMtOJYOeUuJ137eURp+EyTcILsr4od20/0LaoTbR3TDGOvMhgwFDDIhuw
+         mRtgF3XiqivTEJ3AYtK0oPJedvegXgpdWcJBmFCn1pqJklFsXbCJHNvO7D9HZGRDV1
+         NXvGUPNSxatzW1gOdIEpI82v8q6/QvSPxrQPnrxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.4 206/214] ARM: s3c24xx: fix missing system reset
-Date:   Tue,  3 Nov 2020 21:37:34 +0100
-Message-Id: <20201103203309.923033612@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>
+Subject: [PATCH 5.4 210/214] staging: fieldbus: anybuss: jump to correct label in an error path
+Date:   Tue,  3 Nov 2020 21:37:38 +0100
+Message-Id: <20201103203310.280795262@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -41,36 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-commit f6d7cde84f6c5551586c8b9b68d70f8e6dc9a000 upstream.
+commit 7e97e4cbf30026b49b0145c3bfe06087958382c5 upstream.
 
-Commit f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
-removed usage of the watchdog reset platform code in favor of the
-Samsung SoC watchdog driver.  However the latter was not selected thus
-S3C24xx platforms lost reset abilities.
+In current code, controller_probe() misses to call ida_simple_remove()
+in an error path. Jump to correct label to fix it.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f6361c6b3880 ("ARM: S3C24XX: remove separate restart code")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: 17614978ed34 ("staging: fieldbus: anybus-s: support the Arcx anybus controller")
+Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201012132404.113031-1-jingxiangfeng@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/Kconfig |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/fieldbus/anybuss/arcx-anybus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -507,8 +507,10 @@ config ARCH_S3C24XX
- 	select HAVE_S3C2410_WATCHDOG if WATCHDOG
- 	select HAVE_S3C_RTC if RTC_CLASS
- 	select NEED_MACH_IO_H
-+	select S3C2410_WATCHDOG
- 	select SAMSUNG_ATAGS
- 	select USE_OF
-+	select WATCHDOG
- 	help
- 	  Samsung S3C2410, S3C2412, S3C2413, S3C2416, S3C2440, S3C2442, S3C2443
- 	  and S3C2450 SoCs based systems, such as the Simtec Electronics BAST
+--- a/drivers/staging/fieldbus/anybuss/arcx-anybus.c
++++ b/drivers/staging/fieldbus/anybuss/arcx-anybus.c
+@@ -297,7 +297,7 @@ static int controller_probe(struct platf
+ 	regulator = devm_regulator_register(dev, &can_power_desc, &config);
+ 	if (IS_ERR(regulator)) {
+ 		err = PTR_ERR(regulator);
+-		goto out_reset;
++		goto out_ida;
+ 	}
+ 	/* make controller info visible to userspace */
+ 	cd->class_dev = kzalloc(sizeof(*cd->class_dev), GFP_KERNEL);
 
 
