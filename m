@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF7C2A545B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7E32A553B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388635AbgKCVKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:10:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50988 "EHLO mail.kernel.org"
+        id S2388254AbgKCVHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:07:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388614AbgKCVKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:16 -0500
+        id S1732417AbgKCVHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3960C205ED;
-        Tue,  3 Nov 2020 21:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A126221534;
+        Tue,  3 Nov 2020 21:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437815;
-        bh=TOlrAhGQzu7ICQWJ38bWKmZt9tSLQ3MxzMWP0Ou4oxc=;
+        s=default; t=1604437625;
+        bh=kyCpSVc97EC06FcgoaPrVRaAKI8hPYqgDQzDvi+h9Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxRAqWoLMWG4VXmRgvyS/qTSQgweixGR6gM8g/Y0ldMXY/5FfIj9JfBhA+yUWtqAs
-         HOjWi9NguAyrPt2dz+mRqm5T3gqy/9RBHrqieL6A/3C+MAoFLkzw7nH9Lxw6t8JKPy
-         eW3hlyeKRstkZa2HXD8Hb0Hi48D0hcitEdWZmDsk=
+        b=tOEV8HuuZ0JAcskKGBFjvH0Vbje+FCUImUW2zKkj7lvNXL8KayS+/9bUlU3UdNdrN
+         U7v3iLrA2MkLr7fF9VmZo1zdDKOJbP4u52VDM2DLyC6+duEUmXNDajylY140qn8iXd
+         cqpsqxF8rQYeymOyRPeOHFx0Pn7mtOmfKiyIMsrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 044/125] power: supply: test_power: add missing newlines when printing parameters by sysfs
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 129/191] btrfs: improve device scanning messages
 Date:   Tue,  3 Nov 2020 21:37:01 +0100
-Message-Id: <20201103203203.361268301@linuxfoundation.org>
+Message-Id: <20201103203245.210787415@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit c07fa6c1631333f02750cf59f22b615d768b4d8f ]
+commit 79dae17d8d44b2d15779e332180080af45df5352 upstream.
 
-When I cat some module parameters by sysfs, it displays as follows.
-It's better to add a newline for easy reading.
+Systems booting without the initramfs seems to scan an unusual kind
+of device path (/dev/root). And at a later time, the device is updated
+to the correct path. We generally print the process name and PID of the
+process scanning the device but we don't capture the same information if
+the device path is rescanned with a different pathname.
 
-root@syzkaller:~# cd /sys/module/test_power/parameters/
-root@syzkaller:/sys/module/test_power/parameters# cat ac_online
-onroot@syzkaller:/sys/module/test_power/parameters# cat battery_present
-trueroot@syzkaller:/sys/module/test_power/parameters# cat battery_health
-goodroot@syzkaller:/sys/module/test_power/parameters# cat battery_status
-dischargingroot@syzkaller:/sys/module/test_power/parameters# cat battery_technology
-LIONroot@syzkaller:/sys/module/test_power/parameters# cat usb_online
-onroot@syzkaller:/sys/module/test_power/parameters#
+The current message is too long, so drop the unnecessary UUID and add
+process name and PID.
 
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While at this also update the duplicate device warning to include the
+process name and PID so the messages are consistent
+
+CC: stable@vger.kernel.org # 4.19+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=89721
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/power/supply/test_power.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/btrfs/volumes.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/power/supply/test_power.c b/drivers/power/supply/test_power.c
-index 57246cdbd0426..925abec45380f 100644
---- a/drivers/power/supply/test_power.c
-+++ b/drivers/power/supply/test_power.c
-@@ -344,6 +344,7 @@ static int param_set_ac_online(const char *key, const struct kernel_param *kp)
- static int param_get_ac_online(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_ac_online, ac_online, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -857,16 +857,18 @@ static noinline struct btrfs_device *dev
+ 				bdput(path_bdev);
+ 				mutex_unlock(&fs_devices->device_list_mutex);
+ 				btrfs_warn_in_rcu(device->fs_info,
+-			"duplicate device fsid:devid for %pU:%llu old:%s new:%s",
+-					disk_super->fsid, devid,
+-					rcu_str_deref(device->name), path);
++	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
++						  path, devid, found_transid,
++						  current->comm,
++						  task_pid_nr(current));
+ 				return ERR_PTR(-EEXIST);
+ 			}
+ 			bdput(path_bdev);
+ 			btrfs_info_in_rcu(device->fs_info,
+-				"device fsid %pU devid %llu moved old:%s new:%s",
+-				disk_super->fsid, devid,
+-				rcu_str_deref(device->name), path);
++	"devid %llu device path %s changed to %s scanned by %s (%d)",
++					  devid, rcu_str_deref(device->name),
++					  path, current->comm,
++					  task_pid_nr(current));
+ 		}
  
-@@ -357,6 +358,7 @@ static int param_set_usb_online(const char *key, const struct kernel_param *kp)
- static int param_get_usb_online(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_ac_online, usb_online, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -371,6 +373,7 @@ static int param_set_battery_status(const char *key,
- static int param_get_battery_status(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_status, battery_status, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -385,6 +388,7 @@ static int param_set_battery_health(const char *key,
- static int param_get_battery_health(char *buffer, const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_health, battery_health, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -400,6 +404,7 @@ static int param_get_battery_present(char *buffer,
- 					const struct kernel_param *kp)
- {
- 	strcpy(buffer, map_get_key(map_present, battery_present, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
-@@ -417,6 +422,7 @@ static int param_get_battery_technology(char *buffer,
- {
- 	strcpy(buffer,
- 		map_get_key(map_technology, battery_technology, "unknown"));
-+	strcat(buffer, "\n");
- 	return strlen(buffer);
- }
- 
--- 
-2.27.0
-
+ 		name = rcu_string_strdup(path, GFP_NOFS);
 
 
