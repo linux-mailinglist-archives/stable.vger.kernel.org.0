@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCEF2A53F4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:06:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194BA2A5525
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388109AbgKCVGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:06:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45150 "EHLO mail.kernel.org"
+        id S2389168AbgKCVRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:17:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388128AbgKCVGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:06:16 -0500
+        id S2388748AbgKCVKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EEE320757;
-        Tue,  3 Nov 2020 21:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B03E206B5;
+        Tue,  3 Nov 2020 21:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437575;
-        bh=ieJvW+4XTpyCOCM7BV3uYu4rSlt3h7eVheyoBNL9qwg=;
+        s=default; t=1604437837;
+        bh=vw2uco8VbAYvvg1ZPp5VtM0nQ/bOfZ0pJKl6LrYeppc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tPoTE0A2aihcvzg90ibeQ0EE4ihXiFddNTRpKArLuetL4F/8kSa10Feav86dg0Oji
-         8pk9K4eObe8sM1W/jx76JW7uBtrKI7x+icRdZnO903uRowEnIjO0TDZsAgvyJ0uP+i
-         FyVieZBg0e5p5lfD13i79A33Di9ID9aELyGS3se4=
+        b=DrjNICxJEYV3wNeizAGyN8oWrFQ6n7m0JWG30yrKwv2l7m3sUD/gcKjkZ9Inu80Zw
+         fAIwXNqIttccX0xxaCq7LWbQ2I4fzVyBv5PYDa/lAq2++7XSpzFo+Acq9V9jcRCySm
+         YsNbsL6AwlMJM9OgpCOBxJ/qIgVzQRriv0fIdDGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 136/191] usb: dwc3: ep0: Fix ZLP for OUT ep0 requests
-Date:   Tue,  3 Nov 2020 21:37:08 +0100
-Message-Id: <20201103203245.711037341@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
+        Andrew Price <anprice@redhat.com>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 052/125] gfs2: add validation checks for size of superblock
+Date:   Tue,  3 Nov 2020 21:37:09 +0100
+Message-Id: <20201103203204.533629797@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 66706077dc89c66a4777a4c6298273816afb848c upstream.
+[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
 
-The current ZLP handling for ep0 requests is only for control IN
-requests. For OUT direction, DWC3 needs to check and setup for MPS
-alignment.
+In gfs2_check_sb(), no validation checks are performed with regards to
+the size of the superblock.
+syzkaller detected a slab-out-of-bounds bug that was primarily caused
+because the block size for a superblock was set to zero.
+A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
+Performing validation checks and ensuring that the size of the superblock
+is valid fixes this bug.
 
-Usually, control OUT requests can indicate its transfer size via the
-wLength field of the control message. So usb_request->zero is usually
-not needed for OUT direction. To handle ZLP OUT for control endpoint,
-make sure the TRB is MPS size.
-
-Cc: stable@vger.kernel.org
-Fixes: c7fcdeb2627c ("usb: dwc3: ep0: simplify EP0 state machine")
-Fixes: d6e5a549cc4d ("usb: dwc3: simplify ZLP handling")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Suggested-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+[Minor code reordering.]
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/ep0.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/gfs2/ops_fstype.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -935,12 +935,16 @@ static void dwc3_ep0_xfer_complete(struc
- static void __dwc3_ep0_do_control_data(struct dwc3 *dwc,
- 		struct dwc3_ep *dep, struct dwc3_request *req)
- {
-+	unsigned int		trb_length = 0;
- 	int			ret;
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index 2de67588ac2d8..0b5c37ceb3ed3 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -161,15 +161,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
+ 		return -EINVAL;
+ 	}
  
- 	req->direction = !!dep->number;
+-	/*  If format numbers match exactly, we're done.  */
+-
+-	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
+-	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
+-		return 0;
++	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
++	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
++		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++		return -EINVAL;
++	}
  
- 	if (req->request.length == 0) {
--		dwc3_ep0_prepare_one_trb(dep, dwc->ep0_trb_addr, 0,
-+		if (!req->direction)
-+			trb_length = dep->endpoint.maxpacket;
-+
-+		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr, trb_length,
- 				DWC3_TRBCTL_CONTROL_DATA, false);
- 		ret = dwc3_ep0_start_trans(dep);
- 	} else if (!IS_ALIGNED(req->request.length, dep->endpoint.maxpacket)
-@@ -987,9 +991,12 @@ static void __dwc3_ep0_do_control_data(s
+-	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
++	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
++		pr_warn("Invalid superblock size\n");
++		return -EINVAL;
++	}
  
- 		req->trb = &dwc->ep0_trb[dep->trb_enqueue - 1];
+-	return -EINVAL;
++	return 0;
+ }
  
-+		if (!req->direction)
-+			trb_length = dep->endpoint.maxpacket;
-+
- 		/* Now prepare one extra TRB to align transfer size */
- 		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr,
--					 0, DWC3_TRBCTL_CONTROL_DATA,
-+					 trb_length, DWC3_TRBCTL_CONTROL_DATA,
- 					 false);
- 		ret = dwc3_ep0_start_trans(dep);
- 	} else {
+ static void end_bio_io_page(struct bio *bio)
+-- 
+2.27.0
+
 
 
