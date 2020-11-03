@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BA62A5792
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0772A5882
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732562AbgKCUyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:54:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53230 "EHLO mail.kernel.org"
+        id S1730479AbgKCUqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732558AbgKCUyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:54:18 -0500
+        id S1730376AbgKCUqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A824223AC;
-        Tue,  3 Nov 2020 20:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39FB822404;
+        Tue,  3 Nov 2020 20:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436857;
-        bh=XPrpLHp8SJ7X+ZnC6pm4Ws7zcjeZ9mA/aqASE+QZaKk=;
+        s=default; t=1604436412;
+        bh=i6Il6kjpPM77yfeullmaYgn7IGlIDL4NLgMvuN8Hpnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsTGlD5qbXSIKon0+ZSMiWAWt8hV+0O+7F+kyKemaTu56FBOgYxOXFC26iwOrDn3x
-         6p+7Mvljl4BvMkfy2DTodXRuUF/5udmlUH6FsOfPzZDNG/G44whGYP2m3nTc/438ni
-         B9tHdWWaoJEyJiHnI6DRMtJX/ow/Nj16i5Vm0qzk=
+        b=e0wTnDZllarW5W+0E/Blu65EhBoUNLllWVhlPtKIkomFksi43+i1nQ+nH8yHx1gb6
+         gt0CQYYy7gh2wT5cMYxgaB2+w8Z9Y4hd6VNk3roo/MsLM3PWMtzURdkjaHBrimXckF
+         RzSyC/y7d3D/T2050UXVLcVUBflbaf7nmdbzy/fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/214] usb: typec: tcpm: During PR_SWAP, source caps should be sent only after tSwapSourceStart
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.9 239/391] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM method for PM functionality
 Date:   Tue,  3 Nov 2020 21:34:50 +0100
-Message-Id: <20201103203254.037737252@linuxfoundation.org>
+Message-Id: <20201103203403.132715049@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Raymond Tan <raymond.tan@intel.com>
 
-[ Upstream commit 6bbe2a90a0bb4af8dd99c3565e907fe9b5e7fd88 ]
+commit a609ce2a13360d639b384b6ca783b38c1247f2db upstream.
 
-The patch addresses the compliance test failures while running
-TD.PD.CP.E3, TD.PD.CP.E4, TD.PD.CP.E5 of the "Deterministic PD
-Compliance MOI" test plan published in https://www.usb.org/usbc.
-For a product to be Type-C compliant, it's expected that these tests
-are run on usb.org certified Type-C compliance tester as mentioned in
-https://www.usb.org/usbc.
+Similar to some other IA platforms, Elkhart Lake too depends on the
+PMU register write to request transition of Dx power state.
 
-The purpose of the tests TD.PD.CP.E3, TD.PD.CP.E4, TD.PD.CP.E5 is to
-verify the PR_SWAP response of the device. While doing so, the test
-asserts that Source Capabilities message is NOT received from the test
-device within tSwapSourceStart min (20 ms) from the time the last bit
-of GoodCRC corresponding to the RS_RDY message sent by the UUT was
-sent. If it does then the test fails.
+Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
+shall execute the ACPI _DSM method during D0/D3 sequence.
 
-This is in line with the requirements from the USB Power Delivery
-Specification Revision 3.0, Version 1.2:
-"6.6.8.1 SwapSourceStartTimer
-The SwapSourceStartTimer Shall be used by the new Source, after a
-Power Role Swap or Fast Role Swap, to ensure that it does not send
-Source_Capabilities Message before the new Sink is ready to receive
-the
-Source_Capabilities Message. The new Source Shall Not send the
-Source_Capabilities Message earlier than tSwapSourceStart after the
-last bit of the EOP of GoodCRC Message sent in response to the PS_RDY
-Message sent by the new Source indicating that its power supply is
-ready."
+[heikki.krogerus@linux.intel.com: included Fixes tag]
 
-The patch makes sure that TCPM does not send the Source_Capabilities
-Message within tSwapSourceStart(20ms) by transitioning into
-SRC_STARTUP only after  tSwapSourceStart(20ms).
-
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20200817183828.1895015-1-badhri@google.com
+Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake Devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Raymond Tan <raymond.tan@intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/typec/tcpm/tcpm.c | 2 +-
- include/linux/usb/pd.h        | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-pci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 355a2c7fac0b4..16e124753df72 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -3482,7 +3482,7 @@ static void run_state_machine(struct tcpm_port *port)
- 		 */
- 		tcpm_set_pwr_role(port, TYPEC_SOURCE);
- 		tcpm_pd_send_control(port, PD_CTRL_PS_RDY);
--		tcpm_set_state(port, SRC_STARTUP, 0);
-+		tcpm_set_state(port, SRC_STARTUP, PD_T_SWAP_SRC_START);
- 		break;
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -147,7 +147,8 @@ static int dwc3_pci_quirks(struct dwc3_p
  
- 	case VCONN_SWAP_ACCEPT:
-diff --git a/include/linux/usb/pd.h b/include/linux/usb/pd.h
-index 145c38e351c25..6655ce32feff1 100644
---- a/include/linux/usb/pd.h
-+++ b/include/linux/usb/pd.h
-@@ -442,6 +442,7 @@ static inline unsigned int rdo_max_power(u32 rdo)
- #define PD_T_ERROR_RECOVERY	100	/* minimum 25 is insufficient */
- #define PD_T_SRCSWAPSTDBY      625     /* Maximum of 650ms */
- #define PD_T_NEWSRC            250     /* Maximum of 275ms */
-+#define PD_T_SWAP_SRC_START	20	/* Minimum of 20ms */
- 
- #define PD_T_DRP_TRY		100	/* 75 - 150 ms */
- #define PD_T_DRP_TRYWAIT	600	/* 400 - 800 ms */
--- 
-2.27.0
-
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
+ 		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
+-				pdev->device == PCI_DEVICE_ID_INTEL_BXT_M) {
++		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
++		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
+ 			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
+ 			dwc->has_dsm_for_pm = true;
+ 		}
 
 
