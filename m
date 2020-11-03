@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8138B2A5412
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC8B2A567D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388322AbgKCVHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:07:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
+        id S1732438AbgKCU7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:59:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388319AbgKCVHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:07:41 -0500
+        id S1733127AbgKCU7f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4EC0207BC;
-        Tue,  3 Nov 2020 21:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DE92223BF;
+        Tue,  3 Nov 2020 20:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437660;
-        bh=RoJStczCcSe5OvBhwi+FuwkvTqS/w1XbuzP1LNEoFus=;
+        s=default; t=1604437174;
+        bh=e3pIQklkuXClRWrEvopYDzeRgS2OVox/GzU7rsgoGyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+JrPhQZeK1oFx6NIhuK3V4XFE6dAzy+3V/CeosdQ8zCoMtUi48cCYb8iqM0IcYuz
-         YxD1L2fd173kLohlHrLv8WxJDDkQssZ85B2WOeWv0AgaVFYQawRaycQE6TeK4k2QtF
-         TQldcWvCTxf4nbEMHV/kpAVNAWBjKDj4ln/ZgQOU=
+        b=qxXbr3gy4dMuzCCC9VKGNc2zmVEkRTQyR/2FsyM/LmpWfxhKvsDq9QdyBkmGxBZpN
+         HCqFZIUpbe8Y8hnbyVoyDmDorDDRNcorYRIgSobcEiDlcfiN7CfNVKD1kmrtRwmbxf
+         t5M8EAqXHDUhgDmmDS9XCBSy934hBUSID2OV3biw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 133/191] btrfs: cleanup cow block on error
-Date:   Tue,  3 Nov 2020 21:37:05 +0100
-Message-Id: <20201103203245.492980808@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.4 178/214] i2c: imx: Fix external abort on interrupt in exit paths
+Date:   Tue,  3 Nov 2020 21:37:06 +0100
+Message-Id: <20201103203307.402769742@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 572c83acdcdafeb04e70aa46be1fa539310be20c upstream.
+commit e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 upstream.
 
-In fstest btrfs/064 a transaction abort in __btrfs_cow_block could lead
-to a system lockup. It gets stuck trying to write back inodes, and the
-write back thread was trying to lock an extent buffer:
+If interrupt comes late, during probe error path or device remove (could
+be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+i2c_imx_isr() will access registers with the clock being disabled.  This
+leads to external abort on non-linefetch on Toradex Colibri VF50 module
+(with Vybrid VF5xx):
 
-  $ cat /proc/2143497/stack
-  [<0>] __btrfs_tree_lock+0x108/0x250
-  [<0>] lock_extent_buffer_for_io+0x35e/0x3a0
-  [<0>] btree_write_cache_pages+0x15a/0x3b0
-  [<0>] do_writepages+0x28/0xb0
-  [<0>] __writeback_single_inode+0x54/0x5c0
-  [<0>] writeback_sb_inodes+0x1e8/0x510
-  [<0>] wb_writeback+0xcc/0x440
-  [<0>] wb_workfn+0xd7/0x650
-  [<0>] process_one_work+0x236/0x560
-  [<0>] worker_thread+0x55/0x3c0
-  [<0>] kthread+0x13a/0x150
-  [<0>] ret_from_fork+0x1f/0x30
+    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
+    Internal error: : 1008 [#1] ARM
+    Modules linked in:
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
+      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
+      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
+      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
+      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
+      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
+      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
+      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
+      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
+      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
+      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
+      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
+      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
 
-This is because we got an error while COWing a block, specifically here
+Additionally, the i2c_imx_isr() could wake up the wait queue
+(imx_i2c_struct->queue) before its initialization happens.
 
-        if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
-                ret = btrfs_reloc_cow_block(trans, root, buf, cow);
-                if (ret) {
-                        btrfs_abort_transaction(trans, ret);
-                        return ret;
-                }
-        }
+The resource-managed framework should not be used for interrupt handling,
+because the resource will be released too late - after disabling clocks.
+The interrupt handler is not prepared for such case.
 
-  [16402.241552] BTRFS: Transaction aborted (error -2)
-  [16402.242362] WARNING: CPU: 1 PID: 2563188 at fs/btrfs/ctree.c:1074 __btrfs_cow_block+0x376/0x540
-  [16402.249469] CPU: 1 PID: 2563188 Comm: fsstress Not tainted 5.9.0-rc6+ #8
-  [16402.249936] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  [16402.250525] RIP: 0010:__btrfs_cow_block+0x376/0x540
-  [16402.252417] RSP: 0018:ffff9cca40e578b0 EFLAGS: 00010282
-  [16402.252787] RAX: 0000000000000025 RBX: 0000000000000002 RCX: ffff9132bbd19388
-  [16402.253278] RDX: 00000000ffffffd8 RSI: 0000000000000027 RDI: ffff9132bbd19380
-  [16402.254063] RBP: ffff9132b41a49c0 R08: 0000000000000000 R09: 0000000000000000
-  [16402.254887] R10: 0000000000000000 R11: ffff91324758b080 R12: ffff91326ef17ce0
-  [16402.255694] R13: ffff91325fc0f000 R14: ffff91326ef176b0 R15: ffff9132815e2000
-  [16402.256321] FS:  00007f542c6d7b80(0000) GS:ffff9132bbd00000(0000) knlGS:0000000000000000
-  [16402.256973] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [16402.257374] CR2: 00007f127b83f250 CR3: 0000000133480002 CR4: 0000000000370ee0
-  [16402.257867] Call Trace:
-  [16402.258072]  btrfs_cow_block+0x109/0x230
-  [16402.258356]  btrfs_search_slot+0x530/0x9d0
-  [16402.258655]  btrfs_lookup_file_extent+0x37/0x40
-  [16402.259155]  __btrfs_drop_extents+0x13c/0xd60
-  [16402.259628]  ? btrfs_block_rsv_migrate+0x4f/0xb0
-  [16402.259949]  btrfs_replace_file_extents+0x190/0x820
-  [16402.260873]  btrfs_clone+0x9ae/0xc00
-  [16402.261139]  btrfs_extent_same_range+0x66/0x90
-  [16402.261771]  btrfs_remap_file_range+0x353/0x3b1
-  [16402.262333]  vfs_dedupe_file_range_one.part.0+0xd5/0x140
-  [16402.262821]  vfs_dedupe_file_range+0x189/0x220
-  [16402.263150]  do_vfs_ioctl+0x552/0x700
-  [16402.263662]  __x64_sys_ioctl+0x62/0xb0
-  [16402.264023]  do_syscall_64+0x33/0x40
-  [16402.264364]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [16402.264862] RIP: 0033:0x7f542c7d15cb
-  [16402.266901] RSP: 002b:00007ffd35944ea8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  [16402.267627] RAX: ffffffffffffffda RBX: 00000000009d1968 RCX: 00007f542c7d15cb
-  [16402.268298] RDX: 00000000009d2490 RSI: 00000000c0189436 RDI: 0000000000000003
-  [16402.268958] RBP: 00000000009d2520 R08: 0000000000000036 R09: 00000000009d2e64
-  [16402.269726] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000002
-  [16402.270659] R13: 000000000001f000 R14: 00000000009d1970 R15: 00000000009d2e80
-  [16402.271498] irq event stamp: 0
-  [16402.271846] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [16402.272497] hardirqs last disabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
-  [16402.273343] softirqs last  enabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
-  [16402.273905] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [16402.274338] ---[ end trace 737874a5a41a8236 ]---
-  [16402.274669] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
-  [16402.276179] BTRFS info (device dm-9): forced readonly
-  [16402.277046] BTRFS: error (device dm-9) in btrfs_replace_file_extents:2723: errno=-2 No such entry
-  [16402.278744] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
-  [16402.279968] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
-  [16402.280582] BTRFS info (device dm-9): balance: ended with status: -30
-
-The problem here is that as soon as we allocate the new block it is
-locked and marked dirty in the btree inode.  This means that we could
-attempt to writeback this block and need to lock the extent buffer.
-However we're not unlocking it here and thus we deadlock.
-
-Fix this by unlocking the cow block if we have any errors inside of
-__btrfs_cow_block, and also free it so we do not leak it.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-imx.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1110,6 +1110,8 @@ static noinline int __btrfs_cow_block(st
- 
- 	ret = update_ref_for_cow(trans, root, buf, cow, &last_ref);
- 	if (ret) {
-+		btrfs_tree_unlock(cow);
-+		free_extent_buffer(cow);
- 		btrfs_abort_transaction(trans, ret);
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1112,14 +1112,6 @@ static int i2c_imx_probe(struct platform
  		return ret;
  	}
-@@ -1117,6 +1119,8 @@ static noinline int __btrfs_cow_block(st
- 	if (test_bit(BTRFS_ROOT_REF_COWS, &root->state)) {
- 		ret = btrfs_reloc_cow_block(trans, root, buf, cow);
- 		if (ret) {
-+			btrfs_tree_unlock(cow);
-+			free_extent_buffer(cow);
- 			btrfs_abort_transaction(trans, ret);
- 			return ret;
- 		}
-@@ -1149,6 +1153,8 @@ static noinline int __btrfs_cow_block(st
- 		if (last_ref) {
- 			ret = tree_mod_log_free_eb(buf);
- 			if (ret) {
-+				btrfs_tree_unlock(cow);
-+				free_extent_buffer(cow);
- 				btrfs_abort_transaction(trans, ret);
- 				return ret;
- 			}
+ 
+-	/* Request IRQ */
+-	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+-				pdev->name, i2c_imx);
+-	if (ret) {
+-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+-		goto clk_disable;
+-	}
+-
+ 	/* Init queue */
+ 	init_waitqueue_head(&i2c_imx->queue);
+ 
+@@ -1138,6 +1130,14 @@ static int i2c_imx_probe(struct platform
+ 	if (ret < 0)
+ 		goto rpm_disable;
+ 
++	/* Request IRQ */
++	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
++				   pdev->name, i2c_imx);
++	if (ret) {
++		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
++		goto rpm_disable;
++	}
++
+ 	/* Set up clock divider */
+ 	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+@@ -1180,13 +1180,12 @@ static int i2c_imx_probe(struct platform
+ 
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	free_irq(irq, i2c_imx);
+ rpm_disable:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-
+-clk_disable:
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 	return ret;
+ }
+@@ -1194,7 +1193,7 @@ clk_disable:
+ static int i2c_imx_remove(struct platform_device *pdev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+-	int ret;
++	int irq, ret;
+ 
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0)
+@@ -1214,6 +1213,9 @@ static int i2c_imx_remove(struct platfor
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+ 
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	irq = platform_get_irq(pdev, 0);
++	if (irq >= 0)
++		free_irq(irq, i2c_imx);
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 
+ 	pm_runtime_put_noidle(&pdev->dev);
 
 
