@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12622A558D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C06F02A5501
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730108AbgKCVUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:20:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46690 "EHLO mail.kernel.org"
+        id S1733012AbgKCVLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388300AbgKCVH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:07:29 -0500
+        id S2388883AbgKCVLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D546205ED;
-        Tue,  3 Nov 2020 21:07:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05F16206B5;
+        Tue,  3 Nov 2020 21:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437648;
-        bh=71cSDtzZOtSKSOR+D5+L3nTGZA2vUnoXyOeelfPBWpk=;
+        s=default; t=1604437898;
+        bh=MXep75KxsvTuRgNpTLleQYKRy2JKPtHdKwBIox4xfvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9KmUu6hzQR9Nkxzslhl9murO6ZQotsTh+sdnBiK1FmUGXl7N2RTxf6ZdM7hVj1Fg
-         s4Zz/2fyJcMkVuHdbKAwcZTa7heicVzP01EQnj53rj8kpmZviZLAnpiEegCVKGgkr2
-         Yj+g5zfo90lqnI9uicooZWlDETf+8WAaqmax8Wow=
+        b=n3uxiw8drknLcH8GqbEjBQdiWeUIvpNwgb9xQWht0RvKHTPOdaqcewrc9h0XONAc6
+         RkxWPcnYENq4lAGHZHZ88JW0c9qTe6uoUJ8JchjjD+yHzHM3JkGXithLtf5FUnYySb
+         7R6hn4L3W4MEPU3jYcGAOcWWp0upqkA8PkqINdXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 165/191] i2c: imx: Fix external abort on interrupt in exit paths
+        stable@vger.kernel.org, Li Jun <jun.li@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.14 080/125] usb: dwc3: core: dont trigger runtime pm when remove driver
 Date:   Tue,  3 Nov 2020 21:37:37 +0100
-Message-Id: <20201103203247.890182689@linuxfoundation.org>
+Message-Id: <20201103203208.502044201@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +42,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Li Jun <jun.li@nxp.com>
 
-commit e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 upstream.
+commit 266d0493900ac5d6a21cdbe6b1624ed2da94d47a upstream.
 
-If interrupt comes late, during probe error path or device remove (could
-be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
-i2c_imx_isr() will access registers with the clock being disabled.  This
-leads to external abort on non-linefetch on Toradex Colibri VF50 module
-(with Vybrid VF5xx):
+No need to trigger runtime pm in driver removal, otherwise if user
+disable auto suspend via sys file, runtime suspend may be entered,
+which will call dwc3_core_exit() again and there will be clock disable
+not balance warning:
 
-    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
-    Internal error: : 1008 [#1] ARM
-    Modules linked in:
-    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
-      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
-      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
-      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
-      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
-      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
-      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
-      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
-      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
-      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
-      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
-      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
-      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
+[ 2026.820154] xhci-hcd xhci-hcd.0.auto: remove, state 4
+[ 2026.825268] usb usb2: USB disconnect, device number 1
+[ 2026.831017] xhci-hcd xhci-hcd.0.auto: USB bus 2 deregistered
+[ 2026.836806] xhci-hcd xhci-hcd.0.auto: remove, state 4
+[ 2026.842029] usb usb1: USB disconnect, device number 1
+[ 2026.848029] xhci-hcd xhci-hcd.0.auto: USB bus 1 deregistered
+[ 2026.865889] ------------[ cut here ]------------
+[ 2026.870506] usb2_ctrl_root_clk already disabled
+[ 2026.875082] WARNING: CPU: 0 PID: 731 at drivers/clk/clk.c:958
+clk_core_disable+0xa0/0xa8
+[ 2026.883170] Modules linked in: dwc3(-) phy_fsl_imx8mq_usb [last
+unloaded: dwc3]
+[ 2026.890488] CPU: 0 PID: 731 Comm: rmmod Not tainted
+5.8.0-rc7-00280-g9d08cca-dirty #245
+[ 2026.898489] Hardware name: NXP i.MX8MQ EVK (DT)
+[ 2026.903020] pstate: 20000085 (nzCv daIf -PAN -UAO BTYPE=--)
+[ 2026.908594] pc : clk_core_disable+0xa0/0xa8
+[ 2026.912777] lr : clk_core_disable+0xa0/0xa8
+[ 2026.916958] sp : ffff8000121b39a0
+[ 2026.920271] x29: ffff8000121b39a0 x28: ffff0000b11f3700
+[ 2026.925583] x27: 0000000000000000 x26: ffff0000b539c700
+[ 2026.930895] x25: 000001d7e44e1232 x24: ffff0000b76fa800
+[ 2026.936208] x23: ffff0000b76fa6f8 x22: ffff800008d01040
+[ 2026.941520] x21: ffff0000b539ce00 x20: ffff0000b7105000
+[ 2026.946832] x19: ffff0000b7105000 x18: 0000000000000010
+[ 2026.952144] x17: 0000000000000001 x16: 0000000000000000
+[ 2026.957456] x15: ffff0000b11f3b70 x14: ffffffffffffffff
+[ 2026.962768] x13: ffff8000921b36f7 x12: ffff8000121b36ff
+[ 2026.968080] x11: ffff8000119e1000 x10: ffff800011bf26d0
+[ 2026.973392] x9 : 0000000000000000 x8 : ffff800011bf3000
+[ 2026.978704] x7 : ffff800010695d68 x6 : 0000000000000252
+[ 2026.984016] x5 : ffff0000bb9881f0 x4 : 0000000000000000
+[ 2026.989327] x3 : 0000000000000027 x2 : 0000000000000023
+[ 2026.994639] x1 : ac2fa471aa7cab00 x0 : 0000000000000000
+[ 2026.999951] Call trace:
+[ 2027.002401]  clk_core_disable+0xa0/0xa8
+[ 2027.006238]  clk_core_disable_lock+0x20/0x38
+[ 2027.010508]  clk_disable+0x1c/0x28
+[ 2027.013911]  clk_bulk_disable+0x34/0x50
+[ 2027.017758]  dwc3_core_exit+0xec/0x110 [dwc3]
+[ 2027.022122]  dwc3_suspend_common+0x84/0x188 [dwc3]
+[ 2027.026919]  dwc3_runtime_suspend+0x74/0x9c [dwc3]
+[ 2027.031712]  pm_generic_runtime_suspend+0x28/0x40
+[ 2027.036419]  genpd_runtime_suspend+0xa0/0x258
+[ 2027.040777]  __rpm_callback+0x88/0x140
+[ 2027.044526]  rpm_callback+0x20/0x80
+[ 2027.048015]  rpm_suspend+0xd0/0x418
+[ 2027.051503]  __pm_runtime_suspend+0x58/0xa0
+[ 2027.055693]  dwc3_runtime_idle+0x7c/0x90 [dwc3]
+[ 2027.060224]  __rpm_callback+0x88/0x140
+[ 2027.063973]  rpm_idle+0x78/0x150
+[ 2027.067201]  __pm_runtime_idle+0x58/0xa0
+[ 2027.071130]  dwc3_remove+0x64/0xc0 [dwc3]
+[ 2027.075140]  platform_drv_remove+0x28/0x48
+[ 2027.079239]  device_release_driver_internal+0xf4/0x1c0
+[ 2027.084377]  driver_detach+0x4c/0xd8
+[ 2027.087954]  bus_remove_driver+0x54/0xa8
+[ 2027.091877]  driver_unregister+0x2c/0x58
+[ 2027.095799]  platform_driver_unregister+0x10/0x18
+[ 2027.100509]  dwc3_driver_exit+0x14/0x1408 [dwc3]
+[ 2027.105129]  __arm64_sys_delete_module+0x178/0x218
+[ 2027.109922]  el0_svc_common.constprop.0+0x68/0x160
+[ 2027.114714]  do_el0_svc+0x20/0x80
+[ 2027.118031]  el0_sync_handler+0x88/0x190
+[ 2027.121953]  el0_sync+0x140/0x180
+[ 2027.125267] ---[ end trace 027f4f8189958f1f ]---
+[ 2027.129976] ------------[ cut here ]------------
 
-Additionally, the i2c_imx_isr() could wake up the wait queue
-(imx_i2c_struct->queue) before its initialization happens.
-
-The resource-managed framework should not be used for interrupt handling,
-because the resource will be released too late - after disabling clocks.
-The interrupt handler is not prepared for such case.
-
-Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
+Fixes: fc8bb91bc83e ("usb: dwc3: implement runtime PM")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/usb/dwc3/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1101,14 +1101,6 @@ static int i2c_imx_probe(struct platform
- 		return ret;
- 	}
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1343,9 +1343,9 @@ static int dwc3_remove(struct platform_d
+ 	dwc3_core_exit(dwc);
+ 	dwc3_ulpi_exit(dwc);
  
--	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
--				pdev->name, i2c_imx);
--	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		goto clk_disable;
--	}
--
- 	/* Init queue */
- 	init_waitqueue_head(&i2c_imx->queue);
- 
-@@ -1127,6 +1119,14 @@ static int i2c_imx_probe(struct platform
- 	if (ret < 0)
- 		goto rpm_disable;
- 
-+	/* Request IRQ */
-+	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
-+				   pdev->name, i2c_imx);
-+	if (ret) {
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		goto rpm_disable;
-+	}
-+
- 	/* Set up clock divider */
- 	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
- 	ret = of_property_read_u32(pdev->dev.of_node,
-@@ -1169,13 +1169,12 @@ static int i2c_imx_probe(struct platform
- 
- clk_notifier_unregister:
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	free_irq(irq, i2c_imx);
- rpm_disable:
- 	pm_runtime_put_noidle(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+-	pm_runtime_allow(&pdev->dev);
  	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
--
--clk_disable:
- 	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
- }
-@@ -1183,7 +1182,7 @@ clk_disable:
- static int i2c_imx_remove(struct platform_device *pdev)
- {
- 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
--	int ret;
-+	int irq, ret;
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
  
- 	ret = pm_runtime_get_sync(&pdev->dev);
- 	if (ret < 0)
-@@ -1203,6 +1202,9 @@ static int i2c_imx_remove(struct platfor
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
- 
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq >= 0)
-+		free_irq(irq, i2c_imx);
- 	clk_disable_unprepare(i2c_imx->clk);
- 
- 	pm_runtime_put_noidle(&pdev->dev);
+ 	dwc3_free_event_buffers(dwc);
+ 	dwc3_free_scratch_buffers(dwc);
 
 
