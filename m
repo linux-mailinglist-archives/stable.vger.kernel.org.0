@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6252A5522
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CCEF2A53F4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388745AbgKCVKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:10:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51584 "EHLO mail.kernel.org"
+        id S2388109AbgKCVGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:06:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388742AbgKCVKf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:35 -0500
+        id S2388128AbgKCVGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:06:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20DE5207BC;
-        Tue,  3 Nov 2020 21:10:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EEE320757;
+        Tue,  3 Nov 2020 21:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437834;
-        bh=ReV1V7pMKD9At0XOvgCgrQ2xGFrSYOtpAOr9izbozR4=;
+        s=default; t=1604437575;
+        bh=ieJvW+4XTpyCOCM7BV3uYu4rSlt3h7eVheyoBNL9qwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQzLs2NJ/Ne7OBuRbxXfNkC3EKrxANLq+0RCMI00GTAgFXrBGzEjREJTau7GmGvr2
-         RbpyUBueS4fSLJ0c80FWKc2qqHYqNdFbdrbB4MZtnLozC6wYwqBsrbPysUrZSeldec
-         2fmY8/RTNcArakNZwaVNKljoP6bREG3fM4dNJWt4=
+        b=tPoTE0A2aihcvzg90ibeQ0EE4ihXiFddNTRpKArLuetL4F/8kSa10Feav86dg0Oji
+         8pk9K4eObe8sM1W/jx76JW7uBtrKI7x+icRdZnO903uRowEnIjO0TDZsAgvyJ0uP+i
+         FyVieZBg0e5p5lfD13i79A33Di9ID9aELyGS3se4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 051/125] ext4: Detect already used quota file early
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.19 136/191] usb: dwc3: ep0: Fix ZLP for OUT ep0 requests
 Date:   Tue,  3 Nov 2020 21:37:08 +0100
-Message-Id: <20201103203204.374370157@linuxfoundation.org>
+Message-Id: <20201103203245.711037341@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit e0770e91424f694b461141cbc99adf6b23006b60 ]
+commit 66706077dc89c66a4777a4c6298273816afb848c upstream.
 
-When we try to use file already used as a quota file again (for the same
-or different quota type), strange things can happen. At the very least
-lockdep annotations may be wrong but also inode flags may be wrongly set
-/ reset. When the file is used for two quota types at once we can even
-corrupt the file and likely crash the kernel. Catch all these cases by
-checking whether passed file is already used as quota file and bail
-early in that case.
+The current ZLP handling for ep0 requests is only for control IN
+requests. For OUT direction, DWC3 needs to check and setup for MPS
+alignment.
 
-This fixes occasional generic/219 failure due to lockdep complaint.
+Usually, control OUT requests can indicate its transfer size via the
+wLength field of the control message. So usb_request->zero is usually
+not needed for OUT direction. To handle ZLP OUT for control endpoint,
+make sure the TRB is MPS size.
 
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201015110330.28716-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: c7fcdeb2627c ("usb: dwc3: ep0: simplify EP0 state machine")
+Fixes: d6e5a549cc4d ("usb: dwc3: simplify ZLP handling")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/super.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc3/ep0.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 634c822d1dc98..d941b0cee5f8e 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5626,6 +5626,11 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
- 	/* Quotafile not on the same filesystem? */
- 	if (path->dentry->d_sb != sb)
- 		return -EXDEV;
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -935,12 +935,16 @@ static void dwc3_ep0_xfer_complete(struc
+ static void __dwc3_ep0_do_control_data(struct dwc3 *dwc,
+ 		struct dwc3_ep *dep, struct dwc3_request *req)
+ {
++	unsigned int		trb_length = 0;
+ 	int			ret;
+ 
+ 	req->direction = !!dep->number;
+ 
+ 	if (req->request.length == 0) {
+-		dwc3_ep0_prepare_one_trb(dep, dwc->ep0_trb_addr, 0,
++		if (!req->direction)
++			trb_length = dep->endpoint.maxpacket;
 +
-+	/* Quota already enabled for this file? */
-+	if (IS_NOQUOTA(d_inode(path->dentry)))
-+		return -EBUSY;
++		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr, trb_length,
+ 				DWC3_TRBCTL_CONTROL_DATA, false);
+ 		ret = dwc3_ep0_start_trans(dep);
+ 	} else if (!IS_ALIGNED(req->request.length, dep->endpoint.maxpacket)
+@@ -987,9 +991,12 @@ static void __dwc3_ep0_do_control_data(s
+ 
+ 		req->trb = &dwc->ep0_trb[dep->trb_enqueue - 1];
+ 
++		if (!req->direction)
++			trb_length = dep->endpoint.maxpacket;
 +
- 	/* Journaling quota? */
- 	if (EXT4_SB(sb)->s_qf_names[type]) {
- 		/* Quotafile not in fs root? */
--- 
-2.27.0
-
+ 		/* Now prepare one extra TRB to align transfer size */
+ 		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr,
+-					 0, DWC3_TRBCTL_CONTROL_DATA,
++					 trb_length, DWC3_TRBCTL_CONTROL_DATA,
+ 					 false);
+ 		ret = dwc3_ep0_start_trans(dep);
+ 	} else {
 
 
