@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A915E2A574E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F25E2A5861
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732425AbgKCU4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:56:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57440 "EHLO mail.kernel.org"
+        id S1731633AbgKCUss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:48:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732446AbgKCU4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:06 -0500
+        id S1731594AbgKCUso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 166A62053B;
-        Tue,  3 Nov 2020 20:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19E5620719;
+        Tue,  3 Nov 2020 20:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436965;
-        bh=Q6bPBsa9iLZA5r6OQv9C/a455aoIqI5/OK+YTcw688A=;
+        s=default; t=1604436523;
+        bh=MDxeIWzPkWIc4RWQNRLI5fM9mwVobg1dF7tmhVFpTeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VU6mDDZhCdYYli0cw9LCPkqWZNUWhq5HHh8MqKcTntts3fNQ7jTv35p+SiqtTDGpC
-         7vobPRcX9h+DH8B4kk1CGc3BARU97zrNoTN9sJRwpR9VXtRPSGUgJbW/uXFsMsBo/Z
-         4KWqw1iO+axXSRp08RxrI4qTfEufcMxclcdvH/2I=
+        b=b/WXQhmGkNN5UQdr8aXuByI3KsnQNIFKdVNfyu5xtfilncMM5yfh4eab9FzqD2E2T
+         GOoCuCyEmgdDlOTUKi+GhXDKMxMQcYvkX338pZb29ddBZlzGBtBRBuYQDJvur2O39v
+         ptJJpbQMKeBq6vydZ0YIbi4BtFnLEQqI+oviMlZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/214] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
-Date:   Tue,  3 Nov 2020 21:35:37 +0100
-Message-Id: <20201103203258.751771490@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 287/391] powerpc: Warn about use of smt_snooze_delay
+Date:   Tue,  3 Nov 2020 21:35:38 +0100
+Message-Id: <20201103203406.411780188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
+commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
 
-There is no need to keep DMA controller nodes under AMBA bus node.
-Remove the "amba" node to fix dtschema warnings like:
+It's not done anything for a long time. Save the percpu variable, and
+emit a warning to remind users to not expect it to do anything.
 
-  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+This uses pr_warn_once instead of pr_warn_ratelimit as testing
+'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
+to be noisy, as the online/offline loop is slow.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Tested-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3fa8cad82b94 ("powerpc/pseries/cpuidle: smt-snooze-delay cleanup.")
+Cc: stable@vger.kernel.org # v3.14
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200902000012.3440389-1-joel@jms.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
- 1 file changed, 21 insertions(+), 28 deletions(-)
+ arch/powerpc/kernel/sysfs.c |   42 +++++++++++++++++-------------------------
+ 1 file changed, 17 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
-index 2ad642f51fd92..8b194da334a5c 100644
---- a/arch/arm/boot/dts/s5pv210.dtsi
-+++ b/arch/arm/boot/dts/s5pv210.dtsi
-@@ -128,35 +128,28 @@
- 			};
- 		};
+--- a/arch/powerpc/kernel/sysfs.c
++++ b/arch/powerpc/kernel/sysfs.c
+@@ -32,29 +32,27 @@
  
--		amba {
--			#address-cells = <1>;
--			#size-cells = <1>;
--			compatible = "simple-bus";
--			ranges;
+ static DEFINE_PER_CPU(struct cpu, cpu_devices);
+ 
+-/*
+- * SMT snooze delay stuff, 64-bit only for now
+- */
 -
--			pdma0: dma@e0900000 {
--				compatible = "arm,pl330", "arm,primecell";
--				reg = <0xe0900000 0x1000>;
--				interrupt-parent = <&vic0>;
--				interrupts = <19>;
--				clocks = <&clocks CLK_PDMA0>;
--				clock-names = "apb_pclk";
--				#dma-cells = <1>;
--				#dma-channels = <8>;
--				#dma-requests = <32>;
--			};
-+		pdma0: dma@e0900000 {
-+			compatible = "arm,pl330", "arm,primecell";
-+			reg = <0xe0900000 0x1000>;
-+			interrupt-parent = <&vic0>;
-+			interrupts = <19>;
-+			clocks = <&clocks CLK_PDMA0>;
-+			clock-names = "apb_pclk";
-+			#dma-cells = <1>;
-+			#dma-channels = <8>;
-+			#dma-requests = <32>;
-+		};
+ #ifdef CONFIG_PPC64
  
--			pdma1: dma@e0a00000 {
--				compatible = "arm,pl330", "arm,primecell";
--				reg = <0xe0a00000 0x1000>;
--				interrupt-parent = <&vic0>;
--				interrupts = <20>;
--				clocks = <&clocks CLK_PDMA1>;
--				clock-names = "apb_pclk";
--				#dma-cells = <1>;
--				#dma-channels = <8>;
--				#dma-requests = <32>;
--			};
-+		pdma1: dma@e0a00000 {
-+			compatible = "arm,pl330", "arm,primecell";
-+			reg = <0xe0a00000 0x1000>;
-+			interrupt-parent = <&vic0>;
-+			interrupts = <20>;
-+			clocks = <&clocks CLK_PDMA1>;
-+			clock-names = "apb_pclk";
-+			#dma-cells = <1>;
-+			#dma-channels = <8>;
-+			#dma-requests = <32>;
- 		};
+-/* Time in microseconds we delay before sleeping in the idle loop */
+-static DEFINE_PER_CPU(long, smt_snooze_delay) = { 100 };
++/*
++ * Snooze delay has not been hooked up since 3fa8cad82b94 ("powerpc/pseries/cpuidle:
++ * smt-snooze-delay cleanup.") and has been broken even longer. As was foretold in
++ * 2014:
++ *
++ *  "ppc64_util currently utilises it. Once we fix ppc64_util, propose to clean
++ *  up the kernel code."
++ *
++ * powerpc-utils stopped using it as of 1.3.8. At some point in the future this
++ * code should be removed.
++ */
  
- 		spi0: spi@e1300000 {
--- 
-2.27.0
-
+ static ssize_t store_smt_snooze_delay(struct device *dev,
+ 				      struct device_attribute *attr,
+ 				      const char *buf,
+ 				      size_t count)
+ {
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-	ssize_t ret;
+-	long snooze;
+-
+-	ret = sscanf(buf, "%ld", &snooze);
+-	if (ret != 1)
+-		return -EINVAL;
+-
+-	per_cpu(smt_snooze_delay, cpu->dev.id) = snooze;
++	pr_warn_once("%s (%d) stored to unsupported smt_snooze_delay, which has no effect.\n",
++		     current->comm, current->pid);
+ 	return count;
+ }
+ 
+@@ -62,9 +60,9 @@ static ssize_t show_smt_snooze_delay(str
+ 				     struct device_attribute *attr,
+ 				     char *buf)
+ {
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-
+-	return sprintf(buf, "%ld\n", per_cpu(smt_snooze_delay, cpu->dev.id));
++	pr_warn_once("%s (%d) read from unsupported smt_snooze_delay\n",
++		     current->comm, current->pid);
++	return sprintf(buf, "100\n");
+ }
+ 
+ static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
+@@ -72,16 +70,10 @@ static DEVICE_ATTR(smt_snooze_delay, 064
+ 
+ static int __init setup_smt_snooze_delay(char *str)
+ {
+-	unsigned int cpu;
+-	long snooze;
+-
+ 	if (!cpu_has_feature(CPU_FTR_SMT))
+ 		return 1;
+ 
+-	snooze = simple_strtol(str, NULL, 10);
+-	for_each_possible_cpu(cpu)
+-		per_cpu(smt_snooze_delay, cpu) = snooze;
+-
++	pr_warn("smt-snooze-delay command line option has no effect\n");
+ 	return 1;
+ }
+ __setup("smt-snooze-delay=", setup_smt_snooze_delay);
 
 
