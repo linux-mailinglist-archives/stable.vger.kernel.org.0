@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5CD62A5656
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C64EF2A5647
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbgKCV0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:26:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38370 "EHLO mail.kernel.org"
+        id S2387507AbgKCVBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:01:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732027AbgKCVBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:39 -0500
+        id S2387501AbgKCVBl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:01:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DFF722226;
-        Tue,  3 Nov 2020 21:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8135421534;
+        Tue,  3 Nov 2020 21:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437298;
-        bh=a1z/VraylPkTna8MUVh9ba0E60Hao7Fgt5nPkrp5hlI=;
+        s=default; t=1604437301;
+        bh=CecjKyAvlWAKQTtQf0iP9h9WYD6bopjVvK0S3YdEjJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Egn07i7g/cfCPO9PK8tFV9U1Es9paiy+0poSzh4i7hCgNIuuX6vZelN4w5hzYSTPh
-         DdNVPHsB3BNfHItw4qzumPssodGNBt40tQbPotYr3G0NLzloeA3/A9KoU87HSqb6x8
-         0/ASoaslfiz8FFyYWYFRlwpHF61goWubVVbl2L1I=
+        b=Jutue4gx/fBGKIqr3k0X11cY+FXENHymWzZ+DPFmvwRRJtQecTLfse1XbHTZF86X5
+         9KZAWV1aM/nxV69jEYDT7QcIr6KDEJ/uU/IRXAo6S8MP0Irnckn6bEuLSdKsVZQ26H
+         RyTQtYgX4hcORdAcRrfZ97SMtxSvtFxQQTK3xSwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 017/191] cxgb4: set up filter action after rewrites
-Date:   Tue,  3 Nov 2020 21:35:09 +0100
-Message-Id: <20201103203234.919009395@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stephane Eranian <stephane.eranian@google.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 018/191] arch/x86/amd/ibs: Fix re-arming IBS Fetch
+Date:   Tue,  3 Nov 2020 21:35:10 +0100
+Message-Id: <20201103203235.041843307@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -42,153 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit 937d8420588421eaa5c7aa5c79b26b42abb288ef ]
+commit 221bfce5ebbdf72ff08b3bf2510ae81058ee568b upstream.
 
-The current code sets up the filter action field before
-rewrites are set up. When the action 'switch' is used
-with rewrites, this may result in initial few packets
-that get switched out don't have rewrites applied
-on them.
+Stephane Eranian found a bug in that IBS' current Fetch counter was not
+being reset when the driver would write the new value to clear it along
+with the enable bit set, and found that adding an MSR write that would
+first disable IBS Fetch would make IBS Fetch reset its current count.
 
-So, make sure filter action is set up along with rewrites
-or only after everything else is set up for rewrites.
+Indeed, the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54 - Sep 12,
+2019 states "The periodic fetch counter is set to IbsFetchCnt [...] when
+IbsFetchEn is changed from 0 to 1."
 
-Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
-Link: https://lore.kernel.org/r/20201023115852.18262-1-rajur@chelsio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Explicitly set IbsFetchEn to 0 and then to 1 when re-enabling IBS Fetch,
+so the driver properly resets the internal counter to 0 and IBS
+Fetch starts counting again.
+
+A family 15h machine tested does not have this problem, and the extra
+wrmsr is also not needed on Family 19h, so only do the extra wrmsr on
+families 16h through 18h.
+
+Reported-by: Stephane Eranian <stephane.eranian@google.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+[peterz: optimized]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |   56 ++++++++++------------
- drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h       |    4 +
- 2 files changed, 31 insertions(+), 29 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -145,13 +145,13 @@ static int configure_filter_smac(struct
- 	int err;
+---
+ arch/x86/events/amd/ibs.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -89,6 +89,7 @@ struct perf_ibs {
+ 	u64				max_period;
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
++	unsigned int			fetch_count_reset_broken : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
  
- 	/* do a set-tcb for smac-sel and CWR bit.. */
--	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
--	if (err)
--		goto smac_err;
--
- 	err = set_tcb_field(adap, f, f->tid, TCB_SMAC_SEL_W,
- 			    TCB_SMAC_SEL_V(TCB_SMAC_SEL_M),
- 			    TCB_SMAC_SEL_V(f->smt->idx), 1);
-+	if (err)
-+		goto smac_err;
+ 	struct attribute		**format_attrs;
+@@ -375,7 +376,12 @@ perf_ibs_event_update(struct perf_ibs *p
+ static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
+ 					 struct hw_perf_event *hwc, u64 config)
+ {
+-	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
++	u64 tmp = hwc->config | config;
 +
-+	err = set_tcb_tflag(adap, f, f->tid, TF_CCTRL_CWR_S, 1, 1);
- 	if (!err)
- 		return 0;
- 
-@@ -608,6 +608,7 @@ int set_filter_wr(struct adapter *adapte
- 		      FW_FILTER_WR_DIRSTEERHASH_V(f->fs.dirsteerhash) |
- 		      FW_FILTER_WR_LPBK_V(f->fs.action == FILTER_SWITCH) |
- 		      FW_FILTER_WR_DMAC_V(f->fs.newdmac) |
-+		      FW_FILTER_WR_SMAC_V(f->fs.newsmac) |
- 		      FW_FILTER_WR_INSVLAN_V(f->fs.newvlan == VLAN_INSERT ||
- 					     f->fs.newvlan == VLAN_REWRITE) |
- 		      FW_FILTER_WR_RMVLAN_V(f->fs.newvlan == VLAN_REMOVE ||
-@@ -625,7 +626,7 @@ int set_filter_wr(struct adapter *adapte
- 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
- 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
- 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
--	fwr->smac_sel = 0;
-+	fwr->smac_sel = f->smt->idx;
- 	fwr->rx_chan_rx_rpl_iq =
- 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
- 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
-@@ -1019,11 +1020,8 @@ static void mk_act_open_req6(struct filt
- 			    TX_QUEUE_V(f->fs.nat_mode) |
- 			    T5_OPT_2_VALID_F |
- 			    RX_CHANNEL_F |
--			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
--					 (f->fs.dirsteer << 1)) |
- 			    PACE_V((f->fs.maskhash) |
--				   ((f->fs.dirsteerhash) << 1)) |
--			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
-+				   ((f->fs.dirsteerhash) << 1)));
++	if (perf_ibs->fetch_count_reset_broken)
++		wrmsrl(hwc->config_base, tmp & ~perf_ibs->enable_mask);
++
++	wrmsrl(hwc->config_base, tmp | perf_ibs->enable_mask);
  }
  
- static void mk_act_open_req(struct filter_entry *f, struct sk_buff *skb,
-@@ -1059,11 +1057,8 @@ static void mk_act_open_req(struct filte
- 			    TX_QUEUE_V(f->fs.nat_mode) |
- 			    T5_OPT_2_VALID_F |
- 			    RX_CHANNEL_F |
--			    CONG_CNTRL_V((f->fs.action == FILTER_DROP) |
--					 (f->fs.dirsteer << 1)) |
- 			    PACE_V((f->fs.maskhash) |
--				   ((f->fs.dirsteerhash) << 1)) |
--			    CCTRL_ECN_V(f->fs.action == FILTER_SWITCH));
-+				   ((f->fs.dirsteerhash) << 1)));
- }
+ /*
+@@ -744,6 +750,13 @@ static __init void perf_event_ibs_init(v
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
  
- static int cxgb4_set_hash_filter(struct net_device *dev,
-@@ -1722,6 +1717,20 @@ void hash_filter_rpl(struct adapter *ada
- 			}
- 			return;
- 		}
-+		switch (f->fs.action) {
-+		case FILTER_PASS:
-+			if (f->fs.dirsteer)
-+				set_tcb_tflag(adap, f, tid,
-+					      TF_DIRECT_STEER_S, 1, 1);
-+			break;
-+		case FILTER_DROP:
-+			set_tcb_tflag(adap, f, tid, TF_DROP_S, 1, 1);
-+			break;
-+		case FILTER_SWITCH:
-+			set_tcb_tflag(adap, f, tid, TF_LPBK_S, 1, 1);
-+			break;
-+		}
++	/*
++	 * Some chips fail to reset the fetch count when it is written; instead
++	 * they need a 0-1 transition of IbsFetchEn.
++	 */
++	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
++		perf_ibs_fetch.fetch_count_reset_broken = 1;
 +
- 		break;
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
  
- 	default:
-@@ -1781,22 +1790,11 @@ void filter_rpl(struct adapter *adap, co
- 			if (ctx)
- 				ctx->result = 0;
- 		} else if (ret == FW_FILTER_WR_FLT_ADDED) {
--			int err = 0;
--
--			if (f->fs.newsmac)
--				err = configure_filter_smac(adap, f);
--
--			if (!err) {
--				f->pending = 0;  /* async setup completed */
--				f->valid = 1;
--				if (ctx) {
--					ctx->result = 0;
--					ctx->tid = idx;
--				}
--			} else {
--				clear_filter(adap, f);
--				if (ctx)
--					ctx->result = err;
-+			f->pending = 0;  /* async setup completed */
-+			f->valid = 1;
-+			if (ctx) {
-+				ctx->result = 0;
-+				ctx->tid = idx;
- 			}
- 		} else {
- 			/* Something went wrong.  Issue a warning about the
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_tcb.h
-@@ -42,6 +42,10 @@
- 
- #define TCB_T_FLAGS_W		1
- 
-+#define TF_DROP_S		22
-+#define TF_DIRECT_STEER_S	23
-+#define TF_LPBK_S		59
-+
- #define TF_CCTRL_ECE_S		60
- #define TF_CCTRL_CWR_S		61
- #define TF_CCTRL_RFR_S		62
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
 
 
