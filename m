@@ -2,153 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90BFD2A484B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BE42A485D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbgKCOfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:35:54 -0500
-Received: from mx2.suse.de ([195.135.220.15]:47306 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbgKCOfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 09:35:32 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604414130;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CRMCNdQlFhksYp+9qCbw1BPLGCCo3PbogB8joPDAXBw=;
-        b=LVblX6G2htUzpzv8DPpFJ515dLrXbib3hqUCaSKIEdWbyd1xg6njtO5J009mhU5Fwmn9pq
-        rHi5oOcw5VTwDa0nSux9Z8Y5htIm3pNSbxsbRM1MwXePMiPtaH4E4BKNo0WB6ZGBSqOY4R
-        8/xLtd/y5ywdhgRiutv4O9Fnj/JCc2U=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 008AEB2AE
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 14:35:29 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH v2 13/13] xen/events: block rogue events for some time
-Date:   Tue,  3 Nov 2020 15:35:28 +0100
-Message-Id: <20201103143528.22780-14-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201103143528.22780-1-jgross@suse.com>
-References: <20201103143528.22780-1-jgross@suse.com>
+        id S1726388AbgKCOhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:37:52 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57975 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727385AbgKCOhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:37:20 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 05C65CCF;
+        Tue,  3 Nov 2020 09:37:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:37:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OSlNHz
+        ctN5j00S+jg0A49zwXZc3QBlODadRzp9BFMdQ=; b=NIzBLgja4d0HB9Q4LsNwoJ
+        mDFNaSmRzZPxcKIHwIqTqiwI/c96qu+7aDJEJgfzasdr2/u6k2g6kWjCcSlArVuF
+        JYf6t9wNFYv/LZTq0RlyVwbbWSMaujKUm0msU6/ZeBvwT5BYps60g8JA1aEcS7ef
+        RJen1WSNO3Csj8+02LvUmGcGTcUB/DdFQ8W9GdtRrbAJzmsMBr5GhJcRnMcUmygN
+        W09bYrNupSdLxtsZ+nEmzhm7CIUSYt+icA0lPMijI4iw3YrPhPQO56citlPEIiM7
+        kcmXvSmhYVp5fGZtGUVFC2H8ysB1cNBRZrX+ROFKtiGAFZfTIvetecRnlyokQlcA
+        ==
+X-ME-Sender: <xms:HmuhXzWEHKPxZ6c1Hv0jLB3Gmq1TYThnhjAv-7MARK5CQY_PIWsOdg>
+    <xme:HmuhX7kEvjAcZIf9d7-0-QmKPY0KFYR1B6U5nG3VTE29cyUPJY8yDUKv6I3SojDfU
+    dXY-wcls6C6Mw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgieegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:HmuhX_aQEjmpnPL9Fi5ewgj-3XOfq5AI8jhvp5GoOfjXMipmGhMADQ>
+    <xmx:HmuhX-Uo0DYiIaDYK6D9UMZSyXsdGbOimosKlcWXNThisysofcRWRg>
+    <xmx:HmuhX9nrvuDNVrBda5_WV0YmLWAOQVa8T1l4zOStgGpebqhjgV6epQ>
+    <xmx:HmuhX8uWSMkzxBdvw8oiX0Qs7neps7e-bJ3EAHJrAwiFxwY_ULPiZxrxt5Q>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A622D328005E;
+        Tue,  3 Nov 2020 09:37:17 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ubifs: xattr: Fix some potential memory leaks while iterating" failed to apply to 4.4-stable tree
+To:     chengzhihao1@huawei.com, richard@nod.at, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Nov 2020 15:38:11 +0100
+Message-ID: <1604414291189130@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
+thanks,
 
-This is part of XSA-332.
+greg k-h
 
-This is upstream commit 5f7f77400ab5b357b5fdb7122c3442239672186c
+------------------ original commit in Linus's tree ------------------
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
- drivers/xen/events/events_base.c     | 27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |  3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
+From f2aae745b82c842221f4f233051f9ac641790959 Mon Sep 17 00:00:00 2001
+From: Zhihao Cheng <chengzhihao1@huawei.com>
+Date: Mon, 1 Jun 2020 17:10:36 +0800
+Subject: [PATCH] ubifs: xattr: Fix some potential memory leaks while iterating
+ entries
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index a204e1d50255..5308bc1e0189 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -468,17 +468,34 @@ static void lateeoi_list_add(struct irq_info *info)
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
+Fix some potential memory leaks in error handling branches while
+iterating xattr entries. For example, function ubifs_tnc_remove_ino()
+forgets to free pxent if it exists. Similar problems also exist in
+ubifs_purge_xattrs(), ubifs_add_orphan() and ubifs_jnl_write_inode().
+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
+Signed-off-by: Richard Weinberger <richard@nod.at>
+
+diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
+index 4a5b06f8d812..ed935aefe3e0 100644
+--- a/fs/ubifs/journal.c
++++ b/fs/ubifs/journal.c
+@@ -894,6 +894,7 @@ int ubifs_jnl_write_inode(struct ubifs_info *c, const struct inode *inode)
+ 				if (err == -ENOENT)
+ 					break;
  
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
++				kfree(pxent);
+ 				goto out_release;
+ 			}
  
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
+@@ -906,6 +907,7 @@ int ubifs_jnl_write_inode(struct ubifs_info *c, const struct inode *inode)
+ 				ubifs_err(c, "dead directory entry '%s', error %d",
+ 					  xent->name, err);
+ 				ubifs_ro_mode(c, err);
++				kfree(pxent);
+ 				kfree(xent);
+ 				goto out_release;
+ 			}
+diff --git a/fs/ubifs/orphan.c b/fs/ubifs/orphan.c
+index 2c294085ffed..0fb61956146d 100644
+--- a/fs/ubifs/orphan.c
++++ b/fs/ubifs/orphan.c
+@@ -173,6 +173,7 @@ int ubifs_add_orphan(struct ubifs_info *c, ino_t inum)
+ 			err = PTR_ERR(xent);
+ 			if (err == -ENOENT)
+ 				break;
++			kfree(pxent);
+ 			return err;
+ 		}
  
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -515,7 +532,7 @@ static void xen_irq_lateeoi_worker(struct work_struct *work)
+@@ -182,6 +183,7 @@ int ubifs_add_orphan(struct ubifs_info *c, ino_t inum)
  
- 		info->eoi_time = 0;
+ 		xattr_orphan = orphan_add(c, xattr_inum, orphan);
+ 		if (IS_ERR(xattr_orphan)) {
++			kfree(pxent);
+ 			kfree(xent);
+ 			return PTR_ERR(xattr_orphan);
+ 		}
+diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+index f609f6cdde70..b120a00773f8 100644
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -2885,6 +2885,7 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
+ 			err = PTR_ERR(xent);
+ 			if (err == -ENOENT)
+ 				break;
++			kfree(pxent);
+ 			return err;
+ 		}
  
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
+@@ -2898,6 +2899,7 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
+ 		fname_len(&nm) = le16_to_cpu(xent->nlen);
+ 		err = ubifs_tnc_remove_nm(c, &key1, &nm);
+ 		if (err) {
++			kfree(pxent);
+ 			kfree(xent);
+ 			return err;
+ 		}
+@@ -2906,6 +2908,7 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
+ 		highest_ino_key(c, &key2, xattr_inum);
+ 		err = ubifs_tnc_remove_range(c, &key1, &key2);
+ 		if (err) {
++			kfree(pxent);
+ 			kfree(xent);
+ 			return err;
+ 		}
+diff --git a/fs/ubifs/xattr.c b/fs/ubifs/xattr.c
+index 9aefbb60074f..a0b9b349efe6 100644
+--- a/fs/ubifs/xattr.c
++++ b/fs/ubifs/xattr.c
+@@ -522,6 +522,7 @@ int ubifs_purge_xattrs(struct inode *host)
+ 				  xent->name, err);
+ 			ubifs_ro_mode(c, err);
+ 			kfree(pxent);
++			kfree(xent);
+ 			return err;
+ 		}
  
- 	if (info)
-@@ -544,7 +561,7 @@ void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1447,7 +1464,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
-diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
-index 2cb9c2d2c5c0..b9b4f5919893 100644
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -33,7 +33,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
--- 
-2.26.2
+@@ -531,6 +532,7 @@ int ubifs_purge_xattrs(struct inode *host)
+ 		err = remove_xattr(c, host, xino, &nm);
+ 		if (err) {
+ 			kfree(pxent);
++			kfree(xent);
+ 			iput(xino);
+ 			ubifs_err(c, "cannot remove xattr, error %d", err);
+ 			return err;
 
