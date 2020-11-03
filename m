@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4AC2A53B4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D952A56B3
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731317AbgKCVDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:03:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        id S1732625AbgKCU6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730715AbgKCVDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:03:43 -0500
+        id S1731846AbgKCU6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 162C5206B5;
-        Tue,  3 Nov 2020 21:03:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A3BA223AC;
+        Tue,  3 Nov 2020 20:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437423;
-        bh=138KXQYUEbfk6Op72o2MbJmDHJatM+OCR/VJD5SkhBk=;
+        s=default; t=1604437090;
+        bh=m8Yc0AMDiC0orHwfyeGZ+Kph9cEuyK8UTRSjXVz/zPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyeMapxvwPaG49qfYuMeji8HtqWEGP/BhU62iXCencbIUmw5oyp8VB+7vwf6qP1cC
-         S0r3g+EwVjMhNvoqTdeEV7qcbLHo2OBwOZQYc2by68N7dnrSvau/tFM2KZ8RG14ck4
-         bjGUhUdRlhQF06J+Xvx8j5Bru0tt2I3R1rCR8jBA=
+        b=E9q+Jo+XIt/qsegn2nTG6C1lQbM+tLZHt9hsCWkMg1tjdQvdjwC9HTKoPGSeGqXo6
+         NHb0xSNXg2UJgKqQS6Nx3Yl4qIfPg/g3bfueJKtjZgl/6nUH0Zz4hdOsxrdBaw85cS
+         x9pf2MVqD3WnJ4GTd7AMtk8LgcY+8AXNzGocVl7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
-        Xia Jiang <xia.jiang@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/191] media: platform: Improve queue set up flow for bug fixing
-Date:   Tue,  3 Nov 2020 21:36:02 +0100
-Message-Id: <20201103203241.023607544@linuxfoundation.org>
+        stable@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 115/214] ACPI: EC: PM: Flush EC work unconditionally after wakeup
+Date:   Tue,  3 Nov 2020 21:36:03 +0100
+Message-Id: <20201103203301.657099491@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xia Jiang <xia.jiang@mediatek.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 5095a6413a0cf896ab468009b6142cb0fe617e66 ]
+commit 5e92442bb4121562231e6daf8a2d1306cb5f8805 upstream.
 
-Add checking created buffer size follow in mtk_jpeg_queue_setup().
+Commit 607b9df63057 ("ACPI: EC: PM: Avoid flushing EC work when EC
+GPE is inactive") has been reported to cause some power button wakeup
+events to be missed on some systems, so modify acpi_ec_dispatch_gpe()
+to call acpi_ec_flush_work() unconditionally to effectively reverse
+the changes made by that commit.
 
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Xia Jiang <xia.jiang@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also note that the problem which prompted commit 607b9df63057 is not
+reproducible any more on the affected machine.
+
+Fixes: 607b9df63057 ("ACPI: EC: PM: Avoid flushing EC work when EC GPE is inactive")
+Reported-by: Raymond Tan <raymond.tan@intel.com>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/acpi/ec.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-index 11429633b2fbc..f0bca30a0a805 100644
---- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-+++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-@@ -579,6 +579,13 @@ static int mtk_jpeg_queue_setup(struct vb2_queue *q,
- 	if (!q_data)
- 		return -EINVAL;
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1976,12 +1976,11 @@ bool acpi_ec_dispatch_gpe(void)
+ 	 * to allow the caller to process events properly after that.
+ 	 */
+ 	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
+-	if (ret == ACPI_INTERRUPT_HANDLED) {
++	if (ret == ACPI_INTERRUPT_HANDLED)
+ 		pm_pr_dbg("EC GPE dispatched\n");
  
-+	if (*num_planes) {
-+		for (i = 0; i < *num_planes; i++)
-+			if (sizes[i] < q_data->sizeimage[i])
-+				return -EINVAL;
-+		return 0;
-+	}
-+
- 	*num_planes = q_data->fmt->colplanes;
- 	for (i = 0; i < q_data->fmt->colplanes; i++) {
- 		sizes[i] = q_data->sizeimage[i];
--- 
-2.27.0
-
+-		/* Flush the event and query workqueues. */
+-		acpi_ec_flush_work();
+-	}
++	/* Flush the event and query workqueues. */
++	acpi_ec_flush_work();
+ 
+ 	return false;
+ }
 
 
