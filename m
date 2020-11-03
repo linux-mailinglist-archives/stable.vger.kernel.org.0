@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 608EC2A576D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942DC2A583E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731846AbgKCVmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:42:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
+        id S1730659AbgKCVuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:50:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732278AbgKCUzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:55:21 -0500
+        id S1731505AbgKCUtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 806DE223BD;
-        Tue,  3 Nov 2020 20:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F3F22404;
+        Tue,  3 Nov 2020 20:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436920;
-        bh=p8r48/0O0bFuRYbXSO15mbWvfUOyDkFCWdH+Jt+GNHI=;
+        s=default; t=1604436555;
+        bh=LksYnwxBV3OsfR5XLdj/F6NQQ21zfgNFiyrvwsplcts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDQr3Xp/xIT6Fvm3Hn9BsQTSpWqVA/MFMLk5VeO/gZLRhLUEkkzQW8K8sFy1OlJsv
-         nJ4wvXUwG6qwVk827oY9njboXiwZTpsf/dUs2VihOYfFGER9t6wpZxbwxxXz0E1kpS
-         wX7LtjNQBeUL5kQECZjxZ6ywpUpY118h9onkt2q8=
+        b=E0Ab4uYS9TEfPk3ehw7Y/4Uia5JdLitDwQnUoZtcQIcHeg+4vj9oEwUFxCyQljsTi
+         anLd9zFC/h5IgbC+z3GmDI7SAyThaZ9279V5U6sKvMmXWWrIew8phxWtx1siZxhp4O
+         DZEjZYp9MJH0ALjtCnVsrzgyANofG9IYnwu95BVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/214] drivers/net/wan/hdlc_fr: Correctly handle special skb->protocol values
+        stable@vger.kernel.org,
+        syzbot+128f4dd6e796c98b3760@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.9 264/391] udf: Fix memory leak when mounting
 Date:   Tue,  3 Nov 2020 21:35:15 +0100
-Message-Id: <20201103203256.667064609@linuxfoundation.org>
+Message-Id: <20201103203404.836857503@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,187 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 8306266c1d51aac9aa7aa907fe99032a58c6382c ]
+commit a7be300de800e755714c71103ae4a0d205e41e99 upstream.
 
-The fr_hard_header function is used to prepend the header to skbs before
-transmission. It is used in 3 situations:
-1) When a control packet is generated internally in this driver;
-2) When a user sends an skb on an Ethernet-emulating PVC device;
-3) When a user sends an skb on a normal PVC device.
+udf_process_sequence() allocates temporary array for processing
+partition descriptors on volume which it fails to free. Free the array
+when it is not needed anymore.
 
-These 3 situations need to be handled differently by fr_hard_header.
-Different headers should be prepended to the skb in different situations.
+Fixes: 7b78fd02fb19 ("udf: Fix handling of Partition Descriptors")
+CC: stable@vger.kernel.org
+Reported-by: syzbot+128f4dd6e796c98b3760@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Currently fr_hard_header distinguishes these 3 situations using
-skb->protocol. For situation 1 and 2, a special skb->protocol value
-will be assigned before calling fr_hard_header, so that it can recognize
-these 2 situations. All skb->protocol values other than these special ones
-are treated by fr_hard_header as situation 3.
-
-However, it is possible that in situation 3, the user sends an skb with
-one of the special skb->protocol values. In this case, fr_hard_header
-would incorrectly treat it as situation 1 or 2.
-
-This patch tries to solve this issue by using skb->dev instead of
-skb->protocol to distinguish between these 3 situations. For situation
-1, skb->dev would be NULL; for situation 2, skb->dev->type would be
-ARPHRD_ETHER; and for situation 3, skb->dev->type would be ARPHRD_DLCI.
-
-This way fr_hard_header would be able to distinguish these 3 situations
-correctly regardless what skb->protocol value the user tries to use in
-situation 3.
-
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_fr.c | 98 ++++++++++++++++++++-------------------
- 1 file changed, 51 insertions(+), 47 deletions(-)
+ fs/udf/super.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index d6cfd51613ed8..3a44dad87602d 100644
---- a/drivers/net/wan/hdlc_fr.c
-+++ b/drivers/net/wan/hdlc_fr.c
-@@ -273,63 +273,69 @@ static inline struct net_device **get_dev_p(struct pvc_device *pvc,
- 
- static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
- {
--	u16 head_len;
- 	struct sk_buff *skb = *skb_p;
- 
--	switch (skb->protocol) {
--	case cpu_to_be16(NLPID_CCITT_ANSI_LMI):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_CCITT_ANSI_LMI;
--		break;
--
--	case cpu_to_be16(NLPID_CISCO_LMI):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_CISCO_LMI;
--		break;
--
--	case cpu_to_be16(ETH_P_IP):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_IP;
--		break;
--
--	case cpu_to_be16(ETH_P_IPV6):
--		head_len = 4;
--		skb_push(skb, head_len);
--		skb->data[3] = NLPID_IPV6;
--		break;
--
--	case cpu_to_be16(ETH_P_802_3):
--		head_len = 10;
--		if (skb_headroom(skb) < head_len) {
--			struct sk_buff *skb2 = skb_realloc_headroom(skb,
--								    head_len);
-+	if (!skb->dev) { /* Control packets */
-+		switch (dlci) {
-+		case LMI_CCITT_ANSI_DLCI:
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_CCITT_ANSI_LMI;
-+			break;
-+
-+		case LMI_CISCO_DLCI:
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_CISCO_LMI;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+		}
-+
-+	} else if (skb->dev->type == ARPHRD_DLCI) {
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP):
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_IP;
-+			break;
-+
-+		case htons(ETH_P_IPV6):
-+			skb_push(skb, 4);
-+			skb->data[3] = NLPID_IPV6;
-+			break;
-+
-+		default:
-+			skb_push(skb, 10);
-+			skb->data[3] = FR_PAD;
-+			skb->data[4] = NLPID_SNAP;
-+			/* OUI 00-00-00 indicates an Ethertype follows */
-+			skb->data[5] = 0x00;
-+			skb->data[6] = 0x00;
-+			skb->data[7] = 0x00;
-+			/* This should be an Ethertype: */
-+			*(__be16 *)(skb->data + 8) = skb->protocol;
-+		}
-+
-+	} else if (skb->dev->type == ARPHRD_ETHER) {
-+		if (skb_headroom(skb) < 10) {
-+			struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
- 			if (!skb2)
- 				return -ENOBUFS;
- 			dev_kfree_skb(skb);
- 			skb = *skb_p = skb2;
- 		}
--		skb_push(skb, head_len);
-+		skb_push(skb, 10);
- 		skb->data[3] = FR_PAD;
- 		skb->data[4] = NLPID_SNAP;
--		skb->data[5] = FR_PAD;
-+		/* OUI 00-80-C2 stands for the 802.1 organization */
-+		skb->data[5] = 0x00;
- 		skb->data[6] = 0x80;
- 		skb->data[7] = 0xC2;
-+		/* PID 00-07 stands for Ethernet frames without FCS */
- 		skb->data[8] = 0x00;
--		skb->data[9] = 0x07; /* bridged Ethernet frame w/out FCS */
--		break;
-+		skb->data[9] = 0x07;
- 
--	default:
--		head_len = 10;
--		skb_push(skb, head_len);
--		skb->data[3] = FR_PAD;
--		skb->data[4] = NLPID_SNAP;
--		skb->data[5] = FR_PAD;
--		skb->data[6] = FR_PAD;
--		skb->data[7] = FR_PAD;
--		*(__be16*)(skb->data + 8) = skb->protocol;
-+	} else {
-+		return -EINVAL;
- 	}
- 
- 	dlci_to_q922(skb->data, dlci);
-@@ -425,8 +431,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
- 				skb_put(skb, pad);
- 				memset(skb->data + len, 0, pad);
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -1704,7 +1704,8 @@ static noinline int udf_process_sequence
+ 					"Pointers (max %u supported)\n",
+ 					UDF_MAX_TD_NESTING);
+ 				brelse(bh);
+-				return -EIO;
++				ret = -EIO;
++				goto out;
  			}
--			skb->protocol = cpu_to_be16(ETH_P_802_3);
- 		}
-+		skb->dev = dev;
- 		if (!fr_hard_header(&skb, pvc->dlci)) {
- 			dev->stats.tx_bytes += skb->len;
- 			dev->stats.tx_packets++;
-@@ -494,10 +500,8 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
- 	memset(skb->data, 0, len);
- 	skb_reserve(skb, 4);
- 	if (lmi == LMI_CISCO) {
--		skb->protocol = cpu_to_be16(NLPID_CISCO_LMI);
- 		fr_hard_header(&skb, LMI_CISCO_DLCI);
- 	} else {
--		skb->protocol = cpu_to_be16(NLPID_CCITT_ANSI_LMI);
- 		fr_hard_header(&skb, LMI_CCITT_ANSI_DLCI);
+ 
+ 			vdp = (struct volDescPtr *)bh->b_data;
+@@ -1724,7 +1725,8 @@ static noinline int udf_process_sequence
+ 			curr = get_volume_descriptor_record(ident, bh, &data);
+ 			if (IS_ERR(curr)) {
+ 				brelse(bh);
+-				return PTR_ERR(curr);
++				ret = PTR_ERR(curr);
++				goto out;
+ 			}
+ 			/* Descriptor we don't care about? */
+ 			if (!curr)
+@@ -1746,28 +1748,31 @@ static noinline int udf_process_sequence
+ 	 */
+ 	if (!data.vds[VDS_POS_PRIMARY_VOL_DESC].block) {
+ 		udf_err(sb, "Primary Volume Descriptor not found!\n");
+-		return -EAGAIN;
++		ret = -EAGAIN;
++		goto out;
  	}
- 	data = skb_tail_pointer(skb);
--- 
-2.27.0
-
+ 	ret = udf_load_pvoldesc(sb, data.vds[VDS_POS_PRIMARY_VOL_DESC].block);
+ 	if (ret < 0)
+-		return ret;
++		goto out;
+ 
+ 	if (data.vds[VDS_POS_LOGICAL_VOL_DESC].block) {
+ 		ret = udf_load_logicalvol(sb,
+ 				data.vds[VDS_POS_LOGICAL_VOL_DESC].block,
+ 				fileset);
+ 		if (ret < 0)
+-			return ret;
++			goto out;
+ 	}
+ 
+ 	/* Now handle prevailing Partition Descriptors */
+ 	for (i = 0; i < data.num_part_descs; i++) {
+ 		ret = udf_load_partdesc(sb, data.part_descs_loc[i].rec.block);
+ 		if (ret < 0)
+-			return ret;
++			goto out;
+ 	}
+-
+-	return 0;
++	ret = 0;
++out:
++	kfree(data.part_descs_loc);
++	return ret;
+ }
+ 
+ /*
 
 
