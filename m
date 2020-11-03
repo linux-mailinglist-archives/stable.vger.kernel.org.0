@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 850AF2A53D8
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 973A22A5638
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387776AbgKCVFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:05:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43684 "EHLO mail.kernel.org"
+        id S1733245AbgKCVAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:00:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387743AbgKCVFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:14 -0500
+        id S1732942AbgKCVAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:00:30 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06FB7205ED;
-        Tue,  3 Nov 2020 21:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7735C223C7;
+        Tue,  3 Nov 2020 21:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437514;
-        bh=jrRtNSCNVrksncJAZyQSt7kVNwPnXNwSAdxIsmN4yJs=;
+        s=default; t=1604437229;
+        bh=BKfdIyt5z62L/599YN5431rgr0e3luTrifZW3PySgKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLdcu9zgw2MCpRl1iAm19rkam9hMgAIIuZRTb9F9GeKPfj1snTWBn9JTMRXyv62WD
-         X4YuGlAYyCzwDbDv0fzS7qqHXX6dYgt0HjC6lc7dmBA7NAs2tFnqGueKKzlIBuEjam
-         OiVHox6aEQdLg1KZKK5Buho28C2n8D/dxpVKh2Ik=
+        b=yWvk/YT/UOmM8E8H/Zr8I5S39X5III+DKH6w3inDEzlGvtiSzudxy2MWMFmnUh6cH
+         iixxJaWATuj2k3z3NKRyvcWoLJRovNIce1e7A9wSPfYG3U9tpa/a9fkL7rGD9UhYXW
+         db5TOQVFI3LlKqjcKBI86G6RIOfZkzf73qtyVM+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/191] nbd: make the config put is called before the notifying the waiter
-Date:   Tue,  3 Nov 2020 21:36:41 +0100
-Message-Id: <20201103203243.735216554@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.4 154/214] iio:gyro:itg3200: Fix timestamp alignment and prevent data leak.
+Date:   Tue,  3 Nov 2020 21:36:42 +0100
+Message-Id: <20201103203305.230721354@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 87aac3a80af5cbad93e63250e8a1e19095ba0d30 ]
+commit 10ab7cfd5522f0041028556dac864a003e158556 upstream.
 
-There has one race case for ceph's rbd-nbd tool. When do mapping
-it may fail with EBUSY from ioctl(nbd, NBD_DO_IT), but actually
-the nbd device has already unmaped.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 16 byte array of smaller elements on the stack.
+This is fixed by using an explicit c structure. As there are no
+holes in the structure, there is no possiblity of data leakage
+in this case.
 
-It dues to if just after the wake_up(), the recv_work() is scheduled
-out and defers calling the nbd_config_put(), though the map process
-has exited the "nbd->recv_task" is not cleared.
+The explicit alignment of ts is not strictly necessary but potentially
+makes the code slightly less fragile.  It also removes the possibility
+of this being cut and paste into another driver where the alignment
+isn't already true.
 
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 36e0371e7764 ("iio:itg3200: Use iio_push_to_buffers_with_timestamp()")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-6-jic23@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/itg3200_buffer.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index d7c7232e438c9..52e1e71e81241 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -740,9 +740,9 @@ static void recv_work(struct work_struct *work)
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -46,13 +46,20 @@ static irqreturn_t itg3200_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct itg3200 *st = iio_priv(indio_dev);
+-	__be16 buf[ITG3200_SCAN_ELEMENTS + sizeof(s64)/sizeof(u16)];
++	/*
++	 * Ensure correct alignment and padding including for the
++	 * timestamp that may be inserted.
++	 */
++	struct {
++		__be16 buf[ITG3200_SCAN_ELEMENTS];
++		s64 ts __aligned(8);
++	} scan;
  
- 		blk_mq_complete_request(blk_mq_rq_from_pdu(cmd));
- 	}
-+	nbd_config_put(nbd);
- 	atomic_dec(&config->recv_threads);
- 	wake_up(&config->recv_wq);
--	nbd_config_put(nbd);
- 	kfree(args);
- }
+-	int ret = itg3200_read_all_channels(st->i2c, buf);
++	int ret = itg3200_read_all_channels(st->i2c, scan.buf);
+ 	if (ret < 0)
+ 		goto error_ret;
  
--- 
-2.27.0
-
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 
 
