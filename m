@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37C62A5748
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7232A5749
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732683AbgKCU4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:56:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57698 "EHLO mail.kernel.org"
+        id S1732695AbgKCU4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:56:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732446AbgKCU4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:13 -0500
+        id S1732684AbgKCU4P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3962223C7;
-        Tue,  3 Nov 2020 20:56:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D4CA2053B;
+        Tue,  3 Nov 2020 20:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436972;
-        bh=UTEUI9uMVOyIxEKJFKUJFivzWsK5qY0eatTZBYfFeO8=;
+        s=default; t=1604436974;
+        bh=TI2P5/LQAeX96JaHBCZZoGKq40XRR61md03IF+usJmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzg+hRWsmvom55qy8vQRYkZfyUaW8rSrpKMMH+BOaI2eqNmQ3MFfpPHl/OwU9osPk
-         Q43czV2kKluSEO8Io7Z93BdDvDHQ56jcVZeqENAJwmG2DveFj/aQh0sUfqUSxN/qAB
-         77aPzTtMN5tpFckV8bTTRjbOXMaHH7ZW6B8fpepE=
+        b=MHyhziaqtivJC4bkjbsEzRw0pWRILsxjwQfp3rgwCfM8vMrXheHk/zK8LuXl7Q6Ws
+         n1/FznCCEFlXQX4LJN3bxckJsJMCoM3s/sF/VER3BkEKfwvFhfxgWWtQxhRZmBLV6b
+         5Qw60Cq+cDY2GBxAKXorRKu73zyt6sND5a9q0wq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Jonathan Bakker <xc-racer2@live.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/214] ARM: dts: s5pv210: move PMU node out of clock controller
-Date:   Tue,  3 Nov 2020 21:35:39 +0100
-Message-Id: <20201103203258.976302351@linuxfoundation.org>
+Subject: [PATCH 5.4 092/214] ARM: dts: s5pv210: remove dedicated audio-subsystem node
+Date:   Tue,  3 Nov 2020 21:35:40 +0100
+Message-Id: <20201103203259.069903192@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -45,53 +45,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit bb98fff84ad1ea321823759edaba573a16fa02bd ]
+[ Upstream commit 6c17a2974abf68a58517f75741b15c4aba42b4b8 ]
 
-The Power Management Unit (PMU) is a separate device which has little
-common with clock controller.  Moving it to one level up (from clock
-controller child to SoC) allows to remove fake simple-bus compatible and
-dtbs_check warnings like:
+The 'audio-subsystem' node is an artificial creation, not representing
+real hardware.  The hardware is described by its nodes - AUDSS clock
+controller and I2S0.
 
-  clock-controller@e0100000: $nodename:0:
-    'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+Remove the 'audio-subsystem' node along with its undocumented compatible
+to fix dtbs_check warnings like:
+
+  audio-subsystem: $nodename:0: 'audio-subsystem' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Tested-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/20200907161141.31034-8-krzk@kernel.org
+Link: https://lore.kernel.org/r/20200907161141.31034-9-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/s5pv210.dtsi | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/s5pv210.dtsi | 65 +++++++++++++++-------------------
+ 1 file changed, 29 insertions(+), 36 deletions(-)
 
 diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
-index ec41e46edaced..f10139bd80a53 100644
+index f10139bd80a53..61822afa30ab3 100644
 --- a/arch/arm/boot/dts/s5pv210.dtsi
 +++ b/arch/arm/boot/dts/s5pv210.dtsi
-@@ -92,19 +92,16 @@
+@@ -211,43 +211,36 @@
+ 			status = "disabled";
  		};
  
- 		clocks: clock-controller@e0100000 {
--			compatible = "samsung,s5pv210-clock", "simple-bus";
-+			compatible = "samsung,s5pv210-clock";
- 			reg = <0xe0100000 0x10000>;
- 			clock-names = "xxti", "xusbxti";
- 			clocks = <&xxti>, <&xusbxti>;
- 			#clock-cells = <1>;
+-		audio-subsystem {
+-			compatible = "samsung,s5pv210-audss", "simple-bus";
 -			#address-cells = <1>;
 -			#size-cells = <1>;
 -			ranges;
+-
+-			clk_audss: clock-controller@eee10000 {
+-				compatible = "samsung,s5pv210-audss-clock";
+-				reg = <0xeee10000 0x1000>;
+-				clock-names = "hclk", "xxti",
+-						"fout_epll",
+-						"sclk_audio0";
+-				clocks = <&clocks DOUT_HCLKP>, <&xxti>,
+-						<&clocks FOUT_EPLL>,
+-						<&clocks SCLK_AUDIO0>;
+-				#clock-cells = <1>;
+-			};
++		clk_audss: clock-controller@eee10000 {
++			compatible = "samsung,s5pv210-audss-clock";
++			reg = <0xeee10000 0x1000>;
++			clock-names = "hclk", "xxti",
++				      "fout_epll",
++				      "sclk_audio0";
++			clocks = <&clocks DOUT_HCLKP>, <&xxti>,
++				 <&clocks FOUT_EPLL>,
++				 <&clocks SCLK_AUDIO0>;
++			#clock-cells = <1>;
 +		};
  
--			pmu_syscon: syscon@e0108000 {
--				compatible = "samsung-s5pv210-pmu", "syscon";
--				reg = <0xe0108000 0x8000>;
+-			i2s0: i2s@eee30000 {
+-				compatible = "samsung,s5pv210-i2s";
+-				reg = <0xeee30000 0x1000>;
+-				interrupt-parent = <&vic2>;
+-				interrupts = <16>;
+-				dma-names = "rx", "tx", "tx-sec";
+-				dmas = <&pdma1 9>, <&pdma1 10>, <&pdma1 11>;
+-				clock-names = "iis",
+-						"i2s_opclk0",
+-						"i2s_opclk1";
+-				clocks = <&clk_audss CLK_I2S>,
+-						<&clk_audss CLK_I2S>,
+-						<&clk_audss CLK_DOUT_AUD_BUS>;
+-				samsung,idma-addr = <0xc0010000>;
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&i2s0_bus>;
+-				#sound-dai-cells = <0>;
+-				status = "disabled";
 -			};
-+		pmu_syscon: syscon@e0108000 {
-+			compatible = "samsung-s5pv210-pmu", "syscon";
-+			reg = <0xe0108000 0x8000>;
++		i2s0: i2s@eee30000 {
++			compatible = "samsung,s5pv210-i2s";
++			reg = <0xeee30000 0x1000>;
++			interrupt-parent = <&vic2>;
++			interrupts = <16>;
++			dma-names = "rx", "tx", "tx-sec";
++			dmas = <&pdma1 9>, <&pdma1 10>, <&pdma1 11>;
++			clock-names = "iis",
++				      "i2s_opclk0",
++				      "i2s_opclk1";
++			clocks = <&clk_audss CLK_I2S>,
++				 <&clk_audss CLK_I2S>,
++				 <&clk_audss CLK_DOUT_AUD_BUS>;
++			samsung,idma-addr = <0xc0010000>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2s0_bus>;
++			#sound-dai-cells = <0>;
++			status = "disabled";
  		};
  
- 		pinctrl0: pinctrl@e0200000 {
+ 		i2s1: i2s@e2100000 {
 -- 
 2.27.0
 
