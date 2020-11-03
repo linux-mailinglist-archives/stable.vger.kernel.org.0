@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9632A4A1F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B57E2A4A2F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbgKCPng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:43:36 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:44919 "EHLO
+        id S1728357AbgKCPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:43:50 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40065 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727923AbgKCPng (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:43:36 -0500
+        by vger.kernel.org with ESMTP id S1728346AbgKCPnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:43:49 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 925211942AFB;
-        Tue,  3 Nov 2020 10:43:34 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:43:34 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0E0F81942BEA;
+        Tue,  3 Nov 2020 10:43:48 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:43:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BHyFZ8
-        //ML6QbrLVnFEquFg++BYUAnibKu6LXFEPrVM=; b=GjBJoCFnNtG0N98ctcg9jI
-        pqxu5NLNyiGsicPSGIIR8Lf+Xm6I/7xqr3Rq8GddrE4AMNobKoeAsEsulVPm7EZS
-        I8YY0j4c5YQqhlzP3GZkZBTO3ZolDl9hSWbZ0A2mtmVRfoymlUdTfk3csz0FmMXX
-        fChj0zXSNWKkTGgK7Ip3R8fwaB5Hz5hzwoDbx77epnIoRUpkC3JUxCq1OBIWhd8X
-        9zeEMtkhwNEoCwcttk1JEKJWrvpOHyyz2lJ6AoQHuEJWe/PtemNUfBsq/MpMDTku
-        hbreX4+Rqdy3RVEvIwviZ8TUT+7WRCGzHzcuCSY58utFi+a0AT3/nYVzvL009ORQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nCwkMI
+        2+nNoO0Wu/EkTiq3qSdwmRx3sr+wa2SPq64oo=; b=N5eFx+gI+Reoi0TPw3BZin
+        ldxsJDiQ10BlY3TyEE+42jIpU4Kq315/+2Rp6vUckjZxv4aEaDB0QHaNYf0qKxI3
+        CVqMgWMvGBpHF8yzx5pevKAYme5X6hHSO4S861Yu08e3G5aQshN12D0ouc9zp+ee
+        lwCbqc6KXu3PnqEjeTJF93wcOG7onQ+WCMz3z6JpITusqpjSikNfgLaAKI4wWFvk
+        /DDN4N0JOyl9dNeZGIZbYQ+13vfIlczUpA1J3VTCRvVZLG7duwqYJHsyIwIyUB5x
+        SEWhT4oIHnX6VdQS4FrRghRZBYA6777QlWrYvQenftfJZTlLRjx/GsNddOHNLNsQ
         ==
-X-ME-Sender: <xms:pnqhX3nC8uMyiEYuW-mA7dxHry2L408NWLe9Cn38X7nfSEfsPCVFrw>
-    <xme:pnqhX62fl6ZcSqa2yKMMwkAjrKKAq4K1njY7hz7n84UivUodtRT6ArM42OlBhp0lY
-    17fPQZNC260jg>
+X-ME-Sender: <xms:s3qhXwSVbV_dF7OeG6ar7wRrKEzorGLu8mQ6LtJ_eCDNVv33G8hbzQ>
+    <xme:s3qhX9wmMDU5zSWvpeq6Z1-OxLdUlQvBYXsboLHOGXK7I-BqfNVXb-6m3if5gnQVm
+    _ubF8YoyFEUWQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:pnqhX9rC4FjSe6NgvMkUzaZ831GPaApLJk2Drhx29aoont8wQDlNtw>
-    <xmx:pnqhX_k-nriMAstBKnU80gvuy1BgQoO1MMeuMkrgssiQj-3TsVpt5w>
-    <xmx:pnqhX11KxP8YK-8SiFBgKdOg7dbUxBG1TK7BbcNlW0UWJLNRndRysA>
-    <xmx:pnqhXzBmuSH7lkzJOmZ0uk0FaOwFL7LUteXcDwejiP38QImraOYBbg>
+X-ME-Proxy: <xmx:s3qhX92Lmnoip1TSLEAHZ_R6nvi1Rblxf3W1zjT7_a3gTvC2k3uI6A>
+    <xmx:s3qhX0CHFejmQhFx3R_gevngvt9IYAGATJjb7MQGqDH8kYtjCq3crw>
+    <xmx:s3qhX5ja8ZPCpz_esxcUNaGz_L5yxNmNrxNt0PbivY3rtD6O9W9Z_w>
+    <xmx:tHqhX-u7TuRZgnrB5cSCbLOzIE2F3ncWAvP82j9D95p4mXUPM2NJpA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 159DA3064683;
-        Tue,  3 Nov 2020 10:43:33 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: [FIX] update clock under two conditions" failed to apply to 5.9-stable tree
-To:     Lewis.Huang@amd.com, Martin.Leung@amd.com, Qingqing.zhuo@amd.com,
-        alexander.deucher@amd.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9CE69328005A;
+        Tue,  3 Nov 2020 10:43:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix DSC force enable on SST" failed to apply to 5.9-stable tree
+To:     eryk.brol@amd.com, Rodrigo.Siqueira@amd.com, Wenjing.Liu@amd.com,
+        alexander.deucher@amd.com, mikita.lipski@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:44:27 +0100
-Message-ID: <16044182673022@kroah.com>
+Date:   Tue, 03 Nov 2020 16:44:41 +0100
+Message-ID: <160441828183255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,49 +71,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 12dbd1f7578feb51bc95e5a90eb617889cc0b04e Mon Sep 17 00:00:00 2001
-From: Lewis Huang <Lewis.Huang@amd.com>
-Date: Wed, 16 Sep 2020 17:13:11 -0400
-Subject: [PATCH] drm/amd/display: [FIX] update clock under two conditions
+From bcc6aa61c82d4f12df3ecc884a9eef9d566edae9 Mon Sep 17 00:00:00 2001
+From: Eryk Brol <eryk.brol@amd.com>
+Date: Fri, 19 Jun 2020 14:42:09 -0400
+Subject: [PATCH] drm/amd/display: Fix DSC force enable on SST
 
-[Why]
-Update clock only when non-seamless boot stream exists
-creates regression on multiple scenerios.
+[why]
+Previously when force enabling DSC on SST display we unknowingly
+supressed lane count, which caused DSC to be enabled automatically.
 
-[How]
-Update clock in two conditions
-1. Non-seamless boot stream exist.
-2. Stream_count = 0
+[how]
+By adding an additional flag to force enable DSC in dc_dsc.c DSC can
+always be enabled with debugfs dsc_clock_en forced to 1
 
-Fixes: 598c13b21e25 ("drm/amd/display: update clock when non-seamless boot stream exist")
-Signed-off-by: Lewis Huang <Lewis.Huang@amd.com>
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Qingqing Zhuo <Qingqing.zhuo@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 1efc823c2a14..7e74ddc1c708 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -1286,7 +1286,8 @@ static enum dc_status dc_commit_state_no_check(struct dc *dc, struct dc_state *c
- 			dc->optimize_seamless_boot_streams++;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 0d121a3f2103..ad6b95d65f7b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4646,6 +4646,9 @@ create_stream_for_sink(struct amdgpu_dm_connector *aconnector,
  
--	if (context->stream_count > dc->optimize_seamless_boot_streams)
-+	if (context->stream_count > dc->optimize_seamless_boot_streams ||
-+		context->stream_count == 0)
- 		dc->hwss.prepare_bandwidth(dc, context);
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+ 		if (dsc_caps.is_dsc_supported) {
++			/* Set DSC policy according to dsc_clock_en */
++			dc_dsc_policy_set_enable_dsc_when_not_needed(aconnector->dsc_settings.dsc_clock_en);
++
+ 			if (dc_dsc_compute_config(aconnector->dc_link->ctx->dc->res_pool->dscs[0],
+ 						  &dsc_caps,
+ 						  aconnector->dc_link->ctx->dc->debug.dsc_min_slice_height_override,
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_dsc.h b/drivers/gpu/drm/amd/display/dc/dc_dsc.h
+index 3800340a5b4f..768ab38d41cf 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_dsc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_dsc.h
+@@ -51,6 +51,7 @@ struct dc_dsc_policy {
+ 	int min_slice_height; // Must not be less than 8
+ 	uint32_t max_target_bpp;
+ 	uint32_t min_target_bpp;
++	bool enable_dsc_when_not_needed;
+ };
  
- 	disable_dangling_plane(dc, context);
-@@ -1368,7 +1369,8 @@ static enum dc_status dc_commit_state_no_check(struct dc *dc, struct dc_state *c
+ bool dc_dsc_parse_dsc_dpcd(const struct dc *dc,
+@@ -80,4 +81,6 @@ void dc_dsc_get_policy_for_timing(const struct dc_crtc_timing *timing,
  
- 	dc_enable_stereo(dc, context, dc_streams, context->stream_count);
+ void dc_dsc_policy_set_max_target_bpp_limit(uint32_t limit);
  
--	if (context->stream_count > dc->optimize_seamless_boot_streams) {
-+	if (context->stream_count > dc->optimize_seamless_boot_streams ||
-+		context->stream_count == 0) {
- 		/* Must wait for no flips to be pending before doing optimize bw */
- 		wait_for_no_pipes_pending(dc, context);
- 		/* pplib is notified if disp_num changed */
++void dc_dsc_policy_set_enable_dsc_when_not_needed(bool enable);
++
+ #endif
+diff --git a/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c b/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
+index 8cdaa6eef5d3..da1b654833d5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
++++ b/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
+@@ -34,6 +34,9 @@
+ /* default DSC policy target bitrate limit is 16bpp */
+ static uint32_t dsc_policy_max_target_bpp_limit = 16;
+ 
++/* default DSC policy enables DSC only when needed */
++static bool dsc_policy_enable_dsc_when_not_needed;
++
+ static uint32_t dc_dsc_bandwidth_in_kbps_from_timing(
+ 	const struct dc_crtc_timing *timing)
+ {
+@@ -360,7 +363,7 @@ static bool decide_dsc_target_bpp_x16(
+ 
+ 	get_dsc_bandwidth_range(policy->min_target_bpp, policy->max_target_bpp,
+ 			dsc_common_caps, timing, &range);
+-	if (target_bandwidth_kbps >= range.stream_kbps) {
++	if (!policy->enable_dsc_when_not_needed && target_bandwidth_kbps >= range.stream_kbps) {
+ 		/* enough bandwidth without dsc */
+ 		*target_bpp_x16 = 0;
+ 		should_use_dsc = false;
+@@ -961,9 +964,20 @@ void dc_dsc_get_policy_for_timing(const struct dc_crtc_timing *timing, struct dc
+ 	/* internal upper limit, default 16 bpp */
+ 	if (policy->max_target_bpp > dsc_policy_max_target_bpp_limit)
+ 		policy->max_target_bpp = dsc_policy_max_target_bpp_limit;
++
++	/* enable DSC when not needed, default false */
++	if (dsc_policy_enable_dsc_when_not_needed)
++		policy->enable_dsc_when_not_needed = dsc_policy_enable_dsc_when_not_needed;
++	else
++		policy->enable_dsc_when_not_needed = false;
+ }
+ 
+ void dc_dsc_policy_set_max_target_bpp_limit(uint32_t limit)
+ {
+ 	dsc_policy_max_target_bpp_limit = limit;
+ }
++
++void dc_dsc_policy_set_enable_dsc_when_not_needed(bool enable)
++{
++	dsc_policy_enable_dsc_when_not_needed = enable;
++}
 
