@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4FC2A55B8
+	by mail.lfdr.de (Postfix) with ESMTP id BC89D2A55B9
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387973AbgKCVE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731658AbgKCVE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 16:04:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729845AbgKCVEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:24 -0500
+        id S2387987AbgKCVE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:04:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC61D205ED;
-        Tue,  3 Nov 2020 21:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41F5622226;
+        Tue,  3 Nov 2020 21:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437463;
-        bh=vakU0Rkwl4idcdJbvwYnTinuh5AD+3dtgLgF/5nENLY=;
+        s=default; t=1604437465;
+        bh=l8Pv79KZ7J/BKhOMBszJS3NPdWlV0cINDCqwhBl20Bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amO4lUsxtMiIoYBDP7MmlX0pnFlUuCqLNISOi3aarD2ac6cY8ZgHK4oN57TPZ0aVF
-         II2D0LzZGV9h7k0/wY4JelLCCzyTnDOs9RJs2912RJEzsJoUhXi3WDn0mSW1t+F0GL
-         gvIxz1lNvbZj6aFhk/RcK97B7soiy2yZ5+BFfGLY=
+        b=vsRpTBJ32nEjih+EEwCm0cebxOuEJ5etyt+TXjOVNfrGDZhvey9+75hb0A3fhvZ50
+         uM7KZvU+3/mFTczXje6lZTqggAWTiXIyZOHYHkDLND72XzhKd/dQ6wG/PChiamFkca
+         P3IB2DtDe31S5zcVnWk7hGUKJZWUMZ35mIxUfwuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Wei Liu <wl@xen.org>
-Subject: [PATCH 4.19 049/191] xen/events: block rogue events for some time
-Date:   Tue,  3 Nov 2020 21:35:41 +0100
-Message-Id: <20201103203239.026010296@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 050/191] x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels
+Date:   Tue,  3 Nov 2020 21:35:42 +0100
+Message-Id: <20201103203239.146119897@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -44,115 +42,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 5f7f77400ab5b357b5fdb7122c3442239672186c upstream.
+[ Upstream commit f2ac57a4c49d40409c21c82d23b5706df9b438af ]
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
+GCC 10 optimizes the scheduler code differently than its predecessors.
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
+When CONFIG_DEBUG_SECTION_MISMATCH=y, the Makefile forces GCC not
+to inline some functions (-fno-inline-functions-called-once). Before GCC
+10, "no-inlined" __schedule() starts with the usual prologue:
 
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
+  push %bp
+  mov %sp, %bp
 
-This is part of XSA-332.
+So the ORC unwinder simply picks stack pointer from %bp and
+unwinds from __schedule() just perfectly:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  $ cat /proc/1/stack
+  [<0>] ep_poll+0x3e9/0x450
+  [<0>] do_epoll_wait+0xaa/0xc0
+  [<0>] __x64_sys_epoll_wait+0x1a/0x20
+  [<0>] do_syscall_64+0x33/0x40
+  [<0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
+But now, with GCC 10, there is no %bp prologue in __schedule():
+
+  $ cat /proc/1/stack
+  <nothing>
+
+The ORC entry of the point in __schedule() is:
+
+  sp:sp+88 bp:last_sp-48 type:call end:0
+
+In this case, nobody subtracts sizeof "struct inactive_task_frame" in
+__unwind_start(). The struct is put on the stack by __switch_to_asm() and
+only then __switch_to_asm() stores %sp to task->thread.sp. But we start
+unwinding from a point in __schedule() (stored in frame->ret_addr by
+'call') and not in __switch_to_asm().
+
+So for these example values in __unwind_start():
+
+  sp=ffff94b50001fdc8 bp=ffff8e1f41d29340 ip=__schedule+0x1f0
+
+The stack is:
+
+  ffff94b50001fdc8: ffff8e1f41578000 # struct inactive_task_frame
+  ffff94b50001fdd0: 0000000000000000
+  ffff94b50001fdd8: ffff8e1f41d29340
+  ffff94b50001fde0: ffff8e1f41611d40 # ...
+  ffff94b50001fde8: ffffffff93c41920 # bx
+  ffff94b50001fdf0: ffff8e1f41d29340 # bp
+  ffff94b50001fdf8: ffffffff9376cad0 # ret_addr (and end of the struct)
+
+0xffffffff9376cad0 is __schedule+0x1f0 (after the call to
+__switch_to_asm).  Now follow those 88 bytes from the ORC entry (sp+88).
+The entry is correct, __schedule() really pushes 48 bytes (8*7) + 32 bytes
+via subq to store some local values (like 4U below). So to unwind, look
+at the offset 88-sizeof(long) = 0x50 from here:
+
+  ffff94b50001fe00: ffff8e1f41578618
+  ffff94b50001fe08: 00000cc000000255
+  ffff94b50001fe10: 0000000500000004
+  ffff94b50001fe18: 7793fab6956b2d00 # NOTE (see below)
+  ffff94b50001fe20: ffff8e1f41578000
+  ffff94b50001fe28: ffff8e1f41578000
+  ffff94b50001fe30: ffff8e1f41578000
+  ffff94b50001fe38: ffff8e1f41578000
+  ffff94b50001fe40: ffff94b50001fed8
+  ffff94b50001fe48: ffff8e1f41577ff0
+  ffff94b50001fe50: ffffffff9376cf12
+
+Here                ^^^^^^^^^^^^^^^^ is the correct ret addr from
+__schedule(). It translates to schedule+0x42 (insn after a call to
+__schedule()).
+
+BUT, unwind_next_frame() tries to take the address starting from
+0xffff94b50001fdc8. That is exactly from thread.sp+88-sizeof(long) =
+0xffff94b50001fdc8+88-8 = 0xffff94b50001fe18, which is garbage marked as
+NOTE above. So this quits the unwinding as 7793fab6956b2d00 is obviously
+not a kernel address.
+
+There was a fix to skip 'struct inactive_task_frame' in
+unwind_get_return_address_ptr in the following commit:
+
+  187b96db5ca7 ("x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks")
+
+But we need to skip the struct already in the unwinder proper. So
+subtract the size (increase the stack pointer) of the structure in
+__unwind_start() directly. This allows for removal of the code added by
+commit 187b96db5ca7 completely, as the address is now at
+'(unsigned long *)state->sp - 1', the same as in the generic case.
+
+[ mingo: Cleaned up the changelog a bit, for better readability. ]
+
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+Bug: https://bugzilla.suse.com/show_bug.cgi?id=1176907
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014053051.24199-1-jslaby@suse.cz
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_base.c     |   27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |    3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
+ arch/x86/kernel/unwind_orc.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -459,17 +459,34 @@ static void lateeoi_list_add(struct irq_
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 1d264ba1e56d1..8fa9ca3c3bd7f 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -300,19 +300,12 @@ EXPORT_SYMBOL_GPL(unwind_get_return_address);
  
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
+ unsigned long *unwind_get_return_address_ptr(struct unwind_state *state)
  {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
+-	struct task_struct *task = state->task;
+-
+ 	if (unwind_done(state))
+ 		return NULL;
  
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
+ 	if (state->regs)
+ 		return &state->regs->ip;
  
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -506,7 +523,7 @@ static void xen_irq_lateeoi_worker(struc
+-	if (task != current && state->sp == task->thread.sp) {
+-		struct inactive_task_frame *frame = (void *)task->thread.sp;
+-		return &frame->ret_addr;
+-	}
+-
+ 	if (state->sp)
+ 		return (unsigned long *)state->sp - 1;
  
- 		info->eoi_time = 0;
+@@ -634,7 +627,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	} else {
+ 		struct inactive_task_frame *frame = (void *)task->thread.sp;
  
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
- 
- 	if (info)
-@@ -535,7 +552,7 @@ void xen_irq_lateeoi(unsigned int irq, u
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1438,7 +1455,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -33,7 +33,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
+-		state->sp = task->thread.sp;
++		state->sp = task->thread.sp + sizeof(*frame);
+ 		state->bp = READ_ONCE_NOCHECK(frame->bp);
+ 		state->ip = READ_ONCE_NOCHECK(frame->ret_addr);
+ 		state->signal = (void *)state->ip == ret_from_fork;
+-- 
+2.27.0
+
 
 
