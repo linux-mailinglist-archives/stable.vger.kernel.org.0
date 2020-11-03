@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEB92A5851
+	by mail.lfdr.de (Postfix) with ESMTP id C86242A5852
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730511AbgKCUrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:47:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
+        id S1730454AbgKCUrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:47:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731352AbgKCUrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:47:35 -0500
+        id S1731365AbgKCUrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:47:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE19A20719;
-        Tue,  3 Nov 2020 20:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6D2223FD;
+        Tue,  3 Nov 2020 20:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436454;
-        bh=5fK79m+5E9BogoI86LILJfXfRx4KDEPqdPAPrzc+1qg=;
+        s=default; t=1604436456;
+        bh=YMsQInCazoApgrY+92/b5y6QEoKHwNezzaCHAZQXFWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWUyQOyMp1kf5qUt9xScbpX1O3avo6TaWSzb95r9xxRxhDm70ApzLRjGbAoH5MoxB
-         RmYDM53BlLb9lHAkw1p80+Gg46Z6ve86/q4dDvaygMl987wATQ7m7KOEKDuX0VBveZ
-         kZCU+M1qW15JRTNCF3gsm0mILA3/jTZMF796SzcY=
+        b=YOLmiZNMoHf/wFta4cI9PenQpO1yJcU1sFhgamAavViIduYrQQy+KXwlIeiyui4Vk
+         Ub33QxVztGXA224zo/4ImvlV6vpEeszJnwuH69/+EoreNGOj0Ts0mCTn9+ES4O/kJY
+         VjU6uVq+QaaZAcQyYPkF1sLoXikJzXGrfn9cbyZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fvogt@suse.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.9 256/391] vt_ioctl: fix GIO_UNIMAP regression
-Date:   Tue,  3 Nov 2020 21:35:07 +0100
-Message-Id: <20201103203404.296513919@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.9 257/391] HID: wacom: Avoid entering wacom_wac_pen_report for pad / battery
+Date:   Tue,  3 Nov 2020 21:35:08 +0100
+Message-Id: <20201103203404.364231800@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -42,64 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-commit d54654790302ccaa72589380dce060d376ef8716 upstream.
+commit d9216d753b2b1406b801243b12aaf00a5ce5b861 upstream.
 
-In commit 5ba127878722, we shuffled with the check of 'perm'. But my
-brain somehow inverted the condition in 'do_unimap_ioctl' (I thought
-it is ||, not &&), so GIO_UNIMAP stopped working completely.
+It has recently been reported that the "heartbeat" report from devices
+like the 2nd-gen Intuos Pro (PTH-460, PTH-660, PTH-860) or the 2nd-gen
+Bluetooth-enabled Intuos tablets (CTL-4100WL, CTL-6100WL) can cause the
+driver to send a spurious BTN_TOUCH=0 once per second in the middle of
+drawing. This can result in broken lines while drawing on Chrome OS.
 
-Move the 'perm' checks back to do_unimap_ioctl and do them right again.
-In fact, this reverts this part of code to the pre-5ba127878722 state.
-Except 'perm' is now a bool.
+The source of the issue has been traced back to a change which modified
+the driver to only call `wacom_wac_pad_report()` once per report instead
+of once per collection. As part of this change, pad-handling code was
+removed from `wacom_wac_collection()` under the assumption that the
+`WACOM_PEN_FIELD` and `WACOM_TOUCH_FIELD` checks would not be satisfied
+when a pad or battery collection was being processed.
 
-Fixes: 5ba127878722 ("vt_ioctl: move perm checks level up")
-Cc: stable@vger.kernel.org
-Reported-by: Fabian Vogt <fvogt@suse.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20201026055419.30518-1-jslaby@suse.cz
+To be clear, the macros `WACOM_PAD_FIELD` and `WACOM_PEN_FIELD` do not
+currently check exclusive conditions. In fact, most "pad" fields will
+also appear to be "pen" fields simply due to their presence inside of
+a Digitizer application collection. Because of this, the removal of
+the check from `wacom_wac_collection()` just causes pad / battery
+collections to instead trigger a call to `wacom_wac_pen_report()`
+instead. The pen report function in turn resets the tip switch state
+just prior to exiting, resulting in the observed BTN_TOUCH=0 symptom.
+
+To correct this, we restore a version of the `WACOM_PAD_FIELD` check
+in `wacom_wac_collection()` and return early. This effectively prevents
+pad / battery collections from being reported until the very end of the
+report as originally intended.
+
+Fixes: d4b8efeb46d9 ("HID: wacom: generic: Correct pad syncing")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Tested-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/hid/wacom_wac.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -550,7 +550,7 @@ static int vt_io_fontreset(struct consol
- }
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2773,7 +2773,9 @@ static int wacom_wac_collection(struct h
+ 	if (report->type != HID_INPUT_REPORT)
+ 		return -1;
  
- static inline int do_unimap_ioctl(int cmd, struct unimapdesc __user *user_ud,
--		struct vc_data *vc)
-+		bool perm, struct vc_data *vc)
- {
- 	struct unimapdesc tmp;
- 
-@@ -558,9 +558,11 @@ static inline int do_unimap_ioctl(int cm
- 		return -EFAULT;
- 	switch (cmd) {
- 	case PIO_UNIMAP:
-+		if (!perm)
-+			return -EPERM;
- 		return con_set_unimap(vc, tmp.entry_ct, tmp.entries);
- 	case GIO_UNIMAP:
--		if (fg_console != vc->vc_num)
-+		if (!perm && fg_console != vc->vc_num)
- 			return -EPERM;
- 		return con_get_unimap(vc, tmp.entry_ct, &(user_ud->entry_ct),
- 				tmp.entries);
-@@ -640,10 +642,7 @@ static int vt_io_ioctl(struct vc_data *v
- 
- 	case PIO_UNIMAP:
- 	case GIO_UNIMAP:
--		if (!perm)
--			return -EPERM;
--
--		return do_unimap_ioctl(cmd, up, vc);
-+		return do_unimap_ioctl(cmd, up, perm, vc);
- 
- 	default:
- 		return -ENOIOCTLCMD;
+-	if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
++	if (WACOM_PAD_FIELD(field))
++		return 0;
++	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_report(hdev, report);
+ 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
+ 		wacom_wac_finger_report(hdev, report);
 
 
