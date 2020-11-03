@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA6D2A5865
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A915E2A574E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgKCVuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:50:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
+        id S1732425AbgKCU4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:56:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730721AbgKCUsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:43 -0500
+        id S1732446AbgKCU4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF749223FD;
-        Tue,  3 Nov 2020 20:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 166A62053B;
+        Tue,  3 Nov 2020 20:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436521;
-        bh=snDHr9T+ftJnmapcGtqW1KPVXxfXk4RyxtmxcmoazBY=;
+        s=default; t=1604436965;
+        bh=Q6bPBsa9iLZA5r6OQv9C/a455aoIqI5/OK+YTcw688A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xdEcdsJzaP0taItGtx2Swwy4YJsA8qmNJWYZWni3JivP9SJ1FxR3Ov4wzJG7gD3i5
-         Q+PsXkFXEQrR8Rpdeg41YyKI33d+ui2HAtUmLK3Iw8yp0y9BW3MpDbx+NRxwJUUbfJ
-         adZBEBj6T8gUPSugwLah7+SicqzaX2zd+kQ8U9CQ=
+        b=VU6mDDZhCdYYli0cw9LCPkqWZNUWhq5HHh8MqKcTntts3fNQ7jTv35p+SiqtTDGpC
+         7vobPRcX9h+DH8B4kk1CGc3BARU97zrNoTN9sJRwpR9VXtRPSGUgJbW/uXFsMsBo/Z
+         4KWqw1iO+axXSRp08RxrI4qTfEufcMxclcdvH/2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 286/391] powerpc/rtas: Restrict RTAS requests from userspace
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/214] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
 Date:   Tue,  3 Nov 2020 21:35:37 +0100
-Message-Id: <20201103203406.344042765@linuxfoundation.org>
+Message-Id: <20201103203258.751771490@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,264 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit bd59380c5ba4147dcbaad3e582b55ccfd120b764 upstream.
+[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
 
-A number of userspace utilities depend on making calls to RTAS to retrieve
-information and update various things.
+There is no need to keep DMA controller nodes under AMBA bus node.
+Remove the "amba" node to fix dtschema warnings like:
 
-The existing API through which we expose RTAS to userspace exposes more
-RTAS functionality than we actually need, through the sys_rtas syscall,
-which allows root (or anyone with CAP_SYS_ADMIN) to make any RTAS call they
-want with arbitrary arguments.
+  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
-Many RTAS calls take the address of a buffer as an argument, and it's up to
-the caller to specify the physical address of the buffer as an argument. We
-allocate a buffer (the "RMO buffer") in the Real Memory Area that RTAS can
-access, and then expose the physical address and size of this buffer in
-/proc/powerpc/rtas/rmo_buffer. Userspace is expected to read this address,
-poke at the buffer using /dev/mem, and pass an address in the RMO buffer to
-the RTAS call.
-
-However, there's nothing stopping the caller from specifying whatever
-address they want in the RTAS call, and it's easy to construct a series of
-RTAS calls that can overwrite arbitrary bytes (even without /dev/mem
-access).
-
-Additionally, there are some RTAS calls that do potentially dangerous
-things and for which there are no legitimate userspace use cases.
-
-In the past, this would not have been a particularly big deal as it was
-assumed that root could modify all system state freely, but with Secure
-Boot and lockdown we need to care about this.
-
-We can't fundamentally change the ABI at this point, however we can address
-this by implementing a filter that checks RTAS calls against a list
-of permitted calls and forces the caller to use addresses within the RMO
-buffer.
-
-The list is based off the list of calls that are used by the librtas
-userspace library, and has been tested with a number of existing userspace
-RTAS utilities. For compatibility with any applications we are not aware of
-that require other calls, the filter can be turned off at build time.
-
-Cc: stable@vger.kernel.org
-Reported-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200820044512.7543-1-ajd@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig       |   13 +++
- arch/powerpc/kernel/rtas.c |  153 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 166 insertions(+)
+ arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -1001,6 +1001,19 @@ config PPC_SECVAR_SYSFS
- 	  read/write operations on these variables. Say Y if you have
- 	  secure boot enabled and want to expose variables to userspace.
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 2ad642f51fd92..8b194da334a5c 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -128,35 +128,28 @@
+ 			};
+ 		};
  
-+config PPC_RTAS_FILTER
-+	bool "Enable filtering of RTAS syscalls"
-+	default y
-+	depends on PPC_RTAS
-+	help
-+	  The RTAS syscall API has security issues that could be used to
-+	  compromise system integrity. This option enforces restrictions on the
-+	  RTAS calls and arguments passed by userspace programs to mitigate
-+	  these issues.
-+
-+	  Say Y unless you know what you are doing and the filter is causing
-+	  problems for you.
-+
- endmenu
+-		amba {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges;
+-
+-			pdma0: dma@e0900000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0900000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <19>;
+-				clocks = <&clocks CLK_PDMA0>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma0: dma@e0900000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0900000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <19>;
++			clocks = <&clocks CLK_PDMA0>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
++		};
  
- config ISA_DMA_API
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -992,6 +992,147 @@ struct pseries_errorlog *get_pseries_err
- 	return NULL;
- }
+-			pdma1: dma@e0a00000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0a00000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <20>;
+-				clocks = <&clocks CLK_PDMA1>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma1: dma@e0a00000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0a00000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <20>;
++			clocks = <&clocks CLK_PDMA1>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
+ 		};
  
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+
-+/*
-+ * The sys_rtas syscall, as originally designed, allows root to pass
-+ * arbitrary physical addresses to RTAS calls. A number of RTAS calls
-+ * can be abused to write to arbitrary memory and do other things that
-+ * are potentially harmful to system integrity, and thus should only
-+ * be used inside the kernel and not exposed to userspace.
-+ *
-+ * All known legitimate users of the sys_rtas syscall will only ever
-+ * pass addresses that fall within the RMO buffer, and use a known
-+ * subset of RTAS calls.
-+ *
-+ * Accordingly, we filter RTAS requests to check that the call is
-+ * permitted, and that provided pointers fall within the RMO buffer.
-+ * The rtas_filters list contains an entry for each permitted call,
-+ * with the indexes of the parameters which are expected to contain
-+ * addresses and sizes of buffers allocated inside the RMO buffer.
-+ */
-+struct rtas_filter {
-+	const char *name;
-+	int token;
-+	/* Indexes into the args buffer, -1 if not used */
-+	int buf_idx1;
-+	int size_idx1;
-+	int buf_idx2;
-+	int size_idx2;
-+
-+	int fixed_size;
-+};
-+
-+static struct rtas_filter rtas_filters[] __ro_after_init = {
-+	{ "ibm,activate-firmware", -1, -1, -1, -1, -1 },
-+	{ "ibm,configure-connector", -1, 0, -1, 1, -1, 4096 },	/* Special cased */
-+	{ "display-character", -1, -1, -1, -1, -1 },
-+	{ "ibm,display-message", -1, 0, -1, -1, -1 },
-+	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
-+	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
-+	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
-+	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
-+	{ "get-power-level", -1, -1, -1, -1, -1 },
-+	{ "get-sensor-state", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-system-parameter", -1, 1, 2, -1, -1 },
-+	{ "get-time-of-day", -1, -1, -1, -1, -1 },
-+	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
-+	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
-+	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
-+	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
-+	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
-+	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
-+	{ "ibm,set-eeh-option", -1, -1, -1, -1, -1 },
-+	{ "set-indicator", -1, -1, -1, -1, -1 },
-+	{ "set-power-level", -1, -1, -1, -1, -1 },
-+	{ "set-time-for-power-on", -1, -1, -1, -1, -1 },
-+	{ "ibm,set-system-parameter", -1, 1, -1, -1, -1 },
-+	{ "set-time-of-day", -1, -1, -1, -1, -1 },
-+	{ "ibm,suspend-me", -1, -1, -1, -1, -1 },
-+	{ "ibm,update-nodes", -1, 0, -1, -1, -1, 4096 },
-+	{ "ibm,update-properties", -1, 0, -1, -1, -1, 4096 },
-+	{ "ibm,physical-attestation", -1, 0, 1, -1, -1 },
-+};
-+
-+static bool in_rmo_buf(u32 base, u32 end)
-+{
-+	return base >= rtas_rmo_buf &&
-+		base < (rtas_rmo_buf + RTAS_RMOBUF_MAX) &&
-+		base <= end &&
-+		end >= rtas_rmo_buf &&
-+		end < (rtas_rmo_buf + RTAS_RMOBUF_MAX);
-+}
-+
-+static bool block_rtas_call(int token, int nargs,
-+			    struct rtas_args *args)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
-+		struct rtas_filter *f = &rtas_filters[i];
-+		u32 base, size, end;
-+
-+		if (token != f->token)
-+			continue;
-+
-+		if (f->buf_idx1 != -1) {
-+			base = be32_to_cpu(args->args[f->buf_idx1]);
-+			if (f->size_idx1 != -1)
-+				size = be32_to_cpu(args->args[f->size_idx1]);
-+			else if (f->fixed_size)
-+				size = f->fixed_size;
-+			else
-+				size = 1;
-+
-+			end = base + size - 1;
-+			if (!in_rmo_buf(base, end))
-+				goto err;
-+		}
-+
-+		if (f->buf_idx2 != -1) {
-+			base = be32_to_cpu(args->args[f->buf_idx2]);
-+			if (f->size_idx2 != -1)
-+				size = be32_to_cpu(args->args[f->size_idx2]);
-+			else if (f->fixed_size)
-+				size = f->fixed_size;
-+			else
-+				size = 1;
-+			end = base + size - 1;
-+
-+			/*
-+			 * Special case for ibm,configure-connector where the
-+			 * address can be 0
-+			 */
-+			if (!strcmp(f->name, "ibm,configure-connector") &&
-+			    base == 0)
-+				return false;
-+
-+			if (!in_rmo_buf(base, end))
-+				goto err;
-+		}
-+
-+		return false;
-+	}
-+
-+err:
-+	pr_err_ratelimited("sys_rtas: RTAS call blocked - exploit attempt?\n");
-+	pr_err_ratelimited("sys_rtas: token=0x%x, nargs=%d (called by %s)\n",
-+			   token, nargs, current->comm);
-+	return true;
-+}
-+
-+#else
-+
-+static bool block_rtas_call(int token, int nargs,
-+			    struct rtas_args *args)
-+{
-+	return false;
-+}
-+
-+#endif /* CONFIG_PPC_RTAS_FILTER */
-+
- /* We assume to be passed big endian arguments */
- SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
- {
-@@ -1029,6 +1170,9 @@ SYSCALL_DEFINE1(rtas, struct rtas_args _
- 	args.rets = &args.args[nargs];
- 	memset(args.rets, 0, nret * sizeof(rtas_arg_t));
- 
-+	if (block_rtas_call(token, nargs, &args))
-+		return -EINVAL;
-+
- 	/* Need to handle ibm,suspend_me call specially */
- 	if (token == ibm_suspend_me_token) {
- 
-@@ -1090,6 +1234,9 @@ void __init rtas_initialize(void)
- 	unsigned long rtas_region = RTAS_INSTANTIATE_MAX;
- 	u32 base, size, entry;
- 	int no_base, no_size, no_entry;
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+	int i;
-+#endif
- 
- 	/* Get RTAS dev node and fill up our "rtas" structure with infos
- 	 * about it.
-@@ -1129,6 +1276,12 @@ void __init rtas_initialize(void)
- #ifdef CONFIG_RTAS_ERROR_LOGGING
- 	rtas_last_error_token = rtas_token("rtas-last-error");
- #endif
-+
-+#ifdef CONFIG_PPC_RTAS_FILTER
-+	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
-+		rtas_filters[i].token = rtas_token(rtas_filters[i].name);
-+	}
-+#endif
- }
- 
- int __init early_init_dt_scan_rtas(unsigned long node,
+ 		spi0: spi@e1300000 {
+-- 
+2.27.0
+
 
 
