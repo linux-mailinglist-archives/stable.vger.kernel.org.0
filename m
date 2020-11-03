@@ -2,161 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336C52A4E2D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 19:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9692A4E2F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 19:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729262AbgKCSRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 13:17:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
+        id S1729188AbgKCSRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 13:17:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725385AbgKCSRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 13:17:05 -0500
+        id S1725385AbgKCSRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 13:17:13 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91BA020786;
-        Tue,  3 Nov 2020 18:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 826A22080D;
+        Tue,  3 Nov 2020 18:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604427423;
-        bh=6B3CSxI/aCWrBNaxi0z7HdxaCiWj2ToDIq1/HN59jxo=;
+        s=default; t=1604427432;
+        bh=n5wNWjXf1491Qk/AIDVyyhHom6cYu3MkQPqbgLrwhwA=;
         h=Date:From:To:Subject:From;
-        b=whX6hrN1HcQr/8WYK6cVFy9WzR/zVH6mW5uAg2nqEjnrWvEFRmgqh7wh/yJoGCvMU
-         wpL5b3eHGFwcS8oSCLxbawF+1ab+2hVFnigyOEjhsVOAuwkkhMkIvTowFt2LTsTHJa
-         n236lAHkx8VojdaVYImykf5v6ZTVufWNnpnRHTHY=
-Date:   Tue, 03 Nov 2020 10:17:03 -0800
+        b=ChdmoIFWZGTcsGaBA/SWvHBA/HQZd4a5Y+0+78ZPI++ODKfRBIGIO3ZdzCxYIi24J
+         DtkDJM67+YwO4M9Hb5h83C4fcMwztNaxHsRDo0dE1UClAh6fjjVNccMovBMGT3DKhS
+         sfX3G7cAnOnijSMP+S/LtaIOTSS5Zm/SGpwXNbYw=
+Date:   Tue, 03 Nov 2020 10:17:12 -0800
 From:   akpm@linux-foundation.org
-To:     axboe@kernel.dk, christian@brauner.io, ebiederm@xmission.com,
-        liuzhiqiang26@huawei.com, mm-commits@vger.kernel.org,
-        oleg@redhat.com, stable@vger.kernel.org, tj@kernel.org
+To:     mm-commits@vger.kernel.org, pmladek@suse.com,
+        qiang.zhang@windriver.com, stable@vger.kernel.org, tj@kernel.org
 Subject:  [merged]
- ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
- removed from -mm tree
-Message-ID: <20201103181703.mr9B5EH3X%akpm@linux-foundation.org>
+ =?US-ASCII?Q?kthread=5Fworker-prevent-queuing-delayed-work-from-time?=
+ =?US-ASCII?Q?r=5Ffn-when-it-is-being-canceled.patch?= removed from -mm
+ tree
+Message-ID: <20201103181712.QU928QUTg%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ptrace: fix task_join_group_stop() for the case when current is traced
+     Subject: kthread_worker: prevent queuing delayed work from timer_fn when it is being canceled
 has been removed from the -mm tree.  Its filename was
-     ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced.patch
+     kthread_worker-prevent-queuing-delayed-work-from-timer_fn-when-it-is-being-canceled.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: ptrace: fix task_join_group_stop() for the case when current is traced
+From: Zqiang <qiang.zhang@windriver.com>
+Subject: kthread_worker: prevent queuing delayed work from timer_fn when it is being canceled
 
-This testcase
+There is a small race window when a delayed work is being canceled and the
+work still might be queued from the timer_fn:
 
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <pthread.h>
-	#include <assert.h>
+	CPU0						CPU1
+kthread_cancel_delayed_work_sync()
+   __kthread_cancel_work_sync()
+     __kthread_cancel_work()
+        work->canceling++;
+					      kthread_delayed_work_timer_fn()
+						   kthread_insert_work();
 
-	void *tf(void *arg)
-	{
-		return NULL;
-	}
+BUG: kthread_insert_work() should not get called when work->canceling is
+set.
 
-	int main(void)
-	{
-		int pid = fork();
-		if (!pid) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-
-			return 0;
-		}
-
-		waitpid(pid, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, pid, 0, PTRACE_O_TRACECLONE);
-		waitpid(pid, NULL, 0);
-
-		ptrace(PTRACE_CONT, pid, 0,0);
-		waitpid(pid, NULL, 0);
-
-		int status;
-		int thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != pid);
-		assert(status == 0x80137f);
-
-		return 0;
-	}
-
-fails and triggers WARN_ON_ONCE(!signr) in do_jobctl_trap().
-
-This is because task_join_group_stop() has 2 problems when current is traced:
-
-	1. We can't rely on the "JOBCTL_STOP_PENDING" check, a stopped tracee
-	   can be woken up by debugger and it can clone another thread which
-	   should join the group-stop.
-
-	   We need to check group_stop_count || SIGNAL_STOP_STOPPED.
-
-	2. If SIGNAL_STOP_STOPPED is already set, we should not increment
-	   sig->group_stop_count and add JOBCTL_STOP_CONSUME. The new thread
-	   should stop without another do_notify_parent_cldstop() report.
-
-To clarify, the problem is very old and we should blame
-ptrace_init_task().  But now that we have task_join_group_stop() it makes
-more sense to fix this helper to avoid the code duplication.
-
-Link: https://lkml.kernel.org/r/20201019134237.GA18810@redhat.com
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
+Link: https://lkml.kernel.org/r/20201014083030.16895-1-qiang.zhang@windriver.com
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/signal.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ kernel/kthread.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/signal.c~ptrace-fix-task_join_group_stop-for-the-case-when-current-is-traced
-+++ a/kernel/signal.c
-@@ -391,16 +391,17 @@ static bool task_participate_group_stop(
+--- a/kernel/kthread.c~kthread_worker-prevent-queuing-delayed-work-from-timer_fn-when-it-is-being-canceled
++++ a/kernel/kthread.c
+@@ -897,7 +897,8 @@ void kthread_delayed_work_timer_fn(struc
+ 	/* Move the work from worker->delayed_work_list. */
+ 	WARN_ON_ONCE(list_empty(&work->node));
+ 	list_del_init(&work->node);
+-	kthread_insert_work(worker, work, &worker->work_list);
++	if (!work->canceling)
++		kthread_insert_work(worker, work, &worker->work_list);
  
- void task_join_group_stop(struct task_struct *task)
- {
-+	unsigned long mask = current->jobctl & JOBCTL_STOP_SIGMASK;
-+	struct signal_struct *sig = current->signal;
-+
-+	if (sig->group_stop_count) {
-+		sig->group_stop_count++;
-+		mask |= JOBCTL_STOP_CONSUME;
-+	} else if (!(sig->flags & SIGNAL_STOP_STOPPED))
-+		return;
-+
- 	/* Have the new thread join an on-going signal group stop */
--	unsigned long jobctl = current->jobctl;
--	if (jobctl & JOBCTL_STOP_PENDING) {
--		struct signal_struct *sig = current->signal;
--		unsigned long signr = jobctl & JOBCTL_STOP_SIGMASK;
--		unsigned long gstop = JOBCTL_STOP_PENDING | JOBCTL_STOP_CONSUME;
--		if (task_set_jobctl_pending(task, signr | gstop)) {
--			sig->group_stop_count++;
--		}
--	}
-+	task_set_jobctl_pending(task, mask | JOBCTL_STOP_PENDING);
+ 	raw_spin_unlock_irqrestore(&worker->lock, flags);
  }
- 
- /*
 _
 
-Patches currently in -mm which might be from oleg@redhat.com are
+Patches currently in -mm which might be from qiang.zhang@windriver.com are
 
-aio-simplify-read_events.patch
 
