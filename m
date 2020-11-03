@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A59B2A4A0A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:40:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1883E2A4A0C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgKCPk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:40:57 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51357 "EHLO
+        id S1728045AbgKCPlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:41:08 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:59303 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727470AbgKCPk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:40:56 -0500
+        by vger.kernel.org with ESMTP id S1727470AbgKCPlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:41:07 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id E57E1C84;
-        Tue,  3 Nov 2020 10:40:55 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 8C50B46C;
+        Tue,  3 Nov 2020 10:41:06 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:40:56 -0500
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:41:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MiGZw8
-        nP6OASJwXOM+tnx4PVavVlue5OipZDa+xR874=; b=XGWzf9fiSk5/c1PulLl7s9
-        peaD0wgg0sGs+v4/TkB9Vzg3gqfXmNWZLbRAohXtfRg+b4XvMcPSL61iXhylJ5lE
-        93IAwGA5rBpB7CwnzYLFV8YVV/6s7cIXjknFzDYDQ8JALQjhtkRuI5HJHJJeEv2h
-        ZuM5yY+OE4IV1q593arghJMZs9C7NbPLRFDU7HvOl1vKldH0/FeXo7L2rXo15VzS
-        SAS2ZnHC5RQM3ext1881ANnegDyBgThbM4jZo+wAhk6YUU3nvTXoRr8plhMmrPBF
-        zAD8JV2HmCj/YaQyG9jX3XQiF6wbz7QJCAS2NTsRMgeT5jSp84WXc51kMpoj7ILA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=yCIwGT
+        +o0gRhTDDcIEP5YMQ+k6Cg6U/TAytNqUzMYsw=; b=o5nR1Z+yMMONt1LaeesO08
+        XraqHAM++7WrYCZ9ufiOR+4ag9yeNcdfZ1j87+6PL8pj1zIaBypMN2HXv7Uwola9
+        xiVgGf935WLFfcGpCU7DRawHd3S7FmaqrNBlnzsWVfio9NBck1LQnbI6P98EhiEo
+        TiMUoLei5jiX6CJunOrPiyI7TN1wl0ScCLerBCY7Hh1UypmL9W9erjqvgBahEAYN
+        WDgeirJcWgYhko2ljBwE32BTbK/EsT82tF8eQtrBFniYg+5e/DDzOZf9Sj3Tk3j9
+        UhrFRJMehxW6klWeQo2QDitKHR7GSfJXMqT2CrJ7DM8m6jGF4tCzK4CAE8PJj/iw
         ==
-X-ME-Sender: <xms:B3qhX2bWiYleAQb1yh-_XI9y4cTOnJ4-kEcjsiyb93f5sqgxjtnhIg>
-    <xme:B3qhX5YJTshwBcJMYVFR73Yg-qloab9-Uyr1npKyG88inCxbWDUj_RPRmTSyWLUrJ
-    lshLt7aBB_Bgg>
+X-ME-Sender: <xms:EnqhX7JvbXme0LAEW8uDTRwRUd1mOUUq2xBvSBiLFm9r9ISQ7aKJ5w>
+    <xme:EnqhX_KWAKKQb_V4iFY35BANEWSsQ57kcsyYju72-fYc-RtyoR8QSdFxosn9xV7vc
+    4rsqZtSVsRs4Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:B3qhXw8xf0fuc4jyCXjc0Erh9EusjN5dznD3hbv9KWNfZrQiqLsP_w>
-    <xmx:B3qhX4rJ8jf-LrCKPecAFwBE8OnSsPS30vLUIW4Aw9E2jo2vqxrTCw>
-    <xmx:B3qhXxqQ7aZ6M4a_8KH6emYgd8ePD74j2_jqMG-WBjL3tLBXyiC6lg>
-    <xmx:B3qhXwTBVce28rQrpYxYAFmSyTqkrpsJaOs4hUeXpqHyJgqkovNq9wljGYg>
+X-ME-Proxy: <xmx:EnqhXzsJVnx5cbOHQo94y6j3SgXgBJstudB96XV_F_aLj9kYOtjJNA>
+    <xmx:EnqhX0ZcNC4gEb411s1o1jT6LMHmNQfH4MbBuVqqiaWVKdTS3AxvnQ>
+    <xmx:EnqhXyby_bfwKv4PQ_clt93q7wToKhspjVQ0O8kf1KIWm4ofiVfvCQ>
+    <xmx:EnqhX7DyppkXHI1VUPmRitfHWaFDonWyEuHLalDgtFiKKSGg6ZvoaB9q9tw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E82E53064684;
-        Tue,  3 Nov 2020 10:40:54 -0500 (EST)
-Subject: FAILED: patch "[PATCH] rtc: rx8010: don't modify the global rtc ops" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C6C5C3064610;
+        Tue,  3 Nov 2020 10:41:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] rtc: rx8010: don't modify the global rtc ops" failed to apply to 4.14-stable tree
 To:     bgolaszewski@baylibre.com, alexandre.belloni@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:41:48 +0100
-Message-ID: <16044181082745@kroah.com>
+Date:   Tue, 03 Nov 2020 16:41:49 +0100
+Message-ID: <160441810951176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
