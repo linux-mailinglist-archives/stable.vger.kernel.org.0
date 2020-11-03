@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3232A5649
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9DB2A5384
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387503AbgKCVBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38454 "EHLO mail.kernel.org"
+        id S2387521AbgKCVBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731068AbgKCVBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:43 -0500
+        id S1733134AbgKCVBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:01:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9DF620757;
-        Tue,  3 Nov 2020 21:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 026ED22456;
+        Tue,  3 Nov 2020 21:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437303;
-        bh=qoNFdR949SAk67fHkLcz4zmS5MAph+w0wkiEwieyGS0=;
+        s=default; t=1604437305;
+        bh=5C3lABk1US5/ojJTyTXhtD5XBoq+Zbzei8yotia0AyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXnPLMUYGTmcB4kHUah3omGMR03YZWA1sKMr+cJMqszSbQ27N5k69iolJ2kGxI7VN
-         qaif/NsEU2KOZr4bS0ayG+rFCrj70RqbYJVw7Kqe6uSHR0yU+qHpdfM7pr85ArcGCm
-         gdpjBfQcDuvOJOsDZNtuPSAzH2ZrQS7juiPhUSSM=
+        b=13Q3gmUMs6ZVM/n1MR+eKhleowFP3SqzkaBCdxUum8Zmwvmb/jExVktO4DWnKeULz
+         q0i1XjcmEwxmhF2Udm1UcgMNQGVdJ5oFnWe0fw6VSXQqspqw4itzlPD5BxvncYWx+v
+         +uGO/QCfSoskUUf7FusBC03vf8B8kcKiFP33hj9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.19 019/191] x86/xen: disable Firmware First mode for correctable memory errors
-Date:   Tue,  3 Nov 2020 21:35:11 +0100
-Message-Id: <20201103203235.166657602@linuxfoundation.org>
+        stable@vger.kernel.org, Pradeep P V K <ppvk@codeaurora.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 020/191] fuse: fix page dereference after free
+Date:   Tue,  3 Nov 2020 21:35:12 +0100
+Message-Id: <20201103203235.293300598@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -42,56 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit d759af38572f97321112a0852353613d18126038 upstream.
+commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
 
-When running as Xen dom0 the kernel isn't responsible for selecting the
-error handling mode, this should be handled by the hypervisor.
+After unlock_request() pages from the ap->pages[] array may be put (e.g. by
+aborting the connection) and the pages can be freed.
 
-So disable setting FF mode when running as Xen pv guest. Not doing so
-might result in boot splats like:
+Prevent use after free by grabbing a reference to the page before calling
+unlock_request().
 
-[    7.509696] HEST: Enabling Firmware First mode for corrected errors.
-[    7.510382] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 2.
-[    7.510383] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 3.
-[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 4.
-[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 5.
-[    7.510385] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 6.
-[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 7.
-[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 8.
+The original patch was created by Pradeep P V K.
 
-Reason is that the HEST ACPI table contains the real number of MCA
-banks, while the hypervisor is emulating only 2 banks for guests.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200925140751.31381-1-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reported-by: Pradeep P V K <ppvk@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/xen/enlighten_pv.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/fuse/dev.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1383,6 +1383,15 @@ asmlinkage __visible void __init xen_sta
- 		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -853,15 +853,16 @@ static int fuse_try_move_page(struct fus
+ 	struct page *newpage;
+ 	struct pipe_buffer *buf = cs->pipebufs;
  
- 		xen_boot_params_init_edd();
-+
-+#ifdef CONFIG_ACPI
-+		/*
-+		 * Disable selecting "Firmware First mode" for correctable
-+		 * memory errors, as this is the duty of the hypervisor to
-+		 * decide.
-+		 */
-+		acpi_disable_cmcff = 1;
-+#endif
++	get_page(oldpage);
+ 	err = unlock_request(cs->req);
+ 	if (err)
+-		return err;
++		goto out_put_old;
+ 
+ 	fuse_copy_finish(cs);
+ 
+ 	err = pipe_buf_confirm(cs->pipe, buf);
+ 	if (err)
+-		return err;
++		goto out_put_old;
+ 
+ 	BUG_ON(!cs->nr_segs);
+ 	cs->currbuf = buf;
+@@ -901,7 +902,7 @@ static int fuse_try_move_page(struct fus
+ 	err = replace_page_cache_page(oldpage, newpage, GFP_KERNEL);
+ 	if (err) {
+ 		unlock_page(newpage);
+-		return err;
++		goto out_put_old;
  	}
  
- 	if (!boot_params.screen_info.orig_video_isVGA)
+ 	get_page(newpage);
+@@ -920,14 +921,19 @@ static int fuse_try_move_page(struct fus
+ 	if (err) {
+ 		unlock_page(newpage);
+ 		put_page(newpage);
+-		return err;
++		goto out_put_old;
+ 	}
+ 
+ 	unlock_page(oldpage);
++	/* Drop ref for ap->pages[] array */
+ 	put_page(oldpage);
+ 	cs->len = 0;
+ 
+-	return 0;
++	err = 0;
++out_put_old:
++	/* Drop ref obtained in this function */
++	put_page(oldpage);
++	return err;
+ 
+ out_fallback_unlock:
+ 	unlock_page(newpage);
+@@ -936,10 +942,10 @@ out_fallback:
+ 	cs->offset = buf->offset;
+ 
+ 	err = lock_request(cs->req);
+-	if (err)
+-		return err;
++	if (!err)
++		err = 1;
+ 
+-	return 1;
++	goto out_put_old;
+ }
+ 
+ static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
+@@ -951,14 +957,16 @@ static int fuse_ref_page(struct fuse_cop
+ 	if (cs->nr_segs == cs->pipe->buffers)
+ 		return -EIO;
+ 
++	get_page(page);
+ 	err = unlock_request(cs->req);
+-	if (err)
++	if (err) {
++		put_page(page);
+ 		return err;
++	}
+ 
+ 	fuse_copy_finish(cs);
+ 
+ 	buf = cs->pipebufs;
+-	get_page(page);
+ 	buf->page = page;
+ 	buf->offset = offset;
+ 	buf->len = count;
 
 
