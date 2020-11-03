@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F062A55BA
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3712A53CA
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731146AbgKCVEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:04:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42596 "EHLO mail.kernel.org"
+        id S1732459AbgKCVEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:04:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387990AbgKCVEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:30 -0500
+        id S2387627AbgKCVEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:04:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAEC6205ED;
-        Tue,  3 Nov 2020 21:04:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02D9A20658;
+        Tue,  3 Nov 2020 21:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437470;
-        bh=3eol1acl+C68n5/aWIpoRKtuM51gU4LAbFrTdWOf1iM=;
+        s=default; t=1604437472;
+        bh=4QZvZJNefxpLQmb5bdwsvFumMXg2nUnNIhRGW+TTBxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWQNFb8Oub31kWiG79caK9Lm3xmr4PAEMVlCUSpVultQ6F+B8oXvsvEjl3XYkS8O5
-         n7BsJPzQmMiZuJBkndH+pOYrOYGJM04AJ3glZ4NxJO1cDbQhUyK/hJ093s+Ga4Pso8
-         m9lI+Fbz6WJO7V68xH7Kb676cc7639XQHomG9Psg=
+        b=eCfDB/VTM7lXDUUwmoZ8JXQYzKl/h7fXhfLOgwJq3CMoc1AI6vS+n44+QgDZL9VtS
+         ftiFG0FVhSmZdKpUtEs5yG+YxcaG1QzNgH1N7omngiMmvccvFOpXK4WFi1HkXkCZ9B
+         Vac485fBQscJ/MlJ2r1s2oZwQSyxCBe5q5a+8CNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/191] RDMA/qedr: Fix memory leak in iWARP CM
-Date:   Tue,  3 Nov 2020 21:35:44 +0100
-Message-Id: <20201103203239.374451899@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 053/191] ata: sata_nv: Fix retrieving of active qcs
+Date:   Tue,  3 Nov 2020 21:35:45 +0100
+Message-Id: <20201103203239.510532893@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -46,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alok Prasad <palok@marvell.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit a2267f8a52eea9096861affd463f691be0f0e8c9 ]
+[ Upstream commit 8e4c309f9f33b76c09daa02b796ef87918eee494 ]
 
-Fixes memory leak in iWARP CM
+ata_qc_complete_multiple() has to be called with the tags physically
+active, that is the hw tag is at bit 0. ap->qc_active has the same tag
+at bit ATA_TAG_INTERNAL instead, so call ata_qc_get_active() to fix that
+up. This is done in the vein of 8385d756e114 ("libata: Fix retrieving of
+active qcs").
 
-Fixes: e411e0587e0d ("RDMA/qedr: Add iWARP connection management functions")
-Link: https://lore.kernel.org/r/20201021115008.28138-1-palok@marvell.com
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Alok Prasad <palok@marvell.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 28361c403683 ("libata: add extra internal command")
+Tested-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/qedr_iw_cm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/sata_nv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/qedr/qedr_iw_cm.c b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-index e908dfbaa1378..1f1d6a000e5c9 100644
---- a/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-+++ b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-@@ -677,6 +677,7 @@ int qedr_iw_destroy_listen(struct iw_cm_id *cm_id)
- 						    listener->qed_handle);
+diff --git a/drivers/ata/sata_nv.c b/drivers/ata/sata_nv.c
+index 798d549435cc1..2248a40631bf1 100644
+--- a/drivers/ata/sata_nv.c
++++ b/drivers/ata/sata_nv.c
+@@ -2122,7 +2122,7 @@ static int nv_swncq_sdbfis(struct ata_port *ap)
+ 	pp->dhfis_bits &= ~done_mask;
+ 	pp->dmafis_bits &= ~done_mask;
+ 	pp->sdbfis_bits |= done_mask;
+-	ata_qc_complete_multiple(ap, ap->qc_active ^ done_mask);
++	ata_qc_complete_multiple(ap, ata_qc_get_active(ap) ^ done_mask);
  
- 	cm_id->rem_ref(cm_id);
-+	kfree(listener);
- 	return rc;
- }
- 
+ 	if (!ap->qc_active) {
+ 		DPRINTK("over\n");
 -- 
 2.27.0
 
