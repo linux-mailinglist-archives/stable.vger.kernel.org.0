@@ -2,120 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5400E2A4A5D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:53:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8BF2A4A6B
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:56:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbgKCPxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:53:13 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:60043 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726581AbgKCPxN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:53:13 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0CE45D4E;
-        Tue,  3 Nov 2020 10:53:11 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:53:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OW0N6o
-        hqfBcRSEv9Pq3NLQFlRcdJ0Ycd5Cj7+qHe85A=; b=orCBdbCSDdI1DAYvkP56Yg
-        GCO/0WnpOkfVDQ+tRqm7SN1Bn9i+u619uDsFiBby8iQuhe/9twN0SKMQnrTflHW8
-        g3iLlxdjNkIAUwNuWwBZejwFuBko3OkA5ujiTPpOVtPELZ6BpIIc0WRh8fY0/sau
-        Dln2OmkIH2zlg0pZPpGmjKc9l8HmV5RYITRzvOW+w1bQGVzeCyWPCVhlsJEPEd2R
-        B9pWeaYgRigPVp/yzr6rAcwtyktHn2nAs7oPnNUTW2DLNBFACiuy4e2cbzo+Df5m
-        +ymFPJzPRTPdu+gErXuujmn+hWGFc0z/rzGeWqT3gcBVuIhR3Owbiu21EQFf8UPw
-        ==
-X-ME-Sender: <xms:53yhXyitkMkz3Dp7eNOY4ZLRDuQVK74dNwFKnOteyS5R4broBL0pXg>
-    <xme:53yhXzDGAWc-QhZugPW1brLYIhT82KQh-EpPzE81zlE8spJVnUv6rTeVdnurk3meJ
-    LYZNPoE0mHa7g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:53yhX6HacL_h7pDoHpFOrtc6nwKrdTr4yn-YvIKKfKsFTVCDzjPEJw>
-    <xmx:53yhX7QoyVYbV7zjyBrA8babpQz59uJFiACIDz7yrIqzo2iDsvjAsA>
-    <xmx:53yhX_zQa4hy40RKdAJPd7UrM3lGPbhsvVR6xb_jBUiD1Zw2FgYV7A>
-    <xmx:53yhX4oWkelqEZyHpqpHnhxsI7KrRRWdF-xzHOH8UpdSy9Rr6maF2CWAHTQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1BBFF3064610;
-        Tue,  3 Nov 2020 10:53:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: prevent null pointer access" failed to apply to 5.9-stable tree
-To:     Dmytro.Laktyushkin@amd.com, alexander.deucher@amd.com,
-        aurabindo.pillai@amd.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:54:05 +0100
-Message-ID: <1604418845254136@kroah.com>
+        id S1728071AbgKCP4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:56:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726581AbgKCP4M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:56:12 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9F4C0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 07:56:10 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id y14so14546910pfp.13
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 07:56:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qiiFLrEpuw9pajPM1T8sV1CEXdENx2aiIe77uRXAErk=;
+        b=By4JGHcE0aiJ6k71qnbpK4SlFaIlMaKIdkvcPmLpmE4bu5KQB2ZYf/R2vyJuQAVWVk
+         n7qn+CHXswoGuBx+4pbqmOkl6dob9I/iVvot6htF24qklOOH70j69OxlfVeAAVkxIIan
+         47+PUkwHyNuZw6PJLn34Hpv2b/hb589//oYPZRCxbGmfNSFgrkodTUxoDOnEnCWyl54d
+         WMpoInLSwnlwVBY/gJxkIoeYgIchmx4l81onXge/mpxKDfY+IGpwRxKuKZf4oiM2DA7u
+         NFWoZa6VpM/rgIlHT00MtCufknGEzm1l2V2E7wJKXmFFM3BNnwa0K2JFZXlHZPMPOJJB
+         FyeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qiiFLrEpuw9pajPM1T8sV1CEXdENx2aiIe77uRXAErk=;
+        b=hDlUhnYIrr1gBBu7Q887QSmS0poMzpI9me3wO5Jv2RYNePB3hJg2IKzoF5SMJIBppl
+         avN7gFdd882bc9J0SHL0Z8oA5wpsr6dx/IyjMuOiExK4VRWqZZ6MKr7U/KWUwiTfQgmi
+         0nLQdJAUBNdTC/4ErqS59NIOARGIHVvHfL8Gvemj8mIOo+A9PM8Gj/OfAoNz4dxs0GE/
+         mcIQF7j6JdzWwn5mhuVOgdrdNBFoAA3nGli9NV7axeUk45GR6/JX0FLdwF6S4GmLkfA3
+         gPO5umF0rSxklW2uN7KglRz51dFEeOymgBzTclNsUfaxRdY4ESox8O6e4LCkCackztFt
+         7cow==
+X-Gm-Message-State: AOAM533MxoBFbuR5EY41iI46Qf31mpa4FPhTwG8hbcJriV/EcXbxwJOf
+        u5/6E4CNbknzfZg9wnmNM/Xdp6NatMDcbQ==
+X-Google-Smtp-Source: ABdhPJwx5CtWTUK8bVcIYmsclHLfphc383RuwtVMQOiRfPIfNpfeSgXieU5QogKqhyBv9VC0vmlMSQ==
+X-Received: by 2002:a17:90a:6501:: with SMTP id i1mr493528pjj.30.1604418970167;
+        Tue, 03 Nov 2020 07:56:10 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 198sm5477202pfz.182.2020.11.03.07.56.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2020 07:56:09 -0800 (PST)
+Message-ID: <5fa17d99.1c69fb81.2b484.ce25@mx.google.com>
+Date:   Tue, 03 Nov 2020 07:56:09 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.241-35-g00e1b9176297
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 132 runs,
+ 2 regressions (v4.4.241-35-g00e1b9176297)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 132 runs, 2 regressions (v4.4.241-35-g00e1b91=
+76297)
 
-The patch below does not apply to the 5.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform       | arch | lab           | compiler | defconfig           | re=
+gressions
+---------------+------+---------------+----------+---------------------+---=
+---------
+panda          | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1 =
+         =
 
-greg k-h
+qemu_i386-uefi | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1 =
+         =
 
------------------- original commit in Linus's tree ------------------
 
-From 140b2ef1c28d3f5a5fc767368eaa8b45afc5bf1f Mon Sep 17 00:00:00 2001
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Date: Thu, 15 Oct 2020 14:49:56 -0400
-Subject: [PATCH] drm/amd/display: prevent null pointer access
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.241-35-g00e1b9176297/plan/baseline/
 
-Prevent null pointer access when checking odm tree.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.241-35-g00e1b9176297
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      00e1b9176297755d1c41206456c06d42e9d676f6 =
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-index 24fb39a11e5d..2455d210ccf6 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -2105,12 +2105,12 @@ static bool dcn30_internal_validate_bw(
- 
- 		if (split[i]) {
- 			if (odm) {
--				if (split[i] == 4 && old_pipe->next_odm_pipe->next_odm_pipe)
-+				if (split[i] == 4 && old_pipe->next_odm_pipe && old_pipe->next_odm_pipe->next_odm_pipe)
- 					old_index = old_pipe->next_odm_pipe->next_odm_pipe->pipe_idx;
- 				else if (old_pipe->next_odm_pipe)
- 					old_index = old_pipe->next_odm_pipe->pipe_idx;
- 			} else {
--				if (split[i] == 4 && old_pipe->bottom_pipe->bottom_pipe &&
-+				if (split[i] == 4 && old_pipe->bottom_pipe && old_pipe->bottom_pipe->bottom_pipe &&
- 						old_pipe->bottom_pipe->bottom_pipe->plane_state == old_pipe->plane_state)
- 					old_index = old_pipe->bottom_pipe->bottom_pipe->pipe_idx;
- 				else if (old_pipe->bottom_pipe &&
-@@ -2150,10 +2150,12 @@ static bool dcn30_internal_validate_bw(
- 				goto validate_fail;
- 			newly_split[pipe_4to1->pipe_idx] = true;
- 
--			if (odm && old_pipe->next_odm_pipe->next_odm_pipe->next_odm_pipe)
-+			if (odm && old_pipe->next_odm_pipe && old_pipe->next_odm_pipe->next_odm_pipe
-+					&& old_pipe->next_odm_pipe->next_odm_pipe->next_odm_pipe)
- 				old_index = old_pipe->next_odm_pipe->next_odm_pipe->next_odm_pipe->pipe_idx;
--			else if (!odm && old_pipe->bottom_pipe->bottom_pipe->bottom_pipe &&
--						old_pipe->bottom_pipe->bottom_pipe->bottom_pipe->plane_state == old_pipe->plane_state)
-+			else if (!odm && old_pipe->bottom_pipe && old_pipe->bottom_pipe->bottom_pipe &&
-+					old_pipe->bottom_pipe->bottom_pipe->bottom_pipe &&
-+					old_pipe->bottom_pipe->bottom_pipe->bottom_pipe->plane_state == old_pipe->plane_state)
- 				old_index = old_pipe->bottom_pipe->bottom_pipe->bottom_pipe->pipe_idx;
- 			else
- 				old_index = -1;
 
+Test Regressions
+---------------- =
+
+
+
+platform       | arch | lab           | compiler | defconfig           | re=
+gressions
+---------------+------+---------------+----------+---------------------+---=
+---------
+panda          | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa145a59e814908313fe7e9
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-3=
+5-g00e1b9176297/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-3=
+5-g00e1b9176297/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa145a59e81490=
+8313fe7f0
+        failing since 1 day (last pass: v4.4.241-8-gd71fd6297abd, first fai=
+l: v4.4.241-10-g5dfc3f093ca4)
+        2 lines =
+
+ =
+
+
+
+platform       | arch | lab           | compiler | defconfig           | re=
+gressions
+---------------+------+---------------+----------+---------------------+---=
+---------
+qemu_i386-uefi | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa145888d41cd05113fe7e2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-3=
+5-g00e1b9176297/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-u=
+efi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-3=
+5-g00e1b9176297/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-u=
+efi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa145888d41cd05113fe=
+7e3
+        new failure (last pass: v4.4.241-34-g4300be89420d) =
+
+ =20
