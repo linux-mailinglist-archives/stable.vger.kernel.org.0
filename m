@@ -2,159 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 219322A3F70
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 969ED2A3F7C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgKCI4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 03:56:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51440 "EHLO
+        id S1726212AbgKCI6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 03:58:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727857AbgKCI4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:56:14 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409FBC0613D1
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:56:14 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id 33so6781385wrl.7
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:56:14 -0800 (PST)
+        with ESMTP id S1726013AbgKCI6a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:58:30 -0500
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47AB1C0617A6
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:58:30 -0800 (PST)
+Received: by mail-ot1-x343.google.com with SMTP id y22so4800042oti.10
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:58:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:autocrypt:organization:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=sSxFAV/5HN2rKvCXMCbMhxmttthGXsbtDnVKd4Taa7g=;
-        b=tI78emiGxB1JfFQ0ZOlppkXT1zzaqM+C9u6Cp03wQPNJ+9ReWStgP0y3YYf+fYeFa8
-         4sz40xUZAipLmMqBy+Z1xhKyNCNV68zqbecXeS7jZECA7zdCJgp25GqmPV/fFfeFITKV
-         yOSzOO9fQF9BQa9bS4v4wpho8+oJG23VcOsuwDJGrR8bSGdKs4+f4yNVHYzhQA+jx04W
-         qcvYLBTN39BseLWGvaF8g9weo5c7NAmN47X0u4+zlm3lQtuOyb77V4MFO19hIRgOyxnT
-         6i/re1bsUEyO8HEAUS9zcy7Ni7DiE6kAB9+YqIIa1X66JxBGW7h7Inp8FW5VT5VJ4WZz
-         5sHg==
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=K+MACc07Pws5365l/xLxcP/2+AmzqU4XUQhOAyut96E=;
+        b=STTpWyPq5ZxF9tVO8yTXEekYkaMc1WUut1WqgdmpKnGDVFgQfZxacNWbA0Cq9f670m
+         k3owC92JGcElxZp6Nrwlk7KgXICcDXabPHuef6rUUyQhnKwg/Dg08+1FJernJwXLkBVf
+         /75n4yFwei0v/zhtgjb2hCN2/zQxCLMS16vgA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
-         :organization:message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=sSxFAV/5HN2rKvCXMCbMhxmttthGXsbtDnVKd4Taa7g=;
-        b=JmMLzaAt6ahXgyBGgjW48W3Ph/H/uv1bLAD8V7fDSlCLnVfo54Ea8MdZDESYyBhdKF
-         hGycq0nGmjzB+yukQCjK4Wct63lPAFogLZW5vJRrNS+AFhpQJzkZVloagnVrUvQHVpTw
-         73lUw4baOA1KKDojMdvKK86UBlqUlNv54nhKy66MJjFUobGINBAG7HPsRByP+F015Nd5
-         LboY1Co/AxFLve4sUTd+/gwXT4U7lIpARo2uUSgIh/ihf8tIydg5MqW1caGEWwZo35xn
-         WhDmV5D3y8e6nZ54ZU2A5ycutuFAy+Rui4jKt+xKABlOitNyXjB1e/eo/WXbWDCJ/vD+
-         OQbA==
-X-Gm-Message-State: AOAM531PSOzpT3Nh5W/mz9T5dR3E+qGJ4ozoWzg9QZWgGYPThza6ENFK
-        HS2PG1hDKmWTL5ogvAsiRQLDKw==
-X-Google-Smtp-Source: ABdhPJwYVehHc+BudLpLrNPT1GKafn4ZVFT3Wm9akNjiHskO7vXkgedmb31pr1bgmp16xerPlN/3pw==
-X-Received: by 2002:adf:df02:: with SMTP id y2mr26606632wrl.403.1604393772804;
-        Tue, 03 Nov 2020 00:56:12 -0800 (PST)
-Received: from ?IPv6:2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3? ([2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3])
-        by smtp.gmail.com with ESMTPSA id y10sm24346601wru.94.2020.11.03.00.56.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Nov 2020 00:56:12 -0800 (PST)
-Subject: Re: [PATCH AUTOSEL 4.19 02/11] arm64: dts: meson-axg-s400: enable USB
- OTG
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Kevin Hilman <khilman@baylibre.com>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-References: <20201103012039.183672-1-sashal@kernel.org>
- <20201103012039.183672-2-sashal@kernel.org>
-From:   Neil Armstrong <narmstrong@baylibre.com>
-Autocrypt: addr=narmstrong@baylibre.com; prefer-encrypt=mutual; keydata=
- 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
- ZaTUOEkgIor5losDrePdPgE=
-Organization: Baylibre
-Message-ID: <ede63ccc-e07d-5fc2-36fe-9b810773216b@baylibre.com>
-Date:   Tue, 3 Nov 2020 09:56:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=K+MACc07Pws5365l/xLxcP/2+AmzqU4XUQhOAyut96E=;
+        b=umUMqUMp/OY1a3pSZW7ZqLbLyrzs2x2l2W0wgl4cFTfmZslj7MxmojI0w+rYj2IjJz
+         d5rVcn/U05NmYfLRbr1CbmPh4eYdFjhurRTP4FJtFZEq8EGWC3Qw799jTbymMd01ori1
+         q/kZn79MvyzinYK3Kr8WCV9HQMoYkXRGM16Yx/D0jHgpf4aQw4qXGOY4+ZEDw8KiqdQb
+         cBMsv5ZUNGkxuqkNGbSyV+S37N8PRo74g5quqJwTJ/e7/bpj+6vmv06dlReIdEUd7HS6
+         3hzBCfjr8fncoiXDDiZ1AD7u9ZluUIYX1cbduHBOJnc/qFsITInaZmV6eaoFwAYipDk3
+         wGYg==
+X-Gm-Message-State: AOAM530BsezeQ4v0ESU4d1BqoKNGG9Ebf5Acmi1q2sAer4Njq9BdDq6C
+        1j5N/MYUFC9CB18twltVXReHShyI3LQDjFKxEth1gBvj09LoAw==
+X-Google-Smtp-Source: ABdhPJxOUQMQt3VYJItKDV/Lz5YeNzd3tJtHdejPHKPM2wx8pryoxeJVO79ab36z3kuxd2CEyKRMu7F0p9S4AIWqM10=
+X-Received: by 2002:a9d:3b4:: with SMTP id f49mr14183517otf.188.1604393909620;
+ Tue, 03 Nov 2020 00:58:29 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201103012039.183672-2-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20201030181822.570402-1-lee.jones@linaro.org> <20201102183242.2031659-1-yepeilin.cs@gmail.com>
+ <20201103085324.GL4488@dell>
+In-Reply-To: <20201103085324.GL4488@dell>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Tue, 3 Nov 2020 09:58:18 +0100
+Message-ID: <CAKMK7uGV10+TEWWMJod1-MRD1jkLqvOGUu4Qk9S84WJAUaB7Mg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] Fonts: Replace discarded const qualifier
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Peilin Ye <yepeilin.cs@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/11/2020 02:20, Sasha Levin wrote:
-> From: Neil Armstrong <narmstrong@baylibre.com>
-> 
-> [ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
-> 
-> This enables USB OTG on the S400 board.
-> 
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-> Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-> index d5c01427a5ca0..acd4dbc1222ae 100644
-> --- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-> +++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-> @@ -334,3 +334,9 @@ &saradc {
->  	status = "okay";
->  	vref-supply = <&vddio_ao18>;
->  };
-> +
-> +&usb {
-> +	status = "okay";
-> +	dr_mode = "otg";
-> +	vbus-supply = <&usb_pwr>;
-> +};
-> 
+On Tue, Nov 3, 2020 at 9:53 AM Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Mon, 02 Nov 2020, Peilin Ye wrote:
+>
+> > From: Lee Jones <lee.jones@linaro.org>
+> >
+> > Commit 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in
+> > fonts") introduced the following error when building rpc_defconfig (only
+> > this build appears to be affected):
+> >
+> >  `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+> >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+> >  `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+> >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+> >  make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+> >  make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+> >  make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
+> >
+> > The .data section is discarded at link time.  Reinstating acorndata_8x8 as
+> > const ensures it is still available after linking.  Do the same for the
+> > other 12 built-in fonts as well, for consistency purposes.
+> >
+> > Cc: <stable@vger.kernel.org>
+> > Cc: Russell King <linux@armlinux.org.uk>
+> > Fixes: 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts")
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > Co-developed-by: Peilin Ye <yepeilin.cs@gmail.com>
+> > Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+> > ---
+> > Changes in v2:
+> >   - Fix commit ID to 6735b4632def in commit message (Russell King
+> >     <linux@armlinux.org.uk>)
+> >   - Add `const` back for all 13 built-in fonts (Daniel Vetter
+> >     <daniel.vetter@ffwll.ch>)
+> >   - Add a Fixes: tag
+> >
+> >  lib/fonts/font_10x18.c     | 2 +-
+> >  lib/fonts/font_6x10.c      | 2 +-
+> >  lib/fonts/font_6x11.c      | 2 +-
+> >  lib/fonts/font_6x8.c       | 2 +-
+> >  lib/fonts/font_7x14.c      | 2 +-
+> >  lib/fonts/font_8x16.c      | 2 +-
+> >  lib/fonts/font_8x8.c       | 2 +-
+> >  lib/fonts/font_acorn_8x8.c | 2 +-
+> >  lib/fonts/font_mini_4x6.c  | 2 +-
+> >  lib/fonts/font_pearl_8x8.c | 2 +-
+> >  lib/fonts/font_sun12x22.c  | 2 +-
+> >  lib/fonts/font_sun8x16.c   | 2 +-
+> >  lib/fonts/font_ter16x32.c  | 2 +-
+> >  13 files changed, 13 insertions(+), 13 deletions(-)
+>
+> LGTM.
+>
+> Thanks for keeping my authorship.  Much appreciated.
 
-Hi Sasha,
+Should I stuff this into drm-misc-fixes? Or will someone else pick
+this up? Greg?
 
-This needs also support in the dwc3-meson-g12a driver, you can drop it from backport.
-
-Neil
+I guess drm-misc-fixes might be easiest since there's a bunch of other
+fbcon/font stuff in the queue in drm-misc from Peilin.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
