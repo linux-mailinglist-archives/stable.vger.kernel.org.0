@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE642A531A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F05C32A531D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732708AbgKCU4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:56:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58010 "EHLO mail.kernel.org"
+        id S1732723AbgKCU43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:56:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732704AbgKCU4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:56:22 -0500
+        id S1732713AbgKCU4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 120C220732;
-        Tue,  3 Nov 2020 20:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0E6E2080D;
+        Tue,  3 Nov 2020 20:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436981;
-        bh=b80ZqhqdTXMhpSjNBOcQ1Npvl5wJCznX/xJqg7NreZQ=;
+        s=default; t=1604436984;
+        bh=ZMRTrQy77xo85wCSfJlaBFNeQl2ZDsF9q+BolxflVnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWHpjFtcwbT2xljQOgHu/snjl8h1ImlvV6I0/s11Mvd+I+A3ZUFu7321E6AlXyL75
-         LO6QSoe1+9F2zPM83jgc7aSzKoMVJI8jmiP87mGreFg3Gez6CSdMB3BzLulANVVKzH
-         cKmforeHYsnAeh6STHHT7CMVEZKmlEmX+nlsQLFo=
+        b=vdekdRH94dZ3iUKv3tjemqeVMYkqZ7HLPdWOY/N0F3mz0LQulhK2UPhz5DtbHGtCO
+         ZabXMTHfHzkMNLiD+untFtuRPM395CagQGRUJhB1RBjS80dus/nC1mPbtdI8Q4Lxci
+         KyQhmpbaehPQkEI0QehGyy7sVEPhTcR5VVSwLY+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/214] nvme-rdma: fix crash when connect rejected
-Date:   Tue,  3 Nov 2020 21:35:43 +0100
-Message-Id: <20201103203259.398546550@linuxfoundation.org>
+        stable@vger.kernel.org, KoWei Sung <winders@amazon.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.4 096/214] md/raid5: fix oops during stripe resizing
+Date:   Tue,  3 Nov 2020 21:35:44 +0100
+Message-Id: <20201103203259.493491139@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -43,47 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 43efdb8e870ee0f58633fd579aa5b5185bf5d39e ]
+commit b44c018cdf748b96b676ba09fdbc5b34fc443ada upstream.
 
-A crash can happened when a connect is rejected.   The host establishes
-the connection after received ConnectReply, and then continues to send
-the fabrics Connect command.  If the controller does not receive the
-ReadyToUse capsule, host may receive a ConnectReject reply.
+KoWei reported crash during raid5 reshape:
 
-Call nvme_rdma_destroy_queue_ib after the host received the
-RDMA_CM_EVENT_REJECTED event.  Then when the fabrics Connect command
-times out, nvme_rdma_timeout calls nvme_rdma_complete_rq to fail the
-request.  A crash happenes due to use after free in
-nvme_rdma_complete_rq.
+[ 1032.252932] Oops: 0002 [#1] SMP PTI
+[...]
+[ 1032.252943] RIP: 0010:memcpy_erms+0x6/0x10
+[...]
+[ 1032.252947] RSP: 0018:ffffba1ac0c03b78 EFLAGS: 00010286
+[ 1032.252949] RAX: 0000784ac0000000 RBX: ffff91bec3d09740 RCX: 0000000000001000
+[ 1032.252951] RDX: 0000000000001000 RSI: ffff91be6781c000 RDI: 0000784ac0000000
+[ 1032.252953] RBP: ffffba1ac0c03bd8 R08: 0000000000001000 R09: ffffba1ac0c03bf8
+[ 1032.252954] R10: 0000000000000000 R11: 0000000000000000 R12: ffffba1ac0c03bf8
+[ 1032.252955] R13: 0000000000001000 R14: 0000000000000000 R15: 0000000000000000
+[ 1032.252958] FS:  0000000000000000(0000) GS:ffff91becf500000(0000) knlGS:0000000000000000
+[ 1032.252959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1032.252961] CR2: 0000784ac0000000 CR3: 000000031780a002 CR4: 00000000001606e0
+[ 1032.252962] Call Trace:
+[ 1032.252969]  ? async_memcpy+0x179/0x1000 [async_memcpy]
+[ 1032.252977]  ? raid5_release_stripe+0x8e/0x110 [raid456]
+[ 1032.252982]  handle_stripe_expansion+0x15a/0x1f0 [raid456]
+[ 1032.252988]  handle_stripe+0x592/0x1270 [raid456]
+[ 1032.252993]  handle_active_stripes.isra.0+0x3cb/0x5a0 [raid456]
+[ 1032.252999]  raid5d+0x35c/0x550 [raid456]
+[ 1032.253002]  ? schedule+0x42/0xb0
+[ 1032.253006]  ? schedule_timeout+0x10e/0x160
+[ 1032.253011]  md_thread+0x97/0x160
+[ 1032.253015]  ? wait_woken+0x80/0x80
+[ 1032.253019]  kthread+0x104/0x140
+[ 1032.253022]  ? md_start_sync+0x60/0x60
+[ 1032.253024]  ? kthread_park+0x90/0x90
+[ 1032.253027]  ret_from_fork+0x35/0x40
 
-nvme_rdma_destroy_queue_ib is redundant when handling the
-RDMA_CM_EVENT_REJECTED event as nvme_rdma_destroy_queue_ib is already
-called in connection failure handler.
+This is because cache_size_mutex was unlocked too early in resize_stripes,
+which races with grow_one_stripe() that grow_one_stripe() allocates a
+stripe with wrong pool_size.
 
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this issue by unlocking cache_size_mutex after updating pool_size.
+
+Cc: <stable@vger.kernel.org> # v4.4+
+Reported-by: KoWei Sung <winders@amazon.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/rdma.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/raid5.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index abe4fe496d05c..a41ee9feab8e7 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1679,7 +1679,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		complete(&queue->cm_done);
- 		return 0;
- 	case RDMA_CM_EVENT_REJECTED:
--		nvme_rdma_destroy_queue_ib(queue);
- 		cm_error = nvme_rdma_conn_rejected(queue, ev);
- 		break;
- 	case RDMA_CM_EVENT_ROUTE_ERROR:
--- 
-2.27.0
-
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2407,8 +2407,6 @@ static int resize_stripes(struct r5conf
+ 	} else
+ 		err = -ENOMEM;
+ 
+-	mutex_unlock(&conf->cache_size_mutex);
+-
+ 	conf->slab_cache = sc;
+ 	conf->active_name = 1-conf->active_name;
+ 
+@@ -2431,6 +2429,8 @@ static int resize_stripes(struct r5conf
+ 
+ 	if (!err)
+ 		conf->pool_size = newsize;
++	mutex_unlock(&conf->cache_size_mutex);
++
+ 	return err;
+ }
+ 
 
 
