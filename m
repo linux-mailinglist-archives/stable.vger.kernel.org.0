@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2862A58AE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4202A588A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731067AbgKCUpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:45:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34224 "EHLO mail.kernel.org"
+        id S1731144AbgKCUqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729973AbgKCUpl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:45:41 -0500
+        id S1730405AbgKCUqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DE64223FD;
-        Tue,  3 Nov 2020 20:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1738A223EA;
+        Tue,  3 Nov 2020 20:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436341;
-        bh=4eqaCNWAXinj88UvzXO+z54FicSQ+oiAoGRxMzJkO1s=;
+        s=default; t=1604436366;
+        bh=9l3Ke7dunEKAavCVd2ys4l8KPLnSr6pSzFI8GTFy9Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbaVSC7T6rEye9X7H/RHDedkZYh36w/DbIz/qndVsDbw3DiEZmSZ7y8JsXUrdquFI
-         U5Ka4GnbVeMRCZePKE4RaZpwTY6f1c4qsk0H3XuRgbCGXgfCBjtHxJ/Mmfu5dkEllb
-         w8ksv4ZFCXoApNC25L7vQJFTlV0/fYDKbHiqZTLI=
+        b=kScGadfIPtcClMnRBPyOLpqd1DW/PmX8l42Mw3bO+Xxf9cIT9hsp8o44plXC5tvLW
+         FVve+zm7ImEwq13NFcmbElS3/Hj0+NfraQkspiTBw7r/lWIY9m/UnzcX6fkenl8aGH
+         loje5Ypk9iDpbo+qLDFoKOVTtl91QBOEEOLewcms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 181/391] nvme-rdma: fix crash when connect rejected
-Date:   Tue,  3 Nov 2020 21:33:52 +0100
-Message-Id: <20201103203359.100957791@linuxfoundation.org>
+        stable@vger.kernel.org, Jian Cai <jiancai@google.com>,
+        =?UTF-8?q?F=C4=81ng-ru=C3=AC=20S=C3=B2ng?= <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Luis Lozano <llozano@google.com>,
+        Manoj Gupta <manojgupta@google.com>, linux-arch@vger.kernel.org
+Subject: [PATCH 5.9 182/391] vmlinux.lds.h: Add PGO and AutoFDO input sections
+Date:   Tue,  3 Nov 2020 21:33:53 +0100
+Message-Id: <20201103203359.166923971@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,47 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 43efdb8e870ee0f58633fd579aa5b5185bf5d39e ]
+commit eff8728fe69880d3f7983bec3fb6cea4c306261f upstream.
 
-A crash can happened when a connect is rejected.   The host establishes
-the connection after received ConnectReply, and then continues to send
-the fabrics Connect command.  If the controller does not receive the
-ReadyToUse capsule, host may receive a ConnectReject reply.
+Basically, consider .text.{hot|unlikely|unknown}.* part of .text, too.
 
-Call nvme_rdma_destroy_queue_ib after the host received the
-RDMA_CM_EVENT_REJECTED event.  Then when the fabrics Connect command
-times out, nvme_rdma_timeout calls nvme_rdma_complete_rq to fail the
-request.  A crash happenes due to use after free in
-nvme_rdma_complete_rq.
+When compiling with profiling information (collected via PGO
+instrumentations or AutoFDO sampling), Clang will separate code into
+.text.hot, .text.unlikely, or .text.unknown sections based on profiling
+information. After D79600 (clang-11), these sections will have a
+trailing `.` suffix, ie.  .text.hot., .text.unlikely., .text.unknown..
 
-nvme_rdma_destroy_queue_ib is redundant when handling the
-RDMA_CM_EVENT_REJECTED event as nvme_rdma_destroy_queue_ib is already
-called in connection failure handler.
+When using -ffunction-sections together with profiling infomation,
+either explicitly (FGKASLR) or implicitly (LTO), code may be placed in
+sections following the convention:
+.text.hot.<foo>, .text.unlikely.<bar>, .text.unknown.<baz>
+where <foo>, <bar>, and <baz> are functions.  (This produces one section
+per function; we generally try to merge these all back via linker script
+so that we don't have 50k sections).
 
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For the above cases, we need to teach our linker scripts that such
+sections might exist and that we'd explicitly like them grouped
+together, otherwise we can wind up with code outside of the
+_stext/_etext boundaries that might not be mapped properly for some
+architectures, resulting in boot failures.
+
+If the linker script is not told about possible input sections, then
+where the section is placed as output is a heuristic-laiden mess that's
+non-portable between linkers (ie. BFD and LLD), and has resulted in many
+hard to debug bugs.  Kees Cook is working on cleaning this up by adding
+--orphan-handling=warn linker flag used in ARCH=powerpc to additional
+architectures. In the case of linker scripts, borrowing from the Zen of
+Python: explicit is better than implicit.
+
+Also, ld.bfd's internal linker script considers .text.hot AND
+.text.hot.* to be part of .text, as well as .text.unlikely and
+.text.unlikely.*. I didn't see support for .text.unknown.*, and didn't
+see Clang producing such code in our kernel builds, but I see code in
+LLVM that can produce such section names if profiling information is
+missing. That may point to a larger issue with generating or collecting
+profiles, but I would much rather be safe and explicit than have to
+debug yet another issue related to orphan section placement.
+
+Reported-by: Jian Cai <jiancai@google.com>
+Suggested-by: Fāng-ruì Sòng <maskray@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Luis Lozano <llozano@google.com>
+Tested-by: Manoj Gupta <manojgupta@google.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: linux-arch@vger.kernel.org
+Cc: stable@vger.kernel.org
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commitdiff;h=add44f8d5c5c05e08b11e033127a744d61c26aee
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commitdiff;h=1de778ed23ce7492c523d5850c6c6dbb34152655
+Link: https://reviews.llvm.org/D79600
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1084760
+Link: https://lore.kernel.org/r/20200821194310.3089815-7-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Debugged-by: Luis Lozano <llozano@google.com>
+
 ---
- drivers/nvme/host/rdma.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/asm-generic/vmlinux.lds.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 9e378d0a0c01c..116902b1b2c34 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1926,7 +1926,6 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		complete(&queue->cm_done);
- 		return 0;
- 	case RDMA_CM_EVENT_REJECTED:
--		nvme_rdma_destroy_queue_ib(queue);
- 		cm_error = nvme_rdma_conn_rejected(queue, ev);
- 		break;
- 	case RDMA_CM_EVENT_ROUTE_ERROR:
--- 
-2.27.0
-
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -581,7 +581,10 @@
+  */
+ #define TEXT_TEXT							\
+ 		ALIGN_FUNCTION();					\
+-		*(.text.hot TEXT_MAIN .text.fixup .text.unlikely)	\
++		*(.text.hot .text.hot.*)				\
++		*(TEXT_MAIN .text.fixup)				\
++		*(.text.unlikely .text.unlikely.*)			\
++		*(.text.unknown .text.unknown.*)			\
+ 		NOINSTR_TEXT						\
+ 		*(.text..refcount)					\
+ 		*(.ref.text)						\
 
 
