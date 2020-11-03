@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E81E2A51EF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F1D2A52CB
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730985AbgKCUpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:45:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33226 "EHLO mail.kernel.org"
+        id S1732293AbgKCUx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:53:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730983AbgKCUpP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:45:15 -0500
+        id S1731746AbgKCUx1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2888E223C6;
-        Tue,  3 Nov 2020 20:45:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CDF822226;
+        Tue,  3 Nov 2020 20:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436314;
-        bh=625CS+VVUcH2j+DlX50bWniL4e5cbojM1+nNSZ7KK1o=;
+        s=default; t=1604436806;
+        bh=nOGdb9uR5h52LS2DyYbrmfF9dn0bqiJYyKU3d5omfJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/dx2aNoftl6ya+qlDeCIyLR43k0A8yFTZl4d7xDasYQ2sDjZhXRQAVk2kTIIMbfh
-         t5jeMOrIQFbhifhx/xhX6rsng207oH3Cz0WRAYySczKAzOfeN0SVyrp8WqFbLPw2/r
-         t6RH4BxESd/P+85iNaYpdwdhv63o8sCs5nDmQilI=
+        b=lkFf+piJMCIdRuC/H6TxoodR/StPlwQIZf2/G1yRrnp1uIOjPsgzoLEvc3aP6agl2
+         9fGVvh4QL34XFTWC3UW/h2t0PpMqvKMjiZz1WmNh5v/LKzG1sH28mS1LiPY7AT88Ks
+         psBzcynpEOWnANGYHkuBt0uiSNzAbK+seUDs/SEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.9 197/391] spi: sprd: Release DMA channel also on probe deferral
-Date:   Tue,  3 Nov 2020 21:34:08 +0100
-Message-Id: <20201103203400.186562027@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>, Wei Liu <wl@xen.org>
+Subject: [PATCH 5.4 002/214] xen/events: add a proper barrier to 2-level uevent unmasking
+Date:   Tue,  3 Nov 2020 21:34:10 +0100
+Message-Id: <20201103203249.724325980@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 687a2e76186dcfa42f22c14b655c3fb159839e79 upstream.
+commit 4d3fe31bd993ef504350989786858aefdb877daa upstream.
 
-If dma_request_chan() for TX channel fails with EPROBE_DEFER, the RX
-channel would not be released and on next re-probe it would be requested
-second time.
+A follow-up patch will require certain write to happen before an event
+channel is unmasked.
 
-Fixes: 386119bc7be9 ("spi: sprd: spi: sprd: Add DMA mode support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Chunyan Zhang <zhang.lyra@gmail.com>
-Link: https://lore.kernel.org/r/20200901152713.18629-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+While the memory barrier is not strictly necessary for all the callers,
+the main one will need it. In order to avoid an extra memory barrier
+when using fifo event channels, mandate evtchn_unmask() to provide
+write ordering.
+
+The 2-level event handling unmask operation is missing an appropriate
+barrier, so add it. Fifo event channels are fine in this regard due to
+using sync_cmpxchg().
+
+This is part of XSA-332.
+
+Cc: stable@vger.kernel.org
+Suggested-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-sprd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/events/events_2l.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/spi/spi-sprd.c
-+++ b/drivers/spi/spi-sprd.c
-@@ -563,11 +563,11 @@ static int sprd_spi_dma_request(struct s
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -91,6 +91,8 @@ static void evtchn_2l_unmask(unsigned po
  
- 	ss->dma.dma_chan[SPRD_SPI_TX]  = dma_request_chan(ss->dev, "tx_chn");
- 	if (IS_ERR_OR_NULL(ss->dma.dma_chan[SPRD_SPI_TX])) {
-+		dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
- 		if (PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]) == -EPROBE_DEFER)
- 			return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
+ 	BUG_ON(!irqs_disabled());
  
- 		dev_err(ss->dev, "request TX DMA channel failed!\n");
--		dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
- 		return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
- 	}
- 
++	smp_wmb();	/* All writes before unmask must be visible. */
++
+ 	if (unlikely((cpu != cpu_from_evtchn(port))))
+ 		do_hypercall = 1;
+ 	else {
 
 
