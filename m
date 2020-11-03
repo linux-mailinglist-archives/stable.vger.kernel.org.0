@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 133AC2A39C7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DDD72A385C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:19:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728202AbgKCB1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:27:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60536 "EHLO mail.kernel.org"
+        id S1727438AbgKCBTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:19:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727415AbgKCBS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:18:57 -0500
+        id S1727424AbgKCBS7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:18:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96EDD2240C;
-        Tue,  3 Nov 2020 01:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCDA8223AC;
+        Tue,  3 Nov 2020 01:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366337;
-        bh=gdMGDMwySHdmXhfimYPXmMMVR+X1bgogAYC8Oh5fkF0=;
+        s=default; t=1604366338;
+        bh=VLse2Z6NhS8fDKFaVBcSRIry1Vxk7y3pzIPZuEQfV0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRx7EBFpM0D1dbNuSWn5bDL9L26taMBEf/4eCZsTYTl2IrndeE+IS9l5D3gGPj4FM
-         wvXyLNxfXqgGJEQZodEGw+SIYaXoxi89TNZhMlmNiKbp9oyUCZ2iIo5LIUd4OZZ8/L
-         S0QUvk7puC+piX1CYQ5vHwjrSqDpDbg8afPhhh0M=
+        b=at9LW8jMdKoGBYl7dNXSFxD8wCpJilgUrAQhr4fzkxB4Ezz1v/XBgTn2peUNE1fvb
+         Ty5k7UGwsbOqORaxl3et7lf5+YxkRuTpAzPUq2aM7QEWyvu5aShHZaSymN9zILBBMa
+         6kc/2Gz4d5BLVCageqLW9JT5BUqs9kYqNF9S15+M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Maxime Ripard <maxime@cerno.tech>,
+        Taras Galchenko <tpgalchenko@gmail.com>,
         Jernej Skrabec <jernej.skrabec@siol.net>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.9 12/35] drm/sun4i: frontend: Rework a bit the phase data
-Date:   Mon,  2 Nov 2020 20:18:17 -0500
-Message-Id: <20201103011840.182814-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 13/35] drm/sun4i: frontend: Reuse the ch0 phase for RGB formats
+Date:   Mon,  2 Nov 2020 20:18:18 -0500
+Message-Id: <20201103011840.182814-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103011840.182814-1-sashal@kernel.org>
 References: <20201103011840.182814-1-sashal@kernel.org>
@@ -46,111 +47,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 84c971b356379c621df595bd00c3114579dfa59f ]
+[ Upstream commit 2db9ef9d9e6ea89a9feb5338f58d1f8f83875577 ]
 
-The scaler filter phase setup in the allwinner kernel has two different
-cases for setting up the scaler filter, the first one using different phase
-parameters for the two channels, and the second one reusing the first
-channel parameters on the second channel.
+When using the scaler on the A10-like frontend with single-planar formats,
+the current code will setup the channel 0 filter (used for the R or Y
+component) with a different phase parameter than the channel 1 filter (used
+for the G/B or U/V components).
 
-The allwinner kernel has a third option where the horizontal phase of the
-second channel will be set to a different value than the vertical one (and
-seems like it's the same value than one used on the first channel).
-However, that code path seems to never be taken, so we can ignore it for
-now, and it's essentially what we're doing so far as well.
+This creates a bleed out that keeps repeating on of the last line of the
+RGB plane across the rest of the display. The Allwinner BSP either applies
+the same phase parameter over both channels or use a separate one, the
+condition being whether the input format is YUV420 or not.
 
-Since we will have always the same values across each components of the
-filter setup for a given channel, we can simplify a bit our frontend
-structure by only storing the phase value we want to apply to a given
-channel.
+Since YUV420 is both subsampled and multi-planar, and since YUYV is
+subsampled but single-planar, we can rule out the subsampling and assume
+that the condition is actually whether the format is single or
+multi-planar. And it looks like applying the same phase parameter over both
+channels for single-planar formats fixes our issue, while we keep the
+multi-planar formats working properly.
 
+Reported-by: Taras Galchenko <tpgalchenko@gmail.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201015093642.261440-1-maxime@cerno.tech
+Link: https://patchwork.freedesktop.org/patch/msgid/20201015093642.261440-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_frontend.c | 34 ++++++--------------------
- drivers/gpu/drm/sun4i/sun4i_frontend.h |  6 +----
- 2 files changed, 9 insertions(+), 31 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_frontend.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.c b/drivers/gpu/drm/sun4i/sun4i_frontend.c
-index ec2a032e07b97..7462801b1fa8e 100644
+index 7462801b1fa8e..c4959d9e16391 100644
 --- a/drivers/gpu/drm/sun4i/sun4i_frontend.c
 +++ b/drivers/gpu/drm/sun4i/sun4i_frontend.c
-@@ -443,17 +443,17 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+@@ -407,6 +407,7 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+ 	struct drm_framebuffer *fb = state->fb;
+ 	const struct drm_format_info *format = fb->format;
+ 	uint64_t modifier = fb->modifier;
++	unsigned int ch1_phase_idx;
+ 	u32 out_fmt_val;
+ 	u32 in_fmt_val, in_mod_val, in_ps_val;
+ 	unsigned int i;
+@@ -442,18 +443,19 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+ 	 * I have no idea what this does exactly, but it seems to be
  	 * related to the scaler FIR filter phase parameters.
  	 */
++	ch1_phase_idx = (format->num_planes > 1) ? 1 : 0;
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZPHASE_REG,
--		     frontend->data->ch_phase[0].horzphase);
-+		     frontend->data->ch_phase[0]);
+ 		     frontend->data->ch_phase[0]);
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZPHASE_REG,
--		     frontend->data->ch_phase[1].horzphase);
-+		     frontend->data->ch_phase[1]);
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE0_REG,
--		     frontend->data->ch_phase[0].vertphase[0]);
-+		     frontend->data->ch_phase[0]);
+ 		     frontend->data->ch_phase[0]);
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE0_REG,
--		     frontend->data->ch_phase[1].vertphase[0]);
-+		     frontend->data->ch_phase[1]);
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE1_REG,
--		     frontend->data->ch_phase[0].vertphase[1]);
-+		     frontend->data->ch_phase[0]);
+ 		     frontend->data->ch_phase[0]);
  	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE1_REG,
--		     frontend->data->ch_phase[1].vertphase[1]);
-+		     frontend->data->ch_phase[1]);
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
  
  	/*
  	 * Checking the input format is sufficient since we currently only
-@@ -687,30 +687,12 @@ static const struct dev_pm_ops sun4i_frontend_pm_ops = {
- };
- 
- static const struct sun4i_frontend_data sun4i_a10_frontend = {
--	.ch_phase		= {
--		{
--			.horzphase = 0,
--			.vertphase = { 0, 0 },
--		},
--		{
--			.horzphase = 0xfc000,
--			.vertphase = { 0xfc000, 0xfc000 },
--		},
--	},
-+	.ch_phase		= { 0x000, 0xfc000 },
- 	.has_coef_rdy		= true,
- };
- 
- static const struct sun4i_frontend_data sun8i_a33_frontend = {
--	.ch_phase		= {
--		{
--			.horzphase = 0x400,
--			.vertphase = { 0x400, 0x400 },
--		},
--		{
--			.horzphase = 0x400,
--			.vertphase = { 0x400, 0x400 },
--		},
--	},
-+	.ch_phase		= { 0x400, 0x400 },
- 	.has_coef_access_ctrl	= true,
- };
- 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.h b/drivers/gpu/drm/sun4i/sun4i_frontend.h
-index 0c382c1ddb0fe..2e7b76e50c2ba 100644
---- a/drivers/gpu/drm/sun4i/sun4i_frontend.h
-+++ b/drivers/gpu/drm/sun4i/sun4i_frontend.h
-@@ -115,11 +115,7 @@ struct reset_control;
- struct sun4i_frontend_data {
- 	bool	has_coef_access_ctrl;
- 	bool	has_coef_rdy;
--
--	struct {
--		u32	horzphase;
--		u32	vertphase[2];
--	} ch_phase[2];
-+	u32	ch_phase[2];
- };
- 
- struct sun4i_frontend {
 -- 
 2.27.0
 
