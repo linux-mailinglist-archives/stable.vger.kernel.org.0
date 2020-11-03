@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF29F2A5385
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D9A2A5388
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387532AbgKCVBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38622 "EHLO mail.kernel.org"
+        id S1732996AbgKCVB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:01:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387501AbgKCVBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:50 -0500
+        id S1733162AbgKCVBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:01:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EE2D20658;
-        Tue,  3 Nov 2020 21:01:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BA2820658;
+        Tue,  3 Nov 2020 21:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437310;
-        bh=brxivmLHVOFcB6yKo4u1DCUMFD26aDKAZUrTEAKqghU=;
+        s=default; t=1604437314;
+        bh=Mq9T2I5lz78Cwv1Ns8Lttt5Ot8InoesOyxtqrAR41+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEUprXKGYdDRC3/mn0AeU2LLJD3/ORFRRjXaLOPoZqcL35RiiVE23jsNnpPgCjZdT
-         PomdAIXfVzB0d40BLlJcSXZzwNym5ZmAmvyhEojR5/cp9/Q5fbwVZU8wzW7qmo4TzE
-         timjAkbRjMG157i3Mw0EwlY6qa34XcrK59VT9hCY=
+        b=J6ZcESylebB617TCAOGHPFoVQqrkol/FB534GUHGQzMJfNnz6UVQxjS1KiXiIKH3J
+         Mck7jsrMDfglCRRg35iGQrVwMHRTNgFbMmLleHTuLvpBue4lYc2LAQG6W21xwKu7p3
+         nx15vpwgRo5dTCHMazJx77GmtWZWNpJ+aOt7UcmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.19 022/191] evm: Check size of security.evm before using it
-Date:   Tue,  3 Nov 2020 21:35:14 +0100
-Message-Id: <20201103203235.556322057@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 023/191] p54: avoid accessing the data mapped to streaming DMA
+Date:   Tue,  3 Nov 2020 21:35:15 +0100
+Message-Id: <20201103203235.690144858@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -42,38 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
 
-commit 455b6c9112eff8d249e32ba165742085678a80a4 upstream.
+commit 478762855b5ae9f68fa6ead1edf7abada70fcd5f upstream.
 
-This patch checks the size for the EVM_IMA_XATTR_DIGSIG and
-EVM_XATTR_PORTABLE_DIGSIG types to ensure that the algorithm is read from
-the buffer returned by vfs_getxattr_alloc().
+In p54p_tx(), skb->data is mapped to streaming DMA on line 337:
+  mapping = pci_map_single(..., skb->data, ...);
 
-Cc: stable@vger.kernel.org # 4.19.x
-Fixes: 5feeb61183dde ("evm: Allow non-SHA1 digital signatures")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Then skb->data is accessed on line 349:
+  desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
+
+This access may cause data inconsistency between CPU cache and hardware.
+
+To fix this problem, ((struct p54_hdr *)skb->data)->req_id is stored in
+a local variable before DMA mapping, and then the driver accesses this
+local variable instead of skb->data.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200802132949.26788-1-baijiaju@tsinghua.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/evm/evm_main.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/intersil/p54/p54pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -186,6 +186,12 @@ static enum integrity_status evm_verify_
- 		break;
- 	case EVM_IMA_XATTR_DIGSIG:
- 	case EVM_XATTR_PORTABLE_DIGSIG:
-+		/* accept xattr with non-empty signature field */
-+		if (xattr_len <= sizeof(struct signature_v2_hdr)) {
-+			evm_status = INTEGRITY_FAIL;
-+			goto out;
-+		}
-+
- 		hdr = (struct signature_v2_hdr *)xattr_data;
- 		digest.hdr.algo = hdr->hash_algo;
- 		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
+--- a/drivers/net/wireless/intersil/p54/p54pci.c
++++ b/drivers/net/wireless/intersil/p54/p54pci.c
+@@ -332,10 +332,12 @@ static void p54p_tx(struct ieee80211_hw
+ 	struct p54p_desc *desc;
+ 	dma_addr_t mapping;
+ 	u32 idx, i;
++	__le32 device_addr;
+ 
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 	idx = le32_to_cpu(ring_control->host_idx[1]);
+ 	i = idx % ARRAY_SIZE(ring_control->tx_data);
++	device_addr = ((struct p54_hdr *)skb->data)->req_id;
+ 
+ 	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
+ 				 PCI_DMA_TODEVICE);
+@@ -349,7 +351,7 @@ static void p54p_tx(struct ieee80211_hw
+ 
+ 	desc = &ring_control->tx_data[i];
+ 	desc->host_addr = cpu_to_le32(mapping);
+-	desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
++	desc->device_addr = device_addr;
+ 	desc->len = cpu_to_le16(skb->len);
+ 	desc->flags = 0;
+ 
 
 
