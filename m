@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849642A46E5
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA3E2A46DF
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729457AbgKCNwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729459AbgKCNwL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 08:52:11 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:46487 "EHLO
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56897 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729458AbgKCNvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:51 -0500
+        by vger.kernel.org with ESMTP id S1729460AbgKCNv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:56 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8DFEEC8F;
-        Tue,  3 Nov 2020 08:51:50 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 3B9D6C84;
+        Tue,  3 Nov 2020 08:51:55 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:50 -0500
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=bIHJV4
-        ZYNfPXy0V3qFux96N2JxodPsnT5x71a+y2mvI=; b=PJzrc3aZM9ruUdT4hl0MIJ
-        ueZwQlDdnu4OpBmwCffbRj4E6u/YCUFLtM3HySp5/8NCbhPJM2FiZ0NvrOGzmnsS
-        7FfEGeues+McJrayjMBldfUlA/dhOHHzVh3hQ5ofX2K5dC5OyqcC2ulQmDbEyXdn
-        kKJbHtLbyiJgmbCE6iSMXqYbZUGMxsxXL/MM/wtxX5kYanFGfDLEa1TWWixTQi/G
-        p/kP24JugoAZW5pk/iWSJGMdSg+KmcAo+TS64QuCqKl0B0f81qgX8va9lrya/EA2
-        KdALOnPO4s1Dj7L5sf0asx5kqkTu8TuTNKHpBcfaHz/N8MwZr4v4LQc9FdcR709Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=VYhJLh
+        Ei82VK/dnLNsMQa0QFnsOVkhkArjfxgoZVYIg=; b=V6I818QC7lXckq5OtCivPs
+        B7ci/GqWoQdmskOkRoayqJg6zwUrgi4VgYQIBdKNhBSYRma6xTxZxmT3LpWBDDVI
+        YxrqWrlTxSlzGhjQRn8St+6HYKATOwLp9yuEaBMK/SxJpmoBxEk/ujflUfh928ra
+        h0bJVYqqSLAmusrbYF4f4vhY8S98n5OB7/7DyeDpqTd5qRudGGEqFaHkTlO4RLHU
+        cSL/pmDBYp96OzbxR0LFzN9U7RS6Xv/tFpt5T8Z5KZYrhrvzV5Qh35jUG/kUnMn1
+        7i0E878MPYrGw6Tob0iXt2H5D854MkIzOCrYM5eOgNxC1q995VRpPH3Kmutm8LDA
         ==
-X-ME-Sender: <xms:dmChX7O_HqRMeQsUQMuweEF-A14Ex7MZYxK6gks5iDoBJPmyi-KHVA>
-    <xme:dmChX1-NTLyGkOwua-5gYgQ0GeyGjOgMUQxEW6AxP25Hbu5TUV0aAT38xHm4QYp6u
-    _CyRSGERbPcAA>
+X-ME-Sender: <xms:emChX0xB6C37U-Sax3vi7qO9wdITewyy-CBHVlC4XDkLNu3x_nPfig>
+    <xme:emChX4QxlJhIJXAToPrxb2jLKXOOPd8biq8Z-CL_FYACk0chrdxSfsjaOE1Nr-fSN
+    6-N5m1meVaikQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:dmChX6Tjj6Do9cIlkLwQVVWS3hcTzWq8L5cEacI-HnGg_NnrHUOmxw>
-    <xmx:dmChX_uw3Pt0SnW-SSmZkHB56Gc5RGPoXVynH5Z8cYkI5z6RWfMV1Q>
-    <xmx:dmChXzehoJHvBXW4cWDqA-Q9nN4hQhmAVrRa6jaSCRYE-qC-g8jfCg>
-    <xmx:dmChXzlR8Pu2GyhbQ4HROrX2n2YZXo4VGyjnGrxl1KK3c_sOqYXD12Tv6aY>
+X-ME-Proxy: <xmx:emChX2UFpjBwAQoACv7Jliw8VD8hakSYi9PODw9LL8iQZKr-vMHxwQ>
+    <xmx:emChXyh2iLMcNfZeyEIFUJLveotr2k-0daD7swT3JKnfHJUaVZfddg>
+    <xmx:emChX2ADZuRHWNoQi34vpH4bU1nsUPnOrt15OIvKBdc5MM-AYycW3w>
+    <xmx:emChXxqKpg1UZE20287iodv-JpUHGlsYj4VEL6FtV0BN_IYDNbE3xj3sPKs>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CB0263064680;
-        Tue,  3 Nov 2020 08:51:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: sysfs, rename device_link add/remove functions" failed to apply to 4.4-stable tree
-To:     anand.jain@oracle.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 388A63064674;
+        Tue,  3 Nov 2020 08:51:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: sysfs: init devices outside of the chunk_mutex" failed to apply to 5.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:52:34 +0100
-Message-ID: <1604411554126152@kroah.com>
+Date:   Tue, 03 Nov 2020 14:52:43 +0100
+Message-ID: <160441156390189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,144 +70,185 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f3cd2c58110dad14ee37cc47fd1473d90ee68ccb Mon Sep 17 00:00:00 2001
-From: Anand Jain <anand.jain@oracle.com>
-Date: Wed, 12 Feb 2020 17:28:13 +0800
-Subject: [PATCH] btrfs: sysfs, rename device_link add/remove functions
+From ca10845a56856fff4de3804c85e6424d0f6d0cde Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Tue, 1 Sep 2020 08:09:01 -0400
+Subject: [PATCH] btrfs: sysfs: init devices outside of the chunk_mutex
 
-Since commit 668e48af7a94 ("btrfs: sysfs, add devid/dev_state kobject and
-device attributes"), the functions btrfs_sysfs_add_device_link() and
-btrfs_sysfs_rm_device_link() do more than just adding and removing the
-device link as its name indicated. Rename them to be more specific
-that's about the directory with the attirbutes
+While running btrfs/061, btrfs/073, btrfs/078, or btrfs/178 we hit the
+following lockdep splat:
 
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc3+ #4 Not tainted
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff96ecc22ef4a0 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
+
+  but task is already holding lock:
+  ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #3 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc+0x37/0x270
+	 alloc_inode+0x82/0xb0
+	 iget_locked+0x10d/0x2c0
+	 kernfs_get_inode+0x1b/0x130
+	 kernfs_get_tree+0x136/0x240
+	 sysfs_get_tree+0x16/0x40
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #2 (kernfs_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 kernfs_add_one+0x23/0x150
+	 kernfs_create_link+0x63/0xa0
+	 sysfs_do_create_link_sd+0x5e/0xd0
+	 btrfs_sysfs_add_devices_dir+0x81/0x130
+	 btrfs_init_new_device+0x67f/0x1250
+	 btrfs_ioctl+0x1ef/0x2e20
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_insert_empty_items+0x64/0xb0
+	 btrfs_insert_delayed_items+0x90/0x4f0
+	 btrfs_commit_inode_delayed_items+0x93/0x140
+	 btrfs_log_inode+0x5de/0x2020
+	 btrfs_log_inode_parent+0x429/0xc90
+	 btrfs_log_new_name+0x95/0x9b
+	 btrfs_rename2+0xbb9/0x1800
+	 vfs_rename+0x64f/0x9f0
+	 do_renameat2+0x320/0x4e0
+	 __x64_sys_rename+0x1f/0x30
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x119c/0x1fc0
+	 lock_acquire+0xa7/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &delayed_node->mutex --> kernfs_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(kernfs_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffff8dd65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff96ed2ade30e0 (&type->s_umount_key#36){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 0 PID: 100 Comm: kswapd0 Not tainted 5.9.0-rc3+ #4
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x8b/0xb8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x119c/0x1fc0
+   lock_acquire+0xa7/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa7/0x3d0
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x41/0x50
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This happens because we are holding the chunk_mutex at the time of
+adding in a new device.  However we only need to hold the
+device_list_mutex, as we're going to iterate over the fs_devices
+devices.  Move the sysfs init stuff outside of the chunk_mutex to get
+rid of this lockdep splat.
+
+CC: stable@vger.kernel.org # 4.4.x: f3cd2c58110dad14e: btrfs: sysfs, rename device_link add/remove functions
+CC: stable@vger.kernel.org # 4.4.x
+Reported-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index 2aad07cdaea8..db93909b25e0 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -512,7 +512,7 @@ static int btrfs_dev_replace_start(struct btrfs_fs_info *fs_info,
- 	atomic64_set(&dev_replace->num_uncorrectable_read_errors, 0);
- 	up_write(&dev_replace->rwsem);
- 
--	ret = btrfs_sysfs_add_device_link(tgt_device->fs_devices, tgt_device);
-+	ret = btrfs_sysfs_add_devices_dir(tgt_device->fs_devices, tgt_device);
- 	if (ret)
- 		btrfs_err(fs_info, "kobj add dev failed %d", ret);
- 
-@@ -743,7 +743,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	mutex_unlock(&fs_info->fs_devices->device_list_mutex);
- 
- 	/* replace the sysfs entry */
--	btrfs_sysfs_rm_device_link(fs_info->fs_devices, src_device);
-+	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, src_device);
- 	btrfs_sysfs_update_devid(tgt_device);
- 	btrfs_rm_dev_replace_free_srcdev(src_device);
- 
-diff --git a/fs/btrfs/sysfs.c b/fs/btrfs/sysfs.c
-index 119edd4341d6..651aa65b1f3f 100644
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -960,7 +960,7 @@ void btrfs_sysfs_remove_mounted(struct btrfs_fs_info *fs_info)
- 	addrm_unknown_feature_attrs(fs_info, false);
- 	sysfs_remove_group(&fs_info->fs_devices->fsid_kobj, &btrfs_feature_attr_group);
- 	sysfs_remove_files(&fs_info->fs_devices->fsid_kobj, btrfs_attrs);
--	btrfs_sysfs_rm_device_link(fs_info->fs_devices, NULL);
-+	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, NULL);
- }
- 
- static const char * const btrfs_feature_set_names[FEAT_MAX] = {
-@@ -1149,7 +1149,7 @@ int btrfs_sysfs_add_space_info_type(struct btrfs_fs_info *fs_info,
- 
- /* when one_device is NULL, it removes all device links */
- 
--int btrfs_sysfs_rm_device_link(struct btrfs_fs_devices *fs_devices,
-+int btrfs_sysfs_remove_devices_dir(struct btrfs_fs_devices *fs_devices,
- 		struct btrfs_device *one_device)
- {
- 	struct hd_struct *disk;
-@@ -1269,7 +1269,7 @@ static struct kobj_type devid_ktype = {
- 	.release	= btrfs_release_devid_kobj,
- };
- 
--int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
-+int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
- 				struct btrfs_device *one_device)
- {
- 	int error = 0;
-@@ -1395,13 +1395,13 @@ int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
- 
- 	btrfs_set_fs_info_ptr(fs_info);
- 
--	error = btrfs_sysfs_add_device_link(fs_devs, NULL);
-+	error = btrfs_sysfs_add_devices_dir(fs_devs, NULL);
- 	if (error)
- 		return error;
- 
- 	error = sysfs_create_files(fsid_kobj, btrfs_attrs);
- 	if (error) {
--		btrfs_sysfs_rm_device_link(fs_devs, NULL);
-+		btrfs_sysfs_remove_devices_dir(fs_devs, NULL);
- 		return error;
- 	}
- 
-diff --git a/fs/btrfs/sysfs.h b/fs/btrfs/sysfs.h
-index c68582add92e..718a26c97833 100644
---- a/fs/btrfs/sysfs.h
-+++ b/fs/btrfs/sysfs.h
-@@ -14,9 +14,9 @@ enum btrfs_feature_set {
- 
- char *btrfs_printable_features(enum btrfs_feature_set set, u64 flags);
- const char * const btrfs_feature_set_name(enum btrfs_feature_set set);
--int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,
-+int btrfs_sysfs_add_devices_dir(struct btrfs_fs_devices *fs_devices,
- 		struct btrfs_device *one_device);
--int btrfs_sysfs_rm_device_link(struct btrfs_fs_devices *fs_devices,
-+int btrfs_sysfs_remove_devices_dir(struct btrfs_fs_devices *fs_devices,
-                 struct btrfs_device *one_device);
- int btrfs_sysfs_add_fsid(struct btrfs_fs_devices *fs_devs);
- void btrfs_sysfs_remove_fsid(struct btrfs_fs_devices *fs_devs);
 diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index b092021e41e9..387f80656476 100644
+index 9d169cba8514..c86ffad04641 100644
 --- a/fs/btrfs/volumes.c
 +++ b/fs/btrfs/volumes.c
-@@ -2054,7 +2054,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
- 	if (device->bdev) {
- 		cur_devices->open_devices--;
- 		/* remove sysfs entry */
--		btrfs_sysfs_rm_device_link(fs_devices, device);
-+		btrfs_sysfs_remove_devices_dir(fs_devices, device);
- 	}
- 
- 	num_devices = btrfs_super_num_devices(fs_info->super_copy) - 1;
-@@ -2174,7 +2174,7 @@ void btrfs_destroy_dev_replace_tgtdev(struct btrfs_device *tgtdev)
- 
- 	mutex_lock(&fs_devices->device_list_mutex);
- 
--	btrfs_sysfs_rm_device_link(fs_devices, tgtdev);
-+	btrfs_sysfs_remove_devices_dir(fs_devices, tgtdev);
- 
- 	if (tgtdev->bdev)
- 		fs_devices->open_devices--;
-@@ -2522,7 +2522,7 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+@@ -2597,9 +2597,6 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	btrfs_set_super_num_devices(fs_info->super_copy,
  				    orig_super_num_devices + 1);
  
- 	/* add sysfs device entry */
--	btrfs_sysfs_add_device_link(fs_devices, device);
-+	btrfs_sysfs_add_devices_dir(fs_devices, device);
- 
+-	/* add sysfs device entry */
+-	btrfs_sysfs_add_devices_dir(fs_devices, device);
+-
  	/*
  	 * we've got more storage, clear any full flags on the space
-@@ -2590,7 +2590,7 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
- 	return ret;
+ 	 * infos
+@@ -2607,6 +2604,10 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	btrfs_clear_space_info_full(fs_info);
  
- error_sysfs:
--	btrfs_sysfs_rm_device_link(fs_devices, device);
-+	btrfs_sysfs_remove_devices_dir(fs_devices, device);
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	mutex_lock(&fs_info->chunk_mutex);
- 	list_del_rcu(&device->dev_list);
+ 	mutex_unlock(&fs_info->chunk_mutex);
++
++	/* Add sysfs device entry */
++	btrfs_sysfs_add_devices_dir(fs_devices, device);
++
+ 	mutex_unlock(&fs_devices->device_list_mutex);
+ 
+ 	if (seeding_dev) {
 
