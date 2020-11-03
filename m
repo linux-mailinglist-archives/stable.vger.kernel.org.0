@@ -2,52 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ED22A47CE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B67F02A47EC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729637AbgKCOQ5 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 3 Nov 2020 09:16:57 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:64681 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729636AbgKCOQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:16:18 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22881066-1500050 
-        for multiple; Tue, 03 Nov 2020 14:16:03 +0000
-Content-Type: text/plain; charset="utf-8"
+        id S1729573AbgKCOUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:20:41 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44980 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729562AbgKCOTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 09:19:24 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1604413163;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=c/Q8Pk519OEa0DQo6ZJtdvCNFNK34B1pTd7whgW3NUk=;
+        b=tgfxB8N+zEWWwSe/CGBVYObuznApKMpKiHpPYTdFnNx5gaxmbiWguc8enxjXbZtuie6Tfg
+        8qZuIapMoXlfShln1wqcHbaSHSuxK35Q6bWICKV4Bar9ZZdZcEy1Pm02OmgK5Zvmubzprn
+        i7XeBaK6Y2sPAzO9vZhVNw/mfNgSBUw=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 2364AABF4
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 14:19:23 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH v2 00/14] Backport of patch series for stable 4.19 branch
+Date:   Tue,  3 Nov 2020 15:19:08 +0100
+Message-Id: <20201103141922.21026-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <87361qfw3e.fsf@gaia.fi.intel.com>
-References: <20201102221057.29626-1-chris@chris-wilson.co.uk> <20201102221057.29626-2-chris@chris-wilson.co.uk> <87361qfw3e.fsf@gaia.fi.intel.com>
-Subject: Re: [PATCH 2/2] drm/i915/gt: Flush xcs before tgl breadcrumbs
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     stable@vger.kernel.org
-To:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Date:   Tue, 03 Nov 2020 14:16:00 +0000
-Message-ID: <160441296035.21466.9227014206344926879@build.alporthouse.com>
-User-Agent: alot/0.9
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Mika Kuoppala (2020-11-03 12:44:53)
-> Chris Wilson <chris@chris-wilson.co.uk> writes:
-> 
-> > In a simple test case that writes to scratch and then busy-waits for the
-> > batch to be signaled, we observe that the signal is before the write is
-> > posted. That is bad news.
-> >
-> > Splitting the flush + write_dword into two separate flush_dw prevents
-> > the issue from being reproduced, we can presume the post-sync op is not
-> > so post-sync.
-> >
-> 
-> Only thing that is mildly surpricing is that first one doesnt
-> need postop write.
+V2: correct patch 2
 
-The MI_FLUSH_DW is stalling, so the second will^W should wait for the
-first to complete. (And we don't want to do the write from the first as
-we observe that write is too early.)
--Chris
+Juergen Gross (14):
+  xen/events: don't use chip_data for legacy IRQs
+  xen/events: avoid removing an event channel while  handling it
+  xen/events: add a proper barrier to 2-level uevent unmasking
+  xen/events: fix race in evtchn_fifo_unmask()
+  xen/events: add a new "late EOI" evtchn framework
+  xen/blkback: use lateeoi irq binding
+  xen/netback: use lateeoi irq binding
+  xen/scsiback: use lateeoi irq binding
+  xen/pvcallsback: use lateeoi irq binding
+  xen/pciback: use lateeoi irq binding
+  xen/events: switch user event channels to lateeoi model
+  xen/events: use a common cpu hotplug hook for event channels
+  xen/events: defer eoi in case of excessive number of events
+  xen/events: block rogue events for some time
+
+ .../admin-guide/kernel-parameters.txt         |   8 +
+ drivers/block/xen-blkback/blkback.c           |  22 +-
+ drivers/block/xen-blkback/xenbus.c            |   5 +-
+ drivers/net/xen-netback/common.h              |  15 +
+ drivers/net/xen-netback/interface.c           |  61 ++-
+ drivers/net/xen-netback/netback.c             |  11 +-
+ drivers/net/xen-netback/rx.c                  |  13 +-
+ drivers/xen/events/events_2l.c                |   9 +-
+ drivers/xen/events/events_base.c              | 451 ++++++++++++++++--
+ drivers/xen/events/events_fifo.c              |  83 ++--
+ drivers/xen/events/events_internal.h          |  20 +-
+ drivers/xen/evtchn.c                          |   7 +-
+ drivers/xen/pvcalls-back.c                    |  76 +--
+ drivers/xen/xen-pciback/pci_stub.c            |  14 +-
+ drivers/xen/xen-pciback/pciback.h             |  12 +-
+ drivers/xen/xen-pciback/pciback_ops.c         |  48 +-
+ drivers/xen/xen-pciback/xenbus.c              |   2 +-
+ drivers/xen/xen-scsiback.c                    |  23 +-
+ include/xen/events.h                          |  29 +-
+ 19 files changed, 731 insertions(+), 178 deletions(-)
+
+-- 
+2.26.2
+
