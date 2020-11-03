@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDC42A51D6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5482A520F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730268AbgKCUod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:44:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59914 "EHLO mail.kernel.org"
+        id S1731190AbgKCUqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730110AbgKCUoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:44:32 -0500
+        id S1731186AbgKCUqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E25022404;
-        Tue,  3 Nov 2020 20:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 487F420719;
+        Tue,  3 Nov 2020 20:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436271;
-        bh=b0m26p2jGEbOL+dGxZIDvIWXBhU7AOYu0hoK+2XPRNY=;
+        s=default; t=1604436382;
+        bh=xvYuqG/nqQCnqPp65IkugOL6wIjSVb3Do3e6ftfhyx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=soMtOoWmMUzko/9HYNGRMa4O8+5Oy5zbAKL6TvAh0Kr3An1eGI+AbBsfGcca6QRQL
-         5Wl//W9QIjQ7N1UxS2Y3ByAOO9PZ4PgOcu2HQBXMjyx1PB57VVZOoQRvkryPtyQaYX
-         JkIGPPWppgTkhNvUEHyF+kkZoxnftTpQepx25aUo=
+        b=aZYS1cEHgaV8UDlsy3bCMvBTeWlecrUFS1EpmYhSsJphwIWm+TspVb3YuZc/hiCSg
+         cEnSE/cEPBSRhpeqyT6LtVUhgf1h3c8p5sD+pzhjX+/Mif64xdS8bnmqXrgH0JL7TE
+         87ZgpXIgjGeR4CGfGHmOafwn/btaT/YccXhcGAJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org, Konrad Dybcio <konradybcio@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 176/391] bindings: soc: ti: soc: ringacc: remove ti,dma-ring-reset-quirk
-Date:   Tue,  3 Nov 2020 21:33:47 +0100
-Message-Id: <20201103203358.749128756@linuxfoundation.org>
+Subject: [PATCH 5.9 178/391] arm64: dts: qcom: kitakami: Temporarily disable SDHCI1
+Date:   Tue,  3 Nov 2020 21:33:49 +0100
+Message-Id: <20201103203358.883649659@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,44 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Konrad Dybcio <konradybcio@gmail.com>
 
-[ Upstream commit aee123f48f387ea62002cddb46c7cb04c96628df ]
+[ Upstream commit e884fb6cc89dce1debeae33704edd7735a3d6d9c ]
 
-Remove "ti,dma-ring-reset-quirk" DT property as proper w/a handling is
-implemented now in Ringacc driver using SoC info.
+There is an issue with Kitakami eMMCs dying when a quirk
+isn't addressed. Until that happens, disable it.
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: Konrad Dybcio <konradybcio@gmail.com>
+Link: https://lore.kernel.org/r/20200814154749.257837-1-konradybcio@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/soc/ti/k3-ringacc.yaml | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8994-sony-xperia-kitakami.dtsi | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/soc/ti/k3-ringacc.yaml b/Documentation/devicetree/bindings/soc/ti/k3-ringacc.yaml
-index ae33fc957141f..c3c595e235a86 100644
---- a/Documentation/devicetree/bindings/soc/ti/k3-ringacc.yaml
-+++ b/Documentation/devicetree/bindings/soc/ti/k3-ringacc.yaml
-@@ -62,11 +62,6 @@ properties:
-     $ref: /schemas/types.yaml#/definitions/uint32
-     description: TI-SCI device id of the ring accelerator
+diff --git a/arch/arm64/boot/dts/qcom/msm8994-sony-xperia-kitakami.dtsi b/arch/arm64/boot/dts/qcom/msm8994-sony-xperia-kitakami.dtsi
+index 4032b7478f044..791f254ac3f87 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994-sony-xperia-kitakami.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994-sony-xperia-kitakami.dtsi
+@@ -221,7 +221,12 @@
+ };
  
--  ti,dma-ring-reset-quirk:
--    $ref: /schemas/types.yaml#definitions/flag
--    description: |
--      enable ringacc/udma ring state interoperability issue software w/a
--
- required:
-   - compatible
-   - reg
-@@ -94,7 +89,6 @@ examples:
-             reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target";
-             ti,num-rings = <818>;
-             ti,sci-rm-range-gp-rings = <0x2>; /* GP ring range */
--            ti,dma-ring-reset-quirk;
-             ti,sci = <&dmsc>;
-             ti,sci-dev-id = <187>;
-             msi-parent = <&inta_main_udmass>;
+ &sdhc1 {
+-	status = "okay";
++	/* There is an issue with the eMMC causing permanent
++	 * damage to the card if a quirk isn't addressed.
++	 * Until it's fixed, disable the MMC so as not to brick
++	 * devices.
++	 */
++	status = "disabled";
+ 
+ 	/* Downstream pushes 2.95V to the sdhci device,
+ 	 * but upstream driver REALLY wants to make vmmc 1.8v
 -- 
 2.27.0
 
