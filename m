@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32FC12A52C6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032262A51FE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732214AbgKCUxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:53:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
+        id S1731065AbgKCUpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:45:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730684AbgKCUxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:53:04 -0500
+        id S1730347AbgKCUpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:45:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE6E2223BF;
-        Tue,  3 Nov 2020 20:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6124223FD;
+        Tue,  3 Nov 2020 20:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436784;
-        bh=Rwx0OUtf9ciC9CjFxF8pK/9cDjSWHEq82aK1Iv1sdAA=;
+        s=default; t=1604436339;
+        bh=kjIwS9Bi22m/1aIS2oPfF5vV99WlROl3Bi6sTgYhI18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixK6FgvAAm/ELq9iTzF+DgNKm5ujFOZlPmO8ZGSlgV9VKziOzkvsuhbWo3/pDPMcO
-         OwAR1yHfm0PAmGK70R6Zb81/mWlMAxj4ZSVtDvi2puinWUJVSnvssBUofYToSSV2Hx
-         ga78T3RfeQSF2XpjEXnO8FGHmN33NPKygomJ9xe8=
+        b=bAeBuB/iB2OyG6dNtMb/RJVBgAXumNiVKTan5cDBvfxg+KZN1PI9h+uQeaRqHFEiB
+         5zwszhbPZ9pdP3YjdL8YnUx4FIhA8BSxQLNsXWTtvQAFcYYtNo7x/R6D1r7vR/CQCn
+         g1gZuNWQQ4kdAbnJIkTy26chved19wDwLsEqqEFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 5.4 010/214] xen/events: switch user event channels to lateeoi model
+        stable@vger.kernel.org, Alex Hung <alex.hung@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.9 207/391] ACPI: video: use ACPI backlight for HP 635 Notebook
 Date:   Tue,  3 Nov 2020 21:34:18 +0100
-Message-Id: <20201103203250.652542668@linuxfoundation.org>
+Message-Id: <20201103203400.866729023@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alex Hung <alex.hung@canonical.com>
 
-commit c44b849cee8c3ac587da3b0980e01f77500d158c upstream.
+commit b226faab4e7890bbbccdf794e8b94276414f9058 upstream.
 
-Instead of disabling the irq when an event is received and enabling
-it again when handled by the user process use the lateeoi model.
+The default backlight interface is AMD's radeon_bl0 which does not
+work on this system, so use the ACPI backlight interface on it
+instead.
 
-This is part of XSA-332.
-
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
+BugLink: https://bugs.launchpad.net/bugs/1894667
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rjw: Changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/evtchn.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/xen/evtchn.c
-+++ b/drivers/xen/evtchn.c
-@@ -166,7 +166,6 @@ static irqreturn_t evtchn_interrupt(int
- 	     "Interrupt for port %d, but apparently not enabled; per-user %p\n",
- 	     evtchn->port, u);
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -282,6 +282,15 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "530U4E/540U4E"),
+ 		},
+ 	},
++	/* https://bugs.launchpad.net/bugs/1894667 */
++	{
++	 .callback = video_detect_force_video,
++	 .ident = "HP 635 Notebook",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
++		},
++	},
  
--	disable_irq_nosync(irq);
- 	evtchn->enabled = false;
- 
- 	spin_lock(&u->ring_prod_lock);
-@@ -292,7 +291,7 @@ static ssize_t evtchn_write(struct file
- 		evtchn = find_evtchn(u, port);
- 		if (evtchn && !evtchn->enabled) {
- 			evtchn->enabled = true;
--			enable_irq(irq_from_evtchn(port));
-+			xen_irq_lateeoi(irq_from_evtchn(port), 0);
- 		}
- 	}
- 
-@@ -392,8 +391,8 @@ static int evtchn_bind_to_user(struct pe
- 	if (rc < 0)
- 		goto err;
- 
--	rc = bind_evtchn_to_irqhandler(port, evtchn_interrupt, 0,
--				       u->name, evtchn);
-+	rc = bind_evtchn_to_irqhandler_lateeoi(port, evtchn_interrupt, 0,
-+					       u->name, evtchn);
- 	if (rc < 0)
- 		goto err;
- 
+ 	/* Non win8 machines which need native backlight nevertheless */
+ 	{
 
 
