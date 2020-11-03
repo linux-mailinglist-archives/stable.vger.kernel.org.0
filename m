@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14BB22A4A18
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1105B2A4A1D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728144AbgKCPmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:42:46 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34429 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726690AbgKCPmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:42:46 -0500
+        id S1728220AbgKCPnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:43:10 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:34855 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726690AbgKCPnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:43:10 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id AA9F4D9C;
-        Tue,  3 Nov 2020 10:42:45 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:42:45 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id B2F9919425C7;
+        Tue,  3 Nov 2020 10:43:08 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:43:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/xE8Gg
-        GcScsMP23JcOpyWYajFx3lZW5ZsDzuIaikYyA=; b=DDyyOgrzkEnjPHbAriiLJh
-        /K8mlsFTBbMA+WCr6nV/ndk1/mDGu/7mlaETnjEShU/ZRa2k+Nll5HU76XL3Nt6G
-        l1niFbm8bJFaKSFhkAXekrzXMusswl3IG83fk3S3p+Cuzk4q6PYN+2zlvVHbMXfV
-        +nPYDHEAZIaVIML3U6qc96fsL+piILWJvWQYLA/MWwjxsJmUgqw+H7VW8S/kJlFt
-        WGe3KeXey7BZiREquqzxELoHA2mjQcCAuQW6s3W5K+ucpoWm1TNlto4OMRA5/DRc
-        aXKJzzYjSmisZJ1MToVk80p5XUN5ckVoxyY8X5Ezq7wnDXZpAGCE1GBORJGLj5KA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4SaJxU
+        Xc0UnNPNPGUPI/UbRFMIax6t7lNsHBvhY6ZEY=; b=qobuRHiAR2Uf6XXyF5ZfM/
+        i8qZWN5qFVIIEV1cu3ltGxel5mndnkYXnLEiwok0Ip/vtNfWLHoPVf73mtSd6nMD
+        jXqelBN3jIYUBx4Z8VfsECHtNDuFcV6wTRMvvhqk5S43fYco4EUYqoAqO11MbI2t
+        ZuEAzvRn5XlER81GkGWN3EYX+CnYYtXq0ofEfnDppVjty5Kji4yYMNf9BJ77D4+U
+        fZwJLXexVlgX4OIm5tpjQOBWlesy9sglGGsg/GTrTDEa3vG+vLFBNJ3LfoCPASTR
+        7FMuR/9BinuWwuiIU3I7noDRaXDkDGB6ujGnhjImHq+ko56PfMvmY2iPdMlhdHYw
         ==
-X-ME-Sender: <xms:dXqhXzRIEF9Jk2yN3I8NPC75oK3I5rZA-n5TN3_CAH5d9jwuzpcfZw>
-    <xme:dXqhX0ySswqVqcFzp-NpHP_N_yQT5vry2q-HKD8hjs-q2coGHwTyYry59qmUHcvnB
-    SlEyYxZ6g80Zg>
+X-ME-Sender: <xms:jHqhXwYlLH7OJ7-xHDIJ_C-aQJ5E1YB6xZUknKYtkUviDaiv7g7Tww>
+    <xme:jHqhX7ZDjf-FFKXduAK0zEY-piwGu9Vi7xnx-2mNt6rjZpmuMWm9yJm1sPiOMGCWn
+    ohj1eyyVicsdA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:dXqhX43qVaF5YVf2nACM7oIHXGRmz5zRyzYBB0ohvqmP2ZbSIOhDRQ>
-    <xmx:dXqhXzD4Lqdi3NlTsbZnh2l9JLZ0diC28VAAbnvQ0CPdTTsQ-fkmgw>
-    <xmx:dXqhX8iQfgo8EtN03EqR7k6WVNg-RHQBTvMuDFcXOKdD2p80lRIIfw>
-    <xmx:dXqhX0Lsbso63ht4m-RphJBEFyzVwwnYgkHWpJS-lQKQCz-L7owXCBsay60>
+X-ME-Proxy: <xmx:jHqhX6-wI_HV2l1-xhnuDkA_pGHyxXGCH786z0ASpnm7L283MG0LDQ>
+    <xmx:jHqhX6rgJqW9jNPprxphFkVp5b64chf0EHZM349KUIhvlAS-6dfRkA>
+    <xmx:jHqhX7ooYgTDR5F0KaF06TWmRUpRh4XB4qnXhpXF9Ct5D5HEuL4KXQ>
+    <xmx:jHqhXy3Tn63UxB_IeHxpkzfUGDIben8uaFrzhPOK3Br3a16t1dLVbQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9ECF3306467D;
-        Tue,  3 Nov 2020 10:42:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/pm: increase mclk switch threshold to 200 us" failed to apply to 5.9-stable tree
-To:     evan.quan@amd.com, alexander.deucher@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 498BA328005D;
+        Tue,  3 Nov 2020 10:43:08 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix ODM policy implementation" failed to apply to 5.9-stable tree
+To:     Wesley.Chalmers@amd.com, Aric.Cyr@amd.com,
+        alexander.deucher@amd.com, qingqing.zhuo@amd.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:43:38 +0100
-Message-ID: <1604418218168119@kroah.com>
+Date:   Tue, 03 Nov 2020 16:44:02 +0100
+Message-ID: <16044182424102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,31 +72,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 83da6eea3af669ee0b1f1bc05ffd6150af984994 Mon Sep 17 00:00:00 2001
-From: Evan Quan <evan.quan@amd.com>
-Date: Wed, 2 Sep 2020 16:10:10 +0800
-Subject: [PATCH] drm/amd/pm: increase mclk switch threshold to 200 us
+From 25b315817216eaac93ca880d736b359ababae61a Mon Sep 17 00:00:00 2001
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Date: Tue, 8 Sep 2020 16:22:25 -0400
+Subject: [PATCH] drm/amd/display: Fix ODM policy implementation
 
-To avoid underflow seen on Polaris10 with some 3440x1440
-144Hz displays. As the threshold of 190 us cuts too close
-to minVBlankTime of 192 us.
+[WHY]
+Only the leftmost ODM pipe should be offset when scaling. A previous
+code change was intended to implement this policy, but a section of code
+was overlooked.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
 
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
-index 3bf8be4d107b..1e8919b0acdb 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
-@@ -2883,7 +2883,7 @@ static int smu7_vblank_too_short(struct pp_hwmgr *hwmgr,
- 		if (hwmgr->is_kicker)
- 			switch_limit_us = data->is_memory_gddr5 ? 450 : 150;
- 		else
--			switch_limit_us = data->is_memory_gddr5 ? 190 : 150;
-+			switch_limit_us = data->is_memory_gddr5 ? 200 : 150;
- 		break;
- 	case CHIP_VEGAM:
- 		switch_limit_us = 30;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index 4cea9344d8aa..e430148e47cf 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -785,14 +785,15 @@ static void calculate_recout(struct pipe_ctx *pipe_ctx)
+ 	/*
+ 	 * Only the leftmost ODM pipe should be offset by a nonzero distance
+ 	 */
+-	if (!pipe_ctx->prev_odm_pipe)
++	if (!pipe_ctx->prev_odm_pipe) {
+ 		data->recout.x = stream->dst.x;
+-	else
+-		data->recout.x = 0;
+-	if (stream->src.x < surf_clip.x)
+-		data->recout.x += (surf_clip.x - stream->src.x) * stream->dst.width
++		if (stream->src.x < surf_clip.x)
++			data->recout.x += (surf_clip.x - stream->src.x) * stream->dst.width
+ 						/ stream->src.width;
+ 
++	} else
++		data->recout.x = 0;
++
+ 	data->recout.width = surf_clip.width * stream->dst.width / stream->src.width;
+ 	if (data->recout.width + data->recout.x > stream->dst.x + stream->dst.width)
+ 		data->recout.width = stream->dst.x + stream->dst.width - data->recout.x;
 
