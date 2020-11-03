@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08222A57B6
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3BDF2A58B8
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732212AbgKCUxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:53:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50506 "EHLO mail.kernel.org"
+        id S1731003AbgKCUpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:45:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732188AbgKCUxC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:53:02 -0500
+        id S1731001AbgKCUpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:45:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BA9522226;
-        Tue,  3 Nov 2020 20:53:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB2D3223C6;
+        Tue,  3 Nov 2020 20:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436781;
-        bh=rNHnM0gzz0GCc1pWvqpPjBKq/X4V+ZUnbg9f0X3xyQo=;
+        s=default; t=1604436319;
+        bh=3LmE73ilyoamoywy8JIeklBSBGD9wt2T9SyH+QaKNxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xy62u3qxE3CtNWsr3aPOOK/9olTQl1C+wI5/ZuBNDfFr5JWQ/qMf2JJ7U/jUWo9JR
-         msg340a76lqv4Bmg1OagMR91eX/FYKLDS9V/HKMk8RwTYsjUIUnUz++mE4Jrk8JXZs
-         oeN2hX4Uy1aH4rVmbeAW9kIuylUQ3Y0fAIjjkeyg=
+        b=aLe5HS3te/5JS2FtY2rLfBrEshrTfPnwtTkdnQLyCQzotzCZsbCtOHudWJL2DVc+k
+         iSDUyKOQJ1As3ov1R3y0tZN4ep1rY7Ab6042XwnkowlqTVE2k8qgsdueYfFMnDbxY5
+         l2JNl8akW0Tm2sz7emWBceYN44UYzzJABsPpvVPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Jinoh Kang <luke1337@theori.io>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Wei Liu <wl@xen.org>
-Subject: [PATCH 5.4 001/214] xen/events: avoid removing an event channel while handling it
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Vijai Kumar K <vijaikumar.kanagarajan@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 5.9 198/391] extcon: ptn5150: Fix usage of atomic GPIO with sleeping GPIO chips
 Date:   Tue,  3 Nov 2020 21:34:09 +0100
-Message-Id: <20201103203249.609650150@linuxfoundation.org>
+Message-Id: <20201103203400.254355642@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,159 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2 upstream.
+commit 6aaad58c872db062f7ea2761421ca748bd0931cc upstream.
 
-Today it can happen that an event channel is being removed from the
-system while the event handling loop is active. This can lead to a
-race resulting in crashes or WARN() splats when trying to access the
-irq_info structure related to the event channel.
+The driver uses atomic version of gpiod_set_value() without any real
+reason.  It is called in a workqueue under mutex so it could sleep
+there.  Changing it to "can_sleep" flavor allows to use the driver with
+all GPIO chips.
 
-Fix this problem by using a rwlock taken as reader in the event
-handling loop and as writer when deallocating the irq_info structure.
-
-As the observed problem was a NULL dereference in evtchn_from_irq()
-make this function more robust against races by testing the irq_info
-pointer to be not NULL before dereferencing it.
-
-And finally make all accesses to evtchn_to_irq[row][col] atomic ones
-in order to avoid seeing partial updates of an array element in irq
-handling. Note that irq handling can be entered only for event channels
-which have been valid before, so any not populated row isn't a problem
-in this regard, as rows are only ever added and never removed.
-
-This is XSA-331.
-
-Cc: stable@vger.kernel.org
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reported-by: Jinoh Kang <luke1337@theori.io>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
+Fixes: 4ed754de2d66 ("extcon: Add support for ptn5150 extcon driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Vijai Kumar K <vijaikumar.kanagarajan@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/xen/events/events_base.c |   40 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 35 insertions(+), 5 deletions(-)
+ drivers/extcon/extcon-ptn5150.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -33,6 +33,7 @@
- #include <linux/slab.h>
- #include <linux/irqnr.h>
- #include <linux/pci.h>
-+#include <linux/spinlock.h>
+--- a/drivers/extcon/extcon-ptn5150.c
++++ b/drivers/extcon/extcon-ptn5150.c
+@@ -127,7 +127,7 @@ static void ptn5150_irq_work(struct work
+ 			case PTN5150_DFP_ATTACHED:
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, false);
+-				gpiod_set_value(info->vbus_gpiod, 0);
++				gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				extcon_set_state_sync(info->edev, EXTCON_USB,
+ 						true);
+ 				break;
+@@ -138,9 +138,9 @@ static void ptn5150_irq_work(struct work
+ 					PTN5150_REG_CC_VBUS_DETECTION_MASK) >>
+ 					PTN5150_REG_CC_VBUS_DETECTION_SHIFT);
+ 				if (vbus)
+-					gpiod_set_value(info->vbus_gpiod, 0);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				else
+-					gpiod_set_value(info->vbus_gpiod, 1);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 1);
  
- #ifdef CONFIG_X86
- #include <asm/desc.h>
-@@ -70,6 +71,23 @@ const struct evtchn_ops *evtchn_ops;
-  */
- static DEFINE_MUTEX(irq_mapping_update_lock);
- 
-+/*
-+ * Lock protecting event handling loop against removing event channels.
-+ * Adding of event channels is no issue as the associated IRQ becomes active
-+ * only after everything is setup (before request_[threaded_]irq() the handler
-+ * can't be entered for an event, as the event channel will be unmasked only
-+ * then).
-+ */
-+static DEFINE_RWLOCK(evtchn_rwlock);
-+
-+/*
-+ * Lock hierarchy:
-+ *
-+ * irq_mapping_update_lock
-+ *   evtchn_rwlock
-+ *     IRQ-desc lock
-+ */
-+
- static LIST_HEAD(xen_irq_list_head);
- 
- /* IRQ <-> VIRQ mapping. */
-@@ -104,7 +122,7 @@ static void clear_evtchn_to_irq_row(unsi
- 	unsigned col;
- 
- 	for (col = 0; col < EVTCHN_PER_ROW; col++)
--		evtchn_to_irq[row][col] = -1;
-+		WRITE_ONCE(evtchn_to_irq[row][col], -1);
- }
- 
- static void clear_evtchn_to_irq_all(void)
-@@ -141,7 +159,7 @@ static int set_evtchn_to_irq(unsigned ev
- 		clear_evtchn_to_irq_row(row);
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, true);
+@@ -156,7 +156,7 @@ static void ptn5150_irq_work(struct work
+ 					EXTCON_USB_HOST, false);
+ 			extcon_set_state_sync(info->edev,
+ 					EXTCON_USB, false);
+-			gpiod_set_value(info->vbus_gpiod, 0);
++			gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 		}
  	}
  
--	evtchn_to_irq[row][col] = irq;
-+	WRITE_ONCE(evtchn_to_irq[row][col], irq);
- 	return 0;
- }
- 
-@@ -151,7 +169,7 @@ int get_evtchn_to_irq(unsigned evtchn)
- 		return -1;
- 	if (evtchn_to_irq[EVTCHN_ROW(evtchn)] == NULL)
- 		return -1;
--	return evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)];
-+	return READ_ONCE(evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)]);
- }
- 
- /* Get info for IRQ */
-@@ -260,10 +278,14 @@ static void xen_irq_info_cleanup(struct
-  */
- unsigned int evtchn_from_irq(unsigned irq)
- {
--	if (WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq))
-+	const struct irq_info *info = NULL;
-+
-+	if (likely(irq < nr_irqs))
-+		info = info_for_irq(irq);
-+	if (!info)
- 		return 0;
- 
--	return info_for_irq(irq)->evtchn;
-+	return info->evtchn;
- }
- 
- unsigned irq_from_evtchn(unsigned int evtchn)
-@@ -439,16 +461,21 @@ static int __must_check xen_allocate_irq
- static void xen_free_irq(unsigned irq)
- {
- 	struct irq_info *info = info_for_irq(irq);
-+	unsigned long flags;
- 
- 	if (WARN_ON(!info))
- 		return;
- 
-+	write_lock_irqsave(&evtchn_rwlock, flags);
-+
- 	list_del(&info->list);
- 
- 	set_info_for_irq(irq, NULL);
- 
- 	WARN_ON(info->refcnt > 0);
- 
-+	write_unlock_irqrestore(&evtchn_rwlock, flags);
-+
- 	kfree(info);
- 
- 	/* Legacy IRQ descriptors are managed by the arch. */
-@@ -1234,6 +1261,8 @@ static void __xen_evtchn_do_upcall(void)
- 	int cpu = get_cpu();
- 	unsigned count;
- 
-+	read_lock(&evtchn_rwlock);
-+
- 	do {
- 		vcpu_info->evtchn_upcall_pending = 0;
- 
-@@ -1249,6 +1278,7 @@ static void __xen_evtchn_do_upcall(void)
- 	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
- 
- out:
-+	read_unlock(&evtchn_rwlock);
- 
- 	put_cpu();
- }
 
 
