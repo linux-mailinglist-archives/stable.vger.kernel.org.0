@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5414D2A590B
+	by mail.lfdr.de (Postfix) with ESMTP id C170C2A590C
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730750AbgKCUnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
+        id S1730737AbgKCUnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:43:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730746AbgKCUnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:43:42 -0500
+        id S1730754AbgKCUnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:43:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28CB9223C6;
-        Tue,  3 Nov 2020 20:43:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A168223C7;
+        Tue,  3 Nov 2020 20:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436221;
-        bh=rOPMXqEtDNRJwWVXFy6NROEIgc+4CMJJgaNheuscSQ0=;
+        s=default; t=1604436224;
+        bh=3OOrxqRWQzt4kxk9gKhyKovE4zCUlFJ91aizshdFYqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfNS4IK1+0QuLnsUnEbdHI4lRkRQszIV3wfWUrhFjlkA+NicuOsndsJvCO13vzyay
-         DMxYbvRGhr8xQsgrjDDTYhVdYpOmlc8vsrOJbAFpoka1HDXvi7iJrzf61DlTlSWEVM
-         hEHqjwypq6ycmSK2k/VXz8OUeGUuUw2KNfOeEd7c=
+        b=IO/qxVcgi7dICE9z0YWcg4F5Crn2D133LMqa9rQ+dB6926kKay8SJKUyLfg12lb6x
+         mvnUVpKMUqL/S1B552xKREiK74Aod3S1G0d7lGNAKHWSIiwZl5l/2Am+Niv0TV6DNO
+         /UwVi2fVCvoL/0Gyl2VzEw7Z7WSPpR86Mit3ZLzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Greg Kurz <groug@kaod.org>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 156/391] KVM: PPC: Book3S HV: Do not allocate HPT for a nested guest
-Date:   Tue,  3 Nov 2020 21:33:27 +0100
-Message-Id: <20201103203357.359796805@linuxfoundation.org>
+Subject: [PATCH 5.9 157/391] scsi: core: Clean up allocation and freeing of sgtables
+Date:   Tue,  3 Nov 2020 21:33:28 +0100
+Message-Id: <20201103203357.427455522@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -47,99 +44,263 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 05e6295dc7de859c9d56334805485c4d20bebf25 ]
+[ Upstream commit 7007e9dd56767a95de0947b3f7599bcc2f21687f ]
 
-The current nested KVM code does not support HPT guests. This is
-informed/enforced in some ways:
+Rename scsi_init_io() to scsi_alloc_sgtables(), and ensure callers call
+scsi_free_sgtables() to cleanup failures close to scsi_init_io() instead of
+leaking it down the generic I/O submission path.
 
-- Hosts < P9 will not be able to enable the nested HV feature;
-
-- The nested hypervisor MMU capabilities will not contain
-  KVM_CAP_PPC_MMU_HASH_V3;
-
-- QEMU reflects the MMU capabilities in the
-  'ibm,arch-vec-5-platform-support' device-tree property;
-
-- The nested guest, at 'prom_parse_mmu_model' ignores the
-  'disable_radix' kernel command line option if HPT is not supported;
-
-- The KVM_PPC_CONFIGURE_V3_MMU ioctl will fail if trying to use HPT.
-
-There is, however, still a way to start a HPT guest by using
-max-compat-cpu=power8 at the QEMU machine options. This leads to the
-guest being set to use hash after QEMU calls the KVM_PPC_ALLOCATE_HTAB
-ioctl.
-
-With the guest set to hash, the nested hypervisor goes through the
-entry path that has no knowledge of nesting (kvmppc_run_vcpu) and
-crashes when it tries to execute an hypervisor-privileged (mtspr
-HDEC) instruction at __kvmppc_vcore_entry:
-
-root@L1:~ $ qemu-system-ppc64 -machine pseries,max-cpu-compat=power8 ...
-
-<snip>
-[  538.543303] CPU: 83 PID: 25185 Comm: CPU 0/KVM Not tainted 5.9.0-rc4 #1
-[  538.543355] NIP:  c00800000753f388 LR: c00800000753f368 CTR: c0000000001e5ec0
-[  538.543417] REGS: c0000013e91e33b0 TRAP: 0700   Not tainted  (5.9.0-rc4)
-[  538.543470] MSR:  8000000002843033 <SF,VEC,VSX,FP,ME,IR,DR,RI,LE>  CR: 22422882  XER: 20040000
-[  538.543546] CFAR: c00800000753f4b0 IRQMASK: 3
-               GPR00: c0080000075397a0 c0000013e91e3640 c00800000755e600 0000000080000000
-               GPR04: 0000000000000000 c0000013eab19800 c000001394de0000 00000043a054db72
-               GPR08: 00000000003b1652 0000000000000000 0000000000000000 c0080000075502e0
-               GPR12: c0000000001e5ec0 c0000007ffa74200 c0000013eab19800 0000000000000008
-               GPR16: 0000000000000000 c00000139676c6c0 c000000001d23948 c0000013e91e38b8
-               GPR20: 0000000000000053 0000000000000000 0000000000000001 0000000000000000
-               GPR24: 0000000000000001 0000000000000001 0000000000000000 0000000000000001
-               GPR28: 0000000000000001 0000000000000053 c0000013eab19800 0000000000000001
-[  538.544067] NIP [c00800000753f388] __kvmppc_vcore_entry+0x90/0x104 [kvm_hv]
-[  538.544121] LR [c00800000753f368] __kvmppc_vcore_entry+0x70/0x104 [kvm_hv]
-[  538.544173] Call Trace:
-[  538.544196] [c0000013e91e3640] [c0000013e91e3680] 0xc0000013e91e3680 (unreliable)
-[  538.544260] [c0000013e91e3820] [c0080000075397a0] kvmppc_run_core+0xbc8/0x19d0 [kvm_hv]
-[  538.544325] [c0000013e91e39e0] [c00800000753d99c] kvmppc_vcpu_run_hv+0x404/0xc00 [kvm_hv]
-[  538.544394] [c0000013e91e3ad0] [c0080000072da4fc] kvmppc_vcpu_run+0x34/0x48 [kvm]
-[  538.544472] [c0000013e91e3af0] [c0080000072d61b8] kvm_arch_vcpu_ioctl_run+0x310/0x420 [kvm]
-[  538.544539] [c0000013e91e3b80] [c0080000072c7450] kvm_vcpu_ioctl+0x298/0x778 [kvm]
-[  538.544605] [c0000013e91e3ce0] [c0000000004b8c2c] sys_ioctl+0x1dc/0xc90
-[  538.544662] [c0000013e91e3dc0] [c00000000002f9a4] system_call_exception+0xe4/0x1c0
-[  538.544726] [c0000013e91e3e20] [c00000000000d140] system_call_common+0xf0/0x27c
-[  538.544787] Instruction dump:
-[  538.544821] f86d1098 60000000 60000000 48000099 e8ad0fe8 e8c500a0 e9264140 75290002
-[  538.544886] 7d1602a6 7cec42a6 40820008 7d0807b4 <7d164ba6> 7d083a14 f90d10a0 480104fd
-[  538.544953] ---[ end trace 74423e2b948c2e0c ]---
-
-This patch makes the KVM_PPC_ALLOCATE_HTAB ioctl fail when running in
-the nested hypervisor, causing QEMU to abort.
-
-Reported-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Link: https://lore.kernel.org/r/20201005084130.143273-9-hch@lst.de
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/scsi_lib.c  | 22 ++++++++--------------
+ drivers/scsi/sd.c        | 27 +++++++++++++++------------
+ drivers/scsi/sr.c        | 16 ++++++----------
+ include/scsi/scsi_cmnd.h |  3 ++-
+ 4 files changed, 31 insertions(+), 37 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 3bd3118c76330..e2b476d76506a 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -5257,6 +5257,12 @@ static long kvm_arch_vm_ioctl_hv(struct file *filp,
- 	case KVM_PPC_ALLOCATE_HTAB: {
- 		u32 htab_order;
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 7affaaf8b98e0..198130b6a9963 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -530,7 +530,7 @@ static void scsi_uninit_cmd(struct scsi_cmnd *cmd)
+ 	}
+ }
  
-+		/* If we're a nested hypervisor, we currently only support radix */
-+		if (kvmhv_on_pseries()) {
-+			r = -EOPNOTSUPP;
-+			break;
-+		}
-+
- 		r = -EFAULT;
- 		if (get_user(htab_order, (u32 __user *)argp))
- 			break;
+-static void scsi_free_sgtables(struct scsi_cmnd *cmd)
++void scsi_free_sgtables(struct scsi_cmnd *cmd)
+ {
+ 	if (cmd->sdb.table.nents)
+ 		sg_free_table_chained(&cmd->sdb.table,
+@@ -539,6 +539,7 @@ static void scsi_free_sgtables(struct scsi_cmnd *cmd)
+ 		sg_free_table_chained(&cmd->prot_sdb->table,
+ 				SCSI_INLINE_PROT_SG_CNT);
+ }
++EXPORT_SYMBOL_GPL(scsi_free_sgtables);
+ 
+ static void scsi_mq_uninit_cmd(struct scsi_cmnd *cmd)
+ {
+@@ -966,7 +967,7 @@ static inline bool scsi_cmd_needs_dma_drain(struct scsi_device *sdev,
+ }
+ 
+ /**
+- * scsi_init_io - SCSI I/O initialization function.
++ * scsi_alloc_sgtables - allocate S/G tables for a command
+  * @cmd:  command descriptor we wish to initialize
+  *
+  * Returns:
+@@ -974,7 +975,7 @@ static inline bool scsi_cmd_needs_dma_drain(struct scsi_device *sdev,
+  * * BLK_STS_RESOURCE - if the failure is retryable
+  * * BLK_STS_IOERR    - if the failure is fatal
+  */
+-blk_status_t scsi_init_io(struct scsi_cmnd *cmd)
++blk_status_t scsi_alloc_sgtables(struct scsi_cmnd *cmd)
+ {
+ 	struct scsi_device *sdev = cmd->device;
+ 	struct request *rq = cmd->request;
+@@ -1066,7 +1067,7 @@ out_free_sgtables:
+ 	scsi_free_sgtables(cmd);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(scsi_init_io);
++EXPORT_SYMBOL(scsi_alloc_sgtables);
+ 
+ /**
+  * scsi_initialize_rq - initialize struct scsi_cmnd partially
+@@ -1154,7 +1155,7 @@ static blk_status_t scsi_setup_scsi_cmnd(struct scsi_device *sdev,
+ 	 * submit a request without an attached bio.
+ 	 */
+ 	if (req->bio) {
+-		blk_status_t ret = scsi_init_io(cmd);
++		blk_status_t ret = scsi_alloc_sgtables(cmd);
+ 		if (unlikely(ret != BLK_STS_OK))
+ 			return ret;
+ 	} else {
+@@ -1194,7 +1195,6 @@ static blk_status_t scsi_setup_cmnd(struct scsi_device *sdev,
+ 		struct request *req)
+ {
+ 	struct scsi_cmnd *cmd = blk_mq_rq_to_pdu(req);
+-	blk_status_t ret;
+ 
+ 	if (!blk_rq_bytes(req))
+ 		cmd->sc_data_direction = DMA_NONE;
+@@ -1204,14 +1204,8 @@ static blk_status_t scsi_setup_cmnd(struct scsi_device *sdev,
+ 		cmd->sc_data_direction = DMA_FROM_DEVICE;
+ 
+ 	if (blk_rq_is_scsi(req))
+-		ret = scsi_setup_scsi_cmnd(sdev, req);
+-	else
+-		ret = scsi_setup_fs_cmnd(sdev, req);
+-
+-	if (ret != BLK_STS_OK)
+-		scsi_free_sgtables(cmd);
+-
+-	return ret;
++		return scsi_setup_scsi_cmnd(sdev, req);
++	return scsi_setup_fs_cmnd(sdev, req);
+ }
+ 
+ static blk_status_t
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 16503e22691ed..e93a9a874004f 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -866,7 +866,7 @@ static blk_status_t sd_setup_unmap_cmnd(struct scsi_cmnd *cmd)
+ 	cmd->transfersize = data_len;
+ 	rq->timeout = SD_TIMEOUT;
+ 
+-	return scsi_init_io(cmd);
++	return scsi_alloc_sgtables(cmd);
+ }
+ 
+ static blk_status_t sd_setup_write_same16_cmnd(struct scsi_cmnd *cmd,
+@@ -897,7 +897,7 @@ static blk_status_t sd_setup_write_same16_cmnd(struct scsi_cmnd *cmd,
+ 	cmd->transfersize = data_len;
+ 	rq->timeout = unmap ? SD_TIMEOUT : SD_WRITE_SAME_TIMEOUT;
+ 
+-	return scsi_init_io(cmd);
++	return scsi_alloc_sgtables(cmd);
+ }
+ 
+ static blk_status_t sd_setup_write_same10_cmnd(struct scsi_cmnd *cmd,
+@@ -928,7 +928,7 @@ static blk_status_t sd_setup_write_same10_cmnd(struct scsi_cmnd *cmd,
+ 	cmd->transfersize = data_len;
+ 	rq->timeout = unmap ? SD_TIMEOUT : SD_WRITE_SAME_TIMEOUT;
+ 
+-	return scsi_init_io(cmd);
++	return scsi_alloc_sgtables(cmd);
+ }
+ 
+ static blk_status_t sd_setup_write_zeroes_cmnd(struct scsi_cmnd *cmd)
+@@ -1069,7 +1069,7 @@ static blk_status_t sd_setup_write_same_cmnd(struct scsi_cmnd *cmd)
+ 	 * knows how much to actually write.
+ 	 */
+ 	rq->__data_len = sdp->sector_size;
+-	ret = scsi_init_io(cmd);
++	ret = scsi_alloc_sgtables(cmd);
+ 	rq->__data_len = blk_rq_bytes(rq);
+ 
+ 	return ret;
+@@ -1187,23 +1187,24 @@ static blk_status_t sd_setup_read_write_cmnd(struct scsi_cmnd *cmd)
+ 	unsigned int dif;
+ 	bool dix;
+ 
+-	ret = scsi_init_io(cmd);
++	ret = scsi_alloc_sgtables(cmd);
+ 	if (ret != BLK_STS_OK)
+ 		return ret;
+ 
++	ret = BLK_STS_IOERR;
+ 	if (!scsi_device_online(sdp) || sdp->changed) {
+ 		scmd_printk(KERN_ERR, cmd, "device offline or changed\n");
+-		return BLK_STS_IOERR;
++		goto fail;
+ 	}
+ 
+ 	if (blk_rq_pos(rq) + blk_rq_sectors(rq) > get_capacity(rq->rq_disk)) {
+ 		scmd_printk(KERN_ERR, cmd, "access beyond end of device\n");
+-		return BLK_STS_IOERR;
++		goto fail;
+ 	}
+ 
+ 	if ((blk_rq_pos(rq) & mask) || (blk_rq_sectors(rq) & mask)) {
+ 		scmd_printk(KERN_ERR, cmd, "request not aligned to the logical block size\n");
+-		return BLK_STS_IOERR;
++		goto fail;
+ 	}
+ 
+ 	/*
+@@ -1225,7 +1226,7 @@ static blk_status_t sd_setup_read_write_cmnd(struct scsi_cmnd *cmd)
+ 	if (req_op(rq) == REQ_OP_ZONE_APPEND) {
+ 		ret = sd_zbc_prepare_zone_append(cmd, &lba, nr_blocks);
+ 		if (ret)
+-			return ret;
++			goto fail;
+ 	}
+ 
+ 	fua = rq->cmd_flags & REQ_FUA ? 0x8 : 0;
+@@ -1253,7 +1254,7 @@ static blk_status_t sd_setup_read_write_cmnd(struct scsi_cmnd *cmd)
+ 	}
+ 
+ 	if (unlikely(ret != BLK_STS_OK))
+-		return ret;
++		goto fail;
+ 
+ 	/*
+ 	 * We shouldn't disconnect in the middle of a sector, so with a dumb
+@@ -1277,10 +1278,12 @@ static blk_status_t sd_setup_read_write_cmnd(struct scsi_cmnd *cmd)
+ 				     blk_rq_sectors(rq)));
+ 
+ 	/*
+-	 * This indicates that the command is ready from our end to be
+-	 * queued.
++	 * This indicates that the command is ready from our end to be queued.
+ 	 */
+ 	return BLK_STS_OK;
++fail:
++	scsi_free_sgtables(cmd);
++	return ret;
+ }
+ 
+ static blk_status_t sd_init_command(struct scsi_cmnd *cmd)
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 3b3a53c6a0de5..7e8fe55f3b339 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -392,15 +392,11 @@ static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt)
+ 	struct request *rq = SCpnt->request;
+ 	blk_status_t ret;
+ 
+-	ret = scsi_init_io(SCpnt);
++	ret = scsi_alloc_sgtables(SCpnt);
+ 	if (ret != BLK_STS_OK)
+-		goto out;
++		return ret;
+ 	cd = scsi_cd(rq->rq_disk);
+ 
+-	/* from here on until we're complete, any goto out
+-	 * is used for a killable error condition */
+-	ret = BLK_STS_IOERR;
+-
+ 	SCSI_LOG_HLQUEUE(1, scmd_printk(KERN_INFO, SCpnt,
+ 		"Doing sr request, block = %d\n", block));
+ 
+@@ -509,12 +505,12 @@ static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt)
+ 	SCpnt->allowed = MAX_RETRIES;
+ 
+ 	/*
+-	 * This indicates that the command is ready from our end to be
+-	 * queued.
++	 * This indicates that the command is ready from our end to be queued.
+ 	 */
+-	ret = BLK_STS_OK;
++	return BLK_STS_OK;
+  out:
+-	return ret;
++	scsi_free_sgtables(SCpnt);
++	return BLK_STS_IOERR;
+ }
+ 
+ static int sr_block_open(struct block_device *bdev, fmode_t mode)
+diff --git a/include/scsi/scsi_cmnd.h b/include/scsi/scsi_cmnd.h
+index e76bac4d14c51..69ade4fb71aab 100644
+--- a/include/scsi/scsi_cmnd.h
++++ b/include/scsi/scsi_cmnd.h
+@@ -165,7 +165,8 @@ extern void *scsi_kmap_atomic_sg(struct scatterlist *sg, int sg_count,
+ 				 size_t *offset, size_t *len);
+ extern void scsi_kunmap_atomic_sg(void *virt);
+ 
+-extern blk_status_t scsi_init_io(struct scsi_cmnd *cmd);
++blk_status_t scsi_alloc_sgtables(struct scsi_cmnd *cmd);
++void scsi_free_sgtables(struct scsi_cmnd *cmd);
+ 
+ #ifdef CONFIG_SCSI_DMA
+ extern int scsi_dma_map(struct scsi_cmnd *cmd);
 -- 
 2.27.0
 
