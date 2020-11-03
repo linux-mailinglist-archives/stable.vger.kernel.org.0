@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 379D02A538C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598CC2A5651
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387561AbgKCVCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:02:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
+        id S1733246AbgKCVZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:25:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387560AbgKCVCE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:02:04 -0500
+        id S2387568AbgKCVCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:02:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EABF205ED;
-        Tue,  3 Nov 2020 21:02:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B840420658;
+        Tue,  3 Nov 2020 21:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437323;
-        bh=VaJBdPvv6oADudM62GhWYNgpH+/EyjWa0c704nJQWw0=;
+        s=default; t=1604437326;
+        bh=Y94bS825I46t6kx1vs03CSmnAJfoD+XnMDcOJcT0abk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9jJbSkyy+XRPCdWqh1EhAQBwv4rMVDxuWXVw1DqybWFjpg0izJpf3CNRBLzAYm1V
-         FSOqaJpH8luqLAlqnh2Cbq/2xjdP9RplLf98dpXIVaRaGwbF4oVCOOZQ9aiv1bFG8K
-         MR9GBgZKwObQ1nrbvoE3+fCSoQQR4rSweesFielw=
+        b=1Z7NzFg6BhI7QF4Djsq0rDwpjhkKIWUNC0UVqXBoazYGtj/Ixq1azsnuf7KYuJnJH
+         Yo8wlh1TzDthAOgPcqSe2pMYyu7Z0/bUUF6rOdD8+aFex4qKbefoNN2po+QX3HCvS3
+         UqmSWGXQ9u657CubdefWCDSKC5/YAFkAfaFPHDkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 027/191] serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
-Date:   Tue,  3 Nov 2020 21:35:19 +0100
-Message-Id: <20201103203236.236104871@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 028/191] ata: sata_rcar: Fix DMA boundary mask
+Date:   Tue,  3 Nov 2020 21:35:20 +0100
+Message-Id: <20201103203236.363359597@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -44,92 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 534cf755d9df99e214ddbe26b91cd4d81d2603e2 upstream.
+commit df9c590986fdb6db9d5636d6cd93bc919c01b451 upstream.
 
-Issuing a magic-sysrq via the PL011 causes the following lockdep splat,
-which is easily reproducible under QEMU:
+Before commit 9495b7e92f716ab2 ("driver core: platform: Initialize
+dma_parms for platform devices"), the R-Car SATA device didn't have DMA
+parameters.  Hence the DMA boundary mask supplied by its driver was
+silently ignored, as __scsi_init_queue() doesn't check the return value
+of dma_set_seg_boundary(), and the default value of 0xffffffff was used.
 
-  | sysrq: Changing Loglevel
-  | sysrq: Loglevel set to 9
-  |
-  | ======================================================
-  | WARNING: possible circular locking dependency detected
-  | 5.9.0-rc7 #1 Not tainted
-  | ------------------------------------------------------
-  | systemd-journal/138 is trying to acquire lock:
-  | ffffab133ad950c0 (console_owner){-.-.}-{0:0}, at: console_lock_spinning_enable+0x34/0x70
-  |
-  | but task is already holding lock:
-  | ffff0001fd47b098 (&port_lock_key){-.-.}-{2:2}, at: pl011_int+0x40/0x488
-  |
-  | which lock already depends on the new lock.
+Now the device has gained DMA parameters, the driver-supplied value is
+used, and the following warning is printed on Salvator-XS:
 
-  [...]
+    DMA-API: sata_rcar ee300000.sata: mapping sg segment across boundary [start=0x00000000ffffe000] [end=0x00000000ffffefff] [boundary=0x000000001ffffffe]
+    WARNING: CPU: 5 PID: 38 at kernel/dma/debug.c:1233 debug_dma_map_sg+0x298/0x300
 
-  |  Possible unsafe locking scenario:
-  |
-  |        CPU0                    CPU1
-  |        ----                    ----
-  |   lock(&port_lock_key);
-  |                                lock(console_owner);
-  |                                lock(&port_lock_key);
-  |   lock(console_owner);
-  |
-  |  *** DEADLOCK ***
+(the range of start/end values depend on whether IOMMU support is
+ enabled or not)
 
-The issue being that CPU0 takes 'port_lock' on the irq path in pl011_int()
-before taking 'console_owner' on the printk() path, whereas CPU1 takes
-the two locks in the opposite order on the printk() path due to setting
-the "console_owner" prior to calling into into the actual console driver.
+The issue here is that SATA_RCAR_DMA_BOUNDARY doesn't have bit 0 set, so
+any typical end value, which is odd, will trigger the check.
 
-Fix this in the same way as the msm-serial driver by dropping 'port_lock'
-before handling the sysrq.
+Fix this by increasing the DMA boundary value by 1.
 
-Cc: <stable@vger.kernel.org> # 4.19+
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20200811101313.GA6970@willie-the-truck
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Tested-by: Will Deacon <will@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200930120432.16551-1-will@kernel.org
+This also fixes the following WRITE DMA EXT timeout issue:
+
+    # dd if=/dev/urandom of=/mnt/de1/file1-1024M bs=1M count=1024
+    ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
+    ata1.00: failed command: WRITE DMA EXT
+    ata1.00: cmd 35/00:00:00:e6:0c/00:0a:00:00:00/e0 tag 0 dma 1310720 out
+    res 40/00:01:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+    ata1.00: status: { DRDY }
+
+as seen by Shimoda-san since commit 429120f3df2dba2b ("block: fix
+splitting segments on boundary masks").
+
+Fixes: 8bfbeed58665dbbf ("sata_rcar: correct 'sata_rcar_sht'")
+Fixes: 9495b7e92f716ab2 ("driver core: platform: Initialize dma_parms for platform devices")
+Fixes: 429120f3df2dba2b ("block: fix splitting segments on boundary masks")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/amba-pl011.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/ata/sata_rcar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -313,8 +313,9 @@ static void pl011_write(unsigned int val
-  */
- static int pl011_fifo_to_tty(struct uart_amba_port *uap)
- {
--	u16 status;
- 	unsigned int ch, flag, fifotaken;
-+	int sysrq;
-+	u16 status;
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -124,7 +124,7 @@
+ /* Descriptor table word 0 bit (when DTA32M = 1) */
+ #define SATA_RCAR_DTEND			BIT(0)
  
- 	for (fifotaken = 0; fifotaken != 256; fifotaken++) {
- 		status = pl011_read(uap, REG_FR);
-@@ -349,10 +350,12 @@ static int pl011_fifo_to_tty(struct uart
- 				flag = TTY_FRAME;
- 		}
+-#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFEUL
++#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFFUL
  
--		if (uart_handle_sysrq_char(&uap->port, ch & 255))
--			continue;
-+		spin_unlock(&uap->port.lock);
-+		sysrq = uart_handle_sysrq_char(&uap->port, ch & 255);
-+		spin_lock(&uap->port.lock);
- 
--		uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
-+		if (!sysrq)
-+			uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
- 	}
- 
- 	return fifotaken;
+ /* Gen2 Physical Layer Control Registers */
+ #define RCAR_GEN2_PHY_CTL1_REG		0x1704
 
 
