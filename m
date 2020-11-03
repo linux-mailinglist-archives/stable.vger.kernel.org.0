@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0422A592F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A95912A5935
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730082AbgKCUmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:42:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54468 "EHLO mail.kernel.org"
+        id S1730474AbgKCWFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 17:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730487AbgKCUmS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:18 -0500
+        id S1730502AbgKCUmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:42:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD15922226;
-        Tue,  3 Nov 2020 20:42:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7997522226;
+        Tue,  3 Nov 2020 20:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436138;
-        bh=zWCLfp4h721j+VW/7uhVawdS9abHhVhI1Vy7IztB9dY=;
+        s=default; t=1604436143;
+        bh=5mFpgCB6E/y0tiFWU5q3mX8hvSsWWfQnbJDOXtty6dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zs+4jsvou4Yeu/L6fpy5MzDjCyTVrDbeT1aHEkSrIj/g3aZ787KeOP49C+AEfgLnz
-         3E5o/bxEvX89KB3TV7xPnRn8jfmsXflAf5Cvv8E67/0eauyZMlNS8j4OSS299KX/3m
-         oSb+3Fm3Ke6/LgI9RaMsoRx6MDR7r1W35aRGV6v8=
+        b=WPBjiCvsdiOAaioJ6fgNl2IGgWtEZkFKgw4BLGGKljlQcVg55N3I4/iRSz7aW1otf
+         iZ+3zH7UPFVSwPt8XVYCtRzjoloLHHLgtvVuyaFd6FKiIa16iSwc/Si/3MpGPyHAOT
+         RzVKCZu8dqjG5ClMcsrecMIZlZA1EkY3eIlT6LwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>,
+        Gavin Shan <gshan@redhat.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 119/391] SUNRPC: Mitigate cond_resched() in xprt_transmit()
-Date:   Tue,  3 Nov 2020 21:32:50 +0100
-Message-Id: <20201103203354.853516171@linuxfoundation.org>
+Subject: [PATCH 5.9 121/391] arm64/mm: return cpu_all_mask when node is NUMA_NO_NODE
+Date:   Tue,  3 Nov 2020 21:32:52 +0100
+Message-Id: <20201103203354.989563152@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,53 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
 
-[ Upstream commit 6f9f17287e78e5049931af2037b15b26d134a32a ]
+[ Upstream commit a194c5f2d2b3a05428805146afcabe5140b5d378 ]
 
-The original purpose of this expensive call is to prevent a long
-queue of requests from blocking other work.
+The @node passed to cpumask_of_node() can be NUMA_NO_NODE, in that
+case it will trigger the following WARN_ON(node >= nr_node_ids) due to
+mismatched data types of @node and @nr_node_ids. Actually we should
+return cpu_all_mask just like most other architectures do if passed
+NUMA_NO_NODE.
 
-The cond_resched() call is unnecessary after just a single send
-operation.
+Also add a similar check to the inline cpumask_of_node() in numa.h.
 
-For longer queues, instead of invoking the kernel scheduler, simply
-release the transport send lock and return to the RPC scheduler.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
+Link: https://lore.kernel.org/r/20200921023936.21846-1-liuzhengyuan@tj.kylinos.cn
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/numa.h | 3 +++
+ arch/arm64/mm/numa.c          | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 5a8e47bbfb9f4..13fbc2dd4196a 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1520,10 +1520,13 @@ xprt_transmit(struct rpc_task *task)
+diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
+index 626ad01e83bf0..dd870390d639f 100644
+--- a/arch/arm64/include/asm/numa.h
++++ b/arch/arm64/include/asm/numa.h
+@@ -25,6 +25,9 @@ const struct cpumask *cpumask_of_node(int node);
+ /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+ static inline const struct cpumask *cpumask_of_node(int node)
  {
- 	struct rpc_rqst *next, *req = task->tk_rqstp;
- 	struct rpc_xprt	*xprt = req->rq_xprt;
--	int status;
-+	int counter, status;
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
+ 	return node_to_cpumask_map[node];
+ }
+ #endif
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index 73f8b49d485c2..88e51aade0da0 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -46,7 +46,11 @@ EXPORT_SYMBOL(node_to_cpumask_map);
+  */
+ const struct cpumask *cpumask_of_node(int node)
+ {
+-	if (WARN_ON(node >= nr_node_ids))
++
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
++	if (WARN_ON(node < 0 || node >= nr_node_ids))
+ 		return cpu_none_mask;
  
- 	spin_lock(&xprt->queue_lock);
-+	counter = 0;
- 	while (!list_empty(&xprt->xmit_queue)) {
-+		if (++counter == 20)
-+			break;
- 		next = list_first_entry(&xprt->xmit_queue,
- 				struct rpc_rqst, rq_xmit);
- 		xprt_pin_rqst(next);
-@@ -1531,7 +1534,6 @@ xprt_transmit(struct rpc_task *task)
- 		status = xprt_request_transmit(next, task);
- 		if (status == -EBADMSG && next != req)
- 			status = 0;
--		cond_resched();
- 		spin_lock(&xprt->queue_lock);
- 		xprt_unpin_rqst(next);
- 		if (status == 0) {
+ 	if (WARN_ON(node_to_cpumask_map[node] == NULL))
 -- 
 2.27.0
 
