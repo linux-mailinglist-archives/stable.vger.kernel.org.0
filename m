@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 411F92A516D
+	by mail.lfdr.de (Postfix) with ESMTP id D24272A516E
 	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729715AbgKCUkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52190 "EHLO mail.kernel.org"
+        id S1729865AbgKCUku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbgKCUko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:40:44 -0500
+        id S1728157AbgKCUks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2CAE2224E;
-        Tue,  3 Nov 2020 20:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A16222226;
+        Tue,  3 Nov 2020 20:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436043;
-        bh=VxZNDvlLDHDwWc4BFbx5d9dwCi5xVTpfOT33Cq/Q8rI=;
+        s=default; t=1604436047;
+        bh=8hGHDXMWSq6XTetTsQUdib7ikANqPhCCabylkUeWxl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oiBLHlYxj2qycQDWq4vdeEsNWl5tsNxh9wwwZ+7g+vavuguv2v0I0Z70LADdXs3EQ
-         k8AUpJwgZd7kwHAATOLnXT874QtDT7QYDR1QyBmDmd171JXnt63Mm6CzcI8adXcZQW
-         GL6+0bpbQYnpYBLhnK3pL4FA6mgtfhH2JL4r3Gbs=
+        b=yM9k6e/MozJu5x958QVG/G2NbWyjDr3xvXtWLUM4a1S60+IIoqmM8bp0MReZL6srM
+         cZM5LdaYLdvMoK0W7rjk2tbB/ZhsDD9GVSLBepjb/GpaFFG3MgW7Yy03SrIG5qLpFX
+         s9BNnK0nDyQTZQ2jGkkBnT2FUnXhqybRoGjU31u0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luben Tuikov <luben.tuikov@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 078/391] drm/scheduler: Scheduler priority fixes (v2)
-Date:   Tue,  3 Nov 2020 21:32:09 +0100
-Message-Id: <20201103203352.399073636@linuxfoundation.org>
+Subject: [PATCH 5.9 080/391] ASoC: SOF: fix a runtime pm issue in SOF when HDMI codec doesnt work
+Date:   Tue,  3 Nov 2020 21:32:11 +0100
+Message-Id: <20201103203352.505472614@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,194 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Rander Wang <rander.wang@intel.com>
 
-[ Upstream commit e2d732fdb7a9e421720a644580cd6a9400f97f60 ]
+[ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
 
-Remove DRM_SCHED_PRIORITY_LOW, as it was used
-in only one place.
+When hda_codec_probe() doesn't initialize audio component, we disable
+the codec and keep going. However,the resources are not released. The
+child_count of SOF device is increased in snd_hdac_ext_bus_device_init
+but is not decrease in error case, so SOF can't get suspended.
 
-Rename and separate by a line
-DRM_SCHED_PRIORITY_MAX to DRM_SCHED_PRIORITY_COUNT
-as it represents a (total) count of said
-priorities and it is used as such in loops
-throughout the code. (0-based indexing is the
-the count number.)
+snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
+gets a error. Now copy this behavior to release resources and decrease
+SOF device child_count to release SOF device.
 
-Remove redundant word HIGH in priority names,
-and rename *KERNEL* to *HIGH*, as it really
-means that, high.
-
-v2: Add back KERNEL and remove SW and HW,
-    in lieu of a single HIGH between NORMAL and KERNEL.
-
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c   |  4 ++--
- drivers/gpu/drm/amd/amdgpu/amdgpu_job.c   |  2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_ring.c  |  2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h  |  2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c |  6 +++---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c   |  2 +-
- drivers/gpu/drm/scheduler/sched_main.c    |  4 ++--
- include/drm/gpu_scheduler.h               | 12 +++++++-----
- 8 files changed, 18 insertions(+), 16 deletions(-)
+ sound/soc/sof/intel/hda-codec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-index 8842c55d4490b..fc695126b6e75 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-@@ -46,7 +46,7 @@ const unsigned int amdgpu_ctx_num_entities[AMDGPU_HW_IP_NUM] = {
- static int amdgpu_ctx_priority_permit(struct drm_file *filp,
- 				      enum drm_sched_priority priority)
- {
--	if (priority < 0 || priority >= DRM_SCHED_PRIORITY_MAX)
-+	if (priority < 0 || priority >= DRM_SCHED_PRIORITY_COUNT)
- 		return -EINVAL;
- 
- 	/* NORMAL and below are accessible by everyone */
-@@ -65,7 +65,7 @@ static int amdgpu_ctx_priority_permit(struct drm_file *filp,
- static enum gfx_pipe_priority amdgpu_ctx_sched_prio_to_compute_prio(enum drm_sched_priority prio)
- {
- 	switch (prio) {
--	case DRM_SCHED_PRIORITY_HIGH_HW:
-+	case DRM_SCHED_PRIORITY_HIGH:
- 	case DRM_SCHED_PRIORITY_KERNEL:
- 		return AMDGPU_GFX_PIPE_PRIO_HIGH;
- 	default:
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
-index 937029ad5271a..dcfe8a3b03ffb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
-@@ -251,7 +251,7 @@ void amdgpu_job_stop_all_jobs_on_sched(struct drm_gpu_scheduler *sched)
- 	int i;
- 
- 	/* Signal all jobs not yet scheduled */
--	for (i = DRM_SCHED_PRIORITY_MAX - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
-+	for (i = DRM_SCHED_PRIORITY_COUNT - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
- 		struct drm_sched_rq *rq = &sched->sched_rq[i];
- 
- 		if (!rq)
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.c
-index 13ea8ebc421c6..6d4fc79bf84aa 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.c
-@@ -267,7 +267,7 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
- 			&ring->sched;
+diff --git a/sound/soc/sof/intel/hda-codec.c b/sound/soc/sof/intel/hda-codec.c
+index 2c5c451fa19d7..c475955c6eeba 100644
+--- a/sound/soc/sof/intel/hda-codec.c
++++ b/sound/soc/sof/intel/hda-codec.c
+@@ -151,7 +151,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+ 		if (!hdev->bus->audio_component) {
+ 			dev_dbg(sdev->dev,
+ 				"iDisp hw present but no driver\n");
+-			return -ENOENT;
++			goto error;
+ 		}
+ 		hda_priv->need_display_power = true;
+ 	}
+@@ -174,7 +174,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+ 		 * other return codes without modification
+ 		 */
+ 		if (ret == 0)
+-			ret = -ENOENT;
++			goto error;
  	}
  
--	for (i = 0; i < DRM_SCHED_PRIORITY_MAX; ++i)
-+	for (i = DRM_SCHED_PRIORITY_MIN; i < DRM_SCHED_PRIORITY_COUNT; ++i)
- 		atomic_set(&ring->num_jobs[i], 0);
- 
- 	return 0;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-index da871d84b7424..7112137689db0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-@@ -243,7 +243,7 @@ struct amdgpu_ring {
- 	bool			has_compute_vm_bug;
- 	bool			no_scheduler;
- 
--	atomic_t		num_jobs[DRM_SCHED_PRIORITY_MAX];
-+	atomic_t		num_jobs[DRM_SCHED_PRIORITY_COUNT];
- 	struct mutex		priority_mutex;
- 	/* protected by priority_mutex */
- 	int			priority;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
-index c799691dfa848..17661ede94885 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
-@@ -36,14 +36,14 @@ enum drm_sched_priority amdgpu_to_sched_priority(int amdgpu_priority)
- {
- 	switch (amdgpu_priority) {
- 	case AMDGPU_CTX_PRIORITY_VERY_HIGH:
--		return DRM_SCHED_PRIORITY_HIGH_HW;
-+		return DRM_SCHED_PRIORITY_HIGH;
- 	case AMDGPU_CTX_PRIORITY_HIGH:
--		return DRM_SCHED_PRIORITY_HIGH_SW;
-+		return DRM_SCHED_PRIORITY_HIGH;
- 	case AMDGPU_CTX_PRIORITY_NORMAL:
- 		return DRM_SCHED_PRIORITY_NORMAL;
- 	case AMDGPU_CTX_PRIORITY_LOW:
- 	case AMDGPU_CTX_PRIORITY_VERY_LOW:
--		return DRM_SCHED_PRIORITY_LOW;
-+		return DRM_SCHED_PRIORITY_MIN;
- 	case AMDGPU_CTX_PRIORITY_UNSET:
- 		return DRM_SCHED_PRIORITY_UNSET;
- 	default:
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 978bae7313980..b7fd0cdffce0e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -2101,7 +2101,7 @@ void amdgpu_ttm_set_buffer_funcs_status(struct amdgpu_device *adev, bool enable)
- 		ring = adev->mman.buffer_funcs_ring;
- 		sched = &ring->sched;
- 		r = drm_sched_entity_init(&adev->mman.entity,
--				          DRM_SCHED_PRIORITY_KERNEL, &sched,
-+					  DRM_SCHED_PRIORITY_KERNEL, &sched,
- 					  1, NULL);
- 		if (r) {
- 			DRM_ERROR("Failed setting up TTM BO move entity (%d)\n",
-diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
-index 96f763d888af5..9a0d77a680180 100644
---- a/drivers/gpu/drm/scheduler/sched_main.c
-+++ b/drivers/gpu/drm/scheduler/sched_main.c
-@@ -625,7 +625,7 @@ drm_sched_select_entity(struct drm_gpu_scheduler *sched)
- 		return NULL;
- 
- 	/* Kernel run queue has higher priority than normal run queue*/
--	for (i = DRM_SCHED_PRIORITY_MAX - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
-+	for (i = DRM_SCHED_PRIORITY_COUNT - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
- 		entity = drm_sched_rq_select_entity(&sched->sched_rq[i]);
- 		if (entity)
- 			break;
-@@ -852,7 +852,7 @@ int drm_sched_init(struct drm_gpu_scheduler *sched,
- 	sched->name = name;
- 	sched->timeout = timeout;
- 	sched->hang_limit = hang_limit;
--	for (i = DRM_SCHED_PRIORITY_MIN; i < DRM_SCHED_PRIORITY_MAX; i++)
-+	for (i = DRM_SCHED_PRIORITY_MIN; i < DRM_SCHED_PRIORITY_COUNT; i++)
- 		drm_sched_rq_init(sched, &sched->sched_rq[i]);
- 
- 	init_waitqueue_head(&sched->wake_up_worker);
-diff --git a/include/drm/gpu_scheduler.h b/include/drm/gpu_scheduler.h
-index b9780ae9dd26c..72dc3a95fbaad 100644
---- a/include/drm/gpu_scheduler.h
-+++ b/include/drm/gpu_scheduler.h
-@@ -33,14 +33,16 @@
- struct drm_gpu_scheduler;
- struct drm_sched_rq;
- 
-+/* These are often used as an (initial) index
-+ * to an array, and as such should start at 0.
-+ */
- enum drm_sched_priority {
- 	DRM_SCHED_PRIORITY_MIN,
--	DRM_SCHED_PRIORITY_LOW = DRM_SCHED_PRIORITY_MIN,
- 	DRM_SCHED_PRIORITY_NORMAL,
--	DRM_SCHED_PRIORITY_HIGH_SW,
--	DRM_SCHED_PRIORITY_HIGH_HW,
-+	DRM_SCHED_PRIORITY_HIGH,
- 	DRM_SCHED_PRIORITY_KERNEL,
--	DRM_SCHED_PRIORITY_MAX,
-+
-+	DRM_SCHED_PRIORITY_COUNT,
- 	DRM_SCHED_PRIORITY_INVALID = -1,
- 	DRM_SCHED_PRIORITY_UNSET = -2
- };
-@@ -274,7 +276,7 @@ struct drm_gpu_scheduler {
- 	uint32_t			hw_submission_limit;
- 	long				timeout;
- 	const char			*name;
--	struct drm_sched_rq		sched_rq[DRM_SCHED_PRIORITY_MAX];
-+	struct drm_sched_rq		sched_rq[DRM_SCHED_PRIORITY_COUNT];
- 	wait_queue_head_t		wake_up_worker;
- 	wait_queue_head_t		job_scheduled;
- 	atomic_t			hw_rq_count;
+ 	return ret;
 -- 
 2.27.0
 
