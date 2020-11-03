@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98992A5685
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AEEE2A567E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733098AbgKCU7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:59:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34700 "EHLO mail.kernel.org"
+        id S1729653AbgKCV2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:28:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733113AbgKCU7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:30 -0500
+        id S1733121AbgKCU7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9485D223BF;
-        Tue,  3 Nov 2020 20:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 020E522226;
+        Tue,  3 Nov 2020 20:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437170;
-        bh=ebhFxyfQPpIfUkMOndtreeKy5cOZRimmFH/uWLJz1V8=;
+        s=default; t=1604437172;
+        bh=JR4T5gEPqDRh5LsJJ2sCGiS8NiCyDyheY+/rh/QCPuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWCKR4onBwOhi/1H1Napy2IPSCFT7w7fJDtTUXMG6ZMvWkvjGv4hgEor/0N/wgDPc
-         vxFU3ewaFk5xvyUAhAGZfO3U5GwEFNERutz6fsifVGJuQOjVEXhxqanUoktcuZ4JHn
-         dWVu428L44fqLjRBQ60xJCRHuRq49PMCfJKBCrSM=
+        b=M3ZTKs11vJpKHmjaHdtyul4bhGnLxGum3FKVVAn95jNo1XT6ldAhv1sshPx5lD5GL
+         m93xA1yEldFADhWfjIOLyN1luH2lsQavahtp+v9/oz4u81OY703KyfHZ0DNcPvrI4Y
+         Q1g+B8+xFTyuY/W7mOcH4xjv0JYM+G+n1s3G53ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 176/214] ia64: fix build error with !COREDUMP
-Date:   Tue,  3 Nov 2020 21:37:04 +0100
-Message-Id: <20201103203307.223513174@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 177/214] rtc: rx8010: dont modify the global rtc ops
+Date:   Tue,  3 Nov 2020 21:37:05 +0100
+Message-Id: <20201103203307.304517193@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -46,43 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-commit 7404840d87557c4092bf0272bce5e0354c774bf9 upstream.
+commit d3b14296da69adb7825022f3224ac6137eb30abf upstream.
 
-Fix linkage error when CONFIG_BINFMT_ELF is selected but CONFIG_COREDUMP
-is not:
+The way the driver is implemented is buggy for the (admittedly unlikely)
+use case where there are two RTCs with one having an interrupt configured
+and the second not. This is caused by the fact that we use a global
+rtc_class_ops struct which we modify depending on whether the irq number
+is present or not.
 
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_phdrs':
-    elfcore.c:(.text+0x172): undefined reference to `dump_emit'
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_data':
-    elfcore.c:(.text+0x2b2): undefined reference to `dump_emit'
+Fix it by using two const ops structs with and without alarm operations.
+While at it: not being able to request a configured interrupt is an error
+so don't ignore it and bail out of probe().
 
-Fixes: 1fcccbac89f5 ("elf coredump: replace ELF_CORE_EXTRA_* macros by functions")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200819064146.12529-1-krzk@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver")
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200914154601.32245-2-brgl@bgdev.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/ia64/kernel/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rx8010.c |   24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -41,7 +41,7 @@ obj-y				+= esi_stub.o	# must be in kern
- endif
- obj-$(CONFIG_INTEL_IOMMU)	+= pci-dma.o
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -424,16 +424,26 @@ static int rx8010_ioctl(struct device *d
+ 	}
+ }
  
--obj-$(CONFIG_BINFMT_ELF)	+= elfcore.o
-+obj-$(CONFIG_ELF_CORE)		+= elfcore.o
+-static struct rtc_class_ops rx8010_rtc_ops = {
++static const struct rtc_class_ops rx8010_rtc_ops_default = {
+ 	.read_time = rx8010_get_time,
+ 	.set_time = rx8010_set_time,
+ 	.ioctl = rx8010_ioctl,
+ };
  
- # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
- CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31
++static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
++	.read_time = rx8010_get_time,
++	.set_time = rx8010_set_time,
++	.ioctl = rx8010_ioctl,
++	.read_alarm = rx8010_read_alarm,
++	.set_alarm = rx8010_set_alarm,
++	.alarm_irq_enable = rx8010_alarm_irq_enable,
++};
++
+ static int rx8010_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
++	const struct rtc_class_ops *rtc_ops;
+ 	struct rx8010_data *rx8010;
+ 	int err = 0;
+ 
+@@ -464,16 +474,16 @@ static int rx8010_probe(struct i2c_clien
+ 
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ\n");
+-			client->irq = 0;
+-		} else {
+-			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
+-			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
+-			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
++			return err;
+ 		}
++
++		rtc_ops = &rx8010_rtc_ops_alarm;
++	} else {
++		rtc_ops = &rx8010_rtc_ops_default;
+ 	}
+ 
+ 	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
+-		&rx8010_rtc_ops, THIS_MODULE);
++					       rtc_ops, THIS_MODULE);
+ 
+ 	if (IS_ERR(rx8010->rtc)) {
+ 		dev_err(&client->dev, "unable to register the class device\n");
 
 
