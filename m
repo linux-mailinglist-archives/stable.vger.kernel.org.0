@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 482042A5538
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D835D2A54F1
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388026AbgKCVGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45798 "EHLO mail.kernel.org"
+        id S2388964AbgKCVMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388212AbgKCVGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:06:46 -0500
+        id S2388525AbgKCVMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BBDD206B5;
-        Tue,  3 Nov 2020 21:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 982BC21534;
+        Tue,  3 Nov 2020 21:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437605;
-        bh=DvEpMmqZWochAGWFLIfDIUJdSv6B7FqOuLt4kj04R5A=;
+        s=default; t=1604437927;
+        bh=iGi1A/HIjlPZYD+2SeqNGeJAXliQ5RfNBdSLrnNyclk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdffgN+yWTq4+swyXJXT8rUz77JcXPZOQnNZxQKav3pRZo4VbPJ4F91IlTYuaIirS
-         4RJ0Gdr/ZY2JDOV6fq896XEbYtu0xfrwZb0PMQynMQwVyut0cAl/Yk0WElQfeUaasf
-         /UsSHF+luwKQEj+iiAPgTinvWoByi2q36RI0vDMo=
+        b=WpaJjmDBqXIMR42HRD463JrcFS0hkiWUkDxRuXpkJ8OfX26XwgX7er/76YbEyRtE/
+         GBjcdaZWxLSUuEkrsgeD7zkfY6YxjBT+MKAVgKPdEStsi8NM5rPf5H7N83Eb15qm5e
+         UFCAuz1NoS+HAGeMytm0MtaDpnHxE1A1W/9SDHDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 148/191] dmaengine: dma-jz4780: Fix race in jz4780_dma_tx_status
-Date:   Tue,  3 Nov 2020 21:37:20 +0100
-Message-Id: <20201103203246.582987354@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Kevin Cernekee <cernekee@gmail.com>,
+        Jaedon Shin <jaedon.shin@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, stable@kernel.org
+Subject: [PATCH 4.14 064/125] leds: bcm6328, bcm6358: use devres LED registering function
+Date:   Tue,  3 Nov 2020 21:37:21 +0100
+Message-Id: <20201103203206.192851985@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Marek Behún <marek.behun@nic.cz>
 
-commit baf6fd97b16ea8f981b8a8b04039596f32fc2972 upstream.
+commit ff5c89d44453e7ad99502b04bf798a3fc32c758b upstream.
 
-The jz4780_dma_tx_status() function would check if a channel's cookie
-state was set to 'completed', and if not, it would enter the critical
-section. However, in that time frame, the jz4780_dma_chan_irq() function
-was able to set the cookie to 'completed', and clear the jzchan->vchan
-pointer, which was deferenced in the critical section of the first
-function.
+These two drivers do not provide remove method and use devres for
+allocation of other resources, yet they use led_classdev_register
+instead of the devres variant, devm_led_classdev_register.
 
-Fix this race by checking the channel's cookie state after entering the
-critical function and not before.
+Fix this.
 
-Fixes: d894fc6046fe ("dmaengine: jz4780: add driver for the Ingenic JZ4780 DMA controller")
-Cc: stable@vger.kernel.org # v4.0
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reported-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Link: https://lore.kernel.org/r/20201004140307.885556-1-paul@crapouillou.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Álvaro Fernández Rojas <noltari@gmail.com>
+Cc: Kevin Cernekee <cernekee@gmail.com>
+Cc: Jaedon Shin <jaedon.shin@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dma-jz4780.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/leds/leds-bcm6328.c |    2 +-
+ drivers/leds/leds-bcm6358.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -574,11 +574,11 @@ static enum dma_status jz4780_dma_tx_sta
- 	enum dma_status status;
- 	unsigned long flags;
+--- a/drivers/leds/leds-bcm6328.c
++++ b/drivers/leds/leds-bcm6328.c
+@@ -336,7 +336,7 @@ static int bcm6328_led(struct device *de
+ 	led->cdev.brightness_set = bcm6328_led_set;
+ 	led->cdev.blink_set = bcm6328_blink_set;
  
-+	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if ((status == DMA_COMPLETE) || (txstate == NULL))
--		return status;
--
--	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+		goto out_unlock_irqrestore;
+-	rc = led_classdev_register(dev, &led->cdev);
++	rc = devm_led_classdev_register(dev, &led->cdev);
+ 	if (rc < 0)
+ 		return rc;
  
- 	vdesc = vchan_find_desc(&jzchan->vchan, cookie);
- 	if (vdesc) {
-@@ -595,6 +595,7 @@ static enum dma_status jz4780_dma_tx_sta
- 	    && jzchan->desc->status & (JZ_DMA_DCS_AR | JZ_DMA_DCS_HLT))
- 		status = DMA_ERROR;
+--- a/drivers/leds/leds-bcm6358.c
++++ b/drivers/leds/leds-bcm6358.c
+@@ -141,7 +141,7 @@ static int bcm6358_led(struct device *de
  
-+out_unlock_irqrestore:
- 	spin_unlock_irqrestore(&jzchan->vchan.lock, flags);
- 	return status;
- }
+ 	led->cdev.brightness_set = bcm6358_led_set;
+ 
+-	rc = led_classdev_register(dev, &led->cdev);
++	rc = devm_led_classdev_register(dev, &led->cdev);
+ 	if (rc < 0)
+ 		return rc;
+ 
 
 
