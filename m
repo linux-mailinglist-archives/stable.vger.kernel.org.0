@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F762A4ABE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 17:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F8762A4ABF
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 17:05:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726018AbgKCQFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 11:05:23 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41995 "EHLO
+        id S1727389AbgKCQFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 11:05:31 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52577 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727385AbgKCQFW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:05:22 -0500
+        by vger.kernel.org with ESMTP id S1727385AbgKCQFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:05:31 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 9FB91D58;
-        Tue,  3 Nov 2020 11:05:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 11:05:21 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id EECA3DF9;
+        Tue,  3 Nov 2020 11:05:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 11:05:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Mx2Grj
-        vS5pt+8UgpTkRlAXlZWy8FhSc2u6Ha+OvSRng=; b=fUZYKgLn84/SOH8/Yawb97
-        nhUasfqjO6a643ns6w5WrTtDgzR1q82Ky3Y7l/RPf9LLLQ1PpqBUQdQAaui4sxB3
-        6qbvuGEIZLn8AxE6K0maAV50l73YPNPC2zcyIID9DK8IE8E9hPUgBVx4a/too+yw
-        mFUYoRIrNJF5u4/pGCOvDVEKtf1fLBf36fR/VpQaFiOWVrMu991NFtKJ1+AKr75n
-        DWnbFgM8nSoWjsWEyIJ1W4TFLLTGkUE1u8W/2YkIITqRQn2MEVb3kCaZ1JIOU7uV
-        kQG3R/kVThzGe8tBolyVkZWchVKTI54+/CbDbWl5u+eO+Th71+AJ6JsvVr/KFG6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=X0D5xF
+        ecpz6PFGlFwEVxGx6Hfijns1rxwDj2TPeb6rU=; b=iy+4tYDHhXPF66IN7UaBpH
+        SV3hqSz1Jf+IXde8c4TBq3d5MQSutd4GLjg9nTMqbR0U4URNhm9J4BJOBG9hfrvk
+        13ZuVUBxv9fsCYksIFNMxava3s08EvuZi7ZBgYzbEst6x5f+xp4E6dHD0SD4Umof
+        9kmB5PAZp/bgZt/k3x9V3/Wh1ZS/aP+Tfziq+dRTM5m23Zj3+hqhMrVeDmkmQryq
+        JcCkhUr4rZn0Ji2bgbqkhH7idb4aPeOMPKQ0A7vtByUsfCM76xYjekD93n1m5Lre
+        gud53jI7+KA1Fz8IwNZPn4R56Vwtaf7DUzyYrw8ifP7KRsm3rihC2642qETLjqRw
         ==
-X-ME-Sender: <xms:wH-hX0s7X9UZVfibnIGvD8nwJ598L_ZC1O5yJSBtrput_uNMorlb0g>
-    <xme:wH-hXxe962OF4N3LuNxiuuUbygO52-czhW8qMqPL_S6l50dLdPU4lyzgJvQ1HYU69
-    -Bl5PDcwHSwAw>
+X-ME-Sender: <xms:yX-hX12yj3X3nCe36LzRaxxYBbRBD2J9UwJNozLu_JuxbIXBurEElA>
+    <xme:yX-hX8GbIITsMuoCsTw7FOUEssVY1bjGDnteWsnhaOJQK9lOUIj-D6yzCO0uA6lS2
+    2vVFll0uM3aLg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgkeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:wX-hX_yE1pF6pGQo3Tig8PbEUS1NQ1RbwIFqPst-vCi5tm2AOvURnQ>
-    <xmx:wX-hX3NzBDkRFYoxaYVC37fDMBprgSQLq1C3Ec-qSb1mCJcbk0tWnw>
-    <xmx:wX-hX08-5qq9Ao4RhyPiyYHOwZC-Hz-CZxrOPpXWrDTuwMs-wlzbUg>
-    <xmx:wX-hX5HF-O1VCm1dRPeXQYK5PkiLUp7uTkyIwIjVczbn3sjasDmlfmwkO5c>
+X-ME-Proxy: <xmx:yX-hX14PHnlQVBvRF4MiAw5bqKNx1_PhSlzZu5jtJDoBJEpk2Q9jZA>
+    <xmx:yX-hXy1rJodkW0SsOYyffEs4bjO9RBuo6qFRs_N6G3D3vICLIC4EJQ>
+    <xmx:yX-hX4HUZR8O_utX7-3h3A5yD8zdcIdqTE3AUhENdH0LLte9EyBQnQ>
+    <xmx:yX-hXzN6TgtQqQr-20jY6C6myPDMQjBMsYw3EP12o5T3Rd_L4oPA7iDsPCs>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 974D53064682;
-        Tue,  3 Nov 2020 11:05:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] memory: brcmstb: Add driver for DPFE" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DFB03328005D;
+        Tue,  3 Nov 2020 11:05:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] memory: brcmstb: Add driver for DPFE" failed to apply to 4.19-stable tree
 To:     mmayer@broadcom.com, f.fainelli@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 17:06:14 +0100
-Message-ID: <16044195741284@kroah.com>
+Date:   Tue, 03 Nov 2020 17:06:15 +0100
+Message-ID: <1604419575123108@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
