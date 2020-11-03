@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9904C2A57D9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9D62A57D4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732054AbgKCVqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48722 "EHLO mail.kernel.org"
+        id S1732083AbgKCUwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:52:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732068AbgKCUwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:19 -0500
+        id S1732076AbgKCUwV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:52:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AA862236F;
-        Tue,  3 Nov 2020 20:52:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64CB5223AC;
+        Tue,  3 Nov 2020 20:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436738;
-        bh=Me2iG8T7EH6M0qz1inYpkb2a5RQLwzVtJ7yiKOSh94I=;
+        s=default; t=1604436740;
+        bh=b0dAR0umO+WckNgHuYynvx8MxyEIPeShA4NK4UrepSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0C/NFS1Ic2wC6D5yE3JNQloCgHWNmBnQaQytwjfrGfZL98brD0mrd3ZDlILAPnzI8
-         opF7rt8yrg3KF5YiHGdUcdNxnFG9tTpRHQLkXcaCloFW+FFgdWnrwLTonL17IuMbSm
-         wFP33rBjo0cqKIhDB6J+4f/Xc4Q4vnhoGZKhJpbQ=
+        b=AEONz4dD8B7c2KGXASFhiRW/MB2plA0DDgDyHIf4TuGXRKKgnZcZor+Py3v7GPIyN
+         LzPzMtCwgNHB2EjfIYTM+dbCTRgSDEbPnNG674RmZvmsR1t7HvTA+pTuJEzkw4M7mW
+         ZUKWVdkJQKhsQvlPt+ydb/29Ljtd0+6hX+1LmNTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Atish Patra <atish.patra@wdc.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.9 380/391] stop_machine, rcu: Mark functions as notrace
-Date:   Tue,  3 Nov 2020 21:37:11 +0100
-Message-Id: <20201103203412.807084409@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>
+Subject: [PATCH 5.9 381/391] staging: fieldbus: anybuss: jump to correct label in an error path
+Date:   Tue,  3 Nov 2020 21:37:12 +0100
+Message-Id: <20201103203412.874572710@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -46,58 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong Li <zong.li@sifive.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-commit 4230e2deaa484b385aa01d598b2aea8e7f2660a6 upstream.
+commit 7e97e4cbf30026b49b0145c3bfe06087958382c5 upstream.
 
-Some architectures assume that the stopped CPUs don't make function calls
-to traceable functions when they are in the stopped state. See also commit
-cb9d7fd51d9f ("watchdog: Mark watchdog touch functions as notrace").
+In current code, controller_probe() misses to call ida_simple_remove()
+in an error path. Jump to correct label to fix it.
 
-Violating this assumption causes kernel crashes when switching tracer on
-RISC-V.
-
-Mark rcu_momentary_dyntick_idle() and stop_machine_yield() notrace to
-prevent this.
-
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Fixes: 366237e7b083 ("stop_machine: Provide RCU quiescent state in multi_cpu_stop()")
-Signed-off-by: Zong Li <zong.li@sifive.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Atish Patra <atish.patra@wdc.com>
-Tested-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201021073839.43935-1-zong.li@sifive.com
+Fixes: 17614978ed34 ("staging: fieldbus: anybus-s: support the Arcx anybus controller")
+Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201012132404.113031-1-jingxiangfeng@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/rcu/tree.c     |    2 +-
- kernel/stop_machine.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/fieldbus/anybuss/arcx-anybus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -416,7 +416,7 @@ bool rcu_eqs_special_set(int cpu)
-  *
-  * The caller must have disabled interrupts and must not be idle.
-  */
--void rcu_momentary_dyntick_idle(void)
-+notrace void rcu_momentary_dyntick_idle(void)
- {
- 	int special;
- 
---- a/kernel/stop_machine.c
-+++ b/kernel/stop_machine.c
-@@ -178,7 +178,7 @@ static void ack_state(struct multi_stop_
- 		set_state(msdata, msdata->state + 1);
- }
- 
--void __weak stop_machine_yield(const struct cpumask *cpumask)
-+notrace void __weak stop_machine_yield(const struct cpumask *cpumask)
- {
- 	cpu_relax();
- }
+--- a/drivers/staging/fieldbus/anybuss/arcx-anybus.c
++++ b/drivers/staging/fieldbus/anybuss/arcx-anybus.c
+@@ -293,7 +293,7 @@ static int controller_probe(struct platf
+ 	regulator = devm_regulator_register(dev, &can_power_desc, &config);
+ 	if (IS_ERR(regulator)) {
+ 		err = PTR_ERR(regulator);
+-		goto out_reset;
++		goto out_ida;
+ 	}
+ 	/* make controller info visible to userspace */
+ 	cd->class_dev = kzalloc(sizeof(*cd->class_dev), GFP_KERNEL);
 
 
