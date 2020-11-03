@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26762A53B3
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:03:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4AC2A53B4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387485AbgKCVDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731317AbgKCVDq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 16:03:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41388 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387854AbgKCVDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:03:42 -0500
+        id S1730715AbgKCVDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:03:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFE0320658;
-        Tue,  3 Nov 2020 21:03:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 162C5206B5;
+        Tue,  3 Nov 2020 21:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437421;
-        bh=JydxxHQrARDjHnVnBxCCMV35v8F7GdQ26nfLSXRDVQ4=;
+        s=default; t=1604437423;
+        bh=138KXQYUEbfk6Op72o2MbJmDHJatM+OCR/VJD5SkhBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqDJqjOCx7Vt/JinyZVBCWo7WkRQFbF7dy0nVPBqBC0bt/ectpmKcN5y01MX1419h
-         UMpddwwpljIkR1mhNVSlioI0pBPuMM8Zdy2jNRwW2wJNwApCmmnONB17KO93ZBEPsg
-         7OowWu6TW0KtbkBhPYawfK5raxQqjzpTA3puI/KE=
+        b=tyeMapxvwPaG49qfYuMeji8HtqWEGP/BhU62iXCencbIUmw5oyp8VB+7vwf6qP1cC
+         S0r3g+EwVjMhNvoqTdeEV7qcbLHo2OBwOZQYc2by68N7dnrSvau/tFM2KZ8RG14ck4
+         bjGUhUdRlhQF06J+Xvx8j5Bru0tt2I3R1rCR8jBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
+        Xia Jiang <xia.jiang@mediatek.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 069/191] media: videodev2.h: RGB BT2020 and HSV are always full range
-Date:   Tue,  3 Nov 2020 21:36:01 +0100
-Message-Id: <20201103203240.925609600@linuxfoundation.org>
+Subject: [PATCH 4.19 070/191] media: platform: Improve queue set up flow for bug fixing
+Date:   Tue,  3 Nov 2020 21:36:02 +0100
+Message-Id: <20201103203241.023607544@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -43,115 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Xia Jiang <xia.jiang@mediatek.com>
 
-[ Upstream commit b305dfe2e93434b12d438434461b709641f62af4 ]
+[ Upstream commit 5095a6413a0cf896ab468009b6142cb0fe617e66 ]
 
-The default RGB quantization range for BT.2020 is full range (just as for
-all the other RGB pixel encodings), not limited range.
+Add checking created buffer size follow in mtk_jpeg_queue_setup().
 
-Update the V4L2_MAP_QUANTIZATION_DEFAULT macro and documentation
-accordingly.
-
-Also mention that HSV is always full range and cannot be limited range.
-
-When RGB BT2020 was introduced in V4L2 it was not clear whether it should
-be limited or full range, but full range is the right (and consistent)
-choice.
-
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Xia Jiang <xia.jiang@mediatek.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/uapi/v4l/colorspaces-defs.rst         |  9 ++++-----
- .../media/uapi/v4l/colorspaces-details.rst      |  5 ++---
- include/uapi/linux/videodev2.h                  | 17 ++++++++---------
- 3 files changed, 14 insertions(+), 17 deletions(-)
+ drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/media/uapi/v4l/colorspaces-defs.rst b/Documentation/media/uapi/v4l/colorspaces-defs.rst
-index f24615544792b..16e46bec80934 100644
---- a/Documentation/media/uapi/v4l/colorspaces-defs.rst
-+++ b/Documentation/media/uapi/v4l/colorspaces-defs.rst
-@@ -29,8 +29,7 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
- :c:type:`v4l2_hsv_encoding` specifies which encoding is used.
+diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+index 11429633b2fbc..f0bca30a0a805 100644
+--- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
++++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+@@ -579,6 +579,13 @@ static int mtk_jpeg_queue_setup(struct vb2_queue *q,
+ 	if (!q_data)
+ 		return -EINVAL;
  
- .. note:: The default R'G'B' quantization is full range for all
--   colorspaces except for BT.2020 which uses limited range R'G'B'
--   quantization.
-+   colorspaces. HSV formats are always full range.
- 
- .. tabularcolumns:: |p{6.0cm}|p{11.5cm}|
- 
-@@ -162,8 +161,8 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
-       - Details
-     * - ``V4L2_QUANTIZATION_DEFAULT``
-       - Use the default quantization encoding as defined by the
--	colorspace. This is always full range for R'G'B' (except for the
--	BT.2020 colorspace) and HSV. It is usually limited range for Y'CbCr.
-+	colorspace. This is always full range for R'G'B' and HSV.
-+	It is usually limited range for Y'CbCr.
-     * - ``V4L2_QUANTIZATION_FULL_RANGE``
-       - Use the full range quantization encoding. I.e. the range [0…1] is
- 	mapped to [0…255] (with possible clipping to [1…254] to avoid the
-@@ -173,4 +172,4 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
-     * - ``V4L2_QUANTIZATION_LIM_RANGE``
-       - Use the limited range quantization encoding. I.e. the range [0…1]
- 	is mapped to [16…235]. Cb and Cr are mapped from [-0.5…0.5] to
--	[16…240].
-+	[16…240]. Limited Range cannot be used with HSV.
-diff --git a/Documentation/media/uapi/v4l/colorspaces-details.rst b/Documentation/media/uapi/v4l/colorspaces-details.rst
-index 09fabf4cd4126..ca7176cae8dd8 100644
---- a/Documentation/media/uapi/v4l/colorspaces-details.rst
-+++ b/Documentation/media/uapi/v4l/colorspaces-details.rst
-@@ -370,9 +370,8 @@ Colorspace BT.2020 (V4L2_COLORSPACE_BT2020)
- The :ref:`itu2020` standard defines the colorspace used by Ultra-high
- definition television (UHDTV). The default transfer function is
- ``V4L2_XFER_FUNC_709``. The default Y'CbCr encoding is
--``V4L2_YCBCR_ENC_BT2020``. The default R'G'B' quantization is limited
--range (!), and so is the default Y'CbCr quantization. The chromaticities
--of the primary colors and the white reference are:
-+``V4L2_YCBCR_ENC_BT2020``. The default Y'CbCr quantization is limited range.
-+The chromaticities of the primary colors and the white reference are:
- 
- 
- 
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 1aae2e4b8f102..b73f4423bc09d 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -362,9 +362,9 @@ enum v4l2_hsv_encoding {
- 
- enum v4l2_quantization {
- 	/*
--	 * The default for R'G'B' quantization is always full range, except
--	 * for the BT2020 colorspace. For Y'CbCr the quantization is always
--	 * limited range, except for COLORSPACE_JPEG: this is full range.
-+	 * The default for R'G'B' quantization is always full range.
-+	 * For Y'CbCr the quantization is always limited range, except
-+	 * for COLORSPACE_JPEG: this is full range.
- 	 */
- 	V4L2_QUANTIZATION_DEFAULT     = 0,
- 	V4L2_QUANTIZATION_FULL_RANGE  = 1,
-@@ -373,14 +373,13 @@ enum v4l2_quantization {
- 
- /*
-  * Determine how QUANTIZATION_DEFAULT should map to a proper quantization.
-- * This depends on whether the image is RGB or not, the colorspace and the
-- * Y'CbCr encoding.
-+ * This depends on whether the image is RGB or not, the colorspace.
-+ * The Y'CbCr encoding is not used anymore, but is still there for backwards
-+ * compatibility.
-  */
- #define V4L2_MAP_QUANTIZATION_DEFAULT(is_rgb_or_hsv, colsp, ycbcr_enc) \
--	(((is_rgb_or_hsv) && (colsp) == V4L2_COLORSPACE_BT2020) ? \
--	 V4L2_QUANTIZATION_LIM_RANGE : \
--	 (((is_rgb_or_hsv) || (colsp) == V4L2_COLORSPACE_JPEG) ? \
--	 V4L2_QUANTIZATION_FULL_RANGE : V4L2_QUANTIZATION_LIM_RANGE))
-+	(((is_rgb_or_hsv) || (colsp) == V4L2_COLORSPACE_JPEG) ? \
-+	 V4L2_QUANTIZATION_FULL_RANGE : V4L2_QUANTIZATION_LIM_RANGE)
- 
- /*
-  * Deprecated names for opRGB colorspace (IEC 61966-2-5)
++	if (*num_planes) {
++		for (i = 0; i < *num_planes; i++)
++			if (sizes[i] < q_data->sizeimage[i])
++				return -EINVAL;
++		return 0;
++	}
++
+ 	*num_planes = q_data->fmt->colplanes;
+ 	for (i = 0; i < q_data->fmt->colplanes; i++) {
+ 		sizes[i] = q_data->sizeimage[i];
 -- 
 2.27.0
 
