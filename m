@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA05C2A54D1
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3637E2A5587
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388283AbgKCVMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
+        id S1729826AbgKCVTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:19:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389039AbgKCVMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:36 -0500
+        id S2388106AbgKCVIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:08:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7558B207BC;
-        Tue,  3 Nov 2020 21:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A325206B5;
+        Tue,  3 Nov 2020 21:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437956;
-        bh=zC9Ql3LGYYfxpLM89wSqHg61NrZ02jY9gvTFD8s/YR4=;
+        s=default; t=1604437694;
+        bh=ItFgdjLKu8yOB12TxBxljHIKruFvvR9pBIfagHIw7zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4pCy3nJpA4ym/vr3FFzDT0vf5OdJn6YmNfxjWyyXzSOoNecGZrdObAoa51E0sXGp
-         2n9bEbfKkcAfGM1mVCPX0bbZ12Y5BFpQile4/d21zpQbsONv4y0H1j1Zi59HXE6aDR
-         F3gEb8T3gyBEmPNv6ga0skRg/rF7wDbJU9H9mGps=
+        b=NEcXx3U8MUmgXBdVoeHz4dHOzHiCQzNuKvZqSIbQeTvY33rVRO6MdP9rhK9NIy1PL
+         fkkCMAJL9pkHHyUvuZEfNoxqH2VS+jUm6srgrK7XtFon9faw3by92CbCO5CmZowLrV
+         dG7KdtR6j7TGKR182iMPtsTIKiJwQoIxiQefLlVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Madhav Chauhan <madhav.chauhan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.14 101/125] drm/amdgpu: dont map BO in reserved region
+        stable@vger.kernel.org, Ferry Toth <fntoth@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 186/191] device property: Keep secondary firmware node secondary by type
 Date:   Tue,  3 Nov 2020 21:37:58 +0100
-Message-Id: <20201103203211.653412914@linuxfoundation.org>
+Message-Id: <20201103203250.193488355@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhav Chauhan <madhav.chauhan@amd.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit c4aa8dff6091cc9536aeb255e544b0b4ba29faf4 upstream.
+commit d5dcce0c414fcbfe4c2037b66ac69ea5f9b3f75c upstream.
 
-2MB area is reserved at top inside VM.
+Behind primary and secondary we understand the type of the nodes
+which might define their ordering. However, if primary node gone,
+we can't maintain the ordering by definition of the linked list.
+Thus, by ordering secondary node becomes first in the list.
+But in this case the meaning of it is still secondary (or auxiliary).
+The type of the node is maintained by the secondary pointer in it:
 
-Suggested-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Madhav Chauhan <madhav.chauhan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+	secondary pointer		Meaning
+	NULL or valid			primary node
+	ERR_PTR(-ENODEV)		secondary node
+
+So, if by some reason we do the following sequence of calls
+
+	set_primary_fwnode(dev, NULL);
+	set_primary_fwnode(dev, primary);
+
+we should preserve secondary node.
+
+This concept is supported by the description of set_primary_fwnode()
+along with implementation of set_secondary_fwnode(). Hence, fix
+the commit c15e1bdda436 to follow this as well.
+
+Fixes: c15e1bdda436 ("device property: Fix the secondary firmware node handling in set_primary_fwnode()")
+Cc: Ferry Toth <fntoth@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Tested-by: Ferry Toth <fntoth@gmail.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-@@ -551,6 +551,7 @@ int amdgpu_gem_va_ioctl(struct drm_devic
- 	struct ww_acquire_ctx ticket;
- 	struct list_head list;
- 	uint64_t va_flags;
-+	uint64_t vm_size;
- 	int r = 0;
- 
- 	if (args->va_address < AMDGPU_VA_RESERVED_SIZE) {
-@@ -561,6 +562,15 @@ int amdgpu_gem_va_ioctl(struct drm_devic
- 		return -EINVAL;
- 	}
- 
-+	vm_size = adev->vm_manager.max_pfn * AMDGPU_GPU_PAGE_SIZE;
-+	vm_size -= AMDGPU_VA_RESERVED_SIZE;
-+	if (args->va_address + args->map_size > vm_size) {
-+		dev_dbg(&dev->pdev->dev,
-+			"va_address 0x%llx is in top reserved area 0x%llx\n",
-+			args->va_address + args->map_size, vm_size);
-+		return -EINVAL;
-+	}
-+
- 	if ((args->flags & ~valid_flags) && (args->flags & ~prt_flags)) {
- 		dev_err(&dev->pdev->dev, "invalid flags combination 0x%08X\n",
- 			args->flags);
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3347,7 +3347,7 @@ void set_primary_fwnode(struct device *d
+ 	} else {
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+-			fn->secondary = NULL;
++			fn->secondary = ERR_PTR(-ENODEV);
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
