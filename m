@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E396C2A54CF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA05C2A54D1
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388657AbgKCVMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S2388283AbgKCVMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389027AbgKCVMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:31 -0500
+        id S2389039AbgKCVMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97B4220757;
-        Tue,  3 Nov 2020 21:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7558B207BC;
+        Tue,  3 Nov 2020 21:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437951;
-        bh=Y5Rvq9Bp3DHKSzI4FT/xjMrjT8Z2J0F1QfgRti9riGk=;
+        s=default; t=1604437956;
+        bh=zC9Ql3LGYYfxpLM89wSqHg61NrZ02jY9gvTFD8s/YR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqoaeGTWjmYWfiDNfD8HItSBhOkpEdbbDX7EDwIvaIiCf9ksbsL2tXDHyRFaseQqC
-         xJeAUrdXGyxxwHKVExShI02WNP4Zgc9j80GlsCP2GZAXU+M0kFCB2tL+Rb+RBvms63
-         I13ktGXrfL9HXSQ1wooolUOYePLbLbs+5mSi0TtM=
+        b=P4pCy3nJpA4ym/vr3FFzDT0vf5OdJn6YmNfxjWyyXzSOoNecGZrdObAoa51E0sXGp
+         2n9bEbfKkcAfGM1mVCPX0bbZ12Y5BFpQile4/d21zpQbsONv4y0H1j1Zi59HXE6aDR
+         F3gEb8T3gyBEmPNv6ga0skRg/rF7wDbJU9H9mGps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 100/125] ia64: fix build error with !COREDUMP
-Date:   Tue,  3 Nov 2020 21:37:57 +0100
-Message-Id: <20201103203211.482267113@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Madhav Chauhan <madhav.chauhan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.14 101/125] drm/amdgpu: dont map BO in reserved region
+Date:   Tue,  3 Nov 2020 21:37:58 +0100
+Message-Id: <20201103203211.653412914@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -46,43 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Madhav Chauhan <madhav.chauhan@amd.com>
 
-commit 7404840d87557c4092bf0272bce5e0354c774bf9 upstream.
+commit c4aa8dff6091cc9536aeb255e544b0b4ba29faf4 upstream.
 
-Fix linkage error when CONFIG_BINFMT_ELF is selected but CONFIG_COREDUMP
-is not:
+2MB area is reserved at top inside VM.
 
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_phdrs':
-    elfcore.c:(.text+0x172): undefined reference to `dump_emit'
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_data':
-    elfcore.c:(.text+0x2b2): undefined reference to `dump_emit'
-
-Fixes: 1fcccbac89f5 ("elf coredump: replace ELF_CORE_EXTRA_* macros by functions")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200819064146.12529-1-krzk@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Suggested-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Madhav Chauhan <madhav.chauhan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/ia64/kernel/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -43,7 +43,7 @@ endif
- obj-$(CONFIG_INTEL_IOMMU)	+= pci-dma.o
- obj-$(CONFIG_SWIOTLB)		+= pci-swiotlb.o
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -551,6 +551,7 @@ int amdgpu_gem_va_ioctl(struct drm_devic
+ 	struct ww_acquire_ctx ticket;
+ 	struct list_head list;
+ 	uint64_t va_flags;
++	uint64_t vm_size;
+ 	int r = 0;
  
--obj-$(CONFIG_BINFMT_ELF)	+= elfcore.o
-+obj-$(CONFIG_ELF_CORE)		+= elfcore.o
+ 	if (args->va_address < AMDGPU_VA_RESERVED_SIZE) {
+@@ -561,6 +562,15 @@ int amdgpu_gem_va_ioctl(struct drm_devic
+ 		return -EINVAL;
+ 	}
  
- # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
- CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31
++	vm_size = adev->vm_manager.max_pfn * AMDGPU_GPU_PAGE_SIZE;
++	vm_size -= AMDGPU_VA_RESERVED_SIZE;
++	if (args->va_address + args->map_size > vm_size) {
++		dev_dbg(&dev->pdev->dev,
++			"va_address 0x%llx is in top reserved area 0x%llx\n",
++			args->va_address + args->map_size, vm_size);
++		return -EINVAL;
++	}
++
+ 	if ((args->flags & ~valid_flags) && (args->flags & ~prt_flags)) {
+ 		dev_err(&dev->pdev->dev, "invalid flags combination 0x%08X\n",
+ 			args->flags);
 
 
