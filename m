@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5E22A54D0
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F952A5539
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389034AbgKCVMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
+        id S2388034AbgKCVGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:06:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389005AbgKCVMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:34 -0500
+        id S2388221AbgKCVGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:06:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 094B6206B5;
-        Tue,  3 Nov 2020 21:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41B0B206B5;
+        Tue,  3 Nov 2020 21:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437953;
-        bh=IKLkAKmnVzunT9+Lx2pzNpm6lquDnEOLwyezfeKvbas=;
+        s=default; t=1604437610;
+        bh=XiOVlSx8Y8OV3R6NNOf+x3pi9FwzEiFGpXqenKISlFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwXYT2a8jOqhte1p97HCcRAUncQwdaFH51Ojt2TWYOAt30gtiWxEB6KoHgtlRwGkV
-         7TzBsZd+h/xqTJJ0eOes5G/8zv8pzbidvLcTrEakxriydXh9vmuwJPSBNtbq8TB0yN
-         bkrct03PrxSPsTQqy/Att0+agPitED3xFL67JhxM=
+        b=TmrRdwTnkGV2f6Aq9LgT19qDgwBxTmFMldSCJEniTCAVEhXgU1lXHi1h3AZ1/bKKr
+         +KpthjPuPdS9GcHavXjdo2YlRPhbiKpjYe/4e0FrWAkYQwn4Tsr62/D/JlBgjX82Fi
+         BI5ZYdSx+qlhODAsSmrk7Z7r5r1EK21bwMmSC8+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 065/125] fs: Dont invalidate page buffers in block_write_full_page()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>, Stable@vger.kernel.org
+Subject: [PATCH 4.19 150/191] iio:adc:ti-adc0832 Fix alignment issue with timestamp
 Date:   Tue,  3 Nov 2020 21:37:22 +0100
-Message-Id: <20201103203206.306248248@linuxfoundation.org>
+Message-Id: <20201103203246.727251082@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 6dbf7bb555981fb5faf7b691e8f6169fc2b2e63b upstream.
+commit 39e91f3be4cba51c1560bcda3a343ed1f64dc916 upstream.
 
-If block_write_full_page() is called for a page that is beyond current
-inode size, it will truncate page buffers for the page and return 0.
-This logic has been added in 2.5.62 in commit 81eb69062588 ("fix ext3
-BUG due to race with truncate") in history.git tree to fix a problem
-with ext3 in data=ordered mode. This particular problem doesn't exist
-anymore because ext3 is long gone and ext4 handles ordered data
-differently. Also normally buffers are invalidated by truncate code and
-there's no need to specially handle this in ->writepage() code.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
 
-This invalidation of page buffers in block_write_full_page() is causing
-issues to filesystems (e.g. ext4 or ocfs2) when block device is shrunk
-under filesystem's hands and metadata buffers get discarded while being
-tracked by the journalling layer. Although it is obviously "not
-supported" it can cause kernel crashes like:
+We fix this issues by moving to a suitable structure in the iio_priv()
+data with alignment explicitly requested.  This data is allocated
+with kzalloc so no data can leak apart from previous readings.
+Note that previously no data could leak 'including' previous readings
+but I don't think it is an issue to potentially leak them like
+this now does.
 
-[ 7986.689400] BUG: unable to handle kernel NULL pointer dereference at
-+0000000000000008
-[ 7986.697197] PGD 0 P4D 0
-[ 7986.699724] Oops: 0002 [#1] SMP PTI
-[ 7986.703200] CPU: 4 PID: 203778 Comm: jbd2/dm-3-8 Kdump: loaded Tainted: G
-+O     --------- -  - 4.18.0-147.5.0.5.h126.eulerosv2r9.x86_64 #1
-[ 7986.716438] Hardware name: Huawei RH2288H V3/BC11HGSA0, BIOS 1.57 08/11/2015
-[ 7986.723462] RIP: 0010:jbd2_journal_grab_journal_head+0x1b/0x40 [jbd2]
-...
-[ 7986.810150] Call Trace:
-[ 7986.812595]  __jbd2_journal_insert_checkpoint+0x23/0x70 [jbd2]
-[ 7986.818408]  jbd2_journal_commit_transaction+0x155f/0x1b60 [jbd2]
-[ 7986.836467]  kjournald2+0xbd/0x270 [jbd2]
+In this case the postioning of the timestamp is depends on what
+other channels are enabled. As such we cannot use a structure to
+make the alignment explicit as it would be missleading by suggesting
+only one possible location for the timestamp.
 
-which is not great. The crash happens because bh->b_private is suddently
-NULL although BH_JBD flag is still set (this is because
-block_invalidatepage() cleared BH_Mapped flag and subsequent bh lookup
-found buffer without BH_Mapped set, called init_page_buffers() which has
-rewritten bh->b_private). So just remove the invalidation in
-block_write_full_page().
-
-Note that the buffer cache invalidation when block device changes size
-is already careful to avoid similar problems by using
-invalidate_mapping_pages() which skips busy buffers so it was only this
-odd block_write_full_page() behavior that could tear down bdev buffers
-under filesystem's hands.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-CC: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 815bbc87462a ("iio: ti-adc0832: add triggered buffer support")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-25-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/buffer.c |   16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/iio/adc/ti-adc0832.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2799,16 +2799,6 @@ int nobh_writepage(struct page *page, ge
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	offset = i_size & (PAGE_SIZE-1);
- 	if (page->index >= end_index+1 || !offset) {
--		/*
--		 * The page may have dirty, unmapped buffers.  For example,
--		 * they may have been added in ext3_writepage().  Make them
--		 * freeable here, so the page does not leak.
--		 */
--#if 0
--		/* Not really sure about this  - do we need this ? */
--		if (page->mapping->a_ops->invalidatepage)
--			page->mapping->a_ops->invalidatepage(page, offset);
--#endif
- 		unlock_page(page);
- 		return 0; /* don't care */
+--- a/drivers/iio/adc/ti-adc0832.c
++++ b/drivers/iio/adc/ti-adc0832.c
+@@ -31,6 +31,12 @@ struct adc0832 {
+ 	struct regulator *reg;
+ 	struct mutex lock;
+ 	u8 mux_bits;
++	/*
++	 * Max size needed: 16x 1 byte ADC data + 8 bytes timestamp
++	 * May be shorter if not all channels are enabled subject
++	 * to the timestamp remaining 8 byte aligned.
++	 */
++	u8 data[24] __aligned(8);
+ 
+ 	u8 tx_buf[2] ____cacheline_aligned;
+ 	u8 rx_buf[2];
+@@ -202,7 +208,6 @@ static irqreturn_t adc0832_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct adc0832 *adc = iio_priv(indio_dev);
+-	u8 data[24] = { }; /* 16x 1 byte ADC data + 8 bytes timestamp */
+ 	int scan_index;
+ 	int i = 0;
+ 
+@@ -220,10 +225,10 @@ static irqreturn_t adc0832_trigger_handl
+ 			goto out;
+ 		}
+ 
+-		data[i] = ret;
++		adc->data[i] = ret;
+ 		i++;
  	}
-@@ -3003,12 +2993,6 @@ int block_write_full_page(struct page *p
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	offset = i_size & (PAGE_SIZE-1);
- 	if (page->index >= end_index+1 || !offset) {
--		/*
--		 * The page may have dirty, unmapped buffers.  For example,
--		 * they may have been added in ext3_writepage().  Make them
--		 * freeable here, so the page does not leak.
--		 */
--		do_invalidatepage(page, 0, PAGE_SIZE);
- 		unlock_page(page);
- 		return 0; /* don't care */
- 	}
+-	iio_push_to_buffers_with_timestamp(indio_dev, data,
++	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
+ 					   iio_get_time_ns(indio_dev));
+ out:
+ 	mutex_unlock(&adc->lock);
 
 
