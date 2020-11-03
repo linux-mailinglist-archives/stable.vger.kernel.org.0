@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F212A515E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5576C2A5160
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbgKCUkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:40:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51612 "EHLO mail.kernel.org"
+        id S1730199AbgKCUkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730181AbgKCUkV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:40:21 -0500
+        id S1729787AbgKCUkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:40:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A207C2224E;
-        Tue,  3 Nov 2020 20:40:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F17F0223AC;
+        Tue,  3 Nov 2020 20:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436020;
-        bh=RzlbIKFvss9A/9YV6toBMJeyhp4yGEZ++3xFgZMrv84=;
+        s=default; t=1604436022;
+        bh=IWxqs2X63agThMfuF3hPsQ3OgyfHQ83oTP7Q4kzW7JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1WALDO+LNm/oU/C3Tyb1L8ylQwOTpK5dKw3iaG58UXNc6Y4r7JZscQEWuHcJRq6h
-         MNWFSTT5tnqaTy1VY4UL1819vqTqoHoMsKwEKSZ/iwg9CAe53Lfvo0HfKdFZbUYhei
-         Z6xA4HiptrtV+dEo3Js4eiCXaOH90ZWDyWKJ24tQ=
+        b=aogMO7yyvOigFeMl6w34ut0hVMj0qXyK83Bf8so8kXtcznxXOT5EVrelGDb1UeDkg
+         IWjzbtVChFdHCSni1/IEzi6pjNxl9ow56+mEskpUni2AphaQzBGJAnKJicImD7RK90
+         lfKRzJjDQDdNPKujoVYkt5BpEtrKmwqv/ZwBhI/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 069/391] xfs: fix realtime bitmap/summary file truncation when growing rt volume
-Date:   Tue,  3 Nov 2020 21:32:00 +0100
-Message-Id: <20201103203351.919324901@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 070/391] io_uring: dont set COMP_LOCKED if wont put
+Date:   Tue,  3 Nov 2020 21:32:01 +0100
+Message-Id: <20201103203351.972293956@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,67 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit f4c32e87de7d66074d5612567c5eac7325024428 ]
+[ Upstream commit 368c5481ae7c6a9719c40984faea35480d9f4872 ]
 
-The realtime bitmap and summary files are regular files that are hidden
-away from the directory tree.  Since they're regular files, inode
-inactivation will try to purge what it thinks are speculative
-preallocations beyond the incore size of the file.  Unfortunately,
-xfs_growfs_rt forgets to update the incore size when it resizes the
-inodes, with the result that inactivating the rt inodes at unmount time
-will cause their contents to be truncated.
+__io_kill_linked_timeout() sets REQ_F_COMP_LOCKED for a linked timeout
+even if it can't cancel it, e.g. it's already running. It not only races
+with io_link_timeout_fn() for ->flags field, but also leaves the flag
+set and so io_link_timeout_fn() may find it and decide that it holds the
+lock. Hopefully, the second problem is potential.
 
-Fix this by updating the incore size when we change the ondisk size as
-part of updating the superblock.  Note that we don't do this when we're
-allocating blocks to the rt inodes because we actually want those blocks
-to get purged if the growfs fails.
-
-This fixes corruption complaints from the online rtsummary checker when
-running xfs/233.  Since that test requires rmap, one can also trigger
-this by growing an rt volume, cycling the mount, and creating rt files.
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 0753b1dfd0750..be01bfbc3ad93 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -1027,10 +1027,13 @@ xfs_growfs_rt(
- 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
- 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
- 		/*
--		 * Update the bitmap inode's size.
-+		 * Update the bitmap inode's size ondisk and incore.  We need
-+		 * to update the incore size so that inode inactivation won't
-+		 * punch what it thinks are "posteof" blocks.
- 		 */
- 		mp->m_rbmip->i_d.di_size =
- 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
-+		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
- 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
- 		/*
- 		 * Get the summary inode into the transaction.
-@@ -1038,9 +1041,12 @@ xfs_growfs_rt(
- 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
- 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
- 		/*
--		 * Update the summary inode's size.
-+		 * Update the summary inode's size.  We need to update the
-+		 * incore size so that inode inactivation won't punch what it
-+		 * thinks are "posteof" blocks.
- 		 */
- 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
-+		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
- 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
- 		/*
- 		 * Copy summary data from old to new sizes.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 59ab8c5c2aaaa..50a7a99dad4ca 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1650,6 +1650,7 @@ static bool io_link_cancel_timeout(struct io_kiocb *req)
+ 
+ 	ret = hrtimer_try_to_cancel(&req->io->timeout.timer);
+ 	if (ret != -1) {
++		req->flags |= REQ_F_COMP_LOCKED;
+ 		io_cqring_fill_event(req, -ECANCELED);
+ 		io_commit_cqring(ctx);
+ 		req->flags &= ~REQ_F_LINK_HEAD;
+@@ -1672,7 +1673,6 @@ static bool __io_kill_linked_timeout(struct io_kiocb *req)
+ 		return false;
+ 
+ 	list_del_init(&link->link_list);
+-	link->flags |= REQ_F_COMP_LOCKED;
+ 	wake_ev = io_link_cancel_timeout(link);
+ 	req->flags &= ~REQ_F_LINK_TIMEOUT;
+ 	return wake_ev;
 -- 
 2.27.0
 
