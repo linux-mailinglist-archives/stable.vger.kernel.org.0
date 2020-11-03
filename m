@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0751C2A56A8
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDE32A5515
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730265AbgKCV3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:29:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33232 "EHLO mail.kernel.org"
+        id S2388493AbgKCVQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:16:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732239AbgKCU6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:39 -0500
+        id S2388491AbgKCVLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70FE92053B;
-        Tue,  3 Nov 2020 20:58:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C2E7206B5;
+        Tue,  3 Nov 2020 21:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437118;
-        bh=V6YAqLlPazLFt0SqEKR9ID7rLQepHXZAToxSoBQElGU=;
+        s=default; t=1604437860;
+        bh=JA03hcWKzQTxb8EPGJsp5b8cQyeyTFqF6SReLiFYQz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4RetmfZVo4LvXt8rgXxWQDZBQxQQpzwLlrrW5Iot1MUiwRlyv3A2n8Ry0T9Hhjo4
-         CYaeAvO3+Pv0BDk5HYpg1YloUU/4BlM6q6coUWIsKiCdr6jqjLVHWpG8NdBxDH79X4
-         kUkzE0TUhXJGdY90tjmBpbtfcmIqNOHE3/4lN4Gg=
+        b=yKZYRsCCnX65wjG7faADUO/37h77P2z/UeuZ3cKvls3sFdyVuQmF6XbiP84T5cmhC
+         BnahdUd6YQmZ3/usEzNFnWFsySs8B/qY6bPHN3Nl0/fk9wYac0A6ApB76Jtrp0RNi2
+         BjsGi7Q7A9zarSPtzGSBrcp1xkOhUu1dH+1Pclc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Akinobu Mita <akinobu.mita@gmail.com>, Stable@vger.kernel.org
-Subject: [PATCH 5.4 152/214] iio:adc:ti-adc0832 Fix alignment issue with timestamp
-Date:   Tue,  3 Nov 2020 21:36:40 +0100
-Message-Id: <20201103203305.031549466@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 024/125] xfs: fix realtime bitmap/summary file truncation when growing rt volume
+Date:   Tue,  3 Nov 2020 21:36:41 +0100
+Message-Id: <20201103203200.234992224@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 39e91f3be4cba51c1560bcda3a343ed1f64dc916 upstream.
+[ Upstream commit f4c32e87de7d66074d5612567c5eac7325024428 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
+The realtime bitmap and summary files are regular files that are hidden
+away from the directory tree.  Since they're regular files, inode
+inactivation will try to purge what it thinks are speculative
+preallocations beyond the incore size of the file.  Unfortunately,
+xfs_growfs_rt forgets to update the incore size when it resizes the
+inodes, with the result that inactivating the rt inodes at unmount time
+will cause their contents to be truncated.
 
-We fix this issues by moving to a suitable structure in the iio_priv()
-data with alignment explicitly requested.  This data is allocated
-with kzalloc so no data can leak apart from previous readings.
-Note that previously no data could leak 'including' previous readings
-but I don't think it is an issue to potentially leak them like
-this now does.
+Fix this by updating the incore size when we change the ondisk size as
+part of updating the superblock.  Note that we don't do this when we're
+allocating blocks to the rt inodes because we actually want those blocks
+to get purged if the growfs fails.
 
-In this case the postioning of the timestamp is depends on what
-other channels are enabled. As such we cannot use a structure to
-make the alignment explicit as it would be missleading by suggesting
-only one possible location for the timestamp.
+This fixes corruption complaints from the online rtsummary checker when
+running xfs/233.  Since that test requires rmap, one can also trigger
+this by growing an rt volume, cycling the mount, and creating rt files.
 
-Fixes: 815bbc87462a ("iio: ti-adc0832: add triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-25-jic23@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-adc0832.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_rtalloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ti-adc0832.c
-+++ b/drivers/iio/adc/ti-adc0832.c
-@@ -28,6 +28,12 @@ struct adc0832 {
- 	struct regulator *reg;
- 	struct mutex lock;
- 	u8 mux_bits;
-+	/*
-+	 * Max size needed: 16x 1 byte ADC data + 8 bytes timestamp
-+	 * May be shorter if not all channels are enabled subject
-+	 * to the timestamp remaining 8 byte aligned.
-+	 */
-+	u8 data[24] __aligned(8);
- 
- 	u8 tx_buf[2] ____cacheline_aligned;
- 	u8 rx_buf[2];
-@@ -199,7 +205,6 @@ static irqreturn_t adc0832_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc0832 *adc = iio_priv(indio_dev);
--	u8 data[24] = { }; /* 16x 1 byte ADC data + 8 bytes timestamp */
- 	int scan_index;
- 	int i = 0;
- 
-@@ -217,10 +222,10 @@ static irqreturn_t adc0832_trigger_handl
- 			goto out;
- 		}
- 
--		data[i] = ret;
-+		adc->data[i] = ret;
- 		i++;
- 	}
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
- 					   iio_get_time_ns(indio_dev));
- out:
- 	mutex_unlock(&adc->lock);
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 7d3b56872e563..f1cf832837104 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1014,10 +1014,13 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the bitmap inode's size.
++		 * Update the bitmap inode's size ondisk and incore.  We need
++		 * to update the incore size so that inode inactivation won't
++		 * punch what it thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rbmip->i_d.di_size =
+ 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
++		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Get the summary inode into the transaction.
+@@ -1025,9 +1028,12 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the summary inode's size.
++		 * Update the summary inode's size.  We need to update the
++		 * incore size so that inode inactivation won't punch what it
++		 * thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
++		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Copy summary data from old to new sizes.
+-- 
+2.27.0
+
 
 
