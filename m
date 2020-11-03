@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5055E2A54E5
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4384E2A549C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:13:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389056AbgKCVPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:15:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
+        id S2387469AbgKCVNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389099AbgKCVMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:55 -0500
+        id S2389085AbgKCVM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6DF4205ED;
-        Tue,  3 Nov 2020 21:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F939206B5;
+        Tue,  3 Nov 2020 21:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437975;
-        bh=lN3UKr/PSEVrmGiyHTDnRnMqrY96HMbJvt4uvCULU0E=;
+        s=default; t=1604437977;
+        bh=pdImw8MX1nGDEbGReoB8McG7j1JBtWfBX0D9bkBbf6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Su8vi0y+UcAVUts6T8hsvmBlfvE21YZr6NULGvwh2P1cnIU3tAtZcM8MboFTQXXvp
-         ytdHVBnpxPevgvZfOyHUVEuTieHJdWPh987kbUpPddoej5VY2FIxLm0bptz4MZU9Bj
-         3U84rv7zZOJ8prx7Ku3cinAbcVUAKbgapHzxgXOo=
+        b=pAfLabW7btBzySRjoaLhBLmnIg4O1NikUnvLJBtsoUCBD7NywGSfFjfwFGfxiRkJZ
+         VaBDMITZOFvc3D9HNAvwiBdOGMV0c+w9/CyjwhhawYe6Y65aSFQ3h83B46U5k5ZVVK
+         iAlbUuBHnI8tEo56fadlV8WvFbaI/vL8c7QPgZLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.14 112/125] rtc: rx8010: dont modify the global rtc ops
-Date:   Tue,  3 Nov 2020 21:38:09 +0100
-Message-Id: <20201103203213.721649260@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 113/125] tty: make FONTX ioctl use the tty pointer they were actually passed
+Date:   Tue,  3 Nov 2020 21:38:10 +0100
+Message-Id: <20201103203213.864798615@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -43,84 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit d3b14296da69adb7825022f3224ac6137eb30abf upstream.
+commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
 
-The way the driver is implemented is buggy for the (admittedly unlikely)
-use case where there are two RTCs with one having an interrupt configured
-and the second not. This is caused by the fact that we use a global
-rtc_class_ops struct which we modify depending on whether the irq number
-is present or not.
+Some of the font tty ioctl's always used the current foreground VC for
+their operations.  Don't do that then.
 
-Fix it by using two const ops structs with and without alarm operations.
-While at it: not being able to request a configured interrupt is an error
-so don't ignore it and bail out of probe().
+This fixes a data race on fg_console.
 
-Fixes: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver")
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200914154601.32245-2-brgl@bgdev.pl
+Side note: both Michael Ellerman and Jiri Slaby point out that all these
+ioctls are deprecated, and should probably have been removed long ago,
+and everything seems to be using the KDFONTOP ioctl instead.
+
+In fact, Michael points out that it looks like busybox's loadfont
+program seems to have switched over to using KDFONTOP exactly _because_
+of this bug (ahem.. 12 years ago ;-).
+
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/rtc/rtc-rx8010.c |   24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
---- a/drivers/rtc/rtc-rx8010.c
-+++ b/drivers/rtc/rtc-rx8010.c
-@@ -429,16 +429,26 @@ static int rx8010_ioctl(struct device *d
- 	}
- }
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -244,7 +244,7 @@ int vt_waitactive(int n)
  
--static struct rtc_class_ops rx8010_rtc_ops = {
-+static const struct rtc_class_ops rx8010_rtc_ops_default = {
- 	.read_time = rx8010_get_time,
- 	.set_time = rx8010_set_time,
- 	.ioctl = rx8010_ioctl,
+ 
+ static inline int 
+-do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
++do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
+ {
+ 	struct consolefontdesc cfdarg;
+ 	int i;
+@@ -262,15 +262,16 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		return con_font_op(vc_cons[fg_console].d, op);
+-	case GIO_FONTX: {
++		return con_font_op(vc, op);
++
++	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+ 		op->width = 8;
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -278,7 +279,6 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+ 			return -EFAULT;
+ 		return 0;
+-		}
+ 	}
+ 	return -EINVAL;
+ }
+@@ -924,7 +924,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 0;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
+ 	}
+ 
+@@ -935,7 +935,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 32;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
+ 	}
+ 
+@@ -952,7 +952,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = do_fontx_ioctl(cmd, up, perm, &op);
++		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case PIO_FONTRESET:
+@@ -969,11 +969,11 @@ int vt_ioctl(struct tty_struct *tty,
+ 		{
+ 		op.op = KD_FONT_OP_SET_DEFAULT;
+ 		op.data = NULL;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		if (ret)
+ 			break;
+ 		console_lock();
+-		con_set_default_unimap(vc_cons[fg_console].d);
++		con_set_default_unimap(vc);
+ 		console_unlock();
+ 		break;
+ 		}
+@@ -1100,8 +1100,9 @@ struct compat_consolefontdesc {
  };
  
-+static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
-+	.read_time = rx8010_get_time,
-+	.set_time = rx8010_set_time,
-+	.ioctl = rx8010_ioctl,
-+	.read_alarm = rx8010_read_alarm,
-+	.set_alarm = rx8010_set_alarm,
-+	.alarm_irq_enable = rx8010_alarm_irq_enable,
-+};
-+
- static int rx8010_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
+ static inline int
+-compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
+-			 int perm, struct console_font_op *op)
++compat_fontx_ioctl(struct vc_data *vc, int cmd,
++		   struct compat_consolefontdesc __user *user_cfd,
++		   int perm, struct console_font_op *op)
  {
- 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-+	const struct rtc_class_ops *rtc_ops;
- 	struct rx8010_data *rx8010;
- 	int err = 0;
- 
-@@ -469,16 +479,16 @@ static int rx8010_probe(struct i2c_clien
- 
- 		if (err) {
- 			dev_err(&client->dev, "unable to request IRQ\n");
--			client->irq = 0;
--		} else {
--			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
--			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
--			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
-+			return err;
- 		}
+ 	struct compat_consolefontdesc cfdarg;
+ 	int i;
+@@ -1119,7 +1120,8 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		return con_font_op(vc_cons[fg_console].d, op);
++		return con_font_op(vc, op);
 +
-+		rtc_ops = &rx8010_rtc_ops_alarm;
-+	} else {
-+		rtc_ops = &rx8010_rtc_ops_default;
- 	}
+ 	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+@@ -1127,7 +1129,7 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -1218,7 +1220,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 	 */
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = compat_fontx_ioctl(cmd, up, perm, &op);
++		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
  
- 	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
--		&rx8010_rtc_ops, THIS_MODULE);
-+					       rtc_ops, THIS_MODULE);
- 
- 	if (IS_ERR(rx8010->rtc)) {
- 		dev_err(&client->dev, "unable to register the class device\n");
+ 	case KDFONTOP:
 
 
