@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB0A2A4A11
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F09B2A4A13
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 16:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbgKCPlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 10:41:50 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48107 "EHLO
+        id S1728124AbgKCPmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 10:42:02 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41267 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727470AbgKCPlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:41:50 -0500
+        by vger.kernel.org with ESMTP id S1727470AbgKCPmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 10:42:02 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8E7E0D42;
-        Tue,  3 Nov 2020 10:41:49 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:41:49 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 887F939C;
+        Tue,  3 Nov 2020 10:42:01 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 10:42:01 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=QnE+HD
-        HE7g1y6bqB+O9K6dFm4+2DuF2XE5Ov33vOat0=; b=rIT+fU0kEo8U90IP/qMXDu
-        mwYFlXR/FPdynSWJekYjNoAJ9uv996PWNDKGMfxviMJ1YGZ+7wsF+RpHHX3I96Ey
-        ye61VDlRnK7CQMbCGMul2V8OP6ZYpTsLtaFu56dBvEqyCxp/dhKT1TLtU3GzX8iC
-        imuX3J522SLcpYyELAzXufASGhpM3o9+cFHzdpmUdljqdOjrq4H/lHll+JNeYzDC
-        WHVA4GEH9PGRFAtPBrikrJ/eqcJ2eKv6XOIGsB1ihjN+YXk36pyYoYdY/eYNlB76
-        3tY4uOWaHqQ/T6A5L3j0oMK2l/hVYgpAsD7dAX13rLYuEizeY1xNAKecNmSI4Tdw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=I9mnw5
+        W8pz/H2p+qZHgvhzJIme3PzKw5R/IoogFkaOg=; b=nVfofhymZz0h/prLmNDuLI
+        4fU1hiL9NrGvM0RWq6rC/HSTE/sX8U88bwEnfQYtTYL9RtRM06ixrKvhQ8+nNPP9
+        cyi3KUO/AQhcJ0vZ8VSZme815NUHqGzzcDi3R6k7nEBOsmNYz7uDSGXpCJPTbZIa
+        D1GTRSrRwotLev8nvVL0UlF+tJzvfVynB2a0xXC9Od9qBOgUqhO6eSpqT3SY7zFo
+        1+Qul/2ha8mc/YG4vAZKUQreunD2zzFmvz17iTSUEkuUkQxYmnm/CBRBoeSroMRw
+        Fo0PqcadYAQX+Ls5/tyu0Odv6yhW7bEkQL4Ey8P4ZotDoB33on/jOSTN2N6vnbjg
         ==
-X-ME-Sender: <xms:PXqhXwEqIWwJZ5Aac9D6cKIW4VvJ7IDizW4STUHNCLEQecL6AzIpkg>
-    <xme:PXqhX5XkvbT5ra155sP-zLRL87LSV2v0F3pHWZzeTYisKXCD6WsQWnFDekcGVHteS
-    G-aCYOT3iZN5g>
+X-ME-Sender: <xms:SHqhXwJGtcQ61petI8DwH1LVzhr3yt69GQv1aAItu5XDph2a-hoRmQ>
+    <xme:SHqhXwK34iukeBguDeXcNmcVo2HXRchNLynSQ7K1PgtSB-YP6Gk95x3NVI5Hywrvw
+    9sfbi1sNN0vOQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:PXqhX6KJ9HbItWrqAzBheIye8kyjV0oJ06Gvrcgo2i4d-QqOqBcBdg>
-    <xmx:PXqhXyGSAfzcSZsZQQo2p-GZ9AQkMh0Wo9C0CPuXjuXvJmgzYF3Ttw>
-    <xmx:PXqhX2WipEYhh1Kyk44VTP0Kf-z8e_ZxOwNRnSX4Zj1ESSMHwEN5oQ>
-    <xmx:PXqhX5dgEi8LDyBTDKc0lE7_uT2evhHXXoTlycN_-6Q6URHoCZ1mDUEvvMU>
+    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
+    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:SXqhXwsQLMniUUgDS7owIMFntEoqd5_HMHc6kAkjMkBA4ceYtfVwqw>
+    <xmx:SXqhX9YiNNftdPWUtpox2Qq-QUE_cP6FvCatFghir5KzSCXx_ufsMQ>
+    <xmx:SXqhX3bdCmbB4LcLeJq7PkL0kaEQxbxT8Du__9BRvagLCCA6Kiuqsg>
+    <xmx:SXqhX4ADiZshnd3saROTnCPSsOeKTWgaDLE7iFASufY7GVpXTCscFCw3KW8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B140C3064683;
-        Tue,  3 Nov 2020 10:41:48 -0500 (EST)
-Subject: FAILED: patch "[PATCH] i2c: imx: Fix external abort on interrupt in exit paths" failed to apply to 4.14-stable tree
-To:     krzk@kernel.org, o.rempel@pengutronix.de, stable@vger.kernel.org,
-        wsa@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 945673280064;
+        Tue,  3 Nov 2020 10:42:00 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/amdgpu/swsmu: drop smu i2c bus on navi1x" failed to apply to 5.9-stable tree
+To:     alexander.deucher@amd.com, evan.quan@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 16:42:41 +0100
-Message-ID: <160441816114376@kroah.com>
+Date:   Tue, 03 Nov 2020 16:42:55 +0100
+Message-ID: <1604418175226173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,115 +70,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Sun, 20 Sep 2020 23:12:38 +0200
-Subject: [PATCH] i2c: imx: Fix external abort on interrupt in exit paths
+From 10105d0c9763f058f6a9a09f78397d5bf94dc94c Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexander.deucher@amd.com>
+Date: Mon, 26 Oct 2020 17:30:28 -0400
+Subject: [PATCH] drm/amdgpu/swsmu: drop smu i2c bus on navi1x
 
-If interrupt comes late, during probe error path or device remove (could
-be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
-i2c_imx_isr() will access registers with the clock being disabled.  This
-leads to external abort on non-linefetch on Toradex Colibri VF50 module
-(with Vybrid VF5xx):
+Stop registering the SMU i2c bus on navi1x.  This leads to instability
+issues when userspace processes mess with the bus and also seems to
+cause display stability issues in some cases.
 
-    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
-    Internal error: : 1008 [#1] ARM
-    Modules linked in:
-    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
-      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
-      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
-      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
-      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
-      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
-      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
-      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
-      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
-      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
-      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
-      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
-      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1314
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1341
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-Additionally, the i2c_imx_isr() could wake up the wait queue
-(imx_i2c_struct->queue) before its initialization happens.
-
-The resource-managed framework should not be used for interrupt handling,
-because the resource will be released too late - after disabling clocks.
-The interrupt handler is not prepared for such case.
-
-Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 63f4367c312b..c98529c76348 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1169,14 +1169,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+index 8d8081c6bd38..9cf97744b67e 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+@@ -2534,29 +2534,6 @@ static const struct i2c_algorithm navi10_i2c_algo = {
+ 	.functionality = navi10_i2c_func,
+ };
  
--	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
--				pdev->name, i2c_imx);
--	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		goto clk_disable;
--	}
+-static int navi10_i2c_control_init(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	struct amdgpu_device *adev = to_amdgpu_device(control);
+-	int res;
 -
- 	/* Init queue */
- 	init_waitqueue_head(&i2c_imx->queue);
- 
-@@ -1195,6 +1187,14 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto rpm_disable;
- 
-+	/* Request IRQ */
-+	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
-+				   pdev->name, i2c_imx);
-+	if (ret) {
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		goto rpm_disable;
-+	}
-+
- 	/* Set up clock divider */
- 	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
- 	ret = of_property_read_u32(pdev->dev.of_node,
-@@ -1237,13 +1237,12 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 
- clk_notifier_unregister:
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	free_irq(irq, i2c_imx);
- rpm_disable:
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-	control->owner = THIS_MODULE;
+-	control->class = I2C_CLASS_SPD;
+-	control->dev.parent = &adev->pdev->dev;
+-	control->algo = &navi10_i2c_algo;
+-	snprintf(control->name, sizeof(control->name), "AMDGPU SMU");
 -
--clk_disable:
- 	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
- }
-@@ -1251,7 +1250,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- static int i2c_imx_remove(struct platform_device *pdev)
+-	res = i2c_add_adapter(control);
+-	if (res)
+-		DRM_ERROR("Failed to register hw i2c, err: %d\n", res);
+-
+-	return res;
+-}
+-
+-static void navi10_i2c_control_fini(struct smu_context *smu, struct i2c_adapter *control)
+-{
+-	i2c_del_adapter(control);
+-}
+-
+ static ssize_t navi10_get_gpu_metrics(struct smu_context *smu,
+ 				      void **table)
  {
- 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
--	int ret;
-+	int irq, ret;
- 
- 	ret = pm_runtime_get_sync(&pdev->dev);
- 	if (ret < 0)
-@@ -1271,6 +1270,9 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
- 
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq >= 0)
-+		free_irq(irq, i2c_imx);
- 	clk_disable_unprepare(i2c_imx->clk);
- 
- 	pm_runtime_put_noidle(&pdev->dev);
+@@ -2687,8 +2664,6 @@ static const struct pptable_funcs navi10_ppt_funcs = {
+ 	.set_default_dpm_table = navi10_set_default_dpm_table,
+ 	.dpm_set_vcn_enable = navi10_dpm_set_vcn_enable,
+ 	.dpm_set_jpeg_enable = navi10_dpm_set_jpeg_enable,
+-	.i2c_init = navi10_i2c_control_init,
+-	.i2c_fini = navi10_i2c_control_fini,
+ 	.print_clk_levels = navi10_print_clk_levels,
+ 	.force_clk_levels = navi10_force_clk_levels,
+ 	.populate_umd_state_clk = navi10_populate_umd_state_clk,
 
