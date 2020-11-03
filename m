@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14ACF2A524A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C5A2A530F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730715AbgKCUsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:48:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40400 "EHLO mail.kernel.org"
+        id S1732417AbgKCU4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:56:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729807AbgKCUsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:37 -0500
+        id S1732425AbgKCU4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41DA922409;
-        Tue,  3 Nov 2020 20:48:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 830F622226;
+        Tue,  3 Nov 2020 20:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436516;
-        bh=wRtCQnQdPDX6MWfLmB+AFzKXzPe8RgptgwFvsk/8nyI=;
+        s=default; t=1604436961;
+        bh=1Fse/cScQSnSiOUmk897t/n13Oub6PCbMtekjJHJvkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPeouamohGBKw6ttYbaXzRFtA+BmR1LhGzMBOy2dKBPoune7eoNPx9ljl75liOXz6
-         KQigcrkvy7kwa6ghwb4dA1+wzQSbMfk7/XCZHz5bL4NLGxaPww4jv8w3syaNrhCA6d
-         7vZgIxrH3/58Hnliwgqh2q1dDfiLThb62G3J7pCU=
+        b=mscrguLwmkAhbn9Kq7FLXbi3nQXsILXhwgufMaNow3QO/gaV8gGqNsZz0vsV/HOex
+         hzITC7/+d+5gLS4wNjjILJLYFi3tuGCYm0x0FpYCm9DopNO2yzHL5qHEk7bFgqLFDZ
+         ZjS1fkD4FFBKgOyi9iDrEAMPIj33oxGE0+6IdIrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.9 284/391] MIPS: configs: lb60: Fix defconfig not selecting correct board
+        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 087/214] ARM: dts: omap4: Fix sgx clock rate for 4430
 Date:   Tue,  3 Nov 2020 21:35:35 +0100
-Message-Id: <20201103203406.206242761@linuxfoundation.org>
+Message-Id: <20201103203258.529018774@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 7487abbe85afd02c35c283315cefc5e19c28d40f upstream.
+[ Upstream commit 19d3e9a0bdd57b90175f30390edeb06851f5f9f3 ]
 
-Since INGENIC_GENERIC_BOARD was introduced, the JZ4740_QI_LB60 option
-is no longer the default, so the symbol has to be selected by the
-defconfig, otherwise the kernel built will be for a generic Ingenic
-board and won't have the Device Tree blob built-in.
+We currently have a different clock rate for droid4 compared to the
+stock v3.0.8 based Android Linux kernel:
 
-Cc: stable@vger.kernel.org # v5.7
-Fixes: 62249209a772 ("MIPS: ingenic: Default to a generic board")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+# cat /sys/kernel/debug/clk/dpll_*_m7x2_ck/clk_rate
+266666667
+307200000
+# cat /sys/kernel/debug/clk/l3_gfx_cm:clk:0000:0/clk_rate
+307200000
 
+Let's fix this by configuring sgx to use 153.6 MHz instead of 307.2 MHz.
+Looks like also at least duover needs this change to avoid hangs, so
+let's apply it for all 4430.
+
+This helps a bit with thermal issues that seem to be related to memory
+corruption when using sgx. It seems that other driver related issues
+still remain though.
+
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/configs/qi_lb60_defconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/omap4.dtsi    |  2 +-
+ arch/arm/boot/dts/omap443x.dtsi | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/arch/mips/configs/qi_lb60_defconfig
-+++ b/arch/mips/configs/qi_lb60_defconfig
-@@ -8,6 +8,7 @@ CONFIG_EMBEDDED=y
- # CONFIG_COMPAT_BRK is not set
- CONFIG_SLAB=y
- CONFIG_MACH_INGENIC=y
-+CONFIG_JZ4740_QI_LB60=y
- CONFIG_HZ_100=y
- # CONFIG_SECCOMP is not set
- CONFIG_MODULES=y
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index e5506ab669fc6..904852006b9b1 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -328,7 +328,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		target-module@56000000 {
++		sgx_module: target-module@56000000 {
+ 			compatible = "ti,sysc-omap4", "ti,sysc";
+ 			reg = <0x5600fe00 0x4>,
+ 			      <0x5600fe10 0x4>;
+diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
+index cbcdcb4e7d1c2..86b9caf461dfa 100644
+--- a/arch/arm/boot/dts/omap443x.dtsi
++++ b/arch/arm/boot/dts/omap443x.dtsi
+@@ -74,3 +74,13 @@
+ };
+ 
+ /include/ "omap443x-clocks.dtsi"
++
++/*
++ * Use dpll_per for sgx at 153.6MHz like droid4 stock v3.0.8 Android kernel
++ */
++&sgx_module {
++	assigned-clocks = <&l3_gfx_clkctrl OMAP4_GPU_CLKCTRL 24>,
++			  <&dpll_per_m7x2_ck>;
++	assigned-clock-rates = <0>, <153600000>;
++	assigned-clock-parents = <&dpll_per_m7x2_ck>;
++};
+-- 
+2.27.0
+
 
 
