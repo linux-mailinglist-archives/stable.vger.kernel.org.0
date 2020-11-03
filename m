@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336512A521B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3E12A52D2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730727AbgKCUqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36616 "EHLO mail.kernel.org"
+        id S1730705AbgKCUxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:53:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729561AbgKCUqv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:51 -0500
+        id S1732432AbgKCUxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDF1E20719;
-        Tue,  3 Nov 2020 20:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A516A2053B;
+        Tue,  3 Nov 2020 20:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436410;
-        bh=V1ebKRZILqhuVkapQZVuUtsopgzgh0nAYU7+1qLih9I=;
+        s=default; t=1604436823;
+        bh=aV0qCIPO+iS/XjCmfg4PGIsNk4ENNrlKeymShUIKL4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioJ3UXmNo32o5KX9nlONgk7X1Gka0KzOMa/ey7zXUFD8avLiMBnPJdg2/i4hKdB/5
-         iot+8vfchFhBeivvLc92/GfnFg2EM4MTafjVVMY8GF8wgwQ69ZyRXeRkYeLuz4ftBg
-         War+6tgTsiRzlHJzbpo9g0lGRFUc9bTYirQPJVCE=
+        b=re/RrvKD7g2yqnESo8ckhuVcnXCVmIs57I22YZNp0tstipH8t4zWvfNRKwIhHBG19
+         /Qlbet9FQfT9cK7d/pFDNJfeIq0eQ5o/xXI4bcpBtZtrplzriL1N/th9etE0v1+jmb
+         uDcjuxxKr52OJ/Znni5Jo/h7yFRFKdmd7LHI4MiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.9 221/391] btrfs: qgroup: fix wrong qgroup metadata reserve for delayed inode
-Date:   Tue,  3 Nov 2020 21:34:32 +0100
-Message-Id: <20201103203401.856850027@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+0eac6f0bbd558fd866d7@syzkaller.appspotmail.com,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 026/214] f2fs: fix uninit-value in f2fs_lookup
+Date:   Tue,  3 Nov 2020 21:34:34 +0100
+Message-Id: <20201103203252.490705866@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit b4c5d8fdfff3e2b6c4fa4a5043e8946dff500f8c upstream.
+[ Upstream commit 6d7ab88a98c1b7a47c228f8ffb4f44d631eaf284 ]
 
-For delayed inode facility, qgroup metadata is reserved for it, and
-later freed.
+As syzbot reported:
 
-However we're freeing more bytes than we reserved.
-In btrfs_delayed_inode_reserve_metadata():
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:219
+ f2fs_lookup+0xe05/0x1a80 fs/f2fs/namei.c:503
+ lookup_open fs/namei.c:3082 [inline]
+ open_last_lookups fs/namei.c:3177 [inline]
+ path_openat+0x2729/0x6a90 fs/namei.c:3365
+ do_filp_open+0x2b8/0x710 fs/namei.c:3395
+ do_sys_openat2+0xa88/0x1140 fs/open.c:1168
+ do_sys_open fs/open.c:1184 [inline]
+ __do_compat_sys_openat fs/open.c:1242 [inline]
+ __se_compat_sys_openat+0x2a4/0x310 fs/open.c:1240
+ __ia32_compat_sys_openat+0x56/0x70 fs/open.c:1240
+ do_syscall_32_irqs_on arch/x86/entry/common.c:80 [inline]
+ __do_fast_syscall_32+0x129/0x180 arch/x86/entry/common.c:139
+ do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:162
+ do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:205
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
-	num_bytes = btrfs_calc_metadata_size(fs_info, 1);
-	...
-		ret = btrfs_qgroup_reserve_meta_prealloc(root,
-				fs_info->nodesize, true);
-		...
-		if (!ret) {
-			node->bytes_reserved = num_bytes;
+In f2fs_lookup(), @res_page could be used before being initialized,
+because in __f2fs_find_entry(), once F2FS_I(dir)->i_current_depth was
+been fuzzed to zero, then @res_page will never be initialized, causing
+this kmsan warning, relocating @res_page initialization place to fix
+this bug.
 
-But in btrfs_delayed_inode_release_metadata():
-
-	if (qgroup_free)
-		btrfs_qgroup_free_meta_prealloc(node->root,
-				node->bytes_reserved);
-	else
-		btrfs_qgroup_convert_reserved_meta(node->root,
-				node->bytes_reserved);
-
-This means, we're always releasing more qgroup metadata rsv than we have
-reserved.
-
-This won't trigger selftest warning, as btrfs qgroup metadata rsv has
-extra protection against cases like quota enabled half-way.
-
-But we still need to fix this problem any way.
-
-This patch will use the same num_bytes for qgroup metadata rsv so we
-could handle it correctly.
-
-Fixes: f218ea6c4792 ("btrfs: delayed-inode: Remove wrong qgroup meta reservation calls")
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+0eac6f0bbd558fd866d7@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-inode.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/f2fs/dir.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -627,8 +627,7 @@ static int btrfs_delayed_inode_reserve_m
- 	 */
- 	if (!src_rsv || (!trans->bytes_reserved &&
- 			 src_rsv->type != BTRFS_BLOCK_RSV_DELALLOC)) {
--		ret = btrfs_qgroup_reserve_meta_prealloc(root,
--				fs_info->nodesize, true);
-+		ret = btrfs_qgroup_reserve_meta_prealloc(root, num_bytes, true);
- 		if (ret < 0)
- 			return ret;
- 		ret = btrfs_block_rsv_add(root, dst_rsv, num_bytes,
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index e9af46dc06f72..78d041f9775a4 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -303,16 +303,15 @@ struct f2fs_dir_entry *__f2fs_find_entry(struct inode *dir,
+ 	unsigned int max_depth;
+ 	unsigned int level;
+ 
++	*res_page = NULL;
++
+ 	if (f2fs_has_inline_dentry(dir)) {
+-		*res_page = NULL;
+ 		de = f2fs_find_in_inline_dir(dir, fname, res_page);
+ 		goto out;
+ 	}
+ 
+-	if (npages == 0) {
+-		*res_page = NULL;
++	if (npages == 0)
+ 		goto out;
+-	}
+ 
+ 	max_depth = F2FS_I(dir)->i_current_depth;
+ 	if (unlikely(max_depth > MAX_DIR_HASH_DEPTH)) {
+@@ -323,7 +322,6 @@ struct f2fs_dir_entry *__f2fs_find_entry(struct inode *dir,
+ 	}
+ 
+ 	for (level = 0; level < max_depth; level++) {
+-		*res_page = NULL;
+ 		de = find_in_level(dir, level, fname, res_page);
+ 		if (de || IS_ERR(*res_page))
+ 			break;
+-- 
+2.27.0
+
 
 
