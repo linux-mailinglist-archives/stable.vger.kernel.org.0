@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AAA2A5470
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9732A55DA
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388832AbgKCVLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:11:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S2388523AbgKCVWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:22:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388838AbgKCVLN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:13 -0500
+        id S2388051AbgKCVFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:05:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E0D6205ED;
-        Tue,  3 Nov 2020 21:11:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8FF7206B5;
+        Tue,  3 Nov 2020 21:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437872;
-        bh=TdbHCOVc8MeU14BECHJnN+sDf52jTy7RB6IhGf9mF9w=;
+        s=default; t=1604437500;
+        bh=3gAaBhkMm9SAZQuLIq7w4AscinPUediptKNOgzRcnDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2h5mdcfaKayZbZWc19QOAzV2HQYKqarRr9PeHvBIF+QMkJLbppg1VWoBqUxV7CmVv
-         uluqzIlis7a7VqTZNExCTwvE76hjvYlTKfmc9x3kNfsB6+Thth8DmUMwI7TXXX3DxP
-         K95xSRvKDvF/RH1Rpv3Uii8WIsU7RMT3DFf2zQwY=
+        b=C8XePdPjY8V9DKQLfjlyzlrZUnBTFmdpW0SaNfs72V8RZiE5ZmAiCE0gPSCMqWuYG
+         ibaxI2f1ghJTeIaoZzPvYkwHtq0ZWRHIe9lzDeF8tCl63s5z7cqztRy+u1RBzaKQ/W
+         c4Rs0b3PGd4Px59eEHVcXw8ceAWmUh1oqg1rqk4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 019/125] sparc64: remove mm_cpumask clearing to fix kthread_use_mm race
+Subject: [PATCH 4.19 104/191] ARM: dts: omap4: Fix sgx clock rate for 4430
 Date:   Tue,  3 Nov 2020 21:36:36 +0100
-Message-Id: <20201103203159.502828488@linuxfoundation.org>
+Message-Id: <20201103203243.375949063@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,177 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit bafb056ce27940c9994ea905336aa8f27b4f7275 ]
+[ Upstream commit 19d3e9a0bdd57b90175f30390edeb06851f5f9f3 ]
 
-The de facto (and apparently uncommented) standard for using an mm had,
-thanks to this code in sparc if nothing else, been that you must have a
-reference on mm_users *and that reference must have been obtained with
-mmget()*, i.e., from a thread with a reference to mm_users that had used
-the mm.
+We currently have a different clock rate for droid4 compared to the
+stock v3.0.8 based Android Linux kernel:
 
-The introduction of mmget_not_zero() in commit d2005e3f41d4
-("userfaultfd: don't pin the user memory in userfaultfd_file_create()")
-allowed mm_count holders to aoperate on user mappings asynchronously
-from the actual threads using the mm, but they were not to load those
-mappings into their TLB (i.e., walking vmas and page tables is okay,
-kthread_use_mm() is not).
+# cat /sys/kernel/debug/clk/dpll_*_m7x2_ck/clk_rate
+266666667
+307200000
+# cat /sys/kernel/debug/clk/l3_gfx_cm:clk:0000:0/clk_rate
+307200000
 
-io_uring 2b188cc1bb857 ("Add io_uring IO interface") added code which
-does a kthread_use_mm() from a mmget_not_zero() refcount.
+Let's fix this by configuring sgx to use 153.6 MHz instead of 307.2 MHz.
+Looks like also at least duover needs this change to avoid hangs, so
+let's apply it for all 4430.
 
-The problem with this is code which previously assumed mm == current->mm
-and mm->mm_users == 1 implies the mm will remain single-threaded at
-least until this thread creates another mm_users reference, has now
-broken.
+This helps a bit with thermal issues that seem to be related to memory
+corruption when using sgx. It seems that other driver related issues
+still remain though.
 
-arch/sparc/kernel/smp_64.c:
-
-    if (atomic_read(&mm->mm_users) == 1) {
-        cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
-        goto local_flush_and_out;
-    }
-
-vs fs/io_uring.c
-
-    if (unlikely(!(ctx->flags & IORING_SETUP_SQPOLL) ||
-                 !mmget_not_zero(ctx->sqo_mm)))
-        return -EFAULT;
-    kthread_use_mm(ctx->sqo_mm);
-
-mmget_not_zero() could come in right after the mm_users == 1 test, then
-kthread_use_mm() which sets its CPU in the mm_cpumask. That update could
-be lost if cpumask_copy() occurs afterward.
-
-I propose we fix this by allowing mmget_not_zero() to be a first-class
-reference, and not have this obscure undocumented and unchecked
-restriction.
-
-The basic fix for sparc64 is to remove its mm_cpumask clearing code. The
-optimisation could be effectively restored by sending IPIs to mm_cpumask
-members and having them remove themselves from mm_cpumask. This is more
-tricky so I leave it as an exercise for someone with a sparc64 SMP.
-powerpc has a (currently similarly broken) example.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200914045219.3736466-4-npiggin@gmail.com
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/smp_64.c | 65 ++++++++------------------------------
- 1 file changed, 14 insertions(+), 51 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi    |  2 +-
+ arch/arm/boot/dts/omap443x.dtsi | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index c50182cd2f646..98825058e1df0 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1039,38 +1039,9 @@ void smp_fetch_global_pmu(void)
-  * are flush_tlb_*() routines, and these run after flush_cache_*()
-  * which performs the flushw.
-  *
-- * The SMP TLB coherency scheme we use works as follows:
-- *
-- * 1) mm->cpu_vm_mask is a bit mask of which cpus an address
-- *    space has (potentially) executed on, this is the heuristic
-- *    we use to avoid doing cross calls.
-- *
-- *    Also, for flushing from kswapd and also for clones, we
-- *    use cpu_vm_mask as the list of cpus to make run the TLB.
-- *
-- * 2) TLB context numbers are shared globally across all processors
-- *    in the system, this allows us to play several games to avoid
-- *    cross calls.
-- *
-- *    One invariant is that when a cpu switches to a process, and
-- *    that processes tsk->active_mm->cpu_vm_mask does not have the
-- *    current cpu's bit set, that tlb context is flushed locally.
-- *
-- *    If the address space is non-shared (ie. mm->count == 1) we avoid
-- *    cross calls when we want to flush the currently running process's
-- *    tlb state.  This is done by clearing all cpu bits except the current
-- *    processor's in current->mm->cpu_vm_mask and performing the
-- *    flush locally only.  This will force any subsequent cpus which run
-- *    this task to flush the context from the local tlb if the process
-- *    migrates to another cpu (again).
-- *
-- * 3) For shared address spaces (threads) and swapping we bite the
-- *    bullet for most cases and perform the cross call (but only to
-- *    the cpus listed in cpu_vm_mask).
-- *
-- *    The performance gain from "optimizing" away the cross call for threads is
-- *    questionable (in theory the big win for threads is the massive sharing of
-- *    address space state across processors).
-+ * mm->cpu_vm_mask is a bit mask of which cpus an address
-+ * space has (potentially) executed on, this is the heuristic
-+ * we use to limit cross calls.
-  */
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 1a96d4317c975..8f907c235b02c 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -516,7 +516,7 @@
+ 			status = "disabled";
+ 		};
  
- /* This currently is only used by the hugetlb arch pre-fault
-@@ -1080,18 +1051,13 @@ void smp_fetch_global_pmu(void)
- void smp_flush_tlb_mm(struct mm_struct *mm)
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
+-		target-module@56000000 {
++		sgx_module: target-module@56000000 {
+ 			compatible = "ti,sysc-omap4", "ti,sysc";
+ 			ti,hwmods = "gpu";
+ 			reg = <0x5601fc00 0x4>,
+diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
+index cbcdcb4e7d1c2..86b9caf461dfa 100644
+--- a/arch/arm/boot/dts/omap443x.dtsi
++++ b/arch/arm/boot/dts/omap443x.dtsi
+@@ -74,3 +74,13 @@
+ };
  
--	if (atomic_read(&mm->mm_users) == 1) {
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--		goto local_flush_and_out;
--	}
-+	get_cpu();
- 
- 	smp_cross_call_masked(&xcall_flush_tlb_mm,
- 			      ctx, 0, 0,
- 			      mm_cpumask(mm));
- 
--local_flush_and_out:
- 	__flush_tlb_mm(ctx, SECONDARY_CONTEXT);
- 
- 	put_cpu();
-@@ -1114,17 +1080,15 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- {
- 	u32 ctx = CTX_HWBITS(mm->context);
- 	struct tlb_pending_info info;
--	int cpu = get_cpu();
+ /include/ "omap443x-clocks.dtsi"
 +
-+	get_cpu();
- 
- 	info.ctx = ctx;
- 	info.nr = nr;
- 	info.vaddrs = vaddrs;
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
--				       &info, 1);
-+	smp_call_function_many(mm_cpumask(mm), tlb_pending_func,
-+			       &info, 1);
- 
- 	__flush_tlb_pending(ctx, nr, vaddrs);
- 
-@@ -1134,14 +1098,13 @@ void smp_flush_tlb_pending(struct mm_struct *mm, unsigned long nr, unsigned long
- void smp_flush_tlb_page(struct mm_struct *mm, unsigned long vaddr)
- {
- 	unsigned long context = CTX_HWBITS(mm->context);
--	int cpu = get_cpu();
- 
--	if (mm == current->mm && atomic_read(&mm->mm_users) == 1)
--		cpumask_copy(mm_cpumask(mm), cpumask_of(cpu));
--	else
--		smp_cross_call_masked(&xcall_flush_tlb_page,
--				      context, vaddr, 0,
--				      mm_cpumask(mm));
-+	get_cpu();
-+
-+	smp_cross_call_masked(&xcall_flush_tlb_page,
-+			      context, vaddr, 0,
-+			      mm_cpumask(mm));
-+
- 	__flush_tlb_page(context, vaddr);
- 
- 	put_cpu();
++/*
++ * Use dpll_per for sgx at 153.6MHz like droid4 stock v3.0.8 Android kernel
++ */
++&sgx_module {
++	assigned-clocks = <&l3_gfx_clkctrl OMAP4_GPU_CLKCTRL 24>,
++			  <&dpll_per_m7x2_ck>;
++	assigned-clock-rates = <0>, <153600000>;
++	assigned-clock-parents = <&dpll_per_m7x2_ck>;
++};
 -- 
 2.27.0
 
