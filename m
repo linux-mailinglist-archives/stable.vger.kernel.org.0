@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF032A4726
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D412A470E
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729405AbgKCN5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:57:53 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:44249 "EHLO
+        id S1729298AbgKCN5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:57:49 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:58191 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729422AbgKCN4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:56:13 -0500
+        by vger.kernel.org with ESMTP id S1729401AbgKCN4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:56:32 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id CB6BAC73;
-        Tue,  3 Nov 2020 08:56:12 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:56:13 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 6CB46788;
+        Tue,  3 Nov 2020 08:56:31 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:56:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=c2Ds8n
-        r/h47gNB2eNPFGS8ECAVpG9qui2qHusMSuklw=; b=AwY8PHHN50mo6TTmZ6OaDn
-        QY780g/KJJ3pveJ7PDvV5/Q1H1PapzWUDKqJK7bpLpWa8cXVh4J8rsJWIp0+mzcb
-        0wSVI5D5pR+LBx8hvAN9SqOEQRA0wnuKqEyM5M+KHypWXjLec3YEqVFJygBsUmqm
-        qsUQrhgvOiTDy4sXVSDyz6+QSQJCHy88PZ2WJUdqRCbpEf0Q6aqT5C7BMWE9SEPe
-        bcxVA2D+iwpHii6k8ZJXgtpqrcyl1uN/FscRGThATM0gAzVfB78c9n71dkFsLMjg
-        1OKDqyDY44jojKMSAfi5c5ePqy7TwZgmk+0nCCpSKlQ7pLG+gmYMrY2kBBpjjk0w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=srF3WP
+        XSEne+lB/RZoguqkzk+LILfI1BaGnWAdMUnFQ=; b=KSWPGh40a+VCQJ4xe1CZ97
+        QDjoY+E/QdLcpJWVwJLPDm86HnJz4UlrOkCFtDMyjOAfTrFMSUY9WxWxfO8KeWPe
+        fdDNyc7A7X5cnzLcL/8TstcLcPnEKZ4Tp3vCamK55C/9A7rs7PLJ1WcahTs3UlIf
+        7QVc4lV7llxjXbjrZQZhnGuHIJlls6rt9Z1G/9Tvbktx8x+x2GZXQ2FIBHQfm/sq
+        vDhmMkbFi1apz1CicCc6+U4YSzB3o1CClKx9wDBOidyhrIxBFb2NZPZ2okYHufNZ
+        S3/Fz2boa5mAIUwaCIpGL98e9RwJRpWgCjiE+WQ56yIck19KaAxiqeWe2ij8+KpQ
         ==
-X-ME-Sender: <xms:fGGhX0qUE3Jeb7mNYSSEQTw1AUe4V4pmvAplZGGavXo-A7JHjcHVqw>
-    <xme:fGGhX6q7vlHzaAYjGUG5M1B0V08mIJSshxqMhg45K5NQPvKsd6WZW6qMgV6WCJ4Cd
-    DaYPqGE30PFEw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:jmGhX8BmCcKrmM_XdmSYdZf0vbfiGL9sbIqgxDPFFQtqvVZpiwyPYg>
+    <xme:jmGhX-hbR5F6q0gRIgHQt4y39PrFw9OsjS7DBh0XB1Tkr0bJIcXLIqksZOmSGT_R-
+    EY2NvrnGbxVjQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnheptdevtefhjeffvdefuedvgfefueektddthffhtdegie
-    ffvedvtdekffehueejfefhnecuffhomhgrihhnpehophgvnhhsuhhsvgdrohhrghenucfk
-    phepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:fGGhX5P76I6p881763vx1RjWoT6e4YVX7GxLvoaTR9xu7ptow2_ZNg>
-    <xmx:fGGhX76boNVtXhzX_hJ2csE0D3cyMQynVrMC6FeGw01roGU9pLKOaw>
-    <xmx:fGGhXz7IutSWm7d-Ga-f27Cy61G_yxDXfzW_BGJIlWvSOn3kgTSTFg>
-    <xmx:fGGhX9QgPOqzWdayWzb7WFiFSL5bfjsjrLlakuOgGJTq0P-Wds-SbZnqJfM>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:jmGhX_npNNlc_122dnTbbGz4sym5rKuY3_OtTgjUcCULlbWLnjB6hA>
+    <xmx:jmGhXyzBLOrRB1innx5jlwgVGZmrma8mW0x7Nt08sZl6nnRjGiMN3A>
+    <xmx:jmGhXxSMb2NPALBeDVG9EOgiKB6_Yox1m6KojKYpxEdrseYoWYlBsA>
+    <xmx:j2GhXwJGclaxNHybWborgW3Z-lAt3LoyEaUHZ9tdg4kPK9dX5wXnm-qYRlg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D6963328005A;
-        Tue,  3 Nov 2020 08:56:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: reschedule when cloning lots of extents" failed to apply to 5.4-stable tree
-To:     johannes.thumshirn@wdc.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 932BD3064682;
+        Tue,  3 Nov 2020 08:56:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: cleanup cow block on error" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:57:06 +0100
-Message-ID: <1604411826212126@kroah.com>
+Date:   Tue, 03 Nov 2020 14:57:24 +0100
+Message-ID: <1604411844243166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,91 +70,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6b613cc97f0ace77f92f7bc112b8f6ad3f52baf8 Mon Sep 17 00:00:00 2001
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Date: Tue, 22 Sep 2020 17:27:29 +0900
-Subject: [PATCH] btrfs: reschedule when cloning lots of extents
+From 572c83acdcdafeb04e70aa46be1fa539310be20c Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Tue, 29 Sep 2020 08:53:54 -0400
+Subject: [PATCH] btrfs: cleanup cow block on error
 
-We have several occurrences of a soft lockup from fstest's generic/175
-testcase, which look more or less like this one:
+In fstest btrfs/064 a transaction abort in __btrfs_cow_block could lead
+to a system lockup. It gets stuck trying to write back inodes, and the
+write back thread was trying to lock an extent buffer:
 
-  watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [xfs_io:10030]
-  Kernel panic - not syncing: softlockup: hung tasks
-  CPU: 0 PID: 10030 Comm: xfs_io Tainted: G             L    5.9.0-rc5+ #768
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   <IRQ>
-   dump_stack+0x77/0xa0
-   panic+0xfa/0x2cb
-   watchdog_timer_fn.cold+0x85/0xa5
-   ? lockup_detector_update_enable+0x50/0x50
-   __hrtimer_run_queues+0x99/0x4c0
-   ? recalibrate_cpu_khz+0x10/0x10
-   hrtimer_run_queues+0x9f/0xb0
-   update_process_times+0x28/0x80
-   tick_handle_periodic+0x1b/0x60
-   __sysvec_apic_timer_interrupt+0x76/0x210
-   asm_call_on_stack+0x12/0x20
-   </IRQ>
-   sysvec_apic_timer_interrupt+0x7f/0x90
-   asm_sysvec_apic_timer_interrupt+0x12/0x20
-  RIP: 0010:btrfs_tree_unlock+0x91/0x1a0 [btrfs]
-  RSP: 0018:ffffc90007123a58 EFLAGS: 00000282
-  RAX: ffff8881cea2fbe0 RBX: ffff8881cea2fbe0 RCX: 0000000000000000
-  RDX: ffff8881d23fd200 RSI: ffffffff82045220 RDI: ffff8881cea2fba0
-  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000032
-  R10: 0000160000000000 R11: 0000000000001000 R12: 0000000000001000
-  R13: ffff8882357fd5b0 R14: ffff88816fa76e70 R15: ffff8881cea2fad0
-   ? btrfs_tree_unlock+0x15b/0x1a0 [btrfs]
-   btrfs_release_path+0x67/0x80 [btrfs]
-   btrfs_insert_replace_extent+0x177/0x2c0 [btrfs]
-   btrfs_replace_file_extents+0x472/0x7c0 [btrfs]
-   btrfs_clone+0x9ba/0xbd0 [btrfs]
-   btrfs_clone_files.isra.0+0xeb/0x140 [btrfs]
-   ? file_update_time+0xcd/0x120
-   btrfs_remap_file_range+0x322/0x3b0 [btrfs]
-   do_clone_file_range+0xb7/0x1e0
-   vfs_clone_file_range+0x30/0xa0
-   ioctl_file_clone+0x8a/0xc0
-   do_vfs_ioctl+0x5b2/0x6f0
-   __x64_sys_ioctl+0x37/0xa0
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f87977fc247
-  RSP: 002b:00007ffd51a2f6d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f87977fc247
-  RDX: 00007ffd51a2f710 RSI: 000000004020940d RDI: 0000000000000003
-  RBP: 0000000000000004 R08: 00007ffd51a79080 R09: 0000000000000000
-  R10: 00005621f11352f2 R11: 0000000000000206 R12: 0000000000000000
-  R13: 0000000000000000 R14: 00005621f128b958 R15: 0000000080000000
-  Kernel Offset: disabled
-  ---[ end Kernel panic - not syncing: softlockup: hung tasks ]---
+  $ cat /proc/2143497/stack
+  [<0>] __btrfs_tree_lock+0x108/0x250
+  [<0>] lock_extent_buffer_for_io+0x35e/0x3a0
+  [<0>] btree_write_cache_pages+0x15a/0x3b0
+  [<0>] do_writepages+0x28/0xb0
+  [<0>] __writeback_single_inode+0x54/0x5c0
+  [<0>] writeback_sb_inodes+0x1e8/0x510
+  [<0>] wb_writeback+0xcc/0x440
+  [<0>] wb_workfn+0xd7/0x650
+  [<0>] process_one_work+0x236/0x560
+  [<0>] worker_thread+0x55/0x3c0
+  [<0>] kthread+0x13a/0x150
+  [<0>] ret_from_fork+0x1f/0x30
 
-All of these lockup reports have the call chain btrfs_clone_files() ->
-btrfs_clone() in common. btrfs_clone_files() calls btrfs_clone() with
-both source and destination extents locked and loops over the source
-extent to create the clones.
+This is because we got an error while COWing a block, specifically here
 
-Conditionally reschedule in the btrfs_clone() loop, to give some time back
-to other processes.
+        if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+                ret = btrfs_reloc_cow_block(trans, root, buf, cow);
+                if (ret) {
+                        btrfs_abort_transaction(trans, ret);
+                        return ret;
+                }
+        }
+
+  [16402.241552] BTRFS: Transaction aborted (error -2)
+  [16402.242362] WARNING: CPU: 1 PID: 2563188 at fs/btrfs/ctree.c:1074 __btrfs_cow_block+0x376/0x540
+  [16402.249469] CPU: 1 PID: 2563188 Comm: fsstress Not tainted 5.9.0-rc6+ #8
+  [16402.249936] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  [16402.250525] RIP: 0010:__btrfs_cow_block+0x376/0x540
+  [16402.252417] RSP: 0018:ffff9cca40e578b0 EFLAGS: 00010282
+  [16402.252787] RAX: 0000000000000025 RBX: 0000000000000002 RCX: ffff9132bbd19388
+  [16402.253278] RDX: 00000000ffffffd8 RSI: 0000000000000027 RDI: ffff9132bbd19380
+  [16402.254063] RBP: ffff9132b41a49c0 R08: 0000000000000000 R09: 0000000000000000
+  [16402.254887] R10: 0000000000000000 R11: ffff91324758b080 R12: ffff91326ef17ce0
+  [16402.255694] R13: ffff91325fc0f000 R14: ffff91326ef176b0 R15: ffff9132815e2000
+  [16402.256321] FS:  00007f542c6d7b80(0000) GS:ffff9132bbd00000(0000) knlGS:0000000000000000
+  [16402.256973] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [16402.257374] CR2: 00007f127b83f250 CR3: 0000000133480002 CR4: 0000000000370ee0
+  [16402.257867] Call Trace:
+  [16402.258072]  btrfs_cow_block+0x109/0x230
+  [16402.258356]  btrfs_search_slot+0x530/0x9d0
+  [16402.258655]  btrfs_lookup_file_extent+0x37/0x40
+  [16402.259155]  __btrfs_drop_extents+0x13c/0xd60
+  [16402.259628]  ? btrfs_block_rsv_migrate+0x4f/0xb0
+  [16402.259949]  btrfs_replace_file_extents+0x190/0x820
+  [16402.260873]  btrfs_clone+0x9ae/0xc00
+  [16402.261139]  btrfs_extent_same_range+0x66/0x90
+  [16402.261771]  btrfs_remap_file_range+0x353/0x3b1
+  [16402.262333]  vfs_dedupe_file_range_one.part.0+0xd5/0x140
+  [16402.262821]  vfs_dedupe_file_range+0x189/0x220
+  [16402.263150]  do_vfs_ioctl+0x552/0x700
+  [16402.263662]  __x64_sys_ioctl+0x62/0xb0
+  [16402.264023]  do_syscall_64+0x33/0x40
+  [16402.264364]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [16402.264862] RIP: 0033:0x7f542c7d15cb
+  [16402.266901] RSP: 002b:00007ffd35944ea8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [16402.267627] RAX: ffffffffffffffda RBX: 00000000009d1968 RCX: 00007f542c7d15cb
+  [16402.268298] RDX: 00000000009d2490 RSI: 00000000c0189436 RDI: 0000000000000003
+  [16402.268958] RBP: 00000000009d2520 R08: 0000000000000036 R09: 00000000009d2e64
+  [16402.269726] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000002
+  [16402.270659] R13: 000000000001f000 R14: 00000000009d1970 R15: 00000000009d2e80
+  [16402.271498] irq event stamp: 0
+  [16402.271846] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+  [16402.272497] hardirqs last disabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
+  [16402.273343] softirqs last  enabled at (0): [<ffffffff910dbf59>] copy_process+0x6b9/0x1ba0
+  [16402.273905] softirqs last disabled at (0): [<0000000000000000>] 0x0
+  [16402.274338] ---[ end trace 737874a5a41a8236 ]---
+  [16402.274669] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.276179] BTRFS info (device dm-9): forced readonly
+  [16402.277046] BTRFS: error (device dm-9) in btrfs_replace_file_extents:2723: errno=-2 No such entry
+  [16402.278744] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.279968] BTRFS: error (device dm-9) in __btrfs_cow_block:1074: errno=-2 No such entry
+  [16402.280582] BTRFS info (device dm-9): balance: ended with status: -30
+
+The problem here is that as soon as we allocate the new block it is
+locked and marked dirty in the btree inode.  This means that we could
+attempt to writeback this block and need to lock the extent buffer.
+However we're not unlocking it here and thus we deadlock.
+
+Fix this by unlocking the cow block if we have any errors inside of
+__btrfs_cow_block, and also free it so we do not leak it.
 
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index 39b3269e5760..99aa87c08912 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -520,6 +520,8 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
- 			ret = -EINTR;
- 			goto out;
- 		}
-+
-+		cond_resched();
- 	}
- 	ret = 0;
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index a165093739c4..113da62dc17f 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1064,6 +1064,8 @@ static noinline int __btrfs_cow_block(struct btrfs_trans_handle *trans,
  
+ 	ret = update_ref_for_cow(trans, root, buf, cow, &last_ref);
+ 	if (ret) {
++		btrfs_tree_unlock(cow);
++		free_extent_buffer(cow);
+ 		btrfs_abort_transaction(trans, ret);
+ 		return ret;
+ 	}
+@@ -1071,6 +1073,8 @@ static noinline int __btrfs_cow_block(struct btrfs_trans_handle *trans,
+ 	if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+ 		ret = btrfs_reloc_cow_block(trans, root, buf, cow);
+ 		if (ret) {
++			btrfs_tree_unlock(cow);
++			free_extent_buffer(cow);
+ 			btrfs_abort_transaction(trans, ret);
+ 			return ret;
+ 		}
+@@ -1103,6 +1107,8 @@ static noinline int __btrfs_cow_block(struct btrfs_trans_handle *trans,
+ 		if (last_ref) {
+ 			ret = tree_mod_log_free_eb(buf);
+ 			if (ret) {
++				btrfs_tree_unlock(cow);
++				free_extent_buffer(cow);
+ 				btrfs_abort_transaction(trans, ret);
+ 				return ret;
+ 			}
 
