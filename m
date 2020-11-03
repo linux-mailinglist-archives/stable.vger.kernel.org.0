@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6218F2A5698
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:30:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45AF32A5568
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732615AbgKCU7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:59:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33800 "EHLO mail.kernel.org"
+        id S2388356AbgKCVJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:09:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733028AbgKCU7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:59:01 -0500
+        id S1733291AbgKCVJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6470D22226;
-        Tue,  3 Nov 2020 20:58:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4699B206B5;
+        Tue,  3 Nov 2020 21:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437139;
-        bh=N9oOqpj2dOBHUHc8ZX1sCGPiCvgVhyxCOv0E6mJpIQw=;
+        s=default; t=1604437794;
+        bh=PR+rXQevfbFRv1UC0Qz0pM7Gh7ravOUuE0AYZlaS/Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAGYPyWh4T0mXg1kAaU5N/I8hLkM/jtbu6oVAln+IcQ8UokqGe5/JGhlQQTVcs+vv
-         gWXN9KLs7wYIyIgbSB9l0tSEmTC5JtehpyAnK3oRsJKC2zlnB4RhdSWiO+AIAAzTHT
-         V0exfA2X1VQoqwb7Gpv51Au0n5hFgg/+wqdZoxhs=
+        b=gwzQftWdRIbbwVilLqhWsraJYb47gUCyHhzUrG78XHc/py9qoSkTvPC0BgauYFYgG
+         VkFdwLomw2D18HLf4Q8pMAnGXYDKnkYhwC5U5hM2oMj6C7L43WIIDc4TqCRJuD2xot
+         VRU+9yq5eIE7LzS2sK2DGxWDure74lxTe7ZpmPXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 164/214] NFSv4: Wait for stateid updates after CLOSE/OPEN_DOWNGRADE
-Date:   Tue,  3 Nov 2020 21:36:52 +0100
-Message-Id: <20201103203306.144479336@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 036/125] kgdb: Make "kgdbcon" work properly with "kgdb_earlycon"
+Date:   Tue,  3 Nov 2020 21:36:53 +0100
+Message-Id: <20201103203202.255424975@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,231 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit b4868b44c5628995fdd8ef2e24dda73cef963a75 upstream.
+[ Upstream commit b18b099e04f450cdc77bec72acefcde7042bd1f3 ]
 
-Since commit 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in
-CLOSE/OPEN_DOWNGRADE") the following livelock may occur if a CLOSE races
-with the update of the nfs_state:
+On my system the kernel processes the "kgdb_earlycon" parameter before
+the "kgdbcon" parameter.  When we setup "kgdb_earlycon" we'll end up
+in kgdb_register_callbacks() and "kgdb_use_con" won't have been set
+yet so we'll never get around to starting "kgdbcon".  Let's remedy
+this by detecting that the IO module was already registered when
+setting "kgdb_use_con" and registering the console then.
 
-Process 1           Process 2           Server
-=========           =========           ========
- OPEN file
-                    OPEN file
-                                        Reply OPEN (1)
-                                        Reply OPEN (2)
- Update state (1)
- CLOSE file (1)
-                                        Reply OLD_STATEID (1)
- CLOSE file (2)
-                                        Reply CLOSE (-1)
-                    Update state (2)
-                    wait for state change
- OPEN file
-                    wake
- CLOSE file
- OPEN file
-                    wake
- CLOSE file
- ...
-                    ...
+As part of this, to avoid pre-declaring things, move the handling of
+the "kgdbcon" further down in the file.
 
-We can avoid this situation by not issuing an immediate retry with a bumped
-seqid when CLOSE/OPEN_DOWNGRADE receives NFS4ERR_OLD_STATEID.  Instead,
-take the same approach used by OPEN and wait at least 5 seconds for
-outstanding stateid updates to complete if we can detect that we're out of
-sequence.
-
-Note that after this change it is still possible (though unlikely) that
-CLOSE waits a full 5 seconds, bumps the seqid, and retries -- and that
-attempt races with another OPEN at the same time.  In order to avoid this
-race (which would result in the livelock), update
-nfs_need_update_open_stateid() to handle the case where:
- - the state is NFS_OPEN_STATE, and
- - the stateid doesn't match the current open stateid
-
-Finally, nfs_need_update_open_stateid() is modified to be idempotent and
-renamed to better suit the purpose of signaling that the stateid passed
-is the next stateid in sequence.
-
-Fixes: 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in CLOSE/OPEN_DOWNGRADE")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200630151422.1.I4aa062751ff5e281f5116655c976dff545c09a46@changeid
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h   |    8 +++++
- fs/nfs/nfs4proc.c  |   81 ++++++++++++++++++++++++++++++-----------------------
- fs/nfs/nfs4trace.h |    1 
- 3 files changed, 56 insertions(+), 34 deletions(-)
+ kernel/debug/debug_core.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -570,6 +570,14 @@ static inline bool nfs4_stateid_is_newer
- 	return (s32)(be32_to_cpu(s1->seqid) - be32_to_cpu(s2->seqid)) > 0;
- }
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index 694fcd0492827..4cf5697e72b18 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -95,14 +95,6 @@ int dbg_switch_cpu;
+ /* Use kdb or gdbserver mode */
+ int dbg_kdb_mode = 1;
  
-+static inline bool nfs4_stateid_is_next(const nfs4_stateid *s1, const nfs4_stateid *s2)
-+{
-+	u32 seq1 = be32_to_cpu(s1->seqid);
-+	u32 seq2 = be32_to_cpu(s2->seqid);
-+
-+	return seq2 == seq1 + 1U || (seq2 == 1U && seq1 == 0xffffffffU);
-+}
-+
- static inline void nfs4_stateid_seqid_inc(nfs4_stateid *s1)
- {
- 	u32 seqid = be32_to_cpu(s1->seqid);
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1515,19 +1515,6 @@ static void nfs_state_log_update_open_st
- 		wake_up_all(&state->waitq);
- }
- 
--static void nfs_state_log_out_of_order_open_stateid(struct nfs4_state *state,
--		const nfs4_stateid *stateid)
+-static int __init opt_kgdb_con(char *str)
 -{
--	u32 state_seqid = be32_to_cpu(state->open_stateid.seqid);
--	u32 stateid_seqid = be32_to_cpu(stateid->seqid);
--
--	if (stateid_seqid == state_seqid + 1U ||
--	    (stateid_seqid == 1U && state_seqid == 0xffffffffU))
--		nfs_state_log_update_open_stateid(state);
--	else
--		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+-	kgdb_use_con = 1;
+-	return 0;
 -}
 -
- static void nfs_test_and_clear_all_open_stateid(struct nfs4_state *state)
- {
- 	struct nfs_client *clp = state->owner->so_server->nfs_client;
-@@ -1553,21 +1540,19 @@ static void nfs_test_and_clear_all_open_
-  * i.e. The stateid seqids have to be initialised to 1, and
-  * are then incremented on every state transition.
-  */
--static bool nfs_need_update_open_stateid(struct nfs4_state *state,
-+static bool nfs_stateid_is_sequential(struct nfs4_state *state,
- 		const nfs4_stateid *stateid)
- {
--	if (test_bit(NFS_OPEN_STATE, &state->flags) == 0 ||
--	    !nfs4_stateid_match_other(stateid, &state->open_stateid)) {
-+	if (test_bit(NFS_OPEN_STATE, &state->flags)) {
-+		/* The common case - we're updating to a new sequence number */
-+		if (nfs4_stateid_match_other(stateid, &state->open_stateid) &&
-+			nfs4_stateid_is_next(&state->open_stateid, stateid)) {
-+			return true;
-+		}
-+	} else {
-+		/* This is the first OPEN in this generation */
- 		if (stateid->seqid == cpu_to_be32(1))
--			nfs_state_log_update_open_stateid(state);
--		else
--			set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
--		return true;
--	}
+-early_param("kgdbcon", opt_kgdb_con);
 -
--	if (nfs4_stateid_is_newer(stateid, &state->open_stateid)) {
--		nfs_state_log_out_of_order_open_stateid(state, stateid);
--		return true;
-+			return true;
- 	}
- 	return false;
- }
-@@ -1641,16 +1626,16 @@ static void nfs_set_open_stateid_locked(
- 	int status = 0;
- 	for (;;) {
+ module_param(kgdb_use_con, int, 0644);
+ module_param(kgdbreboot, int, 0644);
  
--		if (!nfs_need_update_open_stateid(state, stateid))
--			return;
--		if (!test_bit(NFS_STATE_CHANGE_WAIT, &state->flags))
-+		if (nfs_stateid_is_sequential(state, stateid))
- 			break;
-+
- 		if (status)
- 			break;
- 		/* Rely on seqids for serialisation with NFSv4.0 */
- 		if (!nfs4_has_session(NFS_SERVER(state->inode)->nfs_client))
- 			break;
+@@ -816,6 +808,20 @@ static struct console kgdbcons = {
+ 	.index		= -1,
+ };
  
-+		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
- 		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
- 		/*
- 		 * Ensure we process the state changes in the same order
-@@ -1661,6 +1646,7 @@ static void nfs_set_open_stateid_locked(
- 		spin_unlock(&state->owner->so_lock);
- 		rcu_read_unlock();
- 		trace_nfs4_open_stateid_update_wait(state->inode, stateid, 0);
++static int __init opt_kgdb_con(char *str)
++{
++	kgdb_use_con = 1;
 +
- 		if (!signal_pending(current)) {
- 			if (schedule_timeout(5*HZ) == 0)
- 				status = -EAGAIN;
-@@ -3397,7 +3383,8 @@ static bool nfs4_refresh_open_old_statei
- 	__be32 seqid_open;
- 	u32 dst_seqid;
- 	bool ret;
--	int seq;
-+	int seq, status = -EAGAIN;
-+	DEFINE_WAIT(wait);
- 
- 	for (;;) {
- 		ret = false;
-@@ -3409,15 +3396,41 @@ static bool nfs4_refresh_open_old_statei
- 				continue;
- 			break;
- 		}
++	if (kgdb_io_module_registered && !kgdb_con_registered) {
++		register_console(&kgdbcons);
++		kgdb_con_registered = 1;
++	}
 +
-+		write_seqlock(&state->seqlock);
- 		seqid_open = state->open_stateid.seqid;
--		if (read_seqretry(&state->seqlock, seq))
--			continue;
- 
- 		dst_seqid = be32_to_cpu(dst->seqid);
--		if ((s32)(dst_seqid - be32_to_cpu(seqid_open)) >= 0)
--			dst->seqid = cpu_to_be32(dst_seqid + 1);
--		else
++	return 0;
++}
 +
-+		/* Did another OPEN bump the state's seqid?  try again: */
-+		if ((s32)(be32_to_cpu(seqid_open) - dst_seqid) > 0) {
- 			dst->seqid = seqid_open;
-+			write_sequnlock(&state->seqlock);
-+			ret = true;
-+			break;
-+		}
++early_param("kgdbcon", opt_kgdb_con);
 +
-+		/* server says we're behind but we haven't seen the update yet */
-+		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
-+		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
-+		write_sequnlock(&state->seqlock);
-+		trace_nfs4_close_stateid_update_wait(state->inode, dst, 0);
-+
-+		if (signal_pending(current))
-+			status = -EINTR;
-+		else
-+			if (schedule_timeout(5*HZ) != 0)
-+				status = 0;
-+
-+		finish_wait(&state->waitq, &wait);
-+
-+		if (!status)
-+			continue;
-+		if (status == -EINTR)
-+			break;
-+
-+		/* we slept the whole 5 seconds, we must have lost a seqid */
-+		dst->seqid = cpu_to_be32(dst_seqid + 1);
- 		ret = true;
- 		break;
- 	}
---- a/fs/nfs/nfs4trace.h
-+++ b/fs/nfs/nfs4trace.h
-@@ -1291,6 +1291,7 @@ DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_set
- DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_delegreturn);
- DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_open_stateid_update);
- DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_open_stateid_update_wait);
-+DEFINE_NFS4_INODE_STATEID_EVENT(nfs4_close_stateid_update_wait);
- 
- DECLARE_EVENT_CLASS(nfs4_getattr_event,
- 		TP_PROTO(
+ #ifdef CONFIG_MAGIC_SYSRQ
+ static void sysrq_handle_dbg(int key)
+ {
+-- 
+2.27.0
+
 
 
