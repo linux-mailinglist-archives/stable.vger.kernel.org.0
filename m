@@ -2,150 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F3782A43BF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 12:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A66F72A43C4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 12:11:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbgKCLIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 06:08:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725988AbgKCLIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 06:08:52 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A131FC0613D1
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 03:08:51 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id v5so12295588wmh.1
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 03:08:51 -0800 (PST)
+        id S1727895AbgKCLLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 06:11:13 -0500
+Received: from smtp2.axis.com ([195.60.68.18]:33746 "EHLO smtp2.axis.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725988AbgKCLLN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 06:11:13 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=XeBi6ALE7giUjkja8M9G6EY6GTINE8ijRP7xdqDtyEc=;
-        b=W6/6CBR9dGL9xtQMFIHuFY2u3TUbz/9anygbLkyU0JtbGaUErnNGiRl/xho40GiNdE
-         iz0DIL1Fa17239Iuq29Kt6WAycT8wNg7Q0aA8zblTXRBF9CoRsS9qI3S7/Gr4od1KC8F
-         nU57IAUNe1zJOgkhoQ7PO8031dlUWlP+I0/wg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=XeBi6ALE7giUjkja8M9G6EY6GTINE8ijRP7xdqDtyEc=;
-        b=SaZE6bY16Kg4CrXYaXMdXvycT0fMJHCKofzWbHMkniPKb96QWZauiA98TCZaM1SwJj
-         qVeqFGqvTKVoiNAtEMZ0eydxnmxrYD9/uWAYCRp/pNF+i/I9lOXwd8SmUfif2RmeAwAh
-         FtFNj405Udcv88sJ7JZqj5px5AFbmMvg14CrYhaRqY4/FlG9rs5KZntl9QQeWdET5Brm
-         /towiGOLbW9z6ZY5iiNeCXP56wROaPIJFTnGDO+RvzLwMRTlVqjxkzajKMtex/WkAfPD
-         HMGLBcefW/N9qVSa64DrE6zg+RMk9POpJ99akZHLojaFkpo0XOooDbymffhc6DJ3iZGh
-         qISg==
-X-Gm-Message-State: AOAM5309l3AI+Wl9MdBFYyzmbHvcMXszRcVKzG7XMWfhWMXK7YPRvHZP
-        KyjLOX1ihBVpj8gyvZ55qZes8g==
-X-Google-Smtp-Source: ABdhPJzqCrMIt19shYM7yXoul6WALo/kJKLEzcJYdefyUaCZ9Pm7J9+b3bH4HAOYyaBdgukK3QNhfg==
-X-Received: by 2002:a7b:c3d5:: with SMTP id t21mr2842222wmj.37.1604401730371;
-        Tue, 03 Nov 2020 03:08:50 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id o184sm2534443wmo.37.2020.11.03.03.08.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 03:08:49 -0800 (PST)
-Date:   Tue, 3 Nov 2020 12:08:47 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Boris Brezillon <boris.brezillon@collabora.com>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH v3] drm/panfrost: Move the GPU reset bits outside the
- timeout handler
-Message-ID: <20201103110847.GG401619@phenom.ffwll.local>
-References: <20201103081347.1000139-1-boris.brezillon@collabora.com>
- <20201103102540.GB401619@phenom.ffwll.local>
- <20201103120326.10037005@collabora.com>
+  d=axis.com; l=1649; q=dns/txt; s=axis-central1;
+  t=1604401873; x=1635937873;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=i5CSmu9+LpfEutwG2UOnvj25IvZpi4qmAuz9g3NC5Qc=;
+  b=QFgfz7uDqIPpnMqxFKPA6erjXBfr1uzssxifgvYtz8DNI2XKx6WoTdeW
+   MGVqyFBkAY/+D6iFstGAU2J0lIpfCgARwdz9Dghd3AZwbKwOWYVFEEeZ0
+   RTxFCkUwhKLHjEx/Fe3CspVKW9ijNL+JCWWZ2zvwLWVTyKEiD8G6KTJWj
+   QAZPFkD37IClSzrh5xZ0j0w7IMZ3x4m7m3D0iyRkOsE2U1Sdp+NGl3ngM
+   lgBPlqO5EiA9kyFcBXbDDSpaLY8NY4MRITwpkeooqI4JFLIlDASna8nHO
+   zHbyGr4p9n7CV+quHK5qnrhJa/11rBw7ALRDgi/EGrcTf5v6jtKB9cwhR
+   w==;
+IronPort-SDR: 1Zd6dDNif6MAndOHT4gj7Z10l+3bhqzM3EjvXKyX742M+LLPkrr5GQ14ax3hbHMxn+H1LA8MF3
+ SeetxIMiFXCYQbHhhCJa1CX3fRewO8MD4mjsuO36MTlRM1Z2h/1aQZ/bm4mlN1H0J6b2rx+7Az
+ mi4KnKHoAl9Zax199xMetASEabUFcBYLl7wqcFOcOJIDecm2QOr4qYNvHE1sqTqDTEiILQ8TGf
+ Ct2Sr8zTLaCglNSZ3vpnccNhQlIcXuaX5fH9onGy9LuF769bZFu5T+CDPaqRXsni8kJ2AIJyHE
+ epY=
+X-IronPort-AV: E=Sophos;i="5.77,447,1596492000"; 
+   d="scan'208";a="14167250"
+Date:   Tue, 3 Nov 2020 12:11:10 +0100
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.4 3/5] of: Fix reserved-memory overlap detection
+Message-ID: <20201103111110.lvapcdf4nndunsie@axis.com>
+References: <20201103012119.184049-1-sashal@kernel.org>
+ <20201103012119.184049-3-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20201103120326.10037005@collabora.com>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
+In-Reply-To: <20201103012119.184049-3-sashal@kernel.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 12:03:26PM +0100, Boris Brezillon wrote:
-> On Tue, 3 Nov 2020 11:25:40 +0100
-> Daniel Vetter <daniel@ffwll.ch> wrote:
+On Tue, Nov 03, 2020 at 02:21:16AM +0100, Sasha Levin wrote:
+> From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 > 
-> > On Tue, Nov 03, 2020 at 09:13:47AM +0100, Boris Brezillon wrote:
-> > > We've fixed many races in panfrost_job_timedout() but some remain.
-> > > Instead of trying to fix it again, let's simplify the logic and move
-> > > the reset bits to a separate work scheduled when one of the queue
-> > > reports a timeout.
-> > > 
-> > > v3:
-> > > - Replace the atomic_cmpxchg() by an atomic_xchg() (Robin Murphy)
-> > > - Add Steven's R-b
-> > > 
-> > > v2:
-> > > - Use atomic_cmpxchg() to conditionally schedule the reset work (Steven Price)
-> > > 
-> > > Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > > Reviewed-by: Steven Price <steven.price@arm.com>  
-> > 
-> > Sprinkling the dma_fence annotations over this would be really nice ...
+> [ Upstream commit ca05f33316559a04867295dd49f85aeedbfd6bfd ]
 > 
-> You mean something like that?
+> The reserved-memory overlap detection code fails to detect overlaps if
+> either of the regions starts at address 0x0.  The code explicitly checks
+> for and ignores such regions, apparently in order to ignore dynamically
+> allocated regions which have an address of 0x0 at this point.  These
+> dynamically allocated regions also have a size of 0x0 at this point, so
+> fix this by removing the check and sorting the dynamically allocated
+> regions ahead of any static regions at address 0x0.
+> 
+> For example, there are two overlaps in this case but they are not
+> currently reported:
+> 
+> 	foo@0 {
+> 	        reg = <0x0 0x2000>;
+> 	};
+> 
+> 	bar@0 {
+> 	        reg = <0x0 0x1000>;
+> 	};
+> 
+> 	baz@1000 {
+> 	        reg = <0x1000 0x1000>;
+> 	};
+> 
+> 	quux {
+> 	        size = <0x1000>;
+> 	};
+> 
+> but they are after this patch:
+> 
+>  OF: reserved mem: OVERLAP DETECTED!
+>  bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x00002000)
+>  OF: reserved mem: OVERLAP DETECTED!
+>  foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x00002000)
+> 
+> Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+> Link: https://lore.kernel.org/r/ded6fd6b47b58741aabdcc6967f73eca6a3f311e.1603273666.git-series.vincent.whitchurch@axis.com
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-That's just the irq annotations, i.e. the one that's already guaranteed by
-the irq vs. locks checks. So this does nothing.
-
-What I mean is annotating your new reset work (it's part of the critical
-path to complete batches, since it's holding up other batches that are
-stuck in the scheduler still), and the drm/scheduler annotations I've
-floated a while ago. The drm/scheduler annotations are stuck somewhat for
-lack of feedback from any of the driver teams using it though :-/
-
-The thing is pulling something out into a worker of it's own generally
-doesn't fix any deadlocks, it just hides them from lockdep. So it would be
-good to make sure lockdep can see through your maze again.
--Daniel
-
-> 
-> --->8---
-> From 4f90ee2972eaec0332833ff6f9ea078acbfa899a Mon Sep 17 00:00:00 2001
-> From: Boris Brezillon <boris.brezillon@collabora.com>
-> Date: Tue, 3 Nov 2020 12:01:09 +0100
-> Subject: [PATCH] drm/panfrost: Annotate dma_fence signalling
-> 
-> Annotate dma_fence signalling to help lockdep catch deadlocks.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> ---
->  drivers/gpu/drm/panfrost/panfrost_job.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-> index 569a099dc10e..046cb3677332 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-> @@ -482,7 +482,9 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
->  
->  		if (status & JOB_INT_MASK_DONE(j)) {
->  			struct panfrost_job *job;
-> +			bool cookie;
->  
-> +			cookie = dma_fence_begin_signalling();
->  			spin_lock(&pfdev->js->job_lock);
->  			job = pfdev->jobs[j];
->  			/* Only NULL if job timeout occurred */
-> @@ -496,6 +498,7 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
->  				pm_runtime_put_autosuspend(pfdev->dev);
->  			}
->  			spin_unlock(&pfdev->js->job_lock);
-> +			dma_fence_end_signalling(cookie);
->  		}
->  
->  		status &= ~mask;
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+I'm not sure if this really needs to be backported.  It's only fixing
+what is essentially a minor debugging feature.
