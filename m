@@ -2,112 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48E32A3FC3
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 10:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C9F2A3FD1
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 10:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbgKCJOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 04:14:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
+        id S1727323AbgKCJSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 04:18:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726734AbgKCJOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 04:14:47 -0500
+        id S1725988AbgKCJSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 04:18:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CB8020756;
-        Tue,  3 Nov 2020 09:14:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C869322400;
+        Tue,  3 Nov 2020 09:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604394885;
-        bh=ZHBZOejCjX5l8sZRwuQR75aiAkvpCacnS9a7dm3ZHWw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qln8MdI6DivkRV8z0NNzzjlNCxVzjVdA/Fv1NgjVip/n/1gFGnqFFvPb71GuAnUIO
-         /2eNbcs3wGdBPupCY+nPbaFzvLuxEUzYibz1rSSFzK875xRQ0sASb7T2390zB6JrJ9
-         /8V+j5a9jQGnLDsnL73G32hmgIebDkvEIp3AO60Y=
-Date:   Tue, 3 Nov 2020 10:15:38 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     Lee Jones <lee.jones@linaro.org>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/1] Fonts: Replace discarded const qualifier
-Message-ID: <20201103091538.GA2663113@kroah.com>
-References: <20201030181822.570402-1-lee.jones@linaro.org>
- <20201102183242.2031659-1-yepeilin.cs@gmail.com>
- <20201103085324.GL4488@dell>
- <CAKMK7uGV10+TEWWMJod1-MRD1jkLqvOGUu4Qk9S84WJAUaB7Mg@mail.gmail.com>
+        s=default; t=1604395123;
+        bh=+rPFEmZoGPxPcc1nfYHfozynz4QZa82cRXE+Ro1yls4=;
+        h=Subject:To:From:Date:From;
+        b=2GaE8pohiaErFZpkKblP3B0pZYfQOTDscHJKQRCO8NQZnVyZch4MntJF+M6hJKJJu
+         ypOFxu49X0Nsb8hvx3D3V9l6Ai6KHrN905KRT4E2RyPjDM5YCF3/N9xi/ls6MpCdAJ
+         V46atmv+qnU4cVfnmtIag0QROhbKV0DeHkudazSk=
+Subject: patch "USB: Add NO_LPM quirk for Kingston flash drive" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        julroy67@gmail.com, jwrdegoede@fedoraproject.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Nov 2020 10:19:34 +0100
+Message-ID: <160439517412187@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uGV10+TEWWMJod1-MRD1jkLqvOGUu4Qk9S84WJAUaB7Mg@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 09:58:18AM +0100, Daniel Vetter wrote:
-> On Tue, Nov 3, 2020 at 9:53 AM Lee Jones <lee.jones@linaro.org> wrote:
-> >
-> > On Mon, 02 Nov 2020, Peilin Ye wrote:
-> >
-> > > From: Lee Jones <lee.jones@linaro.org>
-> > >
-> > > Commit 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in
-> > > fonts") introduced the following error when building rpc_defconfig (only
-> > > this build appears to be affected):
-> > >
-> > >  `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
-> > >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
-> > >  `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
-> > >     defined in discarded section `.data' of arch/arm/boot/compressed/font.o
-> > >  make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
-> > >  make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
-> > >  make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
-> > >
-> > > The .data section is discarded at link time.  Reinstating acorndata_8x8 as
-> > > const ensures it is still available after linking.  Do the same for the
-> > > other 12 built-in fonts as well, for consistency purposes.
-> > >
-> > > Cc: <stable@vger.kernel.org>
-> > > Cc: Russell King <linux@armlinux.org.uk>
-> > > Fixes: 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts")
-> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > Co-developed-by: Peilin Ye <yepeilin.cs@gmail.com>
-> > > Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-> > > ---
-> > > Changes in v2:
-> > >   - Fix commit ID to 6735b4632def in commit message (Russell King
-> > >     <linux@armlinux.org.uk>)
-> > >   - Add `const` back for all 13 built-in fonts (Daniel Vetter
-> > >     <daniel.vetter@ffwll.ch>)
-> > >   - Add a Fixes: tag
-> > >
-> > >  lib/fonts/font_10x18.c     | 2 +-
-> > >  lib/fonts/font_6x10.c      | 2 +-
-> > >  lib/fonts/font_6x11.c      | 2 +-
-> > >  lib/fonts/font_6x8.c       | 2 +-
-> > >  lib/fonts/font_7x14.c      | 2 +-
-> > >  lib/fonts/font_8x16.c      | 2 +-
-> > >  lib/fonts/font_8x8.c       | 2 +-
-> > >  lib/fonts/font_acorn_8x8.c | 2 +-
-> > >  lib/fonts/font_mini_4x6.c  | 2 +-
-> > >  lib/fonts/font_pearl_8x8.c | 2 +-
-> > >  lib/fonts/font_sun12x22.c  | 2 +-
-> > >  lib/fonts/font_sun8x16.c   | 2 +-
-> > >  lib/fonts/font_ter16x32.c  | 2 +-
-> > >  13 files changed, 13 insertions(+), 13 deletions(-)
-> >
-> > LGTM.
-> >
-> > Thanks for keeping my authorship.  Much appreciated.
-> 
-> Should I stuff this into drm-misc-fixes? Or will someone else pick
-> this up? Greg?
-> 
-> I guess drm-misc-fixes might be easiest since there's a bunch of other
-> fbcon/font stuff in the queue in drm-misc from Peilin.
 
-You can take it:
+This is a note to let you know that I've just added the patch titled
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    USB: Add NO_LPM quirk for Kingston flash drive
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From afaa2e745a246c5ab95103a65b1ed00101e1bc63 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Mon, 2 Nov 2020 09:58:21 -0500
+Subject: USB: Add NO_LPM quirk for Kingston flash drive
+
+In Bugzilla #208257, Julien Humbert reports that a 32-GB Kingston
+flash drive spontaneously disconnects and reconnects, over and over.
+Testing revealed that disabling Link Power Management for the drive
+fixed the problem.
+
+This patch adds a quirk entry for that drive to turn off LPM permanently.
+
+CC: Hans de Goede <jwrdegoede@fedoraproject.org>
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: Julien Humbert <julroy67@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201102145821.GA1478741@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 10574fa3f927..a1e3a037a289 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -378,6 +378,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
+ 
++	/* Kingston DataTraveler 3.0 */
++	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
+ 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
+ 
+-- 
+2.29.2
+
+
