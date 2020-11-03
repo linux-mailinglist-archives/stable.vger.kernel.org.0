@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9952A5439
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 961232A5610
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388395AbgKCVJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:09:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48878 "EHLO mail.kernel.org"
+        id S2387436AbgKCVZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:25:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388391AbgKCVJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:09:05 -0500
+        id S2388043AbgKCVEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:04:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5D4E20757;
-        Tue,  3 Nov 2020 21:09:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E7020658;
+        Tue,  3 Nov 2020 21:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437744;
-        bh=6yIRGL8KGRMGjI8mpyPjH60jBJRtf347wL0qCzeRySo=;
+        s=default; t=1604437493;
+        bh=2Ihjsjav/15kT4Ma5uN9/0jt2ugrjMecW97nyfe87/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ou1fV5WkiO0LhGNxnGiJxc2xyxYq13WY10/lthdUfz/Nc6bX7+3tHnnn+C7xp84tP
-         mMJNb2WYhziecgLRpKEjse7YhDsqQ2W9MqllpX9PTJSv7IfQNlxcZoAi+BuT+TB5nF
-         pT2TBD7izoYJofEd+KPJZ/Nkh/CR4MWFrD4KX0Ng=
+        b=g9E43RieS2FOHduznjkf/tnDreo1NSwJByMT7payHB13Y/eW0hUiEsCp53niUEi9T
+         ALZkj+4t7xbKjpulebri43ge3w23PUaw5pAGWMwppO7SrdRHWwlWK1qzMiGRCbiNQ4
+         pdy+wQoKk+HXJYeJsFh46dojo7h5kygaDDntYqL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
+        Andrew Price <anprice@redhat.com>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 015/125] mlxsw: core: Fix use-after-free in mlxsw_emad_trans_finish()
-Date:   Tue,  3 Nov 2020 21:36:32 +0100
-Message-Id: <20201103203158.965417384@linuxfoundation.org>
+Subject: [PATCH 4.19 101/191] gfs2: add validation checks for size of superblock
+Date:   Tue,  3 Nov 2020 21:36:33 +0100
+Message-Id: <20201103203243.158645064@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,164 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Cohen <amcohen@nvidia.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 0daf2bf5a2dcf33d446b76360908f109816e2e21 ]
+[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
 
-Each EMAD transaction stores the skb used to issue the EMAD request
-('trans->tx_skb') so that the request could be retried in case of a
-timeout. The skb can be freed when a corresponding response is received
-or as part of the retry logic (e.g., failed retransmit, exceeded maximum
-number of retries).
+In gfs2_check_sb(), no validation checks are performed with regards to
+the size of the superblock.
+syzkaller detected a slab-out-of-bounds bug that was primarily caused
+because the block size for a superblock was set to zero.
+A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
+Performing validation checks and ensuring that the size of the superblock
+is valid fixes this bug.
 
-The two tasks (i.e., response processing and retransmits) are
-synchronized by the atomic 'trans->active' field which ensures that
-responses to inactive transactions are ignored.
-
-In case of a failed retransmit the transaction is finished and all of
-its resources are freed. However, the current code does not mark it as
-inactive. Syzkaller was able to hit a race condition in which a
-concurrent response is processed while the transaction's resources are
-being freed, resulting in a use-after-free [1].
-
-Fix the issue by making sure to mark the transaction as inactive after a
-failed retransmit and free its resources only if a concurrent task did
-not already do that.
-
-[1]
-BUG: KASAN: use-after-free in consume_skb+0x30/0x370
-net/core/skbuff.c:833
-Read of size 4 at addr ffff88804f570494 by task syz-executor.0/1004
-
-CPU: 0 PID: 1004 Comm: syz-executor.0 Not tainted 5.8.0-rc7+ #68
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xf6/0x16e lib/dump_stack.c:118
- print_address_description.constprop.0+0x1c/0x250
-mm/kasan/report.c:383
- __kasan_report mm/kasan/report.c:513 [inline]
- kasan_report.cold+0x1f/0x37 mm/kasan/report.c:530
- check_memory_region_inline mm/kasan/generic.c:186 [inline]
- check_memory_region+0x14e/0x1b0 mm/kasan/generic.c:192
- instrument_atomic_read include/linux/instrumented.h:56 [inline]
- atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
- refcount_read include/linux/refcount.h:147 [inline]
- skb_unref include/linux/skbuff.h:1044 [inline]
- consume_skb+0x30/0x370 net/core/skbuff.c:833
- mlxsw_emad_trans_finish+0x64/0x1c0 drivers/net/ethernet/mellanox/mlxsw/core.c:592
- mlxsw_emad_process_response drivers/net/ethernet/mellanox/mlxsw/core.c:651 [inline]
- mlxsw_emad_rx_listener_func+0x5c9/0xac0 drivers/net/ethernet/mellanox/mlxsw/core.c:672
- mlxsw_core_skb_receive+0x4df/0x770 drivers/net/ethernet/mellanox/mlxsw/core.c:2063
- mlxsw_pci_cqe_rdq_handle drivers/net/ethernet/mellanox/mlxsw/pci.c:595 [inline]
- mlxsw_pci_cq_tasklet+0x12a6/0x2520 drivers/net/ethernet/mellanox/mlxsw/pci.c:651
- tasklet_action_common.isra.0+0x13f/0x3e0 kernel/softirq.c:550
- __do_softirq+0x223/0x964 kernel/softirq.c:292
- asm_call_on_stack+0x12/0x20 arch/x86/entry/entry_64.S:711
-
-Allocated by task 1006:
- save_stack+0x1b/0x40 mm/kasan/common.c:48
- set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc mm/kasan/common.c:494 [inline]
- __kasan_kmalloc.constprop.0+0xc2/0xd0 mm/kasan/common.c:467
- slab_post_alloc_hook mm/slab.h:586 [inline]
- slab_alloc_node mm/slub.c:2824 [inline]
- slab_alloc mm/slub.c:2832 [inline]
- kmem_cache_alloc+0xcd/0x2e0 mm/slub.c:2837
- __build_skb+0x21/0x60 net/core/skbuff.c:311
- __netdev_alloc_skb+0x1e2/0x360 net/core/skbuff.c:464
- netdev_alloc_skb include/linux/skbuff.h:2810 [inline]
- mlxsw_emad_alloc drivers/net/ethernet/mellanox/mlxsw/core.c:756 [inline]
- mlxsw_emad_reg_access drivers/net/ethernet/mellanox/mlxsw/core.c:787 [inline]
- mlxsw_core_reg_access_emad+0x1ab/0x1420 drivers/net/ethernet/mellanox/mlxsw/core.c:1817
- mlxsw_reg_trans_query+0x39/0x50 drivers/net/ethernet/mellanox/mlxsw/core.c:1831
- mlxsw_sp_sb_pm_occ_clear drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c:260 [inline]
- mlxsw_sp_sb_occ_max_clear+0xbff/0x10a0 drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c:1365
- mlxsw_devlink_sb_occ_max_clear+0x76/0xb0 drivers/net/ethernet/mellanox/mlxsw/core.c:1037
- devlink_nl_cmd_sb_occ_max_clear_doit+0x1ec/0x280 net/core/devlink.c:1765
- genl_family_rcv_msg_doit net/netlink/genetlink.c:669 [inline]
- genl_family_rcv_msg net/netlink/genetlink.c:714 [inline]
- genl_rcv_msg+0x617/0x980 net/netlink/genetlink.c:731
- netlink_rcv_skb+0x152/0x440 net/netlink/af_netlink.c:2470
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:742
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x53a/0x750 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x850/0xd90 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg+0x150/0x190 net/socket.c:671
- ____sys_sendmsg+0x6d8/0x840 net/socket.c:2359
- ___sys_sendmsg+0xff/0x170 net/socket.c:2413
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2446
- do_syscall_64+0x56/0xa0 arch/x86/entry/common.c:384
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Freed by task 73:
- save_stack+0x1b/0x40 mm/kasan/common.c:48
- set_track mm/kasan/common.c:56 [inline]
- kasan_set_free_info mm/kasan/common.c:316 [inline]
- __kasan_slab_free+0x12c/0x170 mm/kasan/common.c:455
- slab_free_hook mm/slub.c:1474 [inline]
- slab_free_freelist_hook mm/slub.c:1507 [inline]
- slab_free mm/slub.c:3072 [inline]
- kmem_cache_free+0xbe/0x380 mm/slub.c:3088
- kfree_skbmem net/core/skbuff.c:622 [inline]
- kfree_skbmem+0xef/0x1b0 net/core/skbuff.c:616
- __kfree_skb net/core/skbuff.c:679 [inline]
- consume_skb net/core/skbuff.c:837 [inline]
- consume_skb+0xe1/0x370 net/core/skbuff.c:831
- mlxsw_emad_trans_finish+0x64/0x1c0 drivers/net/ethernet/mellanox/mlxsw/core.c:592
- mlxsw_emad_transmit_retry.isra.0+0x9d/0xc0 drivers/net/ethernet/mellanox/mlxsw/core.c:613
- mlxsw_emad_trans_timeout_work+0x43/0x50 drivers/net/ethernet/mellanox/mlxsw/core.c:625
- process_one_work+0xa3e/0x17a0 kernel/workqueue.c:2269
- worker_thread+0x9e/0x1050 kernel/workqueue.c:2415
- kthread+0x355/0x470 kernel/kthread.c:291
- ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:293
-
-The buggy address belongs to the object at ffff88804f5703c0
- which belongs to the cache skbuff_head_cache of size 224
-The buggy address is located 212 bytes inside of
- 224-byte region [ffff88804f5703c0, ffff88804f5704a0)
-The buggy address belongs to the page:
-page:ffffea00013d5c00 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0
-flags: 0x100000000000200(slab)
-raw: 0100000000000200 dead000000000100 dead000000000122 ffff88806c625400
-raw: 0000000000000000 00000000000c000c 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88804f570380: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
- ffff88804f570400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff88804f570480: fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc fc
-                         ^
- ffff88804f570500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff88804f570580: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
-
-Fixes: caf7297e7ab5f ("mlxsw: core: Introduce support for asynchronous EMAD register access")
-Signed-off-by: Amit Cohen <amcohen@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Suggested-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+[Minor code reordering.]
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/gfs2/ops_fstype.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core.c b/drivers/net/ethernet/mellanox/mlxsw/core.c
-index dc12ab33afffb..bda615614af5d 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -520,6 +520,9 @@ static void mlxsw_emad_transmit_retry(struct mlxsw_core *mlxsw_core,
- 		err = mlxsw_emad_transmit(trans->core, trans);
- 		if (err == 0)
- 			return;
-+
-+		if (!atomic_dec_and_test(&trans->active))
-+			return;
- 	} else {
- 		err = -EIO;
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index 9448c8461e576..17001f4e9f845 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -161,15 +161,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
+ 		return -EINVAL;
  	}
+ 
+-	/*  If format numbers match exactly, we're done.  */
+-
+-	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
+-	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
+-		return 0;
++	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
++	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
++		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++		return -EINVAL;
++	}
+ 
+-	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
++	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
++		pr_warn("Invalid superblock size\n");
++		return -EINVAL;
++	}
+ 
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ static void end_bio_io_page(struct bio *bio)
 -- 
 2.27.0
 
