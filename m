@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1F42A5616
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01EEF2A5613
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:25:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387848AbgKCVZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:25:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S2387711AbgKCVDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:03:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387845AbgKCVDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:03:08 -0500
+        id S2387871AbgKCVDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:03:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0E53205ED;
-        Tue,  3 Nov 2020 21:03:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FFC920658;
+        Tue,  3 Nov 2020 21:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437386;
-        bh=sZ8t93zNQELcDGepqwTgvV6yIMe7/KGi5o0tLEh6v4s=;
+        s=default; t=1604437388;
+        bh=OKEYqE4th6vUDiX5Ad/3qkvWw0XewGsrxHkQwjfXZwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J65FMPkRRgVMyeHFNavEpVtW2Cb/Dp/O7XKtBp5evDK4pqcO3sqBiXqk9GZwHeLD0
-         AiR5FgbwUOARJT3Mul5bVWUxLC943fUmxmzSaSGOa8IER/XzSx72IlPV8L30RwPVxv
-         TC8WTQR7H4HMLLICEqpizN6D2rrTLeEGeWgK6u5A=
+        b=AnpFzgePkq/06Cjc7AJMoHL20YweT+RkfR50H3QsOXWZ0+dzxexSsh63Op+SCVSQ1
+         npTztVnX9xE+fm2ZLxPOkBsaSIK87VGpt+7UoIh0VtvHONz25JtBQz9PraYvn/zJ8f
+         Wx88ZLVTyPHleZCiuMyVll/0VuFd0PDSRPS8lS8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        Joel Stanley <joel@jms.id.au>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 055/191] powerpc/powernv/smp: Fix spurious DBG() warning
-Date:   Tue,  3 Nov 2020 21:35:47 +0100
-Message-Id: <20201103203239.823937506@linuxfoundation.org>
+Subject: [PATCH 4.19 056/191] powerpc: select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+Date:   Tue,  3 Nov 2020 21:35:48 +0100
+Message-Id: <20201103203239.940977599@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -44,50 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit f6bac19cf65c5be21d14a0c9684c8f560f2096dd ]
+[ Upstream commit 66acd46080bd9e5ad2be4b0eb1d498d5145d058e ]
 
-When building with W=1 we get the following warning:
+powerpc uses IPIs in some situations to switch a kernel thread away
+from a lazy tlb mm, which is subject to the TLB flushing race
+described in the changelog introducing ARCH_WANT_IRQS_OFF_ACTIVATE_MM.
 
- arch/powerpc/platforms/powernv/smp.c: In function ‘pnv_smp_cpu_kill_self’:
- arch/powerpc/platforms/powernv/smp.c:276:16: error: suggest braces around
- 	empty body in an ‘if’ statement [-Werror=empty-body]
-   276 |      cpu, srr1);
-       |                ^
- cc1: all warnings being treated as errors
-
-The full context is this block:
-
- if (srr1 && !generic_check_cpu_restart(cpu))
- 	DBG("CPU%d Unexpected exit while offline srr1=%lx!\n",
- 			cpu, srr1);
-
-When building with DEBUG undefined DBG() expands to nothing and GCC emits
-the warning due to the lack of braces around an empty statement.
-
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200804005410.146094-2-oohall@gmail.com
+Link: https://lore.kernel.org/r/20200914045219.3736466-3-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/Kconfig                   | 1 +
+ arch/powerpc/include/asm/mmu_context.h | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/smp.c b/arch/powerpc/platforms/powernv/smp.c
-index 8d49ba370c504..889c3dbec6fb9 100644
---- a/arch/powerpc/platforms/powernv/smp.c
-+++ b/arch/powerpc/platforms/powernv/smp.c
-@@ -47,7 +47,7 @@
- #include <asm/udbg.h>
- #define DBG(fmt...) udbg_printf(fmt)
- #else
--#define DBG(fmt...)
-+#define DBG(fmt...) do { } while (0)
- #endif
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index f38d153d25861..0bc53f0e37c0f 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -152,6 +152,7 @@ config PPC
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+ 	select ARCH_WANT_IPC_PARSE_VERSION
++	select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+ 	select ARCH_WEAK_RELEASE_ACQUIRE
+ 	select BINFMT_ELF
+ 	select BUILDTIME_EXTABLE_SORT
+diff --git a/arch/powerpc/include/asm/mmu_context.h b/arch/powerpc/include/asm/mmu_context.h
+index ae953958c0f33..d93bdcaa4a469 100644
+--- a/arch/powerpc/include/asm/mmu_context.h
++++ b/arch/powerpc/include/asm/mmu_context.h
+@@ -204,7 +204,7 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+  */
+ static inline void activate_mm(struct mm_struct *prev, struct mm_struct *next)
+ {
+-	switch_mm(prev, next, current);
++	switch_mm_irqs_off(prev, next, current);
+ }
  
- static void pnv_smp_setup_cpu(int cpu)
+ /* We don't currently use enter_lazy_tlb() for anything */
 -- 
 2.27.0
 
