@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2428B2A53CD
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DB32A5555
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388023AbgKCVEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:04:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42860 "EHLO mail.kernel.org"
+        id S2388652AbgKCVI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:08:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388013AbgKCVEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:04:42 -0500
+        id S2388648AbgKCVIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:08:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D7A2206B5;
-        Tue,  3 Nov 2020 21:04:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43823206B5;
+        Tue,  3 Nov 2020 21:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437481;
-        bh=X5a1uvzYGmq5gW5+Myp/lnzk7747LtgnpE0vjziG6ZM=;
+        s=default; t=1604437734;
+        bh=ImkCi6wVJfwB6SBF9cHHXCHQVVWly6Y7DHUD+gkteAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xM1U/xrWQw8weL9t7DaouSlh0JSoZ5teZ7l/cJBArioWD2+vQl5xNrGwawGNB9wYm
-         zsT31SORz/39kt32TjeJpnAQrgyn5Yic08bkcmpC60AnuKl5YNsW4nBAa8a1wJ9KER
-         kr6AlXlIYIisMBsQlXh4s1OxoR+P9014z8IwrCXQ=
+        b=p+RuctpMeO3MOeG/qbKmGp5GJrT1BUUfqyOA3ttoH/tjpHW+QjMi5aD42F2sOeln7
+         RpTSccvZCiAYHPLzCF9zXBUx8rZ2K2ro7N6uzIE52Q2d2FUr6rmP8+fBypiMcmj4BE
+         uuYvHsLHieTid4GQPUjyEiDUiEvjHrWUrac2pQk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Lew <clew@codeaurora.org>,
-        Arun Kumar Neelakantam <aneela@codeaurora.org>,
-        Deepak Kumar Singh <deesin@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 096/191] rpmsg: glink: Use complete_all for open states
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 011/125] mtd: lpddr: Fix bad logic in print_drs_error
 Date:   Tue,  3 Nov 2020 21:36:28 +0100
-Message-Id: <20201103203242.817041055@linuxfoundation.org>
+Message-Id: <20201103203158.371468906@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lew <clew@codeaurora.org>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 4fcdaf6e28d11e2f3820d54dd23cd12a47ddd44e ]
+commit 1c9c02bb22684f6949d2e7ddc0a3ff364fd5a6fc upstream.
 
-The open_req and open_ack completion variables are the state variables
-to represet a remote channel as open. Use complete_all so there are no
-races with waiters and using completion_done.
+Update logic for broken test. Use a more common logging style.
 
-Signed-off-by: Chris Lew <clew@codeaurora.org>
-Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
-Signed-off-by: Deepak Kumar Singh <deesin@codeaurora.org>
-Link: https://lore.kernel.org/r/1593017121-7953-2-git-send-email-deesin@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It appears the logic in this function is broken for the
+consecutive tests of
+
+        if (prog_status & 0x3)
+                ...
+        else if (prog_status & 0x2)
+                ...
+        else (prog_status & 0x1)
+                ...
+
+Likely the first test should be
+
+        if ((prog_status & 0x3) == 0x3)
+
+Found by inspection of include files using printk.
+
+Fixes: eb3db27507f7 ("[MTD] LPDDR PFOW definition")
+Cc: stable@vger.kernel.org
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/3fb0e29f5b601db8be2938a01d974b00c8788501.1588016644.git.gustavo@embeddedor.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/rpmsg/qcom_glink_native.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/mtd/pfow.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index facc577ab0acc..a755f85686e53 100644
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -970,7 +970,7 @@ static int qcom_glink_rx_open_ack(struct qcom_glink *glink, unsigned int lcid)
- 		return -EINVAL;
- 	}
+--- a/include/linux/mtd/pfow.h
++++ b/include/linux/mtd/pfow.h
+@@ -128,7 +128,7 @@ static inline void print_drs_error(unsig
  
--	complete(&channel->open_ack);
-+	complete_all(&channel->open_ack);
- 
- 	return 0;
- }
-@@ -1178,7 +1178,7 @@ static int qcom_glink_announce_create(struct rpmsg_device *rpdev)
- 	__be32 *val = defaults;
- 	int size;
- 
--	if (glink->intentless)
-+	if (glink->intentless || !completion_done(&channel->open_ack))
- 		return 0;
- 
- 	prop = of_find_property(np, "qcom,intents", NULL);
-@@ -1413,7 +1413,7 @@ static int qcom_glink_rx_open(struct qcom_glink *glink, unsigned int rcid,
- 	channel->rcid = ret;
- 	spin_unlock_irqrestore(&glink->idr_lock, flags);
- 
--	complete(&channel->open_req);
-+	complete_all(&channel->open_req);
- 
- 	if (create_device) {
- 		rpdev = kzalloc(sizeof(*rpdev), GFP_KERNEL);
--- 
-2.27.0
-
+ 	if (!(dsr & DSR_AVAILABLE))
+ 		printk(KERN_NOTICE"DSR.15: (0) Device not Available\n");
+-	if (prog_status & 0x03)
++	if ((prog_status & 0x03) == 0x03)
+ 		printk(KERN_NOTICE"DSR.9,8: (11) Attempt to program invalid "
+ 						"half with 41h command\n");
+ 	else if (prog_status & 0x02)
 
 
