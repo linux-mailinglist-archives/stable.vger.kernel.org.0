@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4852A2A38C1
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC40A2A3906
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728261AbgKCBUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36030 "EHLO mail.kernel.org"
+        id S1727157AbgKCBWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:22:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728251AbgKCBUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:52 -0500
+        id S1728264AbgKCBUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E396A2242E;
-        Tue,  3 Nov 2020 01:20:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1CA9223EA;
+        Tue,  3 Nov 2020 01:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366452;
-        bh=Ljkxul3PjWR1Ye/+v0w7PoNPVh2U3HP/n/ZIQZbjAVc=;
+        s=default; t=1604366453;
+        bh=OCysreUBOh/I7tKWLx+Ybyv5pIlteOzq4petGN+IfsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aKAVkwQr3fai7KvMzs4kuXI8stfzxlW7VyF6WQ1AZxaP0agQDN7/2ns/+OaDLBns
-         YlcuIkTP/zVflnP/c9+BjPsaEGYZV5iJTghXqI1JewCWJyOw3WrYUgXFgCFxBWEHwG
-         x+vMxtBuyq2eoanP39Gp18ciNc2GjzgtOOL0+VoU=
+        b=rsXxWdBNMm47Eoze5SjH037QLHoiQNXKr3XsB2A49riZaIzoz94r3jIavwTipClG6
+         wz4OZxoF/qgfCYVcWajJMun49R3OffNOpMrWuzpSsETm5QbABAUZSNzptnpKD/nyB1
+         yHwG6oJxSvZ9fFRdgUmeVZBo3ZlI9EBaPC7a/TEY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hoegeun Kwon <hoegeun.kwon@samsung.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 10/11] drm/vc4: drv: Add error handding for bind
-Date:   Mon,  2 Nov 2020 20:20:38 -0500
-Message-Id: <20201103012039.183672-10-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/11] ACPI: NFIT: Fix comparison to '-ENXIO'
+Date:   Mon,  2 Nov 2020 20:20:39 -0500
+Message-Id: <20201103012039.183672-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012039.183672-1-sashal@kernel.org>
 References: <20201103012039.183672-1-sashal@kernel.org>
@@ -43,33 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoegeun Kwon <hoegeun.kwon@samsung.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 9ce0af3e9573fb84c4c807183d13ea2a68271e4b ]
+[ Upstream commit 85f971b65a692b68181438e099b946cc06ed499b ]
 
-There is a problem that if vc4_drm bind fails, a memory leak occurs on
-the drm_property_create side. Add error handding for drm_mode_config.
+Initial value of rc is '-ENXIO', and we should
+use the initial value to check it.
 
-Signed-off-by: Hoegeun Kwon <hoegeun.kwon@samsung.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201027041442.30352-2-hoegeun.kwon@samsung.com
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+[ rjw: Subject edit ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/nfit/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
-index 04270a14fcaaf..868dd1ef3b693 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.c
-+++ b/drivers/gpu/drm/vc4/vc4_drv.c
-@@ -312,6 +312,7 @@ static int vc4_drm_bind(struct device *dev)
- 	component_unbind_all(dev, drm);
- gem_destroy:
- 	vc4_gem_destroy(drm);
-+	drm_mode_config_cleanup(drm);
- 	vc4_bo_cache_destroy(drm);
- dev_put:
- 	drm_dev_put(drm);
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index dd4c7289610ec..cb88f3b43a940 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -1535,7 +1535,7 @@ static ssize_t format1_show(struct device *dev,
+ 					le16_to_cpu(nfit_dcr->dcr->code));
+ 			break;
+ 		}
+-		if (rc != ENXIO)
++		if (rc != -ENXIO)
+ 			break;
+ 	}
+ 	mutex_unlock(&acpi_desc->init_mutex);
 -- 
 2.27.0
 
