@@ -2,67 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E913B2A3C44
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 06:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A9E2A3CD8
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 07:35:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725993AbgKCFzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 00:55:21 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:50649 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725958AbgKCFzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 00:55:20 -0500
-Received: from mail-pl1-f197.google.com ([209.85.214.197])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1kZpHr-0004fq-5R
-        for stable@vger.kernel.org; Tue, 03 Nov 2020 05:55:19 +0000
-Received: by mail-pl1-f197.google.com with SMTP id m7so7023441pls.12
-        for <stable@vger.kernel.org>; Mon, 02 Nov 2020 21:55:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:content-transfer-encoding:mime-version
-         :subject:message-id:date:to;
-        bh=AbK/zWUvmIpjrbo5g2wX98DKGLUNFBag7fCLSiUwV6A=;
-        b=UlRDYX1CK+2lvJt2qisjFJSOCMFjtVCkQ1tvgSsID07pULXyIPvGqS/U9c0YkKUoJn
-         tToPJVg/oqJ3FibsfN7AddMcXjRrG1H7DNAObkNGV+jspLnuqOXUtV8aOaptlE8H1kqV
-         zgCxj1OGMQn/iSpMCqdKJR3+nhobxiGTUOjj7hMFjxvdXFhQacR4mUiiOBo8wEBxc/Vz
-         JCDeVcjPWrqt1pecljdBmCU3qTgvyt3vkSLLtO3vDaDlaQHwXMbYYhK9Esf1UOWv2IHo
-         sINQnBdrmsoPxejgUk4amE2NCZYRQgRJEmeP/Dyp/SiwleMdr7GJ71v+NDKfOuclGu+h
-         gFLg==
-X-Gm-Message-State: AOAM5334ktRPEpbFd4uxSK4zoMLYw9xRYW0Txft75sTE4DEMAPJlmJyr
-        j12I7kE/AvPo/jsAXg3HXmdhRN4ZI/4qofGqq1uWK6qeMrFRlpm7XegdfS0ooJIUCjNeR8DgupB
-        LoKUfm06GJDa8d8hEe6NywBQXm58af8Xadg==
-X-Received: by 2002:a63:f1d:: with SMTP id e29mr3538346pgl.445.1604382917613;
-        Mon, 02 Nov 2020 21:55:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx6OCGS51kW6LHiB2B3ib0miq84C2jF0PrjkTQq4/mFe+2o9BCSLq225Si85Zpjmw9t+BED1w==
-X-Received: by 2002:a63:f1d:: with SMTP id e29mr3538329pgl.445.1604382917289;
-        Mon, 02 Nov 2020 21:55:17 -0800 (PST)
-Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
-        by smtp.gmail.com with ESMTPSA id u14sm4019522pfc.87.2020.11.02.21.55.15
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Nov 2020 21:55:16 -0800 (PST)
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-Content-Type: text/plain;
-        charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
-Subject: Stable backport request for 44492e70adc8 ("rtw88: pci: Power cycle
- device during shutdown")
-Message-Id: <747E6F28-BE7E-424B-A879-7EA9DE015DB0@canonical.com>
-Date:   Tue, 3 Nov 2020 13:55:14 +0800
-To:     linux-stable <stable@vger.kernel.org>
-X-Mailer: Apple Mail (2.3608.120.23.2.4)
+        id S1725988AbgKCGfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 01:35:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34384 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725982AbgKCGfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 01:35:33 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E003922277;
+        Tue,  3 Nov 2020 06:35:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604385332;
+        bh=KIGBZzLW6/iyV4lqJAjCeoOE0mdh9RR33cupiGx3qLk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ptQei5gQUn6zh++ttwvBgdiuBN1W4ruRZufMNqIql9EVxnU2u/isEUrmBJvI4FxWU
+         5gpibSCmETD2fS2sK88vzq4Cc8Q+lXFiWsocKfBCZPQl5ADcszlTpTVMzY8SFruwsr
+         3UcUxRPpWMj7P2pkX4f6z1aT7efq1abfIF2I/OKA=
+Date:   Tue, 3 Nov 2020 07:35:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hans-Peter Jansen <hpj@urpla.net>
+Cc:     linux-kernel@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 5.9 24/74] x86, powerpc: Rename memcpy_mcsafe() to
+ copy_mc_to_{user, kernel}()
+Message-ID: <20201103063529.GB74163@kroah.com>
+References: <20201031113500.031279088@linuxfoundation.org>
+ <20201031113501.207349375@linuxfoundation.org>
+ <5149714.arhZky3dcl@xrated>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5149714.arhZky3dcl@xrated>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Nov 02, 2020 at 10:34:08PM +0100, Hans-Peter Jansen wrote:
+> Hi Greg, hi Dan,
+> 
+> Am Samstag, 31. Oktober 2020, 12:36:06 CET schrieb Greg Kroah-Hartman:
+> > From: Dan Williams <dan.j.williams@intel.com>
+> > 
+> > commit ec6347bb43395cb92126788a1a5b25302543f815 upstream.
+> > 
+> > In reaction to a proposal to introduce a memcpy_mcsafe_fast()
+> > implementation Linus points out that memcpy_mcsafe() is poorly named
+> > relative to communicating the scope of the interface. Specifically what
+> > addresses are valid to pass as source, destination, and what faults /
+> > exceptions are handled.
+> > 
+> > 
+> > Introduce an x86 copy_mc_fragile() name as the rename for the
+> > low-level x86 implementation formerly named memcpy_mcsafe(). It is used
+> > as the slow / careful backend that is supplanted by a fast
+> > copy_mc_generic() in a follow-on patch.
+> > 
+> > One side-effect of this reorganization is that separating copy_mc_64.S
+> > to its own file means that perf no longer needs to track dependencies
+> > for its memcpy_64.S benchmarks.
+> > 
+> > ---
+> > arch/powerpc/lib/copy_mc_64.S                          |  242 +++++++++++++++++
+> > arch/powerpc/lib/memcpy_mcsafe_64.S                    |  242 -----------------
+> 
+> > tools/testing/selftests/powerpc/copyloops/copy_mc_64.S |  242 +++++++++++++++++ 
+> 
+> This change leaves a dangling symlink in 
+> tools/testing/selftests/powerpc/copyloops behind. At least, this is, what I 
+> could track down, when building 5.9.3 within an environment, that bails out 
+> on this:
+> 
+> [ 2908s] calling /usr/lib/rpm/brp-suse.d/brp-25-symlink
+> [ 2908s] ERROR: link target doesn't exist (neither in build root nor in installed system):
+> [ 2908s]   /usr/src/linux-5.9.3-lp152.3-vanilla/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S -> /usr/src/linux-5.9.3-lp152.3-vanilla/arch/powerpc/lib/memcpy_mcsafe_64.S
+> [ 2908s] Add the package providing the target to BuildRequires and Requires
+> [ 2909s] INFO: relinking /usr/src/linux-5.9.3-lp152.3-vanilla/tools/testing/selftests/powerpc/primitives/asm/asm-compat.h -> ../../../../../../arch/powerpc/include/asm/asm-compat.h (was ../.././../../../../arch/powerpc/include/asm/asm-compat.h)
+> 
+> Linus` tree seems to not suffer from this, though.
 
-Please backport 44492e70adc8 to 5.4 stable.
+Ah, that kind of makes sense, I saw odd things with these patches that I
+couldn't figure out.
 
-The commit fixes broken WiFi for many users.
-Currently only stable 5.4 misses this patch, older kernels don't have rtw88.
+So, is there a symlink that I need to add/fix to resolve this?
 
-Kai-Heng
+thanks,
+
+greg k-h
