@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0118D2A52B7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A4D2A5332
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732112AbgKCUwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:52:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S1732342AbgKCU6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732109AbgKCUwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:33 -0500
+        id S1732997AbgKCU6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3E7E2053B;
-        Tue,  3 Nov 2020 20:52:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB31A223BF;
+        Tue,  3 Nov 2020 20:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436752;
-        bh=kbL2i6ClqnBNgUCZXfy2B8qSZM3vFB5Ne8HZ2QbPPNU=;
+        s=default; t=1604437121;
+        bh=3iK3aVReR0jqP67eQryy4jne8FcaTAU+6QLhdiub758=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4qx9uoQd+hMtdA6gm7FfBcLTTPwK8P3M7OEJCWMp/bQXfaapUol4R0CeUOFIPi9T
-         TyO2QwRumYj4hPnEEBqTot0fvwmfiNiZ+NbCIA1hX3YLQCWENeyByKXbzExDK1Pe9a
-         2kNLaWfjRF7ggJkPQ1BRHSab4M0pQE378QP6/Qjs=
+        b=S0pNuvx4pL0GX5ozlhrz6Mp8o0+VWj2LZLbAPRqX3XUZzwOpSm9Ql2D/mL9LdWmoS
+         TP3zjcvGSJcl15O1cGyPVD0aDYTr+AfuxuNExJxF53MBZByLPewWrfZ4mQUAKVX/sA
+         QM2j7J0j9wQUK7yrDtNDf5mC1XhTvMMkpRR5kpAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.9 349/391] drm/ttm: fix eviction valuable range check.
-Date:   Tue,  3 Nov 2020 21:36:40 +0100
-Message-Id: <20201103203410.688165824@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>, Stable@vger.kernel.org
+Subject: [PATCH 5.4 153/214] iio:adc:ti-adc12138 Fix alignment issue with timestamp
+Date:   Tue,  3 Nov 2020 21:36:41 +0100
+Message-Id: <20201103203305.129572129@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit fea456d82c19d201c21313864105876deabe148b upstream.
+commit 293e809b2e8e608b65a949101aaf7c0bd1224247 upstream.
 
-This was adding size to start, but pfn and start are in pages,
-so it should be using num_pages.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
 
-Not sure this fixes anything in the real world, just noticed it
-during refactoring.
+We move to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak apart from previous readings. Note that previously
+no leak at all could occur, but previous readings should never
+be a problem.
 
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20201019222257.1684769-2-airlied@gmail.com
+In this case the timestamp location depends on what other channels
+are enabled. As such we can't use a structure without misleading
+by suggesting only one possible timestamp location.
+
+Fixes: 50a6edb1b6e0 ("iio: adc: add ADC12130/ADC12132/ADC12138 ADC driver")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-26-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/ttm/ttm_bo.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/ti-adc12138.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -694,7 +694,7 @@ bool ttm_bo_eviction_valuable(struct ttm
- 	/* Don't evict this BO if it's outside of the
- 	 * requested placement range
- 	 */
--	if (place->fpfn >= (bo->mem.start + bo->mem.size) ||
-+	if (place->fpfn >= (bo->mem.start + bo->mem.num_pages) ||
- 	    (place->lpfn && place->lpfn <= bo->mem.start))
- 		return false;
+--- a/drivers/iio/adc/ti-adc12138.c
++++ b/drivers/iio/adc/ti-adc12138.c
+@@ -47,6 +47,12 @@ struct adc12138 {
+ 	struct completion complete;
+ 	/* The number of cclk periods for the S/H's acquisition time */
+ 	unsigned int acquisition_time;
++	/*
++	 * Maximum size needed: 16x 2 bytes ADC data + 8 bytes timestamp.
++	 * Less may be need if not all channels are enabled, as long as
++	 * the 8 byte alignment of the timestamp is maintained.
++	 */
++	__be16 data[20] __aligned(8);
  
+ 	u8 tx_buf[2] ____cacheline_aligned;
+ 	u8 rx_buf[2];
+@@ -329,7 +335,6 @@ static irqreturn_t adc12138_trigger_hand
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct adc12138 *adc = iio_priv(indio_dev);
+-	__be16 data[20] = { }; /* 16x 2 bytes ADC data + 8 bytes timestamp */
+ 	__be16 trash;
+ 	int ret;
+ 	int scan_index;
+@@ -345,7 +350,7 @@ static irqreturn_t adc12138_trigger_hand
+ 		reinit_completion(&adc->complete);
+ 
+ 		ret = adc12138_start_and_read_conv(adc, scan_chan,
+-						   i ? &data[i - 1] : &trash);
++					i ? &adc->data[i - 1] : &trash);
+ 		if (ret) {
+ 			dev_warn(&adc->spi->dev,
+ 				 "failed to start conversion\n");
+@@ -362,7 +367,7 @@ static irqreturn_t adc12138_trigger_hand
+ 	}
+ 
+ 	if (i) {
+-		ret = adc12138_read_conv_data(adc, &data[i - 1]);
++		ret = adc12138_read_conv_data(adc, &adc->data[i - 1]);
+ 		if (ret) {
+ 			dev_warn(&adc->spi->dev,
+ 				 "failed to get conversion data\n");
+@@ -370,7 +375,7 @@ static irqreturn_t adc12138_trigger_hand
+ 		}
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data,
++	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
+ 					   iio_get_time_ns(indio_dev));
+ out:
+ 	mutex_unlock(&adc->lock);
 
 
