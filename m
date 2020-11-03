@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95C92A51C4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4633A2A51C8
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730786AbgKCUnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:43:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58258 "EHLO mail.kernel.org"
+        id S1730810AbgKCUoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:44:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730783AbgKCUny (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:43:54 -0500
+        id S1730799AbgKCUoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:44:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB781223BD;
-        Tue,  3 Nov 2020 20:43:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC45E223BF;
+        Tue,  3 Nov 2020 20:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436233;
-        bh=b0zWId35rlMnrroBX0987YDOePVCBo75BWW5+wasPUo=;
+        s=default; t=1604436242;
+        bh=gAFYkvNUzzsta/eXFKilxTP3Oguaf2+DeWreuAr02rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FrO+uJwUS2w+NVNgPH+b1si9mmB9PnDB+TbIN5mGHd1DFngsU7My5u1Jfiwk88Nqf
-         49uy+wzhkwaV5UtG4s26UFU4RB32xBmulId5LagwRNPmoICobR2SdAW2S3QuKzUgsb
-         hggybDcb9jMgIwZZkOrFcUSFc5dEEq8TP1EX/3/w=
+        b=OCJZi53lbjrlxVd7HSb7s04LJ6ijf8L+otPkF45FCTuGp8rExnAHV39BDMKNv6lbp
+         SBd61ObsAD4XFRP3QOqHQ3FwWk9VqhlXGrYk4BEqu3tKTsUZ9TtrleFH4GAt0yag5+
+         dpTgspZ1XPiVTVxBy9KRP8UisygTK84INHGAq8Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Jamie Iles <jamie@nuviainc.com>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 160/391] gfs2: use-after-free in sysfs deregistration
-Date:   Tue,  3 Nov 2020 21:33:31 +0100
-Message-Id: <20201103203357.645111003@linuxfoundation.org>
+Subject: [PATCH 5.9 164/391] arm64: dts: renesas: ulcb: add full-pwr-cycle-in-suspend into eMMC nodes
+Date:   Tue,  3 Nov 2020 21:33:35 +0100
+Message-Id: <20201103203357.913970051@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,187 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <jamie@nuviainc.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit c2a04b02c060c4858762edce4674d5cba3e5a96f ]
+[ Upstream commit 992d7a8b88c83c05664b649fc54501ce58e19132 ]
 
-syzkaller found the following splat with CONFIG_DEBUG_KOBJECT_RELEASE=y:
+Add full-pwr-cycle-in-suspend property to do a graceful shutdown of
+the eMMC device in system suspend.
 
-  Read of size 1 at addr ffff000028e896b8 by task kworker/1:2/228
-
-  CPU: 1 PID: 228 Comm: kworker/1:2 Tainted: G S                5.9.0-rc8+ #101
-  Hardware name: linux,dummy-virt (DT)
-  Workqueue: events kobject_delayed_cleanup
-  Call trace:
-   dump_backtrace+0x0/0x4d8
-   show_stack+0x34/0x48
-   dump_stack+0x174/0x1f8
-   print_address_description.constprop.0+0x5c/0x550
-   kasan_report+0x13c/0x1c0
-   __asan_report_load1_noabort+0x34/0x60
-   memcmp+0xd0/0xd8
-   gfs2_uevent+0xc4/0x188
-   kobject_uevent_env+0x54c/0x1240
-   kobject_uevent+0x2c/0x40
-   __kobject_del+0x190/0x1d8
-   kobject_delayed_cleanup+0x2bc/0x3b8
-   process_one_work+0x96c/0x18c0
-   worker_thread+0x3f0/0xc30
-   kthread+0x390/0x498
-   ret_from_fork+0x10/0x18
-
-  Allocated by task 1110:
-   kasan_save_stack+0x28/0x58
-   __kasan_kmalloc.isra.0+0xc8/0xe8
-   kasan_kmalloc+0x10/0x20
-   kmem_cache_alloc_trace+0x1d8/0x2f0
-   alloc_super+0x64/0x8c0
-   sget_fc+0x110/0x620
-   get_tree_bdev+0x190/0x648
-   gfs2_get_tree+0x50/0x228
-   vfs_get_tree+0x84/0x2e8
-   path_mount+0x1134/0x1da8
-   do_mount+0x124/0x138
-   __arm64_sys_mount+0x164/0x238
-   el0_svc_common.constprop.0+0x15c/0x598
-   do_el0_svc+0x60/0x150
-   el0_svc+0x34/0xb0
-   el0_sync_handler+0xc8/0x5b4
-   el0_sync+0x15c/0x180
-
-  Freed by task 228:
-   kasan_save_stack+0x28/0x58
-   kasan_set_track+0x28/0x40
-   kasan_set_free_info+0x24/0x48
-   __kasan_slab_free+0x118/0x190
-   kasan_slab_free+0x14/0x20
-   slab_free_freelist_hook+0x6c/0x210
-   kfree+0x13c/0x460
-
-Use the same pattern as f2fs + ext4 where the kobject destruction must
-complete before allowing the FS itself to be freed.  This means that we
-need an explicit free_sbd in the callers.
-
-Cc: Bob Peterson <rpeterso@redhat.com>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Jamie Iles <jamie@nuviainc.com>
-[Also go to fail_free when init_names fails.]
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1594989201-24228-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/incore.h     |  1 +
- fs/gfs2/ops_fstype.c | 22 +++++-----------------
- fs/gfs2/super.c      |  1 +
- fs/gfs2/sys.c        |  5 ++++-
- 4 files changed, 11 insertions(+), 18 deletions(-)
+ arch/arm64/boot/dts/renesas/ulcb.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/incore.h b/fs/gfs2/incore.h
-index ca2ec02436ec7..387e99d6eda9e 100644
---- a/fs/gfs2/incore.h
-+++ b/fs/gfs2/incore.h
-@@ -705,6 +705,7 @@ struct gfs2_sbd {
- 	struct super_block *sd_vfs;
- 	struct gfs2_pcpu_lkstats __percpu *sd_lkstats;
- 	struct kobject sd_kobj;
-+	struct completion sd_kobj_unregister;
- 	unsigned long sd_flags;	/* SDF_... */
- 	struct gfs2_sb_host sd_sb;
+diff --git a/arch/arm64/boot/dts/renesas/ulcb.dtsi b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+index ff88af8e39d3f..a2e085db87c53 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+@@ -469,6 +469,7 @@
+ 	mmc-hs200-1_8v;
+ 	mmc-hs400-1_8v;
+ 	non-removable;
++	full-pwr-cycle-in-suspend;
+ 	status = "okay";
+ };
  
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 6d18d2c91add2..5bd602a290f72 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -1062,26 +1062,14 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 	}
- 
- 	error = init_names(sdp, silent);
--	if (error) {
--		/* In this case, we haven't initialized sysfs, so we have to
--		   manually free the sdp. */
--		free_sbd(sdp);
--		sb->s_fs_info = NULL;
--		return error;
--	}
-+	if (error)
-+		goto fail_free;
- 
- 	snprintf(sdp->sd_fsname, sizeof(sdp->sd_fsname), "%s", sdp->sd_table_name);
- 
- 	error = gfs2_sys_fs_add(sdp);
--	/*
--	 * If we hit an error here, gfs2_sys_fs_add will have called function
--	 * kobject_put which causes the sysfs usage count to go to zero, which
--	 * causes sysfs to call function gfs2_sbd_release, which frees sdp.
--	 * Subsequent error paths here will call gfs2_sys_fs_del, which also
--	 * kobject_put to free sdp.
--	 */
- 	if (error)
--		return error;
-+		goto fail_free;
- 
- 	gfs2_create_debugfs_file(sdp);
- 
-@@ -1179,9 +1167,9 @@ fail_lm:
- 	gfs2_lm_unmount(sdp);
- fail_debug:
- 	gfs2_delete_debugfs_file(sdp);
--	/* gfs2_sys_fs_del must be the last thing we do, since it causes
--	 * sysfs to call function gfs2_sbd_release, which frees sdp. */
- 	gfs2_sys_fs_del(sdp);
-+fail_free:
-+	free_sbd(sdp);
- 	sb->s_fs_info = NULL;
- 	return error;
- }
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 9f4d9e7be8397..a28cf447b6b12 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -736,6 +736,7 @@ restart:
- 
- 	/*  At this point, we're through participating in the lockspace  */
- 	gfs2_sys_fs_del(sdp);
-+	free_sbd(sdp);
- }
- 
- /**
-diff --git a/fs/gfs2/sys.c b/fs/gfs2/sys.c
-index d28c41bd69b05..c3e72dba7418a 100644
---- a/fs/gfs2/sys.c
-+++ b/fs/gfs2/sys.c
-@@ -303,7 +303,7 @@ static void gfs2_sbd_release(struct kobject *kobj)
- {
- 	struct gfs2_sbd *sdp = container_of(kobj, struct gfs2_sbd, sd_kobj);
- 
--	free_sbd(sdp);
-+	complete(&sdp->sd_kobj_unregister);
- }
- 
- static struct kobj_type gfs2_ktype = {
-@@ -655,6 +655,7 @@ int gfs2_sys_fs_add(struct gfs2_sbd *sdp)
- 	sprintf(ro, "RDONLY=%d", sb_rdonly(sb));
- 	sprintf(spectator, "SPECTATOR=%d", sdp->sd_args.ar_spectator ? 1 : 0);
- 
-+	init_completion(&sdp->sd_kobj_unregister);
- 	sdp->sd_kobj.kset = gfs2_kset;
- 	error = kobject_init_and_add(&sdp->sd_kobj, &gfs2_ktype, NULL,
- 				     "%s", sdp->sd_table_name);
-@@ -685,6 +686,7 @@ fail_tune:
- fail_reg:
- 	fs_err(sdp, "error %d adding sysfs files\n", error);
- 	kobject_put(&sdp->sd_kobj);
-+	wait_for_completion(&sdp->sd_kobj_unregister);
- 	sb->s_fs_info = NULL;
- 	return error;
- }
-@@ -695,6 +697,7 @@ void gfs2_sys_fs_del(struct gfs2_sbd *sdp)
- 	sysfs_remove_group(&sdp->sd_kobj, &tune_group);
- 	sysfs_remove_group(&sdp->sd_kobj, &lock_module_group);
- 	kobject_put(&sdp->sd_kobj);
-+	wait_for_completion(&sdp->sd_kobj_unregister);
- }
- 
- static int gfs2_uevent(struct kset *kset, struct kobject *kobj,
 -- 
 2.27.0
 
