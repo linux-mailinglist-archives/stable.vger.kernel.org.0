@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D082A57FB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932472A5712
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731907AbgKCUvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:51:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45804 "EHLO mail.kernel.org"
+        id S2387785AbgKCVdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:33:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731885AbgKCUvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:51:05 -0500
+        id S1729971AbgKCU4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B37A22404;
-        Tue,  3 Nov 2020 20:51:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DC1320732;
+        Tue,  3 Nov 2020 20:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436664;
-        bh=105FLhEB9Fme2C0x7n+BQeqVTD7Pll903VhnJOdLitM=;
+        s=default; t=1604437004;
+        bh=625CS+VVUcH2j+DlX50bWniL4e5cbojM1+nNSZ7KK1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+XSZYQzxXEc9SpqFIvaAkhWNg062vKpKljNmrbUM61xr26hDggihTIG8B6U6IbPT
-         RnOMMO1D0hmG6ird5QOQ9Egf6+UZ6EqA7NsmrjiSCC+99jlOQBuOPqtkaC+vyWpFdk
-         +RFuHI+TC5J9lYhHtFhguuR4kdjtjGhlfHsqPhx0=
+        b=BtWTVWism9dSQ9hxcnhNQHfCn/2RPjBfyz3uL97IA+m8Io5ZB+rOJsy6+x7ir1CRG
+         mUfmhuKZTqCiGSKCBWdBUyUxy4pJyEbBP5Erz9w6IcOqbLLjdNnBbioWgHRgBW7SqQ
+         JbPDIkJ54WMfzpcOU2deYEeZy5suo1SwbSu9KVpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.9 301/391] NFSv4.2: support EXCHGID4_FLAG_SUPP_FENCE_OPS 4.2 EXCHANGE_ID flag
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 104/214] spi: sprd: Release DMA channel also on probe deferral
 Date:   Tue,  3 Nov 2020 21:35:52 +0100
-Message-Id: <20201103203407.397104235@linuxfoundation.org>
+Message-Id: <20201103203300.738353279@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 8c39076c276be0b31982e44654e2c2357473258a upstream.
+commit 687a2e76186dcfa42f22c14b655c3fb159839e79 upstream.
 
-RFC 7862 introduced a new flag that either client or server is
-allowed to set: EXCHGID4_FLAG_SUPP_FENCE_OPS.
+If dma_request_chan() for TX channel fails with EPROBE_DEFER, the RX
+channel would not be released and on next re-probe it would be requested
+second time.
 
-Client needs to update its bitmask to allow for this flag value.
-
-v2: changed minor version argument to unsigned int
-
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 386119bc7be9 ("spi: sprd: spi: sprd: Add DMA mode support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Chunyan Zhang <zhang.lyra@gmail.com>
+Link: https://lore.kernel.org/r/20200901152713.18629-1-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4proc.c         |    9 ++++++---
- include/uapi/linux/nfs4.h |    3 +++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/spi/spi-sprd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -8052,9 +8052,11 @@ int nfs4_proc_secinfo(struct inode *dir,
-  * both PNFS and NON_PNFS flags set, and not having one of NON_PNFS, PNFS, or
-  * DS flags set.
-  */
--static int nfs4_check_cl_exchange_flags(u32 flags)
-+static int nfs4_check_cl_exchange_flags(u32 flags, u32 version)
- {
--	if (flags & ~EXCHGID4_FLAG_MASK_R)
-+	if (version >= 2 && (flags & ~EXCHGID4_2_FLAG_MASK_R))
-+		goto out_inval;
-+	else if (version < 2 && (flags & ~EXCHGID4_FLAG_MASK_R))
- 		goto out_inval;
- 	if ((flags & EXCHGID4_FLAG_USE_PNFS_MDS) &&
- 	    (flags & EXCHGID4_FLAG_USE_NON_PNFS))
-@@ -8467,7 +8469,8 @@ static int _nfs4_proc_exchange_id(struct
- 	if (status  != 0)
- 		goto out;
+--- a/drivers/spi/spi-sprd.c
++++ b/drivers/spi/spi-sprd.c
+@@ -563,11 +563,11 @@ static int sprd_spi_dma_request(struct s
  
--	status = nfs4_check_cl_exchange_flags(resp->flags);
-+	status = nfs4_check_cl_exchange_flags(resp->flags,
-+			clp->cl_mvops->minor_version);
- 	if (status  != 0)
- 		goto out;
+ 	ss->dma.dma_chan[SPRD_SPI_TX]  = dma_request_chan(ss->dev, "tx_chn");
+ 	if (IS_ERR_OR_NULL(ss->dma.dma_chan[SPRD_SPI_TX])) {
++		dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
+ 		if (PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]) == -EPROBE_DEFER)
+ 			return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
  
---- a/include/uapi/linux/nfs4.h
-+++ b/include/uapi/linux/nfs4.h
-@@ -139,6 +139,8 @@
+ 		dev_err(ss->dev, "request TX DMA channel failed!\n");
+-		dma_release_channel(ss->dma.dma_chan[SPRD_SPI_RX]);
+ 		return PTR_ERR(ss->dma.dma_chan[SPRD_SPI_TX]);
+ 	}
  
- #define EXCHGID4_FLAG_UPD_CONFIRMED_REC_A	0x40000000
- #define EXCHGID4_FLAG_CONFIRMED_R		0x80000000
-+
-+#define EXCHGID4_FLAG_SUPP_FENCE_OPS		0x00000004
- /*
-  * Since the validity of these bits depends on whether
-  * they're set in the argument or response, have separate
-@@ -146,6 +148,7 @@
-  */
- #define EXCHGID4_FLAG_MASK_A			0x40070103
- #define EXCHGID4_FLAG_MASK_R			0x80070103
-+#define EXCHGID4_2_FLAG_MASK_R			0x80070107
- 
- #define SEQ4_STATUS_CB_PATH_DOWN		0x00000001
- #define SEQ4_STATUS_CB_GSS_CONTEXTS_EXPIRING	0x00000002
 
 
