@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F51C2A537C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5E22A54D0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387452AbgKCVBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37722 "EHLO mail.kernel.org"
+        id S2389034AbgKCVMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387439AbgKCVBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:18 -0500
+        id S2389005AbgKCVMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46AE621534;
-        Tue,  3 Nov 2020 21:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 094B6206B5;
+        Tue,  3 Nov 2020 21:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437277;
-        bh=iA1ttNm06iJLfQ8hdxVhFGVLcLxQCUX4bDZ3azqJbRI=;
+        s=default; t=1604437953;
+        bh=IKLkAKmnVzunT9+Lx2pzNpm6lquDnEOLwyezfeKvbas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5ovmsOFptVQgRAU9WVp8BED5Leeqihj7p9wQRt1Q96Xga++2JzJt79p4+tZAEOe+
-         /okRTPv48ycKP9Ro4g5yVKtnouK2/R6k/GogqC2GwEasSU9aHh6YnZ35GMoye19sHx
-         VHkOBIEZRyjb7mLbkQ646GdLqEthuTQgKxc8K4XM=
+        b=MwXYT2a8jOqhte1p97HCcRAUncQwdaFH51Ojt2TWYOAt30gtiWxEB6KoHgtlRwGkV
+         7TzBsZd+h/xqTJJ0eOes5G/8zv8pzbidvLcTrEakxriydXh9vmuwJPSBNtbq8TB0yN
+         bkrct03PrxSPsTQqy/Att0+agPitED3xFL67JhxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Luo Meng <luomeng12@huawei.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 194/214] ext4: fix invalid inode checksum
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 065/125] fs: Dont invalidate page buffers in block_write_full_page()
 Date:   Tue,  3 Nov 2020 21:37:22 +0100
-Message-Id: <20201103203308.841778637@linuxfoundation.org>
+Message-Id: <20201103203206.306248248@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 1322181170bb01bce3c228b82ae3d5c6b793164f upstream.
+commit 6dbf7bb555981fb5faf7b691e8f6169fc2b2e63b upstream.
 
-During the stability test, there are some errors:
-  ext4_lookup:1590: inode #6967: comm fsstress: iget: checksum invalid.
+If block_write_full_page() is called for a page that is beyond current
+inode size, it will truncate page buffers for the page and return 0.
+This logic has been added in 2.5.62 in commit 81eb69062588 ("fix ext3
+BUG due to race with truncate") in history.git tree to fix a problem
+with ext3 in data=ordered mode. This particular problem doesn't exist
+anymore because ext3 is long gone and ext4 handles ordered data
+differently. Also normally buffers are invalidated by truncate code and
+there's no need to specially handle this in ->writepage() code.
 
-If the inode->i_iblocks too big and doesn't set huge file flag, checksum
-will not be recalculated when update the inode information to it's buffer.
-If other inode marks the buffer dirty, then the inconsistent inode will
-be flushed to disk.
+This invalidation of page buffers in block_write_full_page() is causing
+issues to filesystems (e.g. ext4 or ocfs2) when block device is shrunk
+under filesystem's hands and metadata buffers get discarded while being
+tracked by the journalling layer. Although it is obviously "not
+supported" it can cause kernel crashes like:
 
-Fix this problem by checking i_blocks in advance.
+[ 7986.689400] BUG: unable to handle kernel NULL pointer dereference at
++0000000000000008
+[ 7986.697197] PGD 0 P4D 0
+[ 7986.699724] Oops: 0002 [#1] SMP PTI
+[ 7986.703200] CPU: 4 PID: 203778 Comm: jbd2/dm-3-8 Kdump: loaded Tainted: G
++O     --------- -  - 4.18.0-147.5.0.5.h126.eulerosv2r9.x86_64 #1
+[ 7986.716438] Hardware name: Huawei RH2288H V3/BC11HGSA0, BIOS 1.57 08/11/2015
+[ 7986.723462] RIP: 0010:jbd2_journal_grab_journal_head+0x1b/0x40 [jbd2]
+...
+[ 7986.810150] Call Trace:
+[ 7986.812595]  __jbd2_journal_insert_checkpoint+0x23/0x70 [jbd2]
+[ 7986.818408]  jbd2_journal_commit_transaction+0x155f/0x1b60 [jbd2]
+[ 7986.836467]  kjournald2+0xbd/0x270 [jbd2]
 
-Cc: stable@kernel.org
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Link: https://lore.kernel.org/r/20201020013631.3796673-1-luomeng12@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+which is not great. The crash happens because bh->b_private is suddently
+NULL although BH_JBD flag is still set (this is because
+block_invalidatepage() cleared BH_Mapped flag and subsequent bh lookup
+found buffer without BH_Mapped set, called init_page_buffers() which has
+rewritten bh->b_private). So just remove the invalidation in
+block_write_full_page().
+
+Note that the buffer cache invalidation when block device changes size
+is already careful to avoid similar problems by using
+invalidate_mapping_pages() which skips busy buffers so it was only this
+odd block_write_full_page() behavior that could tear down bdev buffers
+under filesystem's hands.
+
+Reported-by: Ye Bin <yebin10@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+CC: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/buffer.c |   16 ----------------
+ 1 file changed, 16 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5271,6 +5271,12 @@ static int ext4_do_update_inode(handle_t
- 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
- 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
- 
-+	err = ext4_inode_blocks_set(handle, raw_inode, ei);
-+	if (err) {
-+		spin_unlock(&ei->i_raw_lock);
-+		goto out_brelse;
-+	}
-+
- 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
- 	i_uid = i_uid_read(inode);
- 	i_gid = i_gid_read(inode);
-@@ -5304,11 +5310,6 @@ static int ext4_do_update_inode(handle_t
- 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
- 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
- 
--	err = ext4_inode_blocks_set(handle, raw_inode, ei);
--	if (err) {
--		spin_unlock(&ei->i_raw_lock);
--		goto out_brelse;
--	}
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
- 	raw_inode->i_flags = cpu_to_le32(ei->i_flags & 0xFFFFFFFF);
- 	if (likely(!test_opt2(inode->i_sb, HURD_COMPAT)))
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2799,16 +2799,6 @@ int nobh_writepage(struct page *page, ge
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-#if 0
+-		/* Not really sure about this  - do we need this ? */
+-		if (page->mapping->a_ops->invalidatepage)
+-			page->mapping->a_ops->invalidatepage(page, offset);
+-#endif
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
+@@ -3003,12 +2993,6 @@ int block_write_full_page(struct page *p
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+ 	offset = i_size & (PAGE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+-		/*
+-		 * The page may have dirty, unmapped buffers.  For example,
+-		 * they may have been added in ext3_writepage().  Make them
+-		 * freeable here, so the page does not leak.
+-		 */
+-		do_invalidatepage(page, 0, PAGE_SIZE);
+ 		unlock_page(page);
+ 		return 0; /* don't care */
+ 	}
 
 
