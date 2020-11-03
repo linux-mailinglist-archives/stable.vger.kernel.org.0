@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4642A5662
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C61D72A5495
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730024AbgKCV1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:27:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37328 "EHLO mail.kernel.org"
+        id S2389074AbgKCVMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732408AbgKCVBE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:04 -0500
+        id S2389068AbgKCVMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69A6D21534;
-        Tue,  3 Nov 2020 21:01:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2031A207BC;
+        Tue,  3 Nov 2020 21:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437263;
-        bh=UcQyCLTgQwryco3Bwhib+f4CDyGs+CCQGb+72ObgDws=;
+        s=default; t=1604437965;
+        bh=tU0xlHvyDGv6ZJxxBpqUXyPc4mGnxZ5U2rTNVUd3VGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8U74sAQf803XeeRA6sTMOA7kZfgNBSroS+CyW5Rr/Lnm4IeoPb5riQdrr/1kUnM7
-         nu0bej6CzPbUM1wwNRqJzBDOFf9+gjHPAyMFu7Guhx19b77J+0nta4o2BTxHWiPvIc
-         55ANezPziRhUHJZCoBLGD+DDEEzMKHCdcFNZSObs=
+        b=U3j30cbd7quOpeYFb7mS2yZqK/9LkDTgjEircIOI7Xbh2+VkJmJGljAm1AufKeHWG
+         LwrHLHHOgHhLxm1UOb87xKYk6682CZWussDz/iddhimnW+lhAY705HL2no9NjULtng
+         cPz9F9Qv2DN2tLoQvrQK7yvWOX9cPma9jJNfUB9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 198/214] mmc: sdhci: Use Auto CMD Auto Select only when v4_mode is true
+        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
+        Jamie Iles <jamie@nuviainc.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 069/125] ACPI: debug: dont allow debugging when ACPI is disabled
 Date:   Tue,  3 Nov 2020 21:37:26 +0100
-Message-Id: <20201103203309.204457298@linuxfoundation.org>
+Message-Id: <20201103203206.808726574@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Jamie Iles <jamie@nuviainc.com>
 
-commit b3e1ea16fb39fb6e1a1cf1dbdd6738531de3dc7d upstream.
+commit 0fada277147ffc6d694aa32162f51198d4f10d94 upstream.
 
-sdhci-of-dwcmshc meets an eMMC read performance regression with below
-command after commit 427b6514d095 ("mmc: sdhci: Add Auto CMD Auto
-Select support"):
+If ACPI is disabled then loading the acpi_dbg module will result in the
+following splat when lock debugging is enabled.
 
-dd if=/dev/mmcblk0 of=/dev/null bs=8192 count=100000
+  DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+  WARNING: CPU: 0 PID: 1 at kernel/locking/mutex.c:938 __mutex_lock+0xa10/0x1290
+  Kernel panic - not syncing: panic_on_warn set ...
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.9.0-rc8+ #103
+  Hardware name: linux,dummy-virt (DT)
+  Call trace:
+   dump_backtrace+0x0/0x4d8
+   show_stack+0x34/0x48
+   dump_stack+0x174/0x1f8
+   panic+0x360/0x7a0
+   __warn+0x244/0x2ec
+   report_bug+0x240/0x398
+   bug_handler+0x50/0xc0
+   call_break_hook+0x160/0x1d8
+   brk_handler+0x30/0xc0
+   do_debug_exception+0x184/0x340
+   el1_dbg+0x48/0xb0
+   el1_sync_handler+0x170/0x1c8
+   el1_sync+0x80/0x100
+   __mutex_lock+0xa10/0x1290
+   mutex_lock_nested+0x6c/0xc0
+   acpi_register_debugger+0x40/0x88
+   acpi_aml_init+0xc4/0x114
+   do_one_initcall+0x24c/0xb10
+   kernel_init_freeable+0x690/0x728
+   kernel_init+0x20/0x1e8
+   ret_from_fork+0x10/0x18
 
-Before the commit, the above command gives 120MB/s
-After the commit, the above command gives 51.3 MB/s
+This is because acpi_debugger.lock has not been initialized as
+acpi_debugger_init() is not called when ACPI is disabled.  Fail module
+loading to avoid this and any subsequent problems that might arise by
+trying to debug AML when ACPI is disabled.
 
-So it looks like sdhci-of-dwcmshc expects Version 4 Mode for Auto
-CMD Auto Select. Fix the performance degradation by ensuring v4_mode
-is true to use Auto CMD Auto Select.
-
-Fixes: 427b6514d095 ("mmc: sdhci: Add Auto CMD Auto Select support")
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201015174115.4cf2c19a@xhacker.debian
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 8cfb0cdf07e2 ("ACPI / debugger: Add IO interface to access debugger functionalities")
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Jamie Iles <jamie@nuviainc.com>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_dbg.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1162,9 +1162,11 @@ static inline void sdhci_auto_cmd_select
- 	/*
- 	 * In case of Version 4.10 or later, use of 'Auto CMD Auto
- 	 * Select' is recommended rather than use of 'Auto CMD12
--	 * Enable' or 'Auto CMD23 Enable'.
-+	 * Enable' or 'Auto CMD23 Enable'. We require Version 4 Mode
-+	 * here because some controllers (e.g sdhci-of-dwmshc) expect it.
- 	 */
--	if (host->version >= SDHCI_SPEC_410 && (use_cmd12 || use_cmd23)) {
-+	if (host->version >= SDHCI_SPEC_410 && host->v4_mode &&
-+	    (use_cmd12 || use_cmd23)) {
- 		*mode |= SDHCI_TRNS_AUTO_SEL;
+--- a/drivers/acpi/acpi_dbg.c
++++ b/drivers/acpi/acpi_dbg.c
+@@ -757,6 +757,9 @@ int __init acpi_aml_init(void)
+ 		goto err_exit;
+ 	}
  
- 		ctrl2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
++	if (acpi_disabled)
++		return -ENODEV;
++
+ 	/* Initialize AML IO interface */
+ 	mutex_init(&acpi_aml_io.lock);
+ 	init_waitqueue_head(&acpi_aml_io.wait);
 
 
