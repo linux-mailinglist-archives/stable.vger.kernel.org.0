@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FAAA2A46E9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D7E2A46E7
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729424AbgKCNwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:52:15 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52471 "EHLO
+        id S1729455AbgKCNwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:52:14 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57019 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729456AbgKCNvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:40 -0500
+        by vger.kernel.org with ESMTP id S1729424AbgKCNvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:51:48 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8C2DCA26;
-        Tue,  3 Nov 2020 08:51:39 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:39 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 97D21A9C;
+        Tue,  3 Nov 2020 08:51:47 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 08:51:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=L/ceD+
-        xqkFbUJHPOEx6AIjTCNpKFbSPexRt+/9oua8U=; b=mi1nJVQudD+YzPynM19chP
-        ZYX24lSSZl+qUw2p7F/1lEDuhqKYr9qg85fM9otJc1t/RHKcCEohWpJHcoDwIMwl
-        isNRUZdsVdhJ+6fOZRP2yZ2shzCWl3S3+wpQrX5z7ShpljQLezS37TGfqJeUdphL
-        pzpQ6ykFdphJvs87uNV7mgZEMq27FVUDO3p9GsSKZbM6oJ2j+UqKoYXupn4uSucL
-        eNpbQulX0PIAXMb3YdULn01ixPWHKfCUwH7vFvNBl6+mcjfs+DYFdObyKutGu3t3
-        8/KILDnIFVCxtEq0stPKmIKLm1IeQjYle15Pa6xsqBbbo2Mnr+8DGl+KYy7YdbMw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=YU2dT7
+        yvwn2sDv8W+VRepdh8v0nHQPu1uNlmptZkHGY=; b=cL2EMwjeDb3VNOMD9Kafwo
+        93ALjHJMGCqdQArVrdzWJAQSDkFYiKIgkYi+ckfbkwqED7lpCLAk+rMhCqazbOur
+        0nbHs28zWtFZ1JXDB7kfYEjcdZi2ejkKfTZZYBCMqE5CQJwFTs8kkSyp/b8poQo9
+        OXUnRQ0B2mdgmgigdOrlK+2KZajHJJlDCeIvI+6rPUpFFVndehL+/jfhz03mvJXL
+        K2as+ZiixEQK8W6WrNjfMYD2r7j71HHf4mEN2BMJ3KitT/ccdQvnG/L7gGBppQU6
+        xv30/NxX3OqndQ342+p6apHlOS4Ksve+5SK/hyobbt4uSkO+rtEJ3Ok8e8Ql8OqA
         ==
-X-ME-Sender: <xms:a2ChX2c7PEcfdMC0LpGg6nWYF9MC4eWkrAu_MJ4bHP1RfiNEbzIwqQ>
-    <xme:a2ChXwPx7c6o2NxB8Iqqpp-ZhnbRDBPCPTrv8MALdNOIobS25ke2ug3LnBiuno0i4
-    ae8G5dBNQWcgw>
+X-ME-Sender: <xms:c2ChX0u9AWnuTs4zi7LJLYNb0Am6aCFBWsiQ7_7jUsKinXbPfsBFHQ>
+    <xme:c2ChXxcX6RjCC3cehzqIT5acW_5omrx_xRyVw1ml-e06jqvNKxI_2lSuTVBCWIxeY
+    -enhDUVdEfYTg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:a2ChX3io_KFDzTRuZveK7Zcb3eCoM1x6FPJ8eq82P_6VQk0zf_NIoQ>
-    <xmx:a2ChXz_3cptQz7Zcl_Qcg4-OKvQKDYjFmZmxJatLYcbJTgq6jvP0QQ>
-    <xmx:a2ChXyukbUayyFBlW1ywIcj5ImTSR1zdhnM3bdpdyyT59qf-kYJBkg>
-    <xmx:a2ChX41c2dedh4pqOy5oNqCkjxXHl89eXQCSxSMUaG1KMO4f7ykH9ruq9OU>
+X-ME-Proxy: <xmx:c2ChX_zWkTguMyJauMsPzL_fKkJogSXCGNk02KWQUb5uvFWF_mQR1w>
+    <xmx:c2ChX3NdchotKXxXcyp30YG9t3nFQWdurIx45Aje8yEaAybg4BDoTA>
+    <xmx:c2ChX0_g7h5ESAtpOY-H0kgtFHL7EixLs4qB0aJVtpfl2USZx4rB7A>
+    <xmx:c2ChX5FXDJ6yWRLKceb4p69mffq0z-94KVjufhrmXmw6LYPr2A4FcMrbEqw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BE20C3280064;
-        Tue,  3 Nov 2020 08:51:38 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: sysfs, rename device_link add/remove functions" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D1E3D3064610;
+        Tue,  3 Nov 2020 08:51:46 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: sysfs, rename device_link add/remove functions" failed to apply to 4.14-stable tree
 To:     anand.jain@oracle.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 14:52:32 +0100
-Message-ID: <160441155213511@kroah.com>
+Date:   Tue, 03 Nov 2020 14:52:33 +0100
+Message-ID: <1604411553181199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
