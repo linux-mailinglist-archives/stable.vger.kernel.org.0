@@ -2,135 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4A22A5023
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 20:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3F72A5068
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 20:48:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbgKCT2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 14:28:49 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58983 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729671AbgKCT2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 14:28:48 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B7E851942C28;
-        Tue,  3 Nov 2020 14:28:47 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 14:28:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+h7BAt
-        AqgI+q7uEtyuG5h8Gcf/AdrKafh/7im3boe+0=; b=iCwJ+qb5M4Gk8/JXB3gQ56
-        9jysn6G0/rHOg3MnB5SVGaeWLiQ3Inufe3P25L3f3WpZpb7ikchUG9tU6Lu2zFlD
-        1cKIt97bQAe+MLWj2ep//q5VU7M/S9ub8sEMKroS+FrNHtOxidQSakXRgcchB9Xg
-        YKIH9AO1pQ8ek/GCso3wBk64Io6LZvIHC8H4HDqtT6gDI+qnTmVsO2khEzMe5fzn
-        Vlklwc6jSjas+DVGeW75k3vAht1nexls++0qve/GuOUXhSsuYdPkbNLtU3cMuS36
-        DBcXWGLpVsKFMwLlyx626CgYixjuiZLQIxC6mUUlZtEM2cSZHXq+UahMDtE1OgBA
-        ==
-X-ME-Sender: <xms:b6-hX_LDHfI6WmuCjEplitDKeVIGLEmLboNa5UIBVsbNCFyF_xHeng>
-    <xme:b6-hXzL2xZs4FOWzGgc6gsqgFtRiF1exfGHrf2u_GQxnwpf7JdSKvKU1Ea0HTJ7KB
-    8TS3bF_yoyGmA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedguddvfecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:b6-hX3sX83cQJDGO4UskbwGer4Qh2c5TQRANSBN57eoRHTQ1hbcLTQ>
-    <xmx:b6-hX4bt4A04XMN7nXa3OLMYVBBY7M87Q-SCYTay3w467ej1W9YxVQ>
-    <xmx:b6-hX2ZK92WKxA-6k_pfyVphG6r0S11JoM70sbM0V9OCAYgEjJ9yqg>
-    <xmx:b6-hX5zjOSd9irnQyXIWVsCMJsPnjsgbeySgMaGf2W5stogSRS59Hw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 506723064683;
-        Tue,  3 Nov 2020 14:28:47 -0500 (EST)
-Subject: FAILED: patch "[PATCH] time: Prevent undefined behaviour in timespec64_to_ns()" failed to apply to 4.4-stable tree
-To:     prime.zeng@hisilicon.com, arnd@arndb.de, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 20:28:44 +0100
-Message-ID: <16044317246768@kroah.com>
+        id S1729382AbgKCTr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 14:47:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49630 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726660AbgKCTr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 14:47:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604432877;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CHQ3/bBc5WxHfN8LaH/bQM7T7VaD4uRFaJUk/wKN6nw=;
+        b=V/53gMnjlQwcfEkf1wAVDNwedSiEa6r9cEf7jBixRKSHZ9+X3uoZU9GO92nWoLQspGLlH/
+        ka8QPcyOIkfO2LeaQgnLkU4tPc2kb28YYwJEikemRlM1jnTrExmk4Ds4x5A7xSArwgWRaE
+        Ab1v5UR+3D3IarMPGBciBzM0iY8xNFQ=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-582-SZf0-klSOSSGUtHA_cWjvA-1; Tue, 03 Nov 2020 14:47:55 -0500
+X-MC-Unique: SZf0-klSOSSGUtHA_cWjvA-1
+Received: by mail-qk1-f198.google.com with SMTP id j20so11513839qkl.7
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 11:47:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
+         :in-reply-to:references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=CHQ3/bBc5WxHfN8LaH/bQM7T7VaD4uRFaJUk/wKN6nw=;
+        b=aZVT5edA3dBq+oVkm2CRuyYSMX4N94qcqs/x783Fq0W3Hj+SqRUhvtH+xYIMLthoSQ
+         PKY7Nik1ASUx4mf61kP2Wz2Bg8NjqJkzxKX0p+amgAKST+nGVi2pbmpSOXGbjHehxE8P
+         fpXKDSQo4wRWsZ2zN0b1MOkir0weoJAbRzyVEhqArXBpB7raVTAULy5f/F97WJUlpxXo
+         3iD0B2LCeUoPN5XGD5vGvVivG1Wgk7RpYILL6bfYcpgOq0R6+/MNKLze3V2hjFI5SjTx
+         QlgCVZSWJ2tOFQ6pqltS45pU5TzkF23L7bZ94f/rvdK9umL09k2/lXs64rbQKIaRpoiJ
+         bl1Q==
+X-Gm-Message-State: AOAM5328wf4HEVb28E7QPPhRBsJNi/vLZgIDfYbhxDkUZQkvRPQ1Laah
+        dh5r54qUkkQmrBCJbR8HWCYdTnzAg/UxyLffe67COm9GiRUmHQ/VDBlJY3XOYFS4PH4uKfWN+9s
+        l1GCVu/pfy8GIHjFg
+X-Received: by 2002:a37:47c2:: with SMTP id u185mr17010909qka.63.1604432875487;
+        Tue, 03 Nov 2020 11:47:55 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw0D0CC36lHqdD9IBGL0B2j1EjIRDVnCjR6y7CDfrhuUmcd3BPaRc4m50PeZvW+nAg9DESoqA==
+X-Received: by 2002:a37:47c2:: with SMTP id u185mr17010888qka.63.1604432875262;
+        Tue, 03 Nov 2020 11:47:55 -0800 (PST)
+Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id x75sm11687361qka.59.2020.11.03.11.47.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2020 11:47:54 -0800 (PST)
+Message-ID: <8d15a513bd38a01b3607e5c75b5754cc599fe33c.camel@redhat.com>
+Subject: Re: [PATCH] drm/edid: Fix uninitialized variable in drm_cvt_modes()
+From:   Lyude Paul <lyude@redhat.com>
+Reply-To: lyude@redhat.com
+To:     Ilia Mirkin <imirkin@alum.mit.edu>
+Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        David Airlie <airlied@linux.ie>, Chao Yu <chao@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        "# 3.9+" <stable@vger.kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Kees Cook <keescook@chromium.org>
+Date:   Tue, 03 Nov 2020 14:47:53 -0500
+In-Reply-To: <CAKb7UvhfWA6ijoQnq2Mvrx8jfn57EC-P5KBkYR3HmrBUrntJhg@mail.gmail.com>
+References: <20201022165450.682571-1-lyude@redhat.com>
+         <CAKb7UvhfWA6ijoQnq2Mvrx8jfn57EC-P5KBkYR3HmrBUrntJhg@mail.gmail.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.1 (3.38.1-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Sorry! Thought I had responded to this but apparently not, comments down below
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Thu, 2020-10-22 at 14:04 -0400, Ilia Mirkin wrote:
+> On Thu, Oct 22, 2020 at 12:55 PM Lyude Paul <lyude@redhat.com> wrote:
+> > 
+> > Noticed this when trying to compile with -Wall on a kernel fork. We
+> > potentially
+> > don't set width here, which causes the compiler to complain about width
+> > potentially being uninitialized in drm_cvt_modes(). So, let's fix that.
+> > 
+> > Signed-off-by: Lyude Paul <lyude@redhat.com>
+> > 
+> > Cc: <stable@vger.kernel.org> # v5.9+
+> > Fixes: 3f649ab728cd ("treewide: Remove uninitialized_var() usage")
+> > Signed-off-by: Lyude Paul <lyude@redhat.com>
+> > ---
+> >  drivers/gpu/drm/drm_edid.c | 8 +++++++-
+> >  1 file changed, 7 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+> > index 631125b46e04..2da158ffed8e 100644
+> > --- a/drivers/gpu/drm/drm_edid.c
+> > +++ b/drivers/gpu/drm/drm_edid.c
+> > @@ -3094,6 +3094,7 @@ static int drm_cvt_modes(struct drm_connector
+> > *connector,
+> > 
+> >         for (i = 0; i < 4; i++) {
+> >                 int width, height;
+> > +               u8 cvt_aspect_ratio;
+> > 
+> >                 cvt = &(timing->data.other_data.data.cvt[i]);
+> > 
+> > @@ -3101,7 +3102,8 @@ static int drm_cvt_modes(struct drm_connector
+> > *connector,
+> >                         continue;
+> > 
+> >                 height = (cvt->code[0] + ((cvt->code[1] & 0xf0) << 4) + 1) *
+> > 2;
+> > -               switch (cvt->code[1] & 0x0c) {
+> > +               cvt_aspect_ratio = cvt->code[1] & 0x0c;
+> > +               switch (cvt_aspect_ratio) {
+> >                 case 0x00:
+> >                         width = height * 4 / 3;
+> >                         break;
+> > @@ -3114,6 +3116,10 @@ static int drm_cvt_modes(struct drm_connector
+> > *connector,
+> >                 case 0x0c:
+> >                         width = height * 15 / 9;
+> >                         break;
+> > +               default:
+> 
+> What value would cvt->code[1] have such that this gets hit?
+> 
+> Or is this a "compiler is broken, so let's add more code" situation?
+> If so, perhaps the code added could just be enough to silence the
+> compiler (unreachable, etc)?
 
-thanks,
+I mean, this information comes from the EDID which inherently means it's coming
+from an untrusted source so the value could be literally anything as long as the
+EDID has a valid checksum. Note (assuming I'm understanding this code
+correctly): 
 
-greg k-h
+drm_add_edid_modes() → add_cvt_modes() → drm_for_each_detailed_block() →
+do_cvt_mode() → drm_cvt_modes()
 
------------------- original commit in Linus's tree ------------------
+So afaict this isn't a broken compiler but a legitimate uninitialized variable.
+> 
+>   -ilia
+> 
 
-From cb47755725da7b90fecbb2aa82ac3b24a7adb89b Mon Sep 17 00:00:00 2001
-From: Zeng Tao <prime.zeng@hisilicon.com>
-Date: Tue, 1 Sep 2020 17:30:13 +0800
-Subject: [PATCH] time: Prevent undefined behaviour in timespec64_to_ns()
-
-UBSAN reports:
-
-Undefined behaviour in ./include/linux/time64.h:127:27
-signed integer overflow:
-17179869187 * 1000000000 cannot be represented in type 'long long int'
-Call Trace:
- timespec64_to_ns include/linux/time64.h:127 [inline]
- set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
- do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
- __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
- do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
-
-Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
-replaced the original conversion which handled time clamping correctly with
-timespec64_to_ns() which has no overflow protection.
-
-Fix it in timespec64_to_ns() as this is not necessarily limited to the
-usage in itimers.
-
-[ tglx: Added comment and adjusted the fixes tag ]
-
-Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
-
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index c9dcb3e5781f..5117cb5b5656 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -124,6 +124,10 @@ static inline bool timespec64_valid_settod(const struct timespec64 *ts)
-  */
- static inline s64 timespec64_to_ns(const struct timespec64 *ts)
- {
-+	/* Prevent multiplication overflow */
-+	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
-+		return KTIME_MAX;
-+
- 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
- 
-diff --git a/kernel/time/itimer.c b/kernel/time/itimer.c
-index ca4e6d57d68b..00629e658ca1 100644
---- a/kernel/time/itimer.c
-+++ b/kernel/time/itimer.c
-@@ -172,10 +172,6 @@ static void set_cpu_itimer(struct task_struct *tsk, unsigned int clock_id,
- 	u64 oval, nval, ointerval, ninterval;
- 	struct cpu_itimer *it = &tsk->signal->it[clock_id];
- 
--	/*
--	 * Use the to_ktime conversion because that clamps the maximum
--	 * value to KTIME_MAX and avoid multiplication overflows.
--	 */
- 	nval = timespec64_to_ns(&value->it_value);
- 	ninterval = timespec64_to_ns(&value->it_interval);
- 
+-- 
+Sincerely,
+   Lyude Paul (she/her)
+   Software Engineer at Red Hat
+   
+Note: I deal with a lot of emails and have a lot of bugs on my plate. If you've
+asked me a question, are waiting for a review/merge on a patch, etc. and I
+haven't responded in a while, please feel free to send me another email to check
+on my status. I don't bite!
 
