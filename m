@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F002A5379
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F842A5476
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733078AbgKCVBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37674 "EHLO mail.kernel.org"
+        id S2388870AbgKCVL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:11:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730024AbgKCVBQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:01:16 -0500
+        id S2388861AbgKCVL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:11:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032F82053B;
-        Tue,  3 Nov 2020 21:01:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E865F206B5;
+        Tue,  3 Nov 2020 21:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437275;
-        bh=l0lvXZCW3pe6QBzIIU3kISXcYBdU9aclTmrieYLvZkk=;
+        s=default; t=1604437884;
+        bh=+YkLp5+zThCQOiaYSc+SsYCWd3PyV+8zfRwnremtppg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3FXlfky+Nr8WQpxeFsI89OXqTgImKZPw2LTn/z+ev1iun9g6YhqVrwCHETgT5m0E
-         VrQBMhakZo5gdUU7Ij13du5FaDmoA2KLfZBB5FkK7D+H6QzPmJ9TcbpEpRpCNtMfHm
-         A6/WSA24jKGn1KsrVAtxWhVxBx+BgV6s+rfQJVmo=
+        b=fu2115Dv352C+WxY9M+Pugktb+vI7hkN0q3IM07t09+92ZPR9WCAvLYuiPAka9RTE
+         lTsqZjT31ydWcvND6XrrxEFgftBZJJ4gG00L/WjpWbRB6PBf8zpUSvdGhVSGAqGkZL
+         BK1SE7/vCbeVKFx6dx8/1W934QIpi425xrOW8T3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 203/214] hil/parisc: Disable HIL driver when it gets stuck
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 074/125] btrfs: send, recompute reference path after orphanization of a directory
 Date:   Tue,  3 Nov 2020 21:37:31 +0100
-Message-Id: <20201103203309.653534453@linuxfoundation.org>
+Message-Id: <20201103203207.687416852@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +43,244 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
+commit 9c2b4e0347067396ceb3ae929d6888c81d610259 upstream.
 
-When starting a HP machine with HIL driver but without an HIL keyboard
-or HIL mouse attached, it may happen that data written to the HIL loop
-gets stuck (e.g. because the transaction queue is full).  Usually one
-will then have to reboot the machine because all you see is and endless
-output of:
- Transaction add failed: transaction already queued?
+During an incremental send, when an inode has multiple new references we
+might end up emitting rename operations for orphanizations that have a
+source path that is no longer valid due to a previous orphanization of
+some directory inode. This causes the receiver to fail since it tries
+to rename a path that does not exists.
 
-In the higher layers hp_sdc_enqueue_transaction() is called to queued up
-a HIL packet. This function returns an error code, and this patch adds
-the necessary checks for this return code and disables the HIL driver if
-further packets can't be sent.
+Example reproducer:
 
-Tested on a HP 730 and a HP 715/64 machine.
+  $ cat reproducer.sh
+  #!/bin/bash
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+  mkfs.btrfs -f /dev/sdi >/dev/null
+  mount /dev/sdi /mnt/sdi
+
+  touch /mnt/sdi/f1
+  touch /mnt/sdi/f2
+  mkdir /mnt/sdi/d1
+  mkdir /mnt/sdi/d1/d2
+
+  # Filesystem looks like:
+  #
+  # .                           (ino 256)
+  # |----- f1                   (ino 257)
+  # |----- f2                   (ino 258)
+  # |----- d1/                  (ino 259)
+  #        |----- d2/           (ino 260)
+
+  btrfs subvolume snapshot -r /mnt/sdi /mnt/sdi/snap1
+  btrfs send -f /tmp/snap1.send /mnt/sdi/snap1
+
+  # Now do a series of changes such that:
+  #
+  # *) inode 258 has one new hardlink and the previous name changed
+  #
+  # *) both names conflict with the old names of two other inodes:
+  #
+  #    1) the new name "d1" conflicts with the old name of inode 259,
+  #       under directory inode 256 (root)
+  #
+  #    2) the new name "d2" conflicts with the old name of inode 260
+  #       under directory inode 259
+  #
+  # *) inodes 259 and 260 now have the old names of inode 258
+  #
+  # *) inode 257 is now located under inode 260 - an inode with a number
+  #    smaller than the inode (258) for which we created a second hard
+  #    link and swapped its names with inodes 259 and 260
+  #
+  ln /mnt/sdi/f2 /mnt/sdi/d1/f2_link
+  mv /mnt/sdi/f1 /mnt/sdi/d1/d2/f1
+
+  # Swap d1 and f2.
+  mv /mnt/sdi/d1 /mnt/sdi/tmp
+  mv /mnt/sdi/f2 /mnt/sdi/d1
+  mv /mnt/sdi/tmp /mnt/sdi/f2
+
+  # Swap d2 and f2_link
+  mv /mnt/sdi/f2/d2 /mnt/sdi/tmp
+  mv /mnt/sdi/f2/f2_link /mnt/sdi/f2/d2
+  mv /mnt/sdi/tmp /mnt/sdi/f2/f2_link
+
+  # Filesystem now looks like:
+  #
+  # .                                (ino 256)
+  # |----- d1                        (ino 258)
+  # |----- f2/                       (ino 259)
+  #        |----- f2_link/           (ino 260)
+  #        |       |----- f1         (ino 257)
+  #        |
+  #        |----- d2                 (ino 258)
+
+  btrfs subvolume snapshot -r /mnt/sdi /mnt/sdi/snap2
+  btrfs send -f /tmp/snap2.send -p /mnt/sdi/snap1 /mnt/sdi/snap2
+
+  mkfs.btrfs -f /dev/sdj >/dev/null
+  mount /dev/sdj /mnt/sdj
+
+  btrfs receive -f /tmp/snap1.send /mnt/sdj
+  btrfs receive -f /tmp/snap2.send /mnt/sdj
+
+  umount /mnt/sdi
+  umount /mnt/sdj
+
+When executed the receive of the incremental stream fails:
+
+  $ ./reproducer.sh
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
+  At subvol /mnt/sdi/snap1
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
+  At subvol /mnt/sdi/snap2
+  At subvol snap1
+  At snapshot snap2
+  ERROR: rename d1/d2 -> o260-6-0 failed: No such file or directory
+
+This happens because:
+
+1) When processing inode 257 we end up computing the name for inode 259
+   because it is an ancestor in the send snapshot, and at that point it
+   still has its old name, "d1", from the parent snapshot because inode
+   259 was not yet processed. We then cache that name, which is valid
+   until we start processing inode 259 (or set the progress to 260 after
+   processing its references);
+
+2) Later we start processing inode 258 and collecting all its new
+   references into the list sctx->new_refs. The first reference in the
+   list happens to be the reference for name "d1" while the reference for
+   name "d2" is next (the last element of the list).
+   We compute the full path "d1/d2" for this second reference and store
+   it in the reference (its ->full_path member). The path used for the
+   new parent directory was "d1" and not "f2" because inode 259, the
+   new parent, was not yet processed;
+
+3) When we start processing the new references at process_recorded_refs()
+   we start with the first reference in the list, for the new name "d1".
+   Because there is a conflicting inode that was not yet processed, which
+   is directory inode 259, we orphanize it, renaming it from "d1" to
+   "o259-6-0";
+
+4) Then we start processing the new reference for name "d2", and we
+   realize it conflicts with the reference of inode 260 in the parent
+   snapshot. So we issue an orphanization operation for inode 260 by
+   emitting a rename operation with a destination path of "o260-6-0"
+   and a source path of "d1/d2" - this source path is the value we
+   stored in the reference earlier at step 2), corresponding to the
+   ->full_path member of the reference, however that path is no longer
+   valid due to the orphanization of the directory inode 259 in step 3).
+   This makes the receiver fail since the path does not exists, it should
+   have been "o259-6-0/d2".
+
+Fix this by recomputing the full path of a reference before emitting an
+orphanization if we previously orphanized any directory, since that
+directory could be a parent in the new path. This is a rare scenario so
+keeping it simple and not checking if that previously orphanized directory
+is in fact an ancestor of the inode we are trying to orphanize.
+
+A test case for fstests follows soon.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
- drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
- include/linux/hil_mlc.h          |    2 +-
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ fs/btrfs/send.c |   72 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
- static LIST_HEAD(hil_mlcs);
- static DEFINE_RWLOCK(hil_mlcs_lock);
- static struct timer_list	hil_mlcs_kicker;
--static int			hil_mlcs_probe;
-+static int			hil_mlcs_probe, hil_mlc_stop;
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -3821,6 +3821,72 @@ static int update_ref_path(struct send_c
+ }
  
- static void hil_mlcs_process(unsigned long unused);
- static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
-@@ -702,9 +702,13 @@ static int hilse_donode(hil_mlc *mlc)
- 		if (!mlc->ostarted) {
- 			mlc->ostarted = 1;
- 			mlc->opacket = pack;
--			mlc->out(mlc);
-+			rc = mlc->out(mlc);
- 			nextidx = HILSEN_DOZE;
- 			write_unlock_irqrestore(&mlc->lock, flags);
-+			if (rc) {
-+				hil_mlc_stop = 1;
-+				return 1;
-+			}
- 			break;
- 		}
- 		mlc->ostarted = 0;
-@@ -715,8 +719,13 @@ static int hilse_donode(hil_mlc *mlc)
- 
- 	case HILSE_CTS:
- 		write_lock_irqsave(&mlc->lock, flags);
--		nextidx = mlc->cts(mlc) ? node->bad : node->good;
-+		rc = mlc->cts(mlc);
-+		nextidx = rc ? node->bad : node->good;
- 		write_unlock_irqrestore(&mlc->lock, flags);
-+		if (rc) {
-+			hil_mlc_stop = 1;
-+			return 1;
-+		}
- 		break;
- 
- 	default:
-@@ -780,6 +789,12 @@ static void hil_mlcs_process(unsigned lo
- 
- static void hil_mlcs_timer(struct timer_list *unused)
- {
-+	if (hil_mlc_stop) {
-+		/* could not send packet - stop immediately. */
-+		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
-+		return;
-+	}
+ /*
++ * When processing the new references for an inode we may orphanize an existing
++ * directory inode because its old name conflicts with one of the new references
++ * of the current inode. Later, when processing another new reference of our
++ * inode, we might need to orphanize another inode, but the path we have in the
++ * reference reflects the pre-orphanization name of the directory we previously
++ * orphanized. For example:
++ *
++ * parent snapshot looks like:
++ *
++ * .                                     (ino 256)
++ * |----- f1                             (ino 257)
++ * |----- f2                             (ino 258)
++ * |----- d1/                            (ino 259)
++ *        |----- d2/                     (ino 260)
++ *
++ * send snapshot looks like:
++ *
++ * .                                     (ino 256)
++ * |----- d1                             (ino 258)
++ * |----- f2/                            (ino 259)
++ *        |----- f2_link/                (ino 260)
++ *        |       |----- f1              (ino 257)
++ *        |
++ *        |----- d2                      (ino 258)
++ *
++ * When processing inode 257 we compute the name for inode 259 as "d1", and we
++ * cache it in the name cache. Later when we start processing inode 258, when
++ * collecting all its new references we set a full path of "d1/d2" for its new
++ * reference with name "d2". When we start processing the new references we
++ * start by processing the new reference with name "d1", and this results in
++ * orphanizing inode 259, since its old reference causes a conflict. Then we
++ * move on the next new reference, with name "d2", and we find out we must
++ * orphanize inode 260, as its old reference conflicts with ours - but for the
++ * orphanization we use a source path corresponding to the path we stored in the
++ * new reference, which is "d1/d2" and not "o259-6-0/d2" - this makes the
++ * receiver fail since the path component "d1/" no longer exists, it was renamed
++ * to "o259-6-0/" when processing the previous new reference. So in this case we
++ * must recompute the path in the new reference and use it for the new
++ * orphanization operation.
++ */
++static int refresh_ref_path(struct send_ctx *sctx, struct recorded_ref *ref)
++{
++	char *name;
++	int ret;
 +
- 	hil_mlcs_probe = 1;
- 	tasklet_schedule(&hil_mlcs_tasklet);
- 	/* Re-insert the periodic task. */
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -210,7 +210,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	priv->tseq[2] = 1;
- 	priv->tseq[3] = 0;
- 	priv->tseq[4] = 0;
--	__hp_sdc_enqueue_transaction(&priv->trans);
-+	return __hp_sdc_enqueue_transaction(&priv->trans);
-  busy:
- 	return 1;
-  done:
-@@ -219,7 +219,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	return 0;
- }
++	name = kmemdup(ref->name, ref->name_len, GFP_KERNEL);
++	if (!name)
++		return -ENOMEM;
++
++	fs_path_reset(ref->full_path);
++	ret = get_cur_path(sctx, ref->dir, ref->dir_gen, ref->full_path);
++	if (ret < 0)
++		goto out;
++
++	ret = fs_path_add(ref->full_path, name, ref->name_len);
++	if (ret < 0)
++		goto out;
++
++	/* Update the reference's base name pointer. */
++	set_ref_path(ref, ref->full_path);
++out:
++	kfree(name);
++	return ret;
++}
++
++/*
+  * This does all the move/link/unlink/rmdir magic.
+  */
+ static int process_recorded_refs(struct send_ctx *sctx, int *pending_move)
+@@ -3950,6 +4016,12 @@ static int process_recorded_refs(struct
+ 				struct name_cache_entry *nce;
+ 				struct waiting_dir_move *wdm;
  
--static void hp_sdc_mlc_out(hil_mlc *mlc)
-+static int hp_sdc_mlc_out(hil_mlc *mlc)
- {
- 	struct hp_sdc_mlc_priv_s *priv;
- 
-@@ -234,7 +234,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
-  do_data:
- 	if (priv->emtestmode) {
- 		up(&mlc->osem);
--		return;
-+		return 0;
- 	}
- 	/* Shouldn't be sending commands when loop may be busy */
- 	BUG_ON(down_trylock(&mlc->csem));
-@@ -296,7 +296,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
- 		BUG_ON(down_trylock(&mlc->csem));
- 	}
-  enqueue:
--	hp_sdc_enqueue_transaction(&priv->trans);
-+	return hp_sdc_enqueue_transaction(&priv->trans);
- }
- 
- static int __init hp_sdc_mlc_init(void)
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -103,7 +103,7 @@ struct hilse_node {
- 
- /* Methods for back-end drivers, e.g. hp_sdc_mlc */
- typedef int	(hil_mlc_cts) (hil_mlc *mlc);
--typedef void	(hil_mlc_out) (hil_mlc *mlc);
-+typedef int	(hil_mlc_out) (hil_mlc *mlc);
- typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
- 
- struct hil_mlc_devinfo {
++				if (orphanized_dir) {
++					ret = refresh_ref_path(sctx, cur);
++					if (ret < 0)
++						goto out;
++				}
++
+ 				ret = orphanize_inode(sctx, ow_inode, ow_gen,
+ 						cur->full_path);
+ 				if (ret < 0)
 
 
