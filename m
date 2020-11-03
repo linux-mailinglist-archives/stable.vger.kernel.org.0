@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AD92A39CC
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D16D02A39D0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727383AbgKCBSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:18:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60424 "EHLO mail.kernel.org"
+        id S1726553AbgKCB2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:28:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727334AbgKCBSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:18:54 -0500
+        id S1727371AbgKCBSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:18:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0864A222EC;
-        Tue,  3 Nov 2020 01:18:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 454EA223AB;
+        Tue,  3 Nov 2020 01:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366333;
-        bh=NsTZ4LeL44b2TEztNibwzFI+wjAhn0RVr98hf/W1DYk=;
+        s=default; t=1604366334;
+        bh=8LngFopYzFeGa/jZrFWBu9RFqdYmR0lINC0f9D8B8wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P68X21YRhVGL8V75H8Ez2XlQ27UQ0UQLbcGSN9t9JAkQ/kDvLclfjfxblRltZ2fT8
-         eNwU/a0lsK+umypumfevaVWt6LIG8JVBRiWj/S1qf9h51Uhx2vSYue0JUU0+zfC9xY
-         Tt8SlPCo3Loe6cKlwVSNzA7vCrkkZ0ql1vo0J4+Q=
+        b=1q9ZFlOFJi4wBi5eW8ukiilI+S7twI1WUptnoXQ5zDrx3dMTMvuemnu3KrrCOwTHo
+         cOHNJiepDlBYVDyrv89N5s/uPtUQu37cO17Dl9dsXWsf5OgninJRo38tQ1L4wk8GeV
+         z6gw0IftR21tc0gfXLbqyfXACHjEECpHr7C9WN5w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 09/35] io_uring: don't miss setting IO_WQ_WORK_CONCURRENT
-Date:   Mon,  2 Nov 2020 20:18:14 -0500
-Message-Id: <20201103011840.182814-9-sashal@kernel.org>
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 10/35] of: Fix reserved-memory overlap detection
+Date:   Mon,  2 Nov 2020 20:18:15 -0500
+Message-Id: <20201103011840.182814-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103011840.182814-1-sashal@kernel.org>
 References: <20201103011840.182814-1-sashal@kernel.org>
@@ -42,48 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit feaadc4fc2ebdbd53ffed1735077725855a2af53 ]
+[ Upstream commit ca05f33316559a04867295dd49f85aeedbfd6bfd ]
 
-Set IO_WQ_WORK_CONCURRENT for all REQ_F_FORCE_ASYNC requests, do that in
-that is also looks better.
+The reserved-memory overlap detection code fails to detect overlaps if
+either of the regions starts at address 0x0.  The code explicitly checks
+for and ignores such regions, apparently in order to ignore dynamically
+allocated regions which have an address of 0x0 at this point.  These
+dynamically allocated regions also have a size of 0x0 at this point, so
+fix this by removing the check and sorting the dynamically allocated
+regions ahead of any static regions at address 0x0.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+For example, there are two overlaps in this case but they are not
+currently reported:
+
+	foo@0 {
+	        reg = <0x0 0x2000>;
+	};
+
+	bar@0 {
+	        reg = <0x0 0x1000>;
+	};
+
+	baz@1000 {
+	        reg = <0x1000 0x1000>;
+	};
+
+	quux {
+	        size = <0x1000>;
+	};
+
+but they are after this patch:
+
+ OF: reserved mem: OVERLAP DETECTED!
+ bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x00002000)
+ OF: reserved mem: OVERLAP DETECTED!
+ foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x00002000)
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/ded6fd6b47b58741aabdcc6967f73eca6a3f311e.1603273666.git-series.vincent.whitchurch@axis.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/of/of_reserved_mem.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 59ab8c5c2aaaa..670b15014e256 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1140,6 +1140,9 @@ static void io_prep_async_work(struct io_kiocb *req)
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index 46b9371c8a332..6530b8b9160f1 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -200,6 +200,16 @@ static int __init __rmem_cmp(const void *a, const void *b)
+ 	if (ra->base > rb->base)
+ 		return 1;
  
- 	io_req_init_async(req);
- 
-+	if (req->flags & REQ_F_FORCE_ASYNC)
-+		req->work.flags |= IO_WQ_WORK_CONCURRENT;
++	/*
++	 * Put the dynamic allocations (address == 0, size == 0) before static
++	 * allocations at address 0x0 so that overlap detection works
++	 * correctly.
++	 */
++	if (ra->size < rb->size)
++		return -1;
++	if (ra->size > rb->size)
++		return 1;
 +
- 	if (req->flags & REQ_F_ISREG) {
- 		if (def->hash_reg_file || (req->ctx->flags & IORING_SETUP_IOPOLL))
- 			io_wq_hash_work(&req->work, file_inode(req->file));
-@@ -6279,13 +6282,6 @@ static void io_queue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 			if (unlikely(ret))
- 				goto fail_req;
- 		}
--
--		/*
--		 * Never try inline submit of IOSQE_ASYNC is set, go straight
--		 * to async execution.
--		 */
--		io_req_init_async(req);
--		req->work.flags |= IO_WQ_WORK_CONCURRENT;
- 		io_queue_async_work(req);
- 	} else {
- 		__io_queue_sqe(req, sqe, cs);
+ 	return 0;
+ }
+ 
+@@ -217,8 +227,7 @@ static void __init __rmem_check_for_overlap(void)
+ 
+ 		this = &reserved_mem[i];
+ 		next = &reserved_mem[i + 1];
+-		if (!(this->base && next->base))
+-			continue;
++
+ 		if (this->base + this->size > next->base) {
+ 			phys_addr_t this_end, next_end;
+ 
 -- 
 2.27.0
 
