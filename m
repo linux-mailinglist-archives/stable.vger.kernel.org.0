@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E53F22A5549
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C69062A54D7
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387473AbgKCVIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:08:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
+        id S2388479AbgKCVOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:14:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388393AbgKCVIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:05 -0500
+        id S1732451AbgKCVM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6059205ED;
-        Tue,  3 Nov 2020 21:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDD6B205ED;
+        Tue,  3 Nov 2020 21:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437684;
-        bh=l0lvXZCW3pe6QBzIIU3kISXcYBdU9aclTmrieYLvZkk=;
+        s=default; t=1604437946;
+        bh=kypkRvrwnydovt/0TQbUVCrfCBs2LmXX7tn4vQxs89s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OX+r2YJe2+Gk5CrPpW//tZD3kZfQ7Ogx3yXVU8q6Ze8VF0ZjFS6Nu3R+G61Y7U8g
-         dwAzlxPcYzQFv8cFVI31vC1qOXPlKYbOBbPEXyex0vsYQLOi8QLDuyGWYDsl0Ul3t4
-         muh09Y6LlTlbqY0AGTbCHaqGzB2RuW1FKDwku/mo=
+        b=TKUn0hxuXHc8kkqayveADMtr6GZtcgHN5WRbT1bl4ik9pmvVeX1bKf5atNESzNBTH
+         bNsMrdj5AVt2EdH3ZkxT/3VpkctOlRCAxuIqRl774laqnSiQoJJHyb5yTxeAJSC+WT
+         2mZY11VHppmcdNw2LKY0EESeDDat+jmkVweXrZoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 182/191] hil/parisc: Disable HIL driver when it gets stuck
-Date:   Tue,  3 Nov 2020 21:37:54 +0100
-Message-Id: <20201103203249.760448902@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Hagen Paul Pfeifer <hagen@jauu.net>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 4.14 098/125] perf python scripting: Fix printable strings in python3 scripts
+Date:   Tue,  3 Nov 2020 21:37:55 +0100
+Message-Id: <20201103203211.199960024@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
+commit 6fcd5ddc3b1467b3586972ef785d0d926ae4cdf4 upstream.
 
-When starting a HP machine with HIL driver but without an HIL keyboard
-or HIL mouse attached, it may happen that data written to the HIL loop
-gets stuck (e.g. because the transaction queue is full).  Usually one
-will then have to reboot the machine because all you see is and endless
-output of:
- Transaction add failed: transaction already queued?
+Hagen reported broken strings in python3 tracepoint scripts:
 
-In the higher layers hp_sdc_enqueue_transaction() is called to queued up
-a HIL packet. This function returns an error code, and this patch adds
-the necessary checks for this return code and disables the HIL driver if
-further packets can't be sent.
+  make PYTHON=python3
+  perf record -e sched:sched_switch -a -- sleep 5
+  perf script --gen-script py
+  perf script -s ./perf-script.py
 
-Tested on a HP 730 and a HP 715/64 machine.
+  [..]
+  sched__sched_switch      7 563231.759525792        0 swapper   prev_comm=bytearray(b'swapper/7\x00\x00\x00\x00\x00\x00\x00'), prev_pid=0, prev_prio=120, prev_state=, next_comm=bytearray(b'mutex-thread-co\x00'),
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+The problem is in the is_printable_array function that does not take the
+zero byte into account and claim such string as not printable, so the
+code will create byte array instead of string.
+
+Committer testing:
+
+After this fix:
+
+sched__sched_switch 3 484522.497072626  1158680 kworker/3:0-eve  prev_comm=kworker/3:0, prev_pid=1158680, prev_prio=120, prev_state=I, next_comm=swapper/3, next_pid=0, next_prio=120
+Sample: {addr=0, cpu=3, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1158680, tid=1158680, time=484522497072626, transaction=0, values=[(0, 0)], weight=0}
+
+sched__sched_switch 4 484522.497085610  1225814 perf             prev_comm=perf, prev_pid=1225814, prev_prio=120, prev_state=, next_comm=migration/4, next_pid=30, next_prio=0
+Sample: {addr=0, cpu=4, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1225814, tid=1225814, time=484522497085610, transaction=0, values=[(0, 0)], weight=0}
+
+Fixes: 249de6e07458 ("perf script python: Fix string vs byte array resolving")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Hagen Paul Pfeifer <hagen@jauu.net>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200928201135.3633850-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
- drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
- include/linux/hil_mlc.h          |    2 +-
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ tools/perf/util/print_binary.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
- static LIST_HEAD(hil_mlcs);
- static DEFINE_RWLOCK(hil_mlcs_lock);
- static struct timer_list	hil_mlcs_kicker;
--static int			hil_mlcs_probe;
-+static int			hil_mlcs_probe, hil_mlc_stop;
+--- a/tools/perf/util/print_binary.c
++++ b/tools/perf/util/print_binary.c
+@@ -48,7 +48,7 @@ int is_printable_array(char *p, unsigned
  
- static void hil_mlcs_process(unsigned long unused);
- static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
-@@ -702,9 +702,13 @@ static int hilse_donode(hil_mlc *mlc)
- 		if (!mlc->ostarted) {
- 			mlc->ostarted = 1;
- 			mlc->opacket = pack;
--			mlc->out(mlc);
-+			rc = mlc->out(mlc);
- 			nextidx = HILSEN_DOZE;
- 			write_unlock_irqrestore(&mlc->lock, flags);
-+			if (rc) {
-+				hil_mlc_stop = 1;
-+				return 1;
-+			}
- 			break;
- 		}
- 		mlc->ostarted = 0;
-@@ -715,8 +719,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 	len--;
  
- 	case HILSE_CTS:
- 		write_lock_irqsave(&mlc->lock, flags);
--		nextidx = mlc->cts(mlc) ? node->bad : node->good;
-+		rc = mlc->cts(mlc);
-+		nextidx = rc ? node->bad : node->good;
- 		write_unlock_irqrestore(&mlc->lock, flags);
-+		if (rc) {
-+			hil_mlc_stop = 1;
-+			return 1;
-+		}
- 		break;
- 
- 	default:
-@@ -780,6 +789,12 @@ static void hil_mlcs_process(unsigned lo
- 
- static void hil_mlcs_timer(struct timer_list *unused)
- {
-+	if (hil_mlc_stop) {
-+		/* could not send packet - stop immediately. */
-+		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
-+		return;
-+	}
-+
- 	hil_mlcs_probe = 1;
- 	tasklet_schedule(&hil_mlcs_tasklet);
- 	/* Re-insert the periodic task. */
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -210,7 +210,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	priv->tseq[2] = 1;
- 	priv->tseq[3] = 0;
- 	priv->tseq[4] = 0;
--	__hp_sdc_enqueue_transaction(&priv->trans);
-+	return __hp_sdc_enqueue_transaction(&priv->trans);
-  busy:
- 	return 1;
-  done:
-@@ -219,7 +219,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	return 0;
- }
- 
--static void hp_sdc_mlc_out(hil_mlc *mlc)
-+static int hp_sdc_mlc_out(hil_mlc *mlc)
- {
- 	struct hp_sdc_mlc_priv_s *priv;
- 
-@@ -234,7 +234,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
-  do_data:
- 	if (priv->emtestmode) {
- 		up(&mlc->osem);
--		return;
-+		return 0;
+-	for (i = 0; i < len; i++) {
++	for (i = 0; i < len && p[i]; i++) {
+ 		if (!isprint(p[i]) && !isspace(p[i]))
+ 			return 0;
  	}
- 	/* Shouldn't be sending commands when loop may be busy */
- 	BUG_ON(down_trylock(&mlc->csem));
-@@ -296,7 +296,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
- 		BUG_ON(down_trylock(&mlc->csem));
- 	}
-  enqueue:
--	hp_sdc_enqueue_transaction(&priv->trans);
-+	return hp_sdc_enqueue_transaction(&priv->trans);
- }
- 
- static int __init hp_sdc_mlc_init(void)
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -103,7 +103,7 @@ struct hilse_node {
- 
- /* Methods for back-end drivers, e.g. hp_sdc_mlc */
- typedef int	(hil_mlc_cts) (hil_mlc *mlc);
--typedef void	(hil_mlc_out) (hil_mlc *mlc);
-+typedef int	(hil_mlc_out) (hil_mlc *mlc);
- typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
- 
- struct hil_mlc_devinfo {
 
 
