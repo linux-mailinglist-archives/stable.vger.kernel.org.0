@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAC02A5293
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CC02A532A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731918AbgKCUvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:51:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
+        id S1732956AbgKCU60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731362AbgKCUvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:51:07 -0500
+        id S1732967AbgKCU6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9114220719;
-        Tue,  3 Nov 2020 20:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C0AC223C7;
+        Tue,  3 Nov 2020 20:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436667;
-        bh=wiBx9A2lhebuSmXPGder/2NCRifMq+OyrZyXrFNON5E=;
+        s=default; t=1604437104;
+        bh=YMsQInCazoApgrY+92/b5y6QEoKHwNezzaCHAZQXFWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovYslY7wGskhWaY6Byltkuq53kKV93KZJpIo9Cpck53SBj5wTDr9pyqMioIrUhT7X
-         5M2PH+S5sXwc4/sMLUQ8Amr+sjq6yJbi5Vnu/Q6dn210JVVUGHxk3LmJzf39ebYvnb
-         jVt8psHTZ89+b0/cF0u71+c7/0aEBXpLP3T6pE58=
+        b=D4lXy1ElA9Uv0DU96pJZ622kHN8T1keyCxDE6NWit/gX9+OwoLZPGPh1OmKJRGm7H
+         si2CaqwUR10mg52F9SS58LEnajCbBkE4YN+h74+XNxVIGekMsm5gGSMe4yu8QgvyFV
+         bVQU2+mqolcJzmKveXi13lN+wL+oryVzkDOYVnIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Luo Meng <luomeng12@huawei.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.9 343/391] ext4: fix invalid inode checksum
-Date:   Tue,  3 Nov 2020 21:36:34 +0100
-Message-Id: <20201103203410.282363210@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 147/214] HID: wacom: Avoid entering wacom_wac_pen_report for pad / battery
+Date:   Tue,  3 Nov 2020 21:36:35 +0100
+Message-Id: <20201103203304.591985448@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-commit 1322181170bb01bce3c228b82ae3d5c6b793164f upstream.
+commit d9216d753b2b1406b801243b12aaf00a5ce5b861 upstream.
 
-During the stability test, there are some errors:
-  ext4_lookup:1590: inode #6967: comm fsstress: iget: checksum invalid.
+It has recently been reported that the "heartbeat" report from devices
+like the 2nd-gen Intuos Pro (PTH-460, PTH-660, PTH-860) or the 2nd-gen
+Bluetooth-enabled Intuos tablets (CTL-4100WL, CTL-6100WL) can cause the
+driver to send a spurious BTN_TOUCH=0 once per second in the middle of
+drawing. This can result in broken lines while drawing on Chrome OS.
 
-If the inode->i_iblocks too big and doesn't set huge file flag, checksum
-will not be recalculated when update the inode information to it's buffer.
-If other inode marks the buffer dirty, then the inconsistent inode will
-be flushed to disk.
+The source of the issue has been traced back to a change which modified
+the driver to only call `wacom_wac_pad_report()` once per report instead
+of once per collection. As part of this change, pad-handling code was
+removed from `wacom_wac_collection()` under the assumption that the
+`WACOM_PEN_FIELD` and `WACOM_TOUCH_FIELD` checks would not be satisfied
+when a pad or battery collection was being processed.
 
-Fix this problem by checking i_blocks in advance.
+To be clear, the macros `WACOM_PAD_FIELD` and `WACOM_PEN_FIELD` do not
+currently check exclusive conditions. In fact, most "pad" fields will
+also appear to be "pen" fields simply due to their presence inside of
+a Digitizer application collection. Because of this, the removal of
+the check from `wacom_wac_collection()` just causes pad / battery
+collections to instead trigger a call to `wacom_wac_pen_report()`
+instead. The pen report function in turn resets the tip switch state
+just prior to exiting, resulting in the observed BTN_TOUCH=0 symptom.
 
-Cc: stable@kernel.org
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Link: https://lore.kernel.org/r/20201020013631.3796673-1-luomeng12@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+To correct this, we restore a version of the `WACOM_PAD_FIELD` check
+in `wacom_wac_collection()` and return early. This effectively prevents
+pad / battery collections from being reported until the very end of the
+report as originally intended.
+
+Fixes: d4b8efeb46d9 ("HID: wacom: generic: Correct pad syncing")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Tested-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/hid/wacom_wac.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4982,6 +4982,12 @@ static int ext4_do_update_inode(handle_t
- 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
- 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2773,7 +2773,9 @@ static int wacom_wac_collection(struct h
+ 	if (report->type != HID_INPUT_REPORT)
+ 		return -1;
  
-+	err = ext4_inode_blocks_set(handle, raw_inode, ei);
-+	if (err) {
-+		spin_unlock(&ei->i_raw_lock);
-+		goto out_brelse;
-+	}
-+
- 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
- 	i_uid = i_uid_read(inode);
- 	i_gid = i_gid_read(inode);
-@@ -5015,11 +5021,6 @@ static int ext4_do_update_inode(handle_t
- 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
- 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
- 
--	err = ext4_inode_blocks_set(handle, raw_inode, ei);
--	if (err) {
--		spin_unlock(&ei->i_raw_lock);
--		goto out_brelse;
--	}
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
- 	raw_inode->i_flags = cpu_to_le32(ei->i_flags & 0xFFFFFFFF);
- 	if (likely(!test_opt2(inode->i_sb, HURD_COMPAT)))
+-	if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
++	if (WACOM_PAD_FIELD(field))
++		return 0;
++	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_report(hdev, report);
+ 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
+ 		wacom_wac_finger_report(hdev, report);
 
 
