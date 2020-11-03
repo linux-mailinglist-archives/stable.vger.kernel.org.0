@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9780E2A582A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA9B2A5828
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbgKCVtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:49:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
+        id S1731623AbgKCUto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731188AbgKCUti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:38 -0500
+        id S1730786AbgKCUtn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F63020719;
-        Tue,  3 Nov 2020 20:49:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91BE8223FD;
+        Tue,  3 Nov 2020 20:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436578;
-        bh=W/wWV///xM5VSgh9MqitXakSYutwEYqy9wk82CiwRDU=;
+        s=default; t=1604436583;
+        bh=H4VvU+CZRcA+DE6e3AeldP4OsHLDfeiHM0R5yzmyYYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2ameiwGFfqo7Mgof+ZnTcTRsH1qFzgfKm9vD3xv3TyukM7Cb33pdIi3NrGZigXX6
-         +FBhvUMuYDf0bZS/jQXB0Nkdf8Cn+w7ppNnod+5yGVnhf2Stov46QfRLbJ0cM7B5qw
-         jWh3CuxsB7cJrqZy5TNDUBLoW2lZaY+I+qikNQQU=
+        b=lyTY0ZpJWLoztvOBTjckXvpAHN2HJpmT1jHgJ/Q7Bl5lX/fWgirlwsLmllZQqrzKw
+         IpUJF7jtxM7hCAW/eJk6QTWz1pjge4o30SwvInZsfJUdQcWjp9G67I0s8dnB1hIcqg
+         8ejVPRFbGlbdSK+U9icy/bNtC/RmVv7Teuuih0Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.9 312/391] ubi: check kthread_should_stop() after the setting of task state
-Date:   Tue,  3 Nov 2020 21:36:03 +0100
-Message-Id: <20201103203408.163282671@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.9 314/391] rtc: rx8010: dont modify the global rtc ops
+Date:   Tue,  3 Nov 2020 21:36:05 +0100
+Message-Id: <20201103203408.299856802@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,64 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-commit d005f8c6588efcfbe88099b6edafc6f58c84a9c1 upstream.
+commit d3b14296da69adb7825022f3224ac6137eb30abf upstream.
 
-A detach hung is possible when a race occurs between the detach process
-and the ubi background thread. The following sequences outline the race:
+The way the driver is implemented is buggy for the (admittedly unlikely)
+use case where there are two RTCs with one having an interrupt configured
+and the second not. This is caused by the fact that we use a global
+rtc_class_ops struct which we modify depending on whether the irq number
+is present or not.
 
-  ubi thread: if (list_empty(&ubi->works)...
+Fix it by using two const ops structs with and without alarm operations.
+While at it: not being able to request a configured interrupt is an error
+so don't ignore it and bail out of probe().
 
-  ubi detach: set_bit(KTHREAD_SHOULD_STOP, &kthread->flags)
-              => by kthread_stop()
-              wake_up_process()
-              => ubi thread is still running, so 0 is returned
-
-  ubi thread: set_current_state(TASK_INTERRUPTIBLE)
-              schedule()
-              => ubi thread will never be scheduled again
-
-  ubi detach: wait_for_completion()
-              => hung task!
-
-To fix that, we need to check kthread_should_stop() after we set the
-task state, so the ubi thread will either see the stop bit and exit or
-the task state is reset to runnable such that it isn't scheduled out
-indefinitely.
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 801c135ce73d5df1ca ("UBI: Unsorted Block Images")
-Reported-by: syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver")
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200914154601.32245-2-brgl@bgdev.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/ubi/wl.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/rtc/rtc-rx8010.c |   24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -1639,6 +1639,19 @@ int ubi_thread(void *u)
- 		    !ubi->thread_enabled || ubi_dbg_is_bgt_disabled(ubi)) {
- 			set_current_state(TASK_INTERRUPTIBLE);
- 			spin_unlock(&ubi->wl_lock);
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -407,16 +407,26 @@ static int rx8010_ioctl(struct device *d
+ 	}
+ }
+ 
+-static struct rtc_class_ops rx8010_rtc_ops = {
++static const struct rtc_class_ops rx8010_rtc_ops_default = {
+ 	.read_time = rx8010_get_time,
+ 	.set_time = rx8010_set_time,
+ 	.ioctl = rx8010_ioctl,
+ };
+ 
++static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
++	.read_time = rx8010_get_time,
++	.set_time = rx8010_set_time,
++	.ioctl = rx8010_ioctl,
++	.read_alarm = rx8010_read_alarm,
++	.set_alarm = rx8010_set_alarm,
++	.alarm_irq_enable = rx8010_alarm_irq_enable,
++};
 +
-+			/*
-+			 * Check kthread_should_stop() after we set the task
-+			 * state to guarantee that we either see the stop bit
-+			 * and exit or the task state is reset to runnable such
-+			 * that it's not scheduled out indefinitely and detects
-+			 * the stop bit at kthread_should_stop().
-+			 */
-+			if (kthread_should_stop()) {
-+				set_current_state(TASK_RUNNING);
-+				break;
-+			}
-+
- 			schedule();
- 			continue;
+ static int rx8010_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
++	const struct rtc_class_ops *rtc_ops;
+ 	struct rx8010_data *rx8010;
+ 	int err = 0;
+ 
+@@ -447,16 +457,16 @@ static int rx8010_probe(struct i2c_clien
+ 
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ\n");
+-			client->irq = 0;
+-		} else {
+-			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
+-			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
+-			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
++			return err;
  		}
++
++		rtc_ops = &rx8010_rtc_ops_alarm;
++	} else {
++		rtc_ops = &rx8010_rtc_ops_default;
+ 	}
+ 
+ 	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
+-		&rx8010_rtc_ops, THIS_MODULE);
++					       rtc_ops, THIS_MODULE);
+ 
+ 	if (IS_ERR(rx8010->rtc)) {
+ 		dev_err(&client->dev, "unable to register the class device\n");
 
 
