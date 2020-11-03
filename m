@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BAF2A5551
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1EE52A5488
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387627AbgKCVIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:08:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
+        id S2388538AbgKCVML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388599AbgKCVIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:08:44 -0500
+        id S2388973AbgKCVMK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B8CB21534;
-        Tue,  3 Nov 2020 21:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2A82206B5;
+        Tue,  3 Nov 2020 21:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437723;
-        bh=iA1ttNm06iJLfQ8hdxVhFGVLcLxQCUX4bDZ3azqJbRI=;
+        s=default; t=1604437929;
+        bh=dV0oHAJrbtnLgh/JMhACTm5bLtrHPT2g2ubmqUEGnZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=widc2iW0gfK3Ni/FLF5V7mdZ2Y6Oqq4QvO1fiLy0bn0zF8vo6JSZrpviD3idRJsNW
-         6yJ16LhVykoaJAtLm3VjoH63XmaMA6aFn3txQI5D2J8JrAr9moBhTZ8YKSQrwdC3OJ
-         Cpnq2zgHCXh76GlIBH8tQN240PMtdQI5oKNqGSQk=
+        b=rUnYjno0bWcfhmUHuvIQfutOW3AdmGQaMrWUkx7KCcByPMy4iEw8mvS/QjSO40gP8
+         eb1DdXaQtG9YcANd2T9XGRH0W5Ag+781H25yHl2jJmdoIibi1r6v5+eevIJ8Ul6/Nj
+         62mXhT/g8J7FE6MWOqF/akLOG3/zKYuZMlsFh0fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Luo Meng <luomeng12@huawei.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 175/191] ext4: fix invalid inode checksum
-Date:   Tue,  3 Nov 2020 21:37:47 +0100
-Message-Id: <20201103203248.994841173@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 091/125] s390/stp: add locking to sysfs functions
+Date:   Tue,  3 Nov 2020 21:37:48 +0100
+Message-Id: <20201103203210.033449871@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,236 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 1322181170bb01bce3c228b82ae3d5c6b793164f upstream.
+commit b3bd02495cb339124f13135d51940cf48d83e5cb upstream.
 
-During the stability test, there are some errors:
-  ext4_lookup:1590: inode #6967: comm fsstress: iget: checksum invalid.
+The sysfs function might race with stp_work_fn. To prevent that,
+add the required locking. Another issue is that the sysfs functions
+are checking the stp_online flag, but this flag just holds the user
+setting whether STP is enabled. Add a flag to clock_sync_flag whether
+stp_info holds valid data and use that instead.
 
-If the inode->i_iblocks too big and doesn't set huge file flag, checksum
-will not be recalculated when update the inode information to it's buffer.
-If other inode marks the buffer dirty, then the inconsistent inode will
-be flushed to disk.
-
-Fix this problem by checking i_blocks in advance.
-
-Cc: stable@kernel.org
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Link: https://lore.kernel.org/r/20201020013631.3796673-1-luomeng12@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/s390/kernel/time.c |  118 ++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 85 insertions(+), 33 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5271,6 +5271,12 @@ static int ext4_do_update_inode(handle_t
- 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
- 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -347,8 +347,9 @@ static DEFINE_PER_CPU(atomic_t, clock_sy
+ static DEFINE_MUTEX(clock_sync_mutex);
+ static unsigned long clock_sync_flags;
  
-+	err = ext4_inode_blocks_set(handle, raw_inode, ei);
-+	if (err) {
-+		spin_unlock(&ei->i_raw_lock);
-+		goto out_brelse;
-+	}
+-#define CLOCK_SYNC_HAS_STP	0
+-#define CLOCK_SYNC_STP		1
++#define CLOCK_SYNC_HAS_STP		0
++#define CLOCK_SYNC_STP			1
++#define CLOCK_SYNC_STPINFO_VALID	2
+ 
+ /*
+  * The get_clock function for the physical clock. It will get the current
+@@ -585,6 +586,22 @@ void stp_queue_work(void)
+ 	queue_work(time_sync_wq, &stp_work);
+ }
+ 
++static int __store_stpinfo(void)
++{
++	int rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
 +
- 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
- 	i_uid = i_uid_read(inode);
- 	i_gid = i_gid_read(inode);
-@@ -5304,11 +5310,6 @@ static int ext4_do_update_inode(handle_t
- 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
- 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
++	if (rc)
++		clear_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
++	else
++		set_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
++	return rc;
++}
++
++static int stpinfo_valid(void)
++{
++	return stp_online && test_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
++}
++
+ static int stp_sync_clock(void *data)
+ {
+ 	struct clock_sync_data *sync = data;
+@@ -606,8 +623,7 @@ static int stp_sync_clock(void *data)
+ 			if (rc == 0) {
+ 				sync->clock_delta = clock_delta;
+ 				clock_sync_global(clock_delta);
+-				rc = chsc_sstpi(stp_page, &stp_info,
+-						sizeof(struct stp_sstpi));
++				rc = __store_stpinfo();
+ 				if (rc == 0 && stp_info.tmd != 2)
+ 					rc = -EAGAIN;
+ 			}
+@@ -652,7 +668,7 @@ static void stp_work_fn(struct work_stru
+ 	if (rc)
+ 		goto out_unlock;
  
--	err = ext4_inode_blocks_set(handle, raw_inode, ei);
--	if (err) {
--		spin_unlock(&ei->i_raw_lock);
--		goto out_brelse;
--	}
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
- 	raw_inode->i_flags = cpu_to_le32(ei->i_flags & 0xFFFFFFFF);
- 	if (likely(!test_opt2(inode->i_sb, HURD_COMPAT)))
+-	rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
++	rc = __store_stpinfo();
+ 	if (rc || stp_info.c == 0)
+ 		goto out_unlock;
+ 
+@@ -689,10 +705,14 @@ static ssize_t stp_ctn_id_show(struct de
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online)
+-		return -ENODATA;
+-	return sprintf(buf, "%016llx\n",
+-		       *(unsigned long long *) stp_info.ctnid);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid())
++		ret = sprintf(buf, "%016llx\n",
++			      *(unsigned long long *) stp_info.ctnid);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(ctn_id, 0400, stp_ctn_id_show, NULL);
+@@ -701,9 +721,13 @@ static ssize_t stp_ctn_type_show(struct
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online)
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", stp_info.ctn);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid())
++		ret = sprintf(buf, "%i\n", stp_info.ctn);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(ctn_type, 0400, stp_ctn_type_show, NULL);
+@@ -712,9 +736,13 @@ static ssize_t stp_dst_offset_show(struc
+ 				   struct device_attribute *attr,
+ 				   char *buf)
+ {
+-	if (!stp_online || !(stp_info.vbits & 0x2000))
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", (int)(s16) stp_info.dsto);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid() && (stp_info.vbits & 0x2000))
++		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.dsto);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(dst_offset, 0400, stp_dst_offset_show, NULL);
+@@ -723,9 +751,13 @@ static ssize_t stp_leap_seconds_show(str
+ 					struct device_attribute *attr,
+ 					char *buf)
+ {
+-	if (!stp_online || !(stp_info.vbits & 0x8000))
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", (int)(s16) stp_info.leaps);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid() && (stp_info.vbits & 0x8000))
++		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.leaps);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(leap_seconds, 0400, stp_leap_seconds_show, NULL);
+@@ -734,9 +766,13 @@ static ssize_t stp_stratum_show(struct d
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online)
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", (int)(s16) stp_info.stratum);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid())
++		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.stratum);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(stratum, 0400, stp_stratum_show, NULL);
+@@ -745,9 +781,13 @@ static ssize_t stp_time_offset_show(stru
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online || !(stp_info.vbits & 0x0800))
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", (int) stp_info.tto);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid() && (stp_info.vbits & 0x0800))
++		ret = sprintf(buf, "%i\n", (int) stp_info.tto);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(time_offset, 0400, stp_time_offset_show, NULL);
+@@ -756,9 +796,13 @@ static ssize_t stp_time_zone_offset_show
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online || !(stp_info.vbits & 0x4000))
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", (int)(s16) stp_info.tzo);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid() && (stp_info.vbits & 0x4000))
++		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.tzo);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(time_zone_offset, 0400,
+@@ -768,9 +812,13 @@ static ssize_t stp_timing_mode_show(stru
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online)
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", stp_info.tmd);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid())
++		ret = sprintf(buf, "%i\n", stp_info.tmd);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(timing_mode, 0400, stp_timing_mode_show, NULL);
+@@ -779,9 +827,13 @@ static ssize_t stp_timing_state_show(str
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+-	if (!stp_online)
+-		return -ENODATA;
+-	return sprintf(buf, "%i\n", stp_info.tst);
++	ssize_t ret = -ENODATA;
++
++	mutex_lock(&stp_work_mutex);
++	if (stpinfo_valid())
++		ret = sprintf(buf, "%i\n", stp_info.tst);
++	mutex_unlock(&stp_work_mutex);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(timing_state, 0400, stp_timing_state_show, NULL);
 
 
