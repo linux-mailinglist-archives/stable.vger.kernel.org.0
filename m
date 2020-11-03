@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAA02A47F9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF992A4804
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729340AbgKCOYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:24:11 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52297 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729286AbgKCOXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:23:25 -0500
+        id S1729771AbgKCO0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:26:32 -0500
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:44135 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729730AbgKCO03 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 3 Nov 2020 09:26:29 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 3AF9AC6B;
-        Tue,  3 Nov 2020 09:23:24 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:23:24 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1C8EB194275C;
+        Tue,  3 Nov 2020 09:26:28 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:26:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=yzEQW/
-        jFZw/zny1leIRY867Rdd3o8yUO2NoWzGreIDE=; b=UV+o+A5oEhoHxnk1ctYQD/
-        iwKZzrJiSa/3VLIxSI7SpcvVqsLp5SgDBfr32h9rbIH3FSIJhYU4K44drHuZ4Ra+
-        OIg7pCBh7CQ3wEJ5/A75XEijG1DB5eZb7BWmmgQLFFRnogsJrTrb4OCFHVj4jZ14
-        4GnyvMO2z42rVi8M/HMgmYpztjMkZb6IRlKZy3L3GtNT2hN0755ka/PWTw6vLXOt
-        jwPquEA2OlQcZJLf52ZAeFZ2fEOI7KUG5xZ4Tjaxljfb7oAWIBOCymWyhai3Wqwp
-        oNLAX/mgTTLvca/60MSUJgh8EuNLFLZgEvZvcylFnVs2ZuVRG4+ByyUDQsxRsoXA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=S0MkwF
+        ktGevRcUW/gVfh2spJ0Z0oyRB22N2y5NDJrgU=; b=BxHJ2cudWEjIxF9P5MzkHb
+        4bcE6Wez+tdTscrjRrzABclHLGkAjYbETgeZjoJkaVooQ8KmCYj6e8Xsb5T0irHa
+        Tv1xUuLWhyb/fTiKDOD4wKQa2VrGrAlXvPZyuFDXtb6OD1zYwng7GddRtJq4H7Wt
+        pNC9J2t1IyVCo4eJy8z+BrakNEZo6qU8kVzblnfkGJxbInbogmrIVpRkoPIDXqRy
+        RzsRe9V1li/zxcaWY7GiXKeEY/tgeFdYCSmKUbiY42OM86XKvKD6twD8KRVESoIh
+        ahX6GjcWUOOf9XlR2PjfQckhtI8UEW28nYPXS6LVJ7fFMS81blDPf4/y0iyqbfjA
         ==
-X-ME-Sender: <xms:22ehXz-A_ZFJhZlW2nfWqN5-Uaow8uuYxOGa76JWczAyeuhWmhOwfg>
-    <xme:22ehX_tQMg4iarQF7G3T00jAPTNn-85-JuV_APBlwUYzgQTgHL9azlWjKbIQWDmcI
-    U-d_HSiOOxCxw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgieduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:k2ihX2DDlHpkiYZi4qWU8EzxZT8tFjsdqxUTC4K94cobVhL4Svvf4Q>
+    <xme:k2ihXwiMVX0pe52HxHuQEmBoxBPmGFQq8RUHA6Wj5mFuCAaNgysbAS4J11SHgCWM6
+    N14fK3oLXqRjg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:22ehXxBV8oimGh5mUq77-lG-yp57OPDAzJ6i6h7o7M3SqlRZG79XQw>
-    <xmx:22ehX_cDPpfWTuA2-YOqiGOP1YdBHPZVAFasCV-GtdG9dKvggeGrRA>
-    <xmx:22ehX4Ne7zI6k0m0-p3HG_MqXTSGyfVwsiipYZkb26hwBize_vYOqQ>
-    <xmx:22ehXyUEr41phejDkbrkw90Y3p8lI5viv1S7PZbRSJX33q6qAVMYkoJquQM>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:k2ihX5kn_DcMghNG5zyvm94u4B8dEP0nSzSnkmoKvOfHHEt6IkeYFA>
+    <xmx:k2ihX0y-39VSWn8bYJTuUm6ZPAcSMFLrinWhoZE3K-ut-EUAi7nr0A>
+    <xmx:k2ihX7QSkKfLZqdBDhjovJ-n_R94D4SLX4fMFVc_cFJ1APdVS-XqLg>
+    <xmx:lGihX2dC_1FHdRAizOXLso53xHgGnGu4G05ExlMo4uDfn3Jcy5kU2Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 12BE93280065;
-        Tue,  3 Nov 2020 09:23:22 -0500 (EST)
-Subject: FAILED: patch "[PATCH] null_blk: Fix zone reset all tracing" failed to apply to 5.9-stable tree
-To:     damien.lemoal@wdc.com, axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id 52EB23064674;
+        Tue,  3 Nov 2020 09:26:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio:imu:inv_mpu6050 Fix dma and ts alignment and data leak" failed to apply to 4.9-stable tree
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        andy.shevchenko@gmail.com, jmaneyrol@invensense.com,
+        lars@metafoo.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:24:07 +0100
-Message-ID: <16044134474538@kroah.com>
+Date:   Tue, 03 Nov 2020 15:27:21 +0100
+Message-ID: <160441364116699@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.9-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,45 +72,127 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f9c9104288da543cd64f186f9e2fba389f415630 Mon Sep 17 00:00:00 2001
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Date: Thu, 29 Oct 2020 20:04:59 +0900
-Subject: [PATCH] null_blk: Fix zone reset all tracing
+From 6b0cc5dce0725ae8f1a2883514da731c55eeb35e Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Wed, 22 Jul 2020 16:50:53 +0100
+Subject: [PATCH] iio:imu:inv_mpu6050 Fix dma and ts alignment and data leak
+ issues.
 
-In the cae of the REQ_OP_ZONE_RESET_ALL operation, the command sector is
-ignored and the operation is applied to all sequential zones. For these
-commands, tracing the effect of the command using the command sector to
-determine the target zone is thus incorrect.
+This case is a bit different to the rest of the series.  The driver
+was doing a regmap_bulk_read into a buffer that wasn't dma safe
+as it was on the stack with no guarantee of it being in a cacheline
+on it's own.   Fixing that also dealt with the data leak and
+alignment issues that Lars-Peter pointed out.
 
-Fix null_zone_mgmt() zone condition tracing in the case of
-REQ_OP_ZONE_RESET_ALL to apply tracing to all sequential zones that are
-not already empty.
+Also removed some unaligned handling as we are now aligned.
 
-Fixes: 766c3297d7e1 ("null_blk: add trace in null_blk_zoned.c")
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes tag is for the dma safe buffer issue. Potentially we would
+need to backport timestamp alignment futher but that is a totally
+different patch.
 
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index 98056c88926b..b637b16a5f54 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -475,9 +475,14 @@ static blk_status_t null_zone_mgmt(struct nullb_cmd *cmd, enum req_opf op,
+Fixes: fd64df16f40e ("iio: imu: inv_mpu6050: Add SPI support for MPU6000")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-18-jic23@kernel.org
+
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index cd38b3fccc7b..eb522b38acf3 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -122,6 +122,13 @@ struct inv_mpu6050_chip_config {
+ 	u8 user_ctrl;
+ };
  
- 	switch (op) {
- 	case REQ_OP_ZONE_RESET_ALL:
--		for (i = dev->zone_nr_conv; i < dev->nr_zones; i++)
--			null_reset_zone(dev, &dev->zones[i]);
--		break;
-+		for (i = dev->zone_nr_conv; i < dev->nr_zones; i++) {
-+			zone = &dev->zones[i];
-+			if (zone->cond != BLK_ZONE_COND_EMPTY) {
-+				null_reset_zone(dev, zone);
-+				trace_nullb_zone_op(cmd, i, zone->cond);
-+			}
-+		}
-+		return BLK_STS_OK;
- 	case REQ_OP_ZONE_RESET:
- 		ret = null_reset_zone(dev, zone);
- 		break;
++/*
++ * Maximum of 6 + 6 + 2 + 7 (for MPU9x50) = 21 round up to 24 and plus 8.
++ * May be less if fewer channels are enabled, as long as the timestamp
++ * remains 8 byte aligned
++ */
++#define INV_MPU6050_OUTPUT_DATA_SIZE         32
++
+ /**
+  *  struct inv_mpu6050_hw - Other important hardware information.
+  *  @whoami:	Self identification byte from WHO_AM_I register
+@@ -165,6 +172,7 @@ struct inv_mpu6050_hw {
+  *  @magn_raw_to_gauss:	coefficient to convert mag raw value to Gauss.
+  *  @magn_orient:       magnetometer sensor chip orientation if available.
+  *  @suspended_sensors:	sensors mask of sensors turned off for suspend
++ *  @data:		dma safe buffer used for bulk reads.
+  */
+ struct inv_mpu6050_state {
+ 	struct mutex lock;
+@@ -190,6 +198,7 @@ struct inv_mpu6050_state {
+ 	s32 magn_raw_to_gauss[3];
+ 	struct iio_mount_matrix magn_orient;
+ 	unsigned int suspended_sensors;
++	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE] ____cacheline_aligned;
+ };
+ 
+ /*register and associated bit definition*/
+@@ -334,9 +343,6 @@ struct inv_mpu6050_state {
+ #define INV_ICM20608_TEMP_OFFSET	     8170
+ #define INV_ICM20608_TEMP_SCALE		     3059976
+ 
+-/* 6 + 6 + 2 + 7 (for MPU9x50) = 21 round up to 24 and plus 8 */
+-#define INV_MPU6050_OUTPUT_DATA_SIZE         32
+-
+ #define INV_MPU6050_REG_INT_PIN_CFG	0x37
+ #define INV_MPU6050_ACTIVE_HIGH		0x00
+ #define INV_MPU6050_ACTIVE_LOW		0x80
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+index b533fa2dad0a..d8e6b88ddffc 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+@@ -13,7 +13,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/poll.h>
+ #include <linux/math64.h>
+-#include <asm/unaligned.h>
+ #include "inv_mpu_iio.h"
+ 
+ /**
+@@ -121,7 +120,6 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+ 	size_t bytes_per_datum;
+ 	int result;
+-	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE];
+ 	u16 fifo_count;
+ 	s64 timestamp;
+ 	int int_status;
+@@ -160,11 +158,11 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	 * read fifo_count register to know how many bytes are inside the FIFO
+ 	 * right now
+ 	 */
+-	result = regmap_bulk_read(st->map, st->reg->fifo_count_h, data,
+-				  INV_MPU6050_FIFO_COUNT_BYTE);
++	result = regmap_bulk_read(st->map, st->reg->fifo_count_h,
++				  st->data, INV_MPU6050_FIFO_COUNT_BYTE);
+ 	if (result)
+ 		goto end_session;
+-	fifo_count = get_unaligned_be16(&data[0]);
++	fifo_count = be16_to_cpup((__be16 *)&st->data[0]);
+ 
+ 	/*
+ 	 * Handle fifo overflow by resetting fifo.
+@@ -182,7 +180,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	inv_mpu6050_update_period(st, pf->timestamp, nb);
+ 	for (i = 0; i < nb; ++i) {
+ 		result = regmap_bulk_read(st->map, st->reg->fifo_r_w,
+-					  data, bytes_per_datum);
++					  st->data, bytes_per_datum);
+ 		if (result)
+ 			goto flush_fifo;
+ 		/* skip first samples if needed */
+@@ -191,7 +189,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 			continue;
+ 		}
+ 		timestamp = inv_mpu6050_get_timestamp(st);
+-		iio_push_to_buffers_with_timestamp(indio_dev, data, timestamp);
++		iio_push_to_buffers_with_timestamp(indio_dev, st->data, timestamp);
+ 	}
+ 
+ end_session:
 
