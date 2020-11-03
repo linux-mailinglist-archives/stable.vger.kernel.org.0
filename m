@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1F22A4815
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:28:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2F62A4839
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729334AbgKCO2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:28:46 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:54593 "EHLO
+        id S1729723AbgKCOcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:32:23 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:44919 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729710AbgKCO20 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 3 Nov 2020 09:28:26 -0500
+        by vger.kernel.org with ESMTP id S1729286AbgKCOcW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:32:22 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B7C4DD1A;
-        Tue,  3 Nov 2020 09:28:25 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id B379FB21;
+        Tue,  3 Nov 2020 09:32:21 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:28:26 -0500
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:32:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=61PkHl
-        UbBzTeTZTBg/JDIAqXssLIyFqJYTcTMm2ujw8=; b=kVRIP1RcmDgHhG310bF+y3
-        n4Hcfe9d3vqqoVoWzmFnkmqTOPFCEQ+i4AcEWrLbRxC4W84iCPoqXDG11b74ZJZD
-        TVGKYmMaLYA8XfbG/+lFck5ENIgBmMDY0+rw0oc6hVPhLlMAQnlAH5+QSP3uqtGT
-        6ln3dlIBv9h3RJ4GdPCgInyFnTIjhx276Sw+ZKLK+K11Q3mBw24MV3UCac8jBCI3
-        Bmw2w5Qx++vZxZktu6820ors/eaxkttHNQyfaHP1kyH4fUzfswDuq80iI5DwTHlN
-        OB0pLWYKZop+/zWhGypSSywJ4U314oUEcJS+3ZUm/Ye2z11X6HgbIU8XKT+HVUNg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eB3wp/
+        IdGAkr5hiVV9yaq94VmCX+E+AnJMkEIYTIEeA=; b=pNZxsVLfmzWe/tNe6JtH/n
+        UKsL/4OA04K3YFjYHt5FaqXfqHwOsIi60MQsxcVt49VUOvKqixmce2MAIKGdCVol
+        BZFrd/G+Zz5yXRDCBw1o1/G/Ov1r4G4G63vin8iiHcH6M0twnrLchb/ZL/obWjgs
+        i3Tm6x2Fl+GIkUJ7cGT0CH2viNGiJiNIK1lj1Feo2IVmiQDNdw7oYYpVsbKV4WVL
+        NGJZy3KYVB/LpR0qLJR8VAo6ms7g53z1/Fh+uSrUrkoFiZZdndXOOW+ZGfYOtFqx
+        B8nOM5VvN1J8Nc+QPpMkb2P30JwJsZyVCRlbIJG5ilYIIkTOiG7h3HWPuy7cRjtw
         ==
-X-ME-Sender: <xms:CWmhXxGr_ESRhDTndN-onWmvf9s-z1CYbz76zsak2MNh3RNuPEmj5A>
-    <xme:CWmhX2U46Bpwsjm8uvw4kLkaMPnA9pdg6WvpIm7AbQuhd_RzM8N9K1HtsBTp_MUQy
-    OlD8j1Gf6vLkA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgiedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:82mhXxLYtgiEVjZ8X7VjOQA7axcgSZxozKFUCMa4R80Zwze9DKMeqQ>
+    <xme:82mhX9JHiBCEwlZb6jQnAJERqsEQyEnJJQXqLR_Y3QOjHnCjSjknh6bG2h5ZCOWQZ
+    ui9MXH_kjkbow>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeelnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:CWmhXzIZB6L2BlnSDDEnMHp5d9Q_BPctep_qeTwG_SjoPTL_EglWvg>
-    <xmx:CWmhX3ESpDi2DQd8TsJuFTUAaX_UPexm6coDIjKhPxhl6Qx9L-cGaw>
-    <xmx:CWmhX3Uk3cAih2dkOtoCt8tzEGf_JdzJ5DLJKDoJ2AZMLf6vzHwvsA>
-    <xmx:CWmhX0hr2uIYkjmC48wm187UF8ypinkOWiyOznbyl0dOd01bj65M-1d_nNs>
+X-ME-Proxy: <xmx:82mhX5uYhcMoW_eiWVMEisTIR-uG5Ov9qyuCLAFpStKztqjhi7HZNQ>
+    <xmx:82mhXyaoxKSAMUeFXWe6ZJovqHxa1vrqBwqoF7AbgQ_0dqnbeQhaOA>
+    <xmx:82mhX4aAGQo-jHg3DQYa3nqam7X57nPc54-P29ZRPEHR1_9zrUf7Rw>
+    <xmx:9WmhXzxSnmSY-fkXeTd_0Mnw0eizrvM2QKezDEo1Ah7dWroPbP8NmWTUJhg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DBBB43064610;
-        Tue,  3 Nov 2020 09:28:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio:imu:st_lsm6dsx Fix alignment and data leak issues" failed to apply to 5.4-stable tree
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        andy.shevchenko@gmail.com, lars@metafoo.de,
-        lorenzo.bianconi83@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 30146306467D;
+        Tue,  3 Nov 2020 09:32:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc: Warn about use of smt_snooze_delay" failed to apply to 4.4-stable tree
+To:     joel@jms.id.au, ego@linux.vnet.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:29:11 +0100
-Message-ID: <16044137518268@kroah.com>
+Date:   Tue, 03 Nov 2020 15:33:12 +0100
+Message-ID: <1604413992206127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,146 +70,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c14edb4d0bdc53f969ea84c7f384472c28b1a9f8 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:50:52 +0100
-Subject: [PATCH] iio:imu:st_lsm6dsx Fix alignment and data leak issues
+From a02f6d42357acf6e5de6ffc728e6e77faf3ad217 Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Wed, 2 Sep 2020 09:30:11 +0930
+Subject: [PATCH] powerpc: Warn about use of smt_snooze_delay
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to an array of suitable structures in the iio_priv() data.
+It's not done anything for a long time. Save the percpu variable, and
+emit a warning to remind users to not expect it to do anything.
 
-This data is allocated with kzalloc so no data can leak apart from
-previous readings.
+This uses pr_warn_once instead of pr_warn_ratelimit as testing
+'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
+to be noisy, as the online/offline loop is slow.
 
-For the tagged path the data is aligned by using __aligned(8) for
-the buffer on the stack.
+Fixes: 3fa8cad82b94 ("powerpc/pseries/cpuidle: smt-snooze-delay cleanup.")
+Cc: stable@vger.kernel.org # v3.14
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200902000012.3440389-1-joel@jms.id.au
 
-There has been a lot of churn in this driver, so likely backports
-may be needed for stable.
-
-Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-17-jic23@kernel.org
-
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-index d80ba2e688ed..9275346a9cc1 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-@@ -383,6 +383,7 @@ struct st_lsm6dsx_sensor {
-  * @iio_devs: Pointers to acc/gyro iio_dev instances.
-  * @settings: Pointer to the specific sensor settings in use.
-  * @orientation: sensor chip orientation relative to main hardware.
-+ * @scan: Temporary buffers used to align data before iio_push_to_buffers()
-  */
- struct st_lsm6dsx_hw {
- 	struct device *dev;
-@@ -411,6 +412,11 @@ struct st_lsm6dsx_hw {
- 	const struct st_lsm6dsx_settings *settings;
+diff --git a/arch/powerpc/kernel/sysfs.c b/arch/powerpc/kernel/sysfs.c
+index 46b4ebc33db7..5dea98fa2f93 100644
+--- a/arch/powerpc/kernel/sysfs.c
++++ b/arch/powerpc/kernel/sysfs.c
+@@ -32,29 +32,27 @@
  
- 	struct iio_mount_matrix orientation;
-+	/* Ensure natural alignment of buffer elements */
-+	struct {
-+		__le16 channels[3];
-+		s64 ts __aligned(8);
-+	} scan[3];
- };
+ static DEFINE_PER_CPU(struct cpu, cpu_devices);
  
- static __maybe_unused const struct iio_event_spec st_lsm6dsx_event = {
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-index 7de10bd636ea..12ed0a2e55e4 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-@@ -353,9 +353,6 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
- 	int err, sip, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
- 	u16 fifo_len, pattern_len = hw->sip * ST_LSM6DSX_SAMPLE_SIZE;
- 	u16 fifo_diff_mask = hw->settings->fifo_ops.fifo_diff.mask;
--	u8 gyro_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
--	u8 acc_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
--	u8 ext_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
- 	bool reset_ts = false;
- 	__le16 fifo_status;
- 	s64 ts = 0;
-@@ -416,19 +413,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+-/*
+- * SMT snooze delay stuff, 64-bit only for now
+- */
+-
+ #ifdef CONFIG_PPC64
  
- 		while (acc_sip > 0 || gyro_sip > 0 || ext_sip > 0) {
- 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
--				memcpy(gyro_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_GYRO].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels);
- 			}
- 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
--				memcpy(acc_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_ACC].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels);
- 			}
- 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
--				memcpy(ext_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_EXT0].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels);
- 			}
+-/* Time in microseconds we delay before sleeping in the idle loop */
+-static DEFINE_PER_CPU(long, smt_snooze_delay) = { 100 };
++/*
++ * Snooze delay has not been hooked up since 3fa8cad82b94 ("powerpc/pseries/cpuidle:
++ * smt-snooze-delay cleanup.") and has been broken even longer. As was foretold in
++ * 2014:
++ *
++ *  "ppc64_util currently utilises it. Once we fix ppc64_util, propose to clean
++ *  up the kernel code."
++ *
++ * powerpc-utils stopped using it as of 1.3.8. At some point in the future this
++ * code should be removed.
++ */
  
- 			if (ts_sip-- > 0) {
-@@ -458,19 +458,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
- 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_GYRO],
--					gyro_buff, gyro_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_GYRO],
-+					gyro_sensor->ts_ref + ts);
- 				gyro_sip--;
- 			}
- 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_ACC],
--					acc_buff, acc_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_ACC],
-+					acc_sensor->ts_ref + ts);
- 				acc_sip--;
- 			}
- 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_EXT0],
--					ext_buff, ext_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_EXT0],
-+					ext_sensor->ts_ref + ts);
- 				ext_sip--;
- 			}
- 			sip++;
-@@ -555,7 +558,14 @@ int st_lsm6dsx_read_tagged_fifo(struct st_lsm6dsx_hw *hw)
+ static ssize_t store_smt_snooze_delay(struct device *dev,
+ 				      struct device_attribute *attr,
+ 				      const char *buf,
+ 				      size_t count)
  {
- 	u16 pattern_len = hw->sip * ST_LSM6DSX_TAGGED_SAMPLE_SIZE;
- 	u16 fifo_len, fifo_diff_mask;
--	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE], tag;
-+	/*
-+	 * Alignment needed as this can ultimately be passed to a
-+	 * call to iio_push_to_buffers_with_timestamp() which
-+	 * must be passed a buffer that is aligned to 8 bytes so
-+	 * as to allow insertion of a naturally aligned timestamp.
-+	 */
-+	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE] __aligned(8);
-+	u8 tag;
- 	bool reset_ts = false;
- 	int i, err, read_len;
- 	__le16 fifo_status;
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-	ssize_t ret;
+-	long snooze;
+-
+-	ret = sscanf(buf, "%ld", &snooze);
+-	if (ret != 1)
+-		return -EINVAL;
+-
+-	per_cpu(smt_snooze_delay, cpu->dev.id) = snooze;
++	pr_warn_once("%s (%d) stored to unsupported smt_snooze_delay, which has no effect.\n",
++		     current->comm, current->pid);
+ 	return count;
+ }
+ 
+@@ -62,9 +60,9 @@ static ssize_t show_smt_snooze_delay(struct device *dev,
+ 				     struct device_attribute *attr,
+ 				     char *buf)
+ {
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-
+-	return sprintf(buf, "%ld\n", per_cpu(smt_snooze_delay, cpu->dev.id));
++	pr_warn_once("%s (%d) read from unsupported smt_snooze_delay\n",
++		     current->comm, current->pid);
++	return sprintf(buf, "100\n");
+ }
+ 
+ static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
+@@ -72,16 +70,10 @@ static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
+ 
+ static int __init setup_smt_snooze_delay(char *str)
+ {
+-	unsigned int cpu;
+-	long snooze;
+-
+ 	if (!cpu_has_feature(CPU_FTR_SMT))
+ 		return 1;
+ 
+-	snooze = simple_strtol(str, NULL, 10);
+-	for_each_possible_cpu(cpu)
+-		per_cpu(smt_snooze_delay, cpu) = snooze;
+-
++	pr_warn("smt-snooze-delay command line option has no effect\n");
+ 	return 1;
+ }
+ __setup("smt-snooze-delay=", setup_smt_snooze_delay);
 
