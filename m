@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC19A2A5918
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E212A593D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730132AbgKCWEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 17:04:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
+        id S1730432AbgKCUls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:41:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbgKCUnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:43:16 -0500
+        id S1730430AbgKCUls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:41:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A21A223AC;
-        Tue,  3 Nov 2020 20:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6038E223AC;
+        Tue,  3 Nov 2020 20:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436196;
-        bh=zjRG7D7u1rm0+nJsHPV8BElnQS5qBn3harx2yIna1Xs=;
+        s=default; t=1604436107;
+        bh=MEA3fYY7orHTZa76wElIUpLcS7Hu5gXbG/cvEpgn5V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQWSzbOy3sU2nOx8hwMmVSM6g6ZbNaQMrieE/miVcf5kBB+l2MxDgmkiWnquD/C+4
-         Sm8wEhMU3UB+If5A+ngg6euMG3jUvQTsP/LIeLHuwjKuxCFEy5J7N8ljSABpOpTQEC
-         Sjxrils9J85ZLTQBxIu78VSOVb2j1y+jhgqNtoF0=
+        b=SxL78fDZVVEFOSkcIvcdz44YMWDqRoPjDAkBWLn6X0zT0vF3MthQJfBJT75kOTisx
+         st2+FXSEQUPr3LNU0At1OlLg+JDxoLGynqh+Uh3mFXZTM88o0vSOvlogdDEtwGGp0m
+         ezyvT7lHH8jkP8RWdk/RwInWHWXYKK+6zFUmjkl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 106/391] nfc: s3fwrn5: Add missing CRYPTO_HASH dependency
-Date:   Tue,  3 Nov 2020 21:32:37 +0100
-Message-Id: <20201103203353.976625694@linuxfoundation.org>
+Subject: [PATCH 5.9 107/391] selftests/bpf: Define string const as global for test_sysctl_prog.c
+Date:   Tue,  3 Nov 2020 21:32:38 +0100
+Message-Id: <20201103203354.042754189@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,35 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 4aa62c62d4c41d71b2bda5ed01b78961829ee93c ]
+[ Upstream commit 6e057fc15a2da4ee03eb1fa6889cf687e690106e ]
 
-The driver uses crypto hash functions so it needs to select CRYPTO_HASH.
-This fixes build errors:
+When tweaking llvm optimizations, I found that selftest build failed
+with the following error:
+  libbpf: elf: skipping unrecognized data section(6) .rodata.str1.1
+  libbpf: prog 'sysctl_tcp_mem': bad map relo against '.L__const.is_tcp_mem.tcp_mem_name'
+          in section '.rodata.str1.1'
+  Error: failed to open BPF object file: Relocation failed
+  make: *** [/work/net-next/tools/testing/selftests/bpf/test_sysctl_prog.skel.h] Error 255
+  make: *** Deleting file `/work/net-next/tools/testing/selftests/bpf/test_sysctl_prog.skel.h'
 
-  arc-linux-ld: drivers/nfc/s3fwrn5/firmware.o: in function `s3fwrn5_fw_download':
-  firmware.c:(.text+0x152): undefined reference to `crypto_alloc_shash'
+The local string constant "tcp_mem_name" is put into '.rodata.str1.1' section
+which libbpf cannot handle. Using untweaked upstream llvm, "tcp_mem_name"
+is completely inlined after loop unrolling.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Commit 7fb5eefd7639 ("selftests/bpf: Fix test_sysctl_loop{1, 2}
+failure due to clang change") solved a similar problem by defining
+the string const as a global. Let us do the same here
+for test_sysctl_prog.c so it can weather future potential llvm changes.
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200910202718.956042-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/progs/test_sysctl_prog.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/s3fwrn5/Kconfig b/drivers/nfc/s3fwrn5/Kconfig
-index af9d18690afeb..3f8b6da582803 100644
---- a/drivers/nfc/s3fwrn5/Kconfig
-+++ b/drivers/nfc/s3fwrn5/Kconfig
-@@ -2,6 +2,7 @@
- config NFC_S3FWRN5
- 	tristate
- 	select CRYPTO
-+	select CRYPTO_HASH
- 	help
- 	  Core driver for Samsung S3FWRN5 NFC chip. Contains core utilities
- 	  of chip. It's intended to be used by PHYs to avoid duplicating lots
+diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_prog.c b/tools/testing/selftests/bpf/progs/test_sysctl_prog.c
+index 50525235380e8..5489823c83fc2 100644
+--- a/tools/testing/selftests/bpf/progs/test_sysctl_prog.c
++++ b/tools/testing/selftests/bpf/progs/test_sysctl_prog.c
+@@ -19,11 +19,11 @@
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ #endif
+ 
++const char tcp_mem_name[] = "net/ipv4/tcp_mem";
+ static __always_inline int is_tcp_mem(struct bpf_sysctl *ctx)
+ {
+-	char tcp_mem_name[] = "net/ipv4/tcp_mem";
+ 	unsigned char i;
+-	char name[64];
++	char name[sizeof(tcp_mem_name)];
+ 	int ret;
+ 
+ 	memset(name, 0, sizeof(name));
 -- 
 2.27.0
 
