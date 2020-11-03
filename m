@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5192A525D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:49:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 047172A528D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731474AbgKCUtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:49:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
+        id S1731896AbgKCUvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:51:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730350AbgKCUtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:12 -0500
+        id S1731888AbgKCUu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:50:58 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E627F20719;
-        Tue,  3 Nov 2020 20:49:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78BCC223FD;
+        Tue,  3 Nov 2020 20:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436551;
-        bh=jBdtUyidvY7/tvRSy+a9k2ubj3BOvxHKOAruaIWL+qc=;
+        s=default; t=1604436658;
+        bh=0iF8I9YAUIfLbPPrzUGyLLeDPMKrBWwDnJa4MK0o+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaAtMUPAfeKaYQSzLRQHcmjUL6U53ytPShxHW74qPIERcwUH/Ah1u3oCmxe72MSzx
-         w1cnRUAuj/sVdrvL9K2Jh5Febx6KBuOReK6yTzTwqR+LsWrrqej+yy8wEiQglSJv0l
-         5EpEsNc1oaDKRHdrdwL4ShOR6G9l4GVXASRP+BHw=
+        b=HjEmQ1LxFszYK385lUluluQ81fUoBKW/muC7PwcQgZQAUYgj81Hxeaxdjx/kucSja
+         TIzy/EdbDinOtHuc0SDprB5+NXiVMwC7C5nbaal8D6L9LFo6hfiyc52TK0afF1El3Z
+         0ftRhPHXoaXqg0elntYs6PXtBYEFIgUrIwJaJk30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.9 298/391] gfs2: Make sure we dont miss any delayed withdraws
-Date:   Tue,  3 Nov 2020 21:35:49 +0100
-Message-Id: <20201103203407.188542811@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.9 308/391] ubifs: mount_ubifs: Release authentication resource in error handling path
+Date:   Tue,  3 Nov 2020 21:35:59 +0100
+Message-Id: <20201103203407.887841528@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -41,175 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 5a61ae1402f15276ee4e003e198aab816958ca69 upstream.
+commit e2a05cc7f8229e150243cdae40f2af9021d67a4a upstream.
 
-Commit ca399c96e96e changes gfs2_log_flush to not withdraw the
-filesystem while holding the log flush lock, but it fails to check if
-the filesystem needs to be withdrawn once the log flush lock has been
-released.  Likewise, commit f05b86db314d depends on gfs2_log_flush to
-trigger for delayed withdraws.  Add that and clean up the code flow
-somewhat.
+Release the authentication related resource in some error handling
+branches in mount_ubifs().
 
-In gfs2_put_super, add a check for delayed withdraws that have been
-missed to prevent these kinds of bugs in the future.
-
-Fixes: ca399c96e96e ("gfs2: flesh out delayed withdraw for gfs2_log_flush")
-Fixes: f05b86db314d ("gfs2: Prepare to withdraw as soon as an IO error occurs in log write")
-Cc: stable@vger.kernel.org # v5.7+: 462582b99b607: gfs2: add some much needed cleanup for log flushes that fail
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: <stable@vger.kernel.org>  # 4.20+
+Fixes: d8a22773a12c6d7 ("ubifs: Enable authentication support")
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/log.c   |   61 ++++++++++++++++++++++++++++----------------------------
- fs/gfs2/super.c |    2 +
- fs/gfs2/util.h  |   10 +++++++++
- 3 files changed, 43 insertions(+), 30 deletions(-)
+ fs/ubifs/super.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -954,10 +954,8 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
- 		goto out;
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -1331,7 +1331,7 @@ static int mount_ubifs(struct ubifs_info
  
- 	/* Log might have been flushed while we waited for the flush lock */
--	if (gl && !test_bit(GLF_LFLUSH, &gl->gl_flags)) {
--		up_write(&sdp->sd_log_flush_lock);
--		return;
--	}
-+	if (gl && !test_bit(GLF_LFLUSH, &gl->gl_flags))
-+		goto out;
- 	trace_gfs2_log_flush(sdp, 1, flags);
+ 	err = ubifs_read_superblock(c);
+ 	if (err)
+-		goto out_free;
++		goto out_auth;
  
- 	if (flags & GFS2_LOG_HEAD_FLUSH_SHUTDOWN)
-@@ -971,25 +969,25 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
- 		if (unlikely (state == SFS_FROZEN))
- 			if (gfs2_assert_withdraw_delayed(sdp,
- 			       !tr->tr_num_buf_new && !tr->tr_num_databuf_new))
--				goto out;
-+				goto out_withdraw;
+ 	c->probing = 0;
+ 
+@@ -1343,18 +1343,18 @@ static int mount_ubifs(struct ubifs_info
+ 		ubifs_err(c, "'compressor \"%s\" is not compiled in",
+ 			  ubifs_compr_name(c, c->default_compr));
+ 		err = -ENOTSUPP;
+-		goto out_free;
++		goto out_auth;
  	}
  
- 	if (unlikely(state == SFS_FROZEN))
- 		if (gfs2_assert_withdraw_delayed(sdp, !sdp->sd_log_num_revoke))
--			goto out;
-+			goto out_withdraw;
- 	if (gfs2_assert_withdraw_delayed(sdp,
- 			sdp->sd_log_num_revoke == sdp->sd_log_committed_revoke))
--		goto out;
-+		goto out_withdraw;
+ 	err = init_constants_sb(c);
+ 	if (err)
+-		goto out_free;
++		goto out_auth;
  
- 	gfs2_ordered_write(sdp);
- 	if (gfs2_withdrawn(sdp))
--		goto out;
-+		goto out_withdraw;
- 	lops_before_commit(sdp, tr);
- 	if (gfs2_withdrawn(sdp))
--		goto out;
-+		goto out_withdraw;
- 	gfs2_log_submit_bio(&sdp->sd_log_bio, REQ_OP_WRITE);
- 	if (gfs2_withdrawn(sdp))
--		goto out;
-+		goto out_withdraw;
- 
- 	if (sdp->sd_log_head != sdp->sd_log_flush_head) {
- 		log_flush_wait(sdp);
-@@ -1000,7 +998,7 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
- 		log_write_header(sdp, flags);
- 	}
- 	if (gfs2_withdrawn(sdp))
--		goto out;
-+		goto out_withdraw;
- 	lops_after_commit(sdp, tr);
- 
- 	gfs2_log_lock(sdp);
-@@ -1020,7 +1018,7 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
- 		if (!sdp->sd_log_idle) {
- 			empty_ail1_list(sdp);
- 			if (gfs2_withdrawn(sdp))
--				goto out;
-+				goto out_withdraw;
- 			atomic_dec(&sdp->sd_log_blks_free); /* Adjust for unreserved buffer */
- 			trace_gfs2_log_blocks(sdp, -1);
- 			log_write_header(sdp, flags);
-@@ -1033,27 +1031,30 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
- 			atomic_set(&sdp->sd_freeze_state, SFS_FROZEN);
+ 	sz = ALIGN(c->max_idx_node_sz, c->min_io_size) * 2;
+ 	c->cbuf = kmalloc(sz, GFP_NOFS);
+ 	if (!c->cbuf) {
+ 		err = -ENOMEM;
+-		goto out_free;
++		goto out_auth;
  	}
  
--out:
--	if (gfs2_withdrawn(sdp)) {
--		trans_drain(tr);
--		/**
--		 * If the tr_list is empty, we're withdrawing during a log
--		 * flush that targets a transaction, but the transaction was
--		 * never queued onto any of the ail lists. Here we add it to
--		 * ail1 just so that ail_drain() will find and free it.
--		 */
--		spin_lock(&sdp->sd_ail_lock);
--		if (tr && list_empty(&tr->tr_list))
--			list_add(&tr->tr_list, &sdp->sd_ail1_list);
--		spin_unlock(&sdp->sd_ail_lock);
--		ail_drain(sdp); /* frees all transactions */
--		tr = NULL;
--	}
--
-+out_end:
- 	trace_gfs2_log_flush(sdp, 0, flags);
-+out:
- 	up_write(&sdp->sd_log_flush_lock);
--
- 	gfs2_trans_free(sdp, tr);
-+	if (gfs2_withdrawing(sdp))
-+		gfs2_withdraw(sdp);
-+	return;
-+
-+out_withdraw:
-+	trans_drain(tr);
-+	/**
-+	 * If the tr_list is empty, we're withdrawing during a log
-+	 * flush that targets a transaction, but the transaction was
-+	 * never queued onto any of the ail lists. Here we add it to
-+	 * ail1 just so that ail_drain() will find and free it.
-+	 */
-+	spin_lock(&sdp->sd_ail_lock);
-+	if (tr && list_empty(&tr->tr_list))
-+		list_add(&tr->tr_list, &sdp->sd_ail1_list);
-+	spin_unlock(&sdp->sd_ail_lock);
-+	ail_drain(sdp); /* frees all transactions */
-+	tr = NULL;
-+	goto out_end;
- }
- 
- /**
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -702,6 +702,8 @@ restart:
- 		if (error)
- 			gfs2_io_error(sdp);
- 	}
-+	WARN_ON(gfs2_withdrawing(sdp));
-+
- 	/*  At this point, we're through modifying the disk  */
- 
- 	/*  Release stuff  */
---- a/fs/gfs2/util.h
-+++ b/fs/gfs2/util.h
-@@ -205,6 +205,16 @@ static inline bool gfs2_withdrawn(struct
- 		test_bit(SDF_WITHDRAWING, &sdp->sd_flags);
- }
- 
-+/**
-+ * gfs2_withdrawing - check if a withdraw is pending
-+ * @sdp: the superblock
-+ */
-+static inline bool gfs2_withdrawing(struct gfs2_sbd *sdp)
-+{
-+	return test_bit(SDF_WITHDRAWING, &sdp->sd_flags) &&
-+	       !test_bit(SDF_WITHDRAWN, &sdp->sd_flags);
-+}
-+
- #define gfs2_tune_get(sdp, field) \
- gfs2_tune_get_i(&(sdp)->sd_tune, &(sdp)->sd_tune.field)
- 
+ 	err = alloc_wbufs(c);
+@@ -1629,6 +1629,8 @@ out_wbufs:
+ 	free_wbufs(c);
+ out_cbuf:
+ 	kfree(c->cbuf);
++out_auth:
++	ubifs_exit_authentication(c);
+ out_free:
+ 	kfree(c->write_reserve_buf);
+ 	kfree(c->bu.buf);
 
 
