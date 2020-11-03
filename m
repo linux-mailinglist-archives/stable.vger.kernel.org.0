@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20E272A51A2
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F002A51B2
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730572AbgKCUmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:42:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55150 "EHLO mail.kernel.org"
+        id S1730634AbgKCUnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:43:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730552AbgKCUmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:37 -0500
+        id S1729964AbgKCUnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:43:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 539D2223AC;
-        Tue,  3 Nov 2020 20:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49C282224E;
+        Tue,  3 Nov 2020 20:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436156;
-        bh=qBz9r+O8by4MqOUqv3143GEHb0Ow3ZwHhY5g3cYhB0U=;
+        s=default; t=1604436193;
+        bh=J8KuJl1/K8rhrVW1l2iJSlUTzFLshYrulf04j/Hssg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpywPmeVwDP9YiylVqUATHIE1qBYV5pUfwwrpl/9vtbucsvty6uiVDOw5IAX5Kdq2
-         hvWxrKlYQQcOfcDcVYyrNhhHWG4LRB6Wv7bvpurzLAKPYcHWAqCOKk9Ary+ge8QKs7
-         lGYEwddeCztlkLid7r33lsUeLuFPU6dWznEQkzZc=
+        b=1MULf3h9uDqnuWkMmT3384S+K2orwvWmYyaKkAs/ApYfRJmL7r8zCRVuh1wHPIq2Y
+         v6394R/DCm4hPDzQhmAwA2/a6+vk6N+qqmJCs0r0PAaETnRbgLnkYava9PKNHpl6pi
+         ailvrQa4cRf9AJMc8DpGBTv3NNgtcxseK5nXcgSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org,
+        "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 100/391] bpf: Permit map_ptr arithmetic with opcode add and offset 0
-Date:   Tue,  3 Nov 2020 21:32:31 +0100
-Message-Id: <20201103203353.591465660@linuxfoundation.org>
+Subject: [PATCH 5.9 105/391] media: uvcvideo: Fix dereference of out-of-bound list iterator
+Date:   Tue,  3 Nov 2020 21:32:36 +0100
+Message-Id: <20201103203353.910358959@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,117 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
 
-[ Upstream commit 7c6967326267bd5c0dded0a99541357d70dd11ac ]
+[ Upstream commit f875bcc375c738bf2f599ff2e1c5b918dbd07c45 ]
 
-Commit 41c48f3a98231 ("bpf: Support access
-to bpf map fields") added support to access map fields
-with CORE support. For example,
+Fixes the following coccinelle report:
 
-            struct bpf_map {
-                    __u32 max_entries;
-            } __attribute__((preserve_access_index));
+drivers/media/usb/uvc/uvc_ctrl.c:1860:5-11:
+ERROR: invalid reference to the index variable of the iterator on line 1854
 
-            struct bpf_array {
-                    struct bpf_map map;
-                    __u32 elem_size;
-            } __attribute__((preserve_access_index));
+by adding a boolean variable to check if the loop has found the
 
-            struct {
-                    __uint(type, BPF_MAP_TYPE_ARRAY);
-                    __uint(max_entries, 4);
-                    __type(key, __u32);
-                    __type(value, __u32);
-            } m_array SEC(".maps");
+Found using - Coccinelle (http://coccinelle.lip6.fr)
 
-            SEC("cgroup_skb/egress")
-            int cg_skb(void *ctx)
-            {
-                    struct bpf_array *array = (struct bpf_array *)&m_array;
+[Replace cursor variable with bool found]
 
-                    /* .. array->map.max_entries .. */
-            }
-
-In kernel, bpf_htab has similar structure,
-
-	    struct bpf_htab {
-		    struct bpf_map map;
-                    ...
-            }
-
-In the above cg_skb(), to access array->map.max_entries, with CORE, the clang will
-generate two builtin's.
-            base = &m_array;
-            /* access array.map */
-            map_addr = __builtin_preserve_struct_access_info(base, 0, 0);
-            /* access array.map.max_entries */
-            max_entries_addr = __builtin_preserve_struct_access_info(map_addr, 0, 0);
-	    max_entries = *max_entries_addr;
-
-In the current llvm, if two builtin's are in the same function or
-in the same function after inlining, the compiler is smart enough to chain
-them together and generates like below:
-            base = &m_array;
-            max_entries = *(base + reloc_offset); /* reloc_offset = 0 in this case */
-and we are fine.
-
-But if we force no inlining for one of functions in test_map_ptr() selftest, e.g.,
-check_default(), the above two __builtin_preserve_* will be in two different
-functions. In this case, we will have code like:
-   func check_hash():
-            reloc_offset_map = 0;
-            base = &m_array;
-            map_base = base + reloc_offset_map;
-            check_default(map_base, ...)
-   func check_default(map_base, ...):
-            max_entries = *(map_base + reloc_offset_max_entries);
-
-In kernel, map_ptr (CONST_PTR_TO_MAP) does not allow any arithmetic.
-The above "map_base = base + reloc_offset_map" will trigger a verifier failure.
-  ; VERIFY(check_default(&hash->map, map));
-  0: (18) r7 = 0xffffb4fe8018a004
-  2: (b4) w1 = 110
-  3: (63) *(u32 *)(r7 +0) = r1
-   R1_w=invP110 R7_w=map_value(id=0,off=4,ks=4,vs=8,imm=0) R10=fp0
-  ; VERIFY_TYPE(BPF_MAP_TYPE_HASH, check_hash);
-  4: (18) r1 = 0xffffb4fe8018a000
-  6: (b4) w2 = 1
-  7: (63) *(u32 *)(r1 +0) = r2
-   R1_w=map_value(id=0,off=0,ks=4,vs=8,imm=0) R2_w=invP1 R7_w=map_value(id=0,off=4,ks=4,vs=8,imm=0) R10=fp0
-  8: (b7) r2 = 0
-  9: (18) r8 = 0xffff90bcb500c000
-  11: (18) r1 = 0xffff90bcb500c000
-  13: (0f) r1 += r2
-  R1 pointer arithmetic on map_ptr prohibited
-
-To fix the issue, let us permit map_ptr + 0 arithmetic which will
-result in exactly the same map_ptr.
-
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200908175702.2463625-1-yhs@fb.com
+Signed-off-by: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/usb/uvc/uvc_ctrl.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 43cd175c66a55..718bbdc8b3c66 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5246,6 +5246,10 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 			dst, reg_type_str[ptr_reg->type]);
- 		return -EACCES;
- 	case CONST_PTR_TO_MAP:
-+		/* smin_val represents the known value */
-+		if (known && smin_val == 0 && opcode == BPF_ADD)
-+			break;
-+		/* fall-through */
- 	case PTR_TO_PACKET_END:
- 	case PTR_TO_SOCKET:
- 	case PTR_TO_SOCKET_OR_NULL:
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index a30a8a731eda8..c13ed95cb06fe 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1848,30 +1848,35 @@ int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
+ {
+ 	struct uvc_entity *entity;
+ 	struct uvc_control *ctrl;
+-	unsigned int i, found = 0;
++	unsigned int i;
++	bool found;
+ 	u32 reqflags;
+ 	u16 size;
+ 	u8 *data = NULL;
+ 	int ret;
+ 
+ 	/* Find the extension unit. */
++	found = false;
+ 	list_for_each_entry(entity, &chain->entities, chain) {
+ 		if (UVC_ENTITY_TYPE(entity) == UVC_VC_EXTENSION_UNIT &&
+-		    entity->id == xqry->unit)
++		    entity->id == xqry->unit) {
++			found = true;
+ 			break;
++		}
+ 	}
+ 
+-	if (entity->id != xqry->unit) {
++	if (!found) {
+ 		uvc_trace(UVC_TRACE_CONTROL, "Extension unit %u not found.\n",
+ 			xqry->unit);
+ 		return -ENOENT;
+ 	}
+ 
+ 	/* Find the control and perform delayed initialization if needed. */
++	found = false;
+ 	for (i = 0; i < entity->ncontrols; ++i) {
+ 		ctrl = &entity->controls[i];
+ 		if (ctrl->index == xqry->selector - 1) {
+-			found = 1;
++			found = true;
+ 			break;
+ 		}
+ 	}
 -- 
 2.27.0
 
