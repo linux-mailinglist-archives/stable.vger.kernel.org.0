@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D204A2A5888
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17EE42A57B0
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731113AbgKCUqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34962 "EHLO mail.kernel.org"
+        id S1732115AbgKCVpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:45:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730612AbgKCUqC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:02 -0500
+        id S1732323AbgKCUx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:53:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 866F3223EA;
-        Tue,  3 Nov 2020 20:46:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACA8C2053B;
+        Tue,  3 Nov 2020 20:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436362;
-        bh=YkS84B6gPhb9qI/dC69aWOSXOl/O9S/iJ9jY484Xs38=;
+        s=default; t=1604436809;
+        bh=dikpX/t8/UCqAf/2m+usr05OjxYuBSYeeLamj5cmjwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahWxW2hj5CKjC7FqXfvRHyy/rjc23km4kwOd6zDkbH7mjaN6KX37xYT/BOOGd33C0
-         mSIkjPBMIL++uOJXlBk5wPWCOClZUouvZDW49EqHAGS2BL4Of1QCVVZB0chPuxMcb5
-         185EPjyXN31cYkJ9Vs9iVBM6ltzFyekAPqJ0RpSI=
+        b=F/CHawK+YiZdk+fbe+HFeLFn9u+8F2qixwJhhyB7+uNmXEya9iezpVE7GefgZ41AV
+         +pVrK+ETpnatUikSAxNN4ev0o5fUfFnnE+Ede8q2ELeafKIMhOAMNjcqZMlZsd0/OC
+         rmotnCwcWvQ2PKUopCj/pXyzgGJpKxWMK5EMHpYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.9 216/391] scsi: mptfusion: Fix null pointer dereferences in mptscsih_remove()
-Date:   Tue,  3 Nov 2020 21:34:27 +0100
-Message-Id: <20201103203401.509608056@linuxfoundation.org>
+        stable@vger.kernel.org, Mateusz Nosek <mateusznosek0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 020/214] futex: Fix incorrect should_fail_futex() handling
+Date:   Tue,  3 Nov 2020 21:34:28 +0100
+Message-Id: <20201103203251.807143878@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Mateusz Nosek <mateusznosek0@gmail.com>
 
-commit 2f4843b172c2c0360ee7792ad98025fae7baefde upstream.
+[ Upstream commit 921c7ebd1337d1a46783d7e15a850e12aed2eaa0 ]
 
-The mptscsih_remove() function triggers a kernel oops if the Scsi_Host
-pointer (ioc->sh) is NULL, as can be seen in this syslog:
+If should_futex_fail() returns true in futex_wake_pi(), then the 'ret'
+variable is set to -EFAULT and then immediately overwritten. So the failure
+injection is non-functional.
 
- ioc0: LSI53C1030 B2: Capabilities={Initiator,Target}
- Begin: Waiting for root file system ...
- scsi host2: error handler thread failed to spawn, error = -4
- mptspi: ioc0: WARNING - Unable to register controller with SCSI subsystem
- Backtrace:
-  [<000000001045b7cc>] mptspi_probe+0x248/0x3d0 [mptspi]
-  [<0000000040946470>] pci_device_probe+0x1ac/0x2d8
-  [<0000000040add668>] really_probe+0x1bc/0x988
-  [<0000000040ade704>] driver_probe_device+0x160/0x218
-  [<0000000040adee24>] device_driver_attach+0x160/0x188
-  [<0000000040adef90>] __driver_attach+0x144/0x320
-  [<0000000040ad7c78>] bus_for_each_dev+0xd4/0x158
-  [<0000000040adc138>] driver_attach+0x4c/0x80
-  [<0000000040adb3ec>] bus_add_driver+0x3e0/0x498
-  [<0000000040ae0130>] driver_register+0xf4/0x298
-  [<00000000409450c4>] __pci_register_driver+0x78/0xa8
-  [<000000000007d248>] mptspi_init+0x18c/0x1c4 [mptspi]
+Fix it by actually leaving the function and returning -EFAULT.
 
-This patch adds the necessary NULL-pointer checks.  Successfully tested on
-a HP C8000 parisc workstation with buggy SCSI drives.
+The Fixes tag is kinda blury because the initial commit which introduced
+failure injection was already sloppy, but the below mentioned commit broke
+it completely.
 
-Link: https://lore.kernel.org/r/20201022090005.GA9000@ls3530.fritz.box
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ tglx: Massaged changelog ]
 
+Fixes: 6b4f4bc9cb22 ("locking/futex: Allow low-level atomic operations to return -EAGAIN")
+Signed-off-by: Mateusz Nosek <mateusznosek0@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200927000858.24219-1-mateusznosek0@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/message/fusion/mptscsih.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ kernel/futex.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/message/fusion/mptscsih.c
-+++ b/drivers/message/fusion/mptscsih.c
-@@ -1176,8 +1176,10 @@ mptscsih_remove(struct pci_dev *pdev)
- 	MPT_SCSI_HOST		*hd;
- 	int sz1;
- 
--	if((hd = shost_priv(host)) == NULL)
--		return;
-+	if (host == NULL)
-+		hd = NULL;
-+	else
-+		hd = shost_priv(host);
- 
- 	mptscsih_shutdown(pdev);
- 
-@@ -1193,14 +1195,15 @@ mptscsih_remove(struct pci_dev *pdev)
- 	    "Free'd ScsiLookup (%d) memory\n",
- 	    ioc->name, sz1));
- 
--	kfree(hd->info_kbuf);
-+	if (hd)
-+		kfree(hd->info_kbuf);
- 
- 	/* NULL the Scsi_Host pointer
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 5660c02b01b05..17fba7a986e0f 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1594,8 +1594,10 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
  	 */
- 	ioc->sh = NULL;
+ 	newval = FUTEX_WAITERS | task_pid_vnr(new_owner);
  
--	scsi_host_put(host);
--
-+	if (host)
-+		scsi_host_put(host);
- 	mpt_detach(pdev);
+-	if (unlikely(should_fail_futex(true)))
++	if (unlikely(should_fail_futex(true))) {
+ 		ret = -EFAULT;
++		goto out_unlock;
++	}
  
- }
+ 	ret = cmpxchg_futex_value_locked(&curval, uaddr, uval, newval);
+ 	if (!ret && (curval != uval)) {
+-- 
+2.27.0
+
 
 
