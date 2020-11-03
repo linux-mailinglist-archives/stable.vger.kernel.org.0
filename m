@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C347D2A3927
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D266D2A3925
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728143AbgKCBUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:20:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
+        id S1728154AbgKCBUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728147AbgKCBUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:34 -0500
+        id S1728040AbgKCBUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50B0B2244C;
-        Tue,  3 Nov 2020 01:20:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A818B2242E;
+        Tue,  3 Nov 2020 01:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366434;
-        bh=2EPBhjUcKwhQAiBveff2wv2l0sDCS99DGzUfWWYOiLc=;
+        s=default; t=1604366435;
+        bh=Yb+poyMjHvPJ5NCCLX6WjKFIr6arh83gmJcZlwD9Pe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUsH8d7hp7DC1/7EqKk8ULeybgt+VhPdU91XdTcMBJb2vDVS13mpFcE0YBVrNakYQ
-         BHRKjD+j/jAl5Eo77+6c1glG8ATOQ6tcd1JXkFnQ1bGR0rKgUBrMR/cfRnwBhvpNjc
-         4fGQ9hCv5jCK+1C9YKq3r0Cc+gPlrj4BeSqyzqNo=
+        b=G6ZDy0eTHeq9q+7USY24vO9do3g5qwBLs1gwprD/XNv+Q9hitKWHde2K0q6w29JrJ
+         VNUi7xj8DJLmgKBULc5zwjfrCot535KjQlf7oQENu8tPDCveg3nMLzyHvKlwwaW9tM
+         kqFNq9YonXGklZ2ZGnr4SQ9arz6QgywKxsX5SNRU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/24] ACPI: NFIT: Fix comparison to '-ENXIO'
-Date:   Mon,  2 Nov 2020 20:20:03 -0500
-Message-Id: <20201103012007.183429-20-sashal@kernel.org>
+Cc:     Peter Chen <peter.chen@nxp.com>, Jun Li <jun.li@nxp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 21/24] usb: cdns3: gadget: suspicious implicit sign extension
+Date:   Mon,  2 Nov 2020 20:20:04 -0500
+Message-Id: <20201103012007.183429-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012007.183429-1-sashal@kernel.org>
 References: <20201103012007.183429-1-sashal@kernel.org>
@@ -45,36 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit 85f971b65a692b68181438e099b946cc06ed499b ]
+[ Upstream commit 5fca3f062879f8e5214c56f3e3e2be6727900f5d ]
 
-Initial value of rc is '-ENXIO', and we should
-use the initial value to check it.
+The code:
+trb->length = cpu_to_le32(TRB_BURST_LEN(priv_ep->trb_burst_size)
+	       	| TRB_LEN(length));
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-[ rjw: Subject edit ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+TRB_BURST_LEN(priv_ep->trb_burst_size) may be overflow for int 32 if
+priv_ep->trb_burst_size is equal or larger than 0x80;
+
+Below is the Coverity warning:
+sign_extension: Suspicious implicit sign extension: priv_ep->trb_burst_size
+with type u8 (8 bits, unsigned) is promoted in priv_ep->trb_burst_size << 24
+to type int (32 bits, signed), then sign-extended to type unsigned long
+(64 bits, unsigned). If priv_ep->trb_burst_size << 24 is greater than 0x7FFFFFFF,
+the upper bits of the result will all be 1.
+
+To fix it, it needs to add an explicit cast to unsigned int type for ((p) << 24).
+
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c | 2 +-
+ drivers/usb/cdns3/gadget.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 12d980aafc5ff..9d78f29cf9967 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -1553,7 +1553,7 @@ static ssize_t format1_show(struct device *dev,
- 					le16_to_cpu(nfit_dcr->dcr->code));
- 			break;
- 		}
--		if (rc != ENXIO)
-+		if (rc != -ENXIO)
- 			break;
- 	}
- 	mutex_unlock(&acpi_desc->init_mutex);
+diff --git a/drivers/usb/cdns3/gadget.h b/drivers/usb/cdns3/gadget.h
+index bc4024041ef26..ec5c05454531d 100644
+--- a/drivers/usb/cdns3/gadget.h
++++ b/drivers/usb/cdns3/gadget.h
+@@ -1057,7 +1057,7 @@ struct cdns3_trb {
+ #define TRB_TDL_SS_SIZE_GET(p)	(((p) & GENMASK(23, 17)) >> 17)
+ 
+ /* transfer_len bitmasks - bits 31:24 */
+-#define TRB_BURST_LEN(p)	(((p) << 24) & GENMASK(31, 24))
++#define TRB_BURST_LEN(p)	((unsigned int)((p) << 24) & GENMASK(31, 24))
+ #define TRB_BURST_LEN_GET(p)	(((p) & GENMASK(31, 24)) >> 24)
+ 
+ /* Data buffer pointer bitmasks*/
 -- 
 2.27.0
 
