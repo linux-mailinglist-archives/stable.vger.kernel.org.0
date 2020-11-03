@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF7D2A545F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D002F2A5469
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388734AbgKCVK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:10:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51376 "EHLO mail.kernel.org"
+        id S2388793AbgKCVKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388731AbgKCVK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:10:27 -0500
+        id S2388491AbgKCVKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF0AA206B5;
-        Tue,  3 Nov 2020 21:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F9C920757;
+        Tue,  3 Nov 2020 21:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437827;
-        bh=8IoPhvaNi50VZ4kDbgG2391J0F0bfxVrFVK+xANb+9Q=;
+        s=default; t=1604437853;
+        bh=c4+hhvF2o+WCZuPWbaINgioGtvmdHAFiDjBX5Zo25A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoVc+I8l5SerM8LR9SDMjJhhOP0szRKElV0pbfIPSi0WjRlMv2NKc5aAZr8uGWW/b
-         l7PGSIldTYexgEZDj/H/LS9v3XXOgej/FL/trVapAjVLew981gyohGvcN06x1spiep
-         N8jnpkwKRZZ+TZvlSdJ90MUzowoJ5lsLcG+h1ydY=
+        b=hxkk+qZcJ8CDX/kTrbNdd0q97rGLZz/eh/iVuvY/JT1qaPWaKY9fdqV8GrSa5Tyu0
+         C3bNb9mHL4bPZr1NQ1R/mliplOtmrY/RwTMwmJskgPHVeI3hNBxa5Hmdn5KIbhqRGm
+         0T3EcKcVFg0d1LxUUrmnkDCquxeC2rBIRTt5Xk1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Will Deacon <will@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/125] um: change sigio_spinlock to a mutex
-Date:   Tue,  3 Nov 2020 21:36:39 +0100
-Message-Id: <20201103203159.931746512@linuxfoundation.org>
+Subject: [PATCH 4.14 023/125] ARM: 8997/2: hw_breakpoint: Handle inexact watchpoint addresses
+Date:   Tue,  3 Nov 2020 21:36:40 +0100
+Message-Id: <20201103203200.094240607@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -43,76 +45,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit f2d05059e15af3f70502074f4e3a504530af504a ]
+[ Upstream commit 22c9e58299e5f18274788ce54c03d4fb761e3c5d ]
 
-Lockdep complains at boot:
+This is commit fdfeff0f9e3d ("arm64: hw_breakpoint: Handle inexact
+watchpoint addresses") but ported to arm32, which has the same
+problem.
 
-=============================
-[ BUG: Invalid wait context ]
-5.7.0-05093-g46d91ecd597b #98 Not tainted
------------------------------
-swapper/1 is trying to lock:
-0000000060931b98 (&desc[i].request_mutex){+.+.}-{3:3}, at: __setup_irq+0x11d/0x623
-other info that might help us debug this:
-context-{4:4}
-1 lock held by swapper/1:
- #0: 000000006074fed8 (sigio_spinlock){+.+.}-{2:2}, at: sigio_lock+0x1a/0x1c
-stack backtrace:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0-05093-g46d91ecd597b #98
-Stack:
- 7fa4fab0 6028dfd1 0000002a 6008bea5
- 7fa50700 7fa50040 7fa4fac0 6028e016
- 7fa4fb50 6007f6da 60959c18 00000000
-Call Trace:
- [<60023a0e>] show_stack+0x13b/0x155
- [<6028e016>] dump_stack+0x2a/0x2c
- [<6007f6da>] __lock_acquire+0x515/0x15f2
- [<6007eb50>] lock_acquire+0x245/0x273
- [<6050d9f1>] __mutex_lock+0xbd/0x325
- [<6050dc76>] mutex_lock_nested+0x1d/0x1f
- [<6008e27e>] __setup_irq+0x11d/0x623
- [<6008e8ed>] request_threaded_irq+0x169/0x1a6
- [<60021eb0>] um_request_irq+0x1ee/0x24b
- [<600234ee>] write_sigio_irq+0x3b/0x76
- [<600383ca>] sigio_broken+0x146/0x2e4
- [<60020bd8>] do_one_initcall+0xde/0x281
+This problem was found by Android CTS tests, notably the
+"watchpoint_imprecise" test [1].  I tested locally against a copycat
+(simplified) version of the test though.
 
-Because we hold sigio_spinlock and then get into requesting
-an interrupt with a mutex.
+[1] https://android.googlesource.com/platform/bionic/+/master/tests/sys_ptrace_test.cpp
 
-Change the spinlock to a mutex to avoid that.
+Link: https://lkml.kernel.org/r/20191019111216.1.I82eae759ca6dc28a245b043f485ca490e3015321@changeid
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/sigio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/kernel/hw_breakpoint.c | 100 +++++++++++++++++++++++---------
+ 1 file changed, 72 insertions(+), 28 deletions(-)
 
-diff --git a/arch/um/kernel/sigio.c b/arch/um/kernel/sigio.c
-index b5e0cbb343828..476ded92affac 100644
---- a/arch/um/kernel/sigio.c
-+++ b/arch/um/kernel/sigio.c
-@@ -36,14 +36,14 @@ int write_sigio_irq(int fd)
+diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
+index a30f656f791f3..e61697fb7efea 100644
+--- a/arch/arm/kernel/hw_breakpoint.c
++++ b/arch/arm/kernel/hw_breakpoint.c
+@@ -688,6 +688,40 @@ static void disable_single_step(struct perf_event *bp)
+ 	arch_install_hw_breakpoint(bp);
  }
  
- /* These are called from os-Linux/sigio.c to protect its pollfds arrays. */
--static DEFINE_SPINLOCK(sigio_spinlock);
-+static DEFINE_MUTEX(sigio_mutex);
- 
- void sigio_lock(void)
++/*
++ * Arm32 hardware does not always report a watchpoint hit address that matches
++ * one of the watchpoints set. It can also report an address "near" the
++ * watchpoint if a single instruction access both watched and unwatched
++ * addresses. There is no straight-forward way, short of disassembling the
++ * offending instruction, to map that address back to the watchpoint. This
++ * function computes the distance of the memory access from the watchpoint as a
++ * heuristic for the likelyhood that a given access triggered the watchpoint.
++ *
++ * See this same function in the arm64 platform code, which has the same
++ * problem.
++ *
++ * The function returns the distance of the address from the bytes watched by
++ * the watchpoint. In case of an exact match, it returns 0.
++ */
++static u32 get_distance_from_watchpoint(unsigned long addr, u32 val,
++					struct arch_hw_breakpoint_ctrl *ctrl)
++{
++	u32 wp_low, wp_high;
++	u32 lens, lene;
++
++	lens = __ffs(ctrl->len);
++	lene = __fls(ctrl->len);
++
++	wp_low = val + lens;
++	wp_high = val + lene;
++	if (addr < wp_low)
++		return wp_low - addr;
++	else if (addr > wp_high)
++		return addr - wp_high;
++	else
++		return 0;
++}
++
+ static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
+ 				       struct arch_hw_breakpoint *info)
  {
--	spin_lock(&sigio_spinlock);
-+	mutex_lock(&sigio_mutex);
+@@ -697,23 +731,25 @@ static int watchpoint_fault_on_uaccess(struct pt_regs *regs,
+ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 			       struct pt_regs *regs)
+ {
+-	int i, access;
+-	u32 val, ctrl_reg, alignment_mask;
++	int i, access, closest_match = 0;
++	u32 min_dist = -1, dist;
++	u32 val, ctrl_reg;
+ 	struct perf_event *wp, **slots;
+ 	struct arch_hw_breakpoint *info;
+ 	struct arch_hw_breakpoint_ctrl ctrl;
+ 
+ 	slots = this_cpu_ptr(wp_on_reg);
+ 
++	/*
++	 * Find all watchpoints that match the reported address. If no exact
++	 * match is found. Attribute the hit to the closest watchpoint.
++	 */
++	rcu_read_lock();
+ 	for (i = 0; i < core_num_wrps; ++i) {
+-		rcu_read_lock();
+-
+ 		wp = slots[i];
+-
+ 		if (wp == NULL)
+-			goto unlock;
++			continue;
+ 
+-		info = counter_arch_bp(wp);
+ 		/*
+ 		 * The DFAR is an unknown value on debug architectures prior
+ 		 * to 7.1. Since we only allow a single watchpoint on these
+@@ -722,33 +758,31 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 		 */
+ 		if (debug_arch < ARM_DEBUG_ARCH_V7_1) {
+ 			BUG_ON(i > 0);
++			info = counter_arch_bp(wp);
+ 			info->trigger = wp->attr.bp_addr;
+ 		} else {
+-			if (info->ctrl.len == ARM_BREAKPOINT_LEN_8)
+-				alignment_mask = 0x7;
+-			else
+-				alignment_mask = 0x3;
+-
+-			/* Check if the watchpoint value matches. */
+-			val = read_wb_reg(ARM_BASE_WVR + i);
+-			if (val != (addr & ~alignment_mask))
+-				goto unlock;
+-
+-			/* Possible match, check the byte address select. */
+-			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
+-			decode_ctrl_reg(ctrl_reg, &ctrl);
+-			if (!((1 << (addr & alignment_mask)) & ctrl.len))
+-				goto unlock;
+-
+ 			/* Check that the access type matches. */
+ 			if (debug_exception_updates_fsr()) {
+ 				access = (fsr & ARM_FSR_ACCESS_MASK) ?
+ 					  HW_BREAKPOINT_W : HW_BREAKPOINT_R;
+ 				if (!(access & hw_breakpoint_type(wp)))
+-					goto unlock;
++					continue;
+ 			}
+ 
++			val = read_wb_reg(ARM_BASE_WVR + i);
++			ctrl_reg = read_wb_reg(ARM_BASE_WCR + i);
++			decode_ctrl_reg(ctrl_reg, &ctrl);
++			dist = get_distance_from_watchpoint(addr, val, &ctrl);
++			if (dist < min_dist) {
++				min_dist = dist;
++				closest_match = i;
++			}
++			/* Is this an exact match? */
++			if (dist != 0)
++				continue;
++
+ 			/* We have a winner. */
++			info = counter_arch_bp(wp);
+ 			info->trigger = addr;
+ 		}
+ 
+@@ -770,13 +804,23 @@ static void watchpoint_handler(unsigned long addr, unsigned int fsr,
+ 		 * we can single-step over the watchpoint trigger.
+ 		 */
+ 		if (!is_default_overflow_handler(wp))
+-			goto unlock;
+-
++			continue;
+ step:
+ 		enable_single_step(wp, instruction_pointer(regs));
+-unlock:
+-		rcu_read_unlock();
+ 	}
++
++	if (min_dist > 0 && min_dist != -1) {
++		/* No exact match found. */
++		wp = slots[closest_match];
++		info = counter_arch_bp(wp);
++		info->trigger = addr;
++		pr_debug("watchpoint fired: address = 0x%x\n", info->trigger);
++		perf_bp_event(wp, regs);
++		if (is_default_overflow_handler(wp))
++			enable_single_step(wp, instruction_pointer(regs));
++	}
++
++	rcu_read_unlock();
  }
  
- void sigio_unlock(void)
- {
--	spin_unlock(&sigio_spinlock);
-+	mutex_unlock(&sigio_mutex);
- }
+ static void watchpoint_single_step_handler(unsigned long pc)
 -- 
 2.27.0
 
