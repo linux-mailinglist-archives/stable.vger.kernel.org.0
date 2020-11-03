@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238572A583D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9674A2A5767
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731518AbgKCVuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:50:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
+        id S1731540AbgKCVmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:42:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730816AbgKCUtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:21 -0500
+        id S1732300AbgKCUzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08D5C22404;
-        Tue,  3 Nov 2020 20:49:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CC72053B;
+        Tue,  3 Nov 2020 20:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436560;
-        bh=Hd4XbZiTS7NDDUJEkgjX4l37jNWVlR3STL53BlmaYcw=;
+        s=default; t=1604436924;
+        bh=Cf17dIEcpASZSYC8EarTV35qwYl4vDK2eaZMNRiIEFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BILkHH/n7aqrbyRDcVISO7MBSJbfjPO5GC9TVnDaaDEVNwCZDfr/xbzD+FTjIPOih
-         bdJgEZ4YKt8AnpTgREzuXbWNziXR+JM3uJZ5OiWCEodd77h1ZyEmD58rRxBkUMQ40C
-         fzDfe4RhgzSl76nVgMluQQh8PhkFYuzFtIwk5XCQ=
+        b=OaKKLvMNOB+aCyBYw382td+WMRm2YEsKl1yDQeoSYvIftE/CGAyTvK/N2HmBWJPz5
+         g4NcjSNHPZ3lF+hignEfRe78S9sW5f6O/AQCr8ZStcDM9kn7C2GRB+6T/wfazaCvTV
+         MbuBHIRXHjDRAVteOpbV38TDCpEvNgGMSBFirx6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.9 265/391] dmaengine: dma-jz4780: Fix race in jz4780_dma_tx_status
-Date:   Tue,  3 Nov 2020 21:35:16 +0100
-Message-Id: <20201103203404.904108363@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 069/214] ACPI: HMAT: Fix handling of changes from ACPI 6.2 to ACPI 6.3
+Date:   Tue,  3 Nov 2020 21:35:17 +0100
+Message-Id: <20201103203256.864057935@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit baf6fd97b16ea8f981b8a8b04039596f32fc2972 upstream.
+[ Upstream commit 2c5b9bde95c96942f2873cea6ef383c02800e4a8 ]
 
-The jz4780_dma_tx_status() function would check if a channel's cookie
-state was set to 'completed', and if not, it would enter the critical
-section. However, in that time frame, the jz4780_dma_chan_irq() function
-was able to set the cookie to 'completed', and clear the jzchan->vchan
-pointer, which was deferenced in the critical section of the first
-function.
+In ACPI 6.3, the Memory Proximity Domain Attributes Structure
+changed substantially.  One of those changes was that the flag
+for "Memory Proximity Domain field is valid" was deprecated.
 
-Fix this race by checking the channel's cookie state after entering the
-critical function and not before.
+This was because the field "Proximity Domain for the Memory"
+became a required field and hence having a validity flag makes
+no sense.
 
-Fixes: d894fc6046fe ("dmaengine: jz4780: add driver for the Ingenic JZ4780 DMA controller")
-Cc: stable@vger.kernel.org # v4.0
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reported-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Link: https://lore.kernel.org/r/20201004140307.885556-1-paul@crapouillou.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So the correct logic is to always assume the field is there.
+Current code assumes it never is.
 
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-jz4780.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/acpi/hmat/hmat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -639,11 +639,11 @@ static enum dma_status jz4780_dma_tx_sta
- 	unsigned long flags;
- 	unsigned long residue = 0;
+diff --git a/drivers/acpi/hmat/hmat.c b/drivers/acpi/hmat/hmat.c
+index 8b0de8a3c6470..0f1c939b7e901 100644
+--- a/drivers/acpi/hmat/hmat.c
++++ b/drivers/acpi/hmat/hmat.c
+@@ -403,7 +403,8 @@ static int __init hmat_parse_proximity_domain(union acpi_subtable_headers *heade
+ 		pr_info("HMAT: Memory Flags:%04x Processor Domain:%d Memory Domain:%d\n",
+ 			p->flags, p->processor_PD, p->memory_PD);
  
-+	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if ((status == DMA_COMPLETE) || (txstate == NULL))
--		return status;
--
--	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+		goto out_unlock_irqrestore;
- 
- 	vdesc = vchan_find_desc(&jzchan->vchan, cookie);
- 	if (vdesc) {
-@@ -660,6 +660,7 @@ static enum dma_status jz4780_dma_tx_sta
- 	    && jzchan->desc->status & (JZ_DMA_DCS_AR | JZ_DMA_DCS_HLT))
- 		status = DMA_ERROR;
- 
-+out_unlock_irqrestore:
- 	spin_unlock_irqrestore(&jzchan->vchan.lock, flags);
- 	return status;
- }
+-	if (p->flags & ACPI_HMAT_MEMORY_PD_VALID && hmat_revision == 1) {
++	if ((hmat_revision == 1 && p->flags & ACPI_HMAT_MEMORY_PD_VALID) ||
++	    hmat_revision > 1) {
+ 		target = find_mem_target(p->memory_PD);
+ 		if (!target) {
+ 			pr_debug("HMAT: Memory Domain missing from SRAT\n");
+-- 
+2.27.0
+
 
 
