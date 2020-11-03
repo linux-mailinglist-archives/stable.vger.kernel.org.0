@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87CFF2A563A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B22732A5591
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732942AbgKCVAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
+        id S1730126AbgKCVUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:20:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733240AbgKCVAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:34 -0500
+        id S1731474AbgKCVHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D548223C6;
-        Tue,  3 Nov 2020 21:00:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EC84206B5;
+        Tue,  3 Nov 2020 21:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437234;
-        bh=7o6PnexcbnawDZVe77YRWuYlKfqy5LWqQZ3f1Dyoj1M=;
+        s=default; t=1604437639;
+        bh=mqM/hZb7sOVivnp9BPocOVZZpmLeJIwuZF7GO8A5xvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vP+TAIRnX6l4DUnLit4C5DiuwxWtYh0QB2ibNxsaXhw1VcMRAchLYX5A8HEDPk/ws
-         e6i2HZrBWqi/rC1o0c+g8hcSKgLscigdD96EuimKkKBc93thc7N9dSAjcevEtiXN+B
-         j3JXgtiOvkVbHLJWjYcFU40X2qL5Mo5UCXzzpK6Q=
+        b=qFUDL3nWTYHSkH25HRFtOLUAs2FrCUsrmbNQKNFC2G24e1F2Pi5XIucKW9Xq1ijtd
+         VoHTOFrPANO8VkybUuZts9YrMOsasthfy8dfzJ1DkTdX+g6jJaL7gT28gOEmLuFhIW
+         fzNO1SwSbfozr8QFxuNRThi2jcgRIq35zaHXcfJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: [PATCH 5.4 204/214] arm: dts: mt7623: add missing pause for switchport
-Date:   Tue,  3 Nov 2020 21:37:32 +0100
-Message-Id: <20201103203309.748279233@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.19 161/191] ubifs: dent: Fix some potential memory leaks while iterating entries
+Date:   Tue,  3 Nov 2020 21:37:33 +0100
+Message-Id: <20201103203247.557578951@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 36f0a5fc5284838c544218666c63ee8cfa46a9c3 upstream.
+commit 58f6e78a65f1fcbf732f60a7478ccc99873ff3ba upstream.
 
-port6 of mt7530 switch (= cpu port 0) on bananapi-r2 misses pause option
-which causes rx drops on running iperf.
+Fix some potential memory leaks in error handling branches while
+iterating dent entries. For example, function dbg_check_dir()
+forgets to free pdent if it exists.
 
-Fixes: f4ff257cd160 ("arm: dts: mt7623: add support for Bananapi R2 (BPI-R2) board")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200907070517.51715-1-linux@fw-web.de
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts |    1 +
+ fs/ubifs/debug.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-+++ b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-@@ -192,6 +192,7 @@
- 					fixed-link {
- 						speed = <1000>;
- 						full-duplex;
-+						pause;
- 					};
- 				};
- 			};
+--- a/fs/ubifs/debug.c
++++ b/fs/ubifs/debug.c
+@@ -1129,6 +1129,7 @@ int dbg_check_dir(struct ubifs_info *c,
+ 			err = PTR_ERR(dent);
+ 			if (err == -ENOENT)
+ 				break;
++			kfree(pdent);
+ 			return err;
+ 		}
+ 
 
 
