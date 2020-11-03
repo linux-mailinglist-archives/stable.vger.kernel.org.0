@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083152A51AE
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FB72A51E4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:45:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730623AbgKCUm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:42:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55974 "EHLO mail.kernel.org"
+        id S1730613AbgKCUpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:45:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730108AbgKCUm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:59 -0500
+        id S1730626AbgKCUnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:43:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FCC12224E;
-        Tue,  3 Nov 2020 20:42:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DDE0223AC;
+        Tue,  3 Nov 2020 20:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436177;
-        bh=C4vWTdQtFLrCe1HavvWLal4gIoXh6UkTw3EtsP2qTaw=;
+        s=default; t=1604436180;
+        bh=weHU6S1SGFrKConVvcoGw3uaF2Yz0hseiz4K6VOY5xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5pdykFPbsTg41J3BbQYdB7rw/OiBHuxziiA8B9OdfCo6aG+6sTo2J6mCZbAVK3sl
-         X/Z1JeTj3uxeUGJ1AEwba/8BNW5FOWgg1j9vnK8i8tb5uc/Jn+h2M0ixLhslT6w0XF
-         Wl/FX+brlq27soBLQuaWaFGhKhrBFFr0sLs2LOuA=
+        b=o8fjO+6iTeUEHPyLuwalKt081mg8nwYH+QPLQiISfc1B7ETeSfgO9PBTKo4jiKhvF
+         Pstag46rU1kpNlNDjCJdut1Tm1PqaKsbOdkcuwYEQrlb19BhVwUMmB7sHqeV0eEIs/
+         IYrzJ6LmbYJaDbT6Txij9cCu2SBrMIdjUAMPHOZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 135/391] bus/fsl_mc: Do not rely on caller to provide non NULL mc_io
-Date:   Tue,  3 Nov 2020 21:33:06 +0100
-Message-Id: <20201103203355.939595689@linuxfoundation.org>
+Subject: [PATCH 5.9 136/391] ACPI: HMAT: Fix handling of changes from ACPI 6.2 to ACPI 6.3
+Date:   Tue,  3 Nov 2020 21:33:07 +0100
+Message-Id: <20201103203356.007167963@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,41 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diana Craciun <diana.craciun@oss.nxp.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 5026cf605143e764e1785bbf9158559d17f8d260 ]
+[ Upstream commit 2c5b9bde95c96942f2873cea6ef383c02800e4a8 ]
 
-Before destroying the mc_io, check first that it was
-allocated.
+In ACPI 6.3, the Memory Proximity Domain Attributes Structure
+changed substantially.  One of those changes was that the flag
+for "Memory Proximity Domain field is valid" was deprecated.
 
-Reviewed-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Acked-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Signed-off-by: Diana Craciun <diana.craciun@oss.nxp.com>
-Link: https://lore.kernel.org/r/20200929085441.17448-11-diana.craciun@oss.nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was because the field "Proximity Domain for the Memory"
+became a required field and hence having a validity flag makes
+no sense.
+
+So the correct logic is to always assume the field is there.
+Current code assumes it never is.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/fsl-mc/mc-io.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/acpi/numa/hmat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/fsl-mc/mc-io.c b/drivers/bus/fsl-mc/mc-io.c
-index a30b53f1d87d8..305015486b91c 100644
---- a/drivers/bus/fsl-mc/mc-io.c
-+++ b/drivers/bus/fsl-mc/mc-io.c
-@@ -129,7 +129,12 @@ error_destroy_mc_io:
-  */
- void fsl_destroy_mc_io(struct fsl_mc_io *mc_io)
- {
--	struct fsl_mc_device *dpmcp_dev = mc_io->dpmcp_dev;
-+	struct fsl_mc_device *dpmcp_dev;
-+
-+	if (!mc_io)
-+		return;
-+
-+	dpmcp_dev = mc_io->dpmcp_dev;
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index 2c32cfb723701..6a91a55229aee 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -424,7 +424,8 @@ static int __init hmat_parse_proximity_domain(union acpi_subtable_headers *heade
+ 		pr_info("HMAT: Memory Flags:%04x Processor Domain:%u Memory Domain:%u\n",
+ 			p->flags, p->processor_PD, p->memory_PD);
  
- 	if (dpmcp_dev)
- 		fsl_mc_io_unset_dpmcp(mc_io);
+-	if (p->flags & ACPI_HMAT_MEMORY_PD_VALID && hmat_revision == 1) {
++	if ((hmat_revision == 1 && p->flags & ACPI_HMAT_MEMORY_PD_VALID) ||
++	    hmat_revision > 1) {
+ 		target = find_mem_target(p->memory_PD);
+ 		if (!target) {
+ 			pr_debug("HMAT: Memory Domain missing from SRAT\n");
 -- 
 2.27.0
 
