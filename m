@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5232A58B4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A06A2A5797
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730971AbgKCVyO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:54:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S1732528AbgKCUyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:54:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731047AbgKCUpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:45:33 -0500
+        id S1732522AbgKCUyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:54:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1782D22409;
-        Tue,  3 Nov 2020 20:45:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32EF5223BF;
+        Tue,  3 Nov 2020 20:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436332;
-        bh=4IzX0AmbdJrqIjma/xtfUvtpl5nJcVe7Sv6UL/DIjNA=;
+        s=default; t=1604436843;
+        bh=1QU0X+cZNOMSsCz3QzirAZWQ4Y7CgmqBKEihPMI2TIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPVvZYTe/YUqX9GjZz/tHqSSqrU6Bs1sD7SENe/dpVmWSJ8qH93ryQOMqNFpgvo3L
-         SyuN+kpTFu3U+92fPv1JvJ91qYRG71yY7U0dXsUimm6SHSweR2NVwqa3nx3DXerfuC
-         10gome8XvlhlRPhzulPBP/UpQxYsxWp1LczaTejk=
+        b=M9/b0kFYxcNsocx5/8YwaD6spW3kILEdBo1P2SyA7rzJueyz+3kz1dJ2PIv51Kbj6
+         lhX8xfflT9K+aAxRpRMkblMRREkp0oMh6E+0Cklm38htI4uG+sVPKeF7POEnBmWqbO
+         7Zul7cwsky81WRF0ToOCGlSRrLQHqIGw7pY2yJK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashish Sangwan <ashishsangwan2@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.9 204/391] NFS: fix nfs_path in case of a rename retry
-Date:   Tue,  3 Nov 2020 21:34:15 +0100
-Message-Id: <20201103203400.660469300@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Wei Liu <wl@xen.org>
+Subject: [PATCH 5.4 008/214] xen/pvcallsback: use lateeoi irq binding
+Date:   Tue,  3 Nov 2020 21:34:16 +0100
+Message-Id: <20201103203250.415746972@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +44,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashish Sangwan <ashishsangwan2@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 247db73560bc3e5aef6db50c443c3c0db115bc93 upstream.
+commit c8d647a326f06a39a8e5f0f1af946eacfa1835f8 upstream.
 
-We are generating incorrect path in case of rename retry because
-we are restarting from wrong dentry. We should restart from the
-dentry which was received in the call to nfs_path.
+In order to reduce the chance for the system becoming unresponsive due
+to event storms triggered by a misbehaving pvcallsfront use the lateeoi
+irq binding for pvcallsback and unmask the event channel only after
+handling all write requests, which are the ones coming in via an irq.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This requires modifying the logic a little bit to not require an event
+for each write request, but to keep the ioworker running until no
+further data is found on the ring page to be processed.
+
+This is part of XSA-332.
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/namespace.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/xen/pvcalls-back.c |   76 +++++++++++++++++++++++++++------------------
+ 1 file changed, 46 insertions(+), 30 deletions(-)
 
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -32,9 +32,9 @@ int nfs_mountpoint_expiry_timeout = 500
- /*
-  * nfs_path - reconstruct the path given an arbitrary dentry
-  * @base - used to return pointer to the end of devname part of path
-- * @dentry - pointer to dentry
-+ * @dentry_in - pointer to dentry
-  * @buffer - result buffer
-- * @buflen - length of buffer
-+ * @buflen_in - length of buffer
-  * @flags - options (see below)
-  *
-  * Helper function for constructing the server pathname
-@@ -49,15 +49,19 @@ int nfs_mountpoint_expiry_timeout = 500
-  *		       the original device (export) name
-  *		       (if unset, the original name is returned verbatim)
-  */
--char *nfs_path(char **p, struct dentry *dentry, char *buffer, ssize_t buflen,
--	       unsigned flags)
-+char *nfs_path(char **p, struct dentry *dentry_in, char *buffer,
-+	       ssize_t buflen_in, unsigned flags)
- {
- 	char *end;
- 	int namelen;
- 	unsigned seq;
- 	const char *base;
-+	struct dentry *dentry;
-+	ssize_t buflen;
+--- a/drivers/xen/pvcalls-back.c
++++ b/drivers/xen/pvcalls-back.c
+@@ -66,6 +66,7 @@ struct sock_mapping {
+ 	atomic_t write;
+ 	atomic_t io;
+ 	atomic_t release;
++	atomic_t eoi;
+ 	void (*saved_data_ready)(struct sock *sk);
+ 	struct pvcalls_ioworker ioworker;
+ };
+@@ -87,7 +88,7 @@ static int pvcalls_back_release_active(s
+ 				       struct pvcalls_fedata *fedata,
+ 				       struct sock_mapping *map);
  
- rename_retry:
-+	buflen = buflen_in;
-+	dentry = dentry_in;
- 	end = buffer+buflen;
- 	*--end = '\0';
- 	buflen--;
+-static void pvcalls_conn_back_read(void *opaque)
++static bool pvcalls_conn_back_read(void *opaque)
+ {
+ 	struct sock_mapping *map = (struct sock_mapping *)opaque;
+ 	struct msghdr msg;
+@@ -107,17 +108,17 @@ static void pvcalls_conn_back_read(void
+ 	virt_mb();
+ 
+ 	if (error)
+-		return;
++		return false;
+ 
+ 	size = pvcalls_queued(prod, cons, array_size);
+ 	if (size >= array_size)
+-		return;
++		return false;
+ 	spin_lock_irqsave(&map->sock->sk->sk_receive_queue.lock, flags);
+ 	if (skb_queue_empty(&map->sock->sk->sk_receive_queue)) {
+ 		atomic_set(&map->read, 0);
+ 		spin_unlock_irqrestore(&map->sock->sk->sk_receive_queue.lock,
+ 				flags);
+-		return;
++		return true;
+ 	}
+ 	spin_unlock_irqrestore(&map->sock->sk->sk_receive_queue.lock, flags);
+ 	wanted = array_size - size;
+@@ -141,7 +142,7 @@ static void pvcalls_conn_back_read(void
+ 	ret = inet_recvmsg(map->sock, &msg, wanted, MSG_DONTWAIT);
+ 	WARN_ON(ret > wanted);
+ 	if (ret == -EAGAIN) /* shouldn't happen */
+-		return;
++		return true;
+ 	if (!ret)
+ 		ret = -ENOTCONN;
+ 	spin_lock_irqsave(&map->sock->sk->sk_receive_queue.lock, flags);
+@@ -160,10 +161,10 @@ static void pvcalls_conn_back_read(void
+ 	virt_wmb();
+ 	notify_remote_via_irq(map->irq);
+ 
+-	return;
++	return true;
+ }
+ 
+-static void pvcalls_conn_back_write(struct sock_mapping *map)
++static bool pvcalls_conn_back_write(struct sock_mapping *map)
+ {
+ 	struct pvcalls_data_intf *intf = map->ring;
+ 	struct pvcalls_data *data = &map->data;
+@@ -180,7 +181,7 @@ static void pvcalls_conn_back_write(stru
+ 	array_size = XEN_FLEX_RING_SIZE(map->ring_order);
+ 	size = pvcalls_queued(prod, cons, array_size);
+ 	if (size == 0)
+-		return;
++		return false;
+ 
+ 	memset(&msg, 0, sizeof(msg));
+ 	msg.msg_flags |= MSG_DONTWAIT;
+@@ -198,12 +199,11 @@ static void pvcalls_conn_back_write(stru
+ 
+ 	atomic_set(&map->write, 0);
+ 	ret = inet_sendmsg(map->sock, &msg, size);
+-	if (ret == -EAGAIN || (ret >= 0 && ret < size)) {
++	if (ret == -EAGAIN) {
+ 		atomic_inc(&map->write);
+ 		atomic_inc(&map->io);
++		return true;
+ 	}
+-	if (ret == -EAGAIN)
+-		return;
+ 
+ 	/* write the data, then update the indexes */
+ 	virt_wmb();
+@@ -216,9 +216,13 @@ static void pvcalls_conn_back_write(stru
+ 	}
+ 	/* update the indexes, then notify the other end */
+ 	virt_wmb();
+-	if (prod != cons + ret)
++	if (prod != cons + ret) {
+ 		atomic_inc(&map->write);
++		atomic_inc(&map->io);
++	}
+ 	notify_remote_via_irq(map->irq);
++
++	return true;
+ }
+ 
+ static void pvcalls_back_ioworker(struct work_struct *work)
+@@ -227,6 +231,7 @@ static void pvcalls_back_ioworker(struct
+ 		struct pvcalls_ioworker, register_work);
+ 	struct sock_mapping *map = container_of(ioworker, struct sock_mapping,
+ 		ioworker);
++	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
+ 
+ 	while (atomic_read(&map->io) > 0) {
+ 		if (atomic_read(&map->release) > 0) {
+@@ -234,10 +239,18 @@ static void pvcalls_back_ioworker(struct
+ 			return;
+ 		}
+ 
+-		if (atomic_read(&map->read) > 0)
+-			pvcalls_conn_back_read(map);
+-		if (atomic_read(&map->write) > 0)
+-			pvcalls_conn_back_write(map);
++		if (atomic_read(&map->read) > 0 &&
++		    pvcalls_conn_back_read(map))
++			eoi_flags = 0;
++		if (atomic_read(&map->write) > 0 &&
++		    pvcalls_conn_back_write(map))
++			eoi_flags = 0;
++
++		if (atomic_read(&map->eoi) > 0 && !atomic_read(&map->write)) {
++			atomic_set(&map->eoi, 0);
++			xen_irq_lateeoi(map->irq, eoi_flags);
++			eoi_flags = XEN_EOI_FLAG_SPURIOUS;
++		}
+ 
+ 		atomic_dec(&map->io);
+ 	}
+@@ -334,12 +347,9 @@ static struct sock_mapping *pvcalls_new_
+ 		goto out;
+ 	map->bytes = page;
+ 
+-	ret = bind_interdomain_evtchn_to_irqhandler(fedata->dev->otherend_id,
+-						    evtchn,
+-						    pvcalls_back_conn_event,
+-						    0,
+-						    "pvcalls-backend",
+-						    map);
++	ret = bind_interdomain_evtchn_to_irqhandler_lateeoi(
++			fedata->dev->otherend_id, evtchn,
++			pvcalls_back_conn_event, 0, "pvcalls-backend", map);
+ 	if (ret < 0)
+ 		goto out;
+ 	map->irq = ret;
+@@ -873,15 +883,18 @@ static irqreturn_t pvcalls_back_event(in
+ {
+ 	struct xenbus_device *dev = dev_id;
+ 	struct pvcalls_fedata *fedata = NULL;
++	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
+ 
+-	if (dev == NULL)
+-		return IRQ_HANDLED;
++	if (dev) {
++		fedata = dev_get_drvdata(&dev->dev);
++		if (fedata) {
++			pvcalls_back_work(fedata);
++			eoi_flags = 0;
++		}
++	}
+ 
+-	fedata = dev_get_drvdata(&dev->dev);
+-	if (fedata == NULL)
+-		return IRQ_HANDLED;
++	xen_irq_lateeoi(irq, eoi_flags);
+ 
+-	pvcalls_back_work(fedata);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -891,12 +904,15 @@ static irqreturn_t pvcalls_back_conn_eve
+ 	struct pvcalls_ioworker *iow;
+ 
+ 	if (map == NULL || map->sock == NULL || map->sock->sk == NULL ||
+-		map->sock->sk->sk_user_data != map)
++		map->sock->sk->sk_user_data != map) {
++		xen_irq_lateeoi(irq, 0);
+ 		return IRQ_HANDLED;
++	}
+ 
+ 	iow = &map->ioworker;
+ 
+ 	atomic_inc(&map->write);
++	atomic_inc(&map->eoi);
+ 	atomic_inc(&map->io);
+ 	queue_work(iow->wq, &iow->register_work);
+ 
+@@ -931,7 +947,7 @@ static int backend_connect(struct xenbus
+ 		goto error;
+ 	}
+ 
+-	err = bind_interdomain_evtchn_to_irq(dev->otherend_id, evtchn);
++	err = bind_interdomain_evtchn_to_irq_lateeoi(dev->otherend_id, evtchn);
+ 	if (err < 0)
+ 		goto error;
+ 	fedata->irq = err;
 
 
