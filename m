@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 072DA2A5143
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E31332A5152
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730030AbgKCUiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:38:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49386 "EHLO mail.kernel.org"
+        id S1729507AbgKCUjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:39:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbgKCUix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:38:53 -0500
+        id S1730113AbgKCUjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:39:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E21AF2224E;
-        Tue,  3 Nov 2020 20:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0D2022226;
+        Tue,  3 Nov 2020 20:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604435932;
-        bh=D3B8pyNTf4f1+syMpUd/7XRA1AmwAxGpUFqqGfBoeoQ=;
+        s=default; t=1604435992;
+        bh=iGEgOCDkbm1xGN4RoEK1TxS/V9O+IkxdIQz+aBqBTxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4mA5+srwXehEIzfCq0h/zVfjtgxKbDWa4vRoYsLkX7vyHniAXQ64MpgeE1YWN0fD
-         2oRjnlMl35yxKItIlBpvzodwBYBQnTpXsXIAF+b+elfR3t5DxF+WWA4AkNCJ8i9P/R
-         XIIlIc9uiVMHb2hkRbj0oncnRORGlAI+TcvDUBFk=
+        b=YQ6UxySiNH0NvXNUKejqIvkwk49rTJMnaDsjFbXrH2xnCcx1BscpwUmesVH5lEnZy
+         2Bpf3z9B/MxcHyzbclR4kffuxxNpz4pCYvs1S+RWcRlzjN3uCLibwewwudttWimmCD
+         q8HNPhti3/Vpf7wdzuOjEEFF9xuymSeat79bS8gY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 018/391] x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels
-Date:   Tue,  3 Nov 2020 21:31:09 +0100
-Message-Id: <20201103203349.165874530@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 019/391] firmware: arm_scmi: Fix locking in notifications
+Date:   Tue,  3 Nov 2020 21:31:10 +0100
+Message-Id: <20201103203349.219858293@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -42,142 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit f2ac57a4c49d40409c21c82d23b5706df9b438af ]
+[ Upstream commit c7821c2d9c0dda0adf2bcf88e79b02a19a430be4 ]
 
-GCC 10 optimizes the scheduler code differently than its predecessors.
+When a protocol registers its events, the notification core takes care
+to rescan the hashtable of pending event handlers and activate all the
+possibly existent handlers referring to any of the events that are just
+registered by the new protocol. When a pending handler becomes active
+the core requests and enables the corresponding events in the SCMI
+firmware.
 
-When CONFIG_DEBUG_SECTION_MISMATCH=y, the Makefile forces GCC not
-to inline some functions (-fno-inline-functions-called-once). Before GCC
-10, "no-inlined" __schedule() starts with the usual prologue:
+If, for whatever reason, the enable fails, such invalid event handler
+must be finally removed and freed. Let us ensure to use the
+scmi_put_active_handler() helper which handles properly the needed
+additional locking.
 
-  push %bp
-  mov %sp, %bp
+Failing to properly acquire all the needed mutexes exposes a race that
+leads to the following splat being observed:
 
-So the ORC unwinder simply picks stack pointer from %bp and
-unwinds from __schedule() just perfectly:
+ WARNING: CPU: 0 PID: 388 at lib/refcount.c:28 refcount_warn_saturate+0xf8/0x148
+ Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development
+ 	Platform, BIOS EDK II Jun 30 2020
+ pstate: 40000005 (nZcv daif -PAN -UAO BTYPE=--)
+ pc : refcount_warn_saturate+0xf8/0x148
+ lr : refcount_warn_saturate+0xf8/0x148
+ Call trace:
+  refcount_warn_saturate+0xf8/0x148
+  scmi_put_handler_unlocked.isra.10+0x204/0x208
+  scmi_put_handler+0x50/0xa0
+  scmi_unregister_notifier+0x1bc/0x240
+  scmi_notify_tester_remove+0x4c/0x68 [dummy_scmi_consumer]
+  scmi_dev_remove+0x54/0x68
+  device_release_driver_internal+0x114/0x1e8
+  driver_detach+0x58/0xe8
+  bus_remove_driver+0x88/0xe0
+  driver_unregister+0x38/0x68
+  scmi_driver_unregister+0x1c/0x28
+  scmi_drv_exit+0x1c/0xae0 [dummy_scmi_consumer]
+  __arm64_sys_delete_module+0x1a4/0x268
+  el0_svc_common.constprop.3+0x94/0x178
+  do_el0_svc+0x2c/0x98
+  el0_sync_handler+0x148/0x1a8
+  el0_sync+0x158/0x180
 
-  $ cat /proc/1/stack
-  [<0>] ep_poll+0x3e9/0x450
-  [<0>] do_epoll_wait+0xaa/0xc0
-  [<0>] __x64_sys_epoll_wait+0x1a/0x20
-  [<0>] do_syscall_64+0x33/0x40
-  [<0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-But now, with GCC 10, there is no %bp prologue in __schedule():
-
-  $ cat /proc/1/stack
-  <nothing>
-
-The ORC entry of the point in __schedule() is:
-
-  sp:sp+88 bp:last_sp-48 type:call end:0
-
-In this case, nobody subtracts sizeof "struct inactive_task_frame" in
-__unwind_start(). The struct is put on the stack by __switch_to_asm() and
-only then __switch_to_asm() stores %sp to task->thread.sp. But we start
-unwinding from a point in __schedule() (stored in frame->ret_addr by
-'call') and not in __switch_to_asm().
-
-So for these example values in __unwind_start():
-
-  sp=ffff94b50001fdc8 bp=ffff8e1f41d29340 ip=__schedule+0x1f0
-
-The stack is:
-
-  ffff94b50001fdc8: ffff8e1f41578000 # struct inactive_task_frame
-  ffff94b50001fdd0: 0000000000000000
-  ffff94b50001fdd8: ffff8e1f41d29340
-  ffff94b50001fde0: ffff8e1f41611d40 # ...
-  ffff94b50001fde8: ffffffff93c41920 # bx
-  ffff94b50001fdf0: ffff8e1f41d29340 # bp
-  ffff94b50001fdf8: ffffffff9376cad0 # ret_addr (and end of the struct)
-
-0xffffffff9376cad0 is __schedule+0x1f0 (after the call to
-__switch_to_asm).  Now follow those 88 bytes from the ORC entry (sp+88).
-The entry is correct, __schedule() really pushes 48 bytes (8*7) + 32 bytes
-via subq to store some local values (like 4U below). So to unwind, look
-at the offset 88-sizeof(long) = 0x50 from here:
-
-  ffff94b50001fe00: ffff8e1f41578618
-  ffff94b50001fe08: 00000cc000000255
-  ffff94b50001fe10: 0000000500000004
-  ffff94b50001fe18: 7793fab6956b2d00 # NOTE (see below)
-  ffff94b50001fe20: ffff8e1f41578000
-  ffff94b50001fe28: ffff8e1f41578000
-  ffff94b50001fe30: ffff8e1f41578000
-  ffff94b50001fe38: ffff8e1f41578000
-  ffff94b50001fe40: ffff94b50001fed8
-  ffff94b50001fe48: ffff8e1f41577ff0
-  ffff94b50001fe50: ffffffff9376cf12
-
-Here                ^^^^^^^^^^^^^^^^ is the correct ret addr from
-__schedule(). It translates to schedule+0x42 (insn after a call to
-__schedule()).
-
-BUT, unwind_next_frame() tries to take the address starting from
-0xffff94b50001fdc8. That is exactly from thread.sp+88-sizeof(long) =
-0xffff94b50001fdc8+88-8 = 0xffff94b50001fe18, which is garbage marked as
-NOTE above. So this quits the unwinding as 7793fab6956b2d00 is obviously
-not a kernel address.
-
-There was a fix to skip 'struct inactive_task_frame' in
-unwind_get_return_address_ptr in the following commit:
-
-  187b96db5ca7 ("x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks")
-
-But we need to skip the struct already in the unwinder proper. So
-subtract the size (increase the stack pointer) of the structure in
-__unwind_start() directly. This allows for removal of the code added by
-commit 187b96db5ca7 completely, as the address is now at
-'(unsigned long *)state->sp - 1', the same as in the generic case.
-
-[ mingo: Cleaned up the changelog a bit, for better readability. ]
-
-Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
-Bug: https://bugzilla.suse.com/show_bug.cgi?id=1176907
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20201014053051.24199-1-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20201013133109.49821-1-cristian.marussi@arm.com
+Fixes: e7c215f358a35 ("firmware: arm_scmi: Add notification callbacks-registration")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/firmware/arm_scmi/notify.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index ec88bbe08a328..4a96aa3de7d8a 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -320,19 +320,12 @@ EXPORT_SYMBOL_GPL(unwind_get_return_address);
- 
- unsigned long *unwind_get_return_address_ptr(struct unwind_state *state)
- {
--	struct task_struct *task = state->task;
--
- 	if (unwind_done(state))
- 		return NULL;
- 
- 	if (state->regs)
- 		return &state->regs->ip;
- 
--	if (task != current && state->sp == task->thread.sp) {
--		struct inactive_task_frame *frame = (void *)task->thread.sp;
--		return &frame->ret_addr;
--	}
--
- 	if (state->sp)
- 		return (unsigned long *)state->sp - 1;
- 
-@@ -662,7 +655,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 	} else {
- 		struct inactive_task_frame *frame = (void *)task->thread.sp;
- 
--		state->sp = task->thread.sp;
-+		state->sp = task->thread.sp + sizeof(*frame);
- 		state->bp = READ_ONCE_NOCHECK(frame->bp);
- 		state->ip = READ_ONCE_NOCHECK(frame->ret_addr);
- 		state->signal = (void *)state->ip == ret_from_fork;
+diff --git a/drivers/firmware/arm_scmi/notify.c b/drivers/firmware/arm_scmi/notify.c
+index 4731daaacd19e..4d9f6de3a7fae 100644
+--- a/drivers/firmware/arm_scmi/notify.c
++++ b/drivers/firmware/arm_scmi/notify.c
+@@ -1403,15 +1403,21 @@ static void scmi_protocols_late_init(struct work_struct *work)
+ 				"finalized PENDING handler - key:%X\n",
+ 				hndl->key);
+ 			ret = scmi_event_handler_enable_events(hndl);
++			if (ret) {
++				dev_dbg(ni->handle->dev,
++					"purging INVALID handler - key:%X\n",
++					hndl->key);
++				scmi_put_active_handler(ni, hndl);
++			}
+ 		} else {
+ 			ret = scmi_valid_pending_handler(ni, hndl);
+-		}
+-		if (ret) {
+-			dev_dbg(ni->handle->dev,
+-				"purging PENDING handler - key:%X\n",
+-				hndl->key);
+-			/* this hndl can be only a pending one */
+-			scmi_put_handler_unlocked(ni, hndl);
++			if (ret) {
++				dev_dbg(ni->handle->dev,
++					"purging PENDING handler - key:%X\n",
++					hndl->key);
++				/* this hndl can be only a pending one */
++				scmi_put_handler_unlocked(ni, hndl);
++			}
+ 		}
+ 	}
+ 	mutex_unlock(&ni->pending_mtx);
 -- 
 2.27.0
 
