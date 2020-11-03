@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC9F2A584E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 907C92A584C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731657AbgKCUs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:48:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
+        id S1731387AbgKCVuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731673AbgKCUsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:55 -0500
+        id S1731679AbgKCUs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:48:58 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF9D520719;
-        Tue,  3 Nov 2020 20:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E3E8223FD;
+        Tue,  3 Nov 2020 20:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436535;
-        bh=ahjbn9H70hPUckCaDcElCvVnZe3GnTqMRqR5U/J3N8c=;
+        s=default; t=1604436537;
+        bh=KHK/C3N24xx45UXY68MfwEVkkgX6kFMk9DiZL/RyCpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBcNyaTtUVGIQGV0RbKxP9qEmIjNrIalwr+NET8NMgDi6k/NNBrq3unC+4jGEZKxN
-         b//WZZtCpoeZ/n6hGsjeb9Vtfgc3w6e4Xx//Z6YBH+4VKozj0RgVPvzokh3MBhaGuS
-         JiHYZeT9jpLw9DDgvQsP+ql3804jngXwDtyn1mDc=
+        b=wXGigPYNTaXPYbxZ1YTxd7GvV24r5CIUrNiQL7Rsl7XWyq6V4CiTqPUXYdftHody0
+         E9r1uZJhCCU/3c8yce0BqQxwlquHJNWmI0+ILC0aO9boZHipPfxzgwmgkQi6BpCeD/
+         N+Fw41ZBFXjClvHuPH04XDvJcybIUfI96vLrpBxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ganesh Goudar <ganeshgr@linux.ibm.com>,
+        stable@vger.kernel.org, Michael Neuling <mikey@neuling.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 291/391] powerpc/mce: Avoid nmi_enter/exit in real mode on pseries hash
-Date:   Tue,  3 Nov 2020 21:35:42 +0100
-Message-Id: <20201103203406.705455782@linuxfoundation.org>
+Subject: [PATCH 5.9 292/391] powerpc: Fix undetected data corruption with P9N DD2.1 VSX CI load emulation
+Date:   Tue,  3 Nov 2020 21:35:43 +0100
+Message-Id: <20201103203406.774479535@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -42,54 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganesh Goudar <ganeshgr@linux.ibm.com>
+From: Michael Neuling <mikey@neuling.org>
 
-commit 8d0e2101274358d9b6b1f27232b40253ca48bab5 upstream.
+commit 1da4a0272c5469169f78cd76cf175ff984f52f06 upstream.
 
-Use of nmi_enter/exit in real mode handler causes the kernel to panic
-and reboot on injecting SLB mutihit on pseries machine running in hash
-MMU mode, because these calls try to accesses memory outside RMO
-region in real mode handler where translation is disabled.
+__get_user_atomic_128_aligned() stores to kaddr using stvx which is a
+VMX store instruction, hence kaddr must be 16 byte aligned otherwise
+the store won't occur as expected.
 
-Add check to not to use these calls on pseries machine running in hash
-MMU mode.
+Unfortunately when we call __get_user_atomic_128_aligned() in
+p9_hmi_special_emu(), the buffer we pass as kaddr (ie. vbuf) isn't
+guaranteed to be 16B aligned. This means that the write to vbuf in
+__get_user_atomic_128_aligned() has the bottom bits of the address
+truncated. This results in other local variables being
+overwritten. Also vbuf will not contain the correct data which results
+in the userspace emulation being wrong and hence undetected user data
+corruption.
 
-Fixes: 116ac378bb3f ("powerpc/64s: machine check interrupt update NMI accounting")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
+In the past we've been mostly lucky as vbuf has ended up aligned but
+this is fragile and isn't always true. CONFIG_STACKPROTECTOR in
+particular can change the stack arrangement enough that our luck runs
+out.
+
+This issue only occurs on POWER9 Nimbus <= DD2.1 bare metal.
+
+The fix is to align vbuf to a 16 byte boundary.
+
+Fixes: 5080332c2c89 ("powerpc/64s: Add workaround for P9 vector CI load issue")
+Cc: stable@vger.kernel.org # v4.15+
+Signed-off-by: Michael Neuling <mikey@neuling.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201009064005.19777-2-ganeshgr@linux.ibm.com
+Link: https://lore.kernel.org/r/20201013043741.743413-1-mikey@neuling.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/mce.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/traps.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/mce.c
-+++ b/arch/powerpc/kernel/mce.c
-@@ -591,12 +591,11 @@ EXPORT_SYMBOL_GPL(machine_check_print_ev
- long notrace machine_check_early(struct pt_regs *regs)
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -889,7 +889,7 @@ static void p9_hmi_special_emu(struct pt
  {
- 	long handled = 0;
--	bool nested = in_nmi();
- 	u8 ftrace_enabled = this_cpu_get_ftrace_enabled();
+ 	unsigned int ra, rb, t, i, sel, instr, rc;
+ 	const void __user *addr;
+-	u8 vbuf[16], *vdst;
++	u8 vbuf[16] __aligned(16), *vdst;
+ 	unsigned long ea, msr, msr_mask;
+ 	bool swap;
  
- 	this_cpu_set_ftrace_enabled(0);
--
--	if (!nested)
-+	/* Do not use nmi_enter/exit for pseries hpte guest */
-+	if (radix_enabled() || !firmware_has_feature(FW_FEATURE_LPAR))
- 		nmi_enter();
- 
- 	hv_nmi_check_nonrecoverable(regs);
-@@ -607,7 +606,7 @@ long notrace machine_check_early(struct
- 	if (ppc_md.machine_check_early)
- 		handled = ppc_md.machine_check_early(regs);
- 
--	if (!nested)
-+	if (radix_enabled() || !firmware_has_feature(FW_FEATURE_LPAR))
- 		nmi_exit();
- 
- 	this_cpu_set_ftrace_enabled(ftrace_enabled);
 
 
