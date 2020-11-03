@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325A22A5370
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8F82A5494
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733045AbgKCVBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:01:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37094 "EHLO mail.kernel.org"
+        id S2389064AbgKCVMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:12:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732410AbgKCVA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:57 -0500
+        id S2389058AbgKCVMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89923223C7;
-        Tue,  3 Nov 2020 21:00:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30FE207BC;
+        Tue,  3 Nov 2020 21:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437257;
-        bh=qAe2rnN958PsgWxtKniFbsM/EczxHG/amxzn10O82I8=;
+        s=default; t=1604437963;
+        bh=vJNDHtA8dIwtrwZJCs7FdcTmW+Ou1/G9CnSb63A9HRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=floNHrDg87EVZx3eySHDl/T1Fr5TxuNb6Mf+DXWSG8B8wNkbig7FT5eVCj3T1FBAC
-         g7GFKs3puTqX3rwZDVDfugu5RuVm/CrzsvMRpnFVmHO75NVR891kmwkVUbTzAg3Xxl
-         OQfuVfsnUZoSd5qs/eKfxBhfrCR9e0EqMECD2uvc=
+        b=0l1VOqHXLpRZhI+lIKBZLha+ojT8VLbDPTzJSQNnMYern3zVaoeVFFv0siubBpsPY
+         xHHv8cq8gRFaZbUA3BwlSnDQrtRO6A1qUhA1ivpyFeK5vEf8+wIKMZsD7ZVbiBl1s3
+         +jdBtF6L/0T2YQnQUxr47pPJvRXgxc8gPZUsN80E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.4 196/214] drm/ttm: fix eviction valuable range check.
-Date:   Tue,  3 Nov 2020 21:37:24 +0100
-Message-Id: <20201103203309.020978087@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Hung <alex.hung@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 068/125] ACPI: video: use ACPI backlight for HP 635 Notebook
+Date:   Tue,  3 Nov 2020 21:37:25 +0100
+Message-Id: <20201103203206.665889736@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Alex Hung <alex.hung@canonical.com>
 
-commit fea456d82c19d201c21313864105876deabe148b upstream.
+commit b226faab4e7890bbbccdf794e8b94276414f9058 upstream.
 
-This was adding size to start, but pfn and start are in pages,
-so it should be using num_pages.
+The default backlight interface is AMD's radeon_bl0 which does not
+work on this system, so use the ACPI backlight interface on it
+instead.
 
-Not sure this fixes anything in the real world, just noticed it
-during refactoring.
-
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20201019222257.1684769-2-airlied@gmail.com
+BugLink: https://bugs.launchpad.net/bugs/1894667
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rjw: Changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/ttm/ttm_bo.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/video_detect.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -761,7 +761,7 @@ bool ttm_bo_eviction_valuable(struct ttm
- 	/* Don't evict this BO if it's outside of the
- 	 * requested placement range
- 	 */
--	if (place->fpfn >= (bo->mem.start + bo->mem.size) ||
-+	if (place->fpfn >= (bo->mem.start + bo->mem.num_pages) ||
- 	    (place->lpfn && place->lpfn <= bo->mem.start))
- 		return false;
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -274,6 +274,15 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "530U4E/540U4E"),
+ 		},
+ 	},
++	/* https://bugs.launchpad.net/bugs/1894667 */
++	{
++	 .callback = video_detect_force_video,
++	 .ident = "HP 635 Notebook",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
++		},
++	},
  
+ 	/* Non win8 machines which need native backlight nevertheless */
+ 	{
 
 
