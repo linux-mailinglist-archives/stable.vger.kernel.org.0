@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8612A529D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:51:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0830D2A533D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731951AbgKCUvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:51:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46670 "EHLO mail.kernel.org"
+        id S1733065AbgKCU7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:59:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731971AbgKCUv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:51:28 -0500
+        id S1733058AbgKCU7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7953620719;
-        Tue,  3 Nov 2020 20:51:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD49F2053B;
+        Tue,  3 Nov 2020 20:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436688;
-        bh=wVLLopMnkUunpVigXiTm5cdhAoAq2FHLPwHRt6HrWNA=;
+        s=default; t=1604437142;
+        bh=eM6w+HbpO30a66/rFp2xskdZ1nI9nPo89xz2YciUCNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+dS2TxD/ow9madbE4zZeDbvhishV/a/WWnuOOFCfErOJUIy9tgaPyzpt32p8tXYq
-         JKNjfiTF6tOYDRlivc63NcxC5vW1hB30lklzUaltOCgY5dxbawFbEsL8MBhss5qqVU
-         hgPbe/JNVcsggccO6mkPBwOa/7OkjQb8vcB2lw1g=
+        b=R9COULfr+0oMrbdzhGaDgVPUqB1JZwi+YW1lsHecQqblgnX+1u7eVkf4oLYphMoZ2
+         IpaqaW87jGh2/O8KXP42avvdZBxiN9R2nnI2vJlE8Q7BjX5xinF2XBnngyCeBoCywE
+         e0mSntlrfAqjQEvNw019k8ZV3ofvOCFMkHimBREg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.9 360/391] drm/amd/psp: Fix sysfs: cannot create duplicate filename
-Date:   Tue,  3 Nov 2020 21:36:51 +0100
-Message-Id: <20201103203411.429637272@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 165/214] NFSv4.2: support EXCHGID4_FLAG_SUPP_FENCE_OPS 4.2 EXCHANGE_ID flag
+Date:   Tue,  3 Nov 2020 21:36:53 +0100
+Message-Id: <20201103203306.244619789@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit f1bcddffe46b349a82445a8d9efd5f5fcb72557f upstream.
+commit 8c39076c276be0b31982e44654e2c2357473258a upstream.
 
-psp sysfs not cleaned up on driver unload for sienna_cichlid
+RFC 7862 introduced a new flag that either client or server is
+allowed to set: EXCHGID4_FLAG_SUPP_FENCE_OPS.
 
-Fixes: ce87c98db428e7 ("drm/amdgpu: Include sienna_cichlid in USBC PD FW support.")
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.9.x
+Client needs to update its bitmask to allow for this flag value.
+
+v2: changed minor version argument to unsigned int
+
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c         |    9 ++++++---
+ include/uapi/linux/nfs4.h |    3 +++
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -206,7 +206,8 @@ static int psp_sw_fini(void *handle)
- 		adev->psp.ta_fw = NULL;
- 	}
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -7859,9 +7859,11 @@ int nfs4_proc_secinfo(struct inode *dir,
+  * both PNFS and NON_PNFS flags set, and not having one of NON_PNFS, PNFS, or
+  * DS flags set.
+  */
+-static int nfs4_check_cl_exchange_flags(u32 flags)
++static int nfs4_check_cl_exchange_flags(u32 flags, u32 version)
+ {
+-	if (flags & ~EXCHGID4_FLAG_MASK_R)
++	if (version >= 2 && (flags & ~EXCHGID4_2_FLAG_MASK_R))
++		goto out_inval;
++	else if (version < 2 && (flags & ~EXCHGID4_FLAG_MASK_R))
+ 		goto out_inval;
+ 	if ((flags & EXCHGID4_FLAG_USE_PNFS_MDS) &&
+ 	    (flags & EXCHGID4_FLAG_USE_NON_PNFS))
+@@ -8274,7 +8276,8 @@ static int _nfs4_proc_exchange_id(struct
+ 	if (status  != 0)
+ 		goto out;
  
--	if (adev->asic_type == CHIP_NAVI10)
-+	if (adev->asic_type == CHIP_NAVI10 ||
-+	    adev->asic_type == CHIP_SIENNA_CICHLID)
- 		psp_sysfs_fini(adev);
+-	status = nfs4_check_cl_exchange_flags(resp->flags);
++	status = nfs4_check_cl_exchange_flags(resp->flags,
++			clp->cl_mvops->minor_version);
+ 	if (status  != 0)
+ 		goto out;
  
- 	return 0;
+--- a/include/uapi/linux/nfs4.h
++++ b/include/uapi/linux/nfs4.h
+@@ -136,6 +136,8 @@
+ 
+ #define EXCHGID4_FLAG_UPD_CONFIRMED_REC_A	0x40000000
+ #define EXCHGID4_FLAG_CONFIRMED_R		0x80000000
++
++#define EXCHGID4_FLAG_SUPP_FENCE_OPS		0x00000004
+ /*
+  * Since the validity of these bits depends on whether
+  * they're set in the argument or response, have separate
+@@ -143,6 +145,7 @@
+  */
+ #define EXCHGID4_FLAG_MASK_A			0x40070103
+ #define EXCHGID4_FLAG_MASK_R			0x80070103
++#define EXCHGID4_2_FLAG_MASK_R			0x80070107
+ 
+ #define SEQ4_STATUS_CB_PATH_DOWN		0x00000001
+ #define SEQ4_STATUS_CB_GSS_CONTEXTS_EXPIRING	0x00000002
 
 
