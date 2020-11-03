@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63CC72A5867
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DC42A574D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730355AbgKCVvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:51:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40510 "EHLO mail.kernel.org"
+        id S1731147AbgKCU4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:56:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731557AbgKCUsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:39 -0500
+        id S1732115AbgKCU4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:56:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 810F82242F;
-        Tue,  3 Nov 2020 20:48:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5EBE223BF;
+        Tue,  3 Nov 2020 20:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436519;
-        bh=+X2budXCb6J4o/mCqhEBs0LDWUBHuO/8px/UpGU0p58=;
+        s=default; t=1604436963;
+        bh=/5LWgQ/WVYbMHfGvzmqDtdA71HwyE7u5qWhtd/GkzsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PErBGZiDGvUEzFcaBQzV+9gd8j9DylelX9xqJPka9msJSgKU0dvJz+LeMdE6Cps1K
-         01S2seGmz5LTwze0oyeKTXmuJRv44PJrWxEhbt1f9s5i4r8ued2rrZEk8+e9iYRGqn
-         MQiTel0gWD23QJLSuBGEEJWJZ6FTA8bMfkIcs5hU=
+        b=PSCsFxEJHZN4jRi2e2DopgN6aLP+jKHgWs8KVaDNWqJzkfd5Db5rm9zdny1K/JVHQ
+         SJFAQKxIgQPX8xQhmsLvbjfkItEX5pEjaKXsQqCX0pjNR3SZVvbwW7Q0Aj18xaYDjX
+         ONx0TRe4MZZgjGSg5dZ+8T32GNK/4yihwkm+JWEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.9 285/391] s390/stp: add locking to sysfs functions
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/214] memory: emif: Remove bogus debugfs error handling
 Date:   Tue,  3 Nov 2020 21:35:36 +0100
-Message-Id: <20201103203406.275946114@linuxfoundation.org>
+Message-Id: <20201103203258.637208207@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,236 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit b3bd02495cb339124f13135d51940cf48d83e5cb upstream.
+[ Upstream commit fd22781648080cc400772b3c68aa6b059d2d5420 ]
 
-The sysfs function might race with stp_work_fn. To prevent that,
-add the required locking. Another issue is that the sysfs functions
-are checking the stp_online flag, but this flag just holds the user
-setting whether STP is enabled. Add a flag to clock_sync_flag whether
-stp_info holds valid data and use that instead.
+Callers are generally not supposed to check the return values from
+debugfs functions.  Debugfs functions never return NULL so this error
+handling will never trigger.  (Historically debugfs functions used to
+return a mix of NULL and error pointers but it was eventually deemed too
+complicated for something which wasn't intended to be used in normal
+situations).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Delete all the error handling.
 
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Link: https://lore.kernel.org/r/20200826113759.GF393664@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/time.c |  118 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 85 insertions(+), 33 deletions(-)
+ drivers/memory/emif.c | 33 +++++----------------------------
+ 1 file changed, 5 insertions(+), 28 deletions(-)
 
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -345,8 +345,9 @@ static DEFINE_PER_CPU(atomic_t, clock_sy
- static DEFINE_MUTEX(clock_sync_mutex);
- static unsigned long clock_sync_flags;
+diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
+index 402c6bc8e621d..af296b6fcbbdc 100644
+--- a/drivers/memory/emif.c
++++ b/drivers/memory/emif.c
+@@ -163,35 +163,12 @@ static const struct file_operations emif_mr4_fops = {
  
--#define CLOCK_SYNC_HAS_STP	0
--#define CLOCK_SYNC_STP		1
-+#define CLOCK_SYNC_HAS_STP		0
-+#define CLOCK_SYNC_STP			1
-+#define CLOCK_SYNC_STPINFO_VALID	2
- 
- /*
-  * The get_clock function for the physical clock. It will get the current
-@@ -583,6 +584,22 @@ void stp_queue_work(void)
- 	queue_work(time_sync_wq, &stp_work);
+ static int __init_or_module emif_debugfs_init(struct emif_data *emif)
+ {
+-	struct dentry	*dentry;
+-	int		ret;
+-
+-	dentry = debugfs_create_dir(dev_name(emif->dev), NULL);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err0;
+-	}
+-	emif->debugfs_root = dentry;
+-
+-	dentry = debugfs_create_file("regcache_dump", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_regdump_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
+-	dentry = debugfs_create_file("mr4", S_IRUGO,
+-			emif->debugfs_root, emif, &emif_mr4_fops);
+-	if (!dentry) {
+-		ret = -ENOMEM;
+-		goto err1;
+-	}
+-
++	emif->debugfs_root = debugfs_create_dir(dev_name(emif->dev), NULL);
++	debugfs_create_file("regcache_dump", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_regdump_fops);
++	debugfs_create_file("mr4", S_IRUGO, emif->debugfs_root, emif,
++			    &emif_mr4_fops);
+ 	return 0;
+-err1:
+-	debugfs_remove_recursive(emif->debugfs_root);
+-err0:
+-	return ret;
  }
  
-+static int __store_stpinfo(void)
-+{
-+	int rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
-+
-+	if (rc)
-+		clear_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
-+	else
-+		set_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
-+	return rc;
-+}
-+
-+static int stpinfo_valid(void)
-+{
-+	return stp_online && test_bit(CLOCK_SYNC_STPINFO_VALID, &clock_sync_flags);
-+}
-+
- static int stp_sync_clock(void *data)
- {
- 	struct clock_sync_data *sync = data;
-@@ -604,8 +621,7 @@ static int stp_sync_clock(void *data)
- 			if (rc == 0) {
- 				sync->clock_delta = clock_delta;
- 				clock_sync_global(clock_delta);
--				rc = chsc_sstpi(stp_page, &stp_info,
--						sizeof(struct stp_sstpi));
-+				rc = __store_stpinfo();
- 				if (rc == 0 && stp_info.tmd != 2)
- 					rc = -EAGAIN;
- 			}
-@@ -650,7 +666,7 @@ static void stp_work_fn(struct work_stru
- 	if (rc)
- 		goto out_unlock;
- 
--	rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
-+	rc = __store_stpinfo();
- 	if (rc || stp_info.c == 0)
- 		goto out_unlock;
- 
-@@ -687,10 +703,14 @@ static ssize_t ctn_id_show(struct device
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online)
--		return -ENODATA;
--	return sprintf(buf, "%016llx\n",
--		       *(unsigned long long *) stp_info.ctnid);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid())
-+		ret = sprintf(buf, "%016llx\n",
-+			      *(unsigned long long *) stp_info.ctnid);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(ctn_id);
-@@ -699,9 +719,13 @@ static ssize_t ctn_type_show(struct devi
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online)
--		return -ENODATA;
--	return sprintf(buf, "%i\n", stp_info.ctn);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid())
-+		ret = sprintf(buf, "%i\n", stp_info.ctn);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(ctn_type);
-@@ -710,9 +734,13 @@ static ssize_t dst_offset_show(struct de
- 				   struct device_attribute *attr,
- 				   char *buf)
- {
--	if (!stp_online || !(stp_info.vbits & 0x2000))
--		return -ENODATA;
--	return sprintf(buf, "%i\n", (int)(s16) stp_info.dsto);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid() && (stp_info.vbits & 0x2000))
-+		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.dsto);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(dst_offset);
-@@ -721,9 +749,13 @@ static ssize_t leap_seconds_show(struct
- 					struct device_attribute *attr,
- 					char *buf)
- {
--	if (!stp_online || !(stp_info.vbits & 0x8000))
--		return -ENODATA;
--	return sprintf(buf, "%i\n", (int)(s16) stp_info.leaps);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid() && (stp_info.vbits & 0x8000))
-+		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.leaps);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(leap_seconds);
-@@ -732,9 +764,13 @@ static ssize_t stratum_show(struct devic
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online)
--		return -ENODATA;
--	return sprintf(buf, "%i\n", (int)(s16) stp_info.stratum);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid())
-+		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.stratum);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(stratum);
-@@ -743,9 +779,13 @@ static ssize_t time_offset_show(struct d
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online || !(stp_info.vbits & 0x0800))
--		return -ENODATA;
--	return sprintf(buf, "%i\n", (int) stp_info.tto);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid() && (stp_info.vbits & 0x0800))
-+		ret = sprintf(buf, "%i\n", (int) stp_info.tto);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(time_offset);
-@@ -754,9 +794,13 @@ static ssize_t time_zone_offset_show(str
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online || !(stp_info.vbits & 0x4000))
--		return -ENODATA;
--	return sprintf(buf, "%i\n", (int)(s16) stp_info.tzo);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid() && (stp_info.vbits & 0x4000))
-+		ret = sprintf(buf, "%i\n", (int)(s16) stp_info.tzo);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(time_zone_offset);
-@@ -765,9 +809,13 @@ static ssize_t timing_mode_show(struct d
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online)
--		return -ENODATA;
--	return sprintf(buf, "%i\n", stp_info.tmd);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid())
-+		ret = sprintf(buf, "%i\n", stp_info.tmd);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(timing_mode);
-@@ -776,9 +824,13 @@ static ssize_t timing_state_show(struct
- 				struct device_attribute *attr,
- 				char *buf)
- {
--	if (!stp_online)
--		return -ENODATA;
--	return sprintf(buf, "%i\n", stp_info.tst);
-+	ssize_t ret = -ENODATA;
-+
-+	mutex_lock(&stp_work_mutex);
-+	if (stpinfo_valid())
-+		ret = sprintf(buf, "%i\n", stp_info.tst);
-+	mutex_unlock(&stp_work_mutex);
-+	return ret;
- }
- 
- static DEVICE_ATTR_RO(timing_state);
+ static void __exit emif_debugfs_exit(struct emif_data *emif)
+-- 
+2.27.0
+
 
 
