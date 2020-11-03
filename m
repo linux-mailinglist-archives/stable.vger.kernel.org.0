@@ -2,153 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEF32A47B7
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7ED22A47CE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729340AbgKCOPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:15:05 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56178 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbgKCONZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 09:13:25 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1604412802;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FSALskiSuA6lgmMpIZUTfPp4WFT/vYburEgGp77tZ9M=;
-        b=cl4k7kZJJmg7q7Ityp0Ng9byom1QQ/4X7Bydm/fwXIwEyvupxRwg4GdNPjrQ+noDmYHifi
-        nQ3k4Nx71Qvvb/lgJyd+W0cSJd84m86ZTUBcWaTJoDOOfVKSIQdLEaV8p+hRqhVyWUXVj0
-        BSdsxtUzNOpvguQRdkQ6S3YxJMWYBa8=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B1851B2A9
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 14:13:22 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH v2 13/13] xen/events: block rogue events for some time
-Date:   Tue,  3 Nov 2020 15:13:21 +0100
-Message-Id: <20201103141321.20346-14-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201103141321.20346-1-jgross@suse.com>
-References: <20201103141321.20346-1-jgross@suse.com>
+        id S1729637AbgKCOQ5 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 3 Nov 2020 09:16:57 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:64681 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729636AbgKCOQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 09:16:18 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22881066-1500050 
+        for multiple; Tue, 03 Nov 2020 14:16:03 +0000
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <87361qfw3e.fsf@gaia.fi.intel.com>
+References: <20201102221057.29626-1-chris@chris-wilson.co.uk> <20201102221057.29626-2-chris@chris-wilson.co.uk> <87361qfw3e.fsf@gaia.fi.intel.com>
+Subject: Re: [PATCH 2/2] drm/i915/gt: Flush xcs before tgl breadcrumbs
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     stable@vger.kernel.org
+To:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Date:   Tue, 03 Nov 2020 14:16:00 +0000
+Message-ID: <160441296035.21466.9227014206344926879@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid high dom0 load due to rogue guests sending events at
-high frequency, block those events in case there was no action needed
-in dom0 to handle the events.
+Quoting Mika Kuoppala (2020-11-03 12:44:53)
+> Chris Wilson <chris@chris-wilson.co.uk> writes:
+> 
+> > In a simple test case that writes to scratch and then busy-waits for the
+> > batch to be signaled, we observe that the signal is before the write is
+> > posted. That is bad news.
+> >
+> > Splitting the flush + write_dword into two separate flush_dw prevents
+> > the issue from being reproduced, we can presume the post-sync op is not
+> > so post-sync.
+> >
+> 
+> Only thing that is mildly surpricing is that first one doesnt
+> need postop write.
 
-This is done by adding a per-event counter, which set to zero in case
-an EOI without the XEN_EOI_FLAG_SPURIOUS is received from a backend
-driver, and incremented when this flag has been set. In case the
-counter is 2 or higher delay the EOI by 1 << (cnt - 2) jiffies, but
-not more than 1 second.
-
-In order not to waste memory shorten the per-event refcnt to two bytes
-(it should normally never exceed a value of 2). Add an overflow check
-to evtchn_get() to make sure the 2 bytes really won't overflow.
-
-This is part of XSA-332.
-
-This is upstream commit 5f7f77400ab5b357b5fdb7122c3442239672186c
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
- drivers/xen/events/events_base.c     | 27 ++++++++++++++++++++++-----
- drivers/xen/events/events_internal.h |  3 ++-
- 2 files changed, 24 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index f67b92a488da..26df84c45db4 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -460,17 +460,34 @@ static void lateeoi_list_add(struct irq_info *info)
- 	spin_unlock_irqrestore(&eoi->eoi_list_lock, flags);
- }
- 
--static void xen_irq_lateeoi_locked(struct irq_info *info)
-+static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- {
- 	evtchn_port_t evtchn;
- 	unsigned int cpu;
-+	unsigned int delay = 0;
- 
- 	evtchn = info->evtchn;
- 	if (!VALID_EVTCHN(evtchn) || !list_empty(&info->eoi_list))
- 		return;
- 
-+	if (spurious) {
-+		if ((1 << info->spurious_cnt) < (HZ << 2))
-+			info->spurious_cnt++;
-+		if (info->spurious_cnt > 1) {
-+			delay = 1 << (info->spurious_cnt - 2);
-+			if (delay > HZ)
-+				delay = HZ;
-+			if (!info->eoi_time)
-+				info->eoi_cpu = smp_processor_id();
-+			info->eoi_time = get_jiffies_64() + delay;
-+		}
-+	} else {
-+		info->spurious_cnt = 0;
-+	}
-+
- 	cpu = info->eoi_cpu;
--	if (info->eoi_time && info->irq_epoch == per_cpu(irq_epoch, cpu)) {
-+	if (info->eoi_time &&
-+	    (info->irq_epoch == per_cpu(irq_epoch, cpu) || delay)) {
- 		lateeoi_list_add(info);
- 		return;
- 	}
-@@ -507,7 +524,7 @@ static void xen_irq_lateeoi_worker(struct work_struct *work)
- 
- 		info->eoi_time = 0;
- 
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, false);
- 	}
- 
- 	if (info)
-@@ -536,7 +553,7 @@ void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
- 	info = info_for_irq(irq);
- 
- 	if (info)
--		xen_irq_lateeoi_locked(info);
-+		xen_irq_lateeoi_locked(info, eoi_flags & XEN_EOI_FLAG_SPURIOUS);
- 
- 	read_unlock_irqrestore(&evtchn_rwlock, flags);
- }
-@@ -1439,7 +1456,7 @@ int evtchn_get(unsigned int evtchn)
- 		goto done;
- 
- 	err = -EINVAL;
--	if (info->refcnt <= 0)
-+	if (info->refcnt <= 0 || info->refcnt == SHRT_MAX)
- 		goto done;
- 
- 	info->refcnt++;
-diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
-index 756c87532d33..a35c8c7ac606 100644
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -31,7 +31,8 @@ enum xen_irq_type {
- struct irq_info {
- 	struct list_head list;
- 	struct list_head eoi_list;
--	int refcnt;
-+	short refcnt;
-+	short spurious_cnt;
- 	enum xen_irq_type type;	/* type */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
--- 
-2.26.2
-
+The MI_FLUSH_DW is stalling, so the second will^W should wait for the
+first to complete. (And we don't want to do the write from the first as
+we observe that write is too early.)
+-Chris
