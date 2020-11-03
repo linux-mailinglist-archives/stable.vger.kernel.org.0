@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC732A50C2
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92ABC2A50C3
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729298AbgKCUNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44960 "EHLO
+        id S1729154AbgKCUP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:15:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728206AbgKCUNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 15:13:52 -0500
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9F6C0613D1
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 12:13:50 -0800 (PST)
-Received: by mail-pf1-x444.google.com with SMTP id 13so15258615pfy.4
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 12:13:50 -0800 (PST)
+        with ESMTP id S1728206AbgKCUP2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 15:15:28 -0500
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C951BC0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 12:15:28 -0800 (PST)
+Received: by mail-pg1-x543.google.com with SMTP id r10so14549144pgb.10
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 12:15:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=iY26nL+9rKEWM0m+3lcxk7+Si62rVJe06Mcu42M6bNU=;
-        b=eLps2WPRfz+UhZMN+rFlFEz/QpJyAuk8NikrNmy+Uac2l/kduJHngw5wklm60V7Rk5
-         skpT2065abhdrZOb+hzvc/8TpjDB8qNYqntbu4QZDkYx2Kz1BAYwSHrNUo4WF2eW0df9
-         E5kA7WnKapMrZjqBRq6CnHXYYGIJ5K+zvHfwE=
+        bh=xcS/eDZKYQVPpPM3i+DV4YykHabb4CCW7PICDQhefoo=;
+        b=cfHsoIfG20R3C11RE4UI+XHVhn4awqd8TA1ZVQIXvTfGkMfAw5Bp+iMbnIhID1IcNz
+         4Zj2E+kSg/KqyvwolrZ9R/x+RywpPHHreSKyvV5eVAY6FGIjda3XCCmzEzbvb1QHvjNe
+         wMffqQh1vzcgYESNIC0mGGYU4dr06IytXYqgI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=iY26nL+9rKEWM0m+3lcxk7+Si62rVJe06Mcu42M6bNU=;
-        b=t8mSx4FRgRvMh5bxrO+2+NGQXsEirmtyYsTL+eiOWq5V/LRq3Cl9XBDotkb6s6YNlc
-         Xn+WobZcp/MAk+5cN6hF1UbdjXHZEuIcGCdO2jXmqb65bc4cWrRYnj2BDxn72vRMRWK7
-         t288Q6Ckz26brmEfVM2U8q1yBvtfrR5mgIp2UYkSCx3nx1+t/Il0QfYNYFQzeijuqlLE
-         KBxXU9YfmSDQVrEtnQoijENKV2qwt6ZHL4R2q5JrWCZzBhxESCKn/eEPK5P1xXrqgnRk
-         DODF0BTwRHN0vhKjZEzfYoHwKvbMDHqo/jLfb2uaYWveT7HAfbPpgNq+3/T+E+sCmaBo
-         GKKg==
-X-Gm-Message-State: AOAM531uwEoF0rzKpIAo55vGd+am8BVHS1qMCUdEZfFM/CQHhCfX+qt9
-        0zkGap066SUeOinPrYtwDF5jf5BhzQE1aA==
-X-Google-Smtp-Source: ABdhPJwNYtsd3305IATRHfux5291SeUk86YsRXGwGoMu6xiGVy+o0U44zhE3ifbVx40ASduNSPGJOg==
-X-Received: by 2002:a62:fb12:0:b029:160:4c48:b9e1 with SMTP id x18-20020a62fb120000b02901604c48b9e1mr26086509pfm.8.1604434429988;
-        Tue, 03 Nov 2020 12:13:49 -0800 (PST)
+        bh=xcS/eDZKYQVPpPM3i+DV4YykHabb4CCW7PICDQhefoo=;
+        b=ntSXe+cLcP5Ktdfi+rr0qvGQePxVTdvibq9KE+J1VKWQa7soS0ijD/ksA2lHhXxG3V
+         dr2T3lsuw92/CjwmQFRAluODHbgz/YZx1iLO4ROep+2u94woWNT3wF5cWBrTB/n6NUFV
+         K5R7IDEm9AKD0dKq43RV/sLIIhkJXRhjyGWlWRgznJoqFeR4Yu7lluXtI4iFMbbYT5ED
+         Z00CZsTOTOA4dfHsr+XWEHvd/fC927JFRxnyQPEoyUXxUmZzf8YcSKSt7F21cpz2DD+u
+         sJnycTQtNUs2OUt+glZqyLCRb6VSek1DPBS9F28BKw7LqR24w6AoKLNNENCRQy6oFBN+
+         p9wA==
+X-Gm-Message-State: AOAM532+P5ZYgcapWk4JQifZgHn9CFvGA2a/9ERtz6QCytqzDrImRu3O
+        u+/YmL16ABxNFNkj/ODAfd5F/6pkkIW2cw==
+X-Google-Smtp-Source: ABdhPJyMwrWw1bim6fkp/jon6iNStNmbV6Qtl7aVQkl/mI4zTPmQ/kIQAnLJcPNAxsDkuyJIIN31kQ==
+X-Received: by 2002:a17:90b:3494:: with SMTP id kd20mr952020pjb.84.1604434528221;
+        Tue, 03 Nov 2020 12:15:28 -0800 (PST)
 Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
-        by smtp.gmail.com with ESMTPSA id y5sm11622919pfc.165.2020.11.03.12.13.48
+        by smtp.gmail.com with ESMTPSA id a28sm2523094pfk.50.2020.11.03.12.15.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 12:13:49 -0800 (PST)
+        Tue, 03 Nov 2020 12:15:27 -0800 (PST)
 From:   Stephen Boyd <swboyd@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
         Will Deacon <will@kernel.org>,
         Andre Przywara <andre.przywara@arm.com>,
         Steven Price <steven.price@arm.com>
-Subject: [PATCH stable 5.4] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return SMCCC_RET_NOT_REQUIRED
-Date:   Tue,  3 Nov 2020 12:13:48 -0800
-Message-Id: <20201103201348.371557-1-swboyd@chromium.org>
+Subject: [PATCH stable 5.9] KVM: arm64: ARM_SMCCC_ARCH_WORKAROUND_1 doesn't return SMCCC_RET_NOT_REQUIRED
+Date:   Tue,  3 Nov 2020 12:15:26 -0800
+Message-Id: <20201103201526.372590-1-swboyd@chromium.org>
 X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -109,28 +109,15 @@ Link: https://lore.kernel.org/r/20201023154751.1973872-1-swboyd@chromium.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 ---
- include/linux/arm-smccc.h | 2 ++
- virt/kvm/arm/psci.c       | 2 +-
+ arch/arm64/kvm/hypercalls.c | 2 +-
+ include/linux/arm-smccc.h   | 2 ++
  2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-index 080012a6f025..157e4a6a83f6 100644
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -76,6 +76,8 @@
- 			   ARM_SMCCC_SMC_32,				\
- 			   0, 0x7fff)
- 
-+#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
-+
- #ifndef __ASSEMBLY__
- 
- #include <linux/linkage.h>
-diff --git a/virt/kvm/arm/psci.c b/virt/kvm/arm/psci.c
-index 87927f7e1ee7..48fde38d64c3 100644
---- a/virt/kvm/arm/psci.c
-+++ b/virt/kvm/arm/psci.c
-@@ -408,7 +408,7 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
+diff --git a/arch/arm64/kvm/hypercalls.c b/arch/arm64/kvm/hypercalls.c
+index 550dfa3e53cd..b8e7f6c4524f 100644
+--- a/arch/arm64/kvm/hypercalls.c
++++ b/arch/arm64/kvm/hypercalls.c
+@@ -31,7 +31,7 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
  				val = SMCCC_RET_SUCCESS;
  				break;
  			case KVM_BP_HARDEN_NOT_REQUIRED:
@@ -139,6 +126,19 @@ index 87927f7e1ee7..48fde38d64c3 100644
  				break;
  			}
  			break;
+diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
+index 15c706fb0a37..0e50ba3e88d7 100644
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -86,6 +86,8 @@
+ 			   ARM_SMCCC_SMC_32,				\
+ 			   0, 0x7fff)
+ 
++#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
++
+ /* Paravirtualised time calls (defined by ARM DEN0057A) */
+ #define ARM_SMCCC_HV_PV_TIME_FEATURES				\
+ 	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
 -- 
 Sent by a computer, using git, on the internet
 
