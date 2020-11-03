@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8B32A5825
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3FFB2A5824
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731646AbgKCUtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:49:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
+        id S1731001AbgKCUtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:49:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731639AbgKCUtq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:49:46 -0500
+        id S1731647AbgKCUts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:49:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB01B20719;
-        Tue,  3 Nov 2020 20:49:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E34F223FD;
+        Tue,  3 Nov 2020 20:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436585;
-        bh=GJDmWfTGXd9oRTpZZPqlL39I+UtXseytCUrdn66ZWXI=;
+        s=default; t=1604436587;
+        bh=eAxzmhxaZ1kV6zsX3y87pIkAiEU459Pq/otXWw1pE+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=we+Mx6MlHgjSJQu9447iJt0Zyt+hbwVvgy+iQOKYhGfZTMKjun6yYC7y4Cd9kDvz7
-         BtY7reKNu/7Yo9o2zQv4DReDvWZYzkfysFkTgf/Wlz3Q11w7mqX5tL5UP40HoVEfBB
-         xm/UIuRjrFZySUXWRnVL7PwYDmvxjxpdGc21zU/w=
+        b=gn7fZaEvQhe1CMTk266dUvN3M8msrwpjzyHMk/NOvyQVvqIRvvY2P2UT9yIhw3G/F
+         vwTKeetjGHm+329Slrlz2w1kI5hFpFcBz+HHQGTjN1ctbzc+qO0q1TKRZRkZNt0/TB
+         Vx42wK5W/vUnxwvEDG8hk/EdSwef1hT3qaiH4Zt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.9 315/391] i2c: imx: Fix external abort on interrupt in exit paths
-Date:   Tue,  3 Nov 2020 21:36:06 +0100
-Message-Id: <20201103203408.366947353@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Madhav Chauhan <madhav.chauhan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 316/391] drm/amdgpu: dont map BO in reserved region
+Date:   Tue,  3 Nov 2020 21:36:07 +0100
+Message-Id: <20201103203408.434205405@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,118 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Madhav Chauhan <madhav.chauhan@amd.com>
 
-commit e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 upstream.
+commit c4aa8dff6091cc9536aeb255e544b0b4ba29faf4 upstream.
 
-If interrupt comes late, during probe error path or device remove (could
-be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
-i2c_imx_isr() will access registers with the clock being disabled.  This
-leads to external abort on non-linefetch on Toradex Colibri VF50 module
-(with Vybrid VF5xx):
+2MB area is reserved at top inside VM.
 
-    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
-    Internal error: : 1008 [#1] ARM
-    Modules linked in:
-    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
-      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
-      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
-      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
-      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
-      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
-      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
-      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
-      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
-      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
-      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
-      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
-      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
-
-Additionally, the i2c_imx_isr() could wake up the wait queue
-(imx_i2c_struct->queue) before its initialization happens.
-
-The resource-managed framework should not be used for interrupt handling,
-because the resource will be released too late - after disabling clocks.
-The interrupt handler is not prepared for such case.
-
-Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Suggested-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Madhav Chauhan <madhav.chauhan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1171,14 +1171,6 @@ static int i2c_imx_probe(struct platform
- 		return ret;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -596,6 +596,7 @@ int amdgpu_gem_va_ioctl(struct drm_devic
+ 	struct ww_acquire_ctx ticket;
+ 	struct list_head list, duplicates;
+ 	uint64_t va_flags;
++	uint64_t vm_size;
+ 	int r = 0;
  
--	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
--				pdev->name, i2c_imx);
--	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		goto clk_disable;
--	}
--
- 	/* Init queue */
- 	init_waitqueue_head(&i2c_imx->queue);
+ 	if (args->va_address < AMDGPU_VA_RESERVED_SIZE) {
+@@ -616,6 +617,15 @@ int amdgpu_gem_va_ioctl(struct drm_devic
  
-@@ -1197,6 +1189,14 @@ static int i2c_imx_probe(struct platform
- 	if (ret < 0)
- 		goto rpm_disable;
+ 	args->va_address &= AMDGPU_GMC_HOLE_MASK;
  
-+	/* Request IRQ */
-+	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
-+				   pdev->name, i2c_imx);
-+	if (ret) {
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		goto rpm_disable;
++	vm_size = adev->vm_manager.max_pfn * AMDGPU_GPU_PAGE_SIZE;
++	vm_size -= AMDGPU_VA_RESERVED_SIZE;
++	if (args->va_address + args->map_size > vm_size) {
++		dev_dbg(&dev->pdev->dev,
++			"va_address 0x%llx is in top reserved area 0x%llx\n",
++			args->va_address + args->map_size, vm_size);
++		return -EINVAL;
 +	}
 +
- 	/* Set up clock divider */
- 	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
- 	ret = of_property_read_u32(pdev->dev.of_node,
-@@ -1239,13 +1239,12 @@ static int i2c_imx_probe(struct platform
- 
- clk_notifier_unregister:
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	free_irq(irq, i2c_imx);
- rpm_disable:
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
--
--clk_disable:
- 	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
- }
-@@ -1253,7 +1252,7 @@ clk_disable:
- static int i2c_imx_remove(struct platform_device *pdev)
- {
- 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
--	int ret;
-+	int irq, ret;
- 
- 	ret = pm_runtime_get_sync(&pdev->dev);
- 	if (ret < 0)
-@@ -1273,6 +1272,9 @@ static int i2c_imx_remove(struct platfor
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
- 
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq >= 0)
-+		free_irq(irq, i2c_imx);
- 	clk_disable_unprepare(i2c_imx->clk);
- 
- 	pm_runtime_put_noidle(&pdev->dev);
+ 	if ((args->flags & ~valid_flags) && (args->flags & ~prt_flags)) {
+ 		dev_dbg(&dev->pdev->dev, "invalid flags combination 0x%08X\n",
+ 			args->flags);
 
 
