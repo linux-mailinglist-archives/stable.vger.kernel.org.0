@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1379A2A57F2
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 424222A56DC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731748AbgKCUuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:50:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43960 "EHLO mail.kernel.org"
+        id S1732294AbgKCVbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:31:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731763AbgKCUuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:50:10 -0500
+        id S1732219AbgKCU5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:57:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC90F20719;
-        Tue,  3 Nov 2020 20:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E77D22053B;
+        Tue,  3 Nov 2020 20:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436610;
-        bh=htbCk3ghqWk9KBudqT3he2YY5YIGXCk+Mdqfd3iCmdc=;
+        s=default; t=1604437055;
+        bh=6k1PCzL6AZQeW2dSgd0OaDlVHBN/yvSzAsbn/HrF0tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5kT4w/Tf4cljfP8yVGTgLids5n9Cr+jf7dM2VhCyaHEN3OiUsBNvqc87teaAkb/4
-         QMKeR1saDxfDWnVgqWn96oeVz3iQ/i2OJNkHq++TZLxXWZ5w7n2nrXMQVEZnREmLoP
-         eIkIo1EuaMpnfO4+LAMvX1mXHhhMw6bBoaXW6FYc=
+        b=QMVV/1R8jjofidXc44KfP/vxOSPHaiyJQ33T6IjCkkItBKHLlyvazBkW3w6o757JN
+         qYfZjsDb1A+OFJ+WxLRQ7y5NkuO+Miz8qXjHFIbDbMZO3cSoAcWIENfbKc/7pDQ0aJ
+         aFmVUqKbJRQF3mEnEZfTbzGrC+DGTfFPnYVsXSi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Madhav Chauhan <madhav.chauhan@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.9 325/391] drm/amdgpu: increase the reserved VM size to 2MB
+        stable@vger.kernel.org, Martin Steigerwald <martin@lichtvoll.de>,
+        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 128/214] btrfs: tree-checker: fix false alert caused by legacy btrfs root item
 Date:   Tue,  3 Nov 2020 21:36:16 +0100
-Message-Id: <20201103203409.056081006@linuxfoundation.org>
+Message-Id: <20201103203302.843409963@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 55bb919be4e4973cd037a04f527ecc6686800437 upstream.
+commit 1465af12e254a68706e110846f59cf0f09683184 upstream.
 
-Ideally this should be a multiple of the VM block size.
-2MB should at least fit for Vega/Navi.
+Commit 259ee7754b67 ("btrfs: tree-checker: Add ROOT_ITEM check")
+introduced btrfs root item size check, however btrfs root item has two
+versions, the legacy one which just ends before generation_v2 member, is
+smaller than current btrfs root item size.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Madhav Chauhan <madhav.chauhan@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This caused btrfs kernel to reject valid but old tree root leaves.
+
+Fix this problem by also allowing legacy root item, since kernel can
+already handle them pretty well and upgrade to newer root item format
+when needed.
+
+Reported-by: Martin Steigerwald <martin@lichtvoll.de>
+Fixes: 259ee7754b67 ("btrfs: tree-checker: Add ROOT_ITEM check")
+CC: stable@vger.kernel.org # 5.4+
+Tested-By: Martin Steigerwald <martin@lichtvoll.de>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-checker.c         |   17 ++++++++++++-----
+ include/uapi/linux/btrfs_tree.h |   14 ++++++++++++++
+ 2 files changed, 26 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
-@@ -112,8 +112,8 @@ struct amdgpu_bo_list_entry;
- #define AMDGPU_MMHUB_0				1
- #define AMDGPU_MMHUB_1				2
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -869,7 +869,7 @@ static int check_root_item(struct extent
+ 			   int slot)
+ {
+ 	struct btrfs_fs_info *fs_info = leaf->fs_info;
+-	struct btrfs_root_item ri;
++	struct btrfs_root_item ri = { 0 };
+ 	const u64 valid_root_flags = BTRFS_ROOT_SUBVOL_RDONLY |
+ 				     BTRFS_ROOT_SUBVOL_DEAD;
  
--/* hardcode that limit for now */
--#define AMDGPU_VA_RESERVED_SIZE			(1ULL << 20)
-+/* Reserve 2MB at top/bottom of address space for kernel use */
-+#define AMDGPU_VA_RESERVED_SIZE			(2ULL << 20)
+@@ -889,14 +889,21 @@ static int check_root_item(struct extent
+ 		return -EUCLEAN;
+ 	}
  
- /* max vmids dedicated for process */
- #define AMDGPU_VM_MAX_RESERVED_VMID	1
+-	if (btrfs_item_size_nr(leaf, slot) != sizeof(ri)) {
++	if (btrfs_item_size_nr(leaf, slot) != sizeof(ri) &&
++	    btrfs_item_size_nr(leaf, slot) != btrfs_legacy_root_item_size()) {
+ 		generic_err(leaf, slot,
+-			    "invalid root item size, have %u expect %zu",
+-			    btrfs_item_size_nr(leaf, slot), sizeof(ri));
++			    "invalid root item size, have %u expect %zu or %u",
++			    btrfs_item_size_nr(leaf, slot), sizeof(ri),
++			    btrfs_legacy_root_item_size());
+ 	}
+ 
++	/*
++	 * For legacy root item, the members starting at generation_v2 will be
++	 * all filled with 0.
++	 * And since we allow geneartion_v2 as 0, it will still pass the check.
++	 */
+ 	read_extent_buffer(leaf, &ri, btrfs_item_ptr_offset(leaf, slot),
+-			   sizeof(ri));
++			   btrfs_item_size_nr(leaf, slot));
+ 
+ 	/* Generation related */
+ 	if (btrfs_root_generation(&ri) >
+--- a/include/uapi/linux/btrfs_tree.h
++++ b/include/uapi/linux/btrfs_tree.h
+@@ -4,6 +4,11 @@
+ 
+ #include <linux/btrfs.h>
+ #include <linux/types.h>
++#ifdef __KERNEL__
++#include <linux/stddef.h>
++#else
++#include <stddef.h>
++#endif
+ 
+ /*
+  * This header contains the structure definitions and constants used
+@@ -651,6 +656,15 @@ struct btrfs_root_item {
+ } __attribute__ ((__packed__));
+ 
+ /*
++ * Btrfs root item used to be smaller than current size.  The old format ends
++ * at where member generation_v2 is.
++ */
++static inline __u32 btrfs_legacy_root_item_size(void)
++{
++	return offsetof(struct btrfs_root_item, generation_v2);
++}
++
++/*
+  * this is used for both forward and backward root refs
+  */
+ struct btrfs_root_ref {
 
 
