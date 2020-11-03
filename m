@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F8D2A5820
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77F542A5823
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731732AbgKCVs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:48:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44862 "EHLO mail.kernel.org"
+        id S1731739AbgKCVtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:49:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731836AbgKCUuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:50:37 -0500
+        id S1731819AbgKCUuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:50:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AB5E20719;
-        Tue,  3 Nov 2020 20:50:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F1722404;
+        Tue,  3 Nov 2020 20:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436637;
-        bh=/KoFndIGYJbuT51BEtg0sokPNs1B3QruXjEtVFtxWtw=;
+        s=default; t=1604436639;
+        bh=P/28zFVrF1olkuFhfzeyQX2oR6hrSTizoEGKCQ8FTTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eh2ivTT/cYO2VT1bET/N4uG2lGJqxP3j7U+X7lpN0zqFp7yZ8igd9WE/sGuVgHmm9
-         3m3l3iN/8qQ0Pg5xzcFCyEVOLh17lv6JS5I39mHSzExsyut7y4cKWIw4XTyp6xoQE5
-         W2/lLzdiWisXLtazbZyxoHlJLubt/Me+i9kPNLPc=
+        b=krFQLH6hovQ31sDybDUma7kfgow8IZbJeI6XeembbK4tH9OsvpvRytfG2VP2Twi+i
+         u0xjsTRk0qHNX9SPTMgvKvJI+AXSOLhOpTZLGdAIV6TmsHe/AikbTi5NsXrHgZPLDd
+         Q/VMSf5Dq6tavWNSuue/NfoeZ0yVmFpHiNfNdKMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        stable@vger.kernel.org,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.9 336/391] cpufreq: Avoid configuring old governors as default with intel_pstate
-Date:   Tue,  3 Nov 2020 21:36:27 +0100
-Message-Id: <20201103203409.801555020@linuxfoundation.org>
+Subject: [PATCH 5.9 337/391] cpufreq: Introduce CPUFREQ_NEED_UPDATE_LIMITS driver flag
+Date:   Tue,  3 Nov 2020 21:36:28 +0100
+Message-Id: <20201103203409.871460397@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -45,54 +45,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit db865272d9c4687520dc29f77e701a1b2669872f upstream.
+commit 1c534352f47fd83eb08075ac2474f707e74bf7f7 upstream.
 
-Commit 33aa46f252c7 ("cpufreq: intel_pstate: Use passive mode by
-default without HWP") was meant to cause intel_pstate to be used
-in the passive mode with the schedutil governor on top of it, but
-it missed the case in which either "ondemand" or "conservative"
-was selected as the default governor in the existing kernel config,
-in which case the previous old governor configuration would be used,
-causing the default legacy governor to be used on top of intel_pstate
-instead of schedutil.
+Generally, a cpufreq driver may need to update some internal upper
+and lower frequency boundaries on policy max and min changes,
+respectively, but currently this does not work if the target
+frequency does not change along with the policy limit.
 
-Address this by preventing "ondemand" and "conservative" from being
-configured as the default cpufreq governor in the case when schedutil
-is the default choice for the default governor setting.
+Namely, if the target frequency does not change along with the
+policy min or max, the "target_freq == policy->cur" check in
+__cpufreq_driver_target() prevents driver callbacks from being
+invoked and they do not even have a chance to update the
+corresponding internal boundary.
 
-[Note that the default cpufreq governor can still be set via the
- kernel command line if need be and that choice is not limited,
- so if anyone really wants to use one of the legacy governors by
- default, it can be achieved this way.]
+This particularly affects the "powersave" and "performance"
+governors that always set the target frequency to one of the
+policy limits and it never changes when the other limit is updated.
 
-Fixes: 33aa46f252c7 ("cpufreq: intel_pstate: Use passive mode by default without HWP")
-Reported-by: Julia Lawall <julia.lawall@inria.fr>
-Cc: 5.8+ <stable@vger.kernel.org> # 5.8+
+To allow cpufreq the drivers needing to update internal frequency
+boundaries on policy limits changes to avoid this issue, introduce
+a new driver flag, CPUFREQ_NEED_UPDATE_LIMITS, that (when set) will
+neutralize the check mentioned above.
+
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/Kconfig |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/cpufreq/cpufreq.c |    3 ++-
+ include/linux/cpufreq.h   |   10 +++++++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/cpufreq/Kconfig
-+++ b/drivers/cpufreq/Kconfig
-@@ -71,6 +71,7 @@ config CPU_FREQ_DEFAULT_GOV_USERSPACE
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2166,7 +2166,8 @@ int __cpufreq_driver_target(struct cpufr
+ 	 * exactly same freq is called again and so we can save on few function
+ 	 * calls.
+ 	 */
+-	if (target_freq == policy->cur)
++	if (target_freq == policy->cur &&
++	    !(cpufreq_driver->flags & CPUFREQ_NEED_UPDATE_LIMITS))
+ 		return 0;
  
- config CPU_FREQ_DEFAULT_GOV_ONDEMAND
- 	bool "ondemand"
-+	depends on !(X86_INTEL_PSTATE && SMP)
- 	select CPU_FREQ_GOV_ONDEMAND
- 	select CPU_FREQ_GOV_PERFORMANCE
- 	help
-@@ -83,6 +84,7 @@ config CPU_FREQ_DEFAULT_GOV_ONDEMAND
+ 	/* Save last value to restore later on errors */
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -293,7 +293,7 @@ __ATTR(_name, 0644, show_##_name, store_
  
- config CPU_FREQ_DEFAULT_GOV_CONSERVATIVE
- 	bool "conservative"
-+	depends on !(X86_INTEL_PSTATE && SMP)
- 	select CPU_FREQ_GOV_CONSERVATIVE
- 	select CPU_FREQ_GOV_PERFORMANCE
- 	help
+ struct cpufreq_driver {
+ 	char		name[CPUFREQ_NAME_LEN];
+-	u8		flags;
++	u16		flags;
+ 	void		*driver_data;
+ 
+ 	/* needed by all drivers */
+@@ -417,6 +417,14 @@ struct cpufreq_driver {
+  */
+ #define CPUFREQ_IS_COOLING_DEV			BIT(7)
+ 
++/*
++ * Set by drivers that need to update internale upper and lower boundaries along
++ * with the target frequency and so the core and governors should also invoke
++ * the diver if the target frequency does not change, but the policy min or max
++ * may have changed.
++ */
++#define CPUFREQ_NEED_UPDATE_LIMITS		BIT(8)
++
+ int cpufreq_register_driver(struct cpufreq_driver *driver_data);
+ int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
+ 
 
 
