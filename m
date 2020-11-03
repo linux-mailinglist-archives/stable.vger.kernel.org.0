@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B85B2A3F6E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:57:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 219322A3F70
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727451AbgKCI4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 03:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51384 "EHLO
+        id S1727877AbgKCI4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 03:56:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727676AbgKCIzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:55:55 -0500
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663C2C0617A6
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:55:54 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id p22so11890007wmg.3
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:55:54 -0800 (PST)
+        with ESMTP id S1727857AbgKCI4O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 03:56:14 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409FBC0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 00:56:14 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id 33so6781385wrl.7
+        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 00:56:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:autocrypt:organization:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=6lqBBkPwvPdjhS325xmkVMT6UQvS84szDa/rFpUEWQY=;
-        b=YJNLTifp9g3qgSnbN0ffAJuC7bbQzkVfzFu4hOy7ivFG8L3QmA5cOvLLsxxT38wQhU
-         JEF/RUoxRroiv2Em55cITh3YpOl7NiyF1hxtq9bJEBWJWOuFe9xTzjqKGGRvJGHzAbT1
-         sH1TWGgTiPBNKM8nDtbWg0D+3tV0gKUxT8yki3FuCcXsuT7A8LrmVz0mW1X21B3q7oRT
-         cslIOzaQIu4tYP6AbVOgW7UU1kHOzPOlMPbImrjdH3VtVZ3iWlnx8LOqMMYMcZC527iS
-         2Qc/YhXiLMspKTdoigoFaHGSxeac8IuoCFsiR8GDGM1Wf4sujl/uUCrUMFXYMCtlVPUd
-         w10g==
+        bh=sSxFAV/5HN2rKvCXMCbMhxmttthGXsbtDnVKd4Taa7g=;
+        b=tI78emiGxB1JfFQ0ZOlppkXT1zzaqM+C9u6Cp03wQPNJ+9ReWStgP0y3YYf+fYeFa8
+         4sz40xUZAipLmMqBy+Z1xhKyNCNV68zqbecXeS7jZECA7zdCJgp25GqmPV/fFfeFITKV
+         yOSzOO9fQF9BQa9bS4v4wpho8+oJG23VcOsuwDJGrR8bSGdKs4+f4yNVHYzhQA+jx04W
+         qcvYLBTN39BseLWGvaF8g9weo5c7NAmN47X0u4+zlm3lQtuOyb77V4MFO19hIRgOyxnT
+         6i/re1bsUEyO8HEAUS9zcy7Ni7DiE6kAB9+YqIIa1X66JxBGW7h7Inp8FW5VT5VJ4WZz
+         5sHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :organization:message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=6lqBBkPwvPdjhS325xmkVMT6UQvS84szDa/rFpUEWQY=;
-        b=mt4zzv9v8mLOXIuFMzdSPBK593nt4Lm8Kdn5asSGFlyXDdKQJZVLsZ73DrCxyzk+xE
-         E04UXZ+o3PEta1WQbIZpT77eK+7VI34shqOrTit+4MrmaU2xKFjau5ZBF6EJCjr5+eBT
-         +DDq51XOrPgrXDg010sa/1ePCgoZPTppHGruQHLIgtpUr2XQRd6TlMZbaeZ07fKWd3WW
-         k0Cn+IS7judryRdx3Sjs/uUBGhE3olTDBRS6L4puj2bnp0F+vgQZvJNBaF8o5W4PXbcS
-         z+sIEMa9zD/uRKp5wREyip3CVqooJIJNZwuwFfRdEGxb6oXGWe6yji9ASUHfe/NSnZwQ
-         E8hw==
-X-Gm-Message-State: AOAM533lrhKVg5CTHz/Q7tsiygTrIoYF2wS1MxYFnpKz/vR09KZX9b43
-        os3eopi9nE5dPiv681T3hjNBsA==
-X-Google-Smtp-Source: ABdhPJyt6VMGggbVCFrJnwRpkjIfrJTQtVh/DrIKQJ5Ll7LdVosBU2/Z45q1grwKsJHgh7AgnvLKSg==
-X-Received: by 2002:a1c:c286:: with SMTP id s128mr2416672wmf.88.1604393752996;
-        Tue, 03 Nov 2020 00:55:52 -0800 (PST)
+        bh=sSxFAV/5HN2rKvCXMCbMhxmttthGXsbtDnVKd4Taa7g=;
+        b=JmMLzaAt6ahXgyBGgjW48W3Ph/H/uv1bLAD8V7fDSlCLnVfo54Ea8MdZDESYyBhdKF
+         hGycq0nGmjzB+yukQCjK4Wct63lPAFogLZW5vJRrNS+AFhpQJzkZVloagnVrUvQHVpTw
+         73lUw4baOA1KKDojMdvKK86UBlqUlNv54nhKy66MJjFUobGINBAG7HPsRByP+F015Nd5
+         LboY1Co/AxFLve4sUTd+/gwXT4U7lIpARo2uUSgIh/ihf8tIydg5MqW1caGEWwZo35xn
+         WhDmV5D3y8e6nZ54ZU2A5ycutuFAy+Rui4jKt+xKABlOitNyXjB1e/eo/WXbWDCJ/vD+
+         OQbA==
+X-Gm-Message-State: AOAM531PSOzpT3Nh5W/mz9T5dR3E+qGJ4ozoWzg9QZWgGYPThza6ENFK
+        HS2PG1hDKmWTL5ogvAsiRQLDKw==
+X-Google-Smtp-Source: ABdhPJwYVehHc+BudLpLrNPT1GKafn4ZVFT3Wm9akNjiHskO7vXkgedmb31pr1bgmp16xerPlN/3pw==
+X-Received: by 2002:adf:df02:: with SMTP id y2mr26606632wrl.403.1604393772804;
+        Tue, 03 Nov 2020 00:56:12 -0800 (PST)
 Received: from ?IPv6:2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3? ([2a01:e35:2ec0:82b0:3d8d:fb08:21c9:faa3])
-        by smtp.gmail.com with ESMTPSA id b7sm24466891wrp.16.2020.11.03.00.55.51
+        by smtp.gmail.com with ESMTPSA id y10sm24346601wru.94.2020.11.03.00.56.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Nov 2020 00:55:52 -0800 (PST)
-Subject: Re: [PATCH AUTOSEL 5.9 03/35] arm64: dts: meson-axg-s400: enable USB
+        Tue, 03 Nov 2020 00:56:12 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 4.19 02/11] arm64: dts: meson-axg-s400: enable USB
  OTG
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
 Cc:     Kevin Hilman <khilman@baylibre.com>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
-References: <20201103011840.182814-1-sashal@kernel.org>
- <20201103011840.182814-3-sashal@kernel.org>
+References: <20201103012039.183672-1-sashal@kernel.org>
+ <20201103012039.183672-2-sashal@kernel.org>
 From:   Neil Armstrong <narmstrong@baylibre.com>
 Autocrypt: addr=narmstrong@baylibre.com; prefer-encrypt=mutual; keydata=
  mQENBE1ZBs8BCAD78xVLsXPwV/2qQx2FaO/7mhWL0Qodw8UcQJnkrWmgTFRobtTWxuRx8WWP
@@ -109,12 +109,12 @@ Autocrypt: addr=narmstrong@baylibre.com; prefer-encrypt=mutual; keydata=
  VsbXrP9BZ6snXyHfebPnno/te5XRqZTL9aJOytB/1iUna+1MAwBxGFPvqeEUUyT+gx1l3Acl
  ZaTUOEkgIor5losDrePdPgE=
 Organization: Baylibre
-Message-ID: <c8951cc9-1a3f-2eb2-52fe-654d49591c7a@baylibre.com>
-Date:   Tue, 3 Nov 2020 09:55:51 +0100
+Message-ID: <ede63ccc-e07d-5fc2-36fe-9b810773216b@baylibre.com>
+Date:   Tue, 3 Nov 2020 09:56:11 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201103011840.182814-3-sashal@kernel.org>
+In-Reply-To: <20201103012039.183672-2-sashal@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -122,7 +122,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/11/2020 02:18, Sasha Levin wrote:
+On 03/11/2020 02:20, Sasha Levin wrote:
 > From: Neil Armstrong <narmstrong@baylibre.com>
 > 
 > [ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
@@ -138,12 +138,12 @@ On 03/11/2020 02:18, Sasha Levin wrote:
 >  1 file changed, 6 insertions(+)
 > 
 > diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-> index cb1360ae1211e..7740f97c240f0 100644
+> index d5c01427a5ca0..acd4dbc1222ae 100644
 > --- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
 > +++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-> @@ -584,3 +584,9 @@ &uart_AO {
->  	pinctrl-0 = <&uart_ao_a_pins>;
->  	pinctrl-names = "default";
+> @@ -334,3 +334,9 @@ &saradc {
+>  	status = "okay";
+>  	vref-supply = <&vddio_ao18>;
 >  };
 > +
 > +&usb {
