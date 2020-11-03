@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 391002A3F1E
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF4C2A3F23
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 09:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726211AbgKCIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 03:41:55 -0500
-Received: from mx2.suse.de ([195.135.220.15]:51126 "EHLO mx2.suse.de"
+        id S1727529AbgKCIl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 03:41:56 -0500
+Received: from mx2.suse.de ([195.135.220.15]:51132 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727438AbgKCIlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 03:41:53 -0500
+        id S1726659AbgKCIly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 03:41:54 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
         t=1604392911;
@@ -18,18 +18,18 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9xfDQC9VA6njrT5UUyux7fh3A70PklCSZb7nYFgiRGM=;
-        b=ezdQGCxu4pOv+guXmkDfiQhyffQBELYdw8EssnAsqUd/ERrn0GMQdImXpSJCBfpj7084OD
-        DHoV/oKNT/o2F6c4uKsGbJhmaN9G/ghFqvv9GD78Rbvfejky2Iv4Oskqe0mCN7M58/uHH0
-        TcA5Rv+tp8maD08Szy2ojqQ5MZToNH8=
+        bh=G3XwXYCEZ0BPgZ3Aa67l7WCS88w1g6xdve1alaCXJrc=;
+        b=MfgRn5OnPQOMwG7Nd2dCrnc4XscluCnS9WX7nOAhA05KqWh9YxogWqDsOO4XDYs1UIkotx
+        /GG5kUJ1xvbwadp1Q+dfqEEVt/pAVCnC5YUxVkKwmqlxQdmkwkR0MMGsq+sJKQk8ftli9p
+        PiGs+yzt08zwxldZFW0lU4epZjHqfGI=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 6AC99B1EC
+        by mx2.suse.de (Postfix) with ESMTP id 84B15B1EE
         for <stable@vger.kernel.org>; Tue,  3 Nov 2020 08:41:51 +0000 (UTC)
 From:   Juergen Gross <jgross@suse.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 08/13] xen/scsiback: use lateeoi irq binding
-Date:   Tue,  3 Nov 2020 09:41:45 +0100
-Message-Id: <20201103084150.8625-9-jgross@suse.com>
+Subject: [PATCH 09/13] xen/pciback: use lateeoi irq binding
+Date:   Tue,  3 Nov 2020 09:41:46 +0100
+Message-Id: <20201103084150.8625-10-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201103084150.8625-1-jgross@suse.com>
 References: <20201103084150.8625-1-jgross@suse.com>
@@ -40,19 +40,30 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving scsifront use the lateeoi
-irq binding for scsiback and unmask the event channel only just before
+to event storms triggered by a misbehaving pcifront use the lateeoi irq
+binding for pciback and unmask the event channel only just before
 leaving the event handling function.
 
-In case of a ring protocol error don't issue an EOI in order to avoid
-the possibility to use that for producing an event storm. This at once
-will result in no further call of scsiback_irq_fn(), so the ring_error
-struct member can be dropped and scsiback_do_cmd_fn() can signal the
-protocol error via a negative return value.
+Restructure the handling to support that scheme. Basically an event can
+come in for two reasons: either a normal request for a pciback action,
+which is handled in a worker, or in case the guest has finished an AER
+request which was requested by pciback.
+
+When an AER request is issued to the guest and a normal pciback action
+is currently active issue an EOI early in order to be able to receive
+another event when the AER request has been finished by the guest.
+
+Let the worker processing the normal requests run until no further
+request is pending, instead of starting a new worker ion that case.
+Issue the EOI only just before leaving the worker.
+
+This scheme allows to drop calling the generic function
+xen_pcibk_test_and_schedule_op() after processing of any request as
+the handling of both request types is now separated more cleanly.
 
 This is part of XSA-332.
 
-This is upstream commit 86991b6e7ea6c613b7692f65106076943449b6b7
+This is upstream commit c2711441bc961b37bba0615dd7135857d189035f
 
 Cc: stable@vger.kernel.org
 Reported-by: Julien Grall <julien@xen.org>
@@ -60,84 +71,199 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Reviewed-by: Wei Liu <wl@xen.org>
 ---
- drivers/xen/xen-scsiback.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/xen/xen-pciback/pci_stub.c    | 14 ++++----
+ drivers/xen/xen-pciback/pciback.h     | 12 +++++--
+ drivers/xen/xen-pciback/pciback_ops.c | 48 +++++++++++++++++++++------
+ drivers/xen/xen-pciback/xenbus.c      |  2 +-
+ 4 files changed, 56 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/xen/xen-scsiback.c b/drivers/xen/xen-scsiback.c
-index 992cb8fa272c..3243d917651a 100644
---- a/drivers/xen/xen-scsiback.c
-+++ b/drivers/xen/xen-scsiback.c
-@@ -91,7 +91,6 @@ struct vscsibk_info {
- 	unsigned int irq;
+diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
+index ee5ce9286d61..83d798d12400 100644
+--- a/drivers/xen/xen-pciback/pci_stub.c
++++ b/drivers/xen/xen-pciback/pci_stub.c
+@@ -733,10 +733,17 @@ static pci_ers_result_t common_process(struct pcistub_device *psdev,
+ 	wmb();
+ 	notify_remote_via_irq(pdev->evtchn_irq);
  
- 	struct vscsiif_back_ring ring;
--	int ring_error;
++	/* Enable IRQ to signal "request done". */
++	xen_pcibk_lateeoi(pdev, 0);
++
+ 	ret = wait_event_timeout(xen_pcibk_aer_wait_queue,
+ 				 !(test_bit(_XEN_PCIB_active, (unsigned long *)
+ 				 &sh_info->flags)), 300*HZ);
  
- 	spinlock_t ring_lock;
- 	atomic_t nr_unreplied_reqs;
-@@ -723,7 +722,8 @@ static struct vscsibk_pend *prepare_pending_reqs(struct vscsibk_info *info,
- 	return pending_req;
- }
- 
--static int scsiback_do_cmd_fn(struct vscsibk_info *info)
-+static int scsiback_do_cmd_fn(struct vscsibk_info *info,
-+			      unsigned int *eoi_flags)
- {
- 	struct vscsiif_back_ring *ring = &info->ring;
- 	struct vscsiif_request ring_req;
-@@ -740,11 +740,12 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info)
- 		rc = ring->rsp_prod_pvt;
- 		pr_warn("Dom%d provided bogus ring requests (%#x - %#x = %u). Halting ring processing\n",
- 			   info->domid, rp, rc, rp - rc);
--		info->ring_error = 1;
--		return 0;
-+		return -EINVAL;
++	/* Enable IRQ for pcifront request if not already active. */
++	if (!test_bit(_PDEVF_op_active, &pdev->flags))
++		xen_pcibk_lateeoi(pdev, 0);
++
+ 	if (!ret) {
+ 		if (test_bit(_XEN_PCIB_active,
+ 			(unsigned long *)&sh_info->flags)) {
+@@ -750,13 +757,6 @@ static pci_ers_result_t common_process(struct pcistub_device *psdev,
  	}
+ 	clear_bit(_PCIB_op_pending, (unsigned long *)&pdev->flags);
  
- 	while ((rc != rp)) {
-+		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
-+
- 		if (RING_REQUEST_CONS_OVERFLOW(ring, rc))
- 			break;
- 
-@@ -803,13 +804,16 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info)
- static irqreturn_t scsiback_irq_fn(int irq, void *dev_id)
- {
- 	struct vscsibk_info *info = dev_id;
-+	int rc;
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
--	if (info->ring_error)
--		return IRQ_HANDLED;
+-	if (test_bit(_XEN_PCIF_active,
+-		(unsigned long *)&sh_info->flags)) {
+-		dev_dbg(&psdev->dev->dev,
+-			"schedule pci_conf service in " DRV_NAME "\n");
+-		xen_pcibk_test_and_schedule_op(psdev->pdev);
+-	}
 -
--	while (scsiback_do_cmd_fn(info))
-+	while ((rc = scsiback_do_cmd_fn(info, &eoi_flags)) > 0)
- 		cond_resched();
+ 	res = (pci_ers_result_t)aer_op->err;
+ 	return res;
+ }
+diff --git a/drivers/xen/xen-pciback/pciback.h b/drivers/xen/xen-pciback/pciback.h
+index 7af369b6aaa2..b97cf348cdc1 100644
+--- a/drivers/xen/xen-pciback/pciback.h
++++ b/drivers/xen/xen-pciback/pciback.h
+@@ -13,6 +13,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/workqueue.h>
+ #include <linux/atomic.h>
++#include <xen/events.h>
+ #include <xen/interface/io/pciif.h>
  
-+	/* In case of a ring error we keep the event channel masked. */
-+	if (!rc)
-+		xen_irq_lateeoi(irq, eoi_flags);
+ #define DRV_NAME	"xen-pciback"
+@@ -26,6 +27,8 @@ struct pci_dev_entry {
+ #define PDEVF_op_active		(1<<(_PDEVF_op_active))
+ #define _PCIB_op_pending	(1)
+ #define PCIB_op_pending		(1<<(_PCIB_op_pending))
++#define _EOI_pending		(2)
++#define EOI_pending		(1<<(_EOI_pending))
+ 
+ struct xen_pcibk_device {
+ 	void *pci_dev_data;
+@@ -181,12 +184,17 @@ static inline void xen_pcibk_release_devices(struct xen_pcibk_device *pdev)
+ irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id);
+ void xen_pcibk_do_op(struct work_struct *data);
+ 
++static inline void xen_pcibk_lateeoi(struct xen_pcibk_device *pdev,
++				     unsigned int eoi_flag)
++{
++	if (test_and_clear_bit(_EOI_pending, &pdev->flags))
++		xen_irq_lateeoi(pdev->evtchn_irq, eoi_flag);
++}
 +
- 	return IRQ_HANDLED;
+ int xen_pcibk_xenbus_register(void);
+ void xen_pcibk_xenbus_unregister(void);
+ 
+ extern int verbose_request;
+-
+-void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev);
+ #endif
+ 
+ /* Handles shared IRQs that can to device domain and control domain. */
+diff --git a/drivers/xen/xen-pciback/pciback_ops.c b/drivers/xen/xen-pciback/pciback_ops.c
+index e7fbed56c044..eb5dd80530e7 100644
+--- a/drivers/xen/xen-pciback/pciback_ops.c
++++ b/drivers/xen/xen-pciback/pciback_ops.c
+@@ -296,26 +296,41 @@ int xen_pcibk_disable_msix(struct xen_pcibk_device *pdev,
+ 	return 0;
+ }
+ #endif
++
++static inline bool xen_pcibk_test_op_pending(struct xen_pcibk_device *pdev)
++{
++	return test_bit(_XEN_PCIF_active,
++			(unsigned long *)&pdev->sh_info->flags) &&
++	       !test_and_set_bit(_PDEVF_op_active, &pdev->flags);
++}
++
+ /*
+ * Now the same evtchn is used for both pcifront conf_read_write request
+ * as well as pcie aer front end ack. We use a new work_queue to schedule
+ * xen_pcibk conf_read_write service for avoiding confict with aer_core
+ * do_recovery job which also use the system default work_queue
+ */
+-void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
++static void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
+ {
++	bool eoi = true;
++
+ 	/* Check that frontend is requesting an operation and that we are not
+ 	 * already processing a request */
+-	if (test_bit(_XEN_PCIF_active, (unsigned long *)&pdev->sh_info->flags)
+-	    && !test_and_set_bit(_PDEVF_op_active, &pdev->flags)) {
++	if (xen_pcibk_test_op_pending(pdev)) {
+ 		schedule_work(&pdev->op_work);
++		eoi = false;
+ 	}
+ 	/*_XEN_PCIB_active should have been cleared by pcifront. And also make
+ 	sure xen_pcibk is waiting for ack by checking _PCIB_op_pending*/
+ 	if (!test_bit(_XEN_PCIB_active, (unsigned long *)&pdev->sh_info->flags)
+ 	    && test_bit(_PCIB_op_pending, &pdev->flags)) {
+ 		wake_up(&xen_pcibk_aer_wait_queue);
++		eoi = false;
+ 	}
++
++	/* EOI if there was nothing to do. */
++	if (eoi)
++		xen_pcibk_lateeoi(pdev, XEN_EOI_FLAG_SPURIOUS);
  }
  
-@@ -830,7 +834,7 @@ static int scsiback_init_sring(struct vscsibk_info *info, grant_ref_t ring_ref,
- 	sring = (struct vscsiif_sring *)area;
- 	BACK_RING_INIT(&info->ring, sring, PAGE_SIZE);
+ /* Performing the configuration space reads/writes must not be done in atomic
+@@ -323,10 +338,8 @@ void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
+  * use of semaphores). This function is intended to be called from a work
+  * queue in process context taking a struct xen_pcibk_device as a parameter */
  
--	err = bind_interdomain_evtchn_to_irq(info->domid, evtchn);
-+	err = bind_interdomain_evtchn_to_irq_lateeoi(info->domid, evtchn);
- 	if (err < 0)
- 		goto unmap_page;
+-void xen_pcibk_do_op(struct work_struct *data)
++static void xen_pcibk_do_one_op(struct xen_pcibk_device *pdev)
+ {
+-	struct xen_pcibk_device *pdev =
+-		container_of(data, struct xen_pcibk_device, op_work);
+ 	struct pci_dev *dev;
+ 	struct xen_pcibk_dev_data *dev_data = NULL;
+ 	struct xen_pci_op *op = &pdev->op;
+@@ -399,16 +412,31 @@ void xen_pcibk_do_op(struct work_struct *data)
+ 	smp_mb__before_atomic(); /* /after/ clearing PCIF_active */
+ 	clear_bit(_PDEVF_op_active, &pdev->flags);
+ 	smp_mb__after_atomic(); /* /before/ final check for work */
++}
  
-@@ -1253,7 +1257,6 @@ static int scsiback_probe(struct xenbus_device *dev,
+-	/* Check to see if the driver domain tried to start another request in
+-	 * between clearing _XEN_PCIF_active and clearing _PDEVF_op_active.
+-	*/
+-	xen_pcibk_test_and_schedule_op(pdev);
++void xen_pcibk_do_op(struct work_struct *data)
++{
++	struct xen_pcibk_device *pdev =
++		container_of(data, struct xen_pcibk_device, op_work);
++
++	do {
++		xen_pcibk_do_one_op(pdev);
++	} while (xen_pcibk_test_op_pending(pdev));
++
++	xen_pcibk_lateeoi(pdev, 0);
+ }
  
- 	info->domid = dev->otherend_id;
- 	spin_lock_init(&info->ring_lock);
--	info->ring_error = 0;
- 	atomic_set(&info->nr_unreplied_reqs, 0);
- 	init_waitqueue_head(&info->waiting_to_free);
- 	info->dev = dev;
+ irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id)
+ {
+ 	struct xen_pcibk_device *pdev = dev_id;
++	bool eoi;
++
++	/* IRQs might come in before pdev->evtchn_irq is written. */
++	if (unlikely(pdev->evtchn_irq != irq))
++		pdev->evtchn_irq = irq;
++
++	eoi = test_and_set_bit(_EOI_pending, &pdev->flags);
++	WARN(eoi, "IRQ while EOI pending\n");
+ 
+ 	xen_pcibk_test_and_schedule_op(pdev);
+ 
+diff --git a/drivers/xen/xen-pciback/xenbus.c b/drivers/xen/xen-pciback/xenbus.c
+index 5ce878c51d03..f33eb40cb414 100644
+--- a/drivers/xen/xen-pciback/xenbus.c
++++ b/drivers/xen/xen-pciback/xenbus.c
+@@ -122,7 +122,7 @@ static int xen_pcibk_do_attach(struct xen_pcibk_device *pdev, int gnt_ref,
+ 
+ 	pdev->sh_info = vaddr;
+ 
+-	err = bind_interdomain_evtchn_to_irqhandler(
++	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+ 		pdev->xdev->otherend_id, remote_evtchn, xen_pcibk_handle_event,
+ 		0, DRV_NAME, pdev);
+ 	if (err < 0) {
 -- 
 2.26.2
 
