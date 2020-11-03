@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A58642A57BB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AD92A57BC
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732133AbgKCUwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:52:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
+        id S1732148AbgKCUwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:52:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732148AbgKCUwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:46 -0500
+        id S1732154AbgKCUws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:52:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F0F02071E;
-        Tue,  3 Nov 2020 20:52:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCD172053B;
+        Tue,  3 Nov 2020 20:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436765;
-        bh=aHbdgysvukX0w/wcU3rTWMj51AjJJV3UkgaeNFflHTk=;
+        s=default; t=1604436768;
+        bh=pB7QqlUSUS5TIZ5kW+2Hqyu1ZFew0jKtSe+hCUuj3/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKN6Nr5aac1a0oy3P851vKdWevURkFXClGclHTILZj+FdEy67oA0j+Lw7dNbNZ3aC
-         c1rX04P5fF30/I3wqodIX4GVujBS1k7+mzml0YAXnN5p2emliEKR4bGlmM57dDrHCb
-         IKT2SEIffQXXdZcmp0q3gYQ2DFZcr53yWBr5HydM=
+        b=a724eUf3KrJ9h7LnBawF4Oo1vuXIx6rEmrKLLrA20kbkbZfAdUohTakLXnx30tHui
+         AhS3CuFVBdJ35OffDH7hBColgPfxD4CgBCtDPHF7sEIGSnlLtkbsqIs2oHppxEDUrI
+         sh2dgOG1a0K0LYeG66LMx7F6ZLBNKKalfO3kImbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.9 386/391] cpufreq: schedutil: Always call driver if CPUFREQ_NEED_UPDATE_LIMITS is set
-Date:   Tue,  3 Nov 2020 21:37:17 +0100
-Message-Id: <20201103203413.208088631@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 5.9 387/391] vhost_vdpa: Return -EFAULT if copy_from_user() fails
+Date:   Tue,  3 Nov 2020 21:37:18 +0100
+Message-Id: <20201103203413.277357607@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,65 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d1e7c2996e988866e7ceceb4641a0886885b7889 upstream.
+commit 7922460e33c81f41e0d2421417228b32e6fdbe94 upstream.
 
-Because sugov_update_next_freq() may skip a frequency update even if
-the need_freq_update flag has been set for the policy at hand, policy
-limits updates may not take effect as expected.
+The copy_to/from_user() functions return the number of bytes which we
+weren't able to copy but the ioctl should return -EFAULT if they fail.
 
-For example, if the intel_pstate driver operates in the passive mode
-with HWP enabled, it needs to update the HWP min and max limits when
-the policy min and max limits change, respectively, but that may not
-happen if the target frequency does not change along with the limit
-at hand.  In particular, if the policy min is changed first, causing
-the target frequency to be adjusted to it, and the policy max limit
-is changed later to the same value, the HWP max limit will not be
-updated to follow it as expected, because the target frequency is
-still equal to the policy min limit and it will not change until
-that limit is updated.
-
-To address this issue, modify get_next_freq() to let the driver
-callback run if the CPUFREQ_NEED_UPDATE_LIMITS cpufreq driver flag
-is set regardless of whether or not the new frequency to set is
-equal to the previous one.
-
-Fixes: f6ebbcf08f37 ("cpufreq: intel_pstate: Implement passive mode with HWP enabled")
-Reported-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+: 1c534352f47f cpufreq: Introduce CPUFREQ_NEED_UPDATE_LIMITS ...
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+: a62f68f5ca53 cpufreq: Introduce cpufreq_driver_test_flags()
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a127c5bbb6a8 ("vhost-vdpa: fix backend feature ioctls")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20201023120853.GI282278@mwanda
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/cpufreq_schedutil.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/vhost/vdpa.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -102,7 +102,8 @@ static bool sugov_should_update_freq(str
- static bool sugov_update_next_freq(struct sugov_policy *sg_policy, u64 time,
- 				   unsigned int next_freq)
- {
--	if (sg_policy->next_freq == next_freq)
-+	if (sg_policy->next_freq == next_freq &&
-+	    !cpufreq_driver_test_flags(CPUFREQ_NEED_UPDATE_LIMITS))
- 		return false;
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -428,12 +428,11 @@ static long vhost_vdpa_unlocked_ioctl(st
+ 	void __user *argp = (void __user *)arg;
+ 	u64 __user *featurep = argp;
+ 	u64 features;
+-	long r;
++	long r = 0;
  
- 	sg_policy->next_freq = next_freq;
-@@ -175,7 +176,8 @@ static unsigned int get_next_freq(struct
- 
- 	freq = map_util_freq(util, freq, max);
- 
--	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
-+	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update &&
-+	    !cpufreq_driver_test_flags(CPUFREQ_NEED_UPDATE_LIMITS))
- 		return sg_policy->next_freq;
- 
- 	sg_policy->need_freq_update = false;
+ 	if (cmd == VHOST_SET_BACKEND_FEATURES) {
+-		r = copy_from_user(&features, featurep, sizeof(features));
+-		if (r)
+-			return r;
++		if (copy_from_user(&features, featurep, sizeof(features)))
++			return -EFAULT;
+ 		if (features & ~VHOST_VDPA_BACKEND_FEATURES)
+ 			return -EOPNOTSUPP;
+ 		vhost_set_backend_features(&v->vdev, features);
+@@ -476,7 +475,8 @@ static long vhost_vdpa_unlocked_ioctl(st
+ 		break;
+ 	case VHOST_GET_BACKEND_FEATURES:
+ 		features = VHOST_VDPA_BACKEND_FEATURES;
+-		r = copy_to_user(featurep, &features, sizeof(features));
++		if (copy_to_user(featurep, &features, sizeof(features)))
++			r = -EFAULT;
+ 		break;
+ 	default:
+ 		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
 
 
