@@ -2,134 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 581E92A460B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A532A4638
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 14:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729009AbgKCNPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 08:15:04 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:39658 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729005AbgKCNPE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:15:04 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id D938D1C0B77; Tue,  3 Nov 2020 14:15:01 +0100 (CET)
-Date:   Tue, 3 Nov 2020 14:15:01 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Juergen Gross <jgross@suse.com>, marmarek@invisiblethingslab.com,
-        luke1337@theori.io, sstabellini@kernel.org, wl@xen.org,
-        Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 02/13] xen/events: avoid removing an event channel while
- handling it
-Message-ID: <20201103131501.GA30723@duo.ucw.cz>
-References: <20201103084150.8625-1-jgross@suse.com>
- <20201103084150.8625-3-jgross@suse.com>
+        id S1729227AbgKCNYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 08:24:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37010 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729226AbgKCNYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 08:24:03 -0500
+Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC558C0613D1
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 05:24:02 -0800 (PST)
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+        id 3339C3A5; Tue,  3 Nov 2020 14:24:00 +0100 (CET)
+Date:   Tue, 3 Nov 2020 14:23:58 +0100
+From:   Joerg Roedel <joro@8bytes.org>
+To:     Lu Baolu <baolu.lu@linux.intel.com>
+Cc:     iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] iommu: Fix deferred domain attachment in
+ iommu_probe_device()
+Message-ID: <20201103132358.GG22888@8bytes.org>
+References: <20201026063008.24849-1-baolu.lu@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201103084150.8625-3-jgross@suse.com>
+In-Reply-To: <20201026063008.24849-1-baolu.lu@linux.intel.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Baolu,
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Oct 26, 2020 at 02:30:08PM +0800, Lu Baolu wrote:
+> @@ -264,7 +266,8 @@ int iommu_probe_device(struct device *dev)
+>  	 */
+>  	iommu_alloc_default_domain(group, dev);
+>  
+> -	if (group->default_domain)
+> +	if (group->default_domain &&
+> +	    !iommu_is_attach_deferred(group->default_domain, dev))
+>  		ret = __iommu_attach_device(group->default_domain, dev);
 
-Hi!
+This is the hotplug path, not used for boot-initialization. Have you
+seen failures from the missing check here?
 
-> Today it can happen that an event channel is being removed from the
-> system while the event handling loop is active. This can lead to a
-> race resulting in crashes or WARN() splats when trying to access the
-> irq_info structure related to the event channel.
->=20
-> Fix this problem by using a rwlock taken as reader in the event
-> handling loop and as writer when deallocating the irq_info structure.
->=20
-> As the observed problem was a NULL dereference in evtchn_from_irq()
-> make this function more robust against races by testing the irq_info
-> pointer to be not NULL before dereferencing it.
->=20
-> And finally make all accesses to evtchn_to_irq[row][col] atomic ones
-> in order to avoid seeing partial updates of an array element in irq
-> handling. Note that irq handling can be entered only for event channels
-> which have been valid before, so any not populated row isn't a problem
-> in this regard, as rows are only ever added and never removed.
->=20
-> This is XSA-331.
->=20
-> This is upstream commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2
+Regards,
 
-This one is mismerged.
-
-
-> @@ -1242,6 +1269,8 @@ static void __xen_evtchn_do_upcall(void)
->  	int cpu =3D get_cpu();
->  	unsigned count;
-> =20
-> +	read_lock(&evtchn_rwlock);
-> +
->  	do {
->  		vcpu_info->evtchn_upcall_pending =3D 0;
-> =20
-> @@ -1256,6 +1285,8 @@ static void __xen_evtchn_do_upcall(void)
->  		__this_cpu_write(xed_nesting_count, 0);
->  	} while (count !=3D 1 || vcpu_info->evtchn_upcall_pending);
-> =20
-> +	read_unlock(&evtchn_rwlock);
-> +
->  out:
-
-read_unlock needs to be after the out: label. Or better yet, goto can
-be avoided.
-
-Best regards,
-								Pavel
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_b=
-ase.c
-index cef70f4b52ef..ba36bdd49d22 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1556,8 +1556,8 @@ static void __xen_evtchn_do_upcall(void)
- 	do {
- 		vcpu_info->evtchn_upcall_pending =3D 0;
-=20
--		if (__this_cpu_inc_return(xed_nesting_count) - 1)
--			goto out;
-+		if (__this_cpu_inc_return(xed_nesting_count) !=3D 1)
-+			break;
-=20
- 		xen_evtchn_handle_events(cpu, &ctrl);
-=20
-@@ -1568,8 +1568,6 @@ static void __xen_evtchn_do_upcall(void)
- 	} while (count !=3D 1 || vcpu_info->evtchn_upcall_pending);
-=20
- 	read_unlock(&evtchn_rwlock);
--
--out:
- 	/*
- 	 * Increment irq_epoch only now to defer EOIs only for
- 	 * xen_irq_lateeoi() invocations occurring from inside the loop
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX6FX1QAKCRAw5/Bqldv6
-8rB8AKDDHUVyjSbZagN6iNixOh1bIs/SagCgtKJthlbalWdzjUyOAF/ihUzqE14=
-=ABHU
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+	Joerg
