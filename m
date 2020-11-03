@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4384E2A549C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 742E52A54DF
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387469AbgKCVNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:13:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S2389013AbgKCVO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:14:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389085AbgKCVM7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:59 -0500
+        id S2389140AbgKCVNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:13:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F939206B5;
-        Tue,  3 Nov 2020 21:12:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2B19205ED;
+        Tue,  3 Nov 2020 21:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437977;
-        bh=pdImw8MX1nGDEbGReoB8McG7j1JBtWfBX0D9bkBbf6E=;
+        s=default; t=1604437980;
+        bh=YbHmmcZw0cGx/dcWDxfzc8hvwgIm5cHULa0D4sQiQHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAfLabW7btBzySRjoaLhBLmnIg4O1NikUnvLJBtsoUCBD7NywGSfFjfwFGfxiRkJZ
-         VaBDMITZOFvc3D9HNAvwiBdOGMV0c+w9/CyjwhhawYe6Y65aSFQ3h83B46U5k5ZVVK
-         iAlbUuBHnI8tEo56fadlV8WvFbaI/vL8c7QPgZLE=
+        b=pgZZKZm7KomqcUhM8Scr+PeUkbnyGvdcym7igvdCfswUxhYuwyAqbDYo014ptgPeo
+         Fyd3DGXcCDkfoD1AHqdIPiSHseAma9Vpz9tAhvgROvwOrQLl6bwCAmanr0TDKeATdH
+         Lw/D9IwnBc8prIpvm3g6EO0kK8CWdNKsi/JKczDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 113/125] tty: make FONTX ioctl use the tty pointer they were actually passed
-Date:   Tue,  3 Nov 2020 21:38:10 +0100
-Message-Id: <20201103203213.864798615@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 114/125] arm64: berlin: Select DW_APB_TIMER_OF
+Date:   Tue,  3 Nov 2020 21:38:11 +0100
+Message-Id: <20201103203213.998773614@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
 References: <20201103203156.372184213@linuxfoundation.org>
@@ -44,153 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
+commit b0fc70ce1f028e14a37c186d9f7a55e51439b83a upstream.
 
-Some of the font tty ioctl's always used the current foreground VC for
-their operations.  Don't do that then.
+Berlin SoCs always contain some DW APB timers which can be used as an
+always-on broadcast timer.
 
-This fixes a data race on fg_console.
-
-Side note: both Michael Ellerman and Jiri Slaby point out that all these
-ioctls are deprecated, and should probably have been removed long ago,
-and everything seems to be using the KDFONTOP ioctl instead.
-
-In fact, Michael points out that it looks like busybox's loadfont
-program seems to have switched over to using KDFONTOP exactly _because_
-of this bug (ahem.. 12 years ago ;-).
-
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20201009150536.214181fb@xhacker.debian
+Cc: <stable@vger.kernel.org> # v3.14+
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ arch/arm64/Kconfig.platforms |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -244,7 +244,7 @@ int vt_waitactive(int n)
- 
- 
- static inline int 
--do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
-+do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
- {
- 	struct consolefontdesc cfdarg;
- 	int i;
-@@ -262,15 +262,16 @@ do_fontx_ioctl(int cmd, struct consolefo
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		return con_font_op(vc_cons[fg_console].d, op);
--	case GIO_FONTX: {
-+		return con_font_op(vc, op);
-+
-+	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
- 		op->width = 8;
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -278,7 +279,6 @@ do_fontx_ioctl(int cmd, struct consolefo
- 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
- 			return -EFAULT;
- 		return 0;
--		}
- 	}
- 	return -EINVAL;
- }
-@@ -924,7 +924,7 @@ int vt_ioctl(struct tty_struct *tty,
- 		op.height = 0;
- 		op.charcount = 256;
- 		op.data = up;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		break;
- 	}
- 
-@@ -935,7 +935,7 @@ int vt_ioctl(struct tty_struct *tty,
- 		op.height = 32;
- 		op.charcount = 256;
- 		op.data = up;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		break;
- 	}
- 
-@@ -952,7 +952,7 @@ int vt_ioctl(struct tty_struct *tty,
- 
- 	case PIO_FONTX:
- 	case GIO_FONTX:
--		ret = do_fontx_ioctl(cmd, up, perm, &op);
-+		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
- 		break;
- 
- 	case PIO_FONTRESET:
-@@ -969,11 +969,11 @@ int vt_ioctl(struct tty_struct *tty,
- 		{
- 		op.op = KD_FONT_OP_SET_DEFAULT;
- 		op.data = NULL;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		if (ret)
- 			break;
- 		console_lock();
--		con_set_default_unimap(vc_cons[fg_console].d);
-+		con_set_default_unimap(vc);
- 		console_unlock();
- 		break;
- 		}
-@@ -1100,8 +1100,9 @@ struct compat_consolefontdesc {
- };
- 
- static inline int
--compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
--			 int perm, struct console_font_op *op)
-+compat_fontx_ioctl(struct vc_data *vc, int cmd,
-+		   struct compat_consolefontdesc __user *user_cfd,
-+		   int perm, struct console_font_op *op)
- {
- 	struct compat_consolefontdesc cfdarg;
- 	int i;
-@@ -1119,7 +1120,8 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		return con_font_op(vc_cons[fg_console].d, op);
-+		return con_font_op(vc, op);
-+
- 	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
-@@ -1127,7 +1129,7 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -1218,7 +1220,7 @@ long vt_compat_ioctl(struct tty_struct *
- 	 */
- 	case PIO_FONTX:
- 	case GIO_FONTX:
--		ret = compat_fontx_ioctl(cmd, up, perm, &op);
-+		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
- 		break;
- 
- 	case KDFONTOP:
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -46,6 +46,7 @@ config ARCH_BCM_IPROC
+ config ARCH_BERLIN
+ 	bool "Marvell Berlin SoC Family"
+ 	select DW_APB_ICTL
++	select DW_APB_TIMER_OF
+ 	select GPIOLIB
+ 	select PINCTRL
+ 	help
 
 
