@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E22C2A56F4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:33:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E0E2A580A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:49:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733051AbgKCVcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:32:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
+        id S1731898AbgKCVrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:47:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730485AbgKCU5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:57:03 -0500
+        id S1731899AbgKCUvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E9792053B;
-        Tue,  3 Nov 2020 20:57:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09D37223FD;
+        Tue,  3 Nov 2020 20:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437023;
-        bh=y8+reyxENSxJN4FG/fsfU7IltPLih2us9w8dvQNvq3I=;
+        s=default; t=1604436662;
+        bh=Yv/f268HFJkN+1vSeyywKjbrMmMCXFppzKgHQgZDufA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKdZHO9Le/uAg4pkiUR35OoV0mFk+arTW2PETgPUHpaY6wozRukzmstzM+XqFNLgG
-         5A6Y0BHBprV/x0zk06ztpg+7CuoO8ADmxP2ipHTULcQxtfp2gnPlDZO2O+jcnRhvw3
-         0U4vWC2G0x8iprGkPFBeAit8HjMkoR9BJrDNBNgo=
+        b=EX4rO+siQLJGxS7Ue415H6z+uDm/mIhZfKC+mdF5qzh9OJMD5jnKWg/66JckAiUKe
+         FzHWeKHgiuyon+xMEqdS1+VugT6kEOjFhlyxPOI/GL9cSgQ7CoyxbMzPn5Hfc/cafM
+         GsqM5NG/UzbLvYyH4y1SFrFNVfUMRPsTFbITrB4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jim@photojim.ca,
-        Ben Hutchings <ben@decadent.org.uk>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 111/214] ACPI / extlog: Check for RDMSR failure
-Date:   Tue,  3 Nov 2020 21:35:59 +0100
-Message-Id: <20201103203301.312485753@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Hagen Paul Pfeifer <hagen@jauu.net>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.9 310/391] perf python scripting: Fix printable strings in python3 scripts
+Date:   Tue,  3 Nov 2020 21:36:01 +0100
+Message-Id: <20201103203408.027456100@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit 7cecb47f55e00282f972a1e0b09136c8cd938221 upstream.
+commit 6fcd5ddc3b1467b3586972ef785d0d926ae4cdf4 upstream.
 
-extlog_init() uses rdmsrl() to read an MSR, which on older CPUs
-provokes a error message at boot:
+Hagen reported broken strings in python3 tracepoint scripts:
 
-    unchecked MSR access error: RDMSR from 0x179 at rIP: 0xcd047307 (native_read_msr+0x7/0x40)
+  make PYTHON=python3
+  perf record -e sched:sched_switch -a -- sleep 5
+  perf script --gen-script py
+  perf script -s ./perf-script.py
 
-Use rdmsrl_safe() instead, and return -ENODEV if it fails.
+  [..]
+  sched__sched_switch      7 563231.759525792        0 swapper   prev_comm=bytearray(b'swapper/7\x00\x00\x00\x00\x00\x00\x00'), prev_pid=0, prev_prio=120, prev_state=, next_comm=bytearray(b'mutex-thread-co\x00'),
 
-Reported-by: jim@photojim.ca
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The problem is in the is_printable_array function that does not take the
+zero byte into account and claim such string as not printable, so the
+code will create byte array instead of string.
+
+Committer testing:
+
+After this fix:
+
+sched__sched_switch 3 484522.497072626  1158680 kworker/3:0-eve  prev_comm=kworker/3:0, prev_pid=1158680, prev_prio=120, prev_state=I, next_comm=swapper/3, next_pid=0, next_prio=120
+Sample: {addr=0, cpu=3, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1158680, tid=1158680, time=484522497072626, transaction=0, values=[(0, 0)], weight=0}
+
+sched__sched_switch 4 484522.497085610  1225814 perf             prev_comm=perf, prev_pid=1225814, prev_prio=120, prev_state=, next_comm=migration/4, next_pid=30, next_prio=0
+Sample: {addr=0, cpu=4, datasrc=84410401, datasrc_decode=N/A|SNP N/A|TLB N/A|LCK N/A, ip=18446744071841817196, period=1, phys_addr=0, pid=1225814, tid=1225814, time=484522497085610, transaction=0, values=[(0, 0)], weight=0}
+
+Fixes: 249de6e07458 ("perf script python: Fix string vs byte array resolving")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Hagen Paul Pfeifer <hagen@jauu.net>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200928201135.3633850-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_extlog.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/print_binary.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -223,9 +223,9 @@ static int __init extlog_init(void)
- 	u64 cap;
- 	int rc;
+--- a/tools/perf/util/print_binary.c
++++ b/tools/perf/util/print_binary.c
+@@ -50,7 +50,7 @@ int is_printable_array(char *p, unsigned
  
--	rdmsrl(MSR_IA32_MCG_CAP, cap);
--
--	if (!(cap & MCG_ELOG_P) || !extlog_get_l1addr())
-+	if (rdmsrl_safe(MSR_IA32_MCG_CAP, &cap) ||
-+	    !(cap & MCG_ELOG_P) ||
-+	    !extlog_get_l1addr())
- 		return -ENODEV;
+ 	len--;
  
- 	if (edac_get_report_status() == EDAC_REPORTING_FORCE) {
+-	for (i = 0; i < len; i++) {
++	for (i = 0; i < len && p[i]; i++) {
+ 		if (!isprint(p[i]) && !isspace(p[i]))
+ 			return 0;
+ 	}
 
 
