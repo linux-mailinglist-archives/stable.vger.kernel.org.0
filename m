@@ -2,176 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC712A5A3C
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 100652A5A45
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 23:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729342AbgKCWoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 17:44:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40060 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729926AbgKCWoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 17:44:12 -0500
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF980C061A47
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 14:44:10 -0800 (PST)
-Received: by mail-pl1-x643.google.com with SMTP id t22so9284764plr.9
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 14:44:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=I/uB5S23puPABQIKDt8mffgwxH7OPp4NpnA8AnbObM4=;
-        b=SZx8405XnPwkU3fqqiWAXp4mJDnmeWBjsko6l86k3D5fexc9ISIogJmm96oG5/1aEf
-         29ctupR0WedmDjGFqhkvtV0r48SJeFfH32j3vgJWNfUUkbKWFapu0AjIP4qbfQpViLlF
-         jsIRWS4/TXfGHK6aooZQ9iiZN7MkGdEW8IPo/xSWFRVvFlvxgkVSiPe5MIpjATTVb46G
-         lMKRBrufLPq8tDD+IEivQC+zRmlJbrd2ydgSFRoy+ugHS67B/LEi4H8tw2IEx3SsxxQG
-         QWVPY5Lh1Cnga4/deGRZUD8zdjaiVmbRF1H7ah8JGD/FUMSf/LrPvqoSk6TOAKRg4qEV
-         pTuw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=I/uB5S23puPABQIKDt8mffgwxH7OPp4NpnA8AnbObM4=;
-        b=aXvqiG2U+fASAdcoeoboAOjMnbtq6egO7ExdmRyRR9igtA8InjBjYY6qfAl31f3iPY
-         YNiRrW2efYtwmi4cE9Uj006Bjiyi+mfALcCbBSWpBVya3iGvSNYzlaEgNKyHZlkCaI/F
-         k1Y0sFfaDkT40gb03UX2ThZ+sZmVWHfC+wx/TH2rod5HNrVpsjD6JLAsoymreUub+/qC
-         PqMfKcxV0MDBXBOT9FIKPDnpYf+QVIG3ILFU35d3DdTI1lp1YDn6o0koRIW+A4UKO/Ml
-         BBOpNTpxuQ82omDJwofKu7lkBiL9Uzc62lvREilD6PsYTEbs/3Vfn7IjKetFwU0nfIid
-         /ffg==
-X-Gm-Message-State: AOAM531pqwniF3Jgi/qkOPAZG3MonNugnPYvmWGYuuvIQi1VYEBODnUp
-        GraWBxDm+sLiJfd07T2QxAUhKuna18a9TjG06dBplQ==
-X-Google-Smtp-Source: ABdhPJyoBmO3B7bFqrghvHKrH+223fIRwnGaNUGq7KGBDFFe2r2Cn+oohMtlRo2y7XucXuYg1h6zaqD2LO49AVhR42Y=
-X-Received: by 2002:a17:902:8ecc:b029:d6:991d:1193 with SMTP id
- x12-20020a1709028eccb02900d6991d1193mr22527630plo.56.1604443450113; Tue, 03
- Nov 2020 14:44:10 -0800 (PST)
+        id S1729926AbgKCWsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 17:48:33 -0500
+Received: from mail-eopbgr150057.outbound.protection.outlook.com ([40.107.15.57]:21476
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729575AbgKCWsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 17:48:33 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=j6JFx7bsQoVAp4xnM3QwhsVTHsoSvXn0BuT6/ynGaDWRo3Ksti82yXxScMm3GLa/jfALXRbz6UsRfVeiyl/vY8RDiAZUKEt+umkZGprmXVxLB4i6Oo7OHGykMDlS69dJUatOXTLbKhXWJDmdGFCpicT9WdkPI2XpzKbb8aFAh4cXJJWoL+Dy1eokBy6X9Y2iU0Z6IoH4a72l8twpbBff4+hw6kMHezSMk5c89vk50ak/Z4YsFt7TIXp98AIV5Fo7v/dqdfUouxYUcREIhxxwyEah+h99GO7bCRERc88lZCwUCduSHjCOsqPkrAvVwdGzTa74aA4yAtu16RuQvNqp4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=J6DGObiAsVjGIIuVX7JDTE6b7UTLP37cJQv/J8ajf3M=;
+ b=CVssQ9f09ASwaILqiJpMX5wt7aFDdafwG9d7doWVBHA6SQlSdhoBptF9UkVcOmlgu8Ue1fAba1STKPtqSF65FhxXXcunbnPalNoooFWhCb9nI6SSEDBz1uvdl1MBDtdkV90RxK+aWoDawbUN/39l2rSVfxc13dDbUkOhZHDXrw52+ia7e/fwCpBiPMbDg0+GMvakHy+z6Y+XTigZSQKqm568B5eWLLiuYiMw9bO3FUJkz1nnEH52k02LUVrlJ2H01HYn6CC/OkP8b6Jo18d0wcWBPb46gJVISaQK6cud9TOLx60xMFvaaWTBTT85IUKFVqTgRhQVQjHpScjb7ow0aA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=J6DGObiAsVjGIIuVX7JDTE6b7UTLP37cJQv/J8ajf3M=;
+ b=YLpG7g0XkReU++QfOzMEN+oKY5eabw8P+J5adW3tUPn+42suNJ8DYcD++qz1zjeW2ugLkwBrtoFepLgQJbQR5dJsVwhZo4nihgPxGeqLa/2o9GPEEsGJPPKFuHKClhZU+6VO8l6+TADVM5oeetqawbwZUdxT0ukV48rukSOKcGY=
+Received: from VI1PR04MB5696.eurprd04.prod.outlook.com (2603:10a6:803:e7::13)
+ by VI1PR04MB4688.eurprd04.prod.outlook.com (2603:10a6:803:6a::30) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.18; Tue, 3 Nov
+ 2020 22:48:26 +0000
+Received: from VI1PR04MB5696.eurprd04.prod.outlook.com
+ ([fe80::983b:73a7:cc93:e63d]) by VI1PR04MB5696.eurprd04.prod.outlook.com
+ ([fe80::983b:73a7:cc93:e63d%3]) with mapi id 15.20.3499.032; Tue, 3 Nov 2020
+ 22:48:26 +0000
+From:   Vladimir Oltean <vladimir.oltean@nxp.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     Andy Duan <fugang.duan@nxp.com>,
+        "michael@walle.cc" <michael@walle.cc>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: LS1021A has a
+ FIFO size of 16 words," failed to apply to 5.4-stable tree
+Thread-Topic: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: LS1021A has a
+ FIFO size of 16 words," failed to apply to 5.4-stable tree
+Thread-Index: AQHWsezEOoIzEfoLKkKJJMHVEvkOMqm3AwaA
+Date:   Tue, 3 Nov 2020 22:48:26 +0000
+Message-ID: <20201103224825.gxvly2qijdr2hmsk@skbuf>
+References: <160441340011200@kroah.com>
+In-Reply-To: <160441340011200@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=nxp.com;
+x-originating-ip: [188.25.2.177]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: cbb6a4a5-1ce0-40fc-bf02-08d8804a93cf
+x-ms-traffictypediagnostic: VI1PR04MB4688:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <VI1PR04MB4688CF46470325AEFCC7CCCEE0110@VI1PR04MB4688.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: U5PQZQAT8Aqt3KhepgCXeffz7IWNJFSw81mMfGoeXRtLJs+QVilVMaArTibKJ/E2n8TuU87EgSN/VtLg6Y0ioxQHz0ocbVM0A1hds+gB/2itOFRIG2TU8ISaMs19JXd3ATUyQFaXiFAKISvh6VuSQyo8Uf0RWsG64aEmd67wGF1Y8q36CdKoBuif5CfVdpEbZ128seZk2ku0gRqmou+rpRF1ehtNgtHv8eOA0moUIlJYroduB8TV5aTjr4yE8kKj7uMCAPYwfvZCLfuADMuIqbBFiZGnnd8Aj38FIZudPVJNhU+Gl77bPehaReSvX/XxukF4a9k1UptSu81CTnj1B4mejquVLuQ1GctzqCFk2u3BQ/c1w1yw16ErZFxZIVSikZmCTA0yXIvDlt4BhGmoeQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5696.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(396003)(136003)(39860400002)(376002)(346002)(366004)(33716001)(8936002)(26005)(54906003)(44832011)(186003)(71200400001)(9686003)(4326008)(6512007)(316002)(6506007)(6916009)(2906002)(478600001)(1076003)(66476007)(66446008)(91956017)(64756008)(66556008)(66946007)(8676002)(6486002)(5660300002)(86362001)(76116006)(473944003)(414714003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: T2pUFr0vp8EqnMFyddnCPtWAI5faMWWVwSeqdrLHTlQXEf7l1fhFRCAYHQ3H55A7hTS0t4PZ4M8evCnXrRLgfzPzjc7KzU9W11+h0gL4mQn/yzSC3Ng42es4pl7xLQw4TOJYL0IPsKi783Q2blwmvp99fPC7ImHATc6WabzpaVXWQI4IoqDVgFnKyx+v3oBiU9Kk2GUI54yealIp8yFNFeLF1UdcwmyTw6iX/CO1P5Im3ktd0lKgwYodeTWwvPUYerWdJ0Mt6+p77oftIb+kQBjmpi4jxsaEU2eLVe1TpBDE63FT3j+Vv+a1FQrHt/raZlsds2d+YYDeFEn6MgudEd1NOwUe/o1CI5QAS/JL2rNuvgOnhuUFMION0DH5AR+ZRy2RUI3nDvvVz3IUC99Ee1Q4jZHiUtMCTXAS7BmDMO2HhEldFvpKxd1D1RLNOVVkgWjDBAKPnC26bIDVKQ5aXbWNxCvwM+8eAEjMudfGp6IHYFp3eczv/Ga/G/SVp+IBewunGBk8Lz1HgwG22nKjmw2cs6jHlkfkScWkqnahgo5/v9aGyByX94/U6vVljHdOpcBa+gk01IpAn7DFNOEUZeNjqoqKb2gwnLSVFsfwFlrznqUB9fgNVD2NH923SAetomktqCRWf9jw2ZRQIwCxxg==
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <1FACBE8AB867E84F890C5D32713988F3@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20201103012358.168682-1-maskray@google.com> <20201103014602.GA3271702@ubuntu-m3-large-x86>
-In-Reply-To: <20201103014602.GA3271702@ubuntu-m3-large-x86>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 3 Nov 2020 14:43:59 -0800
-Message-ID: <CAKwvOdkiSUesFPD30EqhU0Np=BsM2hJ6Cu+qv38r4yyVCi3rag@mail.gmail.com>
-Subject: Re: [PATCH v2] x86_64: Change .weak to SYM_FUNC_START_WEAK for arch/x86/lib/mem*_64.S
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Fangrui Song <maskray@google.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Jian Cai <jiancai@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5696.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cbb6a4a5-1ce0-40fc-bf02-08d8804a93cf
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Nov 2020 22:48:26.7716
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: baPdfSVMHPCf848BcOcc7mGitN9kSgk9uyXTVsJajceGqOCiywLuNgnBekH+2cMwxJKWmXrgj8sx7YKuzOx1Fg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB4688
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ LKML so I can find this easier to fetch via b4
+On Tue, Nov 03, 2020 at 03:23:20PM +0100, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-On Mon, Nov 2, 2020 at 5:46 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> On Mon, Nov 02, 2020 at 05:23:58PM -0800, 'Fangrui Song' via Clang Built Linux wrote:
-> > Commit 393f203f5fd5 ("x86_64: kasan: add interceptors for
-> > memset/memmove/memcpy functions") added .weak directives to
-> > arch/x86/lib/mem*_64.S instead of changing the existing ENTRY macros to
-> > WEAK. This can lead to the assembly snippet `.weak memcpy ... .globl
-> > memcpy` which will produce a STB_WEAK memcpy with GNU as but STB_GLOBAL
-> > memcpy with LLVM's integrated assembler before LLVM 12. LLVM 12 (since
-> > https://reviews.llvm.org/D90108) will error on such an overridden symbol
-> > binding.
-> >
-> > Commit ef1e03152cb0 ("x86/asm: Make some functions local") changed ENTRY in
-> > arch/x86/lib/memcpy_64.S to SYM_FUNC_START_LOCAL, which was ineffective due to
-> > the preceding .weak directive.
-> >
-> > Use the appropriate SYM_FUNC_START_WEAK instead.
-> >
-> > Fixes: 393f203f5fd5 ("x86_64: kasan: add interceptors for memset/memmove/memcpy functions")
-> > Fixes: ef1e03152cb0 ("x86/asm: Make some functions local")
-> > Reported-by: Sami Tolvanen <samitolvanen@google.com>
-> > Signed-off-by: Fangrui Song <maskray@google.com>
-> > Cc: <stable@vger.kernel.org>
->
-> This resolves the build error I see with LLVM_IAS=1 and ToT LLVM.
->
-> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Greg,
 
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+For linux-5.4.y, could you please do the following so that I don't need
+to explicitly resend these to linux-stable?
 
->
-> > ---
-> > Changes in v2
-> > * Correct the message: SYM_FUNC_START_WEAK was not available at commit 393f203f5fd5.
-> > * Mention Fixes: ef1e03152cb0
-> > ---
-> >  arch/x86/lib/memcpy_64.S  | 4 +---
-> >  arch/x86/lib/memmove_64.S | 4 +---
-> >  arch/x86/lib/memset_64.S  | 4 +---
-> >  3 files changed, 3 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
-> > index 037faac46b0c..1e299ac73c86 100644
-> > --- a/arch/x86/lib/memcpy_64.S
-> > +++ b/arch/x86/lib/memcpy_64.S
-> > @@ -16,8 +16,6 @@
-> >   * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
-> >   */
-> >
-> > -.weak memcpy
-> > -
-> >  /*
-> >   * memcpy - Copy a memory block.
-> >   *
-> > @@ -30,7 +28,7 @@
-> >   * rax original destination
-> >   */
-> >  SYM_FUNC_START_ALIAS(__memcpy)
-> > -SYM_FUNC_START_LOCAL(memcpy)
-> > +SYM_FUNC_START_WEAK(memcpy)
-> >       ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
-> >                     "jmp memcpy_erms", X86_FEATURE_ERMS
-> >
-> > diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
-> > index 7ff00ea64e4f..41902fe8b859 100644
-> > --- a/arch/x86/lib/memmove_64.S
-> > +++ b/arch/x86/lib/memmove_64.S
-> > @@ -24,9 +24,7 @@
-> >   * Output:
-> >   * rax: dest
-> >   */
-> > -.weak memmove
-> > -
-> > -SYM_FUNC_START_ALIAS(memmove)
-> > +SYM_FUNC_START_WEAK(memmove)
-> >  SYM_FUNC_START(__memmove)
-> >
-> >       mov %rdi, %rax
-> > diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
-> > index 9ff15ee404a4..0bfd26e4ca9e 100644
-> > --- a/arch/x86/lib/memset_64.S
-> > +++ b/arch/x86/lib/memset_64.S
-> > @@ -6,8 +6,6 @@
-> >  #include <asm/alternative-asm.h>
-> >  #include <asm/export.h>
-> >
-> > -.weak memset
-> > -
-> >  /*
-> >   * ISO C memset - set a memory block to a byte value. This function uses fast
-> >   * string to get better performance than the original function. The code is
-> > @@ -19,7 +17,7 @@
-> >   *
-> >   * rax   original destination
-> >   */
-> > -SYM_FUNC_START_ALIAS(memset)
-> > +SYM_FUNC_START_WEAK(memset)
-> >  SYM_FUNC_START(__memset)
-> >       /*
-> >        * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
-> > --
+# tty: serial: fsl_lpuart: add LS1028A support
+git cherry-pick -xs c2f448cff22a7ed09281f02bde084b0ce3bc61ed # this is depe=
+ndency
+# tty: serial: fsl_lpuart: LS1021A has a FIFO size of 16 words, like LS1028=
+A
+git cherry-pick -xs c97f2a6fb3dfbfbbc88edc8ea62ef2b944e18849 # this is the =
+one that failed
 
--- 
+Both sha1sums can be found in Linus' tree.
+
+I have tested these 2 cherry-picks on top of linux-5.4.y on my board,
+and it works just fine.
+
+I was a bit concerned about backporting the LS1028A patch as a
+dependency for my fix, but I have consulted
+Documentation/process/stable-kernel-rules.rst and it says:
+
+ - New device IDs and quirks are also accepted.
+
+That patch also satisfies the following:
+
+ - It must be obviously correct and tested. <- check
+ - It cannot be bigger than 100 lines, with context. <- check
+
+The patch does not apply because the fixes were discovered backwards.
+LS1021A and LS1028A should be compatible with one another. However
+when bringing up the LS1028A, Michael found the LPUART to be broken,
+thought the LS1021A was working, and added the FIFO size quirk as a
+LS1028A 'feature'.
+
 Thanks,
-~Nick Desaulniers
+-Vladimir=
