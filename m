@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB79D2A519F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E27E2A51A7
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730522AbgKCUmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:42:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S1730601AbgKCUmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:42:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729836AbgKCUme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:42:34 -0500
+        id S1730598AbgKCUmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:42:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DF5B2224E;
-        Tue,  3 Nov 2020 20:42:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 742622224E;
+        Tue,  3 Nov 2020 20:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436154;
-        bh=o42vWG1HxjAooytOmCDYjfoCEEVvkVhzz7XZDHz1kl0=;
+        s=default; t=1604436171;
+        bh=p8r48/0O0bFuRYbXSO15mbWvfUOyDkFCWdH+Jt+GNHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQw6cAeiZCMkZCrUTRO7zEMM5KWJK1oaU4yoetvFbAumCJc8lzw1/vcLgLshBHUth
-         09PDfenFlbBN7Kmr++oLyA0oZOi+eobZNYGiCTy2UqQSmaAkUa4Imqb638bgkH6VZB
-         zAsDf9tvYJkp5YxAC4jL1JI+2W9osCI+9tZVp1NA=
+        b=2jU70/jN6bfzQBfcxCp9GT2a8oOQjZYjPCmPDjYC0zbFUzimRkk25jAuM8PDo/v18
+         I75TK6ouv7qpcefX+tSuNDNsDTG1/74mSvjpuvL+AseYrzlRK9GMU1hYRQJD02bpK1
+         r1Mz7FALqjFKAFwI4QzTQe7Gnbe3MTlwbt9gCD3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 126/391] ACPI: Add out of bounds and numa_off protections to pxm_to_node()
-Date:   Tue,  3 Nov 2020 21:32:57 +0100
-Message-Id: <20201103203355.329239448@linuxfoundation.org>
+Subject: [PATCH 5.9 132/391] drivers/net/wan/hdlc_fr: Correctly handle special skb->protocol values
+Date:   Tue,  3 Nov 2020 21:33:03 +0100
+Message-Id: <20201103203355.735118010@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -46,40 +44,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 8a3decac087aa897df5af04358c2089e52e70ac4 ]
+[ Upstream commit 8306266c1d51aac9aa7aa907fe99032a58c6382c ]
 
-The function should check the validity of the pxm value before using
-it to index the pxm_to_node_map[] array.
+The fr_hard_header function is used to prepend the header to skbs before
+transmission. It is used in 3 situations:
+1) When a control packet is generated internally in this driver;
+2) When a user sends an skb on an Ethernet-emulating PVC device;
+3) When a user sends an skb on a normal PVC device.
 
-Whilst hardening this code may be good in general, the main intent
-here is to enable following patches that use this function to replace
-acpi_map_pxm_to_node() for non SRAT usecases which should return
-NO_NUMA_NODE for PXM entries not matching with those in SRAT.
+These 3 situations need to be handled differently by fr_hard_header.
+Different headers should be prepended to the skb in different situations.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Barry Song <song.bao.hua@hisilicon.com>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Currently fr_hard_header distinguishes these 3 situations using
+skb->protocol. For situation 1 and 2, a special skb->protocol value
+will be assigned before calling fr_hard_header, so that it can recognize
+these 2 situations. All skb->protocol values other than these special ones
+are treated by fr_hard_header as situation 3.
+
+However, it is possible that in situation 3, the user sends an skb with
+one of the special skb->protocol values. In this case, fr_hard_header
+would incorrectly treat it as situation 1 or 2.
+
+This patch tries to solve this issue by using skb->dev instead of
+skb->protocol to distinguish between these 3 situations. For situation
+1, skb->dev would be NULL; for situation 2, skb->dev->type would be
+ARPHRD_ETHER; and for situation 3, skb->dev->type would be ARPHRD_DLCI.
+
+This way fr_hard_header would be able to distinguish these 3 situations
+correctly regardless what skb->protocol value the user tries to use in
+situation 3.
+
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/numa/srat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/hdlc_fr.c | 98 ++++++++++++++++++++-------------------
+ 1 file changed, 51 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/acpi/numa/srat.c b/drivers/acpi/numa/srat.c
-index 15bbaab8500b9..1fb486f46ee20 100644
---- a/drivers/acpi/numa/srat.c
-+++ b/drivers/acpi/numa/srat.c
-@@ -31,7 +31,7 @@ int acpi_numa __initdata;
+diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
+index d6cfd51613ed8..3a44dad87602d 100644
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -273,63 +273,69 @@ static inline struct net_device **get_dev_p(struct pvc_device *pvc,
  
- int pxm_to_node(int pxm)
+ static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
  {
--	if (pxm < 0)
-+	if (pxm < 0 || pxm >= MAX_PXM_DOMAINS || numa_off)
- 		return NUMA_NO_NODE;
- 	return pxm_to_node_map[pxm];
- }
+-	u16 head_len;
+ 	struct sk_buff *skb = *skb_p;
+ 
+-	switch (skb->protocol) {
+-	case cpu_to_be16(NLPID_CCITT_ANSI_LMI):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_CCITT_ANSI_LMI;
+-		break;
+-
+-	case cpu_to_be16(NLPID_CISCO_LMI):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_CISCO_LMI;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_IP):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_IP;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_IPV6):
+-		head_len = 4;
+-		skb_push(skb, head_len);
+-		skb->data[3] = NLPID_IPV6;
+-		break;
+-
+-	case cpu_to_be16(ETH_P_802_3):
+-		head_len = 10;
+-		if (skb_headroom(skb) < head_len) {
+-			struct sk_buff *skb2 = skb_realloc_headroom(skb,
+-								    head_len);
++	if (!skb->dev) { /* Control packets */
++		switch (dlci) {
++		case LMI_CCITT_ANSI_DLCI:
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_CCITT_ANSI_LMI;
++			break;
++
++		case LMI_CISCO_DLCI:
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_CISCO_LMI;
++			break;
++
++		default:
++			return -EINVAL;
++		}
++
++	} else if (skb->dev->type == ARPHRD_DLCI) {
++		switch (skb->protocol) {
++		case htons(ETH_P_IP):
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_IP;
++			break;
++
++		case htons(ETH_P_IPV6):
++			skb_push(skb, 4);
++			skb->data[3] = NLPID_IPV6;
++			break;
++
++		default:
++			skb_push(skb, 10);
++			skb->data[3] = FR_PAD;
++			skb->data[4] = NLPID_SNAP;
++			/* OUI 00-00-00 indicates an Ethertype follows */
++			skb->data[5] = 0x00;
++			skb->data[6] = 0x00;
++			skb->data[7] = 0x00;
++			/* This should be an Ethertype: */
++			*(__be16 *)(skb->data + 8) = skb->protocol;
++		}
++
++	} else if (skb->dev->type == ARPHRD_ETHER) {
++		if (skb_headroom(skb) < 10) {
++			struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
+ 			if (!skb2)
+ 				return -ENOBUFS;
+ 			dev_kfree_skb(skb);
+ 			skb = *skb_p = skb2;
+ 		}
+-		skb_push(skb, head_len);
++		skb_push(skb, 10);
+ 		skb->data[3] = FR_PAD;
+ 		skb->data[4] = NLPID_SNAP;
+-		skb->data[5] = FR_PAD;
++		/* OUI 00-80-C2 stands for the 802.1 organization */
++		skb->data[5] = 0x00;
+ 		skb->data[6] = 0x80;
+ 		skb->data[7] = 0xC2;
++		/* PID 00-07 stands for Ethernet frames without FCS */
+ 		skb->data[8] = 0x00;
+-		skb->data[9] = 0x07; /* bridged Ethernet frame w/out FCS */
+-		break;
++		skb->data[9] = 0x07;
+ 
+-	default:
+-		head_len = 10;
+-		skb_push(skb, head_len);
+-		skb->data[3] = FR_PAD;
+-		skb->data[4] = NLPID_SNAP;
+-		skb->data[5] = FR_PAD;
+-		skb->data[6] = FR_PAD;
+-		skb->data[7] = FR_PAD;
+-		*(__be16*)(skb->data + 8) = skb->protocol;
++	} else {
++		return -EINVAL;
+ 	}
+ 
+ 	dlci_to_q922(skb->data, dlci);
+@@ -425,8 +431,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
+ 				skb_put(skb, pad);
+ 				memset(skb->data + len, 0, pad);
+ 			}
+-			skb->protocol = cpu_to_be16(ETH_P_802_3);
+ 		}
++		skb->dev = dev;
+ 		if (!fr_hard_header(&skb, pvc->dlci)) {
+ 			dev->stats.tx_bytes += skb->len;
+ 			dev->stats.tx_packets++;
+@@ -494,10 +500,8 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
+ 	memset(skb->data, 0, len);
+ 	skb_reserve(skb, 4);
+ 	if (lmi == LMI_CISCO) {
+-		skb->protocol = cpu_to_be16(NLPID_CISCO_LMI);
+ 		fr_hard_header(&skb, LMI_CISCO_DLCI);
+ 	} else {
+-		skb->protocol = cpu_to_be16(NLPID_CCITT_ANSI_LMI);
+ 		fr_hard_header(&skb, LMI_CCITT_ANSI_DLCI);
+ 	}
+ 	data = skb_tail_pointer(skb);
 -- 
 2.27.0
 
