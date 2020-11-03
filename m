@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E1D2A57E9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC2A2A57E5
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:46:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732391AbgKCVqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731953AbgKCVqs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Nov 2020 16:46:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46892 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731982AbgKCUvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:51:35 -0500
+        id S1729681AbgKCUvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE0720719;
-        Tue,  3 Nov 2020 20:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FE2C2053B;
+        Tue,  3 Nov 2020 20:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436694;
-        bh=1tj8u2Tmffw8pUz/nV4pYbMINdDUfPE18tCYNPuaUcE=;
+        s=default; t=1604436701;
+        bh=YK4UGkVlAKJJ1zhOJ5y5Gf6lqLDsBOOstiShcjhPBBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcWAILUiX6vZQ0xTYOfA417iwTwxiA90Bw99RerjlkZ4DUcjJmTgRLjuXsByysi5S
-         Iw2HE7SlHH9Y5psv14vDG8UzmyHSrMzlQIy9abDtsMb70dLDzgoLkhjXQW60Ww5AfB
-         jW7rvA+WaGoTuU0pnfbfTaMgWKFjwP4xIIkJMLWE=
+        b=LwpZOV5uYnFhLzdHM8Rwx0ySbigtMcr0qVG9M44RA5DQutZgYGuxvdkxPKIrjN5YO
+         PJBwinUdBoCO+4DVOtKob97d9je6YJHjhWARbou2uA6VROfSJv/seKe3I1Vh+g0kz7
+         ay7ssJRC1Sv40TE+Y/KF5SHifBLXGsVwVNY1fUoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 362/391] tty: make FONTX ioctl use the tty pointer they were actually passed
-Date:   Tue,  3 Nov 2020 21:36:53 +0100
-Message-Id: <20201103203411.569275318@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.9 365/391] hil/parisc: Disable HIL driver when it gets stuck
+Date:   Tue,  3 Nov 2020 21:36:56 +0100
+Message-Id: <20201103203411.775350674@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,167 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
+commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
 
-Some of the font tty ioctl's always used the current foreground VC for
-their operations.  Don't do that then.
+When starting a HP machine with HIL driver but without an HIL keyboard
+or HIL mouse attached, it may happen that data written to the HIL loop
+gets stuck (e.g. because the transaction queue is full).  Usually one
+will then have to reboot the machine because all you see is and endless
+output of:
+ Transaction add failed: transaction already queued?
 
-This fixes a data race on fg_console.
+In the higher layers hp_sdc_enqueue_transaction() is called to queued up
+a HIL packet. This function returns an error code, and this patch adds
+the necessary checks for this return code and disables the HIL driver if
+further packets can't be sent.
 
-Side note: both Michael Ellerman and Jiri Slaby point out that all these
-ioctls are deprecated, and should probably have been removed long ago,
-and everything seems to be using the KDFONTOP ioctl instead.
+Tested on a HP 730 and a HP 715/64 machine.
 
-In fact, Michael points out that it looks like busybox's loadfont
-program seems to have switched over to using KDFONTOP exactly _because_
-of this bug (ahem.. 12 years ago ;-).
-
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
+ drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
+ include/linux/hil_mlc.h          |    2 +-
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -485,7 +485,7 @@ static int vt_k_ioctl(struct tty_struct
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
+ static LIST_HEAD(hil_mlcs);
+ static DEFINE_RWLOCK(hil_mlcs_lock);
+ static struct timer_list	hil_mlcs_kicker;
+-static int			hil_mlcs_probe;
++static int			hil_mlcs_probe, hil_mlc_stop;
+ 
+ static void hil_mlcs_process(unsigned long unused);
+ static DECLARE_TASKLET_DISABLED_OLD(hil_mlcs_tasklet, hil_mlcs_process);
+@@ -702,9 +702,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 		if (!mlc->ostarted) {
+ 			mlc->ostarted = 1;
+ 			mlc->opacket = pack;
+-			mlc->out(mlc);
++			rc = mlc->out(mlc);
+ 			nextidx = HILSEN_DOZE;
+ 			write_unlock_irqrestore(&mlc->lock, flags);
++			if (rc) {
++				hil_mlc_stop = 1;
++				return 1;
++			}
+ 			break;
+ 		}
+ 		mlc->ostarted = 0;
+@@ -715,8 +719,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 
+ 	case HILSE_CTS:
+ 		write_lock_irqsave(&mlc->lock, flags);
+-		nextidx = mlc->cts(mlc) ? node->bad : node->good;
++		rc = mlc->cts(mlc);
++		nextidx = rc ? node->bad : node->good;
+ 		write_unlock_irqrestore(&mlc->lock, flags);
++		if (rc) {
++			hil_mlc_stop = 1;
++			return 1;
++		}
+ 		break;
+ 
+ 	default:
+@@ -780,6 +789,12 @@ static void hil_mlcs_process(unsigned lo
+ 
+ static void hil_mlcs_timer(struct timer_list *unused)
+ {
++	if (hil_mlc_stop) {
++		/* could not send packet - stop immediately. */
++		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
++		return;
++	}
++
+ 	hil_mlcs_probe = 1;
+ 	tasklet_schedule(&hil_mlcs_tasklet);
+ 	/* Re-insert the periodic task. */
+--- a/drivers/input/serio/hp_sdc_mlc.c
++++ b/drivers/input/serio/hp_sdc_mlc.c
+@@ -210,7 +210,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
+ 	priv->tseq[2] = 1;
+ 	priv->tseq[3] = 0;
+ 	priv->tseq[4] = 0;
+-	__hp_sdc_enqueue_transaction(&priv->trans);
++	return __hp_sdc_enqueue_transaction(&priv->trans);
+  busy:
+ 	return 1;
+  done:
+@@ -219,7 +219,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
  	return 0;
  }
  
--static inline int do_fontx_ioctl(int cmd,
-+static inline int do_fontx_ioctl(struct vc_data *vc, int cmd,
- 		struct consolefontdesc __user *user_cfd,
- 		struct console_font_op *op)
+-static void hp_sdc_mlc_out(hil_mlc *mlc)
++static int hp_sdc_mlc_out(hil_mlc *mlc)
  {
-@@ -503,15 +503,16 @@ static inline int do_fontx_ioctl(int cmd
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		return con_font_op(vc_cons[fg_console].d, op);
--	case GIO_FONTX: {
-+		return con_font_op(vc, op);
-+
-+	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
- 		op->width = 8;
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -519,12 +520,11 @@ static inline int do_fontx_ioctl(int cmd
- 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
- 			return -EFAULT;
- 		return 0;
--		}
+ 	struct hp_sdc_mlc_priv_s *priv;
+ 
+@@ -234,7 +234,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+  do_data:
+ 	if (priv->emtestmode) {
+ 		up(&mlc->osem);
+-		return;
++		return 0;
  	}
- 	return -EINVAL;
+ 	/* Shouldn't be sending commands when loop may be busy */
+ 	BUG_ON(down_trylock(&mlc->csem));
+@@ -296,7 +296,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+ 		BUG_ON(down_trylock(&mlc->csem));
+ 	}
+  enqueue:
+-	hp_sdc_enqueue_transaction(&priv->trans);
++	return hp_sdc_enqueue_transaction(&priv->trans);
  }
  
--static int vt_io_fontreset(struct console_font_op *op)
-+static int vt_io_fontreset(struct vc_data *vc, struct console_font_op *op)
- {
- 	int ret;
+ static int __init hp_sdc_mlc_init(void)
+--- a/include/linux/hil_mlc.h
++++ b/include/linux/hil_mlc.h
+@@ -103,7 +103,7 @@ struct hilse_node {
  
-@@ -538,12 +538,12 @@ static int vt_io_fontreset(struct consol
+ /* Methods for back-end drivers, e.g. hp_sdc_mlc */
+ typedef int	(hil_mlc_cts) (hil_mlc *mlc);
+-typedef void	(hil_mlc_out) (hil_mlc *mlc);
++typedef int	(hil_mlc_out) (hil_mlc *mlc);
+ typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
  
- 	op->op = KD_FONT_OP_SET_DEFAULT;
- 	op->data = NULL;
--	ret = con_font_op(vc_cons[fg_console].d, op);
-+	ret = con_font_op(vc, op);
- 	if (ret)
- 		return ret;
- 
- 	console_lock();
--	con_set_default_unimap(vc_cons[fg_console].d);
-+	con_set_default_unimap(vc);
- 	console_unlock();
- 
- 	return 0;
-@@ -585,7 +585,7 @@ static int vt_io_ioctl(struct vc_data *v
- 		op.height = 0;
- 		op.charcount = 256;
- 		op.data = up;
--		return con_font_op(vc_cons[fg_console].d, &op);
-+		return con_font_op(vc, &op);
- 
- 	case GIO_FONT:
- 		op.op = KD_FONT_OP_GET;
-@@ -594,7 +594,7 @@ static int vt_io_ioctl(struct vc_data *v
- 		op.height = 32;
- 		op.charcount = 256;
- 		op.data = up;
--		return con_font_op(vc_cons[fg_console].d, &op);
-+		return con_font_op(vc, &op);
- 
- 	case PIO_CMAP:
-                 if (!perm)
-@@ -610,13 +610,13 @@ static int vt_io_ioctl(struct vc_data *v
- 
- 		fallthrough;
- 	case GIO_FONTX:
--		return do_fontx_ioctl(cmd, up, &op);
-+		return do_fontx_ioctl(vc, cmd, up, &op);
- 
- 	case PIO_FONTRESET:
- 		if (!perm)
- 			return -EPERM;
- 
--		return vt_io_fontreset(&op);
-+		return vt_io_fontreset(vc, &op);
- 
- 	case PIO_SCRNMAP:
- 		if (!perm)
-@@ -1067,8 +1067,9 @@ struct compat_consolefontdesc {
- };
- 
- static inline int
--compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
--			 int perm, struct console_font_op *op)
-+compat_fontx_ioctl(struct vc_data *vc, int cmd,
-+		   struct compat_consolefontdesc __user *user_cfd,
-+		   int perm, struct console_font_op *op)
- {
- 	struct compat_consolefontdesc cfdarg;
- 	int i;
-@@ -1086,7 +1087,8 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		return con_font_op(vc_cons[fg_console].d, op);
-+		return con_font_op(vc, op);
-+
- 	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
-@@ -1094,7 +1096,7 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -1184,7 +1186,7 @@ long vt_compat_ioctl(struct tty_struct *
- 	 */
- 	case PIO_FONTX:
- 	case GIO_FONTX:
--		return compat_fontx_ioctl(cmd, up, perm, &op);
-+		return compat_fontx_ioctl(vc, cmd, up, perm, &op);
- 
- 	case KDFONTOP:
- 		return compat_kdfontop_ioctl(up, perm, &op, vc);
+ struct hil_mlc_devinfo {
 
 
