@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE8AE2A566B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 410772A54D4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:14:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733253AbgKCV1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:27:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36398 "EHLO mail.kernel.org"
+        id S2388721AbgKCVOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733248AbgKCVAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:32 -0500
+        id S2389049AbgKCVMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:12:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C22A2223AC;
-        Tue,  3 Nov 2020 21:00:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6F6C20757;
+        Tue,  3 Nov 2020 21:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437232;
-        bh=NavFW0Ox8lxbu+L5f9MBEaVtZF5CMq6KSGLv8Y5GzUQ=;
+        s=default; t=1604437958;
+        bh=6yNpOKm4tr/TBozL8nohTeanZGCz0M3PhgGIBz13FYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlEYI0JouIfH2CaFXK/IAi8+I7JA+Zc4xw6nvj1iO/AeiwEP5TSUbFgHNnctTw09d
-         GfgVn2YGDUvB8g+fQPKLLG5iwblwVsYJOR1mwQhZCANJE4bfMQLk/x5X4hO2++zdHA
-         hS3cUN0Ax6Yv0V6Wat8OPEoXzU/YNVkJk5vFGcpc=
+        b=cJrYc5BkacOzhq1TeUfRbqrLPUAw0BrKN2Mq7FN99dUR0gRO0JBvBNymUd+zpIOWQ
+         bNO/ITAJUpSVywR8Kc0liU4qyPZg4Pcfpv8BQ+FU6xKiqtqYFrlMBk7njuCuxgAFeS
+         R3UQDmy0zKKiCBjnjVrnpTnEGcLsmHR3PfjpXiKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Constantine Sapuntzakis <costa@purestorage.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 195/214] ext4: fix superblock checksum calculation race
+        stable@vger.kernel.org, Ashish Sangwan <ashishsangwan2@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.14 066/125] NFS: fix nfs_path in case of a rename retry
 Date:   Tue,  3 Nov 2020 21:37:23 +0100
-Message-Id: <20201103203308.925079731@linuxfoundation.org>
+Message-Id: <20201103203206.428932165@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Constantine Sapuntzakis <costa@purestorage.com>
+From: Ashish Sangwan <ashishsangwan2@gmail.com>
 
-commit acaa532687cdc3a03757defafece9c27aa667546 upstream.
+commit 247db73560bc3e5aef6db50c443c3c0db115bc93 upstream.
 
-The race condition could cause the persisted superblock checksum
-to not match the contents of the superblock, causing the
-superblock to be considered corrupt.
+We are generating incorrect path in case of rename retry because
+we are restarting from wrong dentry. We should restart from the
+dentry which was received in the call to nfs_path.
 
-An example of the race follows.  A first thread is interrupted in the
-middle of a checksum calculation. Then, another thread changes the
-superblock, calculates a new checksum, and sets it. Then, the first
-thread resumes and sets the checksum based on the older superblock.
-
-To fix, serialize the superblock checksum calculation using the buffer
-header lock. While a spinlock is sufficient, the buffer header is
-already there and there is precedent for locking it (e.g. in
-ext4_commit_super).
-
-Tested the patch by booting up a kernel with the patch, creating
-a filesystem and some files (including some orphans), and then
-unmounting and remounting the file system.
-
-Cc: stable@kernel.org
-Signed-off-by: Constantine Sapuntzakis <costa@purestorage.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Suggested-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200914161014.22275-1-costa@purestorage.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+CC: stable@vger.kernel.org
+Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/nfs/namespace.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -201,7 +201,18 @@ void ext4_superblock_csum_set(struct sup
- 	if (!ext4_has_metadata_csum(sb))
- 		return;
+--- a/fs/nfs/namespace.c
++++ b/fs/nfs/namespace.c
+@@ -30,9 +30,9 @@ int nfs_mountpoint_expiry_timeout = 500
+ /*
+  * nfs_path - reconstruct the path given an arbitrary dentry
+  * @base - used to return pointer to the end of devname part of path
+- * @dentry - pointer to dentry
++ * @dentry_in - pointer to dentry
+  * @buffer - result buffer
+- * @buflen - length of buffer
++ * @buflen_in - length of buffer
+  * @flags - options (see below)
+  *
+  * Helper function for constructing the server pathname
+@@ -47,15 +47,19 @@ int nfs_mountpoint_expiry_timeout = 500
+  *		       the original device (export) name
+  *		       (if unset, the original name is returned verbatim)
+  */
+-char *nfs_path(char **p, struct dentry *dentry, char *buffer, ssize_t buflen,
+-	       unsigned flags)
++char *nfs_path(char **p, struct dentry *dentry_in, char *buffer,
++	       ssize_t buflen_in, unsigned flags)
+ {
+ 	char *end;
+ 	int namelen;
+ 	unsigned seq;
+ 	const char *base;
++	struct dentry *dentry;
++	ssize_t buflen;
  
-+	/*
-+	 * Locking the superblock prevents the scenario
-+	 * where:
-+	 *  1) a first thread pauses during checksum calculation.
-+	 *  2) a second thread updates the superblock, recalculates
-+	 *     the checksum, and updates s_checksum
-+	 *  3) the first thread resumes and finishes its checksum calculation
-+	 *     and updates s_checksum with a potentially stale or torn value.
-+	 */
-+	lock_buffer(EXT4_SB(sb)->s_sbh);
- 	es->s_checksum = ext4_superblock_csum(sb, es);
-+	unlock_buffer(EXT4_SB(sb)->s_sbh);
- }
- 
- void *ext4_kvmalloc(size_t size, gfp_t flags)
+ rename_retry:
++	buflen = buflen_in;
++	dentry = dentry_in;
+ 	end = buffer+buflen;
+ 	*--end = '\0';
+ 	buflen--;
 
 
