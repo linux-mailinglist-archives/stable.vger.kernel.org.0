@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E046D2A5796
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5232A58B4
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732506AbgKCUyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:54:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52686 "EHLO mail.kernel.org"
+        id S1730971AbgKCVyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:54:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732516AbgKCUyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:54:02 -0500
+        id S1731047AbgKCUpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:45:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D62A9223BD;
-        Tue,  3 Nov 2020 20:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1782D22409;
+        Tue,  3 Nov 2020 20:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436841;
-        bh=Fpkin+zymCeOF5c1IWGmzEMwUad6gqexZKadYoQi/pY=;
+        s=default; t=1604436332;
+        bh=4IzX0AmbdJrqIjma/xtfUvtpl5nJcVe7Sv6UL/DIjNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUMbEDzwqSNIEqIhJGQagAL1lZUKT9er6OXeh/l8UhrEQMDUwfAMBd48AfY0678NG
-         +7e+kfPF8VyuAQ7In8ECMX1SRYj2EcJneYueY8I4dNDVD9ZxARmw1K0GqFj8yz3z5m
-         17vFrvl9IvWb6ym8ACoCP4y7Y7GfvzhQKL8nsJvY=
+        b=aPVvZYTe/YUqX9GjZz/tHqSSqrU6Bs1sD7SENe/dpVmWSJ8qH93ryQOMqNFpgvo3L
+         SyuN+kpTFu3U+92fPv1JvJ91qYRG71yY7U0dXsUimm6SHSweR2NVwqa3nx3DXerfuC
+         10gome8XvlhlRPhzulPBP/UpQxYsxWp1LczaTejk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 5.4 007/214] xen/scsiback: use lateeoi irq binding
+        stable@vger.kernel.org, Ashish Sangwan <ashishsangwan2@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.9 204/391] NFS: fix nfs_path in case of a rename retry
 Date:   Tue,  3 Nov 2020 21:34:15 +0100
-Message-Id: <20201103203250.291176523@linuxfoundation.org>
+Message-Id: <20201103203400.660469300@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Ashish Sangwan <ashishsangwan2@gmail.com>
 
-commit 86991b6e7ea6c613b7692f65106076943449b6b7 upstream.
+commit 247db73560bc3e5aef6db50c443c3c0db115bc93 upstream.
 
-In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving scsifront use the lateeoi
-irq binding for scsiback and unmask the event channel only just before
-leaving the event handling function.
+We are generating incorrect path in case of rename retry because
+we are restarting from wrong dentry. We should restart from the
+dentry which was received in the call to nfs_path.
 
-In case of a ring protocol error don't issue an EOI in order to avoid
-the possibility to use that for producing an event storm. This at once
-will result in no further call of scsiback_irq_fn(), so the ring_error
-struct member can be dropped and scsiback_do_cmd_fn() can signal the
-protocol error via a negative return value.
-
-This is part of XSA-332.
-
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xen-scsiback.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ fs/nfs/namespace.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/xen/xen-scsiback.c
-+++ b/drivers/xen/xen-scsiback.c
-@@ -91,7 +91,6 @@ struct vscsibk_info {
- 	unsigned int irq;
- 
- 	struct vscsiif_back_ring ring;
--	int ring_error;
- 
- 	spinlock_t ring_lock;
- 	atomic_t nr_unreplied_reqs;
-@@ -722,7 +721,8 @@ static struct vscsibk_pend *prepare_pend
- 	return pending_req;
- }
- 
--static int scsiback_do_cmd_fn(struct vscsibk_info *info)
-+static int scsiback_do_cmd_fn(struct vscsibk_info *info,
-+			      unsigned int *eoi_flags)
+--- a/fs/nfs/namespace.c
++++ b/fs/nfs/namespace.c
+@@ -32,9 +32,9 @@ int nfs_mountpoint_expiry_timeout = 500
+ /*
+  * nfs_path - reconstruct the path given an arbitrary dentry
+  * @base - used to return pointer to the end of devname part of path
+- * @dentry - pointer to dentry
++ * @dentry_in - pointer to dentry
+  * @buffer - result buffer
+- * @buflen - length of buffer
++ * @buflen_in - length of buffer
+  * @flags - options (see below)
+  *
+  * Helper function for constructing the server pathname
+@@ -49,15 +49,19 @@ int nfs_mountpoint_expiry_timeout = 500
+  *		       the original device (export) name
+  *		       (if unset, the original name is returned verbatim)
+  */
+-char *nfs_path(char **p, struct dentry *dentry, char *buffer, ssize_t buflen,
+-	       unsigned flags)
++char *nfs_path(char **p, struct dentry *dentry_in, char *buffer,
++	       ssize_t buflen_in, unsigned flags)
  {
- 	struct vscsiif_back_ring *ring = &info->ring;
- 	struct vscsiif_request ring_req;
-@@ -739,11 +739,12 @@ static int scsiback_do_cmd_fn(struct vsc
- 		rc = ring->rsp_prod_pvt;
- 		pr_warn("Dom%d provided bogus ring requests (%#x - %#x = %u). Halting ring processing\n",
- 			   info->domid, rp, rc, rp - rc);
--		info->ring_error = 1;
--		return 0;
-+		return -EINVAL;
- 	}
+ 	char *end;
+ 	int namelen;
+ 	unsigned seq;
+ 	const char *base;
++	struct dentry *dentry;
++	ssize_t buflen;
  
- 	while ((rc != rp)) {
-+		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
-+
- 		if (RING_REQUEST_CONS_OVERFLOW(ring, rc))
- 			break;
- 
-@@ -802,13 +803,16 @@ static int scsiback_do_cmd_fn(struct vsc
- static irqreturn_t scsiback_irq_fn(int irq, void *dev_id)
- {
- 	struct vscsibk_info *info = dev_id;
-+	int rc;
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
--	if (info->ring_error)
--		return IRQ_HANDLED;
--
--	while (scsiback_do_cmd_fn(info))
-+	while ((rc = scsiback_do_cmd_fn(info, &eoi_flags)) > 0)
- 		cond_resched();
- 
-+	/* In case of a ring error we keep the event channel masked. */
-+	if (!rc)
-+		xen_irq_lateeoi(irq, eoi_flags);
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -829,7 +833,7 @@ static int scsiback_init_sring(struct vs
- 	sring = (struct vscsiif_sring *)area;
- 	BACK_RING_INIT(&info->ring, sring, PAGE_SIZE);
- 
--	err = bind_interdomain_evtchn_to_irq(info->domid, evtchn);
-+	err = bind_interdomain_evtchn_to_irq_lateeoi(info->domid, evtchn);
- 	if (err < 0)
- 		goto unmap_page;
- 
-@@ -1252,7 +1256,6 @@ static int scsiback_probe(struct xenbus_
- 
- 	info->domid = dev->otherend_id;
- 	spin_lock_init(&info->ring_lock);
--	info->ring_error = 0;
- 	atomic_set(&info->nr_unreplied_reqs, 0);
- 	init_waitqueue_head(&info->waiting_to_free);
- 	info->dev = dev;
+ rename_retry:
++	buflen = buflen_in;
++	dentry = dentry_in;
+ 	end = buffer+buflen;
+ 	*--end = '\0';
+ 	buflen--;
 
 
