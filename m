@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210902A56C9
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F552A5440
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731935AbgKCVao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:30:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60510 "EHLO mail.kernel.org"
+        id S2388515AbgKCVJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:09:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731057AbgKCU55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:57:57 -0500
+        id S2388503AbgKCVJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52A0B22226;
-        Tue,  3 Nov 2020 20:57:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BDF9205ED;
+        Tue,  3 Nov 2020 21:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437076;
-        bh=71ZehZ3+PO2T+WEyXk27DSKW9Y8mJr4AEfNFxJE53Ak=;
+        s=default; t=1604437765;
+        bh=CecjKyAvlWAKQTtQf0iP9h9WYD6bopjVvK0S3YdEjJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGvc9otgtd8sBVIBZjUykw1J5I0oIZhU/yroxTzqLL4KlOe2ObrtzzpFsNW7OlTVb
-         KhnTBNIdWd2cLmqDvXEaqZhRBo0/mJRsZjezYmGcPAlGEwJtlDh0xa8f04BcTtj2Os
-         HBIe7OT/OIpr3bAoyfqXL08HcWqOzd2Q/pxW7Fdw=
+        b=wmYNt2a1IaHFxJqla5fDLsBHDch2CgM/7JKGLAMGhD7NMrSe+2ldSk+/xsSpOmAyj
+         Hs0lapV2I5YaPcTU01r7zV5aAb/G7Oops7Zjlss1xufE1rYo6xegeZySmp0E3B5e92
+         r6p9v4123iAS/KL/mw1YGDmui4e+LXD8y7KRD6/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 136/214] usb: dwc3: gadget: Check MPS of the request length
+        stable@vger.kernel.org,
+        Stephane Eranian <stephane.eranian@google.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.14 007/125] arch/x86/amd/ibs: Fix re-arming IBS Fetch
 Date:   Tue,  3 Nov 2020 21:36:24 +0100
-Message-Id: <20201103203303.582071131@linuxfoundation.org>
+Message-Id: <20201103203157.802882607@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit ca3df3468eec87f6374662f7de425bc44c3810c1 upstream.
+commit 221bfce5ebbdf72ff08b3bf2510ae81058ee568b upstream.
 
-When preparing for SG, not all the entries are prepared at once. When
-resume, don't use the remaining request length to calculate for MPS
-alignment. Use the entire request->length to do that.
+Stephane Eranian found a bug in that IBS' current Fetch counter was not
+being reset when the driver would write the new value to clear it along
+with the enable bit set, and found that adding an MSR write that would
+first disable IBS Fetch would make IBS Fetch reset its current count.
 
+Indeed, the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54 - Sep 12,
+2019 states "The periodic fetch counter is set to IbsFetchCnt [...] when
+IbsFetchEn is changed from 0 to 1."
+
+Explicitly set IbsFetchEn to 0 and then to 1 when re-enabling IBS Fetch,
+so the driver properly resets the internal counter to 0 and IBS
+Fetch starts counting again.
+
+A family 15h machine tested does not have this problem, and the extra
+wrmsr is also not needed on Family 19h, so only do the extra wrmsr on
+families 16h through 18h.
+
+Reported-by: Stephane Eranian <stephane.eranian@google.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+[peterz: optimized]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Fixes: 5d187c0454ef ("usb: dwc3: gadget: Don't setup more than requested")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/amd/ibs.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1057,6 +1057,8 @@ static void dwc3_prepare_one_trb_sg(stru
- 	struct scatterlist *s;
- 	int		i;
- 	unsigned int length = req->request.length;
-+	unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
-+	unsigned int rem = length % maxp;
- 	unsigned int remaining = req->request.num_mapped_sgs
- 		- req->num_queued_sgs;
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -89,6 +89,7 @@ struct perf_ibs {
+ 	u64				max_period;
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
++	unsigned int			fetch_count_reset_broken : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
  
-@@ -1068,8 +1070,6 @@ static void dwc3_prepare_one_trb_sg(stru
- 		length -= sg_dma_len(s);
+ 	struct attribute		**format_attrs;
+@@ -375,7 +376,12 @@ perf_ibs_event_update(struct perf_ibs *p
+ static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
+ 					 struct hw_perf_event *hwc, u64 config)
+ {
+-	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
++	u64 tmp = hwc->config | config;
++
++	if (perf_ibs->fetch_count_reset_broken)
++		wrmsrl(hwc->config_base, tmp & ~perf_ibs->enable_mask);
++
++	wrmsrl(hwc->config_base, tmp | perf_ibs->enable_mask);
+ }
  
- 	for_each_sg(sg, s, remaining, i) {
--		unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
--		unsigned int rem = length % maxp;
- 		unsigned int trb_length;
- 		unsigned chain = true;
+ /*
+@@ -744,6 +750,13 @@ static __init void perf_event_ibs_init(v
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
  
++	/*
++	 * Some chips fail to reset the fetch count when it is written; instead
++	 * they need a 0-1 transition of IbsFetchEn.
++	 */
++	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
++		perf_ibs_fetch.fetch_count_reset_broken = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
 
 
