@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDCD2A5242
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 700372A530A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:56:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730562AbgKCUsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:48:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40006 "EHLO mail.kernel.org"
+        id S1730304AbgKCUzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:55:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731483AbgKCUs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:28 -0500
+        id S1732087AbgKCUzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E4AB20719;
-        Tue,  3 Nov 2020 20:48:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFC3A223AC;
+        Tue,  3 Nov 2020 20:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436507;
-        bh=u9Seep/Tu1jtztVWq+HFXRLLM97VEj/CmNJCs0RsdZk=;
+        s=default; t=1604436954;
+        bh=EQVGEy6CkB7Wb8PJHdFwy+HAguGKKloyjSxavWVl7r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03KCb9UjnesCjvoeZGT9q9wU9dmTMCCOZ9ukiKBZR8O1tywbncwcjQ5PdFL1Dr0Es
-         mE5RPkzLiw52tRICw/VstqwHGaSksVSPu6UkxAZXnCuJTW1uJNF57s5G/NN/Va4oIU
-         4XL9jfAyR6r+Xa7AEChVUKFTzOBNZ9D6PDj8SNWI=
+        b=v2Ux7fzLXK+zq7rNL0OEaqOhowyKryZYE+sQuU0aKZeEZuBEI5/uGGFAL1QUVABdr
+         0vuqxPELDq3l+KxQcgGAFn5J5I4nSjNn8wlwZVL0rvOtle554qHamoR1fS04f3DWid
+         XgUZ7x4CVcFvyLI31KXwALGSrY0QUJTIPq3DndJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>, bpf@vger.kernel.org,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.9 280/391] rcu-tasks: Fix grace-period/unlock race in RCU Tasks Trace
-Date:   Tue,  3 Nov 2020 21:35:31 +0100
-Message-Id: <20201103203405.928522527@linuxfoundation.org>
+        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
+        Andrew Price <anprice@redhat.com>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/214] gfs2: add validation checks for size of superblock
+Date:   Tue,  3 Nov 2020 21:35:32 +0100
+Message-Id: <20201103203258.219187193@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit ba3a86e47232ad9f76160929f33ac9c64e4d0567 upstream.
+[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
 
-The more intense grace-period processing resulting from the 50x RCU
-Tasks Trace grace-period speedups exposed the following race condition:
+In gfs2_check_sb(), no validation checks are performed with regards to
+the size of the superblock.
+syzkaller detected a slab-out-of-bounds bug that was primarily caused
+because the block size for a superblock was set to zero.
+A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
+Performing validation checks and ensuring that the size of the superblock
+is valid fixes this bug.
 
-o	Task A running on CPU 0 executes rcu_read_lock_trace(),
-	entering a read-side critical section.
-
-o	When Task A eventually invokes rcu_read_unlock_trace()
-	to exit its read-side critical section, this function
-	notes that the ->trc_reader_special.s flag is zero and
-	and therefore invoke wil set ->trc_reader_nesting to zero
-	using WRITE_ONCE().  But before that happens...
-
-o	The RCU Tasks Trace grace-period kthread running on some other
-	CPU interrogates Task A, but this fails because this task is
-	currently running.  This kthread therefore sends an IPI to CPU 0.
-
-o	CPU 0 receives the IPI, and thus invokes trc_read_check_handler().
-	Because Task A has not yet cleared its ->trc_reader_nesting
-	counter, this function sees that Task A is still within its
-	read-side critical section.  This function therefore sets the
-	->trc_reader_nesting.b.need_qs flag, AKA the .need_qs flag.
-
-	Except that Task A has already checked the .need_qs flag, which
-	is part of the ->trc_reader_special.s flag.  The .need_qs flag
-	therefore remains set until Task A's next rcu_read_unlock_trace().
-
-o	Task A now invokes synchronize_rcu_tasks_trace(), which cannot
-	start a new grace period until the current grace period completes.
-	And thus cannot return until after that time.
-
-	But Task A's .need_qs flag is still set, which prevents the current
-	grace period from completing.  And because Task A is blocked, it
-	will never execute rcu_read_unlock_trace() until its call to
-	synchronize_rcu_tasks_trace() returns.
-
-	We are therefore deadlocked.
-
-This race is improbable, but 80 hours of rcutorture made it happen twice.
-The race was possible before the grace-period speedup, but roughly 50x
-less probable.  Several thousand hours of rcutorture would have been
-necessary to have a reasonable chance of making this happen before this
-50x speedup.
-
-This commit therefore eliminates this deadlock by setting
-->trc_reader_nesting to a large negative number before checking the
-.need_qs and zeroing (or decrementing with respect to its initial
-value) ->trc_reader_nesting.  For its part, the IPI handler's
-trc_read_check_handler() function adds a check for negative values,
-deferring evaluation of the task in this case.  Taken together, these
-changes avoid this deadlock scenario.
-
-Fixes: 276c410448db ("rcu-tasks: Split ->trc_reader_need_end")
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: <bpf@vger.kernel.org>
-Cc: <stable@vger.kernel.org> # 5.7.x
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
+Suggested-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+[Minor code reordering.]
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate_trace.h |    4 ++++
- kernel/rcu/tasks.h             |    6 ++++++
- 2 files changed, 10 insertions(+)
+ fs/gfs2/ops_fstype.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/include/linux/rcupdate_trace.h
-+++ b/include/linux/rcupdate_trace.h
-@@ -50,6 +50,7 @@ static inline void rcu_read_lock_trace(v
- 	struct task_struct *t = current;
- 
- 	WRITE_ONCE(t->trc_reader_nesting, READ_ONCE(t->trc_reader_nesting) + 1);
-+	barrier();
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB) &&
- 	    t->trc_reader_special.b.need_mb)
- 		smp_mb(); // Pairs with update-side barriers
-@@ -72,6 +73,9 @@ static inline void rcu_read_unlock_trace
- 
- 	rcu_lock_release(&rcu_trace_lock_map);
- 	nesting = READ_ONCE(t->trc_reader_nesting) - 1;
-+	barrier(); // Critical section before disabling.
-+	// Disable IPI-based setting of .need_qs.
-+	WRITE_ONCE(t->trc_reader_nesting, INT_MIN);
- 	if (likely(!READ_ONCE(t->trc_reader_special.s)) || nesting) {
- 		WRITE_ONCE(t->trc_reader_nesting, nesting);
- 		return;  // We assume shallow reader nesting.
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -821,6 +821,12 @@ static void trc_read_check_handler(void
- 		WRITE_ONCE(t->trc_reader_checked, true);
- 		goto reset_ipi;
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index 338666a97fff6..29b27d769860c 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -169,15 +169,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
+ 		return -EINVAL;
  	}
-+	// If we are racing with an rcu_read_unlock_trace(), try again later.
-+	if (unlikely(t->trc_reader_nesting < 0)) {
-+		if (WARN_ON_ONCE(atomic_dec_and_test(&trc_n_readers_need_end)))
-+			wake_up(&trc_wait);
-+		goto reset_ipi;
-+	}
- 	WRITE_ONCE(t->trc_reader_checked, true);
  
- 	// Get here if the task is in a read-side critical section.  Set
+-	/*  If format numbers match exactly, we're done.  */
+-
+-	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
+-	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
+-		return 0;
++	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
++	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
++		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++		return -EINVAL;
++	}
+ 
+-	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
++	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
++	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
++		pr_warn("Invalid superblock size\n");
++		return -EINVAL;
++	}
+ 
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ static void end_bio_io_page(struct bio *bio)
+-- 
+2.27.0
+
 
 
