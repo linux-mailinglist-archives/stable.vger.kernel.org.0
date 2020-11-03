@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F22D2A588D
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:53:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 196DC2A588F
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731167AbgKCUqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:46:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35452 "EHLO mail.kernel.org"
+        id S1731161AbgKCUqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:46:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730575AbgKCUqQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:46:16 -0500
+        id S1731182AbgKCUqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:46:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B7DC223EA;
-        Tue,  3 Nov 2020 20:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2DE8206F9;
+        Tue,  3 Nov 2020 20:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436375;
-        bh=GvYhnV1FHtvFNjREAgiYTGTSeLvsO5aoJbmCfj2vzwU=;
+        s=default; t=1604436380;
+        bh=Tw1fXgs+U2aGtftqhsnQFWkOzgkK5wWe3iFmQRB4q+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvZPoRMKWNjI+cxCi67UE3E80Ru5JHQrqLjYCURLaiOudwaTSMynsuCZhEwC1dzcO
-         dEiryahhCx9iGmgMnjRXTdALstmGWZ1O6DMFLXzqYoqOhaLfSU9c4IYOMTLt8dMOLR
-         gxQuPiBzS13xPq243NywDjsytNXps3E/FtswD0mc=
+        b=JBJVwjy9B1QyPFa1qyoGOeYjktWY2m/KFplQXBc46JLevM4nLVfodSH5Pvj+jp+1z
+         huJt/ssZiPNVFAcF5AppQ+9vRwdh7+hZlYB6YvDxyAVPzEcVt+wJhIdW9nDqWJ6rUy
+         9ZKB0keVpnJP//VIjuvv3HAcATxJRoNfHWs8A0S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KoWei Sung <winders@amazon.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.9 185/391] md/raid5: fix oops during stripe resizing
-Date:   Tue,  3 Nov 2020 21:33:56 +0100
-Message-Id: <20201103203359.368162448@linuxfoundation.org>
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.9 187/391] mmc: sdhci-acpi: AMDI0040: Set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+Date:   Tue,  3 Nov 2020 21:33:58 +0100
+Message-Id: <20201103203359.506340102@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -42,75 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-commit b44c018cdf748b96b676ba09fdbc5b34fc443ada upstream.
+commit f23cc3ba491af77395cea3f9d51204398729f26b upstream.
 
-KoWei reported crash during raid5 reshape:
+This change fixes HS400 tuning for devices with invalid presets.
 
-[ 1032.252932] Oops: 0002 [#1] SMP PTI
-[...]
-[ 1032.252943] RIP: 0010:memcpy_erms+0x6/0x10
-[...]
-[ 1032.252947] RSP: 0018:ffffba1ac0c03b78 EFLAGS: 00010286
-[ 1032.252949] RAX: 0000784ac0000000 RBX: ffff91bec3d09740 RCX: 0000000000001000
-[ 1032.252951] RDX: 0000000000001000 RSI: ffff91be6781c000 RDI: 0000784ac0000000
-[ 1032.252953] RBP: ffffba1ac0c03bd8 R08: 0000000000001000 R09: ffffba1ac0c03bf8
-[ 1032.252954] R10: 0000000000000000 R11: 0000000000000000 R12: ffffba1ac0c03bf8
-[ 1032.252955] R13: 0000000000001000 R14: 0000000000000000 R15: 0000000000000000
-[ 1032.252958] FS:  0000000000000000(0000) GS:ffff91becf500000(0000) knlGS:0000000000000000
-[ 1032.252959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1032.252961] CR2: 0000784ac0000000 CR3: 000000031780a002 CR4: 00000000001606e0
-[ 1032.252962] Call Trace:
-[ 1032.252969]  ? async_memcpy+0x179/0x1000 [async_memcpy]
-[ 1032.252977]  ? raid5_release_stripe+0x8e/0x110 [raid456]
-[ 1032.252982]  handle_stripe_expansion+0x15a/0x1f0 [raid456]
-[ 1032.252988]  handle_stripe+0x592/0x1270 [raid456]
-[ 1032.252993]  handle_active_stripes.isra.0+0x3cb/0x5a0 [raid456]
-[ 1032.252999]  raid5d+0x35c/0x550 [raid456]
-[ 1032.253002]  ? schedule+0x42/0xb0
-[ 1032.253006]  ? schedule_timeout+0x10e/0x160
-[ 1032.253011]  md_thread+0x97/0x160
-[ 1032.253015]  ? wait_woken+0x80/0x80
-[ 1032.253019]  kthread+0x104/0x140
-[ 1032.253022]  ? md_start_sync+0x60/0x60
-[ 1032.253024]  ? kthread_park+0x90/0x90
-[ 1032.253027]  ret_from_fork+0x35/0x40
+SDHCI presets are not currently used for eMMC HS/HS200/HS400, but are
+used for DDR52. The HS400 retuning sequence is:
 
-This is because cache_size_mutex was unlocked too early in resize_stripes,
-which races with grow_one_stripe() that grow_one_stripe() allocates a
-stripe with wrong pool_size.
+    HS400->DDR52->HS->HS200->Perform Tuning->HS->HS400
 
-Fix this issue by unlocking cache_size_mutex after updating pool_size.
+This means that when HS400 tuning happens, we transition through DDR52
+for a very brief period. This causes presets to be enabled
+unintentionally and stay enabled when transitioning back to HS200 or
+HS400. Some firmware has invalid presets, so we end up with driver
+strengths that can cause I/O problems.
 
-Cc: <stable@vger.kernel.org> # v4.4+
-Reported-by: KoWei Sung <winders@amazon.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 34597a3f60b1 ("mmc: sdhci-acpi: Add support for ACPI HID of AMD Controller with HS400")
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200928154718.1.Icc21d4b2f354e83e26e57e270dc952f5fe0b0a40@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/raid5.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-acpi.c |   37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2429,8 +2429,6 @@ static int resize_stripes(struct r5conf
- 	} else
- 		err = -ENOMEM;
+--- a/drivers/mmc/host/sdhci-acpi.c
++++ b/drivers/mmc/host/sdhci-acpi.c
+@@ -662,6 +662,43 @@ static int sdhci_acpi_emmc_amd_probe_slo
+ 	    (host->mmc->caps & MMC_CAP_1_8V_DDR))
+ 		host->mmc->caps2 = MMC_CAP2_HS400_1_8V;
  
--	mutex_unlock(&conf->cache_size_mutex);
--
- 	conf->slab_cache = sc;
- 	conf->active_name = 1-conf->active_name;
- 
-@@ -2453,6 +2451,8 @@ static int resize_stripes(struct r5conf
- 
- 	if (!err)
- 		conf->pool_size = newsize;
-+	mutex_unlock(&conf->cache_size_mutex);
++	/*
++	 * There are two types of presets out in the wild:
++	 * 1) Default/broken presets.
++	 *    These presets have two sets of problems:
++	 *    a) The clock divisor for SDR12, SDR25, and SDR50 is too small.
++	 *       This results in clock frequencies that are 2x higher than
++	 *       acceptable. i.e., SDR12 = 25 MHz, SDR25 = 50 MHz, SDR50 =
++	 *       100 MHz.x
++	 *    b) The HS200 and HS400 driver strengths don't match.
++	 *       By default, the SDR104 preset register has a driver strength of
++	 *       A, but the (internal) HS400 preset register has a driver
++	 *       strength of B. As part of initializing HS400, HS200 tuning
++	 *       needs to be performed. Having different driver strengths
++	 *       between tuning and operation is wrong. It results in different
++	 *       rise/fall times that lead to incorrect sampling.
++	 * 2) Firmware with properly initialized presets.
++	 *    These presets have proper clock divisors. i.e., SDR12 => 12MHz,
++	 *    SDR25 => 25 MHz, SDR50 => 50 MHz. Additionally the HS200 and
++	 *    HS400 preset driver strengths match.
++	 *
++	 *    Enabling presets for HS400 doesn't work for the following reasons:
++	 *    1) sdhci_set_ios has a hard coded list of timings that are used
++	 *       to determine if presets should be enabled.
++	 *    2) sdhci_get_preset_value is using a non-standard register to
++	 *       read out HS400 presets. The AMD controller doesn't support this
++	 *       non-standard register. In fact, it doesn't expose the HS400
++	 *       preset register anywhere in the SDHCI memory map. This results
++	 *       in reading a garbage value and using the wrong presets.
++	 *
++	 *       Since HS400 and HS200 presets must be identical, we could
++	 *       instead use the the SDR104 preset register.
++	 *
++	 *    If the above issues are resolved we could remove this quirk for
++	 *    firmware that that has valid presets (i.e., SDR12 <= 12 MHz).
++	 */
++	host->quirks2 |= SDHCI_QUIRK2_PRESET_VALUE_BROKEN;
 +
- 	return err;
- }
- 
+ 	host->mmc_host_ops.select_drive_strength = amd_select_drive_strength;
+ 	host->mmc_host_ops.set_ios = amd_set_ios;
+ 	host->mmc_host_ops.execute_tuning = amd_sdhci_execute_tuning;
 
 
