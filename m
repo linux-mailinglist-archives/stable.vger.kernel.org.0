@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409452A5324
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C8222A5286
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732936AbgKCU6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:58:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60696 "EHLO mail.kernel.org"
+        id S1731857AbgKCUun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:50:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731121AbgKCU6I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:08 -0500
+        id S1731851AbgKCUum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:50:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 989E52053B;
-        Tue,  3 Nov 2020 20:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F7C622404;
+        Tue,  3 Nov 2020 20:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437086;
-        bh=skUxmWK3uMQLNfiAm43a28Pzoz9TI0jZMxaY7vlP97Y=;
+        s=default; t=1604436642;
+        bh=74KF8pX5Ws56tLv45is/0QJDtB5rGm0h+2J+LFmRumM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3F3t8lvZXK0PsJXjLX4YsNqfgsdv9+Xrmhm9mY7KZpUEwhi2aBa20crsH6DGHjnF
-         eUNkOLRneq1I7uNLdVDk7hJUE373wtkCIe9juHTE9+Z8tng5WqY0TUu0tK0zzGTFqT
-         noWpqPjqbJlX7DuDwS9HL9CTpcI8Fc83M2g0n870=
+        b=AS0kW0iaTbAYSt5ecvAMHbbhN6Ip4XzGGuKUWx2WXD1rG71pOFsvc8pLLjVZj0afH
+         XThHHLf7W/66XLcOZvbEDcbwbtoxDmAwu5D5SdbRAGeHe5Kg5r2e5KlkNINt6ktUpV
+         Hxph9oIuNk8pDNoP20qvBLMIqKh8z+KWg7zWb9pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 140/214] usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command
-Date:   Tue,  3 Nov 2020 21:36:28 +0100
-Message-Id: <20201103203303.956391252@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.9 338/391] cpufreq: intel_pstate: Avoid missing HWP max updates in passive mode
+Date:   Tue,  3 Nov 2020 21:36:29 +0100
+Message-Id: <20201103203409.939835927@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,145 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit d97c78a1908e59a1fdbcbece87cd0440b5d7a1f2 upstream.
+commit e0be38ed4ab413ddd492118cf146369b86ee0ab5 upstream.
 
-According the programming guide (for all DWC3 IPs), when the driver
-handles ClearFeature(halt) request, it should issue CLEAR_STALL command
-_after_ the END_TRANSFER command completes. The END_TRANSFER command may
-take some time to complete. So, delay the ClearFeature(halt) request
-control status stage and wait for END_TRANSFER command completion
-interrupt. Only after END_TRANSFER command completes that the driver
-may issue CLEAR_STALL command.
+If the cpufreq policy max limit is changed when intel_pstate operates
+in the passive mode with HWP enabled and the "powersave" governor is
+used on top of it, the HWP max limit is not updated as appropriate.
 
-Cc: stable@vger.kernel.org
-Fixes: cb11ea56f37a ("usb: dwc3: gadget: Properly handle ClearFeature(halt)")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Namely, in the "powersave" governor case, the target P-state
+is always equal to the policy min limit, so if the latter does
+not change, intel_cpufreq_adjust_hwp() is not invoked to update
+the HWP Request MSR due to the "target_pstate != old_pstate" check
+in intel_cpufreq_update_pstate(), so the HWP max limit is not
+updated as a result.
+
+Also, if the CPUFREQ_NEED_UPDATE_LIMITS flag is not set for the
+driver and the target frequency does not change along with the
+policy max limit, the "target_freq == policy->cur" check in
+__cpufreq_driver_target() prevents the driver's ->target() callback
+from being invoked at all, so the HWP max limit is not updated.
+
+To prevent that occurring, set the CPUFREQ_NEED_UPDATE_LIMITS flag
+in the intel_cpufreq driver structure if HWP is enabled and modify
+intel_cpufreq_update_pstate() to do the "target_pstate != old_pstate"
+check only in the non-HWP case and let intel_cpufreq_adjust_hwp()
+always run in the HWP case (it will update HWP Request only if the
+cached value of the register is different from the new one including
+the limits, so if neither the target P-state value nor the max limit
+changes, the register write will still be avoided).
+
+Fixes: f6ebbcf08f37 ("cpufreq: intel_pstate: Implement passive mode with HWP enabled")
+Reported-by: Zhang Rui <rui.zhang@intel.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+: 1c534352f47f cpufreq: Introduce CPUFREQ_NEED_UPDATE_LIMITS ...
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/core.h   |    1 +
- drivers/usb/dwc3/ep0.c    |   16 ++++++++++++++++
- drivers/usb/dwc3/gadget.c |   40 ++++++++++++++++++++++++++++++++--------
- drivers/usb/dwc3/gadget.h |    1 +
- 4 files changed, 50 insertions(+), 8 deletions(-)
+ drivers/cpufreq/intel_pstate.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -700,6 +700,7 @@ struct dwc3_ep {
- #define DWC3_EP_END_TRANSFER_PENDING BIT(4)
- #define DWC3_EP_PENDING_REQUEST	BIT(5)
- #define DWC3_EP_DELAY_START	BIT(6)
-+#define DWC3_EP_PENDING_CLEAR_STALL	BIT(11)
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -2550,14 +2550,12 @@ static int intel_cpufreq_update_pstate(s
+ 	int old_pstate = cpu->pstate.current_pstate;
  
- 	/* This last one is specific to EP0 */
- #define DWC3_EP0_DIR_IN		BIT(31)
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -524,6 +524,11 @@ static int dwc3_ep0_handle_endpoint(stru
- 		ret = __dwc3_gadget_ep_set_halt(dep, set, true);
- 		if (ret)
- 			return -EINVAL;
-+
-+		/* ClearFeature(Halt) may need delayed status */
-+		if (!set && (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
-+			return USB_GADGET_DELAYED_STATUS;
-+
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -1049,6 +1054,17 @@ static void dwc3_ep0_do_control_status(s
- 	__dwc3_ep0_do_control_status(dwc, dep);
- }
+ 	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
+-	if (target_pstate != old_pstate) {
++	if (hwp_active) {
++		intel_cpufreq_adjust_hwp(cpu, target_pstate, fast_switch);
++		cpu->pstate.current_pstate = target_pstate;
++	} else if (target_pstate != old_pstate) {
++		intel_cpufreq_adjust_perf_ctl(cpu, target_pstate, fast_switch);
+ 		cpu->pstate.current_pstate = target_pstate;
+-		if (hwp_active)
+-			intel_cpufreq_adjust_hwp(cpu, target_pstate,
+-						 fast_switch);
+-		else
+-			intel_cpufreq_adjust_perf_ctl(cpu, target_pstate,
+-						      fast_switch);
+ 	}
  
-+void dwc3_ep0_send_delayed_status(struct dwc3 *dwc)
-+{
-+	unsigned int direction = !dwc->ep0_expect_in;
-+
-+	if (dwc->ep0state != EP0_STATUS_PHASE)
-+		return;
-+
-+	dwc->delayed_status = false;
-+	__dwc3_ep0_do_control_status(dwc, dwc->eps[direction]);
-+}
-+
- static void dwc3_ep0_end_control_data(struct dwc3 *dwc, struct dwc3_ep *dep)
- {
- 	struct dwc3_gadget_ep_cmd_params params;
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1719,6 +1719,18 @@ int __dwc3_gadget_ep_set_halt(struct dwc
- 			return 0;
- 		}
+ 	intel_cpufreq_trace(cpu, fast_switch ? INTEL_PSTATE_TRACE_FAST_SWITCH :
+@@ -3014,6 +3012,7 @@ static int __init intel_pstate_init(void
+ 			hwp_mode_bdw = id->driver_data;
+ 			intel_pstate.attr = hwp_cpufreq_attrs;
+ 			intel_cpufreq.attr = hwp_cpufreq_attrs;
++			intel_cpufreq.flags |= CPUFREQ_NEED_UPDATE_LIMITS;
+ 			if (!default_driver)
+ 				default_driver = &intel_pstate;
  
-+		dwc3_stop_active_transfer(dep, true, true);
-+
-+		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
-+			dwc3_gadget_move_cancelled_request(req);
-+
-+		if (dep->flags & DWC3_EP_END_TRANSFER_PENDING) {
-+			dep->flags |= DWC3_EP_PENDING_CLEAR_STALL;
-+			return 0;
-+		}
-+
-+		dwc3_gadget_ep_cleanup_cancelled_requests(dep);
-+
- 		ret = dwc3_send_clear_stall_ep_cmd(dep);
- 		if (ret) {
- 			dev_err(dwc->dev, "failed to clear STALL on %s\n",
-@@ -1728,14 +1740,6 @@ int __dwc3_gadget_ep_set_halt(struct dwc
- 
- 		dep->flags &= ~(DWC3_EP_STALL | DWC3_EP_WEDGE);
- 
--		dwc3_stop_active_transfer(dep, true, true);
--
--		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
--			dwc3_gadget_move_cancelled_request(req);
--
--		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
--			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
--
- 		if ((dep->flags & DWC3_EP_DELAY_START) &&
- 		    !usb_endpoint_xfer_isoc(dep->endpoint.desc))
- 			__dwc3_gadget_kick_transfer(dep);
-@@ -2767,6 +2771,26 @@ static void dwc3_endpoint_interrupt(stru
- 			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
- 			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
- 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
-+
-+			if (dep->flags & DWC3_EP_PENDING_CLEAR_STALL) {
-+				struct dwc3 *dwc = dep->dwc;
-+
-+				dep->flags &= ~DWC3_EP_PENDING_CLEAR_STALL;
-+				if (dwc3_send_clear_stall_ep_cmd(dep)) {
-+					struct usb_ep *ep0 = &dwc->eps[0]->endpoint;
-+
-+					dev_err(dwc->dev, "failed to clear STALL on %s\n",
-+						dep->name);
-+					if (dwc->delayed_status)
-+						__dwc3_gadget_ep0_set_halt(ep0, 1);
-+					return;
-+				}
-+
-+				dep->flags &= ~(DWC3_EP_STALL | DWC3_EP_WEDGE);
-+				if (dwc->delayed_status)
-+					dwc3_ep0_send_delayed_status(dwc);
-+			}
-+
- 			if ((dep->flags & DWC3_EP_DELAY_START) &&
- 			    !usb_endpoint_xfer_isoc(dep->endpoint.desc))
- 				__dwc3_gadget_kick_transfer(dep);
---- a/drivers/usb/dwc3/gadget.h
-+++ b/drivers/usb/dwc3/gadget.h
-@@ -111,6 +111,7 @@ int dwc3_gadget_ep0_set_halt(struct usb_
- int dwc3_gadget_ep0_queue(struct usb_ep *ep, struct usb_request *request,
- 		gfp_t gfp_flags);
- int __dwc3_gadget_ep_set_halt(struct dwc3_ep *dep, int value, int protocol);
-+void dwc3_ep0_send_delayed_status(struct dwc3 *dwc);
- 
- /**
-  * dwc3_gadget_ep_get_transfer_index - Gets transfer index from HW
 
 
