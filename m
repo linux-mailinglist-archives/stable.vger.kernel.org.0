@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F75B2A54FF
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:16:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 797EA2A563C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388878AbgKCVLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
+        id S1733270AbgKCVAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:00:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388885AbgKCVLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:11:34 -0500
+        id S1733267AbgKCVAl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:00:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F3D7206B5;
-        Tue,  3 Nov 2020 21:11:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEC0722226;
+        Tue,  3 Nov 2020 21:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437893;
-        bh=nhRx4EJYriHHfpjRx8j5MBvhx6AGq6kZtYp+1aD1704=;
+        s=default; t=1604437241;
+        bh=su3cQwyHx3kCHKDVHurH/fOB9rM7M9B3DeAEDRy13to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhmI/wHglX0RwB5b3Ggg6IfqsnsJULhZCTxwLOcRGRTbp9MQI5Tc1gy4sA1p9L8Ly
-         fp7hdsITkYW9AyVNwy0+kfdLvUwHSUXmD7/pA00SJMtVnyjOkGdy8F903+McPL+BOB
-         Uyvy1tpIoThOK5Kzn6U4umbJtEih8GnvxscaN/44=
+        b=fg1DdtX8BdBwGRz40htaavR+WEaaKlcRoK7w0VyuwyJ3pTtG5ZCQat0XOQPSK7ii9
+         LljRltDrdq9Mr/ZjjAcAt/oWMw/Rzv+BUGxGtzBLf+wqjqYwjMCdTVHZ4uIYNuqg0S
+         cAO6gOeJZC3FoIhpuZ/EtmrzuOAPmHvd/nOtKOBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 078/125] usb: dwc3: ep0: Fix ZLP for OUT ep0 requests
+        stable@vger.kernel.org, Ferry Toth <fntoth@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 207/214] device property: Keep secondary firmware node secondary by type
 Date:   Tue,  3 Nov 2020 21:37:35 +0100
-Message-Id: <20201103203208.235916877@linuxfoundation.org>
+Message-Id: <20201103203310.018855101@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 66706077dc89c66a4777a4c6298273816afb848c upstream.
+commit d5dcce0c414fcbfe4c2037b66ac69ea5f9b3f75c upstream.
 
-The current ZLP handling for ep0 requests is only for control IN
-requests. For OUT direction, DWC3 needs to check and setup for MPS
-alignment.
+Behind primary and secondary we understand the type of the nodes
+which might define their ordering. However, if primary node gone,
+we can't maintain the ordering by definition of the linked list.
+Thus, by ordering secondary node becomes first in the list.
+But in this case the meaning of it is still secondary (or auxiliary).
+The type of the node is maintained by the secondary pointer in it:
 
-Usually, control OUT requests can indicate its transfer size via the
-wLength field of the control message. So usb_request->zero is usually
-not needed for OUT direction. To handle ZLP OUT for control endpoint,
-make sure the TRB is MPS size.
+	secondary pointer		Meaning
+	NULL or valid			primary node
+	ERR_PTR(-ENODEV)		secondary node
 
-Cc: stable@vger.kernel.org
-Fixes: c7fcdeb2627c ("usb: dwc3: ep0: simplify EP0 state machine")
-Fixes: d6e5a549cc4d ("usb: dwc3: simplify ZLP handling")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+So, if by some reason we do the following sequence of calls
+
+	set_primary_fwnode(dev, NULL);
+	set_primary_fwnode(dev, primary);
+
+we should preserve secondary node.
+
+This concept is supported by the description of set_primary_fwnode()
+along with implementation of set_secondary_fwnode(). Hence, fix
+the commit c15e1bdda436 to follow this as well.
+
+Fixes: c15e1bdda436 ("device property: Fix the secondary firmware node handling in set_primary_fwnode()")
+Cc: Ferry Toth <fntoth@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Tested-by: Ferry Toth <fntoth@gmail.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/ep0.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -967,12 +967,16 @@ static void dwc3_ep0_xfer_complete(struc
- static void __dwc3_ep0_do_control_data(struct dwc3 *dwc,
- 		struct dwc3_ep *dep, struct dwc3_request *req)
- {
-+	unsigned int		trb_length = 0;
- 	int			ret;
- 
- 	req->direction = !!dep->number;
- 
- 	if (req->request.length == 0) {
--		dwc3_ep0_prepare_one_trb(dep, dwc->ep0_trb_addr, 0,
-+		if (!req->direction)
-+			trb_length = dep->endpoint.maxpacket;
-+
-+		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr, trb_length,
- 				DWC3_TRBCTL_CONTROL_DATA, false);
- 		ret = dwc3_ep0_start_trans(dep);
- 	} else if (!IS_ALIGNED(req->request.length, dep->endpoint.maxpacket)
-@@ -1024,9 +1028,12 @@ static void __dwc3_ep0_do_control_data(s
- 
- 		req->trb = &dwc->ep0_trb[dep->trb_enqueue - 1];
- 
-+		if (!req->direction)
-+			trb_length = dep->endpoint.maxpacket;
-+
- 		/* Now prepare one extra TRB to align transfer size */
- 		dwc3_ep0_prepare_one_trb(dep, dwc->bounce_addr,
--					 0, DWC3_TRBCTL_CONTROL_DATA,
-+					 trb_length, DWC3_TRBCTL_CONTROL_DATA,
- 					 false);
- 		ret = dwc3_ep0_start_trans(dep);
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3414,7 +3414,7 @@ void set_primary_fwnode(struct device *d
  	} else {
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+-			fn->secondary = NULL;
++			fn->secondary = ERR_PTR(-ENODEV);
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
