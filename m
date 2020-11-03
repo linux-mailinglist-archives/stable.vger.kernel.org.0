@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AAF2A5665
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E12622A558D
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733287AbgKCV1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:27:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36794 "EHLO mail.kernel.org"
+        id S1730108AbgKCVUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:20:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733281AbgKCVAq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:00:46 -0500
+        id S2388300AbgKCVH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A0A32053B;
-        Tue,  3 Nov 2020 21:00:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D546205ED;
+        Tue,  3 Nov 2020 21:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437245;
-        bh=7/hHWmELrywRyUTfND9I6MH97zefn481LNViXn29u3s=;
+        s=default; t=1604437648;
+        bh=71cSDtzZOtSKSOR+D5+L3nTGZA2vUnoXyOeelfPBWpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKgMlpn9+dfgg+omjX6KmcdtfzkDSsy8WgeRVox9u+DJjl0SMq7BZG6/Tvtl4qXnM
-         E+iyzLY185CnRi3TRx3/nyXwiJ9DVcS153vQLAgpocBMqeBWS62O0prrSjEbeQnkgZ
-         zudFuAppPMHQvNCLoseRtt+FU225hpXPuirvuO2s=
+        b=F9KmUu6hzQR9Nkxzslhl9murO6ZQotsTh+sdnBiK1FmUGXl7N2RTxf6ZdM7hVj1Fg
+         s4Zz/2fyJcMkVuHdbKAwcZTa7heicVzP01EQnj53rj8kpmZviZLAnpiEegCVKGgkr2
+         Yj+g5zfo90lqnI9uicooZWlDETf+8WAaqmax8Wow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 209/214] KVM: arm64: Fix AArch32 handling of DBGD{CCINT,SCRext} and DBGVCR
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 165/191] i2c: imx: Fix external abort on interrupt in exit paths
 Date:   Tue,  3 Nov 2020 21:37:37 +0100
-Message-Id: <20201103203310.183833763@linuxfoundation.org>
+Message-Id: <20201103203247.890182689@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
-References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 4a1c2c7f63c52ccb11770b5ae25920a6b79d3548 upstream.
+commit e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 upstream.
 
-The DBGD{CCINT,SCRext} and DBGVCR register entries in the cp14 array
-are missing their target register, resulting in all accesses being
-targetted at the guard sysreg (indexed by __INVALID_SYSREG__).
+If interrupt comes late, during probe error path or device remove (could
+be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+i2c_imx_isr() will access registers with the clock being disabled.  This
+leads to external abort on non-linefetch on Toradex Colibri VF50 module
+(with Vybrid VF5xx):
 
-Point the emulation code at the actual register entries.
+    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
+    Internal error: : 1008 [#1] ARM
+    Modules linked in:
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
+      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
+      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
+      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
+      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
+      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
+      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
+      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
+      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
+      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
+      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
+      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
+      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
 
-Fixes: bdfb4b389c8d ("arm64: KVM: add trap handlers for AArch32 debug registers")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201029172409.2768336-1-maz@kernel.org
+Additionally, the i2c_imx_isr() could wake up the wait queue
+(imx_i2c_struct->queue) before its initialization happens.
+
+The resource-managed framework should not be used for interrupt handling,
+because the resource will be released too late - after disabling clocks.
+The interrupt handler is not prepared for such case.
+
+Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-imx.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -209,6 +209,7 @@ enum vcpu_sysreg {
- #define cp14_DBGWCR0	(DBGWCR0_EL1 * 2)
- #define cp14_DBGWVR0	(DBGWVR0_EL1 * 2)
- #define cp14_DBGDCCINT	(MDCCINT_EL1 * 2)
-+#define cp14_DBGVCR	(DBGVCR32_EL2 * 2)
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1101,14 +1101,6 @@ static int i2c_imx_probe(struct platform
+ 		return ret;
+ 	}
  
- #define NR_COPRO_REGS	(NR_SYS_REGS * 2)
+-	/* Request IRQ */
+-	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+-				pdev->name, i2c_imx);
+-	if (ret) {
+-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+-		goto clk_disable;
+-	}
+-
+ 	/* Init queue */
+ 	init_waitqueue_head(&i2c_imx->queue);
  
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1746,9 +1746,9 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 1), Op2( 0), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(1),
- 	/* DBGDCCINT */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32, NULL, cp14_DBGDCCINT },
- 	/* DBGDSCRext */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32, NULL, cp14_DBGDSCRext },
- 	DBG_BCR_BVR_WCR_WVR(2),
- 	/* DBGDTR[RT]Xint */
- 	{ Op1( 0), CRn( 0), CRm( 3), Op2( 0), trap_raz_wi },
-@@ -1763,7 +1763,7 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 6), Op2( 2), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(6),
- 	/* DBGVCR */
--	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32, NULL, cp14_DBGVCR },
- 	DBG_BCR_BVR_WCR_WVR(7),
- 	DBG_BCR_BVR_WCR_WVR(8),
- 	DBG_BCR_BVR_WCR_WVR(9),
+@@ -1127,6 +1119,14 @@ static int i2c_imx_probe(struct platform
+ 	if (ret < 0)
+ 		goto rpm_disable;
+ 
++	/* Request IRQ */
++	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
++				   pdev->name, i2c_imx);
++	if (ret) {
++		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
++		goto rpm_disable;
++	}
++
+ 	/* Set up clock divider */
+ 	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+@@ -1169,13 +1169,12 @@ static int i2c_imx_probe(struct platform
+ 
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	free_irq(irq, i2c_imx);
+ rpm_disable:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-
+-clk_disable:
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 	return ret;
+ }
+@@ -1183,7 +1182,7 @@ clk_disable:
+ static int i2c_imx_remove(struct platform_device *pdev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+-	int ret;
++	int irq, ret;
+ 
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0)
+@@ -1203,6 +1202,9 @@ static int i2c_imx_remove(struct platfor
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+ 
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	irq = platform_get_irq(pdev, 0);
++	if (irq >= 0)
++		free_irq(irq, i2c_imx);
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 
+ 	pm_runtime_put_noidle(&pdev->dev);
 
 
