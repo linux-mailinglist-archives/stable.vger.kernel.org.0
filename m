@@ -2,216 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6F22A4817
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2892A4827
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 15:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729429AbgKCO2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 09:28:46 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45879 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729691AbgKCO2V (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 3 Nov 2020 09:28:21 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 41584CBC;
-        Tue,  3 Nov 2020 09:28:19 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 09:28:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WnQGkV
-        OOT14FkXKaC134asHN1wqERjSWgo+VQ831xWI=; b=dAGDZMNKFwbPqfWbXWltfj
-        LiU5kLilunMP9WXqmoNufmK5RWfaQuSE2R9G7VvBmpy1sMyq8iPmhglPUXzk7EtU
-        bzj4BzYVfDPPFP6KOVS/Xlvha+tgdWeNP4YG0GSrAY/AQrhCHmHkCFEBcD3Bz99E
-        3jj6kaHI4w9JuX50Z5pA2KFGeKUMoIartSIqYVdyXKZ1J2KcrA7WUK6fvaaG7+Kb
-        EhCmgAQYF624Lo5hwPMfZ5+pPSHfG911gkde8li/WJc6+7SQReC8BKPEkTBIo+jN
-        cjxGAYz/k1IP9kvqEQL+FZ8te5c7zq+Dt28PyDLS3a3/nQT1Y8yaIPDkdvmgNiww
-        ==
-X-ME-Sender: <xms:AmmhX6OZ8hcQ81VZ_8LX4TLZ9AJH8D9pG-cMqo0ZaOD005-0-u8viA>
-    <xme:AmmhX4_4jWw7S5_92KHWwvXkaRiGumfgVTM-QaNVcZryIhON6jyTvsFffagiLpkzg
-    4gFUNZ_5SJwbQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgiedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeejnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:AmmhXxSn9-ItmlH--mD7jJwVEN57_rZZbgClyYMkA0rsKapXgu5fzQ>
-    <xmx:AmmhX6uH4ca6EiGlUwnKU0u7LMxDDvtInaq_zt_xtCxZe6l5nvoUEw>
-    <xmx:AmmhXycq0uX_6HlVbZ1dJJpJR2aHIZgYK6k-9kygBRCfKn5iFZJUGg>
-    <xmx:AmmhXzq1szV2uK4VvoaPbFoGTLh0eb2GwHIi-NFMBem6WRgF1zoguHEFXWY>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E6F51328005A;
-        Tue,  3 Nov 2020 09:28:17 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio:imu:st_lsm6dsx Fix alignment and data leak issues" failed to apply to 4.14-stable tree
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        andy.shevchenko@gmail.com, lars@metafoo.de,
-        lorenzo.bianconi83@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 15:29:09 +0100
-Message-ID: <1604413749142220@kroah.com>
+        id S1729708AbgKCOac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 09:30:32 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38890 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729726AbgKCO3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 09:29:15 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1604413753;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Qk882jnlZj5/NCUogdfBkHOBP87mZQ89Df4JgmJ2x1s=;
+        b=fxyUSYazCMHc2m6cGwH0+wdsOhBKZmfvcqsMl9BORLP/kdcFTdFVS8Mz4IwiJELmZnIj9f
+        7NnSZLYe/zYJT9Unxnt1A2PP8zSATAi04jcD3Klo+wVweyKLIyZnwsn410VwR3N8cjQruR
+        1D6048AKRvF3MO8tFhiQ51y6Ru2jBek=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E7095B2A9
+        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 14:29:12 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH v2 12/14] xen/events: use a common cpu hotplug hook for event channels
+Date:   Tue,  3 Nov 2020 15:29:09 +0100
+Message-Id: <20201103142911.21980-13-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201103142911.21980-1-jgross@suse.com>
+References: <20201103142911.21980-1-jgross@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Today only fifo event channels have a cpu hotplug callback. In order
+to prepare for more percpu (de)init work move that callback into
+events_base.c and add percpu_init() and percpu_deinit() hooks to
+struct evtchn_ops.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This is part of XSA-332.
 
-thanks,
+This is upstream commit 7beb290caa2adb0a399e735a1e175db9aae0523a
 
-greg k-h
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>xen/events: use a common cpu hotplug hook for event
+ channels
 
------------------- original commit in Linus's tree ------------------
+Today only fifo event channels have a cpu hotplug callback. In order
+to prepare for more percpu (de)init work move that callback into
+events_base.c and add percpu_init() and percpu_deinit() hooks to
+struct evtchn_ops.
 
-From c14edb4d0bdc53f969ea84c7f384472c28b1a9f8 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:50:52 +0100
-Subject: [PATCH] iio:imu:st_lsm6dsx Fix alignment and data leak issues
+This is part of XSA-332.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to an array of suitable structures in the iio_priv() data.
+This is upstream commit 7beb290caa2adb0a399e735a1e175db9aae0523a
 
-This data is allocated with kzalloc so no data can leak apart from
-previous readings.
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
+---
+ drivers/xen/events/events_base.c     | 25 +++++++++++++++++
+ drivers/xen/events/events_fifo.c     | 40 +++++++++++++---------------
+ drivers/xen/events/events_internal.h |  3 +++
+ 3 files changed, 47 insertions(+), 21 deletions(-)
 
-For the tagged path the data is aligned by using __aligned(8) for
-the buffer on the stack.
-
-There has been a lot of churn in this driver, so likely backports
-may be needed for stable.
-
-Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-17-jic23@kernel.org
-
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-index d80ba2e688ed..9275346a9cc1 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
-@@ -383,6 +383,7 @@ struct st_lsm6dsx_sensor {
-  * @iio_devs: Pointers to acc/gyro iio_dev instances.
-  * @settings: Pointer to the specific sensor settings in use.
-  * @orientation: sensor chip orientation relative to main hardware.
-+ * @scan: Temporary buffers used to align data before iio_push_to_buffers()
-  */
- struct st_lsm6dsx_hw {
- 	struct device *dev;
-@@ -411,6 +412,11 @@ struct st_lsm6dsx_hw {
- 	const struct st_lsm6dsx_settings *settings;
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 0c0114800f6c..bbeb1d3aecfd 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -33,6 +33,7 @@
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
+ #include <linux/spinlock.h>
++#include <linux/cpuhotplug.h>
  
- 	struct iio_mount_matrix orientation;
-+	/* Ensure natural alignment of buffer elements */
-+	struct {
-+		__le16 channels[3];
-+		s64 ts __aligned(8);
-+	} scan[3];
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -1833,6 +1834,26 @@ void xen_callback_vector(void) {}
+ static bool fifo_events = true;
+ module_param(fifo_events, bool, 0);
+ 
++static int xen_evtchn_cpu_prepare(unsigned int cpu)
++{
++	int ret = 0;
++
++	if (evtchn_ops->percpu_init)
++		ret = evtchn_ops->percpu_init(cpu);
++
++	return ret;
++}
++
++static int xen_evtchn_cpu_dead(unsigned int cpu)
++{
++	int ret = 0;
++
++	if (evtchn_ops->percpu_deinit)
++		ret = evtchn_ops->percpu_deinit(cpu);
++
++	return ret;
++}
++
+ void __init xen_init_IRQ(void)
+ {
+ 	int ret = -EINVAL;
+@@ -1843,6 +1864,10 @@ void __init xen_init_IRQ(void)
+ 	if (ret < 0)
+ 		xen_evtchn_2l_init();
+ 
++	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
++				  "xen/evtchn:prepare",
++				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
++
+ 	evtchn_to_irq = kcalloc(EVTCHN_ROW(xen_evtchn_max_channels()),
+ 				sizeof(*evtchn_to_irq), GFP_KERNEL);
+ 	BUG_ON(!evtchn_to_irq);
+diff --git a/drivers/xen/events/events_fifo.c b/drivers/xen/events/events_fifo.c
+index 3071256a9413..59e6002c9699 100644
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -385,21 +385,6 @@ static void evtchn_fifo_resume(void)
+ 	event_array_pages = 0;
+ }
+ 
+-static const struct evtchn_ops evtchn_ops_fifo = {
+-	.max_channels      = evtchn_fifo_max_channels,
+-	.nr_channels       = evtchn_fifo_nr_channels,
+-	.setup             = evtchn_fifo_setup,
+-	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
+-	.clear_pending     = evtchn_fifo_clear_pending,
+-	.set_pending       = evtchn_fifo_set_pending,
+-	.is_pending        = evtchn_fifo_is_pending,
+-	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
+-	.mask              = evtchn_fifo_mask,
+-	.unmask            = evtchn_fifo_unmask,
+-	.handle_events     = evtchn_fifo_handle_events,
+-	.resume            = evtchn_fifo_resume,
+-};
+-
+ static int evtchn_fifo_alloc_control_block(unsigned cpu)
+ {
+ 	void *control_block = NULL;
+@@ -422,19 +407,36 @@ static int evtchn_fifo_alloc_control_block(unsigned cpu)
+ 	return ret;
+ }
+ 
+-static int xen_evtchn_cpu_prepare(unsigned int cpu)
++static int evtchn_fifo_percpu_init(unsigned int cpu)
+ {
+ 	if (!per_cpu(cpu_control_block, cpu))
+ 		return evtchn_fifo_alloc_control_block(cpu);
+ 	return 0;
+ }
+ 
+-static int xen_evtchn_cpu_dead(unsigned int cpu)
++static int evtchn_fifo_percpu_deinit(unsigned int cpu)
+ {
+ 	__evtchn_fifo_handle_events(cpu, true);
+ 	return 0;
+ }
+ 
++static const struct evtchn_ops evtchn_ops_fifo = {
++	.max_channels      = evtchn_fifo_max_channels,
++	.nr_channels       = evtchn_fifo_nr_channels,
++	.setup             = evtchn_fifo_setup,
++	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
++	.clear_pending     = evtchn_fifo_clear_pending,
++	.set_pending       = evtchn_fifo_set_pending,
++	.is_pending        = evtchn_fifo_is_pending,
++	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
++	.mask              = evtchn_fifo_mask,
++	.unmask            = evtchn_fifo_unmask,
++	.handle_events     = evtchn_fifo_handle_events,
++	.resume            = evtchn_fifo_resume,
++	.percpu_init       = evtchn_fifo_percpu_init,
++	.percpu_deinit     = evtchn_fifo_percpu_deinit,
++};
++
+ int __init xen_evtchn_fifo_init(void)
+ {
+ 	int cpu = smp_processor_id();
+@@ -448,9 +450,5 @@ int __init xen_evtchn_fifo_init(void)
+ 
+ 	evtchn_ops = &evtchn_ops_fifo;
+ 
+-	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
+-				  "xen/evtchn:prepare",
+-				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
+-
+ 	return ret;
+ }
+diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
+index 50c2050a1e32..980a56d51e4c 100644
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -71,6 +71,9 @@ struct evtchn_ops {
+ 
+ 	void (*handle_events)(unsigned cpu);
+ 	void (*resume)(void);
++
++	int (*percpu_init)(unsigned int cpu);
++	int (*percpu_deinit)(unsigned int cpu);
  };
  
- static __maybe_unused const struct iio_event_spec st_lsm6dsx_event = {
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-index 7de10bd636ea..12ed0a2e55e4 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
-@@ -353,9 +353,6 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
- 	int err, sip, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
- 	u16 fifo_len, pattern_len = hw->sip * ST_LSM6DSX_SAMPLE_SIZE;
- 	u16 fifo_diff_mask = hw->settings->fifo_ops.fifo_diff.mask;
--	u8 gyro_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
--	u8 acc_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
--	u8 ext_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
- 	bool reset_ts = false;
- 	__le16 fifo_status;
- 	s64 ts = 0;
-@@ -416,19 +413,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
- 
- 		while (acc_sip > 0 || gyro_sip > 0 || ext_sip > 0) {
- 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
--				memcpy(gyro_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_GYRO].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels);
- 			}
- 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
--				memcpy(acc_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_ACC].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels);
- 			}
- 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
--				memcpy(ext_buff, &hw->buff[offset],
--				       ST_LSM6DSX_SAMPLE_SIZE);
--				offset += ST_LSM6DSX_SAMPLE_SIZE;
-+				memcpy(hw->scan[ST_LSM6DSX_ID_EXT0].channels,
-+				       &hw->buff[offset],
-+				       sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels));
-+				offset += sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels);
- 			}
- 
- 			if (ts_sip-- > 0) {
-@@ -458,19 +458,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
- 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_GYRO],
--					gyro_buff, gyro_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_GYRO],
-+					gyro_sensor->ts_ref + ts);
- 				gyro_sip--;
- 			}
- 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_ACC],
--					acc_buff, acc_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_ACC],
-+					acc_sensor->ts_ref + ts);
- 				acc_sip--;
- 			}
- 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
- 				iio_push_to_buffers_with_timestamp(
- 					hw->iio_devs[ST_LSM6DSX_ID_EXT0],
--					ext_buff, ext_sensor->ts_ref + ts);
-+					&hw->scan[ST_LSM6DSX_ID_EXT0],
-+					ext_sensor->ts_ref + ts);
- 				ext_sip--;
- 			}
- 			sip++;
-@@ -555,7 +558,14 @@ int st_lsm6dsx_read_tagged_fifo(struct st_lsm6dsx_hw *hw)
- {
- 	u16 pattern_len = hw->sip * ST_LSM6DSX_TAGGED_SAMPLE_SIZE;
- 	u16 fifo_len, fifo_diff_mask;
--	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE], tag;
-+	/*
-+	 * Alignment needed as this can ultimately be passed to a
-+	 * call to iio_push_to_buffers_with_timestamp() which
-+	 * must be passed a buffer that is aligned to 8 bytes so
-+	 * as to allow insertion of a naturally aligned timestamp.
-+	 */
-+	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE] __aligned(8);
-+	u8 tag;
- 	bool reset_ts = false;
- 	int i, err, read_len;
- 	__le16 fifo_status;
+ extern const struct evtchn_ops *evtchn_ops;
+-- 
+2.26.2
 
