@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D0C12A3920
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E382E2A38BE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:21:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbgKCBX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:23:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35770 "EHLO mail.kernel.org"
+        id S1728227AbgKCBUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:20:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgKCBUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:43 -0500
+        id S1728205AbgKCBUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30E9A22450;
-        Tue,  3 Nov 2020 01:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F6442242E;
+        Tue,  3 Nov 2020 01:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366443;
-        bh=E3R4tI/CtnFlwK3YLD6WPm4m2NqFBxzT4gtiBJhbzME=;
+        s=default; t=1604366444;
+        bh=1F4wsseaD7dA/55JAb7Imc6P+6gBNObou4dyyvIU1mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwB1xVgpMXuWZGAMBekEiY2Nf7eIMPPXimMnijRnZMVxfQolgQC1qNbzNtt5ZDws3
-         k2iLu/KNsvEiMUSLkiSLT9nrtMmHWfgAP+jPlrsTdmwzD8aHVOOjOE2gFYIMc7Amcq
-         g2JZ5y91ohVfkAGU8aG4t/3muVi8XX8BF7/L6bjo=
+        b=M3BJALMb1hkt8H1nhf3DYIUxuol8vWoLdnAVuyilfB+mw2d58zbcXYhsLJeZKyUtV
+         w4EqWRy3zeKBpYOiTL5fC7IzvYIvPVDkzJieaIY/bOwmcIBGPozz6kQ5N4rZIEMI/V
+         QdCfc5IrLDffvudg67U+eMuPu0uZvjgFdV3spRfs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 02/11] arm64: dts: meson-axg-s400: enable USB OTG
-Date:   Mon,  2 Nov 2020 20:20:30 -0500
-Message-Id: <20201103012039.183672-2-sashal@kernel.org>
+Cc:     Kairui Song <kasong@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/11] x86/kexec: Use up-to-dated screen_info copy to fill boot params
+Date:   Mon,  2 Nov 2020 20:20:31 -0500
+Message-Id: <20201103012039.183672-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012039.183672-1-sashal@kernel.org>
 References: <20201103012039.183672-1-sashal@kernel.org>
@@ -44,34 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Kairui Song <kasong@redhat.com>
 
-[ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
+[ Upstream commit afc18069a2cb7ead5f86623a5f3d4ad6e21f940d ]
 
-This enables USB OTG on the S400 board.
+kexec_file_load() currently reuses the old boot_params.screen_info,
+but if drivers have change the hardware state, boot_param.screen_info
+could contain invalid info.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+For example, the video type might be no longer VGA, or the frame buffer
+address might be changed. If the kexec kernel keeps using the old screen_info,
+kexec'ed kernel may attempt to write to an invalid framebuffer
+memory region.
+
+There are two screen_info instances globally available, boot_params.screen_info
+and screen_info. Later one is a copy, and is updated by drivers.
+
+So let kexec_file_load use the updated copy.
+
+[ mingo: Tidied up the changelog. ]
+
+Signed-off-by: Kairui Song <kasong@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014092429.1415040-2-kasong@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kernel/kexec-bzimage64.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-index d5c01427a5ca0..acd4dbc1222ae 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-@@ -334,3 +334,9 @@ &saradc {
- 	status = "okay";
- 	vref-supply = <&vddio_ao18>;
- };
-+
-+&usb {
-+	status = "okay";
-+	dr_mode = "otg";
-+	vbus-supply = <&usb_pwr>;
-+};
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index 9490a2845f14b..273687986a263 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -211,8 +211,7 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
+ 	params->hdr.hardware_subarch = boot_params.hdr.hardware_subarch;
+ 
+ 	/* Copying screen_info will do? */
+-	memcpy(&params->screen_info, &boot_params.screen_info,
+-				sizeof(struct screen_info));
++	memcpy(&params->screen_info, &screen_info, sizeof(struct screen_info));
+ 
+ 	/* Fill in memsize later */
+ 	params->screen_info.ext_mem_k = 0;
 -- 
 2.27.0
 
