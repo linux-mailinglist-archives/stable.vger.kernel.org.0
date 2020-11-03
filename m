@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E97BF2A55A0
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CAC2A5675
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387604AbgKCVGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:06:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
+        id S1731044AbgKCV2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:28:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388160AbgKCVG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:06:27 -0500
+        id S1732037AbgKCU7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:59:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C005206B5;
-        Tue,  3 Nov 2020 21:06:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 662C92053B;
+        Tue,  3 Nov 2020 20:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437587;
-        bh=6qP3sCd3wXRue+cgDq9k16M/M+310/PClLCMCzCApaI=;
+        s=default; t=1604437194;
+        bh=qx8wmItmrAlQijpvsRCgppHxF7uMHZ+9OEQSeHwfz7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YC5DTvqx+oqGFi2F289aXhlOElYV/i2YculPhbRNSQHk0Xz9UspbTyQ80NFsdTmue
-         Q5VP/rXsTf0GcGaFKwrxLwhRfW8HJvQ/mBKoKwE/I2E1IvVAX5vhEY070OqD6oWyZa
-         JJ5zf/84ikhyN2iABcvQHcMeM9whI851USaKW6yw=
+        b=1O2gnMlXzrf5CRMTS91T4ztK9Lm8thXak8Y0flS+yaJSjrGjw/9J6N8GdE5yT9W0W
+         IoZE064w34cftelEyBGVsFsTSja/eubIeeoh+vAp8ujq4orHYgpbCrOtPM5SUmIIuu
+         8NvyOBamiNWKGYeGzbDftWyVe9XWy0oKkzHLIKr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Li Jun <jun.li@nxp.com>, ChiYuan Huang <cy_huang@richtek.com>
-Subject: [PATCH 4.19 141/191] usb: typec: tcpm: reset hard_reset_count for any disconnect
-Date:   Tue,  3 Nov 2020 21:37:13 +0100
-Message-Id: <20201103203246.070370592@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 186/214] drm/amd/display: Fix kernel panic by dal_gpio_open() error
+Date:   Tue,  3 Nov 2020 21:37:14 +0100
+Message-Id: <20201103203308.136848156@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2d9c6442a9c81f4f8dee678d0b3c183173ab1e2d upstream.
+commit 920bb38c518408fa2600eaefa0af9e82cf48f166 upstream.
 
-Current tcpm_detach() only reset hard_reset_count if port->attached
-is true, this may cause this counter clear is missed if the CC
-disconnect event is generated after tcpm_port_reset() is done
-by other events, e.g. VBUS off comes first before CC disconect for
-a power sink, in that case the first tcpm_detach() will only clear
-port->attached flag but leave hard_reset_count there because
-tcpm_port_is_disconnected() is still false, then later tcpm_detach()
-by CC disconnect will directly return due to port->attached is cleared,
-finally this will result tcpm will not try hard reset or error recovery
-for later attach.
+Currently both error code paths handled in dal_gpio_open_ex() issues
+ASSERT_CRITICAL(), and this leads to a kernel panic unnecessarily if
+CONFIG_KGDB is enabled.  Since basically both are non-critical errors
+and can be recovered, drop those assert calls and use a safer one,
+BREAK_TO_DEBUGGER(), for allowing the debugging, instead.
 
-ChiYuan reported this issue on his platform with below tcpm trace:
-After power sink session setup after hard reset 2 times, detach
-from the power source and then attach:
-[ 4848.046358] VBUS off
-[ 4848.046384] state change SNK_READY -> SNK_UNATTACHED
-[ 4848.050908] Setting voltage/current limit 0 mV 0 mA
-[ 4848.050936] polarity 0
-[ 4848.052593] Requesting mux state 0, usb-role 0, orientation 0
-[ 4848.053222] Start toggling
-[ 4848.086500] state change SNK_UNATTACHED -> TOGGLING
-[ 4848.089983] CC1: 0 -> 0, CC2: 3 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.089993] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.090031] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4848.141162] CC1: 0 -> 0, CC2: 3 -> 0 [state SNK_ATTACH_WAIT, polarity 0, disconnected]
-[ 4848.141170] state change SNK_ATTACH_WAIT -> SNK_ATTACH_WAIT
-[ 4848.141184] pending state change SNK_ATTACH_WAIT -> SNK_UNATTACHED @20 ms
-[ 4848.163156] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [delayed 20 ms]
-[ 4848.163162] Start toggling
-[ 4848.216918] CC1: 0 -> 0, CC2: 0 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.216954] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.217080] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4848.231771] CC1: 0 -> 0, CC2: 3 -> 0 [state SNK_ATTACH_WAIT, polarity 0, disconnected]
-[ 4848.231800] state change SNK_ATTACH_WAIT -> SNK_ATTACH_WAIT
-[ 4848.231857] pending state change SNK_ATTACH_WAIT -> SNK_UNATTACHED @20 ms
-[ 4848.256022] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [delayed20 ms]
-[ 4848.256049] Start toggling
-[ 4848.871148] VBUS on
-[ 4848.885324] CC1: 0 -> 0, CC2: 0 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.885372] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.885548] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4849.088240] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed200 ms]
-[ 4849.088284] state change SNK_DEBOUNCED -> SNK_ATTACHED
-[ 4849.088291] polarity 1
-[ 4849.088769] Requesting mux state 1, usb-role 2, orientation 2
-[ 4849.088895] state change SNK_ATTACHED -> SNK_STARTUP
-[ 4849.088907] state change SNK_STARTUP -> SNK_DISCOVERY
-[ 4849.088915] Setting voltage/current limit 5000 mV 0 mA
-[ 4849.088927] vbus=0 charge:=1
-[ 4849.090505] state change SNK_DISCOVERY -> SNK_WAIT_CAPABILITIES
-[ 4849.090828] pending state change SNK_WAIT_CAPABILITIES -> SNK_READY @240 ms
-[ 4849.335878] state change SNK_WAIT_CAPABILITIES -> SNK_READY [delayed240 ms]
-
-this patch fix this issue by clear hard_reset_count at any cases
-of cc disconnect, í.e. don't check port->attached flag.
-
-Fixes: 4b4e02c83167 ("typec: tcpm: Move out of staging")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: ChiYuan Huang <cy_huang@richtek.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1602500592-3817-1-git-send-email-jun.li@nxp.com
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1177973
+Cc: <stable@vger.kernel.org>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/tcpm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/gpio/gpio_base.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/tcpm.c
-+++ b/drivers/usb/typec/tcpm.c
-@@ -2727,12 +2727,12 @@ static void tcpm_reset_port(struct tcpm_
- 
- static void tcpm_detach(struct tcpm_port *port)
+--- a/drivers/gpu/drm/amd/display/dc/gpio/gpio_base.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/gpio_base.c
+@@ -63,13 +63,13 @@ enum gpio_result dal_gpio_open_ex(
+ 	enum gpio_mode mode)
  {
--	if (!port->attached)
--		return;
--
- 	if (tcpm_port_is_disconnected(port))
- 		port->hard_reset_count = 0;
+ 	if (gpio->pin) {
+-		ASSERT_CRITICAL(false);
++		BREAK_TO_DEBUGGER();
+ 		return GPIO_RESULT_ALREADY_OPENED;
+ 	}
  
-+	if (!port->attached)
-+		return;
-+
- 	tcpm_reset_port(port);
- }
- 
+ 	// No action if allocation failed during gpio construct
+ 	if (!gpio->hw_container.ddc) {
+-		ASSERT_CRITICAL(false);
++		BREAK_TO_DEBUGGER();
+ 		return GPIO_RESULT_NON_SPECIFIC_ERROR;
+ 	}
+ 	gpio->mode = mode;
 
 
