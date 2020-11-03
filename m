@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98072A539A
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C3A2A5624
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:25:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733247AbgKCVCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:02:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39748 "EHLO mail.kernel.org"
+        id S1731662AbgKCVCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:02:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387668AbgKCVCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:02:37 -0500
+        id S2387653AbgKCVCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:02:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E74E205ED;
-        Tue,  3 Nov 2020 21:02:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D922D21534;
+        Tue,  3 Nov 2020 21:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437356;
-        bh=+uM5iEAAtVuYLrga0/RMMu4tbfxk2DbpIaAC68fiSOw=;
+        s=default; t=1604437358;
+        bh=T9+xxC5TCgyryiMAlfc6SyUDb0yWAdd9BZx29ZkOeW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hLhNo8LQ+sC67bfpw+tIaIsfjrYb4RzCrGGIueCpt2zzHNpf3tKQ4XC8k3A10VaX
-         K8iswbnT0pSAVVgnIxx9lDSDQYew4M/lfY4/hXJyGpUhM8vRtXXVrMeG5/oaCeX/Gi
-         /DsYeN5RNp0BPqI0t0NOr3B8S1sZ0m6f71XhOCzM=
+        b=ViANxWueOIPXaSjpckYT9wb+GxSxOmMjtnX5vFX/8Bo6LCEEPzv8t+XLZwOW1BJRd
+         3srEZewm84SNgt0THlxLtUibnt5f0HXAojO1fpoEZL2qD0E4d+7NN27pFCBwx+xL+V
+         akxqWBjscD6ofbhUhwOMNWUpL0jZpgUdSBw32b4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Julien Grall <julien@xen.org>,
         Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Wei Liu <wl@xen.org>
-Subject: [PATCH 4.19 040/191] xen/events: add a new "late EOI" evtchn framework
-Date:   Tue,  3 Nov 2020 21:35:32 +0100
-Message-Id: <20201103203237.903814101@linuxfoundation.org>
+        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
+Subject: [PATCH 4.19 041/191] xen/blkback: use lateeoi irq binding
+Date:   Tue,  3 Nov 2020 21:35:33 +0100
+Message-Id: <20201103203238.025538834@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
 References: <20201103203232.656475008@linuxfoundation.org>
@@ -47,21 +45,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 54c9de89895e0a36047fcc4ae754ea5b8655fb9d upstream.
+commit 01263a1fabe30b4d542f34c7e2364a22587ddaf2 upstream.
 
-In order to avoid tight event channel related IRQ loops add a new
-framework of "late EOI" handling: the IRQ the event channel is bound
-to will be masked until the event has been handled and the related
-driver is capable to handle another event. The driver is responsible
-for unmasking the event channel via the new function xen_irq_lateeoi().
+In order to reduce the chance for the system becoming unresponsive due
+to event storms triggered by a misbehaving blkfront use the lateeoi
+irq binding for blkback and unmask the event channel only after
+processing all pending requests.
 
-This is similar to binding an event channel to a threaded IRQ, but
-without having to structure the driver accordingly.
-
-In order to support a future special handling in case a rogue guest
-is sending lots of unsolicited events, add a flag to xen_irq_lateeoi()
-which can be set by the caller to indicate the event was a spurious
-one.
+As the thread processing requests is used to do purging work in regular
+intervals an EOI may be sent only after having received an event. If
+there was no pending I/O request flag the EOI as spurious.
 
 This is part of XSA-332.
 
@@ -69,320 +62,108 @@ Cc: stable@vger.kernel.org
 Reported-by: Julien Grall <julien@xen.org>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
 Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 ---
- drivers/xen/events/events_base.c |  151 ++++++++++++++++++++++++++++++++++-----
- include/xen/events.h             |   29 ++++++-
- 2 files changed, 159 insertions(+), 21 deletions(-)
+ drivers/block/xen-blkback/blkback.c |   22 +++++++++++++++++-----
+ drivers/block/xen-blkback/xenbus.c  |    5 ++---
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -111,6 +111,7 @@ static bool (*pirq_needs_eoi)(unsigned i
- static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
+--- a/drivers/block/xen-blkback/blkback.c
++++ b/drivers/block/xen-blkback/blkback.c
+@@ -202,7 +202,7 @@ static inline void shrink_free_pagepool(
  
- static struct irq_chip xen_dynamic_chip;
-+static struct irq_chip xen_lateeoi_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
- static void enable_dynirq(struct irq_data *data);
-@@ -395,6 +396,33 @@ void notify_remote_via_irq(int irq)
- }
- EXPORT_SYMBOL_GPL(notify_remote_via_irq);
+ #define vaddr(page) ((unsigned long)pfn_to_kaddr(page_to_pfn(page)))
  
-+static void xen_irq_lateeoi_locked(struct irq_info *info)
-+{
-+	evtchn_port_t evtchn;
-+
-+	evtchn = info->evtchn;
-+	if (!VALID_EVTCHN(evtchn))
-+		return;
-+
-+	unmask_evtchn(evtchn);
-+}
-+
-+void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
-+{
-+	struct irq_info *info;
-+	unsigned long flags;
-+
-+	read_lock_irqsave(&evtchn_rwlock, flags);
-+
-+	info = info_for_irq(irq);
-+
-+	if (info)
-+		xen_irq_lateeoi_locked(info);
-+
-+	read_unlock_irqrestore(&evtchn_rwlock, flags);
-+}
-+EXPORT_SYMBOL_GPL(xen_irq_lateeoi);
-+
- static void xen_irq_init(unsigned irq)
- {
- 	struct irq_info *info;
-@@ -866,7 +894,7 @@ int xen_pirq_from_irq(unsigned irq)
- }
- EXPORT_SYMBOL_GPL(xen_pirq_from_irq);
- 
--int bind_evtchn_to_irq(unsigned int evtchn)
-+static int bind_evtchn_to_irq_chip(evtchn_port_t evtchn, struct irq_chip *chip)
- {
- 	int irq;
+-static int do_block_io_op(struct xen_blkif_ring *ring);
++static int do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags);
+ static int dispatch_rw_block_io(struct xen_blkif_ring *ring,
+ 				struct blkif_request *req,
+ 				struct pending_req *pending_req);
+@@ -615,6 +615,8 @@ int xen_blkif_schedule(void *arg)
+ 	struct xen_vbd *vbd = &blkif->vbd;
+ 	unsigned long timeout;
  	int ret;
-@@ -883,7 +911,7 @@ int bind_evtchn_to_irq(unsigned int evtc
- 		if (irq < 0)
- 			goto out;
++	bool do_eoi;
++	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
  
--		irq_set_chip_and_handler_name(irq, &xen_dynamic_chip,
-+		irq_set_chip_and_handler_name(irq, chip,
- 					      handle_edge_irq, "event");
+ 	set_freezable();
+ 	while (!kthread_should_stop()) {
+@@ -639,16 +641,23 @@ int xen_blkif_schedule(void *arg)
+ 		if (timeout == 0)
+ 			goto purge_gnt_list;
  
- 		ret = xen_irq_info_evtchn_setup(irq, evtchn);
-@@ -904,8 +932,19 @@ out:
- 
- 	return irq;
- }
++		do_eoi = ring->waiting_reqs;
 +
-+int bind_evtchn_to_irq(evtchn_port_t evtchn)
-+{
-+	return bind_evtchn_to_irq_chip(evtchn, &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
+ 		ring->waiting_reqs = 0;
+ 		smp_mb(); /* clear flag *before* checking for work */
  
-+int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn)
-+{
-+	return bind_evtchn_to_irq_chip(evtchn, &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irq_lateeoi);
+-		ret = do_block_io_op(ring);
++		ret = do_block_io_op(ring, &eoi_flags);
+ 		if (ret > 0)
+ 			ring->waiting_reqs = 1;
+ 		if (ret == -EACCES)
+ 			wait_event_interruptible(ring->shutdown_wq,
+ 						 kthread_should_stop());
+ 
++		if (do_eoi && !ring->waiting_reqs) {
++			xen_irq_lateeoi(ring->irq, eoi_flags);
++			eoi_flags |= XEN_EOI_FLAG_SPURIOUS;
++		}
 +
- static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
- {
- 	struct evtchn_bind_ipi bind_ipi;
-@@ -947,8 +986,9 @@ static int bind_ipi_to_irq(unsigned int
- 	return irq;
- }
- 
--int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
--				   unsigned int remote_port)
-+static int bind_interdomain_evtchn_to_irq_chip(unsigned int remote_domain,
-+					       evtchn_port_t remote_port,
-+					       struct irq_chip *chip)
- {
- 	struct evtchn_bind_interdomain bind_interdomain;
- 	int err;
-@@ -959,10 +999,26 @@ int bind_interdomain_evtchn_to_irq(unsig
- 	err = HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain,
- 					  &bind_interdomain);
- 
--	return err ? : bind_evtchn_to_irq(bind_interdomain.local_port);
-+	return err ? : bind_evtchn_to_irq_chip(bind_interdomain.local_port,
-+					       chip);
-+}
-+
-+int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
-+				   evtchn_port_t remote_port)
-+{
-+	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						   &xen_dynamic_chip);
- }
- EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq);
- 
-+int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
-+					   evtchn_port_t remote_port)
-+{
-+	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						   &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq_lateeoi);
-+
- static int find_virq(unsigned int virq, unsigned int cpu)
- {
- 	struct evtchn_status status;
-@@ -1058,14 +1114,15 @@ static void unbind_from_irq(unsigned int
- 	mutex_unlock(&irq_mapping_update_lock);
- }
- 
--int bind_evtchn_to_irqhandler(unsigned int evtchn,
--			      irq_handler_t handler,
--			      unsigned long irqflags,
--			      const char *devname, void *dev_id)
-+static int bind_evtchn_to_irqhandler_chip(evtchn_port_t evtchn,
-+					  irq_handler_t handler,
-+					  unsigned long irqflags,
-+					  const char *devname, void *dev_id,
-+					  struct irq_chip *chip)
- {
- 	int irq, retval;
- 
--	irq = bind_evtchn_to_irq(evtchn);
-+	irq = bind_evtchn_to_irq_chip(evtchn, chip);
- 	if (irq < 0)
- 		return irq;
- 	retval = request_irq(irq, handler, irqflags, devname, dev_id);
-@@ -1076,18 +1133,38 @@ int bind_evtchn_to_irqhandler(unsigned i
- 
- 	return irq;
- }
-+
-+int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
-+			      irq_handler_t handler,
-+			      unsigned long irqflags,
-+			      const char *devname, void *dev_id)
-+{
-+	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
-+					      devname, dev_id,
-+					      &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
- 
--int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
--					  unsigned int remote_port,
--					  irq_handler_t handler,
--					  unsigned long irqflags,
--					  const char *devname,
--					  void *dev_id)
-+int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
-+				      irq_handler_t handler,
-+				      unsigned long irqflags,
-+				      const char *devname, void *dev_id)
-+{
-+	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
-+					      devname, dev_id,
-+					      &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler_lateeoi);
-+
-+static int bind_interdomain_evtchn_to_irqhandler_chip(
-+		unsigned int remote_domain, evtchn_port_t remote_port,
-+		irq_handler_t handler, unsigned long irqflags,
-+		const char *devname, void *dev_id, struct irq_chip *chip)
- {
- 	int irq, retval;
- 
--	irq = bind_interdomain_evtchn_to_irq(remote_domain, remote_port);
-+	irq = bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						  chip);
- 	if (irq < 0)
- 		return irq;
- 
-@@ -1099,8 +1176,33 @@ int bind_interdomain_evtchn_to_irqhandle
- 
- 	return irq;
- }
-+
-+int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
-+					  evtchn_port_t remote_port,
-+					  irq_handler_t handler,
-+					  unsigned long irqflags,
-+					  const char *devname,
-+					  void *dev_id)
-+{
-+	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
-+				remote_port, handler, irqflags, devname,
-+				dev_id, &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler);
- 
-+int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
-+						  evtchn_port_t remote_port,
-+						  irq_handler_t handler,
-+						  unsigned long irqflags,
-+						  const char *devname,
-+						  void *dev_id)
-+{
-+	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
-+				remote_port, handler, irqflags, devname,
-+				dev_id, &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler_lateeoi);
-+
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
- 			    irq_handler_t handler,
- 			    unsigned long irqflags, const char *devname, void *dev_id)
-@@ -1641,6 +1743,21 @@ static struct irq_chip xen_dynamic_chip
- 	.irq_mask_ack		= mask_ack_dynirq,
- 
- 	.irq_set_affinity	= set_affinity_irq,
-+	.irq_retrigger		= retrigger_dynirq,
-+};
-+
-+static struct irq_chip xen_lateeoi_chip __read_mostly = {
-+	/* The chip name needs to contain "xen-dyn" for irqbalance to work. */
-+	.name			= "xen-dyn-lateeoi",
-+
-+	.irq_disable		= disable_dynirq,
-+	.irq_mask		= disable_dynirq,
-+	.irq_unmask		= enable_dynirq,
-+
-+	.irq_ack		= mask_ack_dynirq,
-+	.irq_mask_ack		= mask_ack_dynirq,
-+
-+	.irq_set_affinity	= set_affinity_irq,
- 	.irq_retrigger		= retrigger_dynirq,
- };
- 
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -14,11 +14,16 @@
- 
- unsigned xen_evtchn_nr_channels(void);
- 
--int bind_evtchn_to_irq(unsigned int evtchn);
--int bind_evtchn_to_irqhandler(unsigned int evtchn,
-+int bind_evtchn_to_irq(evtchn_port_t evtchn);
-+int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn);
-+int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
- 			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
- 			      void *dev_id);
-+int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
-+				      irq_handler_t handler,
-+				      unsigned long irqflags, const char *devname,
-+				      void *dev_id);
- int bind_virq_to_irq(unsigned int virq, unsigned int cpu, bool percpu);
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
- 			    irq_handler_t handler,
-@@ -31,13 +36,21 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 			   const char *devname,
- 			   void *dev_id);
- int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
--				   unsigned int remote_port);
-+				   evtchn_port_t remote_port);
-+int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
-+					   evtchn_port_t remote_port);
- int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
--					  unsigned int remote_port,
-+					  evtchn_port_t remote_port,
- 					  irq_handler_t handler,
- 					  unsigned long irqflags,
- 					  const char *devname,
- 					  void *dev_id);
-+int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
-+						  evtchn_port_t remote_port,
-+						  irq_handler_t handler,
-+						  unsigned long irqflags,
-+						  const char *devname,
-+						  void *dev_id);
- 
- /*
-  * Common unbind function for all event sources. Takes IRQ to unbind from.
-@@ -46,6 +59,14 @@ int bind_interdomain_evtchn_to_irqhandle
+ purge_gnt_list:
+ 		if (blkif->vbd.feature_gnt_persistent &&
+ 		    time_after(jiffies, ring->next_lru)) {
+@@ -1121,7 +1130,7 @@ static void end_block_io_op(struct bio *
+  * and transmute  it to the block API to hand it over to the proper block disk.
   */
- void unbind_from_irqhandler(unsigned int irq, void *dev_id);
+ static int
+-__do_block_io_op(struct xen_blkif_ring *ring)
++__do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
+ {
+ 	union blkif_back_rings *blk_rings = &ring->blk_rings;
+ 	struct blkif_request req;
+@@ -1144,6 +1153,9 @@ __do_block_io_op(struct xen_blkif_ring *
+ 		if (RING_REQUEST_CONS_OVERFLOW(&blk_rings->common, rc))
+ 			break;
  
-+/*
-+ * Send late EOI for an IRQ bound to an event channel via one of the *_lateeoi
-+ * functions above.
-+ */
-+void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags);
-+/* Signal an event was spurious, i.e. there was no action resulting from it. */
-+#define XEN_EOI_FLAG_SPURIOUS	0x00000001
++		/* We've seen a request, so clear spurious eoi flag. */
++		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
 +
- #define XEN_IRQ_PRIORITY_MAX     EVTCHN_FIFO_PRIORITY_MAX
- #define XEN_IRQ_PRIORITY_DEFAULT EVTCHN_FIFO_PRIORITY_DEFAULT
- #define XEN_IRQ_PRIORITY_MIN     EVTCHN_FIFO_PRIORITY_MIN
+ 		if (kthread_should_stop()) {
+ 			more_to_do = 1;
+ 			break;
+@@ -1202,13 +1214,13 @@ done:
+ }
+ 
+ static int
+-do_block_io_op(struct xen_blkif_ring *ring)
++do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
+ {
+ 	union blkif_back_rings *blk_rings = &ring->blk_rings;
+ 	int more_to_do;
+ 
+ 	do {
+-		more_to_do = __do_block_io_op(ring);
++		more_to_do = __do_block_io_op(ring, eoi_flags);
+ 		if (more_to_do)
+ 			break;
+ 
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -237,9 +237,8 @@ static int xen_blkif_map(struct xen_blki
+ 		BUG();
+ 	}
+ 
+-	err = bind_interdomain_evtchn_to_irqhandler(blkif->domid, evtchn,
+-						    xen_blkif_be_int, 0,
+-						    "blkif-backend", ring);
++	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(blkif->domid,
++			evtchn, xen_blkif_be_int, 0, "blkif-backend", ring);
+ 	if (err < 0) {
+ 		xenbus_unmap_ring_vfree(blkif->be->dev, ring->blk_ring);
+ 		ring->blk_rings.common.sring = NULL;
 
 
