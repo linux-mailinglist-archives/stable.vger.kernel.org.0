@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EE12A5130
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B352A5145
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730025AbgKCUi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:38:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        id S1730036AbgKCUjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:39:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730038AbgKCUiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:38:55 -0500
+        id S1730046AbgKCUi5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:38:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36AF022226;
-        Tue,  3 Nov 2020 20:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8368822226;
+        Tue,  3 Nov 2020 20:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604435934;
-        bh=HnUn3Vu3B5ulZ4jyj7plw1wAf8WC61eCS9sUDj0JMKY=;
+        s=default; t=1604435937;
+        bh=ZLhE3GD/bPjDSWizsa/2eDscOTKpt0/k2QrU1UvS2EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwlbYUQtKIVgOFMqbjTy5KwQGt20Bv7NUkl8n2HsYOh8H5gdJyK3REcXX0EnABqA1
-         wOyZoH6QyV8t1igkn2ujQgC4DqPA7tHI0reKg4l843rL6w5QJwH4paHj5lOS8VhfE3
-         597Wyoe+5mh/38fbTFIWLxcWGxDyGUVt+s2txdQI=
+        b=ROc15n5rXCcdonaDQjPFB1bGNvjPd2snBuWt9jxF0PoIZZsQDT7BcsudOqFNuou5p
+         3CYzIErrJu2hvzXdKu+r96C4Rwris90TITTZgQJouFZxW3oXSyRINOPIaqYtgNhrBl
+         vMNWN96H+h3QCwUGsArMSvRA48YZrvFFIqJhunSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, 5kft <5kft@5kft.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 045/391] RDMA/core: Change how failing destroy is handled during uobj abort
-Date:   Tue,  3 Nov 2020 21:31:36 +0100
-Message-Id: <20201103203350.624333877@linuxfoundation.org>
+Subject: [PATCH 5.9 046/391] f2fs: allocate proper size memory for zstd decompress
+Date:   Tue,  3 Nov 2020 21:31:37 +0100
+Message-Id: <20201103203350.677434569@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -43,94 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit f553246f7f794675da1794ae7ee07d1f35e561ae ]
+[ Upstream commit 0e2b7385cb59e566520cfd0a04b4b53bc9461e98 ]
 
-Currently it triggers a WARN_ON and then goes ahead and destroys the
-uobject anyhow, leaking any driver memory.
+As 5kft <5kft@5kft.org> reported:
 
-The only place that leaks driver memory should be during FD close() in
-uverbs_destroy_ufile_hw().
+ kworker/u9:3: page allocation failure: order:9, mode:0x40c40(GFP_NOFS|__GFP_COMP), nodemask=(null),cpuset=/,mems_allowed=0
+ CPU: 3 PID: 8168 Comm: kworker/u9:3 Tainted: G         C        5.8.3-sunxi #trunk
+ Hardware name: Allwinner sun8i Family
+ Workqueue: f2fs_post_read_wq f2fs_post_read_work
+ [<c010d6d5>] (unwind_backtrace) from [<c0109a55>] (show_stack+0x11/0x14)
+ [<c0109a55>] (show_stack) from [<c056d489>] (dump_stack+0x75/0x84)
+ [<c056d489>] (dump_stack) from [<c0243b53>] (warn_alloc+0xa3/0x104)
+ [<c0243b53>] (warn_alloc) from [<c024473b>] (__alloc_pages_nodemask+0xb87/0xc40)
+ [<c024473b>] (__alloc_pages_nodemask) from [<c02267c5>] (kmalloc_order+0x19/0x38)
+ [<c02267c5>] (kmalloc_order) from [<c02267fd>] (kmalloc_order_trace+0x19/0x90)
+ [<c02267fd>] (kmalloc_order_trace) from [<c047c665>] (zstd_init_decompress_ctx+0x21/0x88)
+ [<c047c665>] (zstd_init_decompress_ctx) from [<c047e9cf>] (f2fs_decompress_pages+0x97/0x228)
+ [<c047e9cf>] (f2fs_decompress_pages) from [<c045d0ab>] (__read_end_io+0xfb/0x130)
+ [<c045d0ab>] (__read_end_io) from [<c045d141>] (f2fs_post_read_work+0x61/0x84)
+ [<c045d141>] (f2fs_post_read_work) from [<c0130b2f>] (process_one_work+0x15f/0x3b0)
+ [<c0130b2f>] (process_one_work) from [<c0130e7b>] (worker_thread+0xfb/0x3e0)
+ [<c0130e7b>] (worker_thread) from [<c0135c3b>] (kthread+0xeb/0x10c)
+ [<c0135c3b>] (kthread) from [<c0100159>]
 
-Drivers are only allowed to fail destroy uobjects if they guarantee
-destroy will eventually succeed. uverbs_destroy_ufile_hw() provides the
-loop to give the driver that chance.
+zstd may allocate large size memory for {,de}compression, it may cause
+file copy failure on low-end device which has very few memory.
 
-Link: https://lore.kernel.org/r/20200902081708.746631-1-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+For decompression, let's just allocate proper size memory based on current
+file's cluster size instead of max cluster size.
+
+Reported-by: 5kft <5kft@5kft.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/rdma_core.c | 30 ++++++++++++++---------------
- include/rdma/ib_verbs.h             |  5 -----
- 2 files changed, 15 insertions(+), 20 deletions(-)
+ fs/f2fs/compress.c | 7 ++++---
+ fs/f2fs/f2fs.h     | 2 +-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
-index 6d3ed7c6e19eb..3962da54ffbf4 100644
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -130,17 +130,6 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
- 	lockdep_assert_held(&ufile->hw_destroy_rwsem);
- 	assert_uverbs_usecnt(uobj, UVERBS_LOOKUP_WRITE);
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index 1dfb126a0cb20..1cd4b3f9c9f8c 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -382,16 +382,17 @@ static int zstd_init_decompress_ctx(struct decompress_io_ctx *dic)
+ 	ZSTD_DStream *stream;
+ 	void *workspace;
+ 	unsigned int workspace_size;
++	unsigned int max_window_size =
++			MAX_COMPRESS_WINDOW_SIZE(dic->log_cluster_size);
  
--	if (reason == RDMA_REMOVE_ABORT_HWOBJ) {
--		reason = RDMA_REMOVE_ABORT;
--		ret = uobj->uapi_object->type_class->destroy_hw(uobj, reason,
--								attrs);
--		/*
--		 * Drivers are not permitted to ignore RDMA_REMOVE_ABORT, see
--		 * ib_is_destroy_retryable, cleanup_retryable == false here.
--		 */
--		WARN_ON(ret);
--	}
--
- 	if (reason == RDMA_REMOVE_ABORT) {
- 		WARN_ON(!list_empty(&uobj->list));
- 		WARN_ON(!uobj->context);
-@@ -674,11 +663,22 @@ void rdma_alloc_abort_uobject(struct ib_uobject *uobj,
- 			      bool hw_obj_valid)
- {
- 	struct ib_uverbs_file *ufile = uobj->ufile;
-+	int ret;
-+
-+	if (hw_obj_valid) {
-+		ret = uobj->uapi_object->type_class->destroy_hw(
-+			uobj, RDMA_REMOVE_ABORT, attrs);
-+		/*
-+		 * If the driver couldn't destroy the object then go ahead and
-+		 * commit it. Leaking objects that can't be destroyed is only
-+		 * done during FD close after the driver has a few more tries to
-+		 * destroy it.
-+		 */
-+		if (WARN_ON(ret))
-+			return rdma_alloc_commit_uobject(uobj, attrs);
-+	}
+-	workspace_size = ZSTD_DStreamWorkspaceBound(MAX_COMPRESS_WINDOW_SIZE);
++	workspace_size = ZSTD_DStreamWorkspaceBound(max_window_size);
  
--	uverbs_destroy_uobject(uobj,
--			       hw_obj_valid ? RDMA_REMOVE_ABORT_HWOBJ :
--					      RDMA_REMOVE_ABORT,
--			       attrs);
-+	uverbs_destroy_uobject(uobj, RDMA_REMOVE_ABORT, attrs);
+ 	workspace = f2fs_kvmalloc(F2FS_I_SB(dic->inode),
+ 					workspace_size, GFP_NOFS);
+ 	if (!workspace)
+ 		return -ENOMEM;
  
- 	/* Matches the down_read in rdma_alloc_begin_uobject */
- 	up_read(&ufile->hw_destroy_rwsem);
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 5b4f0efc4241f..ef7b786b8675c 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -1463,11 +1463,6 @@ enum rdma_remove_reason {
- 	RDMA_REMOVE_DRIVER_REMOVE,
- 	/* uobj is being cleaned-up before being committed */
- 	RDMA_REMOVE_ABORT,
--	/*
--	 * uobj has been fully created, with the uobj->object set, but is being
--	 * cleaned up before being comitted
--	 */
--	RDMA_REMOVE_ABORT_HWOBJ,
- };
+-	stream = ZSTD_initDStream(MAX_COMPRESS_WINDOW_SIZE,
+-					workspace, workspace_size);
++	stream = ZSTD_initDStream(max_window_size, workspace, workspace_size);
+ 	if (!stream) {
+ 		printk_ratelimited("%sF2FS-fs (%s): %s ZSTD_initDStream failed\n",
+ 				KERN_ERR, F2FS_I_SB(dic->inode)->sb->s_id,
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index d9e52a7f3702f..98c4b166f192b 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -1394,7 +1394,7 @@ struct decompress_io_ctx {
+ #define NULL_CLUSTER			((unsigned int)(~0))
+ #define MIN_COMPRESS_LOG_SIZE		2
+ #define MAX_COMPRESS_LOG_SIZE		8
+-#define MAX_COMPRESS_WINDOW_SIZE	((PAGE_SIZE) << MAX_COMPRESS_LOG_SIZE)
++#define MAX_COMPRESS_WINDOW_SIZE(log_size)	((PAGE_SIZE) << (log_size))
  
- struct ib_rdmacg_object {
+ struct f2fs_sb_info {
+ 	struct super_block *sb;			/* pointer to VFS super block */
 -- 
 2.27.0
 
