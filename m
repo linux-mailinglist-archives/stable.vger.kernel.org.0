@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D36B2A57C4
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:45:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BE52A57EA
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:47:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731259AbgKCUwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:52:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49562 "EHLO mail.kernel.org"
+        id S1731981AbgKCUve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:51:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732124AbgKCUwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:52:39 -0500
+        id S1731974AbgKCUvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:51:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90EBE2236F;
-        Tue,  3 Nov 2020 20:52:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DC6E2071E;
+        Tue,  3 Nov 2020 20:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436759;
-        bh=nTTUUWFVIs73i31KKK7JjYTqSPk9AZ8yr1SBM1k8BBk=;
+        s=default; t=1604436692;
+        bh=61khsE1TzuDOx5YXSlWjxBV41HDaFppGH788FB9Bx3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=saBaVItlwz4WWhtXLEMtCypaGKmvIm7mwprxWCUFKkntRpc1tfNz1LIDaijyvki9j
-         XkXN328tenJQvSvhvab1BNHhbTM6noZM1HCqhCA8zroz9Z0D2IPK9oV1k2HypAW8x9
-         IA+pd/Cl3+Fs/AOERc97At5IEWKA7ED3yaQwmksQ=
+        b=bR0GKshO2geE/PmfyA5msqWY+4fy76SdQz8WhXNuPq7WXIIXWhuqTpgc276N33mhI
+         KyP4mXIsD0rFde+gKW7sTNOJ0dR85LoqjULwBzFLgyUx/sYsXWQ0dRtBMfK6aVMxlV
+         iszdFPo8ChuGgx3SyWJ9hUyDqZpiN44X6qh03FZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Yuxuan Shui <yshuiv7@gmail.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.9 342/391] ext4: implement swap_activate aops using iomap
-Date:   Tue,  3 Nov 2020 21:36:33 +0100
-Message-Id: <20201103203410.213396435@linuxfoundation.org>
+        Constantine Sapuntzakis <costa@purestorage.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.9 344/391] ext4: fix superblock checksum calculation race
+Date:   Tue,  3 Nov 2020 21:36:35 +0100
+Message-Id: <20201103203410.349940532@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,81 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Constantine Sapuntzakis <costa@purestorage.com>
 
-commit 0e6895ba00b7be45f3ab0d2107dda3ef1245f5b4 upstream.
+commit acaa532687cdc3a03757defafece9c27aa667546 upstream.
 
-After moving ext4's bmap to iomap interface, swapon functionality
-on files created using fallocate (which creates unwritten extents) are
-failing. This is since iomap_bmap interface returns 0 for unwritten
-extents and thus generic_swapfile_activate considers this as holes
-and hence bail out with below kernel msg :-
+The race condition could cause the persisted superblock checksum
+to not match the contents of the superblock, causing the
+superblock to be considered corrupt.
 
-[340.915835] swapon: swapfile has holes
+An example of the race follows.  A first thread is interrupted in the
+middle of a checksum calculation. Then, another thread changes the
+superblock, calculates a new checksum, and sets it. Then, the first
+thread resumes and sets the checksum based on the older superblock.
 
-To fix this we need to implement ->swap_activate aops in ext4
-which will use ext4_iomap_report_ops. Since we only need to return
-the list of extents so ext4_iomap_report_ops should be enough.
+To fix, serialize the superblock checksum calculation using the buffer
+header lock. While a spinlock is sufficient, the buffer header is
+already there and there is precedent for locking it (e.g. in
+ext4_commit_super).
+
+Tested the patch by booting up a kernel with the patch, creating
+a filesystem and some files (including some orphans), and then
+unmounting and remounting the file system.
 
 Cc: stable@kernel.org
-Reported-by: Yuxuan Shui <yshuiv7@gmail.com>
-Fixes: ac58e4fb03f ("ext4: move ext4 bmap to use iomap infrastructure")
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200904091653.1014334-1-riteshh@linux.ibm.com
+Signed-off-by: Constantine Sapuntzakis <costa@purestorage.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Suggested-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200914161014.22275-1-costa@purestorage.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   11 +++++++++++
+ fs/ext4/super.c |   11 +++++++++++
  1 file changed, 11 insertions(+)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3601,6 +3601,13 @@ static int ext4_set_page_dirty(struct pa
- 	return __set_page_dirty_buffers(page);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -201,7 +201,18 @@ void ext4_superblock_csum_set(struct sup
+ 	if (!ext4_has_metadata_csum(sb))
+ 		return;
+ 
++	/*
++	 * Locking the superblock prevents the scenario
++	 * where:
++	 *  1) a first thread pauses during checksum calculation.
++	 *  2) a second thread updates the superblock, recalculates
++	 *     the checksum, and updates s_checksum
++	 *  3) the first thread resumes and finishes its checksum calculation
++	 *     and updates s_checksum with a potentially stale or torn value.
++	 */
++	lock_buffer(EXT4_SB(sb)->s_sbh);
+ 	es->s_checksum = ext4_superblock_csum(sb, es);
++	unlock_buffer(EXT4_SB(sb)->s_sbh);
  }
  
-+static int ext4_iomap_swap_activate(struct swap_info_struct *sis,
-+				    struct file *file, sector_t *span)
-+{
-+	return iomap_swapfile_activate(sis, file, span,
-+				       &ext4_iomap_report_ops);
-+}
-+
- static const struct address_space_operations ext4_aops = {
- 	.readpage		= ext4_readpage,
- 	.readahead		= ext4_readahead,
-@@ -3616,6 +3623,7 @@ static const struct address_space_operat
- 	.migratepage		= buffer_migrate_page,
- 	.is_partially_uptodate  = block_is_partially_uptodate,
- 	.error_remove_page	= generic_error_remove_page,
-+	.swap_activate		= ext4_iomap_swap_activate,
- };
- 
- static const struct address_space_operations ext4_journalled_aops = {
-@@ -3632,6 +3640,7 @@ static const struct address_space_operat
- 	.direct_IO		= noop_direct_IO,
- 	.is_partially_uptodate  = block_is_partially_uptodate,
- 	.error_remove_page	= generic_error_remove_page,
-+	.swap_activate		= ext4_iomap_swap_activate,
- };
- 
- static const struct address_space_operations ext4_da_aops = {
-@@ -3649,6 +3658,7 @@ static const struct address_space_operat
- 	.migratepage		= buffer_migrate_page,
- 	.is_partially_uptodate  = block_is_partially_uptodate,
- 	.error_remove_page	= generic_error_remove_page,
-+	.swap_activate		= ext4_iomap_swap_activate,
- };
- 
- static const struct address_space_operations ext4_dax_aops = {
-@@ -3657,6 +3667,7 @@ static const struct address_space_operat
- 	.set_page_dirty		= noop_set_page_dirty,
- 	.bmap			= ext4_bmap,
- 	.invalidatepage		= noop_invalidatepage,
-+	.swap_activate		= ext4_iomap_swap_activate,
- };
- 
- void ext4_set_aops(struct inode *inode)
+ ext4_fsblk_t ext4_block_bitmap(struct super_block *sb,
 
 
