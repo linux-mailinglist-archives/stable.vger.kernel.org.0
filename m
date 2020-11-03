@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C182A3935
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 645D22A3939
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:24:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgKCBUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:20:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35094 "EHLO mail.kernel.org"
+        id S1728072AbgKCBYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:24:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728089AbgKCBUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:20:24 -0500
+        id S1728096AbgKCBU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:20:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAA9F222B9;
-        Tue,  3 Nov 2020 01:20:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25CA822470;
+        Tue,  3 Nov 2020 01:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366423;
-        bh=hdqDq+TaiDRElSCvu1+PkOkwPfGZkN6dKoBDHWd73AM=;
+        s=default; t=1604366425;
+        bh=s6Ohnr9qvDXvw5RYnAX7G1WAuGXYpoxuoPw8bgU/29w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oK5rhnY4GRXRBQcn4eTdojpn9k7/+q2lM8+ZhdDVgjQk7Te6Ik1Wz5Vi5aOUKUxXJ
-         Hk4aUGg4eN1H33RsdF9TJYnL184+qyUsofGnECFjwj2w1FlF99xz8/FrpuZEyAzmVS
-         ikC/fEaL4BFN7YP9hTZTSXAf5no4uROJH0tI6kBI=
+        b=mB0CJdNW927fP2jWHhBnNZ3jNJYL+ithNd3ASbsmI4CfKXbIt0MZabFdWddvZlDzV
+         cN0WYgA0JScEdZsXyB2XKs9AAIYibGem56EXiGbYkBAB9nBuTFC+xfy2E/ohS9q5kO
+         eBziFPoZk8nLZYuYnitZJPojMvUtxvEXaYidAjf0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/24] blk-cgroup: Pre-allocate tree node on blkg_conf_prep
-Date:   Mon,  2 Nov 2020 20:19:55 -0500
-Message-Id: <20201103012007.183429-12-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/24] scsi: core: Don't start concurrent async scan on same host
+Date:   Mon,  2 Nov 2020 20:19:56 -0500
+Message-Id: <20201103012007.183429-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103012007.183429-1-sashal@kernel.org>
 References: <20201103012007.183429-1-sashal@kernel.org>
@@ -43,80 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit f255c19b3ab46d3cad3b1b2e1036f4c926cb1d0c ]
+[ Upstream commit 831e3405c2a344018a18fcc2665acc5a38c3a707 ]
 
-Similarly to commit 457e490f2b741 ("blkcg: allocate struct blkcg_gq
-outside request queue spinlock"), blkg_create can also trigger
-occasional -ENOMEM failures at the radix insertion because any
-allocation inside blkg_create has to be non-blocking, making it more
-likely to fail.  This causes trouble for userspace tools trying to
-configure io weights who need to deal with this condition.
+The current scanning mechanism is supposed to fall back to a synchronous
+host scan if an asynchronous scan is in progress. However, this rule isn't
+strictly respected, scsi_prep_async_scan() doesn't hold scan_mutex when
+checking shost->async_scan. When scsi_scan_host() is called concurrently,
+two async scans on same host can be started and a hang in do_scan_async()
+is observed.
 
-This patch reduces the occurrence of -ENOMEMs on this path by preloading
-the radix tree element on a GFP_KERNEL context, such that we guarantee
-the later non-blocking insertion won't fail.
+Fixes this issue by checking & setting shost->async_scan atomically with
+shost->scan_mutex.
 
-A similar solution exists in blkcg_init_queue for the same situation.
-
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20201010032539.426615-1-ming.lei@redhat.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_scan.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index a4793cfb68f28..3d34ac02d76ef 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -855,6 +855,12 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 			goto fail;
- 		}
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 058079f915f18..79232cef1af16 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -1715,15 +1715,16 @@ static void scsi_sysfs_add_devices(struct Scsi_Host *shost)
+  */
+ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ {
+-	struct async_scan_data *data;
++	struct async_scan_data *data = NULL;
+ 	unsigned long flags;
  
-+		if (radix_tree_preload(GFP_KERNEL)) {
-+			blkg_free(new_blkg);
-+			ret = -ENOMEM;
-+			goto fail;
-+		}
-+
- 		rcu_read_lock();
- 		spin_lock_irq(&q->queue_lock);
+ 	if (strncmp(scsi_scan_type, "sync", 4) == 0)
+ 		return NULL;
  
-@@ -862,7 +868,7 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 		if (IS_ERR(blkg)) {
- 			ret = PTR_ERR(blkg);
- 			blkg_free(new_blkg);
--			goto fail_unlock;
-+			goto fail_preloaded;
- 		}
- 
- 		if (blkg) {
-@@ -871,10 +877,12 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 			blkg = blkg_create(pos, q, new_blkg);
- 			if (IS_ERR(blkg)) {
- 				ret = PTR_ERR(blkg);
--				goto fail_unlock;
-+				goto fail_preloaded;
- 			}
- 		}
- 
-+		radix_tree_preload_end();
-+
- 		if (pos == blkcg)
- 			goto success;
++	mutex_lock(&shost->scan_mutex);
+ 	if (shost->async_scan) {
+ 		shost_printk(KERN_DEBUG, shost, "%s called twice\n", __func__);
+-		return NULL;
++		goto err;
  	}
-@@ -884,6 +892,8 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 	ctx->body = input;
- 	return 0;
  
-+fail_preloaded:
-+	radix_tree_preload_end();
- fail_unlock:
- 	spin_unlock_irq(&q->queue_lock);
- 	rcu_read_unlock();
+ 	data = kmalloc(sizeof(*data), GFP_KERNEL);
+@@ -1734,7 +1735,6 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 		goto err;
+ 	init_completion(&data->prev_finished);
+ 
+-	mutex_lock(&shost->scan_mutex);
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	shost->async_scan = 1;
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+@@ -1749,6 +1749,7 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 	return data;
+ 
+  err:
++	mutex_unlock(&shost->scan_mutex);
+ 	kfree(data);
+ 	return NULL;
+ }
 -- 
 2.27.0
 
