@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3AE2A55B1
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3EBE2A5569
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387895AbgKCVF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:05:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44694 "EHLO mail.kernel.org"
+        id S2388468AbgKCVRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:17:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388085AbgKCVF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:57 -0500
+        id S1731466AbgKCVKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:10:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65E2220658;
-        Tue,  3 Nov 2020 21:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDB42206B5;
+        Tue,  3 Nov 2020 21:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437556;
-        bh=ySugc/lyIEi+yAAJnVsWvGo3+XTKg6rAFZPU4Ebntk8=;
+        s=default; t=1604437806;
+        bh=eYICiRRS1l4yoX3YPQVVTcbA5yK/1BfuL9K2fQPi5Vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qz7z/A946/PRJFocN2iI6OX20jMbTJ5OeoOvrs7NrRH/YsANW130aHZn3tdUqtUNi
-         k5Nhl490bex4yxstuiLSiiBDqJPU2UY7dxabJU7DP1mN8OrMNZgquLpQMyA2U4CLDa
-         zuQ9QdSDsCHbjEmf3ryRoEQTEVSXecTJ1ZYb9UWU=
+        b=Wb/Y4OetMvBepc5bs3KW4114DpQ/CRlpXIIv0L6cvbfjNTaylJHUhZtBzVQ3Mbn/T
+         H9InF4DuhBXOpFp9NHWCcr2uzSIRFWG3b/dpE6D6GDNbUkvhDNhxlnZ7KyZ9gtLCrE
+         S3rjGQeXkYNz+XFBzkDQ9fC2jFKdqByAr1r4cqmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>
-Subject: [PATCH 4.19 125/191] w1: mxc_w1: Fix timeout resolution problem leading to bus error
+        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>,
+        Gavin Shan <gshan@redhat.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 040/125] arm64/mm: return cpu_all_mask when node is NUMA_NO_NODE
 Date:   Tue,  3 Nov 2020 21:36:57 +0100
-Message-Id: <20201103203244.914285038@linuxfoundation.org>
+Message-Id: <20201103203202.808366160@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
 
-commit c9723750a699c3bd465493ac2be8992b72ccb105 upstream.
+[ Upstream commit a194c5f2d2b3a05428805146afcabe5140b5d378 ]
 
-On my platform (i.MX53) bus access sometimes fails with
-	w1_search: max_slave_count 64 reached, will continue next search.
+The @node passed to cpumask_of_node() can be NUMA_NO_NODE, in that
+case it will trigger the following WARN_ON(node >= nr_node_ids) due to
+mismatched data types of @node and @nr_node_ids. Actually we should
+return cpu_all_mask just like most other architectures do if passed
+NUMA_NO_NODE.
 
-The reason is the use of jiffies to implement a 200us timeout in
-mxc_w1_ds2_touch_bit().
-On some platforms the jiffies timer resolution is insufficient for this.
+Also add a similar check to the inline cpumask_of_node() in numa.h.
 
-Fix by replacing jiffies by ktime_get().
-
-For consistency apply the same change to the other use of jiffies in
-mxc_w1_ds2_reset_bus().
-
-Fixes: f80b2581a706 ("w1: mxc_w1: Optimize mxc_w1_ds2_touch_bit()")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Link: https://lore.kernel.org/r/1601455030-6607-1-git-send-email-martin.fuzzey@flowbird.group
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
+Link: https://lore.kernel.org/r/20200921023936.21846-1-liuzhengyuan@tj.kylinos.cn
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/masters/mxc_w1.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/numa.h | 3 +++
+ arch/arm64/mm/numa.c          | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/w1/masters/mxc_w1.c
-+++ b/drivers/w1/masters/mxc_w1.c
-@@ -15,7 +15,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/io.h>
--#include <linux/jiffies.h>
-+#include <linux/ktime.h>
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
- #include <linux/platform_device.h>
-@@ -48,12 +48,12 @@ struct mxc_w1_device {
- static u8 mxc_w1_ds2_reset_bus(void *data)
+diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
+index 01bc46d5b43ac..9bde636027670 100644
+--- a/arch/arm64/include/asm/numa.h
++++ b/arch/arm64/include/asm/numa.h
+@@ -25,6 +25,9 @@ const struct cpumask *cpumask_of_node(int node);
+ /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+ static inline const struct cpumask *cpumask_of_node(int node)
  {
- 	struct mxc_w1_device *dev = data;
--	unsigned long timeout;
-+	ktime_t timeout;
- 
- 	writeb(MXC_W1_CONTROL_RPP, dev->regs + MXC_W1_CONTROL);
- 
- 	/* Wait for reset sequence 511+512us, use 1500us for sure */
--	timeout = jiffies + usecs_to_jiffies(1500);
-+	timeout = ktime_add_us(ktime_get(), 1500);
- 
- 	udelay(511 + 512);
- 
-@@ -63,7 +63,7 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
- 		/* PST bit is valid after the RPP bit is self-cleared */
- 		if (!(ctrl & MXC_W1_CONTROL_RPP))
- 			return !(ctrl & MXC_W1_CONTROL_PST);
--	} while (time_is_after_jiffies(timeout));
-+	} while (ktime_before(ktime_get(), timeout));
- 
- 	return 1;
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
+ 	return node_to_cpumask_map[node];
  }
-@@ -76,12 +76,12 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
- static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ #endif
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index e9c843e0c1727..6b42af182aa74 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -58,7 +58,11 @@ EXPORT_SYMBOL(node_to_cpumask_map);
+  */
+ const struct cpumask *cpumask_of_node(int node)
  {
- 	struct mxc_w1_device *dev = data;
--	unsigned long timeout;
-+	ktime_t timeout;
+-	if (WARN_ON(node >= nr_node_ids))
++
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
++	if (WARN_ON(node < 0 || node >= nr_node_ids))
+ 		return cpu_none_mask;
  
- 	writeb(MXC_W1_CONTROL_WR(bit), dev->regs + MXC_W1_CONTROL);
- 
- 	/* Wait for read/write bit (60us, Max 120us), use 200us for sure */
--	timeout = jiffies + usecs_to_jiffies(200);
-+	timeout = ktime_add_us(ktime_get(), 200);
- 
- 	udelay(60);
- 
-@@ -91,7 +91,7 @@ static u8 mxc_w1_ds2_touch_bit(void *dat
- 		/* RDST bit is valid after the WR1/RD bit is self-cleared */
- 		if (!(ctrl & MXC_W1_CONTROL_WR(bit)))
- 			return !!(ctrl & MXC_W1_CONTROL_RDST);
--	} while (time_is_after_jiffies(timeout));
-+	} while (ktime_before(ktime_get(), timeout));
- 
- 	return 0;
- }
+ 	if (WARN_ON(node_to_cpumask_map[node] == NULL))
+-- 
+2.27.0
+
 
 
