@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3318A2A586B
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:52:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E76B52A576C
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:42:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731698AbgKCVvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:51:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
+        id S1731737AbgKCUzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:55:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730676AbgKCUs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:48:26 -0500
+        id S1732016AbgKCUzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:55:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13B5822404;
-        Tue,  3 Nov 2020 20:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C27B2053B;
+        Tue,  3 Nov 2020 20:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604436505;
-        bh=dqfSLO+/CBVVEPM5kB4ykciUWzIfWATuxS+Q0cNJzzs=;
+        s=default; t=1604436917;
+        bh=WYiJwE9DBiw6w8jvK/vQddDO1Ft7twNhSM2ANKM0Zfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LmLI4Z6Ky8mNV15Qe8S9w+xLfTyeqyV7dZtn1XduT1AzLmPE3gobLeAd5s9REyIzb
-         D5WWkHveH2Buz+a40RPahePgTTeGYOrw6Ou5lxnjg5ZPkKH8Fw66lkirsvwLcGKp6g
-         HsqM+jqHaWR7bSlIXubgg2iww7Hi6EEZCWmEhRFU=
+        b=ZHAJtmxDE3yMtsaXwNd/QO2BCfL+JpdUIWuDenO0GeaPEhpoZdrqLHow9hEHse6yN
+         Ykfu3S9QgH9/szVcaHpV6sSIJigv8E3rHJgoji2QP96YbGtkO5Ys80PnkEHyRzqwzX
+         oUMvUuS4xGZ0DbMRtFFAtDTx/n5DOn1VZVjOJits=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.9 262/391] Revert "vhost-vdpa: fix page pinning leakage in error path"
-Date:   Tue,  3 Nov 2020 21:35:13 +0100
-Message-Id: <20201103203404.702588488@linuxfoundation.org>
+        stable@vger.kernel.org, Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 066/214] brcmfmac: Fix warning message after dongle setup failed
+Date:   Tue,  3 Nov 2020 21:35:14 +0100
+Message-Id: <20201103203256.576438167@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+References: <20201103203249.448706377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,179 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-commit 5e1a3149eec8675c2767cc465903f5e4829de5b0 upstream.
+[ Upstream commit 6aa5a83a7ed8036c1388a811eb8bdfa77b21f19c ]
 
-This reverts commit 7ed9e3d97c32d969caded2dfb6e67c1a2cc5a0b1.
+Brcmfmac showed warning message in fweh.c when checking the size of event
+queue which is not initialized. Therefore, we only cancel the worker and
+reset event handler only when it is initialized.
 
-The patch creates a DoS risk since it can result in a high order memory
-allocation.
+[  145.505899] brcmfmac 0000:02:00.0: brcmf_pcie_setup: Dongle setup
+[  145.929970] ------------[ cut here ]------------
+[  145.929994] WARNING: CPU: 0 PID: 288 at drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c:312
+brcmf_fweh_detach+0xbc/0xd0 [brcmfmac]
+...
+[  145.930029] Call Trace:
+[  145.930036]  brcmf_detach+0x77/0x100 [brcmfmac]
+[  145.930043]  brcmf_pcie_remove+0x79/0x130 [brcmfmac]
+[  145.930046]  pci_device_remove+0x39/0xc0
+[  145.930048]  device_release_driver_internal+0x141/0x200
+[  145.930049]  device_release_driver+0x12/0x20
+[  145.930054]  brcmf_pcie_setup+0x101/0x3c0 [brcmfmac]
+[  145.930060]  brcmf_fw_request_done+0x11d/0x1f0 [brcmfmac]
+[  145.930062]  ? lock_timer_base+0x7d/0xa0
+[  145.930063]  ? internal_add_timer+0x1f/0xa0
+[  145.930064]  ? add_timer+0x11a/0x1d0
+[  145.930066]  ? __kmalloc_track_caller+0x18c/0x230
+[  145.930068]  ? kstrdup_const+0x23/0x30
+[  145.930069]  ? add_dr+0x46/0x80
+[  145.930070]  ? devres_add+0x3f/0x50
+[  145.930072]  ? usermodehelper_read_unlock+0x15/0x20
+[  145.930073]  ? _request_firmware+0x288/0xa20
+[  145.930075]  request_firmware_work_func+0x36/0x60
+[  145.930077]  process_one_work+0x144/0x360
+[  145.930078]  worker_thread+0x4d/0x3c0
+[  145.930079]  kthread+0x112/0x150
+[  145.930080]  ? rescuer_thread+0x340/0x340
+[  145.930081]  ? kthread_park+0x60/0x60
+[  145.930083]  ret_from_fork+0x25/0x30
 
-Fixes: 7ed9e3d97c32d ("vhost-vdpa: fix page pinning leakage in error path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200928054922.44580-3-wright.feng@cypress.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vdpa.c |  117 ++++++++++++++++++++-------------------------------
- 1 file changed, 47 insertions(+), 70 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/fweh.c    | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -595,19 +595,21 @@ static int vhost_vdpa_process_iotlb_upda
- 	struct vhost_dev *dev = &v->vdev;
- 	struct vhost_iotlb *iotlb = dev->iotlb;
- 	struct page **page_list;
--	struct vm_area_struct **vmas;
-+	unsigned long list_size = PAGE_SIZE / sizeof(struct page *);
- 	unsigned int gup_flags = FOLL_LONGTERM;
--	unsigned long map_pfn, last_pfn = 0;
--	unsigned long npages, lock_limit;
--	unsigned long i, nmap = 0;
-+	unsigned long npages, cur_base, map_pfn, last_pfn = 0;
-+	unsigned long locked, lock_limit, pinned, i;
- 	u64 iova = msg->iova;
--	long pinned;
- 	int ret = 0;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+index 79c8a858b6d6f..a30fcfbf2ee7c 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+@@ -304,10 +304,12 @@ void brcmf_fweh_detach(struct brcmf_pub *drvr)
+ {
+ 	struct brcmf_fweh_info *fweh = &drvr->fweh;
  
- 	if (vhost_iotlb_itree_first(iotlb, msg->iova,
- 				    msg->iova + msg->size - 1))
- 		return -EEXIST;
- 
-+	page_list = (struct page **) __get_free_page(GFP_KERNEL);
-+	if (!page_list)
-+		return -ENOMEM;
-+
- 	if (msg->perm & VHOST_ACCESS_WO)
- 		gup_flags |= FOLL_WRITE;
- 
-@@ -615,86 +617,61 @@ static int vhost_vdpa_process_iotlb_upda
- 	if (!npages)
- 		return -EINVAL;
- 
--	page_list = kvmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
--	vmas = kvmalloc_array(npages, sizeof(struct vm_area_struct *),
--			      GFP_KERNEL);
--	if (!page_list || !vmas) {
--		ret = -ENOMEM;
--		goto free;
--	}
--
- 	mmap_read_lock(dev->mm);
- 
-+	locked = atomic64_add_return(npages, &dev->mm->pinned_vm);
- 	lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
--	if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
--		ret = -ENOMEM;
--		goto unlock;
--	}
- 
--	pinned = pin_user_pages(msg->uaddr & PAGE_MASK, npages, gup_flags,
--				page_list, vmas);
--	if (npages != pinned) {
--		if (pinned < 0) {
--			ret = pinned;
--		} else {
--			unpin_user_pages(page_list, pinned);
--			ret = -ENOMEM;
--		}
--		goto unlock;
-+	if (locked > lock_limit) {
-+		ret = -ENOMEM;
-+		goto out;
- 	}
- 
-+	cur_base = msg->uaddr & PAGE_MASK;
- 	iova &= PAGE_MASK;
--	map_pfn = page_to_pfn(page_list[0]);
- 
--	/* One more iteration to avoid extra vdpa_map() call out of loop. */
--	for (i = 0; i <= npages; i++) {
--		unsigned long this_pfn;
--		u64 csize;
--
--		/* The last chunk may have no valid PFN next to it */
--		this_pfn = i < npages ? page_to_pfn(page_list[i]) : -1UL;
--
--		if (last_pfn && (this_pfn == -1UL ||
--				 this_pfn != last_pfn + 1)) {
--			/* Pin a contiguous chunk of memory */
--			csize = last_pfn - map_pfn + 1;
--			ret = vhost_vdpa_map(v, iova, csize << PAGE_SHIFT,
--					     map_pfn << PAGE_SHIFT,
--					     msg->perm);
--			if (ret) {
--				/*
--				 * Unpin the rest chunks of memory on the
--				 * flight with no corresponding vdpa_map()
--				 * calls having been made yet. On the other
--				 * hand, vdpa_unmap() in the failure path
--				 * is in charge of accounting the number of
--				 * pinned pages for its own.
--				 * This asymmetrical pattern of accounting
--				 * is for efficiency to pin all pages at
--				 * once, while there is no other callsite
--				 * of vdpa_map() than here above.
--				 */
--				unpin_user_pages(&page_list[nmap],
--						 npages - nmap);
--				goto out;
-+	while (npages) {
-+		pinned = min_t(unsigned long, npages, list_size);
-+		ret = pin_user_pages(cur_base, pinned,
-+				     gup_flags, page_list, NULL);
-+		if (ret != pinned)
-+			goto out;
-+
-+		if (!last_pfn)
-+			map_pfn = page_to_pfn(page_list[0]);
-+
-+		for (i = 0; i < ret; i++) {
-+			unsigned long this_pfn = page_to_pfn(page_list[i]);
-+			u64 csize;
-+
-+			if (last_pfn && (this_pfn != last_pfn + 1)) {
-+				/* Pin a contiguous chunk of memory */
-+				csize = (last_pfn - map_pfn + 1) << PAGE_SHIFT;
-+				if (vhost_vdpa_map(v, iova, csize,
-+						   map_pfn << PAGE_SHIFT,
-+						   msg->perm))
-+					goto out;
-+				map_pfn = this_pfn;
-+				iova += csize;
- 			}
--			atomic64_add(csize, &dev->mm->pinned_vm);
--			nmap += csize;
--			iova += csize << PAGE_SHIFT;
--			map_pfn = this_pfn;
-+
-+			last_pfn = this_pfn;
- 		}
--		last_pfn = this_pfn;
-+
-+		cur_base += ret << PAGE_SHIFT;
-+		npages -= ret;
- 	}
- 
--	WARN_ON(nmap != npages);
-+	/* Pin the rest chunk */
-+	ret = vhost_vdpa_map(v, iova, (last_pfn - map_pfn + 1) << PAGE_SHIFT,
-+			     map_pfn << PAGE_SHIFT, msg->perm);
- out:
--	if (ret)
-+	if (ret) {
- 		vhost_vdpa_unmap(v, msg->iova, msg->size);
--unlock:
-+		atomic64_sub(npages, &dev->mm->pinned_vm);
+-	/* cancel the worker */
+-	cancel_work_sync(&fweh->event_work);
+-	WARN_ON(!list_empty(&fweh->event_q));
+-	memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
++	/* cancel the worker if initialized */
++	if (fweh->event_work.func) {
++		cancel_work_sync(&fweh->event_work);
++		WARN_ON(!list_empty(&fweh->event_q));
++		memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
 +	}
- 	mmap_read_unlock(dev->mm);
--free:
--	kvfree(vmas);
--	kvfree(page_list);
-+	free_page((unsigned long)page_list);
- 	return ret;
  }
  
+ /**
+-- 
+2.27.0
+
 
 
