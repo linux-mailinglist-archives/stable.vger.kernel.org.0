@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D802A4ABB
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 17:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F762A4ABE
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 17:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727754AbgKCQEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 11:04:53 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:36511 "EHLO
+        id S1726018AbgKCQFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 11:05:23 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41995 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727389AbgKCQEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:04:53 -0500
+        by vger.kernel.org with ESMTP id S1727385AbgKCQFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 11:05:22 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 32C7DDEE;
-        Tue,  3 Nov 2020 11:04:51 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 9FB91D58;
+        Tue,  3 Nov 2020 11:05:21 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 03 Nov 2020 11:04:51 -0500
+  by compute4.internal (MEProxy); Tue, 03 Nov 2020 11:05:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=525n1e
-        HWZe8X8am2Mzonl+TSjO0yiggraHyX5igC+VE=; b=EhY/jecxQdlkIZJ9ILed72
-        91NtL37zcIXmoMcJA6pDevEB3gN9QINmKrjeNI1SgNLyN7aDDdkbeSga/ARrlKdd
-        9mxUy8IaRFRfKuJQBqV6x3q+eIXGRKQ7WKmT2zYWlllYWJo/rkJcPoOwTUCqBVcb
-        /967jBQPdzW0wAFbokBS6E8UrMwdKp7sn3LYP17Si+Fbf950kjb8HEfbyp30k+vp
-        xB+/nCmBnVVh/L41oi/SBobDwjuz8ScDIVff70w7/MLsICYmGRLUVkgPd5nmZkIM
-        XqazeAqQQlxfhoBKyywk7uzQP8nSGNU0ReOXcbTYxtUPfoWmw0ZEyK0RPshIMM9A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Mx2Grj
+        vS5pt+8UgpTkRlAXlZWy8FhSc2u6Ha+OvSRng=; b=fUZYKgLn84/SOH8/Yawb97
+        nhUasfqjO6a643ns6w5WrTtDgzR1q82Ky3Y7l/RPf9LLLQ1PpqBUQdQAaui4sxB3
+        6qbvuGEIZLn8AxE6K0maAV50l73YPNPC2zcyIID9DK8IE8E9hPUgBVx4a/too+yw
+        mFUYoRIrNJF5u4/pGCOvDVEKtf1fLBf36fR/VpQaFiOWVrMu991NFtKJ1+AKr75n
+        DWnbFgM8nSoWjsWEyIJ1W4TFLLTGkUE1u8W/2YkIITqRQn2MEVb3kCaZ1JIOU7uV
+        kQG3R/kVThzGe8tBolyVkZWchVKTI54+/CbDbWl5u+eO+Th71+AJ6JsvVr/KFG6A
         ==
-X-ME-Sender: <xms:on-hXxD8BDbu_RaCowDVDgOPvqOpkw3And3hOmP1EutRmMA3afWodA>
-    <xme:on-hX_jOSwFlsCTzkymC6Lp-EJhUpSNsmChXCXI3-KQ6iP9ludcxScFhXe_qLk8kz
-    FrM1WssuWYfEQ>
+X-ME-Sender: <xms:wH-hX0s7X9UZVfibnIGvD8nwJ598L_ZC1O5yJSBtrput_uNMorlb0g>
+    <xme:wH-hXxe962OF4N3LuNxiuuUbygO52-czhW8qMqPL_S6l50dLdPU4lyzgJvQ1HYU69
+    -Bl5PDcwHSwAw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtfedgkeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdluddtmdenucfjughrpefuvf
-    fhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihf
-    ohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltd
-    etgedugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghr
-    nhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:on-hX8lHOn3u_pkYNbZOSoGuvrthbT-Qci29ESBZTDEls-TsPXyT5w>
-    <xmx:on-hX7ySfm5qJ8HtY4rx9F_RXkqFjqLCHPCyAtp8PqEMK-k_6lCnOQ>
-    <xmx:on-hX2QmTU2sNt4vEawu2JDC7h4QgAOusHfXToLgG7m3I9sLFZA_nQ>
-    <xmx:on-hX5K59u_85z7oPpuXnvLlugxewi_zmXoEiCz7Pgtg5Tt0T4wKjyAKzFk>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:wX-hX_yE1pF6pGQo3Tig8PbEUS1NQ1RbwIFqPst-vCi5tm2AOvURnQ>
+    <xmx:wX-hX3NzBDkRFYoxaYVC37fDMBprgSQLq1C3Ec-qSb1mCJcbk0tWnw>
+    <xmx:wX-hX08-5qq9Ao4RhyPiyYHOwZC-Hz-CZxrOPpXWrDTuwMs-wlzbUg>
+    <xmx:wX-hX5HF-O1VCm1dRPeXQYK5PkiLUp7uTkyIwIjVczbn3sjasDmlfmwkO5c>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 64D573064674;
-        Tue,  3 Nov 2020 11:04:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mmc: sdhci-of-esdhc: set timeout to max before tuning" failed to apply to 4.19-stable tree
-To:     michael@walle.cc, adrian.hunter@intel.com, ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 974D53064682;
+        Tue,  3 Nov 2020 11:05:20 -0500 (EST)
+Subject: FAILED: patch "[PATCH] memory: brcmstb: Add driver for DPFE" failed to apply to 5.4-stable tree
+To:     mmayer@broadcom.com, f.fainelli@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Nov 2020 17:05:31 +0100
-Message-ID: <160441953115129@kroah.com>
+Date:   Tue, 03 Nov 2020 17:06:14 +0100
+Message-ID: <16044195741284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,54 +70,756 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0add6e9b88d0632a25323aaf4987dbacb0e4ae64 Mon Sep 17 00:00:00 2001
-From: Michael Walle <michael@walle.cc>
-Date: Fri, 23 Oct 2020 00:23:37 +0200
-Subject: [PATCH] mmc: sdhci-of-esdhc: set timeout to max before tuning
+From 2f330caff5776239abb3e0337533886dbb21f6df Mon Sep 17 00:00:00 2001
+From: Markus Mayer <mmayer@broadcom.com>
+Date: Thu, 24 Aug 2017 16:36:26 -0700
+Subject: [PATCH] memory: brcmstb: Add driver for DPFE
 
-On rare occations there is the following error:
+This driver allows access to DRAM properties, such as the refresh rate,
+via the Broadcom STB DDR PHY Front End (DPFE). The refresh rate can be
+used as indirect indicator of the DRAM temperature.
 
-  mmc0: Tuning timeout, falling back to fixed sampling clock
+The driver also allows setting of the sampling interval.
 
-There are SD cards which takes a significant longer time to reply to the
-first CMD19 command. The eSDHC takes the data timeout value into account
-during the tuning period. The SDHCI core doesn't explicitly set this
-timeout for the tuning procedure. Thus on the slow cards, there might be
-a spurious "Buffer Read Ready" interrupt, which in turn triggers a wrong
-sequence of events. In the end this will lead to an unsuccessful tuning
-procedure and to the above error.
+Signed-off-by: Markus Mayer <mmayer@broadcom.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
-To workaround this, set the timeout to the maximum value (which is the
-best we can do) and the SDHCI core will take care of the proper timeout
-handling.
-
-Fixes: ba49cbd0936e ("mmc: sdhci-of-esdhc: add tuning support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201022222337.19857-1-michael@walle.cc
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 0b45eff6fed4..baf7801a1804 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -1052,6 +1052,17 @@ static int esdhc_execute_tuning(struct mmc_host *mmc, u32 opcode)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2281af4b41b6..43ed9eb98c43 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2963,6 +2963,14 @@ L:	bcm-kernel-feedback-list@broadcom.com
+ S:	Maintained
+ F:	drivers/mtd/nand/brcmnand/
  
- 	esdhc_tuning_block_enable(host, true);
- 
-+	/*
-+	 * The eSDHC controller takes the data timeout value into account
-+	 * during tuning. If the SD card is too slow sending the response, the
-+	 * timer will expire and a "Buffer Read Ready" interrupt without data
-+	 * is triggered. This leads to tuning errors.
-+	 *
-+	 * Just set the timeout to the maximum value because the core will
-+	 * already take care of it in sdhci_send_tuning().
-+	 */
-+	sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
++BROADCOM STB DPFE DRIVER
++M:	Markus Mayer <mmayer@broadcom.com>
++M:	bcm-kernel-feedback-list@broadcom.com
++L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
++S:	Maintained
++F:	Documentation/devicetree/bindings/memory-controllers/brcm,dpfe-cpu.txt
++F:	drivers/memory/brcmstb_dpfe.c
 +
- 	hs400_tuning = host->flags & SDHCI_HS400_TUNING;
- 
- 	do {
+ BROADCOM SYSTEMPORT ETHERNET DRIVER
+ M:	Florian Fainelli <f.fainelli@gmail.com>
+ L:	netdev@vger.kernel.org
+diff --git a/drivers/memory/Makefile b/drivers/memory/Makefile
+index e88097fbc085..9cb8b61ee5cc 100644
+--- a/drivers/memory/Makefile
++++ b/drivers/memory/Makefile
+@@ -8,6 +8,7 @@ endif
+ obj-$(CONFIG_ARM_PL172_MPMC)	+= pl172.o
+ obj-$(CONFIG_ATMEL_SDRAMC)	+= atmel-sdramc.o
+ obj-$(CONFIG_ATMEL_EBI)		+= atmel-ebi.o
++obj-$(CONFIG_ARCH_BRCMSTB)	+= brcmstb_dpfe.o
+ obj-$(CONFIG_TI_AEMIF)		+= ti-aemif.o
+ obj-$(CONFIG_TI_EMIF)		+= emif.o
+ obj-$(CONFIG_OMAP_GPMC)		+= omap-gpmc.o
+diff --git a/drivers/memory/brcmstb_dpfe.c b/drivers/memory/brcmstb_dpfe.c
+new file mode 100644
+index 000000000000..21242c401af5
+--- /dev/null
++++ b/drivers/memory/brcmstb_dpfe.c
+@@ -0,0 +1,701 @@
++/*
++ * DDR PHY Front End (DPFE) driver for Broadcom set top box SoCs
++ *
++ * Copyright (c) 2017 Broadcom
++ *
++ * Released under the GPLv2 only.
++ * SPDX-License-Identifier: GPL-2.0
++ */
++
++/*
++ * This driver provides access to the DPFE interface of Broadcom STB SoCs.
++ * The firmware running on the DCPU inside the DDR PHY can provide current
++ * information about the system's RAM, for instance the DRAM refresh rate.
++ * This can be used as an indirect indicator for the DRAM's temperature.
++ * Slower refresh rate means cooler RAM, higher refresh rate means hotter
++ * RAM.
++ *
++ * Throughout the driver, we use readl_relaxed() and writel_relaxed(), which
++ * already contain the appropriate le32_to_cpu()/cpu_to_le32() calls.
++ *
++ * Note regarding the loading of the firmware image: we use be32_to_cpu()
++ * and le_32_to_cpu(), so we can support the following four cases:
++ *     - LE kernel + LE firmware image (the most common case)
++ *     - LE kernel + BE firmware image
++ *     - BE kernel + LE firmware image
++ *     - BE kernel + BE firmware image
++ *
++ * The DPCU always runs in big endian mode. The firwmare image, however, can
++ * be in either format. Also, communication between host CPU and DCPU is
++ * always in little endian.
++ */
++
++#include <linux/delay.h>
++#include <linux/firmware.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++
++#define DRVNAME			"brcmstb-dpfe"
++#define FIRMWARE_NAME		"dpfe.bin"
++
++/* DCPU register offsets */
++#define REG_DCPU_RESET		0x0
++#define REG_TO_DCPU_MBOX	0x10
++#define REG_TO_HOST_MBOX	0x14
++
++/* Message RAM */
++#define DCPU_MSG_RAM(x)		(0x100 + (x) * sizeof(u32))
++
++/* DRAM Info Offsets & Masks */
++#define DRAM_INFO_INTERVAL	0x0
++#define DRAM_INFO_MR4		0x4
++#define DRAM_INFO_ERROR		0x8
++#define DRAM_INFO_MR4_MASK	0xff
++
++/* DRAM MR4 Offsets & Masks */
++#define DRAM_MR4_REFRESH	0x0	/* Refresh rate */
++#define DRAM_MR4_SR_ABORT	0x3	/* Self Refresh Abort */
++#define DRAM_MR4_PPRE		0x4	/* Post-package repair entry/exit */
++#define DRAM_MR4_TH_OFFS	0x5	/* Thermal Offset; vendor specific */
++#define DRAM_MR4_TUF		0x7	/* Temperature Update Flag */
++
++#define DRAM_MR4_REFRESH_MASK	0x7
++#define DRAM_MR4_SR_ABORT_MASK	0x1
++#define DRAM_MR4_PPRE_MASK	0x1
++#define DRAM_MR4_TH_OFFS_MASK	0x3
++#define DRAM_MR4_TUF_MASK	0x1
++
++/* DRAM Vendor Offsets & Masks */
++#define DRAM_VENDOR_MR5		0x0
++#define DRAM_VENDOR_MR6		0x4
++#define DRAM_VENDOR_MR7		0x8
++#define DRAM_VENDOR_MR8		0xc
++#define DRAM_VENDOR_ERROR	0x10
++#define DRAM_VENDOR_MASK	0xff
++
++/* Reset register bits & masks */
++#define DCPU_RESET_SHIFT	0x0
++#define DCPU_RESET_MASK		0x1
++#define DCPU_CLK_DISABLE_SHIFT	0x2
++
++/* DCPU return codes */
++#define DCPU_RET_ERROR_BIT	BIT(31)
++#define DCPU_RET_SUCCESS	0x1
++#define DCPU_RET_ERR_HEADER	(DCPU_RET_ERROR_BIT | BIT(0))
++#define DCPU_RET_ERR_INVAL	(DCPU_RET_ERROR_BIT | BIT(1))
++#define DCPU_RET_ERR_CHKSUM	(DCPU_RET_ERROR_BIT | BIT(2))
++#define DCPU_RET_ERR_COMMAND	(DCPU_RET_ERROR_BIT | BIT(3))
++/* This error code is not firmware defined and only used in the driver. */
++#define DCPU_RET_ERR_TIMEDOUT	(DCPU_RET_ERROR_BIT | BIT(4))
++
++/* Firmware magic */
++#define DPFE_BE_MAGIC		0xfe1010fe
++#define DPFE_LE_MAGIC		0xfe0101fe
++
++/* Error codes */
++#define ERR_INVALID_MAGIC	-1
++#define ERR_INVALID_SIZE	-2
++#define ERR_INVALID_CHKSUM	-3
++
++/* Message types */
++#define DPFE_MSG_TYPE_COMMAND	1
++#define DPFE_MSG_TYPE_RESPONSE	2
++
++#define DELAY_LOOP_MAX		200000
++
++enum dpfe_msg_fields {
++	MSG_HEADER,
++	MSG_COMMAND,
++	MSG_ARG_COUNT,
++	MSG_ARG0,
++	MSG_CHKSUM,
++	MSG_FIELD_MAX /* Last entry */
++};
++
++enum dpfe_commands {
++	DPFE_CMD_GET_INFO,
++	DPFE_CMD_GET_REFRESH,
++	DPFE_CMD_GET_VENDOR,
++	DPFE_CMD_MAX /* Last entry */
++};
++
++struct dpfe_msg {
++	u32 header;
++	u32 command;
++	u32 arg_count;
++	u32 arg0;
++	u32 chksum; /* This is the sum of all other entries. */
++};
++
++/*
++ * Format of the binary firmware file:
++ *
++ *   entry
++ *      0    header
++ *              value:  0xfe0101fe  <== little endian
++ *                      0xfe1010fe  <== big endian
++ *      1    sequence:
++ *              [31:16] total segments on this build
++ *              [15:0]  this segment sequence.
++ *      2    FW version
++ *      3    IMEM byte size
++ *      4    DMEM byte size
++ *           IMEM
++ *           DMEM
++ *      last checksum ==> sum of everything
++ */
++struct dpfe_firmware_header {
++	u32 magic;
++	u32 sequence;
++	u32 version;
++	u32 imem_size;
++	u32 dmem_size;
++};
++
++/* Things we only need during initialization. */
++struct init_data {
++	unsigned int dmem_len;
++	unsigned int imem_len;
++	unsigned int chksum;
++	bool is_big_endian;
++};
++
++/* Things we need for as long as we are active. */
++struct private_data {
++	void __iomem *regs;
++	void __iomem *dmem;
++	void __iomem *imem;
++	struct device *dev;
++	unsigned int index;
++	struct mutex lock;
++};
++
++static const char *error_text[] = {
++	"Success", "Header code incorrect", "Unknown command or argument",
++	"Incorrect checksum", "Malformed command", "Timed out",
++};
++
++/* List of supported firmware commands */
++static const u32 dpfe_commands[DPFE_CMD_MAX][MSG_FIELD_MAX] = {
++	[DPFE_CMD_GET_INFO] = {
++		[MSG_HEADER] = DPFE_MSG_TYPE_COMMAND,
++		[MSG_COMMAND] = 1,
++		[MSG_ARG_COUNT] = 1,
++		[MSG_ARG0] = 1,
++		[MSG_CHKSUM] = 4,
++	},
++	[DPFE_CMD_GET_REFRESH] = {
++		[MSG_HEADER] = DPFE_MSG_TYPE_COMMAND,
++		[MSG_COMMAND] = 2,
++		[MSG_ARG_COUNT] = 1,
++		[MSG_ARG0] = 1,
++		[MSG_CHKSUM] = 5,
++	},
++	[DPFE_CMD_GET_VENDOR] = {
++		[MSG_HEADER] = DPFE_MSG_TYPE_COMMAND,
++		[MSG_COMMAND] = 2,
++		[MSG_ARG_COUNT] = 1,
++		[MSG_ARG0] = 2,
++		[MSG_CHKSUM] = 6,
++	},
++};
++
++static void __disable_dcpu(void __iomem *regs)
++{
++	u32 val;
++
++	/* Check if DCPU is running */
++	val = readl_relaxed(regs + REG_DCPU_RESET);
++	if (!(val & DCPU_RESET_MASK)) {
++		/* Put DCPU in reset */
++		val |= (1 << DCPU_RESET_SHIFT);
++		writel_relaxed(val, regs + REG_DCPU_RESET);
++	}
++}
++
++static void __enable_dcpu(void __iomem *regs)
++{
++	u32 val;
++
++	/* Clear mailbox registers. */
++	writel_relaxed(0, regs + REG_TO_DCPU_MBOX);
++	writel_relaxed(0, regs + REG_TO_HOST_MBOX);
++
++	/* Disable DCPU clock gating */
++	val = readl_relaxed(regs + REG_DCPU_RESET);
++	val &= ~(1 << DCPU_CLK_DISABLE_SHIFT);
++	writel_relaxed(val, regs + REG_DCPU_RESET);
++
++	/* Take DCPU out of reset */
++	val = readl_relaxed(regs + REG_DCPU_RESET);
++	val &= ~(1 << DCPU_RESET_SHIFT);
++	writel_relaxed(val, regs + REG_DCPU_RESET);
++}
++
++static unsigned int get_msg_chksum(const u32 msg[])
++{
++	unsigned int sum = 0;
++	unsigned int i;
++
++	/* Don't include the last field in the checksum. */
++	for (i = 0; i < MSG_FIELD_MAX - 1; i++)
++		sum += msg[i];
++
++	return sum;
++}
++
++static int __send_command(struct private_data *priv, unsigned int cmd,
++			  u32 result[])
++{
++	const u32 *msg = dpfe_commands[cmd];
++	void __iomem *regs = priv->regs;
++	unsigned int i, chksum;
++	int ret = 0;
++	u32 resp;
++
++	if (cmd >= DPFE_CMD_MAX)
++		return -1;
++
++	mutex_lock(&priv->lock);
++
++	/* Write command and arguments to message area */
++	for (i = 0; i < MSG_FIELD_MAX; i++)
++		writel_relaxed(msg[i], regs + DCPU_MSG_RAM(i));
++
++	/* Tell DCPU there is a command waiting */
++	writel_relaxed(1, regs + REG_TO_DCPU_MBOX);
++
++	/* Wait for DCPU to process the command */
++	for (i = 0; i < DELAY_LOOP_MAX; i++) {
++		/* Read response code */
++		resp = readl_relaxed(regs + REG_TO_HOST_MBOX);
++		if (resp > 0)
++			break;
++		udelay(5);
++	}
++
++	if (i == DELAY_LOOP_MAX) {
++		resp = (DCPU_RET_ERR_TIMEDOUT & ~DCPU_RET_ERROR_BIT);
++		ret = -ffs(resp);
++	} else {
++		/* Read response data */
++		for (i = 0; i < MSG_FIELD_MAX; i++)
++			result[i] = readl_relaxed(regs + DCPU_MSG_RAM(i));
++	}
++
++	/* Tell DCPU we are done */
++	writel_relaxed(0, regs + REG_TO_HOST_MBOX);
++
++	mutex_unlock(&priv->lock);
++
++	if (ret)
++		return ret;
++
++	/* Verify response */
++	chksum = get_msg_chksum(result);
++	if (chksum != result[MSG_CHKSUM])
++		resp = DCPU_RET_ERR_CHKSUM;
++
++	if (resp != DCPU_RET_SUCCESS) {
++		resp &= ~DCPU_RET_ERROR_BIT;
++		ret = -ffs(resp);
++	}
++
++	return ret;
++}
++
++/* Ensure that the firmware file loaded meets all the requirements. */
++static int __verify_firmware(struct init_data *init,
++			     const struct firmware *fw)
++{
++	const struct dpfe_firmware_header *header = (void *)fw->data;
++	unsigned int dmem_size, imem_size, total_size;
++	bool is_big_endian = false;
++	const u32 *chksum_ptr;
++
++	if (header->magic == DPFE_BE_MAGIC)
++		is_big_endian = true;
++	else if (header->magic != DPFE_LE_MAGIC)
++		return ERR_INVALID_MAGIC;
++
++	if (is_big_endian) {
++		dmem_size = be32_to_cpu(header->dmem_size);
++		imem_size = be32_to_cpu(header->imem_size);
++	} else {
++		dmem_size = le32_to_cpu(header->dmem_size);
++		imem_size = le32_to_cpu(header->imem_size);
++	}
++
++	/* Data and instruction sections are 32 bit words. */
++	if ((dmem_size % sizeof(u32)) != 0 || (imem_size % sizeof(u32)) != 0)
++		return ERR_INVALID_SIZE;
++
++	/*
++	 * The header + the data section + the instruction section + the
++	 * checksum must be equal to the total firmware size.
++	 */
++	total_size = dmem_size + imem_size + sizeof(*header) +
++		sizeof(*chksum_ptr);
++	if (total_size != fw->size)
++		return ERR_INVALID_SIZE;
++
++	/* The checksum comes at the very end. */
++	chksum_ptr = (void *)fw->data + sizeof(*header) + dmem_size + imem_size;
++
++	init->is_big_endian = is_big_endian;
++	init->dmem_len = dmem_size;
++	init->imem_len = imem_size;
++	init->chksum = (is_big_endian)
++		? be32_to_cpu(*chksum_ptr) : le32_to_cpu(*chksum_ptr);
++
++	return 0;
++}
++
++/* Verify checksum by reading back the firmware from co-processor RAM. */
++static int __verify_fw_checksum(struct init_data *init,
++				struct private_data *priv,
++				const struct dpfe_firmware_header *header,
++				u32 checksum)
++{
++	u32 magic, sequence, version, sum;
++	u32 __iomem *dmem = priv->dmem;
++	u32 __iomem *imem = priv->imem;
++	unsigned int i;
++
++	if (init->is_big_endian) {
++		magic = be32_to_cpu(header->magic);
++		sequence = be32_to_cpu(header->sequence);
++		version = be32_to_cpu(header->version);
++	} else {
++		magic = le32_to_cpu(header->magic);
++		sequence = le32_to_cpu(header->sequence);
++		version = le32_to_cpu(header->version);
++	}
++
++	sum = magic + sequence + version + init->dmem_len + init->imem_len;
++
++	for (i = 0; i < init->dmem_len / sizeof(u32); i++)
++		sum += readl_relaxed(dmem + i);
++
++	for (i = 0; i < init->imem_len / sizeof(u32); i++)
++		sum += readl_relaxed(imem + i);
++
++	return (sum == checksum) ? 0 : -1;
++}
++
++static int __write_firmware(u32 __iomem *mem, const u32 *fw,
++			    unsigned int size, bool is_big_endian)
++{
++	unsigned int i;
++
++	/* Convert size to 32-bit words. */
++	size /= sizeof(u32);
++
++	/* It is recommended to clear the firmware area first. */
++	for (i = 0; i < size; i++)
++		writel_relaxed(0, mem + i);
++
++	/* Now copy it. */
++	if (is_big_endian) {
++		for (i = 0; i < size; i++)
++			writel_relaxed(be32_to_cpu(fw[i]), mem + i);
++	} else {
++		for (i = 0; i < size; i++)
++			writel_relaxed(le32_to_cpu(fw[i]), mem + i);
++	}
++
++	return 0;
++}
++
++static int brcmstb_dpfe_download_firmware(struct platform_device *pdev,
++					  struct init_data *init)
++{
++	const struct dpfe_firmware_header *header;
++	unsigned int dmem_size, imem_size;
++	struct device *dev = &pdev->dev;
++	bool is_big_endian = false;
++	struct private_data *priv;
++	const struct firmware *fw;
++	const u32 *dmem, *imem;
++	const void *fw_blob;
++	int ret;
++
++	ret = request_firmware(&fw, FIRMWARE_NAME, dev);
++	/* request_firmware() prints its own error messages. */
++	if (ret)
++		return ret;
++
++	priv = platform_get_drvdata(pdev);
++
++	ret = __verify_firmware(init, fw);
++	if (ret)
++		return -EFAULT;
++
++	__disable_dcpu(priv->regs);
++
++	is_big_endian = init->is_big_endian;
++	dmem_size = init->dmem_len;
++	imem_size = init->imem_len;
++
++	/* At the beginning of the firmware blob is a header. */
++	header = (struct dpfe_firmware_header *)fw->data;
++	/* Void pointer to the beginning of the actual firmware. */
++	fw_blob = fw->data + sizeof(*header);
++	/* IMEM comes right after the header. */
++	imem = fw_blob;
++	/* DMEM follows after IMEM. */
++	dmem = fw_blob + imem_size;
++
++	ret = __write_firmware(priv->dmem, dmem, dmem_size, is_big_endian);
++	if (ret)
++		return ret;
++	ret = __write_firmware(priv->imem, imem, imem_size, is_big_endian);
++	if (ret)
++		return ret;
++
++	ret = __verify_fw_checksum(init, priv, header, init->chksum);
++	if (ret)
++		return ret;
++
++	__enable_dcpu(priv->regs);
++
++	return 0;
++}
++
++static ssize_t generic_show(unsigned int command, u32 response[],
++			    struct device *dev, char *buf)
++{
++	struct private_data *priv;
++	int ret;
++
++	priv = dev_get_drvdata(dev);
++	if (!priv)
++		return sprintf(buf, "ERROR: driver private data not set\n");
++
++	ret = __send_command(priv, command, response);
++	if (ret < 0)
++		return sprintf(buf, "ERROR: %s\n", error_text[-ret]);
++
++	return 0;
++}
++
++static ssize_t show_info(struct device *dev, struct device_attribute *devattr,
++			 char *buf)
++{
++	u32 response[MSG_FIELD_MAX];
++	unsigned int info;
++	int ret;
++
++	ret = generic_show(DPFE_CMD_GET_INFO, response, dev, buf);
++	if (ret)
++		return ret;
++
++	info = response[MSG_ARG0];
++
++	return sprintf(buf, "%u.%u.%u.%u\n",
++		       (info >> 24) & 0xff,
++		       (info >> 16) & 0xff,
++		       (info >> 8) & 0xff,
++		       info & 0xff);
++}
++
++static ssize_t show_refresh(struct device *dev,
++			    struct device_attribute *devattr, char *buf)
++{
++	u32 response[MSG_FIELD_MAX];
++	void __iomem *info;
++	struct private_data *priv;
++	unsigned int offset;
++	u8 refresh, sr_abort, ppre, thermal_offs, tuf;
++	u32 mr4;
++	int ret;
++
++	ret = generic_show(DPFE_CMD_GET_REFRESH, response, dev, buf);
++	if (ret)
++		return ret;
++
++	priv = dev_get_drvdata(dev);
++	offset = response[MSG_ARG0];
++	info = priv->dmem + offset;
++
++	mr4 = readl_relaxed(info + DRAM_INFO_MR4) & DRAM_INFO_MR4_MASK;
++
++	refresh = (mr4 >> DRAM_MR4_REFRESH) & DRAM_MR4_REFRESH_MASK;
++	sr_abort = (mr4 >> DRAM_MR4_SR_ABORT) & DRAM_MR4_SR_ABORT_MASK;
++	ppre = (mr4 >> DRAM_MR4_PPRE) & DRAM_MR4_PPRE_MASK;
++	thermal_offs = (mr4 >> DRAM_MR4_TH_OFFS) & DRAM_MR4_TH_OFFS_MASK;
++	tuf = (mr4 >> DRAM_MR4_TUF) & DRAM_MR4_TUF_MASK;
++
++	return sprintf(buf, "%#x %#x %#x %#x %#x %#x %#x\n",
++		       readl_relaxed(info + DRAM_INFO_INTERVAL),
++		       refresh, sr_abort, ppre, thermal_offs, tuf,
++		       readl_relaxed(info + DRAM_INFO_ERROR));
++}
++
++static ssize_t store_refresh(struct device *dev, struct device_attribute *attr,
++			  const char *buf, size_t count)
++{
++	u32 response[MSG_FIELD_MAX];
++	struct private_data *priv;
++	void __iomem *info;
++	unsigned int offset;
++	unsigned long val;
++	int ret;
++
++	if (kstrtoul(buf, 0, &val) < 0)
++		return -EINVAL;
++
++	priv = dev_get_drvdata(dev);
++
++	ret = __send_command(priv, DPFE_CMD_GET_REFRESH, response);
++	if (ret)
++		return ret;
++
++	offset = response[MSG_ARG0];
++	info = priv->dmem + offset;
++	writel_relaxed(val, info + DRAM_INFO_INTERVAL);
++
++	return count;
++}
++
++static ssize_t show_vendor(struct device *dev, struct device_attribute *devattr,
++			 char *buf)
++{
++	u32 response[MSG_FIELD_MAX];
++	struct private_data *priv;
++	void __iomem *info;
++	unsigned int offset;
++	int ret;
++
++	ret = generic_show(DPFE_CMD_GET_VENDOR, response, dev, buf);
++	if (ret)
++		return ret;
++
++	offset = response[MSG_ARG0];
++	priv = dev_get_drvdata(dev);
++	info = priv->dmem + offset;
++
++	return sprintf(buf, "%#x %#x %#x %#x %#x\n",
++		       readl_relaxed(info + DRAM_VENDOR_MR5) & DRAM_VENDOR_MASK,
++		       readl_relaxed(info + DRAM_VENDOR_MR6) & DRAM_VENDOR_MASK,
++		       readl_relaxed(info + DRAM_VENDOR_MR7) & DRAM_VENDOR_MASK,
++		       readl_relaxed(info + DRAM_VENDOR_MR8) & DRAM_VENDOR_MASK,
++		       readl_relaxed(info + DRAM_VENDOR_ERROR));
++}
++
++static int brcmstb_dpfe_resume(struct platform_device *pdev)
++{
++	struct init_data init;
++
++	return brcmstb_dpfe_download_firmware(pdev, &init);
++}
++
++static DEVICE_ATTR(dpfe_info, 0444, show_info, NULL);
++static DEVICE_ATTR(dpfe_refresh, 0644, show_refresh, store_refresh);
++static DEVICE_ATTR(dpfe_vendor, 0444, show_vendor, NULL);
++static struct attribute *dpfe_attrs[] = {
++	&dev_attr_dpfe_info.attr,
++	&dev_attr_dpfe_refresh.attr,
++	&dev_attr_dpfe_vendor.attr,
++	NULL
++};
++ATTRIBUTE_GROUPS(dpfe);
++
++static int brcmstb_dpfe_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct private_data *priv;
++	struct device *dpfe_dev;
++	struct init_data init;
++	struct resource *res;
++	u32 index;
++	int ret;
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	mutex_init(&priv->lock);
++	platform_set_drvdata(pdev, priv);
++
++	/* Cell index is optional; default to 0 if not present. */
++	ret = of_property_read_u32(dev->of_node, "cell-index", &index);
++	if (ret)
++		index = 0;
++
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dpfe-cpu");
++	priv->regs = devm_ioremap_resource(dev, res);
++	if (IS_ERR(priv->regs)) {
++		dev_err(dev, "couldn't map DCPU registers\n");
++		return -ENODEV;
++	}
++
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dpfe-dmem");
++	priv->dmem = devm_ioremap_resource(dev, res);
++	if (IS_ERR(priv->dmem)) {
++		dev_err(dev, "Couldn't map DCPU data memory\n");
++		return -ENOENT;
++	}
++
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dpfe-imem");
++	priv->imem = devm_ioremap_resource(dev, res);
++	if (IS_ERR(priv->imem)) {
++		dev_err(dev, "Couldn't map DCPU instruction memory\n");
++		return -ENOENT;
++	}
++
++	ret = brcmstb_dpfe_download_firmware(pdev, &init);
++	if (ret)
++		goto err;
++
++	dpfe_dev = devm_kzalloc(dev, sizeof(*dpfe_dev), GFP_KERNEL);
++	if (!dpfe_dev) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	priv->dev = dpfe_dev;
++	priv->index = index;
++
++	dpfe_dev->parent = dev;
++	dpfe_dev->groups = dpfe_groups;
++	dpfe_dev->of_node = dev->of_node;
++	dev_set_drvdata(dpfe_dev, priv);
++	dev_set_name(dpfe_dev, "dpfe%u", index);
++
++	ret = device_register(dpfe_dev);
++	if (ret)
++		goto err;
++
++	dev_info(dev, "registered.\n");
++
++	return 0;
++
++err:
++	dev_err(dev, "failed to initialize -- error %d\n", ret);
++
++	return ret;
++}
++
++static const struct of_device_id brcmstb_dpfe_of_match[] = {
++	{ .compatible = "brcm,dpfe-cpu", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, brcmstb_dpfe_of_match);
++
++static struct platform_driver brcmstb_dpfe_driver = {
++	.driver	= {
++		.name = DRVNAME,
++		.of_match_table = brcmstb_dpfe_of_match,
++	},
++	.probe = brcmstb_dpfe_probe,
++	.resume = brcmstb_dpfe_resume,
++};
++
++module_platform_driver(brcmstb_dpfe_driver);
++
++MODULE_AUTHOR("Markus Mayer <mmayer@broadcom.com>");
++MODULE_DESCRIPTION("BRCMSTB DDR PHY Front End Driver");
++MODULE_LICENSE("GPL");
 
