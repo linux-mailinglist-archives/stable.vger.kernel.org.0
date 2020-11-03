@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319D82A398F
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9562A3992
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 02:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbgKCBTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Nov 2020 20:19:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33450 "EHLO mail.kernel.org"
+        id S1728321AbgKCB0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Nov 2020 20:26:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727774AbgKCBTc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Nov 2020 20:19:32 -0500
+        id S1727703AbgKCBTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Nov 2020 20:19:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14E1F222EC;
-        Tue,  3 Nov 2020 01:19:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A7A222264;
+        Tue,  3 Nov 2020 01:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604366372;
-        bh=ynQhMeqxIsfyG4RuGMLxTyuNFnXhTXOVcl78sJdPpaM=;
+        s=default; t=1604366373;
+        bh=LWj5Z+oKaXUyiTpdDOhnH8soHvKHloBKTMnykHfkm+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9scCOUsHMxt87I/8j7MrNtH2qSDmR7xg0hr/rflZ5mfzfmb2vZrvhbZsbMN8NjOt
-         DqGdHveetFQTZwV8kCQO8mEsYObNp/hY4C8YSjQYJBdieTtIbSr2PNHh9+cWypk8UD
-         LvweibobKvrNevrkDM1jL7l2JMQXxbqCCCHfBb/I=
+        b=XRlj3078NhLbYnslif6p56JtV9a1UTbZsWXRZkwBF3qHDLbIYIbVfkVWzbR5biA6v
+         rm/LBbWgOD1ZsJBDun43/lYLvtVeEkMKvh+r+7RtdFNmLyM0d+OZqd/wrUcvYEljHH
+         xfpZ21bo/ua5aXuminUFDpeoA0lQdOKPC1OziCkA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Neil Armstrong <narmstrong@baylibre.com>,
         Kevin Hilman <khilman@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 02/29] arm64: dts: meson-axg: add USB nodes
-Date:   Mon,  2 Nov 2020 20:19:01 -0500
-Message-Id: <20201103011928.183145-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 03/29] arm64: dts: meson-axg-s400: enable USB OTG
+Date:   Mon,  2 Nov 2020 20:19:02 -0500
+Message-Id: <20201103011928.183145-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201103011928.183145-1-sashal@kernel.org>
 References: <20201103011928.183145-1-sashal@kernel.org>
@@ -47,88 +46,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 1b208bab34dc3f4ef8f408105017d4a7b72b2a2f ]
+[ Upstream commit f450d2c219f6a6b79880c97bf910c3c72725eb70 ]
 
-This adds the USB Glue node, with the USB2 & USB3 controllers along the single
-USB2 PHY node.
+This enables USB OTG on the S400 board.
 
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 50 ++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-index 8e6281c685fad..31cf74bb95a40 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-@@ -171,6 +171,46 @@ soc {
- 		#size-cells = <2>;
- 		ranges;
- 
-+		usb: usb@ffe09080 {
-+			compatible = "amlogic,meson-axg-usb-ctrl";
-+			reg = <0x0 0xffe09080 0x0 0x20>;
-+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
-+			#address-cells = <2>;
-+			#size-cells = <2>;
-+			ranges;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
+index cb1360ae1211e..7740f97c240f0 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
+@@ -584,3 +584,9 @@ &uart_AO {
+ 	pinctrl-0 = <&uart_ao_a_pins>;
+ 	pinctrl-names = "default";
+ };
 +
-+			clocks = <&clkc CLKID_USB>, <&clkc CLKID_USB1_DDR_BRIDGE>;
-+			clock-names = "usb_ctrl", "ddr";
-+			resets = <&reset RESET_USB_OTG>;
-+
-+			dr_mode = "otg";
-+
-+			phys = <&usb2_phy1>;
-+			phy-names = "usb2-phy1";
-+
-+			dwc2: usb@ff400000 {
-+				compatible = "amlogic,meson-g12a-usb", "snps,dwc2";
-+				reg = <0x0 0xff400000 0x0 0x40000>;
-+				interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-+				clocks = <&clkc CLKID_USB1>;
-+				clock-names = "otg";
-+				phys = <&usb2_phy1>;
-+				dr_mode = "peripheral";
-+				g-rx-fifo-size = <192>;
-+				g-np-tx-fifo-size = <128>;
-+				g-tx-fifo-size = <128 128 16 16 16>;
-+			};
-+
-+			dwc3: usb@ff500000 {
-+				compatible = "snps,dwc3";
-+				reg = <0x0 0xff500000 0x0 0x100000>;
-+				interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-+				dr_mode = "host";
-+				maximum-speed = "high-speed";
-+				snps,dis_u2_susphy_quirk;
-+			};
-+		};
-+
- 		ethmac: ethernet@ff3f0000 {
- 			compatible = "amlogic,meson-axg-dwmac",
- 				     "snps,dwmac-3.70a",
-@@ -1732,6 +1772,16 @@ sd_emmc_c: mmc@7000 {
- 				clock-names = "core", "clkin0", "clkin1";
- 				resets = <&reset RESET_SD_EMMC_C>;
- 			};
-+
-+			usb2_phy1: phy@9020 {
-+				compatible = "amlogic,meson-gxl-usb2-phy";
-+				#phy-cells = <0>;
-+				reg = <0x0 0x9020 0x0 0x20>;
-+				clocks = <&clkc CLKID_USB>;
-+				clock-names = "phy";
-+				resets = <&reset RESET_USB_OTG>;
-+				reset-names = "phy";
-+			};
- 		};
- 
- 		sram: sram@fffc0000 {
++&usb {
++	status = "okay";
++	dr_mode = "otg";
++	vbus-supply = <&usb_pwr>;
++};
 -- 
 2.27.0
 
