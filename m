@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 599082A53DC
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C44652A5446
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387814AbgKCVF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
+        id S2387838AbgKCVJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:09:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387735AbgKCVF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:05:26 -0500
+        id S2388547AbgKCVJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:09:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA87F205ED;
-        Tue,  3 Nov 2020 21:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1AA020757;
+        Tue,  3 Nov 2020 21:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437526;
-        bh=5E6Ms5SfmAhlWvxTxvU+REQ6RjzNmk5P07PNfAQXR/o=;
+        s=default; t=1604437778;
+        bh=ZuFTrDOuM+pycEPjXPSqbaKXZzqr9qUyI4TYfI8Bb2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoKUof71QkzIhQn5K/Qe/2VnRCrJ1yGaYLYKEWLWZeaWc+kQlOODM56PJG7V2F2yn
-         e31c4jXUuqyKHXS1kujDbXlqSikBPxYxeQ3y6cxsfCn4oW/1sMoAinYaA9bKseF4t2
-         8dpEuZ0OQUabZ6x7Nag7WsZLDKvJMCm4OKOaLdns=
+        b=uo6P/UMoo+ENfqI3iI5ZoJiWj/u26NlfoBBcxfGBZYsyqwjBWqTMjS1jeW4IyFRyd
+         35u4Z1ufSRpJtg7/jKhxR+1aM1U9nEeBKdj1z9vTfUGrnr/bXsjnA9Ha73d5kiqt6Q
+         eQn/5DSTxj/LrsxTP+S7VBTvYiQOIH0OmL202mMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.19 114/191] perf/x86/amd/ibs: Dont include randomized bits in get_ibs_op_count()
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 029/125] media: videodev2.h: RGB BT2020 and HSV are always full range
 Date:   Tue,  3 Nov 2020 21:36:46 +0100
-Message-Id: <20201103203244.086262036@linuxfoundation.org>
+Message-Id: <20201103203200.929914040@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
+In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+References: <20201103203156.372184213@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 680d69635005ba0e58fe3f4c52fc162b8fc743b0 upstream.
+[ Upstream commit b305dfe2e93434b12d438434461b709641f62af4 ]
 
-get_ibs_op_count() adds hardware's current count (IbsOpCurCnt) bits
-to its count regardless of hardware's valid status.
+The default RGB quantization range for BT.2020 is full range (just as for
+all the other RGB pixel encodings), not limited range.
 
-According to the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54,
-if the counter rolls over, valid status is set, and the lower 7 bits
-of IbsOpCurCnt are randomized by hardware.
+Update the V4L2_MAP_QUANTIZATION_DEFAULT macro and documentation
+accordingly.
 
-Don't include those bits in the driver's event count.
+Also mention that HSV is always full range and cannot be limited range.
 
-Fixes: 8b1e13638d46 ("perf/x86-ibs: Fix usage of IBS op current count")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When RGB BT2020 was introduced in V4L2 it was not clear whether it should
+be limited or full range, but full range is the right (and consistent)
+choice.
 
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ .../media/uapi/v4l/colorspaces-defs.rst         |  9 ++++-----
+ .../media/uapi/v4l/colorspaces-details.rst      |  5 ++---
+ include/uapi/linux/videodev2.h                  | 17 ++++++++---------
+ 3 files changed, 14 insertions(+), 17 deletions(-)
 
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -347,11 +347,15 @@ static u64 get_ibs_op_count(u64 config)
- {
- 	u64 count = 0;
+diff --git a/Documentation/media/uapi/v4l/colorspaces-defs.rst b/Documentation/media/uapi/v4l/colorspaces-defs.rst
+index f24615544792b..16e46bec80934 100644
+--- a/Documentation/media/uapi/v4l/colorspaces-defs.rst
++++ b/Documentation/media/uapi/v4l/colorspaces-defs.rst
+@@ -29,8 +29,7 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
+ :c:type:`v4l2_hsv_encoding` specifies which encoding is used.
  
-+	/*
-+	 * If the internal 27-bit counter rolled over, the count is MaxCnt
-+	 * and the lower 7 bits of CurCnt are randomized.
-+	 * Otherwise CurCnt has the full 27-bit current counter value.
-+	 */
- 	if (config & IBS_OP_VAL)
--		count += (config & IBS_OP_MAX_CNT) << 4; /* cnt rolled over */
--
--	if (ibs_caps & IBS_CAPS_RDWROPCNT)
--		count += (config & IBS_OP_CUR_CNT) >> 32;
-+		count = (config & IBS_OP_MAX_CNT) << 4;
-+	else if (ibs_caps & IBS_CAPS_RDWROPCNT)
-+		count = (config & IBS_OP_CUR_CNT) >> 32;
+ .. note:: The default R'G'B' quantization is full range for all
+-   colorspaces except for BT.2020 which uses limited range R'G'B'
+-   quantization.
++   colorspaces. HSV formats are always full range.
  
- 	return count;
- }
+ .. tabularcolumns:: |p{6.0cm}|p{11.5cm}|
+ 
+@@ -162,8 +161,8 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
+       - Details
+     * - ``V4L2_QUANTIZATION_DEFAULT``
+       - Use the default quantization encoding as defined by the
+-	colorspace. This is always full range for R'G'B' (except for the
+-	BT.2020 colorspace) and HSV. It is usually limited range for Y'CbCr.
++	colorspace. This is always full range for R'G'B' and HSV.
++	It is usually limited range for Y'CbCr.
+     * - ``V4L2_QUANTIZATION_FULL_RANGE``
+       - Use the full range quantization encoding. I.e. the range [0…1] is
+ 	mapped to [0…255] (with possible clipping to [1…254] to avoid the
+@@ -173,4 +172,4 @@ whole range, 0-255, dividing the angular value by 1.41. The enum
+     * - ``V4L2_QUANTIZATION_LIM_RANGE``
+       - Use the limited range quantization encoding. I.e. the range [0…1]
+ 	is mapped to [16…235]. Cb and Cr are mapped from [-0.5…0.5] to
+-	[16…240].
++	[16…240]. Limited Range cannot be used with HSV.
+diff --git a/Documentation/media/uapi/v4l/colorspaces-details.rst b/Documentation/media/uapi/v4l/colorspaces-details.rst
+index 09fabf4cd4126..ca7176cae8dd8 100644
+--- a/Documentation/media/uapi/v4l/colorspaces-details.rst
++++ b/Documentation/media/uapi/v4l/colorspaces-details.rst
+@@ -370,9 +370,8 @@ Colorspace BT.2020 (V4L2_COLORSPACE_BT2020)
+ The :ref:`itu2020` standard defines the colorspace used by Ultra-high
+ definition television (UHDTV). The default transfer function is
+ ``V4L2_XFER_FUNC_709``. The default Y'CbCr encoding is
+-``V4L2_YCBCR_ENC_BT2020``. The default R'G'B' quantization is limited
+-range (!), and so is the default Y'CbCr quantization. The chromaticities
+-of the primary colors and the white reference are:
++``V4L2_YCBCR_ENC_BT2020``. The default Y'CbCr quantization is limited range.
++The chromaticities of the primary colors and the white reference are:
+ 
+ 
+ 
+diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+index 1c095b5a99c58..b773e96b4a286 100644
+--- a/include/uapi/linux/videodev2.h
++++ b/include/uapi/linux/videodev2.h
+@@ -362,9 +362,9 @@ enum v4l2_hsv_encoding {
+ 
+ enum v4l2_quantization {
+ 	/*
+-	 * The default for R'G'B' quantization is always full range, except
+-	 * for the BT2020 colorspace. For Y'CbCr the quantization is always
+-	 * limited range, except for COLORSPACE_JPEG: this is full range.
++	 * The default for R'G'B' quantization is always full range.
++	 * For Y'CbCr the quantization is always limited range, except
++	 * for COLORSPACE_JPEG: this is full range.
+ 	 */
+ 	V4L2_QUANTIZATION_DEFAULT     = 0,
+ 	V4L2_QUANTIZATION_FULL_RANGE  = 1,
+@@ -373,14 +373,13 @@ enum v4l2_quantization {
+ 
+ /*
+  * Determine how QUANTIZATION_DEFAULT should map to a proper quantization.
+- * This depends on whether the image is RGB or not, the colorspace and the
+- * Y'CbCr encoding.
++ * This depends on whether the image is RGB or not, the colorspace.
++ * The Y'CbCr encoding is not used anymore, but is still there for backwards
++ * compatibility.
+  */
+ #define V4L2_MAP_QUANTIZATION_DEFAULT(is_rgb_or_hsv, colsp, ycbcr_enc) \
+-	(((is_rgb_or_hsv) && (colsp) == V4L2_COLORSPACE_BT2020) ? \
+-	 V4L2_QUANTIZATION_LIM_RANGE : \
+-	 (((is_rgb_or_hsv) || (colsp) == V4L2_COLORSPACE_JPEG) ? \
+-	 V4L2_QUANTIZATION_FULL_RANGE : V4L2_QUANTIZATION_LIM_RANGE))
++	(((is_rgb_or_hsv) || (colsp) == V4L2_COLORSPACE_JPEG) ? \
++	 V4L2_QUANTIZATION_FULL_RANGE : V4L2_QUANTIZATION_LIM_RANGE)
+ 
+ enum v4l2_priority {
+ 	V4L2_PRIORITY_UNSET       = 0,  /* not initialized */
+-- 
+2.27.0
+
 
 
