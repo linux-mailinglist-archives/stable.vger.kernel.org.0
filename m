@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 862302A5125
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D03F42A5127
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbgKCUi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:38:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S1729953AbgKCUib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:38:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729546AbgKCUiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:38:25 -0500
+        id S1729946AbgKCUia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:38:30 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BE5C22277;
-        Tue,  3 Nov 2020 20:38:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A35A422277;
+        Tue,  3 Nov 2020 20:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604435904;
-        bh=i4ns7iSzB8dZdjIZi8xUq472DzQzfOmUOGL8C5RbVU0=;
+        s=default; t=1604435909;
+        bh=3qZ/qGorLAh4jigNgfDXPv/1lqkCfejbEgnOtu5QMmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJlvfn4htv+gJLi93LFPnG+V66n+zDeu2dTvVriVasg3FtmndP/oCexFEOMvpXqTc
-         +d24kfGsXlyHJ0aSTv8UyYvQQtKTP9w34Lu5qjShZE7dILUElq4s34BWUBDBFT2iHu
-         HL8QKwSDfdju3q/Aj/m9dq68vM2NhkU3D6Ew5PdY=
+        b=W4HY85q9+PIGmkVH/L/bQwVgAg0DS1CnCWWzuMMA5Pdp828rle2vnx6QhxRR68qSU
+         3kDyd3iVurqXFsXVy4YvMb/l963/f5T2eMyoQ6nMii9ytkRueyFslrLTRhEQICUkWe
+         fmiKAiv9FGUC0RaWad+0rPlQgdCiug9SAGyUmVuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 034/391] afs: Wrap page->private manipulations in inline functions
-Date:   Tue,  3 Nov 2020 21:31:25 +0100
-Message-Id: <20201103203350.037886844@linuxfoundation.org>
+Subject: [PATCH 5.9 035/391] afs: Alter dirty range encoding in page->private
+Date:   Tue,  3 Nov 2020 21:31:26 +0100
+Message-Id: <20201103203350.091158536@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
 References: <20201103203348.153465465@linuxfoundation.org>
@@ -44,197 +44,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 185f0c7073bd5c78f86265f703f5daf1306ab5a7 ]
+[ Upstream commit 65dd2d6072d393a3aa14ded8afa9a12f27d9c8ad ]
 
-The afs filesystem uses page->private to store the dirty range within a
-page such that in the event of a conflicting 3rd-party write to the server,
-we write back just the bits that got changed locally.
+Currently, page->private on an afs page is used to store the range of
+dirtied data within the page, where the range includes the lower bound, but
+excludes the upper bound (e.g. 0-1 is a range covering a single byte).
 
-However, there are a couple of problems with this:
+This, however, requires a superfluous bit for the last-byte bound so that
+on a 4KiB page, it can say 0-4096 to indicate the whole page, the idea
+being that having both numbers the same would indicate an empty range.
+This is unnecessary as the PG_private bit is clear if it's an empty range
+(as is PG_dirty).
 
- (1) I need a bit to note if the page might be mapped so that partial
-     invalidation doesn't shrink the range.
+Alter the way the dirty range is encoded in page->private such that the
+upper bound is reduced by 1 (e.g. 0-0 is then specified the same single
+byte range mentioned above).
 
- (2) There aren't necessarily sufficient bits to store the entire range of
-     data altered (say it's a 32-bit system with 64KiB pages or transparent
-     huge pages are in use).
+Applying this to both bounds frees up two bits, one of which can be used in
+a future commit.
 
-So wrap the accesses in inline functions so that future commits can change
-how this works.
+This allows the afs filesystem to be compiled on ppc32 with 64K pages;
+without this, the following warnings are seen:
 
-Also move them out of the tracing header into the in-directory header.
-There's not really any need for them to be in the tracing header.
+../fs/afs/internal.h: In function 'afs_page_dirty_to':
+../fs/afs/internal.h:881:15: warning: right shift count >= width of type [-Wshift-count-overflow]
+  881 |  return (priv >> __AFS_PAGE_PRIV_SHIFT) & __AFS_PAGE_PRIV_MASK;
+      |               ^~
+../fs/afs/internal.h: In function 'afs_page_dirty':
+../fs/afs/internal.h:886:28: warning: left shift count >= width of type [-Wshift-count-overflow]
+  886 |  return ((unsigned long)to << __AFS_PAGE_PRIV_SHIFT) | from;
+      |                            ^~
 
+Fixes: 4343d00872e1 ("afs: Get rid of the afs_writeback record")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/internal.h          | 28 ++++++++++++++++++++++++++++
- fs/afs/write.c             | 31 +++++++++++++------------------
- include/trace/events/afs.h | 19 +++----------------
- 3 files changed, 44 insertions(+), 34 deletions(-)
+ fs/afs/internal.h | 6 +++---
+ fs/afs/write.c    | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index c8acb58ac5d8f..523bf9698ecdc 100644
+index 523bf9698ecdc..fc96c090893f7 100644
 --- a/fs/afs/internal.h
 +++ b/fs/afs/internal.h
-@@ -857,6 +857,34 @@ struct afs_vnode_cache_aux {
- 	u64			data_version;
- } __packed;
+@@ -862,7 +862,7 @@ struct afs_vnode_cache_aux {
+  * splitting the field into two parts.  However, we need to represent a range
+  * 0...PAGE_SIZE inclusive, so we can't support 64K pages on a 32-bit system.
+  */
+-#if PAGE_SIZE > 32768
++#ifdef CONFIG_64BIT
+ #define __AFS_PAGE_PRIV_MASK	0xffffffffUL
+ #define __AFS_PAGE_PRIV_SHIFT	32
+ #else
+@@ -877,12 +877,12 @@ static inline size_t afs_page_dirty_from(unsigned long priv)
  
-+/*
-+ * We use page->private to hold the amount of the page that we've written to,
-+ * splitting the field into two parts.  However, we need to represent a range
-+ * 0...PAGE_SIZE inclusive, so we can't support 64K pages on a 32-bit system.
-+ */
-+#if PAGE_SIZE > 32768
-+#define __AFS_PAGE_PRIV_MASK	0xffffffffUL
-+#define __AFS_PAGE_PRIV_SHIFT	32
-+#else
-+#define __AFS_PAGE_PRIV_MASK	0xffffUL
-+#define __AFS_PAGE_PRIV_SHIFT	16
-+#endif
-+
-+static inline size_t afs_page_dirty_from(unsigned long priv)
-+{
-+	return priv & __AFS_PAGE_PRIV_MASK;
-+}
-+
-+static inline size_t afs_page_dirty_to(unsigned long priv)
-+{
-+	return (priv >> __AFS_PAGE_PRIV_SHIFT) & __AFS_PAGE_PRIV_MASK;
-+}
-+
-+static inline unsigned long afs_page_dirty(size_t from, size_t to)
-+{
-+	return ((unsigned long)to << __AFS_PAGE_PRIV_SHIFT) | from;
-+}
-+
+ static inline size_t afs_page_dirty_to(unsigned long priv)
+ {
+-	return (priv >> __AFS_PAGE_PRIV_SHIFT) & __AFS_PAGE_PRIV_MASK;
++	return ((priv >> __AFS_PAGE_PRIV_SHIFT) & __AFS_PAGE_PRIV_MASK) + 1;
+ }
+ 
+ static inline unsigned long afs_page_dirty(size_t from, size_t to)
+ {
+-	return ((unsigned long)to << __AFS_PAGE_PRIV_SHIFT) | from;
++	return ((unsigned long)(to - 1) << __AFS_PAGE_PRIV_SHIFT) | from;
+ }
+ 
  #include <trace/events/afs.h>
- 
- /*****************************************************************************/
 diff --git a/fs/afs/write.c b/fs/afs/write.c
-index f28d85c38cd89..ea1768b3c0b56 100644
+index ea1768b3c0b56..1a49f5c89342e 100644
 --- a/fs/afs/write.c
 +++ b/fs/afs/write.c
-@@ -117,8 +117,8 @@ try_again:
- 	t = f = 0;
- 	if (PagePrivate(page)) {
- 		priv = page_private(page);
--		f = priv & AFS_PRIV_MAX;
--		t = priv >> AFS_PRIV_SHIFT;
-+		f = afs_page_dirty_from(priv);
-+		t = afs_page_dirty_to(priv);
- 		ASSERTCMP(f, <=, t);
- 	}
- 
-@@ -206,22 +206,18 @@ int afs_write_end(struct file *file, struct address_space *mapping,
- 
- 	if (PagePrivate(page)) {
- 		priv = page_private(page);
--		f = priv & AFS_PRIV_MAX;
--		t = priv >> AFS_PRIV_SHIFT;
-+		f = afs_page_dirty_from(priv);
-+		t = afs_page_dirty_to(priv);
- 		if (from < f)
- 			f = from;
- 		if (to > t)
- 			t = to;
--		priv = (unsigned long)t << AFS_PRIV_SHIFT;
--		priv |= f;
-+		priv = afs_page_dirty(f, t);
- 		set_page_private(page, priv);
- 		trace_afs_page_dirty(vnode, tracepoint_string("dirty+"),
- 				     page->index, priv);
- 	} else {
--		f = from;
--		t = to;
--		priv = (unsigned long)t << AFS_PRIV_SHIFT;
--		priv |= f;
-+		priv = afs_page_dirty(from, to);
- 		attach_page_private(page, (void *)priv);
- 		trace_afs_page_dirty(vnode, tracepoint_string("dirty"),
- 				     page->index, priv);
-@@ -522,8 +518,8 @@ static int afs_write_back_from_locked_page(struct address_space *mapping,
+@@ -93,7 +93,7 @@ int afs_write_begin(struct file *file, struct address_space *mapping,
+ 	/* We want to store information about how much of a page is altered in
+ 	 * page->private.
  	 */
- 	start = primary_page->index;
- 	priv = page_private(primary_page);
--	offset = priv & AFS_PRIV_MAX;
--	to = priv >> AFS_PRIV_SHIFT;
-+	offset = afs_page_dirty_from(priv);
-+	to = afs_page_dirty_to(priv);
- 	trace_afs_page_dirty(vnode, tracepoint_string("store"),
- 			     primary_page->index, priv);
+-	BUILD_BUG_ON(PAGE_SIZE > 32768 && sizeof(page->private) < 8);
++	BUILD_BUG_ON(PAGE_SIZE - 1 > __AFS_PAGE_PRIV_MASK && sizeof(page->private) < 8);
  
-@@ -568,8 +564,8 @@ static int afs_write_back_from_locked_page(struct address_space *mapping,
- 			}
- 
- 			priv = page_private(page);
--			f = priv & AFS_PRIV_MAX;
--			t = priv >> AFS_PRIV_SHIFT;
-+			f = afs_page_dirty_from(priv);
-+			t = afs_page_dirty_to(priv);
- 			if (f != 0 &&
- 			    !test_bit(AFS_VNODE_NEW_CONTENT, &vnode->flags)) {
- 				unlock_page(page);
-@@ -870,8 +866,7 @@ vm_fault_t afs_page_mkwrite(struct vm_fault *vmf)
- 	 */
- 	wait_on_page_writeback(vmf->page);
- 
--	priv = (unsigned long)PAGE_SIZE << AFS_PRIV_SHIFT; /* To */
--	priv |= 0; /* From */
-+	priv = afs_page_dirty(0, PAGE_SIZE);
- 	trace_afs_page_dirty(vnode, tracepoint_string("mkwrite"),
- 			     vmf->page->index, priv);
- 	if (PagePrivate(vmf->page))
-@@ -930,8 +925,8 @@ int afs_launder_page(struct page *page)
- 		f = 0;
- 		t = PAGE_SIZE;
- 		if (PagePrivate(page)) {
--			f = priv & AFS_PRIV_MAX;
--			t = priv >> AFS_PRIV_SHIFT;
-+			f = afs_page_dirty_from(priv);
-+			t = afs_page_dirty_to(priv);
- 		}
- 
- 		trace_afs_page_dirty(vnode, tracepoint_string("launder"),
-diff --git a/include/trace/events/afs.h b/include/trace/events/afs.h
-index 5f0c1cf1ea130..05b5506cd24ca 100644
---- a/include/trace/events/afs.h
-+++ b/include/trace/events/afs.h
-@@ -884,19 +884,6 @@ TRACE_EVENT(afs_dir_check_failed,
- 		      __entry->vnode, __entry->off, __entry->i_size)
- 	    );
- 
--/*
-- * We use page->private to hold the amount of the page that we've written to,
-- * splitting the field into two parts.  However, we need to represent a range
-- * 0...PAGE_SIZE inclusive, so we can't support 64K pages on a 32-bit system.
-- */
--#if PAGE_SIZE > 32768
--#define AFS_PRIV_MAX	0xffffffff
--#define AFS_PRIV_SHIFT	32
--#else
--#define AFS_PRIV_MAX	0xffff
--#define AFS_PRIV_SHIFT	16
--#endif
--
- TRACE_EVENT(afs_page_dirty,
- 	    TP_PROTO(struct afs_vnode *vnode, const char *where,
- 		     pgoff_t page, unsigned long priv),
-@@ -917,10 +904,10 @@ TRACE_EVENT(afs_page_dirty,
- 		    __entry->priv = priv;
- 			   ),
- 
--	    TP_printk("vn=%p %lx %s %lu-%lu",
-+	    TP_printk("vn=%p %lx %s %zx-%zx",
- 		      __entry->vnode, __entry->page, __entry->where,
--		      __entry->priv & AFS_PRIV_MAX,
--		      __entry->priv >> AFS_PRIV_SHIFT)
-+		      afs_page_dirty_from(__entry->priv),
-+		      afs_page_dirty_to(__entry->priv))
- 	    );
- 
- TRACE_EVENT(afs_call_state,
+ 	page = grab_cache_page_write_begin(mapping, index, flags);
+ 	if (!page)
 -- 
 2.27.0
 
