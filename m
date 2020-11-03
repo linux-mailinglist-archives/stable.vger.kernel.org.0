@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D8B2A54E2
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FFAD2A541A
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 22:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388545AbgKCVMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 16:12:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54596 "EHLO mail.kernel.org"
+        id S2388373AbgKCVH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 16:07:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389000AbgKCVMS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 16:12:18 -0500
+        id S2388367AbgKCVH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 16:07:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 297B021534;
-        Tue,  3 Nov 2020 21:12:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D4F6207BC;
+        Tue,  3 Nov 2020 21:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437936;
-        bh=y7ZK+pDC5G/MNWFHAgykspgjpyRitgHR80fbbwpq6o0=;
+        s=default; t=1604437676;
+        bh=pdImw8MX1nGDEbGReoB8McG7j1JBtWfBX0D9bkBbf6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1RGlhN15eFrDtWoB9XkRvEgUHAgDmB7PZUE8QjWyLy4Ufmbl+XPV5XdkDM74ziFOl
-         wy7Gw/xl3M0Ndt3y7J+OydUyLRxypBfsLxEQv8pXcrN9JhTTdYIDnPV1jatyefrHnC
-         D8sRdUNWIu51Vc0bTUSKMXiEuWPaqSVqJ8BfU7Ls=
+        b=OtSYiajSNK4h/EnssHMVy2tMUKACnq/Bo+jf9RhGgRcLW2xuuklIvzf32TaB+uzpg
+         2oAHxCBsiTPHKDxGaD6IJc6hXBL2QXfOQBYQiUW/pEI39VadPBo3DEADsVkL1075gD
+         IeXWm9weRYfgc1Wv6QX8lFgiKW9Am3q/8FsoTcgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 094/125] powerpc/powernv/elog: Fix race while processing OPAL error log event.
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 179/191] tty: make FONTX ioctl use the tty pointer they were actually passed
 Date:   Tue,  3 Nov 2020 21:37:51 +0100
-Message-Id: <20201103203210.626021188@linuxfoundation.org>
+Message-Id: <20201103203249.418136352@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
-References: <20201103203156.372184213@linuxfoundation.org>
+In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
+References: <20201103203232.656475008@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,128 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit aea948bb80b478ddc2448f7359d574387521a52d upstream.
+commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
 
-Every error log reported by OPAL is exported to userspace through a
-sysfs interface and notified using kobject_uevent(). The userspace
-daemon (opal_errd) then reads the error log and acknowledges the error
-log is saved safely to disk. Once acknowledged the kernel removes the
-respective sysfs file entry causing respective resources to be
-released including kobject.
+Some of the font tty ioctl's always used the current foreground VC for
+their operations.  Don't do that then.
 
-However it's possible the userspace daemon may already be scanning
-elog entries when a new sysfs elog entry is created by the kernel.
-User daemon may read this new entry and ack it even before kernel can
-notify userspace about it through kobject_uevent() call. If that
-happens then we have a potential race between
-elog_ack_store->kobject_put() and kobject_uevent which can lead to
-use-after-free of a kernfs object resulting in a kernel crash. eg:
+This fixes a data race on fg_console.
 
-  BUG: Unable to handle kernel data access on read at 0x6b6b6b6b6b6b6bfb
-  Faulting instruction address: 0xc0000000008ff2a0
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
-  CPU: 27 PID: 805 Comm: irq/29-opal-elo Not tainted 5.9.0-rc2-gcc-8.2.0-00214-g6f56a67bcbb5-dirty #363
-  ...
-  NIP kobject_uevent_env+0xa0/0x910
-  LR  elog_event+0x1f4/0x2d0
-  Call Trace:
-    0x5deadbeef0000122 (unreliable)
-    elog_event+0x1f4/0x2d0
-    irq_thread_fn+0x4c/0xc0
-    irq_thread+0x1c0/0x2b0
-    kthread+0x1c4/0x1d0
-    ret_from_kernel_thread+0x5c/0x6c
+Side note: both Michael Ellerman and Jiri Slaby point out that all these
+ioctls are deprecated, and should probably have been removed long ago,
+and everything seems to be using the KDFONTOP ioctl instead.
 
-This patch fixes this race by protecting the sysfs file
-creation/notification by holding a reference count on kobject until we
-safely send kobject_uevent().
+In fact, Michael points out that it looks like busybox's loadfont
+program seems to have switched over to using KDFONTOP exactly _because_
+of this bug (ahem.. 12 years ago ;-).
 
-The function create_elog_obj() returns the elog object which if used
-by caller function will end up in use-after-free problem again.
-However, the return value of create_elog_obj() function isn't being
-used today and there is no need as well. Hence change it to return
-void to make this fix complete.
-
-Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
-Cc: stable@vger.kernel.org # v3.15+
-Reported-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-[mpe: Rework the logic to use a single return, reword comments, add oops]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201006122051.190176-1-mpe@ellerman.id.au
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/opal-elog.c |   33 ++++++++++++++++++++++-------
- 1 file changed, 26 insertions(+), 7 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/opal-elog.c
-+++ b/arch/powerpc/platforms/powernv/opal-elog.c
-@@ -183,14 +183,14 @@ static ssize_t raw_attr_read(struct file
- 	return count;
- }
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -244,7 +244,7 @@ int vt_waitactive(int n)
  
--static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
-+static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
+ 
+ static inline int 
+-do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
++do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
  {
- 	struct elog_obj *elog;
- 	int rc;
- 
- 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
- 	if (!elog)
--		return NULL;
-+		return;
- 
- 	elog->kobj.kset = elog_kset;
- 
-@@ -223,18 +223,37 @@ static struct elog_obj *create_elog_obj(
- 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
- 	if (rc) {
- 		kobject_put(&elog->kobj);
--		return NULL;
-+		return;
- 	}
- 
-+	/*
-+	 * As soon as the sysfs file for this elog is created/activated there is
-+	 * a chance the opal_errd daemon (or any userspace) might read and
-+	 * acknowledge the elog before kobject_uevent() is called. If that
-+	 * happens then there is a potential race between
-+	 * elog_ack_store->kobject_put() and kobject_uevent() which leads to a
-+	 * use-after-free of a kernfs object resulting in a kernel crash.
-+	 *
-+	 * To avoid that, we need to take a reference on behalf of the bin file,
-+	 * so that our reference remains valid while we call kobject_uevent().
-+	 * We then drop our reference before exiting the function, leaving the
-+	 * bin file to drop the last reference (if it hasn't already).
-+	 */
+ 	struct consolefontdesc cfdarg;
+ 	int i;
+@@ -262,15 +262,16 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		return con_font_op(vc_cons[fg_console].d, op);
+-	case GIO_FONTX: {
++		return con_font_op(vc, op);
 +
-+	/* Take a reference for the bin file */
-+	kobject_get(&elog->kobj);
- 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
--	if (rc) {
-+	if (rc == 0) {
-+		kobject_uevent(&elog->kobj, KOBJ_ADD);
-+	} else {
-+		/* Drop the reference taken for the bin file */
- 		kobject_put(&elog->kobj);
--		return NULL;
++	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+ 		op->width = 8;
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -278,7 +279,6 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+ 			return -EFAULT;
+ 		return 0;
+-		}
+ 	}
+ 	return -EINVAL;
+ }
+@@ -924,7 +924,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 0;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
  	}
  
--	kobject_uevent(&elog->kobj, KOBJ_ADD);
-+	/* Drop our reference */
-+	kobject_put(&elog->kobj);
+@@ -935,7 +935,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 32;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
+ 	}
  
--	return elog;
-+	return;
- }
+@@ -952,7 +952,7 @@ int vt_ioctl(struct tty_struct *tty,
  
- static irqreturn_t elog_event(int irq, void *data)
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = do_fontx_ioctl(cmd, up, perm, &op);
++		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case PIO_FONTRESET:
+@@ -969,11 +969,11 @@ int vt_ioctl(struct tty_struct *tty,
+ 		{
+ 		op.op = KD_FONT_OP_SET_DEFAULT;
+ 		op.data = NULL;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		if (ret)
+ 			break;
+ 		console_lock();
+-		con_set_default_unimap(vc_cons[fg_console].d);
++		con_set_default_unimap(vc);
+ 		console_unlock();
+ 		break;
+ 		}
+@@ -1100,8 +1100,9 @@ struct compat_consolefontdesc {
+ };
+ 
+ static inline int
+-compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
+-			 int perm, struct console_font_op *op)
++compat_fontx_ioctl(struct vc_data *vc, int cmd,
++		   struct compat_consolefontdesc __user *user_cfd,
++		   int perm, struct console_font_op *op)
+ {
+ 	struct compat_consolefontdesc cfdarg;
+ 	int i;
+@@ -1119,7 +1120,8 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		return con_font_op(vc_cons[fg_console].d, op);
++		return con_font_op(vc, op);
++
+ 	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+@@ -1127,7 +1129,7 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -1218,7 +1220,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 	 */
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = compat_fontx_ioctl(cmd, up, perm, &op);
++		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case KDFONTOP:
 
 
