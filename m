@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CED2A5323
-	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 367402A5326
+	for <lists+stable@lfdr.de>; Tue,  3 Nov 2020 21:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732137AbgKCU6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 15:58:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
+        id S1732940AbgKCU6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 15:58:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731481AbgKCU6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Nov 2020 15:58:13 -0500
+        id S1732116AbgKCU6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Nov 2020 15:58:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC970223AC;
-        Tue,  3 Nov 2020 20:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E509D2053B;
+        Tue,  3 Nov 2020 20:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604437093;
-        bh=qhi/UtLTa2aNYfQHiw68kb15TXUKniiWSA24K2ICBik=;
+        s=default; t=1604437095;
+        bh=JhqZYrzLoq7d1IA7dJCErI9pM2rLwGx0q5SNQ8neXAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8VaIc2MocLgPEBqpCf/dxZpESafo6aJsIPlrcGmy7/WJqP8HKuEa5i4WdKgVo80a
-         JCajBs1eKQQQQnlJGMklONDYFf/moXNMN/Fa1hYD+vgviyZ6GmQkuGHHF5rnM+FHsa
-         OSa5VrH+1P4tEYfX20yBbbOjoSuachlHdRRV+4Gk=
+        b=zV6Bgfqrclvqs79taYP41ddyEwhZBMhkCLZJNK8YiJ9gzIyViAio3IbHAZuaopXjZ
+         L0iABn7dB0LvfF//aKVB99Sa1ZiUYBZQpR7f4Cm6mqeUUIjwv57QUGITIgT1y/3NDM
+         CAuonkj44gAooIuIDmnciVShFDzeVL+ZLyA5bSQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Li Jun <jun.li@nxp.com>, ChiYuan Huang <cy_huang@richtek.com>
-Subject: [PATCH 5.4 142/214] usb: typec: tcpm: reset hard_reset_count for any disconnect
-Date:   Tue,  3 Nov 2020 21:36:30 +0100
-Message-Id: <20201103203304.127703625@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Ran Wang <ran.wang_1@nxp.com>
+Subject: [PATCH 5.4 143/214] usb: host: fsl-mph-dr-of: check return of dma_set_mask()
+Date:   Tue,  3 Nov 2020 21:36:31 +0100
+Message-Id: <20201103203304.218947273@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
 References: <20201103203249.448706377@linuxfoundation.org>
@@ -43,96 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Ran Wang <ran.wang_1@nxp.com>
 
-commit 2d9c6442a9c81f4f8dee678d0b3c183173ab1e2d upstream.
+commit 3cd54a618834430a26a648d880dd83d740f2ae30 upstream.
 
-Current tcpm_detach() only reset hard_reset_count if port->attached
-is true, this may cause this counter clear is missed if the CC
-disconnect event is generated after tcpm_port_reset() is done
-by other events, e.g. VBUS off comes first before CC disconect for
-a power sink, in that case the first tcpm_detach() will only clear
-port->attached flag but leave hard_reset_count there because
-tcpm_port_is_disconnected() is still false, then later tcpm_detach()
-by CC disconnect will directly return due to port->attached is cleared,
-finally this will result tcpm will not try hard reset or error recovery
-for later attach.
+fsl_usb2_device_register() should stop init if dma_set_mask() return
+error.
 
-ChiYuan reported this issue on his platform with below tcpm trace:
-After power sink session setup after hard reset 2 times, detach
-from the power source and then attach:
-[ 4848.046358] VBUS off
-[ 4848.046384] state change SNK_READY -> SNK_UNATTACHED
-[ 4848.050908] Setting voltage/current limit 0 mV 0 mA
-[ 4848.050936] polarity 0
-[ 4848.052593] Requesting mux state 0, usb-role 0, orientation 0
-[ 4848.053222] Start toggling
-[ 4848.086500] state change SNK_UNATTACHED -> TOGGLING
-[ 4848.089983] CC1: 0 -> 0, CC2: 3 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.089993] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.090031] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4848.141162] CC1: 0 -> 0, CC2: 3 -> 0 [state SNK_ATTACH_WAIT, polarity 0, disconnected]
-[ 4848.141170] state change SNK_ATTACH_WAIT -> SNK_ATTACH_WAIT
-[ 4848.141184] pending state change SNK_ATTACH_WAIT -> SNK_UNATTACHED @20 ms
-[ 4848.163156] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [delayed 20 ms]
-[ 4848.163162] Start toggling
-[ 4848.216918] CC1: 0 -> 0, CC2: 0 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.216954] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.217080] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4848.231771] CC1: 0 -> 0, CC2: 3 -> 0 [state SNK_ATTACH_WAIT, polarity 0, disconnected]
-[ 4848.231800] state change SNK_ATTACH_WAIT -> SNK_ATTACH_WAIT
-[ 4848.231857] pending state change SNK_ATTACH_WAIT -> SNK_UNATTACHED @20 ms
-[ 4848.256022] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [delayed20 ms]
-[ 4848.256049] Start toggling
-[ 4848.871148] VBUS on
-[ 4848.885324] CC1: 0 -> 0, CC2: 0 -> 3 [state TOGGLING, polarity 0, connected]
-[ 4848.885372] state change TOGGLING -> SNK_ATTACH_WAIT
-[ 4848.885548] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @200 ms
-[ 4849.088240] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed200 ms]
-[ 4849.088284] state change SNK_DEBOUNCED -> SNK_ATTACHED
-[ 4849.088291] polarity 1
-[ 4849.088769] Requesting mux state 1, usb-role 2, orientation 2
-[ 4849.088895] state change SNK_ATTACHED -> SNK_STARTUP
-[ 4849.088907] state change SNK_STARTUP -> SNK_DISCOVERY
-[ 4849.088915] Setting voltage/current limit 5000 mV 0 mA
-[ 4849.088927] vbus=0 charge:=1
-[ 4849.090505] state change SNK_DISCOVERY -> SNK_WAIT_CAPABILITIES
-[ 4849.090828] pending state change SNK_WAIT_CAPABILITIES -> SNK_READY @240 ms
-[ 4849.335878] state change SNK_WAIT_CAPABILITIES -> SNK_READY [delayed240 ms]
-
-this patch fix this issue by clear hard_reset_count at any cases
-of cc disconnect, í.e. don't check port->attached flag.
-
-Fixes: 4b4e02c83167 ("typec: tcpm: Move out of staging")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: ChiYuan Huang <cy_huang@richtek.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1602500592-3817-1-git-send-email-jun.li@nxp.com
+Fixes: cae058610465 ("drivers/usb/host: fsl: Set DMA_MASK of usb platform device")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Link: https://lore.kernel.org/r/20201010060308.33693-1-ran.wang_1@nxp.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/tcpm/tcpm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/fsl-mph-dr-of.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2723,12 +2723,12 @@ static void tcpm_reset_port(struct tcpm_
+--- a/drivers/usb/host/fsl-mph-dr-of.c
++++ b/drivers/usb/host/fsl-mph-dr-of.c
+@@ -94,10 +94,13 @@ static struct platform_device *fsl_usb2_
  
- static void tcpm_detach(struct tcpm_port *port)
- {
--	if (!port->attached)
--		return;
--
- 	if (tcpm_port_is_disconnected(port))
- 		port->hard_reset_count = 0;
+ 	pdev->dev.coherent_dma_mask = ofdev->dev.coherent_dma_mask;
  
-+	if (!port->attached)
-+		return;
-+
- 	tcpm_reset_port(port);
- }
+-	if (!pdev->dev.dma_mask)
++	if (!pdev->dev.dma_mask) {
+ 		pdev->dev.dma_mask = &ofdev->dev.coherent_dma_mask;
+-	else
+-		dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++	} else {
++		retval = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
++		if (retval)
++			goto error;
++	}
  
+ 	retval = platform_device_add_data(pdev, pdata, sizeof(*pdata));
+ 	if (retval)
 
 
