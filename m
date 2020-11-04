@@ -2,77 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B34082A614D
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 504592A6191
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:28:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728029AbgKDKO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 05:14:28 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:41936 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727923AbgKDKO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 05:14:28 -0500
-Received: by mail-lf1-f67.google.com with SMTP id 126so26363766lfi.8;
-        Wed, 04 Nov 2020 02:14:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=qj7cyA8bPmJuoqm8ZoVYSYnBqnNB68Vqkk/+rTU6vA8=;
-        b=jhPrh68c0IId2fgB/J9LLb70OOVrr51bC3VfIKieM42d355bTJyZ4Ja5AqYY6/mvFR
-         YsDYfMafohwZGLNgn3HVpU8+fnGUPa+iwiF2uIXwev+hUXENYNtyagW8UYrL15yam0N8
-         j7NzDvs/l2ElQeqgVgn2Em/BoHLNfEYAVi2P2YML6el3jNLOvimTs1fX4vxgJXA0rqQs
-         uTrjNV3R7BBSHZyyJDAye3UrdvdvtlpO1tiLe1mOkSjDwezRj/DIS7wAOV0WR8h1Q6gi
-         PKz8Aa+xzVQuYAGl9xrAxGQg30YYPes6A6c3xIAJW52pSpnBtsI1QvYtSPqYsYLKL34w
-         fFQw==
-X-Gm-Message-State: AOAM530e5ctx+xqhWQZS5EB1t94dsUHXHDYXxluIlJxPCdPOD7hW5c5k
-        fLfHlQMSxD7s+boDyKyKoTA=
-X-Google-Smtp-Source: ABdhPJwkn4G7igYUZ+y+h05mEhBA4PfJOkGGFXxcLvL8aBzIA6NyFNfGap98na4N5Ocs3qjkm7CwUQ==
-X-Received: by 2002:ac2:5b8b:: with SMTP id o11mr6292409lfn.285.1604484865918;
-        Wed, 04 Nov 2020 02:14:25 -0800 (PST)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id v18sm359084lfo.137.2020.11.04.02.14.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 02:14:24 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kaFoC-0007ZE-VE; Wed, 04 Nov 2020 11:14:29 +0100
-Date:   Wed, 4 Nov 2020 11:14:28 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
+        id S1728867AbgKDK2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 05:28:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728841AbgKDK0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Nov 2020 05:26:43 -0500
+Received: from pali.im (pali.im [31.31.79.79])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF42020575;
+        Wed,  4 Nov 2020 10:26:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604485601;
+        bh=UmOoL2Hb9vp3rGiBuREXf8R7LGokFPjaEuDxJEW4zp4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2ZTT6V1CyRiQRN7OpLeL007v2xCA9A4g1ADinyDXyWPkv3J8ncsv4RMWmRvCMg9em
+         n3eGDwEz2fj49/IxbHP9MLZGUz0hfd2OpeTYFB+QfgXxnG9l81+ru02ZJ8KssPLHUK
+         XmyCNwn6FJm1NDmxR1M9M0b1+NJIRAUSmRq3yAL0=
+Received: by pali.im (Postfix)
+        id 1A06664E; Wed,  4 Nov 2020 11:26:39 +0100 (CET)
+Date:   Wed, 4 Nov 2020 11:26:38 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     a.heider@gmail.com, andrew@lunn.ch, gregory.clement@bootlin.com,
         stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: digi_acceleport: fix write-wakeup deadlocks
-Message-ID: <20201104101428.GS4085@localhost>
-References: <20201026104306.29576-1-johan@kernel.org>
- <20201028093818.GB1953863@kroah.com>
+Subject: Re: FAILED: patch "[PATCH] arm64: dts: marvell: espressobin: Add
+ ethernet switch aliases" failed to apply to 5.4-stable tree
+Message-ID: <20201104102638.6hpelqhcnkzy5juh@pali>
+References: <160443111019694@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201028093818.GB1953863@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <160443111019694@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 28, 2020 at 10:38:18AM +0100, Greg Kroah-Hartman wrote:
-> On Mon, Oct 26, 2020 at 11:43:06AM +0100, Johan Hovold wrote:
-> > The driver must not call tty_wakeup() while holding its private lock as
-> > line disciplines are allowed to call back into write() from
-> > write_wakeup(), leading to a deadlock.
-> > 
-> > Also remove the unneeded work struct that was used to defer wakeup in
-> > order to work around a possible race in ancient times (see comment about
-> > n_tty write_chan() in commit 14b54e39b412 ("USB: serial: remove
-> > changelogs and old todo entries")).
-> > 
-> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/usb/serial/digi_acceleport.c | 45 ++++++++--------------------
-> >  1 file changed, 13 insertions(+), 32 deletions(-)
+On Tuesday 03 November 2020 20:18:30 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> thanks,
+> 
+> greg k-h
 
-Thanks for the review. Applied for -next along with the cleanup patch.
+Hello Greg! I will do it.
 
-Johan
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From b64d814257b027e29a474bcd660f6372490138c7 Mon Sep 17 00:00:00 2001
+> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+> Date: Mon, 7 Sep 2020 13:27:17 +0200
+> Subject: [PATCH] arm64: dts: marvell: espressobin: Add ethernet switch aliases
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=UTF-8
+> Content-Transfer-Encoding: 8bit
+> 
+> Espressobin boards have 3 ethernet ports and some of them got assigned more
+> then one MAC address. MAC addresses are stored in U-Boot environment.
+> 
+> Since commit a2c7023f7075c ("net: dsa: read mac address from DT for slave
+> device") kernel can use MAC addresses from DT for particular DSA port.
+> 
+> Currently Espressobin DTS file contains alias just for ethernet0.
+> 
+> This patch defines additional ethernet aliases in Espressobin DTS files, so
+> bootloader can fill correct MAC address for DSA switch ports if more MAC
+> addresses were specified.
+> 
+> DT alias ethernet1 is used for wan port, DT aliases ethernet2 and ethernet3
+> are used for lan ports for both Espressobin revisions (V5 and V7).
+> 
+> Fixes: 5253cb8c00a6f ("arm64: dts: marvell: espressobin: add ethernet alias")
+> Cc: <stable@vger.kernel.org> # a2c7023f7075c: dsa: read mac address
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> Reviewed-by: Andre Heider <a.heider@gmail.com>
+> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+> 
+> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
+> index 03733fd92732..215d2f702623 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
+> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
+> @@ -20,17 +20,23 @@ / {
+>  	compatible = "globalscale,espressobin-v7-emmc", "globalscale,espressobin-v7",
+>  		     "globalscale,espressobin", "marvell,armada3720",
+>  		     "marvell,armada3710";
+> +
+> +	aliases {
+> +		/* ethernet1 is wan port */
+> +		ethernet1 = &switch0port3;
+> +		ethernet3 = &switch0port1;
+> +	};
+>  };
+>  
+>  &switch0 {
+>  	ports {
+> -		port@1 {
+> +		switch0port1: port@1 {
+>  			reg = <1>;
+>  			label = "lan1";
+>  			phy-handle = <&switch0phy0>;
+>  		};
+>  
+> -		port@3 {
+> +		switch0port3: port@3 {
+>  			reg = <3>;
+>  			label = "wan";
+>  			phy-handle = <&switch0phy2>;
+> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
+> index 8570c5f47d7d..b6f4af8ebafb 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
+> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
+> @@ -19,17 +19,23 @@ / {
+>  	model = "Globalscale Marvell ESPRESSOBin Board V7";
+>  	compatible = "globalscale,espressobin-v7", "globalscale,espressobin",
+>  		     "marvell,armada3720", "marvell,armada3710";
+> +
+> +	aliases {
+> +		/* ethernet1 is wan port */
+> +		ethernet1 = &switch0port3;
+> +		ethernet3 = &switch0port1;
+> +	};
+>  };
+>  
+>  &switch0 {
+>  	ports {
+> -		port@1 {
+> +		switch0port1: port@1 {
+>  			reg = <1>;
+>  			label = "lan1";
+>  			phy-handle = <&switch0phy0>;
+>  		};
+>  
+> -		port@3 {
+> +		switch0port3: port@3 {
+>  			reg = <3>;
+>  			label = "wan";
+>  			phy-handle = <&switch0phy2>;
+> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+> index b97218c72727..0775c16e0ec8 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+> @@ -13,6 +13,10 @@
+>  / {
+>  	aliases {
+>  		ethernet0 = &eth0;
+> +		/* for dsa slave device */
+> +		ethernet1 = &switch0port1;
+> +		ethernet2 = &switch0port2;
+> +		ethernet3 = &switch0port3;
+>  		serial0 = &uart0;
+>  		serial1 = &uart1;
+>  	};
+> @@ -120,7 +124,7 @@ ports {
+>  			#address-cells = <1>;
+>  			#size-cells = <0>;
+>  
+> -			port@0 {
+> +			switch0port0: port@0 {
+>  				reg = <0>;
+>  				label = "cpu";
+>  				ethernet = <&eth0>;
+> @@ -131,19 +135,19 @@ fixed-link {
+>  				};
+>  			};
+>  
+> -			port@1 {
+> +			switch0port1: port@1 {
+>  				reg = <1>;
+>  				label = "wan";
+>  				phy-handle = <&switch0phy0>;
+>  			};
+>  
+> -			port@2 {
+> +			switch0port2: port@2 {
+>  				reg = <2>;
+>  				label = "lan0";
+>  				phy-handle = <&switch0phy1>;
+>  			};
+>  
+> -			port@3 {
+> +			switch0port3: port@3 {
+>  				reg = <3>;
+>  				label = "lan1";
+>  				phy-handle = <&switch0phy2>;
+> 
