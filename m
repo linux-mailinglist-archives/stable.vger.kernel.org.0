@@ -2,152 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9052A668B
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F782A668D
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729279AbgKDOkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 09:40:43 -0500
-Received: from mail-eopbgr10083.outbound.protection.outlook.com ([40.107.1.83]:30086
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726564AbgKDOkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 09:40:42 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FTfrKFzligo2j0zFlFSKeIB1156B2+nDpLyi+GgaMje3bZEQHAMYtiR6XOCy5K4g5/xBGs5ribv93jZFPZIYfnQohJJr091v3FGc7murfuTdl6gs6AP9P2kV0TmMIYdMIE3weMCZ1WFwQuy9Lu104K/VQIAlzaMQ1ls2pRmjy71coIhxhRYO6I7VZ2zfGnPHi0yTunmqYBfvDDU/a9Fna4GUx6gxq66TmdK5WpUGFQyDaV7Akmy3NzLQZSXzerGGmG0W4jrd84GXChC+mmal4KmiQLHbprFhVOoo1AG2ypknwKW5aqI3BQdTWmbaPt7q6a5xUDXs8Ytj9QpbTfWseA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IGtiNv2R3AeddcwjjTge0D3SC8tIaZBxn9xLC0s/G0s=;
- b=EZznxcWYpfvHwrhXzWfnn1CF7xTa7+yrMpKFEf8JazwFcutQjXV+FVJfcAVFiSSQ3kxF8O5Knl3GlHgJkZ6VmQQswlCKpCvE3fnav7iIYzB+AMPI53wt/cRHUEjAWw2vm8DjKbvyJIRpw5G3OLX5STUWMPKauL7GCmgfTA9lwvKE7VDLWQCo4+5B6R6wsEGs8wKosBDvYuOkzOjpuM3ZQViQHv/NwqtTNQJXSZ/rHqlbSsRpQP1l+lhNBs4DzXXepq+tRW+TiJvsmJLjotn4S+QAxQshKoR3SnJ/2epFtvqntYDA0r64W1DmJoM3mWZu9qvKowi9UHzsFM+Othex6g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wacom.com; dmarc=pass action=none header.from=wacom.com;
- dkim=pass header.d=wacom.com; arc=none
+        id S1730045AbgKDOkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 09:40:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46524 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729662AbgKDOkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 09:40:47 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 768B2C0613D3
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 06:40:45 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id i26so16768941pgl.5
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 06:40:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=wacomaad.onmicrosoft.com; s=selector2-wacomaad-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IGtiNv2R3AeddcwjjTge0D3SC8tIaZBxn9xLC0s/G0s=;
- b=eMCxfMvKhPyVWu5aynO6UpphYujoibqCTDJevERIcTklGoMlTYGMB/OuIunDhlQvA/OXoz+rLmT7Xn/4I/RxORS+jjBCemkXIrehtkzE2wQttRio1Z7Ng/Wc03+64USvHTQ9WPctgSvAy2mMrK0ZgfIm4UJFZFkwG076xElQHAA=
-Received: from VI1PR07MB5821.eurprd07.prod.outlook.com (2603:10a6:803:ce::20)
- by VI1PR07MB5488.eurprd07.prod.outlook.com (2603:10a6:803:bb::31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3541.10; Wed, 4 Nov
- 2020 14:40:38 +0000
-Received: from VI1PR07MB5821.eurprd07.prod.outlook.com
- ([fe80::6d7f:4f2f:1458:7930]) by VI1PR07MB5821.eurprd07.prod.outlook.com
- ([fe80::6d7f:4f2f:1458:7930%5]) with mapi id 15.20.3541.017; Wed, 4 Nov 2020
- 14:40:38 +0000
-From:   "Gerecke, Jason" <Jason.Gerecke@wacom.com>
-To:     Pavel Machek <pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jason Gerecke <killertofu@gmail.com>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Cheng, Ping" <Ping.Cheng@wacom.com>, Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4.19 146/191] HID: wacom: Avoid entering
- wacom_wac_pen_report for pad / battery
-Thread-Topic: [PATCH 4.19 146/191] HID: wacom: Avoid entering
- wacom_wac_pen_report for pad / battery
-Thread-Index: AQHWsiU8nYPLW7sITUmjvNop93TLtKm3mo+AgABsJTg=
-Date:   Wed, 4 Nov 2020 14:40:38 +0000
-Message-ID: <VI1PR07MB5821A87A8B0133C606C9911CEDEF0@VI1PR07MB5821.eurprd07.prod.outlook.com>
-References: <20201103203232.656475008@linuxfoundation.org>
- <20201103203246.442871831@linuxfoundation.org>,<20201104075221.GA4338@amd>
-In-Reply-To: <20201104075221.GA4338@amd>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: ucw.cz; dkim=none (message not signed)
- header.d=none;ucw.cz; dmarc=none action=none header.from=wacom.com;
-x-originating-ip: [75.164.212.231]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 61abb1a0-671e-44ab-cf46-08d880cf98fc
-x-ms-traffictypediagnostic: VI1PR07MB5488:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <VI1PR07MB5488E4628C3FC2CDEC6CCDE5EDEF0@VI1PR07MB5488.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qNO2lRIQMPCvbbhltbW17HD3F2GnsDvmytycjca3dkNEt3NP8081pORJ6kUs+qxLp7YRimKZhXSZB2sVikIh0iBnJPxg9z6CE0XppUrV/tUuP4lDYiQBJ8oQJJlF/kbG8Jb+6POvqiI4ICd6nG0hF5udEl12fC5dWqUP0byp5RJqmGmRW1a3WW15CwF2MIJ+RVHuCgoQr09PzHnUzglu1Ps4FhhDwLPlXkjL8+7w+pDSMDqInzuOw5UVfuHfCv4biieVi3+FORL83fHX+N4K83D39VnSBeCOvk3FTrwjah62Lm314zF0eYFzI676GNuy090TZw9u92YVLhr2huLa0o7RfGr4VbKvoCBnavXENV+Y0xwGAIS8ug2Uf1fVcwgtLAgzsEdN0c0K2+/vkRO4Mx0ovkmQk3u/cqP784NE39E0EA9vY6i2rhZE++sx0dfuHAr1ZXDOEE4vsu3mJ1L3HA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR07MB5821.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(346002)(39850400004)(366004)(136003)(396003)(966005)(66446008)(64756008)(91956017)(66946007)(76116006)(52536014)(2906002)(66476007)(186003)(66556008)(6506007)(5660300002)(7696005)(8676002)(26005)(71200400001)(33656002)(110136005)(8936002)(478600001)(316002)(55016002)(4326008)(9686003)(83380400001)(54906003)(86362001)(18886065003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: mN1NDBTqo8OMG9B77EdldNUKtbiXwMq3YlQ13P/P/7ayXmWQwd5Qjf/sWPcAE6yOEQq2UbdXITwCR83tQDVYvZmRtuMzBnzPlWw+S+0OYStLnFXQ3HjPRGSICXt9n8TahUxYceFgSjv67Tap9nYl+U8dFjYRCuc0svBwzw8FqHRuICOlBcYhKMHJqA1oADB/9gMQNeLJvh3zjDjN3EkMRXsEDXKAOjJeICOu8u9g38aOc2QGnihc14TQo/FdSjUIxVrmIFS171Y+C/oIH4cBUN2nG/48x0gJZGjydZrk5aH915HHl6DvfpexvHyd7eoPiKVlHBDWOhIhXmKREbArGSd1cruO1rIsGFbEKnu1qfueEsh3CW9Sjc2u03BthKt8+xjwi6JkC89hGxTwb7ylJWtCvmabRKfccu4rx55WWVSvUR8kgQH5ifRz1ym8AWXegvT4RKUwwxY3pYNXKv1ockjnUHh3iLGMZK8exWP9dkk1N19IW+pwTmb0ckJjAeZNyuOCt5x/b318zo1I8edHmaMTzkW7C7Wzz7XEHE/1laZUS+0PoX9+GjBxLxV1IlqGxj87CUEVmQCbbvZc3Ll6Fzgxodp+7qlr5fZEmOhrKRD878U+vjqYvUvsJTRySr8ZjVNfBeq70hZihsQWF69/BA==
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bfl5BcBuykkprbNuduozgt6O4TCIOVifRHzF+w8uUk8=;
+        b=SNYVmLk7kmTopCsVsjlXcHWyC/09dSX0r9q663I5RIWvxrin/Hn0GbtXA6th4/HqIT
+         cAfxs8m/Ojuh3BknkEpvdqy8jwHp+P+mP0LYnBQG45PgarnBFymaukYoxxwkhae7Qov3
+         +YKv92lM6vTaIQEdKtnRDSDm8SRtb+6SGyS/efxnvv483VmbDk+P0YcTnwU/sllR3ycu
+         Yig0ENcur5BH59nvLQayJnWJtl89MUNiD8bhewdf+GWkKF+YGpzeX/Zn1QU02buGrbca
+         jQ4EyBvD0pSv0QDz2KWZwJxuuoHII1b+ePiRQg9JsJ0SQrX4n+1PfjnQiC8FnPWiqeRK
+         Sdgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bfl5BcBuykkprbNuduozgt6O4TCIOVifRHzF+w8uUk8=;
+        b=SpGo0SNrCeZxanKlLWPUMaeuUrc2dK/Hc4aOPs1kq9ShtERGOglxfz+WYQcNDztiCq
+         eZ22VUVUPIwTFbJ4thauw/Zbo2aXAh8/qJVVuwMQiJ8Q22P8OExDhCR0PPVbkYvxKnUF
+         SjfaT/eHW+jSSCXomWMnR7qpvBeEEbuNZS9ZQ/o3gBppkoD66JnJ2JUnOaZ60Orpdr0B
+         UCA1RQOAfjRzjOAtubZhYVtJj57cS8nHBUHeW4KJNVt5oTXen+a6UCNnCqwGvOGUxM+r
+         2h2M5VmjciQhdWTgQPHpZ5mM4Vogu9jSRAfBeH62agG/wr9xWIVUGrz8gNqA1kfBvYVa
+         rdGQ==
+X-Gm-Message-State: AOAM530XlIGDRIx9Q/TYZoDFWRJ8rQkpV9eD7DUhj2yds1flc7y165uu
+        iQa/mSlyXnOQ2cADcdZ7Bc7Wtelp2+pV3w==
+X-Google-Smtp-Source: ABdhPJxPeLuhhY9Fuj1W/DkZHxVRTE94UrkdQ5W14KZzklys7nfbjngV4ag3fBX6BRxUnvlvC9rS3Q==
+X-Received: by 2002:a62:62c2:0:b029:164:563a:b2c with SMTP id w185-20020a6262c20000b0290164563a0b2cmr29870997pfb.16.1604500844668;
+        Wed, 04 Nov 2020 06:40:44 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id kr14sm2465779pjb.26.2020.11.04.06.40.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2020 06:40:43 -0800 (PST)
+Message-ID: <5fa2bd6b.1c69fb81.ac13f.59e6@mx.google.com>
+Date:   Wed, 04 Nov 2020 06:40:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-OriginatorOrg: wacom.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR07MB5821.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 61abb1a0-671e-44ab-cf46-08d880cf98fc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Nov 2020 14:40:38.4706
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 9655a91b-107e-4537-834e-d15e84872626
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: raEivxasx6iDhKxBNszYuDmpPJpO3BpnyHFBuiHBmxC+4dvmjCLYShGnim5BNHA1k+c7Yr3gsniZ8YmsuCaY+g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB5488
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.241-65-g14295e030b41
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 129 runs,
+ 2 regressions (v4.4.241-65-g14295e030b41)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Pavel Machek <pavel@ucw.cz>=0A=
-> Sent: Tuesday, November 3, 2020 11:52 PM=0A=
->=0A=
-> > To correct this, we restore a version of the `WACOM_PAD_FIELD` check=0A=
-> > in `wacom_wac_collection()` and return early. This effectively prevents=
-=0A=
-> > pad / battery collections from being reported until the very end of the=
-=0A=
-> > report as originally intended.=0A=
-> =0A=
-> Okay... but code is either wrong or very confusing:=0A=
-> =0A=
-> > +++ b/drivers/hid/wacom_wac.c=0A=
-> > @@ -2729,7 +2729,9 @@ static int wacom_wac_collection(struct h=0A=
-> >        if (report->type !=3D HID_INPUT_REPORT)=0A=
-> >                return -1;=0A=
-> >  =0A=
-> > -     if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)=0A=
-> > +     if (WACOM_PAD_FIELD(field))=0A=
-> > +             return 0;=0A=
-> > +     else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)=0A=
-> >                wacom_wac_pen_report(hdev, report);=0A=
-> =0A=
-> wacom_wac_pen_report() can never be called, because WACOM_PEN_FIELD()=0A=
-> can not be true here; if it was we'd return in the line above.=0A=
-=0A=
-For reference, here's the definition for WACOM_PAD_FIELD() and WACOM_PEN_FI=
-ELD():=0A=
-=0A=
-> #define WACOM_PAD_FIELD(f)	(((f)->physical =3D=3D HID_DG_TABLETFUNCTIONKE=
-Y) || \=0A=
-> 				 ((f)->physical =3D=3D WACOM_HID_WD_DIGITIZERFNKEYS) || \=0A=
-> 				 ((f)->physical =3D=3D WACOM_HID_WD_DIGITIZERINFO))=0A=
-> =0A=
-> #define WACOM_PEN_FIELD(f)	(((f)->logical =3D=3D HID_DG_STYLUS) || \=0A=
-> 				 ((f)->physical =3D=3D HID_DG_STYLUS) || \=0A=
-> 				 ((f)->physical =3D=3D HID_DG_PEN) || \=0A=
-> 				 ((f)->application =3D=3D HID_DG_PEN) || \=0A=
-> 				 ((f)->application =3D=3D HID_DG_DIGITIZER) || \=0A=
-> 				 ((f)->application =3D=3D WACOM_HID_WD_PEN) || \=0A=
-> 				 ((f)->application =3D=3D WACOM_HID_WD_DIGITIZER) || \=0A=
-> 				 ((f)->application =3D=3D WACOM_HID_G9_PEN) || \=0A=
-> 				 ((f)->application =3D=3D WACOM_HID_G11_PEN))=0A=
-=0A=
-WACOM_PAD_FIELD() evaluates to `true` for pad data *not* pen data because p=
-en data is not inside any of the 3 physical collections its looks for.=0A=
-=0A=
-WACOM_PEN_FIELD() evaluates to `true` for pad data *and* pen data because b=
-oth types of data are inside of the Digitizer application collection.=0A=
-=0A=
-Without the WACOM_PAD_FIELD() check in place at the very beginning, both pa=
-d and pen data would trigger a call to wacom_wac_pen_report(). This is unde=
-sired: only pen data should result in that function being called. Adding th=
-e check causes the function to return early for pad data while pen data fal=
-ls into the "else if" and is processed as before. Pad data is only reported=
- once the entire report has been valuated by making a call to wacom_wac_pad=
-_report() at the very end of wacom_wac_report().=0A=
-=0A=
-Jason Gerecke, Senior Linux Software Engineer=0A=
-Wacom Technology Corporation=0A=
-tel: 503-525-3100 ext. 3229 (direct)=0A=
-http://www.wacom.com=
+stable-rc/queue/4.4 baseline: 129 runs, 2 regressions (v4.4.241-65-g14295e0=
+30b41)
+
+Regressions Summary
+-------------------
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
+
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.241-65-g14295e030b41/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.241-65-g14295e030b41
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      14295e030b41db1fee3a1b5df6bbb916d7bd23d6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa28c0ae518b0e737fb5339
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-g14295e030b41/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-g14295e030b41/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa28c0ae518b0e=
+737fb5340
+        failing since 2 days (last pass: v4.4.241-8-gd71fd6297abd, first fa=
+il: v4.4.241-10-g5dfc3f093ca4)
+        2 lines =
+
+ =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa2890b5bc4e2cf6cfb5308
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-g14295e030b41/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-g14295e030b41/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa2890b5bc4e2cf6cfb5=
+309
+        new failure (last pass: v4.4.241-66-gcf149e8ad82e) =
+
+ =20
