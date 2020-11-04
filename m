@@ -2,85 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26622A6010
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 10:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5000A2A6014
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 10:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728229AbgKDJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 04:04:27 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:7456 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728334AbgKDJDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 04:03:49 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5fa26e740001>; Wed, 04 Nov 2020 01:03:48 -0800
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 4 Nov
- 2020 09:03:49 +0000
-Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 4 Nov 2020 09:03:49 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/191] 4.19.155-rc1 review
-In-Reply-To: <20201103203232.656475008@linuxfoundation.org>
-References: <20201103203232.656475008@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1728387AbgKDJEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 04:04:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727851AbgKDJEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Nov 2020 04:04:43 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 183D52220B;
+        Wed,  4 Nov 2020 09:04:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604480682;
+        bh=fiKr+4M13c3O/9I8tqfhGSntV11bltH8OUZ8CPb8g+A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=h14XOFR8+DlEMu/Wr1h6LbSob/cRFLVeP6h0rJYASP+TVNgPKkIgDMKreBSU8nPaU
+         s9G0pXru898BZUhzP9bsk9BAV2Egp2aw8jgAZH1D4NBcEjCxNu3R6DD83p3TI4Omhq
+         qznu5xHb51B/aP8xQUT4NhnDDTIPIeZ8GMwWEKVQ=
+Date:   Wed, 4 Nov 2020 10:05:33 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     stable@vger.kernel.org, linuxppc-dev@ozlabs.org,
+        linux-kernel@vger.kernel.org, npiggin@gmail.com,
+        peterz@infradead.org
+Subject: Re: [PATCH 4.19] mm: fix exec activate_mm vs TLB shootdown and lazy
+ tlb switching race
+Message-ID: <20201104090533.GA1588160@kroah.com>
+References: <20201104011406.598487-1-mpe@ellerman.id.au>
 MIME-Version: 1.0
-Message-ID: <b1b7348f053240beae8e7fe648e85735@HQMAIL101.nvidia.com>
-Date:   Wed, 4 Nov 2020 09:03:49 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1604480628; bh=jTfVo1z3cZKdbL9Ob2gkG8HFWkZWMhwiiRZi3Z998Bk=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=K1Zvs02offGqtvcPVGyukHU21uyAuqzaZS5jXYcoSqPRUCCRzaeLJOM5iak6DGMZT
-         xYHI/JchpEsAyuUjoNwkzWPgh127oTGcTgS1Bl6/q7kvb6exF3KjxuWF2TA8DX8RW+
-         O23W8uBU3N/bCOPEW7ujQCqYKIp3+tMzlcvLmWeWtxIEeZ9oHOCwX92AeVUrt63UU+
-         7U/PRuvGPVwydW40VS4j91KRMwJZitr4BgLSZwKjkRdWsXYu6b+Vix/O6wTNkRZIpy
-         d4oV4ldHcORzBoAL15vD2Xyh9RIxLtcOVKMaTgmfCrSbF5l5JnCUC/UDylDBVcQinr
-         yDQiFWiLfaomQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201104011406.598487-1-mpe@ellerman.id.au>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 03 Nov 2020 21:34:52 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.155 release.
-> There are 191 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Nov 04, 2020 at 12:14:06PM +1100, Michael Ellerman wrote:
+> From: Nicholas Piggin <npiggin@gmail.com>
 > 
-> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
-> Anything received after that time might be too late.
+> commit d53c3dfb23c45f7d4f910c3a3ca84bf0a99c6143 upstream.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.155-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
+> Reading and modifying current->mm and current->active_mm and switching
+> mm should be done with irqs off, to prevent races seeing an intermediate
+> state.
 > 
-> thanks,
+> This is similar to commit 38cf307c1f20 ("mm: fix kthread_use_mm() vs TLB
+> invalidate"). At exec-time when the new mm is activated, the old one
+> should usually be single-threaded and no longer used, unless something
+> else is holding an mm_users reference (which may be possible).
 > 
-> greg k-h
+> Absent other mm_users, there is also a race with preemption and lazy tlb
+> switching. Consider the kernel_execve case where the current thread is
+> using a lazy tlb active mm:
+> 
+>   call_usermodehelper()
+>     kernel_execve()
+>       old_mm = current->mm;
+>       active_mm = current->active_mm;
+>       *** preempt *** -------------------->  schedule()
+>                                                prev->active_mm = NULL;
+>                                                mmdrop(prev active_mm);
+>                                              ...
+>                       <--------------------  schedule()
+>       current->mm = mm;
+>       current->active_mm = mm;
+>       if (!old_mm)
+>           mmdrop(active_mm);
+> 
+> If we switch back to the kernel thread from a different mm, there is a
+> double free of the old active_mm, and a missing free of the new one.
+> 
+> Closing this race only requires interrupts to be disabled while ->mm
+> and ->active_mm are being switched, but the TLB problem requires also
+> holding interrupts off over activate_mm. Unfortunately not all archs
+> can do that yet, e.g., arm defers the switch if irqs are disabled and
+> expects finish_arch_post_lock_switch() to be called to complete the
+> flush; um takes a blocking lock in activate_mm().
+> 
+> So as a first step, disable interrupts across the mm/active_mm updates
+> to close the lazy tlb preempt race, and provide an arch option to
+> extend that to activate_mm which allows architectures doing IPI based
+> TLB shootdowns to close the second race.
+> 
+> This is a bit ugly, but in the interest of fixing the bug and backporting
+> before all architectures are converted this is a compromise.
+> 
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> [mpe: Manual backport to 4.19 due to membarrier_exec_mmap(mm) changes]
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20200914045219.3736466-2-npiggin@gmail.com
+> ---
+>  arch/Kconfig |  7 +++++++
+>  fs/exec.c    | 15 ++++++++++++++-
+>  2 files changed, 21 insertions(+), 1 deletion(-)
 
-All tests passing for Tegra ...
+Now queued up, thanks!
 
-Test results for stable-v4.19:
-    15 builds:	15 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	4.19.155-rc1-gd404293c7653
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+greg k-h
