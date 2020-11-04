@@ -2,113 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE1C2A5DE2
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 06:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4A92A5DE9
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 06:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbgKDF3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 00:29:18 -0500
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:58833 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726018AbgKDF3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 00:29:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1604467756; x=1636003756;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=DejHE429z9eWDGx3yXqKuJIvmXLZ70CJHmBbvNQ0/Xw=;
-  b=PvPkM16o2xvEMdv/0yWwEbSH74KSIENWBUM1J7ItmSeqB1wpf/Rn0Sb8
-   qZ+3uwxI+tJ73ZPQehkaZ2lg8hd8WaURVzjWezWSOMmFSgc5kx0BhqmG3
-   /w67j/lBWtuYa7W3TmRnYwqVDz6IXXY3PwLMbWut6H51LV1GtvUyClumJ
-   WqBkWPFRli6giQwCdjt0Dc6XFZIZmmnQUDMdPUhxhPWqm0Ikx9JChHiGE
-   53FaG9V/sVbgV6nOfdSPu1vKbPFF2t3WKpC20uTk/kFu4pl0AULwMLCn9
-   fuHOZbbBbi+FioqW0KYnsDv4lOSm+U+npAt/kBAbIPce7Xw7s+a6/HTdZ
-   g==;
-IronPort-SDR: LSINSg/F14KfpCYtyCOxI0vAIjdRsCw0TpVWL0/kNLqay1mFnZ5CkR1lB50hwcnGTGItoDpeGl
- DPND3WJd0k1yyHjOleHsLU3/TIYXSkSQjDDiJCht2qfv66ntI8z4G1o1dp2IyswhDtykzgnGGr
- rBnaqkfvrrIVkBXEHQJP9EouQtHcjNzuVA6uX0z1K/KlTY7vA/NNyvhOLCH3l8Fhky4FN0sYHK
- F5hoqXmJGUlri94b/H9lwN/vFEGwHwo2UlTYR42DH0iAT1u33sWjB40SAYAfdyJBvFlucSqV4O
- Jtg=
-X-IronPort-AV: E=Sophos;i="5.77,450,1596470400"; 
-   d="scan'208";a="151659163"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 04 Nov 2020 13:29:16 +0800
-IronPort-SDR: AV+gmQBHYxnbYXgszviOTS1WhiMI+AROmAFrZ60fDPJa/K8NXl/0vV2k7nBpZs80wabASQxYMO
- GNOYHbhijNIurfPzGwjdYdZe7w+G1laaIHCabLvbT4LwWa38J3DKuGWpRz0O4/SgAPP0eMu536
- VLn8OkQMIFNAdEGstX/kc2QGkyDUKjaXc41NipI8eh6ojQ3VG1J5qpJIpyrFRilnu8bStZpgZP
- etCiTNa3SjsRKZcuurabBnQWMkpz5F1L1lOhn1tHqhfG1ODKP0WKEBKuxcDqufvtQHo4ztzEYi
- asj3xhpOh2c9LnL/zR+Z28Jz
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2020 21:15:25 -0800
-IronPort-SDR: JMGJ+I/37AdpA5fUDrX/bYK0T97Jjy58z/QGu3efJFHebIBZCCd0vRERKw34k4xCp05ld2YdaE
- CQQsOv/mZIARNmRA2k3ficfEs/+cKUeKwbjaXD4BtYSlAFTfplFPf+ytra2qGc3FjkcXW11sG7
- lh22thrS6DFgtMCj2lj4j4iGZvan2g45H6lKX1PEhBindMOtFAxq0tBgHX9cmxjeesLtkQwjkH
- bGvGy+VcC/Z6D9cC/JpmKx/T3TCRFBMQ/CtrNTgtswa44N04uYFj2qil33agTuCNmooUfDb6FI
- Muw=
-WDCIronportException: Internal
-Received: from washi.fujisawa.hgst.com ([10.149.53.254])
-  by uls-op-cesaip02.wdc.com with ESMTP; 03 Nov 2020 21:29:16 -0800
-From:   Damien Le Moal <damien.lemoal@wdc.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH] null_blk: Fix zone reset all tracing
-Date:   Wed,  4 Nov 2020 14:29:14 +0900
-Message-Id: <20201104052914.156163-1-damien.lemoal@wdc.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <16044134474538@kroah.com>
-References: <16044134474538@kroah.com>
+        id S1728225AbgKDFmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 00:42:22 -0500
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:48316 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725535AbgKDFmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 00:42:22 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0A45gCdq082908;
+        Tue, 3 Nov 2020 23:42:12 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1604468532;
+        bh=ZMjFopd0KFk9SYTJqQxgo4gVMZEmtDRUKhJ2peyg/qM=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=A+1jORDTV7CNDlzG5SivsreGYMBBeN4SG1UnuV6ZxTmR8yazdt1NZ6DbLy8/j6GZ+
+         1b2QcmwN/I8K6JS5eVY5suGKM4e9kO2bJUqWfehUtg+To1U6UrQfQxh5Z+WLqtgN7K
+         Ik35AF8jcnuQGvcOsHr5MXFBSJ23qB/fsqjejT1Y=
+Received: from DLEE105.ent.ti.com (dlee105.ent.ti.com [157.170.170.35])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0A45gCrs090057
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 3 Nov 2020 23:42:12 -0600
+Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE105.ent.ti.com
+ (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Tue, 3 Nov
+ 2020 23:42:12 -0600
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Tue, 3 Nov 2020 23:42:11 -0600
+Received: from [10.250.233.179] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0A45g9x6085297;
+        Tue, 3 Nov 2020 23:42:10 -0600
+Subject: Re: [PATCH] mtd: cfi_cmdset_0002: Use status register where possible
+To:     Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        "miquel.raynal@bootlin.com" <miquel.raynal@bootlin.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
+References: <20201022154506.17639-1-joakim.tjernlund@infinera.com>
+ <20201030184736.4ec434f5@xps13>
+ <aefef0187e5ebbe315e57e834ff1ba756ba88817.camel@infinera.com>
+ <20201030195251.687809f7@xps13>
+ <931f422255204f0420e6f1b79657f9770ce0cf6e.camel@infinera.com>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <31ce9a84-d949-c1d1-a8c6-44ead119ca1b@ti.com>
+Date:   Wed, 4 Nov 2020 11:12:09 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <931f422255204f0420e6f1b79657f9770ce0cf6e.camel@infinera.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f9c9104288da543cd64f186f9e2fba389f415630 upstream.
+Hi Joakim
 
-In the cae of the REQ_OP_ZONE_RESET_ALL operation, the command sector is
-ignored and the operation is applied to all sequential zones. For these
-commands, tracing the effect of the command using the command sector to
-determine the target zone is thus incorrect.
+On 10/31/20 4:56 PM, Joakim Tjernlund wrote:
+> On Fri, 2020-10-30 at 19:52 +0100, Miquel Raynal wrote:
+>> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you recognize the sender and know the content is safe.
+>>
+>>
+>> Hi Joakim,
+>>
+>> Joakim Tjernlund <Joakim.Tjernlund@infinera.com> wrote on Fri, 30 Oct
+>> 2020 18:39:35 +0000:
+>>
+>>> On Fri, 2020-10-30 at 18:47 +0100, Miquel Raynal wrote:
+>>>>
+>>>> Hi Joakim,
+>>>
+>>> Hi Miquel
+>>>
+>>>>
+>>>> Please Cc the MTD maintainers, not only the list (get_maintainers.pl).
+>>>
+>>> I figure all maintainers are on the list ?
+>>
+>> I personally don't look at the list very often. I expect patches to be
+>> directed to me (in the current case, Vignesh) when I am concerned.
+> 
+> Added Vignesh
+> 
 
-Fix null_zone_mgmt() zone condition tracing in the case of
-REQ_OP_ZONE_RESET_ALL to apply tracing to all sequential zones that are
-not already empty.
+As Miquel suggested, I look at patches on mailing list at a lower
+priority than patches that are CC'd to me.
 
-Fixes: 766c3297d7e1 ("null_blk: add trace in null_blk_zoned.c")
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- drivers/block/null_blk_zoned.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index 3d25c9ad2383..fcbbe2e4ef2d 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -226,13 +226,15 @@ static blk_status_t null_zone_mgmt(struct nullb_cmd *cmd, enum req_opf op,
- 
- 	switch (op) {
- 	case REQ_OP_ZONE_RESET_ALL:
--		for (i = 0; i < dev->nr_zones; i++) {
--			if (zone[i].type == BLK_ZONE_TYPE_CONVENTIONAL)
--				continue;
--			zone[i].cond = BLK_ZONE_COND_EMPTY;
--			zone[i].wp = zone[i].start;
-+		for (i = dev->zone_nr_conv; i < dev->nr_zones; i++) {
-+			zone = &dev->zones[i];
-+			if (zone->cond != BLK_ZONE_COND_EMPTY) {
-+				zone->cond = BLK_ZONE_COND_EMPTY;
-+				zone->wp = zone->start;
-+				trace_nullb_zone_op(cmd, i, zone->cond);
-+			}
- 		}
--		break;
-+		return BLK_STS_OK;
- 	case REQ_OP_ZONE_RESET:
- 		if (zone->type == BLK_ZONE_TYPE_CONVENTIONAL)
- 			return BLK_STS_IOERR;
--- 
-2.26.2
+>>
+>>>
+>>>>
+>>>> Joakim Tjernlund <joakim.tjernlund@infinera.com> wrote on Thu, 22 Oct
+>>>> 2020 17:45:06 +0200:
+>>>>
+>>>>> Commit "mtd: cfi_cmdset_0002: Add support for polling status register"
+>>>>> added support for polling the status rather than using DQ polling.
+>>>>> However, status register is used only when DQ polling is missing.
+>>>>> Lets use status register when available as it is superior to DQ polling.
+>>>>>
+>>>>
+>>>> I will let vignesh comment about the content (looks fine by me) but you will
+>>>> need a Fixes tag here.
+>>>
+>>> This is not a Fixes situation, no bug just a hw enabling thing.
+>>> Also, I would like to see the Status patches be backported to 4.19 as well.
+>>
+>> Backporting features is IMHO not relevant. I guess stable kernel only
+>> take fixes...
+> 
+> This is not a feature really and the 5.4 stable did get them, I ask 4.19 get them too.
+> 
+
+commit 4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling
+status register") was added in 5.3 and therefore is part of 5.4. But
+note that this is a "new feature" and therefore won't be backported to
+kernels older than 5.3.
+
+Similarly, this patch (when accepted) is not a candidate for stable
+kernel backports because the intention of enabling polling status
+register for Write Completion is to enable flashes that "don't" support
+DQ polling at all (mainly HyperFlash).
+Enabling this for all flashes that support the feature is not a bug fix
+IMO. Also, there isn't enough testing to prove that feature works for
+all CFI NOR flashes on all platforms and therefore would be risky to be
+backported to stable kernels.
+
+Regards
+Vignehs
 
