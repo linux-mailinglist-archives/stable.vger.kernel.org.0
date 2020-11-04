@@ -2,118 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9CD2A6E6C
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 21:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFDC52A6E73
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 21:02:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731124AbgKDUAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 15:00:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41260 "EHLO
+        id S1731188AbgKDUCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 15:02:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730862AbgKDUAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 15:00:13 -0500
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7133FC0613D3
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 12:00:13 -0800 (PST)
-Received: by mail-io1-xd43.google.com with SMTP id o11so12195013ioo.11
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 12:00:13 -0800 (PST)
+        with ESMTP id S1730362AbgKDUCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 15:02:00 -0500
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A08C0613D3
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 12:02:00 -0800 (PST)
+Received: by mail-pg1-x543.google.com with SMTP id 62so10194546pgg.12
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 12:02:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=6olWmmaiF5FISg2JYkrWJYoS3fnpB0zbUJhVmRjJTJ8=;
-        b=QG7ukmJCzyZNxwQkY+AbW4yl8ez4WWTSAQ5cOQ7qkWKztMW0w+W8MYXYoNFSRPBKF2
-         oD8c3gdri7UTOw47gtLw1NagfDTI8J8QHzyxKxEHZ1ce70S+e3j0wDSfiZEufmlA3yBt
-         2kZndKS78BBEHkKuAglW2oNc0gB4Pbq5fjAoUXVcuACYuxfFJ9o1qN+qMOtA9dE1uEWb
-         /28tafRqQFoP4Bc5HeON4o+SSVp46KZ2heeQ9iQjguJbNfpVUUFUjWHISbb3RkjGu62P
-         8s4gc6QvUorbt+zm73TVAlzaQqQXfzcvcf1v3We2TPMpWnaILusqeTCtnSoue1U9A3tg
-         yZCA==
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=HHg6h1ERO0ScMr8situW2RPYUOFCcCJTf0E9ld3a4hM=;
+        b=xd2RynXfViVLdrYELeLgJAHfCDrUSWXuu2W2XQtxfKC+ssLRpixaQZ/Ubdkf8olmM9
+         7u5Im6pdBwwYBYFcOyDDBFn18wFyTodVl7YFM2EZ4DBFAHB0bjtYZBOW2gA7ZLRdP/gW
+         aYMHXS4MWhmRzGP5mAr6+rTBfdnlXnODocl6SkcSmzTwiHor+u5rPd0lacY6JNeRG+Cc
+         rIDdZ8LVeJPLz01wzadXXBu5fM/yACvTMxHgYdHizlp2nDM0CMwl5J8CToOc7I1q8MGm
+         k1QGTMNcR0WCdHI04z6Dw8mi7ZxOjrrMIuyhCUy/0IOXbxxebXejcBpcTfOS3kthDsPB
+         izlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=6olWmmaiF5FISg2JYkrWJYoS3fnpB0zbUJhVmRjJTJ8=;
-        b=fALeMapRbJzYXs5UyMehmz9yhAdY3ShnCdVmIeUV6pLrYYhq5RSVzj6/gF2TvwpQh9
-         hCmgcz+GM1+5SWG+bSgKvRuYr6bSfjLk4GrkC+FzBUKLis5VZH4DdTKJ9d+9TPPbG+6A
-         g8uYc/t0aGAYGvEWDSnEBg2MLTQ8xOD/K51lyEHNPprFmx6uF5XFseYkDGw1O0O6GNpr
-         IXP05DX1qwaKlhgv5BDnEn3/D+Fd8fUyHazwux/RZ4Rc7szm23iQ54zdK/wzUTvGLij3
-         lDwNOpueyOnN+V9exHXzJFggrXOuifpK8qAgcyckgqhuTiRaSjILHH+Dz38n9KhUdjiR
-         rWFg==
-X-Gm-Message-State: AOAM532lk7WNmjfwUqveI/41MbhN4+OEe/cE7t/tym52wJBZfX4jo6DS
-        A/TDpTCaX2LGcb0hm8/i/tNz+a+u7f7QMuF6M5Y=
-X-Google-Smtp-Source: ABdhPJyHJzcvSTqhjEAddTzh4so40p3FYNJ10RwqJVo970o3r7eoRt4Vk84nxNIteQOqfPbIYH11RoFaBFhqfZ8WeOA=
-X-Received: by 2002:a02:ac09:: with SMTP id a9mr21510069jao.60.1604520012837;
- Wed, 04 Nov 2020 12:00:12 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: mrsdaniella.kyle@yandex.com
-Sender: marksmithtinufelix@gmail.com
-Received: by 2002:a02:cf2d:0:0:0:0:0 with HTTP; Wed, 4 Nov 2020 12:00:11 -0800 (PST)
-From:   Mrs Daniella Kyle <mrsdaniellakyle6@gmail.com>
-Date:   Wed, 4 Nov 2020 12:00:11 -0800
-X-Google-Sender-Auth: H_NDmTz35rddy36B9Q1cXz4gpOs
-Message-ID: <CA+EzCkoKfPEaX5ugJwdxxHHDA8BKDiphQsJ8sUv7jF21ctNjhQ@mail.gmail.com>
-Subject: ATM Visa card compensation, Thanks for your past effort
-To:     undisclosed-recipients:;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=HHg6h1ERO0ScMr8situW2RPYUOFCcCJTf0E9ld3a4hM=;
+        b=KQhl8IQWR/A+o+5Dv8wD1bMXDBBI8MAY/wR5kYrELvKvZainmpgvwM1DOFb4JzGqOL
+         /z0QlNn95foj02iEWgiuWHOR0SM9DqDtJ/mmx+5MLRlfkshRlOoYC2FObPK6V5cFMREe
+         86THOEvvjcYA6TFtI26ucFYNdHkoze1ny/0PYF06DrV4vtouZ1GwwKvpVh3RV21qQQgr
+         BJyEhwyiDflKQnYECUqH1aA4ka7tJVkce8kci4LW70IsHWYmBLHuUj+8tbfZkx1dKmdA
+         EzZmNx3sY1AMtHHUYkVTpqKfA27M5VQItnnH4VMxsXc/tLaKy4CY5wrnyobQJAB9zjEm
+         Es1A==
+X-Gm-Message-State: AOAM530WPZSBlGOSepVU4iJ+q/D3s7U4AS4Cm4wOaYPwzGfroVV5KCB5
+        H1xBt9dsOYd5En1aSywi/3465g==
+X-Google-Smtp-Source: ABdhPJwkU50qSyiBRlsGklQLZ1nWj9sW9Ne2CdsjCQFLHULeoJAmQzGXz22Pg2MPGxdc05stn8bsaQ==
+X-Received: by 2002:a63:1805:: with SMTP id y5mr22302367pgl.174.1604520120080;
+        Wed, 04 Nov 2020 12:02:00 -0800 (PST)
+Received: from debian ([171.61.236.158])
+        by smtp.gmail.com with ESMTPSA id k26sm3272276pfg.8.2020.11.04.12.01.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2020 12:01:59 -0800 (PST)
+Message-ID: <9669c90b893a548f4cdb0fd29f1385f20a488024.camel@rajagiritech.edu.in>
+Subject: Re: [PATCH 5.9 000/391] 5.9.4-rc1 review
+From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Date:   Thu, 05 Nov 2020 01:31:50 +0530
+In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-2 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Tue, 2020-11-03 at 21:30 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.9.4 release.
+> There are 391 patches in this series, all will be posted as a
+> response
+> to this one.  If anyone has any issues with these being applied,
+> please
+> let me know.
+> 
+> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	
+> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
+> stable-rc.git linux-5.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-How are you, hope all is well with you?
+Compiled and booted 5.9.4-rc1+ . No typical dmesg regressions.
 
-This message might come to you as surprises, It is a very joyful
-moment for me to share this good news to you today, although i have
-really missed you because you give me the faith to carry on despite
-all that happened,you really brought hope to my hopeless situation
-then, therefore i made a vow to myself that even if we fail to
-complete the transaction together,i must surely still compensate you.
 
-To be very honest with you, It is a joyful moment for me and my family
-right now, so therefore am using this opportunity to inform you that
-have successfully move to Vietnam where am currently living with my
-business partner who assisted me to complete the transfer, but due to
-the willingness and acceptance you showed during my pain have decided
-to willingly compensated you and show my gratitude to you with these
-sum of $750,000.00 Seven Hundred and fifty Thousand US Dollars).
+Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
 
-I want you to accept it is a gift from the bottom of my heart, Have
-issued the check and i instructed the bank to role the fund on ATM
-credit card for security reason,you can use the ATM card to
-withdrawing money from any ATM machine world wide with a maximum of
-US$10,000 daily.
+-- 
+software engineer
+rajagiri school of engineering and technology  - autonomous
 
-This vow have made to myself about compensating you has been in my
-mind so am here to fulfilled it to you, although I did not tell you
-what was in my mind, my bank account manager said you can receive the
-card and use it anywhere in these global world. Go ahead contact the
-Global ATM Alliance direct with this bellow information. Email
-Address:
-... atmcreditcardoffice@e-nautia.com
 
-Name: ........... ....... Global ATM Visa Card Alliance
-Office Address; ...... 01BP 23 Rue Des Grands Moulins.Ouagadougou, Burkina Faso
-Email Address: ..... [atmcreditcardoffice@e-nautia.com]
-Name Of Manager In charge: Dr.Koko pedro-c
-
-Ask the manager to send you the ATM card and the pin code of the ATM
-card that i gave to you as compensation, So feel free and get in
-touched direct with the ATM office and instruct him where to send you
-the ATM card so that you can start to withdraw the money. Please do
-let me know immediately you receive it so that we can share the joy of
-your success.
-
-Presently I am very busy here in Vietnam because of the investment
-projects which I and my new partner are having at hand because I want
-to finalize everything before the end of the next month. I have giving
-instruction to ATM Visa card office on your behalf to release the ATM
-card which i gave to you as compensation. Therefore feel free and get
-in touch with him and he shall send the ATM card for you in order for
-you to start withdrawing the compensation money without delay.
-
-I and my family wishes you best of luck in whatever business you shall
-invest this money into. Kindly let me know as soon you received the
-ATM visa card together with the pine code at your disposal.
-
-Thank you
-Yours Sincerely
-Mrs Daniella Kyle
