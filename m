@@ -2,190 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 746CE2A60F3
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 10:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB682A612F
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728066AbgKDJyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 04:54:07 -0500
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:45173 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727110AbgKDJyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 04:54:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1604483644; x=1636019644;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=Xzqf0UM+PzUIPm2L5evSYqgNsiqUatYL+uvodBiJxBo=;
-  b=pEn98bS9Ip5OJOgDrRHHkD54WbT/bW9lcLyljVIEdSTvmEyWyRUgiY0/
-   XeLpqSk2jzpqXvHhCEtC+yiqXWs9LeOX6qxHIxnfXstghlNK0sU92/iin
-   Lf3D001ydvb4AqAshl1axWJ63a7wdUg1YkHKsGlsb0DhSDjGELk07eyyT
-   Z2K5Qq0J/y1pFbnu1qYwFY3fQylpoHeonjP5sLz9nM/QFvAIWwSicdzLV
-   rKMbwaME2FG2GdgYT/7DVxv3IfFs3pg6Ax8sfMkHJS/5XwyGXkOrIbzXp
-   gk2ScsdyTsvVutBf+tyLaw87SYLP9c4JlXH+UxSCqJqnWiCzDCpdCk9X2
-   A==;
-IronPort-SDR: HczhM6zgdRZ7tzIHz0VPhe41uLrh0un8bl+co3lG99JZBmkzPz8U7+AVDkBStPJgbH6JDo6kB3
- 5V9udVJn+cq+D0DtjGU9Z0P/Y44ZXieer18nitTgp9H1yDaYSgVRZOTZX3TOEiwG2U0d3esy8g
- G5jdSM5YS98JhqYqEk4HbK2ilLg4q5xZHMpQaFV2uNkJpAFmVH2wLA6OAPfie9P2w7aGaJKD7t
- yAbV/LqHUOSi5CHXDCacXuHjNLI+TlO+OPUX8h1mpjhVgpBHzcuvlov7+Yv1EFTWbyEw8qKEyd
- qwQ=
-X-IronPort-AV: E=Sophos;i="5.77,450,1596470400"; 
-   d="scan'208";a="151676943"
-Received: from mail-bn7nam10lp2104.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.104])
-  by ob1.hgst.iphmx.com with ESMTP; 04 Nov 2020 17:54:04 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=e4gCUn3ZdLVdVIZBLFqP8gdiyysj1E9XjVIWSqgfixi+6h/yiyqK2CWFShVK/Qfbtp172h1NPLHEEigBXiehfpBh43VHFBNT19mqr8fb1QDTXlxs3efjYvUuEv1uxE+a2q9CARD2iFTXyRz8+ycok9ok+WR8vVSRWHmmSUnExZzGSlNskJAAV6MX5a0Q2XR/0cX4tJhPiEbPzKn7VbPT7O2GlE7UytzPhtLQxrXpQAYfYJaknJdxnJhB8QKwfeG7LAStE16l6uVPSz+4uwGieSOGO5reh9zPxns3j2AkBZB1EyLqgImME9YarJezxpfG80bHuAsZkDE8eiVuTcXNNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+hIsiq4DpXH/HoPOsj2IKx1MWpfUzwRuyRNBAA+mA68=;
- b=eerESs90TpZkvFMhkI/eRsMjjHE6eqTi6Y1AQKabwobxZo2bJGSF5a5g1iGvOMkVj1I9eNRJ4ED9zTLlGCYFzqS2jrggOgqkNzKWICaEpDNKxC4uGhnCd/3HHPXDkfO/9U3D6BpJDqDzFxi/iu0uQIe3xRmhi23s8XNPxMxTZZsC/wlGggi9gGetWnjyYfI9ife8x0UxRDD5AGU4ZF40lg8zNKC29GARe+giSRyKFSIDZSyizdCYHorEtDUNpf/kjtmA994pjmz4Ea+fUSioD/i0614xei8UbPguZffCndoBiJOkrMajzik+rrzJC0DthfXWQl1R8udYE/XPBnt2UA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
+        id S1729117AbgKDKGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 05:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60490 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729136AbgKDKGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 05:06:51 -0500
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86DEC061A4A
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 02:06:50 -0800 (PST)
+Received: by mail-ej1-x643.google.com with SMTP id j24so28874689ejc.11
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 02:06:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+hIsiq4DpXH/HoPOsj2IKx1MWpfUzwRuyRNBAA+mA68=;
- b=Dz4wvpEWbxbqWsnGi3Eam5aaMBM05da1IUDGxhQO+5C/bdDtaLna03N+Bz6W/AqMQEPFCuaT5gBWwZZAm6l00oC73jmfQ5Xlqq3ljxAuH/s/1LQ4p4isZ++Gs2kyTPVLTsy+Y66PgwA0RKG+Dgah4OwI74kIEEUdD4j6nnR7cqU=
-Received: from BL0PR04MB6514.namprd04.prod.outlook.com (2603:10b6:208:1ca::23)
- by BL0PR04MB4738.namprd04.prod.outlook.com (2603:10b6:208:4c::31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.18; Wed, 4 Nov
- 2020 09:54:03 +0000
-Received: from BL0PR04MB6514.namprd04.prod.outlook.com
- ([fe80::4c3e:2b29:1dc5:1a85]) by BL0PR04MB6514.namprd04.prod.outlook.com
- ([fe80::4c3e:2b29:1dc5:1a85%7]) with mapi id 15.20.3499.032; Wed, 4 Nov 2020
- 09:54:03 +0000
-From:   Damien Le Moal <Damien.LeMoal@wdc.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] null_blk: Fix zone reset all tracing
-Thread-Topic: [PATCH] null_blk: Fix zone reset all tracing
-Thread-Index: AQHWsoo9zgKa9lyUMEWyXEEszdUwMw==
-Date:   Wed, 4 Nov 2020 09:54:02 +0000
-Message-ID: <BL0PR04MB651491B95B0F8A78DF9D401EE7EF0@BL0PR04MB6514.namprd04.prod.outlook.com>
-References: <16044134474538@kroah.com>
- <20201104052914.156163-1-damien.lemoal@wdc.com>
- <20201104091015.GD1588160@kroah.com> <20201104091502.GA1646828@kroah.com>
- <BL0PR04MB6514A24DB438A568A9C27CB7E7EF0@BL0PR04MB6514.namprd04.prod.outlook.com>
- <20201104092742.GA1669921@kroah.com>
- <BL0PR04MB65143D636C72588134EC3E17E7EF0@BL0PR04MB6514.namprd04.prod.outlook.com>
- <20201104095141.GA1673068@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: linuxfoundation.org; dkim=none (message not signed)
- header.d=none;linuxfoundation.org; dmarc=none action=none
- header.from=wdc.com;
-x-originating-ip: [2400:2411:43c0:6000:830:5e48:69b5:9288]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 8dfbdf42-f045-4655-4a7a-08d880a78fb0
-x-ms-traffictypediagnostic: BL0PR04MB4738:
-x-microsoft-antispam-prvs: <BL0PR04MB473838610769C1611127454FE7EF0@BL0PR04MB4738.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: K4vdveibXmDPYiEHJD3X4DGkBcjuWHNUxuZei6hPz7WDk9/cTvo3904ZoO5TKpDpcplt/Jych2dCzPOafXNTlnT7tds/gebh/GVFt1SbQAKJ4o7rrshPDLk6ZNcy3HB2Ai3VkxvqOQvgJZaE4haSo+cfwOExXCIjsxY2bDgtz2Hs3Jj0gtwrUQnjxLG7rQeRG+T6Y4W5Qk6L5dd681qe/LFw3PePYxpf27KbnFGfVmM0ediHUzgWU7fLUgcpc5h6L/dRVAnjT9DQWK7KbxkW773Kch3hnbvX5NPRZvdMv1Ic0dBU0JzVT4RUOiqExHaZTwf+s2uD/+eM2Fc2qgKCEw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR04MB6514.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(366004)(396003)(39860400002)(136003)(346002)(83380400001)(316002)(6916009)(8676002)(2906002)(52536014)(53546011)(8936002)(5660300002)(6506007)(478600001)(33656002)(55016002)(7696005)(91956017)(71200400001)(66946007)(186003)(86362001)(64756008)(76116006)(66556008)(66476007)(54906003)(4326008)(66446008)(9686003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: r/xSXhUwzA3ABy6KACwoQwt/Kb9K3RRSIkJOqKPRR87gOzrBtJbs6JN+OABPVFCxdB2zFWqK21lcqETtgrOm26glG6aEW3x+wBUrt7sP4AxNFel3AdK2VJCfy+uddxBmyuM/kymw5R0xeeJxafO19UGRkcxFvCOZgDNcHmgk6VT3lFpilseYtEv/j0YnzHy0meQKqWpYh86As22WLW1vbQaWLlM5W/+wlgUQpAKVdpksNGqky2/EFPVpmo2opG4MJ0XaiC302Bjv98TjwtGbfaZ/l8eU6djMZY7+alULkE1Sv/DZlqClLwoqN7gJA4DlWSrv2hApxyo3ZtUN9JpFcJV1zoVod8Om7URWdmAFJP4oGgoLI7IZu32/AHcO+rtAstyFHyqkEDpOYZvkAAURY/9VHVoOFgMJib488rKKwdVBchOLsYTcdpVtu0UpE0lnXKJk/fVzkbp8AjKdcVsHY25sMWaKw7GnHas2+CRRZTJvogMUqaQrWr5lwqETNUmifV+ERUmoMejBfpQm/DP34n9Uk2G6xg3AH2YfdNGCfxWC/AxxGFEZKx8ExSOOuflupNZcqXiyhM882ph+GjwiApsEI0IdKumrvH7d0FyxZ0yjxEJAQ++qfLC6vGToZsg8L+rZETcS3GPVAH0ixlkTCZUzjcRqiFPJ6Dyiy7p/1n/gjEoKeirpGL0RxdKpbwieWyFhjUE5n/qpPyke1tmLDQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=3TaXtXs3xZiP56tEU01ifiqy3+is8ac1K/K3ycqOg/s=;
+        b=QHWqh3ajJg6ht/+Vf1g7tm0KtRQJKXWUhj9EamxC8Yj9d52zYfGg6WtWjyJfXBAzkN
+         59zlMIPDlK/zjoGUPe0Uid0tJY4YjQsL9Aq16p4WJeVKT+j4BsFUopoazcC3/fBsoJ5I
+         /VCWPaxBFOHNlOi6G4KBstagoowRdcElEUt6k67bqtKJ47cLEBkvXHSKmjA14ehnuw4d
+         RJguqSF6uke/lzFm5n5zCzCGKqJasqZYYKvCRuPjpCq/aVG6jgOKRsN8NPQ5Cq6ftW9e
+         5t+hYXf1SLA56Ci+PQ0/HxUiOkmzDS2NlEi93krTg4O8oj2AApnI219wpqnnZw7BM8D/
+         q3gA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=3TaXtXs3xZiP56tEU01ifiqy3+is8ac1K/K3ycqOg/s=;
+        b=WaKx0PMghqG8HXrEX9ThxGGle9ZquCp3fsgQITq+nKLrmz6LeIZS05EiGzUHT1D5k8
+         XsaFoO0p+FXpLARa4atfY+MU7nDI812D/1dagkQY25uT7YpGunXtuxZd9em+8hz+/jUr
+         PIgU4Ox1MU7xDWi2InFneKGQlPYCY9SxNTE6NQ345M1QMsejVG5SaUJ7X8Tsz7U88XcV
+         gaTUo6HzDT9772YPAYNPcea/PJPkEkWU74WiS0utffv/6VrnewGrgetrp3MM7BCe2wjc
+         CWYFbS6shK+XXWwQ65Gk/MrgP/ZwKlPOUg4CHcCEzGhZIAVA82nMPciW7dAT1nIapeaH
+         Zg4A==
+X-Gm-Message-State: AOAM530Q1yKTUerkP+x8n2Cz5mbM536Gj4WW4i4NNLzAVgRB/nEsakeM
+        w7gHxTM/ehfxAuV1oWeR6iiWQSAZO2L7Z3IZrV/y2Q==
+X-Google-Smtp-Source: ABdhPJxPoMES71jQZ6OqHxJNlK05yFiYsV3+2PFb8Vc0qvP6AnDYzz6onuSfPWIN7aeugK90GcvNzhc6cPC3G82ZHXw=
+X-Received: by 2002:a17:906:39ce:: with SMTP id i14mr25129695eje.170.1604484409335;
+ Wed, 04 Nov 2020 02:06:49 -0800 (PST)
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR04MB6514.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8dfbdf42-f045-4655-4a7a-08d880a78fb0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Nov 2020 09:54:03.0060
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MgDul/1ln+ItJ9Ozk2VCPPDJhPNZIJSBcQJyVdhJd4SRm4IZ5SapwT4AETEAl2TFHbdSERgp6uxzRkjKVlOuZw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR04MB4738
+References: <20201103203249.448706377@linuxfoundation.org>
+In-Reply-To: <20201103203249.448706377@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 4 Nov 2020 15:36:38 +0530
+Message-ID: <CA+G9fYs_LAk-vXYHeNxWGMHPYVi4DH=oZyJTcC=ioDNUR-C+4w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/214] 5.4.75-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/11/04 18:50, Greg Kroah-Hartman wrote:=0A=
-> On Wed, Nov 04, 2020 at 09:31:40AM +0000, Damien Le Moal wrote:=0A=
->> On 2020/11/04 18:26, Greg Kroah-Hartman wrote:=0A=
->>> On Wed, Nov 04, 2020 at 09:21:27AM +0000, Damien Le Moal wrote:=0A=
->>>> On 2020/11/04 18:14, Greg Kroah-Hartman wrote:=0A=
->>>>> On Wed, Nov 04, 2020 at 10:10:15AM +0100, Greg Kroah-Hartman wrote:=
-=0A=
->>>>>> On Wed, Nov 04, 2020 at 02:29:14PM +0900, Damien Le Moal wrote:=0A=
->>>>>>> commit f9c9104288da543cd64f186f9e2fba389f415630 upstream.=0A=
->>>>>>>=0A=
->>>>>>> In the cae of the REQ_OP_ZONE_RESET_ALL operation, the command sect=
-or is=0A=
->>>>>>> ignored and the operation is applied to all sequential zones. For t=
-hese=0A=
->>>>>>> commands, tracing the effect of the command using the command secto=
-r to=0A=
->>>>>>> determine the target zone is thus incorrect.=0A=
->>>>>>>=0A=
->>>>>>> Fix null_zone_mgmt() zone condition tracing in the case of=0A=
->>>>>>> REQ_OP_ZONE_RESET_ALL to apply tracing to all sequential zones that=
- are=0A=
->>>>>>> not already empty.=0A=
->>>>>>>=0A=
->>>>>>> Fixes: 766c3297d7e1 ("null_blk: add trace in null_blk_zoned.c")=0A=
->>>>>>> Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
->>>>>>> Cc: stable@vger.kernel.org=0A=
->>>>>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>=0A=
->>>>>>> ---=0A=
->>>>>>>  drivers/block/null_blk_zoned.c | 14 ++++++++------=0A=
->>>>>>>  1 file changed, 8 insertions(+), 6 deletions(-)=0A=
->>>>>>=0A=
->>>>>> Now queued up, thanks.=0A=
->>>>>=0A=
->>>>> Wait, no, I'll delay this one until the next round as it's not fixing=
-=0A=
->>>>> something introduced in this -rc series.=0A=
->>>>=0A=
->>>> Yes, that problem is older.=0A=
->>>> The lock fix I sent goes on top of this one though. I can send the bac=
-kport for=0A=
->>>> the lock fix without this patch applied. Is that OK ?=0A=
->>>=0A=
->>> If the order of the patches is needed, then yes, I can take both, pleas=
-e=0A=
->>> submit them as a patch series so that I know this is needed.=0A=
->>=0A=
->> OK. Sending that. Note that I still do not see Kanchan patch applied in =
-stable=0A=
->> 5.9.y branch, so I will do the backport assuming it is applied. Or I can=
- send=0A=
->> all 3 patches as the series. Which do you prefer ?=0A=
-> =0A=
-> All 3 is great, to ensure I have them all as I don't know what you mean=
-=0A=
-> by "Kanchan patch".=0A=
-=0A=
-I was talking about "=0A=
-commit 35bc10b2eafbb701064b94f283b77c54d3304842 upstream." that you already=
-=0A=
-applied to 5.9.y.=0A=
-=0A=
-Sending all 3 patches backported in a series to be sure. SInce the first pa=
-tchin=0A=
-the series will be the above mentioned patch, everything should still apply=
-=0A=
-cleanly on your side. Thanks!=0A=
-=0A=
-> =0A=
-> thanks,=0A=
-> =0A=
-> greg k-h=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+On Wed, 4 Nov 2020 at 02:24, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.75 release.
+> There are 214 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.75-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.4.75-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: 1b513bf286096f9c66fc386cdc5e038980db8863
+git describe: v5.4.74-215-g1b513bf28609
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.74-215-g1b513bf28609
+
+No regressions (compared to build v5.4.74)
+
+No fixes (compared to build v5.4.74)
+
+Ran 37086 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- nxp-ls2088-kasan
+- qemu-arm64-kasan
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
