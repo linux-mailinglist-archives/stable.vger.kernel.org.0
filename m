@@ -2,128 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0172A6661
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2897C2A667A
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbgKDOar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 09:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726729AbgKDOar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 09:30:47 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AF7C0613D3
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 06:30:47 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id x13so17406182pfa.9
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 06:30:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=U4MpteavQvuDJe1f2YplTJ4/FEtkFb5B4GahR7mckPg=;
-        b=N9cNJM8ql6k8LsM9oZU2ELEUCNqrJFNFdtKEhzxBIyj8MmF3c4okmWRT6dts9BBzwM
-         d6g5kqHffrDSWlH50RwRehu3Hw255o834u5lIKIAKhI7So+kOTSefGT0dxwIWwEVEzPs
-         c1IQ9j9xBXyrAAho20YbomqJI+rEpZAzOWCLEBWgLVNPL+RtxEjz8cN4OX+ntuuRCYrM
-         KfX2swJGFBX231S2oF8aGQBcS8bjjlP9pz5/aigc5I/G+yfgrorMcFFj95JTFNfd5A6w
-         LfsHfSF4qbtAiDmxGzrJOlRDdoG8YC0TOPayObQlX9/wIYop55fSeFhDvfzRu/+on6/a
-         pkDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=U4MpteavQvuDJe1f2YplTJ4/FEtkFb5B4GahR7mckPg=;
-        b=Ql6+QGUjfD9Pct198Lh91+WJIyS1K9IE55Jv0/VLajruqSzhJ8OpMsEK4VSa87gHZ6
-         QMEdlvNzqw02Ei7hIM29AX2rjBoV4Iwf0CKTjXMc2/bDGukS3e4/1zAS7t0tZr5E+zjU
-         6ihpoM5o4TOy0M3v3OrXWASXk1tN7vegcg5aC1+tC+lznncMi9MyMsmyCXgjPGgqyxvW
-         vnNNnp4bLFrOvb0DOQNOu3uU02M1PhcT1MwmpMbFHRkNfABRJbCrH6YtugJD+cxEiLye
-         JkHmMu7fPWYf34FCx5YwuKcb5QRhKCCx2hvC0qJPnYU/dbjtZ9fkJsKsJ+YYPpVU3keE
-         ACzQ==
-X-Gm-Message-State: AOAM533eVccg4TbdbskChCAfiz6LOmpHhWbhdqgU7QbYrkq7n0o9k0fR
-        BvuJPqK+YqAhN41+uSdf05rFH5CKhQ0Eew==
-X-Google-Smtp-Source: ABdhPJxG0ZUyKUn/VD9QW4RNZgVZQGuZMJrD6MgYQAx3zE657eS8PbBE8exaXcezudnPgQkHe3o2HQ==
-X-Received: by 2002:a17:90a:8802:: with SMTP id s2mr4369974pjn.149.1604500246666;
-        Wed, 04 Nov 2020 06:30:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s22sm2510756pfu.119.2020.11.04.06.30.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 06:30:45 -0800 (PST)
-Message-ID: <5fa2bb15.1c69fb81.3ccd5.5c7e@mx.google.com>
-Date:   Wed, 04 Nov 2020 06:30:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726564AbgKDOgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 09:36:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725946AbgKDOgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Nov 2020 09:36:19 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C622920709;
+        Wed,  4 Nov 2020 14:36:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604500579;
+        bh=rAWaU2Y008uAEMUI6gGHxq/S/dBhzoRPmOELlx34STg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Sf+wSO1pqU94V8Lzx/YfZEX012IIwppE54eJUQm7y+hqrgtPR+p2BzHGVmi6s/ugJ
+         N+GXv5OzMrci4lFL749pHOKRlVTP0qx9VESXFupjLFdyx7PdkoxmGSM7Kndyaps9Im
+         SaGSijKVk3yRDuTVzhW2rfdfKKrTr/ISxI6xFnLo=
+Date:   Wed, 4 Nov 2020 15:37:09 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, sashal@kernel.org
+Subject: Re: build failures in v4.4.y stable queue
+Message-ID: <20201104143709.GC2202359@kroah.com>
+References: <20201104141230.GC4312@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.8.18-149-gcf1626b0f42c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.8
-Subject: stable-rc/queue/5.8 baseline: 214 runs,
- 1 regressions (v5.8.18-149-gcf1626b0f42c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201104141230.GC4312@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 214 runs, 1 regressions (v5.8.18-149-gcf1626b=
-0f42c)
+On Wed, Nov 04, 2020 at 06:12:30AM -0800, Guenter Roeck wrote:
+> Building ia64:defconfig ... failed
+> --------------
+> Error log:
+> drivers/acpi/numa.c: In function 'pxm_to_node':
+> drivers/acpi/numa.c:49:43: error: 'numa_off' undeclared
 
-Regressions Summary
--------------------
+Caused by 8a3decac087a ("ACPI: Add out of bounds and numa_off
+protections to pxm_to_node()"), I'll go drop it.
 
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
+Sasha, you didn't queue this up to 4.9, but you did to 4.4?
 
+> 
+> Building powerpc:defconfig ... failed
+> --------------
+> Error log:
+> arch/powerpc/kvm/book3s_hv.c: In function ‘kvm_arch_vm_ioctl_hv’:
+> arch/powerpc/kvm/book3s_hv.c:3161:7: error: implicit declaration of function ‘kvmhv_on_pseries’
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.18-149-gcf1626b0f42c/plan/baseline/
+Caused by 05e6295dc7de ("KVM: PPC: Book3S HV: Do not allocate HPT for a
+nested guest"), I'll go drop this.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.18-149-gcf1626b0f42c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cf1626b0f42c7912da1fb20ae30d763ea1cd5a9a =
+Sasha, why did you only queue this up to 4.4 and 5.4 and 5.9 and not the
+middle queues as well?
 
+thanks,
 
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch | lab          | compiler | defconfig          | reg=
-ressions
-----------------+------+--------------+----------+--------------------+----=
---------
-stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa288891b3c46e52dfb532f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-14=
-9-gcf1626b0f42c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-14=
-9-gcf1626b0f42c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
-57c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa288891b3c46e52dfb5=
-330
-        failing since 9 days (last pass: v5.8.16-78-g480e444094c4, first fa=
-il: v5.8.16-626-g41d0d5713799) =
-
- =20
+greg k-h
