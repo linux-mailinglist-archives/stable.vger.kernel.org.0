@@ -2,105 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4402A6280
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F5A2A62C4
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:58:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729637AbgKDKtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 05:49:21 -0500
-Received: from smtp106.ord1d.emailsrvr.com ([184.106.54.106]:55775 "EHLO
-        smtp106.ord1d.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727923AbgKDKtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 05:49:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1604486959;
-        bh=nM3HMBm0LDHyS3BTjAs00IhVNoULUtyWP5a5SFL0J4A=;
-        h=Subject:From:To:Date:From;
-        b=c2UZups3mhpbRhyUtnZ3F8N93t9A6q8u+LMwkpQ4ft68Pn/cRiN8vTH84sV+wdEXk
-         D0tjQz9PBha6iUHd1KbtzJY365tNuzpvCx+G3B/zTcf1bCH1QPPtD4RLl8GeZAVe6V
-         sZKUYwpuIXzkZw4arcGdHRfR9E+xypnZeoK0TP7Y=
-X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp22.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 53450E01B0;
-        Wed,  4 Nov 2020 05:49:19 -0500 (EST)
-Subject: Re: [PATCH] staging: comedi: cb_pcidas: reinstate delay removed from
- trimpot setting
-From:   Ian Abbott <abbotti@mev.co.uk>
-To:     devel@driverdev.osuosl.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        H Hartley Sweeten <hsweeten@visionengravers.com>,
-        stable@vger.kernel.org
-References: <20201029141833.126856-1-abbotti@mev.co.uk>
- <3d7cf15a-c389-ec2c-5e29-8838e8466790@mev.co.uk>
- <f28af317-08a7-8218-d2a6-0cdd9e681873@mev.co.uk>
-Organization: MEV Ltd.
-Message-ID: <975358e2-6a08-211a-d232-3cd0ce628e8e@mev.co.uk>
-Date:   Wed, 4 Nov 2020 10:49:18 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1726410AbgKDK6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 05:58:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51238 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726344AbgKDK6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Nov 2020 05:58:42 -0500
+Received: from saruman (88-113-213-94.elisa-laajakaista.fi [88.113.213.94])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1737E20867;
+        Wed,  4 Nov 2020 10:58:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604487521;
+        bh=xki9bngSa4snlKbOvPlqi/0KUccXUedV0J7hHCCzcOw=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=g8vUvK2Ge8OOSCUrk3Ry/IgFLWrPqzt2RbTYXEHsvoCwoIKt4yS1HPI9/70XHZkf9
+         0q9E4qNjnK30JPnhPUQm0+AXsmohqC4K5GuoS9j847iEh9qVmPrH112LwYpQ05v93W
+         q84Fmjc7hBfh54adp6LQh+3RmCNRzj3ZuizTKF+8=
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH 5.9 000/391] 5.9.4-rc1 review
+In-Reply-To: <CA+G9fYsrppNwC0S4vkrS8jGW4k2fgmbAzy=oMLV6X9=DHkznpw@mail.gmail.com>
+References: <20201103203348.153465465@linuxfoundation.org>
+ <CA+G9fYsrppNwC0S4vkrS8jGW4k2fgmbAzy=oMLV6X9=DHkznpw@mail.gmail.com>
+Date:   Wed, 04 Nov 2020 12:58:33 +0200
+Message-ID: <87mtzxqtgm.fsf@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <f28af317-08a7-8218-d2a6-0cdd9e681873@mev.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
-X-Classification-ID: c38d9511-2862-475a-af9e-afdf1fc6240b-1-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02/11/2020 11:16, Ian Abbott wrote:
-> On 02/11/2020 10:25, Ian Abbott wrote:
->> On 29/10/2020 14:18, Ian Abbott wrote:
->>> Commit eddd2a4c675c ("staging: comedi: cb_pcidas: refactor
->>> write_calibration_bitstream()") inadvertently removed one of the
->>> `udelay(1)` calls when writing to the calibration register in
->>> `cb_pcidas_calib_write()`.  Reinstate the delay.  It may seem strange
->>> that the delay is placed before the register write, but this function is
->>> called in a loop so the extra delay can make a difference.
->>>
->>> This _might_ solve reported issues reading analog inputs on a
->>> PCIe-DAS1602/16 card where the analog input values "were scaled in a
->>> strange way that didn't make sense".  On the same hardware running a
->>> system with a 3.13 kernel, and then a system with a 4.4 kernel, but with
->>> the same application software, the system with the 3.13 kernel was fine,
->>> but the one with the 4.4 kernel exhibited the problem.  Of the 90
->>> changes to the driver between those kernel versions, this change looked
->>> like the most likely culprit.
+
+Hi,
+
+Naresh Kamboju <naresh.kamboju@linaro.org> writes:
+
+> On Wed, 4 Nov 2020 at 02:07, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 >>
->> Actually, I've realized that this patch will have no effect on the 
->> PCIe-DAS1602/16 card because it uses a different driver - cb_pcimdas, 
->> not cb_pcidas.
-> 
-> But that's also confusing because PCIe-DAS1602/16 was not supported 
-> until the 3.19 kernel!  I know the reported has both PCI-DAS1602/16 and 
-> PCIe-DAS1602/16 cards (supported by cb_pcidas and cb_pcimdas 
-> respectively), so there could have been some mix-up in the reporting.
+>> This is the start of the stable review cycle for the 5.9.4 release.
+>> There are 391 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch=
+-5.9.4-rc1.gz
+>> or in the git tree and branch at:
+>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git linux-5.9.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
+>
+> Results from Linaro=E2=80=99s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+>
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> NOTE:
+> The kernel warning noticed on arm64 nxp ls2088 device with KASAN config
+> enabled while booting the device. We are not considering this as regressi=
+on
+> because this is the first arm64 KASAN config enabled on nxp ls2088 device.
+>
+> [    3.301882] dwc3 3100000.usb3: Failed to get clk 'ref': -2
+> [    3.307433] ------------[ cut here ]------------
+> [    3.312048] dwc3 3100000.usb3: request value same as default, ignoring
 
-Mystery solved.  The reporter had a mixture of PCIe-DAS1602/16 and 
-PCIM-DAS1602/16 cards (not PCI-DAS1602/16).  Both of those are supported 
-by the "cb_pcimdas" driver (not "cb_pcidas"), although the PCIe card was 
-not supported until the 3.19 kernel (by commit 4e3d14af1286).  Testing 
-with the 3.13 kernel was done with the PCIM card.
+fix your DTS :-)
 
-The "strange scaling" was due to a change in the ranges reported for the 
-analog input subdevice in the 4.1 kernel (by commit c7549d770a27). 
-Before then, it just reported a single dummy range [0, 1000000] with no 
-units (converted to [0.0, 1.0] with no units by comedilib).  Afterwards, 
-it reported four different voltage ranges (either unipolar or bipolar, 
-depending in a status bit tied to a physical switch).  The reporter's 
-application code was using the reported range to scale the raw values to 
-a voltage (using comedilib functions), but because the reported range 
-was bogus, the application code was performing additional scaling 
-(outside of comedilib).  The application code can be changed to check 
-whether the device is reporting a proper voltage range or the old, bogus 
-range, and behave accordingly.
+You're requesting to change a register value that shouldn't be changed
+(it should be properly set during coreConsultant
+instantiation). Whenever the requested value is the same as the reset
+value of the register we WARN to let users know that the register
+shouldn't be touched.
 
->> Greg, you might as well drop this patch if you haven't already applied 
->> it, since it was only a hunch that it fixed a problem.
-
-That's still the case, although it won't do any harm if applied (apart 
-from the incorrect patch description).
-
--- 
--=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
--=( registered in England & Wales.  Regd. number: 02862268.  )=-
--=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
--=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
+--=20
+balbi
