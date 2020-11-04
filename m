@@ -2,128 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00F962A63A1
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 12:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608912A63C7
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 12:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729263AbgKDLxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 06:53:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729227AbgKDLwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 06:52:39 -0500
-Received: from pali.im (pali.im [31.31.79.79])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E06C2072C;
-        Wed,  4 Nov 2020 11:52:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604490758;
-        bh=yAXLc8iBN2mG7YTFZmxcIqBclcOSBja2KYBbIkVlnz8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BJ2oJTpO0RhZRDV8RHGhvB8iH+b6cbx5R108fv+iuqWn9TDaTKau1lcKiA8jpx7AQ
-         MiYBp+1pMcpYaTiVU+JbitSt2NZ6R6FquSyGSg9/LkyR5rdrsqzlIWcNFsVBFeiC/+
-         cotH1AjYZ0x1Z6doMOAMdG0QBu8nYCXMATrwJurs=
-Received: by pali.im (Postfix)
-        id D863A64E; Wed,  4 Nov 2020 12:52:35 +0100 (CET)
-From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, a.heider@gmail.com, andrew@lunn.ch,
-        gregory.clement@bootlin.com
-Subject: [PATCH] arm64: dts: marvell: espressobin: Add ethernet switch aliases
-Date:   Wed,  4 Nov 2020 12:52:09 +0100
-Message-Id: <20201104115209.1282-1-pali@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        id S1729801AbgKDL7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 06:59:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49388 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729700AbgKDL56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 06:57:58 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFA8C0613D3;
+        Wed,  4 Nov 2020 03:57:57 -0800 (PST)
+Date:   Wed, 04 Nov 2020 11:57:54 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1604491075;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1SJ+9JeJWVBHBJ9URQUWbLGmooR2mSzQjp6hmyYspSs=;
+        b=ptREcJdcOET7oQFYUQ0boG4+Oxc9tiKL+XX5g+02oIPVMESLLGEW3IzrPGWGpYe3cs3lVX
+        spetEi6u92QZmCKDOSAO2ldnV5B+6sQBOdIyc7hY1gwAH8iKUfKUZ/fEJIAt8OZjEZM4T5
+        OTRXwSTN5GH+zkynE8yTv5laoY1Y1l439LT6weoEsClks3RY6QFjI1KQoaHopHviT4x+6k
+        gdJSHUDmPuRqjnbeQ4ZDS1tSxF2KGkuZBuK5ITc5Ctry70V873qf7UOXA28RBRULDkFLio
+        +HsRZju6P9l5Wnwuy0TopuRdCjrUQ4bfuePMGxCJeZxQiNcbIq0KV+OYEZRRcw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1604491075;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1SJ+9JeJWVBHBJ9URQUWbLGmooR2mSzQjp6hmyYspSs=;
+        b=YUQzXJUseVkI+4ld0s/YSYvieFhX/xEkjtKbjJCuSjmrYJMB0hF3aDM8oSRS5+g3dnZfZX
+        MnxEYrlIVllUHpDw==
+From:   "tip-bot2 for Fangrui Song" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/lib: Change .weak to SYM_FUNC_START_WEAK for
+ arch/x86/lib/mem*_64.S
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20201103012358.168682-1-maskray@google.com>
+References: <20201103012358.168682-1-maskray@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <160449107432.397.983110962215228376.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b64d814257b027e29a474bcd660f6372490138c7 upstream.
+The following commit has been merged into the x86/urgent branch of tip:
 
-Espressobin boards have 3 ethernet ports and some of them got assigned more
-then one MAC address. MAC addresses are stored in U-Boot environment.
+Commit-ID:     4d6ffa27b8e5116c0abb318790fd01d4e12d75e6
+Gitweb:        https://git.kernel.org/tip/4d6ffa27b8e5116c0abb318790fd01d4e12d75e6
+Author:        Fangrui Song <maskray@google.com>
+AuthorDate:    Mon, 02 Nov 2020 17:23:58 -08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Wed, 04 Nov 2020 12:30:20 +01:00
 
-Since commit a2c7023f7075c ("net: dsa: read mac address from DT for slave
-device") kernel can use MAC addresses from DT for particular DSA port.
+x86/lib: Change .weak to SYM_FUNC_START_WEAK for arch/x86/lib/mem*_64.S
 
-Currently Espressobin DTS file contains alias just for ethernet0.
+Commit
 
-This patch defines additional ethernet aliases in Espressobin DTS files, so
-bootloader can fill correct MAC address for DSA switch ports if more MAC
-addresses were specified.
+  393f203f5fd5 ("x86_64: kasan: add interceptors for memset/memmove/memcpy functions")
 
-DT alias ethernet1 is used for wan port, DT aliases ethernet2 and ethernet3
-are used for lan ports for both Espressobin revisions (V5 and V7).
+added .weak directives to arch/x86/lib/mem*_64.S instead of changing the
+existing ENTRY macros to WEAK. This can lead to the assembly snippet
 
-Fixes: 5253cb8c00a6f ("arm64: dts: marvell: espressobin: add ethernet alias")
-Cc: <stable@vger.kernel.org> # a2c7023f7075c: dsa: read mac address
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Andre Heider <a.heider@gmail.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-[pali: Backported Espressobin rev V5 changes to 5.4 and 4.19 versions]
+  .weak memcpy
+  ...
+  .globl memcpy
 
+which will produce a STB_WEAK memcpy with GNU as but STB_GLOBAL memcpy
+with LLVM's integrated assembler before LLVM 12. LLVM 12 (since
+https://reviews.llvm.org/D90108) will error on such an overridden symbol
+binding.
+
+Commit
+
+  ef1e03152cb0 ("x86/asm: Make some functions local")
+
+changed ENTRY in arch/x86/lib/memcpy_64.S to SYM_FUNC_START_LOCAL, which
+was ineffective due to the preceding .weak directive.
+
+Use the appropriate SYM_FUNC_START_WEAK instead.
+
+Fixes: 393f203f5fd5 ("x86_64: kasan: add interceptors for memset/memmove/memcpy functions")
+Fixes: ef1e03152cb0 ("x86/asm: Make some functions local")
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103012358.168682-1-maskray@google.com
 ---
-This patch is backport for 5.4 and 4.19 stable releases. From original
-patch were removed changes for Espressobin revision V7 as these older
-kernel versions have DTS files only for Espressobin revision V5.
+ arch/x86/lib/memcpy_64.S  | 4 +---
+ arch/x86/lib/memmove_64.S | 4 +---
+ arch/x86/lib/memset_64.S  | 4 +---
+ 3 files changed, 3 insertions(+), 9 deletions(-)
 
-Note that this patch depends on commit a2c7023f7075c ("dsa: read mac
-address") as stated on Cc: line and for 4.19 release needs to be
-backported first.
----
- .../boot/dts/marvell/armada-3720-espressobin.dts     | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-index 05dc58c13fa4..6226e7e80980 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-@@ -21,6 +21,10 @@
+diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
+index 037faac..1e299ac 100644
+--- a/arch/x86/lib/memcpy_64.S
++++ b/arch/x86/lib/memcpy_64.S
+@@ -16,8 +16,6 @@
+  * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
+  */
  
- 	aliases {
- 		ethernet0 = &eth0;
-+		/* for dsa slave device */
-+		ethernet1 = &switch0port1;
-+		ethernet2 = &switch0port2;
-+		ethernet3 = &switch0port3;
- 		serial0 = &uart0;
- 		serial1 = &uart1;
- 	};
-@@ -147,7 +151,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+-.weak memcpy
+-
+ /*
+  * memcpy - Copy a memory block.
+  *
+@@ -30,7 +28,7 @@
+  * rax original destination
+  */
+ SYM_FUNC_START_ALIAS(__memcpy)
+-SYM_FUNC_START_LOCAL(memcpy)
++SYM_FUNC_START_WEAK(memcpy)
+ 	ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
+ 		      "jmp memcpy_erms", X86_FEATURE_ERMS
  
--			port@0 {
-+			switch0port0: port@0 {
- 				reg = <0>;
- 				label = "cpu";
- 				ethernet = <&eth0>;
-@@ -158,19 +162,19 @@
- 				};
- 			};
+diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+index 7ff00ea..41902fe 100644
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -24,9 +24,7 @@
+  * Output:
+  * rax: dest
+  */
+-.weak memmove
+-
+-SYM_FUNC_START_ALIAS(memmove)
++SYM_FUNC_START_WEAK(memmove)
+ SYM_FUNC_START(__memmove)
  
--			port@1 {
-+			switch0port1: port@1 {
- 				reg = <1>;
- 				label = "wan";
- 				phy-handle = <&switch0phy0>;
- 			};
+ 	mov %rdi, %rax
+diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
+index 9ff15ee..0bfd26e 100644
+--- a/arch/x86/lib/memset_64.S
++++ b/arch/x86/lib/memset_64.S
+@@ -6,8 +6,6 @@
+ #include <asm/alternative-asm.h>
+ #include <asm/export.h>
  
--			port@2 {
-+			switch0port2: port@2 {
- 				reg = <2>;
- 				label = "lan0";
- 				phy-handle = <&switch0phy1>;
- 			};
- 
--			port@3 {
-+			switch0port3: port@3 {
- 				reg = <3>;
- 				label = "lan1";
- 				phy-handle = <&switch0phy2>;
--- 
-2.20.1
-
+-.weak memset
+-
+ /*
+  * ISO C memset - set a memory block to a byte value. This function uses fast
+  * string to get better performance than the original function. The code is
+@@ -19,7 +17,7 @@
+  *
+  * rax   original destination
+  */
+-SYM_FUNC_START_ALIAS(memset)
++SYM_FUNC_START_WEAK(memset)
+ SYM_FUNC_START(__memset)
+ 	/*
+ 	 * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
