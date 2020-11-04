@@ -2,197 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 504592A6191
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5325C2A61AD
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 11:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728867AbgKDK2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 05:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54346 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728841AbgKDK0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 05:26:43 -0500
-Received: from pali.im (pali.im [31.31.79.79])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF42020575;
-        Wed,  4 Nov 2020 10:26:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604485601;
-        bh=UmOoL2Hb9vp3rGiBuREXf8R7LGokFPjaEuDxJEW4zp4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2ZTT6V1CyRiQRN7OpLeL007v2xCA9A4g1ADinyDXyWPkv3J8ncsv4RMWmRvCMg9em
-         n3eGDwEz2fj49/IxbHP9MLZGUz0hfd2OpeTYFB+QfgXxnG9l81+ru02ZJ8KssPLHUK
-         XmyCNwn6FJm1NDmxR1M9M0b1+NJIRAUSmRq3yAL0=
-Received: by pali.im (Postfix)
-        id 1A06664E; Wed,  4 Nov 2020 11:26:39 +0100 (CET)
-Date:   Wed, 4 Nov 2020 11:26:38 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     a.heider@gmail.com, andrew@lunn.ch, gregory.clement@bootlin.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] arm64: dts: marvell: espressobin: Add
- ethernet switch aliases" failed to apply to 5.4-stable tree
-Message-ID: <20201104102638.6hpelqhcnkzy5juh@pali>
-References: <160443111019694@kroah.com>
+        id S1729089AbgKDKdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 05:33:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36156 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728700AbgKDKcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 05:32:15 -0500
+Received: from mail.kapsi.fi (mail.kapsi.fi [IPv6:2001:67c:1be8::25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46947C0613D3;
+        Wed,  4 Nov 2020 02:32:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=kapsi.fi;
+         s=20161220; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=rthagGeZr7BxtDl07Y9pYWCb/NLD6LNBksbUBb8wPnc=; b=rFnTYaktBfTd80yqUZq0DJTtQz
+        MqdGxzv6Ck0RSiaUAAzrF3B9DuVOP8wZaVO4A42Bf38vl35emnmIZJsVPasGqcjHP9iEKaTBubIdu
+        HoEv5qlZaXPlraYVML5pOW7nr1ZcKlOgHhERUqIMhz1jLMeWBvEy+r4nBP6E6mRRUV4vltiZz/Gsr
+        2cGkDBlgq0v4hhZSWl1jcMEY3WqL6SwNG4NUwQaq0BCXemQvScnpin5rSAQvXH2VpIdJasP5Fvhgk
+        H8i/oVjksrss9yPz8nsl2viGZTknHU3/v810WH6XokCkgfFoEIGz6ICMDX4eCcgSf2KdRYxRT4GkB
+        8kyETbxg==;
+Received: from 83-245-197-237.elisa-laajakaista.fi ([83.245.197.237] helo=kapsi.fi)
+        by mail.kapsi.fi with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <jarkko@kernel.org>)
+        id 1kaG5D-0005aU-3O; Wed, 04 Nov 2020 12:32:03 +0200
+Date:   Wed, 4 Nov 2020 12:32:00 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        James Bottomley <jejb@linux.ibm.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        stable <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:KEYS-TRUSTED" <keyrings@vger.kernel.org>,
+        "open list:SECURITY SUBSYSTEM" 
+        <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH v4 3/3,RESEND 2] KEYS: trusted: Reserve TPM for seal and
+ unseal operations
+Message-ID: <20201104103200.GA203745@kapsi.fi>
+References: <20201013025156.111305-1-jarkko.sakkinen@linux.intel.com>
+ <20201104011909.GD20387@kernel.org>
+ <CAFA6WYO4HJThYHhBxbx0Tr97sF_JFvTBur9uTGSQTtyQaOKpig@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <160443111019694@kroah.com>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <CAFA6WYO4HJThYHhBxbx0Tr97sF_JFvTBur9uTGSQTtyQaOKpig@mail.gmail.com>
+X-SA-Exim-Connect-IP: 83.245.197.237
+X-SA-Exim-Mail-From: jarkko@kernel.org
+X-SA-Exim-Scanned: No (on mail.kapsi.fi); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tuesday 03 November 2020 20:18:30 gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+On Wed, Nov 04, 2020 at 01:00:09PM +0530, Sumit Garg wrote:
+> Hi Jarkko,
 > 
-> thanks,
+> On Wed, 4 Nov 2020 at 06:49, Jarkko Sakkinen
+> <jarkko.sakkinen@linux.intel.com> wrote:
+> >
+> > When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
+> > the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
+> > which are used to take temporarily the ownership of the TPM chip. The
+> > ownership is only taken inside tpm_send(), but this is not sufficient,
+> > as in the key load TPM2_CC_LOAD, TPM2_CC_UNSEAL and TPM2_FLUSH_CONTEXT
+> > need to be done as a one single atom.
+> >
+> > Fix this issue by introducting trusted_tpm_load() and trusted_tpm_new(),
+> > which wrap these operations, and take the TPM chip ownership before
+> > sending anything.
 > 
-> greg k-h
+> I am not sure if we really need these new APIs in order to fix this
+> issue, see below.
 
-Hello Greg! I will do it.
+They are not API, as they are static functions. Not necessarily
+disregarding the argument, just remarking a technical detail.
 
-> ------------------ original commit in Linus's tree ------------------
+> > Use tpm_transmit_cmd() to send TPM commands instead
+> > of tpm_send(), reverting back to the old behaviour.
+> >
+> > Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
+> > Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> > Cc: stable@vger.kernel.org
+> > Cc: David Howells <dhowells@redhat.com>
+> > Cc: Mimi Zohar <zohar@linux.ibm.com>
+> > Cc: Sumit Garg <sumit.garg@linaro.org>
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > ---
+> >  drivers/char/tpm/tpm.h                    |  4 --
+> >  include/linux/tpm.h                       |  5 +-
+> >  security/keys/trusted-keys/trusted_tpm1.c | 78 +++++++++++++++--------
+> >  security/keys/trusted-keys/trusted_tpm2.c |  6 +-
+> >  4 files changed, 60 insertions(+), 33 deletions(-)
+> >
+> > diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+> > index 947d1db0a5cc..283f78211c3a 100644
+> > --- a/drivers/char/tpm/tpm.h
+> > +++ b/drivers/char/tpm/tpm.h
+> > @@ -164,8 +164,6 @@ extern const struct file_operations tpmrm_fops;
+> >  extern struct idr dev_nums_idr;
+> >
+> >  ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz);
+> > -ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
+> > -                        size_t min_rsp_body_length, const char *desc);
+> >  int tpm_get_timeouts(struct tpm_chip *);
+> >  int tpm_auto_startup(struct tpm_chip *chip);
+> >
+> > @@ -194,8 +192,6 @@ static inline void tpm_msleep(unsigned int delay_msec)
+> >  int tpm_chip_start(struct tpm_chip *chip);
+> >  void tpm_chip_stop(struct tpm_chip *chip);
+> >  struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
+> > -__must_check int tpm_try_get_ops(struct tpm_chip *chip);
+> > -void tpm_put_ops(struct tpm_chip *chip);
+> >
+> >  struct tpm_chip *tpm_chip_alloc(struct device *dev,
+> >                                 const struct tpm_class_ops *ops);
+> > diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+> > index 8f4ff39f51e7..804a3f69bbd9 100644
+> > --- a/include/linux/tpm.h
+> > +++ b/include/linux/tpm.h
+> > @@ -397,6 +397,10 @@ static inline u32 tpm2_rc_value(u32 rc)
+> >  #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
+> >
+> >  extern int tpm_is_tpm2(struct tpm_chip *chip);
+> > +extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
+> > +extern void tpm_put_ops(struct tpm_chip *chip);
+> > +extern ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
+> > +                               size_t min_rsp_body_length, const char *desc);
+> >  extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
+> >                         struct tpm_digest *digest);
+> >  extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
+> > @@ -410,7 +414,6 @@ static inline int tpm_is_tpm2(struct tpm_chip *chip)
+> >  {
+> >         return -ENODEV;
+> >  }
+> > -
+> >  static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
+> >                                struct tpm_digest *digest)
+> >  {
+> > diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
+> > index 7a937c3c5283..20ca18e17437 100644
+> > --- a/security/keys/trusted-keys/trusted_tpm1.c
+> > +++ b/security/keys/trusted-keys/trusted_tpm1.c
+> > @@ -950,6 +950,51 @@ static struct trusted_key_payload *trusted_payload_alloc(struct key *key)
+> >         return p;
+> >  }
+> >
+> > +static int trusted_tpm_load(struct tpm_chip *chip,
+> > +                           struct trusted_key_payload *payload,
+> > +                           struct trusted_key_options *options)
+> > +{
+> > +       int ret;
+> > +
+> > +       if (tpm_is_tpm2(chip)) {
+> > +               ret = tpm_try_get_ops(chip);
 > 
-> From b64d814257b027e29a474bcd660f6372490138c7 Mon Sep 17 00:00:00 2001
-> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-> Date: Mon, 7 Sep 2020 13:27:17 +0200
-> Subject: [PATCH] arm64: dts: marvell: espressobin: Add ethernet switch aliases
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
+> Can't we move this TPM 2.0 specific operation within
+> tpm2_unseal_trusted() instead?
 > 
-> Espressobin boards have 3 ethernet ports and some of them got assigned more
-> then one MAC address. MAC addresses are stored in U-Boot environment.
+> > +               if (!ret) {
+> > +                       ret = tpm2_unseal_trusted(chip, payload, options);
+> > +                       tpm_put_ops(chip);
 > 
-> Since commit a2c7023f7075c ("net: dsa: read mac address from DT for slave
-> device") kernel can use MAC addresses from DT for particular DSA port.
+> Ditto.
 > 
-> Currently Espressobin DTS file contains alias just for ethernet0.
+> > +               }
+> > +       } else {
+> > +               ret = key_unseal(payload, options);
+> > +       }
+> > +
+> > +       return ret;
+> > +}
+> > +
+> > +static int trusted_tpm_new(struct tpm_chip *chip,
+> > +                          struct trusted_key_payload *payload,
+> > +                          struct trusted_key_options *options)
+> > +{
+> > +       int ret;
+> > +
+> > +       ret = tpm_get_random(chip, payload->key, payload->key_len);
+> > +       if (ret < 0)
+> > +               return ret;
+> > +
+> > +       if (ret != payload->key_len)
+> > +               return -EIO;
+> > +
+> > +       if (tpm_is_tpm2(chip)) {
+> > +               ret = tpm_try_get_ops(chip);
 > 
-> This patch defines additional ethernet aliases in Espressobin DTS files, so
-> bootloader can fill correct MAC address for DSA switch ports if more MAC
-> addresses were specified.
+> Same here, to move this within tpm2_seal_trusted() instead?
 > 
-> DT alias ethernet1 is used for wan port, DT aliases ethernet2 and ethernet3
-> are used for lan ports for both Espressobin revisions (V5 and V7).
+> > +               if (!ret) {
+> > +                       ret = tpm2_seal_trusted(chip, payload, options);
+> > +                       tpm_put_ops(chip);
 > 
-> Fixes: 5253cb8c00a6f ("arm64: dts: marvell: espressobin: add ethernet alias")
-> Cc: <stable@vger.kernel.org> # a2c7023f7075c: dsa: read mac address
-> Signed-off-by: Pali Rohár <pali@kernel.org>
-> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-> Reviewed-by: Andre Heider <a.heider@gmail.com>
-> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-> 
-> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
-> index 03733fd92732..215d2f702623 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
-> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7-emmc.dts
-> @@ -20,17 +20,23 @@ / {
->  	compatible = "globalscale,espressobin-v7-emmc", "globalscale,espressobin-v7",
->  		     "globalscale,espressobin", "marvell,armada3720",
->  		     "marvell,armada3710";
-> +
-> +	aliases {
-> +		/* ethernet1 is wan port */
-> +		ethernet1 = &switch0port3;
-> +		ethernet3 = &switch0port1;
-> +	};
->  };
->  
->  &switch0 {
->  	ports {
-> -		port@1 {
-> +		switch0port1: port@1 {
->  			reg = <1>;
->  			label = "lan1";
->  			phy-handle = <&switch0phy0>;
->  		};
->  
-> -		port@3 {
-> +		switch0port3: port@3 {
->  			reg = <3>;
->  			label = "wan";
->  			phy-handle = <&switch0phy2>;
-> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
-> index 8570c5f47d7d..b6f4af8ebafb 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
-> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-v7.dts
-> @@ -19,17 +19,23 @@ / {
->  	model = "Globalscale Marvell ESPRESSOBin Board V7";
->  	compatible = "globalscale,espressobin-v7", "globalscale,espressobin",
->  		     "marvell,armada3720", "marvell,armada3710";
-> +
-> +	aliases {
-> +		/* ethernet1 is wan port */
-> +		ethernet1 = &switch0port3;
-> +		ethernet3 = &switch0port1;
-> +	};
->  };
->  
->  &switch0 {
->  	ports {
-> -		port@1 {
-> +		switch0port1: port@1 {
->  			reg = <1>;
->  			label = "lan1";
->  			phy-handle = <&switch0phy0>;
->  		};
->  
-> -		port@3 {
-> +		switch0port3: port@3 {
->  			reg = <3>;
->  			label = "wan";
->  			phy-handle = <&switch0phy2>;
-> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
-> index b97218c72727..0775c16e0ec8 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
-> +++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
-> @@ -13,6 +13,10 @@
->  / {
->  	aliases {
->  		ethernet0 = &eth0;
-> +		/* for dsa slave device */
-> +		ethernet1 = &switch0port1;
-> +		ethernet2 = &switch0port2;
-> +		ethernet3 = &switch0port3;
->  		serial0 = &uart0;
->  		serial1 = &uart1;
->  	};
-> @@ -120,7 +124,7 @@ ports {
->  			#address-cells = <1>;
->  			#size-cells = <0>;
->  
-> -			port@0 {
-> +			switch0port0: port@0 {
->  				reg = <0>;
->  				label = "cpu";
->  				ethernet = <&eth0>;
-> @@ -131,19 +135,19 @@ fixed-link {
->  				};
->  			};
->  
-> -			port@1 {
-> +			switch0port1: port@1 {
->  				reg = <1>;
->  				label = "wan";
->  				phy-handle = <&switch0phy0>;
->  			};
->  
-> -			port@2 {
-> +			switch0port2: port@2 {
->  				reg = <2>;
->  				label = "lan0";
->  				phy-handle = <&switch0phy1>;
->  			};
->  
-> -			port@3 {
-> +			switch0port3: port@3 {
->  				reg = <3>;
->  				label = "lan1";
->  				phy-handle = <&switch0phy2>;
-> 
+> Ditto.
+
+I think that would make sense anyhow, as not introducing new static
+functions means less potential merge conflicts when backporting. And
+yeah, also probably makes your life easier with the feature patch set
+under review.
+
+I can refine this.
+
+> -Sumit
+
+/Jarkko
