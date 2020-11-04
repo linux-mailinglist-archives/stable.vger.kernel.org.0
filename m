@@ -2,82 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7F52A6338
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 12:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04CA2A6344
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 12:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728508AbgKDLZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 06:25:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728066AbgKDLZZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 06:25:25 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CB7C0613D3
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 03:25:25 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id p5so29257368ejj.2
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 03:25:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=kwIxmB3LTVuXhoJJT9+oGgcs9w27IJzw7Apq/DRcRAM=;
-        b=t9Gt+1wE/yKV8h2AxbkVbB3ND69vn80foiCF4I+YA6mGJuNEsL3OQi2IDY7Ob3Dgys
-         4lnBjaRKMhT+oIFgEZsZHAcxbVbeCWotq0o4RRtW1WoO5NDrPnQDM8DY3FR6zd6kVZDk
-         5nfRa7/AVoxb3MIIhbftM8UwfJ6M7FpK17Yfp+l1iXZzItohzWcdJzRycWM8LAY29Eu0
-         hhlIC5D7dZt/b29BhV9PH226SIvz+rQcZC1NwumvAas6dnLw5aHT8ktEBtVK/mxRcwUo
-         H53KhumrVWpkmVrgdJTE02t7KMAm+uzHc+PfbUb6kmAWvOVYkepYTc+/mJ2HoI2dp5a8
-         6aFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=kwIxmB3LTVuXhoJJT9+oGgcs9w27IJzw7Apq/DRcRAM=;
-        b=p4qtZDYaSJoBZWDVPxLqpWqyDcDcRn7acivGSIw/ekS8Bhj6Ed5vkp0+mAMnHCCmuV
-         Xg2gfxfqfRxb4qojFmb2OLXaZQlSyERMzJrOT50mABbyjxTOvYuw5tVsVeJJCHZeZExB
-         dCUjx6IZVQNmV4uBJMtifS49ucjFWgwBqp/4JuqiFyIWBg3nwIfgz3C0te1hOZRQ8RNt
-         Ukn5n5Lze7nEnE9bTH4Ng7l29AJ95hZPdDSkeVDC92PBFD+dGZCJilNUCtMddV3qzpg8
-         VdlUIXTO7xTgn+nnPucrKoRsBlhedAD/rfZjRLviW2UiKRxhTA7Q27azb4EHWZKTkD5f
-         DlaQ==
-X-Gm-Message-State: AOAM532fQICKCqtaBgqGWQetLh8i2Bt2QS1W40Y2bg5iFigCU48b8iWp
-        RPmqHfVN01GSu/nMLQLp0ikP0FqcQMfH/o3Nzl7TsHrGtTfg5ItF
-X-Google-Smtp-Source: ABdhPJxS9Tq9pHnjR4nT8shXk47P+NeubekhGQ42dxLQpkMtfign2/6XnfB9qmx6RHFbwv1M32sayGd0gCeXM3gcSPU=
-X-Received: by 2002:a17:906:4742:: with SMTP id j2mr23848852ejs.247.1604489123213;
- Wed, 04 Nov 2020 03:25:23 -0800 (PST)
+        id S1729591AbgKDL1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 06:27:51 -0500
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:58996 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728287AbgKDL1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 06:27:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1604489270; x=1636025270;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=fDDF0p52VZ+bUECmVnAo/niCpxwKmufCt0gCwQnVZjA=;
+  b=WhTTc9EK+Fsz9gTVy7d8lSQU+e/bczgKvqZuuEwbflbUREWM9KMtf7Jq
+   n1v+Hy1xINDE2LDUyCj4COqVW8C4x9sVJU+zkqv8U5CCScWRd52zu0rtt
+   Z7hD12E02Kbxqc89sdQdrK5S6UZ7djdleL8eMxvgFDuMrLNfXPhBCOWeF
+   kINdmHl+nKLUH+kwO/hLJPDLPez6pyrl8Q0sVEpMYYqdQZLl+bN08E4CV
+   c2sBMC7eD9EmdOOBrKCRitu83DAEmi1YcXhHlWVKLfODlUtOlFJ2o/YhL
+   trgXHOv+OCyH5/2MFVPoUcv0yxLCadVc1KkJ5plubfeJv23/k0P4j9+ys
+   w==;
+IronPort-SDR: ar+nZ549fU0TmvqVqMoJsdeRDf1LYZZozNW04Q3/yteB11jMOQcyS1kWWcmXRJcUTrK1CZfOvz
+ TtKa7Hd7Sp8NL4KYvPg5CIRWyvoaZS0eVwraUUfViQ1yGn7Z6ep+cbv+CMphDkQrPuaS+YG4F7
+ a4J5FzCDU0w8jbfI3YY9wLeS6zrpNDjYOrACwQSO1zo21feXkSetSUF4np848F/8AuS0KtaM1V
+ cAl+UbgGDcMn7HXSyqtIoyTwrfuZv4MtFkNrFMz6Bp+AaOInEWuj5ipGfVvx22p4uCDoreOAcL
+ I3Q=
+X-IronPort-AV: E=Sophos;i="5.77,450,1596470400"; 
+   d="scan'208";a="151681621"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 04 Nov 2020 19:27:49 +0800
+IronPort-SDR: TitWE1GohEMEf5KuL7WjiCpdEO2BYg9NGtxaeGqcgqVNJ7Ao1CLxuu6yXbFoByIGfE+vrs8NaK
+ QhA5VvnZLyVpT0XOw4P/4fYDcc6gf2eDmq+dJwTWdDaaT8ihhu6Ku+iADfrgOMrbzssiavGtJI
+ B9FmMjUPKOR50yJiF1L8f7iPXTEgrrOpImb8tsjWkD3mdQYob81jMU5EpE2UBRoEEVSiMtKnFp
+ BCTxmZwmWxIgKe/WiNcnkESlXd0EEjOQc/bopTl5g+S3Gv54rYPERe2aF9aWxGts5GfCcPfmZt
+ tAI/kuM1o4pFVw0opVLKwQBs
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2020 03:13:58 -0800
+IronPort-SDR: Bjnktp3ke9q/2a9dbXBVdWErNQEwSoubgXtVTPUxJBMe19qTxl1wmzaGUoEY4RwNzHm3zdzj/n
+ UPOQJJmSXh7/E2yU8UpUJI47BynwB0d1/eOP87wj3/KxZp6ULDfFEdtzuF8cYpXu7HspZDSboo
+ l8QkG8R/CCiimA+vv1lBtJVUy8rCSftFGjyBNmt1+ywThMW2Gx9pnfobWnzJEcD9LajXdK2UxY
+ fh532IErwu5F4plYKRiSrcU+k52YI09FDEc7+egvWKzmZObKNQiwesz+UgfGtfNdMYvRUy2Y9z
+ Y/Y=
+WDCIronportException: Internal
+Received: from washi.fujisawa.hgst.com ([10.149.53.254])
+  by uls-op-cesaip02.wdc.com with ESMTP; 04 Nov 2020 03:27:49 -0800
+From:   Damien Le Moal <damien.lemoal@wdc.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, Kanchan Joshi <joshi.k@samsung.com>
+Subject: [PATCH 0/3] null_blk fixes for 5.9 stable
+Date:   Wed,  4 Nov 2020 20:27:44 +0900
+Message-Id: <20201104112747.182740-1-damien.lemoal@wdc.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201104095141.GA1673068@kroah.com>
+References: <20201104095141.GA1673068@kroah.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 4 Nov 2020 16:55:12 +0530
-Message-ID: <CA+G9fYu4RdH7zdd5MU=E-o+azMRx-EqR-7VYuJCUastKRd0KCA@mail.gmail.com>
-Subject: [stable-rc 4.14] shmctl04.c:115: TFAIL: SHM_INFO haven't returned a
- valid index: SUCCESS (0)
-To:     linux- stable <stable@vger.kernel.org>,
-        LTP List <ltp@lists.linux.it>, lkft-triage@lists.linaro.org
-Cc:     Li Wang <liwang@redhat.com>, Jan Stancek <jstancek@redhat.com>,
-        chrubis <chrubis@suse.cz>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LTP syscalls test shmctl04 test modified in latest LTP release 20200930
-and this test reported as fail. so reporting to LTP mailing list.
-Failed on stable-rc 4.14, 4.9 and 4.4 branches but
-passed on stable-rc 4.19, 5.4 and 5.9 branches for arm64, arm, x86_64 and i386.
+Greg,
 
-shmctl04.c:115: TFAIL: SHM_INFO haven't returned a valid index: SUCCESS (0)
-shmctl04.c:131: TFAIL: Counted used = 0, used_ids = 1
-shmctl04.c:72: TPASS: used_ids = 1
-shmctl04.c:79: TPASS: shm_rss = 0
-shmctl04.c:86: TPASS: shm_swp = 0
-shmctl04.c:93: TPASS: shm_tot = 1
+Here are three backported patches from this cycle for 5.9 stable. The
+upstream patches are:
+1) 35bc10b2eafbb701064b94f283b77c54d3304842
+2) f9c9104288da543cd64f186f9e2fba389f415630
+3) aa1c09cb65e2ed17cb8e652bc7ec84e0af1229eb
 
-Reported-by: Naresh Kamboju  <naresh.kamboju@linaro.org>
+Thanks.
 
-Test log link,
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.203-126-g8c25e7a92b2f/testrun/3392140/suite/ltp-syscalls-tests/test/shmctl04/log
+Damien Le Moal (2):
+  null_blk: Fix zone reset all tracing
+  null_blk: Fix locking in zoned mode
 
-kernel: 4.14.204-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.14.y
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.203-126-g8c25e7a92b2f
+Kanchan Joshi (1):
+  null_blk: synchronization fix for zoned device
+
+ drivers/block/null_blk.h       |   1 +
+ drivers/block/null_blk_zoned.c | 157 ++++++++++++++++++++++++---------
+ 2 files changed, 118 insertions(+), 40 deletions(-)
 
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+2.26.2
+
