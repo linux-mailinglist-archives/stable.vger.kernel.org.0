@@ -2,97 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B412A65DE
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:08:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 130BE2A661C
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:13:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729862AbgKDOIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 09:08:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41444 "EHLO
+        id S1730383AbgKDOMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 09:12:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726527AbgKDOIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 09:08:41 -0500
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3067CC0613D3;
-        Wed,  4 Nov 2020 06:08:41 -0800 (PST)
-Received: by mail-oi1-x243.google.com with SMTP id s21so22307164oij.0;
-        Wed, 04 Nov 2020 06:08:41 -0800 (PST)
+        with ESMTP id S1730254AbgKDOMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 09:12:33 -0500
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED19C0613D3
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 06:12:33 -0800 (PST)
+Received: by mail-ot1-x343.google.com with SMTP id j14so9182099ots.1
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 06:12:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=me+a+boQKuGKjUptE+3PxM1+LgvSbaKwHmzk9EGJZJc=;
-        b=eqf6AFFa7B0/GBwljCs4ksCbUInucf/LchmVPHk8pB+EZ3eFQ+UJhcXGpwdgL35jtq
-         SLWpmChg+T0M0Dv6mhWIjoPn/CyCyC/MwrBFZHBTeDgJuJqVel9dvxVWpoyp6xEA9lYY
-         QtBdovs+kMwOqid7GTIqkwdiDUeSe02aj92LcK6T6seRulvgs/6EJkyEVJ6ITz8zyxXj
-         PgNVKaUe/F9TrrZ1cmcUKaIcCHwP1UrO7wxkaMUX5pjU8Z8OcMybrcdqXMng5ZHn5+A/
-         DFNA4/4yXqtdJ7G7f7V4YP9Zkr0cuIWrnPaa3sf6FD287AxJdZkg0Lwi7pwtJO/k1uGU
-         DIcA==
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding:user-agent;
+        bh=AFgsI2Fs0+bSjY9RoPYsb4awI3yXVvnSdUAL+RBrIwk=;
+        b=iCbK+/04+AYQri+Nz5ehrRYEiA1vmLS+HrZNfyeXrBZuWFmeGyfCkIMNz96cDv0SY6
+         buyU0kyWizfZx7/zvoOxeQBw3lKUdNS/oaUp0B6aZg3ADbYSAiW7W475i/rECEI2k4+q
+         IhM/DMcTkKVoIAi3seX9Ug73qFKAgjksKhXc2TICPsQfO7k+iCWQdSyOGTnLFeW0U5cs
+         wOivL28fy2erzHvd9HF6eZwP1yIhyLLoLyAGCkT89ZkJQ4Mn2pvMMLUDAUh4EzgQDWVD
+         SJhEH2SABRPlzdR4mFJl5EtH9reAVxUlt3bIc98J8r0PCtz0UkHOvRf4I5vr/lBy4ae7
+         JNOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=me+a+boQKuGKjUptE+3PxM1+LgvSbaKwHmzk9EGJZJc=;
-        b=UzHMLggB7MIii0cbYR4h7dtPL/C/Krun7xW6iPB6oprdyr7LV0o2FckWPumoyvd9uF
-         2gvAxPHqE0Vqivtfnb0amWeNXHMJ3KnXjat+wwocS36sloaDfAm5Oa5Va8LvpLHpCsJc
-         XJ8kc2NNihofu8cn6CqMbbD83xT16PizLLYx1HSMN3R1oRWmnrDeTrGLbyYzh1QGsHUQ
-         ZKJ/6YFS5RWzvwD3IGLq0RqO/pANiGzvTQ5VdUJSyRDbFQCsU/fLHmLpmGlcfoAfQMI6
-         jFD0wj7nYO0GJfOXfckeM+ihHTsYELIXV4xek3qlJppwjJQ24mf5fqDebV4JgwdOAUop
-         pQOg==
-X-Gm-Message-State: AOAM532iViuJUHTETukggqj0B0BCOIxaRJx0QvNQeRXSYLkigvxwiGU2
-        a5Fx5nXQnB/J+i1m/+a1AQ0=
-X-Google-Smtp-Source: ABdhPJz+iXGrtx1WW2Efxquf4rm6qfPwgQZK0sw7FtTKPM3zAh7KMKPUwsBuc9950fWlvBXqxoufAg==
-X-Received: by 2002:aca:dd43:: with SMTP id u64mr2514893oig.90.1604498920641;
-        Wed, 04 Nov 2020 06:08:40 -0800 (PST)
+         :mime-version:content-disposition:content-transfer-encoding
+         :user-agent;
+        bh=AFgsI2Fs0+bSjY9RoPYsb4awI3yXVvnSdUAL+RBrIwk=;
+        b=IiaCziVfxw/NYZGhAq9mPy5BZfrwA7cJMg5lofAaQqlyQT06cSobNvmkA5vUq1cfCh
+         uYyTUDBxjtk7CqNT2UqbATnbl0uSdek0bT8Eb1DClxWmZ1BUiILY4fkOUfkFD47atvuE
+         o7xP0GW/V3Fs+a0Sg+u6V4CK90XF2S75hJVG9VY8u7B5zVb0eUCmElbNV5fkvhDlIflg
+         P7sOwwxYWz+UGXF72WIvAUdsUvpZ1Wcwk8iK8n6aQpDWNLv+ja4CtmLVV9zFjK/9fTJ1
+         zfVfD8N8z/q0OjhgcNNeqWGesDmBpwgZrC9oJ6lorHA1FsNuPp4/3xRgD0s4T6WI096i
+         cPwA==
+X-Gm-Message-State: AOAM530MKnZeOP7U3IFTrCULxtbBsUjwIUyAKF6JbTmUs4psYJDTg4Jd
+        cAe63aq4Eh4hCKzP83kY6RT/qsP/aXg=
+X-Google-Smtp-Source: ABdhPJy6hIFcY4cxl00UFRcbkp9UG3/Qsfd6AJhqiKlozyzieCdFWfkrZg1IJ+k+vcZgl7CvflSg/g==
+X-Received: by 2002:a05:6830:160f:: with SMTP id g15mr5415472otr.22.1604499152765;
+        Wed, 04 Nov 2020 06:12:32 -0800 (PST)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x13sm539647oot.24.2020.11.04.06.08.39
+        by smtp.gmail.com with ESMTPSA id x190sm467925oia.35.2020.11.04.06.12.31
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 04 Nov 2020 06:08:40 -0800 (PST)
+        Wed, 04 Nov 2020 06:12:31 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 4 Nov 2020 06:08:39 -0800
+Date:   Wed, 4 Nov 2020 06:12:30 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 000/125] 4.14.204-rc1 review
-Message-ID: <20201104140839.GB4312@roeck-us.net>
-References: <20201103203156.372184213@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org
+Subject: build failures in v4.4.y stable queue
+Message-ID: <20201104141230.GC4312@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201103203156.372184213@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 09:36:17PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.204 release.  There
-> are 125 patches in this series, all will be posted as a response to this one.
-> If anyone has any issues with these being applied, please let me know.
-> 
-> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.  Anything
-> received after that time might be too late.
-> 
-
-sparc32 images fail to build.
-
-Building sparc32:defconfig ... failed
+Building ia64:defconfig ... failed
 --------------
 Error log:
-In file included from arch/sparc/include/asm/io_32.h:14,
-                 from arch/sparc/include/asm/io.h:7,
-                 from include/linux/io.h:25,
-                 from include/linux/irq.h:25,
-                 from include/asm-generic/hardirq.h:13,
-                 from arch/sparc/include/asm/hardirq_32.h:11,
-                 from arch/sparc/include/asm/hardirq.h:7,
-                 from include/linux/hardirq.h:9,
-                 from include/linux/memcontrol.h:24,
-                 from include/linux/swap.h:9,
-                 from include/linux/suspend.h:5,
-                 from init/do_mounts.c:16:
-include/asm-generic/io.h: In function '__pci_ioport_unmap':
-include/asm-generic/io.h:900:2: error: implicit declaration of function 'iounmap'; did you mean 'vunmap'?
+drivers/acpi/numa.c: In function 'pxm_to_node':
+drivers/acpi/numa.c:49:43: error: 'numa_off' undeclared
+
+Building powerpc:defconfig ... failed
+--------------
+Error log:
+arch/powerpc/kvm/book3s_hv.c: In function ‘kvm_arch_vm_ioctl_hv’:
+arch/powerpc/kvm/book3s_hv.c:3161:7: error: implicit declaration of function ‘kvmhv_on_pseries’
 
 Guenter
