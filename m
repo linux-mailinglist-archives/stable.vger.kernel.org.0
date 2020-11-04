@@ -2,64 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44A082A605A
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 10:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D4702A605E
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 10:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbgKDJNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 04:13:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60700 "EHLO mail.kernel.org"
+        id S1726029AbgKDJOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 04:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728798AbgKDJNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 04:13:07 -0500
+        id S1726232AbgKDJON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Nov 2020 04:14:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 035EE2224E;
-        Wed,  4 Nov 2020 09:13:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224172224E;
+        Wed,  4 Nov 2020 09:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604481186;
-        bh=SWX47r+6xXPzUb4RPeSWoUuIKptK0qEtICRXc3wr+LA=;
+        s=default; t=1604481252;
+        bh=wG1/JDI8xT4zJlsqsWfdpIKDyQMh51fQnza8PVfD7oY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K3LscpjGtPxHKXVhTcbMp9vdAa/GREnCfXeSRsbBMX1BVOAhdJIY1g0n/ncygpKrX
-         S4Gq8vm2Pn2B1I2ZrX7e1naqI9TxSjRg8azYZra0IM1WAg32SWsIy58NkZa6DlVGAJ
-         FL2T6lciRXQVmmDm+FJdTPl6m98/9Kd8qcbmBWmg=
-Date:   Wed, 4 Nov 2020 10:13:57 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Costa Sapuntzakis <costa@purestorage.com>
-Cc:     stable@vger.kernel.org, Jan Kara <jack@suse.cz>
-Subject: Re: Fwd: remove ext4-fix-superblock-checksum-calculation-race.patch ?
-Message-ID: <20201104091357.GG1588160@kroah.com>
-References: <CAABuPhZKJncNoVb3-um8WTdyvffvcYqPKDUA_AcpmEZQrMshTg@mail.gmail.com>
- <CAABuPhZZG13uxa-NpiH1k1HbNYx2QDLEOLURsVnBmu8ynZcaig@mail.gmail.com>
- <20201103183028.GB83845@kroah.com>
- <CAABuPhb-mRsrFjPLeXaObbCEDQX0XWYFOO+xJVTcbQ1W2tqosw@mail.gmail.com>
+        b=DWEFJfU3rJwptMPN65SjnI7zdye+ybbgV1pdDgImp2EnNmlupsZAst8/bhx0V4iFm
+         KPiHVWTWdpIyu97j8qesPt3aX7nE7yQsCbYaH9Pk8VUfCJHDfetTDuoqetQp5+9n4S
+         QTt32tzAx7CV60Htl+wfO64h5ZC6is3kA4s0ilD0=
+Date:   Wed, 4 Nov 2020 10:15:02 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <damien.lemoal@wdc.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] null_blk: Fix zone reset all tracing
+Message-ID: <20201104091502.GA1646828@kroah.com>
+References: <16044134474538@kroah.com>
+ <20201104052914.156163-1-damien.lemoal@wdc.com>
+ <20201104091015.GD1588160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAABuPhb-mRsrFjPLeXaObbCEDQX0XWYFOO+xJVTcbQ1W2tqosw@mail.gmail.com>
+In-Reply-To: <20201104091015.GD1588160@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 12:45:24PM -0800, Costa Sapuntzakis wrote:
-> On Tue, Nov 3, 2020 at 10:30 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Nov 03, 2020 at 09:24:57AM -0800, Costa Sapuntzakis wrote:
-> > > syzbot found https://syzkaller.appspot.com/bug?extid=7a4ba6a239b91a126c28
-> > > which shows we can try to sleep under a spinlock in an error path.
-> >
-> > Do you have a patch for this?
+On Wed, Nov 04, 2020 at 10:10:15AM +0100, Greg Kroah-Hartman wrote:
+> On Wed, Nov 04, 2020 at 02:29:14PM +0900, Damien Le Moal wrote:
+> > commit f9c9104288da543cd64f186f9e2fba389f415630 upstream.
+> > 
+> > In the cae of the REQ_OP_ZONE_RESET_ALL operation, the command sector is
+> > ignored and the operation is applied to all sequential zones. For these
+> > commands, tracing the effect of the command using the command sector to
+> > determine the target zone is thus incorrect.
+> > 
+> > Fix null_zone_mgmt() zone condition tracing in the case of
+> > REQ_OP_ZONE_RESET_ALL to apply tracing to all sequential zones that are
+> > not already empty.
+> > 
+> > Fixes: 766c3297d7e1 ("null_blk: add trace in null_blk_zoned.c")
+> > Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > ---
+> >  drivers/block/null_blk_zoned.c | 14 ++++++++------
+> >  1 file changed, 8 insertions(+), 6 deletions(-)
 > 
-> Sorry, I put too much in the subject. I received e-mail this morning
-> (Pacific Standard Time) that
-> ext4-fix-superblock-checksum-calculation-race.patch had been
-> incorporated into various stable branches. Yesterday, I received an
-> e-mail from Hillf Danton (hdanton@sina.com) that syzbot had found a
-> bug in the patch.
-> 
-> Hillf Danton (hdanton@sina.com) has made a patch for the patch and it
-> is being reviewed.
+> Now queued up, thanks.
 
-Ah, ok, that makes more sense, now dropped from everywhere, thanks.
+Wait, no, I'll delay this one until the next round as it's not fixing
+something introduced in this -rc series.
+
+thanks,
 
 greg k-h
