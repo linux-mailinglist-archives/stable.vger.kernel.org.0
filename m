@@ -2,100 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFDC52A6E73
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 21:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78EEE2A6EA9
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 21:23:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731188AbgKDUCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 15:02:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
+        id S1729633AbgKDUXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 15:23:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730362AbgKDUCA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 15:02:00 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A08C0613D3
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 12:02:00 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id 62so10194546pgg.12
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 12:02:00 -0800 (PST)
+        with ESMTP id S1728305AbgKDUXI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 15:23:08 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC37C0613D3
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 12:23:06 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id o129so18270054pfb.1
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 12:23:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=HHg6h1ERO0ScMr8situW2RPYUOFCcCJTf0E9ld3a4hM=;
-        b=xd2RynXfViVLdrYELeLgJAHfCDrUSWXuu2W2XQtxfKC+ssLRpixaQZ/Ubdkf8olmM9
-         7u5Im6pdBwwYBYFcOyDDBFn18wFyTodVl7YFM2EZ4DBFAHB0bjtYZBOW2gA7ZLRdP/gW
-         aYMHXS4MWhmRzGP5mAr6+rTBfdnlXnODocl6SkcSmzTwiHor+u5rPd0lacY6JNeRG+Cc
-         rIDdZ8LVeJPLz01wzadXXBu5fM/yACvTMxHgYdHizlp2nDM0CMwl5J8CToOc7I1q8MGm
-         k1QGTMNcR0WCdHI04z6Dw8mi7ZxOjrrMIuyhCUy/0IOXbxxebXejcBpcTfOS3kthDsPB
-         izlA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=K54fGc6yxzxQTKIxCj3++9MPiq4707GD/NRgA6eW+Xo=;
+        b=IQVz16w6MKEYfCVOCbMQZZa1UnvFWukzsFexV45SoPDKlyzS4TjL821prMkYhZR1S/
+         JQhppDGMeNd3IzHBs2eMigR6m89bRRtotsvdD6V2s9IzanS97TzVOhpQ0wt/6pWUPRD3
+         9bgC4/X5crmVn3OxLs3GWALAJoMeXBVqPqWcYRwQFnt79eY9qSGnOvsJKXVOSLFoIHVS
+         7p5SCTReINPQwoX0uJXb+m7xRgsFh2duRsYXmUT9JdeTsMwxyqZW3bSiahhMZ9MhGELN
+         kuhbC8QPpI8/uJTcFMCiI8nfSr+uZQQuZzTGpYWCc8/IqdJnjWuMjMFesmbfRJZSc0gx
+         IPrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=HHg6h1ERO0ScMr8situW2RPYUOFCcCJTf0E9ld3a4hM=;
-        b=KQhl8IQWR/A+o+5Dv8wD1bMXDBBI8MAY/wR5kYrELvKvZainmpgvwM1DOFb4JzGqOL
-         /z0QlNn95foj02iEWgiuWHOR0SM9DqDtJ/mmx+5MLRlfkshRlOoYC2FObPK6V5cFMREe
-         86THOEvvjcYA6TFtI26ucFYNdHkoze1ny/0PYF06DrV4vtouZ1GwwKvpVh3RV21qQQgr
-         BJyEhwyiDflKQnYECUqH1aA4ka7tJVkce8kci4LW70IsHWYmBLHuUj+8tbfZkx1dKmdA
-         EzZmNx3sY1AMtHHUYkVTpqKfA27M5VQItnnH4VMxsXc/tLaKy4CY5wrnyobQJAB9zjEm
-         Es1A==
-X-Gm-Message-State: AOAM530WPZSBlGOSepVU4iJ+q/D3s7U4AS4Cm4wOaYPwzGfroVV5KCB5
-        H1xBt9dsOYd5En1aSywi/3465g==
-X-Google-Smtp-Source: ABdhPJwkU50qSyiBRlsGklQLZ1nWj9sW9Ne2CdsjCQFLHULeoJAmQzGXz22Pg2MPGxdc05stn8bsaQ==
-X-Received: by 2002:a63:1805:: with SMTP id y5mr22302367pgl.174.1604520120080;
-        Wed, 04 Nov 2020 12:02:00 -0800 (PST)
-Received: from debian ([171.61.236.158])
-        by smtp.gmail.com with ESMTPSA id k26sm3272276pfg.8.2020.11.04.12.01.56
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=K54fGc6yxzxQTKIxCj3++9MPiq4707GD/NRgA6eW+Xo=;
+        b=UlvXMg7Pn0DS25nPt7uIbfW74iRgHcfn8P9R1JXGyrCL6qXiDi6X5SlrhyQInPnUc3
+         FopOBlfg9XWDREJ3kkKyT9Kn/ASg0trMv0f2x/YIotqZWlnbPOSBULO76hTnjiH89PQ4
+         mqEw3Dt4Eq5WoiqCTxm3kRoa+z5b1Za11Quj+U9iSaYSitdCKVNpiuOnUc3lvabFTCBS
+         OLLaLD+Q/2Yivc/ZKAG3Vf5s/+f7VsQaMlX0kU9MF9nXz0sfAhZw7omiA+1+lGMEjwKE
+         LLKB8Xt460Bpp2/cZXaq29OCokTfrB+EKrdi+QhPLmHcMyWhMdwz7PTI2aERe40o/Pjx
+         xoYg==
+X-Gm-Message-State: AOAM532fNRinpeUIl1KleVuA/kheejw3ZPoyLG7gMP7O3ISwTazo9CYi
+        wzGVK4+nntNs4i6SLKjgrmt1RNgaO/R2gw==
+X-Google-Smtp-Source: ABdhPJxpjz0DfiEDE2qaI/ma8XBudsYB/g0CCKFA45SgFCYPBD8vcyjZ9jIg0q7W1CvferiKYhwEEQ==
+X-Received: by 2002:a62:ed0d:0:b029:18b:78d:626 with SMTP id u13-20020a62ed0d0000b029018b078d0626mr14370798pfh.15.1604521385982;
+        Wed, 04 Nov 2020 12:23:05 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a23sm3104129pgv.35.2020.11.04.12.23.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 12:01:59 -0800 (PST)
-Message-ID: <9669c90b893a548f4cdb0fd29f1385f20a488024.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.9 000/391] 5.9.4-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Date:   Thu, 05 Nov 2020 01:31:50 +0530
-In-Reply-To: <20201103203348.153465465@linuxfoundation.org>
-References: <20201103203348.153465465@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.4-2 
+        Wed, 04 Nov 2020 12:23:05 -0800 (PST)
+Message-ID: <5fa30da9.1c69fb81.716ec.720d@mx.google.com>
+Date:   Wed, 04 Nov 2020 12:23:05 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.241-91-g387309f11ff9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 151 runs,
+ 2 regressions (v4.9.241-91-g387309f11ff9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-11-03 at 21:30 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.9.4 release.
-> There are 391 patches in this series, all will be posted as a
-> response
-> to this one.  If anyone has any issues with these being applied,
-> please
-> let me know.
-> 
-> Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	
-> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> stable-rc.git linux-5.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/4.9 baseline: 151 runs, 2 regressions (v4.9.241-91-g387309f=
+11ff9)
 
-Compiled and booted 5.9.4-rc1+ . No typical dmesg regressions.
+Regressions Summary
+-------------------
+
+platform              | arch | lab           | compiler | defconfig        =
+   | regressions
+----------------------+------+---------------+----------+------------------=
+---+------------
+at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
+   | 1          =
+
+panda                 | arm  | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
 
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.241-91-g387309f11ff9/plan/baseline/
 
--- 
-software engineer
-rajagiri school of engineering and technology  - autonomous
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.241-91-g387309f11ff9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      387309f11ff9ea1b48d9a54709e1bc32ac46ef8b =
 
 
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab           | compiler | defconfig        =
+   | regressions
+----------------------+------+---------------+----------+------------------=
+---+------------
+at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa2da64e61e9e4488fb5318
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
+1-g387309f11ff9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
+4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
+1-g387309f11ff9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
+4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa2da65e61e9e4488fb5=
+319
+        failing since 6 days (last pass: v4.9.240-139-gd719c4ad8056, first =
+fail: v4.9.240-139-g65bd9a74252c) =
+
+ =
+
+
+
+platform              | arch | lab           | compiler | defconfig        =
+   | regressions
+----------------------+------+---------------+----------+------------------=
+---+------------
+panda                 | arm  | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa2d9a5704ddecee5fb5341
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
+1-g387309f11ff9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
+1-g387309f11ff9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa2d9a5704ddec=
+ee5fb5348
+        new failure (last pass: v4.9.241-91-g303dfca2bd68)
+        2 lines =
+
+ =20
