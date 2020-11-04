@@ -2,139 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C7EF2A6929
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 17:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E6132A693C
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 17:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728949AbgKDQLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 11:11:49 -0500
-Received: from foss.arm.com ([217.140.110.172]:39538 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728683AbgKDQLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 11:11:49 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F0BB139F;
-        Wed,  4 Nov 2020 08:11:48 -0800 (PST)
-Received: from arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A41E03F718;
-        Wed,  4 Nov 2020 08:11:47 -0800 (PST)
-Date:   Wed, 4 Nov 2020 16:11:44 +0000
-From:   Dave Martin <Dave.Martin@arm.com>
-To:     Andrew Jones <drjones@redhat.com>
-Cc:     maz@kernel.org, xu910121@sina.com, kvmarm@lists.cs.columbia.edu,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] KVM: arm64: Don't hide ID registers from userspace
-Message-ID: <20201104161142.GA6882@arm.com>
-References: <20201102185037.49248-1-drjones@redhat.com>
- <20201102185037.49248-2-drjones@redhat.com>
- <20201103111816.GG6882@arm.com>
- <20201103133215.rfgjcv6fvh4rgzdg@kamzik.brq.redhat.com>
+        id S1730567AbgKDQQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 11:16:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730530AbgKDQQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 11:16:06 -0500
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD123C0613D4
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 08:16:04 -0800 (PST)
+Received: by mail-oi1-x241.google.com with SMTP id m13so13634030oih.8
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 08:16:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vm2j+unua9jSWcYY0s5yNfN1HsGYkAhPRJxO+bukzZY=;
+        b=uMO+82cqhLHaEZwDXvt5x1TzD1NweYoMzb2LGHJwLw31P5LfsxNbSjRYNC8YkWAWc0
+         wqutSR1tLF55njbugfpXXxPAnZ8MIxIMlNSKKMAbY0F9uR3z29yNnqjy938w8gLWeu9o
+         wUHtqvmkVVhxQ/cNqLCDYtP7PQHNrlZp+jM8k94u280hVblvlcvNeKK6hHr4N/8aeElh
+         PqrcgA2doKiqiRSwvxyoQ/zbL2+w//FaDWYqSL1K+Pm8RYtubV0GS4tK+UWPHeWowpxg
+         B/J4+ar4+/MnQGAY6stAOlnYueMMA/xHrJOblnGR4U8skXI6me60OMSSgA0usOlkT9/i
+         HD4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vm2j+unua9jSWcYY0s5yNfN1HsGYkAhPRJxO+bukzZY=;
+        b=sQVw23y2Uk7Z8hvNJr1rIKCAf89OpI8kTMwUFMdDQGiPADmpMYMTTioGXufLR2huw/
+         4WBVpsxQ2z5haDjAg0k4CdrkyuUIP+SFIRVU+V7m36tK4ps7YIdG4LqLZS9EX4zvNZcJ
+         dJYP0fR8k+qHyCMO2uWAMK5l0Koq0zxSf96Zi0jG3xurHnkki9f8ocil+8FWopQ6zH+k
+         /+X30iZFFy32Ixbbb2C/6cB5RjDxO8bIdl/gLCHlYI7DmqpHU5C2444wMNwAZcAIzAEl
+         6ss3ZOnfT0mhCCjQaJMZopcsriqS+GEwIW30gIZaFF34R8jALnt1t2og2VHoL+f7PWPX
+         H0wQ==
+X-Gm-Message-State: AOAM533Ln15JN/wqH2ktge8RLT3osZQef9vaxW49q83zjke4P8b9ppPS
+        8aIHjrwwixIh41m461JlxMut2Q==
+X-Google-Smtp-Source: ABdhPJzLBsgz6GvVtHYFKPCzrAidieJH68623rW6bm6uqqwdU+ctjSXbvo+MrfHkHDLUKL5JA03cNg==
+X-Received: by 2002:aca:d6d3:: with SMTP id n202mr2897215oig.74.1604506564180;
+        Wed, 04 Nov 2020 08:16:04 -0800 (PST)
+Received: from localhost.localdomain (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
+        by smtp.gmail.com with ESMTPSA id w79sm544253oia.28.2020.11.04.08.16.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2020 08:16:03 -0800 (PST)
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Siddharth Gupta <sidgup@codeaurora.org>
+Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] remoteproc: sysmon: Ensure remote notification ordering
+Date:   Wed,  4 Nov 2020 08:16:25 -0800
+Message-Id: <20201104161625.1085981-1-bjorn.andersson@linaro.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201103133215.rfgjcv6fvh4rgzdg@kamzik.brq.redhat.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 02:32:15PM +0100, Andrew Jones wrote:
-> On Tue, Nov 03, 2020 at 11:18:19AM +0000, Dave Martin wrote:
-> > On Mon, Nov 02, 2020 at 07:50:35PM +0100, Andrew Jones wrote:
-> > > ID registers are RAZ until they've been allocated a purpose, but
-> > > that doesn't mean they should be removed from the KVM_GET_REG_LIST
-> > > list. So far we only have one register, SYS_ID_AA64ZFR0_EL1, that
-> > > is hidden from userspace when its function is not present. Removing
-> > > the userspace visibility checks is enough to reexpose it, as it
-> > > already behaves as RAZ when the function is not present.
-> > 
-> > Pleae state what the patch does.  (The subject line serves as a summary
-> > of that, but the commit message should make sense without it.)
-> 
-> I don't like "This patch ..." type of sentences in the commit message,
-> but unless you have a better suggestion, then I'd just add a sentence
-> like
-> 
-> "This patch ensures we still expose sysreg '3, 0, 0, 4, 4'
-> (ID_AA64ZFR0_EL1) to userspace as RAZ when SVE is not implemented."
+The reliance on the remoteproc's state for determining when to send
+sysmon notifications to a remote processor is racy with regard to
+concurrent remoteproc operations.
 
-I'm not sure the sysreg encoding number is really needed.
-submitting-patches.rst also says such statements should be in the
-imperative.  Why not delete the "Removing the userspace visibility
-checks..." sentence above and writing:
+Further more the advertisement of the state of other remote processor to
+a newly started remote processor might not only send the wrong state,
+but might result in a stream of state changes that are out of order.
 
-	Expose ID_AA64ZFR0_EL1 to userspace as RAZ when SVE is not
-	implemented.
+Address this by introducing state tracking within the sysmon instances
+themselves and extend the locking to ensure that the notifications are
+consistent with this state.
 
-	Removing the userspace visibility checks is enough to reexpose it,
-	as it already behaves as RAZ for the guest when SVE is not present.
+The use of a big lock for all instances will cause contention for
+concurrent remote processor state transitions, but the correctness of
+the remote processors' view of their peers is more important.
 
-(The background to this gripe is that "traditional" mailers may invoke a
-standalone editor on the message body when composing reply, so the
-subject line may not be visible...)
+Fixes: 1f36ab3f6e3b ("remoteproc: sysmon: Inform current rproc about all active rprocs")
+Fixes: 1877f54f75ad ("remoteproc: sysmon: Add notifications for events")
+Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+ drivers/remoteproc/qcom_sysmon.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-> 
-> > 
-> > Also, how exactly !vcpu_has_sve() causes ID_AA64ZFR0_EL1 to behave as
-> > RAZ with this change?  (I'm not saying it doesn't, but the code is not
-> > trivial to follow...)
-> 
-> guest_id_aa64zfr0_el1() returns zero for the register when !vcpu_has_sve(),
-> and all the accessors (userspace and guest) build on it.
-> 
-> I'm not sure how helpful it would be to add that sentence to the commit
-> message though.
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index 9eb2f6bccea6..1e507b66354a 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -22,6 +22,8 @@ struct qcom_sysmon {
+ 	struct rproc_subdev subdev;
+ 	struct rproc *rproc;
+ 
++	int state;
++
+ 	struct list_head node;
+ 
+ 	const char *name;
+@@ -448,7 +450,10 @@ static int sysmon_prepare(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_POWERUP
+ 	};
+ 
++	mutex_lock(&sysmon_lock);
++	sysmon->state = SSCTL_SSR_EVENT_BEFORE_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon_lock);
+ 
+ 	return 0;
+ }
+@@ -472,15 +477,16 @@ static int sysmon_start(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
+ 	};
+ 
++	mutex_lock(&sysmon_lock);
++	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
+ 
+-	mutex_lock(&sysmon_lock);
+ 	list_for_each_entry(target, &sysmon_list, node) {
+-		if (target == sysmon ||
+-		    target->rproc->state != RPROC_RUNNING)
++		if (target == sysmon)
+ 			continue;
+ 
+ 		event.subsys_name = target->name;
++		event.ssr_event = target->state;
+ 
+ 		if (sysmon->ssctl_version == 2)
+ 			ssctl_send_event(sysmon, &event);
+@@ -500,7 +506,10 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
+ 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN
+ 	};
+ 
++	mutex_lock(&sysmon_lock);
++	sysmon->state = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon_lock);
+ 
+ 	/* Don't request graceful shutdown if we've crashed */
+ 	if (crashed)
+@@ -521,7 +530,10 @@ static void sysmon_unprepare(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_SHUTDOWN
+ 	};
+ 
++	mutex_lock(&sysmon_lock);
++	sysmon->state = SSCTL_SSR_EVENT_AFTER_SHUTDOWN;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon_lock);
+ }
+ 
+ /**
+@@ -538,7 +550,7 @@ static int sysmon_notify(struct notifier_block *nb, unsigned long event,
+ 	struct sysmon_event *sysmon_event = data;
+ 
+ 	/* Skip non-running rprocs and the originating instance */
+-	if (rproc->state != RPROC_RUNNING ||
++	if (sysmon->state != SSCTL_SSR_EVENT_AFTER_POWERUP ||
+ 	    !strcmp(sysmon_event->subsys_name, sysmon->name)) {
+ 		dev_dbg(sysmon->dev, "not notifying %s\n", sysmon->name);
+ 		return NOTIFY_DONE;
+-- 
+2.28.0
 
-No worries, I don't think you need to add anthing.  I figured out how
-this works after my previously reply, so you can put my question down to
-me being slow on the uptake...
-
-> 
-> > 
-> > > 
-> > > Fixes: 73433762fcae ("KVM: arm64/sve: System register context switch and access support")
-> > > Cc: <stable@vger.kernel.org> # v5.2+
-> > > Reported-by: 张东旭 <xu910121@sina.com>
-> > > Signed-off-by: Andrew Jones <drjones@redhat.com>
-> > > ---
-> > >  arch/arm64/kvm/sys_regs.c | 18 +-----------------
-> > >  1 file changed, 1 insertion(+), 17 deletions(-)
-> > > 
-> > > diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-> > > index fb12d3ef423a..6ff0c15531ca 100644
-> > > --- a/arch/arm64/kvm/sys_regs.c
-> > > +++ b/arch/arm64/kvm/sys_regs.c
-> > > @@ -1195,16 +1195,6 @@ static unsigned int sve_visibility(const struct kvm_vcpu *vcpu,
-> > >  	return REG_HIDDEN_USER | REG_HIDDEN_GUEST;
-> > >  }
-> > >  
-> > > -/* Visibility overrides for SVE-specific ID registers */
-> > > -static unsigned int sve_id_visibility(const struct kvm_vcpu *vcpu,
-> > > -				      const struct sys_reg_desc *rd)
-> > > -{
-> > > -	if (vcpu_has_sve(vcpu))
-> > > -		return 0;
-> > > -
-> > > -	return REG_HIDDEN_USER;
-> > 
-> > In light of this change, I think that REG_HIDDEN_GUEST and
-> > REG_HIDDEN_USER are always either both set or both clear.  Given the
-> > discussion on this issue, I'm thinking it probably doesn't even make
-> > sense for these to be independent (?)
-> > 
-> > If REG_HIDDEN_USER is really redundant, I suggest stripping it out and
-> > simplifying the code appropriately.
-> > 
-> > (In effect, I think your RAZ flag will do correctly what REG_HIDDEN_USER
-> > was trying to achieve.)
-> 
-> We could consolidate REG_HIDDEN_GUEST and REG_HIDDEN_USER into REG_HIDDEN,
-> which ZCR_EL1 and ptrauth registers will still use.
-
-Sounds good to me.  Getting rid of _both_ the old names well help avoid
-accidents too.
-
-[...]
-
-Cheers
----Dave
