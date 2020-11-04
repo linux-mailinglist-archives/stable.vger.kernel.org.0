@@ -2,83 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 638292A6659
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0172A6661
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 15:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726706AbgKDO2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 09:28:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41918 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726636AbgKDO2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Nov 2020 09:28:08 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDE85206E3;
-        Wed,  4 Nov 2020 14:28:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604500087;
-        bh=VK01esNG6Gi3qrzThiZjiJRVQlJVdU/tFUBbGdDni1s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IhZ6/JAcmdSJTOcuvSUYlWChLXI8DNAl4R8WycU8DOQhKYnb15UAi9bnopXHPOpLQ
-         /sg9n135oV6vaV3Oz9E+exvrafw0jbJCWVKRS+XlyKR/uqu4obeJtmvGM29dS/muSi
-         wYlhdYRX2se0IDOAPhPwkQlJ3pmoDpwd+DLH1NJ8=
-Date:   Wed, 4 Nov 2020 15:28:58 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/214] 5.4.75-rc1 review
-Message-ID: <20201104142858.GA2202359@kroah.com>
-References: <20201103203249.448706377@linuxfoundation.org>
- <20201104140754.GA4312@roeck-us.net>
+        id S1726843AbgKDOar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 09:30:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44926 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726729AbgKDOar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 09:30:47 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AF7C0613D3
+        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 06:30:47 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id x13so17406182pfa.9
+        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 06:30:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=U4MpteavQvuDJe1f2YplTJ4/FEtkFb5B4GahR7mckPg=;
+        b=N9cNJM8ql6k8LsM9oZU2ELEUCNqrJFNFdtKEhzxBIyj8MmF3c4okmWRT6dts9BBzwM
+         d6g5kqHffrDSWlH50RwRehu3Hw255o834u5lIKIAKhI7So+kOTSefGT0dxwIWwEVEzPs
+         c1IQ9j9xBXyrAAho20YbomqJI+rEpZAzOWCLEBWgLVNPL+RtxEjz8cN4OX+ntuuRCYrM
+         KfX2swJGFBX231S2oF8aGQBcS8bjjlP9pz5/aigc5I/G+yfgrorMcFFj95JTFNfd5A6w
+         LfsHfSF4qbtAiDmxGzrJOlRDdoG8YC0TOPayObQlX9/wIYop55fSeFhDvfzRu/+on6/a
+         pkDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=U4MpteavQvuDJe1f2YplTJ4/FEtkFb5B4GahR7mckPg=;
+        b=Ql6+QGUjfD9Pct198Lh91+WJIyS1K9IE55Jv0/VLajruqSzhJ8OpMsEK4VSa87gHZ6
+         QMEdlvNzqw02Ei7hIM29AX2rjBoV4Iwf0CKTjXMc2/bDGukS3e4/1zAS7t0tZr5E+zjU
+         6ihpoM5o4TOy0M3v3OrXWASXk1tN7vegcg5aC1+tC+lznncMi9MyMsmyCXgjPGgqyxvW
+         vnNNnp4bLFrOvb0DOQNOu3uU02M1PhcT1MwmpMbFHRkNfABRJbCrH6YtugJD+cxEiLye
+         JkHmMu7fPWYf34FCx5YwuKcb5QRhKCCx2hvC0qJPnYU/dbjtZ9fkJsKsJ+YYPpVU3keE
+         ACzQ==
+X-Gm-Message-State: AOAM533eVccg4TbdbskChCAfiz6LOmpHhWbhdqgU7QbYrkq7n0o9k0fR
+        BvuJPqK+YqAhN41+uSdf05rFH5CKhQ0Eew==
+X-Google-Smtp-Source: ABdhPJxG0ZUyKUn/VD9QW4RNZgVZQGuZMJrD6MgYQAx3zE657eS8PbBE8exaXcezudnPgQkHe3o2HQ==
+X-Received: by 2002:a17:90a:8802:: with SMTP id s2mr4369974pjn.149.1604500246666;
+        Wed, 04 Nov 2020 06:30:46 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s22sm2510756pfu.119.2020.11.04.06.30.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2020 06:30:45 -0800 (PST)
+Message-ID: <5fa2bb15.1c69fb81.3ccd5.5c7e@mx.google.com>
+Date:   Wed, 04 Nov 2020 06:30:45 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201104140754.GA4312@roeck-us.net>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.8.18-149-gcf1626b0f42c
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.8
+Subject: stable-rc/queue/5.8 baseline: 214 runs,
+ 1 regressions (v5.8.18-149-gcf1626b0f42c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 04, 2020 at 06:07:54AM -0800, Guenter Roeck wrote:
-> On Tue, Nov 03, 2020 at 09:34:08PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.75 release.
-> > There are 214 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 05 Nov 2020 20:29:58 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> All sparc images fail to build.
-> 
-> Building sparc32:defconfig ... failed
-> --------------
-> Error log:
-> <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-> In file included from arch/sparc/include/asm/io_32.h:14,
->                  from arch/sparc/include/asm/io.h:7,
->                  from include/linux/io.h:13,
->                  from include/linux/irq.h:20,
->                  from include/asm-generic/hardirq.h:13,
->                  from arch/sparc/include/asm/hardirq_32.h:11,
->                  from arch/sparc/include/asm/hardirq.h:7,
->                  from include/linux/hardirq.h:9,
->                  from include/linux/interrupt.h:11,
->                  from include/linux/kernel_stat.h:9,
->                  from arch/sparc/kernel/irq_32.c:15:
-> include/asm-generic/io.h: In function '__pci_ioport_unmap':
-> include/asm-generic/io.h:1012:2: error: implicit declaration of function 'iounmap'; did you mean 'ioremap'?
+stable-rc/queue/5.8 baseline: 214 runs, 1 regressions (v5.8.18-149-gcf1626b=
+0f42c)
 
-Thanks, I'll go drop f5810e5c3292 ("asm-generic/io.h: Fix
-!CONFIG_GENERIC_IOMAP pci_iounmap() implementation") which seems to be
-causing this.
+Regressions Summary
+-------------------
 
-Sasha, any reason you only added it to the 5.4 and 4.14 queues and not
-5.9 and 4.19?
+platform        | arch | lab          | compiler | defconfig          | reg=
+ressions
+----------------+------+--------------+----------+--------------------+----=
+--------
+stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
+        =
 
-thanks,
 
-greg k-h
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
+el/v5.8.18-149-gcf1626b0f42c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.8
+  Describe: v5.8.18-149-gcf1626b0f42c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cf1626b0f42c7912da1fb20ae30d763ea1cd5a9a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab          | compiler | defconfig          | reg=
+ressions
+----------------+------+--------------+----------+--------------------+----=
+--------
+stm32mp157c-dk2 | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa288891b3c46e52dfb532f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-14=
+9-gcf1626b0f42c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
+57c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-14=
+9-gcf1626b0f42c/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp1=
+57c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa288891b3c46e52dfb5=
+330
+        failing since 9 days (last pass: v5.8.16-78-g480e444094c4, first fa=
+il: v5.8.16-626-g41d0d5713799) =
+
+ =20
