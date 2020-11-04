@@ -2,234 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F26A2A5D4A
-	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 05:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E56A52A5D5C
+	for <lists+stable@lfdr.de>; Wed,  4 Nov 2020 05:29:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbgKDEQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Nov 2020 23:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34916 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726008AbgKDEQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 23:16:29 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C813AC061A4D
-        for <stable@vger.kernel.org>; Tue,  3 Nov 2020 20:16:29 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id z3so808400pfb.10
-        for <stable@vger.kernel.org>; Tue, 03 Nov 2020 20:16:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bwigaYZTwkry5wDKbz2B6lIRJ9jPEyLYkHj3Gj0lMsI=;
-        b=WymwUM9HSgzm7IETNKSs3673GSJWj3hCH4jGdCTEq7sPC9Zch1Decs0JB7DKc6uGBp
-         p9LvamizDW2FXrYI/C5A51QxNLz3n4GPmrww8KihivH9GmDc4vuXf5NIH5Q1w2/1tzJm
-         BkTvz5MZmDtDopS0CJB1IRlbdZM4ZOG6NvRZ0QoMUyS0swUFwmhucwkRQbXRu1badMuj
-         KQM+MnJk0Op2CN9Yq9Xq2uaARFoo/Zte5OBJC0qGE22XZojcE9/A/gwoS0QsrNUf5rIx
-         +NuXfENR/MYbpIV1Ne13VZgz6M3VFXKiZfEs0g86SSQyqkEe2BjFKxCktsKfcYjkaeYy
-         emag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bwigaYZTwkry5wDKbz2B6lIRJ9jPEyLYkHj3Gj0lMsI=;
-        b=ou8hvTNszPdP4IJrVO+aO1FtmNN+CggceKytAxhtIieynAzovs4EjiiYdNNfj1y0Dz
-         kNoz4rBtc10PrFgOgj3CHg9j5sQ1pZO8BY94wzKhmqiZqugxF1LEjtm8h/2ks3wHKkcl
-         hMoPQsHwVdt1uoO0/f+K8RgMstyvu4Ae0xjSaq5q0cnGCr5cgEG3tTf8ParnuOCBtc0J
-         fjfCi5/BsyhQUPtq7mharHsGbTCVr0i69nKgQ106R8US5oC4Us2MKWcpZjSgfkJbceIW
-         P7nGNtWLqqZwa9hpJjez4Hdu84Has1p/sRK+oU2LUsiNPt4/MrQwNyaIYZRJ+FP6PA6r
-         q2VA==
-X-Gm-Message-State: AOAM5334cVezsbWZ4GOkmIa3yZRGp4htKZUDkXiznW1Mk9LMacIhzgPj
-        +zVGrLkR9Kc1Z/rfK6jgRrpfeTug/3PP6A==
-X-Google-Smtp-Source: ABdhPJwARBmWYWCNFhzred2TosisIlO22ETmPjTXs0PbDj1rmhQTdBrq+0kfSdPBXdmlp93eini+rQ==
-X-Received: by 2002:a63:3c1b:: with SMTP id j27mr12791889pga.79.1604463388976;
-        Tue, 03 Nov 2020 20:16:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w10sm604452pjy.57.2020.11.03.20.16.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 20:16:28 -0800 (PST)
-Message-ID: <5fa22b1c.1c69fb81.f04ee.2511@mx.google.com>
-Date:   Tue, 03 Nov 2020 20:16:28 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728565AbgKDE3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Nov 2020 23:29:52 -0500
+Received: from sonic317-16.consmr.mail.ne1.yahoo.com ([66.163.184.235]:42774
+        "EHLO sonic317-16.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727385AbgKDE3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Nov 2020 23:29:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604464189; bh=NenO61agpJ8GjWgLE09biO1/EgCvBbxxddNwbDZctnU=; h=Date:From:Reply-To:Subject:References:From:Subject; b=iuZm/H9b/8P+Q2TGtFW225bfQ+5Pk9Gw0oWJuGquwDa1ygPWTrCrE6ayBAkSDNan1yGJJ0MIL8qyw3pdwROPR5bEiGGOQKknhyGP8YrjnCw3zRbT60uZfgCs/8yXhj3nTn0EUUFU449j5uoQhoOflU/hl3LyWJOm0jdLYlkXhz6Kg6j3ibDPJDMZxEA2ceC/83Doq/59/6jqqXOYzCwd6AnsuvTA35nmOw4arVZfC7LtJJOGXxNivhwgLnPnZU9Z9LCK4QveA5/YgO0Y2AEsw//eEmWLVrsUJ0uxm4emAZPSjSJomCB3ya8Rfz/ZVAdoNJsBo2menwenI5co66SvFw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604464189; bh=YHfkD8ZUjBzB3NhIg5L6lpgmzWQKwlluqHn99VXNLpY=; h=Date:From:Subject; b=MOWepNdX8W4BcQn+xxBKkCZt69yORZOzGTpoi1oNOCjYczmBpUkRZKJsJ/YVG9RZHkUrzdNE2zPOA2yhtuMhROgSUJC5KEAShJw84U0XdfenG1hPUC9sgN0o/UWgPv38aX+9D6TAqb2+w5NF4yXKBFRWIJQ6SyaSytSOonAPwe8UI6L8+xGYEEhG5iF037kq3UJzS3iwCtHUHtE7VBri+52v253EQkyfOj1s1tVcI9DE7z9+5gYUBuK3zaOGuYGq16GEAANhqKPY2IY8KxoKs+59ASCY2RQSI7rwD1O2NcxNlMzoFYMQDsxbXunrym4rW19n09sFsMgUzs26H/5g6Q==
+X-YMail-OSG: .h6_abIVM1mQ_8uBYSRIYBwv3mUlenN.zf0.OY3hlCT.X8jWMzAx85ZjPTGJYVh
+ Q7UFWAj0v8m6a9PjiFbw3Hp4KwdgnWsA7_WXQt3VrLnbtiZHB7biZbgaNSRcqbXlttWb_eMt70IF
+ GopZVa2V3lJWn3NO3HorzeDtrnt7db6Izv9Fp5FRSGeEbdyXg7AqbXkbegiW54RtCaTC7MCx7E.L
+ q_NKtsBDwIlXWzLciVh4_ZF5BmrzJygSDVe22hAeHi7tLPv1Nx0biyYVbY2AN365SKUiHo8605Fu
+ uHrjDHoL5xl7_aPCLMwOaxJbE8hObT8RsIVGipeNcJw.Junm.owDe2n445RpbrJWG3jg3ZK.1M3d
+ TPS4tLuVfGM_WE264dPnOq9dUkMl.TU5DN.ZN9YLjVzN1FQczv4.swxeXyybmnWApd9jrY3OXTGw
+ t8eYvc._fKKVLqz62YAGvjRAWJMwnVi5oXH6TnPCL5DI7P3R5DiMZNbHHfvJ.5I.OLXBYPW7B547
+ LSxkcjsVUBPXeeC8eSrpQJ3uxK_cFey.FPXq79oR0G_PXdFdkG4GXFlvJfj4LHzyO7sp6at2P8GT
+ fELwXQu2gQ2pkMjMPqwHdLxVBlMFxcKyAW7oAUntDuzvpDKoRn5I_Njdfa0MfbgDA2wKTlszdlK_
+ KVurs2vzz7Av2N921SIj7DlbIn382DKRBTAHURufCHa3x6r.mFx9VZOfmT4ZEnB.09F8cDn_82kL
+ r7rRqYehC69EAhfebiGYJtLWf38xa13W2IyQuFTHPETM4g6gtwoF1ZZRGyPKensSjW78ltosb2QD
+ .fFid.K2MyqAhZdar_pCylLFElmQ8FETDD6sKeznske2f1n56WqI0g7YONW3KXl_3a9MZS3ke3Rj
+ ZdIza9MROUT5x380PdkEJhazlHCqaGyi7w4dILnKty5oXJ19ok7MMN_nTHx.UN2mjjuOgOPyAzf3
+ mHwXGxASFncQftv7SDwtSREwBVgcL.RdVaUrhgsvzJqMhtG.sWjXWwyFSXRFqahNNpH4b.Sy6Q.Q
+ nyc31z_bjQtevxyvurrwTR870gCA7T0n4kno6UhjVQbIm7CIcDto3WSSXT6DfbiUJztnl8pBqutQ
+ UcFYI9E6HLKjRHrxnMY4XjLqlFTRji.IpgT9KZ69n_6JFScaAheBp72nKIF15.9jSwfZ.CSVmun5
+ u6.gpBVWCfNnpp4WAxHpFr2pjLdS17yquboVtaNJc7qtDCxveZYnBCkKBTf5wDuIBe8vd2DaBCam
+ ywj1C0N5qziSgk6jpPcZ_Ez7J3vFpCWO0HvXk8QND3iRFIsmevhHniM.gWO74OZ3FP1OodE4xlHJ
+ rV3oK3P2QlQfO7HfDcX19XLG92aayTeQtbOy_1pX.B0pBHFqZStg7cG5MLX.3_aQ4axqdBOy7SJP
+ mMsAO_w6STH686UcYBBIThRrXHWkg475zidx1ca0Ulv2TKkzCXZlWEMD9.pAKsnQuxEijLOSig08
+ niS3lSMgQPdcQW0FZC5diZ.gjK37KFsSkxBHXMqNbf6Usa7meyy2j3ryuclv5.UmAmPzzcgNUBfM
+ whI2Gc3pGcIz8n4v_GOGBkV1.lcXr72nKLvbdLBXIrwgMWoWa.fz.EMQk4temdk.2MMhWQCBRbr0
+ AVV.Ak11V6I9JNJbUvcouNmeycVeeptV3JWXRUSxXZoq37BdGDZVoV79GXtOVIrNgHWHWRe04NBG
+ 1DDc3OsEouH_HmBa1Q91lcCmhaqKdX0N3Y5p.Jaod.cJVDdpPa9fYCBF4Iry4.LXiRkhcyB1F_ev
+ qmMsFbTd023K38FYJ_v7anpvFZx8ILXZgfMqUOekXb9yidQsYLbNo7hCEunpsVY.Zh2XPy0Qxcct
+ 8GtsiwTJeILDVLE1u.G2CW2d96gPkvbR8.FqZPeN8UaBIvuqQBJ_a2pT9Nz9_onhoqgd9osscHkp
+ dhsdbyJk._WLPpdDCqK9ohYJTIMcEQB9BHqQdzpusB1WEGj1pjzl05dpcXfz1t8FYjkaT3SQYouP
+ LIxMyvTgivZZ4w_WaqeD4Ef86Uku2Wug36_ePa8hlyUtnTGCAQQUDNaQvesOYRLjJTgg3gJnT_48
+ rV5jIkBdc0awOVcKg9KobyXZkC7Y0nXUcyz1gr15JQzaiRE3zpIowEcMuAhEP583ZsVMncA1rjvb
+ 4iLnN382ndBAAkQTgfHbsLS5ClbT5kAZed4YMQG9FtkNDsqBMWKqBhJHfahAJkuTSCIPwpDLseFr
+ x5fG.Li5aDrGUKngI8C.9qQOdhBBytEhp8z7MqObWy0KCy_LO7fImf8z_Db0AIvN15tocf_SRjYY
+ xKWPXCgpRE8K6Qk9tp8PBhsaBETtcLm4EjG6y3HOvG9bvxBT7bx_M4Ozvylg5fZVCcJdE8HgyobF
+ t_QqlgVUJ5zyIDsCqanQVOwkqpQiQ6TfK3PfcW.prgcNv9kMevWMH9WW79UmzmvnaHym47m2MoXk
+ EeAtqjeKEOJ3mkVVkZ4_vgPboSr4DjIwCBdvjnrejvBeXqOwDvyIeLrj.IxwadlYVTJchGN9CF61
+ W4lZTA6HwxWGk4aciO.dgELo4y751NewD3vxvxGXjwCFD7iUeok08943uBINwKpgc7Jhg5IhuIEV
+ kC0UGjZA5498ClcEFCSUSOj18TRQaDOCC3I3hMEjNa2BdZ4Vw_UW9B8hy8qRBPdZ1YSeMHyrFKBV
+ f8_UTz7xs23SuUR.KQGIG8n0bzZ7GjHce1RIAUqcZpxqc58WmoLMOA5KLc5VBU3IEVYXf.oud0Sq
+ kbpjBhKuNWmNeljbj1XmAnB1hnly_W_5CUQfVBS9MWxv_HgOfcoX1QTfvStGqJLcb_WlNuZUDDUc
+ .xTEiZg19gp1t1Vuyc3APBIYDOTSF6nZEufTjoe_dF3_JMhySIZDvpG3RujZeUIZ4p0_qj0Cd18k
+ N7_La3flSnh9llSFm4g3gOiuycjRnVYLGNpd6mwBUdK8mca3gN1w138pHMrfXtvnV3qgnYgbTa7t
+ Pw5x..nIdb0Ig7s7KZIRlVtCjEGxv6dQRnVF6i2BwDMctfbduADKZZ2_ivKiolUg8KOWCkTDsUan
+ 4zCWQFTIhbYliKIgohCRqIWc3AUdkecEdGkey9WnFSBwEduqbDZ83XDMkYwT1bQ6WuQk7I6Qtx1w
+ tk9klUu7DY0LpVN.CEm09W7vrJOefqTxWDQB_yIKiHAlBxcKLn5wxw3DCfMA1KsM2SCGhgUIsJIg
+ xcemCh.jb9Lg2ekWWnp_9yVOzC.t7VbnNQl10utJoa2VxtbuduMdJNi7zSCow9LBVCx8jMu1eLZu
+ 4Mw1i4cJQ3wrPXQN6KfEFS.JXLHuFFZricpQtpMMam_qoRoJUdJtNkiQlgUmKfHZQywXszRKE3rO
+ rl9gauCfwuHFy4vMMkNASFMrlDhBuvRAGBKN5me98F3uZsJnZKPA0uGq6LI8cGefTqtVxIOr9QIA
+ Nah8NuH.u90b71cIB06hsrpCk6mugwgalAsm494GrFP8KTFfWG12hE0CO9JgqBE.bOllTmszyAKp
+ s1.QXicafCbxy.l3ROcSSY.0hl7HQeTc87ouqvVqzhjtLuYHeAQWZCbdK4jwVQ82h1NRZeF2wPtP
+ 9Ne9QjMnK.vvFnGkzMnJAg3WzsRFYyqZeIdCcC1JPoW8oJqhwL22zW45S5VpSAELVM0cZHPv.TVg
+ 8ppWbSzxjBIGqEU0DInukdmAWQ2H.i0OObtqYFv7_6VsOvoF_dGoi6KIfWu8J8UW65N_OMglMebn
+ d6O.lPVtu3F9jpaDPJbS0RRPYTpzT7DlDJxEfoc88jPbu0WJzD1l_CXwaB79Um4dMlOHM5oJflVd
+ gHiLpZn.maD0_t2Dd7YDbx89WI0E.zeT6iapwYLuIkQy2ggGIOAK9oaYL_T4MP7Z4VR05M846kLF
+ d4X5IEjqwz1VhKHFVrgEJD1kJGOB87n.YTDrcHZcntimlsnePd4rSYkJGHFuyV3te.lI1gxHi6KB
+ dAtqgfv3Tv46DDJvlPKr06kDAGVHKygA5GY3SIxOpgMDiPnwadSO7XS_EAyl7KbKwuhGp2xGtni0
+ 5nh2nhE_SJs7JlusuZVP0KLzZtA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Wed, 4 Nov 2020 04:29:49 +0000
+Date:   Wed, 4 Nov 2020 04:27:48 +0000 (UTC)
+From:   "Engr. Francisco Pinto." <webed4@gcgroup.org.in>
+Reply-To: engr.frcopinto1@gmail.com
+Message-ID: <1330001102.1455474.1604464068759@mail.yahoo.com>
+Subject: Crude Oil Lifting Contract Offer.
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.203-126-g8c25e7a92b2f
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 155 runs,
- 4 regressions (v4.14.203-126-g8c25e7a92b2f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1330001102.1455474.1604464068759.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16944 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 155 runs, 4 regressions (v4.14.203-126-g8c=
-25e7a92b2f)
-
-Regressions Summary
--------------------
-
-platform              | arch   | lab          | compiler | defconfig       =
-   | regressions
-----------------------+--------+--------------+----------+-----------------=
----+------------
-at91-sama5d4_xplained | arm    | lab-baylibre | gcc-8    | sama5_defconfig =
-   | 1          =
-
-meson-gxbb-p200       | arm64  | lab-baylibre | gcc-8    | defconfig       =
-   | 1          =
-
-panda                 | arm    | lab-baylibre | gcc-8    | multi_v7_defconf=
-ig | 1          =
-
-qemu_x86_64           | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig=
-   | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.203-126-g8c25e7a92b2f/plan/baseline/
+Dear Partner,
+THIS IS A CONFIDENTIAL OFFER REGARDING CRUDE OIL LIFTING CONTRACT.
+CRUDE OIL LIFTING LICENSE NO: ANP-C-STP/056432.
+Reply Email: engr.frcopinto1@gmail.com
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.203-126-g8c25e7a92b2f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8c25e7a92b2f1688d46addf84ba6e3ec6f8d7d52 =
+This is a confidential business offer from the oil rich Sao Tome and Princi=
+pe. Please ensure that you reply this email strictly at : engr.frcopinto1@g=
+mail.com
 
+I make this introduction based on my regard for your credibility. My name i=
+s Engr. Francisco Pinto. I work with the Sao Tome and Principe national pet=
+roleum agency. To be precise, I oversee the issuance of oil allocation lice=
+nse for our oil company. My position in the agency entitles me to recommend=
+ oil allocation bidders and actualize oil lifting and exploration allocatio=
+n licenses to my candidates based on my interest. I also oversee and approv=
+e the issuance of the license for oil allocation in our company and also mo=
+nitor the lifting procedures in our company.
 
+In June 2007, I facilitated and actualized the license of a candidate. A bu=
+siness man from Korea (Comprehensive details to be provided subsequently). =
+The license was for 1 year at 24 million BBLS/12 months. Incidentally the c=
+andidate was no more. The license has been valid till date (as I always ens=
+ure that I keep to my side of the bargain), I have decided to begin using t=
+he license from NOVEMBER. I am in need of a partner from your country whom =
+I can trust. I will package this partner as the allocation license benefici=
+ary and assign the license to this partner. Due to my position in the petro=
+leum agency, I cannot handle this position. Your profile fits into the crit=
+eria of a partner I need. This is why I am contacting you. With the trend o=
+f events in Sao Tome and Principe, we shall be able to lift a minimum of 40=
+0,000 barrels of BLCO per month. This will fetch us an average of US$28 mil=
+lion per month. And we have from NOVEMBER 2020 up until NOVEMBER 2021 to li=
+ft crude oil which will fetch us approximately (12) x (28) Million dollars.=
+ This is approximately 336 Million dollars for the rest of the time of the =
+license allocation. I have ready buyers who are waiting and would be ready =
+to scramble for any number of barrels we lift. Also, I will oversee all lif=
+ting procedures with the available mercenary around.
 
-Test Regressions
----------------- =
+ THIS IS WHAT I PROPOSE.
 
+{1} Your Company profile shall be used in place of the initial license Oper=
+ator. This I shall handle with my capacity in the company.
+{2} I will ensure that your company's profile is recognized as the current =
+license operator and that we have a mandate for at least min of 400,000 bar=
+rels per month, a maximum of 500,000 barrels per month. Starting from NOVEM=
+BER.
+{3}I will ensure that all lifting procedures are in place and buyers readil=
+y available to purchase the product.
+{4} You shall stand in as the license operator for all lifting and sales tr=
+ansactions; we shall open an account for the receipt of the oil sale procee=
+ds in which both of us shall be signatories to the account or you can provi=
+de your personal or company bank account to receive the payments on our beh=
+alf.
+{5} We shall split the oil sale proceeds in the ratio of 60:40 equity share=
+s. I shall be entitled to 60% share while your company shall be entitled to=
+ 40% share.
 
+Please note: no third-party arrangement shall be allowed. I believe you are=
+ a man of wisdom and intelligence. This offer I make to you is based on utm=
+ost good faith. I could be Jeopardizing my position in the agency if a word=
+ of this goes out. Therefore, without mincing words, I rely on you for utmo=
+st confidentiality on every bit of detail relating to this transaction. I a=
+m in London on official duties at the moment waiting for your response. Upo=
+n your positive response, I will be willing to forward to you proof of my p=
+roposition and my personal identity. Also, I shall fly back to Sao Tome and=
+ Principe and from there we shall commence operations. I shall also provide=
+ you details of the former license operator and a copy of the license issue=
+d to him for the lifting of crude oil in our company which I personally app=
+roved and endorsed. Also, procedures for license reassignment and actualizi=
+ng the rest of the project shall be provided to you.
 
-platform              | arch   | lab          | compiler | defconfig       =
-   | regressions
-----------------------+--------+--------------+----------+-----------------=
----+------------
-at91-sama5d4_xplained | arm    | lab-baylibre | gcc-8    | sama5_defconfig =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa1f6ecdfbe218a0efb5325
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa1f6ecdfbe218a0efb5=
-326
-        failing since 102 days (last pass: v4.14.188-126-g5b1e982af0f8, fir=
-st fail: v4.14.189) =
-
- =
-
-
-
-platform              | arch   | lab          | compiler | defconfig       =
-   | regressions
-----------------------+--------+--------------+----------+-----------------=
----+------------
-meson-gxbb-p200       | arm64  | lab-baylibre | gcc-8    | defconfig       =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa1f6c8e2edadc6a2fb5308
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa1f6c8e2edadc6a2fb5=
-309
-        failing since 217 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform              | arch   | lab          | compiler | defconfig       =
-   | regressions
-----------------------+--------+--------------+----------+-----------------=
----+------------
-panda                 | arm    | lab-baylibre | gcc-8    | multi_v7_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa1fa56d2ebd58f54fb531d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa1fa56d2ebd58f54fb5=
-31e
-        new failure (last pass: v4.14.203) =
-
- =
-
-
-
-platform              | arch   | lab          | compiler | defconfig       =
-   | regressions
-----------------------+--------+--------------+----------+-----------------=
----+------------
-qemu_x86_64           | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig=
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa1f8fc9be87b1bc9fb5339
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-03-126-g8c25e7a92b2f/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa1f8fc9be87b1bc9fb5=
-33a
-        new failure (last pass: v4.14.203) =
-
- =20
+Please in response to this email: engr.frcopinto1@gmail.com, quote the refe=
+rence number. CRUDE OIL LIFTING LICENSE NO: ANP-C-STP/056432.
+I look forward to a prospective business relationship between us.
+Thanks,
+Engr. Francisco Pinto.
