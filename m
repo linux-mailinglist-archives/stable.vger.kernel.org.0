@@ -2,107 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A65702A82F8
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 17:04:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8322E2A834D
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 17:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729361AbgKEQEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 11:04:44 -0500
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:45490 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729263AbgKEQEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 11:04:43 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0A5G4Z32034127;
-        Thu, 5 Nov 2020 10:04:35 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1604592275;
-        bh=Tkak3lHBbbhAsRhTyoXbxbfPQtNqMPrBhg42KssZeVQ=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=f1HweYtXYwYEGlCH23bYEZOfjMxEwZDUKMbbp9yvBM4p/eqPHurheYtC991kfcWwD
-         EwZJKACrccsFGVXihaCO/vUTY6Yzhqo6t7fOkisJuAjhGrfnIBTPQTjnJQV41wG3Ks
-         mRKWu70lVnt1JojgsyqnqmH1AlmpHKuFneRDkQdY=
-Received: from DLEE100.ent.ti.com (dlee100.ent.ti.com [157.170.170.30])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0A5G4ZoL013724
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 5 Nov 2020 10:04:35 -0600
-Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE100.ent.ti.com
- (157.170.170.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Thu, 5 Nov
- 2020 10:04:35 -0600
-Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE103.ent.ti.com
- (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Thu, 5 Nov 2020 10:04:35 -0600
-Received: from [10.250.233.179] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0A5G4Xla099908;
-        Thu, 5 Nov 2020 10:04:34 -0600
-Subject: Re: [PATCH] mtd: cfi_cmdset_0002: Use status register where possible
-To:     Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        "miquel.raynal@bootlin.com" <miquel.raynal@bootlin.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
-References: <20201022154506.17639-1-joakim.tjernlund@infinera.com>
- <20201030184736.4ec434f5@xps13>
- <aefef0187e5ebbe315e57e834ff1ba756ba88817.camel@infinera.com>
- <20201030195251.687809f7@xps13>
- <931f422255204f0420e6f1b79657f9770ce0cf6e.camel@infinera.com>
- <31ce9a84-d949-c1d1-a8c6-44ead119ca1b@ti.com>
- <2198bd20e69be374f7533f45118c98750eb5362a.camel@infinera.com>
-From:   Vignesh Raghavendra <vigneshr@ti.com>
-Message-ID: <1af99b7d-e388-3c41-a8d8-9f82067ae857@ti.com>
-Date:   Thu, 5 Nov 2020 21:34:32 +0530
+        id S1730788AbgKEQSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 11:18:02 -0500
+Received: from mga17.intel.com ([192.55.52.151]:28624 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729718AbgKEQSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Nov 2020 11:18:01 -0500
+IronPort-SDR: HZJaVa0WPgdpLEtAsRSmENygeYfuKRcwHcZNib7Xg8LS5qruIVWuIjAKg3eLfZY7iAZ1sGxFH/
+ el5dc+u/0cug==
+X-IronPort-AV: E=McAfee;i="6000,8403,9796"; a="149263094"
+X-IronPort-AV: E=Sophos;i="5.77,453,1596524400"; 
+   d="scan'208";a="149263094"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2020 08:17:59 -0800
+IronPort-SDR: yxVP6A03J0rDAwY3WimJcT+LNkyeHm3psP8GU8uJmIIEa5rJx22tVlprrSvwqsSFT4xu9EwGb5
+ ky6pImHJjbMA==
+X-IronPort-AV: E=Sophos;i="5.77,453,1596524400"; 
+   d="scan'208";a="539464944"
+Received: from umedepal-mobl2.amr.corp.intel.com (HELO [10.254.6.114]) ([10.254.6.114])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2020 08:17:58 -0800
+Subject: Re: [PATCH 5.9 080/391] ASoC: SOF: fix a runtime pm issue in SOF when
+ HDMI codec doesnt work
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Paul Bolle <pebolle@tiscali.nl>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+References: <20201103203348.153465465@linuxfoundation.org>
+ <20201103203352.505472614@linuxfoundation.org>
+ <64a618a3cc00de4a1c3887b57447906351db77b9.camel@tiscali.nl>
+ <20201105143551.GH2092@sasha-vm>
+ <1f0c6a62-5208-801d-d7c2-725ee8da19b2@linux.intel.com>
+ <20201105154426.GI2092@sasha-vm>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <e13d8fb6-4f69-23ad-22f6-499bffbf03d6@linux.intel.com>
+Date:   Thu, 5 Nov 2020 10:17:57 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <2198bd20e69be374f7533f45118c98750eb5362a.camel@infinera.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20201105154426.GI2092@sasha-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-
-On 11/4/20 3:23 PM, Joakim Tjernlund wrote:
-> On Wed, 2020-11-04 at 11:12 +0530, Vignesh Raghavendra wrote:
->> Hi Joakim
+>>>> My local build of v5.9.5 broke on this patch.
+>>>>
+>>>> sound/soc/sof/intel/hda-codec.c: In function 'hda_codec_probe':
+>>>> sound/soc/sof/intel/hda-codec.c:177:4: error: label 'error' used but 
+>>>> not defined
+>>>>  177 |    goto error;
+>>>>      |    ^~~~
+>>>> make[4]: *** [scripts/Makefile.build:283: 
+>>>> sound/soc/sof/intel/hda-codec.o] Error 1
+>>>> make[3]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Error 2
+>>>> make[2]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2
+>>>> make[1]: *** [scripts/Makefile.build:500: sound/soc] Error 2
+>>>> make: *** [Makefile:1778: sound] Error 2
+>>>>
+>>>> There's indeed no error label in v5.9.5. (There is one in v5.10-rc2, 
+>>>> I just
+>>>> checked.) Is no-one else running into this?
+>>>
+>>> It seems that setting CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC=y is very
+>>> "difficult", it's not being set by allmodconfig nor is it easy to
+>>> manually set it up.
+>>>
+>>> I'll revert the patch, but it would be nice to make sure it's easier to
+>>> test this out too.
 >>
->> On 10/31/20 4:56 PM, Joakim Tjernlund wrote:
->>> On Fri, 2020-10-30 at 19:52 +0100, Miquel Raynal wrote:
->>>> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you recognize the sender and know the content is safe.
->>>>
->>>>
-[...]
->> commit 4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling
->> status register") was added in 5.3 and therefore is part of 5.4. But
->> note that this is a "new feature" and therefore won't be backported to
->> kernels older than 5.3.
+>> this issue comes from out-of-order patches, give me a couple of hours 
+>> to look into this before reverting. thanks!
 > 
-> Oh, my memory is off then, sorry.
-> 
->> Similarly, this patch (when accepted) is not a candidate for stable
->> kernel backports because the intention of enabling polling status
->> register for Write Completion is to enable flashes that "don't" support
->> DQ polling at all (mainly HyperFlash).
->> Enabling this for all flashes that support the feature is not a bug fix
->> IMO. Also, there isn't enough testing to prove that feature works for
->> all CFI NOR flashes on all platforms and therefore would be risky to be
->> backported to stable kernels.
-> 
-> This is 2 things,
->  1. making it possible to use Hyper flash (HW enablement)
->  2. improving the flash driver to function more precise(getting an accurate error rather than a TMO) for most AMD flashes.
-> 
-> 1. happens on a regular basis in stable.
-> 2. can be discussed for stable but should at least go into master now that status has been in there for a while
-> 
+> Sure! Thanks for looking into this.
 
-Yes, but my objection is that there has not been enough testing to prove
-that its safe to backport to stable kernels and there is nothing that's
-broken in older kernels which this patch fixes.
+I would recommend adding this commit to 5.9-stable:
+
+11ec0edc6408a ('ASOC: SOF: Intel: hda-codec: move unused label to 
+correct position')
+
+I just tried with 5.9.5 and the compilation error is solved with this 
+commit.
+
+It was initially intended to solve a minor 'defined but not used' issue, 
+which somehow became a bad 'used but not defined' one. Probably a bad 
+git merge I did, sorry about that.
+
+Thanks!
+-Pierre
 
 
-Regards
-Vignesh
+
