@@ -2,99 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC132A8AE0
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 00:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D6F2A8B0D
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 00:57:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731860AbgKEXoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 18:44:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726801AbgKEXoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 18:44:24 -0500
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D37C0613CF;
-        Thu,  5 Nov 2020 15:44:23 -0800 (PST)
-Received: by mail-qt1-x844.google.com with SMTP id n63so2478677qte.4;
-        Thu, 05 Nov 2020 15:44:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sVuBclz6RbxFeixVrFDk7hds/nyx+Jqtd3Wi799FOXk=;
-        b=cDRnrACB6qhyOyott6SFEmFabDoLiuFl1tpaN50TvPHswUHt3+MPuJohwfZ41EFnrw
-         LsucrypTMbdc4g1ars45fh1+/jqITRsgaDt5QqVzlBHIAT+wL4Je5jnmf2R5ETn5E8H9
-         vruyY4XQ/S8SkVqOsjVyqhA30aDVXcXV0SNl0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sVuBclz6RbxFeixVrFDk7hds/nyx+Jqtd3Wi799FOXk=;
-        b=kzqbSD/rTBoXALnjdfTtMmJDMk8CBJpXlpSuIg1cMpCQqiHZnPJaccrDGo90c9nxaW
-         k+x2QYLNYuuM5/W2AWHIJ5LGOJs32lVbJ5uF3wt2+jdVYPf2qXQLXASsIpuIWZisZHvN
-         Ud7LoK16MXL4d6SpsVzFcn8U1E16uGRYV7Vez/A2hpBVwdVhK60SP50+md1EGd+Q9Dal
-         hBtqnDGHY9pSz05qBr7ISaCUN+89DeYZpSJk65GlspLDS2hmsZgpuXKaln24HYRjDqSs
-         Jps6Q2gRU6wj6ndvP0rLKhVA2eXp4siFOUdM1QRMCEpk791i3UO3t23D2gKTP8+bKK/p
-         8f9Q==
-X-Gm-Message-State: AOAM533bwNY/0FBVOsek4J8Zb6XUb9MEXhWcPd1DXHKWzyNE+rDsNUIH
-        fkW8PKHxbF91VkBFvdUczAlMzEdxygkXl7xDxgc=
-X-Google-Smtp-Source: ABdhPJzMkAsXAUa+nOhKuwacsfqZM5SZmXB8PE7v6p8ZThh7YcBqN1EAFeRO4VOrULqUrC3Iwdn4kG3AtWfac6tiRt8=
-X-Received: by 2002:ac8:75c9:: with SMTP id z9mr4663191qtq.363.1604619862999;
- Thu, 05 Nov 2020 15:44:22 -0800 (PST)
+        id S1732181AbgKEX5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 18:57:15 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44716 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732035AbgKEX5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 18:57:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604620634;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=i5YTCTculn7wAu7o7uqKEzANd6RxkS1YgfVbSqCO/rQ=;
+        b=bdypQbRRaosoGyt7VLDOSMh6GUQurkfPRODy+nD2rOLq0R6jJgBocwiqbxkeNk34EDSVTD
+        M9MrZ66DbdkzA3CvwYGUah6Mmtc8F51//85BSEKRzn6v730kWMsuXDCaW8bzRwT+8iCxWo
+        6katS/Hb3ceXijS5Lap3dCmTjPFhz4k=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-367-X6GcLpfGNvCcG-T7R_okhg-1; Thu, 05 Nov 2020 18:57:12 -0500
+X-MC-Unique: X6GcLpfGNvCcG-T7R_okhg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9DC521006C83;
+        Thu,  5 Nov 2020 23:57:09 +0000 (UTC)
+Received: from Whitewolf.lyude.net (ovpn-112-124.rdu2.redhat.com [10.10.112.124])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 244E65B4B8;
+        Thu,  5 Nov 2020 23:57:07 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     Ilia Mirkin <imirkin@alum.mit.edu>, stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Kees Cook <keescook@chromium.org>, Chao Yu <chao@kernel.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v3] drm/edid: Fix uninitialized variable in drm_cvt_modes()
+Date:   Thu,  5 Nov 2020 18:57:02 -0500
+Message-Id: <20201105235703.1328115-1-lyude@redhat.com>
 MIME-Version: 1.0
-References: <20201103203232.656475008@linuxfoundation.org> <20201103203247.174991659@linuxfoundation.org>
- <20201105192305.GA18462@duo.ucw.cz>
-In-Reply-To: <20201105192305.GA18462@duo.ucw.cz>
-From:   Joel Stanley <joel@jms.id.au>
-Date:   Thu, 5 Nov 2020 23:44:11 +0000
-Message-ID: <CACPK8XcOqdtGyJ+Fcan=AaHiJTOZFeUW7-j_5kZeQowr-j24Ag@mail.gmail.com>
-Subject: Re: [PATCH 4.19 156/191] powerpc: Warn about use of smt_snooze_delay
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 5 Nov 2020 at 19:24, Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
->
-> > From: Joel Stanley <joel@jms.id.au>
-> >
-> > commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
-> >
-> > It's not done anything for a long time. Save the percpu variable, and
-> > emit a warning to remind users to not expect it to do anything.
-> >
-> > This uses pr_warn_once instead of pr_warn_ratelimit as testing
-> > 'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
-> > to be noisy, as the online/offline loop is slow.
->
-> I don't believe this is good idea for stable. It is in 5.9-rc2, and
-> likely mainline users will get userspace fixed, but that warning is
-> less useful for -stable users.
+Noticed this when trying to compile with -Wall on a kernel fork. We potentially
+don't set width here, which causes the compiler to complain about width
+potentially being uninitialized in drm_cvt_modes(). So, let's fix that.
 
-The warning is about the existing behaviour of the kernel. It does let
-the user know that they won't see any difference in behaviour when
-tweaking the smt_snooze_delay variable, which was a real issue that
-Anton hit.
+Changes since v1:
+* Don't emit an error as this code isn't reachable, just mark it as such
+Changes since v2:
+* Remove now unused variable
 
-I agree that the future commit that removes smt_snooze_delay from the
-kernel should not be backported.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 
-Cheers,
+Cc: <stable@vger.kernel.org> # v5.9+
+Fixes: 3f649ab728cd ("treewide: Remove uninitialized_var() usage")
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+---
+ drivers/gpu/drm/drm_edid.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Joel
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 631125b46e04..b84efd538a70 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -3114,6 +3114,8 @@ static int drm_cvt_modes(struct drm_connector *connector,
+ 		case 0x0c:
+ 			width = height * 15 / 9;
+ 			break;
++		default:
++			unreachable();
+ 		}
+ 
+ 		for (j = 1; j < 5; j++) {
+-- 
+2.28.0
 
->
-> (And besides, it does not fix any serious bug).
->
-> Best regards,
->                                                                 Pavel
->
-> --
-> http://www.livejournal.com/~pavelmachek
