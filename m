@@ -2,235 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C4B2A87B4
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 21:07:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC322A87B6
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 21:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726729AbgKEUH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 15:07:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41238 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbgKEUHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 15:07:25 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E65C0613CF
-        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 12:07:25 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id z1so1305138plo.12
-        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 12:07:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ywPmJyJXl5IXCzmDS3TGajEqsk1j6eUfm1QEOarkOuw=;
-        b=HdqpqVC9/zMA028NzAiI9Tn3BDdhgTVAdhejUnCY7hn5hCXd/eUed1TDCdU9fuhzre
-         ZkZnx5wo5mHGdyZSiUkSKKOV9rl0/SLCfC9L8FDaqmPoMbB8skBb7fVr4qrijqchUa5+
-         RrRImuEdsn+F/C0P6zqxPpcwIucfidb7Go2RnASkoO8/JDEE952sOg6LiIhDcdhUVuIW
-         7AkJPOVuNsqJP2ZOT1hb/WWkYJNsYjn8krxunHnwrBZz5PC7tNpDWYdAtIApFsVfSgXz
-         OBbp8tYF0DYICSx7elYMxV2lwJyxbFI7iy++TrQf5fVv+kH8Tynp5i+qI99IBH2BLdmk
-         lZ1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ywPmJyJXl5IXCzmDS3TGajEqsk1j6eUfm1QEOarkOuw=;
-        b=IIC8Vpt5QAI3eGi3ce6AZvwkf658Wd1yHenVpGwB89JcUf7SejBnwUGiqqrmhPXCyL
-         i6vF2hWWeCj7Bl7e2J8Ypsb/HAfIcqrBgKT07oImerfRPn+tICJ7FuKT27JKJ/Y2xDb+
-         Ao0QavarjJcV3fr46LoKr+Emc/x5PGnAqBR0kwa5mKnk5LAK/Qx2350loCFhNiszp8Xg
-         7TzwJ0+G60g9C0wg6HFSjk5TrHEKcCPkoUEHcXZmV9vNjeQApwnk7L8SyNBDY5q0tVx+
-         7OlDO5akSMW6kAoav2pSNZQbe5TLpQ9o+MAvchkdbvSfGRi+dHAOVlM7d6fqG2BOWk3I
-         zhOg==
-X-Gm-Message-State: AOAM531Xd3HquvOXGlfxSgVDEKz5riVfaCqDWexC90yG+XCcKdAmQHEj
-        LmGeg0e9EcgM9OylHj138aPZfa9To/AzYw==
-X-Google-Smtp-Source: ABdhPJzAgp9hjABBFQ/C8cKTrJ/P8axhQRYvV9bYexUSUjSI2xBt8iKgjmewptFBNStpRoC/LT7KtA==
-X-Received: by 2002:a17:902:724b:b029:d5:a5e2:51c4 with SMTP id c11-20020a170902724bb02900d5a5e251c4mr3728693pll.80.1604606845080;
-        Thu, 05 Nov 2020 12:07:25 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j184sm3969320pfg.207.2020.11.05.12.07.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2020 12:07:24 -0800 (PST)
-Message-ID: <5fa45b7c.1c69fb81.d31e2.788e@mx.google.com>
-Date:   Thu, 05 Nov 2020 12:07:24 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727017AbgKEUIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 15:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58118 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726801AbgKEUIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Nov 2020 15:08:10 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F8DA20729;
+        Thu,  5 Nov 2020 20:08:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604606889;
+        bh=UbXVjeOJkuP8+CC9HnOjLWKGZfWfCv/qYw/apchOvu0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LI06uVl2qSHOowOvTc/LExLLKr74j/LoNMga+IIQHSYugCgTZ/qz6FfhsHAdRUUT/
+         nbteaX4CUK9eK1EerhGvZBzlQx1Q+olQZYcX2TWiAc0diPGo6v919ZmZNcM6Rf6Dtq
+         7vA3wAgIVyvl9rDcsPHgGi8pxnMA1/wAjfG530Ds=
+Date:   Thu, 5 Nov 2020 21:08:57 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Dwaipayan Ray <dwaipayanray1@gmail.com>, stable@vger.kernel.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        linux-kernel@vger.kernel.org, lukas.bulwahn@gmail.com,
+        yashsri421@gmail.com
+Subject: Re: [PATCH v3] checkpatch: improve email parsing
+Message-ID: <20201105200857.GC1333458@kroah.com>
+References: <20201105115949.39474-1-dwaipayanray1@gmail.com>
+ <f83c2eeafdebc6307ee6e515e4d6652b2606a068.camel@perches.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.241-91-g43a1fc0c8f46
-Subject: stable-rc/queue/4.9 baseline: 150 runs,
- 4 regressions (v4.9.241-91-g43a1fc0c8f46)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f83c2eeafdebc6307ee6e515e4d6652b2606a068.camel@perches.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 150 runs, 4 regressions (v4.9.241-91-g43a1fc0=
-c8f46)
+On Thu, Nov 05, 2020 at 09:41:15AM -0800, Joe Perches wrote:
+> (adding stable and Greg KH for additional review)
+> On Thu, 2020-11-05 at 17:29 +0530, Dwaipayan Ray wrote:
+> > checkpatch doesn't report warnings for many common mistakes
+> > in emails. Some of which are trailing commas and incorrect
+> > use of email comments.
+> 
+> I presume you've tested this against the git tree.
+> 
+> Can you send me a file with the BAD_SIGN_OFF messages generated
+> and if possible the git SHA-1s of the commits?
+> 
+> > At the same time several false positives are reported due to
+> > incorrect handling of mail comments. The most common of which
+> > is due to the pattern:
+> > 
+> > <stable@vger.kernel.org> # X.X
+> > 
+> > Improve email parsing in checkpatch.
+> > 
+> > Some general comment rules are defined:
+> > 
+> > - Multiple name comments should not be allowed.
+> > - Comments inside address should not be allowed.
+> > - In general comments should be enclosed within parentheses.
+> >   Exception for stable@vger.kernel.org # X.X
+> 
+> not just vger.kernel.org, but this should also allow stable@kernel.org
+> and only allow cc: and not any other -by: type for that email address.
+> 
+> A process preference question for Greg and the stable team:
+> 
+> The most common stable forms are
+> 
+> 	stable@vger.kernel.org # version info
 
-Regressions Summary
--------------------
+That is what is documented it should be, yes.
 
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
-   | 1          =
+> then
+> 	stable@vger.kernel.org [ version info ]
 
-panda                 | arm  | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
+Really?  Ick, no wonder my email parsing scripts choke on that :)
 
-qemu_i386             | i386 | lab-baylibre  | gcc-8    | i386_defconfig   =
-   | 1          =
+> with some other relatively infrequently used outlier styles, some
+> that use parentheses, but this is not frequent.
 
-qemu_i386-uefi        | i386 | lab-baylibre  | gcc-8    | i386_defconfig   =
-   | 1          =
+The one with '#' should be preferred.  If not, we need to change our
+documentation.
 
+thanks,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.241-91-g43a1fc0c8f46/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.241-91-g43a1fc0c8f46
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      43a1fc0c8f465c858ef6e98a89661164638b7311 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa4279fb87457f7b7db8880
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
-4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d=
-4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa4279fb87457f7b7db8=
-881
-        failing since 7 days (last pass: v4.9.240-139-gd719c4ad8056, first =
-fail: v4.9.240-139-g65bd9a74252c) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-panda                 | arm  | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa427035556fb1f5ddb8853
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa427035556fb1=
-f5ddb8858
-        failing since 0 day (last pass: v4.9.241-91-g303dfca2bd68, first fa=
-il: v4.9.241-91-g387309f11ff9)
-        2 lines =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-qemu_i386             | i386 | lab-baylibre  | gcc-8    | i386_defconfig   =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa425b7f12737d336db889b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa425b7f12737d336db8=
-89c
-        new failure (last pass: v4.9.241-91-g387309f11ff9) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-qemu_i386-uefi        | i386 | lab-baylibre  | gcc-8    | i386_defconfig   =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa425b9221e9a3a25db8853
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-u=
-efi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-9=
-1-g43a1fc0c8f46/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386-u=
-efi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa425b9221e9a3a25db8=
-854
-        new failure (last pass: v4.9.241-91-g387309f11ff9) =
-
- =20
+greg k-h
