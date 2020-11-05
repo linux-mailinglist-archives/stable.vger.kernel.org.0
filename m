@@ -2,141 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 783652A8147
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 15:48:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D802A81C6
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731139AbgKEOsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 09:48:20 -0500
-Received: from mga07.intel.com ([134.134.136.100]:25351 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731299AbgKEOsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Nov 2020 09:48:16 -0500
-IronPort-SDR: TxdvGvM8kUZYge+JI0SfC5JNSWBxVuRq5cO4Fox5NRq41yyZQ3IqcbhdKdv8Kn+McajMaR8c3o
- EocQ50oXfGFg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9795"; a="233559149"
-X-IronPort-AV: E=Sophos;i="5.77,453,1596524400"; 
-   d="scan'208";a="233559149"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2020 06:47:59 -0800
-IronPort-SDR: MbNgxm5bJTlWd7YnlMT8d5fT0TN5vZIAFol8pCMpL4KNc81QXGlMq6CW8fgT3MYBgUGFYtgIye
- AuluQnbN9IJg==
-X-IronPort-AV: E=Sophos;i="5.77,453,1596524400"; 
-   d="scan'208";a="471675105"
-Received: from gabrielv-mobl1.amr.corp.intel.com (HELO [10.209.96.164]) ([10.209.96.164])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2020 06:47:58 -0800
-Subject: Re: [PATCH 5.9 080/391] ASoC: SOF: fix a runtime pm issue in SOF when
- HDMI codec doesnt work
-To:     Sasha Levin <sashal@kernel.org>, Paul Bolle <pebolle@tiscali.nl>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-References: <20201103203348.153465465@linuxfoundation.org>
- <20201103203352.505472614@linuxfoundation.org>
- <64a618a3cc00de4a1c3887b57447906351db77b9.camel@tiscali.nl>
- <20201105143551.GH2092@sasha-vm>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <1f0c6a62-5208-801d-d7c2-725ee8da19b2@linux.intel.com>
-Date:   Thu, 5 Nov 2020 08:47:57 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1730660AbgKEPDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 10:03:16 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45835 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730465AbgKEPDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:03:15 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 8DF976B6;
+        Thu,  5 Nov 2020 10:03:14 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 05 Nov 2020 10:03:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JHh1e2
+        hmMqfel9KG1TVjd5Ujk+DwbYLSu7YOdJm6CT4=; b=Z6aEiX7G6O8SnSxSfFd3IA
+        1byeV4n8+i9pgvvDipVO4yyHSdWQFjYqkCaMlB6c+kp315aiRmpixiiskXXG1C5w
+        MKs3TBelvEmbRoyFCl6GE6MQBm+7rBDTRyWtaYWPLvTPvX9I8j9imCIhVH4A2ahV
+        jV/ec98p++NFzCRBzdAZyp54aMdIY2deDvDy2iRfADQ+5f/72ZIElqTptarqAUrj
+        H+jcj5VzZSzKQy0moRCVDDZSmrklWzufdbAGSTQiJSPMQ2hfasGszlgvV26YaHBZ
+        scqkmt3JonJpD8CiH6zMeDhcVZWgl+48OQxNAFU+uQMBbCXB31GWztpwFul2+hPw
+        ==
+X-ME-Sender: <xms:MRSkXxKhO1pPgX8i132rej6REDOLgEbZou5xp0a_sfXZfww-lFpJ_w>
+    <xme:MRSkX9Lcp17M6WsjI-TeAwhNWfztTc5-woa4d9BzJOaRGPqvxJrOTLeyjf5Hjwqur
+    dwjy04enDUW9A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtjedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
+    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:MRSkX5sJ1sJFgODc6G8klMlaElG8wJ-N3rzS9FMiSwZ4-Wc8Osyb_w>
+    <xmx:MRSkXybFissn4eJSLRvkRTBLHWaGO0i5kxTZiOYzm3WwdaKCkIUetg>
+    <xmx:MRSkX4bZgUZh3FHgXlcxDwi9JFYEA_gEksxjb9pKEXmS8dWlYkGODw>
+    <xmx:MhSkX_U1sAxjoZZSO-oHcKDYJ18dmG6TLqeeU5ALCMzRi3jxvkkoBSyIHq8>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0200D306005F;
+        Thu,  5 Nov 2020 10:03:12 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Avoid mixing integer types during batch copies" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, jared.candelaria@intel.com,
+        jon.bloomfield@intel.com, joonas.lahtinen@linux.intel.com,
+        mika.kuoppala@linux.intel.com, rodrigo.vivi@intel.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 05 Nov 2020 16:04:01 +0100
+Message-ID: <160458864138182@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20201105143551.GH2092@sasha-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 11/5/20 8:35 AM, Sasha Levin wrote:
-> On Thu, Nov 05, 2020 at 02:23:35PM +0100, Paul Bolle wrote:
->> Greg Kroah-Hartman schreef op di 03-11-2020 om 21:32 [+0100]:
->>> From: Rander Wang <rander.wang@intel.com>
->>>
->>> [ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
->>>
->>> When hda_codec_probe() doesn't initialize audio component, we disable
->>> the codec and keep going. However,the resources are not released. The
->>> child_count of SOF device is increased in snd_hdac_ext_bus_device_init
->>> but is not decrease in error case, so SOF can't get suspended.
->>>
->>> snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
->>> gets a error. Now copy this behavior to release resources and decrease
->>> SOF device child_count to release SOF device.
->>>
->>> Signed-off-by: Rander Wang <rander.wang@intel.com>
->>> Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
->>> Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
->>> Reviewed-by: Guennadi Liakhovetski 
->>> <guennadi.liakhovetski@linux.intel.com>
->>> Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
->>> Link: 
->>> https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com 
->>>
->>> Signed-off-by: Mark Brown <broonie@kernel.org>
->>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>> ---
->>>  sound/soc/sof/intel/hda-codec.c | 4 ++--
->>>  1 file changed, 2 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/sound/soc/sof/intel/hda-codec.c 
->>> b/sound/soc/sof/intel/hda-codec.c
->>> index 2c5c451fa19d7..c475955c6eeba 100644
->>> --- a/sound/soc/sof/intel/hda-codec.c
->>> +++ b/sound/soc/sof/intel/hda-codec.c
->>> @@ -151,7 +151,7 @@ static int hda_codec_probe(struct snd_sof_dev 
->>> *sdev, int address,
->>>          if (!hdev->bus->audio_component) {
->>>              dev_dbg(sdev->dev,
->>>                  "iDisp hw present but no driver\n");
->>> -            return -ENOENT;
->>> +            goto error;
->>>          }
->>>          hda_priv->need_display_power = true;
->>>      }
->>> @@ -174,7 +174,7 @@ static int hda_codec_probe(struct snd_sof_dev 
->>> *sdev, int address,
->>>           * other return codes without modification
->>>           */
->>>          if (ret == 0)
->>> -            ret = -ENOENT;
->>> +            goto error;
->>>      }
->>>
->>>      return ret;
->>
->> My local build of v5.9.5 broke on this patch.
->>
->> sound/soc/sof/intel/hda-codec.c: In function 'hda_codec_probe':
->> sound/soc/sof/intel/hda-codec.c:177:4: error: label 'error' used but 
->> not defined
->>  177 |    goto error;
->>      |    ^~~~
->> make[4]: *** [scripts/Makefile.build:283: 
->> sound/soc/sof/intel/hda-codec.o] Error 1
->> make[3]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Error 2
->> make[2]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2
->> make[1]: *** [scripts/Makefile.build:500: sound/soc] Error 2
->> make: *** [Makefile:1778: sound] Error 2
->>
->> There's indeed no error label in v5.9.5. (There is one in v5.10-rc2, I 
->> just
->> checked.) Is no-one else running into this?
-> 
-> It seems that setting CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC=y is very
-> "difficult", it's not being set by allmodconfig nor is it easy to
-> manually set it up.
-> 
-> I'll revert the patch, but it would be nice to make sure it's easier to
-> test this out too.
+thanks,
 
-this issue comes from out-of-order patches, give me a couple of hours to 
-look into this before reverting. thanks!
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c60b93cd4862d108214a14e655358ea714d7a12a Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 28 Sep 2020 22:59:42 +0100
+Subject: [PATCH] drm/i915: Avoid mixing integer types during batch copies
+
+Be consistent and use unsigned long throughout the chunk copies to
+avoid the inherent clumsiness of mixing integer types of different
+widths and signs. Failing to take acount of a wider unsigned type when
+using min_t can lead to treating it as a negative, only for it flip back
+to a large unsigned value after passing a boundary check.
+
+Fixes: ed13033f0287 ("drm/i915/cmdparser: Only cache the dst vmap")
+Testcase: igt/gen9_exec_parse/bb-large
+Reported-by: "Candelaria, Jared" <jared.candelaria@intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: "Candelaria, Jared" <jared.candelaria@intel.com>
+Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
+Cc: <stable@vger.kernel.org> # v4.9+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200928215942.31917-1-chris@chris-wilson.co.uk
+(cherry picked from commit b7eeb2b4132ccf1a7d38f434cde7043913d1ed3c)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+index 5509946f1a1d..4b09bcd70cf4 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -2267,8 +2267,8 @@ struct eb_parse_work {
+ 	struct i915_vma *batch;
+ 	struct i915_vma *shadow;
+ 	struct i915_vma *trampoline;
+-	unsigned int batch_offset;
+-	unsigned int batch_length;
++	unsigned long batch_offset;
++	unsigned long batch_length;
+ };
+ 
+ static int __eb_parse(struct dma_fence_work *work)
+@@ -2338,6 +2338,9 @@ static int eb_parse_pipeline(struct i915_execbuffer *eb,
+ 	struct eb_parse_work *pw;
+ 	int err;
+ 
++	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
++	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
++
+ 	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
+ 	if (!pw)
+ 		return -ENOMEM;
+diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
+index 5ac4a999f05a..e88970256e8e 100644
+--- a/drivers/gpu/drm/i915/i915_cmd_parser.c
++++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
+@@ -1136,7 +1136,7 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
+ /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
+ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 		       struct drm_i915_gem_object *src_obj,
+-		       u32 offset, u32 length)
++		       unsigned long offset, unsigned long length)
+ {
+ 	bool needs_clflush;
+ 	void *dst, *src;
+@@ -1166,8 +1166,8 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 		}
+ 	}
+ 	if (IS_ERR(src)) {
++		unsigned long x, n;
+ 		void *ptr;
+-		int x, n;
+ 
+ 		/*
+ 		 * We can avoid clflushing partial cachelines before the write
+@@ -1184,7 +1184,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 		ptr = dst;
+ 		x = offset_in_page(offset);
+ 		for (n = offset >> PAGE_SHIFT; length; n++) {
+-			int len = min_t(int, length, PAGE_SIZE - x);
++			int len = min(length, PAGE_SIZE - x);
+ 
+ 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
+ 			if (needs_clflush)
+@@ -1414,8 +1414,8 @@ static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
+  */
+ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
+ 			    struct i915_vma *batch,
+-			    u32 batch_offset,
+-			    u32 batch_length,
++			    unsigned long batch_offset,
++			    unsigned long batch_length,
+ 			    struct i915_vma *shadow,
+ 			    bool trampoline)
+ {
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 72a9449b674e..eef9a821c49c 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -1949,8 +1949,8 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
+ void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
+ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
+ 			    struct i915_vma *batch,
+-			    u32 batch_offset,
+-			    u32 batch_length,
++			    unsigned long batch_offset,
++			    unsigned long batch_length,
+ 			    struct i915_vma *shadow,
+ 			    bool trampoline);
+ #define I915_CMD_PARSER_TRAMPOLINE_SIZE 8
+
