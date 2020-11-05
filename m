@@ -2,68 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 641592A8602
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 19:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AEA12A86A9
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 20:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgKESUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 13:20:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52796 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbgKESUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 13:20:22 -0500
-Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D17BC0613CF
-        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 10:20:22 -0800 (PST)
-Received: by mail-yb1-xb42.google.com with SMTP id m188so2165933ybf.2
-        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 10:20:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ClgKaemO6CR2nmThdjhxA3Eyp3J9eGd9egneqIPbMOY=;
-        b=jMw7CBkTBQDJqeDoEJowks6ofzRFRXLGyalg6vSHkgh3JGG3Dt966nzVAIeq5EAoBT
-         mklMk8WZrxlcfUBEwFhpE0r9xy2T44l0nmeMg85R8zDp5+yUFZLkp6Bifb7y5AE0Yk40
-         9yNoW8JruamdR2MHMvTAncUIwyqjzxmY09pKC5xBn/jBictswZ3YyrAnDjkt+9dk6XH8
-         GY3aUGfmsbJeEdNUa/FeObyUhDC+mJBPX4bl/bZreZaiVZHIuThg2mfEixJq0922tXIv
-         U9r9YsgoBz59Q5w5KSD5ePchs8wp+6CnrQBGhWdudDA31q919kAngvkmBuRdV/64a7VS
-         2q9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ClgKaemO6CR2nmThdjhxA3Eyp3J9eGd9egneqIPbMOY=;
-        b=rIJY4ER9t73/Q0pq1s+AzBK4ydXDEEH2a6WJREnLG8qmyjcX/eQWOEKcdfrCWbXldy
-         L8djlvj/+Q06F06xa7hPDrCT8hkhaNjGmU/rbMYmJRpwYyIjRYZoQRLeSYSjGvBOcX7A
-         b4vAFhFu4BDeN5Iw/joy+ifZM3Sya/EMl1qXnakJEihbbb2480SOO9I9ljESPScS76hD
-         tYxSP5mr2a9fzuS0bk8voeKiFRPK74J7jcJB6aM9W7EorCvc/STws/DeGD3kp1ub8+fR
-         ENcE974y63OMQq4QEZ/9hL58E8IELDRqriE0UEP6T5+k1TDl5D5k51053XZtUh+kE3SF
-         ztIA==
-X-Gm-Message-State: AOAM531Y+N3bGEQTsNHUN3S6JA8/21xBlvTADlVQsGdE7e1KfOGqdEKG
-        R+ow52UWvcjdQi5mb3YN8I9wY+TiK0yqsrhMPhI=
-X-Google-Smtp-Source: ABdhPJw3DGLth75SYtab/eFXJgiC3fR0pT8HIMXPiJk4VkB+taTlnXkw2kCybXwcNqKu2PwIDqOQ1rdYNQI5BWn/ogs=
-X-Received: by 2002:a25:4c43:: with SMTP id z64mr4953904yba.290.1604600421262;
- Thu, 05 Nov 2020 10:20:21 -0800 (PST)
+        id S1732011AbgKETDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 14:03:02 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34706 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732004AbgKETDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Nov 2020 14:03:01 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 8E256AB8F;
+        Thu,  5 Nov 2020 19:03:00 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     patrik.r.jakobsson@gmail.com, airlied@linux.ie, daniel@ffwll.ch
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Alan Cox <alan@linux.intel.com>,
+        Dave Airlie <airlied@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
+Date:   Thu,  5 Nov 2020 20:02:56 +0100
+Message-Id: <20201105190256.3893-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-Received: by 2002:a05:7108:629c:0:0:0:0 with HTTP; Thu, 5 Nov 2020 10:20:20
- -0800 (PST)
-Reply-To: Mrs.madina.abdoulaziz011@protonmail.com
-From:   "Mrs. Madina Abdoul Aziz" <vntggg6@gmail.com>
-Date:   Thu, 5 Nov 2020 17:20:20 -0100
-Message-ID: <CAPaaXD5K=PX5=c=j8pqNoug81mgLGYRBayAm5294dhe0b26+Xg@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+The gma500 driver expects 3 pipelines in several it's IRQ functions.
+Accessing struct drm_device.vblank[], this fails with devices that only
+have 2 pipelines. An example KASAN report is shown below.
 
-I have a personal Project in which i need your assistance I would like
-to be sure of your willingness, trustworthiness and commitment to
-execute this transaction with me. I seek your partnership in
-transferring  this fund {$US6,000,000}. If interested
-(cm9783684@gmail.com ) for more details about the fund.
+  [   62.267688] ==================================================================
+  [   62.268856] BUG: KASAN: slab-out-of-bounds in psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
+  [   62.269450] Read of size 1 at addr ffff8880012bc6d0 by task systemd-udevd/285
+  [   62.269949]
+  [   62.270192] CPU: 0 PID: 285 Comm: systemd-udevd Tainted: G            E     5.10.0-rc1-1-default+ #572
+  [   62.270807] Hardware name:  /DN2800MT, BIOS MTCDT10N.86A.0164.2012.1213.1024 12/13/2012
+  [   62.271366] Call Trace:
+  [   62.271705]  dump_stack+0xae/0xe5
+  [   62.272180]  print_address_description.constprop.0+0x17/0xf0
+  [   62.272987]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
+  [   62.273474]  __kasan_report.cold+0x20/0x38
+  [   62.273989]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
+  [   62.274460]  kasan_report+0x3a/0x50
+  [   62.274891]  psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
+  [   62.275380]  drm_irq_install+0x131/0x1f0
+  <...>
+  [   62.300751] Allocated by task 285:
+  [   62.301223]  kasan_save_stack+0x1b/0x40
+  [   62.301731]  __kasan_kmalloc.constprop.0+0xbf/0xd0
+  [   62.302293]  drmm_kmalloc+0x55/0x100
+  [   62.302773]  drm_vblank_init+0x77/0x210
 
-, thank you.
+Resolve the issue by only handling vblank entries up to the number of
+CRTCs.
 
-Mrs madina
+I'm adding a Fixes tag for reference, although the bug has been present
+since the driver's initial commit.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 5c49fd3aa0ab ("gma500: Add the core DRM files and headers")
+Cc: Alan Cox <alan@linux.intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: stable@vger.kernel.org#v3.3+
+---
+ drivers/gpu/drm/gma500/psb_irq.c | 34 +++++++++++---------------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/gpu/drm/gma500/psb_irq.c b/drivers/gpu/drm/gma500/psb_irq.c
+index 15eb3770d817..361e3a0c5ab6 100644
+--- a/drivers/gpu/drm/gma500/psb_irq.c
++++ b/drivers/gpu/drm/gma500/psb_irq.c
+@@ -347,6 +347,7 @@ int psb_irq_postinstall(struct drm_device *dev)
+ {
+ 	struct drm_psb_private *dev_priv = dev->dev_private;
+ 	unsigned long irqflags;
++	unsigned int i;
+ 
+ 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
+ 
+@@ -359,20 +360,12 @@ int psb_irq_postinstall(struct drm_device *dev)
+ 	PSB_WVDC32(dev_priv->vdc_irq_mask, PSB_INT_ENABLE_R);
+ 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
+ 
+-	if (dev->vblank[0].enabled)
+-		psb_enable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
+-	else
+-		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
+-
+-	if (dev->vblank[1].enabled)
+-		psb_enable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
+-	else
+-		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
+-
+-	if (dev->vblank[2].enabled)
+-		psb_enable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
+-	else
+-		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
++	for (i = 0; i < dev->num_crtcs; ++i) {
++		if (dev->vblank[i].enabled)
++			psb_enable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
++		else
++			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
++	}
+ 
+ 	if (dev_priv->ops->hotplug_enable)
+ 		dev_priv->ops->hotplug_enable(dev, true);
+@@ -385,6 +378,7 @@ void psb_irq_uninstall(struct drm_device *dev)
+ {
+ 	struct drm_psb_private *dev_priv = dev->dev_private;
+ 	unsigned long irqflags;
++	unsigned int i;
+ 
+ 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
+ 
+@@ -393,14 +387,10 @@ void psb_irq_uninstall(struct drm_device *dev)
+ 
+ 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
+ 
+-	if (dev->vblank[0].enabled)
+-		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
+-
+-	if (dev->vblank[1].enabled)
+-		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
+-
+-	if (dev->vblank[2].enabled)
+-		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
++	for (i = 0; i < dev->num_crtcs; ++i) {
++		if (dev->vblank[i].enabled)
++			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
++	}
+ 
+ 	dev_priv->vdc_irq_mask &= _PSB_IRQ_SGX_FLAG |
+ 				  _PSB_IRQ_MSVDX_FLAG |
+-- 
+2.29.0
+
