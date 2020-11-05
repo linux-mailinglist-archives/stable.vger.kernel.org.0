@@ -2,78 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6943D2A7D69
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 12:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B892A7D72
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 12:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729113AbgKELoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 06:44:15 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59150 "EHLO
+        id S1726996AbgKELqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 06:46:53 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59770 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726665AbgKELoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 06:44:13 -0500
+        with ESMTP id S1726665AbgKELqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 06:46:53 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id B120A1C0B82; Thu,  5 Nov 2020 12:44:08 +0100 (CET)
-Date:   Thu, 5 Nov 2020 12:44:08 +0100
+        id 7F67A1C0B85; Thu,  5 Nov 2020 12:46:48 +0100 (CET)
+Date:   Thu, 5 Nov 2020 12:46:48 +0100
 From:   Pavel Machek <pavel@ucw.cz>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 057/191] sparc64: remove mm_cpumask clearing to fix
- kthread_use_mm race
-Message-ID: <20201105114408.GA9009@duo.ucw.cz>
+Subject: Re: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of
+ clock controller
+Message-ID: <20201105114648.GB9009@duo.ucw.cz>
 References: <20201103203232.656475008@linuxfoundation.org>
- <20201103203240.110227839@linuxfoundation.org>
+ <20201103203243.594174920@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+        protocol="application/pgp-signature"; boundary="MfFXiAuoTsnnDAfZ"
 Content-Disposition: inline
-In-Reply-To: <20201103203240.110227839@linuxfoundation.org>
+In-Reply-To: <20201103203243.594174920@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---W/nzBZO5zC0uMSeA
+--MfFXiAuoTsnnDAfZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Nicholas Piggin <npiggin@gmail.com>
+> The Power Management Unit (PMU) is a separate device which has little
+> common with clock controller.  Moving it to one level up (from clock
+> controller child to SoC) allows to remove fake simple-bus compatible and
+> dtbs_check warnings like:
 >=20
-> [ Upstream commit bafb056ce27940c9994ea905336aa8f27b4f7275 ]
-=2E..
-> io_uring 2b188cc1bb857 ("Add io_uring IO interface") added code which
-> does a kthread_use_mm() from a mmget_not_zero() refcount.
-=2E..
-> The basic fix for sparc64 is to remove its mm_cpumask clearing code. The
-> optimisation could be effectively restored by sending IPIs to mm_cpumask
-> members and having them remove themselves from mm_cpumask. This is more
-> tricky so I leave it as an exercise for someone with a sparc64 SMP.
-> powerpc has a (currently similarly broken) example.
+>   clock-controller@e0100000: $nodename:0:
+>     'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|b=
+us|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
-So this removes optimalization from Sparc, because it clashes with
-2b188cc1bb857 ("Add io_uring IO interface"). But that commit is not
-present in 4.19... so this probably is not good idea.
+> +++ b/arch/arm/boot/dts/s5pv210.dtsi
+> @@ -98,19 +98,16 @@
+>  		};
+> =20
+>  		clocks: clock-controller@e0100000 {
+> -			compatible =3D "samsung,s5pv210-clock", "simple-bus";
+> +			compatible =3D "samsung,s5pv210-clock";
+>  			reg =3D <0xe0100000 0x10000>;
+=2E..
+> +		pmu_syscon: syscon@e0108000 {
+> +			compatible =3D "samsung-s5pv210-pmu", "syscon";
+> +			reg =3D <0xe0108000 0x8000>;
+>  		};
+
+Should clock-controller@e0100000's reg be shortened to 0x8000 so that
+the ranges do not overlap?
+
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
 
 Best regards,
 								Pavel
+
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 020a864623ff..54fc3fb56ca1 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -99,7 +99,7 @@
+=20
+ 		clocks: clock-controller@e0100000 {
+ 			compatible =3D "samsung,s5pv210-clock";
+-			reg =3D <0xe0100000 0x10000>;
++			reg =3D <0xe0100000 0x8000>;
+ 			clock-names =3D "xxti", "xusbxti";
+ 			clocks =3D <&xxti>, <&xusbxti>;
+ 			#clock-cells =3D <1>;
+
+
+
 --=20
 http://www.livejournal.com/~pavelmachek
 
---W/nzBZO5zC0uMSeA
+--MfFXiAuoTsnnDAfZ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX6PliAAKCRAw5/Bqldv6
-8n98AJ9Uc+NmgNmzCQI3QdHmr+ziaK4ztwCfUlXuJoy1lBQzAM9E15amAF34hYU=
-=m0CZ
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX6PmKAAKCRAw5/Bqldv6
+8j5nAJ0Rl6JZRJTHh1JgEDbzv0ce6O8sswCfdBBDlRFhZEpcqSURE5bvZ0sLRVE=
+=6wTl
 -----END PGP SIGNATURE-----
 
---W/nzBZO5zC0uMSeA--
+--MfFXiAuoTsnnDAfZ--
