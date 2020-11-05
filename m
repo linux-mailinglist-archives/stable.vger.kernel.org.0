@@ -2,144 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 216FE2A7802
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 08:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E51F62A782E
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 08:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730124AbgKEH1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 02:27:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730131AbgKEH1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 02:27:00 -0500
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 793FAC0613D4
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 23:26:58 -0800 (PST)
-Received: by mail-pf1-x442.google.com with SMTP id z3so721802pfb.10
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 23:26:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=V0nJfAeq3JFSY5yN0H+uBOSwyjDPQ9GUT0hanP1k660=;
-        b=RuVHQPKxtxfoOThH7XJOEGi1n7OVLxAPwQYgZRxGhPQgxOnXmn1dIAteRQtMOQkLLn
-         XZqPtUxh2to3RTU3k942+Al6R3nEwBf6t3sOBz9jdoXjI/+6JH/MrDEYXAPDRuY+SqPT
-         wfPKsy2RwFFR6P4RpzhBg9gAj5KxGHpOghashFYJPLnU8aq4oaldLoCkPfx9wL9EH0eI
-         JkG++ejRWc6PNDyhBd6aQzOGAJtZzIyPfMBs1Z8sJUhK0LL3uZntt7pwdPTqyPxWogx3
-         wPY9djxtgRhVoUuPKMLJFVhF8u+imdmRU2S6qzfla+OlMI7TCoVQhwkh2/ev+4ogkAz1
-         Ny8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=V0nJfAeq3JFSY5yN0H+uBOSwyjDPQ9GUT0hanP1k660=;
-        b=GzebxKC6Ln0bojfrIbyknoMVxuJf9Sbiq9rT1sCGzzDojlIxCiPgbm0t96hxcGd2DW
-         Vax/x8Q++MYC09r8ANYw8U2UKivquvlZIqR+5lGruf8wXToJB4BLfMP/pQr/vMfjJ3Di
-         bmrOVXLZevzIsYpb81xBK3p0DULxutLDhMP1LhSOp7mzHEcfg8yZOPfe1sx5Os+hXgJL
-         NyuY6advgXZtD7kjmuqgqmtkUVEKdn4pym4ns0yfZCpdg+xJXwWY3DggOI0x9bVA8VwX
-         j1n3jrEaO6SaWrHxEta0G76FWcb0CGKN9TM7SdEo8a8FluJwvMiElty6S6mWuVEKZP0U
-         WnPA==
-X-Gm-Message-State: AOAM532rtvDOtSOLDxqteRZHk4smqSY0XWgTnjaySnfOdKldLZ9/9IZO
-        aKS70ZJ5k2XsuwFgaVqr2eJtHg==
-X-Google-Smtp-Source: ABdhPJyAivdWoqD2MH6Gviecrs0Vhv4SxB4eoXeM1V0XYNSmIJ6yy5L13PjNLelkEKgRJGMMUvOrCg==
-X-Received: by 2002:a63:f445:: with SMTP id p5mr1200747pgk.293.1604561217561;
-        Wed, 04 Nov 2020 23:26:57 -0800 (PST)
-Received: from google.com ([2620:15c:2ce:0:a6ae:11ff:fe11:4abb])
-        by smtp.gmail.com with ESMTPSA id j11sm1203750pfh.143.2020.11.04.23.26.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 23:26:56 -0800 (PST)
-Date:   Wed, 4 Nov 2020 23:26:53 -0800
-From:   Fangrui Song <maskray@google.com>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Jakub Jelinek <jakub@redhat.com>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-toolchains@vger.kernel.org,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Dmitry Golovin <dima@golovin.in>,
-        Alistair Delva <adelva@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] Kbuild: do not emit debug info for assembly with
- LLVM_IAS=1
-Message-ID: <20201105072653.wxlzat5azj7h4ttj@google.com>
-References: <CAK7LNAST0Ma4bGGOA_HATzYAmRhZG=x_X=8p_9dKGX7bYc2FMA@mail.gmail.com>
- <20201104005343.4192504-1-ndesaulniers@google.com>
- <20201104005343.4192504-3-ndesaulniers@google.com>
- <20201105065844.GA3243074@ubuntu-m3-large-x86>
+        id S1726737AbgKEHpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 02:45:04 -0500
+Received: from mail2.directv.syn-alias.com ([69.168.106.50]:54450 "EHLO
+        mail.directv.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726756AbgKEHpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 02:45:03 -0500
+DKIM-Signature: v=1; a=rsa-sha1; d=wildblue.net; s=20170921; c=relaxed/simple;
+        q=dns/txt; i=@wildblue.net; t=1604562302;
+        h=From:Subject:Date:To:MIME-Version:Content-Type;
+        bh=+/gMcM2JLBRroFSmmYDV09lAd+8=;
+        b=Bq2oI/JTwaU80nQNw6Bz5rijPG2kbe2mSSc+5Nel/f2bjqlabBdbMABduPdnmTVw
+        YMFDySTlfq6OjViNZLMbhA6eQFN9ZcO2uQ2UwARZ+dYGTT/bk2JD665j2GWXfN1z
+        jdZOF0gi02UJm4e2UNAZU3AMhkut0CyBEgXkxu/LC+3IUpbtUgWg29nzu4ZW4y4z
+        oJJjtM66sypCkjFjzb7A73Q+ElClQZIvJ2x106JQXWb7cAwaAHWdvOkbifBtm1IZ
+        +exLAQpWXvLTH38tOQYX/Nz9jSWJEd6fQHNUTwYv++fSy8uMTz3E7GP05Dv0cVhG
+        y/RXXFkd1EPFjQIYk6o3XA==;
+X_CMAE_Category: , ,
+X-CNFS-Analysis: v=2.3 cv=Xt+ExmN9 c=1 sm=1 tr=0 cx=a_idp_x a=OLB27VRqKyjF3NoRAXxXFA==:117 a=9cW_t1CCXrUA:10 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=VKrxT_Ub3w4A:10 a=3drOeRgJqewA:10 a=IkcTkHD0fZMA:10 a=x7bEGLp0ZPQA:10 a=nNwsprhYR40A:10 a=dLNWoSYkOVIA:10 a=7N77gAWQIoEA:10 a=NS_hirdgIVpAgKS1k8AA:9 a=QEXdDO2ut3YA:10 a=xo5jKAKm-U-Zyk2_beg_:22 a=eHfO2oLuMM_iG-JZHUti:22 a=pHzHmUro8NiASowvMSCR:22 a=nt3jZW36AmriUCFCBwmW:22
+X-CM-Score: 0
+X-Scanned-by: Cloudmark Authority Engine
+X-Authed-Username: am9zYm9ybmVAd2lsZGJsdWUubmV0
+Received: from [10.80.118.2] ([10.80.118.2:49288] helo=md05.jasper.bos.sync.lan)
+        by mail2.directv.syn-alias.com (envelope-from <josborne@wildblue.net>)
+        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
+        id 5B/1C-32012-D7DA3AF5; Thu, 05 Nov 2020 02:45:01 -0500
+Date:   Thu, 5 Nov 2020 02:45:01 -0500 (EST)
+From:   George <josborne@wildblue.net>
+Reply-To: geow0147@gmail.com
+Message-ID: <1667784054.95311664.1604562301417.JavaMail.zimbra@wildblue.net>
+Subject: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20201105065844.GA3243074@ubuntu-m3-large-x86>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [175.37.246.231]
+X-Mailer: Zimbra 8.7.6_GA_1776 (zclient/8.7.6_GA_1776)
+Thread-Index: umILDekC4jZUD5VG/sDcU0A7M86l0A==
+Thread-Topic: 
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 2020-11-04, Nathan Chancellor wrote:
->On Tue, Nov 03, 2020 at 04:53:41PM -0800, Nick Desaulniers wrote:
->> Clang's integrated assembler produces the warning for assembly files:
->>
->> warning: DWARF2 only supports one section per compilation unit
->>
->> If -Wa,-gdwarf-* is unspecified, then debug info is not emitted.  This
->
->Is this something that should be called out somewhere? If I understand
->this correctly, LLVM_IAS=1 + CONFIG_DEBUG_INFO=y won't work? Maybe this
->should be handled in Kconfig?
->
->> will be re-enabled for new DWARF versions in a follow up patch.
->>
->> Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
->> LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
->>
->> Cc: <stable@vger.kernel.org>
->> Link: https://github.com/ClangBuiltLinux/linux/issues/716
->> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
->> Suggested-by: Dmitry Golovin <dima@golovin.in>
->
->If you happen to respin, Dmitry deserves a Reported-by tag too :)
->
->> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
->> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
->
->Regardless of the other two comments, this is fine as is as a fix for
->stable to unblock Android + CrOS since we have been running something
->similar to it in CI:
->
->Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
->
->> ---
->>  Makefile | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/Makefile b/Makefile
->> index f353886dbf44..75b1a3dcbf30 100644
->> --- a/Makefile
->> +++ b/Makefile
->> @@ -826,7 +826,9 @@ else
->>  DEBUG_CFLAGS	+= -g
->>  endif
->>
->> +ifndef LLVM_IAS
->
->Nit: this should probably match the existing LLVM_IAS check
->
->ifneq ($(LLVM_IAS),1)
->
->>  KBUILD_AFLAGS	+= -Wa,-gdwarf-2
->> +endif
->>
->>  ifdef CONFIG_DEBUG_INFO_DWARF4
->>  DEBUG_CFLAGS	+= -gdwarf-4
->> --
->> 2.29.1.341.ge80a0c044ae-goog
->>
-
-The root cause is that DWARF v2 has no DW_AT_ranges, so it cannot
-represent non-contiguous address ranges. It seems that GNU as -gdwarf-3
-emits DW_AT_ranges as well and emits an entry for a non-executable section.
-In any case, the option is of very low value, at least for LLVM.
-
-
-Reviewed-by: Fangrui Song <maskray@google.com>
+Do you get my last mail
