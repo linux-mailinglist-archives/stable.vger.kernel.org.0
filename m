@@ -2,91 +2,354 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B84D82A788A
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 09:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFD12A797E
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 09:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgKEIF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 03:05:56 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36153 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725827AbgKEIF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 03:05:56 -0500
-Received: by mail-lf1-f68.google.com with SMTP id h6so990457lfj.3;
-        Thu, 05 Nov 2020 00:05:53 -0800 (PST)
+        id S1725320AbgKEIeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 03:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725287AbgKEIeg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 03:34:36 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C696C0613CF
+        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 00:34:36 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id k9so637405edo.5
+        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 00:34:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=DbsYvz4Gavs4u4SpOXcgyktQpQGaj3PvUYqLH7RUqeA=;
+        b=EI7E2SWBkV5f7bgcpD+Pw9OntbBgLQgSOCFmNSLdGTtr8ghO96LVRXrWWXO41/oH5S
+         V2xxXcliOgw85+LmQ8ZoEIlYve2D5ti0s8k+nZIyfCnMlUFuxcbzKTUiISoljkIPhk+G
+         TPaNWkK020ZWD0DRNcR7yYhskinMdJj2OaChx9+yFFOycRuAyT7+VKXgWIuUIh+eYnEx
+         sw3XItaQws2Fu6+AepirNOZhTb5jYzni61a5SA0JCfko1KbvacWtTn1jr0b0b9ScOKRj
+         2oMJ5oEVUxQeFpWcSRIl4QqMQQb95RAmp8co1kyz/i2qUWLOEDX5kz9D/Kf8pfWK42xu
+         rT2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=jcbSFuZNjbwwPpmdXXuMLatE+ma/MkyayRwCMh0xeEw=;
-        b=IY8TTTT/TCb1AnXBp6d4v1bQzZdEXp1SAmpAyAEBxdC1FOFpM44VUu8GQDT47gW1UF
-         NTvwbU31OSEew7Yw70XGfM3uXK1EXn7BBqscXXjSeNejlQcxJhvykg8TggqifpTlRg6u
-         FWLs88lCd+JcWhr9vG0mF+qBBXd6r5NLAvb/MBm7tw7DRfKEugTTYJ/YquzXHgTnKtDH
-         j34SL7xegiF2OF2UYPjQLu99IDlbeK6lakp09e3bS12RuhWRxROlGUZlNZVsOw4pnOQA
-         3QOczezbbcUvVn5tQnhYRZdr1pY1Ri68efFDDMYNAftpAqLtsp5ahVr44hdByZjeAZIL
-         yhmg==
-X-Gm-Message-State: AOAM530+OoYYDrSd/tW0erPGoKQDLkCrmFimyXLPef8VqYiDfcAkYB9W
-        fZTAXHVXXb74HzsG67NNUVgi8dZxqW1zAg==
-X-Google-Smtp-Source: ABdhPJxO6iT4ufyTU4k10t0H9GULmCKc8Mk9EcLRvKpR1sNEwto031olXZ7Kd6J9qcksigpxE1jkag==
-X-Received: by 2002:a19:458:: with SMTP id 85mr458868lfe.249.1604563553248;
-        Thu, 05 Nov 2020 00:05:53 -0800 (PST)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id d26sm79031ljj.102.2020.11.05.00.05.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2020 00:05:52 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kaaHN-0000UQ-4T; Thu, 05 Nov 2020 09:05:57 +0100
-Date:   Thu, 5 Nov 2020 09:05:57 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] USB: serial: mos7720: fix parallel-port state restore
-Message-ID: <20201105080557.GZ4085@localhost>
-References: <20201104164727.26351-1-johan@kernel.org>
- <20201104165910.GA2342981@kroah.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=DbsYvz4Gavs4u4SpOXcgyktQpQGaj3PvUYqLH7RUqeA=;
+        b=ld2VT/zDMnkMxYtM5FZqxN9tPVE3VA+f6GLW25VhyLkTyvQcEkCKi3aHR8V8r+CzxY
+         lqrIeik9Ktb56Yy4WqDIw1dCiCByO/B7Dn7J1YHJJoh+Y1BRb04A4kxFMrGHVcVSeY2T
+         gVtbZmx6FfSRjwqZ6Tb+Z6KXAzYBZZXw9uDJ8YIzOXU5HNz79Went7Ma3s3EWqnuDPM9
+         x2r1TvnyHGHbnJlMafjo4LvvqbYZT4PEcoG/5YeghNYfEc4qTKPzlaqnBwCyWyUY07Hz
+         qEANp17e6l9JEyhKKl4je9s6iZ3mqjdyWGbmNpu24Qf6NmhHVyegKmw11mU6+9CgfMHH
+         tYYA==
+X-Gm-Message-State: AOAM530m1nbVLee7niPEo1HZmXcY4yoXKsyB3GgIjz48DwXYroubVVYH
+        uPyBKDqA9rKo2my5GP3XwzGTuvLrlSzOyw==
+X-Google-Smtp-Source: ABdhPJzouLc6dvk7ocumoVbg2nXnyiBeCrge1bQ4CESylxcJzX7aFxfTXkqzArwS7DrDGiRZx78gGQ==
+X-Received: by 2002:a50:e443:: with SMTP id e3mr1479663edm.160.1604565274318;
+        Thu, 05 Nov 2020 00:34:34 -0800 (PST)
+Received: from ?IPv6:2a02:a03f:5aa3:2700::f4d? ([2a02:a03f:5aa3:2700::f4d])
+        by smtp.gmail.com with ESMTPSA id z13sm513754ejp.30.2020.11.05.00.34.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Nov 2020 00:34:33 -0800 (PST)
+Subject: Re: Linux 5.9.4
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+References: <16045237196633@kroah.com> <16045237193961@kroah.com>
+From:   =?UTF-8?Q?Fran=c3=a7ois_Valenduc?= <francoisvalenduc@gmail.com>
+Message-ID: <13da09e2-9692-f2f5-7a55-d949f1f9a6de@gmail.com>
+Date:   Thu, 5 Nov 2020 09:34:32 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201104165910.GA2342981@kroah.com>
+In-Reply-To: <16045237193961@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr-moderne
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 04, 2020 at 05:59:10PM +0100, Greg Kroah-Hartman wrote:
-> On Wed, Nov 04, 2020 at 05:47:27PM +0100, Johan Hovold wrote:
-> > The parallel-port restore operations is called when a driver claims the
-> > port and is supposed to restore the provided state (e.g. saved when
-> > releasing the port).
-> > 
-> > Fixes: b69578df7e98 ("USB: usbserial: mos7720: add support for parallel port on moschip 7715")
-> > Cc: stable <stable@vger.kernel.org>     # 2.6.35
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/usb/serial/mos7720.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/usb/serial/mos7720.c b/drivers/usb/serial/mos7720.c
-> > index 5eed1078fac8..5a5d2a95070e 100644
-> > --- a/drivers/usb/serial/mos7720.c
-> > +++ b/drivers/usb/serial/mos7720.c
-> > @@ -639,6 +639,8 @@ static void parport_mos7715_restore_state(struct parport *pp,
-> >  		spin_unlock(&release_lock);
-> >  		return;
-> >  	}
-> > +	mos_parport->shadowDCR = s->u.pc.ctr;
-> > +	mos_parport->shadowECR = s->u.pc.ecr;
+I find this strange. There is only 4 commits in git between 5.9.3 and 
+5.9.4 while the review had 391 patches. Is it normal ?
+
+Best regards,
+
+François Valenduc
+
+Le 4/11/20 à 22:04, Greg Kroah-Hartman a écrit :
+> diff --git a/Makefile b/Makefile
+> index 50e927f34853..0c8f0ba8c34f 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -1,7 +1,7 @@
+>   # SPDX-License-Identifier: GPL-2.0
+>   VERSION = 5
+>   PATCHLEVEL = 9
+> -SUBLEVEL = 3
+> +SUBLEVEL = 4
+>   EXTRAVERSION =
+>   NAME = Kleptomaniac Octopus
+>   
+> diff --git a/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S b/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S
+> deleted file mode 100644
+> index 88d46c471493..000000000000
+> --- a/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S
+> +++ /dev/null
+> @@ -1,242 +0,0 @@
+> -/* SPDX-License-Identifier: GPL-2.0 */
+> -/*
+> - * Copyright (C) IBM Corporation, 2011
+> - * Derived from copyuser_power7.s by Anton Blanchard <anton@au.ibm.com>
+> - * Author - Balbir Singh <bsingharora@gmail.com>
+> - */
+> -#include <asm/ppc_asm.h>
+> -#include <asm/errno.h>
+> -#include <asm/export.h>
+> -
+> -	.macro err1
+> -100:
+> -	EX_TABLE(100b,.Ldo_err1)
+> -	.endm
+> -
+> -	.macro err2
+> -200:
+> -	EX_TABLE(200b,.Ldo_err2)
+> -	.endm
+> -
+> -	.macro err3
+> -300:	EX_TABLE(300b,.Ldone)
+> -	.endm
+> -
+> -.Ldo_err2:
+> -	ld	r22,STK_REG(R22)(r1)
+> -	ld	r21,STK_REG(R21)(r1)
+> -	ld	r20,STK_REG(R20)(r1)
+> -	ld	r19,STK_REG(R19)(r1)
+> -	ld	r18,STK_REG(R18)(r1)
+> -	ld	r17,STK_REG(R17)(r1)
+> -	ld	r16,STK_REG(R16)(r1)
+> -	ld	r15,STK_REG(R15)(r1)
+> -	ld	r14,STK_REG(R14)(r1)
+> -	addi	r1,r1,STACKFRAMESIZE
+> -.Ldo_err1:
+> -	/* Do a byte by byte copy to get the exact remaining size */
+> -	mtctr	r7
+> -46:
+> -err3;	lbz	r0,0(r4)
+> -	addi	r4,r4,1
+> -err3;	stb	r0,0(r3)
+> -	addi	r3,r3,1
+> -	bdnz	46b
+> -	li	r3,0
+> -	blr
+> -
+> -.Ldone:
+> -	mfctr	r3
+> -	blr
+> -
+> -
+> -_GLOBAL(copy_mc_generic)
+> -	mr	r7,r5
+> -	cmpldi	r5,16
+> -	blt	.Lshort_copy
+> -
+> -.Lcopy:
+> -	/* Get the source 8B aligned */
+> -	neg	r6,r4
+> -	mtocrf	0x01,r6
+> -	clrldi	r6,r6,(64-3)
+> -
+> -	bf	cr7*4+3,1f
+> -err1;	lbz	r0,0(r4)
+> -	addi	r4,r4,1
+> -err1;	stb	r0,0(r3)
+> -	addi	r3,r3,1
+> -	subi	r7,r7,1
+> -
+> -1:	bf	cr7*4+2,2f
+> -err1;	lhz	r0,0(r4)
+> -	addi	r4,r4,2
+> -err1;	sth	r0,0(r3)
+> -	addi	r3,r3,2
+> -	subi	r7,r7,2
+> -
+> -2:	bf	cr7*4+1,3f
+> -err1;	lwz	r0,0(r4)
+> -	addi	r4,r4,4
+> -err1;	stw	r0,0(r3)
+> -	addi	r3,r3,4
+> -	subi	r7,r7,4
+> -
+> -3:	sub	r5,r5,r6
+> -	cmpldi	r5,128
+> -
+> -	mflr	r0
+> -	stdu	r1,-STACKFRAMESIZE(r1)
+> -	std	r14,STK_REG(R14)(r1)
+> -	std	r15,STK_REG(R15)(r1)
+> -	std	r16,STK_REG(R16)(r1)
+> -	std	r17,STK_REG(R17)(r1)
+> -	std	r18,STK_REG(R18)(r1)
+> -	std	r19,STK_REG(R19)(r1)
+> -	std	r20,STK_REG(R20)(r1)
+> -	std	r21,STK_REG(R21)(r1)
+> -	std	r22,STK_REG(R22)(r1)
+> -	std	r0,STACKFRAMESIZE+16(r1)
+> -
+> -	blt	5f
+> -	srdi	r6,r5,7
+> -	mtctr	r6
+> -
+> -	/* Now do cacheline (128B) sized loads and stores. */
+> -	.align	5
+> -4:
+> -err2;	ld	r0,0(r4)
+> -err2;	ld	r6,8(r4)
+> -err2;	ld	r8,16(r4)
+> -err2;	ld	r9,24(r4)
+> -err2;	ld	r10,32(r4)
+> -err2;	ld	r11,40(r4)
+> -err2;	ld	r12,48(r4)
+> -err2;	ld	r14,56(r4)
+> -err2;	ld	r15,64(r4)
+> -err2;	ld	r16,72(r4)
+> -err2;	ld	r17,80(r4)
+> -err2;	ld	r18,88(r4)
+> -err2;	ld	r19,96(r4)
+> -err2;	ld	r20,104(r4)
+> -err2;	ld	r21,112(r4)
+> -err2;	ld	r22,120(r4)
+> -	addi	r4,r4,128
+> -err2;	std	r0,0(r3)
+> -err2;	std	r6,8(r3)
+> -err2;	std	r8,16(r3)
+> -err2;	std	r9,24(r3)
+> -err2;	std	r10,32(r3)
+> -err2;	std	r11,40(r3)
+> -err2;	std	r12,48(r3)
+> -err2;	std	r14,56(r3)
+> -err2;	std	r15,64(r3)
+> -err2;	std	r16,72(r3)
+> -err2;	std	r17,80(r3)
+> -err2;	std	r18,88(r3)
+> -err2;	std	r19,96(r3)
+> -err2;	std	r20,104(r3)
+> -err2;	std	r21,112(r3)
+> -err2;	std	r22,120(r3)
+> -	addi	r3,r3,128
+> -	subi	r7,r7,128
+> -	bdnz	4b
+> -
+> -	clrldi	r5,r5,(64-7)
+> -
+> -	/* Up to 127B to go */
+> -5:	srdi	r6,r5,4
+> -	mtocrf	0x01,r6
+> -
+> -6:	bf	cr7*4+1,7f
+> -err2;	ld	r0,0(r4)
+> -err2;	ld	r6,8(r4)
+> -err2;	ld	r8,16(r4)
+> -err2;	ld	r9,24(r4)
+> -err2;	ld	r10,32(r4)
+> -err2;	ld	r11,40(r4)
+> -err2;	ld	r12,48(r4)
+> -err2;	ld	r14,56(r4)
+> -	addi	r4,r4,64
+> -err2;	std	r0,0(r3)
+> -err2;	std	r6,8(r3)
+> -err2;	std	r8,16(r3)
+> -err2;	std	r9,24(r3)
+> -err2;	std	r10,32(r3)
+> -err2;	std	r11,40(r3)
+> -err2;	std	r12,48(r3)
+> -err2;	std	r14,56(r3)
+> -	addi	r3,r3,64
+> -	subi	r7,r7,64
+> -
+> -7:	ld	r14,STK_REG(R14)(r1)
+> -	ld	r15,STK_REG(R15)(r1)
+> -	ld	r16,STK_REG(R16)(r1)
+> -	ld	r17,STK_REG(R17)(r1)
+> -	ld	r18,STK_REG(R18)(r1)
+> -	ld	r19,STK_REG(R19)(r1)
+> -	ld	r20,STK_REG(R20)(r1)
+> -	ld	r21,STK_REG(R21)(r1)
+> -	ld	r22,STK_REG(R22)(r1)
+> -	addi	r1,r1,STACKFRAMESIZE
+> -
+> -	/* Up to 63B to go */
+> -	bf	cr7*4+2,8f
+> -err1;	ld	r0,0(r4)
+> -err1;	ld	r6,8(r4)
+> -err1;	ld	r8,16(r4)
+> -err1;	ld	r9,24(r4)
+> -	addi	r4,r4,32
+> -err1;	std	r0,0(r3)
+> -err1;	std	r6,8(r3)
+> -err1;	std	r8,16(r3)
+> -err1;	std	r9,24(r3)
+> -	addi	r3,r3,32
+> -	subi	r7,r7,32
+> -
+> -	/* Up to 31B to go */
+> -8:	bf	cr7*4+3,9f
+> -err1;	ld	r0,0(r4)
+> -err1;	ld	r6,8(r4)
+> -	addi	r4,r4,16
+> -err1;	std	r0,0(r3)
+> -err1;	std	r6,8(r3)
+> -	addi	r3,r3,16
+> -	subi	r7,r7,16
+> -
+> -9:	clrldi	r5,r5,(64-4)
+> -
+> -	/* Up to 15B to go */
+> -.Lshort_copy:
+> -	mtocrf	0x01,r5
+> -	bf	cr7*4+0,12f
+> -err1;	lwz	r0,0(r4)	/* Less chance of a reject with word ops */
+> -err1;	lwz	r6,4(r4)
+> -	addi	r4,r4,8
+> -err1;	stw	r0,0(r3)
+> -err1;	stw	r6,4(r3)
+> -	addi	r3,r3,8
+> -	subi	r7,r7,8
+> -
+> -12:	bf	cr7*4+1,13f
+> -err1;	lwz	r0,0(r4)
+> -	addi	r4,r4,4
+> -err1;	stw	r0,0(r3)
+> -	addi	r3,r3,4
+> -	subi	r7,r7,4
+> -
+> -13:	bf	cr7*4+2,14f
+> -err1;	lhz	r0,0(r4)
+> -	addi	r4,r4,2
+> -err1;	sth	r0,0(r3)
+> -	addi	r3,r3,2
+> -	subi	r7,r7,2
+> -
+> -14:	bf	cr7*4+3,15f
+> -err1;	lbz	r0,0(r4)
+> -err1;	stb	r0,0(r3)
+> -
+> -15:	li	r3,0
+> -	blr
+> -
+> -EXPORT_SYMBOL_GPL(copy_mc_generic);
+> diff --git a/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S b/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S
+> new file mode 120000
+> index 000000000000..dcbe06d500fb
+> --- /dev/null
+> +++ b/tools/testing/selftests/powerpc/copyloops/copy_mc_64.S
+> @@ -0,0 +1 @@
+> +../../../../../arch/powerpc/lib/copy_mc_64.S
+> \ No newline at end of file
+> diff --git a/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S b/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S
+> deleted file mode 120000
+> index f0feef3062f6..000000000000
+> --- a/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S
+> +++ /dev/null
+> @@ -1 +0,0 @@
+> -../../../../../arch/powerpc/lib/memcpy_mcsafe_64.S
+> \ No newline at end of file
 > 
-> Wow that's old code.  I'm guessing no one uses these devices really :(
 
-Possibly, but this would still work as long as you don't switch parallel
-port driver without disconnecting the mos7715 device in between.
-
-> Anyway, nice work:
-> 
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Thanks, now applied for -next.
-
-Johan
