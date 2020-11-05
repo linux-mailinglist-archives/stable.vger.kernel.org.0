@@ -2,110 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B903A2A7FC2
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 14:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 669BF2A80C0
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 15:21:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbgKENkF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 5 Nov 2020 08:40:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725468AbgKENkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 08:40:04 -0500
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C5FC0613CF
-        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 05:40:00 -0800 (PST)
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 74A731F4646B;
-        Thu,  5 Nov 2020 13:39:56 +0000 (GMT)
-Date:   Thu, 5 Nov 2020 14:39:53 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Steven Price <steven.price@arm.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] drm/panfrost: Move the GPU reset bits outside the
- timeout handler
-Message-ID: <20201105143953.516e75b2@collabora.com>
-In-Reply-To: <d59e4750-ad1a-5573-16db-ad9b57b6eec5@arm.com>
-References: <20201104170729.1828212-1-boris.brezillon@collabora.com>
-        <d59e4750-ad1a-5573-16db-ad9b57b6eec5@arm.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1730799AbgKEOV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 09:21:58 -0500
+Received: from wp530.webpack.hosteurope.de ([80.237.130.52]:56322 "EHLO
+        wp530.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728371AbgKEOV6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 09:21:58 -0500
+X-Greylist: delayed 1989 seconds by postgrey-1.27 at vger.kernel.org; Thu, 05 Nov 2020 09:21:57 EST
+Received: from ip4d145e30.dynamic.kabel-deutschland.de ([77.20.94.48] helo=[192.168.66.101]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1kafcw-0004jl-Bi; Thu, 05 Nov 2020 14:48:34 +0100
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Rander Wang <rander.wang@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+References: <20201026234905.1022767-1-sashal@kernel.org>
+ <20201026234905.1022767-39-sashal@kernel.org>
+From:   Thorsten Leemhuis <linux@leemhuis.info>
+Subject: Build error with 5.9.5 in sound/soc/sof/intel/hda-codec.c (was:
+ [PATCH AUTOSEL 5.9 039/147] ASoC: SOF: fix a runtime pm issue in SOF when
+ HDMI codec doesn't work)
+Message-ID: <f254331d-7ae2-e26f-3e1b-33a870349126@leemhuis.info>
+Date:   Thu, 5 Nov 2020 14:48:33 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20201026234905.1022767-39-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1604586117;170aacbe;
+X-HE-SMSGID: 1kafcw-0004jl-Bi
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 5 Nov 2020 13:27:04 +0000
-Steven Price <steven.price@arm.com> wrote:
+Lo! I just tried to compile 5.9.5 and ran into a build error with below 
+patch. I only did a quick look (I have to leave the keyboard soon), but 
+seems the patch quoted below that was added to 5.9.5 depends on 
+11ec0edc6408 (git.kernel.org/linus/11ec0edc6408) which wasn't backported.
 
-> > +	old_status = atomic_xchg(&queue->status,
-> > +				 PANFROST_QUEUE_STATUS_STOPPED);
-> > +	WARN_ON(old_status != PANFROST_QUEUE_STATUS_ACTIVE &&
-> > +		old_status != PANFROST_QUEUE_STATUS_STOPPED);
-> > +	if (old_status == PANFROST_QUEUE_STATUS_STOPPED)
-> > +		goto out;  
-> 
-> NIT: It's slightly cleaner if you swap the above lines, i.e.:
-> 
-> 	if (old_status == PANFROST_QUEUE_STATUS_STOPPED)
-> 		goto out;
-> 	WARN_ON(old_status != PANFROST_QUEUE_STATUS_ACTIVE);
+The build error can be found here:
+https://kojipkgs.fedoraproject.org//work/tasks/8246/54978246/build.log
 
-I agree.
+Relevant part:
 
-> 
-> > +
-> > +	drm_sched_stop(&queue->sched, bad);
-> > +	if (bad)
-> > +		drm_sched_increase_karma(bad);
-> > +
-> > +	stopped = true;
-> > +
-> > +	/*
-> > +	 * Set the timeout to max so the timer doesn't get started
-> > +	 * when we return from the timeout handler (restored in
-> > +	 * panfrost_scheduler_start()).
-> > +	 */
-> > +	queue->sched.timeout = MAX_SCHEDULE_TIMEOUT;
-> > +
-> > +out:
-> >   	mutex_unlock(&queue->lock);
-> >   
-> >   	return stopped;
-> >   }
-> >   
-> > +static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
-> > +{
-> > +	enum panfrost_queue_status old_status;
-> > +
-> > +	mutex_lock(&queue->lock);
-> > +	old_status = atomic_xchg(&queue->status,
-> > +				 PANFROST_QUEUE_STATUS_STARTING);
-> > +	if (WARN_ON(old_status != PANFROST_QUEUE_STATUS_STOPPED))
-> > +		goto out;  
-> 
-> The error handling isn't great here - in this case the queue status is 
-> left in _STATUS_STARTING, which at best would lead to another WARN_ON 
-> being hit, but also has the effect of ignoring job faults. Probably the 
-> timeout would eventually get things back to normal.
-> 
-> Obviously this situation will never occur™, but we can do better either 
-> by continuing with the normal logic below, or even better replacing 
-> atomic_xchg() with an atomic_cmpxchg() (so leave the status alone if not 
-> _STOPPED). Both seem like better error recovery options to me. But keep 
-> the WARN_ON because something has clearly gone wrong if this happens.
++ make -s 'HOSTCFLAGS=-O2 -flto=auto -ffat-lto-objects -fexceptions -g 
+-grecord-gcc-switches -pipe -Wall -Werror=format-security 
+-Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS 
+-specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong 
+-specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -fcommon -m64 
+-mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection' 
+'HOSTLDFLAGS=-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now 
+-specs=/usr/lib/rpm/redhat/redhat-hardened-ld ' ARCH=x86_64 'KCFLAGS= ' 
+WITH_GCOV=0 -j48 modules
+sound/soc/sof/intel/hda-codec.c: In function 'hda_codec_probe':
+sound/soc/sof/intel/hda-codec.c:177:4: error: label 'error' used but not 
+defined
+   177 |    goto error;
+       |    ^~~~
+make[4]: *** [scripts/Makefile.build:283: 
+sound/soc/sof/intel/hda-codec.o] Error 1
+make[3]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Error 2
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [scripts/Makefile.build:500: sound/soc] Error 2
+make: *** [Makefile:1784: sound] Error 2
+make: *** Waiting for unfinished jobs....
++ exit 1
 
-The second approach doesn't unblock things if we end up with
-old_status != STOPPED and the queue is really stopped (which shouldn't
-happen, unless we have a problem in our state machine). I think I'll
-go for the first option and restart the queue unconditionally (I'm
-keeping the WARN_ON(), of course).
+Looks like the compiler is right from a quick look at
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/sound/soc/sof/intel/hda-codec.c?h=linux-5.9.y&id=43836fdc9e318a11233cf19c5ee7ffb04e8e5d8f
+
+But as I said, I lack the time for a closer look.
+
+Ciao, Thorsten
+
+Am 27.10.20 um 00:47 schrieb Sasha Levin:
+> From: Rander Wang <rander.wang@intel.com>
+> 
+> [ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
+> 
+> When hda_codec_probe() doesn't initialize audio component, we disable
+> the codec and keep going. However,the resources are not released. The
+> child_count of SOF device is increased in snd_hdac_ext_bus_device_init
+> but is not decrease in error case, so SOF can't get suspended.
+> 
+> snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
+> gets a error. Now copy this behavior to release resources and decrease
+> SOF device child_count to release SOF device.
+> 
+> Signed-off-by: Rander Wang <rander.wang@intel.com>
+> Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+> Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+> Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+> Link: https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   sound/soc/sof/intel/hda-codec.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/sound/soc/sof/intel/hda-codec.c b/sound/soc/sof/intel/hda-codec.c
+> index 2c5c451fa19d7..c475955c6eeba 100644
+> --- a/sound/soc/sof/intel/hda-codec.c
+> +++ b/sound/soc/sof/intel/hda-codec.c
+> @@ -151,7 +151,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+>   		if (!hdev->bus->audio_component) {
+>   			dev_dbg(sdev->dev,
+>   				"iDisp hw present but no driver\n");
+> -			return -ENOENT;
+> +			goto error;
+>   		}
+>   		hda_priv->need_display_power = true;
+>   	}
+> @@ -174,7 +174,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+>   		 * other return codes without modification
+>   		 */
+>   		if (ret == 0)
+> -			ret = -ENOENT;
+> +			goto error;
+>   	}
+>   
+>   	return ret;
+> 
+
