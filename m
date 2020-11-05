@@ -2,117 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2852A881F
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 21:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 568E42A8845
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 21:43:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732133AbgKEUbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 15:31:34 -0500
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:30731 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732083AbgKEUbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 15:31:34 -0500
+        id S1731899AbgKEUnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 15:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726214AbgKEUnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 15:43:50 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA9AC0613CF
+        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 12:43:49 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id u2so1351492pls.10
+        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 12:43:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1604608294; x=1636144294;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=b9e9d8usP8qz9BAkGTsfoN8FhB0ge8Xnu4KuxNy+QQA=;
-  b=SwncX4xer2VePXclMp9bmZULUiLMJQzL6GzDbQCKyixoR0N1FrVGan09
-   wKNTlOXiJNNzoPX4Px7U9iMfJubHqyGWrebbxQ6jmyEyIyKAdP15ZfuJ9
-   z4ybS/nazrc7jx43m19wQBco4bstqfQXQGDvJSL4g+LEGELER+t7tCpY3
-   8=;
-X-IronPort-AV: E=Sophos;i="5.77,454,1596499200"; 
-   d="scan'208";a="91091268"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1e-a70de69e.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 05 Nov 2020 20:31:25 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1e-a70de69e.us-east-1.amazon.com (Postfix) with ESMTPS id 530E0A1E72;
-        Thu,  5 Nov 2020 20:31:24 +0000 (UTC)
-Received: from EX13D35UWC004.ant.amazon.com (10.43.162.180) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 5 Nov 2020 20:31:23 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
- EX13D35UWC004.ant.amazon.com (10.43.162.180) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 5 Nov 2020 20:31:22 +0000
-Received: from dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (172.22.47.82)
- by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Thu, 5 Nov 2020 20:31:22 +0000
-Received: by dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (Postfix, from userid 11196724)
-        id 36BD921B0A; Thu,  5 Nov 2020 20:31:22 +0000 (UTC)
-From:   Andy Strohman <astroh@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     <dchinner@redhat.com>, <darrick.wong@oracle.com>,
-        <astroh@amazon.com>
-Subject: [PATCH 5.4] xfs: flush for older, xfs specific ioctls
-Date:   Thu, 5 Nov 2020 20:28:50 +0000
-Message-ID: <20201105202850.20216-1-astroh@amazon.com>
-X-Mailer: git-send-email 2.16.6
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hPkwayGyzvOeTzXSXbuRWJEhJIwhyp9eefBdG8GNLNM=;
+        b=QtmqlThPl9+WzO5J9SVyP3zKOMpbsUNfNK93w+rty8zJPbnGll0Vu8gLpt7D/tJY6R
+         Y8n5WofgahbQbvJPtBzXH07hm6DpVK/md2LvXB9ozoyBJsX91MnJEz6PxdmlYbiOU/+d
+         ASbv11RdG0cHuZ87a90bFHLyLfI5WS4s8rXLcViarO/Z8qfAx7IA3l7t5oGX3HTyBgFn
+         QqxcgRNpVqzcCaiHy3gVGjvJNUV4PhDzh3Id6frQALs2UEEVmp9yTf+VMHW7qncHBA1w
+         56i7iD7iMkAJS/pYxFZORy8LzVApI6h1UoNPFlIi/kBLAYuvCuoG6UZt6eeD3wlnvmwX
+         IVZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hPkwayGyzvOeTzXSXbuRWJEhJIwhyp9eefBdG8GNLNM=;
+        b=giOpoZ0hMFpuHYB0lO9DmMRfAx9jKVnX21DChbZOt3S98eD9RgPQ86iWtdOv9POpQd
+         /LH1bukBEQAXCSv5oibDv85EC6OwPKi94gr0AcPPCpaimqvkWRKlisklnPwI144jPIQH
+         Oa7yEx6ezQhFmxtCqe3AbzyBtS2xThfhC/8WkwhPtRy4qMpzTzg3x/hSQMQfkEgTZn/8
+         SPzjiRarkxqUkbwln12US7rP6hQAwAbPIjjM02RFQXoRn7mfQCgZEVLoo9Yqw7RRirC0
+         tyNBa+cO/0LaOlpPh35B5/zSJGa9n5IDqJhg7C2HHkoIAUSZQGTx6w23Wocq/Foo4KyO
+         VBGg==
+X-Gm-Message-State: AOAM530pmGzYoy73NqN3CwFChZsciFE6c/2nWPpCsSks+is/s8Il3q9/
+        RsKareIVuX6oERrfjyVhTD1tDvbvaSLKjQ==
+X-Google-Smtp-Source: ABdhPJzi0Y6v6L+q+qlhx6Db+9hu4arw5MltcDc0NuPSDF6rZAOTnM0ibBIItxIsHZGj0Liox41YrQ==
+X-Received: by 2002:a17:902:848e:b029:d6:d2c9:1d4c with SMTP id c14-20020a170902848eb02900d6d2c91d4cmr4014016plo.40.1604609028948;
+        Thu, 05 Nov 2020 12:43:48 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z7sm3258597pjc.41.2020.11.05.12.43.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2020 12:43:47 -0800 (PST)
+Message-ID: <5fa46403.1c69fb81.7eb83.5c81@mx.google.com>
+Date:   Thu, 05 Nov 2020 12:43:47 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.155
+Subject: stable/linux-4.19.y baseline: 193 runs, 2 regressions (v4.19.155)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-837a6e7f5cdb ("fs: add generic UNRESVSP and ZERO_RANGE ioctl handlers") changed
-ioctls XFS_IOC_UNRESVSP XFS_IOC_UNRESVSP64 and XFS_IOC_ZERO_RANGE to be generic
-instead of xfs specific.
+stable/linux-4.19.y baseline: 193 runs, 2 regressions (v4.19.155)
 
-Because of this change, 36f11775da75 ("xfs: properly serialise fallocate against
-AIO+DIO") needed adaptation, as 5.4 still uses the xfs specific ioctls.
+Regressions Summary
+-------------------
 
-Without this, xfstests xfs/242 and xfs/290 fail. Both of these tests test
-XFS_IOC_ZERO_RANGE.
-
-Fixes: 36f11775da75 ("xfs: properly serialise fallocate against AIO+DIO")
-Tested-by: Andy Strohman <astroh@amazon.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- fs/xfs/xfs_ioctl.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+hsdk     | arc  | lab-baylibre  | gcc-8    | hsdk_defconfig      | 1       =
+   =
 
-diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-index bf0435dbec43..b3021d9b34a5 100644
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -622,7 +622,6 @@ xfs_ioc_space(
- 	error = xfs_break_layouts(inode, &iolock, BREAK_UNMAP);
- 	if (error)
- 		goto out_unlock;
--	inode_dio_wait(inode);
- 
- 	switch (bf->l_whence) {
- 	case 0: /*SEEK_SET*/
-@@ -668,6 +667,31 @@ xfs_ioc_space(
- 		goto out_unlock;
- 	}
- 
-+	/*
-+	 * Must wait for all AIO to complete before we continue as AIO can
-+	 * change the file size on completion without holding any locks we
-+	 * currently hold. We must do this first because AIO can update both
-+	 * the on disk and in memory inode sizes, and the operations that follow
-+	 * require the in-memory size to be fully up-to-date.
-+	 */
-+	inode_dio_wait(inode);
-+
-+	/*
-+	 * Now that AIO and DIO has drained we can flush and (if necessary)
-+	 * invalidate the cached range over the first operation we are about to
-+	 * run. We include zero range here because it starts with a hole punch
-+	 * over the target range.
-+	 */
-+	switch (cmd) {
-+	case XFS_IOC_ZERO_RANGE:
-+	case XFS_IOC_UNRESVSP:
-+	case XFS_IOC_UNRESVSP64:
-+		error = xfs_flush_unmap_range(ip, bf->l_start, bf->l_len);
-+		if (error)
-+			goto out_unlock;
-+		break;
-+	}
-+
- 	switch (cmd) {
- 	case XFS_IOC_ZERO_RANGE:
- 		flags |= XFS_PREALLOC_SET;
--- 
-2.16.6
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.155/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.155
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      b94de4d19498b454645b72d08a05d32fa9074fb5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+hsdk     | arc  | lab-baylibre  | gcc-8    | hsdk_defconfig      | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa42fa4c49b35b909db8853
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: hsdk_defconfig
+  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
+19.03-rc1) 8.3.1 20190225)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.155/=
+arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.155/=
+arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arc/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa42fa4c49b35b909db8=
+854
+        failing since 112 days (last pass: v4.19.124, first fail: v4.19.133=
+) =
+
+ =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa43121bb038e826bdb8853
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.155/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.155/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa43121bb038e8=
+26bdb8858
+        failing since 21 days (last pass: v4.19.150, first fail: v4.19.151)
+        2 lines =
+
+ =20
