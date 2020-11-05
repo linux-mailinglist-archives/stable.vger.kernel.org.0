@@ -2,166 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5AD2A7592
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 03:34:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14062A75F3
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 04:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727968AbgKECe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 21:34:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727046AbgKECez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 21:34:55 -0500
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C93AC0613CF
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 18:34:55 -0800 (PST)
-Received: by mail-oi1-x243.google.com with SMTP id u127so132462oib.6
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 18:34:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=NS64fQvYLPc8vKHF0Jx8ZL70MwzmV5ZlFDaZEyM6le4=;
-        b=Optc8X+2fOcZEuxfMqB/zql6iuJCvzC61Hd9ehOTx4LcsXcr0YDJ2xXEsaVyK0S5dI
-         7h7UMy08wxAG3y4GD7pT6iz2PpmCioxI0hyTvfFpuSWMSjbb90qzEI8rx6CsdwEqBdJX
-         EfMIHwmVGZYXTCReesJ1oFFsqGv2+7KTeRN0H3a9pO5IMt+Zn3x/C8R4HMe3XYnjU1U2
-         zV1MBDI9PZhVkggRSocv3CYz8u9u8PrzTAi1evN+G2M0U3gZIc6zW4JjFUyQYUPwTroN
-         7oC41Ct4mA9a6YHPrqs5Pcld4fIhf/ASfgZzUd46LNJMXB+5iOLHQvFhEoOphighpMTV
-         HXUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=NS64fQvYLPc8vKHF0Jx8ZL70MwzmV5ZlFDaZEyM6le4=;
-        b=aIw4rha9WYYp1tQq+YkvHZemFRUqLw+62LLXA6qNH11rlC71rzUIm0dMo1j761qZFp
-         ICZ74mbjVwh4YaRTSWiJJua+W5SWgH7Sgd35Wkc8hRaZbK6POaNavP4KkIbuQUGUTJOM
-         bUwY9b22a5TR27IwjxrNvlTJJ245DPlPEGVK0hpM+iGyJ2zYCzg6+CVySJhALcGrBnIU
-         AlaWCfgqNGU3ktBqCG5fLai4MAz/SMbRZvTe8WZzPtd+V5t99prhVaCwN30BBr/5soEh
-         zrijUbP5Mht7gBm06cY4mYSD9SK7o21O8jozdiQqHmqMuugWNoD/Vw812Ek1THXEOGno
-         bx1w==
-X-Gm-Message-State: AOAM531DAzfyzbRmhGfl0wLhlvLiAJQXLz6bzSjQL2jd6cXQqM8/zX6u
-        9LkMjFFCK9g+j5UK/DdEBHQx0Fzt/dw=
-X-Google-Smtp-Source: ABdhPJyRWrtaC+8utrP9kO9SCI1VnAqwBtzUyuQWzAZ7XzwHgZKd+rPkocfwTrPOA/PZY+pNzQGAUQ==
-X-Received: by 2002:aca:db85:: with SMTP id s127mr274661oig.176.1604543692737;
-        Wed, 04 Nov 2020 18:34:52 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w18sm31423otl.38.2020.11.04.18.34.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Nov 2020 18:34:52 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: build failures in v4.4.y stable queue
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <20201104141230.GC4312@roeck-us.net>
- <20201104143709.GC2202359@kroah.com> <20201104161817.GG2092@sasha-vm>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
- RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
- nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
- 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
- gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
- IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
- kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
- VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
- jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
- BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
- ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
- CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
- nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
- hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
- c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
- 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
- GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
- sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
- Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
- HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
- BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
- l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
- 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
- pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
- J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
- pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
- 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
- ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
- I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
- nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
- HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
- JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
- J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
- cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
- wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
- hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
- nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
- QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
- trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
- WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
- HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <1fc37180-ad6f-d2b7-7921-77e9c271ebb0@roeck-us.net>
-Date:   Wed, 4 Nov 2020 18:34:50 -0800
+        id S2387749AbgKEDKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Nov 2020 22:10:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60157 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388496AbgKEDKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 22:10:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604545842;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+u0ac9KHv5wcKAFb5ZDCdLBF5wpiQCLC3Skb+q8JnJI=;
+        b=VA4pe7o+5Venfs9l53pM22AMBLOnaZUo3A30nQhTE7a0aAf7iSo6xpU8O/KaoMIuFUgarr
+        eYL3Tu45gwKqZBo1/yIicwYC+0oHUygwPVIj2ieAdmEc1cK7zSNSu0nv/xlcz2PYLQiWbG
+        69TWU/DyK5PcDO68UCwXsWdWiT7kmiw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-503-yd3NH94MMTu1ekabTjB6KQ-1; Wed, 04 Nov 2020 22:10:40 -0500
+X-MC-Unique: yd3NH94MMTu1ekabTjB6KQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 940321007469;
+        Thu,  5 Nov 2020 03:10:38 +0000 (UTC)
+Received: from [10.72.13.154] (ovpn-13-154.pek2.redhat.com [10.72.13.154])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D783C5B4DC;
+        Thu,  5 Nov 2020 03:10:25 +0000 (UTC)
+Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
+ for rproc serial
+To:     Alexander Lobakin <alobakin@pm.me>, Amit Shah <amit@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnaud Pouliquen <arnaud.pouliquen@st.com>,
+        Suman Anna <s-anna@ti.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <004da56d-aad2-3b69-3428-02a14263289b@redhat.com>
+Date:   Thu, 5 Nov 2020 11:10:24 +0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201104161817.GG2092@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/4/20 8:18 AM, Sasha Levin wrote:
-> On Wed, Nov 04, 2020 at 03:37:09PM +0100, Greg KH wrote:
->> On Wed, Nov 04, 2020 at 06:12:30AM -0800, Guenter Roeck wrote:
->>> Building ia64:defconfig ... failed
->>> --------------
->>> Error log:
->>> drivers/acpi/numa.c: In function 'pxm_to_node':
->>> drivers/acpi/numa.c:49:43: error: 'numa_off' undeclared
->>
->> Caused by 8a3decac087a ("ACPI: Add out of bounds and numa_off
->> protections to pxm_to_node()"), I'll go drop it.
->>
->> Sasha, you didn't queue this up to 4.9, but you did to 4.4?
->>
->>>
->>> Building powerpc:defconfig ... failed
->>> --------------
->>> Error log:
->>> arch/powerpc/kvm/book3s_hv.c: In function ‘kvm_arch_vm_ioctl_hv’:
->>> arch/powerpc/kvm/book3s_hv.c:3161:7: error: implicit declaration of function ‘kvmhv_on_pseries’
->>
->> Caused by 05e6295dc7de ("KVM: PPC: Book3S HV: Do not allocate HPT for a
->> nested guest"), I'll go drop this.
->>
->> Sasha, why did you only queue this up to 4.4 and 5.4 and 5.9 and not the
->> middle queues as well?
-> 
-> Originally it got queued everywhere, but then it looks like I dropped it
-> from 4.9-4.19 because of build failures, but it seems that the 4.4
-> failure wasn't detected.
-> 
-> Looking into why, it seems that my baseline for that build also fails
-> for some reason:
-> 
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S: Assembler messages:
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:1603: Warning: invalid register expression
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:1644: Warning: invalid register expression
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:839: Error: attempt to move .org backwards
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:840: Error: attempt to move .org backwards
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:864: Error: attempt to move .org backwards
-> ../../../../linux/arch/powerpc/kernel/exceptions-64s.S:865: Error: attempt to move .org backwards
-> make[2]: *** [/home/sasha/data/linux/scripts/Makefile.build:375: arch/powerpc/kernel/head_64.o] Error 1
-> make[1]: *** [/home/sasha/data/linux/Makefile:1006: arch/powerpc/kernel] Error 2
-> 
-> I think that I'll rebuild my toolchain for powerpc and redo the baseline
-> builds, sorry about that.
-> 
 
-Is that an allmodconfig build ? That simply won't build in 4.4.y because
-exceptions-64s.S is too large there.
+On 2020/11/4 下午11:31, Alexander Lobakin wrote:
+> Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
+> specific dma memory pool"), every remoteproc has a DMA subdevice
+> ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
+> DMA capabilities from the corresponding platform device. This allowed
+> to associate different DMA pools with each vdev, and required from
+> virtio drivers to perform DMA operations with the parent device
+> (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
+>
+> virtio_rpmsg_bus was already changed in the same merge cycle with
+> commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
+> but virtio_console did not. In fact, operations using the grandparent
+> worked fine while the grandparent was the platform device, but since
+> commit c774ad010873 ("remoteproc: Fix and restore the parenting
+> hierarchy for vdev") this was changed, and now the grandparent device
+> is the remoteproc device without any DMA capabilities.
+> So, starting v5.8-rc1 the following warning is observed:
+>
+> [    2.483925] ------------[ cut here ]------------
+> [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
+> [    2.489152] Modules linked in: virtio_console(+)
+> [    2.503737]  virtio_rpmsg_bus rpmsg_core
+> [    2.508903]
+> [    2.528898] <Other modules, stack and call trace here>
+> [    2.913043]
+> [    2.914907] ---[ end trace 93ac8746beab612c ]---
+> [    2.920102] virtio-ports vport1p0: Error allocating inbufs
+>
+> kernel/dma/mapping.c:427 is:
+>
+> WARN_ON_ONCE(!dev->coherent_dma_mask);
+>
+> obviously because the grandparent now is remoteproc dev without any
+> DMA caps:
+>
+> [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
+>
+> Fix this the same way as it was for virtio_rpmsg_bus, using just the
+> parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
+> operations.
+> This also allows now to reserve DMA pools/buffers for rproc serial
+> via Device Tree.
+>
+> Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
+> Cc: stable@vger.kernel.org # 5.1+
+> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+> ---
+>   drivers/char/virtio_console.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index a2da8f768b94..1836cc56e357 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
+>   		/*
+>   		 * Allocate DMA memory from ancestor. When a virtio
+>   		 * device is created by remoteproc, the DMA memory is
+> -		 * associated with the grandparent device:
+> -		 * vdev => rproc => platform-dev.
+> +		 * associated with the parent device:
+> +		 * virtioY => remoteprocX#vdevYbuffer.
+>   		 */
+> -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+> +		buf->dev = vdev->dev.parent;
+> +		if (!buf->dev)
+>   			goto free_buf;
+> -		buf->dev = vdev->dev.parent->parent;
 
-Guenter
+
+I wonder it could be the right time to introduce dma_dev for virtio 
+instead of depending on something magic via parent.
+
+(Btw I don't even notice that there's transport specific code in virtio 
+console, it's better to avoid it)
+
+Thanks
+
+
+>   
+>   		/* Increase device refcnt to avoid freeing it */
+>   		get_device(buf->dev);
+
