@@ -2,178 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18A02A8ADD
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 00:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC132A8AE0
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 00:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731060AbgKEXmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 18:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46450 "EHLO
+        id S1731860AbgKEXoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 18:44:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726801AbgKEXmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 18:42:02 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A85C0613CF
-        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 15:42:02 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id y7so1561230pfq.11
-        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 15:42:02 -0800 (PST)
+        with ESMTP id S1726801AbgKEXoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 18:44:24 -0500
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D37C0613CF;
+        Thu,  5 Nov 2020 15:44:23 -0800 (PST)
+Received: by mail-qt1-x844.google.com with SMTP id n63so2478677qte.4;
+        Thu, 05 Nov 2020 15:44:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rKA2v53Xal4oHFl5/VSOBnwIysa8lsFZSDXQ0zRDu1I=;
-        b=hkjj7El2r3NXzZib+MR5ozTAxnbasZ1LGtDiQ6RzSyqPOI2wXZ+ZgnNCmvlDYi8Rdk
-         hVkZy4aiuK5bw1OiHsCBmkqo6IvBWs6SsTLz/flCHmlyFdTJ5IoX2RUa+2482LB0bIwU
-         azulVxskUD5p2B4hdsM+rY7/M/3d7kMu5SAXxT9aOuK2YREcF0vwHJPmQgwResHcw320
-         kmFo6+XI5QWgKyHiXaADLWjqm6vstDfgEPhiJQ2G+XeipQ+j6Nip4VVEwL8VGbVyks8k
-         cdtZdPBJu4K+E/8K8sdUVaGbGijDkGZ80LolQezL8ySJkoNkThu1KyqZARrh3IX724Kx
-         CqNA==
+        d=jms.id.au; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sVuBclz6RbxFeixVrFDk7hds/nyx+Jqtd3Wi799FOXk=;
+        b=cDRnrACB6qhyOyott6SFEmFabDoLiuFl1tpaN50TvPHswUHt3+MPuJohwfZ41EFnrw
+         LsucrypTMbdc4g1ars45fh1+/jqITRsgaDt5QqVzlBHIAT+wL4Je5jnmf2R5ETn5E8H9
+         vruyY4XQ/S8SkVqOsjVyqhA30aDVXcXV0SNl0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rKA2v53Xal4oHFl5/VSOBnwIysa8lsFZSDXQ0zRDu1I=;
-        b=sFCNFe+5j+xgt8qgSFPXGc/JKPYdcHyICyVKTZAvcPODpMYuzeXjzIQCg5+aYbjKrz
-         A8hos5Vazibq6f/SxCmljmvd9d0Ec/V2rdtTG1zFY+APdau452rlvV26kt0BSmTj7WeG
-         H7EQBgFRLmi3ZKnX4Q5fa7IxNUO4cMmo+LrLL8wOaRKIBWyDjfZlIC8+P/W9XY5XxUeS
-         O4Rr8ZgVSeUycL4IFMQpr26sJK7F8gy12Fn/k+LWhSXPacWbzzTcnMiTrgic3QrxfTM4
-         x8EtivHHsgTCEmtLDxj22O9b2elJnxuBlfzGid3Ze6lyqhaUbrNeG54qA7zpHuSLWjgg
-         SZwg==
-X-Gm-Message-State: AOAM533tvH6VGIwwV7A4XHm7mcWPvBkKlsi9wNxMwv8YZh8rbHJp92xe
-        2uESRc6W4hPEq8vMSiZhBSSkjuKyRnalyg==
-X-Google-Smtp-Source: ABdhPJx8/yDZDgAGZCZXE8aiu5JDA2j1K37xByVrDP/Fi3Fjts/XkQJw6doUhfj+1teAkEbSURNkKQ==
-X-Received: by 2002:a17:90a:7886:: with SMTP id x6mr4609438pjk.21.1604619721732;
-        Thu, 05 Nov 2020 15:42:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y4sm3666130pjc.53.2020.11.05.15.42.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2020 15:42:00 -0800 (PST)
-Message-ID: <5fa48dc8.1c69fb81.3b6fa.6efe@mx.google.com>
-Date:   Thu, 05 Nov 2020 15:42:00 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sVuBclz6RbxFeixVrFDk7hds/nyx+Jqtd3Wi799FOXk=;
+        b=kzqbSD/rTBoXALnjdfTtMmJDMk8CBJpXlpSuIg1cMpCQqiHZnPJaccrDGo90c9nxaW
+         k+x2QYLNYuuM5/W2AWHIJ5LGOJs32lVbJ5uF3wt2+jdVYPf2qXQLXASsIpuIWZisZHvN
+         Ud7LoK16MXL4d6SpsVzFcn8U1E16uGRYV7Vez/A2hpBVwdVhK60SP50+md1EGd+Q9Dal
+         hBtqnDGHY9pSz05qBr7ISaCUN+89DeYZpSJk65GlspLDS2hmsZgpuXKaln24HYRjDqSs
+         Jps6Q2gRU6wj6ndvP0rLKhVA2eXp4siFOUdM1QRMCEpk791i3UO3t23D2gKTP8+bKK/p
+         8f9Q==
+X-Gm-Message-State: AOAM533bwNY/0FBVOsek4J8Zb6XUb9MEXhWcPd1DXHKWzyNE+rDsNUIH
+        fkW8PKHxbF91VkBFvdUczAlMzEdxygkXl7xDxgc=
+X-Google-Smtp-Source: ABdhPJzMkAsXAUa+nOhKuwacsfqZM5SZmXB8PE7v6p8ZThh7YcBqN1EAFeRO4VOrULqUrC3Iwdn4kG3AtWfac6tiRt8=
+X-Received: by 2002:ac8:75c9:: with SMTP id z9mr4663191qtq.363.1604619862999;
+ Thu, 05 Nov 2020 15:44:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.75
-Subject: stable-rc/linux-5.4.y baseline: 175 runs, 2 regressions (v5.4.75)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20201103203232.656475008@linuxfoundation.org> <20201103203247.174991659@linuxfoundation.org>
+ <20201105192305.GA18462@duo.ucw.cz>
+In-Reply-To: <20201105192305.GA18462@duo.ucw.cz>
+From:   Joel Stanley <joel@jms.id.au>
+Date:   Thu, 5 Nov 2020 23:44:11 +0000
+Message-ID: <CACPK8XcOqdtGyJ+Fcan=AaHiJTOZFeUW7-j_5kZeQowr-j24Ag@mail.gmail.com>
+Subject: Re: [PATCH 4.19 156/191] powerpc: Warn about use of smt_snooze_delay
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 175 runs, 2 regressions (v5.4.75)
+On Thu, 5 Nov 2020 at 19:24, Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+>
+> > From: Joel Stanley <joel@jms.id.au>
+> >
+> > commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
+> >
+> > It's not done anything for a long time. Save the percpu variable, and
+> > emit a warning to remind users to not expect it to do anything.
+> >
+> > This uses pr_warn_once instead of pr_warn_ratelimit as testing
+> > 'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
+> > to be noisy, as the online/offline loop is slow.
+>
+> I don't believe this is good idea for stable. It is in 5.9-rc2, and
+> likely mainline users will get userspace fixed, but that warning is
+> less useful for -stable users.
 
-Regressions Summary
--------------------
+The warning is about the existing behaviour of the kernel. It does let
+the user know that they won't see any difference in behaviour when
+tweaking the smt_snooze_delay variable, which was a real issue that
+Anton hit.
 
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig          | 1 =
-         =
+I agree that the future commit that removes smt_snooze_delay from the
+kernel should not be backported.
 
-stm32mp157c-dk2 | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1 =
-         =
+Cheers,
 
+Joel
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.75/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.75
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6e97ed6efa701db070da0054b055c085895aba86 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig          | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa45a69c7331a7e2ddb8853
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.75/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.75/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5fa45a69c7331a7e=
-2ddb8856
-        failing since 4 days (last pass: v5.4.73-49-gbf5ca41e70cb, first fa=
-il: v5.4.74)
-        5 lines
-
-    2020-11-05 20:00:07.237000+00:00  Connected to bcm2837-rpi-3-b console =
-[channel connected] (~$quit to exit)
-    2020-11-05 20:00:07.237000+00:00  (user:khilman) is already connected
-    2020-11-05 20:00:23.268000+00:00  =00
-    2020-11-05 20:00:23.269000+00:00  =
-
-    2020-11-05 20:00:23.269000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
-2 -0800)
-    2020-11-05 20:00:23.269000+00:00  =
-
-    2020-11-05 20:00:23.269000+00:00  DRAM:  948 MiB
-    2020-11-05 20:00:23.283000+00:00  RPI 3 Model B (0xa02082)
-    2020-11-05 20:00:23.372000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
-0: 1
-    2020-11-05 20:00:23.403000+00:00  Loading Environment from FAT... *** W=
-arning - bad CRC, using default environment =
-
-    ... (394 line(s) more)  =
-
- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-stm32mp157c-dk2 | arm   | lab-baylibre | gcc-8    | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa45c81a0712a4f05db8861
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.75/=
-arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.75/=
-arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa45c81a0712a4f05db8=
-862
-        failing since 9 days (last pass: v5.4.72-55-g7fa6d77807db, first fa=
-il: v5.4.72-409-gab6643bad070) =
-
- =20
+>
+> (And besides, it does not fix any serious bug).
+>
+> Best regards,
+>                                                                 Pavel
+>
+> --
+> http://www.livejournal.com/~pavelmachek
