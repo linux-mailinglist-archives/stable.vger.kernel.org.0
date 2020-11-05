@@ -2,183 +2,367 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0197E2A81C9
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 476422A81FC
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730977AbgKEPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 10:03:28 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48949 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730465AbgKEPD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:03:28 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 50A5A79A;
-        Thu,  5 Nov 2020 10:03:27 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 05 Nov 2020 10:03:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=kAKlBD
-        9ff3E02xkgf5DXkCMSdW/wdIbCiCasnJOAgt8=; b=ObOCMD11w8/zpk3uN9kUhJ
-        4kVaIvSKWF2SlMFuJ8aXh8yIeWOFvGocuIgPTIkS85Pt8z/yAaVfuA7ord7lzoES
-        9M+lD5pcz2cQDs92mF156aD01UFjrXZ+hs7nWCjQJbho6baUsjnozlpk4QlfhDvb
-        1e5qXasFuTcXkE7kv/fhWN2A7GVssa1ws1SXkATHjL/DGDOTnBbUjCwgjVjfi8q0
-        ogIZuIrHvYaCGssBtAebs2hW0w2nBTBo7alThOMfUaLncgWrTO3OQjG8HZyD7Eku
-        xQIpsQkaT2vd91970JVRFR9eeJ9Ql3RlSyxInMi8q7DXjrVGKObHd5DhS9gOiUdA
-        ==
-X-ME-Sender: <xms:PhSkXxm0ny4EYjQKd41GNYJcPqgmeClF-e6_-HP2iQjeSq7O_bgJXQ>
-    <xme:PhSkX81A0FKqyr-qIDIY22LxOCaIRzmwlsYb_DeONjp9OZYJafj6uKkaTgH0ik0cX
-    c4euJfeZb-wQg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtjedgjedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:PhSkX3odQNf_0KwSfD-3rhnXuhf55Du1mrxiaTI2M1QD2D1aK3WYSg>
-    <xmx:PhSkXxmVI37Kcjxwbm1VH1XTN1uCQ96BJdcnxW1y_Kyqs3GDBhaqAA>
-    <xmx:PhSkX_21agq2Uq0bmmhy2pHEegKLLeDLzS8mESicCnHQqxc_ndxteA>
-    <xmx:PhSkX6Qz60XyTB18kX6mtqVzXtMnOKvnhRAEmiZhqUgsRDN2-7_GqvX3oQE>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2A0C33060062;
-        Thu,  5 Nov 2020 10:03:26 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: Avoid mixing integer types during batch copies" failed to apply to 4.9-stable tree
-To:     chris@chris-wilson.co.uk, jared.candelaria@intel.com,
-        jon.bloomfield@intel.com, joonas.lahtinen@linux.intel.com,
-        mika.kuoppala@linux.intel.com, rodrigo.vivi@intel.com,
+        id S1731006AbgKEPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 10:17:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730938AbgKEPRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:17:16 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFFEC0613CF
+        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 07:17:16 -0800 (PST)
+Received: from localhost.localdomain (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id C43101F464F6;
+        Thu,  5 Nov 2020 15:17:14 +0000 (GMT)
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
         stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Nov 2020 16:04:07 +0100
-Message-ID: <1604588647134103@kroah.com>
+Subject: [PATCH v5] drm/panfrost: Move the GPU reset bits outside the timeout handler
+Date:   Thu,  5 Nov 2020 16:17:04 +0100
+Message-Id: <20201105151704.2010667-1-boris.brezillon@collabora.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+We've fixed many races in panfrost_job_timedout() but some remain.
+Instead of trying to fix it again, let's simplify the logic and move
+the reset bits to a separate work scheduled when one of the queue
+reports a timeout.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+v5:
+- Simplify panfrost_scheduler_stop() (Steven Price)
+- Always restart the queue in panfrost_scheduler_start() even if
+  the status is corrupted (Steven Price)
 
-thanks,
+v4:
+- Rework the logic to prevent a race between drm_sched_start()
+  (reset work) and drm_sched_job_timedout() (timeout work)
+- Drop Steven's R-b
+- Add dma_fence annotation to the panfrost_reset() function (Daniel Vetter)
 
-greg k-h
+v3:
+- Replace the atomic_cmpxchg() by an atomic_xchg() (Robin Murphy)
+- Add Steven's R-b
 
------------------- original commit in Linus's tree ------------------
+v2:
+- Use atomic_cmpxchg() to conditionally schedule the reset work (Steven Price)
 
-From c60b93cd4862d108214a14e655358ea714d7a12a Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Mon, 28 Sep 2020 22:59:42 +0100
-Subject: [PATCH] drm/i915: Avoid mixing integer types during batch copies
+Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+ drivers/gpu/drm/panfrost/panfrost_device.c |   1 -
+ drivers/gpu/drm/panfrost/panfrost_device.h |   6 +-
+ drivers/gpu/drm/panfrost/panfrost_job.c    | 187 ++++++++++++++-------
+ 3 files changed, 130 insertions(+), 64 deletions(-)
 
-Be consistent and use unsigned long throughout the chunk copies to
-avoid the inherent clumsiness of mixing integer types of different
-widths and signs. Failing to take acount of a wider unsigned type when
-using min_t can lead to treating it as a negative, only for it flip back
-to a large unsigned value after passing a boundary check.
-
-Fixes: ed13033f0287 ("drm/i915/cmdparser: Only cache the dst vmap")
-Testcase: igt/gen9_exec_parse/bb-large
-Reported-by: "Candelaria, Jared" <jared.candelaria@intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: "Candelaria, Jared" <jared.candelaria@intel.com>
-Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
-Cc: <stable@vger.kernel.org> # v4.9+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200928215942.31917-1-chris@chris-wilson.co.uk
-(cherry picked from commit b7eeb2b4132ccf1a7d38f434cde7043913d1ed3c)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 5509946f1a1d..4b09bcd70cf4 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -2267,8 +2267,8 @@ struct eb_parse_work {
- 	struct i915_vma *batch;
- 	struct i915_vma *shadow;
- 	struct i915_vma *trampoline;
--	unsigned int batch_offset;
--	unsigned int batch_length;
-+	unsigned long batch_offset;
-+	unsigned long batch_length;
- };
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
+index 1daf9322954a..fbcf5edbe367 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.c
++++ b/drivers/gpu/drm/panfrost/panfrost_device.c
+@@ -200,7 +200,6 @@ int panfrost_device_init(struct panfrost_device *pfdev)
+ 	struct resource *res;
  
- static int __eb_parse(struct dma_fence_work *work)
-@@ -2338,6 +2338,9 @@ static int eb_parse_pipeline(struct i915_execbuffer *eb,
- 	struct eb_parse_work *pw;
- 	int err;
+ 	mutex_init(&pfdev->sched_lock);
+-	mutex_init(&pfdev->reset_lock);
+ 	INIT_LIST_HEAD(&pfdev->scheduled_jobs);
+ 	INIT_LIST_HEAD(&pfdev->as_lru_list);
  
-+	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
-+	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
+index 140e004a3790..597cf1459b0a 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.h
++++ b/drivers/gpu/drm/panfrost/panfrost_device.h
+@@ -106,7 +106,11 @@ struct panfrost_device {
+ 	struct panfrost_perfcnt *perfcnt;
+ 
+ 	struct mutex sched_lock;
+-	struct mutex reset_lock;
 +
- 	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
- 	if (!pw)
- 		return -ENOMEM;
-diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-index 5ac4a999f05a..e88970256e8e 100644
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -1136,7 +1136,7 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
- /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
- static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		       struct drm_i915_gem_object *src_obj,
--		       u32 offset, u32 length)
-+		       unsigned long offset, unsigned long length)
++	struct {
++		struct work_struct work;
++		atomic_t pending;
++	} reset;
+ 
+ 	struct mutex shrinker_lock;
+ 	struct list_head shrinker_list;
+diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
+index e75b7d2192f7..04e6f6f9b742 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_job.c
++++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+@@ -20,12 +20,21 @@
+ #include "panfrost_gpu.h"
+ #include "panfrost_mmu.h"
+ 
++#define JOB_TIMEOUT_MS 500
++
+ #define job_write(dev, reg, data) writel(data, dev->iomem + (reg))
+ #define job_read(dev, reg) readl(dev->iomem + (reg))
+ 
++enum panfrost_queue_status {
++	PANFROST_QUEUE_STATUS_ACTIVE,
++	PANFROST_QUEUE_STATUS_STOPPED,
++	PANFROST_QUEUE_STATUS_STARTING,
++	PANFROST_QUEUE_STATUS_FAULT_PENDING,
++};
++
+ struct panfrost_queue_state {
+ 	struct drm_gpu_scheduler sched;
+-	bool stopped;
++	atomic_t status;
+ 	struct mutex lock;
+ 	u64 fence_context;
+ 	u64 emit_seqno;
+@@ -373,28 +382,61 @@ void panfrost_job_enable_interrupts(struct panfrost_device *pfdev)
+ static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
+ 				    struct drm_sched_job *bad)
  {
- 	bool needs_clflush;
- 	void *dst, *src;
-@@ -1166,8 +1166,8 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
++	enum panfrost_queue_status old_status;
+ 	bool stopped = false;
+ 
+ 	mutex_lock(&queue->lock);
+-	if (!queue->stopped) {
+-		drm_sched_stop(&queue->sched, bad);
+-		if (bad)
+-			drm_sched_increase_karma(bad);
+-		queue->stopped = true;
+-		stopped = true;
+-	}
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_STOPPED);
++	if (old_status == PANFROST_QUEUE_STATUS_STOPPED)
++		goto out;
++
++	WARN_ON(old_status != PANFROST_QUEUE_STATUS_ACTIVE);
++	drm_sched_stop(&queue->sched, bad);
++	if (bad)
++		drm_sched_increase_karma(bad);
++
++	stopped = true;
++
++	/*
++	 * Set the timeout to max so the timer doesn't get started
++	 * when we return from the timeout handler (restored in
++	 * panfrost_scheduler_start()).
++	 */
++	queue->sched.timeout = MAX_SCHEDULE_TIMEOUT;
++
++out:
+ 	mutex_unlock(&queue->lock);
+ 
+ 	return stopped;
+ }
+ 
++static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
++{
++	enum panfrost_queue_status old_status;
++
++	mutex_lock(&queue->lock);
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_STARTING);
++	WARN_ON(old_status != PANFROST_QUEUE_STATUS_STOPPED);
++
++	/* Restore the original timeout before starting the scheduler. */
++	queue->sched.timeout = msecs_to_jiffies(JOB_TIMEOUT_MS);
++	drm_sched_resubmit_jobs(&queue->sched);
++	drm_sched_start(&queue->sched, true);
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_ACTIVE);
++	if (old_status == PANFROST_QUEUE_STATUS_FAULT_PENDING)
++		drm_sched_fault(&queue->sched);
++
++	mutex_unlock(&queue->lock);
++}
++
+ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+ {
+ 	struct panfrost_job *job = to_panfrost_job(sched_job);
+ 	struct panfrost_device *pfdev = job->pfdev;
+ 	int js = panfrost_job_get_slot(job);
+-	unsigned long flags;
+-	int i;
+ 
+ 	/*
+ 	 * If the GPU managed to complete this jobs fence, the timeout is
+@@ -415,56 +457,9 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+ 	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
+ 		return;
+ 
+-	if (!mutex_trylock(&pfdev->reset_lock))
+-		return;
+-
+-	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+-		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
+-
+-		/*
+-		 * If the queue is still active, make sure we wait for any
+-		 * pending timeouts.
+-		 */
+-		if (!pfdev->js->queue[i].stopped)
+-			cancel_delayed_work_sync(&sched->work_tdr);
+-
+-		/*
+-		 * If the scheduler was not already stopped, there's a tiny
+-		 * chance a timeout has expired just before we stopped it, and
+-		 * drm_sched_stop() does not flush pending works. Let's flush
+-		 * them now so the timeout handler doesn't get called in the
+-		 * middle of a reset.
+-		 */
+-		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
+-			cancel_delayed_work_sync(&sched->work_tdr);
+-
+-		/*
+-		 * Now that we cancelled the pending timeouts, we can safely
+-		 * reset the stopped state.
+-		 */
+-		pfdev->js->queue[i].stopped = false;
+-	}
+-
+-	spin_lock_irqsave(&pfdev->js->job_lock, flags);
+-	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+-		if (pfdev->jobs[i]) {
+-			pm_runtime_put_noidle(pfdev->dev);
+-			panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
+-			pfdev->jobs[i] = NULL;
+-		}
+-	}
+-	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
+-
+-	panfrost_device_reset(pfdev);
+-
+-	for (i = 0; i < NUM_JOB_SLOTS; i++)
+-		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
+-
+-	mutex_unlock(&pfdev->reset_lock);
+-
+-	/* restart scheduler after GPU is usable again */
+-	for (i = 0; i < NUM_JOB_SLOTS; i++)
+-		drm_sched_start(&pfdev->js->queue[i].sched, true);
++	/* Schedule a reset if there's no reset in progress. */
++	if (!atomic_xchg(&pfdev->reset.pending, 1))
++		schedule_work(&pfdev->reset.work);
+ }
+ 
+ static const struct drm_sched_backend_ops panfrost_sched_ops = {
+@@ -496,6 +491,8 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 		job_write(pfdev, JOB_INT_CLEAR, mask);
+ 
+ 		if (status & JOB_INT_MASK_ERR(j)) {
++			enum panfrost_queue_status old_status;
++
+ 			job_write(pfdev, JS_COMMAND_NEXT(j), JS_COMMAND_NOP);
+ 
+ 			dev_err(pfdev->dev, "js fault, js=%d, status=%s, head=0x%x, tail=0x%x",
+@@ -504,7 +501,18 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 				job_read(pfdev, JS_HEAD_LO(j)),
+ 				job_read(pfdev, JS_TAIL_LO(j)));
+ 
+-			drm_sched_fault(&pfdev->js->queue[j].sched);
++			/*
++			 * When the queue is being restarted we don't report
++			 * faults directly to avoid races between the timeout
++			 * and reset handlers. panfrost_scheduler_start() will
++			 * call drm_sched_fault() after the queue has been
++			 * started if status == FAULT_PENDING.
++			 */
++			old_status = atomic_cmpxchg(&pfdev->js->queue[j].status,
++						    PANFROST_QUEUE_STATUS_STARTING,
++						    PANFROST_QUEUE_STATUS_FAULT_PENDING);
++			if (old_status == PANFROST_QUEUE_STATUS_ACTIVE)
++				drm_sched_fault(&pfdev->js->queue[j].sched);
  		}
- 	}
- 	if (IS_ERR(src)) {
-+		unsigned long x, n;
- 		void *ptr;
--		int x, n;
  
- 		/*
- 		 * We can avoid clflushing partial cachelines before the write
-@@ -1184,7 +1184,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		ptr = dst;
- 		x = offset_in_page(offset);
- 		for (n = offset >> PAGE_SHIFT; length; n++) {
--			int len = min_t(int, length, PAGE_SIZE - x);
-+			int len = min(length, PAGE_SIZE - x);
+ 		if (status & JOB_INT_MASK_DONE(j)) {
+@@ -531,11 +539,66 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
  
- 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
- 			if (needs_clflush)
-@@ -1414,8 +1414,8 @@ static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
-  */
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline)
++static void panfrost_reset(struct work_struct *work)
++{
++	struct panfrost_device *pfdev = container_of(work,
++						     struct panfrost_device,
++						     reset.work);
++	unsigned long flags;
++	unsigned int i;
++	bool cookie;
++
++	cookie = dma_fence_begin_signalling();
++	for (i = 0; i < NUM_JOB_SLOTS; i++) {
++		/*
++		 * We want pending timeouts to be handled before we attempt
++		 * to stop the scheduler. If we don't do that and the timeout
++		 * handler is in flight, it might have removed the bad job
++		 * from the list, and we'll lose this job if the reset handler
++		 * enters the critical section in panfrost_scheduler_stop()
++		 * before the timeout handler.
++		 *
++		 * Timeout is set to MAX_SCHEDULE_TIMEOUT - 1 because we need
++		 * something big enough to make sure the timer will not expire
++		 * before we manage to stop the scheduler, but we can't use
++		 * MAX_SCHEDULE_TIMEOUT because drm_sched_get_cleanup_job()
++		 * considers that as 'timer is not running' and will dequeue
++		 * the job without making sure the timeout handler is not
++		 * running.
++		 */
++		pfdev->js->queue[i].sched.timeout = MAX_SCHEDULE_TIMEOUT - 1;
++		cancel_delayed_work_sync(&pfdev->js->queue[i].sched.work_tdr);
++		panfrost_scheduler_stop(&pfdev->js->queue[i], NULL);
++	}
++
++	/* All timers have been stopped, we can safely reset the pending state. */
++	atomic_set(&pfdev->reset.pending, 0);
++
++	spin_lock_irqsave(&pfdev->js->job_lock, flags);
++	for (i = 0; i < NUM_JOB_SLOTS; i++) {
++		if (pfdev->jobs[i]) {
++			pm_runtime_put_noidle(pfdev->dev);
++			panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
++			pfdev->jobs[i] = NULL;
++		}
++	}
++	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
++
++	panfrost_device_reset(pfdev);
++
++	for (i = 0; i < NUM_JOB_SLOTS; i++)
++		panfrost_scheduler_start(&pfdev->js->queue[i]);
++
++	dma_fence_end_signalling(cookie);
++}
++
+ int panfrost_job_init(struct panfrost_device *pfdev)
  {
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 72a9449b674e..eef9a821c49c 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1949,8 +1949,8 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
- void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline);
- #define I915_CMD_PARSER_TRAMPOLINE_SIZE 8
+ 	struct panfrost_job_slot *js;
+ 	int ret, j, irq;
+ 
++	INIT_WORK(&pfdev->reset.work, panfrost_reset);
++
+ 	pfdev->js = js = devm_kzalloc(pfdev->dev, sizeof(*js), GFP_KERNEL);
+ 	if (!js)
+ 		return -ENOMEM;
+@@ -560,7 +623,7 @@ int panfrost_job_init(struct panfrost_device *pfdev)
+ 
+ 		ret = drm_sched_init(&js->queue[j].sched,
+ 				     &panfrost_sched_ops,
+-				     1, 0, msecs_to_jiffies(500),
++				     1, 0, msecs_to_jiffies(JOB_TIMEOUT_MS),
+ 				     "pan_js");
+ 		if (ret) {
+ 			dev_err(pfdev->dev, "Failed to create scheduler: %d.", ret);
+-- 
+2.26.2
 
