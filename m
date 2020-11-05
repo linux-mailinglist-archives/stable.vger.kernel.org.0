@@ -2,130 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08BEB2A7F8F
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 14:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D982A7FB5
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 14:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgKENVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 08:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730445AbgKENVa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 08:21:30 -0500
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C19C0613CF;
-        Thu,  5 Nov 2020 05:21:30 -0800 (PST)
-Received: by mail-wr1-x443.google.com with SMTP id n18so1739564wrs.5;
-        Thu, 05 Nov 2020 05:21:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=a85H8wm4BS7+KUS0Jz6qx8lLSyd4auBcG9TW/HwKEug=;
-        b=aeF/jsaUOlIaNhiby87PypQOR8fPBdYt6vbGRdvx+s8k5v2cJZ9rQ+jE7jKmLjNdAA
-         ioTCfboogO1GvNTEsH01Bnj0Oisz1hQGdagdX8QnfXWzQxHao1kJBIpIP0Nax7+SX/qo
-         K3pVhT371L3dq66UUcgDHq8VvDIY7xd6U4M+QywgVb7JaSiEy/j9FAnFiIwpUO9E/DOG
-         mWDQPTPNcGsozaFvvcxIuGfBLQJDaGlc1SfKrEl3e95lKOSPDohId1ANJ1YAfoG4NPsE
-         sAeEte5Atrh0hGCrNYAbLkL8vClMhsJ0JsUjwSc184r4AMwxV/B6y1Uc+U8mUQGIEp85
-         EEGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=a85H8wm4BS7+KUS0Jz6qx8lLSyd4auBcG9TW/HwKEug=;
-        b=YjrGHNlau9Tq5MjNR9wjXImjL0vMabyZXdx5s9ZNFV/yghNX7i5idKb0AqjzEM8/Qr
-         zp13Niu8LWzFnsuganJa1AXzJ5pf0MJap5Ixks6GRNPriZmfKgpCgg3BbqQizoqe+49N
-         cAn6TnQBdbHav5lgIC7A0N5RLc7qyU1b7FIgFktDHnQvu/b00P85zkk1X3BF5skUIDwn
-         2GfX35PkQnZ3LLTscIkvYP6Cf003MP/MsNkaNNfR4KhcTd/zl9g60B2Qzi52UnfafCmr
-         Y7xtzRy8YKI/I1Tb7Zo2ARgbI0yzcBzbheBG8pDRJ4mwGTZ0WXPRMW4LkGEs/RCQb0Se
-         Gnng==
-X-Gm-Message-State: AOAM532+VPn93XSlaZfoJXGbvqjBOvOa7wcCTBkunoT3T3QeB+UazQuF
-        u4DRRDFQyLxiZjJZFZAr/RcaUsiCdqk=
-X-Google-Smtp-Source: ABdhPJzcPPmmQDOsAh46XusNjbHTKhW2hIOclIddxmjAM48WnAbH+DI7CPvSr06zoOWPP54SqXkXzA==
-X-Received: by 2002:a5d:5387:: with SMTP id d7mr2899491wrv.224.1604582488598;
-        Thu, 05 Nov 2020 05:21:28 -0800 (PST)
-Received: from [192.168.8.114] ([37.172.191.42])
-        by smtp.gmail.com with ESMTPSA id 89sm2699678wrp.58.2020.11.05.05.21.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Nov 2020 05:21:27 -0800 (PST)
-Subject: Re: [PATCH] page_frag: Recover from memory pressure
-To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        linux-mm@kvack.org, netdev@vger.kernel.org,
-        Dongli Zhang <dongli.zhang@oracle.com>
-Cc:     Aruna Ramakrishna <aruna.ramakrishna@oracle.com>,
-        Bert Barbe <bert.barbe@oracle.com>,
-        Rama Nichanamatlu <rama.nichanamatlu@oracle.com>,
-        Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-        Manjunath Patil <manjunath.b.patil@oracle.com>,
-        Joe Jin <joe.jin@oracle.com>,
-        SRINIVAS <srinivas.eeda@oracle.com>, stable@vger.kernel.org
-References: <20201105042140.5253-1-willy@infradead.org>
-From:   Eric Dumazet <erdnetdev@gmail.com>
-Message-ID: <d673308e-c9a6-85a7-6c22-0377dd33c019@gmail.com>
-Date:   Thu, 5 Nov 2020 14:21:25 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+        id S1726067AbgKENar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 08:30:47 -0500
+Received: from lb1-smtp-cloud8.xs4all.net ([194.109.24.21]:59553 "EHLO
+        lb1-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725468AbgKENar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 08:30:47 -0500
+X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Thu, 05 Nov 2020 08:30:45 EST
+Received: from cust-43cce789 ([IPv6:fc0c:c1a4:736c:9c1a:15d2:fd0f:664c:4844])
+        by smtp-cloud8.xs4all.net with ESMTPSA
+        id afElkDBJjNanzafEokoTFN; Thu, 05 Nov 2020 14:23:38 +0100
+Message-ID: <64a618a3cc00de4a1c3887b57447906351db77b9.camel@tiscali.nl>
+Subject: Re: [PATCH 5.9 080/391] ASoC: SOF: fix a runtime pm issue in SOF
+ when HDMI codec doesnt work
+From:   Paul Bolle <pebolle@tiscali.nl>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Date:   Thu, 05 Nov 2020 14:23:35 +0100
+In-Reply-To: <20201103203352.505472614@linuxfoundation.org>
+References: <20201103203348.153465465@linuxfoundation.org>
+         <20201103203352.505472614@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
 MIME-Version: 1.0
-In-Reply-To: <20201105042140.5253-1-willy@infradead.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfCGEJ0SEHC8hxLtU1zJbR5j6wVkwuwuqrCZxBwaDPHIl5/5hiM0Hs1zJkEgRYeuuQUvtonj0v+55Rg3ZrkVMxczgzKLJ6eqF98LZzAqIsaxd6cwCple1
+ n0YtDe2EndKhclFww/5bBSaoMKNycEaRWNC/Fq+kvxDyGPmwvN7nRWXm7TeejQC/VsPWDQX9bTy4O9Q68c1JunilrubABMTvxRjWZDyE9DSLdTdcKHeF+z2b
+ VpCD4PlSHISgPlvxzqeK3xD7e/zFHfxeZTne0F3pocj84q8jX63IMDdV3wLm3fBED5oBnDM68XI1cdoUls5o1wZMIYwOJNCWIl/WTyss5mo0gL6moVFToYzK
+ rlH84gpdzXkLNbjJW/77LMq8asD/PGywIN89l5Sr69kMZNzmTQWNEADFwpbV8RlJ0J7WrIEu0M7YtzTcGf6xpTe+lBRP2AHYLudo6u1mfuSDNHGLBpRuwcDM
+ wy4Br9MG4Sfw51lRu0SoHwwMmOUIp0aRJ8RRltP3VXJgoJubD9+UnZPfEiH2n7dACkafR3lyX5ufN7Sjq0Rt9kUQRzXRqs6xvwovhg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 11/5/20 5:21 AM, Matthew Wilcox (Oracle) wrote:
-> When the machine is under extreme memory pressure, the page_frag allocator
-> signals this to the networking stack by marking allocations with the
-> 'pfmemalloc' flag, which causes non-essential packets to be dropped.
-> Unfortunately, even after the machine recovers from the low memory
-> condition, the page continues to be used by the page_frag allocator,
-> so all allocations from this page will continue to be dropped.
+Greg Kroah-Hartman schreef op di 03-11-2020 om 21:32 [+0100]:
+> From: Rander Wang <rander.wang@intel.com>
 > 
-> Fix this by freeing and re-allocating the page instead of recycling it.
+> [ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
 > 
-> Reported-by: Dongli Zhang <dongli.zhang@oracle.com>
-> Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-> Cc: Bert Barbe <bert.barbe@oracle.com>
-> Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-> Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-> Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
-> Cc: Joe Jin <joe.jin@oracle.com>
-> Cc: SRINIVAS <srinivas.eeda@oracle.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 79930f5892e ("net: do not deplete pfmemalloc reserve")
-
-Your patch looks fine, although this Fixes: tag seems incorrect.
-
-79930f5892e ("net: do not deplete pfmemalloc reserve") was propagating
-the page pfmemalloc status into the skb, and seems correct to me.
-
-The bug was the page_frag_alloc() was keeping a problematic page for
-an arbitrary period of time ?
-
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> When hda_codec_probe() doesn't initialize audio component, we disable
+> the codec and keep going. However,the resources are not released. The
+> child_count of SOF device is increased in snd_hdac_ext_bus_device_init
+> but is not decrease in error case, so SOF can't get suspended.
+> 
+> snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
+> gets a error. Now copy this behavior to release resources and decrease
+> SOF device child_count to release SOF device.
+> 
+> Signed-off-by: Rander Wang <rander.wang@intel.com>
+> Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+> Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+> Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+> Link: https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  mm/page_alloc.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  sound/soc/sof/intel/hda-codec.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 778e815130a6..631546ae1c53 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -5139,6 +5139,10 @@ void *page_frag_alloc(struct page_frag_cache *nc,
+> diff --git a/sound/soc/sof/intel/hda-codec.c b/sound/soc/sof/intel/hda-codec.c
+> index 2c5c451fa19d7..c475955c6eeba 100644
+> --- a/sound/soc/sof/intel/hda-codec.c
+> +++ b/sound/soc/sof/intel/hda-codec.c
+> @@ -151,7 +151,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+>  		if (!hdev->bus->audio_component) {
+>  			dev_dbg(sdev->dev,
+>  				"iDisp hw present but no driver\n");
+> -			return -ENOENT;
+> +			goto error;
+>  		}
+>  		hda_priv->need_display_power = true;
+>  	}
+> @@ -174,7 +174,7 @@ static int hda_codec_probe(struct snd_sof_dev *sdev, int address,
+>  		 * other return codes without modification
+>  		 */
+>  		if (ret == 0)
+> -			ret = -ENOENT;
+> +			goto error;
+>  	}
 >  
->  		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
->  			goto refill;
-> +		if (nc->pfmemalloc) {
+>  	return ret;
 
-                if (unlikely(nc->pfmemalloc)) {
+My local build of v5.9.5 broke on this patch.
 
-> +			free_the_page(page, compound_order(page));
-> +			goto refill;
-> +		}
->  
->  #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
->  		/* if size can vary use size else just use PAGE_SIZE */
-> 
+sound/soc/sof/intel/hda-codec.c: In function 'hda_codec_probe': 
+sound/soc/sof/intel/hda-codec.c:177:4: error: label 'error' used but not defined 
+  177 |    goto error; 
+      |    ^~~~ 
+make[4]: *** [scripts/Makefile.build:283: sound/soc/sof/intel/hda-codec.o] Error 1 
+make[3]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Error 2 
+make[2]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2 
+make[1]: *** [scripts/Makefile.build:500: sound/soc] Error 2 
+make: *** [Makefile:1778: sound] Error 2
+
+There's indeed no error label in v5.9.5. (There is one in v5.10-rc2, I just
+checked.) Is no-one else running into this?
+
+Thanks,
+
+
+Paul Bolle
+
