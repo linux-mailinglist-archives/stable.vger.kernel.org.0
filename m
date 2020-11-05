@@ -2,59 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6EB32A824B
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:34:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D61462A8250
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731146AbgKEPer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 10:34:47 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:37767 "EHLO
+        id S1730721AbgKEPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 10:35:59 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41339 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730721AbgKEPer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:34:47 -0500
+        by vger.kernel.org with ESMTP id S1730943AbgKEPf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:35:59 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 1281EE26;
-        Thu,  5 Nov 2020 10:34:46 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 7FA64E95;
+        Thu,  5 Nov 2020 10:35:58 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 05 Nov 2020 10:34:46 -0500
+  by compute4.internal (MEProxy); Thu, 05 Nov 2020 10:35:58 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gGfChK
-        kSCWu8RoMTPPK7W6oAqCa/4OFuJAxOPJ5Pe/g=; b=K2LM0F6tIZ2VruKtTix2nG
-        LQ8ifhmYEvYA4MThw2ERCvUOVYyxJbyUli5YCFgQd2RWy52iAisFaByNpbJT1b5F
-        yVX+Glz5WJgl2bKUT2FTbRNb7N48IMUWoEZuD4HVOKYDaiFdVPtup6zBUscbLp72
-        RCeDaizqY6DGffM/ipm9kulipLDFYmNvD1WaSk8DZFsX56bd1g4Sq7+dCFvkOp2Y
-        2Wz6EO487uesy0ssYSPcOQDG23uxupDHZyoHBR+39lpC4/FyNl0bPqkoKLBkfRfq
-        ldSFpiZXcVybl1VyWwiGUCmvBPWt+keuOn0u0Sc/RE9k4M+U6svIFKcpKNTBmZdw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2wZrMX
+        KS1zX34cFtlZqid1/GRMqfyD2PD3/DGbGpz7s=; b=R2IOr/W6aYle/RSQvggMHC
+        9ERJz0nNB+3O80uM7xPMFuKGOUPTjdQlkOsJyBupCHX1mOvS8SDawWL2oD6g85qr
+        E6TqGrWu4C8DqW7C9AFi6IT/+wc/FPxpI1j4h4KvaQCrReN3QK8pBBMRKTfRyyps
+        1bWJmUgS0qfnREhKSqUKt2F2SCC5AIKplbosXbzBYGKTx6WX1o8ExSh5Aq4It8yh
+        PGE/DSJXXLn2M+JS2f0iF05ULrx9soNP4u30PCxVfc/4gpJ5HYnCJXlK9JyMuhWG
+        4SlWyh7TeNoJ0OtZozReuugVqoVsPwv0EMvQly1cGlzH+f553of23fFwxpUMZ4qg
         ==
-X-ME-Sender: <xms:lRukX2ASrIRtmYJvXk7b3ol8KZrUrGHGacZpfJg9LLPYlxwAoKt6Rg>
-    <xme:lRukXwgvPI40K6omVG7xt1-ugtt15sTx5QrHl_oVX9DHcsTyjINsVMCKW5d3c4Qu5
-    xIY91Nh9HBfYQ>
+X-ME-Sender: <xms:3RukXz3I4p1yN4yD4A1BAJGMFMeA8PCcaox3zLEVZLBsnCVeL3OgGQ>
+    <xme:3RukXyEsqL8mlUhTL_23sFYxdvoKaIiDujhxTWU7lNJ3NY9EFZZTazdRCEltf-aOY
+    jW7BhzSyU10vA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddtjedgjeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepieenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:lRukX5mOoeQjNfBMOhq9iLvmZzHnclYMuiBL7vD8fZC54-OtfyNocQ>
-    <xmx:lRukX0yZ1uYnauXX-q5ETGVdEsi3v-39T-eDPqHvBcvkYc657otN3Q>
-    <xmx:lRukX7RRbY20SuyTEJhLLchIx2TyAnrfIWVSciS3p_gXkeOoXCAFYg>
-    <xmx:lRukX1cM4B_bQpeycD42Xltq8mQYDVIyrhnGQ3dHVuHlOkKJ1UNcCdMNnXo>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
+    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:3RukXz7IDPYY2Iv9n50zrVdg9gbncVKiSgWIDVxwzssYTkTQQgpuow>
+    <xmx:3RukX41iZOFmk59uzD54dQauMVhap78_uMs1UAEHksFIgvPEjb1d6w>
+    <xmx:3RukX2FoiIRBKODsOD6tOytog9h3jVAHsreP3bsSVccNtCrA2Igumg>
+    <xmx:3hukX4NS3lMNh5Q96niIBrgsOKlEP_nEVPhDRP159NoX56lzEZ3hJ24lAsE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4E71D306005C;
-        Thu,  5 Nov 2020 10:34:45 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Support parsing of oversize batches" failed to apply to 5.9-stable tree
-To:     chris@chris-wilson.co.uk, jon.bloomfield@intel.com,
-        matthew.auld@intel.com, mika.kuoppala@linux.intel.com,
-        rodrigo.vivi@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7CF03306005F;
+        Thu,  5 Nov 2020 10:35:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/nouveau/kms/nv50-: Get rid of bogus" failed to apply to 5.9-stable tree
+To:     lyude@redhat.com, bskeggs@redhat.com, stable@vger.kernel.org,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Nov 2020 16:35:29 +0100
-Message-ID: <1604590529126101@kroah.com>
+Date:   Thu, 05 Nov 2020 16:36:47 +0100
+Message-ID: <160459060724988@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -72,73 +71,124 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d5e8782129c22036425f29f9b6a254895482d7bd Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 15 Oct 2020 12:59:54 +0100
-Subject: [PATCH] drm/i915/gem: Support parsing of oversize batches
+From 2d831155cf0607566e43d8465da33774b2dc7221 Mon Sep 17 00:00:00 2001
+From: Lyude Paul <lyude@redhat.com>
+Date: Tue, 29 Sep 2020 18:31:31 -0400
+Subject: [PATCH] drm/nouveau/kms/nv50-: Get rid of bogus
+ nouveau_conn_mode_valid()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Matthew Auld noted that on more recent systems (such as the parser for
-gen9) we may have objects that are larger than expected by the GEM uAPI
-(i.e. greater than u32). These objects would have incorrect implicit
-batch lengths, causing the parser to reject them for being incomplete,
-or worse.
+Ville also pointed out that I got a lot of the logic here wrong as well, whoops.
+While I don't think anyone's likely using 3D output with nouveau, the next patch
+will make nouveau_conn_mode_valid() make a lot less sense. So, let's just get
+rid of it and open-code it like before, while taking care to move the 3D frame
+packing calculations on the dot clock into the right place.
 
-Based on a patch by Matthew Auld.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: d6a9efece724 ("drm/nouveau/kms/nv50-: Share DP SST mode_valid() handling with MST")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.8+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 
-Reported-by: Matthew Auld <matthew.auld@intel.com>
-Fixes: 435e8fc059db ("drm/i915: Allow parsing of unsized batches")
-Testcase: igt/gem_exec_params/larger-than-life-batch
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20201015115954.871-1-chris@chris-wilson.co.uk
-(cherry picked from commit 57b2d834bf235daab388c3ba12d035c820ae09c6)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 4b09bcd70cf4..1904e6e5ea64 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -287,8 +287,8 @@ struct i915_execbuffer {
- 	u64 invalid_flags; /** Set of execobj.flags that are invalid */
- 	u32 context_flags; /** Set of execobj.flags to insert from the ctx */
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 49dd0cbc332f..6f21f36719fc 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1023,29 +1023,6 @@ get_tmds_link_bandwidth(struct drm_connector *connector)
+ 		return 112000 * duallink_scale;
+ }
  
-+	u64 batch_len; /** Length of batch within object */
- 	u32 batch_start_offset; /** Location within object of batch */
--	u32 batch_len; /** Length of batch within object */
- 	u32 batch_flags; /** Flags composed for emit_bb_start() */
- 	struct intel_gt_buffer_pool_node *batch_pool; /** pool node for batch buffer */
+-enum drm_mode_status
+-nouveau_conn_mode_clock_valid(const struct drm_display_mode *mode,
+-			      const unsigned min_clock,
+-			      const unsigned max_clock,
+-			      unsigned int *clock_out)
+-{
+-	unsigned int clock = mode->clock;
+-
+-	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ==
+-	    DRM_MODE_FLAG_3D_FRAME_PACKING)
+-		clock *= 2;
+-
+-	if (clock < min_clock)
+-		return MODE_CLOCK_LOW;
+-	if (clock > max_clock)
+-		return MODE_CLOCK_HIGH;
+-
+-	if (clock_out)
+-		*clock_out = clock;
+-
+-	return MODE_OK;
+-}
+-
+ static enum drm_mode_status
+ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 			     struct drm_display_mode *mode)
+@@ -1053,7 +1030,7 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+ 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+ 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
+-	unsigned min_clock = 25000, max_clock = min_clock;
++	unsigned int min_clock = 25000, max_clock = min_clock, clock = mode->clock;
  
-@@ -871,6 +871,10 @@ static int eb_lookup_vmas(struct i915_execbuffer *eb)
- 
- 	if (eb->batch_len == 0)
- 		eb->batch_len = eb->batch->vma->size - eb->batch_start_offset;
-+	if (unlikely(eb->batch_len == 0)) { /* impossible! */
-+		drm_dbg(&i915->drm, "Invalid batch length\n");
-+		return -EINVAL;
-+	}
- 
- 	return 0;
- 
-@@ -2424,7 +2428,7 @@ static int eb_parse(struct i915_execbuffer *eb)
- 	struct drm_i915_private *i915 = eb->i915;
- 	struct intel_gt_buffer_pool_node *pool = eb->batch_pool;
- 	struct i915_vma *shadow, *trampoline, *batch;
--	unsigned int len;
-+	unsigned long len;
- 	int err;
- 
- 	if (!eb_use_cmdparser(eb)) {
-@@ -2449,6 +2453,8 @@ static int eb_parse(struct i915_execbuffer *eb)
- 	} else {
- 		len += I915_CMD_PARSER_TRAMPOLINE_SIZE;
+ 	switch (nv_encoder->dcb->type) {
+ 	case DCB_OUTPUT_LVDS:
+@@ -1082,8 +1059,15 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 		return MODE_BAD;
  	}
-+	if (unlikely(len < eb->batch_len)) /* last paranoid check of overflow */
-+		return -EINVAL;
  
- 	if (!pool) {
- 		pool = intel_gt_get_buffer_pool(eb->engine->gt, len);
+-	return nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					     NULL);
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
++
++	return MODE_OK;
+ }
+ 
+ static struct drm_encoder *
+diff --git a/drivers/gpu/drm/nouveau/nouveau_dp.c b/drivers/gpu/drm/nouveau/nouveau_dp.c
+index 7b640e05bd4c..93e3751ad7f1 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_dp.c
++++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
+@@ -232,12 +232,14 @@ nv50_dp_mode_valid(struct drm_connector *connector,
+ 		   unsigned *out_clock)
+ {
+ 	const unsigned min_clock = 25000;
+-	unsigned max_clock, ds_clock, clock;
+-	enum drm_mode_status ret;
++	unsigned max_clock, ds_clock, clock = mode->clock;
+ 
+ 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
+ 		return MODE_NO_INTERLACE;
+ 
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
+ 	max_clock = outp->dp.link_nr * outp->dp.link_bw;
+ 	ds_clock = drm_dp_downstream_max_dotclock(outp->dp.dpcd,
+ 						  outp->dp.downstream_ports);
+@@ -245,9 +247,13 @@ nv50_dp_mode_valid(struct drm_connector *connector,
+ 		max_clock = min(max_clock, ds_clock);
+ 
+ 	clock = mode->clock * (connector->display_info.bpc * 3) / 10;
+-	ret = nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					    &clock);
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
++
+ 	if (out_clock)
+ 		*out_clock = clock;
+-	return ret;
++
++	return MODE_OK;
+ }
 
