@@ -2,195 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBD32A7695
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 05:50:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4762A77A2
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 07:58:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730370AbgKEEuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Nov 2020 23:50:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38930 "EHLO
+        id S1726428AbgKEG6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 01:58:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbgKEEuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Nov 2020 23:50:32 -0500
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA2CC061A4A
-        for <stable@vger.kernel.org>; Wed,  4 Nov 2020 20:50:32 -0800 (PST)
-Received: by mail-ot1-x344.google.com with SMTP id g19so255332otp.13
-        for <stable@vger.kernel.org>; Wed, 04 Nov 2020 20:50:32 -0800 (PST)
+        with ESMTP id S1725287AbgKEG6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 01:58:48 -0500
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23215C0613CF;
+        Wed,  4 Nov 2020 22:58:48 -0800 (PST)
+Received: by mail-io1-xd42.google.com with SMTP id u19so758046ion.3;
+        Wed, 04 Nov 2020 22:58:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FvjwOA4E4EU4uWdZHjmur5yZGUS7qBISeC6b1M+D3zM=;
-        b=tiU9APlPLOoAxUJp76XWPjX0w6Bzx0nGeeJFMUVVCicmATSCu0ouGOStpsm7KH2jwB
-         K7hHvMnRwOoRvfihBotW5GprFltQEStY9Jfm7q+4st4EWnGOTU73Jx2M75hpCfe5Hr6L
-         MF83qfpHNGdRLhGlFU2btE7KJchSHqtEQa3AjnqgjvJB3lQJ/zMbDsXJahAIUwoGiciE
-         Ht1H91HmQnTJG7/5Vos+NVVvdPLXNllP3efOkrwybSR/pIyClUEMvO6FANa7IFG0sKWz
-         60dlWyzlKq+eLg2Wbu4oJqMqTyOdVtDlFW3Pdc/Dsc5Y6Golc1qyTigYMINObZ1xh4fq
-         WFHA==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xgK5C/kmHCdYMo/R51mOn46TRz+P9lQZN5x72FBClZg=;
+        b=qU8KRHAWTdGzsF4J6Ys7Tkj08FpemaSAAMbCgNpt5J8Kk8GMVGg76D6IuyudobkT0A
+         YRQ2xjCPHxFr2drMUqmnf58Rz7bGVZqElO+2JrJTclL0F35iqzn0bnlPIFH2md3bYgre
+         L7mTQ49VriewSJLeluMG20EweK80i4oGywhchKA2YuF39yKBg6Gdhw1sz/t+NyHwn2Zr
+         yuZeLjekvBtSAYtaaQWHt3Dv7POzD4Z7oGixqo/p/9fqG3pyrJGdFusuRk5z0eEYaFdW
+         n/JmT6qGzEmRsOYjmsuY/2e8UaTVft3qLPWU5QB0sj+JHD1p8YcIT6f08Cm/SAN/Ka7H
+         qhVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FvjwOA4E4EU4uWdZHjmur5yZGUS7qBISeC6b1M+D3zM=;
-        b=CYNIhK07BHESlNVd6/toDd5s53I7NOCoF0XX0fuJUOmP3dom0oHa/gE2UlMOgTW2W+
-         ZTGykJ5XquyQsQLc5B4v+uDoVrxFkJZhJCQRnvhJOzpTUkEoKmJjCYaLbrLeyLrfyDj0
-         4aRatZjFa737Z8ch9DhFKdLaZGtjnmoKB5GJGrE72ob+UZrtcxVwd40rGDsL7tfLyo+j
-         /gzX604lmDcz8evC8BgTfZFttJeDQoeZNLP8xrm+BELF8tHOE2BFo34E2TueIJbEbl+V
-         hnS5W3WFTbL9rVo9YmiMpS58pF1/eIx43RBwEeXg183Vta/ejzvLrAa3Fr50yui8gqqV
-         yKNw==
-X-Gm-Message-State: AOAM533+wYpNsHPxigFLkMsAwlPIYewBYP4rrNSmTNLi4o/bo0edBzZ9
-        WZGDTwW5nP9y1PIRzCAs8YUwHg14s4tBjg==
-X-Google-Smtp-Source: ABdhPJy+pHmn9uCABK0hmaSx7N/RXjSjED1Z0kRvX70fzCNGwChVT6aF6Wa70HEsQOk6oZmoejz7gA==
-X-Received: by 2002:a9d:60d:: with SMTP id 13mr468308otn.366.1604551831750;
-        Wed, 04 Nov 2020 20:50:31 -0800 (PST)
-Received: from localhost.localdomain (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
-        by smtp.gmail.com with ESMTPSA id k13sm100553ooi.41.2020.11.04.20.50.30
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xgK5C/kmHCdYMo/R51mOn46TRz+P9lQZN5x72FBClZg=;
+        b=dWbbHhoxC34CgjtrDEVqijLMfKTtw4sydjerFI/gh5YD6OkoXYdYOvsUJQQqQIp0kY
+         /ejmyXpjqYyUqMfhv2g5mTVoBlH31nkjudnZJDkTg3zCuzVihQcvca4zC7w2MGK7lRLm
+         OmUktc/4ulrFfJphKp2phcR5QFV9l00BRXYJHFrmS+DMpx3HiELy6UWBjST0gcDYG6Ys
+         KLm4Do0n8cq2z8ccZX7Zwdp8zX0Cd78cSaMtHFf0sJnq8jVId0j3FBoOKopY7xDZjaVq
+         dJStBOkAZQfnPbKh5B6erQy7dhmEH5Fd2xuJpvDdhEBBAwwjTf7rx5XXpB6DMC1JyIp0
+         wCyQ==
+X-Gm-Message-State: AOAM532Q1LVheZTXLa6g04JoT7dZSjs4O/8vnVsN3NLuoGIIb1cHLEdg
+        uICexS3HnCId+pdxJiK5ack=
+X-Google-Smtp-Source: ABdhPJzFmZM1hex1Mo0bDhYe1yj7LOV2SnmMToXn3dPj+RK5ZWGd5alBm12txPxzgJYNE4mOwE3uXg==
+X-Received: by 2002:a02:3842:: with SMTP id v2mr981798jae.50.1604559527215;
+        Wed, 04 Nov 2020 22:58:47 -0800 (PST)
+Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
+        by smtp.gmail.com with ESMTPSA id i3sm520813iom.8.2020.11.04.22.58.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 20:50:31 -0800 (PST)
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Siddharth Gupta <sidgup@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>
-Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v2 1/4] remoteproc: sysmon: Ensure remote notification ordering
-Date:   Wed,  4 Nov 2020 20:50:48 -0800
-Message-Id: <20201105045051.1365780-2-bjorn.andersson@linaro.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201105045051.1365780-1-bjorn.andersson@linaro.org>
-References: <20201105045051.1365780-1-bjorn.andersson@linaro.org>
+        Wed, 04 Nov 2020 22:58:46 -0800 (PST)
+Date:   Wed, 4 Nov 2020 23:58:44 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-toolchains@vger.kernel.org,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Fangrui Song <maskray@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Dmitry Golovin <dima@golovin.in>,
+        Alistair Delva <adelva@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] Kbuild: do not emit debug info for assembly with
+ LLVM_IAS=1
+Message-ID: <20201105065844.GA3243074@ubuntu-m3-large-x86>
+References: <CAK7LNAST0Ma4bGGOA_HATzYAmRhZG=x_X=8p_9dKGX7bYc2FMA@mail.gmail.com>
+ <20201104005343.4192504-1-ndesaulniers@google.com>
+ <20201104005343.4192504-3-ndesaulniers@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201104005343.4192504-3-ndesaulniers@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The reliance on the remoteproc's state for determining when to send
-sysmon notifications to a remote processor is racy with regard to
-concurrent remoteproc operations.
+On Tue, Nov 03, 2020 at 04:53:41PM -0800, Nick Desaulniers wrote:
+> Clang's integrated assembler produces the warning for assembly files:
+> 
+> warning: DWARF2 only supports one section per compilation unit
+> 
+> If -Wa,-gdwarf-* is unspecified, then debug info is not emitted.  This
 
-Further more the advertisement of the state of other remote processor to
-a newly started remote processor might not only send the wrong state,
-but might result in a stream of state changes that are out of order.
+Is this something that should be called out somewhere? If I understand
+this correctly, LLVM_IAS=1 + CONFIG_DEBUG_INFO=y won't work? Maybe this
+should be handled in Kconfig?
 
-Address this by introducing state tracking within the sysmon instances
-themselves and extend the locking to ensure that the notifications are
-consistent with this state.
+> will be re-enabled for new DWARF versions in a follow up patch.
+> 
+> Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
+> LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
+> 
+> Cc: <stable@vger.kernel.org>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/716
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Suggested-by: Dmitry Golovin <dima@golovin.in>
 
-Fixes: 1f36ab3f6e3b ("remoteproc: sysmon: Inform current rproc about all active rprocs")
-Fixes: 1877f54f75ad ("remoteproc: sysmon: Add notifications for events")
-Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
+If you happen to respin, Dmitry deserves a Reported-by tag too :)
 
-Changes since v1:
-- Reduced the locking to be per sysmon instance
-- Dropped unused local "rproc" variable in sysmon_notify()
+> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 
- drivers/remoteproc/qcom_sysmon.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+Regardless of the other two comments, this is fine as is as a fix for
+stable to unblock Android + CrOS since we have been running something
+similar to it in CI:
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index 9eb2f6bccea6..38f63c968fa8 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -22,6 +22,9 @@ struct qcom_sysmon {
- 	struct rproc_subdev subdev;
- 	struct rproc *rproc;
- 
-+	int state;
-+	struct mutex state_lock;
-+
- 	struct list_head node;
- 
- 	const char *name;
-@@ -448,7 +451,10 @@ static int sysmon_prepare(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_POWERUP
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_BEFORE_POWERUP;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
- 	return 0;
- }
-@@ -472,22 +478,25 @@ static int sysmon_start(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
--	mutex_lock(&sysmon_lock);
- 	list_for_each_entry(target, &sysmon_list, node) {
--		if (target == sysmon ||
--		    target->rproc->state != RPROC_RUNNING)
-+		if (target == sysmon)
- 			continue;
- 
-+		mutex_lock(&target->state_lock);
- 		event.subsys_name = target->name;
-+		event.ssr_event = target->state;
- 
- 		if (sysmon->ssctl_version == 2)
- 			ssctl_send_event(sysmon, &event);
- 		else if (sysmon->ept)
- 			sysmon_send_event(sysmon, &event);
-+		mutex_unlock(&target->state_lock);
- 	}
--	mutex_unlock(&sysmon_lock);
- 
- 	return 0;
- }
-@@ -500,7 +509,10 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
- 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
- 	/* Don't request graceful shutdown if we've crashed */
- 	if (crashed)
-@@ -521,7 +533,10 @@ static void sysmon_unprepare(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_AFTER_SHUTDOWN
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_AFTER_SHUTDOWN;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- }
- 
- /**
-@@ -534,11 +549,10 @@ static int sysmon_notify(struct notifier_block *nb, unsigned long event,
- 			 void *data)
- {
- 	struct qcom_sysmon *sysmon = container_of(nb, struct qcom_sysmon, nb);
--	struct rproc *rproc = sysmon->rproc;
- 	struct sysmon_event *sysmon_event = data;
- 
- 	/* Skip non-running rprocs and the originating instance */
--	if (rproc->state != RPROC_RUNNING ||
-+	if (sysmon->state != SSCTL_SSR_EVENT_AFTER_POWERUP ||
- 	    !strcmp(sysmon_event->subsys_name, sysmon->name)) {
- 		dev_dbg(sysmon->dev, "not notifying %s\n", sysmon->name);
- 		return NOTIFY_DONE;
-@@ -591,6 +605,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 	init_completion(&sysmon->ind_comp);
- 	init_completion(&sysmon->shutdown_comp);
- 	mutex_init(&sysmon->lock);
-+	mutex_init(&sysmon->state_lock);
- 
- 	sysmon->shutdown_irq = of_irq_get_byname(sysmon->dev->of_node,
- 						 "shutdown-ack");
--- 
-2.28.0
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 
+> ---
+>  Makefile | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/Makefile b/Makefile
+> index f353886dbf44..75b1a3dcbf30 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -826,7 +826,9 @@ else
+>  DEBUG_CFLAGS	+= -g
+>  endif
+>  
+> +ifndef LLVM_IAS
+
+Nit: this should probably match the existing LLVM_IAS check
+
+ifneq ($(LLVM_IAS),1)
+
+>  KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+> +endif
+>  
+>  ifdef CONFIG_DEBUG_INFO_DWARF4
+>  DEBUG_CFLAGS	+= -gdwarf-4
+> -- 
+> 2.29.1.341.ge80a0c044ae-goog
+> 
