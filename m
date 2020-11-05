@@ -2,144 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B347D2A8274
-	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:44:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C9F2A82D1
+	for <lists+stable@lfdr.de>; Thu,  5 Nov 2020 16:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730660AbgKEPo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 10:44:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731259AbgKEPo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Nov 2020 10:44:29 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47D7320782;
-        Thu,  5 Nov 2020 15:44:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604591067;
-        bh=jbZ5JSIyez+0E8oWD8sWvQCNVHpuJ9HD98Y+T9Fg2Aw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=c0dMUvvJgpdw+58yt+JO81K55V16ExHke69QwxXwByN4ckApzKAG2jXIjXi4aSIyt
-         ruG5DeJ8Fcef/ZoZ19HRM76A9DhOftxDU32BNYCBvip4Z4ObF4f2p7Isq/HDinsl2C
-         z5JMvCuqcu4LXkaaYz/FjKvLNfss+XT6JNM8SHts=
-Date:   Thu, 5 Nov 2020 10:44:26 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Cc:     Paul Bolle <pebolle@tiscali.nl>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 5.9 080/391] ASoC: SOF: fix a runtime pm issue in SOF
- when HDMI codec doesnt work
-Message-ID: <20201105154426.GI2092@sasha-vm>
-References: <20201103203348.153465465@linuxfoundation.org>
- <20201103203352.505472614@linuxfoundation.org>
- <64a618a3cc00de4a1c3887b57447906351db77b9.camel@tiscali.nl>
- <20201105143551.GH2092@sasha-vm>
- <1f0c6a62-5208-801d-d7c2-725ee8da19b2@linux.intel.com>
+        id S1731437AbgKEP6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 10:58:01 -0500
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:43372 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730973AbgKEP6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 10:58:00 -0500
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0A5FvtNs030602;
+        Thu, 5 Nov 2020 09:57:55 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1604591875;
+        bh=cRyNJqFzegPh24HdCscOHLjKNMorB21SUKPbtr+eBTU=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=S93VqGNiaXIS5IvvEUoiwSZIhkSUCmjkFHhJo/TVSiUfKWOIAbkWM1DtmpEQdsjDv
+         ZFEOzywux+NfNp9A0xR7/MueyLV7vWAu1HgqMS/Ame0zi/DFvefbsbtBbs7NZHvAoR
+         QbtJy4RyrLnxFhUZ/9SNPeo6ZEKP2d2iXz+WXjMk=
+Received: from DFLE112.ent.ti.com (dfle112.ent.ti.com [10.64.6.33])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0A5Fvt3O093280
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 5 Nov 2020 09:57:55 -0600
+Received: from DFLE103.ent.ti.com (10.64.6.24) by DFLE112.ent.ti.com
+ (10.64.6.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Thu, 5 Nov
+ 2020 09:57:55 -0600
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE103.ent.ti.com
+ (10.64.6.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Thu, 5 Nov 2020 09:57:55 -0600
+Received: from [10.250.233.179] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0A5FvrOL014669;
+        Thu, 5 Nov 2020 09:57:54 -0600
+Subject: Re: [PATCH] mtd: cfi_cmdset_0002: Use status register where possible
+To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        "linux-mtd @ lists . infradead . org" <linux-mtd@lists.infradead.org>
+CC:     <stable@vger.kernel.org>
+References: <20201022154506.17639-1-joakim.tjernlund@infinera.com>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <256798c1-e7b6-4bfb-bdc7-b143cb2f0502@ti.com>
+Date:   Thu, 5 Nov 2020 21:27:52 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1f0c6a62-5208-801d-d7c2-725ee8da19b2@linux.intel.com>
+In-Reply-To: <20201022154506.17639-1-joakim.tjernlund@infinera.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 05, 2020 at 08:47:57AM -0600, Pierre-Louis Bossart wrote:
->
->
->On 11/5/20 8:35 AM, Sasha Levin wrote:
->>On Thu, Nov 05, 2020 at 02:23:35PM +0100, Paul Bolle wrote:
->>>Greg Kroah-Hartman schreef op di 03-11-2020 om 21:32 [+0100]:
->>>>From: Rander Wang <rander.wang@intel.com>
->>>>
->>>>[ Upstream commit 6c63c954e1c52f1262f986f36d95f557c6f8fa94 ]
->>>>
->>>>When hda_codec_probe() doesn't initialize audio component, we disable
->>>>the codec and keep going. However,the resources are not released. The
->>>>child_count of SOF device is increased in snd_hdac_ext_bus_device_init
->>>>but is not decrease in error case, so SOF can't get suspended.
->>>>
->>>>snd_hdac_ext_bus_device_exit will be invoked in HDA framework if it
->>>>gets a error. Now copy this behavior to release resources and decrease
->>>>SOF device child_count to release SOF device.
->>>>
->>>>Signed-off-by: Rander Wang <rander.wang@intel.com>
->>>>Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
->>>>Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
->>>>Reviewed-by: Guennadi Liakhovetski 
->>>><guennadi.liakhovetski@linux.intel.com>
->>>>Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
->>>>Link: https://lore.kernel.org/r/20200825235040.1586478-3-ranjani.sridharan@linux.intel.com
->>>>
->>>>Signed-off-by: Mark Brown <broonie@kernel.org>
->>>>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>>>---
->>>> sound/soc/sof/intel/hda-codec.c | 4 ++--
->>>> 1 file changed, 2 insertions(+), 2 deletions(-)
->>>>
->>>>diff --git a/sound/soc/sof/intel/hda-codec.c 
->>>>b/sound/soc/sof/intel/hda-codec.c
->>>>index 2c5c451fa19d7..c475955c6eeba 100644
->>>>--- a/sound/soc/sof/intel/hda-codec.c
->>>>+++ b/sound/soc/sof/intel/hda-codec.c
->>>>@@ -151,7 +151,7 @@ static int hda_codec_probe(struct 
->>>>snd_sof_dev *sdev, int address,
->>>>         if (!hdev->bus->audio_component) {
->>>>             dev_dbg(sdev->dev,
->>>>                 "iDisp hw present but no driver\n");
->>>>-            return -ENOENT;
->>>>+            goto error;
->>>>         }
->>>>         hda_priv->need_display_power = true;
->>>>     }
->>>>@@ -174,7 +174,7 @@ static int hda_codec_probe(struct 
->>>>snd_sof_dev *sdev, int address,
->>>>          * other return codes without modification
->>>>          */
->>>>         if (ret == 0)
->>>>-            ret = -ENOENT;
->>>>+            goto error;
->>>>     }
->>>>
->>>>     return ret;
->>>
->>>My local build of v5.9.5 broke on this patch.
->>>
->>>sound/soc/sof/intel/hda-codec.c: In function 'hda_codec_probe':
->>>sound/soc/sof/intel/hda-codec.c:177:4: error: label 'error' used 
->>>but not defined
->>> 177 |    goto error;
->>>     |    ^~~~
->>>make[4]: *** [scripts/Makefile.build:283: 
->>>sound/soc/sof/intel/hda-codec.o] Error 1
->>>make[3]: *** [scripts/Makefile.build:500: sound/soc/sof/intel] Error 2
->>>make[2]: *** [scripts/Makefile.build:500: sound/soc/sof] Error 2
->>>make[1]: *** [scripts/Makefile.build:500: sound/soc] Error 2
->>>make: *** [Makefile:1778: sound] Error 2
->>>
->>>There's indeed no error label in v5.9.5. (There is one in 
->>>v5.10-rc2, I just
->>>checked.) Is no-one else running into this?
->>
->>It seems that setting CONFIG_SND_SOC_SOF_HDA_AUDIO_CODEC=y is very
->>"difficult", it's not being set by allmodconfig nor is it easy to
->>manually set it up.
->>
->>I'll revert the patch, but it would be nice to make sure it's easier to
->>test this out too.
->
->this issue comes from out-of-order patches, give me a couple of hours 
->to look into this before reverting. thanks!
+Hi Joakim,
 
-Sure! Thanks for looking into this.
+On 10/22/20 9:15 PM, Joakim Tjernlund wrote:
+> Commit "mtd: cfi_cmdset_0002: Add support for polling status register"
 
--- 
-Thanks,
-Sasha
+Standard way to refer to a commit is:
+
+Commit 4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
+
+> added support for polling the status rather than using DQ polling.
+> However, status register is used only when DQ polling is missing.
+> Lets use status register when available as it is superior to DQ polling.
+> 
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/mtd/chips/cfi_cmdset_0002.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+> index a1f3e1031c3d..ee9b322e63bb 100644
+> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
+> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+> @@ -117,7 +117,7 @@ static struct mtd_chip_driver cfi_amdstd_chipdrv = {
+>  static int cfi_use_status_reg(struct cfi_private *cfi)
+>  {
+>  	struct cfi_pri_amdstd *extp = cfi->cmdset_priv;
+> -	u8 poll_mask = CFI_POLL_STATUS_REG | CFI_POLL_DQ;
+> +	u8 poll_mask = CFI_POLL_STATUS_REG;
+
+This local variable now looks pointless and can be dropped.. So,
+
+>  	return extp->MinorVersion >= '5' &&
+>  		(extp->SoftwareFeatures & poll_mask) == CFI_POLL_STATUS_REG;
+> 
+
+	return extp->MinorVersion >= '5' &&
+  			(extp->SoftwareFeatures & CFI_POLL_STATUS_REG);
+
+Regards
+Vignesh
