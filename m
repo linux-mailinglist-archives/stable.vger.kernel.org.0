@@ -2,105 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CD92A9399
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 11:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5902A9410
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 11:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726242AbgKFKC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Nov 2020 05:02:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726250AbgKFKC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Nov 2020 05:02:59 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E134206DC;
-        Fri,  6 Nov 2020 10:02:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604656977;
-        bh=nYdHL5tyv5VMecLwSV/l3uI2NstXIrB2qMwuqFJkM4M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M2WaU7q4zH8m7KvvkhjUQ2pCKYppWcW4xZc8Sbd+MJHPZQ7u/1yV62PBVKKYrx2Y6
-         TrqCKM7i7uTANmTINzFj9ooaRAzBORHGqUCF216GRkX+wQ0KmNy+NmZQe6zuJetZ+R
-         6sSKWmg+XOtXTJOXaV6ITnlfo69WmhRLZwuA2tOg=
-Date:   Fri, 6 Nov 2020 11:03:43 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ian Abbott <abbotti@mev.co.uk>
-Cc:     devel@driverdev.osuosl.org,
-        H Hartley Sweeten <hsweeten@visionengravers.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] staging: comedi: cb_pcidas: reinstate delay removed from
- trimpot setting
-Message-ID: <20201106100343.GA2715339@kroah.com>
-References: <20201029141833.126856-1-abbotti@mev.co.uk>
- <3d7cf15a-c389-ec2c-5e29-8838e8466790@mev.co.uk>
- <f28af317-08a7-8218-d2a6-0cdd9e681873@mev.co.uk>
- <975358e2-6a08-211a-d232-3cd0ce628e8e@mev.co.uk>
+        id S1727049AbgKFKWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 05:22:03 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:53325 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726865AbgKFKWB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 05:22:01 -0500
+X-UUID: 9b89258081404873932c7c17e901f2c8-20201106
+X-UUID: 9b89258081404873932c7c17e901f2c8-20201106
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 837883830; Fri, 06 Nov 2020 18:21:51 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 6 Nov 2020 18:21:48 +0800
+Received: from mtkswgap22.mediatek.inc (172.21.77.33) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 6 Nov 2020 18:21:48 +0800
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Rob Herring <robh@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Chunfeng Yun <Chunfeng.Yun@mediatek.com>
+CC:     Ainge Hsu <ainge.hsu@mediatek.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-usb@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v3 1/2] dt-bindings: usb: mediatek,mtk-xhci: add str-clock-on
+Date:   Fri, 6 Nov 2020 18:21:36 +0800
+Message-ID: <1604658097-5127-1-git-send-email-macpaul.lin@mediatek.com>
+X-Mailer: git-send-email 1.7.9.5
+In-Reply-To: <1604301530-31546-1-git-send-email-macpaul.lin@mediatek.com>
+References: <1604301530-31546-1-git-send-email-macpaul.lin@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <975358e2-6a08-211a-d232-3cd0ce628e8e@mev.co.uk>
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 04, 2020 at 10:49:18AM +0000, Ian Abbott wrote:
-> On 02/11/2020 11:16, Ian Abbott wrote:
-> > On 02/11/2020 10:25, Ian Abbott wrote:
-> > > On 29/10/2020 14:18, Ian Abbott wrote:
-> > > > Commit eddd2a4c675c ("staging: comedi: cb_pcidas: refactor
-> > > > write_calibration_bitstream()") inadvertently removed one of the
-> > > > `udelay(1)` calls when writing to the calibration register in
-> > > > `cb_pcidas_calib_write()`.  Reinstate the delay.  It may seem strange
-> > > > that the delay is placed before the register write, but this function is
-> > > > called in a loop so the extra delay can make a difference.
-> > > > 
-> > > > This _might_ solve reported issues reading analog inputs on a
-> > > > PCIe-DAS1602/16 card where the analog input values "were scaled in a
-> > > > strange way that didn't make sense".  On the same hardware running a
-> > > > system with a 3.13 kernel, and then a system with a 4.4 kernel, but with
-> > > > the same application software, the system with the 3.13 kernel was fine,
-> > > > but the one with the 4.4 kernel exhibited the problem.  Of the 90
-> > > > changes to the driver between those kernel versions, this change looked
-> > > > like the most likely culprit.
-> > > 
-> > > Actually, I've realized that this patch will have no effect on the
-> > > PCIe-DAS1602/16 card because it uses a different driver -
-> > > cb_pcimdas, not cb_pcidas.
-> > 
-> > But that's also confusing because PCIe-DAS1602/16 was not supported
-> > until the 3.19 kernel!  I know the reported has both PCI-DAS1602/16 and
-> > PCIe-DAS1602/16 cards (supported by cb_pcidas and cb_pcimdas
-> > respectively), so there could have been some mix-up in the reporting.
-> 
-> Mystery solved.  The reporter had a mixture of PCIe-DAS1602/16 and
-> PCIM-DAS1602/16 cards (not PCI-DAS1602/16).  Both of those are supported by
-> the "cb_pcimdas" driver (not "cb_pcidas"), although the PCIe card was not
-> supported until the 3.19 kernel (by commit 4e3d14af1286).  Testing with the
-> 3.13 kernel was done with the PCIM card.
-> 
-> The "strange scaling" was due to a change in the ranges reported for the
-> analog input subdevice in the 4.1 kernel (by commit c7549d770a27). Before
-> then, it just reported a single dummy range [0, 1000000] with no units
-> (converted to [0.0, 1.0] with no units by comedilib).  Afterwards, it
-> reported four different voltage ranges (either unipolar or bipolar,
-> depending in a status bit tied to a physical switch).  The reporter's
-> application code was using the reported range to scale the raw values to a
-> voltage (using comedilib functions), but because the reported range was
-> bogus, the application code was performing additional scaling (outside of
-> comedilib).  The application code can be changed to check whether the device
-> is reporting a proper voltage range or the old, bogus range, and behave
-> accordingly.
-> 
-> > > Greg, you might as well drop this patch if you haven't already
-> > > applied it, since it was only a hunch that it fixed a problem.
-> 
-> That's still the case, although it won't do any harm if applied (apart from
-> the incorrect patch description).
+Option "mediatek,str-clock-on" means to keep clock on during system
+suspend and resume. Some platform will flush register settings if clock has
+been disabled when system is suspended. Set this option to avoid clock off.
 
-I'll leave it dropped :)
+Fixes: 0cbd4b34cda9 ("xhci: mediatek: support MTK xHCI host controller")
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Cc: stable@vger.kernel.org
+---
+Changes for v3:
+  - Remove unnecessary Change-Id in commit message.
+  - Add "Fixes" tag as a bug fix on phone system.
+Changes for v2:
+  - Rename "mediatek,keep-clock-on" to "mediatek,str-clock-on" which implies
+    this option related to STR functions.
+  - After discussion with Chunfeng, resend dt-bindings descritption based on
+    mediatek,mtk-xhci.txt instead of yaml format.
 
-thanks,
+ .../devicetree/bindings/usb/mediatek,mtk-xhci.txt  |    3 +++
+ 1 file changed, 3 insertions(+)
 
-greg k-h
+diff --git a/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.txt b/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.txt
+index 42d8814..fc93bcf 100644
+--- a/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.txt
++++ b/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.txt
+@@ -37,6 +37,9 @@ Required properties:
+ 
+ Optional properties:
+  - wakeup-source : enable USB remote wakeup;
++ - mediatek,str-clock-on: Keep clock on during system suspend and resume.
++	Some platform will flush register settings if clock has been disabled
++	when system is suspended.
+  - mediatek,syscon-wakeup : phandle to syscon used to access the register
+ 	of the USB wakeup glue layer between xHCI and SPM; it depends on
+ 	"wakeup-source", and has two arguments:
+-- 
+1.7.9.5
+
