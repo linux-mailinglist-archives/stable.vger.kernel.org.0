@@ -2,197 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6602A99A7
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 17:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 231DB2A99B3
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 17:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726010AbgKFQlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Nov 2020 11:41:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36230 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725868AbgKFQlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 11:41:36 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59639C0613CF
-        for <stable@vger.kernel.org>; Fri,  6 Nov 2020 08:41:36 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id z3so1826609pfz.6
-        for <stable@vger.kernel.org>; Fri, 06 Nov 2020 08:41:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YHxk/hDb9Gavoiujhaoh2EXMyLwq4ZHPrF9EGVHlZVg=;
-        b=JwkNzKpxxcnM1nY6tArC/+KPhBUK/KhxhP5ftel/hf1I5yeIcjtetGOqQIi7aML5NH
-         3jlfPkzvCsrW6FuFA85eBr4Aoa6hzHG3IYQTkMaKMJbn8rFjP5C7hwHaz2mTt8iRJGAv
-         /MseQ+cZG0rPnDTMhu3XGtthQ+4WwkWLRz1G1mIM7G7drzc4zYqCBzw3+stxQua53Cp5
-         42t4KIRdDiKpUTADA41s08/6pClZh+ijoGa54df4FvCMaXx/5XKVB6dTmgrL1fwu0LIt
-         uJK0I9CefzDKvrLeV4TP4gMhSd0uih9lVkr8CKeuKSUjbLCO1PdJC75HnIB3GMIPj9pN
-         Rd1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YHxk/hDb9Gavoiujhaoh2EXMyLwq4ZHPrF9EGVHlZVg=;
-        b=P5uMEIHFAsNOEj4Ld22xG2UuKAueYrjTr5QJEo09K6WQPBePplA+vv+4BbJKbz1hF8
-         2IJskog3o5OQatz2FRtzVJraHIONxMee1uVU4WibYFakW4etDiIbTE69/8ylI8kQ21Ke
-         nGaYlqo8U8/75wobS36ohuCVHOr42OZfHbgF7zcEpIIfLt9TRXArhLMfFf5U9yMUKxw9
-         N5PzCkZrk7kqBterlR5ixe2uD9toVxgOJ73ueQH8om94rceSltTSbCRIjjkZkP0ffuOK
-         le2G+/Ijh1PDCZtqNV5AaOzNhXJcSy7/Bj3Z+wQ6cEymBD7rbSMPnsJhzLqboUdnfQMw
-         r6Dg==
-X-Gm-Message-State: AOAM532+45V5CYAdN6Dt1WIEWqm0D5ZIFy4ghCjatl2XNG2ncg6fuN4Y
-        UuRiryAO2Vc2siuhsDlhAXI4fdBmqxLYQA==
-X-Google-Smtp-Source: ABdhPJypdpr5MQa+NYGkMYkqvtpDDpn0yIZRzJLrrO1GJu/C2ezee5qFaA3LolLPQtlI+mBgiCEJyg==
-X-Received: by 2002:a63:1d12:: with SMTP id d18mr2471726pgd.314.1604680895633;
-        Fri, 06 Nov 2020 08:41:35 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f21sm2696082pfn.173.2020.11.06.08.41.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 08:41:34 -0800 (PST)
-Message-ID: <5fa57cbe.1c69fb81.52c2e.462a@mx.google.com>
-Date:   Fri, 06 Nov 2020 08:41:34 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727186AbgKFQok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 11:44:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726415AbgKFQoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Nov 2020 11:44:39 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B5F9217A0;
+        Fri,  6 Nov 2020 16:44:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604681078;
+        bh=t0K1Uzu+49PExG7zsJdALxOgNu8sv7rz5YDcQXoVCJY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=y0Knw6SXwkuIvEg2uWUQ/PrrwXU0Cup7lBqjLmSlH3uf72/RKpQZ9dOI4ig17Uf4E
+         NF9jRnOkkDZgCzsf1c4qRUJIXZQfhuFdoWmvBf85dshrgexy8qMYW6oFU70shSl1hx
+         13TGB/J7sIsA7MVpBxI3o7/48OIJ/3RYjg/9oYjs=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1kb4qq-008FYW-NV; Fri, 06 Nov 2020 16:44:36 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Andrew Jones <drjones@redhat.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Gavin Shan <gshan@redhat.com>,
+        =?UTF-8?q?=E5=BC=A0=E4=B8=9C=E6=97=AD?= <xu910121@sina.com>,
+        dave.martin@arm.com, James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: [PATCH 2/5] KVM: arm64: Don't hide ID registers from userspace
+Date:   Fri,  6 Nov 2020 16:44:13 +0000
+Message-Id: <20201106164416.326787-3-maz@kernel.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201106164416.326787-1-maz@kernel.org>
+References: <20201106164416.326787-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.204-3-g260838f69ee7e
-Subject: stable-rc/queue/4.14 baseline: 169 runs,
- 3 regressions (v4.14.204-3-g260838f69ee7e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: pbonzini@redhat.com, drjones@redhat.com, eric.auger@redhat.com, gshan@redhat.com, xu910121@sina.com, dave.martin@arm.com, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 169 runs, 3 regressions (v4.14.204-3-g260838=
-f69ee7e)
+From: Andrew Jones <drjones@redhat.com>
 
-Regressions Summary
--------------------
+ID registers are RAZ until they've been allocated a purpose, but
+that doesn't mean they should be removed from the KVM_GET_REG_LIST
+list. So far we only have one register, SYS_ID_AA64ZFR0_EL1, that
+is hidden from userspace when its function, SVE, is not present.
 
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_i386        | i386   | lab-baylibre | gcc-8    | i386_defconfig   | 1 =
-         =
+Expose SYS_ID_AA64ZFR0_EL1 to userspace as RAZ when SVE is not
+implemented. Removing the userspace visibility checks is enough
+to reexpose it, as it will already return zero to userspace when
+SVE is not present. The register already behaves as RAZ for the
+guest when SVE is not present.
 
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
+Fixes: 73433762fcae ("KVM: arm64/sve: System register context switch and access support")
+Reported-by: 张东旭 <xu910121@sina.com>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org#v5.2+
+Link: https://lore.kernel.org/r/20201105091022.15373-2-drjones@redhat.com
+---
+ arch/arm64/kvm/sys_regs.c | 18 +-----------------
+ 1 file changed, 1 insertion(+), 17 deletions(-)
 
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 983994f01a63..3af306e6b9cd 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1193,16 +1193,6 @@ static unsigned int sve_visibility(const struct kvm_vcpu *vcpu,
+ 	return REG_HIDDEN_USER | REG_HIDDEN_GUEST;
+ }
+ 
+-/* Visibility overrides for SVE-specific ID registers */
+-static unsigned int sve_id_visibility(const struct kvm_vcpu *vcpu,
+-				      const struct sys_reg_desc *rd)
+-{
+-	if (vcpu_has_sve(vcpu))
+-		return 0;
+-
+-	return REG_HIDDEN_USER;
+-}
+-
+ /* Generate the emulated ID_AA64ZFR0_EL1 value exposed to the guest */
+ static u64 guest_id_aa64zfr0_el1(const struct kvm_vcpu *vcpu)
+ {
+@@ -1229,9 +1219,6 @@ static int get_id_aa64zfr0_el1(struct kvm_vcpu *vcpu,
+ {
+ 	u64 val;
+ 
+-	if (WARN_ON(!vcpu_has_sve(vcpu)))
+-		return -ENOENT;
+-
+ 	val = guest_id_aa64zfr0_el1(vcpu);
+ 	return reg_to_user(uaddr, &val, reg->id);
+ }
+@@ -1244,9 +1231,6 @@ static int set_id_aa64zfr0_el1(struct kvm_vcpu *vcpu,
+ 	int err;
+ 	u64 val;
+ 
+-	if (WARN_ON(!vcpu_has_sve(vcpu)))
+-		return -ENOENT;
+-
+ 	err = reg_from_user(&val, uaddr, id);
+ 	if (err)
+ 		return err;
+@@ -1509,7 +1493,7 @@ static const struct sys_reg_desc sys_reg_descs[] = {
+ 	ID_SANITISED(ID_AA64PFR1_EL1),
+ 	ID_UNALLOCATED(4,2),
+ 	ID_UNALLOCATED(4,3),
+-	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, .visibility = sve_id_visibility },
++	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, },
+ 	ID_UNALLOCATED(4,5),
+ 	ID_UNALLOCATED(4,6),
+ 	ID_UNALLOCATED(4,7),
+-- 
+2.28.0
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.204-3-g260838f69ee7e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.204-3-g260838f69ee7e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      260838f69ee7e908d8e885748336a3c45803d023 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_i386        | i386   | lab-baylibre | gcc-8    | i386_defconfig   | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa5479245b76698d7db8859
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa5479245b76698d7db8=
-85a
-        new failure (last pass: v4.14.204-2-g7fda2804efba) =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa54a0b5a4938684bdb887a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa54a0b5a4938684bdb8=
-87b
-        new failure (last pass: v4.14.204-2-g7fda2804efba) =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa54a0c5a4938684bdb8882
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--3-g260838f69ee7e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa54a0c5a4938684bdb8=
-883
-        new failure (last pass: v4.14.204-2-g7fda2804efba) =
-
- =20
