@@ -2,86 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 790D22AA06C
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 23:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA382AA170
+	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 00:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbgKFWch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Nov 2020 17:32:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47080 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728828AbgKFWcg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Nov 2020 17:32:36 -0500
-Received: from kernel.org (83-245-197-237.elisa-laajakaista.fi [83.245.197.237])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728518AbgKFXaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 18:30:46 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29691 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728817AbgKFXa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 18:30:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604705427;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vDgX3SGasD3utlrsjMY0mHpM+QOYJZoctAzfwPbauUI=;
+        b=QMLk1zH87+ky3taVSuZOCZXgr9M7WjIGVDSVxOKKAf3YTDW0UQ7j1JU8rf+kCfElC6NUbF
+        YKM1R005DOvVSq10bDTHi4btrEpVA9irBbKdkdpIDy2G1+KWwEPZOj4TPn1B1xDErkPhN1
+        6PU7eTQWpYa0od9qnaClaOJ3w1bXmNo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-153-iYHkdA6IPSqm6X6vZ5nzvw-1; Fri, 06 Nov 2020 18:30:26 -0500
+X-MC-Unique: iYHkdA6IPSqm6X6vZ5nzvw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D89820704;
-        Fri,  6 Nov 2020 22:32:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604701956;
-        bh=6D+H/j34nFiaoGdjicPCrtq5SbG2qFMkBfVYnXPpMIo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LX3odbfbf7cey5nomtm7o2CfIwhYDW7AbFsEI4zkeh3WB4M/+RUzg9OlIKP7c4nat
-         OQrYWxfnNeMLbrsujGhJc3qemAsK+g2gBMe+lYWfB+MlorWx4y9jdmOPsQTusRc6ni
-         dlxyRaf2UOHyApQ6RZ4R0lyYgwjOruwwyinfu/8k=
-Date:   Sat, 7 Nov 2020 00:32:28 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>,
-        Chen Yu <yu.chen.surf@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>,
-        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>
-Subject: Re: [PATCH] compiler-clang: remove version check for BPF Tracing
-Message-ID: <20201106223228.GB56210@kernel.org>
-References: <20201104191052.390657-1-ndesaulniers@google.com>
- <CAADnVQL_mP7HNz1n+=S7Tjk8f7efm3_w5+VQVptD2y7Wts_Mig@mail.gmail.com>
- <CAKwvOdk8DdKEuSYW2j0LUeNVoFa=ShXPKBTvpUHakG-U9kbAsw@mail.gmail.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6CB331868416;
+        Fri,  6 Nov 2020 23:30:24 +0000 (UTC)
+Received: from Whitewolf.lyude.net (ovpn-115-78.rdu2.redhat.com [10.10.115.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 01EF35578B;
+        Fri,  6 Nov 2020 23:30:22 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 1/2] drm/nouveau/kms/nv50-: Get rid of bogus nouveau_conn_mode_valid()
+Date:   Fri,  6 Nov 2020 18:30:14 -0500
+Message-Id: <20201106233016.2481179-2-lyude@redhat.com>
+In-Reply-To: <20201106233016.2481179-1-lyude@redhat.com>
+References: <160459060724988@kroah.com>
+ <20201106233016.2481179-1-lyude@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdk8DdKEuSYW2j0LUeNVoFa=ShXPKBTvpUHakG-U9kbAsw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 06, 2020 at 10:52:50AM -0800, Nick Desaulniers wrote:
-> On Thu, Nov 5, 2020 at 8:16 PM Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
-> >
-> > I can take it through the bpf tree if no one objects.
-> 
-> Doesn't matter to me. You'll need to coordinate with Andrew though,
-> since I got the email that this was picked up into -mm:
-> 
-> >> This patch should soon appear at
-> >>     https://ozlabs.org/~akpm/mmots/broken-out/compiler-clang-remove-version-check-for-bpf-tracing.patch
-> >> and later at
-> >>     https://ozlabs.org/~akpm/mmotm/broken-out/compiler-clang-remove-version-check-for-bpf-tracing.patch
+Ville also pointed out that I got a lot of the logic here wrong as well, whoops.
+While I don't think anyone's likely using 3D output with nouveau, the next patch
+will make nouveau_conn_mode_valid() make a lot less sense. So, let's just get
+rid of it and open-code it like before, while taking care to move the 3D frame
+packing calculations on the dot clock into the right place.
 
-Thanks a lot for quick response to everyone :-) This ebpf tracing has
-been a great help lately with the SGX patch set. Hope I get chance to
-contribute to this work at some point in future.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: d6a9efece724 ("drm/nouveau/kms/nv50-: Share DP SST mode_valid() handling with MST")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.8+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+---
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 36 ++++++---------------
+ drivers/gpu/drm/nouveau/nouveau_dp.c        | 15 ++++++---
+ 2 files changed, 20 insertions(+), 31 deletions(-)
 
-> -- 
-> Thanks,
-> ~Nick Desaulniers
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 7674025a4bfe8..1d91d52ee5083 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1035,29 +1035,6 @@ get_tmds_link_bandwidth(struct drm_connector *connector)
+ 		return 112000 * duallink_scale;
+ }
+ 
+-enum drm_mode_status
+-nouveau_conn_mode_clock_valid(const struct drm_display_mode *mode,
+-			      const unsigned min_clock,
+-			      const unsigned max_clock,
+-			      unsigned int *clock_out)
+-{
+-	unsigned int clock = mode->clock;
+-
+-	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ==
+-	    DRM_MODE_FLAG_3D_FRAME_PACKING)
+-		clock *= 2;
+-
+-	if (clock < min_clock)
+-		return MODE_CLOCK_LOW;
+-	if (clock > max_clock)
+-		return MODE_CLOCK_HIGH;
+-
+-	if (clock_out)
+-		*clock_out = clock;
+-
+-	return MODE_OK;
+-}
+-
+ static enum drm_mode_status
+ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 			     struct drm_display_mode *mode)
+@@ -1065,7 +1042,7 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+ 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+ 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
+-	unsigned min_clock = 25000, max_clock = min_clock;
++	unsigned int min_clock = 25000, max_clock = min_clock, clock = mode->clock;
+ 
+ 	switch (nv_encoder->dcb->type) {
+ 	case DCB_OUTPUT_LVDS:
+@@ -1094,8 +1071,15 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 		return MODE_BAD;
+ 	}
+ 
+-	return nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					     NULL);
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
++
++	return MODE_OK;
+ }
+ 
+ static struct drm_encoder *
+diff --git a/drivers/gpu/drm/nouveau/nouveau_dp.c b/drivers/gpu/drm/nouveau/nouveau_dp.c
+index 8a0f7994e1aeb..40683e1244c3f 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_dp.c
++++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
+@@ -114,18 +114,23 @@ nv50_dp_mode_valid(struct drm_connector *connector,
+ 		   unsigned *out_clock)
+ {
+ 	const unsigned min_clock = 25000;
+-	unsigned max_clock, clock;
+-	enum drm_mode_status ret;
++	unsigned max_clock, clock = mode->clock;
+ 
+ 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
+ 		return MODE_NO_INTERLACE;
+ 
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
+ 	max_clock = outp->dp.link_nr * outp->dp.link_bw;
+ 	clock = mode->clock * (connector->display_info.bpc * 3) / 10;
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
+ 
+-	ret = nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					    &clock);
+ 	if (out_clock)
+ 		*out_clock = clock;
+-	return ret;
++
++	return MODE_OK;
+ }
+-- 
+2.28.0
 
-/Jarkko
