@@ -2,140 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045752A8C71
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 03:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4AA2A8C75
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 03:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730895AbgKFCJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Nov 2020 21:09:12 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:55100 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730414AbgKFCJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 21:09:12 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0A6251Ew195642;
-        Fri, 6 Nov 2020 02:09:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=kTQxOUHa0VI2vWmISQ2XSlXt+0jwP0BOIDm2cqhREEI=;
- b=V7RAM3FeoPUDmHrnov2L2ftD12viYOrtTi1WMQyb/M4SfrTOX7XOKDpykTNSC653Sjp6
- 77mYSgcW1+iWbpxs0Q+Gb6rjgafrVBTQvv/Qs45qN0N/xsYujJUR8c93leqI5D08RlFD
- IPJA1osUjFT3+mUG4F7wNERhR17C2ImfRsh2qCDdywd6L7WkGUdMuMaYsHchzBMhetY6
- dVu4Ts0nHq4BibTe/rbUFqKuvZ0si+eL/zguFJvguJG3gHDgXkTaO2dlaj9IrICQMhg9
- vDqGzTiLjT2J7RMEw+yJg6cNWQ1sC5JOkr0NPha9YuwduVCXHIV7D30ru1Wd1PUsoO2j 1g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 34hhb2exp4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 06 Nov 2020 02:09:08 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0A620oAg075769;
-        Fri, 6 Nov 2020 02:07:07 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 34hw0jd6x6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 06 Nov 2020 02:07:07 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0A6276wY007444;
-        Fri, 6 Nov 2020 02:07:06 GMT
-Received: from localhost (/10.159.136.219)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 05 Nov 2020 18:07:06 -0800
-Date:   Thu, 5 Nov 2020 18:07:05 -0800
-From:   "Darrick J. Wong" <darrick.wong@oracle.com>
-To:     Andy Strohman <astroh@amazon.com>
-Cc:     stable@vger.kernel.org, dchinner@redhat.com
-Subject: Re: [PATCH 5.4] xfs: flush for older, xfs specific ioctls
-Message-ID: <20201106020705.GC7118@magnolia>
-References: <20201105202850.20216-1-astroh@amazon.com>
+        id S1726075AbgKFCL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Nov 2020 21:11:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726143AbgKFCL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Nov 2020 21:11:28 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D08C0613CF
+        for <stable@vger.kernel.org>; Thu,  5 Nov 2020 18:11:28 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id z3so2903653pfz.6
+        for <stable@vger.kernel.org>; Thu, 05 Nov 2020 18:11:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TPbYr4J8wXH4fVTydmqiCr7G5ywKNDZl0WMZ081q4pU=;
+        b=kmdSGQr4wmxWR/2h2BUq7MukwwoZrckU2STjcj18TTt6XY8IwGggs4oR83kPuaqbSD
+         TKRl2lLwWLFBYT3EZ+IkQ0tIBzSZIrjEuT8gAXg9WgnAU9pkguSE9+CqvVN/3IexqERX
+         9hG8eAJen/NDsMMvOWF/p9nLZpOkQdyoDA7Jlkj3RQVsVRDkgn99Ih6WpSXcSE7WXmHh
+         ZZWowOchAWyaV4CL8v64JXDQcnT+4T65ESdb24Epgresqk39N87xF5LSC9G8y9a1003x
+         Q0RmburWULfgDhaTGEJgiBmwn4eVByf+Lv9IiZ77xFVtwdelDdGke+Y9bD5qCMi7aMAv
+         /sjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TPbYr4J8wXH4fVTydmqiCr7G5ywKNDZl0WMZ081q4pU=;
+        b=gSSRqb+drc5jcyVU3oQ+5vECLjm4Q2wZNNRBqHhAgRFvTAIjGeARZQcbXdTpLHoXRO
+         f5NZ6NEOZG2s+4XdnSzdzGamwr8GkmyjFDCkrSlV+1HVHFr8j0ITAxvMEuXf10/g5ggU
+         ybwoGusUCkkqPXqeSYtxD+XUy5ZeofteqfgazqHp9Ih3UcVtNh0J0VOos7Qt1wN2+b3S
+         e4pTqwYUiwGeodgOCLvgmtABM5vrZdKjJhqkHSKFlfz+X+hkDOBWmhdEG2mVQ42zAQvQ
+         M6RqUwUWVbP1C0ey2iBBnkolGNy5qKNDV0isaL9YbTyCS8fSaux7XkFSIwSh+fqtQgal
+         ytlA==
+X-Gm-Message-State: AOAM533Ho/DnJkzZEA4Z3u+LHfKLWpIQQxpkOQP/PAxgyzWc05nWn/5t
+        n0FeFpn0aShDL7uP78J+AEIR6rPnE+X84Q==
+X-Google-Smtp-Source: ABdhPJwSP8URf0mdZyCcqAj84aAouESKDm17cBvo/JekYO7xUGBCc++Bt1bwMz00nAHjvt8w15rKVw==
+X-Received: by 2002:a17:90a:4482:: with SMTP id t2mr5161915pjg.44.1604628687269;
+        Thu, 05 Nov 2020 18:11:27 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id bx6sm3604451pjb.39.2020.11.05.18.11.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2020 18:11:26 -0800 (PST)
+Message-ID: <5fa4b0ce.1c69fb81.13f47.75f1@mx.google.com>
+Date:   Thu, 05 Nov 2020 18:11:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201105202850.20216-1-astroh@amazon.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9796 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 mlxlogscore=999
- phishscore=0 bulkscore=0 spamscore=0 malwarescore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011060012
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9796 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 phishscore=0 suspectscore=1
- clxscore=1011 mlxlogscore=999 impostorscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 spamscore=0 priorityscore=1501 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011060012
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Kernel: v4.4.241-64-g473b6554b40c
+Subject: stable-rc/queue/4.4 baseline: 123 runs,
+ 4 regressions (v4.4.241-64-g473b6554b40c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 05, 2020 at 08:28:50PM +0000, Andy Strohman wrote:
-> 837a6e7f5cdb ("fs: add generic UNRESVSP and ZERO_RANGE ioctl handlers") changed
-> ioctls XFS_IOC_UNRESVSP XFS_IOC_UNRESVSP64 and XFS_IOC_ZERO_RANGE to be generic
-> instead of xfs specific.
-> 
-> Because of this change, 36f11775da75 ("xfs: properly serialise fallocate against
-> AIO+DIO") needed adaptation, as 5.4 still uses the xfs specific ioctls.
-> 
-> Without this, xfstests xfs/242 and xfs/290 fail. Both of these tests test
-> XFS_IOC_ZERO_RANGE.
-> 
-> Fixes: 36f11775da75 ("xfs: properly serialise fallocate against AIO+DIO")
->
-> Tested-by: Andy Strohman <astroh@amazon.com>
-> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+stable-rc/queue/4.4 baseline: 123 runs, 4 regressions (v4.4.241-64-g473b655=
+4b40c)
 
-Yeah, looks good to me,
+Regressions Summary
+-------------------
 
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 2      =
+    =
 
---D
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
 
-> ---
->  fs/xfs/xfs_ioctl.c | 26 +++++++++++++++++++++++++-
->  1 file changed, 25 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-> index bf0435dbec43..b3021d9b34a5 100644
-> --- a/fs/xfs/xfs_ioctl.c
-> +++ b/fs/xfs/xfs_ioctl.c
-> @@ -622,7 +622,6 @@ xfs_ioc_space(
->  	error = xfs_break_layouts(inode, &iolock, BREAK_UNMAP);
->  	if (error)
->  		goto out_unlock;
-> -	inode_dio_wait(inode);
->  
->  	switch (bf->l_whence) {
->  	case 0: /*SEEK_SET*/
-> @@ -668,6 +667,31 @@ xfs_ioc_space(
->  		goto out_unlock;
->  	}
->  
-> +	/*
-> +	 * Must wait for all AIO to complete before we continue as AIO can
-> +	 * change the file size on completion without holding any locks we
-> +	 * currently hold. We must do this first because AIO can update both
-> +	 * the on disk and in memory inode sizes, and the operations that follow
-> +	 * require the in-memory size to be fully up-to-date.
-> +	 */
-> +	inode_dio_wait(inode);
-> +
-> +	/*
-> +	 * Now that AIO and DIO has drained we can flush and (if necessary)
-> +	 * invalidate the cached range over the first operation we are about to
-> +	 * run. We include zero range here because it starts with a hole punch
-> +	 * over the target range.
-> +	 */
-> +	switch (cmd) {
-> +	case XFS_IOC_ZERO_RANGE:
-> +	case XFS_IOC_UNRESVSP:
-> +	case XFS_IOC_UNRESVSP64:
-> +		error = xfs_flush_unmap_range(ip, bf->l_start, bf->l_len);
-> +		if (error)
-> +			goto out_unlock;
-> +		break;
-> +	}
-> +
->  	switch (cmd) {
->  	case XFS_IOC_ZERO_RANGE:
->  		flags |= XFS_PREALLOC_SET;
-> -- 
-> 2.16.6
-> 
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.241-64-g473b6554b40c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.241-64-g473b6554b40c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      473b6554b40cd5e39107e82e5a41cdc12f3129be =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 2      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa47e4e1d86b8a5bedb885b
+
+  Results:     2 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5fa47e4e1d86b8a5=
+bedb885e
+        new failure (last pass: v4.4.241-63-g1e4676585859)
+        1 lines
+
+    2020-11-05 22:34:05.414000+00:00  Connected to omap3-beagle-xm console =
+[channel connected] (~$quit to exit)
+    2020-11-05 22:34:05.414000+00:00  (user:) is already connected
+    2020-11-05 22:34:05.414000+00:00  (user:) is already connected
+    2020-11-05 22:34:05.414000+00:00  (user:khilman) is already connected
+    2020-11-05 22:34:05.414000+00:00  (user:) is already connected
+    2020-11-05 22:34:05.415000+00:00  (user:) is already connected
+    2020-11-05 22:34:17.119000+00:00  =00
+    2020-11-05 22:34:17.126000+00:00  U-Boot SPL 2018.09-rc2-00001-ge6aa978=
+5acb2 (Aug 15 2018 - 09:41:52 -0700)
+    2020-11-05 22:34:17.130000+00:00  Trying to boot from MMC1
+    2020-11-05 22:34:17.319000+00:00  spl_load_image_fat_os: error reading =
+image args, err - -2 =
+
+    ... (451 line(s) more)  =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa47e4e1d86b8a=
+5bedb8860
+        new failure (last pass: v4.4.241-63-g1e4676585859)
+        28 lines
+
+    2020-11-05 22:35:52.191000+00:00  kern  :emerg : Stack: (0xcba1bd10 to =
+0xcba1c000)
+    2020-11-05 22:35:52.200000+00:00  kern  :emerg : bd00:                 =
+                    bf02b8fc bf010b84 cb958c10 bf02b988
+    2020-11-05 22:35:52.207000+00:00  kern  :emerg : bd20: cb958c10 bf2430a=
+8 00000002 cb837010 cb958c10 bf28eb54 cbc7b330 cbc7b330
+    2020-11-05 22:35:52.215000+00:00  kern  :emerg : bd40: 00000000 0000000=
+0 ce226930 c01fb3a0 ce226930 ce226930 c0857e88 00000001
+    2020-11-05 22:35:52.224000+00:00  kern  :emerg : bd60: ce226930 cbc7b33=
+0 cbc7b3f0 00000000 ce226930 c0857e88 00000001 c09612c0
+    2020-11-05 22:35:52.232000+00:00  kern  :emerg : bd80: ffffffed bf292ff=
+4 fffffdfb 00000025 00000001 c00ce2f4 bf293188 c0407034
+    2020-11-05 22:35:52.240000+00:00  kern  :emerg : bda0: c09612c0 c120da3=
+0 bf292ff4 00000000 00000025 c0405508 c09612c0 c09612f4
+    2020-11-05 22:35:52.248000+00:00  kern  :emerg : bdc0: bf292ff4 0000000=
+0 00000000 c04056b0 00000000 bf292ff4 c0405624 c04039d4
+    2020-11-05 22:35:52.257000+00:00  kern  :emerg : bde0: ce0c38a4 ce22091=
+0 bf292ff4 cbc2a7c0 c09dd3a8 c0404b20 bf291b6c c095e460
+    2020-11-05 22:35:52.265000+00:00  kern  :emerg : be00: cbc30c00 bf292ff=
+4 c095e460 cbc30c00 bf296000 c04060e8 c095e460 c095e460 =
+
+    ... (16 line(s) more)  =
+
+ =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa47e4147124ce4c4db885c
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa47e4147124ce=
+4c4db8861
+        new failure (last pass: v4.4.241-63-g1e4676585859)
+        2 lines =
+
+ =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+qemu_i386 | i386 | lab-baylibre  | gcc-8    | i386_defconfig      | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa47ec1e41b35f370db886f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+4-g473b6554b40c/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa47ec1e41b35f370db8=
+870
+        new failure (last pass: v4.4.241-63-g1e4676585859) =
+
+ =20
