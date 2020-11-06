@@ -2,129 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 429D42A9EDE
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 22:10:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418F32A9F07
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 22:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726987AbgKFVKo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 6 Nov 2020 16:10:44 -0500
-Received: from mail-ej1-f67.google.com ([209.85.218.67]:46354 "EHLO
-        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725868AbgKFVKn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 16:10:43 -0500
-Received: by mail-ej1-f67.google.com with SMTP id w13so3788478eju.13;
-        Fri, 06 Nov 2020 13:10:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=eiZHqrS2vIdOh+bg/DLjfX4/blxwd3aT047goVvJGNY=;
-        b=NyuHs/xmG/4hSr0l5mjwf5waw5BuoK5Mwd5NRx5GX9W18PKQk7+wAnrf4r3mBwS9kY
-         ikFC9X2YMEPqVpsHyN6coNcqIdtwkL84lg5MGetS6w0RfgDcjdpxswX/oTiSD16rVyxj
-         Zq3yNzi9EIxLxiYvdraqz6aSwn8aVnAlDgUVQ1HlwTx1Xrc5P8YhyCAtpBGs6DhUAGkw
-         FolUbDh+TZLCN+Zlne+GVs0zA9zgTPSP/pM6a6gUeTXMvqnu3j1lZ4ZSzYZ15I+m4vg/
-         qL0UruWCMu1Eu4NNVUyofCU1rH9ctZHOxJRIgOKjiDmnCQJfuYSBIXmHr6KRc2QbLpNs
-         OmPA==
-X-Gm-Message-State: AOAM532NpT73dokHbmL9uK6iajFFt0Tt2Ksysd6/yIVTVAAbrA6XvXXz
-        rEerpfUsqK2IzEzFq+/KLa0=
-X-Google-Smtp-Source: ABdhPJxQN4FDTjfZ6IhFz4o1c2N+k57l0Ao8qrl2+/TRNku7RGnVgsej4wIE055vscPuAtAWgc8knQ==
-X-Received: by 2002:a17:906:c1ce:: with SMTP id bw14mr3953266ejb.302.1604697041377;
-        Fri, 06 Nov 2020 13:10:41 -0800 (PST)
-Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.googlemail.com with ESMTPSA id z18sm1701282ejf.41.2020.11.06.13.10.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 13:10:40 -0800 (PST)
-Date:   Fri, 6 Nov 2020 22:10:38 +0100
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        Sasha Levin <sashal@kernel.org>,
-        =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of
- clock controller
-Message-ID: <20201106211038.GA400980@kozik-lap>
-References: <20201103203232.656475008@linuxfoundation.org>
- <20201103203243.594174920@linuxfoundation.org>
- <20201105114648.GB9009@duo.ucw.cz>
- <CAJKOXPeexYuH1_9HZUGn4Q80QBtKmqCKiEd=hNd46VKTM4kGgA@mail.gmail.com>
- <20201105195508.GB19957@duo.ucw.cz>
- <20201106201245.GA332560@kozik-lap>
+        id S1728139AbgKFV1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 16:27:02 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:37868 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728097AbgKFV1C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 16:27:02 -0500
+Date:   Fri, 06 Nov 2020 21:26:58 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1604698019;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xnF5r2YVoE5RqX+1EhxgQ4tQC24nY4l/MsoVxZZQNW4=;
+        b=d3EpEFLRty+29Mm86DLmcIZxeGVeMPNcCgCVHDGQMMzpcwBsO/iJWYmURBjRFXOpCy53Wm
+        zJCo3XnzvYAh1qTMuhSzGemWk3U9zZGkQxC+Z5Vddp5LwNDFTWLS8oMkm2qzYLnKjVF4Qf
+        xZ4cuBe5ADhg4ABlOYGHRXI6muR7Ru2YgiKFSzABoYVsyciWnegCTmagcc3ICegrb9cDg2
+        fYz/uPyfE1uOlCgow0WZVrBX43RS7vTRQfXIf/exc/4nptpAZkGppSyx/Gr8p2q9xVj2Dg
+        R5oAnLUC0fmkJtWzLoc8hSAYXaicYlL+/Jw6EVJlz4BeY4g+5WZNm0v6G2TsKw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1604698019;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xnF5r2YVoE5RqX+1EhxgQ4tQC24nY4l/MsoVxZZQNW4=;
+        b=xlhCpHwhk7YU4ZlPAPbxxBsMwFsoqdKwT9IT9OWHWrcNqcmIBnJyNg5zbPfhqv7nYqmOva
+        /jx8qgE2+feiWdAQ==
+From:   "tip-bot2 for Mike Galbraith" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: locking/urgent] futex: Handle transient "ownerless" rtmutex
+ state correctly
+Cc:     Gratian Crisan <gratian.crisan@ni.com>,
+        Mike Galbraith <efault@gmx.de>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <87a6w6x7bb.fsf@ni.com>
+References: <87a6w6x7bb.fsf@ni.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20201106201245.GA332560@kozik-lap>
+Message-ID: <160469801844.397.7418241151599681987.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 06, 2020 at 09:12:45PM +0100, Krzysztof Kozlowski wrote:
-> On Thu, Nov 05, 2020 at 08:55:08PM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > > The Power Management Unit (PMU) is a separate device which has little
-> > > > > common with clock controller.  Moving it to one level up (from clock
-> > > > > controller child to SoC) allows to remove fake simple-bus compatible and
-> > > > > dtbs_check warnings like:
-> > > > >
-> > > > >   clock-controller@e0100000: $nodename:0:
-> > > > >     'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
-> > > >
-> > > > > +++ b/arch/arm/boot/dts/s5pv210.dtsi
-> > > > > @@ -98,19 +98,16 @@
-> > > > >               };
-> > > > >
-> > > > >               clocks: clock-controller@e0100000 {
-> > > > > -                     compatible = "samsung,s5pv210-clock", "simple-bus";
-> > > > > +                     compatible = "samsung,s5pv210-clock";
-> > > > >                       reg = <0xe0100000 0x10000>;
-> > > > ...
-> > > > > +             pmu_syscon: syscon@e0108000 {
-> > > > > +                     compatible = "samsung-s5pv210-pmu", "syscon";
-> > > > > +                     reg = <0xe0108000 0x8000>;
-> > > > >               };
-> > > >
-> > > > Should clock-controller@e0100000's reg be shortened to 0x8000 so that
-> > > > the ranges do not overlap?
-> > > >
-> > > > Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-> > > 
-> > > I don't think this commit should be backported to stable. It is simple
-> > > dtbs_check - checking whether Devicetree source matches device tree
-> > > schema. Neither the schema nor the warning existed in v4.19. I think
-> > > dtbs_check fixes should not be backported, unless a real issue is
-> > > pointed out.
-> > 
-> > I agree with you about the backporting. Hopefully Greg drops the
-> > commit.
-> > 
-> > But the other issue is: should mainline be fixed so that ranges do not overlap?
-> 
-> Yes, it should be. This should fail on mapping resources...
-> 
-> I'll take a look, thanks for the report.
+The following commit has been merged into the locking/urgent branch of tip:
 
-+Cc Paweł and Marek,
+Commit-ID:     63c1b4db662a0967dd7839a2fbaa5300e553901d
+Gitweb:        https://git.kernel.org/tip/63c1b4db662a0967dd7839a2fbaa5300e553901d
+Author:        Mike Galbraith <efault@gmx.de>
+AuthorDate:    Wed, 04 Nov 2020 16:12:44 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 06 Nov 2020 22:24:58 +01:00
 
-The IO memory mappings overlap unfortunately on purpose. Most of the
-clock driver registers are in the first range of 0x3000 but it also uses
-two registers at offset 0xe000.
+futex: Handle transient "ownerless" rtmutex state correctly
 
-The samsung-s5pv210-pmu is used only as a syscon by phy-s5pv210-usb2.c
-which wants to play with 0x680c.
+Gratian managed to trigger the BUG_ON(!newowner) in fixup_pi_state_owner().
+This is one possible chain of events leading to this:
 
-The solution could be to split the mapping into two parts but I don't
-want to do this. I don't have the hardware so there is a chance I will
-break things.
+Task Prio       Operation
+T1   120	lock(F)
+T2   120	lock(F)   -> blocks (top waiter)
+T3   50 (RT)	lock(F)   -> boosts T1 and blocks (new top waiter)
+XX   		timeout/  -> wakes T2
+		signal
+T1   50		unlock(F) -> wakes T3 (rtmutex->owner == NULL, waiter bit is set)
+T2   120	cleanup   -> try_to_take_mutex() fails because T3 is the top waiter
+     			     and the lower priority T2 cannot steal the lock.
+     			  -> fixup_pi_state_owner() sees newowner == NULL -> BUG_ON()
 
-However if Paweł, Jonathan or Marek want to improve it - patches are
-welcomed. :)
+The comment states that this is invalid and rt_mutex_real_owner() must
+return a non NULL owner when the trylock failed, but in case of a queued
+and woken up waiter rt_mutex_real_owner() == NULL is a valid transient
+state. The higher priority waiter has simply not yet managed to take over
+the rtmutex.
 
-Best regards,
-Krzysztof
+The BUG_ON() is therefore wrong and this is just another retry condition in
+fixup_pi_state_owner().
 
+Drop the locks, so that T3 can make progress, and then try the fixup again.
+
+Gratian provided a great analysis, traces and a reproducer. The analysis is
+to the point, but it confused the hell out of that tglx dude who had to
+page in all the futex horrors again. Condensed version is above. 
+
+[ tglx: Wrote comment and changelog ]
+
+Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+Reported-by: Gratian Crisan <gratian.crisan@ni.com>
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87a6w6x7bb.fsf@ni.com
+Link: https://lore.kernel.org/r/87sg9pkvf7.fsf@nanos.tec.linutronix.de
+
+---
+ kernel/futex.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/futex.c b/kernel/futex.c
+index f8614ef..7406914 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2380,10 +2380,22 @@ retry:
+ 		}
+ 
+ 		/*
+-		 * Since we just failed the trylock; there must be an owner.
++		 * The trylock just failed, so either there is an owner or
++		 * there is a higher priority waiter than this one.
+ 		 */
+ 		newowner = rt_mutex_owner(&pi_state->pi_mutex);
+-		BUG_ON(!newowner);
++		/*
++		 * If the higher priority waiter has not yet taken over the
++		 * rtmutex then newowner is NULL. We can't return here with
++		 * that state because it's inconsistent vs. the user space
++		 * state. So drop the locks and try again. It's a valid
++		 * situation and not any different from the other retry
++		 * conditions.
++		 */
++		if (unlikely(!newowner)) {
++			ret = -EAGAIN;
++			goto handle_err;
++		}
+ 	} else {
+ 		WARN_ON_ONCE(argowner != current);
+ 		if (oldowner == current) {
