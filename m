@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3665B2A9963
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 17:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E4E92A9964
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 17:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbgKFQXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Nov 2020 11:23:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34692 "EHLO mail.kernel.org"
+        id S1726732AbgKFQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 11:23:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726891AbgKFQXR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Nov 2020 11:23:17 -0500
+        id S1726010AbgKFQXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Nov 2020 11:23:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14FB02151B;
-        Fri,  6 Nov 2020 16:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A739221556;
+        Fri,  6 Nov 2020 16:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604679796;
-        bh=SdAYGB8CPdfKHrDNEAuthq9jWMzapE/eXevqi1RH4V8=;
+        s=default; t=1604679805;
+        bh=496OuYRpkO4PfdSyjyboKB5B8KFXgRcdT1mAkzn+W+A=;
         h=Subject:To:From:Date:From;
-        b=M17nO7t60Y55DxZsSElgbp+otzae8wL7BrqdnpI8vz0vsHKy2Q3TDzK974oCKNAn+
-         FvkYjN5Ehv5DzHkUTGRhBZUaerz2dHf+bIFJpmpWEgp5C7AycrJbyJFP8UYAF5V4PQ
-         JM6Wb2z0rNwUZ1LQ5tXu6Fo7AK0OnuCkrDk4uA1Y=
-Subject: patch "serial: 8250_mtk: Fix uart_get_baud_rate warning" added to tty-linus
-To:     tientzu@chromium.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=w6QJ2zxrA46UEbvTVufZrEkQrEiXAeI3u7h5AxMCxHxWf0fmqdMZ8U+QpYMG80/ZT
+         C4SSTX+Dj2RQKfLAsfqCaOxZ7Qn0TJxxC7vKjIqJ06KYC+xzJM44Z9C94ifHb+KdMo
+         /+qReflM+4glcO4PCrKePpSdONiL1UZJR3OUlp90=
+Subject: patch "tty: serial: imx: enable earlycon by default if IMX_SERIAL_CONSOLE is" added to tty-linus
+To:     l.stach@pengutronix.de, festevam@gmail.com, fugang.duan@nxp.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 06 Nov 2020 17:24:02 +0100
-Message-ID: <160467984279206@kroah.com>
+Date:   Fri, 06 Nov 2020 17:24:03 +0100
+Message-ID: <16046798439530@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250_mtk: Fix uart_get_baud_rate warning
+    tty: serial: imx: enable earlycon by default if IMX_SERIAL_CONSOLE is
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -54,41 +54,42 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 912ab37c798770f21b182d656937072b58553378 Mon Sep 17 00:00:00 2001
-From: Claire Chang <tientzu@chromium.org>
-Date: Mon, 2 Nov 2020 20:07:49 +0800
-Subject: serial: 8250_mtk: Fix uart_get_baud_rate warning
+From 427627a23c3e86e31113f9db9bfdca41698a0ee5 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Thu, 5 Nov 2020 21:40:26 +0100
+Subject: tty: serial: imx: enable earlycon by default if IMX_SERIAL_CONSOLE is
+ enabled
 
-Mediatek 8250 port supports speed higher than uartclk / 16. If the baud
-rates in both the new and the old termios setting are higher than
-uartclk / 16, the WARN_ON in uart_get_baud_rate() will be triggered.
-Passing NULL as the old termios so uart_get_baud_rate() will use
-uartclk / 16 - 1 as the new baud rate which will be replaced by the
-original baud rate later by tty_termios_encode_baud_rate() in
-mtk8250_set_termios().
+Since 699cc4dfd140 (tty: serial: imx: add imx earlycon driver), the earlycon
+part of imx serial is a separate driver and isn't necessarily enabled anymore
+when the console is enabled. This causes users to loose the earlycon
+functionality when upgrading their kenrel configuration via oldconfig.
 
-Fixes: 551e553f0d4a ("serial: 8250_mtk: Fix high-speed baud rates clamping")
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Link: https://lore.kernel.org/r/20201102120749.374458-1-tientzu@chromium.org
+Enable earlycon by default when IMX_SERIAL_CONSOLE is enabled.
+
+Fixes: 699cc4dfd140 (tty: serial: imx: add imx earlycon driver)
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://lore.kernel.org/r/20201105204026.1818219-1-l.stach@pengutronix.de
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index 41f4120abdf2..fa876e2c13e5 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -317,7 +317,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
- 	 */
- 	baud = tty_termios_baud_rate(termios);
- 
--	serial8250_do_set_termios(port, termios, old);
-+	serial8250_do_set_termios(port, termios, NULL);
- 
- 	tty_termios_encode_baud_rate(termios, baud, baud);
- 
+diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
+index 1044fc387691..28f22e58639c 100644
+--- a/drivers/tty/serial/Kconfig
++++ b/drivers/tty/serial/Kconfig
+@@ -522,6 +522,7 @@ config SERIAL_IMX_EARLYCON
+ 	depends on OF
+ 	select SERIAL_EARLYCON
+ 	select SERIAL_CORE_CONSOLE
++	default y if SERIAL_IMX_CONSOLE
+ 	help
+ 	  If you have enabled the earlycon on the Freescale IMX
+ 	  CPU you can make it the earlycon by answering Y to this option.
 -- 
 2.29.2
 
