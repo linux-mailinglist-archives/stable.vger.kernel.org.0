@@ -2,95 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18092A9CBF
-	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 19:54:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E422A9E79
+	for <lists+stable@lfdr.de>; Fri,  6 Nov 2020 21:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbgKFSyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Nov 2020 13:54:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728053AbgKFSxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 13:53:02 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69DDC0613D3
-        for <stable@vger.kernel.org>; Fri,  6 Nov 2020 10:53:02 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id t18so1079685plo.0
-        for <stable@vger.kernel.org>; Fri, 06 Nov 2020 10:53:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mRJJey7O8hp51w9PTtLKZJy616pOmHfVs3BwFqC0oO0=;
-        b=rNwN/rqWebtsESHuRn/MGvxoi0wkXa1rRYRdWV1F+zKP+fSVL0F29OKFfPR4ngMkXN
-         /uS9TyonnwuXf+aGTGrwCtBCPsSsa2EsEfv10+U79x7vRBDuayv+O7dRRCE1nvmi55tU
-         i07z1dQ5qtUCrP10SaMXh38jQbqrhpD43X5NyEEQe48+IXUBnlKjTezunY7VgdvJgTlC
-         VgLOOsu75l8e6fUs7CgfMDH1XwQI3F+GOf8n0yZsnMYG1OBX0vp9V/G8Yq46w+2mHq7B
-         AbtZCMIWJrmkMpAv8lZCbz2OLx4FWkqj11E711UHPxM3epnQO+0kUWVlCycLXIq++dtn
-         XOkA==
+        id S1728358AbgKFUMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Nov 2020 15:12:51 -0500
+Received: from mail-ej1-f66.google.com ([209.85.218.66]:33427 "EHLO
+        mail-ej1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728140AbgKFUMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Nov 2020 15:12:51 -0500
+Received: by mail-ej1-f66.google.com with SMTP id 7so3640781ejm.0;
+        Fri, 06 Nov 2020 12:12:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mRJJey7O8hp51w9PTtLKZJy616pOmHfVs3BwFqC0oO0=;
-        b=WmywoSVn8Xxq/6JsUrvAxjlL3nDli4jsmeTS/JCQfPGA/oqVgB9VVObfTMVMQaYteD
-         VQt55kFP/cS5ygIFIvTohaUijRc4wZkaU8Y3/toKLcKB3Ku57nComLXYnYM2+T3nwsJ0
-         R8Fw0AmguSyi8/Jb1n9i9tF1pU/C+efBnWMc2CesYFX4+nVMVlpqDbc1n3hxMEtz4AEs
-         vfKhO/85dF/bU1c15c2Zq3JJBSZXhYaVVQvEXwHP5wh2ThLT5wsYSype6NpJ8IkLlSbo
-         g/dNIG8Ya7F73y7ovjzD0ZnG9CVaBz79i2hI5aijdAyWg7sgJ9/sddF5mEYJARuDJ1z1
-         YlZg==
-X-Gm-Message-State: AOAM531s8dCHze/EDFf29WmD1iWC6TZ9puWPffrlzi+D7R531BNqUQHF
-        wXGcgJK3Rla4Bb7tuZUoeBrzZLJgBQG1xZqXNB+LCA==
-X-Google-Smtp-Source: ABdhPJw6GqGjgwtpuqR4bfJAjFjDaDXFbi04oPiePSF9XHXOOBCHNkH1fai0h/cxRRG6fLzKrbg5xtN+5Iu3qu+/e3k=
-X-Received: by 2002:a17:902:328:b029:d7:cc2d:1ee7 with SMTP id
- 37-20020a1709020328b02900d7cc2d1ee7mr6576pld.10.1604688781870; Fri, 06 Nov
- 2020 10:53:01 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=HknRaMwrIYdX/xZyUFtQWWgJWZ4ozlSDotxSubUVQAQ=;
+        b=EhoHFzQmsDzZ1sWdFl6K6ugFVxJ5UlNi5ManfXN8J8XWJVGFo92AmXVD5U5QHcn1yB
+         +rDMBqN7MZ5m2vmKHYLCE/EEg0GWvjolK09M/HyavJWJmAArJS6EvvY5Siztu8X8kwp6
+         cgdW1dbtpAdSU55YTSnC23z666vCAYEwpYplNf2flPaCLuWj8nQY6tfZ98k759Up45mc
+         EvmTWKHko/0jjlXtYrY+Zp2NdYtH6OV+xlzXGhm+uQjHrYvkp+LlM7B5ze31ilG44IHj
+         sISFY4O3MGMxsIQetVP523N3yAEKh00qmcAh9NO5kEeF9Ssxh0EOYXMARUSRmKpLzsah
+         U/Vw==
+X-Gm-Message-State: AOAM5315cXbT80zKqcdOpxQAlOI6NsWucF+CGCn1NLDCqhOMbG13UjOL
+        zQLIaWDAATnHDgcu0cv0Adg=
+X-Google-Smtp-Source: ABdhPJyj+uHAR2eNBXDfygxkkR9riwjzCC6yUZZJXdcS5GkftYD/lz+U7/i5fO6GeHV3R9fbGIKbVw==
+X-Received: by 2002:a17:906:3fc1:: with SMTP id k1mr3604375ejj.287.1604693567656;
+        Fri, 06 Nov 2020 12:12:47 -0800 (PST)
+Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
+        by smtp.googlemail.com with ESMTPSA id c4sm1661734ejx.9.2020.11.06.12.12.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2020 12:12:46 -0800 (PST)
+Date:   Fri, 6 Nov 2020 21:12:45 +0100
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of
+ clock controller
+Message-ID: <20201106201245.GA332560@kozik-lap>
+References: <20201103203232.656475008@linuxfoundation.org>
+ <20201103203243.594174920@linuxfoundation.org>
+ <20201105114648.GB9009@duo.ucw.cz>
+ <CAJKOXPeexYuH1_9HZUGn4Q80QBtKmqCKiEd=hNd46VKTM4kGgA@mail.gmail.com>
+ <20201105195508.GB19957@duo.ucw.cz>
 MIME-Version: 1.0
-References: <20201104191052.390657-1-ndesaulniers@google.com> <CAADnVQL_mP7HNz1n+=S7Tjk8f7efm3_w5+VQVptD2y7Wts_Mig@mail.gmail.com>
-In-Reply-To: <CAADnVQL_mP7HNz1n+=S7Tjk8f7efm3_w5+VQVptD2y7Wts_Mig@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Fri, 6 Nov 2020 10:52:50 -0800
-Message-ID: <CAKwvOdk8DdKEuSYW2j0LUeNVoFa=ShXPKBTvpUHakG-U9kbAsw@mail.gmail.com>
-Subject: Re: [PATCH] compiler-clang: remove version check for BPF Tracing
-To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     stable <stable@vger.kernel.org>, Chen Yu <yu.chen.surf@gmail.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>,
-        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201105195508.GB19957@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 5, 2020 at 8:16 PM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
->
-> I can take it through the bpf tree if no one objects.
+On Thu, Nov 05, 2020 at 08:55:08PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > The Power Management Unit (PMU) is a separate device which has little
+> > > > common with clock controller.  Moving it to one level up (from clock
+> > > > controller child to SoC) allows to remove fake simple-bus compatible and
+> > > > dtbs_check warnings like:
+> > > >
+> > > >   clock-controller@e0100000: $nodename:0:
+> > > >     'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+> > >
+> > > > +++ b/arch/arm/boot/dts/s5pv210.dtsi
+> > > > @@ -98,19 +98,16 @@
+> > > >               };
+> > > >
+> > > >               clocks: clock-controller@e0100000 {
+> > > > -                     compatible = "samsung,s5pv210-clock", "simple-bus";
+> > > > +                     compatible = "samsung,s5pv210-clock";
+> > > >                       reg = <0xe0100000 0x10000>;
+> > > ...
+> > > > +             pmu_syscon: syscon@e0108000 {
+> > > > +                     compatible = "samsung-s5pv210-pmu", "syscon";
+> > > > +                     reg = <0xe0108000 0x8000>;
+> > > >               };
+> > >
+> > > Should clock-controller@e0100000's reg be shortened to 0x8000 so that
+> > > the ranges do not overlap?
+> > >
+> > > Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+> > 
+> > I don't think this commit should be backported to stable. It is simple
+> > dtbs_check - checking whether Devicetree source matches device tree
+> > schema. Neither the schema nor the warning existed in v4.19. I think
+> > dtbs_check fixes should not be backported, unless a real issue is
+> > pointed out.
+> 
+> I agree with you about the backporting. Hopefully Greg drops the
+> commit.
+> 
+> But the other issue is: should mainline be fixed so that ranges do not overlap?
 
-Doesn't matter to me. You'll need to coordinate with Andrew though,
-since I got the email that this was picked up into -mm:
+Yes, it should be. This should fail on mapping resources...
 
->> This patch should soon appear at
->>     https://ozlabs.org/~akpm/mmots/broken-out/compiler-clang-remove-version-check-for-bpf-tracing.patch
->> and later at
->>     https://ozlabs.org/~akpm/mmotm/broken-out/compiler-clang-remove-version-check-for-bpf-tracing.patch
--- 
-Thanks,
-~Nick Desaulniers
+I'll take a look, thanks for the report.
+
+Best regards,
+Krzysztof
+
