@@ -2,192 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD382AA666
-	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 16:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7522AA66F
+	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 16:51:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726210AbgKGPpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 10:45:42 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:38231 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726043AbgKGPpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 10:45:42 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 99E4FF8C;
-        Sat,  7 Nov 2020 10:45:41 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 07 Nov 2020 10:45:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tcuvLQ
-        YvMaA5zK7kMwA6JRfhY6oosuL9zInBQeylCzI=; b=DZNYe/JGKsw5s+7jo1f0xW
-        bh8d1NbzBtlsxZUQTJU2nZubgUET6LJVopOJxQvHC9ZF2vlZ42e7ngRiPKlbry/I
-        FdN/Q5o6rCyDZQSHlKxryXZ5OMAAMh/MK4MtZK0LmKSBD/AwxreCCu73HnIthb0o
-        cg1KZ7h/JSbdwkjDm2/KAvBOzjCOloq324LDVL9kU0V1hJ+Hym4Vo471yWVuezh+
-        SgerGPcCQS882bZ8klqXa2pppFVMZR/B+8Dr3Q3uDyqjhsjBo5W4kPDN5q7SE8Xt
-        FM22pLv25BC0eNSRaMwmNXNmQhwxzNFXVfQqH5qyaeGvsKRQGKllcIFknwURmv4A
-        ==
-X-ME-Sender: <xms:JcGmXwABu55z7NlyIV8WborPhu7Dly1dEtKo1bilhPTx3sOSzHHwgg>
-    <xme:JcGmXyiJe8yHREVnolBiBwh9xa_bYvRoX2466Yk-N7X8Cwib07p4s_LW1CSd3M2rI
-    dIoc4ZNbNpp5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduuddgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:JcGmXzmuEybiNilNklZ6fhlVBcGNMRMvW7y-yAhzJ10bkPnvW_W8-A>
-    <xmx:JcGmX2zQVzSPyaNE_-P-tOZSkbSj_u8fuFrT4Nyk9jyKoyMs3FRxKA>
-    <xmx:JcGmX1SKeDbzrPzvM5qIpZjwfkqeuozXB7etFjRhmdkZrDW7_QqQDw>
-    <xmx:JcGmXwO5qDBNsLBxpkkP1818reVeOd39xyxaNxoQ9g2fejriWsVx8URudYY>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D93A9306057C;
-        Sat,  7 Nov 2020 10:45:40 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ring-buffer: Fix recursion protection transitions between" failed to apply to 4.4-stable tree
-To:     rostedt@goodmis.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 07 Nov 2020 16:46:26 +0100
-Message-ID: <160476398644100@kroah.com>
+        id S1726144AbgKGPv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 10:51:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbgKGPv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 10:51:26 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC389C0613CF
+        for <stable@vger.kernel.org>; Sat,  7 Nov 2020 07:51:24 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id oc3so940160pjb.4
+        for <stable@vger.kernel.org>; Sat, 07 Nov 2020 07:51:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mhloRthoE6lPxMnsx2srdN4zYpcCMSFlWC5sLr7ZEK4=;
+        b=eISgPRVfEA6Xylnj9yBLzC28qW6VLYE0L6u/FtxO15MeltQLbXFOpnkFEOyZSjHCoT
+         PZE+yXU+AbBNDGMDhqhd9PMBFrjAiCzonYzQ6L4q1GIUa8yxOcp0ffswPyR6yu88FQh/
+         dO4CTa15Kd/1ee7myFN9qfFtkjrJrefsfYeV1BUD5wHi04xqD5Eu6s6iyz69LpsVUEU3
+         O/HuW5sgMii6WGTna4TVH5uZnaH9UOcMBuQrYH2O/MhRxNJXtd2HzYhXqKg+KwWZScz9
+         GI6aMhTAEODUVH+PNTUioHYhCKklClfK3Hkn/yz1oeOikUpOCkka3EYN7HVxY9OVZNsw
+         lynw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mhloRthoE6lPxMnsx2srdN4zYpcCMSFlWC5sLr7ZEK4=;
+        b=Z+lHQ9Szz12RXFug3y3EHhcim5QYevm7OAoikpB5h44qOvqwOop2TJAU69P+c421ia
+         +fEhjRxs/5XtzDokoqgGKADDHrT89fEn+w2OjYgDFe7DQoskx0mSaKy+QWYxr1gJ87Tj
+         oOdUiUtC4073wMDTNI1z1SIUPha2SQGUDSrhFXyyu8jIJhXSWiaZ0cVx/HjcrCsde/Dz
+         IpUh7pahjXOJ/k8SN3uvzmO+8gng5XNNInOkfkt6/b7LNSn/lcDpQNaTyDrdcB2AbXUa
+         QQkYQDwunHMDGjOMEzAhPpkSZ8prOGEMZAYu/z4BrfDUP6vy4uyn5nP4dzy/9c/QNl9u
+         AdSQ==
+X-Gm-Message-State: AOAM533KnHBTY5+w2J8WaZHkWyJsuU6/8E9Ljk+Z3EDafVa7sfxlnSXm
+        s4G62ApTCXaeVujZe4kg4rVTycC0ufGp4w==
+X-Google-Smtp-Source: ABdhPJx62LmPPNUOR/jzgUh2JbIfzzSpuDKsqowNDr3fzFmMt2BOMvnOTbovAxz7cP7zHh/2hzz/5A==
+X-Received: by 2002:a17:90b:2343:: with SMTP id ms3mr4683829pjb.130.1604764284108;
+        Sat, 07 Nov 2020 07:51:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i123sm6122203pfc.13.2020.11.07.07.51.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Nov 2020 07:51:23 -0800 (PST)
+Message-ID: <5fa6c27b.1c69fb81.dac51.bb3d@mx.google.com>
+Date:   Sat, 07 Nov 2020 07:51:23 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Kernel: v4.4.241-65-gf1e9f1c7f0b9
+Subject: stable-rc/queue/4.4 baseline: 100 runs,
+ 3 regressions (v4.4.241-65-gf1e9f1c7f0b9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 100 runs, 3 regressions (v4.4.241-65-gf1e9f1c=
+7f0b9)
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
 
-greg k-h
+qemu_x86_64      | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig | 1 =
+         =
 
------------------- original commit in Linus's tree ------------------
+qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
 
-From b02414c8f045ab3b9afc816c3735bc98c5c3d262 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Mon, 2 Nov 2020 15:31:27 -0500
-Subject: [PATCH] ring-buffer: Fix recursion protection transitions between
- interrupt context
 
-The recursion protection of the ring buffer depends on preempt_count() to be
-correct. But it is possible that the ring buffer gets called after an
-interrupt comes in but before it updates the preempt_count(). This will
-trigger a false positive in the recursion code.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.241-65-gf1e9f1c7f0b9/plan/baseline/
 
-Use the same trick from the ftrace function callback recursion code which
-uses a "transition" bit that gets set, to allow for a single recursion for
-to handle transitions between contexts.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.241-65-gf1e9f1c7f0b9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f1e9f1c7f0b930971113e683512a3d4d895313af =
 
-Cc: stable@vger.kernel.org
-Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 7f45fd9d5a45..dc83b3fa9fe7 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -438,14 +438,16 @@ enum {
- };
- /*
-  * Used for which event context the event is in.
-- *  NMI     = 0
-- *  IRQ     = 1
-- *  SOFTIRQ = 2
-- *  NORMAL  = 3
-+ *  TRANSITION = 0
-+ *  NMI     = 1
-+ *  IRQ     = 2
-+ *  SOFTIRQ = 3
-+ *  NORMAL  = 4
-  *
-  * See trace_recursive_lock() comment below for more details.
-  */
- enum {
-+	RB_CTX_TRANSITION,
- 	RB_CTX_NMI,
- 	RB_CTX_IRQ,
- 	RB_CTX_SOFTIRQ,
-@@ -3014,10 +3016,10 @@ rb_wakeups(struct trace_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
-  * a bit of overhead in something as critical as function tracing,
-  * we use a bitmask trick.
-  *
-- *  bit 0 =  NMI context
-- *  bit 1 =  IRQ context
-- *  bit 2 =  SoftIRQ context
-- *  bit 3 =  normal context.
-+ *  bit 1 =  NMI context
-+ *  bit 2 =  IRQ context
-+ *  bit 3 =  SoftIRQ context
-+ *  bit 4 =  normal context.
-  *
-  * This works because this is the order of contexts that can
-  * preempt other contexts. A SoftIRQ never preempts an IRQ
-@@ -3040,6 +3042,30 @@ rb_wakeups(struct trace_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
-  * The least significant bit can be cleared this way, and it
-  * just so happens that it is the same bit corresponding to
-  * the current context.
-+ *
-+ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
-+ * is set when a recursion is detected at the current context, and if
-+ * the TRANSITION bit is already set, it will fail the recursion.
-+ * This is needed because there's a lag between the changing of
-+ * interrupt context and updating the preempt count. In this case,
-+ * a false positive will be found. To handle this, one extra recursion
-+ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
-+ * bit is already set, then it is considered a recursion and the function
-+ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
-+ *
-+ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
-+ * to be cleared. Even if it wasn't the context that set it. That is,
-+ * if an interrupt comes in while NORMAL bit is set and the ring buffer
-+ * is called before preempt_count() is updated, since the check will
-+ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
-+ * NMI then comes in, it will set the NMI bit, but when the NMI code
-+ * does the trace_recursive_unlock() it will clear the TRANSTION bit
-+ * and leave the NMI bit set. But this is fine, because the interrupt
-+ * code that set the TRANSITION bit will then clear the NMI bit when it
-+ * calls trace_recursive_unlock(). If another NMI comes in, it will
-+ * set the TRANSITION bit and continue.
-+ *
-+ * Note: The TRANSITION bit only handles a single transition between context.
-  */
- 
- static __always_inline int
-@@ -3055,8 +3081,16 @@ trace_recursive_lock(struct ring_buffer_per_cpu *cpu_buffer)
- 		bit = pc & NMI_MASK ? RB_CTX_NMI :
- 			pc & HARDIRQ_MASK ? RB_CTX_IRQ : RB_CTX_SOFTIRQ;
- 
--	if (unlikely(val & (1 << (bit + cpu_buffer->nest))))
--		return 1;
-+	if (unlikely(val & (1 << (bit + cpu_buffer->nest)))) {
-+		/*
-+		 * It is possible that this was called by transitioning
-+		 * between interrupt context, and preempt_count() has not
-+		 * been updated yet. In this case, use the TRANSITION bit.
-+		 */
-+		bit = RB_CTX_TRANSITION;
-+		if (val & (1 << (bit + cpu_buffer->nest)))
-+			return 1;
-+	}
- 
- 	val |= (1 << (bit + cpu_buffer->nest));
- 	cpu_buffer->current_context = val;
-@@ -3071,8 +3105,8 @@ trace_recursive_unlock(struct ring_buffer_per_cpu *cpu_buffer)
- 		cpu_buffer->current_context - (1 << cpu_buffer->nest);
- }
- 
--/* The recursive locking above uses 4 bits */
--#define NESTED_BITS 4
-+/* The recursive locking above uses 5 bits */
-+#define NESTED_BITS 5
- 
- /**
-  * ring_buffer_nest_start - Allow to trace while nested
 
+Test Regressions
+---------------- =
+
+
+
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa68a09790fe336ebdb887a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
+6_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
+6_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa68a09790fe336ebdb8=
+87b
+        new failure (last pass: v4.4.241-65-g342f725261e7) =
+
+ =
+
+
+
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64      | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa68a1e28b602bd72db885d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
+_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
+_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa68a1e28b602bd72db8=
+85e
+        new failure (last pass: v4.4.241-65-g342f725261e7) =
+
+ =
+
+
+
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa68a2228b602bd72db8862
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
+6_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.241-6=
+5-gf1e9f1c7f0b9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
+6_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa68a2228b602bd72db8=
+863
+        new failure (last pass: v4.4.241-65-g342f725261e7) =
+
+ =20
