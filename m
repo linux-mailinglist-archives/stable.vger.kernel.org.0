@@ -2,125 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BCB2AA2D6
-	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 07:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5652AA3E8
+	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 09:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727854AbgKGGeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 01:34:11 -0500
-Received: from mail-m1271.qiye.163.com ([115.236.127.1]:26002 "EHLO
-        mail-m1271.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727799AbgKGGeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 01:34:11 -0500
-X-Greylist: delayed 479 seconds by postgrey-1.27 at vger.kernel.org; Sat, 07 Nov 2020 01:34:06 EST
-Received: from localhost.localdomain (unknown [113.89.246.237])
-        by mail-m1271.qiye.163.com (Hmail) with ESMTPA id 988F5582122;
-        Sat,  7 Nov 2020 14:26:05 +0800 (CST)
-From:   Ding Hui <dinghui@sangfor.com.cn>
-To:     jejb@linux.ibm.com, martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        timmyzeng@163.com, Ding Hui <dinghui@sangfor.com.cn>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] scsi: ses: Fix crash caused by kfree an invalid pointer
-Date:   Sat,  7 Nov 2020 14:25:12 +0800
-Message-Id: <20201107062512.31288-1-dinghui@sangfor.com.cn>
-X-Mailer: git-send-email 2.17.1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZS1VLWVdZKFlBSE83V1ktWUFJV1kPCR
-        oVCBIfWUFZQhgZHUtJTRpDSkxDVkpNS09MSEtITU5CSUtVEwETFhoSFyQUDg9ZV1kWGg8SFR0UWU
-        FZT0tIVUpKS0hKQ1VLWQY+
-X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6ODY6MSo*Hj8sARwQGCEwLgs9
-        NRcaFEpVSlVKTUtPTEhLSE1NSUxNVTMWGhIXVR8SFRwTDhI7CBoVHB0UCVUYFBZVGBVFWVdZEgtZ
-        QVlKSkhVQ0JVSU9NVUlITFlXWQgBWUFPS0pPNwY+
-X-HM-Tid: 0a75a162277098b6kuuu988f5582122
+        id S1727861AbgKGIjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 03:39:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727833AbgKGIjm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 03:39:42 -0500
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C93D9C0613CF;
+        Sat,  7 Nov 2020 00:39:42 -0800 (PST)
+Received: by mail-pg1-x541.google.com with SMTP id f38so3021307pgm.2;
+        Sat, 07 Nov 2020 00:39:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=zIMBOiLbdItdg+48kpCIygPkMR3TPO8xi/V7tkVxarw=;
+        b=Q1MJkrA4DDlLPKPOVjja9yqaL48rkY8+AopbUnmYjeAss/uW93GnGdXvXW3h5EMoBm
+         sfMQCDL5zqMgXISj6HDKWUtH4d9KXEXx3EvLv4znlsAYVo5X08pjm0cRvHyArXPlzw+K
+         YPfoIV125OzqVs96lNgPM+OwwoSVRLPCvYlkcEUmVDjsxxV76aZU424wstERnbjJ2yk7
+         /6R+GXytHmojMhfet00peordD/giAsVhFiU3lKxzNEGPpwabRkdYkTw2ok23h+U5Vnqe
+         eHcSCwaro8jCgtq30U5M3AFm6Re433c8TbJjv90iq9OWR84Jnx+27y/OHXtW499aMRMb
+         pYSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=zIMBOiLbdItdg+48kpCIygPkMR3TPO8xi/V7tkVxarw=;
+        b=DYsrom5xfNtsLjVxhHT+usNGtkB11AQrAOFxdTNgheKUxjIOkUll7USFQmt2syw9J6
+         4hz+hoaCDMMAVB+Xcdh5wJ1ekvZpYKsJ31hJBeRCG46Z1mp7wEiNx6etv8Dsge/j7hlS
+         xo3ivBYPCZmTc16q7mSiQ0w0sod+AbCbrsSFbeTbbxLHC9OB91urxFra6sQZszBqWlry
+         WYMTHT80Hd5LAcDH5c6h6q5fTrfMEG1CFLo/H9pbgImO+UEGg7Eq3vl8Xg6x9hISpkxt
+         +jIKjsxw7g/4DnAlltbpGcyLWVLpr/lHtcvH73GRI8+Wy1O/igsiaOHdF/ToMiBKmMWe
+         PMxg==
+X-Gm-Message-State: AOAM530LzGUVVZXdgoa5MJ/2lfSnrjfCdJKI0cRqweAI5WbgoMOLglNI
+        K/Tc+jbndhqJz9QqbDyOSHk=
+X-Google-Smtp-Source: ABdhPJwzEwyc5AdMfUtIacIn/a2s5UjdZjDOgwLBm0t/39XVoeu+PD1k4dsPebw6nJrCBXcZcn7ulQ==
+X-Received: by 2002:a63:fb50:: with SMTP id w16mr4760055pgj.202.1604738382137;
+        Sat, 07 Nov 2020 00:39:42 -0800 (PST)
+Received: from google.com ([2620:15c:211:201:7220:84ff:fe09:5e58])
+        by smtp.gmail.com with ESMTPSA id v23sm4694682pfn.141.2020.11.07.00.39.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Nov 2020 00:39:41 -0800 (PST)
+Sender: Minchan Kim <minchan.kim@gmail.com>
+Date:   Sat, 7 Nov 2020 00:39:39 -0800
+From:   Minchan Kim <minchan@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Harish Sriram <harish@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "mm/vunmap: add cond_resched() in
+ vunmap_pmd_range"
+Message-ID: <20201107083939.GA1633068@google.com>
+References: <20201105170249.387069-1-minchan@kernel.org>
+ <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We can get a crash when disconnecting the iSCSI session,
-the call trace like this:
+Hi Andrew,
 
-  [ffff00002a00fb70] kfree at ffff00000830e224
-  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
-  [ffff00002a00fbd0] device_del at ffff0000086b6a98
-  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
-  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
-  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
-  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
-  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
-  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
-  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
-  [ffff00002a00fe00] worker_thread at ffff00000810f648
-  [ffff00002a00fe70] kthread at ffff000008116e98
+On Fri, Nov 06, 2020 at 05:59:33PM -0800, Andrew Morton wrote:
+> On Thu,  5 Nov 2020 09:02:49 -0800 Minchan Kim <minchan@kernel.org> wrote:
+> 
+> > This reverts commit e47110e90584a22e9980510b00d0dfad3a83354e.
+> > 
+> > While I was doing zram testing, I found sometimes decompression failed
+> > since the compression buffer was corrupted. With investigation,
+> > I found below commit calls cond_resched unconditionally so it could
+> > make a problem in atomic context if the task is reschedule.
+> > 
+> > Revert the original commit for now.
+> > 
+> > [   55.109012] BUG: sleeping function called from invalid context at mm/vmalloc.c:108
+> > [   55.110774] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 946, name: memhog
+> > [   55.111973] 3 locks held by memhog/946:
+> > [   55.112807]  #0: ffff9d01d4b193e8 (&mm->mmap_lock#2){++++}-{4:4}, at: __mm_populate+0x103/0x160
+> > [   55.114151]  #1: ffffffffa3d53de0 (fs_reclaim){+.+.}-{0:0}, at: __alloc_pages_slowpath.constprop.0+0xa98/0x1160
+> > [   55.115848]  #2: ffff9d01d56b8110 (&zspage->lock){.+.+}-{3:3}, at: zs_map_object+0x8e/0x1f0
+> > [   55.118947] CPU: 0 PID: 946 Comm: memhog Not tainted 5.9.3-00011-gc5bfc0287345-dirty #316
+> > [   55.121265] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+> > [   55.122540] Call Trace:
+> > [   55.122974]  dump_stack+0x8b/0xb8
+> > [   55.123588]  ___might_sleep.cold+0xb6/0xc6
+> > [   55.124328]  unmap_kernel_range_noflush+0x2eb/0x350
+> > [   55.125198]  unmap_kernel_range+0x14/0x30
+> > [   55.125920]  zs_unmap_object+0xd5/0xe0
+> > [   55.126604]  zram_bvec_rw.isra.0+0x38c/0x8e0
+> > [   55.127462]  zram_rw_page+0x90/0x101
+> > [   55.128199]  bdev_write_page+0x92/0xe0
+> > [   55.128957]  ? swap_slot_free_notify+0xb0/0xb0
+> > [   55.129841]  __swap_writepage+0x94/0x4a0
+> > [   55.130636]  ? do_raw_spin_unlock+0x4b/0xa0
+> > [   55.131462]  ? _raw_spin_unlock+0x1f/0x30
+> > [   55.132261]  ? page_swapcount+0x6c/0x90
+> > [   55.133038]  pageout+0xe3/0x3a0
+> > [   55.133702]  shrink_page_list+0xb94/0xd60
+> > [   55.134626]  shrink_inactive_list+0x158/0x460
+> >
+> > ...
+> >
+> > --- a/mm/vmalloc.c
+> > +++ b/mm/vmalloc.c
+> > @@ -102,8 +102,6 @@ static void vunmap_pmd_range(pud_t *pud, unsigned long addr, unsigned long end,
+> >  		if (pmd_none_or_clear_bad(pmd))
+> >  			continue;
+> >  		vunmap_pte_range(pmd, addr, next, mask);
+> > -
+> > -		cond_resched();
+> >  	} while (pmd++, addr = next, addr != end);
+> >  }
+> 
+> If this is triggering a warning then why isn't the might_sleep() in
+> remove_vm_area() also triggering?
 
-In ses_intf_add, components count can be 0, and kcalloc 0 size scomp,
-but not saved at edev->component[i].scratch
+I don't understand what specific callpath you are talking but if
+it's clearly called in atomic context, the reason would be config
+combination I met.
+    
+    CONFIG_PREEMPT_VOLUNTARY + no CONFIG_DEBUG_ATOMIC_SLEEP
 
-In this situation, edev->component[0].scratch is an invalid pointer,
-when kfree it in ses_intf_remove_enclosure, a crash like above would happen
-The call trace also could be other random cases when kfree cannot detect
-the invalid pointer
+It makes preempt_count logic void so might_sleep warning will not work.
 
-We should not use edev->component[] array when we get components count is 0
-We also need check index when use edev->component[] array in
-ses_enclosure_data_process
+> 
+> Sigh.  I also cannot remember why these vfree() functions have to be so
+> awkward.  The mutex_trylock(&vmap_purge_lock) isn't permitted in
+> interrupt context because mutex_trylock() is stupid, but what was the
+> issue with non-interrupt atomic code?
+> 
 
-Tested-by: Zeng Zhicong <timmyzeng@163.com>
-Cc: stable <stable@vger.kernel.org> # 2.6.25+
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
----
- drivers/scsi/ses.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+Seems like a latency issue.
 
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index c2afba2a5414..f5ef0a91f0eb 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -477,9 +477,6 @@ static int ses_enclosure_find_by_addr(struct enclosure_device *edev,
- 	int i;
- 	struct ses_component *scomp;
- 
--	if (!edev->component[0].scratch)
--		return 0;
--
- 	for (i = 0; i < edev->components; i++) {
- 		scomp = edev->component[i].scratch;
- 		if (scomp->addr != efd->addr)
-@@ -565,8 +562,10 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
- 						components++,
- 						type_ptr[0],
- 						name);
--				else
-+				else if (components < edev->components)
- 					ecomp = &edev->component[components++];
-+				else
-+					ecomp = ERR_PTR(-EINVAL);
- 
- 				if (!IS_ERR(ecomp)) {
- 					if (addl_desc_ptr)
-@@ -731,9 +730,11 @@ static int ses_intf_add(struct device *cdev,
- 		buf = NULL;
- 	}
- page2_not_supported:
--	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
--	if (!scomp)
--		goto err_free;
-+	if (components > 0) {
-+		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
-+		if (!scomp)
-+			goto err_free;
-+	}
- 
- 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
- 				  components, &ses_enclosure_callbacks);
-@@ -813,7 +814,8 @@ static void ses_intf_remove_enclosure(struct scsi_device *sdev)
- 	kfree(ses_dev->page2);
- 	kfree(ses_dev);
- 
--	kfree(edev->component[0].scratch);
-+	if (edev->components > 0)
-+		kfree(edev->component[0].scratch);
- 
- 	put_device(&edev->edev);
- 	enclosure_unregister(edev);
--- 
-2.17.1
+commit f9e09977671b
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Mon Dec 12 16:44:23 2016 -0800
+
+    mm: turn vmap_purge_lock into a mutex
+
+The purge_lock spinlock causes high latencies with non RT kernel,
 
