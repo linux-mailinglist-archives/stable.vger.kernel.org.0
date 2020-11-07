@@ -2,108 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA6612AA6CB
-	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 18:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9172AA6CD
+	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 18:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727550AbgKGRGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 12:06:08 -0500
-Received: from mout.gmx.net ([212.227.15.15]:50213 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726021AbgKGRGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Nov 2020 12:06:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1604768751;
-        bh=Gu0WHITa0criXSqANy2S1d1UtRU7iAxv438rr4aOewU=;
-        h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
-        b=QlA7eViqDE4BJp/uod6GWfIibxEw0X/Af7089XXhdesg7jGPSv+HBEvcFNLzHwBPv
-         5w3feqSzysWuSq4rNX4InKiEcpXV0MGjn++U8O5YW/9AAwnoKnW3JqNvMjnypQwG+x
-         xkHGUfZG1B8ZLjRLoU95zCZ7Gy+gVS7Nc/Xv/0I0=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from homer.fritz.box ([188.174.243.132]) by mail.gmx.com (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MfHEP-1k8QEf49RD-00grVP; Sat, 07
- Nov 2020 18:05:51 +0100
-Message-ID: <c35f88c5eb00c69fa74bbc7225316307a5eb38d8.camel@gmx.de>
-Subject: Re: [tip: locking/urgent] futex: Handle transient "ownerless"
- rtmutex state correctly
-From:   Mike Galbraith <efault@gmx.de>
-To:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org
-Cc:     Gratian Crisan <gratian.crisan@ni.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>
-Date:   Sat, 07 Nov 2020 18:05:50 +0100
-In-Reply-To: <160469801844.397.7418241151599681987.tip-bot2@tip-bot2>
-References: <87a6w6x7bb.fsf@ni.com>
-         <160469801844.397.7418241151599681987.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.34.4 
+        id S1726284AbgKGRGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 12:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726021AbgKGRGf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 12:06:35 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C36C0613CF
+        for <stable@vger.kernel.org>; Sat,  7 Nov 2020 09:06:33 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id v12so4392472pfm.13
+        for <stable@vger.kernel.org>; Sat, 07 Nov 2020 09:06:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9nJl4a/tgq6vOm90pvQ8xd8Rikl0N4TTSnXAztjN4jA=;
+        b=HU+HjqnLpC+cxrtz5nBvfr6uxr07apS0X/bTGkNPK0OnE3dRNYL8Cbzw33Wd3t0Fvf
+         4QwyKsvIWCj7xWEPmOYZal4SXogTiCJbId9+B2Kh/g7mHvQO+GtHIPZMpq+JmxhCFu9w
+         vH48R9EiiKRCTfprCAm2zoGOCUQib4qwpggFZ6iO+Soc9Twg4qbbpSPU2gAt+5WrjkV7
+         EYXtL52MFNB3w2dHUZ76UPsT/yCf4KKw9fjHWT23iRPEwsZ1e8JXy1hyB8WymRF8IP17
+         TldNPNw+uDs9i8SiltAXq+sQdN/K9gbxBgXmfWJYzNQTboGboRggPqSDJ6dw2kHCKGWm
+         iquQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9nJl4a/tgq6vOm90pvQ8xd8Rikl0N4TTSnXAztjN4jA=;
+        b=moqhyn2rf2d5WUPAw6bGVf1L16Cls/+CSXTF7gWRxnUpYuJQVmauqBfvEDZ80b3D1+
+         P5CEXvtpvovIQccPnJ18AJbnDP74B+59HTOXTyA+msS1pfj/qxxGxhJQrz8CuIeqfuuc
+         8VOiD/d88oP20d9vO/BoP7a8yia96cnq1bJAEqWWTlFmLVjBJQXsi6GT1E9oVu3OykUI
+         JtkWKbnr+hIgF+L5eRlIQ8ClBWMhk1t6APJLD8RgLwj5SapbEPNZThcQZs6KFYwNw11N
+         z80qVm7slsDs8LLdoR/mCLcZO9+FzGSCiUEb4SSEf+/8LEi8Atld1uU+v/C/BzOtIO3R
+         EPQg==
+X-Gm-Message-State: AOAM531klz5VCDEwclbQ9r3o2BBiny9VcHuwY+qGu7x9t6RLMvQP56Ki
+        nPVWGESTq0WAfi4TJLc+S5dzP+XJCI5rew==
+X-Google-Smtp-Source: ABdhPJxA2HDPTMKG1bz5sBvdMFLlF/653cIY3tOwlxnc/66y5bugUhDJ4AcjkIfgZkkY0pxSgOqmGQ==
+X-Received: by 2002:a62:6304:0:b029:164:38fe:771e with SMTP id x4-20020a6263040000b029016438fe771emr6858910pfb.1.1604768792557;
+        Sat, 07 Nov 2020 09:06:32 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m23sm5544303pgk.84.2020.11.07.09.06.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Nov 2020 09:06:31 -0800 (PST)
+Message-ID: <5fa6d417.1c69fb81.54570.a267@mx.google.com>
+Date:   Sat, 07 Nov 2020 09:06:31 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:ZiuJpoFJYDSR3qK2/20rrBaJA+nWuFyZ+EthNZWpgv9Uw3F0lUt
- ai/drL6/+w8HYHW8pGHpcR9RfEVPIn7VWZuiNqplOsou85AQdwmP65ymQD706F0jbUPzr50
- U9VW2InHnT80E8OdDSnluA+eQ++jg5ohyPBt8lGugZTl8auy7WelopmOyqGPjTryXdlccyq
- ghE2l9/0R5ZP3rcjuYDyA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Kx50ttsafBs=:/6qke+AmwAAMFP7RyqRuTZ
- jubrDnTO3UXJYxzwEmX+vqlc5LQaiyRbPkAXdu46+rbUnPJ9ACpgBDoXocinlxyMmMK9IBlF+
- hrjpcyxz0XGA4qKu7t/fxnaE75tvNLY0dxMSGbAmAOwPcCtvBNKaGnrriQZxZ6wqO036DsLSu
- cUYABAV9hZSMsxnSPtRLEfK9ViMJeVz9GclQGF4TapNxaPT2aEfdHVsb7EqQ7mWyWX7KOKmgG
- FLXPoh2mZliusRg/fG1UOPSei7owE6ZmBZHiFg6K7EgYKvLZVC4ncWGiyPadusgCMv7CVjXEi
- bkSz/3kBE0d/v9uWPDV1vN/wH8CuDopb9yd62IIMoB+MC88e6phlKH6v+da0mkokVK8SPhvnu
- Z+BkmTIkGiWx5ckZmVIuSUzUoNDbkf8O0+FAcUn/eEJI1pNTXsNagz6Ma8C/BAWFRJ4DoC8yL
- HZLMrm6+U+tcAH5Q4lB0sEPhJNO/5tDaJk5Z+98nxVUxBssQfjkc8UJEEaQwxCOIp6s7ElqCx
- cY34TJS5yzuIDwew/l649PI2R5pvOYPerHN6idoaD60R3oujCbTCAROP41uT2m7YqvbpAyKco
- 3WOeQRdxLJiiF+ln/WtzQ51JLDLvyZPhaD2gJMp3PaWdXvJ6V9fQEwl+IOc/2YwbX3AGfLlDg
- odJuNe5sVaoVy90E4djg90lJTjmwO1+5UiR32RscbXmAUUDzWHMTU7UadxmsMBxggRJ/UHFgi
- X2/izC2UmBzYUx8OoUZXhbOofrwgaW7E72uIyqqBthqZE3Bc2T1PMvplielFGfFkc077fYXX5
- ulmIiB0Lx8VwVAbjEwFCViFt+/LZoB8tv+AQThP48QWrTwMkzY20u3Boa/4nG+IfyDg4ZxWQn
- cDqKJ3RaaCSfTZT6HbYQ==
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.155-3-g56d783e7ef1e3
+Subject: stable-rc/queue/4.19 baseline: 191 runs,
+ 2 regressions (v4.19.155-3-g56d783e7ef1e3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-11-06 at 21:26 +0000, tip-bot2 for Mike Galbraith wrote:
->
-> ---
->  kernel/futex.c | 16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
->
-> diff --git a/kernel/futex.c b/kernel/futex.c
-> index f8614ef..7406914 100644
-> --- a/kernel/futex.c
-> +++ b/kernel/futex.c
-> @@ -2380,10 +2380,22 @@ retry:
->  		}
->
->  		/*
-> -		 * Since we just failed the trylock; there must be an owner.
-> +		 * The trylock just failed, so either there is an owner or
-> +		 * there is a higher priority waiter than this one.
->  		 */
->  		newowner =3D rt_mutex_owner(&pi_state->pi_mutex);
-> -		BUG_ON(!newowner);
-> +		/*
-> +		 * If the higher priority waiter has not yet taken over the
-> +		 * rtmutex then newowner is NULL. We can't return here with
-> +		 * that state because it's inconsistent vs. the user space
-> +		 * state. So drop the locks and try again. It's a valid
-> +		 * situation and not any different from the other retry
-> +		 * conditions.
-> +		 */
-> +		if (unlikely(!newowner)) {
-> +			ret =3D -EAGAIN;
-                        ^^^
+stable-rc/queue/4.19 baseline: 191 runs, 2 regressions (v4.19.155-3-g56d783=
+e7ef1e3)
 
-My box just discovered an unnoticed typo.  That 'ret' should read 'err'
-so we goto retry, else fbomb_v2 proggy will trigger gripeage.
+Regressions Summary
+-------------------
 
-[   44.089233] fuse: init (API version 7.32)
-[   78.485163] ------------[ cut here ]------------
-[   78.485171] WARNING: CPU: 1 PID: 4557 at kernel/futex.c:2482 fixup_pi_s=
-tate_owner.isra.17+0x125/0x350
-[   78.485171] ------------[ cut here ]------------
-[   78.485174] WARNING: CPU: 2 PID: 4559 at kernel/futex.c:1486 do_futex+0=
-x920/0xaf0
-<snip>
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+1          =
 
-	-Mike
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.155-3-g56d783e7ef1e3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.155-3-g56d783e7ef1e3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      56d783e7ef1e3897dc75b7341c73cf60f5acf175 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa69a3bc21f771b4cdb8881
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.155=
+-3-g56d783e7ef1e3/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.155=
+-3-g56d783e7ef1e3/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5fa69a3bc21f771b=
+4cdb8884
+        new failure (last pass: v4.19.155-3-g27b0e9c213a8)
+        1 lines
+
+    2020-11-07 12:57:06.032000+00:00  Connected to bcm2837-rpi-3-b console =
+[channel connected] (~$quit to exit)
+    2020-11-07 12:57:06.032000+00:00  (user:khilman) is already connected
+    2020-11-07 12:57:20.779000+00:00  =00
+    2020-11-07 12:57:20.779000+00:00  =
+
+    2020-11-07 12:57:20.779000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
+2 -0800)
+    2020-11-07 12:57:20.779000+00:00  =
+
+    2020-11-07 12:57:20.779000+00:00  DRAM:  948 MiB
+    2020-11-07 12:57:20.795000+00:00  RPI 3 Model B (0xa02082)
+    2020-11-07 12:57:20.882000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
+0: 1
+    2020-11-07 12:57:20.914000+00:00  Loading Environment from FAT... *** W=
+arning - bad CRC, using default environment =
+
+    ... (376 line(s) more)  =
+
+ =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa69b5a42c1be3e84db885d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.155=
+-3-g56d783e7ef1e3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.155=
+-3-g56d783e7ef1e3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fa69b5a42c1be3e84db8=
+85e
+        new failure (last pass: v4.19.155-3-g27b0e9c213a8) =
+
+ =20
