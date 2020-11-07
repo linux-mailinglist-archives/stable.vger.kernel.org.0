@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5099B2AA660
-	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 16:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD0D2AA662
+	for <lists+stable@lfdr.de>; Sat,  7 Nov 2020 16:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbgKGPjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 10:39:33 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45175 "EHLO
+        id S1726132AbgKGPox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 10:44:53 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:54095 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726144AbgKGPjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 10:39:31 -0500
+        by vger.kernel.org with ESMTP id S1726043AbgKGPow (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 10:44:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id F1DFDDF9;
-        Sat,  7 Nov 2020 10:39:28 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 07 Nov 2020 10:39:29 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id E96B1F86;
+        Sat,  7 Nov 2020 10:44:51 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 07 Nov 2020 10:44:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=p/A70i
-        g6SppWwIjHn9OYs3458SdN+VBV5r9xandvuFI=; b=ExTcu3mPz9Q+6EsZ9POl9D
-        Wq4FfY2KSWiys85iRShCLOi3hyRBqJu0jBD4KS/4Zd3olLI/ywOC+Y46s6WogFrB
-        iyJc6ScyPiLVKARg528YIqeewURLRM5+qMfVOFcpDWd4rV85QUJ1vj78uRxAdIN6
-        uEUfGYV2tuza2efFnqxu9Qb0BAltNI8MdRXLUV0M+rJJWZ1zCS/Ho59hPgMRzdg+
-        alfwvQBCsdp1dtQ+drlJe87Cx+AlTt+CqlmpBaJ1Ys4BA0530lrUwAjc2XU74Oa1
-        AFY2/xZGAUbV/Px/LiqgnDDzCA0/z+Fcvo0HjGBJeLzLDmZY5QjWB1VSODxOkQrA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WRyPYr
+        qMcmaYeibqq63HOQDrznHCjXC2Pf96XZUbGqM=; b=JADl1dHV8oTr2uJXtNp9ky
+        c30IoqnYz6VO1r8VlNb/WOGbOCTU5Y3Hg0uFmgC8lHVigyFeUoHGkEfZ/m9enKRv
+        FsqzE0SLgrPSMPRQYNx7oaHqrFnJVuoaokvBTI7QusKXZSyxQtNcXoZATr6UAgYY
+        omSjfOTf+M8eYoLWLfD8vjgyQO22PJeIghKz3vpn5bxw4AcI9cSDy7bLp79ZDAqi
+        1HkuxaPZI058R2k0UfAjWJZ/124G7Sz0OmQ1v1p6DyNo3kqcoKCZWpUa/5xLXmgW
+        ne0abJrVZc9+dgKRajRCF3MLBia8hzMggyqnT06PwamUpccCIJeqHQ9XHlKPwSlg
         ==
-X-ME-Sender: <xms:sL-mXztbN83DqGNDOhDTV-MGOaa8HhS94ri5Nei1N1BWg2GMNL_0ig>
-    <xme:sL-mX0f24qgv3PyVUEri6pe3jhQAHh3X7p85mgGc2GVKm04PSSza3o_2E9meZ1FOv
-    22ppWi_MubZnw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduuddgkedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:8sCmX2zaaxo7TC0StreNVbEJBPqu3Pccetec17CAwb26ZlvTpJPy-g>
+    <xme:8sCmXyQkr3H9Zik6iSN_viycJwJzhzPLcoAAg3zm3RU2d7i5Wo8ut2TW4yA6VTpRp
+    8KIyezYB_rI5w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduuddgkeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:sL-mX2z-umQbpzv4PzLYWyDcGoImkC9NyVs4q_ez46JxxrwMTwYouQ>
-    <xmx:sL-mXyPIplwOOMXnEXZkmFIlhhTWZGX7svxekRzFIC63ms08RfDKYA>
-    <xmx:sL-mXz9tWmGrRX2pHdURvNloC_wdLBE-1iM2U6rfglWtf1D0r9W6Bw>
-    <xmx:sL-mX-kvyKekBgUexMqxeFdIPss6JY3fgGgN_c9XyRq7LAT9UnC3SFduvu0>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:8sCmX4UTm0K7ifjothPE5J7XmYILBRUmv5M6NDNmM0w6IxKJOyU8fg>
+    <xmx:8sCmX8g5EEkt_Ek7XZnyDAFnW6KzjZAjh_MnUFDme5ZMgdZBiC7YiA>
+    <xmx:8sCmX4AOdqAJ0Fg3HvHv0oFHNXJ917N7Mlwua9M3E-07ETz_zyy7gw>
+    <xmx:8sCmXzo8o3yAnk0BazpFQnnfUnb-4TvlTQltplsmuGbmhpZ-zWZ3ok5Cveo>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 32D5A30604EA;
-        Sat,  7 Nov 2020 10:39:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: mempolicy: fix potential pte_unmap_unlock pte error" failed to apply to 4.14-stable tree
-To:     luoshijie1@huawei.com, akpm@linux-foundation.org,
-        linfeilong@huawei.com, linmiaohe@huawei.com, mhocko@suse.com,
-        osalvador@suse.de, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id B4AF43280414;
+        Sat,  7 Nov 2020 10:44:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] gfs2: Wake up when sd_glock_disposal becomes zero" failed to apply to 4.4-stable tree
+To:     aahringo@redhat.com, agruenba@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 07 Nov 2020 16:40:04 +0100
-Message-ID: <16047636043195@kroah.com>
+Date:   Sat, 07 Nov 2020 16:45:34 +0100
+Message-ID: <1604763934189157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,65 +70,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3f08842098e842c51e3b97d0dcdebf810b32558e Mon Sep 17 00:00:00 2001
-From: Shijie Luo <luoshijie1@huawei.com>
-Date: Sun, 1 Nov 2020 17:07:40 -0800
-Subject: [PATCH] mm: mempolicy: fix potential pte_unmap_unlock pte error
+From da7d554f7c62d0c17c1ac3cc2586473c2d99f0bd Mon Sep 17 00:00:00 2001
+From: Alexander Aring <aahringo@redhat.com>
+Date: Mon, 26 Oct 2020 10:52:29 -0400
+Subject: [PATCH] gfs2: Wake up when sd_glock_disposal becomes zero
 
-When flags in queue_pages_pte_range don't have MPOL_MF_MOVE or
-MPOL_MF_MOVE_ALL bits, code breaks and passing origin pte - 1 to
-pte_unmap_unlock seems like not a good idea.
+Commit fc0e38dae645 ("GFS2: Fix glock deallocation race") fixed a
+sd_glock_disposal accounting bug by adding a missing atomic_dec
+statement, but it failed to wake up sd_glock_wait when that decrement
+causes sd_glock_disposal to reach zero.  As a consequence,
+gfs2_gl_hash_clear can now run into a 10-minute timeout instead of
+being woken up.  Add the missing wakeup.
 
-queue_pages_pte_range can run in MPOL_MF_MOVE_ALL mode which doesn't
-migrate misplaced pages but returns with EIO when encountering such a
-page.  Since commit a7f40cfe3b7a ("mm: mempolicy: make mbind() return
--EIO when MPOL_MF_STRICT is specified") and early break on the first pte
-in the range results in pte_unmap_unlock on an underflow pte.  This can
-lead to lockups later on when somebody tries to lock the pte resp.
-page_table_lock again..
+Fixes: fc0e38dae645 ("GFS2: Fix glock deallocation race")
+Cc: stable@vger.kernel.org # v2.6.39+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 
-Fixes: a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when MPOL_MF_STRICT is specified")
-Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Shijie Luo <luoshijie1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201019074853.50856-1-luoshijie1@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 3fde772ef5ef..3ca4898f3f24 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -525,7 +525,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	unsigned long flags = qp->flags;
- 	int ret;
- 	bool has_unmovable = false;
--	pte_t *pte;
-+	pte_t *pte, *mapped_pte;
- 	spinlock_t *ptl;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 5441c17562c5..d98a2e5dab9f 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1078,7 +1078,8 @@ int gfs2_glock_get(struct gfs2_sbd *sdp, u64 number,
+ out_free:
+ 	kfree(gl->gl_lksb.sb_lvbptr);
+ 	kmem_cache_free(cachep, gl);
+-	atomic_dec(&sdp->sd_glock_disposal);
++	if (atomic_dec_and_test(&sdp->sd_glock_disposal))
++		wake_up(&sdp->sd_glock_wait);
  
- 	ptl = pmd_trans_huge_lock(pmd, vma);
-@@ -539,7 +539,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	if (pmd_trans_unstable(pmd))
- 		return 0;
- 
--	pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
-+	mapped_pte = pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
- 	for (; addr != end; pte++, addr += PAGE_SIZE) {
- 		if (!pte_present(*pte))
- 			continue;
-@@ -571,7 +571,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 		} else
- 			break;
- 	}
--	pte_unmap_unlock(pte - 1, ptl);
-+	pte_unmap_unlock(mapped_pte, ptl);
- 	cond_resched();
- 
- 	if (has_unmovable)
+ out:
+ 	return ret;
 
