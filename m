@@ -2,86 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02D12AAB20
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 14:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E07C92AAB2C
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 14:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbgKHNW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Nov 2020 08:22:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S1728191AbgKHN3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Nov 2020 08:29:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728197AbgKHNWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Nov 2020 08:22:12 -0500
+        id S1727570AbgKHN3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Nov 2020 08:29:24 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71619206E3;
-        Sun,  8 Nov 2020 13:21:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DD38206E3;
+        Sun,  8 Nov 2020 13:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604841695;
-        bh=SkSaZbbxbQKlOyOPpNzaJmiIA3JNvn8dwgGWjfjN+QE=;
+        s=default; t=1604842163;
+        bh=2fuNWnZFhMYHn+mlUoDgFRyhbhGTH2+3c8D/L6OqfjQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=B4LVcidPH89nRcLhaaOqQuqZ//Xwx4z/bwAId7RogC4qHijueLwYDdlMOGsBajKnw
-         ixHHmNnGau6nQGSI7eZSMZg+vvZeoN5wJIbx9j+OSjsobsDFy5NY2O/cM0kM0NRKJe
-         UDvCl7vF/UFzDXD/gth7CDHwo3hiY2AO9NNQvFgE=
-Date:   Sun, 8 Nov 2020 08:21:34 -0500
+        b=JMVF6L28za6IHy+3j8AV02LS2sGiR6mFtBYBiC41kIK6tmFZWZ9bK9YJ3HzpOr0Pa
+         ZV3Bn96MumHmCCxe/fRlYwOQupSjuA7U97gLipL231QNf1ybA2M9CAB3kaKkcmV7hf
+         JtND4gck+tynudvPPG9BXGBeBqDZR1qvo93a7EPU=
+Date:   Sun, 8 Nov 2020 08:29:22 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.4 05/24] arm64: dts: amlogic: meson-g12: use
- the G12A specific dwmac compatible
-Message-ID: <20201108132134.GQ2092@sasha-vm>
-References: <20201103012007.183429-1-sashal@kernel.org>
- <20201103012007.183429-5-sashal@kernel.org>
- <CAFBinCCZiO9Xe1WKT8MZ-90c7m1u_m1Mt-OXf=Pyuo0vukQQ5g@mail.gmail.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linu Cherian <lcherian@marvell.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: Please consider reverting commit bb1860efc817 ("coresight: Make
+ sysfs functional...") from v5.4.y
+Message-ID: <20201108132922.GR2092@sasha-vm>
+References: <5500643d-5813-d731-0181-bc57e6d33e5a@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAFBinCCZiO9Xe1WKT8MZ-90c7m1u_m1Mt-OXf=Pyuo0vukQQ5g@mail.gmail.com>
+In-Reply-To: <5500643d-5813-d731-0181-bc57e6d33e5a@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 06:53:17AM +0100, Martin Blumenstingl wrote:
->Hi Sasha,
+On Sat, Nov 07, 2020 at 07:05:11PM -0800, Guenter Roeck wrote:
+>Hi,
 >
->On Tue, Nov 3, 2020 at 2:20 AM Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>
->> [ Upstream commit 1fdc97ae450ede2b4911d6737a57e6fca63b5f4a ]
->>
->> We have a dedicated "amlogic,meson-g12a-dwmac" compatible string for the
->> Ethernet controller since commit 3efdb92426bf4 ("dt-bindings: net:
->> dwmac-meson: Add a compatible string for G12A onwards").
->> Using the AXG compatible string worked fine so far because the
->> dwmac-meson8b driver doesn't handle the newly introduced register bits
->> for G12A. However, once that changes the driver must be probed with the
->> correct compatible string to manage these new register bits.
->>
->> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
->> Signed-off-by: Kevin Hilman <khilman@baylibre.com>
->> Link: https://lore.kernel.org/r/20200925211743.537496-1-martin.blumenstingl@googlemail.com
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->if this patch will be included in 5.4-stable then please also backport
->the following two commits:
->- 3efdb92426bf4 ("dt-bindings: net: dwmac-meson: Add a compatible
->string for G12A onwards")
->- a4f63342d03d2d ("net: stmmac: dwmac-meson8b: add a compatible string
->for G12A SoCs")
+>I get the following build warning in v5.4.75.
 >
->Without these above two commits we'll lose Ethernet connectivity
->because there's no G12A compatible string in 5.4 yet
+>drivers/hwtracing/coresight/coresight-etm-perf.c: In function 'etm_setup_aux':
+>drivers/hwtracing/coresight/coresight-etm-perf.c:226:37: warning:
+>			passing argument 1 of 'coresight_get_enabled_sink' makes pointer from integer without a cast
 >
->The quick solution would be to not backport this patch because the
->driver in question doesn't do anything with the new compatible string
->yet.
+>Actually, the warning is fatal, since the call is
+>	sink = coresight_get_enabled_sink(true);
+>However, the argument to coresight_get_enabled_sink() is now a pointer.
+>The parameter change was introduced with commit 8fd52a21ab57
+>("coresight: Make sysfs functional on topologies with per core sink").
+>
+>In the upstream kernel, the call is removed with commit bb1860efc817
+>("coresight: etm: perf: Sink selection using sysfs is deprecated").
+>That commit alone would, however, likely not solve the problem.
+>It looks like at least two more commits would be needed.
+>
+>716f5652a131 coresight: etm: perf: Fix warning caused by etm_setup_aux failure
+>8e264c52e1da coresight: core: Allow the coresight core driver to be built as a module
+>39a7661dcf65 coresight: Fix uninitialised pointer bug in etm_setup_aux()
+>
+>Looking into the coresight code, I see several additional commits affecting
+>the sysfs interface since v5.4. I have no idea what would actually be needed
+>for stable code in v5.4.y, short of applying them all.
+>
+>With all this in mind, I would suggest to revert commit 8fd52a21ab57
+>("coresight: Make sysfs functional on topologies with per core sink")
+>from v5.4.y, especially since it is not marked as bug fix or for stable.
 
-I'll drop it from older branches that don't have those commits, thanks!
+I'll revert it, thanks!
 
 -- 
 Thanks,
