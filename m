@@ -2,101 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A39D52AAC62
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 18:00:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DE22AAD20
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 20:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbgKHRAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Nov 2020 12:00:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37648 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727844AbgKHRAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Nov 2020 12:00:00 -0500
+        id S1728006AbgKHTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Nov 2020 14:07:36 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55455 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727570AbgKHTHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Nov 2020 14:07:36 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 53D922E6;
+        Sun,  8 Nov 2020 14:07:35 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 08 Nov 2020 14:07:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=49ZJa/
+        56BHAadQ1X8ExU+DkPBTJL98ZbzgKi3eOh4ds=; b=NsQnZ3kFnYeA7poKoj799k
+        cjs4/HFZ6aQoFRYgPJDBAaGNE9wle3Bm8Y/eCMvIzcGlDXdg5TUx8QqM05AzDfa8
+        6d6P7JsLaVQdkk31YMtoRHvHCmtpr6gk7A6fBU0zCg7ekvbYJY2hrj5qTITUWmVD
+        3zVl4XKDJEMP2lsMKUaiDGEcrtpgtgODaUUQUoTlmrSb81fXm4A7bsjTKB/fRb+q
+        lkyg9jgLUIQbJPmFfxzeDleugkmatQ0tIcmwiHheVXka/KgZ9lBA9Fd8NO02pyQp
+        PE/q7mg3zT4QDTrp+VssR2/RAlSOHDKMQhxJcIfGo7ppO1rX+ia6pnfp31w8D7eg
+        ==
+X-ME-Sender: <xms:9kGoX2MZcqC1qBwpm421WCNQIFNODDWmfvwCW8zcOK-dhmS-k1pzvg>
+    <xme:9kGoX0_dnVySSCzbKSxiej57rmKC17EGIG085QiYYeuoMqCCwlyKkryayL9wOrlR-
+    DDEUQ89lSKZ4g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddufedguddvvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeekjefgffetgfevgeeghedugfelheektdehtdeihf
+    eileeiteevjedvgfdvleejleenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:9kGoX9SMQMJB6FQUPeeLBZwZ82QxmAtnUv_f2UwvH9D46_iJO_aEwg>
+    <xmx:9kGoX2vaVaS0ldpbnwVmJcjLTl6_fsyRb8FcbuEb3pNGdPDwauFj0w>
+    <xmx:9kGoX-flsXutwJfc0kUNonRt8eL_jfdqIUfAKLCghtuqWPpJ97nlAQ>
+    <xmx:9kGoX_oo599QBmBF1S3FlspNfpZNPFOpEEZmiYEfqbfYLBt7antv2kdJ4uc>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCAD820731;
-        Sun,  8 Nov 2020 16:59:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604854798;
-        bh=/3pNTmN6DjO114ELWmZPyPaEIJmZESt2gO8P0PPsx4I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FkSdDNil3jhDNfIfQeFOAhCCLgGgclWaPVNlhSogK6IBnqAt0ofBL/f57dPc4oK+g
-         YcPzilzdpWC1HWRxJ4MFnZrch/bBWg+UJT5N9BBJ8rB5CQ9mj+zfvQQAKxMH34DbnX
-         MAGyWtvlhEPyZyao/0oTbIZ4jZda3YbcuR8gp5G4=
-Date:   Sun, 8 Nov 2020 18:00:59 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Rojewski, Cezary" <cezary.rojewski@intel.com>
-Cc:     "Gorski, Mateusz" <mateusz.gorski@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH] ASoC: Intel: Skylake: Add alternative topology binary
- name
-Message-ID: <20201108170059.GA18354@kroah.com>
-References: <20201103141047.15053-1-mateusz.gorski@linux.intel.com>
- <20201103153541.GC3267686@kroah.com>
- <d6006431-420f-55c7-0f78-977507e11fcf@linux.intel.com>
- <20201104115810.GA1694250@kroah.com>
- <0f6a673556974a289c2b81f3a8cc7536@intel.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 14FE9328005E;
+        Sun,  8 Nov 2020 14:07:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] regulator: defer probe when trying to get voltage from" failed to apply to 4.9-stable tree
+To:     mirq-linux@rere.qmqm.pl, broonie@kernel.org,
+        clabbe.montjoie@gmail.com, megous@megous.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 08 Nov 2020 20:08:36 +0100
+Message-ID: <1604862516211197@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0f6a673556974a289c2b81f3a8cc7536@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 08, 2020 at 04:17:16PM +0000, Rojewski, Cezary wrote:
-> On 2020-11-04 12:58 PM, Greg KH wrote:
-> > On Wed, Nov 04, 2020 at 12:46:36PM +0100, Gorski, Mateusz wrote:
-> >>
-> >>>> [ Upstream commit 1b290ef023b3eeb4f4688b582fecb773915ef937 ]
-> >>>>
-> >>>> Add alternative topology binary file name based on used machine driver
-> >>>> and fallback to use this name after failed attempt to load topology file
-> >>>> with name based on NHLT.
-> >>>> This change addresses multiple issues with current mechanism, for
-> >>>> example - there are devices without NHLT table, and that currently
-> >>>> results in tplg_name being empty.
-> ...
-> 
-> >>> What problems are people facing, and what kernel(s) are you asking for
-> >>> this to be ported to, and why can't people just use 5.8 or newer if they
-> >>> have this new hardware?
-> >>>
-> >>
-> >> I forgot to add - I wanted this change to be merged to stable 5.4 kernel.
-> >> Please let me know if I should resend this patch with this information
-> >> included.
-> >>
-> >> As for the user issues - topology binary file name is currently created
-> >> according to information from NHLT. The problem is, that some laptops (for
-> >> example Dell XPS 13) do not have NHLT at all. This results in topology
-> >> binary name being empty (" ").
-> >> This patch adds alternative name based on loaded machine driver.
-> >>
-> >> It applies not only to new hardware, please note that the mentioned Dell XPS
-> >> 13 is based on Kabylake. This issue existed on upstream from the beginning
-> >> of Skylake driver and was only recently addressed.
-> > 
-> > When was that laptop released and is this the only change that is needed
-> > in order for the 5.4.y kernel to work properly on it?
-> > 
-> 
-> Sorry for the late answer, Greg. To address your concerns and questions
-> let me elaborate:
-> 
-> Indeed, this change is not the only one required to enable DMIC + HDA
-> configuration for customers. The following series is essential:
-> 
-> [PATCH 0/7] ASoC: Intel: Skylake: Fix HDaudio and Dmic
-> https://lore.kernel.org/alsa-devel/20200305145314.32579-1-cezary.rojewski@intel.com/
 
-Great, then they should just use a newer kernel version.  It's crazy to
-think that you can go back in time and get older kernels working for
-newer hardware :)
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From cf1ad559a20d1930aa7b47a52f54e1f8718de301 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Date: Mon, 2 Nov 2020 22:27:27 +0100
+Subject: [PATCH] regulator: defer probe when trying to get voltage from
+ unresolved supply
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+regulator_get_voltage_rdev() is called in regulator probe() when
+applying machine constraints.  The "fixed" commit exposed the problem
+that non-bypassed regulators can forward the request to its parent
+(like bypassed ones) supply. Return -EPROBE_DEFER when the supply
+is expected but not resolved yet.
+
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reported-by: Ondřej Jirman <megous@megous.com>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Ondřej Jirman <megous@megous.com>
+Link: https://lore.kernel.org/r/a9041d68b4d35e4a2dd71629c8a6422662acb5ee.1604351936.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
+
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index a4ffd71696da..a5ad553da8cd 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -4165,6 +4165,8 @@ int regulator_get_voltage_rdev(struct regulator_dev *rdev)
+ 		ret = rdev->desc->fixed_uV;
+ 	} else if (rdev->supply) {
+ 		ret = regulator_get_voltage_rdev(rdev->supply->rdev);
++	} else if (rdev->supply_name) {
++		return -EPROBE_DEFER;
+ 	} else {
+ 		return -EINVAL;
+ 	}
+
