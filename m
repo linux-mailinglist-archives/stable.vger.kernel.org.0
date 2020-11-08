@@ -2,110 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836152AAD21
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 20:07:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 097732AAD32
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 20:19:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728783AbgKHTHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Nov 2020 14:07:45 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:35145 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727570AbgKHTHo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Nov 2020 14:07:44 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id BC0498D9;
-        Sun,  8 Nov 2020 14:07:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 08 Nov 2020 14:07:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=KeMvBq
-        4FmMbrtfiPFMmTeCfcK1auHUMb3Ezju7sI8kA=; b=q9+R5HnwIvMK6zom46FTq1
-        jvmfVsXCTlXlY+40SLb37YWBfNuczwXihy83IROLq/z8hVOs0Lcv6c4B5u3Nd96U
-        ebTuPM8kM4MvkGN+j8ZN9Lx3fs/iPystuNt4KHJYEhuwIx7L12KQE3rQDTAwYVdr
-        6Rw4B5CsrCp/GMEGO8ebg/eAuQ8KX7lHJx6G2xTzK7oy87koPS+Use5CdYu/R6kY
-        yyYVKRGSOzAzs0hhDxu2yqUxp9MQRulIPTl/Xr4uwrQUhCf61SREVZb6l/CNjZRt
-        Puuy/Uxk2tVU3YAZBra/2cpJ4dgTRVlmnEhiXnFkUBcZ75oz+M1SHpaSXSWIzAeQ
-        ==
-X-ME-Sender: <xms:_0GoX-t8JbF_3JT197Ch6i3_22yDKD0CW6-q6kGgMtdkWFMHMbo15Q>
-    <xme:_0GoXzduy1Vx6CDTy9Ff-FdCRn4TcgKg6WlIX_BdUNXwWgAnGba2CK2JCVDmmbjby
-    BpLt6v8qiTCeQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddufedguddvvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeekjefgffetgfevgeeghedugfelheektdehtdeihf
-    eileeiteevjedvgfdvleejleenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:_0GoX5yvt5CiA9Xz7yzu8o0otoxkvEHtn0yi8dkpIiWM5FeTJ0Ygzg>
-    <xmx:_0GoX5NZrxYf3yZkQWtvGJXobInXiRjjg-sXJq8FJtMEul5VTZNzXQ>
-    <xmx:_0GoX-_56nzq4uL_Oq49nuZOiMVrN1eMudDG3mwN1xhZlyAcQXlTbg>
-    <xmx:_0GoXwK221jOTSpDjfB5VE26b-wWQM8LWCaolPOxpyPbcyKAvIm7zYqCcls>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4CC1306307F;
-        Sun,  8 Nov 2020 14:07:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] regulator: defer probe when trying to get voltage from" failed to apply to 4.19-stable tree
-To:     mirq-linux@rere.qmqm.pl, broonie@kernel.org,
-        clabbe.montjoie@gmail.com, megous@megous.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 08 Nov 2020 20:08:37 +0100
-Message-ID: <160486251787231@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1728709AbgKHTTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Nov 2020 14:19:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727910AbgKHTTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Nov 2020 14:19:38 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E6C206ED;
+        Sun,  8 Nov 2020 19:19:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604863177;
+        bh=Fn9z0pBVI1oqcyvjwjOdpDLU3JUiMWA1/Q3sHclTBX0=;
+        h=Date:From:To:Subject:From;
+        b=Xqs6VLbHrXSxzq8bDJ+rLl7Zi/+lFfKsgm1VYxwIKIdXf/XG3bGLAJJJPzU9A59WY
+         x3BbevsdpixIM5vvSjYeccbUd49X+giTJqzT2xabuaD+TwQd/lSa9bTEmgUpcPQGvJ
+         aPWEPiEJ1V+vmkJh3U+w8FOaqoJL7kL6SywplLpE=
+Date:   Sun, 08 Nov 2020 11:19:36 -0800
+From:   akpm@linux-foundation.org
+To:     minchan@kernel.org, mm-commits@vger.kernel.org, rppt@kernel.org,
+        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
+        stefan@agner.ch
+Subject:  [to-be-updated]
+ mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch removed from -mm
+ tree
+Message-ID: <20201108191936.5Jyru9n0n%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+The patch titled
+     Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
+has been removed from the -mm tree.  Its filename was
+     mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
 
-thanks,
+This patch was dropped because an updated version will be merged
 
-greg k-h
+------------------------------------------------------
+From: Stefan Agner <stefan@agner.ch>
+Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
 
------------------- original commit in Linus's tree ------------------
+Most architectures define MAX_PHYSMEM_BITS in asm/sparsemem.h and don't
+include it in asm/pgtable.h.
 
-From cf1ad559a20d1930aa7b47a52f54e1f8718de301 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Date: Mon, 2 Nov 2020 22:27:27 +0100
-Subject: [PATCH] regulator: defer probe when trying to get voltage from
- unresolved supply
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+If MAX_PHYSMEM_BITS is not set in mm/zsmalloc.c it will set
+MAX_PHYSMEM_BITS to BITS_PER_LONG.  And this is 32-bit, too short when
+LPAE is in use.
 
-regulator_get_voltage_rdev() is called in regulator probe() when
-applying machine constraints.  The "fixed" commit exposed the problem
-that non-bypassed regulators can forward the request to its parent
-(like bypassed ones) supply. Return -EPROBE_DEFER when the supply
-is expected but not resolved yet.
+So include asm/sparsemem.h directly to get the MAX_PHYSMEM_BITS define
+on all architectures.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reported-by: Ondřej Jirman <megous@megous.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Ondřej Jirman <megous@megous.com>
-Link: https://lore.kernel.org/r/a9041d68b4d35e4a2dd71629c8a6422662acb5ee.1604351936.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes a crash when accessing zram on 32-bit ARM platform with LPAE and
+more than 4GB of memory:
+  Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  pgd = a27bd01c
+  [00000000] *pgd=236a0003, *pmd=1ffa64003
+  Internal error: Oops: 207 [#1] SMP ARM
+  Modules linked in: mdio_bcm_unimac(+) brcmfmac cfg80211 brcmutil raspberrypi_hwmon hci_uart crc32_arm_ce bcm2711_thermal phy_generic genet
+  CPU: 0 PID: 123 Comm: mkfs.ext4 Not tainted 5.9.6 #1
+  Hardware name: BCM2711
+  PC is at zs_map_object+0x94/0x338
+  LR is at zram_bvec_rw.constprop.0+0x330/0xa64
+  pc : [<c0602b38>]    lr : [<c0bda6a0>]    psr: 60000013
+  sp : e376bbe0  ip : 00000000  fp : c1e2921c
+  r10: 00000002  r9 : c1dda730  r8 : 00000000
+  r7 : e8ff7a00  r6 : 00000000  r5 : 02f9ffa0  r4 : e3710000
+  r3 : 000fdffe  r2 : c1e0ce80  r1 : ebf979a0  r0 : 00000000
+  Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+  Control: 30c5383d  Table: 235c2a80  DAC: fffffffd
+  Process mkfs.ext4 (pid: 123, stack limit = 0x495a22e6)
+  Stack: (0xe376bbe0 to 0xe376c000)
+  ...
+  [<c0602b38>] (zs_map_object) from [<c0bda6a0>] (zram_bvec_rw.constprop.0+0x330/0xa64)
+  [<c0bda6a0>] (zram_bvec_rw.constprop.0) from [<c0bdaf78>] (zram_submit_bio+0x1a4/0x40c)
+  [<c0bdaf78>] (zram_submit_bio) from [<c085806c>] (submit_bio_noacct+0xd0/0x3c8)
+  [<c085806c>] (submit_bio_noacct) from [<c08583b0>] (submit_bio+0x4c/0x190)
+  [<c08583b0>] (submit_bio) from [<c06496b4>] (submit_bh_wbc+0x188/0x1b8)
+  [<c06496b4>] (submit_bh_wbc) from [<c064ce98>] (__block_write_full_page+0x340/0x5e4)
+  [<c064ce98>] (__block_write_full_page) from [<c064d3ec>] (block_write_full_page+0x128/0x170)
+  [<c064d3ec>] (block_write_full_page) from [<c0591ae8>] (__writepage+0x14/0x68)
+  [<c0591ae8>] (__writepage) from [<c0593efc>] (write_cache_pages+0x1bc/0x494)
+  [<c0593efc>] (write_cache_pages) from [<c059422c>] (generic_writepages+0x58/0x8c)
+  [<c059422c>] (generic_writepages) from [<c0594c24>] (do_writepages+0x48/0xec)
+  [<c0594c24>] (do_writepages) from [<c0589330>] (__filemap_fdatawrite_range+0xf0/0x128)
+  [<c0589330>] (__filemap_fdatawrite_range) from [<c05894bc>] (file_write_and_wait_range+0x48/0x98)
+  [<c05894bc>] (file_write_and_wait_range) from [<c064f3f8>] (blkdev_fsync+0x1c/0x44)
+  [<c064f3f8>] (blkdev_fsync) from [<c064408c>] (do_fsync+0x3c/0x70)
+  [<c064408c>] (do_fsync) from [<c0400374>] (__sys_trace_return+0x0/0x2c)
+  Exception stack(0xe376bfa8 to 0xe376bff0)
+  bfa0:                   0003d2e0 b6f7b6f0 00000003 00046e40 00001000 00000000
+  bfc0: 0003d2e0 b6f7b6f0 00000000 00000076 00000000 00000000 befcbb20 befcbb28
+  bfe0: b6f4e060 befcbad8 b6f23e0c b6dc4a80
+  Code: e5927000 e0050391 e0871005 e5918018 (e5983000)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index a4ffd71696da..a5ad553da8cd 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -4165,6 +4165,8 @@ int regulator_get_voltage_rdev(struct regulator_dev *rdev)
- 		ret = rdev->desc->fixed_uV;
- 	} else if (rdev->supply) {
- 		ret = regulator_get_voltage_rdev(rdev->supply->rdev);
-+	} else if (rdev->supply_name) {
-+		return -EPROBE_DEFER;
- 	} else {
- 		return -EINVAL;
- 	}
+Link: https://lkml.kernel.org/r/bdfa44bf1c570b05d6c70898e2bbb0acf234ecdf.1604762181.git.stefan@agner.ch
+Fixes: 61989a80fb3a ("staging: zsmalloc: zsmalloc memory allocation library")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/zsmalloc.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/mm/zsmalloc.c~mm-zsmalloc-include-sparsememh-for-max_physmem_bits
++++ a/mm/zsmalloc.c
+@@ -40,6 +40,7 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/pgtable.h>
++#include <asm/sparsemem.h>
+ #include <asm/tlbflush.h>
+ #include <linux/cpumask.h>
+ #include <linux/cpu.h>
+_
+
+Patches currently in -mm which might be from stefan@agner.ch are
+
 
