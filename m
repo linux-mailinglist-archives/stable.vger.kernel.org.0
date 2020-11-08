@@ -2,131 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 097732AAD32
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 20:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA772AAD39
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 20:34:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbgKHTTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Nov 2020 14:19:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727910AbgKHTTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Nov 2020 14:19:38 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E6C206ED;
-        Sun,  8 Nov 2020 19:19:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604863177;
-        bh=Fn9z0pBVI1oqcyvjwjOdpDLU3JUiMWA1/Q3sHclTBX0=;
-        h=Date:From:To:Subject:From;
-        b=Xqs6VLbHrXSxzq8bDJ+rLl7Zi/+lFfKsgm1VYxwIKIdXf/XG3bGLAJJJPzU9A59WY
-         x3BbevsdpixIM5vvSjYeccbUd49X+giTJqzT2xabuaD+TwQd/lSa9bTEmgUpcPQGvJ
-         aPWEPiEJ1V+vmkJh3U+w8FOaqoJL7kL6SywplLpE=
-Date:   Sun, 08 Nov 2020 11:19:36 -0800
-From:   akpm@linux-foundation.org
-To:     minchan@kernel.org, mm-commits@vger.kernel.org, rppt@kernel.org,
-        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
-        stefan@agner.ch
-Subject:  [to-be-updated]
- mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch removed from -mm
- tree
-Message-ID: <20201108191936.5Jyru9n0n%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1728451AbgKHTea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Nov 2020 14:34:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727570AbgKHTea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Nov 2020 14:34:30 -0500
+Received: from smtp.gentoo.org (mail.gentoo.org [IPv6:2001:470:ea4a:1:5054:ff:fec7:86e4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC742C0613CF;
+        Sun,  8 Nov 2020 11:34:29 -0800 (PST)
+Subject: Re: [PATCH] mac80211: fix regression where EAPOL frames were sent in
+ plaintext
+To:     Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Christian Hesse <list@eworm.de>
+References: <20201019160113.350912-1-Mathy.Vanhoef@kuleuven.be>
+From:   Thomas Deutschmann <whissi@gentoo.org>
+Organization: Gentoo Foundation, Inc
+Message-ID: <259a6efa-da48-c946-3008-3c2edaf1a3d0@gentoo.org>
+Date:   Sun, 8 Nov 2020 20:34:22 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.1
+MIME-Version: 1.0
+In-Reply-To: <20201019160113.350912-1-Mathy.Vanhoef@kuleuven.be>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="R5tkUsv0kM4zeXCMDp0T6apX1o2RS4q4h"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--R5tkUsv0kM4zeXCMDp0T6apX1o2RS4q4h
+Content-Type: multipart/mixed; boundary="GTsbpTkYQpHu27Ysllmf4CVn9N5m5uRUr";
+ protected-headers="v1"
+From: Thomas Deutschmann <whissi@gentoo.org>
+To: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+ Johannes Berg <johannes@sipsolutions.net>, linux-wireless@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc: Christian Hesse <list@eworm.de>
+Message-ID: <259a6efa-da48-c946-3008-3c2edaf1a3d0@gentoo.org>
+Subject: Re: [PATCH] mac80211: fix regression where EAPOL frames were sent in
+ plaintext
+References: <20201019160113.350912-1-Mathy.Vanhoef@kuleuven.be>
+In-Reply-To: <20201019160113.350912-1-Mathy.Vanhoef@kuleuven.be>
 
-The patch titled
-     Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
-has been removed from the -mm tree.  Its filename was
-     mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
+--GTsbpTkYQpHu27Ysllmf4CVn9N5m5uRUr
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-This patch was dropped because an updated version will be merged
+Hi,
 
-------------------------------------------------------
-From: Stefan Agner <stefan@agner.ch>
-Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
+On 2020-10-19 18:01, Mathy Vanhoef wrote:
+> When sending EAPOL frames via NL80211 they are treated as injected
+> frames in mac80211. Due to commit 1df2bdba528b ("mac80211: never drop
+> injected frames even if normally not allowed") these injected frames
+> were not assigned a sta context in the function ieee80211_tx_dequeue,
+> causing certain wireless network cards to always send EAPOL frames in
+> plaintext. This may cause compatibility issues with some clients or
+> APs, which for instance can cause the group key handshake to fail and
+> in turn would cause the station to get disconnected.
+>=20
+> This commit fixes this regression by assigning a sta context in
+> ieee80211_tx_dequeue to injected frames as well.
+>=20
+> Note that sending EAPOL frames in plaintext is not a security issue
+> since they contain their own encryption and authentication protection.
+>=20
+> Fixes: 1df2bdba528b ("mac80211: never drop injected frames even if norm=
+ally not allowed")
+> Reported-by: Thomas Deutschmann <whissi@gentoo.org>
+> Tested-by: Christian Hesse <list@eworm.de>
+> Tested-by: Thomas Deutschmann <whissi@gentoo.org>
+> Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+> ---
+>   net/mac80211/tx.c | 7 ++++---
+>   1 file changed, 4 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+> index 8ba10a48d..55b41167a 100644
+> --- a/net/mac80211/tx.c
+> +++ b/net/mac80211/tx.c
+> @@ -3619,13 +3619,14 @@ struct sk_buff *ieee80211_tx_dequeue(struct iee=
+e80211_hw *hw,
+>   	tx.skb =3D skb;
+>   	tx.sdata =3D vif_to_sdata(info->control.vif);
+>  =20
+> -	if (txq->sta && !(info->flags & IEEE80211_TX_CTL_INJECTED)) {
+> +	if (txq->sta) {
+>   		tx.sta =3D container_of(txq->sta, struct sta_info, sta);
+>   		/*
+>   		 * Drop unicast frames to unauthorised stations unless they are
+> -		 * EAPOL frames from the local station.
+> +		 * injected frames or EAPOL frames from the local station.
+>   		 */
+> -		if (unlikely(ieee80211_is_data(hdr->frame_control) &&
+> +		if (unlikely(!(info->flags & IEEE80211_TX_CTL_INJECTED) &&
+> +			     ieee80211_is_data(hdr->frame_control) &&
+>   			     !ieee80211_vif_is_mesh(&tx.sdata->vif) &&
+>   			     tx.sdata->vif.type !=3D NL80211_IFTYPE_OCB &&
+>   			     !is_multicast_ether_addr(hdr->addr1) &&
+>=20
 
-Most architectures define MAX_PHYSMEM_BITS in asm/sparsemem.h and don't
-include it in asm/pgtable.h.
+Can we please get this applied to linux-5.10 and linux-5.9?
 
-If MAX_PHYSMEM_BITS is not set in mm/zsmalloc.c it will set
-MAX_PHYSMEM_BITS to BITS_PER_LONG.  And this is 32-bit, too short when
-LPAE is in use.
+Is there anything left to do where I can help with?
 
-So include asm/sparsemem.h directly to get the MAX_PHYSMEM_BITS define
-on all architectures.
-
-This fixes a crash when accessing zram on 32-bit ARM platform with LPAE and
-more than 4GB of memory:
-  Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  pgd = a27bd01c
-  [00000000] *pgd=236a0003, *pmd=1ffa64003
-  Internal error: Oops: 207 [#1] SMP ARM
-  Modules linked in: mdio_bcm_unimac(+) brcmfmac cfg80211 brcmutil raspberrypi_hwmon hci_uart crc32_arm_ce bcm2711_thermal phy_generic genet
-  CPU: 0 PID: 123 Comm: mkfs.ext4 Not tainted 5.9.6 #1
-  Hardware name: BCM2711
-  PC is at zs_map_object+0x94/0x338
-  LR is at zram_bvec_rw.constprop.0+0x330/0xa64
-  pc : [<c0602b38>]    lr : [<c0bda6a0>]    psr: 60000013
-  sp : e376bbe0  ip : 00000000  fp : c1e2921c
-  r10: 00000002  r9 : c1dda730  r8 : 00000000
-  r7 : e8ff7a00  r6 : 00000000  r5 : 02f9ffa0  r4 : e3710000
-  r3 : 000fdffe  r2 : c1e0ce80  r1 : ebf979a0  r0 : 00000000
-  Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
-  Control: 30c5383d  Table: 235c2a80  DAC: fffffffd
-  Process mkfs.ext4 (pid: 123, stack limit = 0x495a22e6)
-  Stack: (0xe376bbe0 to 0xe376c000)
-  ...
-  [<c0602b38>] (zs_map_object) from [<c0bda6a0>] (zram_bvec_rw.constprop.0+0x330/0xa64)
-  [<c0bda6a0>] (zram_bvec_rw.constprop.0) from [<c0bdaf78>] (zram_submit_bio+0x1a4/0x40c)
-  [<c0bdaf78>] (zram_submit_bio) from [<c085806c>] (submit_bio_noacct+0xd0/0x3c8)
-  [<c085806c>] (submit_bio_noacct) from [<c08583b0>] (submit_bio+0x4c/0x190)
-  [<c08583b0>] (submit_bio) from [<c06496b4>] (submit_bh_wbc+0x188/0x1b8)
-  [<c06496b4>] (submit_bh_wbc) from [<c064ce98>] (__block_write_full_page+0x340/0x5e4)
-  [<c064ce98>] (__block_write_full_page) from [<c064d3ec>] (block_write_full_page+0x128/0x170)
-  [<c064d3ec>] (block_write_full_page) from [<c0591ae8>] (__writepage+0x14/0x68)
-  [<c0591ae8>] (__writepage) from [<c0593efc>] (write_cache_pages+0x1bc/0x494)
-  [<c0593efc>] (write_cache_pages) from [<c059422c>] (generic_writepages+0x58/0x8c)
-  [<c059422c>] (generic_writepages) from [<c0594c24>] (do_writepages+0x48/0xec)
-  [<c0594c24>] (do_writepages) from [<c0589330>] (__filemap_fdatawrite_range+0xf0/0x128)
-  [<c0589330>] (__filemap_fdatawrite_range) from [<c05894bc>] (file_write_and_wait_range+0x48/0x98)
-  [<c05894bc>] (file_write_and_wait_range) from [<c064f3f8>] (blkdev_fsync+0x1c/0x44)
-  [<c064f3f8>] (blkdev_fsync) from [<c064408c>] (do_fsync+0x3c/0x70)
-  [<c064408c>] (do_fsync) from [<c0400374>] (__sys_trace_return+0x0/0x2c)
-  Exception stack(0xe376bfa8 to 0xe376bff0)
-  bfa0:                   0003d2e0 b6f7b6f0 00000003 00046e40 00001000 00000000
-  bfc0: 0003d2e0 b6f7b6f0 00000000 00000076 00000000 00000000 befcbb20 befcbb28
-  bfe0: b6f4e060 befcbad8 b6f23e0c b6dc4a80
-  Code: e5927000 e0050391 e0871005 e5918018 (e5983000)
-
-Link: https://lkml.kernel.org/r/bdfa44bf1c570b05d6c70898e2bbb0acf234ecdf.1604762181.git.stefan@agner.ch
-Fixes: 61989a80fb3a ("staging: zsmalloc: zsmalloc memory allocation library")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/zsmalloc.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/zsmalloc.c~mm-zsmalloc-include-sparsememh-for-max_physmem_bits
-+++ a/mm/zsmalloc.c
-@@ -40,6 +40,7 @@
- #include <linux/string.h>
- #include <linux/slab.h>
- #include <linux/pgtable.h>
-+#include <asm/sparsemem.h>
- #include <asm/tlbflush.h>
- #include <linux/cpumask.h>
- #include <linux/cpu.h>
-_
-
-Patches currently in -mm which might be from stefan@agner.ch are
+Thanks!
 
 
+--=20
+Regards,
+Thomas Deutschmann / Gentoo Linux Developer
+C4DD 695F A713 8F24 2AA1 5638 5849 7EE5 1D5D 74A5
+
+
+--GTsbpTkYQpHu27Ysllmf4CVn9N5m5uRUr--
+
+--R5tkUsv0kM4zeXCMDp0T6apX1o2RS4q4h
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEExKRzo+LDXJgXHuURObr3Jv2BVkFAl+oSD4FAwAAAAAACgkQRObr3Jv2BVnM
+WwgArKT4D/J9+m3E3baILW6z3T1f6RVrrB+jf/chjHs9xqjnvt7jF8zSCsWsIb8c/OQpFbq7wOUY
+LkoiPtqSQ5VquGApFG1WUdI5CSkxj9dUfq42YphWQC+ah8F86nS9q3x/KIImUkpRhMK2D9N15alb
+pVfJg4gFgm29cd3ArcaKFe5odB8Rb4Os/UnvX7t9bqZaCsD5sQ28wcG1u1EojPzdeFzpwCLvenkV
+IBNfqtIGaBWhzGHo9QHPEeDAYYN6t/cABJGcirV7IVtdiOWqh2hGmpUrHVFebG00A1GcrZHq6kHr
+V9xcoN0EbItP2fbYnXdmxVS0jeu/G77v8zHPXxpewQ==
+=M+nH
+-----END PGP SIGNATURE-----
+
+--R5tkUsv0kM4zeXCMDp0T6apX1o2RS4q4h--
