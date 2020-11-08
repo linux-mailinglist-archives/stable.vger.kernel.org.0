@@ -2,134 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1993F2AA8A6
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 01:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF7D2AA8CD
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 02:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728276AbgKHA5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 19:57:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727871AbgKHA5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Nov 2020 19:57:07 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2AB720885;
-        Sun,  8 Nov 2020 00:57:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604797026;
-        bh=HeapIco4EdLY4C1foQ2CVSOcm1YEarIgsG+WzlLX3MM=;
-        h=Date:From:To:Subject:From;
-        b=eDQDnwblHmuJC5dpDpEeEOdZ7zTe5AC8XRIKkTduqxFvLLkrRzpZSKMlP0Am+SZJK
-         owMhUTWz9fkOLQBlLoLTJFM0yQY2zb2ODfRqldg7lO2zQpBIiZOTI6/tw9iLsxGUXv
-         Z+lsAYmIuB2bCzmO2RQu67WWU76m/73zDN6YP1gE=
-Date:   Sat, 07 Nov 2020 16:57:06 -0800
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, stefan@agner.ch
-Subject:  +
- mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch added to -mm tree
-Message-ID: <20201108005706.TCYIGo7sg%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726043AbgKHBZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 20:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbgKHBY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 20:24:59 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0035C0613CF
+        for <stable@vger.kernel.org>; Sat,  7 Nov 2020 17:24:59 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id z3so4859234pfb.10
+        for <stable@vger.kernel.org>; Sat, 07 Nov 2020 17:24:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HW0zUbVcxaK4xAgCR1QsGsfDAEk5tnwMfSVg7Ost8nk=;
+        b=kph4F92eEmC8J8KSpWKVO2szm8xb24gDGSmwxlKfLZTMhN9HESMZ1nYqgXGa0DLqyL
+         mRKeABboblfEgLMXPuXWhufvR/8l6qrH7SX+F6pNlw0DYQIXS4QyqUGCS8Wxo5Wf+axk
+         w4YRCb2fXmwYkkaEgCl6Smr1F+5Q/hA/eaAq4+KHCgUvpmxpgcBlxrEtquI9bzVszuBU
+         F3QmevKMArJhDJXkeUfypQxpRNqwTau+FTXXvVE8jJxFkoFU1N3rN5tiFWnVzhgoS5V3
+         VB/biKVs6YXJt01ArQUATcMYFW928CfjdfSMuFrTe+BijoXhFxVX6efG7WKHDqwAull4
+         acZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HW0zUbVcxaK4xAgCR1QsGsfDAEk5tnwMfSVg7Ost8nk=;
+        b=nC3Ge7EkmbiQwLq8evgjGeUdk26hri6VT9s7hNua4UV1vU4yzsq5RZIHjM5ZEvl4yl
+         3SETwpo7VCDtxQF2myqWLz7GKAUSJfGWdqMAvx1Vv6wxlZV3mVFVEYWpdvF2tHxcNO95
+         qapzbzDM3sT/DnvyE7/fwzFsaA6Z6fcvt6cnzz+DueqsBouZ2aiNJD+8c4fcFrDxjdGP
+         G3mYa6T15em8+tiEEEYzkGuUgeYojKrGkZn1Ef+zd+fKpDVLSWGYcnhVEKY3fuajDy6C
+         lmHJ8HOZP79cnVMooaoGrVzvvW98/tWTvmnoGuo9Kgy6CCKUfNPUJAxDI1WuOIbA+aW6
+         s1/g==
+X-Gm-Message-State: AOAM532utLGfQdjDvPMw+mR+ZMearGV/040ez49rs/7utDkYeTIubXXT
+        hraY3cr3cM5UTSPTiv6LGQRvT2Pq+LQVfw==
+X-Google-Smtp-Source: ABdhPJwF4Xfh5uohHCZT4B7yHYHwyJNTsjI1If2wy4s00uf1uF4y76FpjP19ncaAj0V74zvp/S5yIA==
+X-Received: by 2002:a63:4855:: with SMTP id x21mr7603885pgk.382.1604798698780;
+        Sat, 07 Nov 2020 17:24:58 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c11sm5872820pgl.20.2020.11.07.17.24.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Nov 2020 17:24:57 -0800 (PST)
+Message-ID: <5fa748e9.1c69fb81.dd1fa.b75b@mx.google.com>
+Date:   Sat, 07 Nov 2020 17:24:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.241-70-g8925fc6112bf
+Subject: stable-rc/linux-4.4.y baseline: 80 runs,
+ 2 regressions (v4.4.241-70-g8925fc6112bf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y baseline: 80 runs, 2 regressions (v4.4.241-70-g8925fc=
+6112bf)
 
-The patch titled
-     Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
-has been added to the -mm tree.  Its filename is
-     mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Stefan Agner <stefan@agner.ch>
-Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
-
-Most architectures define MAX_PHYSMEM_BITS in asm/sparsemem.h and don't
-include it in asm/pgtable.h.  Include asm/sparsemem.h directly to get the
-MAX_PHYSMEM_BITS define on all architectures.
-
-This fixes a crash when accessing zram on 32-bit ARM platform with LPAE and
-more than 4GB of memory:
-  Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  pgd = a27bd01c
-  [00000000] *pgd=236a0003, *pmd=1ffa64003
-  Internal error: Oops: 207 [#1] SMP ARM
-  Modules linked in: mdio_bcm_unimac(+) brcmfmac cfg80211 brcmutil raspberrypi_hwmon hci_uart crc32_arm_ce bcm2711_thermal phy_generic genet
-  CPU: 0 PID: 123 Comm: mkfs.ext4 Not tainted 5.9.6 #1
-  Hardware name: BCM2711
-  PC is at zs_map_object+0x94/0x338
-  LR is at zram_bvec_rw.constprop.0+0x330/0xa64
-  pc : [<c0602b38>]    lr : [<c0bda6a0>]    psr: 60000013
-  sp : e376bbe0  ip : 00000000  fp : c1e2921c
-  r10: 00000002  r9 : c1dda730  r8 : 00000000
-  r7 : e8ff7a00  r6 : 00000000  r5 : 02f9ffa0  r4 : e3710000
-  r3 : 000fdffe  r2 : c1e0ce80  r1 : ebf979a0  r0 : 00000000
-  Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
-  Control: 30c5383d  Table: 235c2a80  DAC: fffffffd
-  Process mkfs.ext4 (pid: 123, stack limit = 0x495a22e6)
-  Stack: (0xe376bbe0 to 0xe376c000)
-  ...
-  [<c0602b38>] (zs_map_object) from [<c0bda6a0>] (zram_bvec_rw.constprop.0+0x330/0xa64)
-  [<c0bda6a0>] (zram_bvec_rw.constprop.0) from [<c0bdaf78>] (zram_submit_bio+0x1a4/0x40c)
-  [<c0bdaf78>] (zram_submit_bio) from [<c085806c>] (submit_bio_noacct+0xd0/0x3c8)
-  [<c085806c>] (submit_bio_noacct) from [<c08583b0>] (submit_bio+0x4c/0x190)
-  [<c08583b0>] (submit_bio) from [<c06496b4>] (submit_bh_wbc+0x188/0x1b8)
-  [<c06496b4>] (submit_bh_wbc) from [<c064ce98>] (__block_write_full_page+0x340/0x5e4)
-  [<c064ce98>] (__block_write_full_page) from [<c064d3ec>] (block_write_full_page+0x128/0x170)
-  [<c064d3ec>] (block_write_full_page) from [<c0591ae8>] (__writepage+0x14/0x68)
-  [<c0591ae8>] (__writepage) from [<c0593efc>] (write_cache_pages+0x1bc/0x494)
-  [<c0593efc>] (write_cache_pages) from [<c059422c>] (generic_writepages+0x58/0x8c)
-  [<c059422c>] (generic_writepages) from [<c0594c24>] (do_writepages+0x48/0xec)
-  [<c0594c24>] (do_writepages) from [<c0589330>] (__filemap_fdatawrite_range+0xf0/0x128)
-  [<c0589330>] (__filemap_fdatawrite_range) from [<c05894bc>] (file_write_and_wait_range+0x48/0x98)
-  [<c05894bc>] (file_write_and_wait_range) from [<c064f3f8>] (blkdev_fsync+0x1c/0x44)
-  [<c064f3f8>] (blkdev_fsync) from [<c064408c>] (do_fsync+0x3c/0x70)
-  [<c064408c>] (do_fsync) from [<c0400374>] (__sys_trace_return+0x0/0x2c)
-  Exception stack(0xe376bfa8 to 0xe376bff0)
-  bfa0:                   0003d2e0 b6f7b6f0 00000003 00046e40 00001000 00000000
-  bfc0: 0003d2e0 b6f7b6f0 00000000 00000076 00000000 00000000 befcbb20 befcbb28
-  bfe0: b6f4e060 befcbad8 b6f23e0c b6dc4a80
-  Code: e5927000 e0050391 e0871005 e5918018 (e5983000)
-
-Link: https://lkml.kernel.org/r/bdfa44bf1c570b05d6c70898e2bbb0acf234ecdf.1604762181.git.stefan@agner.ch
-Fixes: 61989a80fb3a ("staging: zsmalloc: zsmalloc memory allocation library")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
 ---
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2       =
+   =
 
- mm/zsmalloc.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/mm/zsmalloc.c~mm-zsmalloc-include-sparsememh-for-max_physmem_bits
-+++ a/mm/zsmalloc.c
-@@ -40,6 +40,7 @@
- #include <linux/string.h>
- #include <linux/slab.h>
- #include <linux/pgtable.h>
-+#include <asm/sparsemem.h>
- #include <asm/tlbflush.h>
- #include <linux/cpumask.h>
- #include <linux/cpu.h>
-_
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.241-70-g8925fc6112bf/plan/baseline/
 
-Patches currently in -mm which might be from stefan@agner.ch are
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.241-70-g8925fc6112bf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8925fc6112bfa4216475b81531407c50f5bcf310 =
 
-mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
 
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa71767d43136f3c7db8853
+
+  Results:     2 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.241=
+-70-g8925fc6112bf/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.241=
+-70-g8925fc6112bf/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
+e-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5fa71767d43136f3=
+c7db8856
+        failing since 8 days (last pass: v4.4.240-19-ge3d3be91473e, first f=
+ail: v4.4.241)
+        1 lines
+
+    2020-11-07 21:51:52.972000+00:00  Connected to omap3-beagle-xm console =
+[channel connected] (~$quit to exit)
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.972000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.973000+00:00  (user:) is already connected
+    2020-11-07 21:51:52.973000+00:00  (user:khilman) is already connected
+    2020-11-07 21:51:52.973000+00:00  (user:) is already connected =
+
+    ... (459 line(s) more)  =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa71767d43136f=
+3c7db8858
+        failing since 8 days (last pass: v4.4.240-19-ge3d3be91473e, first f=
+ail: v4.4.241)
+        28 lines
+
+    2020-11-07 21:53:39.242000+00:00  kern  :emerg : Stack: (0xcba13d10 to =
+0xcba14000)
+    2020-11-07 21:53:39.250000+00:00  kern  :emerg : 3d00:                 =
+                    bf02b8fc bf010b84 cba44610 bf02b988
+    2020-11-07 21:53:39.258000+00:00  kern  :emerg : 3d20: cba44610 bf2000a=
+8 00000002 cb8b9010 cba44610 bf24bb54 cbc7adb0 cbc7adb0
+    2020-11-07 21:53:39.267000+00:00  kern  :emerg : 3d40: 00000000 0000000=
+0 ce226930 c01fb3a0 ce226930 ce226930 c0859694 00000001
+    2020-11-07 21:53:39.275000+00:00  kern  :emerg : 3d60: ce226930 cbc7adb=
+0 cbb946f0 00000000 ce226930 c0859694 00000001 c09632c0
+    2020-11-07 21:53:39.283000+00:00  kern  :emerg : 3d80: ffffffed bf24fff=
+4 fffffdfb 00000027 00000001 c00ce2f4 bf250188 c0407034
+    2020-11-07 21:53:39.291000+00:00  kern  :emerg : 3da0: c09632c0 c120ea3=
+0 bf24fff4 00000000 00000027 c0405508 c09632c0 c09632f4
+    2020-11-07 21:53:39.300000+00:00  kern  :emerg : 3dc0: bf24fff4 0000000=
+0 00000000 c04056b0 00000000 bf24fff4 c0405624 c04039d4
+    2020-11-07 21:53:39.308000+00:00  kern  :emerg : 3de0: ce0c38a4 ce22091=
+0 bf24fff4 cbc91740 c09ddba8 c0404b20 bf24eb6c c0960460
+    2020-11-07 21:53:39.316000+00:00  kern  :emerg : 3e00: cbc66980 bf24fff=
+4 c0960460 cbc66980 bf253000 c04060e8 c0960460 c0960460 =
+
+    ... (16 line(s) more)  =
+
+ =20
