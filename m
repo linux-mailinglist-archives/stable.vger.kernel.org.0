@@ -2,113 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29DC2AA895
-	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 01:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1993F2AA8A6
+	for <lists+stable@lfdr.de>; Sun,  8 Nov 2020 01:57:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbgKHAbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Nov 2020 19:31:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726043AbgKHAba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Nov 2020 19:31:30 -0500
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56E3EC0613CF;
-        Sat,  7 Nov 2020 16:31:29 -0800 (PST)
-Received: by mail-ot1-x344.google.com with SMTP id z16so5104676otq.6;
-        Sat, 07 Nov 2020 16:31:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OVTt9CdxGRPNpa7pvvi1WLJ3ASvRko+oyJpEiXWS7KM=;
-        b=k3VfPstuC1jXHErcaMYzfXVo9mZMz3efn1rfKODiWOsuAmv3DbKpusT0km2syuEeD3
-         lutmFkofnPLylfe4El2Zb1sVhVMWYxzdpbQ7TTWF2q40FNmceA9oh9c4t19sjE9paFFc
-         vIaYyWmqZEcZzPfifOkhhp3EMUhFPJbmHGZ/Rh7gNtjTGTDWa6IcKEjvafS0L7jTWgCx
-         DoFT1cG4z/CQQVSdN+V1UbyPICZfZ2CNraw2CO1y++tTp9nHapynRnYfhFOlwWMr3WAG
-         +OmcLlWKlrXMXihZqffe0PhH5cWLazqLbjVvQrny2VsxmYU/8sqxpZ/lkB+0m6TEVoIU
-         aZrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=OVTt9CdxGRPNpa7pvvi1WLJ3ASvRko+oyJpEiXWS7KM=;
-        b=B3VZpC4DisKE1PyfBtVLDYiuBtpxJgxuGf/qSSzp2dqWRHk9fiiGYW/nAwua6uuBTD
-         hKcJM4rG9592KdBOJM9o4jcsUkCqFhkmz1R7yqqtjzfhzywGcL8o9Od+zrGtLBaNifoh
-         Pg0k/PCHJvQ3ksejTq678q9/DRxV2+B5/0QiZ02lGbLyBykfRdj7g1l3nRrX1cP8AxaC
-         Crsqq1tDcs9/GeQ7qdJfJ88Y4OaZfkZKvcmwfHVGVG0wiogf8sHYIcX+OA75I247thle
-         FAzUzjAf6qoxAPaIHIVXUcCTLEXEEW5eX7swT456kkYwT/0d2CuflQTMC3DDvQt3jVjI
-         kIzA==
-X-Gm-Message-State: AOAM532NTX01VEEStoNlCZNnqtmetNz6DZcvOEbc7TR3AsmiN5dDhAIo
-        0Wq6eI4iL+bxjm9ZAPqRAUI=
-X-Google-Smtp-Source: ABdhPJz0YKpovFwRm3D7sa7apznTCbPlbR3gvulxNtkM+GVZeCU9NffEG3LvOSpQ+r3R36RyfMmUaA==
-X-Received: by 2002:a9d:8ee:: with SMTP id 101mr3852763otf.93.1604795488657;
-        Sat, 07 Nov 2020 16:31:28 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e5sm1399400oii.6.2020.11.07.16.31.27
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 07 Nov 2020 16:31:27 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4.19] tools: perf: Fix build error in v4.19.y
-Date:   Sat,  7 Nov 2020 16:31:24 -0800
-Message-Id: <20201108003124.100732-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1728276AbgKHA5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Nov 2020 19:57:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727871AbgKHA5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Nov 2020 19:57:07 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2AB720885;
+        Sun,  8 Nov 2020 00:57:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604797026;
+        bh=HeapIco4EdLY4C1foQ2CVSOcm1YEarIgsG+WzlLX3MM=;
+        h=Date:From:To:Subject:From;
+        b=eDQDnwblHmuJC5dpDpEeEOdZ7zTe5AC8XRIKkTduqxFvLLkrRzpZSKMlP0Am+SZJK
+         owMhUTWz9fkOLQBlLoLTJFM0yQY2zb2ODfRqldg7lO2zQpBIiZOTI6/tw9iLsxGUXv
+         Z+lsAYmIuB2bCzmO2RQu67WWU76m/73zDN6YP1gE=
+Date:   Sat, 07 Nov 2020 16:57:06 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, stefan@agner.ch
+Subject:  +
+ mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch added to -mm tree
+Message-ID: <20201108005706.TCYIGo7sg%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-perf may fail to build in v4.19.y with the following error.
 
-util/evsel.c: In function ‘perf_evsel__exit’:
-util/util.h:25:28: error:
-	passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
+The patch titled
+     Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
+has been added to the -mm tree.  Its filename is
+     mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
 
-This is observed (at least) with gcc v6.5.0. The underlying problem is
-the following statement.
-	zfree(&evsel->pmu_name);
-evsel->pmu_name is decared 'const *'. zfree in turn is defined as
-	#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
-and thus passes the const * to free(). The problem is not seen
-in the upstream kernel since zfree() has been rewritten there.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
 
-The problem has been introduced into v4.19.y with the backport of upstream
-commit d4953f7ef1a2 (perf parse-events: Fix 3 use after frees found with
-clang ASAN).
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-One possible fix of this problem would be to not declare pmu_name
-as const. This patch chooses to typecast the parameter of zfree()
-to void *, following the guidance from the upstream kernel which
-does the same since commit 7f7c536f23e6a ("tools lib: Adopt
-zalloc()/zfree() from tools/perf")
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Fixes: a0100a363098 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Stefan Agner <stefan@agner.ch>
+Subject: mm/zsmalloc: include sparsemem.h for MAX_PHYSMEM_BITS
+
+Most architectures define MAX_PHYSMEM_BITS in asm/sparsemem.h and don't
+include it in asm/pgtable.h.  Include asm/sparsemem.h directly to get the
+MAX_PHYSMEM_BITS define on all architectures.
+
+This fixes a crash when accessing zram on 32-bit ARM platform with LPAE and
+more than 4GB of memory:
+  Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  pgd = a27bd01c
+  [00000000] *pgd=236a0003, *pmd=1ffa64003
+  Internal error: Oops: 207 [#1] SMP ARM
+  Modules linked in: mdio_bcm_unimac(+) brcmfmac cfg80211 brcmutil raspberrypi_hwmon hci_uart crc32_arm_ce bcm2711_thermal phy_generic genet
+  CPU: 0 PID: 123 Comm: mkfs.ext4 Not tainted 5.9.6 #1
+  Hardware name: BCM2711
+  PC is at zs_map_object+0x94/0x338
+  LR is at zram_bvec_rw.constprop.0+0x330/0xa64
+  pc : [<c0602b38>]    lr : [<c0bda6a0>]    psr: 60000013
+  sp : e376bbe0  ip : 00000000  fp : c1e2921c
+  r10: 00000002  r9 : c1dda730  r8 : 00000000
+  r7 : e8ff7a00  r6 : 00000000  r5 : 02f9ffa0  r4 : e3710000
+  r3 : 000fdffe  r2 : c1e0ce80  r1 : ebf979a0  r0 : 00000000
+  Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+  Control: 30c5383d  Table: 235c2a80  DAC: fffffffd
+  Process mkfs.ext4 (pid: 123, stack limit = 0x495a22e6)
+  Stack: (0xe376bbe0 to 0xe376c000)
+  ...
+  [<c0602b38>] (zs_map_object) from [<c0bda6a0>] (zram_bvec_rw.constprop.0+0x330/0xa64)
+  [<c0bda6a0>] (zram_bvec_rw.constprop.0) from [<c0bdaf78>] (zram_submit_bio+0x1a4/0x40c)
+  [<c0bdaf78>] (zram_submit_bio) from [<c085806c>] (submit_bio_noacct+0xd0/0x3c8)
+  [<c085806c>] (submit_bio_noacct) from [<c08583b0>] (submit_bio+0x4c/0x190)
+  [<c08583b0>] (submit_bio) from [<c06496b4>] (submit_bh_wbc+0x188/0x1b8)
+  [<c06496b4>] (submit_bh_wbc) from [<c064ce98>] (__block_write_full_page+0x340/0x5e4)
+  [<c064ce98>] (__block_write_full_page) from [<c064d3ec>] (block_write_full_page+0x128/0x170)
+  [<c064d3ec>] (block_write_full_page) from [<c0591ae8>] (__writepage+0x14/0x68)
+  [<c0591ae8>] (__writepage) from [<c0593efc>] (write_cache_pages+0x1bc/0x494)
+  [<c0593efc>] (write_cache_pages) from [<c059422c>] (generic_writepages+0x58/0x8c)
+  [<c059422c>] (generic_writepages) from [<c0594c24>] (do_writepages+0x48/0xec)
+  [<c0594c24>] (do_writepages) from [<c0589330>] (__filemap_fdatawrite_range+0xf0/0x128)
+  [<c0589330>] (__filemap_fdatawrite_range) from [<c05894bc>] (file_write_and_wait_range+0x48/0x98)
+  [<c05894bc>] (file_write_and_wait_range) from [<c064f3f8>] (blkdev_fsync+0x1c/0x44)
+  [<c064f3f8>] (blkdev_fsync) from [<c064408c>] (do_fsync+0x3c/0x70)
+  [<c064408c>] (do_fsync) from [<c0400374>] (__sys_trace_return+0x0/0x2c)
+  Exception stack(0xe376bfa8 to 0xe376bff0)
+  bfa0:                   0003d2e0 b6f7b6f0 00000003 00046e40 00001000 00000000
+  bfc0: 0003d2e0 b6f7b6f0 00000000 00000076 00000000 00000000 befcbb20 befcbb28
+  bfe0: b6f4e060 befcbad8 b6f23e0c b6dc4a80
+  Code: e5927000 e0050391 e0871005 e5918018 (e5983000)
+
+Link: https://lkml.kernel.org/r/bdfa44bf1c570b05d6c70898e2bbb0acf234ecdf.1604762181.git.stefan@agner.ch
+Fixes: 61989a80fb3a ("staging: zsmalloc: zsmalloc memory allocation library")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-This patch only applies to v4.19.y and has no upstream equivalent.
 
- tools/perf/util/util.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/zsmalloc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
-index dc58254a2b69..8c01b2cfdb1a 100644
---- a/tools/perf/util/util.h
-+++ b/tools/perf/util/util.h
-@@ -22,7 +22,7 @@ static inline void *zalloc(size_t size)
- 	return calloc(1, size);
- }
- 
--#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
-+#define zfree(ptr) ({ free((void *)*ptr); *ptr = NULL; })
- 
- struct dirent;
- struct nsinfo;
--- 
-2.17.1
+--- a/mm/zsmalloc.c~mm-zsmalloc-include-sparsememh-for-max_physmem_bits
++++ a/mm/zsmalloc.c
+@@ -40,6 +40,7 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/pgtable.h>
++#include <asm/sparsemem.h>
+ #include <asm/tlbflush.h>
+ #include <linux/cpumask.h>
+ #include <linux/cpu.h>
+_
+
+Patches currently in -mm which might be from stefan@agner.ch are
+
+mm-zsmalloc-include-sparsememh-for-max_physmem_bits.patch
 
