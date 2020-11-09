@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8E02ABA05
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0190B2ABADC
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731914AbgKINO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:14:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
+        id S2387737AbgKINU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:20:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733252AbgKINO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:14:57 -0500
+        id S2387994AbgKINUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:20:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84C8E2083B;
-        Mon,  9 Nov 2020 13:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 645B72083B;
+        Mon,  9 Nov 2020 13:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927697;
-        bh=bHhpIsY5R0vJ0eRStiwtUPnFTby8qItJTs3AG5YjeUk=;
+        s=default; t=1604928054;
+        bh=NCJPmrcVgmBJQ7f2/WSzdlnHvDV2Ns7gRxvl+bAEeoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGZ5Fzc5R8EtpHaiuBQHg0yxZqUnQhZGgww8lr8aRk36e7S1tUpdymAw4YJPCAxqc
-         m44Bgx5jXVLsOpIIchCNWJztNN/KQ4sEy7yzh7VxGhJmf91UvSdFfHxf/6spkUX70s
-         w+bdieu+r1XkAb0oqD7M+RFwi5l8vip7i3NusxfA=
+        b=r9d9NSrvtiNFkASIwshkW2M6yVWMXrndGPHHo7HNYEzg94crqiOnpQIjfLo5OARcD
+         Ij5CM+Q8hRZgd4FqvJmAHwRckgKlu3j8pFLeQ2bFV80EmvhnxlnJsQd2nlHyokDD8O
+         A67CClQVemncyx36QP9sqJ2q7Hu8lME30ttmz+Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.4 77/85] usb: mtu3: fix panic in mtu3_gadget_stop()
+        stable@vger.kernel.org,
+        Alexander Egorenkov <Alexander.Egorenkov@ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.9 112/133] s390/pkey: fix paes selftest failure with paes and pkey static build
 Date:   Mon,  9 Nov 2020 13:56:14 +0100
-Message-Id: <20201109125026.277312774@linuxfoundation.org>
+Message-Id: <20201109125036.072282317@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 20914919ad31849ee2b9cfe0428f4a20335c9e2a upstream.
+commit 5b35047eb467c8cdd38a31beb9ac109221777843 upstream.
 
-This patch fixes a possible issue when mtu3_gadget_stop()
-already assigned NULL to mtu->gadget_driver during mtu_gadget_disconnect().
+When both the paes and the pkey kernel module are statically build
+into the kernel, the paes cipher selftests run before the pkey
+kernel module is initialized. So a static variable set in the pkey
+init function and used in the pkey_clr2protkey function is not
+initialized when the paes cipher's selftests request to call pckmo for
+transforming a clear key value into a protected key.
 
-[<ffffff9008161974>] notifier_call_chain+0xa4/0x128
-[<ffffff9008161fd4>] __atomic_notifier_call_chain+0x84/0x138
-[<ffffff9008162ec0>] notify_die+0xb0/0x120
-[<ffffff900809e340>] die+0x1f8/0x5d0
-[<ffffff90080d03b4>] __do_kernel_fault+0x19c/0x280
-[<ffffff90080d04dc>] do_bad_area+0x44/0x140
-[<ffffff90080d0f9c>] do_translation_fault+0x4c/0x90
-[<ffffff9008080a78>] do_mem_abort+0xb8/0x258
-[<ffffff90080849d0>] el1_da+0x24/0x3c
-[<ffffff9009bde01c>] mtu3_gadget_disconnect+0xac/0x128
-[<ffffff9009bd576c>] mtu3_irq+0x34c/0xc18
-[<ffffff90082ac03c>] __handle_irq_event_percpu+0x2ac/0xcd0
-[<ffffff90082acae0>] handle_irq_event_percpu+0x80/0x138
-[<ffffff90082acc44>] handle_irq_event+0xac/0x148
-[<ffffff90082b71cc>] handle_fasteoi_irq+0x234/0x568
-[<ffffff90082a8708>] generic_handle_irq+0x48/0x68
-[<ffffff90082a96ac>] __handle_domain_irq+0x264/0x1740
-[<ffffff90080819f4>] gic_handle_irq+0x14c/0x250
-[<ffffff9008084cec>] el1_irq+0xec/0x194
-[<ffffff90085b985c>] dma_pool_alloc+0x6e4/0xae0
-[<ffffff9008d7f890>] cmdq_mbox_pool_alloc_impl+0xb0/0x238
-[<ffffff9008d80904>] cmdq_pkt_alloc_buf+0x2dc/0x7c0
-[<ffffff9008d80f60>] cmdq_pkt_add_cmd_buffer+0x178/0x270
-[<ffffff9008d82320>] cmdq_pkt_perf_begin+0x108/0x148
-[<ffffff9008d824d8>] cmdq_pkt_create+0x178/0x1f0
-[<ffffff9008f96230>] mtk_crtc_config_default_path+0x328/0x7a0
-[<ffffff90090246cc>] mtk_drm_idlemgr_kick+0xa6c/0x1460
-[<ffffff9008f9bbb4>] mtk_drm_crtc_atomic_begin+0x1a4/0x1a68
-[<ffffff9008e8df9c>] drm_atomic_helper_commit_planes+0x154/0x878
-[<ffffff9008f2fb70>] mtk_atomic_complete.isra.16+0xe80/0x19c8
-[<ffffff9008f30910>] mtk_atomic_commit+0x258/0x898
-[<ffffff9008ef142c>] drm_atomic_commit+0xcc/0x108
-[<ffffff9008ef7cf0>] drm_mode_atomic_ioctl+0x1c20/0x2580
-[<ffffff9008ebc768>] drm_ioctl_kernel+0x118/0x1b0
-[<ffffff9008ebcde8>] drm_ioctl+0x5c0/0x920
-[<ffffff900863b030>] do_vfs_ioctl+0x188/0x1820
-[<ffffff900863c754>] SyS_ioctl+0x8c/0xa0
+This patch moves the initial setup of the static variable into
+the function pck_clr2protkey. So it's possible, to use the function
+for transforming a clear to a protected key even before the pkey
+init function has been called and the paes selftests may run
+successful.
 
-Fixes: df2069acb005 ("usb: Add MediaTek USB3 DRD driver")
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Acked-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1604642069-20961-1-git-send-email-macpaul.lin@mediatek.com
+Reported-by: Alexander Egorenkov <Alexander.Egorenkov@ibm.com>
+Cc: <stable@vger.kernel.org> # 4.20
+Fixes: f822ad2c2c03 ("s390/pkey: move pckmo subfunction available checks away from module init")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/mtu3/mtu3_gadget.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/crypto/pkey_api.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -587,6 +587,7 @@ static int mtu3_gadget_stop(struct usb_g
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -34,9 +34,6 @@ MODULE_DESCRIPTION("s390 protected key i
+ #define KEYBLOBBUFSIZE 8192  /* key buffer size used for internal processing */
+ #define MAXAPQNSINLIST 64    /* max 64 apqns within a apqn list */
  
- 	spin_unlock_irqrestore(&mtu->lock, flags);
+-/* mask of available pckmo subfunctions, fetched once at module init */
+-static cpacf_mask_t pckmo_functions;
+-
+ /*
+  * debug feature data and functions
+  */
+@@ -90,6 +87,9 @@ static int pkey_clr2protkey(u32 keytype,
+ 			    const struct pkey_clrkey *clrkey,
+ 			    struct pkey_protkey *protkey)
+ {
++	/* mask of available pckmo subfunctions */
++	static cpacf_mask_t pckmo_functions;
++
+ 	long fc;
+ 	int keysize;
+ 	u8 paramblock[64];
+@@ -113,11 +113,13 @@ static int pkey_clr2protkey(u32 keytype,
+ 		return -EINVAL;
+ 	}
  
-+	synchronize_irq(mtu->irq);
- 	return 0;
- }
+-	/*
+-	 * Check if the needed pckmo subfunction is available.
+-	 * These subfunctions can be enabled/disabled by customers
+-	 * in the LPAR profile or may even change on the fly.
+-	 */
++	/* Did we already check for PCKMO ? */
++	if (!pckmo_functions.bytes[0]) {
++		/* no, so check now */
++		if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
++			return -ENODEV;
++	}
++	/* check for the pckmo subfunction we need now */
+ 	if (!cpacf_test_func(&pckmo_functions, fc)) {
+ 		DEBUG_ERR("%s pckmo functions not available\n", __func__);
+ 		return -ENODEV;
+@@ -1838,7 +1840,7 @@ static struct miscdevice pkey_dev = {
+  */
+ static int __init pkey_init(void)
+ {
+-	cpacf_mask_t kmc_functions;
++	cpacf_mask_t func_mask;
  
+ 	/*
+ 	 * The pckmo instruction should be available - even if we don't
+@@ -1846,15 +1848,15 @@ static int __init pkey_init(void)
+ 	 * is also the minimum level for the kmc instructions which
+ 	 * are able to work with protected keys.
+ 	 */
+-	if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
++	if (!cpacf_query(CPACF_PCKMO, &func_mask))
+ 		return -ENODEV;
+ 
+ 	/* check for kmc instructions available */
+-	if (!cpacf_query(CPACF_KMC, &kmc_functions))
++	if (!cpacf_query(CPACF_KMC, &func_mask))
+ 		return -ENODEV;
+-	if (!cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_128) ||
+-	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_192) ||
+-	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_256))
++	if (!cpacf_test_func(&func_mask, CPACF_KMC_PAES_128) ||
++	    !cpacf_test_func(&func_mask, CPACF_KMC_PAES_192) ||
++	    !cpacf_test_func(&func_mask, CPACF_KMC_PAES_256))
+ 		return -ENODEV;
+ 
+ 	pkey_debug_init();
 
 
