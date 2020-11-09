@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F1B2ABAA3
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC852ABB4C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387770AbgKINVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:21:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
+        id S1731329AbgKIN1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388012AbgKINVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:03 -0500
+        id S1732466AbgKINPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 031BC206D8;
-        Mon,  9 Nov 2020 13:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C53920789;
+        Mon,  9 Nov 2020 13:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928062;
-        bh=8YdJdY382QSEOjK9jFF6B7jhR85Sfy/nDMfGLnlL7Kw=;
+        s=default; t=1604927708;
+        bh=UBnIjRfLVo3LKn5v72bNqnU/QEVCU/7ptv8tPV2S+oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uw1AZN4O6CaLKs2i3doMddrDLMvMyowIsEroXtPP+lmMQqr2EElUIMIjSzI0LfIqB
-         UJiSlZ65UPgmNw8gTWRF0TP36eA+uL24S6t8v/y2vgVj1Q5NdJ+sjBzdiHNx7wxRi0
-         KxCMJrAZz363Ht4fnubq51qYvEnP2LjUnZ0Lb6jg=
+        b=CSyK3Z9EavTsMh+zCGpcJ6pg/qBJTujn+mmAeQmmGgD/3gsdpMEIuNeYWJkMBdZpN
+         qQjr0X0pNQwewtnEr2yok+eQEIVSELgT1ZQsoufGBRwZi9ccBs0Ag/e6j9RFp3p4EY
+         /RiOjpH4Tv6TNU2yzkUcaa9mZ2m2O3mXHNpEQKUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 114/133] powerpc/40x: Always fault when _PAGE_ACCESSED is not set
-Date:   Mon,  9 Nov 2020 13:56:16 +0100
-Message-Id: <20201109125036.171681591@linuxfoundation.org>
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>
+Subject: [PATCH 5.4 80/85] PM: runtime: Drop runtime PM references to supplier on link removal
+Date:   Mon,  9 Nov 2020 13:56:17 +0100
+Message-Id: <20201109125026.415600255@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 0540b0d2ce9073fd2a736d636218faa61c99e572 upstream.
+commit e0e398e204634db8fb71bd89cf2f6e3e5bd09b51 upstream.
 
-The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+While removing a device link, drop the supplier device's runtime PM
+usage counter as many times as needed to drop all of the runtime PM
+references to it from the consumer in addition to dropping the
+consumer's link count.
 
-Make sure a minor fault is taken to set _PAGE_ACCESSED when it
-is not already set, regardless of the selection of CONFIG_SWAP.
-
-Fixes: 2c74e2586bb9 ("powerpc/40x: Rework 40x PTE access and TLB miss")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b02ca2ed2d3676a096219b48c0f69ec982a75bcf.1602342801.git.christophe.leroy@csgroup.eu
+Fixes: baa8809f6097 ("PM / runtime: Optimize the use of device links")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/head_40x.S |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/base/core.c          |    6 ++----
+ drivers/base/power/runtime.c |   21 ++++++++++++++++++++-
+ include/linux/pm_runtime.h   |    4 ++--
+ 3 files changed, 24 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kernel/head_40x.S
-+++ b/arch/powerpc/kernel/head_40x.S
-@@ -285,11 +285,7 @@ _ENTRY(saved_ksp_limit)
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -454,8 +454,7 @@ static void __device_link_del(struct kre
+ 	dev_dbg(link->consumer, "Dropping the link to %s\n",
+ 		dev_name(link->supplier));
  
- 	rlwimi	r11, r10, 22, 20, 29	/* Compute PTE address */
- 	lwz	r11, 0(r11)		/* Get Linux PTE */
--#ifdef CONFIG_SWAP
- 	li	r9, _PAGE_PRESENT | _PAGE_ACCESSED
--#else
--	li	r9, _PAGE_PRESENT
--#endif
- 	andc.	r9, r9, r11		/* Check permission */
- 	bne	5f
+-	if (link->flags & DL_FLAG_PM_RUNTIME)
+-		pm_runtime_drop_link(link->consumer);
++	pm_runtime_drop_link(link);
  
-@@ -370,11 +366,7 @@ _ENTRY(saved_ksp_limit)
+ 	list_del_rcu(&link->s_node);
+ 	list_del_rcu(&link->c_node);
+@@ -469,8 +468,7 @@ static void __device_link_del(struct kre
+ 	dev_info(link->consumer, "Dropping the link to %s\n",
+ 		 dev_name(link->supplier));
  
- 	rlwimi	r11, r10, 22, 20, 29	/* Compute PTE address */
- 	lwz	r11, 0(r11)		/* Get Linux PTE */
--#ifdef CONFIG_SWAP
- 	li	r9, _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
--#else
--	li	r9, _PAGE_PRESENT | _PAGE_EXEC
--#endif
- 	andc.	r9, r9, r11		/* Check permission */
- 	bne	5f
+-	if (link->flags & DL_FLAG_PM_RUNTIME)
+-		pm_runtime_drop_link(link->consumer);
++	pm_runtime_drop_link(link);
+ 
+ 	list_del(&link->s_node);
+ 	list_del(&link->c_node);
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1702,7 +1702,7 @@ void pm_runtime_new_link(struct device *
+ 	spin_unlock_irq(&dev->power.lock);
+ }
+ 
+-void pm_runtime_drop_link(struct device *dev)
++static void pm_runtime_drop_link_count(struct device *dev)
+ {
+ 	spin_lock_irq(&dev->power.lock);
+ 	WARN_ON(dev->power.links_count == 0);
+@@ -1710,6 +1710,25 @@ void pm_runtime_drop_link(struct device
+ 	spin_unlock_irq(&dev->power.lock);
+ }
+ 
++/**
++ * pm_runtime_drop_link - Prepare for device link removal.
++ * @link: Device link going away.
++ *
++ * Drop the link count of the consumer end of @link and decrement the supplier
++ * device's runtime PM usage counter as many times as needed to drop all of the
++ * PM runtime reference to it from the consumer.
++ */
++void pm_runtime_drop_link(struct device_link *link)
++{
++	if (!(link->flags & DL_FLAG_PM_RUNTIME))
++		return;
++
++	pm_runtime_drop_link_count(link->consumer);
++
++	while (refcount_dec_not_one(&link->rpm_active))
++		pm_runtime_put(link->supplier);
++}
++
+ static bool pm_runtime_need_not_resume(struct device *dev)
+ {
+ 	return atomic_read(&dev->power.usage_count) <= 1 &&
+--- a/include/linux/pm_runtime.h
++++ b/include/linux/pm_runtime.h
+@@ -58,7 +58,7 @@ extern void pm_runtime_clean_up_links(st
+ extern void pm_runtime_get_suppliers(struct device *dev);
+ extern void pm_runtime_put_suppliers(struct device *dev);
+ extern void pm_runtime_new_link(struct device *dev);
+-extern void pm_runtime_drop_link(struct device *dev);
++extern void pm_runtime_drop_link(struct device_link *link);
+ 
+ static inline void pm_suspend_ignore_children(struct device *dev, bool enable)
+ {
+@@ -177,7 +177,7 @@ static inline void pm_runtime_clean_up_l
+ static inline void pm_runtime_get_suppliers(struct device *dev) {}
+ static inline void pm_runtime_put_suppliers(struct device *dev) {}
+ static inline void pm_runtime_new_link(struct device *dev) {}
+-static inline void pm_runtime_drop_link(struct device *dev) {}
++static inline void pm_runtime_drop_link(struct device_link *link) {}
+ 
+ #endif /* !CONFIG_PM */
  
 
 
