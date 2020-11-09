@@ -2,59 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 891E62ABBC3
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F1E2ABC4C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731806AbgKINa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:30:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36584 "EHLO mail.kernel.org"
+        id S1730810AbgKINgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:36:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731172AbgKINLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:11:08 -0500
+        id S1730806AbgKINE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB1412083B;
-        Mon,  9 Nov 2020 13:11:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A4FA20663;
+        Mon,  9 Nov 2020 13:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927467;
-        bh=JjnGyfOU+bbL945u0KT2+6VtCgEeYRNzkIyX7bBv24c=;
+        s=default; t=1604927096;
+        bh=H86+1Uc73/Dc730N/5iuXSUW4imTNA8NAqnG+K2dBsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tM9upgeDFcY+iTTjQGELDGjvhfmYIHNUD08kLqb6DSJFCBby+G17+xYtwK8oXM6AO
-         houwqTRm1OY6+/h2HK16tfKyvOCoovlqSH0OvgOrrueYiRgYjQy5OAKq26avH1ISRF
-         yWdiRAIR+GEKA8EiW4oVUDPhDufGdGPWDj7XeJrQ=
+        b=omvz8u6C3r+j8NdyiEzloSi3KxC7YB2RqeGDGhb9RrD2IvrayL7QzlO99ET2eZ5MG
+         CcFhzctbn2xPbPI7HcBrW4uEkcFgu92cNOshhhR7X7AwZPfmPcPx5t3XBznv5MclG8
+         2BVocQ1Olbviesqkn+0mbCfa6BBYZQ0Fra6ae1R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        "Dave Young" <dyoung@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Larry Woodman <lwoodman@redhat.com>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rik van Riel <riel@redhat.com>,
-        Toshimitsu Kani <toshi.kani@hpe.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 39/71] mm: always have io_remap_pfn_range() set pgprot_decrypted()
-Date:   Mon,  9 Nov 2020 13:55:33 +0100
-Message-Id: <20201109125021.750404211@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Minh Yuan <yuanmingbuaa@gmail.com>, Greg KH <greg@kroah.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 4.9 108/117] vt: Disable KD_FONT_OP_COPY
+Date:   Mon,  9 Nov 2020 13:55:34 +0100
+Message-Id: <20201109125030.823694059@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,86 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit f8f6ae5d077a9bdaf5cbf2ac960a5d1a04b47482 upstream.
+commit 3c4e0dff2095c579b142d5a0693257f1c58b4804 upstream.
 
-The purpose of io_remap_pfn_range() is to map IO memory, such as a
-memory mapped IO exposed through a PCI BAR.  IO devices do not
-understand encryption, so this memory must always be decrypted.
-Automatically call pgprot_decrypted() as part of the generic
-implementation.
+It's buggy:
 
-This fixes a bug where enabling AMD SME causes subsystems, such as RDMA,
-using io_remap_pfn_range() to expose BAR pages to user space to fail.
-The CPU will encrypt access to those BAR pages instead of passing
-unencrypted IO directly to the device.
+On Fri, Nov 06, 2020 at 10:30:08PM +0800, Minh Yuan wrote:
+> We recently discovered a slab-out-of-bounds read in fbcon in the latest
+> kernel ( v5.10-rc2 for now ).  The root cause of this vulnerability is that
+> "fbcon_do_set_font" did not handle "vc->vc_font.data" and
+> "vc->vc_font.height" correctly, and the patch
+> <https://lkml.org/lkml/2020/9/27/223> for VT_RESIZEX can't handle this
+> issue.
+>
+> Specifically, we use KD_FONT_OP_SET to set a small font.data for tty6, and
+> use  KD_FONT_OP_SET again to set a large font.height for tty1. After that,
+> we use KD_FONT_OP_COPY to assign tty6's vc_font.data to tty1's vc_font.data
+> in "fbcon_do_set_font", while tty1 retains the original larger
+> height. Obviously, this will cause an out-of-bounds read, because we can
+> access a smaller vc_font.data with a larger vc_font.height.
 
-Places not mapping IO should use remap_pfn_range().
+Further there was only one user ever.
+- Android's loadfont, busybox and console-tools only ever use OP_GET
+  and OP_SET
+- fbset documentation only mentions the kernel cmdline font: option,
+  not anything else.
+- systemd used OP_COPY before release 232 published in Nov 2016
 
-Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: "Dave Young" <dyoung@redhat.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Larry Woodman <lwoodman@redhat.com>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Toshimitsu Kani <toshi.kani@hpe.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/0-v1-025d64bdf6c4+e-amd_sme_fix_jgg@nvidia.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Now unfortunately the crucial report seems to have gone down with
+gmane, and the commit message doesn't say much. But the pull request
+hints at OP_COPY being broken
+
+https://github.com/systemd/systemd/pull/3651
+
+So in other words, this never worked, and the only project which
+foolishly every tried to use it, realized that rather quickly too.
+
+Instead of trying to fix security issues here on dead code by adding
+missing checks, fix the entire thing by removing the functionality.
+
+Note that systemd code using the OP_COPY function ignored the return
+value, so it doesn't matter what we're doing here really - just in
+case a lone server somewhere happens to be extremely unlucky and
+running an affected old version of systemd. The relevant code from
+font_copy_to_all_vcs() in systemd was:
+
+	/* copy font from active VT, where the font was uploaded to */
+	cfo.op = KD_FONT_OP_COPY;
+	cfo.height = vcs.v_active-1; /* tty1 == index 0 */
+	(void) ioctl(vcfd, KDFONTOP, &cfo);
+
+Note this just disables the ioctl, garbage collecting the now unused
+callbacks is left for -next.
+
+v2: Tetsuo found the old mail, which allowed me to find it on another
+archive. Add the link too.
+
+Acked-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Peilin Ye <yepeilin.cs@gmail.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://lore.kernel.org/r/20201108153806.3140315-1-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/asm-generic/pgtable.h |    4 ----
- include/linux/mm.h            |    9 +++++++++
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/tty/vt/vt.c |   24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
---- a/include/asm-generic/pgtable.h
-+++ b/include/asm-generic/pgtable.h
-@@ -1115,10 +1115,6 @@ static inline bool arch_has_pfn_modify_c
- 
- #endif /* !__ASSEMBLY__ */
- 
--#ifndef io_remap_pfn_range
--#define io_remap_pfn_range remap_pfn_range
--#endif
--
- #ifndef has_transparent_hugepage
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- #define has_transparent_hugepage() 1
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2561,6 +2561,15 @@ static inline vm_fault_t vmf_insert_pfn(
- 	return VM_FAULT_NOPAGE;
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4235,27 +4235,6 @@ static int con_font_default(struct vc_da
+ 	return rc;
  }
  
-+#ifndef io_remap_pfn_range
-+static inline int io_remap_pfn_range(struct vm_area_struct *vma,
-+				     unsigned long addr, unsigned long pfn,
-+				     unsigned long size, pgprot_t prot)
-+{
-+	return remap_pfn_range(vma, addr, pfn, size, pgprot_decrypted(prot));
-+}
-+#endif
-+
- static inline vm_fault_t vmf_error(int err)
+-static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
+-{
+-	int con = op->height;
+-	int rc;
+-
+-
+-	console_lock();
+-	if (vc->vc_mode != KD_TEXT)
+-		rc = -EINVAL;
+-	else if (!vc->vc_sw->con_font_copy)
+-		rc = -ENOSYS;
+-	else if (con < 0 || !vc_cons_allocated(con))
+-		rc = -ENOTTY;
+-	else if (con == vc->vc_num)	/* nothing to do */
+-		rc = 0;
+-	else
+-		rc = vc->vc_sw->con_font_copy(vc, con);
+-	console_unlock();
+-	return rc;
+-}
+-
+ int con_font_op(struct vc_data *vc, struct console_font_op *op)
  {
- 	if (err == -ENOMEM)
+ 	switch (op->op) {
+@@ -4266,7 +4245,8 @@ int con_font_op(struct vc_data *vc, stru
+ 	case KD_FONT_OP_SET_DEFAULT:
+ 		return con_font_default(vc, op);
+ 	case KD_FONT_OP_COPY:
+-		return con_font_copy(vc, op);
++		/* was buggy and never really used */
++		return -EINVAL;
+ 	}
+ 	return -ENOSYS;
+ }
 
 
