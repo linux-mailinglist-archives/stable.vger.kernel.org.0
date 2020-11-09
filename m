@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB252AB8F4
+	by mail.lfdr.de (Postfix) with ESMTP id E44B42AB8F5
 	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730421AbgKINAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:00:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54298 "EHLO mail.kernel.org"
+        id S1730487AbgKINAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:00:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730425AbgKINAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:09 -0500
+        id S1730483AbgKINAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE70620684;
-        Mon,  9 Nov 2020 13:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A87DF20684;
+        Mon,  9 Nov 2020 13:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926808;
-        bh=VFw5kgRQrJ0xbQiQbgj6KQOkQHOOJbcDZyvdw3SCgEo=;
+        s=default; t=1604926820;
+        bh=yq56alpSp8nwIw3snokF1ceZ19rUu9MMXV9XI93QnR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3oLbdi+M3yXLqo+EboKX1C/0x5pf04UwZBYkgEeNg9QgLc07Y3Gf0fVz6C0AohY9
-         5dJrluwGpvB97pMvmZQ3G+lBQvn+qsvZY6Q3mSpFJOKtWDqgeaGhcMdC5+xE0VPC3P
-         NdED/44fuoOmtmX6LxDeifl0Z6yUqn+r2lTOVRNQ=
+        b=bUOw/4JAL6sdk4gT1dPV5z8w26S49+SkO5+49JyVUOK+ltSmjWZS6T4m0ByVdUvxb
+         k/hu+3eoN31rmY3WTlK/MUWngRoSGro/lfXyq3MWLZBwQWijd/cR1WfgvEKfEHs5Ac
+         70gc6Hf5RDdZSTsKIgYuNjYZ9qW2PgD1RCEMCcBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schaller <misch@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 4.9 004/117] efivarfs: Replace invalid slashes with exclamation marks in dentries.
-Date:   Mon,  9 Nov 2020 13:53:50 +0100
-Message-Id: <20201109125025.840680317@linuxfoundation.org>
+        stable@vger.kernel.org, Pradeep P V K <ppvk@codeaurora.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.9 008/117] fuse: fix page dereference after free
+Date:   Mon,  9 Nov 2020 13:53:54 +0100
+Message-Id: <20201109125026.044111558@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -43,40 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schaller <misch@google.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 336af6a4686d885a067ecea8c3c3dd129ba4fc75 upstream.
+commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
 
-Without this patch efivarfs_alloc_dentry creates dentries with slashes in
-their name if the respective EFI variable has slashes in its name. This in
-turn causes EIO on getdents64, which prevents a complete directory listing
-of /sys/firmware/efi/efivars/.
+After unlock_request() pages from the ap->pages[] array may be put (e.g. by
+aborting the connection) and the pages can be freed.
 
-This patch replaces the invalid shlashes with exclamation marks like
-kobject_set_name_vargs does for /sys/firmware/efi/vars/ to have consistently
-named dentries under /sys/firmware/efi/vars/ and /sys/firmware/efi/efivars/.
+Prevent use after free by grabbing a reference to the page before calling
+unlock_request().
 
-Signed-off-by: Michael Schaller <misch@google.com>
-Link: https://lore.kernel.org/r/20200925074502.150448-1-misch@google.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
+The original patch was created by Pradeep P V K.
+
+Reported-by: Pradeep P V K <ppvk@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/efivarfs/super.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/fuse/dev.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -146,6 +146,9 @@ static int efivarfs_callback(efi_char16_
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -846,15 +846,16 @@ static int fuse_try_move_page(struct fus
+ 	struct page *newpage;
+ 	struct pipe_buffer *buf = cs->pipebufs;
  
- 	name[len + EFI_VARIABLE_GUID_LEN+1] = '\0';
++	get_page(oldpage);
+ 	err = unlock_request(cs->req);
+ 	if (err)
+-		return err;
++		goto out_put_old;
  
-+	/* replace invalid slashes like kobject_set_name_vargs does for /sys/firmware/efi/vars. */
-+	strreplace(name, '/', '!');
-+
- 	inode = efivarfs_get_inode(sb, d_inode(root), S_IFREG | 0644, 0,
- 				   is_removable);
- 	if (!inode)
+ 	fuse_copy_finish(cs);
+ 
+ 	err = pipe_buf_confirm(cs->pipe, buf);
+ 	if (err)
+-		return err;
++		goto out_put_old;
+ 
+ 	BUG_ON(!cs->nr_segs);
+ 	cs->currbuf = buf;
+@@ -894,7 +895,7 @@ static int fuse_try_move_page(struct fus
+ 	err = replace_page_cache_page(oldpage, newpage, GFP_KERNEL);
+ 	if (err) {
+ 		unlock_page(newpage);
+-		return err;
++		goto out_put_old;
+ 	}
+ 
+ 	get_page(newpage);
+@@ -913,14 +914,19 @@ static int fuse_try_move_page(struct fus
+ 	if (err) {
+ 		unlock_page(newpage);
+ 		put_page(newpage);
+-		return err;
++		goto out_put_old;
+ 	}
+ 
+ 	unlock_page(oldpage);
++	/* Drop ref for ap->pages[] array */
+ 	put_page(oldpage);
+ 	cs->len = 0;
+ 
+-	return 0;
++	err = 0;
++out_put_old:
++	/* Drop ref obtained in this function */
++	put_page(oldpage);
++	return err;
+ 
+ out_fallback_unlock:
+ 	unlock_page(newpage);
+@@ -929,10 +935,10 @@ out_fallback:
+ 	cs->offset = buf->offset;
+ 
+ 	err = lock_request(cs->req);
+-	if (err)
+-		return err;
++	if (!err)
++		err = 1;
+ 
+-	return 1;
++	goto out_put_old;
+ }
+ 
+ static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
+@@ -944,14 +950,16 @@ static int fuse_ref_page(struct fuse_cop
+ 	if (cs->nr_segs == cs->pipe->buffers)
+ 		return -EIO;
+ 
++	get_page(page);
+ 	err = unlock_request(cs->req);
+-	if (err)
++	if (err) {
++		put_page(page);
+ 		return err;
++	}
+ 
+ 	fuse_copy_finish(cs);
+ 
+ 	buf = cs->pipebufs;
+-	get_page(page);
+ 	buf->page = page;
+ 	buf->offset = offset;
+ 	buf->len = count;
 
 
