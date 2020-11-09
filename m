@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EEFD2ABB7F
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:31:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 864072ABC6E
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731181AbgKINJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:09:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33984 "EHLO mail.kernel.org"
+        id S1731145AbgKINhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:37:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731794AbgKINJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:09:04 -0500
+        id S1730733AbgKINEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE8CC2083B;
-        Mon,  9 Nov 2020 13:09:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B26F20684;
+        Mon,  9 Nov 2020 13:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927344;
-        bh=WDKk+UPeIRY8w8AwhkrS1+qUoIF2lOtRMFUGgca2mwg=;
+        s=default; t=1604927052;
+        bh=kOandtB1ZMev2Spg8KASy1z02WsLM2ai2Cy10DWXrx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfbgJu/Kj3scDYyQSDQgjuFyO8svgw1PJYilNiDJeXklSdalg6EhmxiAuILG60LoI
-         bBymw9o3o6c0UcAyQTDbm5LF9HbjEsytXf1aWvL9CG1xw2gySQAyBSqQtzOLPgyATJ
-         laXufnCVeAlhwCddeYiGx8+e5cFLyWHyV6XPrPXc=
+        b=skx4KJokOVPTpJsrhQt1A9MlPgTAEj1auKqLzAQ5hGjqSIrKQnmEPWvGWFM/SLfar
+         L/63VS9TYsaaJ9hTTDab2mmgXbT+fzHGErFd1opc7B1tRZqK7wrF9UQuPFwZZhi8SZ
+         kdEEG/teQNjto5sLOFZ07TtP7YA/PSQtreKzx2ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.19 27/71] btrfs: tree-checker: Fix wrong check on max devid
+        stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 095/117] gianfar: Account for Tx PTP timestamp in the skb headroom
 Date:   Mon,  9 Nov 2020 13:55:21 +0100
-Message-Id: <20201109125021.183039143@linuxfoundation.org>
+Message-Id: <20201109125030.207921453@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit 8bb177d18f114358a57d8ae7e206861b48b8b4de upstream.
+[ Upstream commit d6a076d68c6b5d6a5800f3990a513facb7016dea ]
 
-[BUG]
-The following script will cause false alert on devid check.
-  #!/bin/bash
+When PTP timestamping is enabled on Tx, the controller
+inserts the Tx timestamp at the beginning of the frame
+buffer, between SFD and the L2 frame header. This means
+that the skb provided by the stack is required to have
+enough headroom otherwise a new skb needs to be created
+by the driver to accommodate the timestamp inserted by h/w.
+Up until now the driver was relying on the second option,
+using skb_realloc_headroom() to create a new skb to accommodate
+PTP frames. Turns out that this method is not reliable, as
+reallocation of skbs for PTP frames along with the required
+overhead (skb_set_owner_w, consume_skb) is causing random
+crashes in subsequent skb_*() calls, when multiple concurrent
+TCP streams are run at the same time on the same device
+(as seen in James' report).
+Note that these crashes don't occur with a single TCP stream,
+nor with multiple concurrent UDP streams, but only when multiple
+TCP streams are run concurrently with the PTP packet flow
+(doing skb reallocation).
+This patch enforces the first method, by requesting enough
+headroom from the stack to accommodate PTP frames, and so avoiding
+skb_realloc_headroom() & co, and the crashes no longer occur.
+There's no reason not to set needed_headroom to a large enough
+value to accommodate PTP frames, so in this regard this patch
+is a fix.
 
-  dev1=/dev/test/test
-  dev2=/dev/test/scratch1
-  mnt=/mnt/btrfs
-
-  umount $dev1 &> /dev/null
-  umount $dev2 &> /dev/null
-  umount $mnt &> /dev/null
-
-  mkfs.btrfs -f $dev1
-
-  mount $dev1 $mnt
-
-  _fail()
-  {
-          echo "!!! FAILED !!!"
-          exit 1
-  }
-
-  for ((i = 0; i < 4096; i++)); do
-          btrfs dev add -f $dev2 $mnt || _fail
-          btrfs dev del $dev1 $mnt || _fail
-          dev_tmp=$dev1
-          dev1=$dev2
-          dev2=$dev_tmp
-  done
-
-[CAUSE]
-Tree-checker uses BTRFS_MAX_DEVS() and BTRFS_MAX_DEVS_SYS_CHUNK() as
-upper limit for devid.  But we can have devid holes just like above
-script.
-
-So the check for devid is incorrect and could cause false alert.
-
-[FIX]
-Just remove the whole devid check.  We don't have any hard requirement
-for devid assignment.
-
-Furthermore, even devid could get corrupted by a bitflip, we still have
-dev extents verification at mount time, so corrupted data won't sneak
-in.
-
-This fixes fstests btrfs/194.
-
-Reported-by: Anand Jain <anand.jain@oracle.com>
-Fixes: ab4ba2e13346 ("btrfs: tree-checker: Verify dev item")
-CC: stable@vger.kernel.org # 5.2+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[bwh: Backported to 4.19: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Reported-by: James Jurack <james.jurack@ametek.com>
+Fixes: bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20201020173605.1173-1-claudiu.manoil@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-checker.c |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/net/ethernet/freescale/gianfar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -629,7 +629,6 @@ static int check_dev_item(struct btrfs_f
- 			  struct btrfs_key *key, int slot)
- {
- 	struct btrfs_dev_item *ditem;
--	u64 max_devid = max(BTRFS_MAX_DEVS(fs_info), BTRFS_MAX_DEVS_SYS_CHUNK);
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -1385,7 +1385,7 @@ static int gfar_probe(struct platform_de
  
- 	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
- 		dev_item_err(fs_info, leaf, slot,
-@@ -637,12 +636,6 @@ static int check_dev_item(struct btrfs_f
- 			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
- 		return -EUCLEAN;
- 	}
--	if (key->offset > max_devid) {
--		dev_item_err(fs_info, leaf, slot,
--			     "invalid devid: has=%llu expect=[0, %llu]",
--			     key->offset, max_devid);
--		return -EUCLEAN;
--	}
- 	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
- 	if (btrfs_device_id(leaf, ditem) != key->offset) {
- 		dev_item_err(fs_info, leaf, slot,
+ 	if (dev->features & NETIF_F_IP_CSUM ||
+ 	    priv->device_flags & FSL_GIANFAR_DEV_HAS_TIMER)
+-		dev->needed_headroom = GMAC_FCB_LEN;
++		dev->needed_headroom = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
+ 
+ 	/* Initializing some of the rx/tx queue level parameters */
+ 	for (i = 0; i < priv->num_tx_queues; i++) {
 
 
