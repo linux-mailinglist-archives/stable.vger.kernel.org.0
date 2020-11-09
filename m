@@ -2,97 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED8A2AC2BD
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:44:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BCFC2AC2C4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732151AbgKIRog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 12:44:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730115AbgKIRof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 12:44:35 -0500
-Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974FBC0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 09:44:35 -0800 (PST)
-Received: by mail-yb1-xb44.google.com with SMTP id f6so9015938ybr.0
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 09:44:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=IvC8hbI2QBbmNM68Zj85cJrKG1Tc4ZHIQs5Kb+HCuHw9ju0TTrZ1xQ0h0NYq2tx+a9
-         GgUr96g8p5MgLyFC9/1Z5H22POOmuUuoGLhLIQziR2CHoYjn/nZtacOUWRH1JoB1u+Q5
-         xofeDkD9U+m9eQ5Prz8CbFUmWuo6cUMOXzao68490Kedb5g9oIozAte469GR2WiRiwyE
-         wILG0EwRYS/oUgqwt8/UfMWGSIgS9bTxN98ur8VRSbnlUO/QSFnZWkP6N1knYuBzf+/i
-         CS8CET3OHvyGEQqcD7kL11E5l18C4heHCC48jryk66SULV1A1HAJXTvpGOnSWQZUVxBC
-         P2LA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=NSz+cVSKHjYgxWwhEEddujcLyN3Kb2urIei1+7IIssL1LLn6pmuS/uo6NR7Rfv9a2M
-         MmV4q7uxWusIfFUr2S5qeyC2WjeZCisWEXn3zGFdSeUYKpwuR4u3cJRKyD29i7voFhNJ
-         Yo2HXhX/Rj+1CO4SZJPGSfZIrro/oTZO8ZHl6vyXleV0qw7Ka3Le9ENB1xZRH20e6jF4
-         cw3Y8cY/Kw1leh9+Y3BGDb8MRO5SygiHzy4aMP/8uyBUNsDJqjdkkI48imsMeSdkAxCX
-         xaoBhcfQh1sZWIxAA0KhTHwBPvdCZS0X8rbT+bloige3Hpz3a8KV5Xo3CdyCVYE0X+oI
-         6OZQ==
-X-Gm-Message-State: AOAM532zGCXTQL+WpO1i//YRUzPa+4O1ZZWIgDFl9F9t51q80jxCY822
-        0EgxRuH2RM7jwbsfwkciOyzwh4fmeB24V8nANBM=
-X-Google-Smtp-Source: ABdhPJxgq1SFzEIgReg0c2R3tq7oTfn7fU2I/nu5hyrPuO2HlZuL0P4R6p2GlUj+5juPhof6jVpU9n7fMncGsjWPaSQ=
-X-Received: by 2002:a25:30c3:: with SMTP id w186mr21172971ybw.113.1604943874876;
- Mon, 09 Nov 2020 09:44:34 -0800 (PST)
-MIME-Version: 1.0
-Sender: adonald323@gmail.com
-Received: by 2002:a05:7110:324b:b029:2b:a179:ed76 with HTTP; Mon, 9 Nov 2020
- 09:44:34 -0800 (PST)
-From:   Donna Louise <donnamcinneslouise@gmail.com>
-Date:   Mon, 9 Nov 2020 05:44:34 -1200
-X-Google-Sender-Auth: 9ZkYxGX0UUeaGwu-I4AqEzeWbKc
-Message-ID: <CANHbP4N-ij5DELKRx5TfetgB5-TXFMzSO-czUVuhG=E00KsCgw@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1730605AbgKIRqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:46:30 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:58376 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730092AbgKIRqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 12:46:30 -0500
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4CVJMK453qz9tyR5;
+        Mon,  9 Nov 2020 18:46:21 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id 5mhqUNQ43IpK; Mon,  9 Nov 2020 18:46:21 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4CVJMK2b0Bz9tyQK;
+        Mon,  9 Nov 2020 18:46:21 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id ED9728B7C4;
+        Mon,  9 Nov 2020 18:46:26 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id cCxbr8SdLZws; Mon,  9 Nov 2020 18:46:26 +0100 (CET)
+Received: from po17688vm.idsi0.si.c-s.fr (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id A1E848B7C3;
+        Mon,  9 Nov 2020 18:46:26 +0100 (CET)
+Received: by po17688vm.idsi0.si.c-s.fr (Postfix, from userid 0)
+        id 9E5F46646B; Mon,  9 Nov 2020 17:46:26 +0000 (UTC)
+Message-Id: <9821e731e3de6693b183eb173ce97c4c5b44b4cc.1604943942.git.christophe.leroy@csgroup.eu>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH] powerpc/603: Always fault when _PAGE_ACCESSED is not set
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Date:   Mon,  9 Nov 2020 17:46:26 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- Dear Friend,
+[That is backport of 11522448e641e8f1690c9db06e01985e8e19b401 to linux 5.9]
 
-  I am glad to know you, but God knows you better and he knows why he
-has directed me to you at this point in time so do not be surprised at
-all. My name is Mrs. Donna Louise McInnes, a widow, i have been
-suffering from ovarian cancer disease. At this moment i am about to
-end the race like this because the illness has gotten to a very bad
-stage, without any family members and no child. I hope that you will
-not expose or betray this trust and confidence that I am about to
-entrust to you for the mutual benefit of the orphans and the less
-privileged ones. I have some funds I inherited from my late husband,
-the sum of ($11.000.000 Eleven million dollars.) deposited in the
-Bank.  Having known my present health status, I decided to entrust
-this fund to you believing that you will utilize it the way i am going
-to instruct herein.
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-Therefore I need you to assist me and reclaim this money and use it
-for Charity works, for orphanages and giving justice and help to the
-poor, needy and to promote the words of God and the effort that the
-house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
 
-It will be my great pleasure to compensate you with 35 % percent of
-the total money for your personal use, 5 % percent for any expenses
-that may occur during the international transfer process while 60% of
-the money will go to the charity project.
+Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+---
+ arch/powerpc/kernel/head_32.S | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-All I require from you is sincerity and the ability to complete God's
-task without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund into your bank account
-therein your country even before I die here in the hospital, because
-of my present health status everything needs to be processed rapidly
-as soon as possible. I am waiting for your immediate reply, if only
-you are interested for further details of the transaction and
-execution of this charitable project.
+diff --git a/arch/powerpc/kernel/head_32.S b/arch/powerpc/kernel/head_32.S
+index a5a612deef66..898c2fe4ac67 100644
+--- a/arch/powerpc/kernel/head_32.S
++++ b/arch/powerpc/kernel/head_32.S
+@@ -472,11 +472,7 @@ InstructionTLBMiss:
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+-#else
+-	li	r1,_PAGE_PRESENT | _PAGE_EXEC
+-#endif
+ #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+@@ -538,11 +534,7 @@ DataLoadTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_PRESENT
+-#endif
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+@@ -618,11 +610,7 @@ DataStoreTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
+-#endif
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+-- 
+2.25.0
 
-Best Regards your friend Mrs.
-Donna Louise McInnes.
