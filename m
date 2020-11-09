@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 523FB2AB902
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544812AB8F8
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:01:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730653AbgKINCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:02:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1729996AbgKINBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:01:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730134AbgKINCD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:02:03 -0500
+        id S1730548AbgKINBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:01:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3D8E208FE;
-        Mon,  9 Nov 2020 13:01:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8D5821D7F;
+        Mon,  9 Nov 2020 13:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926920;
-        bh=mgiKYMZ1G5/mlLzwZQO8O2vlltscUETpG/xMIDLBWBA=;
+        s=default; t=1604926864;
+        bh=g8dycIUtF/AmpihNlDy8kl8JRfHZx8cPTPXx5ha8b5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYK1GZdyx7o+9uvo1PxMFSPCfBdOM2H4xGj3AqfqaSwYiycerK4MXevlvzH8Esbog
-         ztS5+Id5NPNruBuiz2TugJ/9Q8g00uZ9NDRyRw1PUAnJdDF50XwsjDLk3PJHUTHrT1
-         YUGW1EMwV+MBN0brbS3y+N+dQnrWGr1XN1Uv5jmg=
+        b=YK2IROCDTdRBMkBoVNol6NtMTkXGGX2zt3bIXaTL8YswE5/+8sgbL7eLmOKkucTm9
+         4S/bFPyHwf/paKfufo25q5+UXDBD2e5iXD/mZ95HxRwQrV0x2PmKFf3KqpLeY+c00g
+         ainuU9HzDppCbVTqGzAAEqOixPKlU2qiBXVtQ/Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>,
+        Gavin Shan <gshan@redhat.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 019/117] f2fs: fix to check segment boundary during SIT page readahead
-Date:   Mon,  9 Nov 2020 13:54:05 +0100
-Message-Id: <20201109125026.559927430@linuxfoundation.org>
+Subject: [PATCH 4.9 031/117] arm64/mm: return cpu_all_mask when node is NUMA_NO_NODE
+Date:   Mon,  9 Nov 2020 13:54:17 +0100
+Message-Id: <20201109125027.127211442@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -44,58 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
 
-[ Upstream commit 6a257471fa42c8c9c04a875cd3a2a22db148e0f0 ]
+[ Upstream commit a194c5f2d2b3a05428805146afcabe5140b5d378 ]
 
-As syzbot reported:
+The @node passed to cpumask_of_node() can be NUMA_NO_NODE, in that
+case it will trigger the following WARN_ON(node >= nr_node_ids) due to
+mismatched data types of @node and @nr_node_ids. Actually we should
+return cpu_all_mask just like most other architectures do if passed
+NUMA_NO_NODE.
 
-kernel BUG at fs/f2fs/segment.h:657!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 16220 Comm: syz-executor.0 Not tainted 5.9.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:f2fs_ra_meta_pages+0xa51/0xdc0 fs/f2fs/segment.h:657
-Call Trace:
- build_sit_entries fs/f2fs/segment.c:4195 [inline]
- f2fs_build_segment_manager+0x4b8a/0xa3c0 fs/f2fs/segment.c:4779
- f2fs_fill_super+0x377d/0x6b80 fs/f2fs/super.c:3633
- mount_bdev+0x32e/0x3f0 fs/super.c:1417
- legacy_get_tree+0x105/0x220 fs/fs_context.c:592
- vfs_get_tree+0x89/0x2f0 fs/super.c:1547
- do_new_mount fs/namespace.c:2875 [inline]
- path_mount+0x1387/0x2070 fs/namespace.c:3192
- do_mount fs/namespace.c:3205 [inline]
- __do_sys_mount fs/namespace.c:3413 [inline]
- __se_sys_mount fs/namespace.c:3390 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Also add a similar check to the inline cpumask_of_node() in numa.h.
 
-@blkno in f2fs_ra_meta_pages could exceed max segment count, causing panic
-in following sanity check in current_sit_addr(), add check condition to
-avoid this issue.
-
-Reported-by: syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Zhengyuan Liu <liuzhengyuan@tj.kylinos.cn>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
+Link: https://lore.kernel.org/r/20200921023936.21846-1-liuzhengyuan@tj.kylinos.cn
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/include/asm/numa.h | 3 +++
+ arch/arm64/mm/numa.c          | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index c1b24d7aa6ef1..5e9f8ec8251d3 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -201,6 +201,8 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages,
- 					blkno * NAT_ENTRY_PER_BLOCK);
- 			break;
- 		case META_SIT:
-+			if (unlikely(blkno >= TOTAL_SEGS(sbi)))
-+				goto out;
- 			/* get sit block addr */
- 			fio.new_blkaddr = current_sit_addr(sbi,
- 					blkno * SIT_ENTRY_PER_BLOCK);
+diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
+index 600887e491fdf..496070f97c541 100644
+--- a/arch/arm64/include/asm/numa.h
++++ b/arch/arm64/include/asm/numa.h
+@@ -25,6 +25,9 @@ const struct cpumask *cpumask_of_node(int node);
+ /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+ static inline const struct cpumask *cpumask_of_node(int node)
+ {
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
+ 	return node_to_cpumask_map[node];
+ }
+ #endif
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index b1e42bad69ac3..fddae9b8e1bf1 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -58,7 +58,11 @@ EXPORT_SYMBOL(node_to_cpumask_map);
+  */
+ const struct cpumask *cpumask_of_node(int node)
+ {
+-	if (WARN_ON(node >= nr_node_ids))
++
++	if (node == NUMA_NO_NODE)
++		return cpu_all_mask;
++
++	if (WARN_ON(node < 0 || node >= nr_node_ids))
+ 		return cpu_none_mask;
+ 
+ 	if (WARN_ON(node_to_cpumask_map[node] == NULL))
 -- 
 2.27.0
 
