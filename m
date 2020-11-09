@@ -2,37 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E6D2AB9F0
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 660802ABB67
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733092AbgKINOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:14:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        id S1733109AbgKINOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:14:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733081AbgKINOO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:14:14 -0500
+        id S1733081AbgKINOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:14:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97B4F2083B;
-        Mon,  9 Nov 2020 13:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E07F20789;
+        Mon,  9 Nov 2020 13:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927653;
-        bh=HXXDDhHT/PVr0uTyiRq5LQs+DtkArTc9wUC0veTiIwg=;
+        s=default; t=1604927656;
+        bh=bK0eA8aSpbq9muPoWFg3cufloAyog7Fgs0x//VCAWwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZwQoU7o2lxAOjQ504FxxAvUenHhGryNqlwO0XCkeK1xRPrLHkip5NMXm3XsbfdfN
-         96uSwIwN46bhbo8pECZHolHP+bJoSG2GGdvHRDbIZpEMhhhYyiESHKaTNu3YqXZOhp
-         jc6X4yHbo8t7KSYpAaNIaBHzRNKyg09c1rsJdMX0=
+        b=2QBP159TmzVO+4Bh2rbooAVgzuEg31nJJGvXrRVHM5T4GHm5haAUwvamzV+CON6OT
+         6EJmuSZv9pyY7iylJ61njWr0IiRnS8NVTSzpGONol0hHYEtMIIJaZCZPhh0wv5xgwh
+         /bIj3A8MlQIRQoUANdQ1URCjRfDqeGHSevmI7Ui8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>, Tejun Heo <tj@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Dave Young" <dyoung@redhat.com>,
+        Alexander Potapenko <glider@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Larry Woodman <lwoodman@redhat.com>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rik van Riel <riel@redhat.com>,
+        Toshimitsu Kani <toshi.kani@hpe.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 31/85] kthread_worker: prevent queuing delayed work from timer_fn when it is being canceled
-Date:   Mon,  9 Nov 2020 13:55:28 +0100
-Message-Id: <20201109125024.083132029@linuxfoundation.org>
+Subject: [PATCH 5.4 32/85] mm: always have io_remap_pfn_range() set pgprot_decrypted()
+Date:   Mon,  9 Nov 2020 13:55:29 +0100
+Message-Id: <20201109125024.129102104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
 References: <20201109125022.614792961@linuxfoundation.org>
@@ -44,48 +63,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 6993d0fdbee0eb38bfac350aa016f65ad11ed3b1 upstream.
+commit f8f6ae5d077a9bdaf5cbf2ac960a5d1a04b47482 upstream.
 
-There is a small race window when a delayed work is being canceled and
-the work still might be queued from the timer_fn:
+The purpose of io_remap_pfn_range() is to map IO memory, such as a
+memory mapped IO exposed through a PCI BAR.  IO devices do not
+understand encryption, so this memory must always be decrypted.
+Automatically call pgprot_decrypted() as part of the generic
+implementation.
 
-	CPU0						CPU1
-kthread_cancel_delayed_work_sync()
-   __kthread_cancel_work_sync()
-     __kthread_cancel_work()
-        work->canceling++;
-					      kthread_delayed_work_timer_fn()
-						   kthread_insert_work();
+This fixes a bug where enabling AMD SME causes subsystems, such as RDMA,
+using io_remap_pfn_range() to expose BAR pages to user space to fail.
+The CPU will encrypt access to those BAR pages instead of passing
+unencrypted IO directly to the device.
 
-BUG: kthread_insert_work() should not get called when work->canceling is
-set.
+Places not mapping IO should use remap_pfn_range().
 
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: "Dave Young" <dyoung@redhat.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Larry Woodman <lwoodman@redhat.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Toshimitsu Kani <toshi.kani@hpe.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201014083030.16895-1-qiang.zhang@windriver.com
+Link: https://lkml.kernel.org/r/0-v1-025d64bdf6c4+e-amd_sme_fix_jgg@nvidia.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kthread.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/asm-generic/pgtable.h |    4 ----
+ include/linux/mm.h            |    9 +++++++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -873,7 +873,8 @@ void kthread_delayed_work_timer_fn(struc
- 	/* Move the work from worker->delayed_work_list. */
- 	WARN_ON_ONCE(list_empty(&work->node));
- 	list_del_init(&work->node);
--	kthread_insert_work(worker, work, &worker->work_list);
-+	if (!work->canceling)
-+		kthread_insert_work(worker, work, &worker->work_list);
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -1159,10 +1159,6 @@ static inline bool arch_has_pfn_modify_c
  
- 	raw_spin_unlock_irqrestore(&worker->lock, flags);
+ #endif /* !__ASSEMBLY__ */
+ 
+-#ifndef io_remap_pfn_range
+-#define io_remap_pfn_range remap_pfn_range
+-#endif
+-
+ #ifndef has_transparent_hugepage
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #define has_transparent_hugepage() 1
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2572,6 +2572,15 @@ static inline vm_fault_t vmf_insert_page
+ 	return VM_FAULT_NOPAGE;
  }
+ 
++#ifndef io_remap_pfn_range
++static inline int io_remap_pfn_range(struct vm_area_struct *vma,
++				     unsigned long addr, unsigned long pfn,
++				     unsigned long size, pgprot_t prot)
++{
++	return remap_pfn_range(vma, addr, pfn, size, pgprot_decrypted(prot));
++}
++#endif
++
+ static inline vm_fault_t vmf_error(int err)
+ {
+ 	if (err == -ENOMEM)
 
 
