@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 694762ABB7E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71AE52ABC1B
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730087AbgKINI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:08:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33818 "EHLO mail.kernel.org"
+        id S1731463AbgKINeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:34:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731761AbgKINI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:08:56 -0500
+        id S1730932AbgKINFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:05:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A64D221F1;
-        Mon,  9 Nov 2020 13:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48D7220663;
+        Mon,  9 Nov 2020 13:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927335;
-        bh=5+CQ+9gu2ZIyGQoSS6i1n8vXSVsi7lG/NeXmXbNhYR0=;
+        s=default; t=1604927149;
+        bh=zANjEaYWeKExlg88ELQfrF+12ID1LhEmSNomqtSz3nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHZGYQkFizwlf59RUE7oxLgjLAw1vhI08K9XdyNTqop+F8LQkSOsFrFFm5mAVlpwS
-         pUvDGVNinjdrvW6vq+XkShjvYxUaKRGjNJpHOgBRX13380QVluaChfkCQD9U9riD61
-         JrXsoI6xMe+yOuiBlOPafzIIzJ+W7GvdmZ7EKtMM=
+        b=wIcFsEaD5DfH/unXXjfaXgaH7ClzQ4ytkN8Kh7yWTqBY7lO8bLl9TlFop0KB5bWoe
+         odQDzO46fAi01/oXOMrDaa/nR1LlOP4KGE322UXQYhukJRmo1RX5JyRJe9HpkHHio2
+         WuWkNpoI9A72en6JTRu0P6FOj0hxmN9EFc+TYFPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        syzbot+603294af2d01acfdd6da@syzkaller.appspotmail.com,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Omar Sandoval <osandov@fb.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        yu kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.19 24/71] btrfs: tree-checker: Make btrfs_check_chunk_valid() return EUCLEAN instead of EIO
-Date:   Mon,  9 Nov 2020 13:55:18 +0100
-Message-Id: <20201109125021.042397566@linuxfoundation.org>
+Subject: [PATCH 4.14 10/48] blktrace: fix debugfs use after free
+Date:   Mon,  9 Nov 2020 13:55:19 +0100
+Message-Id: <20201109125017.244391571@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
+References: <20201109125016.734107741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +53,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-commit bf871c3b43b1dcc3f2a076ff39a8f1ce7959d958 upstream.
+commit bad8e64fb19d3a0de5e564d9a7271c31bd684369 upstream.
 
-To follow the standard behavior of tree-checker.
+On commit 6ac93117ab00 ("blktrace: use existing disk debugfs directory")
+merged on v4.12 Omar fixed the original blktrace code for request-based
+drivers (multiqueue). This however left in place a possible crash, if you
+happen to abuse blktrace while racing to remove / add a device.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[bwh: Cherry-picked for 4.19 to ease backporting later fixes]
+We used to use asynchronous removal of the request_queue, and with that
+the issue was easier to reproduce. Now that we have reverted to
+synchronous removal of the request_queue, the issue is still possible to
+reproduce, its however just a bit more difficult.
+
+We essentially run two instances of break-blktrace which add/remove
+a loop device, and setup a blktrace and just never tear the blktrace
+down. We do this twice in parallel. This is easily reproduced with the
+script run_0004.sh from break-blktrace [0].
+
+We can end up with two types of panics each reflecting where we
+race, one a failed blktrace setup:
+
+[  252.426751] debugfs: Directory 'loop0' with parent 'block' already present!
+[  252.432265] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[  252.436592] #PF: supervisor write access in kernel mode
+[  252.439822] #PF: error_code(0x0002) - not-present page
+[  252.442967] PGD 0 P4D 0
+[  252.444656] Oops: 0002 [#1] SMP NOPTI
+[  252.446972] CPU: 10 PID: 1153 Comm: break-blktrace Tainted: G            E     5.7.0-rc2-next-20200420+ #164
+[  252.452673] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+[  252.456343] RIP: 0010:down_write+0x15/0x40
+[  252.458146] Code: eb ca e8 ae 22 8d ff cc cc cc cc cc cc cc cc cc cc cc cc
+               cc cc 0f 1f 44 00 00 55 48 89 fd e8 52 db ff ff 31 c0 ba 01 00
+               00 00 <f0> 48 0f b1 55 00 75 0f 48 8b 04 25 c0 8b 01 00 48 89
+               45 08 5d
+[  252.463638] RSP: 0018:ffffa626415abcc8 EFLAGS: 00010246
+[  252.464950] RAX: 0000000000000000 RBX: ffff958c25f0f5c0 RCX: ffffff8100000000
+[  252.466727] RDX: 0000000000000001 RSI: ffffff8100000000 RDI: 00000000000000a0
+[  252.468482] RBP: 00000000000000a0 R08: 0000000000000000 R09: 0000000000000001
+[  252.470014] R10: 0000000000000000 R11: ffff958d1f9227ff R12: 0000000000000000
+[  252.471473] R13: ffff958c25ea5380 R14: ffffffff8cce15f1 R15: 00000000000000a0
+[  252.473346] FS:  00007f2e69dee540(0000) GS:ffff958c2fc80000(0000) knlGS:0000000000000000
+[  252.475225] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  252.476267] CR2: 00000000000000a0 CR3: 0000000427d10004 CR4: 0000000000360ee0
+[  252.477526] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  252.478776] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  252.479866] Call Trace:
+[  252.480322]  simple_recursive_removal+0x4e/0x2e0
+[  252.481078]  ? debugfs_remove+0x60/0x60
+[  252.481725]  ? relay_destroy_buf+0x77/0xb0
+[  252.482662]  debugfs_remove+0x40/0x60
+[  252.483518]  blk_remove_buf_file_callback+0x5/0x10
+[  252.484328]  relay_close_buf+0x2e/0x60
+[  252.484930]  relay_open+0x1ce/0x2c0
+[  252.485520]  do_blk_trace_setup+0x14f/0x2b0
+[  252.486187]  __blk_trace_setup+0x54/0xb0
+[  252.486803]  blk_trace_ioctl+0x90/0x140
+[  252.487423]  ? do_sys_openat2+0x1ab/0x2d0
+[  252.488053]  blkdev_ioctl+0x4d/0x260
+[  252.488636]  block_ioctl+0x39/0x40
+[  252.489139]  ksys_ioctl+0x87/0xc0
+[  252.489675]  __x64_sys_ioctl+0x16/0x20
+[  252.490380]  do_syscall_64+0x52/0x180
+[  252.491032]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+And the other on the device removal:
+
+[  128.528940] debugfs: Directory 'loop0' with parent 'block' already present!
+[  128.615325] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[  128.619537] #PF: supervisor write access in kernel mode
+[  128.622700] #PF: error_code(0x0002) - not-present page
+[  128.625842] PGD 0 P4D 0
+[  128.627585] Oops: 0002 [#1] SMP NOPTI
+[  128.629871] CPU: 12 PID: 544 Comm: break-blktrace Tainted: G            E     5.7.0-rc2-next-20200420+ #164
+[  128.635595] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+[  128.640471] RIP: 0010:down_write+0x15/0x40
+[  128.643041] Code: eb ca e8 ae 22 8d ff cc cc cc cc cc cc cc cc cc cc cc cc
+               cc cc 0f 1f 44 00 00 55 48 89 fd e8 52 db ff ff 31 c0 ba 01 00
+               00 00 <f0> 48 0f b1 55 00 75 0f 65 48 8b 04 25 c0 8b 01 00 48 89
+               45 08 5d
+[  128.650180] RSP: 0018:ffffa9c3c05ebd78 EFLAGS: 00010246
+[  128.651820] RAX: 0000000000000000 RBX: ffff8ae9a6370240 RCX: ffffff8100000000
+[  128.653942] RDX: 0000000000000001 RSI: ffffff8100000000 RDI: 00000000000000a0
+[  128.655720] RBP: 00000000000000a0 R08: 0000000000000002 R09: ffff8ae9afd2d3d0
+[  128.657400] R10: 0000000000000056 R11: 0000000000000000 R12: 0000000000000000
+[  128.659099] R13: 0000000000000000 R14: 0000000000000003 R15: 00000000000000a0
+[  128.660500] FS:  00007febfd995540(0000) GS:ffff8ae9afd00000(0000) knlGS:0000000000000000
+[  128.662204] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  128.663426] CR2: 00000000000000a0 CR3: 0000000420042003 CR4: 0000000000360ee0
+[  128.664776] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  128.666022] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  128.667282] Call Trace:
+[  128.667801]  simple_recursive_removal+0x4e/0x2e0
+[  128.668663]  ? debugfs_remove+0x60/0x60
+[  128.669368]  debugfs_remove+0x40/0x60
+[  128.669985]  blk_trace_free+0xd/0x50
+[  128.670593]  __blk_trace_remove+0x27/0x40
+[  128.671274]  blk_trace_shutdown+0x30/0x40
+[  128.671935]  blk_release_queue+0x95/0xf0
+[  128.672589]  kobject_put+0xa5/0x1b0
+[  128.673188]  disk_release+0xa2/0xc0
+[  128.673786]  device_release+0x28/0x80
+[  128.674376]  kobject_put+0xa5/0x1b0
+[  128.674915]  loop_remove+0x39/0x50 [loop]
+[  128.675511]  loop_control_ioctl+0x113/0x130 [loop]
+[  128.676199]  ksys_ioctl+0x87/0xc0
+[  128.676708]  __x64_sys_ioctl+0x16/0x20
+[  128.677274]  do_syscall_64+0x52/0x180
+[  128.677823]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The common theme here is:
+
+debugfs: Directory 'loop0' with parent 'block' already present
+
+This crash happens because of how blktrace uses the debugfs directory
+where it places its files. Upon init we always create the same directory
+which would be needed by blktrace but we only do this for make_request
+drivers (multiqueue) block drivers. When you race a removal of these
+devices with a blktrace setup you end up in a situation where the
+make_request recursive debugfs removal will sweep away the blktrace
+files and then later blktrace will also try to remove individual
+dentries which are already NULL. The inverse is also possible and hence
+the two types of use after frees.
+
+We don't create the block debugfs directory on init for these types of
+block devices:
+
+  * request-based block driver block devices
+  * every possible partition
+  * scsi-generic
+
+And so, this race should in theory only be possible with make_request
+drivers.
+
+We can fix the UAF by simply re-using the debugfs directory for
+make_request drivers (multiqueue) and only creating the ephemeral
+directory for the other type of block devices. The new clarifications
+on relying on the q->blk_trace_mutex *and* also checking for q->blk_trace
+*prior* to processing a blktrace ensures the debugfs directories are
+only created if no possible directory name clashes are possible.
+
+This goes tested with:
+
+  o nvme partitions
+  o ISCSI with tgt, and blktracing against scsi-generic with:
+    o block
+    o tape
+    o cdrom
+    o media changer
+  o blktests
+
+This patch is part of the work which disputes the severity of
+CVE-2019-19770 which shows this issue is not a core debugfs issue, but
+a misuse of debugfs within blktace.
+
+Fixes: 6ac93117ab00 ("blktrace: use existing disk debugfs directory")
+Reported-by: syzbot+603294af2d01acfdd6da@syzkaller.appspotmail.com
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Omar Sandoval <osandov@fb.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[bwh: Backported to 4.14: open-code queue_is_mq()]
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-checker.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ kernel/trace/blktrace.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -496,7 +496,7 @@ static void chunk_err(const struct btrfs
- /*
-  * The common chunk check which could also work on super block sys chunk array.
-  *
-- * Return -EIO if anything is corrupted.
-+ * Return -EUCLEAN if anything is corrupted.
-  * Return 0 if everything is OK.
-  */
- int btrfs_check_chunk_valid(struct btrfs_fs_info *fs_info,
-@@ -520,31 +520,31 @@ int btrfs_check_chunk_valid(struct btrfs
- 	if (!num_stripes) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 			  "invalid chunk num_stripes, have %u", num_stripes);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 	if (!IS_ALIGNED(logical, fs_info->sectorsize)) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 		"invalid chunk logical, have %llu should aligned to %u",
- 			  logical, fs_info->sectorsize);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 	if (btrfs_chunk_sector_size(leaf, chunk) != fs_info->sectorsize) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 			  "invalid chunk sectorsize, have %u expect %u",
- 			  btrfs_chunk_sector_size(leaf, chunk),
- 			  fs_info->sectorsize);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 	if (!length || !IS_ALIGNED(length, fs_info->sectorsize)) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 			  "invalid chunk length, have %llu", length);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 	if (!is_power_of_2(stripe_len) || stripe_len != BTRFS_STRIPE_LEN) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 			  "invalid chunk stripe length: %llu",
- 			  stripe_len);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 	if (~(BTRFS_BLOCK_GROUP_TYPE_MASK | BTRFS_BLOCK_GROUP_PROFILE_MASK) &
- 	    type) {
-@@ -553,14 +553,14 @@ int btrfs_check_chunk_valid(struct btrfs
- 			  ~(BTRFS_BLOCK_GROUP_TYPE_MASK |
- 			    BTRFS_BLOCK_GROUP_PROFILE_MASK) &
- 			  btrfs_chunk_type(leaf, chunk));
--		return -EIO;
-+		return -EUCLEAN;
- 	}
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -533,10 +533,18 @@ static int do_blk_trace_setup(struct req
+ 	if (!bt->msg_data)
+ 		goto err;
  
- 	if ((type & BTRFS_BLOCK_GROUP_TYPE_MASK) == 0) {
- 		chunk_err(fs_info, leaf, chunk, logical,
- 	"missing chunk type flag, have 0x%llx one bit must be set in 0x%llx",
- 			  type, BTRFS_BLOCK_GROUP_TYPE_MASK);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
+-	ret = -ENOENT;
+-
+-	dir = debugfs_lookup(buts->name, blk_debugfs_root);
+-	if (!dir)
++#ifdef CONFIG_BLK_DEBUG_FS
++	/*
++	 * When tracing whole make_request drivers (multiqueue) block devices,
++	 * reuse the existing debugfs directory created by the block layer on
++	 * init. For request-based block devices, all partitions block devices,
++	 * and scsi-generic block devices we create a temporary new debugfs
++	 * directory that will be removed once the trace ends.
++	 */
++	if (q->mq_ops && bdev && bdev == bdev->bd_contains)
++		dir = q->debugfs_dir;
++	else
++#endif
+ 		bt->dir = dir = debugfs_create_dir(buts->name, blk_debugfs_root);
+ 	if (!dir)
+ 		goto err;
+@@ -595,8 +603,6 @@ static int do_blk_trace_setup(struct req
  
- 	if ((type & BTRFS_BLOCK_GROUP_SYSTEM) &&
-@@ -568,7 +568,7 @@ int btrfs_check_chunk_valid(struct btrfs
- 		chunk_err(fs_info, leaf, chunk, logical,
- 			  "system chunk with data or metadata type: 0x%llx",
- 			  type);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 
- 	features = btrfs_super_incompat_flags(fs_info->super_copy);
-@@ -580,7 +580,7 @@ int btrfs_check_chunk_valid(struct btrfs
- 		    (type & BTRFS_BLOCK_GROUP_DATA)) {
- 			chunk_err(fs_info, leaf, chunk, logical,
- 			"mixed chunk type in non-mixed mode: 0x%llx", type);
--			return -EIO;
-+			return -EUCLEAN;
- 		}
- 	}
- 
-@@ -594,7 +594,7 @@ int btrfs_check_chunk_valid(struct btrfs
- 			"invalid num_stripes:sub_stripes %u:%u for profile %llu",
- 			num_stripes, sub_stripes,
- 			type & BTRFS_BLOCK_GROUP_PROFILE_MASK);
--		return -EIO;
-+		return -EUCLEAN;
- 	}
- 
- 	return 0;
+ 	ret = 0;
+ err:
+-	if (dir && !bt->dir)
+-		dput(dir);
+ 	if (ret)
+ 		blk_trace_free(bt);
+ 	return ret;
 
 
