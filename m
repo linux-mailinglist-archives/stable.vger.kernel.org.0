@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 304AC2AB8F3
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98BBA2AB8C1
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730282AbgKINAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:00:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
+        id S1729174AbgKIMzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:55:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730404AbgKINAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:00 -0500
+        id S1726410AbgKIMzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:55:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19DB7208FE;
-        Mon,  9 Nov 2020 12:59:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE76820684;
+        Mon,  9 Nov 2020 12:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926799;
-        bh=kbIQ2XAQlnIh6iAJjW3pWk5NnU8+kzBKiHepqLoqt9Y=;
+        s=default; t=1604926552;
+        bh=zlu4+sAM+Ik0vfl+gZBPnfG9y9AwcOYi9/E+fOtqMGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrBvDTc9nho29sq6sqHwkN5zc3NTExK+TWsB9Xb+aQfJ5vuguiv9W0XczYWJDoINp
-         GNBCVC7mHibIlZJSjSd3hyOObV2F3OVHviR7RVAnKgDPNlPRsdVKoZmgnzFIza+N89
-         2zHZAI4sIik9G1fPhWnb9ZSpp2pS6M+kWx4VNyzg=
+        b=UM0Mq057EzDl18GftDDHlAichicP2k3jZo5EuvthzLIcJ/IkE8LABv4Wn6OmOR7BO
+         T76O5tOsXv4l8kwt6ZFXyUZ7d6FZDhC6uUxjtUfBulHcT63U3WnSsFJeKvRfKQl2X/
+         5uvihhrl/dZKYv64KxpHq3mEMIcxLcZ6YSRYM3cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
         Trond Myklebust <trond.myklebust@primarydata.com>,
         Calum Mackay <calum.mackay@oracle.com>
-Subject: [PATCH 4.9 001/117] SUNRPC: ECONNREFUSED should cause a rebind.
-Date:   Mon,  9 Nov 2020 13:53:47 +0100
-Message-Id: <20201109125025.700918529@linuxfoundation.org>
+Subject: [PATCH 4.4 01/86] SUNRPC: ECONNREFUSED should cause a rebind.
+Date:   Mon,  9 Nov 2020 13:54:08 +0100
+Message-Id: <20201109125020.921445454@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/sunrpc/clnt.c
 +++ b/net/sunrpc/clnt.c
-@@ -1936,6 +1936,14 @@ call_connect_status(struct rpc_task *tas
+@@ -1826,6 +1826,14 @@ call_connect_status(struct rpc_task *tas
  	task->tk_status = 0;
  	switch (status) {
  	case -ECONNREFUSED:
