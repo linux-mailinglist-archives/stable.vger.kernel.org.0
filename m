@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F602ABC88
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D6B2ABD45
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730625AbgKINiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
+        id S1729835AbgKINom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:44:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730657AbgKINCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:02:51 -0500
+        id S1730248AbgKIM7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F7B2221F9;
-        Mon,  9 Nov 2020 13:02:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D71B20684;
+        Mon,  9 Nov 2020 12:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926971;
-        bh=RFBUn9nQ9UEvmhsRqgxmIbzZdl7faCjeCRUgBX4r9YA=;
+        s=default; t=1604926737;
+        bh=y7ZK+pDC5G/MNWFHAgykspgjpyRitgHR80fbbwpq6o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEMldiOIyUudBU8AdYiu6NXTjaQmYjlZt5WOJpcw992YPqZbazouJWGj7Dqpm8cCp
-         pNXkhvJcEgumarzP2WHgycK2MC2nunSI3kslY+iQGlQVWOWcl2Z9ktuKAe0S5aDp+1
-         EuXn2UhZfg/l+dXEhUM3dNkzOO1wL1vp5F7LxQEU=
+        b=d6eCprjnXo7mSH6/7e8gVwKGPoMM3x9ceyCdzmM8HIORqOhgSvdi9iyBlqBi3kKuI
+         RvVtInSNE62n3E+f4B6aiCzFGMlqoiCdRED8OhPUSWZVgSf34PxgNc2TQaksy3UGat
+         sqgdGSeRTawLDaxL6dUuysMMqoHZ53oMJpsAa/2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.9 066/117] iio:light:si1145: Fix timestamp alignment and prevent data leak.
-Date:   Mon,  9 Nov 2020 13:54:52 +0100
-Message-Id: <20201109125028.803240098@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 46/86] powerpc/powernv/elog: Fix race while processing OPAL error log event.
+Date:   Mon,  9 Nov 2020 13:54:53 +0100
+Message-Id: <20201109125023.053028419@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 
-commit 0456ecf34d466261970e0ff92b2b9c78a4908637 upstream.
+commit aea948bb80b478ddc2448f7359d574387521a52d upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 24 byte array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable array in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+Every error log reported by OPAL is exported to userspace through a
+sysfs interface and notified using kobject_uevent(). The userspace
+daemon (opal_errd) then reads the error log and acknowledges the error
+log is saved safely to disk. Once acknowledged the kernel removes the
+respective sysfs file entry causing respective resources to be
+released including kobject.
 
-Depending on the enabled channels, the  location of the timestamp
-can be at various aligned offsets through the buffer.  As such we
-any use of a structure to enforce this alignment would incorrectly
-suggest a single location for the timestamp.  Comments adjusted to
-express this clearly in the code.
+However it's possible the userspace daemon may already be scanning
+elog entries when a new sysfs elog entry is created by the kernel.
+User daemon may read this new entry and ack it even before kernel can
+notify userspace about it through kobject_uevent() call. If that
+happens then we have a potential race between
+elog_ack_store->kobject_put() and kobject_uevent which can lead to
+use-after-free of a kernfs object resulting in a kernel crash. eg:
 
-Fixes: ac45e57f1590 ("iio: light: Add driver for Silabs si1132, si1141/2/3 and si1145/6/7 ambient light, uv index and proximity sensors")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-9-jic23@kernel.org
+  BUG: Unable to handle kernel data access on read at 0x6b6b6b6b6b6b6bfb
+  Faulting instruction address: 0xc0000000008ff2a0
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
+  CPU: 27 PID: 805 Comm: irq/29-opal-elo Not tainted 5.9.0-rc2-gcc-8.2.0-00214-g6f56a67bcbb5-dirty #363
+  ...
+  NIP kobject_uevent_env+0xa0/0x910
+  LR  elog_event+0x1f4/0x2d0
+  Call Trace:
+    0x5deadbeef0000122 (unreliable)
+    elog_event+0x1f4/0x2d0
+    irq_thread_fn+0x4c/0xc0
+    irq_thread+0x1c0/0x2b0
+    kthread+0x1c4/0x1d0
+    ret_from_kernel_thread+0x5c/0x6c
+
+This patch fixes this race by protecting the sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
+
+The function create_elog_obj() returns the elog object which if used
+by caller function will end up in use-after-free problem again.
+However, the return value of create_elog_obj() function isn't being
+used today and there is no need as well. Hence change it to return
+void to make this fix complete.
+
+Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
+Cc: stable@vger.kernel.org # v3.15+
+Reported-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+[mpe: Rework the logic to use a single return, reword comments, add oops]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201006122051.190176-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/si1145.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ arch/powerpc/platforms/powernv/opal-elog.c |   33 ++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/light/si1145.c
-+++ b/drivers/iio/light/si1145.c
-@@ -172,6 +172,7 @@ struct si1145_part_info {
-  * @part_info:	Part information
-  * @trig:	Pointer to iio trigger
-  * @meas_rate:	Value of MEAS_RATE register. Only set in HW in auto mode
-+ * @buffer:	Used to pack data read from sensor.
-  */
- struct si1145_data {
- 	struct i2c_client *client;
-@@ -183,6 +184,14 @@ struct si1145_data {
- 	bool autonomous;
- 	struct iio_trigger *trig;
- 	int meas_rate;
-+	/*
-+	 * Ensure timestamp will be naturally aligned if present.
-+	 * Maximum buffer size (may be only partly used if not all
-+	 * channels are enabled):
-+	 *   6*2 bytes channels data + 4 bytes alignment +
-+	 *   8 bytes timestamp
-+	 */
-+	u8 buffer[24] __aligned(8);
- };
+--- a/arch/powerpc/platforms/powernv/opal-elog.c
++++ b/arch/powerpc/platforms/powernv/opal-elog.c
+@@ -183,14 +183,14 @@ static ssize_t raw_attr_read(struct file
+ 	return count;
+ }
  
- /**
-@@ -444,12 +453,6 @@ static irqreturn_t si1145_trigger_handle
- 	struct iio_poll_func *pf = private;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct si1145_data *data = iio_priv(indio_dev);
--	/*
--	 * Maximum buffer size:
--	 *   6*2 bytes channels data + 4 bytes alignment +
--	 *   8 bytes timestamp
--	 */
--	u8 buffer[24];
- 	int i, j = 0;
- 	int ret;
- 	u8 irq_status = 0;
-@@ -482,7 +485,7 @@ static irqreturn_t si1145_trigger_handle
+-static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
++static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
+ {
+ 	struct elog_obj *elog;
+ 	int rc;
  
- 		ret = i2c_smbus_read_i2c_block_data_or_emulated(
- 				data->client, indio_dev->channels[i].address,
--				sizeof(u16) * run, &buffer[j]);
-+				sizeof(u16) * run, &data->buffer[j]);
- 		if (ret < 0)
- 			goto done;
- 		j += run * sizeof(u16);
-@@ -497,7 +500,7 @@ static irqreturn_t si1145_trigger_handle
- 			goto done;
+ 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
+ 	if (!elog)
+-		return NULL;
++		return;
+ 
+ 	elog->kobj.kset = elog_kset;
+ 
+@@ -223,18 +223,37 @@ static struct elog_obj *create_elog_obj(
+ 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
+ 	if (rc) {
+ 		kobject_put(&elog->kobj);
+-		return NULL;
++		return;
  	}
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
- 		iio_get_time_ns(indio_dev));
++	/*
++	 * As soon as the sysfs file for this elog is created/activated there is
++	 * a chance the opal_errd daemon (or any userspace) might read and
++	 * acknowledge the elog before kobject_uevent() is called. If that
++	 * happens then there is a potential race between
++	 * elog_ack_store->kobject_put() and kobject_uevent() which leads to a
++	 * use-after-free of a kernfs object resulting in a kernel crash.
++	 *
++	 * To avoid that, we need to take a reference on behalf of the bin file,
++	 * so that our reference remains valid while we call kobject_uevent().
++	 * We then drop our reference before exiting the function, leaving the
++	 * bin file to drop the last reference (if it hasn't already).
++	 */
++
++	/* Take a reference for the bin file */
++	kobject_get(&elog->kobj);
+ 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
+-	if (rc) {
++	if (rc == 0) {
++		kobject_uevent(&elog->kobj, KOBJ_ADD);
++	} else {
++		/* Drop the reference taken for the bin file */
+ 		kobject_put(&elog->kobj);
+-		return NULL;
+ 	}
  
- done:
+-	kobject_uevent(&elog->kobj, KOBJ_ADD);
++	/* Drop our reference */
++	kobject_put(&elog->kobj);
+ 
+-	return elog;
++	return;
+ }
+ 
+ static irqreturn_t elog_event(int irq, void *data)
 
 
