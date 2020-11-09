@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8A62ABDBB
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:49:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F812ABD00
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730092AbgKINtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:49:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
+        id S1730032AbgKINm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:42:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727774AbgKIM4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:56:06 -0500
+        id S1730536AbgKINAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B32F20789;
-        Mon,  9 Nov 2020 12:56:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57F49216C4;
+        Mon,  9 Nov 2020 13:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926563;
-        bh=Gy1INmgzVa101CJQ1K0c5cIKHch/wKesicOi6sAcLy4=;
+        s=default; t=1604926852;
+        bh=xNOtbpodwxIfYFkm/QNmfkGu1hrR7x9Tgi5laYWWz7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0UYeMLaCsMO/Cjnc0PuKLqnlhrVda2CdRgIlTz3yIIIIFolYvAEwLISlMerAeIQc
-         Xhz9DDzC2qM3/iFvPNcTA/HK6y3U6YnkS+6ebzGR3CEj7BlLzCRtWOu5kTMjEpBbmf
-         3VNAwv7r1ZUcz03o0sJGJ7whJfMnk/ak5NXzzBg8=
+        b=v0YA0tx01GHwFlWP7x5WwT2CAFKi9EDcu0Y3Wx0NRRKAj8mlrcAzZz7sXhWS5Xn7S
+         0KgpIJhnYr8UfGd+FODKDiFC+sDU+zPv6tYjTte+CcIeYRZuO2ApfFlSzTkx72EPs7
+         UZKDpwVvuZMFdhVp8f/VzwX6JUIYrPtYBeCOeiMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 05/86] ravb: Fix bit fields checking in ravb_hwtstamp_get()
-Date:   Mon,  9 Nov 2020 13:54:12 +0100
-Message-Id: <20201109125021.118420615@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 027/117] printk: reduce LOG_BUF_SHIFT range for H8300
+Date:   Mon,  9 Nov 2020 13:54:13 +0100
+Message-Id: <20201109125026.943723887@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
+[ Upstream commit 550c10d28d21bd82a8bb48debbb27e6ed53262f6 ]
 
-In the function ravb_hwtstamp_get() in ravb_main.c with the existing
-values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
-(0x6)
+The .bss section for the h8300 is relatively small. A value of
+CONFIG_LOG_BUF_SHIFT that is larger than 19 will create a static
+printk ringbuffer that is too large. Limit the range appropriately
+for the H8300.
 
-if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
-else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-	config.rx_filter = HWTSTAMP_FILTER_ALL;
-
-if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
-it will never be reached.
-
-This issue can be verified with 'hwtstamp_config' testing program
-(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
-to ALL and subsequent retrieving it gives incorrect value:
-
-$ hwtstamp_config eth0 OFF ALL
-flags = 0
-tx_type = OFF
-rx_filter = ALL
-$ hwtstamp_config eth0
-flags = 0
-tx_type = OFF
-rx_filter = PTP_V2_L2_EVENT
-
-Correct this by converting if-else's to switch.
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Reported-by: Julia Lawall <julia.lawall@inria.fr>
-Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20200812073122.25412-1-john.ogness@linutronix.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ init/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1572,12 +1572,16 @@ static int ravb_hwtstamp_get(struct net_
- 	config.flags = 0;
- 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
- 						HWTSTAMP_TX_OFF;
--	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-+	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
-+	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
- 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
--	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-+		break;
-+	case RAVB_RXTSTAMP_TYPE_ALL:
- 		config.rx_filter = HWTSTAMP_FILTER_ALL;
--	else
-+		break;
-+	default:
- 		config.rx_filter = HWTSTAMP_FILTER_NONE;
-+	}
+diff --git a/init/Kconfig b/init/Kconfig
+index b331feeabda42..0a615bdc203a4 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -822,7 +822,8 @@ config IKCONFIG_PROC
  
- 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
- 		-EFAULT : 0;
+ config LOG_BUF_SHIFT
+ 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)"
+-	range 12 25
++	range 12 25 if !H8300
++	range 12 19 if H8300
+ 	default 17
+ 	depends on PRINTK
+ 	help
+-- 
+2.27.0
+
 
 
