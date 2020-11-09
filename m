@@ -2,91 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2152AB4E0
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 299E02AB4E5
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:30:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbgKIK2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 05:28:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726535AbgKIK2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 05:28:15 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52E5D206E3;
-        Mon,  9 Nov 2020 10:28:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604917694;
-        bh=F4DJfBvLNERc4ObqNHuoqD0PrLer0QzMxjwGTa9K7V0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BpY/bMSz5HZFttESVRrZzFD+mpD0ZfIPSjZqbDXLh+i2AbG/nrL074Z18cO9YQW6V
-         24eT54LJ6QQjNIpG9rM9frhZ/tJLCYCCEhHXZY94w1Yu+If31ccCo2ha5y3xWBD2+R
-         ElwYQeHkuqmmgGnc9HrSznCu+t6kw8hMiJpVLLTU=
-Date:   Mon, 9 Nov 2020 11:29:14 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Waldemar Brodkorb <wbx@uclibc-ng.org>
-Subject: Re: [PATCH] Revert "ARC: entry: fix potential EFA clobber when
- TIF_SYSCALL_TRACE"
-Message-ID: <20201109102914.GD1238638@kroah.com>
-References: <20201020021957.1260521-1-vgupta@synopsys.com>
- <9cec26bd-6839-b90d-9bda-44936457e883@synopsys.com>
- <20201107141006.GB28983@kroah.com>
+        id S1726535AbgKIKaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 05:30:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53712 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726423AbgKIKaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 05:30:30 -0500
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E153DC0613CF
+        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 02:30:29 -0800 (PST)
+Received: by mail-oi1-x243.google.com with SMTP id m17so9701249oie.4
+        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 02:30:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dHkqdCzwlfhdjaBe/619nrv5mifEdmS6V4ZJeykSazA=;
+        b=UB+3y/sK6kaeOSMqQBgtNuxT6mbld9BCyz4b6sRNgHQc1ts+BMRHzocnMtC1cgKZJH
+         cMCYX0yAyGopM193uc2obVq9ISxm9Kzk/uhbF9P7/ie8pV3TJPEoM7wyP8UBl0bWMfJr
+         6XTRmkbN+zVX7nlHDq9+4NCh4Nq/N/MwrT08o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dHkqdCzwlfhdjaBe/619nrv5mifEdmS6V4ZJeykSazA=;
+        b=Y9bnFYuQox2jSLxO/18m48deRbDTR2Xoj7XWNkhVlKW3xaUDc3YHbUQu4XvJ3vT4Tb
+         2h9FSBZ7/4fx7FEDhIV9A2zFnGEwhS1FrrNDiyPI5eV0b95gd1zom36M1M2whmSEP0wl
+         k4K+/rcCHZzCkKmSA0eFUByarQsOKBx+0b2iWbB+KOC2QxIj/KFeZMxUuJROBLb+xdMm
+         Xgamo+jh5KYpOinXBUJBlm1AGRA5pyxlsGrAIHBWATDB7I1mQSAfG1erCC2IWkGwy2Pz
+         64jtHxfxibYzs+XXRA72RqN6QCOeZbaIjApgImc2fjsbv5rRNQasCw4YfqgFSlUcBwN+
+         3NvA==
+X-Gm-Message-State: AOAM533D5obixGd/tRIusltEHUF6mpuGDG0sCYFuZ51ElI+3+X+sjzRr
+        6LS9/mJyPnfYjie9X1PR2wOHgdoYotULmasRrqcdBhTK4jk+IQ==
+X-Google-Smtp-Source: ABdhPJzRiGNjOEOcnAn3vIRaC6eqG4Tlc8qRr3aC2F2T+SLvuR9T6e+1fJEGJnnthRTuyfQIiK4Gm+UixIMoFz1VNMU=
+X-Received: by 2002:aca:b141:: with SMTP id a62mr8047695oif.101.1604917829340;
+ Mon, 09 Nov 2020 02:30:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201107141006.GB28983@kroah.com>
+References: <20201107092857.3110264-1-daniel.vetter@ffwll.ch>
+ <CAHk-=wjoTrpJcC+VKNwsOF+NFd+LANm_pydcFoaV9PscO0Ogaw@mail.gmail.com>
+ <CAKMK7uFzGDe9vV8zef5kU6mS5W-0tTDw2KdUmMgbFJ=WT-F-RA@mail.gmail.com>
+ <20201108161335.GB11931@kroah.com> <20201108183640.GA65130@kroah.com>
+ <CAKMK7uHCSxAjcRR8oQRS5uL4i2-iLv38jiN8=7pntoNgQBu+bg@mail.gmail.com> <20201109095715.GA836082@kroah.com>
+In-Reply-To: <20201109095715.GA836082@kroah.com>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Mon, 9 Nov 2020 11:30:18 +0100
+Message-ID: <CAKMK7uEbioBvRggrprEvLB9MkQVoSburdneoEAHo7JmM4va9Hw@mail.gmail.com>
+Subject: Re: [PATCH] vt: Disable KD_FONT_OP_COPY
+To:     Greg KH <greg@kroah.com>
+Cc:     stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Security Officers <security@kernel.org>,
+        Minh Yuan <yuanmingbuaa@gmail.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 07, 2020 at 03:10:06PM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Nov 06, 2020 at 08:27:44PM +0000, Vineet Gupta wrote:
-> > Hi Stable Team,
-> > 
-> > On 10/19/20 7:19 PM, Vineet Gupta wrote:
-> > > This reverts commit 00fdec98d9881bf5173af09aebd353ab3b9ac729.
-> > > (but only from 5.2 and prior kernels)
-> > > 
-> > > The original commit was a preventive fix based on code-review and was
-> > > auto-picked for stable back-port (for better or worse).
-> > > It was OK for v5.3+ kernels, but turned up needing an implicit change
-> > > 68e5c6f073bcf70 "(ARC: entry: EV_Trap expects r10 (vs. r9) to have
-> > >  exception cause)" merged in v5.3 which itself was not backported.
-> > > So to summarize the stable backport of this patch for v5.2 and prior
-> > > kernels is busted and it won't boot.
-> > > 
-> > > The obvious solution is backport 68e5c6f073bcf70 but that is a pain as
-> > > it doesn't revert cleanly and each of affected kernels (so far v4.19,
-> > > v4.14, v4.9, v4.4) needs a slightly different massaged varaint.
-> > > So the easier fix is to simply revert the backport from 5.2 and prior.
-> > > The issue was not a big deal as it would cause strace to sporadically
-> > > not work correctly.
-> > > 
-> > > Waldemar Brodkorb first reported this when running ARC uClibc regressions
-> > > on latest stable kernels (with offending backport). Once he bisected it,
-> > > the analysis was trivial, so thx to him for this.
-> > > 
-> > > Reported-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-> > > Bisected-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-> > > Cc: stable <stable@vger.kernel.org> # 5.2 and prior
-> > > Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-> > 
-> > Can this revert be please applied to 4.19 and older kernels for the next cycle.
-> > 
-> > Or is there is a procedural issue given this revert is not in mainline. I've
-> > described the issue in detail above so if there's a better/desirable way of
-> > reverting it from backports, please let me know.
-> 
-> THis is fine, sorry, it's just in a backlog of lots of stable patches...
-> 
-> We will get to it soon.
+On Mon, Nov 9, 2020 at 10:56 AM Greg KH <greg@kroah.com> wrote:
+>
+> On Mon, Nov 09, 2020 at 08:57:38AM +0100, Daniel Vetter wrote:
+> > On Sun, Nov 8, 2020 at 7:35 PM Greg KH <greg@kroah.com> wrote:
+> > > On Sun, Nov 08, 2020 at 05:13:35PM +0100, Greg KH wrote:
+> > > > On Sun, Nov 08, 2020 at 04:41:35PM +0100, Daniel Vetter wrote:
+> > > > > On Sat, Nov 7, 2020 at 7:41 PM Linus Torvalds
+> > > > > <torvalds@linux-foundation.org> wrote:
+> > > > > >
+> > > > > > On Sat, Nov 7, 2020 at 1:29 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+> > > > > > >
+> > > > > > > It's buggy:
+> > > > > >
+> > > > > > Ack. Who is taking this? Should I do it directly, or expect this
+> > > > > > through Greg's tty/char tree, or what?
+> > > > >
+> > > > > I've sent out v2 with more archive links, typo in commit message fixed
+> > > > > and ack from Peilin added. I'll leave merging up to you guys. Note
+> > > > > that cc: stable still needs to be added, I left that out to avoid an
+> > > > > accidental leak.
+> > > >
+> > > > Great, I'll grab this now and add it to my tty tree and send it to Linus
+> > > > later today.
+> > > >
+> > > > Unless I should be holding off somehow on this?  I didn't see anyone
+> > > > wanting to embargo this, or did I miss it?
+> > >
+> > > Given that Minh didn't ask for any embargo, and it's good to get this
+> > > fixed as soon as possible, I've queued this up and will send it to Linus
+> > > in a few minutes.
+> > >
+> > > Thanks all for the quick response,
+> >
+> > cc: stable didn't get added I think.
+> >
+> > Stable teams, please backport commit 3c4e0dff2095 ("vt: Disable
+> > KD_FONT_OP_COPY") to all supported kernels.
+>
+> I was going to do that given that I am the same person :)
 
-Now queued up, thanks.
-
-gre gk-h
+I thought there's some lts that aren't maintained by you? And distro
+teams who randomly still misalign with lts somehow ...
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
