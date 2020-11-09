@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 477762AB9CC
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:12:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADE22ABAFC
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731917AbgKINMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:12:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38426 "EHLO mail.kernel.org"
+        id S1730838AbgKINRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:17:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731702AbgKINMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:44 -0500
+        id S2387593AbgKINR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:17:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6288420789;
-        Mon,  9 Nov 2020 13:12:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 119CD20663;
+        Mon,  9 Nov 2020 13:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927562;
-        bh=Ijt2dyziR77eHjXfyZfowT0wt48JJFm+4TmuKig9Gcg=;
+        s=default; t=1604927847;
+        bh=QDFkm0gxOacetAyrSz9fzEFKHw5t+Ijq/wIQJ+oKyTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/mUmrvOht+cw8eVViPpxBrSnWU/fmNcxcpoKfqqHe+EHYUWprAL3BUtrlI4Lb1wj
-         tYzkU78ERj/PQdpHDkDgK2EbAaCkXawKZiqstG/TUpWG8omCVvhUbnWwdUxy/ZwVbt
-         +oW5oRYYxJ9JvH/x/ziOYAJdwjPedNLFHJ5J7lH0=
+        b=MMxROdqjMfGcqNjtgQECufvDYwUvOhl9NstuxU2FipP3YRAKOxVL2DtOJYna5ZJ1D
+         TT47rtv+yGiifZPHc3V/jkkMq0sXcFc5b2GIFDfJ+pL5I35mkg7QaunsIu6EdO8u4J
+         lJeLv3Z35dYZKMET8iRbgVKu4Mv+zurn8BdWeSvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Will Deacon <will@kernel.org>, Jian Cai <jiancai@google.com>
-Subject: [PATCH 5.4 06/85] arm64: asm: Add new-style position independent function annotations
-Date:   Mon,  9 Nov 2020 13:55:03 +0100
-Message-Id: <20201109125022.921210756@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Plotnikov <wgh@torlan.ru>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 042/133] r8169: work around short packet hw bug on RTL8125
+Date:   Mon,  9 Nov 2020 13:55:04 +0100
+Message-Id: <20201109125032.736665606@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 35e61c77ef386555f3df1bc2057098c6997ca10b upstream.
+[ Upstream commit 2aaf09a0e7842b3ac7be6e0b8fb1888b3daeb3b3 ]
 
-As part of an effort to make the annotations in assembly code clearer and
-more consistent new macros have been introduced, including replacements
-for ENTRY() and ENDPROC().
+Network problems with RTL8125B have been reported [0] and with help
+from Realtek it turned out that this chip version has a hw problem
+with short packets (similar to RTL8168evl). Having said that activate
+the same workaround as for RTL8168evl.
+Realtek suggested to activate the workaround for RTL8125A too, even
+though they're not 100% sure yet which RTL8125 versions are affected.
 
-On arm64 we have ENDPIPROC(), a custom version of ENDPROC() which is
-used for code that will need to run in position independent environments
-like EFI, it creates an alias for the function with the prefix __pi_ and
-then emits the standard ENDPROC. Add new-style macros to replace this
-which expand to the standard SYM_FUNC_*() and SYM_FUNC_ALIAS_*(),
-resulting in the same object code. These are added in linkage.h for
-consistency with where the generic assembler code has its macros.
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=209839
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[will: Rename 'WEAK' macro, use ';' instead of ASM_NL, deprecate ENDPIPROC]
-Signed-off-by: Will Deacon <will@kernel.org>
-Cc: Jian Cai <jiancai@google.com>
+Fixes: 0439297be951 ("r8169: add support for RTL8125B")
+Reported-by: Maxim Plotnikov <wgh@torlan.ru>
+Tested-by: Maxim Plotnikov <wgh@torlan.ru>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/8002c31a-60b9-58f1-f0dd-8fd07239917f@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/include/asm/assembler.h |    1 +
- arch/arm64/include/asm/linkage.h   |   16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/net/ethernet/realtek/r8169_main.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/include/asm/assembler.h
-+++ b/arch/arm64/include/asm/assembler.h
-@@ -462,6 +462,7 @@ USER(\label, ic	ivau, \tmp2)			// invali
- 	.endm
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -4062,9 +4062,17 @@ err_out:
+ 	return -EIO;
+ }
  
- /*
-+ * Deprecated! Use SYM_FUNC_{START,START_WEAK,END}_PI instead.
-  * Annotate a function as position independent, i.e., safe to be called before
-  * the kernel virtual mapping is activated.
-  */
---- a/arch/arm64/include/asm/linkage.h
-+++ b/arch/arm64/include/asm/linkage.h
-@@ -4,4 +4,20 @@
- #define __ALIGN		.align 2
- #define __ALIGN_STR	".align 2"
+-static bool rtl_test_hw_pad_bug(struct rtl8169_private *tp, struct sk_buff *skb)
++static bool rtl_test_hw_pad_bug(struct rtl8169_private *tp)
+ {
+-	return skb->len < ETH_ZLEN && tp->mac_version == RTL_GIGA_MAC_VER_34;
++	switch (tp->mac_version) {
++	case RTL_GIGA_MAC_VER_34:
++	case RTL_GIGA_MAC_VER_60:
++	case RTL_GIGA_MAC_VER_61:
++	case RTL_GIGA_MAC_VER_63:
++		return true;
++	default:
++		return false;
++	}
+ }
  
-+/*
-+ * Annotate a function as position independent, i.e., safe to be called before
-+ * the kernel virtual mapping is activated.
-+ */
-+#define SYM_FUNC_START_PI(x)			\
-+		SYM_FUNC_START_ALIAS(__pi_##x);	\
-+		SYM_FUNC_START(x)
-+
-+#define SYM_FUNC_START_WEAK_PI(x)		\
-+		SYM_FUNC_START_ALIAS(__pi_##x);	\
-+		SYM_FUNC_START_WEAK(x)
-+
-+#define SYM_FUNC_END_PI(x)			\
-+		SYM_FUNC_END(x);		\
-+		SYM_FUNC_END_ALIAS(__pi_##x)
-+
- #endif
+ static void rtl8169_tso_csum_v1(struct sk_buff *skb, u32 *opts)
+@@ -4136,7 +4144,7 @@ static bool rtl8169_tso_csum_v2(struct r
+ 
+ 		opts[1] |= transport_offset << TCPHO_SHIFT;
+ 	} else {
+-		if (unlikely(rtl_test_hw_pad_bug(tp, skb)))
++		if (unlikely(skb->len < ETH_ZLEN && rtl_test_hw_pad_bug(tp)))
+ 			return !eth_skb_pad(skb);
+ 	}
+ 
 
 
