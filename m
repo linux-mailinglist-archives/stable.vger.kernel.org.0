@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95B4D2ABAF0
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208412ABB4A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732877AbgKINPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:15:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S1732105AbgKIN05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:26:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732881AbgKINPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:15:19 -0500
+        id S1731083AbgKINPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C957520867;
-        Mon,  9 Nov 2020 13:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7EF8216C4;
+        Mon,  9 Nov 2020 13:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927717;
-        bh=+deqDxKjfvTQp8pmCPDjJx3fKKQ/QVecxikk+yKbHsU=;
+        s=default; t=1604927720;
+        bh=YslYDa45oHKEau1PImBbICMtQ4p9PWkBeRpGnX9QEH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gInv/FOcLKre+1fnFegpmcq/4OpW5zOKDH9DnlOIMa23a0lNH1uyY01TqqWEvo95Z
-         5siFs4jJRW1sONni4dRsA3v/Eoxf0xK4HQNhgI2oYANFs/ohSnFWyc8TNSye52qhJM
-         mzBIiyPH+NmuSRuRPtT6yN3qZM3I67yoWP90vhps=
+        b=iWhxamJDPTJrecJHfErlnfw2t9CsfyJL3x0QGpmODJ2Mx+4CdBROVAihQczbIwjU/
+         tnWx6JEpRU4D7YyJJbA9aDO7rOAX+FhTSv1dUCd80C+lvOk6n/4ax3MeXSoNY6wjKh
+         xUD/pi3inL2lZd8tuHhL2+fVZeZptjmETTNYTelI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Strohman <astroh@amazon.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 5.4 83/85] xfs: flush for older, xfs specific ioctls
-Date:   Mon,  9 Nov 2020 13:56:20 +0100
-Message-Id: <20201109125026.570966436@linuxfoundation.org>
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
+        Anthony Liguori <aliguori@amazon.com>
+Subject: [PATCH 5.4 84/85] perf/core: Fix a memory leak in perf_event_parse_addr_filter()
+Date:   Mon,  9 Nov 2020 13:56:21 +0100
+Message-Id: <20201109125026.622601267@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
 References: <20201109125022.614792961@linuxfoundation.org>
@@ -42,68 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Strohman <astroh@amazon.com>
+From: kiyin(尹亮) <kiyin@tencent.com>
 
-837a6e7f5cdb ("fs: add generic UNRESVSP and ZERO_RANGE ioctl handlers") changed
-ioctls XFS_IOC_UNRESVSP XFS_IOC_UNRESVSP64 and XFS_IOC_ZERO_RANGE to be generic
-instead of xfs specific.
+commit 7bdb157cdebbf95a1cd94ed2e01b338714075d00 upstream.
 
-Because of this change, 36f11775da75 ("xfs: properly serialise fallocate against
-AIO+DIO") needed adaptation, as 5.4 still uses the xfs specific ioctls.
+As shown through runtime testing, the "filename" allocation is not
+always freed in perf_event_parse_addr_filter().
 
-Without this, xfstests xfs/242 and xfs/290 fail. Both of these tests test
-XFS_IOC_ZERO_RANGE.
+There are three possible ways that this could happen:
 
-Fixes: 36f11775da75 ("xfs: properly serialise fallocate against AIO+DIO")
-Tested-by: Andy Strohman <astroh@amazon.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+ - It could be allocated twice on subsequent iterations through the loop,
+ - or leaked on the success path,
+ - or on the failure path.
+
+Clean up the code flow to make it obvious that 'filename' is always
+freed in the reallocation path and in the two return paths as well.
+
+We rely on the fact that kfree(NULL) is NOP and filename is initialized
+with NULL.
+
+This fixes the leak. No other side effects expected.
+
+[ Dan Carpenter: cleaned up the code flow & added a changelog. ]
+[ Ingo Molnar: updated the changelog some more. ]
+
+Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
+Signed-off-by: "kiyin(尹亮)" <kiyin@tencent.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc: Anthony Liguori <aliguori@amazon.com>
+--
+ kernel/events/core.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/xfs/xfs_ioctl.c |   26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -622,7 +622,6 @@ xfs_ioc_space(
- 	error = xfs_break_layouts(inode, &iolock, BREAK_UNMAP);
- 	if (error)
- 		goto out_unlock;
--	inode_dio_wait(inode);
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -9415,6 +9415,7 @@ perf_event_parse_addr_filter(struct perf
+ 			if (token == IF_SRC_FILE || token == IF_SRC_FILEADDR) {
+ 				int fpos = token == IF_SRC_FILE ? 2 : 1;
  
- 	switch (bf->l_whence) {
- 	case 0: /*SEEK_SET*/
-@@ -668,6 +667,31 @@ xfs_ioc_space(
- 		goto out_unlock;
- 	}
++				kfree(filename);
+ 				filename = match_strdup(&args[fpos]);
+ 				if (!filename) {
+ 					ret = -ENOMEM;
+@@ -9461,16 +9462,13 @@ perf_event_parse_addr_filter(struct perf
+ 				 */
+ 				ret = -EOPNOTSUPP;
+ 				if (!event->ctx->task)
+-					goto fail_free_name;
++					goto fail;
  
-+	/*
-+	 * Must wait for all AIO to complete before we continue as AIO can
-+	 * change the file size on completion without holding any locks we
-+	 * currently hold. We must do this first because AIO can update both
-+	 * the on disk and in memory inode sizes, and the operations that follow
-+	 * require the in-memory size to be fully up-to-date.
-+	 */
-+	inode_dio_wait(inode);
-+
-+	/*
-+	 * Now that AIO and DIO has drained we can flush and (if necessary)
-+	 * invalidate the cached range over the first operation we are about to
-+	 * run. We include zero range here because it starts with a hole punch
-+	 * over the target range.
-+	 */
-+	switch (cmd) {
-+	case XFS_IOC_ZERO_RANGE:
-+	case XFS_IOC_UNRESVSP:
-+	case XFS_IOC_UNRESVSP64:
-+		error = xfs_flush_unmap_range(ip, bf->l_start, bf->l_len);
-+		if (error)
-+			goto out_unlock;
-+		break;
-+	}
-+
- 	switch (cmd) {
- 	case XFS_IOC_ZERO_RANGE:
- 		flags |= XFS_PREALLOC_SET;
+ 				/* look up the path and grab its inode */
+ 				ret = kern_path(filename, LOOKUP_FOLLOW,
+ 						&filter->path);
+ 				if (ret)
+-					goto fail_free_name;
+-
+-				kfree(filename);
+-				filename = NULL;
++					goto fail;
+ 
+ 				ret = -EINVAL;
+ 				if (!filter->path.dentry ||
+@@ -9490,13 +9488,13 @@ perf_event_parse_addr_filter(struct perf
+ 	if (state != IF_STATE_ACTION)
+ 		goto fail;
+ 
++	kfree(filename);
+ 	kfree(orig);
+ 
+ 	return 0;
+ 
+-fail_free_name:
+-	kfree(filename);
+ fail:
++	kfree(filename);
+ 	free_filters_list(filters);
+ 	kfree(orig);
+ 
 
 
