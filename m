@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5339F2ABB44
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FFB62ABA25
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732122AbgKIN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
+        id S1732803AbgKINQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:16:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387435AbgKINQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:16:06 -0500
+        id S1732783AbgKINQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:16:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8330920789;
-        Mon,  9 Nov 2020 13:16:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95F85208FE;
+        Mon,  9 Nov 2020 13:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927765;
-        bh=nDWBTN3tydoQgWWr1p6c9vEgYdjvmncGkNVAie8d72M=;
+        s=default; t=1604927768;
+        bh=B2oPBsbf1FLKZoonZ7LJeAmGOlam1equPui3hcxSV8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fbrktsd5SiYNwTGhLUi4acy+icZmdka/JXWk1HSIdlIzNoxJUtwG4BkXE34bzWhTk
-         v1b7RMkNJqXUkKMfvyuZcZsqQasMOdJE5awaYYW1n7CJe1Lh7HRkWnEJfZQZRt9YAg
-         KzCp23ck58AFIe9TJ51MgQGfx8hNVqFRZmR9b2zY=
+        b=tTTM42U5mxKA66KliT9oFWtFdVb05GRef3E/YQSqFp3BGRsVz3UcSZJx362JHyY7A
+         Rc7nKQxy2/uYUaQDD+GAYyKWQjiTrtWzM+evtTDV1MQltS4svxiE51ceRzcudIuPDA
+         W7YZGvLljoCFJ+nSBGxKneb+Fjrdpyf/9AESFudA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Yan Zhao <yan.y.zhao@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 014/133] drm/i915: Drop runtime-pm assert from vgpu io accessors
-Date:   Mon,  9 Nov 2020 13:54:36 +0100
-Message-Id: <20201109125031.408251352@linuxfoundation.org>
+Subject: [PATCH 5.9 015/133] drm/i915: Exclude low pages (128KiB) of stolen from use
+Date:   Mon,  9 Nov 2020 13:54:37 +0100
+Message-Id: <20201109125031.454053043@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -46,81 +45,277 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 5c6c13cd1102caf92d006a3cf4591c0229019daf upstream.
+commit 3da3c5c1c9825c24168f27b021339e90af37e969 upstream.
 
-The "mmio" writes into vgpu registers are simple memory traps from the
-guest into the host. We do not need to assert in the guest that the
-device is awake for the io as we do not write to the device itself.
-
-However, over time we have refactored all the mmio accessors with the
-result that the vgpu reuses the gen2 accessors and so inherits the
-assert for runtime-pm of the native device. The assert though has
-actually been there since commit 3be0bf5acca6 ("drm/i915: Create vGPU
-specific MMIO operations to reduce traps").
+The GPU is trashing the low pages of its reserved memory upon reset. If
+we are using this memory for ringbuffers, then we will dutiful resubmit
+the trashed rings after the reset causing further resets, and worse. We
+must exclude this range from our own use. The value of 128KiB was found
+by empirical measurement (and verified now with a selftest) on gen9.
 
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Yan Zhao <yan.y.zhao@intel.com>
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20200811092532.13753-1-chris@chris-wilson.co.uk
-(cherry picked from commit 0e65ce24a33c1d37da4bf43c34e080334ec6cb60)
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201019165005.18128-2-chris@chris-wilson.co.uk
+(cherry picked from commit d3606757e611fbd48bb239e8c2fe9779b3f50035)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_uncore.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/Kconfig.debug         |    1 
+ drivers/gpu/drm/i915/gem/i915_gem_stolen.c |    6 
+ drivers/gpu/drm/i915/gem/i915_gem_stolen.h |    2 
+ drivers/gpu/drm/i915/gt/selftest_reset.c   |  196 +++++++++++++++++++++++++++++
+ 4 files changed, 203 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_uncore.c
-+++ b/drivers/gpu/drm/i915/intel_uncore.c
-@@ -1209,6 +1209,18 @@ unclaimed_reg_debug(struct intel_uncore
- 		spin_unlock(&uncore->debug->lock);
+--- a/drivers/gpu/drm/i915/Kconfig.debug
++++ b/drivers/gpu/drm/i915/Kconfig.debug
+@@ -153,6 +153,7 @@ config DRM_I915_SELFTEST
+ 	select DRM_EXPORT_FOR_TESTS if m
+ 	select FAULT_INJECTION
+ 	select PRIME_NUMBERS
++	select CRC32
+ 	help
+ 	  Choose this option to allow the driver to perform selftests upon
+ 	  loading; also requires the i915.selftest=1 module parameter. To
+--- a/drivers/gpu/drm/i915/gem/i915_gem_stolen.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_stolen.c
+@@ -53,8 +53,10 @@ int i915_gem_stolen_insert_node(struct d
+ 				struct drm_mm_node *node, u64 size,
+ 				unsigned alignment)
+ {
+-	return i915_gem_stolen_insert_node_in_range(i915, node, size,
+-						    alignment, 0, U64_MAX);
++	return i915_gem_stolen_insert_node_in_range(i915, node,
++						    size, alignment,
++						    I915_GEM_STOLEN_BIAS,
++						    U64_MAX);
  }
  
-+#define __vgpu_read(x) \
-+static u##x \
-+vgpu_read##x(struct intel_uncore *uncore, i915_reg_t reg, bool trace) { \
-+	u##x val = __raw_uncore_read##x(uncore, reg); \
-+	trace_i915_reg_rw(false, reg, val, sizeof(val), trace); \
-+	return val; \
-+}
-+__vgpu_read(8)
-+__vgpu_read(16)
-+__vgpu_read(32)
-+__vgpu_read(64)
-+
- #define GEN2_READ_HEADER(x) \
- 	u##x val = 0; \
- 	assert_rpm_wakelock_held(uncore->rpm);
-@@ -1414,6 +1426,16 @@ __gen_reg_write_funcs(gen8);
- #undef GEN6_WRITE_FOOTER
- #undef GEN6_WRITE_HEADER
+ void i915_gem_stolen_remove_node(struct drm_i915_private *i915,
+--- a/drivers/gpu/drm/i915/gem/i915_gem_stolen.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_stolen.h
+@@ -30,4 +30,6 @@ i915_gem_object_create_stolen_for_preall
+ 					       resource_size_t stolen_offset,
+ 					       resource_size_t size);
  
-+#define __vgpu_write(x) \
-+static void \
-+vgpu_write##x(struct intel_uncore *uncore, i915_reg_t reg, u##x val, bool trace) { \
-+	trace_i915_reg_rw(true, reg, val, sizeof(val), trace); \
-+	__raw_uncore_write##x(uncore, reg, val); \
-+}
-+__vgpu_write(8)
-+__vgpu_write(16)
-+__vgpu_write(32)
++#define I915_GEM_STOLEN_BIAS SZ_128K
 +
- #define ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, x) \
- do { \
- 	(uncore)->funcs.mmio_writeb = x##_write8; \
-@@ -1735,7 +1757,10 @@ static void uncore_raw_init(struct intel
+ #endif /* __I915_GEM_STOLEN_H__ */
+--- a/drivers/gpu/drm/i915/gt/selftest_reset.c
++++ b/drivers/gpu/drm/i915/gt/selftest_reset.c
+@@ -3,9 +3,203 @@
+  * Copyright © 2018 Intel Corporation
+  */
+ 
++#include <linux/crc32.h>
++
++#include "gem/i915_gem_stolen.h"
++
++#include "i915_memcpy.h"
+ #include "i915_selftest.h"
+ #include "selftests/igt_reset.h"
+ #include "selftests/igt_atomic.h"
++#include "selftests/igt_spinner.h"
++
++static int
++__igt_reset_stolen(struct intel_gt *gt,
++		   intel_engine_mask_t mask,
++		   const char *msg)
++{
++	struct i915_ggtt *ggtt = &gt->i915->ggtt;
++	const struct resource *dsm = &gt->i915->dsm;
++	resource_size_t num_pages, page;
++	struct intel_engine_cs *engine;
++	intel_wakeref_t wakeref;
++	enum intel_engine_id id;
++	struct igt_spinner spin;
++	long max, count;
++	void *tmp;
++	u32 *crc;
++	int err;
++
++	if (!drm_mm_node_allocated(&ggtt->error_capture))
++		return 0;
++
++	num_pages = resource_size(dsm) >> PAGE_SHIFT;
++	if (!num_pages)
++		return 0;
++
++	crc = kmalloc_array(num_pages, sizeof(u32), GFP_KERNEL);
++	if (!crc)
++		return -ENOMEM;
++
++	tmp = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	if (!tmp) {
++		err = -ENOMEM;
++		goto err_crc;
++	}
++
++	igt_global_reset_lock(gt);
++	wakeref = intel_runtime_pm_get(gt->uncore->rpm);
++
++	err = igt_spinner_init(&spin, gt);
++	if (err)
++		goto err_lock;
++
++	for_each_engine(engine, gt, id) {
++		struct intel_context *ce;
++		struct i915_request *rq;
++
++		if (!(mask & engine->mask))
++			continue;
++
++		if (!intel_engine_can_store_dword(engine))
++			continue;
++
++		ce = intel_context_create(engine);
++		if (IS_ERR(ce)) {
++			err = PTR_ERR(ce);
++			goto err_spin;
++		}
++		rq = igt_spinner_create_request(&spin, ce, MI_ARB_CHECK);
++		intel_context_put(ce);
++		if (IS_ERR(rq)) {
++			err = PTR_ERR(rq);
++			goto err_spin;
++		}
++		i915_request_add(rq);
++	}
++
++	for (page = 0; page < num_pages; page++) {
++		dma_addr_t dma = (dma_addr_t)dsm->start + (page << PAGE_SHIFT);
++		void __iomem *s;
++		void *in;
++
++		ggtt->vm.insert_page(&ggtt->vm, dma,
++				     ggtt->error_capture.start,
++				     I915_CACHE_NONE, 0);
++		mb();
++
++		s = io_mapping_map_wc(&ggtt->iomap,
++				      ggtt->error_capture.start,
++				      PAGE_SIZE);
++
++		if (!__drm_mm_interval_first(&gt->i915->mm.stolen,
++					     page << PAGE_SHIFT,
++					     ((page + 1) << PAGE_SHIFT) - 1))
++			memset32(s, STACK_MAGIC, PAGE_SIZE / sizeof(u32));
++
++		in = s;
++		if (i915_memcpy_from_wc(tmp, s, PAGE_SIZE))
++			in = tmp;
++		crc[page] = crc32_le(0, in, PAGE_SIZE);
++
++		io_mapping_unmap(s);
++	}
++	mb();
++	ggtt->vm.clear_range(&ggtt->vm, ggtt->error_capture.start, PAGE_SIZE);
++
++	if (mask == ALL_ENGINES) {
++		intel_gt_reset(gt, mask, NULL);
++	} else {
++		for_each_engine(engine, gt, id) {
++			if (mask & engine->mask)
++				intel_engine_reset(engine, NULL);
++		}
++	}
++
++	max = -1;
++	count = 0;
++	for (page = 0; page < num_pages; page++) {
++		dma_addr_t dma = (dma_addr_t)dsm->start + (page << PAGE_SHIFT);
++		void __iomem *s;
++		void *in;
++		u32 x;
++
++		ggtt->vm.insert_page(&ggtt->vm, dma,
++				     ggtt->error_capture.start,
++				     I915_CACHE_NONE, 0);
++		mb();
++
++		s = io_mapping_map_wc(&ggtt->iomap,
++				      ggtt->error_capture.start,
++				      PAGE_SIZE);
++
++		in = s;
++		if (i915_memcpy_from_wc(tmp, s, PAGE_SIZE))
++			in = tmp;
++		x = crc32_le(0, in, PAGE_SIZE);
++
++		if (x != crc[page] &&
++		    !__drm_mm_interval_first(&gt->i915->mm.stolen,
++					     page << PAGE_SHIFT,
++					     ((page + 1) << PAGE_SHIFT) - 1)) {
++			pr_debug("unused stolen page %pa modified by GPU reset\n",
++				 &page);
++			if (count++ == 0)
++				igt_hexdump(in, PAGE_SIZE);
++			max = page;
++		}
++
++		io_mapping_unmap(s);
++	}
++	mb();
++	ggtt->vm.clear_range(&ggtt->vm, ggtt->error_capture.start, PAGE_SIZE);
++
++	if (count > 0) {
++		pr_info("%s reset clobbered %ld pages of stolen, last clobber at page %ld\n",
++			msg, count, max);
++	}
++	if (max >= I915_GEM_STOLEN_BIAS >> PAGE_SHIFT) {
++		pr_err("%s reset clobbered unreserved area [above %x] of stolen; may cause severe faults\n",
++		       msg, I915_GEM_STOLEN_BIAS);
++		err = -EINVAL;
++	}
++
++err_spin:
++	igt_spinner_fini(&spin);
++
++err_lock:
++	intel_runtime_pm_put(gt->uncore->rpm, wakeref);
++	igt_global_reset_unlock(gt);
++
++	kfree(tmp);
++err_crc:
++	kfree(crc);
++	return err;
++}
++
++static int igt_reset_device_stolen(void *arg)
++{
++	return __igt_reset_stolen(arg, ALL_ENGINES, "device");
++}
++
++static int igt_reset_engines_stolen(void *arg)
++{
++	struct intel_gt *gt = arg;
++	struct intel_engine_cs *engine;
++	enum intel_engine_id id;
++	int err;
++
++	if (!intel_has_reset_engine(gt))
++		return 0;
++
++	for_each_engine(engine, gt, id) {
++		err = __igt_reset_stolen(gt, engine->mask, engine->name);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
+ 
+ static int igt_global_reset(void *arg)
  {
- 	GEM_BUG_ON(intel_uncore_has_forcewake(uncore));
- 
--	if (IS_GEN(uncore->i915, 5)) {
-+	if (intel_vgpu_active(uncore->i915)) {
-+		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, vgpu);
-+		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, vgpu);
-+	} else if (IS_GEN(uncore->i915, 5)) {
- 		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, gen5);
- 		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, gen5);
- 	} else {
+@@ -164,6 +358,8 @@ int intel_reset_live_selftests(struct dr
+ {
+ 	static const struct i915_subtest tests[] = {
+ 		SUBTEST(igt_global_reset), /* attempt to recover GPU first */
++		SUBTEST(igt_reset_device_stolen),
++		SUBTEST(igt_reset_engines_stolen),
+ 		SUBTEST(igt_wedged_reset),
+ 		SUBTEST(igt_atomic_reset),
+ 		SUBTEST(igt_atomic_engine_reset),
 
 
