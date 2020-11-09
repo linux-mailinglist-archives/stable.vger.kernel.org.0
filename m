@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D3B2AB9DE
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2582ABA71
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731942AbgKINN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:13:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39216 "EHLO mail.kernel.org"
+        id S1732735AbgKINTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:19:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732867AbgKINNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:13:24 -0500
+        id S2387704AbgKINTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:19:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BE512076E;
-        Mon,  9 Nov 2020 13:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BF31206D8;
+        Mon,  9 Nov 2020 13:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927603;
-        bh=WFcMG/uHux1Zw6I0DA2/RfogX4z10mHTe1x9UJyN2rg=;
+        s=default; t=1604927959;
+        bh=3jA+X4eawwUmyK0ONRZj1sgVPzj9BXzDyGc4hoede/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JO3MWYvFjLjbCzjZIJ/pmjlTDuAVYkWDuU1/uf2YgFey5dKrrbFVFKzrXApQ+6MBI
-         cUxpXWMeDpOMYfozst3lIbk3dgE8gueYpv43MceSfs0AImRpNeh6jqvoxAibzYoevj
-         +nfUdJp2E1A12t0ZTfjhHfqU7BAeQ+1d3XNHMqvE=
+        b=1EBfNupJl+BjOIL0ZeWUTJ7WiLn5Eepmk9MvOW8wHJ0AStMD9GasDrOOmuc8Ftzkf
+         S0iShwb4INTwEcwsmpkNCoCfexajMJhuu7JCoy0DnxdC4omu0Fs04Yfmqdg9SP6RQl
+         paMR5qKrc2XI4Pwg9WTAY3QdP6n+gPxXOAfZxSOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 45/85] of: Fix reserved-memory overlap detection
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 080/133] ARM: dts: mmp3: Add power domain for the camera
 Date:   Mon,  9 Nov 2020 13:55:42 +0100
-Message-Id: <20201109125024.752292623@linuxfoundation.org>
+Message-Id: <20201109125034.570357991@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Lubomir Rintel <lkundrak@v3.sk>
 
-[ Upstream commit ca05f33316559a04867295dd49f85aeedbfd6bfd ]
+[ Upstream commit 202f8e5c4975a95babf3bcdfb2c18952f06b030a ]
 
-The reserved-memory overlap detection code fails to detect overlaps if
-either of the regions starts at address 0x0.  The code explicitly checks
-for and ignores such regions, apparently in order to ignore dynamically
-allocated regions which have an address of 0x0 at this point.  These
-dynamically allocated regions also have a size of 0x0 at this point, so
-fix this by removing the check and sorting the dynamically allocated
-regions ahead of any static regions at address 0x0.
+The camera interfaces on MMP3 are on a separate power island that needs
+to be turned on for them to operate and, ideally, turned off when the
+cameras are not in use.
 
-For example, there are two overlaps in this case but they are not
-currently reported:
+This hooks the power island with the camera interfaces in the device
+tree.
 
-	foo@0 {
-	        reg = <0x0 0x2000>;
-	};
-
-	bar@0 {
-	        reg = <0x0 0x1000>;
-	};
-
-	baz@1000 {
-	        reg = <0x1000 0x1000>;
-	};
-
-	quux {
-	        size = <0x1000>;
-	};
-
-but they are after this patch:
-
- OF: reserved mem: OVERLAP DETECTED!
- bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x00002000)
- OF: reserved mem: OVERLAP DETECTED!
- foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x00002000)
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/ded6fd6b47b58741aabdcc6967f73eca6a3f311e.1603273666.git-series.vincent.whitchurch@axis.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20200925234805.228251-2-lkundrak@v3.sk
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/of_reserved_mem.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/mmp3.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 6bd610ee2cd73..3fb5d8caffd53 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -200,6 +200,16 @@ static int __init __rmem_cmp(const void *a, const void *b)
- 	if (ra->base > rb->base)
- 		return 1;
- 
-+	/*
-+	 * Put the dynamic allocations (address == 0, size == 0) before static
-+	 * allocations at address 0x0 so that overlap detection works
-+	 * correctly.
-+	 */
-+	if (ra->size < rb->size)
-+		return -1;
-+	if (ra->size > rb->size)
-+		return 1;
-+
- 	return 0;
- }
- 
-@@ -217,8 +227,7 @@ static void __init __rmem_check_for_overlap(void)
- 
- 		this = &reserved_mem[i];
- 		next = &reserved_mem[i + 1];
--		if (!(this->base && next->base))
--			continue;
-+
- 		if (this->base + this->size > next->base) {
- 			phys_addr_t this_end, next_end;
- 
+diff --git a/arch/arm/boot/dts/mmp3.dtsi b/arch/arm/boot/dts/mmp3.dtsi
+index cc4efd0efabd2..4ae630d37d094 100644
+--- a/arch/arm/boot/dts/mmp3.dtsi
++++ b/arch/arm/boot/dts/mmp3.dtsi
+@@ -296,6 +296,7 @@
+ 				interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&soc_clocks MMP2_CLK_CCIC0>;
+ 				clock-names = "axi";
++				power-domains = <&soc_clocks MMP3_POWER_DOMAIN_CAMERA>;
+ 				#clock-cells = <0>;
+ 				clock-output-names = "mclk";
+ 				status = "disabled";
+@@ -307,6 +308,7 @@
+ 				interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&soc_clocks MMP2_CLK_CCIC1>;
+ 				clock-names = "axi";
++				power-domains = <&soc_clocks MMP3_POWER_DOMAIN_CAMERA>;
+ 				#clock-cells = <0>;
+ 				clock-output-names = "mclk";
+ 				status = "disabled";
 -- 
 2.27.0
 
