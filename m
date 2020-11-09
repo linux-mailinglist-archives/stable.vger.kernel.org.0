@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 488262ABC9F
+	by mail.lfdr.de (Postfix) with ESMTP id B85552ABCA0
 	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732770AbgKINjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:39:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56774 "EHLO mail.kernel.org"
+        id S1733221AbgKINjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730671AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730686AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 9 Nov 2020 08:03:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0121022228;
-        Mon,  9 Nov 2020 13:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFCD02222A;
+        Mon,  9 Nov 2020 13:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926991;
-        bh=BYAd0+5dQ1U7j/KYmbHG8x8X326XH4AnHZB5ZtYoVtU=;
+        s=default; t=1604926994;
+        bh=XIMQnMghpz6vXvnvbYYPsyqWFNGcOkzsRKpAXmee1LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9CbeVyT8QKkq8iZHJgVC2K+NL8h+rnY0zGQ+TFNK0R0dW6oGTgrXC7Ndaoa9c5Dp
-         LfCFlhdR886y3AbPiRPg2N39uyhwZiPbxpWdXOD2kUJpbMXjE0GKp1LglbPalbCrxc
-         2d7gtGdFS7Yu2CHklAFqrUTrx3HV/ZEiymyLOR6U=
+        b=PwMrJmrKMkuIXF7sjk5k+H+L7vTpMxBko5QDx5Z3wK1Ibp68HaCFDtbt0xSzFKKmY
+         BRIDBYsiWGNx/ZYQaRq79/IxRMoxW1MFa+Vw2o0ov05ZDjYydWaXVqkI+EAyktcBBD
+         RdHq5MXT+JU1FHU3OuR58ExKFteZA+0aygZA+58w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 073/117] ia64: fix build error with !COREDUMP
-Date:   Mon,  9 Nov 2020 13:54:59 +0100
-Message-Id: <20201109125029.143088317@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.9 074/117] ceph: promote to unsigned long long before shifting
+Date:   Mon,  9 Nov 2020 13:55:00 +0100
+Message-Id: <20201109125029.194101071@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -46,43 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 7404840d87557c4092bf0272bce5e0354c774bf9 upstream.
+commit c403c3a2fbe24d4ed33e10cabad048583ebd4edf upstream.
 
-Fix linkage error when CONFIG_BINFMT_ELF is selected but CONFIG_COREDUMP
-is not:
+On 32-bit systems, this shift will overflow for files larger than 4GB.
 
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_phdrs':
-    elfcore.c:(.text+0x172): undefined reference to `dump_emit'
-    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_data':
-    elfcore.c:(.text+0x2b2): undefined reference to `dump_emit'
-
-Fixes: 1fcccbac89f5 ("elf coredump: replace ELF_CORE_EXTRA_* macros by functions")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200819064146.12529-1-krzk@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 61f68816211e ("ceph: check caps in filemap_fault and page_mkwrite")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/ia64/kernel/Makefile |    2 +-
+ fs/ceph/addr.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -42,7 +42,7 @@ endif
- obj-$(CONFIG_INTEL_IOMMU)	+= pci-dma.o
- obj-$(CONFIG_SWIOTLB)		+= pci-swiotlb.o
+--- a/fs/ceph/addr.c
++++ b/fs/ceph/addr.c
+@@ -1392,7 +1392,7 @@ static int ceph_filemap_fault(struct vm_
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	struct ceph_file_info *fi = vma->vm_file->private_data;
+ 	struct page *pinned_page = NULL;
+-	loff_t off = vmf->pgoff << PAGE_SHIFT;
++	loff_t off = (loff_t)vmf->pgoff << PAGE_SHIFT;
+ 	int want, got, ret;
+ 	sigset_t oldset;
  
--obj-$(CONFIG_BINFMT_ELF)	+= elfcore.o
-+obj-$(CONFIG_ELF_CORE)		+= elfcore.o
- 
- # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
- CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31
 
 
