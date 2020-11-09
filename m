@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 162E62ABD3B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A992ABD35
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730295AbgKINoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:44:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53540 "EHLO mail.kernel.org"
+        id S1730331AbgKIM7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730303AbgKIM7R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:17 -0500
+        id S1730330AbgKIM7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE17A2076E;
-        Mon,  9 Nov 2020 12:59:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A669420789;
+        Mon,  9 Nov 2020 12:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926757;
-        bh=hQGQLSdykrNiuibfycAaSYtyg4jvgoI7l7yxa74N1Mo=;
+        s=default; t=1604926760;
+        bh=toT8LD3OYQJdZ4L/SiXodjiff6/I5Y1jeEDUwM04MsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkBcaatO18182q6lBf8rruY5cQZnE6Hwj4jkjzmtGH+9mdHGN8kaNoFof6xqlynrV
-         gUtplVbLYrv/qv305lk8T3yqPgUA/zqZ+Qv9ZC3fI437+NZ9/pyC4CeLqEGwZezNGx
-         Jem/rnStdBydvu+2w5KaA6qQdgXASKg9fxkBxPfY=
+        b=M2V2v9tKujerZLMO1Eq3Exo0GPfdhmTKrg5vBGhs4+AGcSQWydR+Kmuh+hAf97q4M
+         9ez5QT9nCVHINUsm171TtndWYDjB9wQPHj7uPsSfhiZnawrMnIeQakx4O+az7ZqXFR
+         VULdNEwjZSweW6/JlqRnXcb8yzHNGM2z8QqtjRCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 4.4 50/86] ceph: promote to unsigned long long before shifting
-Date:   Mon,  9 Nov 2020 13:54:57 +0100
-Message-Id: <20201109125023.230156501@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 4.4 51/86] libceph: clear con->out_msg on Policy::stateful_server faults
+Date:   Mon,  9 Nov 2020 13:54:58 +0100
+Message-Id: <20201109125023.273039387@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -44,33 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-commit c403c3a2fbe24d4ed33e10cabad048583ebd4edf upstream.
+commit 28e1581c3b4ea5f98530064a103c6217bedeea73 upstream.
 
-On 32-bit systems, this shift will overflow for files larger than 4GB.
+con->out_msg must be cleared on Policy::stateful_server
+(!CEPH_MSG_CONNECT_LOSSY) faults.  Not doing so botches the
+reconnection attempt, because after writing the banner the
+messenger moves on to writing the data section of that message
+(either from where it got interrupted by the connection reset or
+from the beginning) instead of writing struct ceph_msg_connect.
+This results in a bizarre error message because the server
+sends CEPH_MSGR_TAG_BADPROTOVER but we think we wrote struct
+ceph_msg_connect:
+
+  libceph: mds0 (1)172.21.15.45:6828 socket error on write
+  ceph: mds0 reconnect start
+  libceph: mds0 (1)172.21.15.45:6829 socket closed (con state OPEN)
+  libceph: mds0 (1)172.21.15.45:6829 protocol version mismatch, my 32 != server's 32
+  libceph: mds0 (1)172.21.15.45:6829 protocol version mismatch
+
+AFAICT this bug goes back to the dawn of the kernel client.
+The reason it survived for so long is that only MDS sessions
+are stateful and only two MDS messages have a data section:
+CEPH_MSG_CLIENT_RECONNECT (always, but reconnecting is rare)
+and CEPH_MSG_CLIENT_REQUEST (only when xattrs are involved).
+The connection has to get reset precisely when such message
+is being sent -- in this case it was the former.
 
 Cc: stable@vger.kernel.org
-Fixes: 61f68816211e ("ceph: check caps in filemap_fault and page_mkwrite")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Link: https://tracker.ceph.com/issues/47723
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ceph/addr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ceph/messenger.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -1243,7 +1243,7 @@ static int ceph_filemap_fault(struct vm_
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct ceph_file_info *fi = vma->vm_file->private_data;
- 	struct page *pinned_page = NULL;
--	loff_t off = vmf->pgoff << PAGE_CACHE_SHIFT;
-+	loff_t off = (loff_t)vmf->pgoff << PAGE_CACHE_SHIFT;
- 	int want, got, ret;
+--- a/net/ceph/messenger.c
++++ b/net/ceph/messenger.c
+@@ -2976,6 +2976,11 @@ static void con_fault(struct ceph_connec
+ 		ceph_msg_put(con->in_msg);
+ 		con->in_msg = NULL;
+ 	}
++	if (con->out_msg) {
++		BUG_ON(con->out_msg->con != con);
++		ceph_msg_put(con->out_msg);
++		con->out_msg = NULL;
++	}
  
- 	dout("filemap_fault %p %llx.%llx %llu~%zd trying to get caps\n",
+ 	/* Requeue anything that hasn't been acked */
+ 	list_splice_init(&con->out_sent, &con->out_queue);
 
 
