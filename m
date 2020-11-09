@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4572ABAE0
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 402AB2ABA03
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387955AbgKINUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:20:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
+        id S1733212AbgKINOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:14:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387976AbgKINUq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:20:46 -0500
+        id S1733241AbgKINOv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:14:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC5B2206D8;
-        Mon,  9 Nov 2020 13:20:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0C6120663;
+        Mon,  9 Nov 2020 13:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928045;
-        bh=BwQ6VG+gjhfz0EqD6NV1hgsz137g69CXNnH/vrOTCFY=;
+        s=default; t=1604927691;
+        bh=rLhjXJeRAW8D0097gZ8jQCcXv8gLYuj/zeHcbNeT4lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/tIGRzaKjsubk45Vl3at9pWXn7x1aSMNx7xN78sAwGjwExFK8R9sGMtIxOYD0MFx
-         0B/A24L0/yg/wZOFbmygPGhIFmD3TZng47qU8LglsBOGfJEzT/vjfVkL6S+Qa1iIaQ
-         fXjdGXf+zSuUUUMS8bhEc0EHbNXGu7mIVLvAWVOM=
+        b=xF29v1Dr2Pup66Q0egzcVCH1CBoS0XgyLVpcKC0gPEDRVeg7l2hfnFqoQ681B4z5S
+         L+rzfEClx+l6KVzsKb1wIt+MJ37jfK8XQtef9KtUVCVAtaDajuCBbS/t9dgpfO6Dbj
+         S5Y9YhVKvQO9LQxSrSo6THrsAZwxJUH4QuUeUP7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.9 109/133] entry: Fix the incorrect ordering of lockdep and RCU check
-Date:   Mon,  9 Nov 2020 13:56:11 +0100
-Message-Id: <20201109125035.932625125@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 75/85] usb: dwc3: ep0: Fix delay status handling
+Date:   Mon,  9 Nov 2020 13:56:12 +0100
+Message-Id: <20201109125026.180567725@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 9d820f68b2bdba5b2e7bf135123c3f57c5051d05 upstream.
+commit fa27e2f6c5e674f3f1225f9ca7a7821faaf393bb upstream.
 
-When an exception/interrupt hits kernel space and the kernel is not
-currently in the idle task then RCU must be watching.
+If we want to send a control status on our own time (through
+delayed_status), make sure to handle a case where we may queue the
+delayed status before the host requesting for it (when XferNotReady
+is generated). Otherwise, the driver won't send anything because it's
+not EP0_STATUS_PHASE yet. To resolve this, regardless whether
+dwc->ep0state is EP0_STATUS_PHASE, make sure to clear the
+dwc->delayed_status flag if dwc3_ep0_send_delayed_status() is called.
+The control status can be sent when the host requests it later.
 
-irqentry_enter() validates this via rcu_irq_enter_check_tick(), which in
-turn invokes lockdep when taking a lock. But at that point lockdep does not
-yet know about the fact that interrupts have been disabled by the CPU,
-which triggers a lockdep splat complaining about inconsistent state.
-
-Invoking trace_hardirqs_off() before rcu_irq_enter_check_tick() defeats the
-point of rcu_irq_enter_check_tick() because trace_hardirqs_off() uses RCU.
-
-So use the same sequence as for the idle case and tell lockdep about the
-irq state change first, invoke the RCU check and then do the lockdep and
-tracer update.
-
-Fixes: a5497bab5f72 ("entry: Provide generic interrupt entry/exit code")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87y2jhl19s.fsf@nanos.tec.linutronix.de
+Cc: <stable@vger.kernel.org>
+Fixes: d97c78a1908e ("usb: dwc3: gadget: END_TRANSFER before CLEAR_STALL command")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/entry/common.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/ep0.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -338,10 +338,10 @@ noinstr irqentry_state_t irqentry_enter(
- 	 * already contains a warning when RCU is not watching, so no point
- 	 * in having another one here.
- 	 */
-+	lockdep_hardirqs_off(CALLER_ADDR0);
- 	instrumentation_begin();
- 	rcu_irq_enter_check_tick();
--	/* Use the combo lockdep/tracing function */
--	trace_hardirqs_off();
-+	trace_hardirqs_off_finish();
- 	instrumentation_end();
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -1058,10 +1058,11 @@ void dwc3_ep0_send_delayed_status(struct
+ {
+ 	unsigned int direction = !dwc->ep0_expect_in;
  
- 	return ret;
++	dwc->delayed_status = false;
++
+ 	if (dwc->ep0state != EP0_STATUS_PHASE)
+ 		return;
+ 
+-	dwc->delayed_status = false;
+ 	__dwc3_ep0_do_control_status(dwc, dwc->eps[direction]);
+ }
+ 
 
 
