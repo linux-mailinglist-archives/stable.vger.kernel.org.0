@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C482AB930
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A182AB985
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730365AbgKING5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:06:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59572 "EHLO mail.kernel.org"
+        id S1730879AbgKINKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:10:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731166AbgKINGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:54 -0500
+        id S1731963AbgKINKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:10:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A5BA20789;
-        Mon,  9 Nov 2020 13:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9C992083B;
+        Mon,  9 Nov 2020 13:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927213;
-        bh=Y6ko1wyJWPyxRON9IYngFtGYAUUZW4EoWK7n9Zwbcqs=;
+        s=default; t=1604927400;
+        bh=1F4wsseaD7dA/55JAb7Imc6P+6gBNObou4dyyvIU1mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+DjZTjkNysldxsDXupXlVUXgewzgDC6F4hbFQCJe8JyUKev6/81uvTYmKmIZNvoN
-         zgRjz7/VevXhENBi5+/DOPx2Jo3JbR8DkmsL+gulpyiq0SYTLQsLPg2GXuaI4GYLwC
-         zvBaGF66wEKlzwjoin7MC1/LXukIljuHmqQOFuH0=
+        b=xrCiOPOBTcph0Z6VdQ+Mtx73pnshA9GgLerCehkfcdA5AclNOQdjnnzz3cArL19lQ
+         Qu61KOSulLnuMUJSFCOIdgKVD0WhFwXXXR4npoZPxgzSvNE3N7wdSuuWU5/7d7Kq8C
+         COjURNu5qZrmTVRucpfBL2mRamQWqDotauBsVAho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Kiryanov <rkir@google.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 32/48] vsock: use ns_capable_noaudit() on socket create
+        stable@vger.kernel.org, Kairui Song <kasong@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 47/71] x86/kexec: Use up-to-dated screen_info copy to fill boot params
 Date:   Mon,  9 Nov 2020 13:55:41 +0100
-Message-Id: <20201109125018.344404099@linuxfoundation.org>
+Message-Id: <20201109125022.110384129@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Vander Stoep <jeffv@google.com>
+From: Kairui Song <kasong@redhat.com>
 
-[ Upstream commit af545bb5ee53f5261db631db2ac4cde54038bdaf ]
+[ Upstream commit afc18069a2cb7ead5f86623a5f3d4ad6e21f940d ]
 
-During __vsock_create() CAP_NET_ADMIN is used to determine if the
-vsock_sock->trusted should be set to true. This value is used later
-for determing if a remote connection should be allowed to connect
-to a restricted VM. Unfortunately, if the caller doesn't have
-CAP_NET_ADMIN, an audit message such as an selinux denial is
-generated even if the caller does not want a trusted socket.
+kexec_file_load() currently reuses the old boot_params.screen_info,
+but if drivers have change the hardware state, boot_param.screen_info
+could contain invalid info.
 
-Logging errors on success is confusing. To avoid this, switch the
-capable(CAP_NET_ADMIN) check to the noaudit version.
+For example, the video type might be no longer VGA, or the frame buffer
+address might be changed. If the kexec kernel keeps using the old screen_info,
+kexec'ed kernel may attempt to write to an invalid framebuffer
+memory region.
 
-Reported-by: Roman Kiryanov <rkir@google.com>
-https://android-review.googlesource.com/c/device/generic/goldfish/+/1468545/
-Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20201023143757.377574-1-jeffv@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+There are two screen_info instances globally available, boot_params.screen_info
+and screen_info. Later one is a copy, and is updated by drivers.
+
+So let kexec_file_load use the updated copy.
+
+[ mingo: Tidied up the changelog. ]
+
+Signed-off-by: Kairui Song <kasong@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014092429.1415040-2-kasong@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/kexec-bzimage64.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index f297a427b421b..29f7491acb354 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -636,7 +636,7 @@ struct sock *__vsock_create(struct net *net,
- 		vsk->owner = get_cred(psk->owner);
- 		vsk->connect_timeout = psk->connect_timeout;
- 	} else {
--		vsk->trusted = capable(CAP_NET_ADMIN);
-+		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
- 		vsk->owner = get_current_cred();
- 		vsk->connect_timeout = VSOCK_DEFAULT_CONNECT_TIMEOUT;
- 	}
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index 9490a2845f14b..273687986a263 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -211,8 +211,7 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
+ 	params->hdr.hardware_subarch = boot_params.hdr.hardware_subarch;
+ 
+ 	/* Copying screen_info will do? */
+-	memcpy(&params->screen_info, &boot_params.screen_info,
+-				sizeof(struct screen_info));
++	memcpy(&params->screen_info, &screen_info, sizeof(struct screen_info));
+ 
+ 	/* Fill in memsize later */
+ 	params->screen_info.ext_mem_k = 0;
 -- 
 2.27.0
 
