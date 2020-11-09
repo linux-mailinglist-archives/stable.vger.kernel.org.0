@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A362ABA47
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C64692AB90A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:03:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387550AbgKINRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:17:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44266 "EHLO mail.kernel.org"
+        id S1730315AbgKINDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:03:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387555AbgKINRI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:17:08 -0500
+        id S1729958AbgKINDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:03:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F06A20731;
-        Mon,  9 Nov 2020 13:17:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B898120663;
+        Mon,  9 Nov 2020 13:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927826;
-        bh=YopzUqnTBgw3ySv48NYmbbGrAaxxv81qlNrkmhYOYnU=;
+        s=default; t=1604927026;
+        bh=EYRumyErUTxrVqHqK8oQl1eUV8edC0J4Y1cYCFAVQIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVdPndkMwWvsj3x+S3QPqNkIxtpJNLBdYuwgLbfZ0lcDduqDeUsDE6pf43+DtcEpZ
-         2h0W0FyZRlq6W9RQzSVJWwgC+PIeAWNk+7neUvffKZAE/pL25y7kqaHxX40pjdoNr/
-         v2tFNOU1XomO/w3auukesTa4FHz9QVlEX80IsVcY=
+        b=GuQ6b3jUt9ByLnzk/90Z0VJTXz2VnzvW2//WQf6+bN1rMrzDgHzcTqfIgC2hzo3lK
+         TiQJe+cDC+e/aqIfAMfByuRgvdsKhPkWBFppubV8IcI5nUSWcQ4P5C51PaoeSAL5BK
+         vkWgYNskN9/fVoYV8aIEW/4xqXo+ROdz40O70NjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Candelaria, Jared" <jared.candelaria@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Bloomfield, Jon" <jon.bloomfield@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 009/133] drm/i915: Avoid mixing integer types during batch copies
+        stable@vger.kernel.org, KoWei Sung <winders@amazon.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.9 045/117] md/raid5: fix oops during stripe resizing
 Date:   Mon,  9 Nov 2020 13:54:31 +0100
-Message-Id: <20201109125031.168552219@linuxfoundation.org>
+Message-Id: <20201109125027.802650252@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,113 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Song Liu <songliubraving@fb.com>
 
-commit c60b93cd4862d108214a14e655358ea714d7a12a upstream.
+commit b44c018cdf748b96b676ba09fdbc5b34fc443ada upstream.
 
-Be consistent and use unsigned long throughout the chunk copies to
-avoid the inherent clumsiness of mixing integer types of different
-widths and signs. Failing to take acount of a wider unsigned type when
-using min_t can lead to treating it as a negative, only for it flip back
-to a large unsigned value after passing a boundary check.
+KoWei reported crash during raid5 reshape:
 
-Fixes: ed13033f0287 ("drm/i915/cmdparser: Only cache the dst vmap")
-Testcase: igt/gen9_exec_parse/bb-large
-Reported-by: "Candelaria, Jared" <jared.candelaria@intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: "Candelaria, Jared" <jared.candelaria@intel.com>
-Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
-Cc: <stable@vger.kernel.org> # v4.9+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200928215942.31917-1-chris@chris-wilson.co.uk
-(cherry picked from commit b7eeb2b4132ccf1a7d38f434cde7043913d1ed3c)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[ 1032.252932] Oops: 0002 [#1] SMP PTI
+[...]
+[ 1032.252943] RIP: 0010:memcpy_erms+0x6/0x10
+[...]
+[ 1032.252947] RSP: 0018:ffffba1ac0c03b78 EFLAGS: 00010286
+[ 1032.252949] RAX: 0000784ac0000000 RBX: ffff91bec3d09740 RCX: 0000000000001000
+[ 1032.252951] RDX: 0000000000001000 RSI: ffff91be6781c000 RDI: 0000784ac0000000
+[ 1032.252953] RBP: ffffba1ac0c03bd8 R08: 0000000000001000 R09: ffffba1ac0c03bf8
+[ 1032.252954] R10: 0000000000000000 R11: 0000000000000000 R12: ffffba1ac0c03bf8
+[ 1032.252955] R13: 0000000000001000 R14: 0000000000000000 R15: 0000000000000000
+[ 1032.252958] FS:  0000000000000000(0000) GS:ffff91becf500000(0000) knlGS:0000000000000000
+[ 1032.252959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1032.252961] CR2: 0000784ac0000000 CR3: 000000031780a002 CR4: 00000000001606e0
+[ 1032.252962] Call Trace:
+[ 1032.252969]  ? async_memcpy+0x179/0x1000 [async_memcpy]
+[ 1032.252977]  ? raid5_release_stripe+0x8e/0x110 [raid456]
+[ 1032.252982]  handle_stripe_expansion+0x15a/0x1f0 [raid456]
+[ 1032.252988]  handle_stripe+0x592/0x1270 [raid456]
+[ 1032.252993]  handle_active_stripes.isra.0+0x3cb/0x5a0 [raid456]
+[ 1032.252999]  raid5d+0x35c/0x550 [raid456]
+[ 1032.253002]  ? schedule+0x42/0xb0
+[ 1032.253006]  ? schedule_timeout+0x10e/0x160
+[ 1032.253011]  md_thread+0x97/0x160
+[ 1032.253015]  ? wait_woken+0x80/0x80
+[ 1032.253019]  kthread+0x104/0x140
+[ 1032.253022]  ? md_start_sync+0x60/0x60
+[ 1032.253024]  ? kthread_park+0x90/0x90
+[ 1032.253027]  ret_from_fork+0x35/0x40
+
+This is because cache_size_mutex was unlocked too early in resize_stripes,
+which races with grow_one_stripe() that grow_one_stripe() allocates a
+stripe with wrong pool_size.
+
+Fix this issue by unlocking cache_size_mutex after updating pool_size.
+
+Cc: <stable@vger.kernel.org> # v4.4+
+Reported-by: KoWei Sung <winders@amazon.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    7 +++++--
- drivers/gpu/drm/i915/i915_cmd_parser.c         |   10 +++++-----
- drivers/gpu/drm/i915/i915_drv.h                |    4 ++--
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/md/raid5.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1962,8 +1962,8 @@ struct eb_parse_work {
- 	struct i915_vma *batch;
- 	struct i915_vma *shadow;
- 	struct i915_vma *trampoline;
--	unsigned int batch_offset;
--	unsigned int batch_length;
-+	unsigned long batch_offset;
-+	unsigned long batch_length;
- };
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2259,8 +2259,6 @@ static int resize_stripes(struct r5conf
+ 	} else
+ 		err = -ENOMEM;
  
- static int __eb_parse(struct dma_fence_work *work)
-@@ -2033,6 +2033,9 @@ static int eb_parse_pipeline(struct i915
- 	struct eb_parse_work *pw;
- 	int err;
+-	mutex_unlock(&conf->cache_size_mutex);
+-
+ 	conf->slab_cache = sc;
+ 	conf->active_name = 1-conf->active_name;
  
-+	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
-+	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
+@@ -2283,6 +2281,8 @@ static int resize_stripes(struct r5conf
+ 
+ 	if (!err)
+ 		conf->pool_size = newsize;
++	mutex_unlock(&conf->cache_size_mutex);
 +
- 	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
- 	if (!pw)
- 		return -ENOMEM;
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -1136,7 +1136,7 @@ find_reg(const struct intel_engine_cs *e
- /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
- static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		       struct drm_i915_gem_object *src_obj,
--		       u32 offset, u32 length)
-+		       unsigned long offset, unsigned long length)
- {
- 	bool needs_clflush;
- 	void *dst, *src;
-@@ -1166,8 +1166,8 @@ static u32 *copy_batch(struct drm_i915_g
- 		}
- 	}
- 	if (IS_ERR(src)) {
-+		unsigned long x, n;
- 		void *ptr;
--		int x, n;
+ 	return err;
+ }
  
- 		/*
- 		 * We can avoid clflushing partial cachelines before the write
-@@ -1184,7 +1184,7 @@ static u32 *copy_batch(struct drm_i915_g
- 		ptr = dst;
- 		x = offset_in_page(offset);
- 		for (n = offset >> PAGE_SHIFT; length; n++) {
--			int len = min_t(int, length, PAGE_SIZE - x);
-+			int len = min(length, PAGE_SIZE - x);
- 
- 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
- 			if (needs_clflush)
-@@ -1414,8 +1414,8 @@ static bool shadow_needs_clflush(struct
-  */
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline)
- {
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1903,8 +1903,8 @@ void intel_engine_init_cmd_parser(struct
- void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline);
- #define I915_CMD_PARSER_TRAMPOLINE_SIZE 8
 
 
