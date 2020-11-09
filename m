@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D5892ABA2D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D70742ABAF9
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732103AbgKINQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:16:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43490 "EHLO mail.kernel.org"
+        id S2387462AbgKINQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:16:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbgKINQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:16:29 -0500
+        id S1731995AbgKINQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:16:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F15BC20663;
-        Mon,  9 Nov 2020 13:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A037E216C4;
+        Mon,  9 Nov 2020 13:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927788;
-        bh=gfvcFmBkTuHwDfE/g82RQgtiq8nqAHjriJEz9WwW1BU=;
+        s=default; t=1604927791;
+        bh=xO8acoFzs3nbjDPtOlg/JW51YE7e0uH81ivXIGDiy4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jn8Z+mgstj3+FQ3tj1WUTQWNfui46GdN3UK5V+tnglN6BFdGnSht2Y+7rxxkbITu3
-         zDk3nmwOCboIwxMTDPTSBS+yr1or1p9+W5Eu+EWNqkGT0+px6GPBQg3xHLNyMmPZi7
-         LBchqdpxOaFQovnbgm0OVXfpTujVKQJlKAbF15og=
+        b=HN7g485I6ycxcIQZtGeGkNItW1uRtqaAOI4zs0pKWu/2TbUYTIN2XeHFarFTCbG99
+         vY0ZgVFDvuDJVa5jjW8cCvIrzLhqi/pTdDbpFQMBo3VuaW2j+0B8OwyDmqArHvqeFs
+         XWes+2bkowaNSgbw5cpiYU+++R83lhIRwtABOy9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 5.9 021/133] drm/nouveau/device: fix changing endianess code to work on older GPUs
-Date:   Mon,  9 Nov 2020 13:54:43 +0100
-Message-Id: <20201109125031.740570960@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com,
+        Oleg Nesterov <oleg@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Christian Brauner <christian@brauner.io>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.9 022/133] ptrace: fix task_join_group_stop() for the case when current is traced
+Date:   Mon,  9 Nov 2020 13:54:44 +0100
+Message-Id: <20201109125031.786233817@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -42,83 +50,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit dcd292c172493067a72672b245a3dd1bcf7268dd upstream.
+commit 7b3c36fc4c231ca532120bbc0df67a12f09c1d96 upstream.
 
-With this we try to detect if the endianess switch works and assume LE if
-not. Suggested by Ben.
+This testcase
 
-Fixes: 51c05340e407 ("drm/nouveau/device: detect if changing endianness failed")
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+	#include <stdio.h>
+	#include <unistd.h>
+	#include <signal.h>
+	#include <sys/ptrace.h>
+	#include <sys/wait.h>
+	#include <pthread.h>
+	#include <assert.h>
+
+	void *tf(void *arg)
+	{
+		return NULL;
+	}
+
+	int main(void)
+	{
+		int pid = fork();
+		if (!pid) {
+			kill(getpid(), SIGSTOP);
+
+			pthread_t th;
+			pthread_create(&th, NULL, tf, NULL);
+
+			return 0;
+		}
+
+		waitpid(pid, NULL, WSTOPPED);
+
+		ptrace(PTRACE_SEIZE, pid, 0, PTRACE_O_TRACECLONE);
+		waitpid(pid, NULL, 0);
+
+		ptrace(PTRACE_CONT, pid, 0,0);
+		waitpid(pid, NULL, 0);
+
+		int status;
+		int thread = waitpid(-1, &status, 0);
+		assert(thread > 0 && thread != pid);
+		assert(status == 0x80137f);
+
+		return 0;
+	}
+
+fails and triggers WARN_ON_ONCE(!signr) in do_jobctl_trap().
+
+This is because task_join_group_stop() has 2 problems when current is traced:
+
+	1. We can't rely on the "JOBCTL_STOP_PENDING" check, a stopped tracee
+	   can be woken up by debugger and it can clone another thread which
+	   should join the group-stop.
+
+	   We need to check group_stop_count || SIGNAL_STOP_STOPPED.
+
+	2. If SIGNAL_STOP_STOPPED is already set, we should not increment
+	   sig->group_stop_count and add JOBCTL_STOP_CONSUME. The new thread
+	   should stop without another do_notify_parent_cldstop() report.
+
+To clarify, the problem is very old and we should blame
+ptrace_init_task().  But now that we have task_join_group_stop() it makes
+more sense to fix this helper to avoid the code duplication.
+
+Reported-by: syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Christian Brauner <christian@brauner.io>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201019134237.GA18810@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/device/base.c |   39 ++++++++++++++--------
- 1 file changed, 26 insertions(+), 13 deletions(-)
+ kernel/signal.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-@@ -2924,17 +2924,34 @@ nvkm_device_del(struct nvkm_device **pde
- 	}
- }
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -391,16 +391,17 @@ static bool task_participate_group_stop(
  
-+/* returns true if the GPU is in the CPU native byte order */
- static inline bool
- nvkm_device_endianness(struct nvkm_device *device)
+ void task_join_group_stop(struct task_struct *task)
  {
--	u32 boot1 = nvkm_rd32(device, 0x000004) & 0x01000001;
- #ifdef __BIG_ENDIAN
--	if (!boot1)
--		return false;
-+	const bool big_endian = true;
- #else
--	if (boot1)
--		return false;
-+	const bool big_endian = false;
- #endif
++	unsigned long mask = current->jobctl & JOBCTL_STOP_SIGMASK;
++	struct signal_struct *sig = current->signal;
 +
-+	/* Read NV_PMC_BOOT_1, and assume non-functional endian switch if it
-+	 * doesn't contain the expected values.
-+	 */
-+	u32 pmc_boot_1 = nvkm_rd32(device, 0x000004);
-+	if (pmc_boot_1 && pmc_boot_1 != 0x01000001)
-+		return !big_endian; /* Assume GPU is LE in this case. */
++	if (sig->group_stop_count) {
++		sig->group_stop_count++;
++		mask |= JOBCTL_STOP_CONSUME;
++	} else if (!(sig->flags & SIGNAL_STOP_STOPPED))
++		return;
 +
-+	/* 0 means LE and 0x01000001 means BE GPU. Condition is true when
-+	 * GPU/CPU endianness don't match.
-+	 */
-+	if (big_endian == !pmc_boot_1) {
-+		nvkm_wr32(device, 0x000004, 0x01000001);
-+		nvkm_rd32(device, 0x000000);
-+		if (nvkm_rd32(device, 0x000004) != (big_endian ? 0x01000001 : 0x00000000))
-+			return !big_endian; /* Assume GPU is LE on any unexpected read-back. */
-+	}
-+
-+	/* CPU/GPU endianness should (hopefully) match. */
- 	return true;
+ 	/* Have the new thread join an on-going signal group stop */
+-	unsigned long jobctl = current->jobctl;
+-	if (jobctl & JOBCTL_STOP_PENDING) {
+-		struct signal_struct *sig = current->signal;
+-		unsigned long signr = jobctl & JOBCTL_STOP_SIGMASK;
+-		unsigned long gstop = JOBCTL_STOP_PENDING | JOBCTL_STOP_CONSUME;
+-		if (task_set_jobctl_pending(task, signr | gstop)) {
+-			sig->group_stop_count++;
+-		}
+-	}
++	task_set_jobctl_pending(task, mask | JOBCTL_STOP_PENDING);
  }
  
-@@ -2987,14 +3004,10 @@ nvkm_device_ctor(const struct nvkm_devic
- 	if (detect) {
- 		/* switch mmio to cpu's native endianness */
- 		if (!nvkm_device_endianness(device)) {
--			nvkm_wr32(device, 0x000004, 0x01000001);
--			nvkm_rd32(device, 0x000000);
--			if (!nvkm_device_endianness(device)) {
--				nvdev_error(device,
--					    "GPU not supported on big-endian\n");
--				ret = -ENOSYS;
--				goto done;
--			}
-+			nvdev_error(device,
-+				    "Couldn't switch GPU to CPUs endianess\n");
-+			ret = -ENOSYS;
-+			goto done;
- 		}
- 
- 		boot0 = nvkm_rd32(device, 0x000000);
+ /*
 
 
