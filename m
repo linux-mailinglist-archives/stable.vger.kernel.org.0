@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FF42ABBAB
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CEC2ABBDD
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731474AbgKIN3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
+        id S1731565AbgKINIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:08:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732718AbgKINMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:46 -0500
+        id S1731538AbgKINIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:08:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C391221F9;
-        Mon,  9 Nov 2020 13:12:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8119120663;
+        Mon,  9 Nov 2020 13:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927565;
-        bh=+7OKRqr7gYQZdcG7EypN6mXf9pa7NOokuuq2m7H6+eY=;
+        s=default; t=1604927291;
+        bh=IZkyBtnAcNPJ5eWX+c9PmAcvfpisVFgjaHiYaDNWRxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqD1H3eYra/YNAZnJcsEOj49MMO8HXDmZXgzBffczZyZwW6BngX3RCSI6x7lP3Y7x
-         oRxZ6n2h7g+gOIOp4ymeX+D7j48HIIjsZJ2dCUd7+o7Xxouw7OH9MgMrqjtZtYM5QG
-         cWuJpcyHg13vqwq9qP6SFyV1m+gXigEJLXWHDiXI=
+        b=2mEBPaCGzyrgBoKLlZJCGCND2KbXZbWxHyG8sDwO/2wW9jWpWNBV6USUZppRg/3W1
+         v2bYKkjzwVXaMVd/L52O5rzxGSOOHX3/ALFz9cipfd1dGAMjn2vsOfFuZrbq+vrtuo
+         peGKT52HJ5mgaouG7FSMVs4gHnWWCOs/cHg41DKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Will Deacon <will@kernel.org>, Jian Cai <jiancai@google.com>
-Subject: [PATCH 5.4 07/85] arm64: lib: Use modern annotations for assembly functions
+        stable@vger.kernel.org, Petr Malat <oss@malat.biz>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 10/71] sctp: Fix COMM_LOST/CANT_STR_ASSOC err reporting on big-endian platforms
 Date:   Mon,  9 Nov 2020 13:55:04 +0100
-Message-Id: <20201109125022.961389458@linuxfoundation.org>
+Message-Id: <20201109125020.399384985@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,426 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Petr Malat <oss@malat.biz>
 
-commit 3ac0f4526dfb80625f5c2365bccd85be68db93ef upstream.
+[ Upstream commit b6df8c81412190fbd5eaa3cec7f642142d9c16cd ]
 
-In an effort to clarify and simplify the annotation of assembly functions
-in the kernel new macros have been introduced. These replace ENTRY and
-ENDPROC and also add a new annotation for static functions which previously
-had no ENTRY equivalent. Update the annotations in the library code to the
-new macros.
+Commit 978aa0474115 ("sctp: fix some type cast warnings introduced since
+very beginning")' broke err reading from sctp_arg, because it reads the
+value as 32-bit integer, although the value is stored as 16-bit integer.
+Later this value is passed to the userspace in 16-bit variable, thus the
+user always gets 0 on big-endian platforms. Fix it by reading the __u16
+field of sctp_arg union, as reading err field would produce a sparse
+warning.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[will: Use SYM_FUNC_START_WEAK_PI]
-Signed-off-by: Will Deacon <will@kernel.org>
-Cc: Jian Cai <jiancai@google.com>
+Fixes: 978aa0474115 ("sctp: fix some type cast warnings introduced since very beginning")
+Signed-off-by: Petr Malat <oss@malat.biz>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/20201030132633.7045-1-oss@malat.biz
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/lib/clear_page.S     |    4 ++--
- arch/arm64/lib/clear_user.S     |    4 ++--
- arch/arm64/lib/copy_from_user.S |    4 ++--
- arch/arm64/lib/copy_in_user.S   |    4 ++--
- arch/arm64/lib/copy_page.S      |    4 ++--
- arch/arm64/lib/copy_to_user.S   |    4 ++--
- arch/arm64/lib/crc32.S          |    8 ++++----
- arch/arm64/lib/memchr.S         |    4 ++--
- arch/arm64/lib/memcmp.S         |    4 ++--
- arch/arm64/lib/memcpy.S         |    8 ++++----
- arch/arm64/lib/memmove.S        |    8 ++++----
- arch/arm64/lib/memset.S         |    8 ++++----
- arch/arm64/lib/strchr.S         |    4 ++--
- arch/arm64/lib/strcmp.S         |    4 ++--
- arch/arm64/lib/strlen.S         |    4 ++--
- arch/arm64/lib/strncmp.S        |    4 ++--
- arch/arm64/lib/strnlen.S        |    4 ++--
- arch/arm64/lib/strrchr.S        |    4 ++--
- arch/arm64/lib/tishift.S        |   12 ++++++------
- 19 files changed, 50 insertions(+), 50 deletions(-)
+ net/sctp/sm_sideeffect.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/lib/clear_page.S
-+++ b/arch/arm64/lib/clear_page.S
-@@ -14,7 +14,7 @@
-  * Parameters:
-  *	x0 - dest
-  */
--ENTRY(clear_page)
-+SYM_FUNC_START(clear_page)
- 	mrs	x1, dczid_el0
- 	and	w1, w1, #0xf
- 	mov	x2, #4
-@@ -25,5 +25,5 @@ ENTRY(clear_page)
- 	tst	x0, #(PAGE_SIZE - 1)
- 	b.ne	1b
- 	ret
--ENDPROC(clear_page)
-+SYM_FUNC_END(clear_page)
- EXPORT_SYMBOL(clear_page)
---- a/arch/arm64/lib/clear_user.S
-+++ b/arch/arm64/lib/clear_user.S
-@@ -19,7 +19,7 @@
-  *
-  * Alignment fixed up by hardware.
-  */
--ENTRY(__arch_clear_user)
-+SYM_FUNC_START(__arch_clear_user)
- 	mov	x2, x1			// save the size for fixup return
- 	subs	x1, x1, #8
- 	b.mi	2f
-@@ -40,7 +40,7 @@ uao_user_alternative 9f, strh, sttrh, wz
- uao_user_alternative 9f, strb, sttrb, wzr, x0, 0
- 5:	mov	x0, #0
- 	ret
--ENDPROC(__arch_clear_user)
-+SYM_FUNC_END(__arch_clear_user)
- EXPORT_SYMBOL(__arch_clear_user)
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1615,12 +1615,12 @@ static int sctp_cmd_interpreter(enum sct
+ 			break;
  
- 	.section .fixup,"ax"
---- a/arch/arm64/lib/copy_from_user.S
-+++ b/arch/arm64/lib/copy_from_user.S
-@@ -53,12 +53,12 @@
- 	.endm
+ 		case SCTP_CMD_INIT_FAILED:
+-			sctp_cmd_init_failed(commands, asoc, cmd->obj.u32);
++			sctp_cmd_init_failed(commands, asoc, cmd->obj.u16);
+ 			break;
  
- end	.req	x5
--ENTRY(__arch_copy_from_user)
-+SYM_FUNC_START(__arch_copy_from_user)
- 	add	end, x0, x2
- #include "copy_template.S"
- 	mov	x0, #0				// Nothing to copy
- 	ret
--ENDPROC(__arch_copy_from_user)
-+SYM_FUNC_END(__arch_copy_from_user)
- EXPORT_SYMBOL(__arch_copy_from_user)
+ 		case SCTP_CMD_ASSOC_FAILED:
+ 			sctp_cmd_assoc_failed(commands, asoc, event_type,
+-					      subtype, chunk, cmd->obj.u32);
++					      subtype, chunk, cmd->obj.u16);
+ 			break;
  
- 	.section .fixup,"ax"
---- a/arch/arm64/lib/copy_in_user.S
-+++ b/arch/arm64/lib/copy_in_user.S
-@@ -55,12 +55,12 @@
- 
- end	.req	x5
- 
--ENTRY(__arch_copy_in_user)
-+SYM_FUNC_START(__arch_copy_in_user)
- 	add	end, x0, x2
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
--ENDPROC(__arch_copy_in_user)
-+SYM_FUNC_END(__arch_copy_in_user)
- EXPORT_SYMBOL(__arch_copy_in_user)
- 
- 	.section .fixup,"ax"
---- a/arch/arm64/lib/copy_page.S
-+++ b/arch/arm64/lib/copy_page.S
-@@ -17,7 +17,7 @@
-  *	x0 - dest
-  *	x1 - src
-  */
--ENTRY(copy_page)
-+SYM_FUNC_START(copy_page)
- alternative_if ARM64_HAS_NO_HW_PREFETCH
- 	// Prefetch three cache lines ahead.
- 	prfm	pldl1strm, [x1, #128]
-@@ -75,5 +75,5 @@ alternative_else_nop_endif
- 	stnp	x16, x17, [x0, #112]
- 
- 	ret
--ENDPROC(copy_page)
-+SYM_FUNC_END(copy_page)
- EXPORT_SYMBOL(copy_page)
---- a/arch/arm64/lib/copy_to_user.S
-+++ b/arch/arm64/lib/copy_to_user.S
-@@ -52,12 +52,12 @@
- 	.endm
- 
- end	.req	x5
--ENTRY(__arch_copy_to_user)
-+SYM_FUNC_START(__arch_copy_to_user)
- 	add	end, x0, x2
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
--ENDPROC(__arch_copy_to_user)
-+SYM_FUNC_END(__arch_copy_to_user)
- EXPORT_SYMBOL(__arch_copy_to_user)
- 
- 	.section .fixup,"ax"
---- a/arch/arm64/lib/crc32.S
-+++ b/arch/arm64/lib/crc32.S
-@@ -85,17 +85,17 @@ CPU_BE(	rev16		w3, w3		)
- 	.endm
- 
- 	.align		5
--ENTRY(crc32_le)
-+SYM_FUNC_START(crc32_le)
- alternative_if_not ARM64_HAS_CRC32
- 	b		crc32_le_base
- alternative_else_nop_endif
- 	__crc32
--ENDPROC(crc32_le)
-+SYM_FUNC_END(crc32_le)
- 
- 	.align		5
--ENTRY(__crc32c_le)
-+SYM_FUNC_START(__crc32c_le)
- alternative_if_not ARM64_HAS_CRC32
- 	b		__crc32c_le_base
- alternative_else_nop_endif
- 	__crc32		c
--ENDPROC(__crc32c_le)
-+SYM_FUNC_END(__crc32c_le)
---- a/arch/arm64/lib/memchr.S
-+++ b/arch/arm64/lib/memchr.S
-@@ -19,7 +19,7 @@
-  * Returns:
-  *	x0 - address of first occurrence of 'c' or 0
-  */
--WEAK(memchr)
-+SYM_FUNC_START_WEAK_PI(memchr)
- 	and	w1, w1, #0xff
- 1:	subs	x2, x2, #1
- 	b.mi	2f
-@@ -30,5 +30,5 @@ WEAK(memchr)
- 	ret
- 2:	mov	x0, #0
- 	ret
--ENDPIPROC(memchr)
-+SYM_FUNC_END_PI(memchr)
- EXPORT_SYMBOL_NOKASAN(memchr)
---- a/arch/arm64/lib/memcmp.S
-+++ b/arch/arm64/lib/memcmp.S
-@@ -46,7 +46,7 @@ pos		.req	x11
- limit_wd	.req	x12
- mask		.req	x13
- 
--WEAK(memcmp)
-+SYM_FUNC_START_WEAK_PI(memcmp)
- 	cbz	limit, .Lret0
- 	eor	tmp1, src1, src2
- 	tst	tmp1, #7
-@@ -243,5 +243,5 @@ CPU_LE( rev	data2, data2 )
- .Lret0:
- 	mov	result, #0
- 	ret
--ENDPIPROC(memcmp)
-+SYM_FUNC_END_PI(memcmp)
- EXPORT_SYMBOL_NOKASAN(memcmp)
---- a/arch/arm64/lib/memcpy.S
-+++ b/arch/arm64/lib/memcpy.S
-@@ -57,11 +57,11 @@
- 	.endm
- 
- 	.weak memcpy
--ENTRY(__memcpy)
--ENTRY(memcpy)
-+SYM_FUNC_START_ALIAS(__memcpy)
-+SYM_FUNC_START_PI(memcpy)
- #include "copy_template.S"
- 	ret
--ENDPIPROC(memcpy)
-+SYM_FUNC_END_PI(memcpy)
- EXPORT_SYMBOL(memcpy)
--ENDPROC(__memcpy)
-+SYM_FUNC_END_ALIAS(__memcpy)
- EXPORT_SYMBOL(__memcpy)
---- a/arch/arm64/lib/memmove.S
-+++ b/arch/arm64/lib/memmove.S
-@@ -46,8 +46,8 @@ D_l	.req	x13
- D_h	.req	x14
- 
- 	.weak memmove
--ENTRY(__memmove)
--ENTRY(memmove)
-+SYM_FUNC_START_ALIAS(__memmove)
-+SYM_FUNC_START_PI(memmove)
- 	cmp	dstin, src
- 	b.lo	__memcpy
- 	add	tmp1, src, count
-@@ -184,7 +184,7 @@ ENTRY(memmove)
- 	tst	count, #0x3f
- 	b.ne	.Ltail63
- 	ret
--ENDPIPROC(memmove)
-+SYM_FUNC_END_PI(memmove)
- EXPORT_SYMBOL(memmove)
--ENDPROC(__memmove)
-+SYM_FUNC_END_ALIAS(__memmove)
- EXPORT_SYMBOL(__memmove)
---- a/arch/arm64/lib/memset.S
-+++ b/arch/arm64/lib/memset.S
-@@ -43,8 +43,8 @@ tmp3w		.req	w9
- tmp3		.req	x9
- 
- 	.weak memset
--ENTRY(__memset)
--ENTRY(memset)
-+SYM_FUNC_START_ALIAS(__memset)
-+SYM_FUNC_START_PI(memset)
- 	mov	dst, dstin	/* Preserve return value.  */
- 	and	A_lw, val, #255
- 	orr	A_lw, A_lw, A_lw, lsl #8
-@@ -203,7 +203,7 @@ ENTRY(memset)
- 	ands	count, count, zva_bits_x
- 	b.ne	.Ltail_maybe_long
- 	ret
--ENDPIPROC(memset)
-+SYM_FUNC_END_PI(memset)
- EXPORT_SYMBOL(memset)
--ENDPROC(__memset)
-+SYM_FUNC_END_ALIAS(__memset)
- EXPORT_SYMBOL(__memset)
---- a/arch/arm64/lib/strchr.S
-+++ b/arch/arm64/lib/strchr.S
-@@ -18,7 +18,7 @@
-  * Returns:
-  *	x0 - address of first occurrence of 'c' or 0
-  */
--WEAK(strchr)
-+SYM_FUNC_START_WEAK(strchr)
- 	and	w1, w1, #0xff
- 1:	ldrb	w2, [x0], #1
- 	cmp	w2, w1
-@@ -28,5 +28,5 @@ WEAK(strchr)
- 	cmp	w2, w1
- 	csel	x0, x0, xzr, eq
- 	ret
--ENDPROC(strchr)
-+SYM_FUNC_END(strchr)
- EXPORT_SYMBOL_NOKASAN(strchr)
---- a/arch/arm64/lib/strcmp.S
-+++ b/arch/arm64/lib/strcmp.S
-@@ -48,7 +48,7 @@ tmp3		.req	x9
- zeroones	.req	x10
- pos		.req	x11
- 
--WEAK(strcmp)
-+SYM_FUNC_START_WEAK_PI(strcmp)
- 	eor	tmp1, src1, src2
- 	mov	zeroones, #REP8_01
- 	tst	tmp1, #7
-@@ -219,5 +219,5 @@ CPU_BE(	orr	syndrome, diff, has_nul )
- 	lsr	data1, data1, #56
- 	sub	result, data1, data2, lsr #56
- 	ret
--ENDPIPROC(strcmp)
-+SYM_FUNC_END_PI(strcmp)
- EXPORT_SYMBOL_NOKASAN(strcmp)
---- a/arch/arm64/lib/strlen.S
-+++ b/arch/arm64/lib/strlen.S
-@@ -44,7 +44,7 @@ pos		.req	x12
- #define REP8_7f 0x7f7f7f7f7f7f7f7f
- #define REP8_80 0x8080808080808080
- 
--WEAK(strlen)
-+SYM_FUNC_START_WEAK_PI(strlen)
- 	mov	zeroones, #REP8_01
- 	bic	src, srcin, #15
- 	ands	tmp1, srcin, #15
-@@ -111,5 +111,5 @@ CPU_LE( lsr	tmp2, tmp2, tmp1 )	/* Shift
- 	csinv	data1, data1, xzr, le
- 	csel	data2, data2, data2a, le
- 	b	.Lrealigned
--ENDPIPROC(strlen)
-+SYM_FUNC_END_PI(strlen)
- EXPORT_SYMBOL_NOKASAN(strlen)
---- a/arch/arm64/lib/strncmp.S
-+++ b/arch/arm64/lib/strncmp.S
-@@ -52,7 +52,7 @@ limit_wd	.req	x13
- mask		.req	x14
- endloop		.req	x15
- 
--WEAK(strncmp)
-+SYM_FUNC_START_WEAK_PI(strncmp)
- 	cbz	limit, .Lret0
- 	eor	tmp1, src1, src2
- 	mov	zeroones, #REP8_01
-@@ -295,5 +295,5 @@ CPU_BE( orr	syndrome, diff, has_nul )
- .Lret0:
- 	mov	result, #0
- 	ret
--ENDPIPROC(strncmp)
-+SYM_FUNC_END_PI(strncmp)
- EXPORT_SYMBOL_NOKASAN(strncmp)
---- a/arch/arm64/lib/strnlen.S
-+++ b/arch/arm64/lib/strnlen.S
-@@ -47,7 +47,7 @@ limit_wd	.req	x14
- #define REP8_7f 0x7f7f7f7f7f7f7f7f
- #define REP8_80 0x8080808080808080
- 
--WEAK(strnlen)
-+SYM_FUNC_START_WEAK_PI(strnlen)
- 	cbz	limit, .Lhit_limit
- 	mov	zeroones, #REP8_01
- 	bic	src, srcin, #15
-@@ -156,5 +156,5 @@ CPU_LE( lsr	tmp2, tmp2, tmp4 )	/* Shift
- .Lhit_limit:
- 	mov	len, limit
- 	ret
--ENDPIPROC(strnlen)
-+SYM_FUNC_END_PI(strnlen)
- EXPORT_SYMBOL_NOKASAN(strnlen)
---- a/arch/arm64/lib/strrchr.S
-+++ b/arch/arm64/lib/strrchr.S
-@@ -18,7 +18,7 @@
-  * Returns:
-  *	x0 - address of last occurrence of 'c' or 0
-  */
--WEAK(strrchr)
-+SYM_FUNC_START_WEAK_PI(strrchr)
- 	mov	x3, #0
- 	and	w1, w1, #0xff
- 1:	ldrb	w2, [x0], #1
-@@ -29,5 +29,5 @@ WEAK(strrchr)
- 	b	1b
- 2:	mov	x0, x3
- 	ret
--ENDPIPROC(strrchr)
-+SYM_FUNC_END_PI(strrchr)
- EXPORT_SYMBOL_NOKASAN(strrchr)
---- a/arch/arm64/lib/tishift.S
-+++ b/arch/arm64/lib/tishift.S
-@@ -7,7 +7,7 @@
- 
- #include <asm/assembler.h>
- 
--ENTRY(__ashlti3)
-+SYM_FUNC_START(__ashlti3)
- 	cbz	x2, 1f
- 	mov	x3, #64
- 	sub	x3, x3, x2
-@@ -26,10 +26,10 @@ ENTRY(__ashlti3)
- 	lsl	x1, x0, x1
- 	mov	x0, x2
- 	ret
--ENDPROC(__ashlti3)
-+SYM_FUNC_END(__ashlti3)
- EXPORT_SYMBOL(__ashlti3)
- 
--ENTRY(__ashrti3)
-+SYM_FUNC_START(__ashrti3)
- 	cbz	x2, 1f
- 	mov	x3, #64
- 	sub	x3, x3, x2
-@@ -48,10 +48,10 @@ ENTRY(__ashrti3)
- 	asr	x0, x1, x0
- 	mov	x1, x2
- 	ret
--ENDPROC(__ashrti3)
-+SYM_FUNC_END(__ashrti3)
- EXPORT_SYMBOL(__ashrti3)
- 
--ENTRY(__lshrti3)
-+SYM_FUNC_START(__lshrti3)
- 	cbz	x2, 1f
- 	mov	x3, #64
- 	sub	x3, x3, x2
-@@ -70,5 +70,5 @@ ENTRY(__lshrti3)
- 	lsr	x0, x1, x0
- 	mov	x1, x2
- 	ret
--ENDPROC(__lshrti3)
-+SYM_FUNC_END(__lshrti3)
- EXPORT_SYMBOL(__lshrti3)
+ 		case SCTP_CMD_INIT_COUNTER_INC:
 
 
