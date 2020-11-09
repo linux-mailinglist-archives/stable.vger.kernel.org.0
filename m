@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE882AB9F4
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CEC82AB9A2
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733106AbgKINOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:14:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40640 "EHLO mail.kernel.org"
+        id S1730987AbgKINLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:11:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733112AbgKINOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:14:23 -0500
+        id S1732251AbgKINLC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 992D120663;
-        Mon,  9 Nov 2020 13:14:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5133E20867;
+        Mon,  9 Nov 2020 13:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927662;
-        bh=vMtewPdBvv1FklAZf9lAytO92hlgMpriCRSga6pzIqY=;
+        s=default; t=1604927462;
+        bh=d0gPJV5WWEH+NZIHVHiJKGf1pstT/LiJ6O/8EHYy+7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFUxls2ioaRCgOwjgB4RgJCj1Dr4f2w3YqVjUjPe3drEEYjjHevBc0UTIhLYYL5o/
-         u/GI24HtqHjnhGCesszRdkpL5hOGutGCR7NuJFIQXIdUhaZ24W6hV2jVyYhBaZ2Kh6
-         S+29Rtc9+AjQcU5HXa1cEbgEPGFFOTiCy2Or1Juw=
+        b=JFyKHLQJz0m8gNHFcmwcnoJPk+otSWbGIHOtUo4uAHKQnc3lAeCBUegy/eVLloEWH
+         OiIBAYmYB5QbTRfVEBvXG8X4zWVrrG8p6grDVC7/50z3DSN6Y9KUMjQYlykq6xSSdx
+         lAtvjPObsdLy90e1WB+houzHJ6Fyru3s0a2M7q0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 34/85] ring-buffer: Fix recursion protection transitions between interrupt context
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 37/71] lib/crc32test: remove extra local_irq_disable/enable
 Date:   Mon,  9 Nov 2020 13:55:31 +0100
-Message-Id: <20201109125024.229282109@linuxfoundation.org>
+Message-Id: <20201109125021.646994231@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,126 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit b02414c8f045ab3b9afc816c3735bc98c5c3d262 upstream.
+commit aa4e460f0976351fddd2f5ac6e08b74320c277a1 upstream.
 
-The recursion protection of the ring buffer depends on preempt_count() to be
-correct. But it is possible that the ring buffer gets called after an
-interrupt comes in but before it updates the preempt_count(). This will
-trigger a false positive in the recursion code.
+Commit 4d004099a668 ("lockdep: Fix lockdep recursion") uncovered the
+following issue in lib/crc32test reported on s390:
 
-Use the same trick from the ftrace function callback recursion code which
-uses a "transition" bit that gets set, to allow for a single recursion for
-to handle transitions between contexts.
+  BUG: using __this_cpu_read() in preemptible [00000000] code: swapper/0/1
+  caller is lockdep_hardirqs_on_prepare+0x48/0x270
+  CPU: 6 PID: 1 Comm: swapper/0 Not tainted 5.9.0-next-20201015-15164-g03d992bd2de6 #19
+  Hardware name: IBM 3906 M04 704 (LPAR)
+  Call Trace:
+    lockdep_hardirqs_on_prepare+0x48/0x270
+    trace_hardirqs_on+0x9c/0x1b8
+    crc32_test.isra.0+0x170/0x1c0
+    crc32test_init+0x1c/0x40
+    do_one_initcall+0x40/0x130
+    do_initcalls+0x126/0x150
+    kernel_init_freeable+0x1f6/0x230
+    kernel_init+0x22/0x150
+    ret_from_fork+0x24/0x2c
+  no locks held by swapper/0/1.
 
-Cc: stable@vger.kernel.org
-Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Remove extra local_irq_disable/local_irq_enable helpers calls.
+
+Fixes: 5fb7f87408f1 ("lib: add module support to crc32 tests")
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/patch.git-4369da00c06e.your-ad-here.call-01602859837-ext-1679@work.hours
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ring_buffer.c |   58 +++++++++++++++++++++++++++++++++++----------
- 1 file changed, 46 insertions(+), 12 deletions(-)
+ lib/crc32test.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -422,14 +422,16 @@ struct rb_event_info {
+--- a/lib/crc32test.c
++++ b/lib/crc32test.c
+@@ -683,7 +683,6 @@ static int __init crc32c_test(void)
  
- /*
-  * Used for which event context the event is in.
-- *  NMI     = 0
-- *  IRQ     = 1
-- *  SOFTIRQ = 2
-- *  NORMAL  = 3
-+ *  TRANSITION = 0
-+ *  NMI     = 1
-+ *  IRQ     = 2
-+ *  SOFTIRQ = 3
-+ *  NORMAL  = 4
-  *
-  * See trace_recursive_lock() comment below for more details.
-  */
- enum {
-+	RB_CTX_TRANSITION,
- 	RB_CTX_NMI,
- 	RB_CTX_IRQ,
- 	RB_CTX_SOFTIRQ,
-@@ -2660,10 +2662,10 @@ rb_wakeups(struct ring_buffer *buffer, s
-  * a bit of overhead in something as critical as function tracing,
-  * we use a bitmask trick.
-  *
-- *  bit 0 =  NMI context
-- *  bit 1 =  IRQ context
-- *  bit 2 =  SoftIRQ context
-- *  bit 3 =  normal context.
-+ *  bit 1 =  NMI context
-+ *  bit 2 =  IRQ context
-+ *  bit 3 =  SoftIRQ context
-+ *  bit 4 =  normal context.
-  *
-  * This works because this is the order of contexts that can
-  * preempt other contexts. A SoftIRQ never preempts an IRQ
-@@ -2686,6 +2688,30 @@ rb_wakeups(struct ring_buffer *buffer, s
-  * The least significant bit can be cleared this way, and it
-  * just so happens that it is the same bit corresponding to
-  * the current context.
-+ *
-+ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
-+ * is set when a recursion is detected at the current context, and if
-+ * the TRANSITION bit is already set, it will fail the recursion.
-+ * This is needed because there's a lag between the changing of
-+ * interrupt context and updating the preempt count. In this case,
-+ * a false positive will be found. To handle this, one extra recursion
-+ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
-+ * bit is already set, then it is considered a recursion and the function
-+ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
-+ *
-+ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
-+ * to be cleared. Even if it wasn't the context that set it. That is,
-+ * if an interrupt comes in while NORMAL bit is set and the ring buffer
-+ * is called before preempt_count() is updated, since the check will
-+ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
-+ * NMI then comes in, it will set the NMI bit, but when the NMI code
-+ * does the trace_recursive_unlock() it will clear the TRANSTION bit
-+ * and leave the NMI bit set. But this is fine, because the interrupt
-+ * code that set the TRANSITION bit will then clear the NMI bit when it
-+ * calls trace_recursive_unlock(). If another NMI comes in, it will
-+ * set the TRANSITION bit and continue.
-+ *
-+ * Note: The TRANSITION bit only handles a single transition between context.
-  */
+ 	/* reduce OS noise */
+ 	local_irq_save(flags);
+-	local_irq_disable();
  
- static __always_inline int
-@@ -2701,8 +2727,16 @@ trace_recursive_lock(struct ring_buffer_
- 		bit = pc & NMI_MASK ? RB_CTX_NMI :
- 			pc & HARDIRQ_MASK ? RB_CTX_IRQ : RB_CTX_SOFTIRQ;
+ 	nsec = ktime_get_ns();
+ 	for (i = 0; i < 100; i++) {
+@@ -694,7 +693,6 @@ static int __init crc32c_test(void)
+ 	nsec = ktime_get_ns() - nsec;
  
--	if (unlikely(val & (1 << (bit + cpu_buffer->nest))))
--		return 1;
-+	if (unlikely(val & (1 << (bit + cpu_buffer->nest)))) {
-+		/*
-+		 * It is possible that this was called by transitioning
-+		 * between interrupt context, and preempt_count() has not
-+		 * been updated yet. In this case, use the TRANSITION bit.
-+		 */
-+		bit = RB_CTX_TRANSITION;
-+		if (val & (1 << (bit + cpu_buffer->nest)))
-+			return 1;
-+	}
+ 	local_irq_restore(flags);
+-	local_irq_enable();
  
- 	val |= (1 << (bit + cpu_buffer->nest));
- 	cpu_buffer->current_context = val;
-@@ -2717,8 +2751,8 @@ trace_recursive_unlock(struct ring_buffe
- 		cpu_buffer->current_context - (1 << cpu_buffer->nest);
- }
+ 	pr_info("crc32c: CRC_LE_BITS = %d\n", CRC_LE_BITS);
  
--/* The recursive locking above uses 4 bits */
--#define NESTED_BITS 4
-+/* The recursive locking above uses 5 bits */
-+#define NESTED_BITS 5
+@@ -768,7 +766,6 @@ static int __init crc32_test(void)
  
- /**
-  * ring_buffer_nest_start - Allow to trace while nested
+ 	/* reduce OS noise */
+ 	local_irq_save(flags);
+-	local_irq_disable();
+ 
+ 	nsec = ktime_get_ns();
+ 	for (i = 0; i < 100; i++) {
+@@ -783,7 +780,6 @@ static int __init crc32_test(void)
+ 	nsec = ktime_get_ns() - nsec;
+ 
+ 	local_irq_restore(flags);
+-	local_irq_enable();
+ 
+ 	pr_info("crc32: CRC_LE_BITS = %d, CRC_BE BITS = %d\n",
+ 		 CRC_LE_BITS, CRC_BE_BITS);
 
 
