@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D95D2ABB18
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBA92AB9DA
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387570AbgKINYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:24:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
+        id S1731977AbgKINNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:13:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387699AbgKINTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:19:10 -0500
+        id S1731783AbgKINNP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:13:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4180B206D8;
-        Mon,  9 Nov 2020 13:19:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BD042083B;
+        Mon,  9 Nov 2020 13:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927949;
-        bh=MBcl/NKkLzgyq67tPp8n4pg0YZ1XyxqaegVLmQFcHwM=;
+        s=default; t=1604927594;
+        bh=WwTEyz2lQESMI9f4tc7PHTKg5wRo54F/WP5WIGCq4wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYasj9gCzqiL48JN1YfGw8Nt+16qpj1JtGVNoQIfblUCXiHSmTXD6a520eJMAkNCr
-         G7VWcTrFRqSKkwVnH3DgkQhhplIkGGPkKI3vVp2+IvEIrZ6qYMnTetflciz+izmf9q
-         7uZyftjYM1BEmioCNKQSTdKDKhuwvjULzU5DBfpc=
+        b=ln4WMgtTuPrAugGfzRVEy0ICwqRbY2kG3YUJRMuuaGh8uGCAW1wq3Euv9SOPd66cj
+         A+aJIviPC6x+rhGWPFTcJ9BqA0GRkfV9vYeJ3pPjkkp06QqD71SxbjrypdxvF68wJV
+         XJyUgPFl7dpRtuwwQRybtZTLBOIMGlRoZytUHnug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 077/133] arm64: dts: amlogic: add missing ethernet reset ID
+Subject: [PATCH 5.4 42/85] ARM: dts: sun4i-a10: fix cpu_alert temperature
 Date:   Mon,  9 Nov 2020 13:55:39 +0100
-Message-Id: <20201109125034.429273039@linuxfoundation.org>
+Message-Id: <20201109125024.610311305@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Clément Péron <peron.clem@gmail.com>
 
-[ Upstream commit f3362f0c18174a1f334a419ab7d567a36bd1b3f3 ]
+[ Upstream commit dea252fa41cd8ce332d148444e4799235a8a03ec ]
 
-Add reset external reset of the ethernet mac controller
+When running dtbs_check thermal_zone warn about the
+temperature declared.
 
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20201020120141.298240-1-jbrunet@baylibre.com
+thermal-zones: cpu-thermal:trips:cpu-alert0:temperature:0:0: 850000 is greater than the maximum of 200000
+
+It's indeed wrong the real value is 85°C and not 850°C.
+
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201003100332.431178-1-peron.clem@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg.dtsi        | 2 ++
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 2 ++
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi         | 3 +++
- 3 files changed, 7 insertions(+)
+ arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-index b9efc8469265d..8e134cb470d3b 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-@@ -187,6 +187,8 @@
- 				      "timing-adjustment";
- 			rx-fifo-depth = <4096>;
- 			tx-fifo-depth = <2048>;
-+			resets = <&reset RESET_ETHERNET>;
-+			reset-names = "stmmaceth";
- 			status = "disabled";
- 		};
- 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-index c95ebe6151766..8514fe6a275a3 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -224,6 +224,8 @@
- 				      "timing-adjustment";
- 			rx-fifo-depth = <4096>;
- 			tx-fifo-depth = <2048>;
-+			resets = <&reset RESET_ETHERNET>;
-+			reset-names = "stmmaceth";
- 			status = "disabled";
- 
- 			mdio0: mdio {
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index 0edd137151f89..726b91d3a905a 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -13,6 +13,7 @@
- #include <dt-bindings/interrupt-controller/irq.h>
- #include <dt-bindings/interrupt-controller/arm-gic.h>
- #include <dt-bindings/power/meson-gxbb-power.h>
-+#include <dt-bindings/reset/amlogic,meson-gxbb-reset.h>
- #include <dt-bindings/thermal/thermal.h>
- 
- / {
-@@ -575,6 +576,8 @@
- 			interrupt-names = "macirq";
- 			rx-fifo-depth = <4096>;
- 			tx-fifo-depth = <2048>;
-+			resets = <&reset RESET_ETHERNET>;
-+			reset-names = "stmmaceth";
- 			power-domains = <&pwrc PWRC_GXBB_ETHERNET_MEM_ID>;
- 			status = "disabled";
- 		};
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index e0a9b371c248f..2265ca24c0c71 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -143,7 +143,7 @@
+ 			trips {
+ 				cpu_alert0: cpu-alert0 {
+ 					/* milliCelsius */
+-					temperature = <850000>;
++					temperature = <85000>;
+ 					hysteresis = <2000>;
+ 					type = "passive";
+ 				};
 -- 
 2.27.0
 
