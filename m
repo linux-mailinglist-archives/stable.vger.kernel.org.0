@@ -2,129 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F59C2AC21A
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:23:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5716B2AC267
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:34:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731344AbgKIRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 12:23:47 -0500
-Received: from pegase1.c-s.fr ([93.17.236.30]:57492 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731290AbgKIRXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 12:23:47 -0500
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4CVHs56PXTz9tyRh;
-        Mon,  9 Nov 2020 18:23:37 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id 4ePLM5wTEiVr; Mon,  9 Nov 2020 18:23:37 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4CVHs557KHz9tyRD;
-        Mon,  9 Nov 2020 18:23:37 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 5768C8B7C3;
-        Mon,  9 Nov 2020 18:23:43 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id dEAEUXC_H1PK; Mon,  9 Nov 2020 18:23:43 +0100 (CET)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id ED5F78B78A;
-        Mon,  9 Nov 2020 18:23:42 +0100 (CET)
-Subject: Re: FAILED: patch "[PATCH] powerpc/603: Always fault when
- _PAGE_ACCESSED is not set" failed to apply to 5.9-stable tree
-To:     gregkh@linuxfoundation.org, mpe@ellerman.id.au
-Cc:     stable@vger.kernel.org
-References: <1604916596142143@kroah.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <e53550ea-761f-14b1-f74f-627b77f7caf9@csgroup.eu>
-Date:   Mon, 9 Nov 2020 18:23:42 +0100
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.1
+        id S1730443AbgKIReE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:34:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729879AbgKIReE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 12:34:04 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A9AC0613CF
+        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 09:34:04 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id w6so3300472pfu.1
+        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 09:34:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MomoK3UbWLGVH0o3jRK/FJ0dxGxwgTjcaFcKcEax1ZU=;
+        b=qTAvriPGYDnyb9yTB1HmGMhqFvnYYBEc7og20mbHyoD3ySVqLrsiYSAW0g3cCk7iUx
+         GEivVjUKHnr6ya0NMyu0Nbqgu8ZaGpW+3r8JzF2hP34q4hx2+7ZXED8ubs44DQcSVKeX
+         tMkUND4vLhNgnctbxvAX28EUumsihLhPklLftJAwwb2XMsWuqHMxiG1uMI5K6FqmBFbf
+         lBAwSj5VKDM3XP24JZXRPV3G0YkrSv9D3rFJJe+CESDwXG5lIRWin6zvdIJNcnLDNXoP
+         wQU3AuBYcb8MhyhrBxprvjEC54pf2Mw08969vX+V3QFLBQIcjN/BrdjcgCwJx6vUzeFm
+         mrGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MomoK3UbWLGVH0o3jRK/FJ0dxGxwgTjcaFcKcEax1ZU=;
+        b=Jm+WZCRGE+39ciHBPvazpgBKdj8fkOBb0WIvU0SNGKjqTR3NkHfUEMLbR/e4GByTIl
+         seqctxfh4YjpygAsQgwQpORJABC+6q2ycNvx6qmI5d1nzTzZiQweCYPNUYigzNiV1tzn
+         u0m8O89NWfD7o0S/J3eTM5FCcUILC/MBVRL8lZYLOCD5N8GO+yWAwk/9NSCffVsvWFTj
+         otws7W7fpQwv9mH+OKypfH8KHhgczV9aMpx37rFPC5PYQNU/lGxEIUV7S8OMiEnE6oXP
+         S+H95QzE/0wOufBCHlDD0QwKNo3x8ZW+2n5IQ4xwgPPpHZlP+H/j0zXzYRN1OsRJh6ac
+         7OFA==
+X-Gm-Message-State: AOAM531DRuIoSgSIuivPmWPHVV9VOnKzZ0xrB99rrUs6658b0McVZjnC
+        R7Yrcy1VQ1hDbmFuzebaVIzCrCxsbOOGaw==
+X-Google-Smtp-Source: ABdhPJx16kME5hawVXHAVN0E28GfJ7X2/e7DZR3NvmRg51xjeA4TzZvb3GibDYed36B1S4bW5feDlA==
+X-Received: by 2002:a62:8709:0:b029:18b:23db:7712 with SMTP id i9-20020a6287090000b029018b23db7712mr14666452pfe.66.1604943243474;
+        Mon, 09 Nov 2020 09:34:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s21sm10684870pgk.52.2020.11.09.09.34.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2020 09:34:02 -0800 (PST)
+Message-ID: <5fa97d8a.1c69fb81.c2df3.6969@mx.google.com>
+Date:   Mon, 09 Nov 2020 09:34:02 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <1604916596142143@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.204-48-g3793076c5323
+Subject: stable-rc/queue/4.14 baseline: 168 runs,
+ 1 regressions (v4.14.204-48-g3793076c5323)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/queue/4.14 baseline: 168 runs, 1 regressions (v4.14.204-48-g37930=
+76c5323)
 
-It does apply, but you have to increase your merge.renamelimit, that's because the file name changed 
-recently.
+Regressions Summary
+-------------------
 
-Thanks
-Christophe
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-Le 09/11/2020 à 11:09, gregkh@linuxfoundation.org a écrit :
-> 
-> The patch below does not apply to the 5.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
->  From 11522448e641e8f1690c9db06e01985e8e19b401 Mon Sep 17 00:00:00 2001
-> From: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Date: Sat, 10 Oct 2020 15:14:30 +0000
-> Subject: [PATCH] powerpc/603: Always fault when _PAGE_ACCESSED is not set
-> 
-> The kernel expects pte_young() to work regardless of CONFIG_SWAP.
-> 
-> Make sure a minor fault is taken to set _PAGE_ACCESSED when it
-> is not already set, regardless of the selection of CONFIG_SWAP.
-> 
-> Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
-> 
-> diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
-> index 5eb9eedac920..2aa16d5368e1 100644
-> --- a/arch/powerpc/kernel/head_book3s_32.S
-> +++ b/arch/powerpc/kernel/head_book3s_32.S
-> @@ -457,11 +457,7 @@ InstructionTLBMiss:
->   	cmplw	0,r1,r3
->   #endif
->   	mfspr	r2, SPRN_SPRG_PGDIR
-> -#ifdef CONFIG_SWAP
->   	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
-> -#else
-> -	li	r1,_PAGE_PRESENT | _PAGE_EXEC
-> -#endif
->   #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
->   	bgt-	112f
->   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
-> @@ -523,11 +519,7 @@ DataLoadTLBMiss:
->   	lis	r1, TASK_SIZE@h		/* check if kernel address */
->   	cmplw	0,r1,r3
->   	mfspr	r2, SPRN_SPRG_PGDIR
-> -#ifdef CONFIG_SWAP
->   	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
-> -#else
-> -	li	r1, _PAGE_PRESENT
-> -#endif
->   	bgt-	112f
->   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
->   	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
-> @@ -603,11 +595,7 @@ DataStoreTLBMiss:
->   	lis	r1, TASK_SIZE@h		/* check if kernel address */
->   	cmplw	0,r1,r3
->   	mfspr	r2, SPRN_SPRG_PGDIR
-> -#ifdef CONFIG_SWAP
->   	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
-> -#else
-> -	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
-> -#endif
->   	bgt-	112f
->   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
->   	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
-> 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.204-48-g3793076c5323/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.204-48-g3793076c5323
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3793076c5323cb144fbb4984f9b327113a2a0f22 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa9491b4863c4811cdb8854
+
+  Results:     2 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
+-48-g3793076c5323/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
+-48-g3793076c5323/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa9491b4863c48=
+11cdb8858
+        new failure (last pass: v4.14.204-48-g22f907ea2f6d4)
+        2 lines
+
+    2020-11-09 13:50:16.121000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
