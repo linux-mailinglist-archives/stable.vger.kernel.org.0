@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 700E52ABC72
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 461372ABD42
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbgKINhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:37:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57292 "EHLO mail.kernel.org"
+        id S1730698AbgKINof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:44:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729913AbgKINEM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:04:12 -0500
+        id S1730259AbgKIM7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2922320663;
-        Mon,  9 Nov 2020 13:04:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C1A2083B;
+        Mon,  9 Nov 2020 12:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927049;
-        bh=kmMfjDW4t3+wdiEPhf8tYLDHxq/71ArM7bQTrfZPWbs=;
+        s=default; t=1604926740;
+        bh=ZGX1wJ93pGvHummN/+NwNi/8hSAy4jg10Vu8dky7Fes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CS3J+rLT32sipt8DL3slSG5BBlbM/6NbHc7RuS09v1bR4cM1k9YRB3A75gMaNjIXH
-         t7qaOC7r7gYlkCle589EUlqW4o8Bvy/vc6nj53uQJmJIrBum8smXrR2T1fl0PUHfUp
-         eAZOI9wMRqBUpC9zG2r6ioy0+3sw5pKvGpVUe6i4=
+        b=wnGzmAyaEwfW5Xkc+d29F2cyURZnHlcL9rboIgMtvbU/qrUiCKuf84jvvUWV5bGJy
+         MeKoKeX+uq/xpxFma+MIPxSV+V8BbSU6G7QziVhLBJsaB457SbcLHPcxMFCwaHngVr
+         Wt1YuPf27ws9nx/Cfugs4/JHXgchB1B/pLxG8h0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>
-Subject: [PATCH 4.9 094/117] gianfar: Replace skb_realloc_headroom with skb_cow_head for PTP
+        stable@vger.kernel.org, Kairui Song <kasong@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 73/86] x86/kexec: Use up-to-dated screen_info copy to fill boot params
 Date:   Mon,  9 Nov 2020 13:55:20 +0100
-Message-Id: <20201109125030.160234760@linuxfoundation.org>
+Message-Id: <20201109125024.292921822@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Kairui Song <kasong@redhat.com>
 
-[ Upstream commit d145c9031325fed963a887851d9fa42516efd52b ]
+[ Upstream commit afc18069a2cb7ead5f86623a5f3d4ad6e21f940d ]
 
-When PTP timestamping is enabled on Tx, the controller
-inserts the Tx timestamp at the beginning of the frame
-buffer, between SFD and the L2 frame header.  This means
-that the skb provided by the stack is required to have
-enough headroom otherwise a new skb needs to be created
-by the driver to accommodate the timestamp inserted by h/w.
-Up until now the driver was relying on skb_realloc_headroom()
-to create new skbs to accommodate PTP frames.  Turns out that
-this method is not reliable in this context at least, as
-skb_realloc_headroom() for PTP frames can cause random crashes,
-mostly in subsequent skb_*() calls, when multiple concurrent
-TCP streams are run at the same time with the PTP flow
-on the same device (as seen in James' report).  I also noticed
-that when the system is loaded by sending multiple TCP streams,
-the driver receives cloned skbs in large numbers.
-skb_cow_head() instead proves to be stable in this scenario,
-and not only handles cloned skbs too but it's also more efficient
-and widely used in other drivers.
-The commit introducing skb_realloc_headroom in the driver
-goes back to 2009, commit 93c1285c5d92
-("gianfar: reallocate skb when headroom is not enough for fcb").
-For practical purposes I'm referencing a newer commit (from 2012)
-that brings the code to its current structure (and fixes the PTP
-case).
+kexec_file_load() currently reuses the old boot_params.screen_info,
+but if drivers have change the hardware state, boot_param.screen_info
+could contain invalid info.
 
-Fixes: 9c4886e5e63b ("gianfar: Fix invalid TX frames returned on error queue when time stamping")
-Reported-by: James Jurack <james.jurack@ametek.com>
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20201029081057.8506-1-claudiu.manoil@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For example, the video type might be no longer VGA, or the frame buffer
+address might be changed. If the kexec kernel keeps using the old screen_info,
+kexec'ed kernel may attempt to write to an invalid framebuffer
+memory region.
+
+There are two screen_info instances globally available, boot_params.screen_info
+and screen_info. Later one is a copy, and is updated by drivers.
+
+So let kexec_file_load use the updated copy.
+
+[ mingo: Tidied up the changelog. ]
+
+Signed-off-by: Kairui Song <kasong@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20201014092429.1415040-2-kasong@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c |   12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ arch/x86/kernel/kexec-bzimage64.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -2367,20 +2367,12 @@ static int gfar_start_xmit(struct sk_buf
- 		fcb_len = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index 0bf17576dd2af..299e7fb55f16e 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -212,8 +212,7 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
+ 	params->hdr.hardware_subarch = boot_params.hdr.hardware_subarch;
  
- 	/* make space for additional header when fcb is needed */
--	if (fcb_len && unlikely(skb_headroom(skb) < fcb_len)) {
--		struct sk_buff *skb_new;
--
--		skb_new = skb_realloc_headroom(skb, fcb_len);
--		if (!skb_new) {
-+	if (fcb_len) {
-+		if (unlikely(skb_cow_head(skb, fcb_len))) {
- 			dev->stats.tx_errors++;
- 			dev_kfree_skb_any(skb);
- 			return NETDEV_TX_OK;
- 		}
--
--		if (skb->sk)
--			skb_set_owner_w(skb_new, skb->sk);
--		dev_consume_skb_any(skb);
--		skb = skb_new;
- 	}
+ 	/* Copying screen_info will do? */
+-	memcpy(&params->screen_info, &boot_params.screen_info,
+-				sizeof(struct screen_info));
++	memcpy(&params->screen_info, &screen_info, sizeof(struct screen_info));
  
- 	/* total number of fragments in the SKB */
+ 	/* Fill in memsize later */
+ 	params->screen_info.ext_mem_k = 0;
+-- 
+2.27.0
+
 
 
