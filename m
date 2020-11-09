@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E872ABD2A
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16EDD2ABC3B
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgKINnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:43:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54062 "EHLO mail.kernel.org"
+        id S1730757AbgKINEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:04:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729810AbgKIM7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:51 -0500
+        id S1730742AbgKINEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B706207BC;
-        Mon,  9 Nov 2020 12:59:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5922B2076E;
+        Mon,  9 Nov 2020 13:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926791;
-        bh=/bJcuFM1enWY4PYi3NrKmpDWGx0BDVxq1x2befaNcSg=;
+        s=default; t=1604927087;
+        bh=jHAkwn8opXnjq+jDsnc8Nh3H/Vnp9DiwlCbcaongwUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvTIT51GWTfgALLLq0mfxP3GDvGw9V9yaIq9jBkNM6ZSKQj02pz108GmtdViHuDIL
-         JV4J0uDFKfRrSB1270NUwP+D7eeIS2JBnjf6tOPqT+sOsiHEGf+avBrraFeyr5pFSj
-         CURVAjJ6AK0WaLbMwX+yEQBdmYE6j1xv+sYPKC94=
+        b=YItoeg6iRXrDFhAJ4hAPgH2duD+ntV7tDfJyBxmpXpJ52QBL+GdQSQ60/XvQNjpWv
+         RpJOH8FsIgXHMVPgXnaWumB5coZgfmqWcOg457+ccMeSX6xVAHzb0Opn7UL4X/MEgs
+         az1Qfb5KwlFw/ZBQHKTBDyuECbHAU2u4GJD9nXUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hans de Goede <jwrdegoede@fedoraproject.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Julien Humbert <julroy67@gmail.com>
-Subject: [PATCH 4.4 84/86] USB: Add NO_LPM quirk for Kingston flash drive
-Date:   Mon,  9 Nov 2020 13:55:31 +0100
-Message-Id: <20201109125024.833723220@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Kiryanov <rkir@google.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 106/117] vsock: use ns_capable_noaudit() on socket create
+Date:   Mon,  9 Nov 2020 13:55:32 +0100
+Message-Id: <20201109125030.729066386@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Jeff Vander Stoep <jeffv@google.com>
 
-commit afaa2e745a246c5ab95103a65b1ed00101e1bc63 upstream.
+[ Upstream commit af545bb5ee53f5261db631db2ac4cde54038bdaf ]
 
-In Bugzilla #208257, Julien Humbert reports that a 32-GB Kingston
-flash drive spontaneously disconnects and reconnects, over and over.
-Testing revealed that disabling Link Power Management for the drive
-fixed the problem.
+During __vsock_create() CAP_NET_ADMIN is used to determine if the
+vsock_sock->trusted should be set to true. This value is used later
+for determing if a remote connection should be allowed to connect
+to a restricted VM. Unfortunately, if the caller doesn't have
+CAP_NET_ADMIN, an audit message such as an selinux denial is
+generated even if the caller does not want a trusted socket.
 
-This patch adds a quirk entry for that drive to turn off LPM permanently.
+Logging errors on success is confusing. To avoid this, switch the
+capable(CAP_NET_ADMIN) check to the noaudit version.
 
-CC: Hans de Goede <jwrdegoede@fedoraproject.org>
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: Julien Humbert <julroy67@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201102145821.GA1478741@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Roman Kiryanov <rkir@google.com>
+https://android-review.googlesource.com/c/device/generic/goldfish/+/1468545/
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20201023143757.377574-1-jeffv@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -217,6 +217,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
- 			USB_QUIRK_CONFIG_INTF_STRINGS },
- 
-+	/* Kingston DataTraveler 3.0 */
-+	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
- 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
- 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index d6473b8d9a81a..3a2543b9701a9 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -651,7 +651,7 @@ struct sock *__vsock_create(struct net *net,
+ 		vsk->owner = get_cred(psk->owner);
+ 		vsk->connect_timeout = psk->connect_timeout;
+ 	} else {
+-		vsk->trusted = capable(CAP_NET_ADMIN);
++		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
+ 		vsk->connect_timeout = VSOCK_DEFAULT_CONNECT_TIMEOUT;
+ 	}
+-- 
+2.27.0
+
 
 
