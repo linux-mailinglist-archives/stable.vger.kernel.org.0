@@ -2,38 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BBAC2ABBFF
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 891E62ABBC3
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731130AbgKINGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:06:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59532 "EHLO mail.kernel.org"
+        id S1731806AbgKINa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:30:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731150AbgKINGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:51 -0500
+        id S1731172AbgKINLI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B35D220731;
-        Mon,  9 Nov 2020 13:06:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB1412083B;
+        Mon,  9 Nov 2020 13:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927210;
-        bh=rIg+/QwfQQ8/guxQVB3fTDNFoInsWNjN16FKlAaXgIk=;
+        s=default; t=1604927467;
+        bh=JjnGyfOU+bbL945u0KT2+6VtCgEeYRNzkIyX7bBv24c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZABd+9dMKnGdzdGpQr2nQAsGIUkzbqkLg05gzjtA1/uPd+MpOiCGloKoA8y9CBrH1
-         KeuySz2KjyxWBLkReETo2HmXDd5a4COSEx6RJe1plg6uLZW85qvGUTFH0nNKLEN8tJ
-         73j/Ar8AxblIz5OWqmqIuML1adbarZcAhUfm0J2Y=
+        b=tM9upgeDFcY+iTTjQGELDGjvhfmYIHNUD08kLqb6DSJFCBby+G17+xYtwK8oXM6AO
+         houwqTRm1OY6+/h2HK16tfKyvOCoovlqSH0OvgOrrueYiRgYjQy5OAKq26avH1ISRF
+         yWdiRAIR+GEKA8EiW4oVUDPhDufGdGPWDj7XeJrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 23/48] ftrace: Handle tracing when switching between context
-Date:   Mon,  9 Nov 2020 13:55:32 +0100
-Message-Id: <20201109125017.896010574@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Dave Young" <dyoung@redhat.com>,
+        Alexander Potapenko <glider@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Larry Woodman <lwoodman@redhat.com>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rik van Riel <riel@redhat.com>,
+        Toshimitsu Kani <toshi.kani@hpe.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 39/71] mm: always have io_remap_pfn_range() set pgprot_decrypted()
+Date:   Mon,  9 Nov 2020 13:55:33 +0100
+Message-Id: <20201109125021.750404211@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +63,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 726b3d3f141fba6f841d715fc4d8a4a84f02c02a upstream.
+commit f8f6ae5d077a9bdaf5cbf2ac960a5d1a04b47482 upstream.
 
-When an interrupt or NMI comes in and switches the context, there's a delay
-from when the preempt_count() shows the update. As the preempt_count() is
-used to detect recursion having each context have its own bit get set when
-tracing starts, and if that bit is already set, it is considered a recursion
-and the function exits. But if this happens in that section where context
-has changed but preempt_count() has not been updated, this will be
-incorrectly flagged as a recursion.
+The purpose of io_remap_pfn_range() is to map IO memory, such as a
+memory mapped IO exposed through a PCI BAR.  IO devices do not
+understand encryption, so this memory must always be decrypted.
+Automatically call pgprot_decrypted() as part of the generic
+implementation.
 
-To handle this case, create another bit call TRANSITION and test it if the
-current context bit is already set. Flag the call as a recursion if the
-TRANSITION bit is already set, and if not, set it and continue. The
-TRANSITION bit will be cleared normally on the return of the function that
-set it, or if the current context bit is clear, set it and clear the
-TRANSITION bit to allow for another transition between the current context
-and an even higher one.
+This fixes a bug where enabling AMD SME causes subsystems, such as RDMA,
+using io_remap_pfn_range() to expose BAR pages to user space to fail.
+The CPU will encrypt access to those BAR pages instead of passing
+unencrypted IO directly to the device.
 
-Cc: stable@vger.kernel.org
-Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Places not mapping IO should use remap_pfn_range().
+
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: "Dave Young" <dyoung@redhat.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Larry Woodman <lwoodman@redhat.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Toshimitsu Kani <toshi.kani@hpe.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/0-v1-025d64bdf6c4+e-amd_sme_fix_jgg@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.h          |   23 +++++++++++++++++++++--
- kernel/trace/trace_selftest.c |    9 +++++++--
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ include/asm-generic/pgtable.h |    4 ----
+ include/linux/mm.h            |    9 +++++++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -526,6 +526,12 @@ enum {
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -1115,10 +1115,6 @@ static inline bool arch_has_pfn_modify_c
  
- 	TRACE_GRAPH_DEPTH_START_BIT,
- 	TRACE_GRAPH_DEPTH_END_BIT,
+ #endif /* !__ASSEMBLY__ */
+ 
+-#ifndef io_remap_pfn_range
+-#define io_remap_pfn_range remap_pfn_range
+-#endif
+-
+ #ifndef has_transparent_hugepage
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #define has_transparent_hugepage() 1
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2561,6 +2561,15 @@ static inline vm_fault_t vmf_insert_pfn(
+ 	return VM_FAULT_NOPAGE;
+ }
+ 
++#ifndef io_remap_pfn_range
++static inline int io_remap_pfn_range(struct vm_area_struct *vma,
++				     unsigned long addr, unsigned long pfn,
++				     unsigned long size, pgprot_t prot)
++{
++	return remap_pfn_range(vma, addr, pfn, size, pgprot_decrypted(prot));
++}
++#endif
 +
-+	/*
-+	 * When transitioning between context, the preempt_count() may
-+	 * not be correct. Allow for a single recursion to cover this case.
-+	 */
-+	TRACE_TRANSITION_BIT,
- };
- 
- #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
-@@ -580,8 +586,21 @@ static __always_inline int trace_test_an
- 		return 0;
- 
- 	bit = trace_get_context_bit() + start;
--	if (unlikely(val & (1 << bit)))
--		return -1;
-+	if (unlikely(val & (1 << bit))) {
-+		/*
-+		 * It could be that preempt_count has not been updated during
-+		 * a switch between contexts. Allow for a single recursion.
-+		 */
-+		bit = TRACE_TRANSITION_BIT;
-+		if (trace_recursion_test(bit))
-+			return -1;
-+		trace_recursion_set(bit);
-+		barrier();
-+		return bit + 1;
-+	}
-+
-+	/* Normal check passed, clear the transition to allow it again */
-+	trace_recursion_clear(TRACE_TRANSITION_BIT);
- 
- 	val |= 1 << bit;
- 	current->trace_recursion = val;
---- a/kernel/trace/trace_selftest.c
-+++ b/kernel/trace/trace_selftest.c
-@@ -492,8 +492,13 @@ trace_selftest_function_recursion(void)
- 	unregister_ftrace_function(&test_rec_probe);
- 
- 	ret = -1;
--	if (trace_selftest_recursion_cnt != 1) {
--		pr_cont("*callback not called once (%d)* ",
-+	/*
-+	 * Recursion allows for transitions between context,
-+	 * and may call the callback twice.
-+	 */
-+	if (trace_selftest_recursion_cnt != 1 &&
-+	    trace_selftest_recursion_cnt != 2) {
-+		pr_cont("*callback not called once (or twice) (%d)* ",
- 			trace_selftest_recursion_cnt);
- 		goto out;
- 	}
+ static inline vm_fault_t vmf_error(int err)
+ {
+ 	if (err == -ENOMEM)
 
 
