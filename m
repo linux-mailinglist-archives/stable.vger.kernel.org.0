@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC152ABC4B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 178BA2ABBE7
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730742AbgKINgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:36:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57976 "EHLO mail.kernel.org"
+        id S1730305AbgKINHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:07:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729923AbgKINFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:05:00 -0500
+        id S1731459AbgKINHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:07:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A5EE208FE;
-        Mon,  9 Nov 2020 13:04:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D538820663;
+        Mon,  9 Nov 2020 13:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927099;
-        bh=ef9/qyGJ78ktTUhoZ/at448M9lx8y/92F3OfgmH8dqg=;
+        s=default; t=1604927267;
+        bh=4cSdeMJIdBMCk+T/ukej92PLJUC5IzIIMLCa+H0D05U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhH7I68/n76MrVkcIFZH1VMKdQvb5vidJxpKwxmOeUTOVHJk57XcVjb4TqpgB8XS5
-         sfDS7ISI/kYNlXxIKzZt9AQMKO+ZwzyMI9/CZipZ3E6jrfk+rc2B3jmQQzT8IbpdPO
-         xO/u/fGYtUQjv66bSYlNSkACRCp4HO15m2h5jq5I=
+        b=RAqohAAbmFj9EqL8F6pnY4ZzWxjv8RLaLS8ZUgqJ4L4S8Nd0bWu6EVtI/L2rdtsMa
+         z+SW8VpWSitRqwI62j8PWvOVXbRM+OcPWEFr7STqX1fGW6WB1qmKZ0s0vQOzY0wN73
+         eid1syZA/t4O1x+/CcHTDKaEAxIGo+vITqMhuH5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddy Wu <eddy_wu@trendmicro.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 109/117] fork: fix copy_process(CLONE_PARENT) race with the exiting ->real_parent
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/48] ARM: dts: sun4i-a10: fix cpu_alert temperature
 Date:   Mon,  9 Nov 2020 13:55:35 +0100
-Message-Id: <20201109125030.872108197@linuxfoundation.org>
+Message-Id: <20201109125018.044910506@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
+References: <20201109125016.734107741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddy Wu <itseddy0402@gmail.com>
+From: Clément Péron <peron.clem@gmail.com>
 
-commit b4e00444cab4c3f3fec876dc0cccc8cbb0d1a948 upstream.
+[ Upstream commit dea252fa41cd8ce332d148444e4799235a8a03ec ]
 
-current->group_leader->exit_signal may change during copy_process() if
-current->real_parent exits.
+When running dtbs_check thermal_zone warn about the
+temperature declared.
 
-Move the assignment inside tasklist_lock to avoid the race.
+thermal-zones: cpu-thermal:trips:cpu-alert0:temperature:0:0: 850000 is greater than the maximum of 200000
 
-Signed-off-by: Eddy Wu <eddy_wu@trendmicro.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It's indeed wrong the real value is 85°C and not 850°C.
 
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201003100332.431178-1-peron.clem@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1734,14 +1734,9 @@ static __latent_entropy struct task_stru
- 	/* ok, now we should be set up.. */
- 	p->pid = pid_nr(pid);
- 	if (clone_flags & CLONE_THREAD) {
--		p->exit_signal = -1;
- 		p->group_leader = current->group_leader;
- 		p->tgid = current->tgid;
- 	} else {
--		if (clone_flags & CLONE_PARENT)
--			p->exit_signal = current->group_leader->exit_signal;
--		else
--			p->exit_signal = (clone_flags & CSIGNAL);
- 		p->group_leader = p;
- 		p->tgid = p->pid;
- 	}
-@@ -1786,9 +1781,14 @@ static __latent_entropy struct task_stru
- 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
- 		p->real_parent = current->real_parent;
- 		p->parent_exec_id = current->parent_exec_id;
-+		if (clone_flags & CLONE_THREAD)
-+			p->exit_signal = -1;
-+		else
-+			p->exit_signal = current->group_leader->exit_signal;
- 	} else {
- 		p->real_parent = current;
- 		p->parent_exec_id = current->self_exec_id;
-+		p->exit_signal = (clone_flags & CSIGNAL);
- 	}
- 
- 	spin_lock(&current->sighand->siglock);
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 41c2579143fd6..b3a3488fdfd68 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -143,7 +143,7 @@
+ 			trips {
+ 				cpu_alert0: cpu_alert0 {
+ 					/* milliCelsius */
+-					temperature = <850000>;
++					temperature = <85000>;
+ 					hysteresis = <2000>;
+ 					type = "passive";
+ 				};
+-- 
+2.27.0
+
 
 
