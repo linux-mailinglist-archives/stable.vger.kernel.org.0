@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D2C2ABAD2
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 883782ABAF2
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732885AbgKINWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:22:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49832 "EHLO mail.kernel.org"
+        id S1732583AbgKINPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:15:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388129AbgKINVx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:53 -0500
+        id S1732621AbgKINPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14FD52065D;
-        Mon,  9 Nov 2020 13:21:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 494A620789;
+        Mon,  9 Nov 2020 13:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928112;
-        bh=pVUynB4smWTSxPgjCWr8eQ4kLWOtP1rvGVYvEQklTOY=;
+        s=default; t=1604927738;
+        bh=QilPlO8TlXCWBssvIMNxN/mCxzVidglzw5xTE28rmcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHER4GEgb1KecEbhgQk7zxDbmhtPgQXqpD1OXznVJzp7vBLiwAC9BoJl1Pn94buvX
-         +9yb5vpmRq22ixSj7RAYy6cY1wkfGGuP68TzsQuYNRagLUVdhKpySF7kobr718U223
-         PH8fkB1JcqbE3wzlgaAw9nzysKhZcbz2Aq66/qYs=
+        b=y3yKlGQu9Xa/rplYzJLkMNLRHCIXGGdKspUtcq+TQ/Dif+NSEE4ei+Y1EVqSnlwJg
+         3dnTGzJyikODF+tvRmgfq878H+b1BKghaITj5RIEJNkV5WLw3iLX2N8sgS1wLGs8Sj
+         cCJC2z7Sn2X7vRj/LaHdtzI3txb+kdpBHpFM5xE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
-        Peter Chen <peter.chen@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 101/133] usb: cdns3: gadget: suspicious implicit sign extension
-Date:   Mon,  9 Nov 2020 13:56:03 +0100
-Message-Id: <20201109125035.547057101@linuxfoundation.org>
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>
+Subject: [PATCH 5.4 67/85] serial: 8250_mtk: Fix uart_get_baud_rate warning
+Date:   Mon,  9 Nov 2020 13:56:04 +0100
+Message-Id: <20201109125025.791456479@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Claire Chang <tientzu@chromium.org>
 
-[ Upstream commit 5fca3f062879f8e5214c56f3e3e2be6727900f5d ]
+commit 912ab37c798770f21b182d656937072b58553378 upstream.
 
-The code:
-trb->length = cpu_to_le32(TRB_BURST_LEN(priv_ep->trb_burst_size)
-	       	| TRB_LEN(length));
+Mediatek 8250 port supports speed higher than uartclk / 16. If the baud
+rates in both the new and the old termios setting are higher than
+uartclk / 16, the WARN_ON in uart_get_baud_rate() will be triggered.
+Passing NULL as the old termios so uart_get_baud_rate() will use
+uartclk / 16 - 1 as the new baud rate which will be replaced by the
+original baud rate later by tty_termios_encode_baud_rate() in
+mtk8250_set_termios().
 
-TRB_BURST_LEN(priv_ep->trb_burst_size) may be overflow for int 32 if
-priv_ep->trb_burst_size is equal or larger than 0x80;
+Fixes: 551e553f0d4a ("serial: 8250_mtk: Fix high-speed baud rates clamping")
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Link: https://lore.kernel.org/r/20201102120749.374458-1-tientzu@chromium.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Below is the Coverity warning:
-sign_extension: Suspicious implicit sign extension: priv_ep->trb_burst_size
-with type u8 (8 bits, unsigned) is promoted in priv_ep->trb_burst_size << 24
-to type int (32 bits, signed), then sign-extended to type unsigned long
-(64 bits, unsigned). If priv_ep->trb_burst_size << 24 is greater than 0x7FFFFFFF,
-the upper bits of the result will all be 1.
-
-To fix it, it needs to add an explicit cast to unsigned int type for ((p) << 24).
-
-Reviewed-by: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/gadget.h | 2 +-
+ drivers/tty/serial/8250/8250_mtk.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/gadget.h b/drivers/usb/cdns3/gadget.h
-index 8212bddf6c8d1..5be0ff2ae079c 100644
---- a/drivers/usb/cdns3/gadget.h
-+++ b/drivers/usb/cdns3/gadget.h
-@@ -1067,7 +1067,7 @@ struct cdns3_trb {
- #define TRB_TDL_SS_SIZE_GET(p)	(((p) & GENMASK(23, 17)) >> 17)
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -316,7 +316,7 @@ mtk8250_set_termios(struct uart_port *po
+ 	 */
+ 	baud = tty_termios_baud_rate(termios);
  
- /* transfer_len bitmasks - bits 31:24 */
--#define TRB_BURST_LEN(p)	(((p) << 24) & GENMASK(31, 24))
-+#define TRB_BURST_LEN(p)	((unsigned int)((p) << 24) & GENMASK(31, 24))
- #define TRB_BURST_LEN_GET(p)	(((p) & GENMASK(31, 24)) >> 24)
+-	serial8250_do_set_termios(port, termios, old);
++	serial8250_do_set_termios(port, termios, NULL);
  
- /* Data buffer pointer bitmasks*/
--- 
-2.27.0
-
+ 	tty_termios_encode_baud_rate(termios, baud, baud);
+ 
 
 
