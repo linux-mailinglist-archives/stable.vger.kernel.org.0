@@ -2,112 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299E02AB4E5
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:30:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6B82AB4E9
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726535AbgKIKaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 05:30:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53712 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726423AbgKIKaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 05:30:30 -0500
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E153DC0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 02:30:29 -0800 (PST)
-Received: by mail-oi1-x243.google.com with SMTP id m17so9701249oie.4
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 02:30:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dHkqdCzwlfhdjaBe/619nrv5mifEdmS6V4ZJeykSazA=;
-        b=UB+3y/sK6kaeOSMqQBgtNuxT6mbld9BCyz4b6sRNgHQc1ts+BMRHzocnMtC1cgKZJH
-         cMCYX0yAyGopM193uc2obVq9ISxm9Kzk/uhbF9P7/ie8pV3TJPEoM7wyP8UBl0bWMfJr
-         6XTRmkbN+zVX7nlHDq9+4NCh4Nq/N/MwrT08o=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dHkqdCzwlfhdjaBe/619nrv5mifEdmS6V4ZJeykSazA=;
-        b=Y9bnFYuQox2jSLxO/18m48deRbDTR2Xoj7XWNkhVlKW3xaUDc3YHbUQu4XvJ3vT4Tb
-         2h9FSBZ7/4fx7FEDhIV9A2zFnGEwhS1FrrNDiyPI5eV0b95gd1zom36M1M2whmSEP0wl
-         k4K+/rcCHZzCkKmSA0eFUByarQsOKBx+0b2iWbB+KOC2QxIj/KFeZMxUuJROBLb+xdMm
-         Xgamo+jh5KYpOinXBUJBlm1AGRA5pyxlsGrAIHBWATDB7I1mQSAfG1erCC2IWkGwy2Pz
-         64jtHxfxibYzs+XXRA72RqN6QCOeZbaIjApgImc2fjsbv5rRNQasCw4YfqgFSlUcBwN+
-         3NvA==
-X-Gm-Message-State: AOAM533D5obixGd/tRIusltEHUF6mpuGDG0sCYFuZ51ElI+3+X+sjzRr
-        6LS9/mJyPnfYjie9X1PR2wOHgdoYotULmasRrqcdBhTK4jk+IQ==
-X-Google-Smtp-Source: ABdhPJzRiGNjOEOcnAn3vIRaC6eqG4Tlc8qRr3aC2F2T+SLvuR9T6e+1fJEGJnnthRTuyfQIiK4Gm+UixIMoFz1VNMU=
-X-Received: by 2002:aca:b141:: with SMTP id a62mr8047695oif.101.1604917829340;
- Mon, 09 Nov 2020 02:30:29 -0800 (PST)
+        id S1727303AbgKIKbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 05:31:48 -0500
+Received: from mail-eopbgr40055.outbound.protection.outlook.com ([40.107.4.55]:39694
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727077AbgKIKbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 05:31:48 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=W/atZuFIJks+ZA1k6vVhki5pT/FY5jw9u26sOMfpl90ANuhcZsX57jjPebHseW611yGRneObmesu14bLQXsYVuqyVQt1Tkf/23AY0vHKMWB0DPHA/SnuzVAsxzIyGM/JB4hx4MrQpjewLrpqqcnoCucFk2R1v3D9QZiWOrvapj3zjbHHFRNbCeBiq+KJwn+WOEJTOioEdwR7SJKtpta3UIMlRYuzRs3+fjXCy0HiFPiZNFGaHs8goLl0ztxxNKOH359/FJlEKw5lCdv4vqftXz/32gybOC3GGgZg3/93dg18JzbDb58jRI80uyzTJh/h2/DwGAmG8WQPsMgZs8jXTQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DJF+gLn+cnjXUn/yHxN61voEAZZgpRIGC++62gS1uTA=;
+ b=QCWTHE5023IXwPcpN+waQRGFCsaxGaSVGn6LEIgruDdfrYxaNzSrZQfVmAW0BcKRhK5fSN7w9zod+jxOP28lpJs5w+spo+prU4GmChZ+Hh7wzao8PVUgSMgnXEKa8W5CI0QWCddW0TQCssqOgEA7Z1lpRxQiEiQsTSqjwX2sLO5iEErVwH7fsmyWMLqa+IJaMDObUSOV/1nj+4YxM8Z1EtUkxAyS9mbBPHJhvx43/UOGC/vZT5peOtCCvRNlgWF9qE6cSyrKMKiUTjpBWMt1k9ILr3shipVMysnbXcLcme98MFgb8L8rjJfI0OHPKvB2qaOUxYWcuZ+jg2Ht4K4uRA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DJF+gLn+cnjXUn/yHxN61voEAZZgpRIGC++62gS1uTA=;
+ b=p7cQFLaNlUsP9Z3+QjE7pWp/uYznOQNwZiZ7F7OjyCW6UC8bvzmrLIg7CZBvCYp7arwifkQPK2Cgz6rZLX+j9fADI6oliCbVQ+tVujWCclCaL52R6McmBr1+FUE3380og3gFFnIcggX23yhJU69BFkjLgG0JSao3XqM54Tuql94=
+Received: from AM6PR04MB5685.eurprd04.prod.outlook.com (2603:10a6:20b:a4::30)
+ by AM6PR04MB5432.eurprd04.prod.outlook.com (2603:10a6:20b:93::33) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3541.21; Mon, 9 Nov
+ 2020 10:31:45 +0000
+Received: from AM6PR04MB5685.eurprd04.prod.outlook.com
+ ([fe80::c62:742e:bcca:e226]) by AM6PR04MB5685.eurprd04.prod.outlook.com
+ ([fe80::c62:742e:bcca:e226%4]) with mapi id 15.20.3499.032; Mon, 9 Nov 2020
+ 10:31:45 +0000
+From:   Vladimir Oltean <vladimir.oltean@nxp.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     Andy Duan <fugang.duan@nxp.com>,
+        "michael@walle.cc" <michael@walle.cc>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: LS1021A has a
+ FIFO size of 16 words," failed to apply to 5.4-stable tree
+Thread-Topic: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: LS1021A has a
+ FIFO size of 16 words," failed to apply to 5.4-stable tree
+Thread-Index: AQHWsezEOoIzEfoLKkKJJMHVEvkOMqm3AwaAgAicWACAAAPTgA==
+Date:   Mon, 9 Nov 2020 10:31:45 +0000
+Message-ID: <20201109103145.3fryic2thanjh4f4@skbuf>
+References: <160441340011200@kroah.com>
+ <20201103224825.gxvly2qijdr2hmsk@skbuf> <20201109101804.GA1065310@kroah.com>
+In-Reply-To: <20201109101804.GA1065310@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=nxp.com;
+x-originating-ip: [188.25.2.177]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 72919c05-b6eb-44d7-0bd0-08d8849aa867
+x-ms-traffictypediagnostic: AM6PR04MB5432:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <AM6PR04MB5432A6A2C882B8D8EF8D10B3E0EA0@AM6PR04MB5432.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:758;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: JS6uDxuruFBP5C3Wa8WGLesLFmxnn1HY5966IcIXmXQ+Unx02fT0vBfHr9edPx5yFUofz8Ma8s4kAnAQ/LaiAJzM/whNBRYNxKe0Y2xRh6w9UXU/OYG0UocyNGN8N/G+kJggdRNdrP9zdKQfRE+5UKdMiQbz6lvF3YWwQ/yMImTlTonD6raHOSR+zcFMrotYo9cSclWc121KrhzK+ftzlyzpFCQj4e5OLrxPbzky67Bm0YxXltZ8R08j+Db9pw/uiDIkDmtFeTNZpzbERxcyBDW+46V2FCZvl4h/e5lj12DPfgmYTY+tFsp3MJ5wYVEn
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR04MB5685.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(346002)(376002)(136003)(39860400002)(396003)(366004)(2906002)(6486002)(6916009)(558084003)(186003)(66946007)(66476007)(66556008)(64756008)(66446008)(76116006)(91956017)(26005)(71200400001)(478600001)(86362001)(33716001)(5660300002)(8676002)(9686003)(6512007)(316002)(54906003)(1076003)(44832011)(4326008)(6506007)(8936002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: ar0guQhLhGP9lcf3fXKf3M34qpJpea2mE5ftlCDk/3W35qyAANmkTMQXrevTV4Q53rwVpZhjpekdv5b45/Ui4jj2tJDzYyPDMdWze4Ykr+njhjtzT+NklMlW7ctjUti4TsL6GuLQnrajBG4hLlPTjUiWXd+6Q6jRGDvYOi7h4e33kYsXiy9XpiVRkmyCedhY5mnpuvwPJwkvX8CP0awYcIlgMnzFN6On96Rk2DBgkQCF1WOoEnBWQUNWu+Iuj+6ygsdAZUvbKq0/kLXTbLae0dvp/j0BZP4SJVjpSQ8e7v52K8I9nqwL14Z7gVVBHaH95qX1FD4gZ2vY6HeAnW2syAp5yWArpUMLeKetlCvkNBAL76T5eF/UnRgpNuwmqkFw8yNsxQ7gq8zcv0DRMxviuwyIa/p4yW7K8W3+yJomtfPsJ9YA8e3coRaLfnDFyO4XK6cYjiXNch5eKhPCiAeeeTmGPovkoguOrXkZbOnTTat8uCi8edJ6kbk5KwCLNG3MtXFUTl5DQdUAKzqVyfBJnAnDtWnRZbpgl2AEgOuIH25f4tHgzatw/Q9Im9zFMHLh16Fna5jJJkpipfgfC7HMFocdB0ekvysfTIbdmcfFtyRPrW6TjwqKOaWgfWi/O8tfPUl43q9rZak1RGc2FpAhSg==
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2A406CA6FB4F81439FC2A43A52DBA4DF@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20201107092857.3110264-1-daniel.vetter@ffwll.ch>
- <CAHk-=wjoTrpJcC+VKNwsOF+NFd+LANm_pydcFoaV9PscO0Ogaw@mail.gmail.com>
- <CAKMK7uFzGDe9vV8zef5kU6mS5W-0tTDw2KdUmMgbFJ=WT-F-RA@mail.gmail.com>
- <20201108161335.GB11931@kroah.com> <20201108183640.GA65130@kroah.com>
- <CAKMK7uHCSxAjcRR8oQRS5uL4i2-iLv38jiN8=7pntoNgQBu+bg@mail.gmail.com> <20201109095715.GA836082@kroah.com>
-In-Reply-To: <20201109095715.GA836082@kroah.com>
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Mon, 9 Nov 2020 11:30:18 +0100
-Message-ID: <CAKMK7uEbioBvRggrprEvLB9MkQVoSburdneoEAHo7JmM4va9Hw@mail.gmail.com>
-Subject: Re: [PATCH] vt: Disable KD_FONT_OP_COPY
-To:     Greg KH <greg@kroah.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Security Officers <security@kernel.org>,
-        Minh Yuan <yuanmingbuaa@gmail.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM6PR04MB5685.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72919c05-b6eb-44d7-0bd0-08d8849aa867
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Nov 2020 10:31:45.7251
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: otIGsw+0sw5BN7Mt9BNTDT/1k37efkXgzJakLcmHWWUqsw4IVv4m4DA/CqH24A/kwE6a7iZhHkdc3RnnOIqoGA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR04MB5432
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 9, 2020 at 10:56 AM Greg KH <greg@kroah.com> wrote:
->
-> On Mon, Nov 09, 2020 at 08:57:38AM +0100, Daniel Vetter wrote:
-> > On Sun, Nov 8, 2020 at 7:35 PM Greg KH <greg@kroah.com> wrote:
-> > > On Sun, Nov 08, 2020 at 05:13:35PM +0100, Greg KH wrote:
-> > > > On Sun, Nov 08, 2020 at 04:41:35PM +0100, Daniel Vetter wrote:
-> > > > > On Sat, Nov 7, 2020 at 7:41 PM Linus Torvalds
-> > > > > <torvalds@linux-foundation.org> wrote:
-> > > > > >
-> > > > > > On Sat, Nov 7, 2020 at 1:29 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> > > > > > >
-> > > > > > > It's buggy:
-> > > > > >
-> > > > > > Ack. Who is taking this? Should I do it directly, or expect this
-> > > > > > through Greg's tty/char tree, or what?
-> > > > >
-> > > > > I've sent out v2 with more archive links, typo in commit message fixed
-> > > > > and ack from Peilin added. I'll leave merging up to you guys. Note
-> > > > > that cc: stable still needs to be added, I left that out to avoid an
-> > > > > accidental leak.
-> > > >
-> > > > Great, I'll grab this now and add it to my tty tree and send it to Linus
-> > > > later today.
-> > > >
-> > > > Unless I should be holding off somehow on this?  I didn't see anyone
-> > > > wanting to embargo this, or did I miss it?
-> > >
-> > > Given that Minh didn't ask for any embargo, and it's good to get this
-> > > fixed as soon as possible, I've queued this up and will send it to Linus
-> > > in a few minutes.
-> > >
-> > > Thanks all for the quick response,
-> >
-> > cc: stable didn't get added I think.
-> >
-> > Stable teams, please backport commit 3c4e0dff2095 ("vt: Disable
-> > KD_FONT_OP_COPY") to all supported kernels.
->
-> I was going to do that given that I am the same person :)
+On Mon, Nov 09, 2020 at 11:18:04AM +0100, gregkh@linuxfoundation.org wrote:
+> That worked, now done, thanks.
 
-I thought there's some lts that aren't maintained by you? And distro
-teams who randomly still misalign with lts somehow ...
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Thanks a lot!=
