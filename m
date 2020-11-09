@@ -2,121 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A812AB4EB
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 459ED2AB4F8
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727311AbgKIKbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 05:31:53 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:36509 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726176AbgKIKbw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 05:31:52 -0500
+        id S1727774AbgKIKc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 05:32:58 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:32859 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726646AbgKIKc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 05:32:58 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id BE7A01295;
-        Mon,  9 Nov 2020 05:31:51 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 6109110F6;
+        Mon,  9 Nov 2020 05:32:57 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 09 Nov 2020 05:31:52 -0500
+  by compute4.internal (MEProxy); Mon, 09 Nov 2020 05:32:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=V02bO/KA9g5Y7DSRh/qF0MwQ600
+        EUer5VdvNDdCgXrw=; b=atXJ/j9O37KBj2v789A2nSQ1SjXPyKfDFV5+iKFWUNZ
+        hwmFPmqLb9sAZlwMUMmS9/o4q5mvA8RUD49I2+8M5McVJ7E9tuAO4ogQogucXleF
+        /+y0llsm/Pm+yDq0V1vft9sY0n0pnZYjZTUe3/o78hieYRm/ZJV/Rn+x0CwS7Ajr
+        cxRo+fqkaHSsy3sxVklfFs9HLri5M4xYe0ZGcZ+GUB7wau74+MAkLxUX7OPUK40b
+        id3ba4ZDudKO7sAyGkokuJt1oMk/9/Y75bt6KbgHa/AzdxVTqNnM/MVaqQVXAnjq
+        iuvKeMReJDUITQVU0vQKz/e4+Mc+N4V6pfXKsj3/iaA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=oXLwkd
-        5oGjnXzIXcTdGufyN6NFpcnE1epClVg2CTogU=; b=QV93hn5CUqhQuj5WzEdkpn
-        RerubeEOyLs2YbnqqTlKVflemvVUcteFlVcWugygi8cRQaCGRVXxsxPf46HbjDmI
-        11aUgvpcOZigigFtZsS3Lo40Ab6gkTlo5j4vC3mr8eUddkp/GJd5Ke/IbEQvYyAk
-        03Otr1PZKyHm+X/9RQEoG1MDJxPESKPNRXUX0w5vSUXgGun3CrYTQEd25Q4nw0D5
-        WxO49D+Q6k9kgcJASX8O6tOrilJkSBtAy3Xp3gULt/A1b/00SYnMVZM1JP2yOeJN
-        GeCCjB0JBsufIjbzb1ILcLU2CXfDaB7ih4P/hKeZk3AhKhyDFpUKGesmZfzlWNWA
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=V02bO/
+        KA9g5Y7DSRh/qF0MwQ600EUer5VdvNDdCgXrw=; b=lAdyfoiZZUbugbgTZrDGfU
+        yX00BtvKKuEY0lMEsuuk5GvQq9tGks6sUxGQzEuTcGJ5mksY1aCxXKkawR+mg53I
+        XgsbiMiu611H65r1u0hystGlGVdezeQALjw56HRjEtAdu+271aOjPE84SKVtxL4K
+        d67eWXzIc5tfCo/En77QZfg8EJu8lGuViBIPYpvZyj163kmjtkHu8tjq63rQ/Er3
+        GDKz6+1kEKoU/J8tfyzqQAQGBUNIO6JyVJLlpCwfZeBk55r1odGZe2xN0B0E1bg3
+        y4tgDA0yivW2UA6AKO6R1+6lqRXiALmeLcMvt4DH5f0+Lka4uRwxVGYcmpJuni2w
         ==
-X-ME-Sender: <xms:lxqpX0uSh5ZdB0Ima0EIrE-ovE-UltNJtz7_H1ESGTndZww-Liz8IQ>
-    <xme:lxqpXxfIQhQpIH-kdka1NpiMZCjj3otoTUFy5v-p1LyVvKcQRkqC2s7wGatMA81C-
-    54deNHze80x7g>
+X-ME-Sender: <xms:2BqpXwFUeBDPUbBddNyPR7YQefsMo8XmxTOise_H49eUOyUDvMokLA>
+    <xme:2BqpX5XGlrWuuLHT2hn85whiLn6gmn2E7TY7WEu0IH9gxTEEm_lRQXOq9rhXF8j5O
+    CqmxFdVKBmobA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduhedgudekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:lxqpX_wzyP6UqGFH2lXi1ojRxo5TXWM_O97kD89v6wkXsAVYoq9tig>
-    <xmx:lxqpX3P2JRMEmaqBBcv0_0OJ8Eo3QYqeukTL24v0h3pHsqWHbrNK1w>
-    <xmx:lxqpX08F3WonMxGr7bJL-IxoVPga212cjHXnfr2yjDqvHioCVgcHEQ>
-    <xmx:lxqpXyk97DK2IRba75DsDsSCo5bC23ssRaw2-9cN1fwzKwy3kLktltpG9JU>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:2BqpX6LDWAaVfcoN0RLijW7mxKfrKjGcHZJ4zS_FoWh47vy4VF5How>
+    <xmx:2BqpXyFEyo0Yspd2ec0oDDTfhO1dWCRMKmKL2uBkku8DqXR9jhuYPQ>
+    <xmx:2BqpX2VsBMHhXaarZCLdsAVgXAJxHPDHxEznfr--o0T6jwEMkp3ytQ>
+    <xmx:2RqpX5dSf1rfjQoH7UAmUDdjTjUbERQTheTDrgatXaQLACIa2ys59w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DE827328005D;
-        Mon,  9 Nov 2020 05:31:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: Hold onto an explicit ref to i915_vma_work.pinned" failed to apply to 5.9-stable tree
-To:     chris@chris-wilson.co.uk, rodrigo.vivi@intel.com,
-        stable@vger.kernel.org, tvrtko.ursulin@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Nov 2020 11:32:51 +0100
-Message-ID: <160491797180144@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 773943280060;
+        Mon,  9 Nov 2020 05:32:56 -0500 (EST)
+Date:   Mon, 9 Nov 2020 11:33:55 +0100
+From:   Greg KH <greg@kroah.com>
+To:     "Darrick J. Wong" <darrick.wong@oracle.com>
+Cc:     Andy Strohman <astroh@amazon.com>, stable@vger.kernel.org,
+        dchinner@redhat.com
+Subject: Re: [PATCH 5.4] xfs: flush for older, xfs specific ioctls
+Message-ID: <20201109103355.GE1238638@kroah.com>
+References: <20201105202850.20216-1-astroh@amazon.com>
+ <20201106020705.GC7118@magnolia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201106020705.GC7118@magnolia>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Nov 05, 2020 at 06:07:05PM -0800, Darrick J. Wong wrote:
+> On Thu, Nov 05, 2020 at 08:28:50PM +0000, Andy Strohman wrote:
+> > 837a6e7f5cdb ("fs: add generic UNRESVSP and ZERO_RANGE ioctl handlers") changed
+> > ioctls XFS_IOC_UNRESVSP XFS_IOC_UNRESVSP64 and XFS_IOC_ZERO_RANGE to be generic
+> > instead of xfs specific.
+> > 
+> > Because of this change, 36f11775da75 ("xfs: properly serialise fallocate against
+> > AIO+DIO") needed adaptation, as 5.4 still uses the xfs specific ioctls.
+> > 
+> > Without this, xfstests xfs/242 and xfs/290 fail. Both of these tests test
+> > XFS_IOC_ZERO_RANGE.
+> > 
+> > Fixes: 36f11775da75 ("xfs: properly serialise fallocate against AIO+DIO")
+> >
+> > Tested-by: Andy Strohman <astroh@amazon.com>
+> > Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> 
+> Yeah, looks good to me,
+> 
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 
-The patch below does not apply to the 5.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 537457a979a02a410b555fab289dcb28b588f33b Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Mon, 2 Nov 2020 16:19:31 +0000
-Subject: [PATCH] drm/i915: Hold onto an explicit ref to i915_vma_work.pinned
-
-Since __vma_release is run by a kworker after the fence has been
-signaled, it is no longer protected by the active reference on the vma,
-and so the alias of vw->pinned to vma->obj is also not protected by a
-reference on the object. Add an explicit reference for vw->pinned so it
-will always be safe.
-
-Found by inspection.
-
-Fixes: 54d7195f8c64 ("drm/i915: Unpin vma->obj on early error")
-Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201102161931.30031-1-chris@chris-wilson.co.uk
-(cherry picked from commit bc73e5d33048b7ab5f12b11b5d923700467a8e1d)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index ffb5287e055a..caa9b041616b 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -314,8 +314,10 @@ static void __vma_release(struct dma_fence_work *work)
- {
- 	struct i915_vma_work *vw = container_of(work, typeof(*vw), base);
- 
--	if (vw->pinned)
-+	if (vw->pinned) {
- 		__i915_gem_object_unpin_pages(vw->pinned);
-+		i915_gem_object_put(vw->pinned);
-+	}
- 
- 	i915_vm_free_pt_stash(vw->vm, &vw->stash);
- 	i915_vm_put(vw->vm);
-@@ -431,7 +433,7 @@ int i915_vma_bind(struct i915_vma *vma,
- 
- 		if (vma->obj) {
- 			__i915_gem_object_pin_pages(vma->obj);
--			work->pinned = vma->obj;
-+			work->pinned = i915_gem_object_get(vma->obj);
- 		}
- 	} else {
- 		vma->ops->bind_vma(vma->vm, NULL, vma, cache_level, bind_flags);
-
