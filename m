@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14E62ABBD3
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD48A2ABD38
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729964AbgKINb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:31:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34270 "EHLO mail.kernel.org"
+        id S1730267AbgKINoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:44:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731829AbgKINJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:09:19 -0500
+        id S1730337AbgKIM7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EA232076E;
-        Mon,  9 Nov 2020 13:09:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 552CE20684;
+        Mon,  9 Nov 2020 12:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927358;
-        bh=N4Ax+iU6Ci6NkGcMNlE4eG7AgO/yJRAafKQLFLE3njQ=;
+        s=default; t=1604926762;
+        bh=DJn9Bzb5YL6m8DBD5B6lJM0UZRtpFwQYvnaivUi/c7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkpaGOuc6G2UC2ccqA52R5Trhs+jmCpsvNO4yngx/2q8CMS11FwwrWLKNLttPIOOJ
-         2/q6rHoHC02qTdwv3uauwkigR8kZefA4Zfzwq8MAexMEiH4X3guzq+fXB2+S2resJ7
-         5zYy3M2g14sVOYsj2FTeGUHq3gMiMISSZRgcPfbI=
+        b=tLF4S9jo6EgJuAWn/D7/avI7oyUASsQKL2mbVZDEkBLP8EA0sNbqz8AKNHyBTmQif
+         SUhQY4ImcayJmx2LbAzgzEKd4smHKtn46FN37GJm8byodVbSdnLTVu9l6IoutQFZqx
+         y+JqYIgdwq9benLJQk533T8tWRKCI/gbjRdr2jWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 05/71] chelsio/chtls: fix memory leaks caused by a race
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 4.4 52/86] 9P: Cast to loff_t before multiplying
 Date:   Mon,  9 Nov 2020 13:54:59 +0100
-Message-Id: <20201109125020.159078984@linuxfoundation.org>
+Message-Id: <20201109125023.319929389@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 8080b462b6aa856ae05ea010441a702599e579f2 ]
+commit f5f7ab168b9a60e12a4b8f2bb6fcc91321dc23c1 upstream.
 
-race between user context and softirq causing memleak,
-consider the call sequence scenario
+On 32-bit systems, this multiplication will overflow for files larger
+than 4GB.
 
-chtls_setkey()         //user context
-chtls_peer_close()
-chtls_abort_req_rss()
-chtls_setkey()         //user context
-
-work request skb queued in chtls_setkey() won't be freed
-because resources are already cleaned for this connection,
-fix it by not queuing work request while socket is closing.
-
-v1->v2:
-- fix W=1 warning.
-
-v2->v3:
-- separate it out from another memleak fix.
-
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Link: https://lore.kernel.org/r/20201102173650.24754-1-vinay.yadav@chelsio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: http://lkml.kernel.org/r/20201004180428.14494-2-willy@infradead.org
+Cc: stable@vger.kernel.org
+Fixes: fb89b45cdfdc ("9P: introduction of a new cache=mmap model.")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/crypto/chelsio/chtls/chtls_hw.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/crypto/chelsio/chtls/chtls_hw.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
-@@ -368,6 +368,9 @@ int chtls_setkey(struct chtls_sock *csk,
- 	if (ret)
- 		goto out_notcb;
+---
+ fs/9p/vfs_file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/fs/9p/vfs_file.c
++++ b/fs/9p/vfs_file.c
+@@ -624,9 +624,9 @@ static void v9fs_mmap_vm_close(struct vm
+ 	struct writeback_control wbc = {
+ 		.nr_to_write = LONG_MAX,
+ 		.sync_mode = WB_SYNC_ALL,
+-		.range_start = vma->vm_pgoff * PAGE_SIZE,
++		.range_start = (loff_t)vma->vm_pgoff * PAGE_SIZE,
+ 		 /* absolute end, byte at end included */
+-		.range_end = vma->vm_pgoff * PAGE_SIZE +
++		.range_end = (loff_t)vma->vm_pgoff * PAGE_SIZE +
+ 			(vma->vm_end - vma->vm_start - 1),
+ 	};
  
-+	if (unlikely(csk_flag(sk, CSK_ABORT_SHUTDOWN)))
-+		goto out_notcb;
-+
- 	set_wr_txq(skb, CPL_PRIORITY_DATA, csk->tlshws.txqid);
- 	csk->wr_credits -= DIV_ROUND_UP(len, 16);
- 	csk->wr_unacked += DIV_ROUND_UP(len, 16);
 
 
