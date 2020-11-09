@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C312ABA0C
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B942ABB12
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731961AbgKINPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:15:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41924 "EHLO mail.kernel.org"
+        id S2388036AbgKINVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:21:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732864AbgKINPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:15:12 -0500
+        id S2388032AbgKINVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E16D320663;
-        Mon,  9 Nov 2020 13:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95B4C20867;
+        Mon,  9 Nov 2020 13:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927711;
-        bh=NCIk9JjObfd+tuipQeRZzeSGzS/LixjFrPn8Bhy/2N8=;
+        s=default; t=1604928071;
+        bh=hsC/FcjwnIkkaHCSmTzFKRF6otCFQ+C6OZJCYFpWabQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=On5kVZKZnFXd0OYx1H15FwYtunNHoyjWcx2dKYL8reqsjADlIQMzaAU4H6qkp8bbu
-         juOLuEkWRRhT/QoyjUWT/nZHNyhFPOjaCpSrC2n1HsEbW5Vm++yFHPBPvW/tMLD97/
-         5NEnfR528jQoz1zEN531wW3KZOkMiG/pmVE0L918=
+        b=fsiLz9v0ACmYSsrd2ijcC2I9t4H8jCv7oJ+N4iHL4nX+GtmoEkXTumZ4NG4zM7Hb2
+         HLRg7GKaQyla1jZ2D8SV2CkrWWXYiMMEsQyP8dnbjxBvAcWcx3ILF5jCCyLqCAMLrl
+         w++GSdi2e4yuKTUKc0wIdXzt93ie7dFoRPDZwe5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>
-Subject: [PATCH 5.4 81/85] PM: runtime: Drop pm_runtime_clean_up_links()
-Date:   Mon,  9 Nov 2020 13:56:18 +0100
-Message-Id: <20201109125026.467213198@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.9 117/133] USB: serial: cyberjack: fix write-URB completion race
+Date:   Mon,  9 Nov 2020 13:56:19 +0100
+Message-Id: <20201109125036.318682611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit d6e36668598154820177bfd78c1621d8e6c580a2 upstream.
+commit 985616f0457d9f555fff417d0da56174f70cc14f upstream.
 
-After commit d12544fb2aa9 ("PM: runtime: Remove link state checks in
-rpm_get/put_supplier()") nothing prevents the consumer device's
-runtime PM from acquiring additional references to the supplier
-device after pm_runtime_clean_up_links() has run (or even while it
-is running), so calling this function from __device_release_driver()
-may be pointless (or even harmful).
+The write-URB busy flag was being cleared before the completion handler
+was done with the URB, something which could lead to corrupt transfers
+due to a racing write request if the URB is resubmitted.
 
-Moreover, it ignores stateless device links, so the runtime PM
-handling of managed and stateless device links is inconsistent
-because of it, so better get rid of it entirely.
-
-Fixes: d12544fb2aa9 ("PM: runtime: Remove link state checks in rpm_get/put_supplier()")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/dd.c            |    1 -
- drivers/base/power/runtime.c |   36 ------------------------------------
- include/linux/pm_runtime.h   |    2 --
- 3 files changed, 39 deletions(-)
+ drivers/usb/serial/cyberjack.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -1121,7 +1121,6 @@ static void __device_release_driver(stru
+--- a/drivers/usb/serial/cyberjack.c
++++ b/drivers/usb/serial/cyberjack.c
+@@ -357,11 +357,12 @@ static void cyberjack_write_bulk_callbac
+ 	struct device *dev = &port->dev;
+ 	int status = urb->status;
+ 	unsigned long flags;
++	bool resubmitted = false;
+ 
+-	set_bit(0, &port->write_urbs_free);
+ 	if (status) {
+ 		dev_dbg(dev, "%s - nonzero write bulk status received: %d\n",
+ 			__func__, status);
++		set_bit(0, &port->write_urbs_free);
+ 		return;
+ 	}
+ 
+@@ -394,6 +395,8 @@ static void cyberjack_write_bulk_callbac
+ 			goto exit;
  		}
  
- 		pm_runtime_get_sync(dev);
--		pm_runtime_clean_up_links(dev);
++		resubmitted = true;
++
+ 		dev_dbg(dev, "%s - priv->wrsent=%d\n", __func__, priv->wrsent);
+ 		dev_dbg(dev, "%s - priv->wrfilled=%d\n", __func__, priv->wrfilled);
  
- 		driver_sysfs_remove(dev);
+@@ -410,6 +413,8 @@ static void cyberjack_write_bulk_callbac
  
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -1616,42 +1616,6 @@ void pm_runtime_remove(struct device *de
+ exit:
+ 	spin_unlock_irqrestore(&priv->lock, flags);
++	if (!resubmitted)
++		set_bit(0, &port->write_urbs_free);
+ 	usb_serial_port_softint(port);
  }
  
- /**
-- * pm_runtime_clean_up_links - Prepare links to consumers for driver removal.
-- * @dev: Device whose driver is going to be removed.
-- *
-- * Check links from this device to any consumers and if any of them have active
-- * runtime PM references to the device, drop the usage counter of the device
-- * (as many times as needed).
-- *
-- * Links with the DL_FLAG_MANAGED flag unset are ignored.
-- *
-- * Since the device is guaranteed to be runtime-active at the point this is
-- * called, nothing else needs to be done here.
-- *
-- * Moreover, this is called after device_links_busy() has returned 'false', so
-- * the status of each link is guaranteed to be DL_STATE_SUPPLIER_UNBIND and
-- * therefore rpm_active can't be manipulated concurrently.
-- */
--void pm_runtime_clean_up_links(struct device *dev)
--{
--	struct device_link *link;
--	int idx;
--
--	idx = device_links_read_lock();
--
--	list_for_each_entry_rcu(link, &dev->links.consumers, s_node,
--				device_links_read_lock_held()) {
--		if (!(link->flags & DL_FLAG_MANAGED))
--			continue;
--
--		while (refcount_dec_not_one(&link->rpm_active))
--			pm_runtime_put_noidle(dev);
--	}
--
--	device_links_read_unlock(idx);
--}
--
--/**
-  * pm_runtime_get_suppliers - Resume and reference-count supplier devices.
-  * @dev: Consumer device.
-  */
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -54,7 +54,6 @@ extern u64 pm_runtime_autosuspend_expira
- extern void pm_runtime_update_max_time_suspended(struct device *dev,
- 						 s64 delta_ns);
- extern void pm_runtime_set_memalloc_noio(struct device *dev, bool enable);
--extern void pm_runtime_clean_up_links(struct device *dev);
- extern void pm_runtime_get_suppliers(struct device *dev);
- extern void pm_runtime_put_suppliers(struct device *dev);
- extern void pm_runtime_new_link(struct device *dev);
-@@ -173,7 +172,6 @@ static inline u64 pm_runtime_autosuspend
- 				struct device *dev) { return 0; }
- static inline void pm_runtime_set_memalloc_noio(struct device *dev,
- 						bool enable){}
--static inline void pm_runtime_clean_up_links(struct device *dev) {}
- static inline void pm_runtime_get_suppliers(struct device *dev) {}
- static inline void pm_runtime_put_suppliers(struct device *dev) {}
- static inline void pm_runtime_new_link(struct device *dev) {}
 
 
