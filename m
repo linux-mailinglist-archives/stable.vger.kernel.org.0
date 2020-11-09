@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBA92AB9DA
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC572AB950
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:09:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731977AbgKINNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:13:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39058 "EHLO mail.kernel.org"
+        id S1731606AbgKINIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:08:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731783AbgKINNP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:13:15 -0500
+        id S1731538AbgKINIE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:08:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BD042083B;
-        Mon,  9 Nov 2020 13:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96D9E20663;
+        Mon,  9 Nov 2020 13:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927594;
-        bh=WwTEyz2lQESMI9f4tc7PHTKg5wRo54F/WP5WIGCq4wQ=;
+        s=default; t=1604927282;
+        bh=kufhhXjMYz79mB5F/fg39na2TWrw2qE0E+JKeiGLhCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ln4WMgtTuPrAugGfzRVEy0ICwqRbY2kG3YUJRMuuaGh8uGCAW1wq3Euv9SOPd66cj
-         A+aJIviPC6x+rhGWPFTcJ9BqA0GRkfV9vYeJ3pPjkkp06QqD71SxbjrypdxvF68wJV
-         XJyUgPFl7dpRtuwwQRybtZTLBOIMGlRoZytUHnug=
+        b=IE8S5ooSG9VuIJ8tARQSQLbQVM8I198+b/jmKgAwPWXAbAlr/XpsoFqRfeOLuUIWK
+         f8TMxjj+betM5sECYpWLWiko6ILhAE+3kmxLkOaPRcY4S365yI573eEEbVvpaLWMON
+         zF4xmqdKE/Egis1RsCMFK1AEB2OCapn+cpW7CC5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Lee Duncan <lduncan@suse.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/85] ARM: dts: sun4i-a10: fix cpu_alert temperature
-Date:   Mon,  9 Nov 2020 13:55:39 +0100
-Message-Id: <20201109125024.610311305@linuxfoundation.org>
+Subject: [PATCH 4.14 31/48] scsi: core: Dont start concurrent async scan on same host
+Date:   Mon,  9 Nov 2020 13:55:40 +0100
+Message-Id: <20201109125018.292145589@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
+References: <20201109125016.734107741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit dea252fa41cd8ce332d148444e4799235a8a03ec ]
+[ Upstream commit 831e3405c2a344018a18fcc2665acc5a38c3a707 ]
 
-When running dtbs_check thermal_zone warn about the
-temperature declared.
+The current scanning mechanism is supposed to fall back to a synchronous
+host scan if an asynchronous scan is in progress. However, this rule isn't
+strictly respected, scsi_prep_async_scan() doesn't hold scan_mutex when
+checking shost->async_scan. When scsi_scan_host() is called concurrently,
+two async scans on same host can be started and a hang in do_scan_async()
+is observed.
 
-thermal-zones: cpu-thermal:trips:cpu-alert0:temperature:0:0: 850000 is greater than the maximum of 200000
+Fixes this issue by checking & setting shost->async_scan atomically with
+shost->scan_mutex.
 
-It's indeed wrong the real value is 85°C and not 850°C.
-
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20201003100332.431178-1-peron.clem@gmail.com
+Link: https://lore.kernel.org/r/20201010032539.426615-1-ming.lei@redhat.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_scan.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index e0a9b371c248f..2265ca24c0c71 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -143,7 +143,7 @@
- 			trips {
- 				cpu_alert0: cpu-alert0 {
- 					/* milliCelsius */
--					temperature = <850000>;
-+					temperature = <85000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 0b11405bfd7ea..40acc060b6558 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -1720,15 +1720,16 @@ static void scsi_sysfs_add_devices(struct Scsi_Host *shost)
+  */
+ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ {
+-	struct async_scan_data *data;
++	struct async_scan_data *data = NULL;
+ 	unsigned long flags;
+ 
+ 	if (strncmp(scsi_scan_type, "sync", 4) == 0)
+ 		return NULL;
+ 
++	mutex_lock(&shost->scan_mutex);
+ 	if (shost->async_scan) {
+ 		shost_printk(KERN_DEBUG, shost, "%s called twice\n", __func__);
+-		return NULL;
++		goto err;
+ 	}
+ 
+ 	data = kmalloc(sizeof(*data), GFP_KERNEL);
+@@ -1739,7 +1740,6 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 		goto err;
+ 	init_completion(&data->prev_finished);
+ 
+-	mutex_lock(&shost->scan_mutex);
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	shost->async_scan = 1;
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+@@ -1754,6 +1754,7 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 	return data;
+ 
+  err:
++	mutex_unlock(&shost->scan_mutex);
+ 	kfree(data);
+ 	return NULL;
+ }
 -- 
 2.27.0
 
