@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB0D2ABAB7
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E076A2AB9A8
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388115AbgKINVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:21:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
+        id S1731102AbgKINLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:11:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733140AbgKINVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:45 -0500
+        id S1732309AbgKINLT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9039720663;
-        Mon,  9 Nov 2020 13:21:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02FA220663;
+        Mon,  9 Nov 2020 13:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928104;
-        bh=K/SXxsNkThrwbE4r+ibPrqWEftAgxZ6uEO6Io1rGk3I=;
+        s=default; t=1604927478;
+        bh=mglHCfp/UlQYcz/a9qJD1teai+Xwpt9IhvQcoqPxHFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjuEqEdKZHjMKY/lk47SQCVfeKvLut8SQgUbRk1OCNLbacalXWjqlYmqOER5lRack
-         CJmZZiOv2IcFJy8N9lnIx1KXhOwnUkt/H4p3NK90WzysQ2cJQ2Sc4/bbh3Fr+Y3+D7
-         nVI0ywLnMgPVL0VTYJ27k9XmGSPdZ9pFz+j25l4Y=
+        b=BsWr7wU3S9CbbOrMyhdU9vO8+VB/5fnVejVmAnmPyLZ35hdMnsLq+AudmEF4KS3Kh
+         qR5U7mlZyjREGxP1PAb0wEORe5kd9bithRjQB3+oEscHUrpEXGBa+xyJt3YvP/vePG
+         fDJ484k3vKBYu6/z/2KLeJlpawUl9Qd2QFnhA7xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
-        Seung-Woo Kim <sw0312.kim@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 098/133] staging: mmal-vchiq: Fix memory leak for vchiq_instance
+        Waldemar Brodkorb <wbx@uclibc-ng.org>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.19 66/71] Revert "ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE"
 Date:   Mon,  9 Nov 2020 13:56:00 +0100
-Message-Id: <20201109125035.403891185@linuxfoundation.org>
+Message-Id: <20201109125023.005062845@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seung-Woo Kim <sw0312.kim@samsung.com>
+From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
 
-[ Upstream commit b6ae84d648954fae096d94faea1ddb6518b27841 ]
+This reverts commit 00fdec98d9881bf5173af09aebd353ab3b9ac729.
+(but only from 5.2 and prior kernels)
 
-The vchiq_instance is allocated with vchiq_initialise() but never
-freed properly. Fix memory leak for the vchiq_instance.
+The original commit was a preventive fix based on code-review and was
+auto-picked for stable back-port (for better or worse).
+It was OK for v5.3+ kernels, but turned up needing an implicit change
+68e5c6f073bcf70 "(ARC: entry: EV_Trap expects r10 (vs. r9) to have
+ exception cause)" merged in v5.3 which itself was not backported.
+So to summarize the stable backport of this patch for v5.2 and prior
+kernels is busted and it won't boot.
 
-Reported-by: Jaehoon Chung <jh80.chung@samsung.com>
-Signed-off-by: Seung-Woo Kim <sw0312.kim@samsung.com>
-Link: https://lore.kernel.org/r/1603706150-10806-1-git-send-email-sw0312.kim@samsung.com
+The obvious solution is backport 68e5c6f073bcf70 but that is a pain as
+it doesn't revert cleanly and each of affected kernels (so far v4.19,
+v4.14, v4.9, v4.4) needs a slightly different massaged varaint.
+So the easier fix is to simply revert the backport from 5.2 and prior.
+The issue was not a big deal as it would cause strace to sporadically
+not work correctly.
+
+Waldemar Brodkorb first reported this when running ARC uClibc regressions
+on latest stable kernels (with offending backport). Once he bisected it,
+the analysis was trivial, so thx to him for this.
+
+Reported-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
+Bisected-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
+Cc: stable <stable@vger.kernel.org> # 5.2 and prior
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../vc04_services/vchiq-mmal/mmal-vchiq.c     | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ arch/arc/kernel/entry.S |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-index e798d494f00ff..bbf033ca47362 100644
---- a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-+++ b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-@@ -179,6 +179,9 @@ struct vchiq_mmal_instance {
+--- a/arch/arc/kernel/entry.S
++++ b/arch/arc/kernel/entry.S
+@@ -156,6 +156,7 @@ END(EV_Extension)
+ tracesys:
+ 	; save EFA in case tracer wants the PC of traced task
+ 	; using ERET won't work since next-PC has already committed
++	lr  r12, [efa]
+ 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
+ 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
  
- 	/* ordered workqueue to process all bulk operations */
- 	struct workqueue_struct *bulk_wq;
+@@ -198,9 +199,15 @@ tracesys_exit:
+ ; Breakpoint TRAP
+ ; ---------------------------------------------
+ trap_with_param:
+-	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
 +
-+	/* handle for a vchiq instance */
-+	struct vchiq_instance *vchiq_instance;
- };
++	; stop_pc info by gdb needs this info
++	lr  r0, [efa]
+ 	mov r1, sp
  
- static struct mmal_msg_context *
-@@ -1840,6 +1843,7 @@ int vchiq_mmal_finalise(struct vchiq_mmal_instance *instance)
++	; Now that we have read EFA, it is safe to do "fake" rtie
++	;   and get out of CPU exception mode
++	FAKE_RET_FROM_EXCPN
++
+ 	; Save callee regs in case gdb wants to have a look
+ 	; SP will grow up by size of CALLEE Reg-File
+ 	; NOTE: clobbers r12
+@@ -227,10 +234,6 @@ ENTRY(EV_Trap)
  
- 	mutex_unlock(&instance->vchiq_mutex);
+ 	EXCEPTION_PROLOGUE
  
-+	vchiq_shutdown(instance->vchiq_instance);
- 	flush_workqueue(instance->bulk_wq);
- 	destroy_workqueue(instance->bulk_wq);
+-	lr  r12, [efa]
+-
+-	FAKE_RET_FROM_EXCPN
+-
+ 	;============ TRAP 1   :breakpoints
+ 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
+ 	bmsk.f 0, r9, 7
+@@ -238,6 +241,9 @@ ENTRY(EV_Trap)
  
-@@ -1856,6 +1860,7 @@ EXPORT_SYMBOL_GPL(vchiq_mmal_finalise);
- int vchiq_mmal_init(struct vchiq_mmal_instance **out_instance)
- {
- 	int status;
-+	int err = -ENODEV;
- 	struct vchiq_mmal_instance *instance;
- 	static struct vchiq_instance *vchiq_instance;
- 	struct vchiq_service_params params = {
-@@ -1890,17 +1895,21 @@ int vchiq_mmal_init(struct vchiq_mmal_instance **out_instance)
- 	status = vchiq_connect(vchiq_instance);
- 	if (status) {
- 		pr_err("Failed to connect VCHI instance (status=%d)\n", status);
--		return -EIO;
-+		err = -EIO;
-+		goto err_shutdown_vchiq;
- 	}
+ 	;============ TRAP  (no param): syscall top level
  
- 	instance = kzalloc(sizeof(*instance), GFP_KERNEL);
- 
--	if (!instance)
--		return -ENOMEM;
-+	if (!instance) {
-+		err = -ENOMEM;
-+		goto err_shutdown_vchiq;
-+	}
- 
- 	mutex_init(&instance->vchiq_mutex);
- 
- 	instance->bulk_scratch = vmalloc(PAGE_SIZE);
-+	instance->vchiq_instance = vchiq_instance;
- 
- 	mutex_init(&instance->context_map_lock);
- 	idr_init_base(&instance->context_map, 1);
-@@ -1932,7 +1941,9 @@ int vchiq_mmal_init(struct vchiq_mmal_instance **out_instance)
- err_free:
- 	vfree(instance->bulk_scratch);
- 	kfree(instance);
--	return -ENODEV;
-+err_shutdown_vchiq:
-+	vchiq_shutdown(vchiq_instance);
-+	return err;
- }
- EXPORT_SYMBOL_GPL(vchiq_mmal_init);
- 
--- 
-2.27.0
-
++	; First return from Exception to pure K mode (Exception/IRQs renabled)
++	FAKE_RET_FROM_EXCPN
++
+ 	; If syscall tracing ongoing, invoke pre-post-hooks
+ 	GET_CURR_THR_INFO_FLAGS   r10
+ 	btst r10, TIF_SYSCALL_TRACE
 
 
