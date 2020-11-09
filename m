@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4912B2AB995
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8462AB9EB
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732092AbgKINKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:10:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
+        id S1731893AbgKINNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732084AbgKINKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:10:31 -0500
+        id S1732094AbgKINNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:13:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 443092076E;
-        Mon,  9 Nov 2020 13:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 541422083B;
+        Mon,  9 Nov 2020 13:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927429;
-        bh=v2/IidOou76DgT2D9TlB3R5aId4pHa4kqdlHwriWQYg=;
+        s=default; t=1604927633;
+        bh=O35HR0UOKEnB2eIZHX5AGFalzroTDFfT5tIHonLKRb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjL/3lTV7XDe7HY+Z7MgnHo51ts/xFSjK7eIij53cMq0m9+6OpJHNvxHIP8sgY8AT
-         wCYC1V9BF1ubBEOF9gMYc2VQnLPyktJ7n78Vl5DkCT7qDBLIf6PLX4Lsyywflr5j9/
-         cTFOsfFLpPQjnsjFI9OaZ7htf0BrW9mnoNNBW4So=
+        b=WjULJi2iCLAKoHK246BKWAp6LgtfeD/aU53C8N7lorbDrjHzHXhKO0wOy3WiBr3yN
+         ui2Z5ph3+aTgAq4H+8MTUSIihtjsb0Qf8x2U68xVxjAsh9EDhvzvUIV3XyZJFRZJv9
+         N8P6Yq4nK7MygC6l0b5g+dz/vQnhkG07c5br7hiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddy Wu <eddy_wu@trendmicro.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 56/71] fork: fix copy_process(CLONE_PARENT) race with the exiting ->real_parent
-Date:   Mon,  9 Nov 2020 13:55:50 +0100
-Message-Id: <20201109125022.535216218@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Kiryanov <rkir@google.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 54/85] vsock: use ns_capable_noaudit() on socket create
+Date:   Mon,  9 Nov 2020 13:55:51 +0100
+Message-Id: <20201109125025.174171988@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddy Wu <itseddy0402@gmail.com>
+From: Jeff Vander Stoep <jeffv@google.com>
 
-commit b4e00444cab4c3f3fec876dc0cccc8cbb0d1a948 upstream.
+[ Upstream commit af545bb5ee53f5261db631db2ac4cde54038bdaf ]
 
-current->group_leader->exit_signal may change during copy_process() if
-current->real_parent exits.
+During __vsock_create() CAP_NET_ADMIN is used to determine if the
+vsock_sock->trusted should be set to true. This value is used later
+for determing if a remote connection should be allowed to connect
+to a restricted VM. Unfortunately, if the caller doesn't have
+CAP_NET_ADMIN, an audit message such as an selinux denial is
+generated even if the caller does not want a trusted socket.
 
-Move the assignment inside tasklist_lock to avoid the race.
+Logging errors on success is confusing. To avoid this, switch the
+capable(CAP_NET_ADMIN) check to the noaudit version.
 
-Signed-off-by: Eddy Wu <eddy_wu@trendmicro.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Roman Kiryanov <rkir@google.com>
+https://android-review.googlesource.com/c/device/generic/goldfish/+/1468545/
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20201023143757.377574-1-jeffv@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1965,14 +1965,9 @@ static __latent_entropy struct task_stru
- 	/* ok, now we should be set up.. */
- 	p->pid = pid_nr(pid);
- 	if (clone_flags & CLONE_THREAD) {
--		p->exit_signal = -1;
- 		p->group_leader = current->group_leader;
- 		p->tgid = current->tgid;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 7bd6c8199ca67..3a074a03d3820 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -621,7 +621,7 @@ struct sock *__vsock_create(struct net *net,
+ 		vsk->owner = get_cred(psk->owner);
+ 		vsk->connect_timeout = psk->connect_timeout;
  	} else {
--		if (clone_flags & CLONE_PARENT)
--			p->exit_signal = current->group_leader->exit_signal;
--		else
--			p->exit_signal = (clone_flags & CSIGNAL);
- 		p->group_leader = p;
- 		p->tgid = p->pid;
+-		vsk->trusted = capable(CAP_NET_ADMIN);
++		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
+ 		vsk->connect_timeout = VSOCK_DEFAULT_CONNECT_TIMEOUT;
  	}
-@@ -2017,9 +2012,14 @@ static __latent_entropy struct task_stru
- 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
- 		p->real_parent = current->real_parent;
- 		p->parent_exec_id = current->parent_exec_id;
-+		if (clone_flags & CLONE_THREAD)
-+			p->exit_signal = -1;
-+		else
-+			p->exit_signal = current->group_leader->exit_signal;
- 	} else {
- 		p->real_parent = current;
- 		p->parent_exec_id = current->self_exec_id;
-+		p->exit_signal = (clone_flags & CSIGNAL);
- 	}
- 
- 	klp_copy_process(p);
+-- 
+2.27.0
+
 
 
