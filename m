@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A622ABA4B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A122AB913
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:04:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732096AbgKINRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:17:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44702 "EHLO mail.kernel.org"
+        id S1730490AbgKINEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:04:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387600AbgKINRb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:17:31 -0500
+        id S1730743AbgKINEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 279A1206D8;
-        Mon,  9 Nov 2020 13:17:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19AA120789;
+        Mon,  9 Nov 2020 13:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927850;
-        bh=k+ciKGmdAaWHmNFCpirppe+yWEkX+BhcNsI0sA/QUvA=;
+        s=default; t=1604927061;
+        bh=jP88JYj8Z/AdPCNX+iDECNYYOP9MgaPxV5cN5R2kP8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVcebLvNIntlg6M6CMnMYYZ9LyDEBRpXVmmgoGM836Ji4rvTLVCU6am8F3eF5TGnG
-         OoV1Dp7XOcC78XQ/zuvCcfj6xcXuu0aOIHfPt+L4J1IorrrlcMWBL+xoNahMRSpAbq
-         ZGCImh0UXM41EdNGWenjPR9v5J9gFBzqJGvrBhXI=
+        b=hOXYe98vhoz8ULs4fl9XRqTPTzGeoQl2I2vrqXc8IC+zHZQUkDsbBgNbLK59afbHD
+         kJbYRmndLeyeaFK77PvPpGSmPmIXNuDpRJq5pLCLxS1KIH+RdwpYoUCej45tZaDpj+
+         L6IOrqUT2F42b2FAmwv4O5w9C7hexBhUMBSGKx7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 5.9 043/133] drm/nouveau/kms/nv50-: Get rid of bogus nouveau_conn_mode_valid()
-Date:   Mon,  9 Nov 2020 13:55:05 +0100
-Message-Id: <20201109125032.780880244@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 080/117] tty: make FONTX ioctl use the tty pointer they were actually passed
+Date:   Mon,  9 Nov 2020 13:55:06 +0100
+Message-Id: <20201109125029.484537118@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 2d831155cf0607566e43d8465da33774b2dc7221 upstream.
+commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
 
-Ville also pointed out that I got a lot of the logic here wrong as well, whoops.
-While I don't think anyone's likely using 3D output with nouveau, the next patch
-will make nouveau_conn_mode_valid() make a lot less sense. So, let's just get
-rid of it and open-code it like before, while taking care to move the 3D frame
-packing calculations on the dot clock into the right place.
+Some of the font tty ioctl's always used the current foreground VC for
+their operations.  Don't do that then.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: d6a9efece724 ("drm/nouveau/kms/nv50-: Share DP SST mode_valid() handling with MST")
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+This fixes a data race on fg_console.
+
+Side note: both Michael Ellerman and Jiri Slaby point out that all these
+ioctls are deprecated, and should probably have been removed long ago,
+and everything seems to be using the KDFONTOP ioctl instead.
+
+In fact, Michael points out that it looks like busybox's loadfont
+program seems to have switched over to using KDFONTOP exactly _because_
+of this bug (ahem.. 12 years ago ;-).
+
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c |   36 +++++++---------------------
- drivers/gpu/drm/nouveau/nouveau_dp.c        |   15 +++++++----
- 2 files changed, 20 insertions(+), 31 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -1035,29 +1035,6 @@ get_tmds_link_bandwidth(struct drm_conne
- 		return 112000 * duallink_scale;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -243,7 +243,7 @@ int vt_waitactive(int n)
+ 
+ 
+ static inline int 
+-do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
++do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
+ {
+ 	struct consolefontdesc cfdarg;
+ 	int i;
+@@ -261,15 +261,16 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		return con_font_op(vc_cons[fg_console].d, op);
+-	case GIO_FONTX: {
++		return con_font_op(vc, op);
++
++	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+ 		op->width = 8;
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -277,7 +278,6 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+ 			return -EFAULT;
+ 		return 0;
+-		}
+ 	}
+ 	return -EINVAL;
  }
- 
--enum drm_mode_status
--nouveau_conn_mode_clock_valid(const struct drm_display_mode *mode,
--			      const unsigned min_clock,
--			      const unsigned max_clock,
--			      unsigned int *clock_out)
--{
--	unsigned int clock = mode->clock;
--
--	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ==
--	    DRM_MODE_FLAG_3D_FRAME_PACKING)
--		clock *= 2;
--
--	if (clock < min_clock)
--		return MODE_CLOCK_LOW;
--	if (clock > max_clock)
--		return MODE_CLOCK_HIGH;
--
--	if (clock_out)
--		*clock_out = clock;
--
--	return MODE_OK;
--}
--
- static enum drm_mode_status
- nouveau_connector_mode_valid(struct drm_connector *connector,
- 			     struct drm_display_mode *mode)
-@@ -1065,7 +1042,7 @@ nouveau_connector_mode_valid(struct drm_
- 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
- 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
- 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
--	unsigned min_clock = 25000, max_clock = min_clock;
-+	unsigned int min_clock = 25000, max_clock = min_clock, clock = mode->clock;
- 
- 	switch (nv_encoder->dcb->type) {
- 	case DCB_OUTPUT_LVDS:
-@@ -1094,8 +1071,15 @@ nouveau_connector_mode_valid(struct drm_
- 		return MODE_BAD;
+@@ -927,7 +927,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 0;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
  	}
  
--	return nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
--					     NULL);
-+	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
-+		clock *= 2;
-+
-+	if (clock < min_clock)
-+		return MODE_CLOCK_LOW;
-+	if (clock > max_clock)
-+		return MODE_CLOCK_HIGH;
-+
-+	return MODE_OK;
- }
+@@ -938,7 +938,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 32;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
+ 	}
  
- static struct drm_encoder *
---- a/drivers/gpu/drm/nouveau/nouveau_dp.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
-@@ -114,18 +114,23 @@ nv50_dp_mode_valid(struct drm_connector
- 		   unsigned *out_clock)
+@@ -955,7 +955,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = do_fontx_ioctl(cmd, up, perm, &op);
++		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case PIO_FONTRESET:
+@@ -972,11 +972,11 @@ int vt_ioctl(struct tty_struct *tty,
+ 		{
+ 		op.op = KD_FONT_OP_SET_DEFAULT;
+ 		op.data = NULL;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		if (ret)
+ 			break;
+ 		console_lock();
+-		con_set_default_unimap(vc_cons[fg_console].d);
++		con_set_default_unimap(vc);
+ 		console_unlock();
+ 		break;
+ 		}
+@@ -1103,8 +1103,9 @@ struct compat_consolefontdesc {
+ };
+ 
+ static inline int
+-compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
+-			 int perm, struct console_font_op *op)
++compat_fontx_ioctl(struct vc_data *vc, int cmd,
++		   struct compat_consolefontdesc __user *user_cfd,
++		   int perm, struct console_font_op *op)
  {
- 	const unsigned min_clock = 25000;
--	unsigned max_clock, clock;
--	enum drm_mode_status ret;
-+	unsigned max_clock, clock = mode->clock;
- 
- 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
- 		return MODE_NO_INTERLACE;
- 
-+	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
-+		clock *= 2;
+ 	struct compat_consolefontdesc cfdarg;
+ 	int i;
+@@ -1122,7 +1123,8 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		return con_font_op(vc_cons[fg_console].d, op);
++		return con_font_op(vc, op);
 +
- 	max_clock = outp->dp.link_nr * outp->dp.link_bw;
- 	clock = mode->clock * (connector->display_info.bpc * 3) / 10;
-+	if (clock < min_clock)
-+		return MODE_CLOCK_LOW;
-+	if (clock > max_clock)
-+		return MODE_CLOCK_HIGH;
+ 	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+@@ -1130,7 +1132,7 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -1225,7 +1227,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 	 */
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = compat_fontx_ioctl(cmd, up, perm, &op);
++		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
  
--	ret = nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
--					    &clock);
- 	if (out_clock)
- 		*out_clock = clock;
--	return ret;
-+
-+	return MODE_OK;
- }
+ 	case KDFONTOP:
 
 
