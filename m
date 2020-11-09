@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE152AB8E4
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 265912AB8E5
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730227AbgKIM6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 07:58:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53090 "EHLO mail.kernel.org"
+        id S1730252AbgKIM7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:59:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730219AbgKIM6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:58:52 -0500
+        id S1729853AbgKIM7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A65902076E;
-        Mon,  9 Nov 2020 12:58:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AC9720897;
+        Mon,  9 Nov 2020 12:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926731;
-        bh=zsKZ8Twn+NcIWKq6c5vX7pJQtwaIMhWDqnsrRQrtz18=;
+        s=default; t=1604926745;
+        bh=+DuDdVpjTF8qkkCWdGV1GlLIMkWVkV/LL5kQv0N/2Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ALXDfrgcBO8PgZ6yVikYoj49GSrmnTGQhc6//boS08pn5CfIO288LMUwNEvrahpOF
-         UyTTPeX3IyVkggrSNhpyLM6UOCmWoXdtFGh/1ikMa882stINONejN8qB73i+FTpJam
-         QT6qV4LWFumcTi5S+MNF52FhwHJhIhzTMit0Pads=
+        b=wpYzmqWSOJWtAD4l1qI02iPYu/6tPvw++Y3HInC6yR6s7cuJAygEE3JwOAiqK88R8
+         U1LvIgZOJbMSkN6T0p/dmPcaRm9l2p9dSR93r0GUIf2nFYZ7g9V/A/vCUfq8RaY4Do
+         9HJCBB+Z4o3eidNARPReN5lQqxKlqVB2l+soLJeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 71/86] ftrace: Handle tracing when switching between context
-Date:   Mon,  9 Nov 2020 13:55:18 +0100
-Message-Id: <20201109125024.200132132@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Lee Duncan <lduncan@suse.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 75/86] scsi: core: Dont start concurrent async scan on same host
+Date:   Mon,  9 Nov 2020 13:55:22 +0100
+Message-Id: <20201109125024.393473614@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -42,92 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 726b3d3f141fba6f841d715fc4d8a4a84f02c02a upstream.
+[ Upstream commit 831e3405c2a344018a18fcc2665acc5a38c3a707 ]
 
-When an interrupt or NMI comes in and switches the context, there's a delay
-from when the preempt_count() shows the update. As the preempt_count() is
-used to detect recursion having each context have its own bit get set when
-tracing starts, and if that bit is already set, it is considered a recursion
-and the function exits. But if this happens in that section where context
-has changed but preempt_count() has not been updated, this will be
-incorrectly flagged as a recursion.
+The current scanning mechanism is supposed to fall back to a synchronous
+host scan if an asynchronous scan is in progress. However, this rule isn't
+strictly respected, scsi_prep_async_scan() doesn't hold scan_mutex when
+checking shost->async_scan. When scsi_scan_host() is called concurrently,
+two async scans on same host can be started and a hang in do_scan_async()
+is observed.
 
-To handle this case, create another bit call TRANSITION and test it if the
-current context bit is already set. Flag the call as a recursion if the
-TRANSITION bit is already set, and if not, set it and continue. The
-TRANSITION bit will be cleared normally on the return of the function that
-set it, or if the current context bit is clear, set it and clear the
-TRANSITION bit to allow for another transition between the current context
-and an even higher one.
+Fixes this issue by checking & setting shost->async_scan atomically with
+shost->scan_mutex.
 
-Cc: stable@vger.kernel.org
-Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20201010032539.426615-1-ming.lei@redhat.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.h          |   23 +++++++++++++++++++++--
- kernel/trace/trace_selftest.c |    9 +++++++--
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi_scan.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -478,6 +478,12 @@ enum {
-  * can only be modified by current, we can reuse trace_recursion.
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 3e2288af56bc3..647a057a9b6cc 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -1710,15 +1710,16 @@ static void scsi_sysfs_add_devices(struct Scsi_Host *shost)
   */
- 	TRACE_IRQ_BIT,
-+
-+	/*
-+	 * When transitioning between context, the preempt_count() may
-+	 * not be correct. Allow for a single recursion to cover this case.
-+	 */
-+	TRACE_TRANSITION_BIT,
- };
+ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ {
+-	struct async_scan_data *data;
++	struct async_scan_data *data = NULL;
+ 	unsigned long flags;
  
- #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
-@@ -522,8 +528,21 @@ static __always_inline int trace_test_an
- 		return 0;
+ 	if (strncmp(scsi_scan_type, "sync", 4) == 0)
+ 		return NULL;
  
- 	bit = trace_get_context_bit() + start;
--	if (unlikely(val & (1 << bit)))
--		return -1;
-+	if (unlikely(val & (1 << bit))) {
-+		/*
-+		 * It could be that preempt_count has not been updated during
-+		 * a switch between contexts. Allow for a single recursion.
-+		 */
-+		bit = TRACE_TRANSITION_BIT;
-+		if (trace_recursion_test(bit))
-+			return -1;
-+		trace_recursion_set(bit);
-+		barrier();
-+		return bit + 1;
-+	}
-+
-+	/* Normal check passed, clear the transition to allow it again */
-+	trace_recursion_clear(TRACE_TRANSITION_BIT);
- 
- 	val |= 1 << bit;
- 	current->trace_recursion = val;
---- a/kernel/trace/trace_selftest.c
-+++ b/kernel/trace/trace_selftest.c
-@@ -490,8 +490,13 @@ trace_selftest_function_recursion(void)
- 	unregister_ftrace_function(&test_rec_probe);
- 
- 	ret = -1;
--	if (trace_selftest_recursion_cnt != 1) {
--		pr_cont("*callback not called once (%d)* ",
-+	/*
-+	 * Recursion allows for transitions between context,
-+	 * and may call the callback twice.
-+	 */
-+	if (trace_selftest_recursion_cnt != 1 &&
-+	    trace_selftest_recursion_cnt != 2) {
-+		pr_cont("*callback not called once (or twice) (%d)* ",
- 			trace_selftest_recursion_cnt);
- 		goto out;
++	mutex_lock(&shost->scan_mutex);
+ 	if (shost->async_scan) {
+ 		shost_printk(KERN_DEBUG, shost, "%s called twice\n", __func__);
+-		return NULL;
++		goto err;
  	}
+ 
+ 	data = kmalloc(sizeof(*data), GFP_KERNEL);
+@@ -1729,7 +1730,6 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 		goto err;
+ 	init_completion(&data->prev_finished);
+ 
+-	mutex_lock(&shost->scan_mutex);
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	shost->async_scan = 1;
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+@@ -1744,6 +1744,7 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 	return data;
+ 
+  err:
++	mutex_unlock(&shost->scan_mutex);
+ 	kfree(data);
+ 	return NULL;
+ }
+-- 
+2.27.0
+
 
 
