@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C192ABD6D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0182ABCD7
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729549AbgKINp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:45:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52490 "EHLO mail.kernel.org"
+        id S1730218AbgKINjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730095AbgKIM6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:58:04 -0500
+        id S1730205AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:03:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBA9420684;
-        Mon,  9 Nov 2020 12:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85B582223C;
+        Mon,  9 Nov 2020 13:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926683;
-        bh=xj7NOZy15D+CbPwt/mLuqfGXfXmYgnv8lgWNkLViJzo=;
+        s=default; t=1604927006;
+        bh=F8GHRzebh/oQRBKtoP8ooyOEj7+8l3dGNwpH1kCyCuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS27tjMqyel2G32wxl85Gde3Y99//18EsNSV98z6GiflEf95ZAy7j5uqYZdcWs9Q5
-         Wg8+68S4D9yIet+R0DC2weicgFGNOJskvydXWEMP/YOTR8AtLTb6Xg9gMoSGUvNybm
-         VBJs19GMIPcvd1KrLKiyfdHPwbmgvFCNWWlyt9Kw=
+        b=HbbaBwY3CC3zEDEvVY/V0ChxALWqjsbj6HlJcO5RELeB0fEQlYGUMEk6bu1olJE1y
+         eyPv5f1KUMx8dadWcBvSJwsrwUwBqufaESOf4m/3cWW/ge9aXFwYJ0yx0nsjNViOwq
+         sN+s+Cvq1Cr4aUH6NsGjpxUDkNbxaGhoqzAOYzkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 55/86] tty: make FONTX ioctl use the tty pointer they were actually passed
-Date:   Mon,  9 Nov 2020 13:55:02 +0100
-Message-Id: <20201109125023.443461798@linuxfoundation.org>
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 077/117] ring-buffer: Return 0 on success from ring_buffer_resize()
+Date:   Mon,  9 Nov 2020 13:55:03 +0100
+Message-Id: <20201109125029.339245097@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,153 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
+commit 0a1754b2a97efa644aa6e84d1db5b17c42251483 upstream.
 
-Some of the font tty ioctl's always used the current foreground VC for
-their operations.  Don't do that then.
+We don't need to check the new buffer size, and the return value
+had confused resize_buffer_duplicate_size().
+...
+	ret = ring_buffer_resize(trace_buf->buffer,
+		per_cpu_ptr(size_buf->data,cpu_id)->entries, cpu_id);
+	if (ret == 0)
+		per_cpu_ptr(trace_buf->data, cpu_id)->entries =
+			per_cpu_ptr(size_buf->data, cpu_id)->entries;
+...
 
-This fixes a data race on fg_console.
+Link: https://lkml.kernel.org/r/20201019142242.11560-1-hqjagain@gmail.com
 
-Side note: both Michael Ellerman and Jiri Slaby point out that all these
-ioctls are deprecated, and should probably have been removed long ago,
-and everything seems to be using the KDFONTOP ioctl instead.
-
-In fact, Michael points out that it looks like busybox's loadfont
-program seems to have switched over to using KDFONTOP exactly _because_
-of this bug (ahem.. 12 years ago ;-).
-
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: d60da506cbeb3 ("tracing: Add a resize function to make one buffer equivalent to another buffer")
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ kernel/trace/ring_buffer.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -243,7 +243,7 @@ int vt_waitactive(int n)
- 
- 
- static inline int 
--do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
-+do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1650,18 +1650,18 @@ int ring_buffer_resize(struct ring_buffe
  {
- 	struct consolefontdesc cfdarg;
- 	int i;
-@@ -261,15 +261,16 @@ do_fontx_ioctl(int cmd, struct consolefo
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		return con_font_op(vc_cons[fg_console].d, op);
--	case GIO_FONTX: {
-+		return con_font_op(vc, op);
-+
-+	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
- 		op->width = 8;
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = cfdarg.chardata;
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -277,7 +278,6 @@ do_fontx_ioctl(int cmd, struct consolefo
- 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
- 			return -EFAULT;
- 		return 0;
--		}
- 	}
- 	return -EINVAL;
- }
-@@ -927,7 +927,7 @@ int vt_ioctl(struct tty_struct *tty,
- 		op.height = 0;
- 		op.charcount = 256;
- 		op.data = up;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		break;
- 	}
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	unsigned long nr_pages;
+-	int cpu, err = 0;
++	int cpu, err;
  
-@@ -938,7 +938,7 @@ int vt_ioctl(struct tty_struct *tty,
- 		op.height = 32;
- 		op.charcount = 256;
- 		op.data = up;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		break;
- 	}
- 
-@@ -955,7 +955,7 @@ int vt_ioctl(struct tty_struct *tty,
- 
- 	case PIO_FONTX:
- 	case GIO_FONTX:
--		ret = do_fontx_ioctl(cmd, up, perm, &op);
-+		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
- 		break;
- 
- 	case PIO_FONTRESET:
-@@ -972,11 +972,11 @@ int vt_ioctl(struct tty_struct *tty,
- 		{
- 		op.op = KD_FONT_OP_SET_DEFAULT;
- 		op.data = NULL;
--		ret = con_font_op(vc_cons[fg_console].d, &op);
-+		ret = con_font_op(vc, &op);
- 		if (ret)
- 			break;
- 		console_lock();
--		con_set_default_unimap(vc_cons[fg_console].d);
-+		con_set_default_unimap(vc);
- 		console_unlock();
- 		break;
- 		}
-@@ -1109,8 +1109,9 @@ struct compat_consolefontdesc {
- };
- 
- static inline int
--compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
--			 int perm, struct console_font_op *op)
-+compat_fontx_ioctl(struct vc_data *vc, int cmd,
-+		   struct compat_consolefontdesc __user *user_cfd,
-+		   int perm, struct console_font_op *op)
- {
- 	struct compat_consolefontdesc cfdarg;
- 	int i;
-@@ -1128,7 +1129,8 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		return con_font_op(vc_cons[fg_console].d, op);
-+		return con_font_op(vc, op);
-+
- 	case GIO_FONTX:
- 		op->op = KD_FONT_OP_GET;
- 		op->flags = KD_FONT_FLAG_OLD;
-@@ -1136,7 +1138,7 @@ compat_fontx_ioctl(int cmd, struct compa
- 		op->height = cfdarg.charheight;
- 		op->charcount = cfdarg.charcount;
- 		op->data = compat_ptr(cfdarg.chardata);
--		i = con_font_op(vc_cons[fg_console].d, op);
-+		i = con_font_op(vc, op);
- 		if (i)
- 			return i;
- 		cfdarg.charheight = op->height;
-@@ -1231,7 +1233,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 	/*
+ 	 * Always succeed at resizing a non-existent buffer:
  	 */
- 	case PIO_FONTX:
- 	case GIO_FONTX:
--		ret = compat_fontx_ioctl(cmd, up, perm, &op);
-+		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
- 		break;
+ 	if (!buffer)
+-		return size;
++		return 0;
  
- 	case KDFONTOP:
+ 	/* Make sure the requested buffer exists */
+ 	if (cpu_id != RING_BUFFER_ALL_CPUS &&
+ 	    !cpumask_test_cpu(cpu_id, buffer->cpumask))
+-		return size;
++		return 0;
+ 
+ 	nr_pages = DIV_ROUND_UP(size, BUF_PAGE_SIZE);
+ 
+@@ -1801,7 +1801,7 @@ int ring_buffer_resize(struct ring_buffe
+ 	}
+ 
+ 	mutex_unlock(&buffer->mutex);
+-	return size;
++	return 0;
+ 
+  out_err:
+ 	for_each_buffer_cpu(buffer, cpu) {
 
 
