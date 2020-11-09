@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D75E2ABB07
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABAC2AB948
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387412AbgKINS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:18:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
+        id S1731433AbgKINHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:07:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733002AbgKINSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:18:55 -0500
+        id S1731438AbgKINHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:07:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F9820663;
-        Mon,  9 Nov 2020 13:18:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 012F420789;
+        Mon,  9 Nov 2020 13:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927935;
-        bh=W6jPLtivwdREzKc1Sx0ca72xoqSz5kLzukYIjYx1aAU=;
+        s=default; t=1604927264;
+        bh=FsJ/2RInu883qUPI+CrJm8ZPornWb8HEbhEIwXHbLmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5nTXZuSNOBPPLGjL7w1kF5YzX1SKQ1h6d4RKxK2lndoZjPkkCf//YGkjoInvGeRJ
-         GR+YZu7Ygle+aHQAA0E4lobO4apVIlg2dvQaiFCPe0zWOeJ61W6q/qAmHb18yq5gn1
-         ieMSS6ovgsEMSczMynWwfJtf6GtPH3XI6vh7A3ds=
+        b=oQc5EMWLxc2ENr063NBGcI5x14WMkYyrnVH19IvSXQPZx0xj0idu96fbTSeM40GNW
+         MeD29kemPX6s8YgKFu2puND6m5NGm2CToitv/XoponHHvyagunA11nDve6vetsZCYG
+         cmkB1ojTWtY9MkSbAmbC71iZgtXx6IZl3DrCaZ2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 072/133] ARM: dts: sun4i-a10: fix cpu_alert temperature
+        stable@vger.kernel.org, Gratian Crisan <gratian.crisan@ni.com>,
+        Mike Galbraith <efault@gmx.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 25/48] futex: Handle transient "ownerless" rtmutex state correctly
 Date:   Mon,  9 Nov 2020 13:55:34 +0100
-Message-Id: <20201109125034.198369993@linuxfoundation.org>
+Message-Id: <20201109125017.995736996@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
+References: <20201109125016.734107741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Mike Galbraith <efault@gmx.de>
 
-[ Upstream commit dea252fa41cd8ce332d148444e4799235a8a03ec ]
+commit 9f5d1c336a10c0d24e83e40b4c1b9539f7dba627 upstream.
 
-When running dtbs_check thermal_zone warn about the
-temperature declared.
+Gratian managed to trigger the BUG_ON(!newowner) in fixup_pi_state_owner().
+This is one possible chain of events leading to this:
 
-thermal-zones: cpu-thermal:trips:cpu-alert0:temperature:0:0: 850000 is greater than the maximum of 200000
+Task Prio       Operation
+T1   120	lock(F)
+T2   120	lock(F)   -> blocks (top waiter)
+T3   50 (RT)	lock(F)   -> boosts T1 and blocks (new top waiter)
+XX   		timeout/  -> wakes T2
+		signal
+T1   50		unlock(F) -> wakes T3 (rtmutex->owner == NULL, waiter bit is set)
+T2   120	cleanup   -> try_to_take_mutex() fails because T3 is the top waiter
+     			     and the lower priority T2 cannot steal the lock.
+     			  -> fixup_pi_state_owner() sees newowner == NULL -> BUG_ON()
 
-It's indeed wrong the real value is 85°C and not 850°C.
+The comment states that this is invalid and rt_mutex_real_owner() must
+return a non NULL owner when the trylock failed, but in case of a queued
+and woken up waiter rt_mutex_real_owner() == NULL is a valid transient
+state. The higher priority waiter has simply not yet managed to take over
+the rtmutex.
 
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20201003100332.431178-1-peron.clem@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The BUG_ON() is therefore wrong and this is just another retry condition in
+fixup_pi_state_owner().
+
+Drop the locks, so that T3 can make progress, and then try the fixup again.
+
+Gratian provided a great analysis, traces and a reproducer. The analysis is
+to the point, but it confused the hell out of that tglx dude who had to
+page in all the futex horrors again. Condensed version is above.
+
+[ tglx: Wrote comment and changelog ]
+
+Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+Reported-by: Gratian Crisan <gratian.crisan@ni.com>
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87a6w6x7bb.fsf@ni.com
+Link: https://lore.kernel.org/r/87sg9pkvf7.fsf@nanos.tec.linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/futex.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 0f95a6ef8543a..1c5a666c54b53 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -143,7 +143,7 @@
- 			trips {
- 				cpu_alert0: cpu-alert0 {
- 					/* milliCelsius */
--					temperature = <850000>;
-+					temperature = <85000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
--- 
-2.27.0
-
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2512,10 +2512,22 @@ retry:
+ 		}
+ 
+ 		/*
+-		 * Since we just failed the trylock; there must be an owner.
++		 * The trylock just failed, so either there is an owner or
++		 * there is a higher priority waiter than this one.
+ 		 */
+ 		newowner = rt_mutex_owner(&pi_state->pi_mutex);
+-		BUG_ON(!newowner);
++		/*
++		 * If the higher priority waiter has not yet taken over the
++		 * rtmutex then newowner is NULL. We can't return here with
++		 * that state because it's inconsistent vs. the user space
++		 * state. So drop the locks and try again. It's a valid
++		 * situation and not any different from the other retry
++		 * conditions.
++		 */
++		if (unlikely(!newowner)) {
++			err = -EAGAIN;
++			goto handle_err;
++		}
+ 	} else {
+ 		WARN_ON_ONCE(argowner != current);
+ 		if (oldowner == current) {
 
 
