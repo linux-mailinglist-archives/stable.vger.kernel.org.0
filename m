@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5614D2AB993
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD822ABB0B
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732069AbgKINK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:10:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
+        id S2387823AbgKINTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:19:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731261AbgKINK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:10:28 -0500
+        id S2387820AbgKINTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:19:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3634320663;
-        Mon,  9 Nov 2020 13:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DE7020663;
+        Mon,  9 Nov 2020 13:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927426;
-        bh=FrGFnYVtKu4a5On7eAOPWzNYFNNKSIQ2Y5MlWzgAYCs=;
+        s=default; t=1604927983;
+        bh=Iz+JLNJgmDLZjp5vlBNCDt510Qp8YB7z/1lRTcyYMi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qS78Wdme28T4DhXJLvzgWnbSqnOoCT0q97rCv3hARUUv0Z8wAarS5XRufsZWt6Zt3
-         rzWn3WDmUmGIJPWfv48pzBGSyIQU2Ji+U66xnfhFEHULzhPLS3iiTISlqwwUJk47CH
-         6okEX1Bq98Yl73a+zNJvh2IDGAWe9Mf1FeVfF2DY=
+        b=u4P3SE0hX68zk0OzstPAZcp4TxjJVGAtB33QmXaHG3Tt0I85HL+ZMwaIDN0v2QIYy
+         9Wsvf87lPUemD1oMBKkgcbKRA4UcLj+QBIYrqA3dk5cuWGYpT7jRxdcW9zWTLJXfqa
+         kIZ9fSGyo+A2sdyX4SRVkFVBP4wLhPZqv8UYJONk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Minh Yuan <yuanmingbuaa@gmail.com>, Greg KH <greg@kroah.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 4.19 55/71] vt: Disable KD_FONT_OP_COPY
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 087/133] btrfs: drop the path before adding qgroup items when enabling qgroups
 Date:   Mon,  9 Nov 2020 13:55:49 +0100
-Message-Id: <20201109125022.487432418@linuxfoundation.org>
+Message-Id: <20201109125034.893667242@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 3c4e0dff2095c579b142d5a0693257f1c58b4804 upstream.
+[ Upstream commit 5223cc60b40ae525ae6c94e98824129f1a5b4ae5 ]
 
-It's buggy:
+When enabling qgroups we walk the tree_root and then add a qgroup item
+for every root that we have.  This creates a lock dependency on the
+tree_root and qgroup_root, which results in the following lockdep splat
+(with tree locks using rwsem), eg. in tests btrfs/017 or btrfs/022:
 
-On Fri, Nov 06, 2020 at 10:30:08PM +0800, Minh Yuan wrote:
-> We recently discovered a slab-out-of-bounds read in fbcon in the latest
-> kernel ( v5.10-rc2 for now ).  The root cause of this vulnerability is that
-> "fbcon_do_set_font" did not handle "vc->vc_font.data" and
-> "vc->vc_font.height" correctly, and the patch
-> <https://lkml.org/lkml/2020/9/27/223> for VT_RESIZEX can't handle this
-> issue.
->
-> Specifically, we use KD_FONT_OP_SET to set a small font.data for tty6, and
-> use  KD_FONT_OP_SET again to set a large font.height for tty1. After that,
-> we use KD_FONT_OP_COPY to assign tty6's vc_font.data to tty1's vc_font.data
-> in "fbcon_do_set_font", while tty1 retains the original larger
-> height. Obviously, this will cause an out-of-bounds read, because we can
-> access a smaller vc_font.data with a larger vc_font.height.
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-default+ #1299 Not tainted
+  ------------------------------------------------------
+  btrfs/24552 is trying to acquire lock:
+  ffff9142dfc5f630 (btrfs-quota-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
 
-Further there was only one user ever.
-- Android's loadfont, busybox and console-tools only ever use OP_GET
-  and OP_SET
-- fbset documentation only mentions the kernel cmdline font: option,
-  not anything else.
-- systemd used OP_COPY before release 232 published in Nov 2016
+  but task is already holding lock:
+  ffff9142dfc5d0b0 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
 
-Now unfortunately the crucial report seems to have gone down with
-gmane, and the commit message doesn't say much. But the pull request
-hints at OP_COPY being broken
+  which lock already depends on the new lock.
 
-https://github.com/systemd/systemd/pull/3651
+  the existing dependency chain (in reverse order) is:
 
-So in other words, this never worked, and the only project which
-foolishly every tried to use it, realized that rather quickly too.
+  -> #1 (btrfs-root-00){++++}-{3:3}:
+	 __lock_acquire+0x3fb/0x730
+	 lock_acquire.part.0+0x6a/0x130
+	 down_read_nested+0x46/0x130
+	 __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+	 __btrfs_read_lock_root_node+0x3a/0x50 [btrfs]
+	 btrfs_search_slot_get_root+0x11d/0x290 [btrfs]
+	 btrfs_search_slot+0xc3/0x9f0 [btrfs]
+	 btrfs_insert_item+0x6e/0x140 [btrfs]
+	 btrfs_create_tree+0x1cb/0x240 [btrfs]
+	 btrfs_quota_enable+0xcd/0x790 [btrfs]
+	 btrfs_ioctl_quota_ctl+0xc9/0xe0 [btrfs]
+	 __x64_sys_ioctl+0x83/0xa0
+	 do_syscall_64+0x2d/0x70
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Instead of trying to fix security issues here on dead code by adding
-missing checks, fix the entire thing by removing the functionality.
+  -> #0 (btrfs-quota-00){++++}-{3:3}:
+	 check_prev_add+0x91/0xc30
+	 validate_chain+0x491/0x750
+	 __lock_acquire+0x3fb/0x730
+	 lock_acquire.part.0+0x6a/0x130
+	 down_read_nested+0x46/0x130
+	 __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+	 __btrfs_read_lock_root_node+0x3a/0x50 [btrfs]
+	 btrfs_search_slot_get_root+0x11d/0x290 [btrfs]
+	 btrfs_search_slot+0xc3/0x9f0 [btrfs]
+	 btrfs_insert_empty_items+0x58/0xa0 [btrfs]
+	 add_qgroup_item.part.0+0x72/0x210 [btrfs]
+	 btrfs_quota_enable+0x3bb/0x790 [btrfs]
+	 btrfs_ioctl_quota_ctl+0xc9/0xe0 [btrfs]
+	 __x64_sys_ioctl+0x83/0xa0
+	 do_syscall_64+0x2d/0x70
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Note that systemd code using the OP_COPY function ignored the return
-value, so it doesn't matter what we're doing here really - just in
-case a lone server somewhere happens to be extremely unlucky and
-running an affected old version of systemd. The relevant code from
-font_copy_to_all_vcs() in systemd was:
+  other info that might help us debug this:
 
-	/* copy font from active VT, where the font was uploaded to */
-	cfo.op = KD_FONT_OP_COPY;
-	cfo.height = vcs.v_active-1; /* tty1 == index 0 */
-	(void) ioctl(vcfd, KDFONTOP, &cfo);
+   Possible unsafe locking scenario:
 
-Note this just disables the ioctl, garbage collecting the now unused
-callbacks is left for -next.
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(btrfs-root-00);
+				 lock(btrfs-quota-00);
+				 lock(btrfs-root-00);
+    lock(btrfs-quota-00);
 
-v2: Tetsuo found the old mail, which allowed me to find it on another
-archive. Add the link too.
+   *** DEADLOCK ***
 
-Acked-by: Peilin Ye <yepeilin.cs@gmail.com>
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: Peilin Ye <yepeilin.cs@gmail.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://lore.kernel.org/r/20201108153806.3140315-1-daniel.vetter@ffwll.ch
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  5 locks held by btrfs/24552:
+   #0: ffff9142df431478 (sb_writers#10){.+.+}-{0:0}, at: mnt_want_write_file+0x22/0xa0
+   #1: ffff9142f9b10cc0 (&fs_info->subvol_sem){++++}-{3:3}, at: btrfs_ioctl_quota_ctl+0x7b/0xe0 [btrfs]
+   #2: ffff9142f9b11a08 (&fs_info->qgroup_ioctl_lock){+.+.}-{3:3}, at: btrfs_quota_enable+0x3b/0x790 [btrfs]
+   #3: ffff9142df431698 (sb_internal#2){.+.+}-{0:0}, at: start_transaction+0x406/0x510 [btrfs]
+   #4: ffff9142dfc5d0b0 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
 
+  stack backtrace:
+  CPU: 1 PID: 24552 Comm: btrfs Not tainted 5.9.0-default+ #1299
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+  Call Trace:
+   dump_stack+0x77/0x97
+   check_noncircular+0xf3/0x110
+   check_prev_add+0x91/0xc30
+   validate_chain+0x491/0x750
+   __lock_acquire+0x3fb/0x730
+   lock_acquire.part.0+0x6a/0x130
+   ? __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+   ? lock_acquire+0xc4/0x140
+   ? __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+   down_read_nested+0x46/0x130
+   ? __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+   __btrfs_tree_read_lock+0x35/0x1c0 [btrfs]
+   ? btrfs_root_node+0xd9/0x200 [btrfs]
+   __btrfs_read_lock_root_node+0x3a/0x50 [btrfs]
+   btrfs_search_slot_get_root+0x11d/0x290 [btrfs]
+   btrfs_search_slot+0xc3/0x9f0 [btrfs]
+   btrfs_insert_empty_items+0x58/0xa0 [btrfs]
+   add_qgroup_item.part.0+0x72/0x210 [btrfs]
+   btrfs_quota_enable+0x3bb/0x790 [btrfs]
+   btrfs_ioctl_quota_ctl+0xc9/0xe0 [btrfs]
+   __x64_sys_ioctl+0x83/0xa0
+   do_syscall_64+0x2d/0x70
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fix this by dropping the path whenever we find a root item, add the
+qgroup item, and then re-lookup the root item we found and continue
+processing roots.
+
+Reported-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c |   24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+ fs/btrfs/qgroup.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4574,27 +4574,6 @@ static int con_font_default(struct vc_da
- 	return rc;
- }
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index c0f350c3a0cf4..db953cb947bc4 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1026,6 +1026,10 @@ int btrfs_quota_enable(struct btrfs_fs_info *fs_info)
+ 		btrfs_item_key_to_cpu(leaf, &found_key, slot);
  
--static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
--{
--	int con = op->height;
--	int rc;
--
--
--	console_lock();
--	if (vc->vc_mode != KD_TEXT)
--		rc = -EINVAL;
--	else if (!vc->vc_sw->con_font_copy)
--		rc = -ENOSYS;
--	else if (con < 0 || !vc_cons_allocated(con))
--		rc = -ENOTTY;
--	else if (con == vc->vc_num)	/* nothing to do */
--		rc = 0;
--	else
--		rc = vc->vc_sw->con_font_copy(vc, con);
--	console_unlock();
--	return rc;
--}
--
- int con_font_op(struct vc_data *vc, struct console_font_op *op)
- {
- 	switch (op->op) {
-@@ -4605,7 +4584,8 @@ int con_font_op(struct vc_data *vc, stru
- 	case KD_FONT_OP_SET_DEFAULT:
- 		return con_font_default(vc, op);
- 	case KD_FONT_OP_COPY:
--		return con_font_copy(vc, op);
-+		/* was buggy and never really used */
-+		return -EINVAL;
- 	}
- 	return -ENOSYS;
- }
+ 		if (found_key.type == BTRFS_ROOT_REF_KEY) {
++
++			/* Release locks on tree_root before we access quota_root */
++			btrfs_release_path(path);
++
+ 			ret = add_qgroup_item(trans, quota_root,
+ 					      found_key.offset);
+ 			if (ret) {
+@@ -1044,6 +1048,20 @@ int btrfs_quota_enable(struct btrfs_fs_info *fs_info)
+ 				btrfs_abort_transaction(trans, ret);
+ 				goto out_free_path;
+ 			}
++			ret = btrfs_search_slot_for_read(tree_root, &found_key,
++							 path, 1, 0);
++			if (ret < 0) {
++				btrfs_abort_transaction(trans, ret);
++				goto out_free_path;
++			}
++			if (ret > 0) {
++				/*
++				 * Shouldn't happen, but in case it does we
++				 * don't need to do the btrfs_next_item, just
++				 * continue.
++				 */
++				continue;
++			}
+ 		}
+ 		ret = btrfs_next_item(tree_root, path);
+ 		if (ret < 0) {
+-- 
+2.27.0
+
 
 
