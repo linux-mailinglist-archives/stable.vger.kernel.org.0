@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C8C2ABC32
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1932ABD67
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730874AbgKINfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:35:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
+        id S1730109AbgKINpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:45:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729906AbgKINF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:05:26 -0500
+        id S1730119AbgKIM6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0017420663;
-        Mon,  9 Nov 2020 13:05:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C68F12076E;
+        Mon,  9 Nov 2020 12:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927125;
-        bh=ZLeOPp5R7YSkfvBZOBDb/LOc6Tl0ZFDGmKBNdeIOBdI=;
+        s=default; t=1604926691;
+        bh=6x+p8QctiVGPPP6oeefOf0nlAAUqaZgX5q0YDOKw/jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0spUrOcuPdGqcywbSUr/w8e3fg2+/Bx512uFPnZn+1ehWAe5z7tmudWoyDQk8G5p
-         ooAxRLQ0BDWmnsAwcxZ0OxkkoA7GZKqSeDaFYypg1Fskqi/0WZSTHF4BmGvaLGqrNC
-         w51Rphjhb8G3wNC3pHjujBMqSYB1P/ixj1gzfjVI=
+        b=LeQYPXyAIixucAOcOpnvkMDxVAfdL7ud/dce/9tO9Zu1lFVtfexfV0RXJiavaKtaq
+         k0BzO4BJRIfTOn8AQpuBvHii1p1+wNNUYxhCWZjSIB2Tg9xJV0m1LH4z4xiwZEXcI7
+         OcAmm+ZXZHYOI8YKAWDeTvT/8O7+Oi4JGYhBAh/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4.9 078/117] vringh: fix __vringh_iov() when riov and wiov are different
-Date:   Mon,  9 Nov 2020 13:55:04 +0100
-Message-Id: <20201109125029.389389164@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 58/86] hil/parisc: Disable HIL driver when it gets stuck
+Date:   Mon,  9 Nov 2020 13:55:05 +0100
+Message-Id: <20201109125023.566965799@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 5745bcfbbf89b158416075374254d3c013488f21 upstream.
+commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
 
-If riov and wiov are both defined and they point to different
-objects, only riov is initialized. If the wiov is not initialized
-by the caller, the function fails returning -EINVAL and printing
-"Readable desc 0x... after writable" error message.
+When starting a HP machine with HIL driver but without an HIL keyboard
+or HIL mouse attached, it may happen that data written to the HIL loop
+gets stuck (e.g. because the transaction queue is full).  Usually one
+will then have to reboot the machine because all you see is and endless
+output of:
+ Transaction add failed: transaction already queued?
 
-This issue happens when descriptors have both readable and writable
-buffers (eg. virtio-blk devices has virtio_blk_outhdr in the readable
-buffer and status as last byte of writable buffer) and we call
-__vringh_iov() to get both type of buffers in two different iovecs.
+In the higher layers hp_sdc_enqueue_transaction() is called to queued up
+a HIL packet. This function returns an error code, and this patch adds
+the necessary checks for this return code and disables the HIL driver if
+further packets can't be sent.
 
-Let's replace the 'else if' clause with 'if' to initialize both
-riov and wiov if they are not NULL.
+Tested on a HP 730 and a HP 715/64 machine.
 
-As checkpatch pointed out, we also avoid crashing the kernel
-when riov and wiov are both NULL, replacing BUG() with WARN_ON()
-and returning -EINVAL.
-
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20201008204256.162292-1-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vhost/vringh.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
+ drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
+ include/linux/hil_mlc.h          |    2 +-
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -272,13 +272,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	desc_max = vrh->vring.num;
- 	up_next = -1;
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
+ static LIST_HEAD(hil_mlcs);
+ static DEFINE_RWLOCK(hil_mlcs_lock);
+ static struct timer_list	hil_mlcs_kicker;
+-static int			hil_mlcs_probe;
++static int			hil_mlcs_probe, hil_mlc_stop;
  
-+	/* You must want something! */
-+	if (WARN_ON(!riov && !wiov))
-+		return -EINVAL;
+ static void hil_mlcs_process(unsigned long unused);
+ static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
+@@ -704,9 +704,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 		if (!mlc->ostarted) {
+ 			mlc->ostarted = 1;
+ 			mlc->opacket = pack;
+-			mlc->out(mlc);
++			rc = mlc->out(mlc);
+ 			nextidx = HILSEN_DOZE;
+ 			write_unlock_irqrestore(&mlc->lock, flags);
++			if (rc) {
++				hil_mlc_stop = 1;
++				return 1;
++			}
+ 			break;
+ 		}
+ 		mlc->ostarted = 0;
+@@ -717,8 +721,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 
+ 	case HILSE_CTS:
+ 		write_lock_irqsave(&mlc->lock, flags);
+-		nextidx = mlc->cts(mlc) ? node->bad : node->good;
++		rc = mlc->cts(mlc);
++		nextidx = rc ? node->bad : node->good;
+ 		write_unlock_irqrestore(&mlc->lock, flags);
++		if (rc) {
++			hil_mlc_stop = 1;
++			return 1;
++		}
+ 		break;
+ 
+ 	default:
+@@ -786,6 +795,12 @@ static void hil_mlcs_process(unsigned lo
+ 
+ static void hil_mlcs_timer(unsigned long data)
+ {
++	if (hil_mlc_stop) {
++		/* could not send packet - stop immediately. */
++		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
++		return;
++	}
 +
- 	if (riov)
- 		riov->i = riov->used = 0;
--	else if (wiov)
-+	if (wiov)
- 		wiov->i = wiov->used = 0;
--	else
--		/* You must want something! */
--		BUG();
+ 	hil_mlcs_probe = 1;
+ 	tasklet_schedule(&hil_mlcs_tasklet);
+ 	/* Re-insert the periodic task. */
+--- a/drivers/input/serio/hp_sdc_mlc.c
++++ b/drivers/input/serio/hp_sdc_mlc.c
+@@ -213,7 +213,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
+ 	priv->tseq[2] = 1;
+ 	priv->tseq[3] = 0;
+ 	priv->tseq[4] = 0;
+-	__hp_sdc_enqueue_transaction(&priv->trans);
++	return __hp_sdc_enqueue_transaction(&priv->trans);
+  busy:
+ 	return 1;
+  done:
+@@ -222,7 +222,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
+ 	return 0;
+ }
  
- 	for (;;) {
- 		void *addr;
+-static void hp_sdc_mlc_out(hil_mlc *mlc)
++static int hp_sdc_mlc_out(hil_mlc *mlc)
+ {
+ 	struct hp_sdc_mlc_priv_s *priv;
+ 
+@@ -237,7 +237,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+  do_data:
+ 	if (priv->emtestmode) {
+ 		up(&mlc->osem);
+-		return;
++		return 0;
+ 	}
+ 	/* Shouldn't be sending commands when loop may be busy */
+ 	BUG_ON(down_trylock(&mlc->csem));
+@@ -299,7 +299,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+ 		BUG_ON(down_trylock(&mlc->csem));
+ 	}
+  enqueue:
+-	hp_sdc_enqueue_transaction(&priv->trans);
++	return hp_sdc_enqueue_transaction(&priv->trans);
+ }
+ 
+ static int __init hp_sdc_mlc_init(void)
+--- a/include/linux/hil_mlc.h
++++ b/include/linux/hil_mlc.h
+@@ -103,7 +103,7 @@ struct hilse_node {
+ 
+ /* Methods for back-end drivers, e.g. hp_sdc_mlc */
+ typedef int	(hil_mlc_cts) (hil_mlc *mlc);
+-typedef void	(hil_mlc_out) (hil_mlc *mlc);
++typedef int	(hil_mlc_out) (hil_mlc *mlc);
+ typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
+ 
+ struct hil_mlc_devinfo {
 
 
