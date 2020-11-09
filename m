@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C89462ABB95
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5367F2ABC41
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731691AbgKINLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:11:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
+        id S1731831AbgKINfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:35:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731316AbgKINLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:11:48 -0500
+        id S1730836AbgKINFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:05:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31B720789;
-        Mon,  9 Nov 2020 13:11:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4978D2076E;
+        Mon,  9 Nov 2020 13:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927507;
-        bh=yMulE9rlSrV7iq5QtWhfmgazFmt1ZpjOySiPk6ta1Xo=;
+        s=default; t=1604927110;
+        bh=6x+p8QctiVGPPP6oeefOf0nlAAUqaZgX5q0YDOKw/jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FveUesjE2iiDdYWTojNFVn5sK95Blcr2wvemHrH1nHB0cV0wzBBO81AJSi7jYVlTZ
-         qHBR90zCUMPDAgmH4kvHirO7ejcCXUSWVfLXMtkyLGLfq6PcNR88eFOQSIziEhNDos
-         NzlXl29htUZsoEcWDxyEjG5IPsEzzQUEqoLLjvxk=
+        b=un//mu9VptY5k/x0rcaxSwY6G9tBSwQtrQaMun82ID96FlGmNHiEBmf96gLND75DP
+         HdVQZKmaYTYSBwHjZSnSengvuT0LLPPSevjhZOfXl2QwyRWUCvVIqFFbWNfxl5hEM7
+         EPyx3+G8NK0mO8VXW3CjkMN4nyPdm0SC3LnLCuzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 12/85] chelsio/chtls: fix memory leaks caused by a race
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.9 083/117] hil/parisc: Disable HIL driver when it gets stuck
 Date:   Mon,  9 Nov 2020 13:55:09 +0100
-Message-Id: <20201109125023.180764198@linuxfoundation.org>
+Message-Id: <20201109125029.629241561@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 8080b462b6aa856ae05ea010441a702599e579f2 ]
+commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
 
-race between user context and softirq causing memleak,
-consider the call sequence scenario
+When starting a HP machine with HIL driver but without an HIL keyboard
+or HIL mouse attached, it may happen that data written to the HIL loop
+gets stuck (e.g. because the transaction queue is full).  Usually one
+will then have to reboot the machine because all you see is and endless
+output of:
+ Transaction add failed: transaction already queued?
 
-chtls_setkey()         //user context
-chtls_peer_close()
-chtls_abort_req_rss()
-chtls_setkey()         //user context
+In the higher layers hp_sdc_enqueue_transaction() is called to queued up
+a HIL packet. This function returns an error code, and this patch adds
+the necessary checks for this return code and disables the HIL driver if
+further packets can't be sent.
 
-work request skb queued in chtls_setkey() won't be freed
-because resources are already cleaned for this connection,
-fix it by not queuing work request while socket is closing.
+Tested on a HP 730 and a HP 715/64 machine.
 
-v1->v2:
-- fix W=1 warning.
-
-v2->v3:
-- separate it out from another memleak fix.
-
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Link: https://lore.kernel.org/r/20201102173650.24754-1-vinay.yadav@chelsio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/crypto/chelsio/chtls/chtls_hw.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/crypto/chelsio/chtls/chtls_hw.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
-@@ -357,6 +357,9 @@ int chtls_setkey(struct chtls_sock *csk,
- 	if (ret)
- 		goto out_notcb;
+---
+ drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
+ drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
+ include/linux/hil_mlc.h          |    2 +-
+ 3 files changed, 23 insertions(+), 8 deletions(-)
+
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
+ static LIST_HEAD(hil_mlcs);
+ static DEFINE_RWLOCK(hil_mlcs_lock);
+ static struct timer_list	hil_mlcs_kicker;
+-static int			hil_mlcs_probe;
++static int			hil_mlcs_probe, hil_mlc_stop;
  
-+	if (unlikely(csk_flag(sk, CSK_ABORT_SHUTDOWN)))
-+		goto out_notcb;
+ static void hil_mlcs_process(unsigned long unused);
+ static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
+@@ -704,9 +704,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 		if (!mlc->ostarted) {
+ 			mlc->ostarted = 1;
+ 			mlc->opacket = pack;
+-			mlc->out(mlc);
++			rc = mlc->out(mlc);
+ 			nextidx = HILSEN_DOZE;
+ 			write_unlock_irqrestore(&mlc->lock, flags);
++			if (rc) {
++				hil_mlc_stop = 1;
++				return 1;
++			}
+ 			break;
+ 		}
+ 		mlc->ostarted = 0;
+@@ -717,8 +721,13 @@ static int hilse_donode(hil_mlc *mlc)
+ 
+ 	case HILSE_CTS:
+ 		write_lock_irqsave(&mlc->lock, flags);
+-		nextidx = mlc->cts(mlc) ? node->bad : node->good;
++		rc = mlc->cts(mlc);
++		nextidx = rc ? node->bad : node->good;
+ 		write_unlock_irqrestore(&mlc->lock, flags);
++		if (rc) {
++			hil_mlc_stop = 1;
++			return 1;
++		}
+ 		break;
+ 
+ 	default:
+@@ -786,6 +795,12 @@ static void hil_mlcs_process(unsigned lo
+ 
+ static void hil_mlcs_timer(unsigned long data)
+ {
++	if (hil_mlc_stop) {
++		/* could not send packet - stop immediately. */
++		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
++		return;
++	}
 +
- 	set_wr_txq(skb, CPL_PRIORITY_DATA, csk->tlshws.txqid);
- 	csk->wr_credits -= DIV_ROUND_UP(len, 16);
- 	csk->wr_unacked += DIV_ROUND_UP(len, 16);
+ 	hil_mlcs_probe = 1;
+ 	tasklet_schedule(&hil_mlcs_tasklet);
+ 	/* Re-insert the periodic task. */
+--- a/drivers/input/serio/hp_sdc_mlc.c
++++ b/drivers/input/serio/hp_sdc_mlc.c
+@@ -213,7 +213,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
+ 	priv->tseq[2] = 1;
+ 	priv->tseq[3] = 0;
+ 	priv->tseq[4] = 0;
+-	__hp_sdc_enqueue_transaction(&priv->trans);
++	return __hp_sdc_enqueue_transaction(&priv->trans);
+  busy:
+ 	return 1;
+  done:
+@@ -222,7 +222,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
+ 	return 0;
+ }
+ 
+-static void hp_sdc_mlc_out(hil_mlc *mlc)
++static int hp_sdc_mlc_out(hil_mlc *mlc)
+ {
+ 	struct hp_sdc_mlc_priv_s *priv;
+ 
+@@ -237,7 +237,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+  do_data:
+ 	if (priv->emtestmode) {
+ 		up(&mlc->osem);
+-		return;
++		return 0;
+ 	}
+ 	/* Shouldn't be sending commands when loop may be busy */
+ 	BUG_ON(down_trylock(&mlc->csem));
+@@ -299,7 +299,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+ 		BUG_ON(down_trylock(&mlc->csem));
+ 	}
+  enqueue:
+-	hp_sdc_enqueue_transaction(&priv->trans);
++	return hp_sdc_enqueue_transaction(&priv->trans);
+ }
+ 
+ static int __init hp_sdc_mlc_init(void)
+--- a/include/linux/hil_mlc.h
++++ b/include/linux/hil_mlc.h
+@@ -103,7 +103,7 @@ struct hilse_node {
+ 
+ /* Methods for back-end drivers, e.g. hp_sdc_mlc */
+ typedef int	(hil_mlc_cts) (hil_mlc *mlc);
+-typedef void	(hil_mlc_out) (hil_mlc *mlc);
++typedef int	(hil_mlc_out) (hil_mlc *mlc);
+ typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
+ 
+ struct hil_mlc_devinfo {
 
 
