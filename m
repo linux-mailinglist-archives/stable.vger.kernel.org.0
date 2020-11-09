@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F802AB8CE
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:57:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1912A2AB8CF
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729996AbgKIM5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 07:57:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        id S1730006AbgKIM5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:57:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729969AbgKIM5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:57:12 -0500
+        id S1729972AbgKIM5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:57:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAA2120684;
-        Mon,  9 Nov 2020 12:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8E0C207BC;
+        Mon,  9 Nov 2020 12:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926632;
-        bh=EO39JHmwbidWafUliPC9EV1rvv8YHW5Upw6Y2l7PU9c=;
+        s=default; t=1604926635;
+        bh=A0dAmRkpVyT+YuCb6jBIEwCgDTvxTbMIIX17t2QM7nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCUO7XfldzAQI0X3RMPoQqhLdIUJqImNiYYEurjjZUvW+uJj0GlyA9PrgPGqx4zMP
-         dHcozZLIZXJhXs9aHO9QkZu+4GxwNr42H1sp0puKvlOkCd7Vf+rPjsSwKkwNMhAxw5
-         X//iGJzZw0Oj5cDylGAg5wrl7482HUrR6s5HI/hQ=
+        b=WTK/Y6N4S3rd/4jC0GwSLS6E6TxmucFfKHIahJEaAAKGWjEPWRyApNqk0VV6s2qW9
+         vqkHwJEQh6/naMyJJuD30ddrehtZ7BKP9IgwCjcw2kcwkiBRpbcvbQMNGE9sFPv3WQ
+         th9V1QpIC6zRnnjeP9z/UHBLnpGc0o7Luv/QXmZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jim@photojim.ca,
-        Ben Hutchings <ben@decadent.org.uk>,
+        stable@vger.kernel.org, Alex Hung <alex.hung@canonical.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.4 36/86] ACPI / extlog: Check for RDMSR failure
-Date:   Mon,  9 Nov 2020 13:54:43 +0100
-Message-Id: <20201109125022.588640166@linuxfoundation.org>
+Subject: [PATCH 4.4 37/86] ACPI: video: use ACPI backlight for HP 635 Notebook
+Date:   Mon,  9 Nov 2020 13:54:44 +0100
+Message-Id: <20201109125022.637113532@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -43,41 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Alex Hung <alex.hung@canonical.com>
 
-commit 7cecb47f55e00282f972a1e0b09136c8cd938221 upstream.
+commit b226faab4e7890bbbccdf794e8b94276414f9058 upstream.
 
-extlog_init() uses rdmsrl() to read an MSR, which on older CPUs
-provokes a error message at boot:
+The default backlight interface is AMD's radeon_bl0 which does not
+work on this system, so use the ACPI backlight interface on it
+instead.
 
-    unchecked MSR access error: RDMSR from 0x179 at rIP: 0xcd047307 (native_read_msr+0x7/0x40)
-
-Use rdmsrl_safe() instead, and return -ENODEV if it fails.
-
-Reported-by: jim@photojim.ca
+BugLink: https://bugs.launchpad.net/bugs/1894667
 Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+[ rjw: Changelog edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_extlog.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/video_detect.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -223,9 +223,9 @@ static int __init extlog_init(void)
- 	u64 cap;
- 	int rc;
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -251,6 +251,15 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "XPS L521X"),
+ 		},
+ 	},
++	/* https://bugs.launchpad.net/bugs/1894667 */
++	{
++	 .callback = video_detect_force_video,
++	 .ident = "HP 635 Notebook",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
++		},
++	},
  
--	rdmsrl(MSR_IA32_MCG_CAP, cap);
--
--	if (!(cap & MCG_ELOG_P) || !extlog_get_l1addr())
-+	if (rdmsrl_safe(MSR_IA32_MCG_CAP, &cap) ||
-+	    !(cap & MCG_ELOG_P) ||
-+	    !extlog_get_l1addr())
- 		return -ENODEV;
- 
- 	if (get_edac_report_status() == EDAC_REPORTING_FORCE) {
+ 	/* Non win8 machines which need native backlight nevertheless */
+ 	{
 
 
