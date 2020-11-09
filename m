@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5772ABCF4
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB542ABD7B
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731778AbgKINly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:41:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55376 "EHLO mail.kernel.org"
+        id S1729896AbgKINqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:46:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbgKINBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:01:20 -0500
+        id S1730025AbgKIM5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:57:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC61B206C0;
-        Mon,  9 Nov 2020 13:01:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4616620789;
+        Mon,  9 Nov 2020 12:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926880;
-        bh=MW71FPmZW5Ca5FPc/9Ef/m/b2yP0brzYxoz94zH+3XI=;
+        s=default; t=1604926657;
+        bh=WzO1IQbu7tkGplJErtDkdXcPt6/7XvSVolon+mwwvN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMZwf9cm493cz9nc29S5gTiivYcxMxwpLd/76NMN9QZBu1huI3qmgx3IMVYtDkOYz
-         Fhx9xenxN6/oeK9x5iBUS+jGwhStB6JH5mGzfFMdIfs6g0KiN4/ReK0QyO2P2Qzk4G
-         kwCxAVQJ/b12ytZWDZM9cmeYvgIYN2gzDDs9mblM=
+        b=pteFpIPQtBvYXCCxQqEwfqErE/pyB9AZwqwsqjZpCffRKwwz5G+JS3OxT/Hnws680
+         cMqmMDrMVZ8fMb4O/dOcsf3gMzhgAKFXgUazAuNHGVxbyeuuaiYFgFmbPkpXOaVsGT
+         +KEgPcf+jN3Rw2IaTWzwJf80irrrppsFw7M0dT/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhao Heming <heming.zhao@suse.com>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/117] md/bitmap: md_bitmap_get_counter returns wrong blocks
-Date:   Mon,  9 Nov 2020 13:54:21 +0100
-Message-Id: <20201109125027.317940407@linuxfoundation.org>
+Subject: [PATCH 4.4 15/86] xfs: fix realtime bitmap/summary file truncation when growing rt volume
+Date:   Mon,  9 Nov 2020 13:54:22 +0100
+Message-Id: <20201109125021.597250892@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit d837f7277f56e70d82b3a4a037d744854e62f387 ]
+[ Upstream commit f4c32e87de7d66074d5612567c5eac7325024428 ]
 
-md_bitmap_get_counter() has code:
+The realtime bitmap and summary files are regular files that are hidden
+away from the directory tree.  Since they're regular files, inode
+inactivation will try to purge what it thinks are speculative
+preallocations beyond the incore size of the file.  Unfortunately,
+xfs_growfs_rt forgets to update the incore size when it resizes the
+inodes, with the result that inactivating the rt inodes at unmount time
+will cause their contents to be truncated.
 
-```
-    if (bitmap->bp[page].hijacked ||
-        bitmap->bp[page].map == NULL)
-        csize = ((sector_t)1) << (bitmap->chunkshift +
-                      PAGE_COUNTER_SHIFT - 1);
-```
+Fix this by updating the incore size when we change the ondisk size as
+part of updating the superblock.  Note that we don't do this when we're
+allocating blocks to the rt inodes because we actually want those blocks
+to get purged if the growfs fails.
 
-The minus 1 is wrong, this branch should report 2048 bits of space.
-With "-1" action, this only report 1024 bit of space.
+This fixes corruption complaints from the online rtsummary checker when
+running xfs/233.  Since that test requires rmap, one can also trigger
+this by growing an rt volume, cycling the mount, and creating rt files.
 
-This bug code returns wrong blocks, but it doesn't inflence bitmap logic:
-1. Most callers focus this function return value (the counter of offset),
-   not the parameter blocks.
-2. The bug is only triggered when hijacked is true or map is NULL.
-   the hijacked true condition is very rare.
-   the "map == null" only true when array is creating or resizing.
-3. Even the caller gets wrong blocks, current code makes caller just to
-   call md_bitmap_get_counter() one more time.
-
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bitmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_rtalloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bitmap.c b/drivers/md/bitmap.c
-index 63bff4cc70984..863fe19e906e6 100644
---- a/drivers/md/bitmap.c
-+++ b/drivers/md/bitmap.c
-@@ -1339,7 +1339,7 @@ __acquires(bitmap->lock)
- 	if (bitmap->bp[page].hijacked ||
- 	    bitmap->bp[page].map == NULL)
- 		csize = ((sector_t)1) << (bitmap->chunkshift +
--					  PAGE_COUNTER_SHIFT - 1);
-+					  PAGE_COUNTER_SHIFT);
- 	else
- 		csize = ((sector_t)1) << bitmap->chunkshift;
- 	*blocks = csize - (offset & (csize - 1));
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index bda5248fc6498..acadeaf72674e 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1017,10 +1017,13 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the bitmap inode's size.
++		 * Update the bitmap inode's size ondisk and incore.  We need
++		 * to update the incore size so that inode inactivation won't
++		 * punch what it thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rbmip->i_d.di_size =
+ 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
++		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Get the summary inode into the transaction.
+@@ -1028,9 +1031,12 @@ xfs_growfs_rt(
+ 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
+ 		/*
+-		 * Update the summary inode's size.
++		 * Update the summary inode's size.  We need to update the
++		 * incore size so that inode inactivation won't punch what it
++		 * thinks are "posteof" blocks.
+ 		 */
+ 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
++		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
+ 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
+ 		/*
+ 		 * Copy summary data from old to new sizes.
 -- 
 2.27.0
 
