@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A802ABB84
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19FB12ABC47
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731551AbgKINJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:09:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34814 "EHLO mail.kernel.org"
+        id S1732885AbgKINfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:35:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730241AbgKINJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:09:45 -0500
+        id S1730777AbgKINFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:05:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 820922076E;
-        Mon,  9 Nov 2020 13:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0223720663;
+        Mon,  9 Nov 2020 13:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927385;
-        bh=0m6LVC/aGVjlg2KwcuEXF3GYxu+3hQsMRs9RZzPMy8E=;
+        s=default; t=1604927102;
+        bh=0LisRcsaOQwUHAi14yXqT89DRf0dyrFbssm8tp7AO6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yiuads/TT0zaXhspanV7IZod8D+KpIrCpruSu4BdbzoNJp32frMNUqSSYffCMr0eR
-         afi66/z0BL6wwhCEzSniBtk8xQ/FOezVRdiTy9/O3ulyMIlp9NrI3/yB/wgJ3YoErd
-         vpV6TSHpV+atGcD7zntjmpuzcrGueenpZB08mwAk=
+        b=RFs1HaietzSJYzE3ZTarkR6qKAJl5TfJOVNvGgXI9e/4NjhJb6Y7R1oNOPmoWI3p5
+         2QDY7d3QFOpNgg6mAtTfRa9fz+3Iyw8wY2kDAoCFV3LpbCLsqlpvmZIxRHfmJKZ7Yw
+         4ttfYR8DoCYxQB3sw5vqedFx7Y3L2MOj7W32M8wI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 42/71] ftrace: Fix recursion check for NMI test
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>
+Subject: [PATCH 4.9 110/117] serial: 8250_mtk: Fix uart_get_baud_rate warning
 Date:   Mon,  9 Nov 2020 13:55:36 +0100
-Message-Id: <20201109125021.883110542@linuxfoundation.org>
+Message-Id: <20201109125030.920095810@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Claire Chang <tientzu@chromium.org>
 
-commit ee11b93f95eabdf8198edd4668bf9102e7248270 upstream.
+commit 912ab37c798770f21b182d656937072b58553378 upstream.
 
-The code that checks recursion will work to only do the recursion check once
-if there's nested checks. The top one will do the check, the other nested
-checks will see recursion was already checked and return zero for its "bit".
-On the return side, nothing will be done if the "bit" is zero.
+Mediatek 8250 port supports speed higher than uartclk / 16. If the baud
+rates in both the new and the old termios setting are higher than
+uartclk / 16, the WARN_ON in uart_get_baud_rate() will be triggered.
+Passing NULL as the old termios so uart_get_baud_rate() will use
+uartclk / 16 - 1 as the new baud rate which will be replaced by the
+original baud rate later by tty_termios_encode_baud_rate() in
+mtk8250_set_termios().
 
-The problem is that zero is returned for the "good" bit when in NMI context.
-This will set the bit for NMIs making it look like *all* NMI tracing is
-recursing, and prevent tracing of anything in NMI context!
-
-The simple fix is to return "bit + 1" and subtract that bit on the end to
-get the real bit.
-
-Cc: stable@vger.kernel.org
-Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 551e553f0d4a ("serial: 8250_mtk: Fix high-speed baud rates clamping")
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Link: https://lore.kernel.org/r/20201102120749.374458-1-tientzu@chromium.org
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mtk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -595,7 +595,7 @@ static __always_inline int trace_test_an
- 	current->trace_recursion = val;
- 	barrier();
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -56,7 +56,7 @@ mtk8250_set_termios(struct uart_port *po
+ 	 */
+ 	baud = tty_termios_baud_rate(termios);
  
--	return bit;
-+	return bit + 1;
- }
+-	serial8250_do_set_termios(port, termios, old);
++	serial8250_do_set_termios(port, termios, NULL);
  
- static __always_inline void trace_clear_recursion(int bit)
-@@ -605,6 +605,7 @@ static __always_inline void trace_clear_
- 	if (!bit)
- 		return;
- 
-+	bit--;
- 	bit = 1 << bit;
- 	val &= ~bit;
+ 	tty_termios_encode_baud_rate(termios, baud, baud);
  
 
 
