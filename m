@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 360AE2ABAC0
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1951C2ABAE5
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388157AbgKINWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:22:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50006 "EHLO mail.kernel.org"
+        id S1732408AbgKINU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:20:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387839AbgKINWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:22:02 -0500
+        id S1730884AbgKINU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:20:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F31E120663;
-        Mon,  9 Nov 2020 13:22:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 099BB20663;
+        Mon,  9 Nov 2020 13:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928121;
-        bh=IAyK6rwbXaedPokaEbAQ1fGa2dVLGXqgJwZU377OoBg=;
+        s=default; t=1604928027;
+        bh=y/gsWimhlOriT2iB0GGb7doP5K83/bg3yp/dF94Ay/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUNgKQNie+h5L5BOhIUlC2b/2zh60Vwrnl6Xhlu1q9nL33g7XZl2uuUjLLLmhGlvC
-         HJgLM47s03kjW0bL1KgMDT1FWF0xUStB6eQesdgHzr81VH3mT+/EThojoZlhOyjPhT
-         S0I2jNimNQBz1jjcaaxOsnP+E+ytmO6j4bOfvSqQ=
+        b=DvSbN/ZEnckg+dhdYtFp6trd2trjnbnjvjW+UorXlG/0LRulOc1VeXGpwgwIh6yaL
+         /K5THAK/0+mkh/HRwgp3Hbb1maC2WJA64a2dNO0AvocyAbiG9+qJEEbFg4MbW2TJJe
+         OElS2Z0RY9Ezzlnv5/jdcqLWbqDWzWNruuGlzNGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Leung <martin.leung@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Roman Kiryanov <rkir@google.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 094/133] drm/amd/display: adding ddc_gpio_vga_reg_list to ddc reg defns
-Date:   Mon,  9 Nov 2020 13:55:56 +0100
-Message-Id: <20201109125035.225118762@linuxfoundation.org>
+Subject: [PATCH 5.9 095/133] vsock: use ns_capable_noaudit() on socket create
+Date:   Mon,  9 Nov 2020 13:55:57 +0100
+Message-Id: <20201109125035.268486670@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -44,54 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Leung <martin.leung@amd.com>
+From: Jeff Vander Stoep <jeffv@google.com>
 
-[ Upstream commit a1d2afc5dde29a943d32bf92eb0408c9f19541fc ]
+[ Upstream commit af545bb5ee53f5261db631db2ac4cde54038bdaf ]
 
-why:
-oem-related ddc read/write fails without these regs
+During __vsock_create() CAP_NET_ADMIN is used to determine if the
+vsock_sock->trusted should be set to true. This value is used later
+for determing if a remote connection should be allowed to connect
+to a restricted VM. Unfortunately, if the caller doesn't have
+CAP_NET_ADMIN, an audit message such as an selinux denial is
+generated even if the caller does not want a trusted socket.
 
-how:
-copy from hw_factory_dcn20.c
+Logging errors on success is confusing. To avoid this, switch the
+capable(CAP_NET_ADMIN) check to the noaudit version.
 
-Signed-off-by: Martin Leung <martin.leung@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Roman Kiryanov <rkir@google.com>
+https://android-review.googlesource.com/c/device/generic/goldfish/+/1468545/
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20201023143757.377574-1-jeffv@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-index 7e7fb65721073..9d3665f88c523 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-@@ -117,6 +117,12 @@ static const struct ddc_registers ddc_data_regs_dcn[] = {
- 	ddc_data_regs_dcn2(4),
- 	ddc_data_regs_dcn2(5),
- 	ddc_data_regs_dcn2(6),
-+	{
-+			DDC_GPIO_VGA_REG_LIST(DATA),
-+			.ddc_setup = 0,
-+			.phy_aux_cntl = 0,
-+			.dc_gpio_aux_ctrl_5 = 0
-+	}
- };
- 
- static const struct ddc_registers ddc_clk_regs_dcn[] = {
-@@ -126,6 +132,12 @@ static const struct ddc_registers ddc_clk_regs_dcn[] = {
- 	ddc_clk_regs_dcn2(4),
- 	ddc_clk_regs_dcn2(5),
- 	ddc_clk_regs_dcn2(6),
-+	{
-+			DDC_GPIO_VGA_REG_LIST(CLK),
-+			.ddc_setup = 0,
-+			.phy_aux_cntl = 0,
-+			.dc_gpio_aux_ctrl_5 = 0
-+	}
- };
- 
- static const struct ddc_sh_mask ddc_shift[] = {
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9e93bc201cc07..b4d7b8aba0037 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -739,7 +739,7 @@ static struct sock *__vsock_create(struct net *net,
+ 		vsk->buffer_min_size = psk->buffer_min_size;
+ 		vsk->buffer_max_size = psk->buffer_max_size;
+ 	} else {
+-		vsk->trusted = capable(CAP_NET_ADMIN);
++		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
+ 		vsk->connect_timeout = VSOCK_DEFAULT_CONNECT_TIMEOUT;
+ 		vsk->buffer_size = VSOCK_DEFAULT_BUFFER_SIZE;
 -- 
 2.27.0
 
