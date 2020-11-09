@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D9572ABCED
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CCD32ABCE6
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbgKINlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:41:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
+        id S1730631AbgKINlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730591AbgKINBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:01:43 -0500
+        id S1730597AbgKINBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:01:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81A9620679;
-        Mon,  9 Nov 2020 13:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F77920684;
+        Mon,  9 Nov 2020 13:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926903;
-        bh=mhZVlYlOw2yc0uAA3UI/KnbYED2JazQjwZkQeI1Kf+8=;
+        s=default; t=1604926905;
+        bh=2Bj8o4l8DgoJn3kkbJpMQahGyWm6PdBYPsnBMPI8+tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgC3N8Cp45lkcEwX0xKlVl9D3wbRlUCLElxxdE9UdHO+du6qiCXwfvVM9Q4S2m0UU
-         f/6iT8pOsEWm5gxkEEqTSJQ82/GWZcD/pmWIl6XOyx5BKiq4wRJF6C2BFvvioCiI4p
-         4zFh6Ld0aunmwH09MGj+nshHpRl4WpwV4px64adQ=
+        b=lXDkfkxDI6FyXUkSkbpXznK7p3Ydb4JA80eSYmlorSfXaVWYljaRmElEJAtgAciET
+         oX/sGTNzMUss734jtb9mCmLMYDJLF0o3GGShOq3dGaseOmyWU3cmfmdPLus3XGGMx4
+         cAMWQgGHsCjdvPELlKwpTqOyR2QTbOLkuc45vtoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Jonathan Bakker <xc-racer2@live.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/117] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
-Date:   Mon,  9 Nov 2020 13:54:28 +0100
-Message-Id: <20201109125027.658169262@linuxfoundation.org>
+Subject: [PATCH 4.9 043/117] ARM: dts: s5pv210: move PMU node out of clock controller
+Date:   Mon,  9 Nov 2020 13:54:29 +0100
+Message-Id: <20201109125027.705964192@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -45,82 +45,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
+[ Upstream commit bb98fff84ad1ea321823759edaba573a16fa02bd ]
 
-There is no need to keep DMA controller nodes under AMBA bus node.
-Remove the "amba" node to fix dtschema warnings like:
+The Power Management Unit (PMU) is a separate device which has little
+common with clock controller.  Moving it to one level up (from clock
+controller child to SoC) allows to remove fake simple-bus compatible and
+dtbs_check warnings like:
 
-  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+  clock-controller@e0100000: $nodename:0:
+    'clock-controller@e0100000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Tested-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
+Link: https://lore.kernel.org/r/20200907161141.31034-8-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
- 1 file changed, 21 insertions(+), 28 deletions(-)
+ arch/arm/boot/dts/s5pv210.dtsi | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
-index 0c10ba517cd04..57f64a7160290 100644
+index 57f64a7160290..afc3eac0aba78 100644
 --- a/arch/arm/boot/dts/s5pv210.dtsi
 +++ b/arch/arm/boot/dts/s5pv210.dtsi
-@@ -129,35 +129,28 @@
- 			};
+@@ -101,19 +101,16 @@
  		};
  
--		amba {
+ 		clocks: clock-controller@e0100000 {
+-			compatible = "samsung,s5pv210-clock", "simple-bus";
++			compatible = "samsung,s5pv210-clock";
+ 			reg = <0xe0100000 0x10000>;
+ 			clock-names = "xxti", "xusbxti";
+ 			clocks = <&xxti>, <&xusbxti>;
+ 			#clock-cells = <1>;
 -			#address-cells = <1>;
 -			#size-cells = <1>;
--			compatible = "simple-bus";
 -			ranges;
--
--			pdma0: dma@e0900000 {
--				compatible = "arm,pl330", "arm,primecell";
--				reg = <0xe0900000 0x1000>;
--				interrupt-parent = <&vic0>;
--				interrupts = <19>;
--				clocks = <&clocks CLK_PDMA0>;
--				clock-names = "apb_pclk";
--				#dma-cells = <1>;
--				#dma-channels = <8>;
--				#dma-requests = <32>;
--			};
-+		pdma0: dma@e0900000 {
-+			compatible = "arm,pl330", "arm,primecell";
-+			reg = <0xe0900000 0x1000>;
-+			interrupt-parent = <&vic0>;
-+			interrupts = <19>;
-+			clocks = <&clocks CLK_PDMA0>;
-+			clock-names = "apb_pclk";
-+			#dma-cells = <1>;
-+			#dma-channels = <8>;
-+			#dma-requests = <32>;
 +		};
  
--			pdma1: dma@e0a00000 {
--				compatible = "arm,pl330", "arm,primecell";
--				reg = <0xe0a00000 0x1000>;
--				interrupt-parent = <&vic0>;
--				interrupts = <20>;
--				clocks = <&clocks CLK_PDMA1>;
--				clock-names = "apb_pclk";
--				#dma-cells = <1>;
--				#dma-channels = <8>;
--				#dma-requests = <32>;
+-			pmu_syscon: syscon@e0108000 {
+-				compatible = "samsung-s5pv210-pmu", "syscon";
+-				reg = <0xe0108000 0x8000>;
 -			};
-+		pdma1: dma@e0a00000 {
-+			compatible = "arm,pl330", "arm,primecell";
-+			reg = <0xe0a00000 0x1000>;
-+			interrupt-parent = <&vic0>;
-+			interrupts = <20>;
-+			clocks = <&clocks CLK_PDMA1>;
-+			clock-names = "apb_pclk";
-+			#dma-cells = <1>;
-+			#dma-channels = <8>;
-+			#dma-requests = <32>;
++		pmu_syscon: syscon@e0108000 {
++			compatible = "samsung-s5pv210-pmu", "syscon";
++			reg = <0xe0108000 0x8000>;
  		};
  
- 		spi0: spi@e1300000 {
+ 		pinctrl0: pinctrl@e0200000 {
 -- 
 2.27.0
 
