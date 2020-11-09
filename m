@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB29D2ABCD2
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BF472ABBD4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731486AbgKINjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
+        id S1730752AbgKINb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:31:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730667AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:03:41 -0500
+        id S1730931AbgKINJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:09:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AB7422227;
-        Mon,  9 Nov 2020 13:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DFBD20731;
+        Mon,  9 Nov 2020 13:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926988;
-        bh=kmxyW4tp29pcFKRl5uENlNGIp7R/xM8PT2Mk2ENCEpQ=;
+        s=default; t=1604927356;
+        bh=fqkd3J7PxfSZN8b53+ZRU0sKCm72tFn640C8C2F2RPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpG+U7AXyZcO6QxiNXZdGr7vO2qyIYLmh+TEF+A3G0RGZy3R77erbNKkp39GBQKsR
-         pqNNwAIw/o3HhiuykMdqI/V59XOd+zhBI0GJp7YWeukgiCFeKTHFQc9yri2GM26zz4
-         nnUSC47hFeolsxTT2KtOiM7eI+RpPsJRg68VgAjE=
+        b=JEhsnXFxXuz9iZrzjimGukva1uRfCifLIjefK3gZIMsMi2fBQHrlSkHm2qRK2oANO
+         DXwnESkMbXEmW0dEldlIO/oNkkwSjAqPoFMwTtrctXiiyQyXO1IYx3tbCXQ87i2Djn
+         Ws2eX+GELR1VqivLlmgbNGJR/6IWqHy6tEwpyFOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 072/117] ubi: check kthread_should_stop() after the setting of task state
+        stable@vger.kernel.org, Klaus Doth <krnl@doth.eu>,
+        Mark Deneen <mdeneen@saucontech.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 04/71] cadence: force nonlinear buffers to be cloned
 Date:   Mon,  9 Nov 2020 13:54:58 +0100
-Message-Id: <20201109125029.100072726@linuxfoundation.org>
+Message-Id: <20201109125020.110090756@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Mark Deneen <mdeneen@saucontech.com>
 
-commit d005f8c6588efcfbe88099b6edafc6f58c84a9c1 upstream.
+[ Upstream commit 403dc16796f5516acf23d94a1cd9eba564d03210 ]
 
-A detach hung is possible when a race occurs between the detach process
-and the ubi background thread. The following sequences outline the race:
+In my test setup, I had a SAMA5D27 device configured with ip forwarding, and
+second device with usb ethernet (r8152) sending ICMP packets.  If the packet
+was larger than about 220 bytes, the SAMA5 device would "oops" with the
+following trace:
 
-  ubi thread: if (list_empty(&ubi->works)...
+kernel BUG at net/core/skbuff.c:1863!
+Internal error: Oops - BUG: 0 [#1] ARM
+Modules linked in: xt_MASQUERADE ppp_async ppp_generic slhc iptable_nat xt_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 can_raw can bridge stp llc ipt_REJECT nf_reject_ipv4 sd_mod cdc_ether usbnet usb_storage r8152 scsi_mod mii o
+ption usb_wwan usbserial micrel macb at91_sama5d2_adc phylink gpio_sama5d2_piobu m_can_platform m_can industrialio_triggered_buffer kfifo_buf of_mdio can_dev fixed_phy sdhci_of_at91 sdhci_pltfm libphy sdhci mmc_core ohci_at91 ehci_atmel o
+hci_hcd iio_rescale industrialio sch_fq_codel spidev prox2_hal(O)
+CPU: 0 PID: 0 Comm: swapper Tainted: G           O      5.9.1-prox2+ #1
+Hardware name: Atmel SAMA5
+PC is at skb_put+0x3c/0x50
+LR is at macb_start_xmit+0x134/0xad0 [macb]
+pc : [<c05258cc>]    lr : [<bf0ea5b8>]    psr: 20070113
+sp : c0d01a60  ip : c07232c0  fp : c4250000
+r10: c0d03cc8  r9 : 00000000  r8 : c0d038c0
+r7 : 00000000  r6 : 00000008  r5 : c59b66c0  r4 : 0000002a
+r3 : 8f659eff  r2 : c59e9eea  r1 : 00000001  r0 : c59b66c0
+Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c53c7d  Table: 2640c059  DAC: 00000051
+Process swapper (pid: 0, stack limit = 0x75002d81)
 
-  ubi detach: set_bit(KTHREAD_SHOULD_STOP, &kthread->flags)
-              => by kthread_stop()
-              wake_up_process()
-              => ubi thread is still running, so 0 is returned
+<snipped stack>
 
-  ubi thread: set_current_state(TASK_INTERRUPTIBLE)
-              schedule()
-              => ubi thread will never be scheduled again
+[<c05258cc>] (skb_put) from [<bf0ea5b8>] (macb_start_xmit+0x134/0xad0 [macb])
+[<bf0ea5b8>] (macb_start_xmit [macb]) from [<c053e504>] (dev_hard_start_xmit+0x90/0x11c)
+[<c053e504>] (dev_hard_start_xmit) from [<c0571180>] (sch_direct_xmit+0x124/0x260)
+[<c0571180>] (sch_direct_xmit) from [<c053eae4>] (__dev_queue_xmit+0x4b0/0x6d0)
+[<c053eae4>] (__dev_queue_xmit) from [<c05a5650>] (ip_finish_output2+0x350/0x580)
+[<c05a5650>] (ip_finish_output2) from [<c05a7e24>] (ip_output+0xb4/0x13c)
+[<c05a7e24>] (ip_output) from [<c05a39d0>] (ip_forward+0x474/0x500)
+[<c05a39d0>] (ip_forward) from [<c05a13d8>] (ip_sublist_rcv_finish+0x3c/0x50)
+[<c05a13d8>] (ip_sublist_rcv_finish) from [<c05a19b8>] (ip_sublist_rcv+0x11c/0x188)
+[<c05a19b8>] (ip_sublist_rcv) from [<c05a2494>] (ip_list_rcv+0xf8/0x124)
+[<c05a2494>] (ip_list_rcv) from [<c05403c4>] (__netif_receive_skb_list_core+0x1a0/0x20c)
+[<c05403c4>] (__netif_receive_skb_list_core) from [<c05405c4>] (netif_receive_skb_list_internal+0x194/0x230)
+[<c05405c4>] (netif_receive_skb_list_internal) from [<c0540684>] (gro_normal_list.part.0+0x14/0x28)
+[<c0540684>] (gro_normal_list.part.0) from [<c0541280>] (napi_complete_done+0x16c/0x210)
+[<c0541280>] (napi_complete_done) from [<bf14c1c0>] (r8152_poll+0x684/0x708 [r8152])
+[<bf14c1c0>] (r8152_poll [r8152]) from [<c0541424>] (net_rx_action+0x100/0x328)
+[<c0541424>] (net_rx_action) from [<c01012ec>] (__do_softirq+0xec/0x274)
+[<c01012ec>] (__do_softirq) from [<c012d6d4>] (irq_exit+0xcc/0xd0)
+[<c012d6d4>] (irq_exit) from [<c0160960>] (__handle_domain_irq+0x58/0xa4)
+[<c0160960>] (__handle_domain_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x90)
+Exception stack(0xc0d01ef0 to 0xc0d01f38)
+1ee0:                                     00000000 0000003d 0c31f383 c0d0fa00
+1f00: c0d2eb80 00000000 c0d2e630 4dad8c49 4da967b0 0000003d 0000003d 00000000
+1f20: fffffff5 c0d01f40 c04e0f88 c04e0f8c 30070013 ffffffff
+[<c0100b0c>] (__irq_svc) from [<c04e0f8c>] (cpuidle_enter_state+0x7c/0x378)
+[<c04e0f8c>] (cpuidle_enter_state) from [<c04e12c4>] (cpuidle_enter+0x28/0x38)
+[<c04e12c4>] (cpuidle_enter) from [<c014f710>] (do_idle+0x194/0x214)
+[<c014f710>] (do_idle) from [<c014fa50>] (cpu_startup_entry+0xc/0x14)
+[<c014fa50>] (cpu_startup_entry) from [<c0a00dc8>] (start_kernel+0x46c/0x4a0)
+Code: e580c054 8a000002 e1a00002 e8bd8070 (e7f001f2)
+---[ end trace 146c8a334115490c ]---
 
-  ubi detach: wait_for_completion()
-              => hung task!
+The solution was to force nonlinear buffers to be cloned.  This was previously
+reported by Klaus Doth (https://www.spinics.net/lists/netdev/msg556937.html)
+but never formally submitted as a patch.
 
-To fix that, we need to check kthread_should_stop() after we set the
-task state, so the ubi thread will either see the stop bit and exit or
-the task state is reset to runnable such that it isn't scheduled out
-indefinitely.
+This is the third revision, hopefully the formatting is correct this time!
 
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 801c135ce73d5df1ca ("UBI: Unsorted Block Images")
-Reported-by: syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Suggested-by: Klaus Doth <krnl@doth.eu>
+Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
+Signed-off-by: Mark Deneen <mdeneen@saucontech.com>
+Link: https://lore.kernel.org/r/20201030155814.622831-1-mdeneen@saucontech.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mtd/ubi/wl.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -1478,6 +1478,19 @@ int ubi_thread(void *u)
- 		    !ubi->thread_enabled || ubi_dbg_is_bgt_disabled(ubi)) {
- 			set_current_state(TASK_INTERRUPTIBLE);
- 			spin_unlock(&ubi->wl_lock);
-+
-+			/*
-+			 * Check kthread_should_stop() after we set the task
-+			 * state to guarantee that we either see the stop bit
-+			 * and exit or the task state is reset to runnable such
-+			 * that it's not scheduled out indefinitely and detects
-+			 * the stop bit at kthread_should_stop().
-+			 */
-+			if (kthread_should_stop()) {
-+				set_current_state(TASK_RUNNING);
-+				break;
-+			}
-+
- 			schedule();
- 			continue;
- 		}
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1704,7 +1704,8 @@ static inline int macb_clear_csum(struct
+ 
+ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
+ {
+-	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb);
++	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb) ||
++		      skb_is_nonlinear(*skb);
+ 	int padlen = ETH_ZLEN - (*skb)->len;
+ 	int headroom = skb_headroom(*skb);
+ 	int tailroom = skb_tailroom(*skb);
 
 
