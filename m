@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2FCC2ABAC1
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2052ABA18
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388158AbgKINWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:22:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
+        id S1731747AbgKINPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:15:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388151AbgKINV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:59 -0500
+        id S1731465AbgKINPl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14C122065D;
-        Mon,  9 Nov 2020 13:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E7B320663;
+        Mon,  9 Nov 2020 13:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928118;
-        bh=6HcL1lHO4SRSWhdjXDo4w7v3qXL87HTS85ZgCKdrzmQ=;
+        s=default; t=1604927740;
+        bh=aU0X+vspKPz/trM5irzfYl9cuVj4+KMoef4DW7vHJqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNLun7AbASznzTLrumogYUatta0yzJGIRU/T0wLlD+avs9IvehDBqeI2bnwK69iH+
-         mvZS5KG3f4uA0YQygsBwaYOq435W+2kjYtdpHMCoGNItXjfBdIePQyjGC6k+F3KDWj
-         kCI0AD83rducZAQVtcT8oxccbrOIlpbVI25z0g6c=
+        b=L26MbNPA2FWrf8NwTZ8CUWo2vxjQNeq2OMLppdyqHVH/mjHztJouoxVUPVELzWNYh
+         Ilkua7dKz7M9cN+hkv6Inno7dupkwhWbjc5jxFpH5y6bK76T4SkMqyHDcoETTYd4SU
+         VklMa3kJyRAUgI7cMBD8vHRDWdpVXsVk07xsC+/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 103/133] drm/nouveau/gem: fix "refcount_t: underflow; use-after-free"
+        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+Subject: [PATCH 5.4 68/85] serial: txx9: add missing platform_driver_unregister() on error in serial_txx9_init
 Date:   Mon,  9 Nov 2020 13:56:05 +0100
-Message-Id: <20201109125035.642758567@linuxfoundation.org>
+Message-Id: <20201109125025.838639541@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 925681454d7b557d404b5d28ef4469fac1b2e105 ]
+commit 0c5fc92622ed5531ff324b20f014e9e3092f0187 upstream.
 
-we can't use nouveau_bo_ref here as no ttm object was allocated and
-nouveau_bo_ref mainly deals with that. Simply deallocate the object.
+Add the missing platform_driver_unregister() before return
+from serial_txx9_init in the error handling case when failed
+to register serial_txx9_pci_driver with macro ENABLE_SERIAL_TXX9_PCI
+defined.
 
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ab4382d27412 ("tty: move drivers/serial/ to drivers/tty/serial/")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201103084942.109076-1-miaoqinglang@huawei.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_gem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_txx9.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-index 81f111ad3f4fd..124d3dcc5c590 100644
---- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-@@ -198,7 +198,8 @@ nouveau_gem_new(struct nouveau_cli *cli, u64 size, int align, uint32_t domain,
- 	 * to the caller, instead of a normal nouveau_bo ttm reference. */
- 	ret = drm_gem_object_init(drm->dev, &nvbo->bo.base, size);
- 	if (ret) {
--		nouveau_bo_ref(NULL, &nvbo);
-+		drm_gem_object_release(&nvbo->bo.base);
-+		kfree(nvbo);
- 		return ret;
- 	}
+--- a/drivers/tty/serial/serial_txx9.c
++++ b/drivers/tty/serial/serial_txx9.c
+@@ -1283,6 +1283,9 @@ static int __init serial_txx9_init(void)
  
--- 
-2.27.0
-
+ #ifdef ENABLE_SERIAL_TXX9_PCI
+ 	ret = pci_register_driver(&serial_txx9_pci_driver);
++	if (ret) {
++		platform_driver_unregister(&serial_txx9_plat_driver);
++	}
+ #endif
+ 	if (ret == 0)
+ 		goto out;
 
 
