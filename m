@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0534B2ABD3D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D36582ABCCE
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730271AbgKINoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:44:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
+        id S1733195AbgKINjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730280AbgKIM7M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:12 -0500
+        id S1730675AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:03:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5906207BC;
-        Mon,  9 Nov 2020 12:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A43222203;
+        Mon,  9 Nov 2020 13:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926751;
-        bh=c6ZbjUmV/UUZRLld6xYhdkt8nc2J1lzv9h2Hqv23haA=;
+        s=default; t=1604926980;
+        bh=jX58UfIJGWVQV/mjB3kASkMntzspVbtxFRc6eguK0yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izgLyIT82Byxyp7bydze225/F6yBj2OAGllkUW3y44eiraknQHru0pmFzED10YrIr
-         0pFnCvw3QYnhRDxn4h4Z9JnhCzTZ9EMA1IKzgE+Ahpmk2f0C86Q05EfSr/SxBI2Rvi
-         7on9KTYm/lK0z+uoBLxN/V42faGn4VEME87/RCjo=
+        b=mAC4pzC99YafjCamYUEEJ5p3WncG/bQLqFVCZ9w+xzKlyDX0oBzXe2SaJsz4ssb31
+         PWWcYDw0hGKScznohN7bAzJwq68OtcNxzPsql5fgbpicr5XtfJES9K6xgNM3oQ6zc/
+         vCKl9qtpMdYGCf/T2xYsfg26MzLOKvb/Ow7SgjeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.4 48/86] ubi: check kthread_should_stop() after the setting of task state
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 069/117] powerpc: Warn about use of smt_snooze_delay
 Date:   Mon,  9 Nov 2020 13:54:55 +0100
-Message-Id: <20201109125023.136658656@linuxfoundation.org>
+Message-Id: <20201109125028.952500547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Joel Stanley <joel@jms.id.au>
 
-commit d005f8c6588efcfbe88099b6edafc6f58c84a9c1 upstream.
+commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
 
-A detach hung is possible when a race occurs between the detach process
-and the ubi background thread. The following sequences outline the race:
+It's not done anything for a long time. Save the percpu variable, and
+emit a warning to remind users to not expect it to do anything.
 
-  ubi thread: if (list_empty(&ubi->works)...
+This uses pr_warn_once instead of pr_warn_ratelimit as testing
+'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
+to be noisy, as the online/offline loop is slow.
 
-  ubi detach: set_bit(KTHREAD_SHOULD_STOP, &kthread->flags)
-              => by kthread_stop()
-              wake_up_process()
-              => ubi thread is still running, so 0 is returned
-
-  ubi thread: set_current_state(TASK_INTERRUPTIBLE)
-              schedule()
-              => ubi thread will never be scheduled again
-
-  ubi detach: wait_for_completion()
-              => hung task!
-
-To fix that, we need to check kthread_should_stop() after we set the
-task state, so the ubi thread will either see the stop bit and exit or
-the task state is reset to runnable such that it isn't scheduled out
-indefinitely.
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 801c135ce73d5df1ca ("UBI: Unsorted Block Images")
-Reported-by: syzbot+853639d0cb16c31c7a14@syzkaller.appspotmail.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 3fa8cad82b94 ("powerpc/pseries/cpuidle: smt-snooze-delay cleanup.")
+Cc: stable@vger.kernel.org # v3.14
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200902000012.3440389-1-joel@jms.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/ubi/wl.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/powerpc/kernel/sysfs.c |   42 +++++++++++++++++-------------------------
+ 1 file changed, 17 insertions(+), 25 deletions(-)
 
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -1460,6 +1460,19 @@ int ubi_thread(void *u)
- 		    !ubi->thread_enabled || ubi_dbg_is_bgt_disabled(ubi)) {
- 			set_current_state(TASK_INTERRUPTIBLE);
- 			spin_unlock(&ubi->wl_lock);
-+
-+			/*
-+			 * Check kthread_should_stop() after we set the task
-+			 * state to guarantee that we either see the stop bit
-+			 * and exit or the task state is reset to runnable such
-+			 * that it's not scheduled out indefinitely and detects
-+			 * the stop bit at kthread_should_stop().
-+			 */
-+			if (kthread_should_stop()) {
-+				set_current_state(TASK_RUNNING);
-+				break;
-+			}
-+
- 			schedule();
- 			continue;
- 		}
+--- a/arch/powerpc/kernel/sysfs.c
++++ b/arch/powerpc/kernel/sysfs.c
+@@ -28,29 +28,27 @@
+ 
+ static DEFINE_PER_CPU(struct cpu, cpu_devices);
+ 
+-/*
+- * SMT snooze delay stuff, 64-bit only for now
+- */
+-
+ #ifdef CONFIG_PPC64
+ 
+-/* Time in microseconds we delay before sleeping in the idle loop */
+-static DEFINE_PER_CPU(long, smt_snooze_delay) = { 100 };
++/*
++ * Snooze delay has not been hooked up since 3fa8cad82b94 ("powerpc/pseries/cpuidle:
++ * smt-snooze-delay cleanup.") and has been broken even longer. As was foretold in
++ * 2014:
++ *
++ *  "ppc64_util currently utilises it. Once we fix ppc64_util, propose to clean
++ *  up the kernel code."
++ *
++ * powerpc-utils stopped using it as of 1.3.8. At some point in the future this
++ * code should be removed.
++ */
+ 
+ static ssize_t store_smt_snooze_delay(struct device *dev,
+ 				      struct device_attribute *attr,
+ 				      const char *buf,
+ 				      size_t count)
+ {
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-	ssize_t ret;
+-	long snooze;
+-
+-	ret = sscanf(buf, "%ld", &snooze);
+-	if (ret != 1)
+-		return -EINVAL;
+-
+-	per_cpu(smt_snooze_delay, cpu->dev.id) = snooze;
++	pr_warn_once("%s (%d) stored to unsupported smt_snooze_delay, which has no effect.\n",
++		     current->comm, current->pid);
+ 	return count;
+ }
+ 
+@@ -58,9 +56,9 @@ static ssize_t show_smt_snooze_delay(str
+ 				     struct device_attribute *attr,
+ 				     char *buf)
+ {
+-	struct cpu *cpu = container_of(dev, struct cpu, dev);
+-
+-	return sprintf(buf, "%ld\n", per_cpu(smt_snooze_delay, cpu->dev.id));
++	pr_warn_once("%s (%d) read from unsupported smt_snooze_delay\n",
++		     current->comm, current->pid);
++	return sprintf(buf, "100\n");
+ }
+ 
+ static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
+@@ -68,16 +66,10 @@ static DEVICE_ATTR(smt_snooze_delay, 064
+ 
+ static int __init setup_smt_snooze_delay(char *str)
+ {
+-	unsigned int cpu;
+-	long snooze;
+-
+ 	if (!cpu_has_feature(CPU_FTR_SMT))
+ 		return 1;
+ 
+-	snooze = simple_strtol(str, NULL, 10);
+-	for_each_possible_cpu(cpu)
+-		per_cpu(smt_snooze_delay, cpu) = snooze;
+-
++	pr_warn("smt-snooze-delay command line option has no effect\n");
+ 	return 1;
+ }
+ __setup("smt-snooze-delay=", setup_smt_snooze_delay);
 
 
