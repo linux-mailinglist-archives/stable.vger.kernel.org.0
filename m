@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 369AE2ABDC4
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E552ABDC2
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730324AbgKINtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:49:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51116 "EHLO mail.kernel.org"
+        id S1730256AbgKINtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:49:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729814AbgKIM4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729817AbgKIM4Z (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 9 Nov 2020 07:56:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E32120867;
-        Mon,  9 Nov 2020 12:56:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8C63208FE;
+        Mon,  9 Nov 2020 12:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926572;
-        bh=HeiXkDo1qNKRPsCL1z6v8tavI/15Fj5RsL4khe7PqzU=;
+        s=default; t=1604926575;
+        bh=nrH2hU3hwpPBEY5fbZQPXXDgNeFP4A+Z4c6DQ1q30xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klXxp9MTlJ7gUXiLBgXhsMvvJAqcdV9XzywYfY3UCJ0uxPMhZctqQV0dcdkdaDqYN
-         mOYWKY1f7/DOAK+xsKKhxuz1jTEk563L8lDFZ3qOX1Va15nhsDpoHD8REsnMQlId6Y
-         AB5ML/ijbjrfw5elPv0jKhsZJhz3fuTbnxnB3WLE=
+        b=PyJ4XFJS2GQLF0gf+5yRe2uartTHZupAOR1iXWc++No5QyQcdNGBf+DvGWVv1xZTZ
+         QJEre2NsJ8yCX/S8wZwqc5BMRNuMpPk5LY59GPrugKzPBl+i1s81Ricnb5airBmDPg
+         Dk3pVzSJEbs3oWCA4aaqrcOOi4e9+B2bev75rSbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 08/86] ata: sata_rcar: Fix DMA boundary mask
-Date:   Mon,  9 Nov 2020 13:54:15 +0100
-Message-Id: <20201109125021.261018273@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
+        Joe Richey <joerichey@google.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.4 09/86] fscrypt: return -EXDEV for incompatible rename or link into encrypted dir
+Date:   Mon,  9 Nov 2020 13:54:16 +0100
+Message-Id: <20201109125021.309070153@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -48,70 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eric Biggers <ebiggers@google.com>
 
-commit df9c590986fdb6db9d5636d6cd93bc919c01b451 upstream.
+commit f5e55e777cc93eae1416f0fa4908e8846b6d7825 upstream.
 
-Before commit 9495b7e92f716ab2 ("driver core: platform: Initialize
-dma_parms for platform devices"), the R-Car SATA device didn't have DMA
-parameters.  Hence the DMA boundary mask supplied by its driver was
-silently ignored, as __scsi_init_queue() doesn't check the return value
-of dma_set_seg_boundary(), and the default value of 0xffffffff was used.
+Currently, trying to rename or link a regular file, directory, or
+symlink into an encrypted directory fails with EPERM when the source
+file is unencrypted or is encrypted with a different encryption policy,
+and is on the same mountpoint.  It is correct for the operation to fail,
+but the choice of EPERM breaks tools like 'mv' that know to copy rather
+than rename if they see EXDEV, but don't know what to do with EPERM.
 
-Now the device has gained DMA parameters, the driver-supplied value is
-used, and the following warning is printed on Salvator-XS:
+Our original motivation for EPERM was to encourage users to securely
+handle their data.  Encrypting files by "moving" them into an encrypted
+directory can be insecure because the unencrypted data may remain in
+free space on disk, where it can later be recovered by an attacker.
+It's much better to encrypt the data from the start, or at least try to
+securely delete the source data e.g. using the 'shred' program.
 
-    DMA-API: sata_rcar ee300000.sata: mapping sg segment across boundary [start=0x00000000ffffe000] [end=0x00000000ffffefff] [boundary=0x000000001ffffffe]
-    WARNING: CPU: 5 PID: 38 at kernel/dma/debug.c:1233 debug_dma_map_sg+0x298/0x300
+However, the current behavior hasn't been effective at achieving its
+goal because users tend to be confused, hack around it, and complain;
+see e.g. https://github.com/google/fscrypt/issues/76.  And in some cases
+it's actually inconsistent or unnecessary.  For example, 'mv'-ing files
+between differently encrypted directories doesn't work even in cases
+where it can be secure, such as when in userspace the same passphrase
+protects both directories.  Yet, you *can* already 'mv' unencrypted
+files into an encrypted directory if the source files are on a different
+mountpoint, even though doing so is often insecure.
 
-(the range of start/end values depend on whether IOMMU support is
- enabled or not)
+There are probably better ways to teach users to securely handle their
+files.  For example, the 'fscrypt' userspace tool could provide a
+command that migrates unencrypted files into an encrypted directory,
+acting like 'shred' on the source files and providing appropriate
+warnings depending on the type of the source filesystem and disk.
 
-The issue here is that SATA_RCAR_DMA_BOUNDARY doesn't have bit 0 set, so
-any typical end value, which is odd, will trigger the check.
+Receiving errors on unimportant files might also force some users to
+disable encryption, thus making the behavior counterproductive.  It's
+desirable to make encryption as unobtrusive as possible.
 
-Fix this by increasing the DMA boundary value by 1.
+Therefore, change the error code from EPERM to EXDEV so that tools
+looking for EXDEV will fall back to a copy.
 
-This also fixes the following WRITE DMA EXT timeout issue:
+This, of course, doesn't prevent users from still doing the right things
+to securely manage their files.  Note that this also matches the
+behavior when a file is renamed between two project quota hierarchies;
+so there's precedent for using EXDEV for things other than mountpoints.
 
-    # dd if=/dev/urandom of=/mnt/de1/file1-1024M bs=1M count=1024
-    ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
-    ata1.00: failed command: WRITE DMA EXT
-    ata1.00: cmd 35/00:00:00:e6:0c/00:0a:00:00:00/e0 tag 0 dma 1310720 out
-    res 40/00:01:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
-    ata1.00: status: { DRDY }
+xfstests generic/398 will require an update with this change.
 
-as seen by Shimoda-san since commit 429120f3df2dba2b ("block: fix
-splitting segments on boundary masks").
+[Rewritten from an earlier patch series by Michael Halcrow.]
 
-Fixes: 8bfbeed58665dbbf ("sata_rcar: correct 'sata_rcar_sht'")
-Fixes: 9495b7e92f716ab2 ("driver core: platform: Initialize dma_parms for platform devices")
-Fixes: 429120f3df2dba2b ("block: fix splitting segments on boundary masks")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Michael Halcrow <mhalcrow@google.com>
+Cc: Joe Richey <joerichey@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/ata/sata_rcar.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/sata_rcar.c
-+++ b/drivers/ata/sata_rcar.c
-@@ -122,7 +122,7 @@
- /* Descriptor table word 0 bit (when DTA32M = 1) */
- #define SATA_RCAR_DTEND			BIT(0)
+---
+ fs/ext4/namei.c |    6 +++---
+ fs/f2fs/namei.c |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3218,7 +3218,7 @@ static int ext4_link(struct dentry *old_
+ 		return -EMLINK;
+ 	if (ext4_encrypted_inode(dir) &&
+ 	    !ext4_is_child_context_consistent_with_parent(dir, inode))
+-		return -EPERM;
++		return -EXDEV;
+ 	err = dquot_initialize(dir);
+ 	if (err)
+ 		return err;
+@@ -3537,7 +3537,7 @@ static int ext4_rename(struct inode *old
+ 	    ext4_encrypted_inode(new.dir) &&
+ 	    !ext4_is_child_context_consistent_with_parent(new.dir,
+ 							  old.inode)) {
+-		retval = -EPERM;
++		retval = -EXDEV;
+ 		goto end_rename;
+ 	}
  
--#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFEUL
-+#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFFUL
+@@ -3718,7 +3718,7 @@ static int ext4_cross_rename(struct inod
+ 							   old.inode) ||
+ 	     !ext4_is_child_context_consistent_with_parent(old_dir,
+ 							   new.inode)))
+-		return -EPERM;
++		return -EXDEV;
  
- /* Gen2 Physical Layer Control Registers */
- #define RCAR_GEN2_PHY_CTL1_REG		0x1704
+ 	retval = dquot_initialize(old.dir);
+ 	if (retval)
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -169,7 +169,7 @@ static int f2fs_link(struct dentry *old_
+ 
+ 	if (f2fs_encrypted_inode(dir) &&
+ 		!f2fs_is_child_context_consistent_with_parent(dir, inode))
+-		return -EPERM;
++		return -EXDEV;
+ 
+ 	f2fs_balance_fs(sbi);
+ 
+@@ -597,7 +597,7 @@ static int f2fs_rename(struct inode *old
+ 	if ((old_dir != new_dir) && f2fs_encrypted_inode(new_dir) &&
+ 		!f2fs_is_child_context_consistent_with_parent(new_dir,
+ 							old_inode)) {
+-		err = -EPERM;
++		err = -EXDEV;
+ 		goto out;
+ 	}
+ 
+@@ -758,7 +758,7 @@ static int f2fs_cross_rename(struct inod
+ 								old_inode) ||
+ 		!f2fs_is_child_context_consistent_with_parent(old_dir,
+ 								new_inode)))
+-		return -EPERM;
++		return -EXDEV;
+ 
+ 	f2fs_balance_fs(sbi);
+ 
 
 
