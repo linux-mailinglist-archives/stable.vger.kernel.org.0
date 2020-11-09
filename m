@@ -2,122 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4A42AB413
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 10:56:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C1B2AB478
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 11:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728767AbgKIJ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 04:56:18 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:57651 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727906AbgKIJ4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 04:56:17 -0500
+        id S1729218AbgKIKI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 05:08:58 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52489 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729208AbgKIKI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 05:08:58 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id A2CDC10FF;
-        Mon,  9 Nov 2020 04:56:16 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id C504511F1;
+        Mon,  9 Nov 2020 05:08:56 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 09 Nov 2020 04:56:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=B2UCn0x7UuT7AMBhUk5kNhIGGoh
-        Fv8RCc7A1xTXW5Jw=; b=4xzWhtN2Kig+AZgjcZpT6xY28nlF4GHLe8XET0HvCJ/
-        CaU+r65MgvKZ9qWFHCDqUl8A8938rOpIZl/doCfkFmA5XBrF7/w++/5nB/DNtan6
-        WeR32pmr/datB7TN17+o+6t81J6+nbnhCSk9ib0xA1LX4cRGecQlWZ8KZtRHE0d9
-        4ZQ7B5bGr6Cxy7MdViJpHNr/jguokUXem9GB4lVuaQs4VvNqJqseQBIiHATOeRBO
-        wCOdpEsu2yq5IXkBCCO7q7cgO1K5dILpfbztIBJvhMsh0Z5l0oeL+S/lPidE1jOD
-        zGpb+02TBfP0g5se9DKlc4Y7unK4jRa4eyAEqyFWcAg==
+  by compute4.internal (MEProxy); Mon, 09 Nov 2020 05:08:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=B2UCn0
-        x7UuT7AMBhUk5kNhIGGohFv8RCc7A1xTXW5Jw=; b=N/0d9pEt0rfdv4X5I//fsp
-        Q2bamqLFUH4e+VDPB+EQAnCizDmqN1taHty+gwPQW+OkBH3NfNXQaok5n4+cX4qo
-        88G0D3j8+BK3V2LKejdnzIPXTJ6YAE2ZRT2a/fr8596Brt1E4za82CaIxF/UwLhA
-        E+f7WBadzz1Z/mv38vhvZP4/VkZIh/O/eDb4a5Ssl9ZBD7viiiSmhuWRkrAP52VF
-        QKdhzTjWKQHnpYtwhk9EinBjG21yfcvrYfpliwWcCohxfR7GhNFPu1z9om8k5F7k
-        U8ZeNzhczD+KM6mECJJe8FdoLexugz9Cp/iTZVJGcyz5JM+RbYl824J1ysbJMWmw
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=e9nIbC
+        qzo1CK+fGW/LTOQazNt8s2WNAkzWy5CvADnPM=; b=NrXBcsytt3oIuQvZOAgZPX
+        GvKBaK2U++jaz7soYmOM4LNEIJdURh2tQw5eBquARSJ+Zmu2Au9a7ljSMlnA8uU0
+        fr1iGcBuEAKzLJFqxzF0XXA7ukPosqSUCZ8BjcEso49uWvQ+U8ND8ha1cWv9sE8W
+        8vTsEHuSehzfWpzxDWPIlMMbitSE946HJ/qoDEBXOlmdfepeIO+6PEojsGaQvuik
+        MFQhTddzi+Zm2A+YFBXV/9GP1ZJTZdx/bNMulREwbW7g8nWl2Uai4RqoVds1Xy8p
+        UmSqI87f4Y7Wm4ENdYe21VElXS1xY31eoS7x8P2R47AD2seMBaCGyE1s4H9x61wQ
         ==
-X-ME-Sender: <xms:PxKpX8fNZkvsNV9HOPJaYnHSAeTJKtGdTdU9tmaFZHAaYj6I8X_23A>
-    <xme:PxKpX-ODEAVFNLJodj4mFRfH4xuJ9brc_5ZptOD15Ej1Fxh-h-hbCTZIrVdDZqKit
-    ghB5Xr-FEkt0w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduhedgudduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:NxWpX_OdKORTPsZx3lpVk1PpNXBzbLOX-OkaSosskkuBx1mFpK__4Q>
+    <xme:NxWpX5-uLUFWxPf3QdtSNMuwXwqh2J6RZDhso45YI49Bd7xxCbNA0BPBv8va5UY8D
+    dSHV_SDQaZpVw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudduhedgudefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:PxKpX9hxKmVk7NwUIgzLd1VNsFfJvn6PXx8R8vRmjOheYIp8vMucdg>
-    <xmx:PxKpXx_1Xb1ecscJLWOmdUth1ceH7mGm-XirGYHR46hDnIWWeHeF9g>
-    <xmx:PxKpX4v8EiLdO9rY13CIsjUCyMrQNJSvNX5M3u0c5tYBrrM6AwmcCQ>
-    <xmx:QBKpXyWMhPY7Jr7ZRcVlJyMy2Hx_cWAUUG7Yl0a1xnWp_zMyYYAcxA>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleevlefhtdeuvdetvdehhfdtkefhleevieeuiefftd
+    ehtdetveevteffuedvffegnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpfedvrdhs
+    sgenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurf
+    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:NxWpX-SLSp-515bXev_5lEqAWkEd6d3o6rzcfE99yUHlCBeFzG7F7w>
+    <xmx:NxWpXzvUf78oxnlakQTW8hUN99tNRZUTikk_nfH13h6byFBB75r7lg>
+    <xmx:NxWpX3cjwm6VjX1hPv8BvNttgPLXQ62nXKQ1T0PSK5KUZV1jSbQIGw>
+    <xmx:OBWpX3nBv9FdB6fJII8irzO236UcHOa7brggRd_LG5YAwhFLD_w3FTmCzII>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B7DA3280059;
-        Mon,  9 Nov 2020 04:56:14 -0500 (EST)
-Date:   Mon, 9 Nov 2020 10:57:15 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Security Officers <security@kernel.org>,
-        Minh Yuan <yuanmingbuaa@gmail.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: Re: [PATCH] vt: Disable KD_FONT_OP_COPY
-Message-ID: <20201109095715.GA836082@kroah.com>
-References: <20201107092857.3110264-1-daniel.vetter@ffwll.ch>
- <CAHk-=wjoTrpJcC+VKNwsOF+NFd+LANm_pydcFoaV9PscO0Ogaw@mail.gmail.com>
- <CAKMK7uFzGDe9vV8zef5kU6mS5W-0tTDw2KdUmMgbFJ=WT-F-RA@mail.gmail.com>
- <20201108161335.GB11931@kroah.com>
- <20201108183640.GA65130@kroah.com>
- <CAKMK7uHCSxAjcRR8oQRS5uL4i2-iLv38jiN8=7pntoNgQBu+bg@mail.gmail.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 74FA7328005A;
+        Mon,  9 Nov 2020 05:08:55 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc/603: Always fault when _PAGE_ACCESSED is not set" failed to apply to 5.9-stable tree
+To:     christophe.leroy@csgroup.eu, mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 09 Nov 2020 11:09:56 +0100
+Message-ID: <1604916596142143@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uHCSxAjcRR8oQRS5uL4i2-iLv38jiN8=7pntoNgQBu+bg@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 09, 2020 at 08:57:38AM +0100, Daniel Vetter wrote:
-> On Sun, Nov 8, 2020 at 7:35 PM Greg KH <greg@kroah.com> wrote:
-> > On Sun, Nov 08, 2020 at 05:13:35PM +0100, Greg KH wrote:
-> > > On Sun, Nov 08, 2020 at 04:41:35PM +0100, Daniel Vetter wrote:
-> > > > On Sat, Nov 7, 2020 at 7:41 PM Linus Torvalds
-> > > > <torvalds@linux-foundation.org> wrote:
-> > > > >
-> > > > > On Sat, Nov 7, 2020 at 1:29 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> > > > > >
-> > > > > > It's buggy:
-> > > > >
-> > > > > Ack. Who is taking this? Should I do it directly, or expect this
-> > > > > through Greg's tty/char tree, or what?
-> > > >
-> > > > I've sent out v2 with more archive links, typo in commit message fixed
-> > > > and ack from Peilin added. I'll leave merging up to you guys. Note
-> > > > that cc: stable still needs to be added, I left that out to avoid an
-> > > > accidental leak.
-> > >
-> > > Great, I'll grab this now and add it to my tty tree and send it to Linus
-> > > later today.
-> > >
-> > > Unless I should be holding off somehow on this?  I didn't see anyone
-> > > wanting to embargo this, or did I miss it?
-> >
-> > Given that Minh didn't ask for any embargo, and it's good to get this
-> > fixed as soon as possible, I've queued this up and will send it to Linus
-> > in a few minutes.
-> >
-> > Thanks all for the quick response,
-> 
-> cc: stable didn't get added I think.
-> 
-> Stable teams, please backport commit 3c4e0dff2095 ("vt: Disable
-> KD_FONT_OP_COPY") to all supported kernels.
 
-I was going to do that given that I am the same person :)
+The patch below does not apply to the 5.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 11522448e641e8f1690c9db06e01985e8e19b401 Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Sat, 10 Oct 2020 15:14:30 +0000
+Subject: [PATCH] powerpc/603: Always fault when _PAGE_ACCESSED is not set
+
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
+
+Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+
+diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
+index 5eb9eedac920..2aa16d5368e1 100644
+--- a/arch/powerpc/kernel/head_book3s_32.S
++++ b/arch/powerpc/kernel/head_book3s_32.S
+@@ -457,11 +457,7 @@ InstructionTLBMiss:
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+-#else
+-	li	r1,_PAGE_PRESENT | _PAGE_EXEC
+-#endif
+ #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+@@ -523,11 +519,7 @@ DataLoadTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_PRESENT
+-#endif
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+@@ -603,11 +595,7 @@ DataStoreTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
+-#endif
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+
