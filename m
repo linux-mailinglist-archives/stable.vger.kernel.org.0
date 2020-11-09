@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF562ABD2E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E39F42ABC66
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730228AbgKIM7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 07:59:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53720 "EHLO mail.kernel.org"
+        id S1730736AbgKINhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:37:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730355AbgKIM73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:29 -0500
+        id S1730387AbgKINEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE5C420789;
-        Mon,  9 Nov 2020 12:59:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEFFD208FE;
+        Mon,  9 Nov 2020 13:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926768;
-        bh=z1PTFUWec818TuGKbL24tst/VK1rS2uzyihNL7FXWm8=;
+        s=default; t=1604927064;
+        bh=VeFSavHOK3iOl+ZEisP6nperyWfflKGerL0fPfr9nqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnHFxfpqJLQDhpI1uV3lyrYREW9zhLXjAx93pwF4S+nDpY5/4wz5Xh0a/rhXXIhO6
-         bIEWLHR3r06v/XlQtVyUioKhInxVj1EWTPakDPc4X85/6WFNgHj5l880yScEOSU8sK
-         GzA1S8B4Lycx3CC9NFzL6aybAOSEA2JJ1yUJeq68=
+        b=y+uuHC5LbJMP1fwWaMsSzRq4SmzP7MO+nLgiJbVblsgktO96IlBjm24J1uls6WPNn
+         n8BR8uOFCJpGURkfX9srI3S9tTkEnJso6esb30Vh9A7GQySFNcd1qIrZJBRfccuUh+
+         yKfJyOjVzlvHGaNeYcMU3tgmmKmYZ5l6IWFd6VPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Minh Yuan <yuanmingbuaa@gmail.com>, Greg KH <greg@kroah.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 4.4 77/86] vt: Disable KD_FONT_OP_COPY
+        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>, Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 098/117] kthread_worker: prevent queuing delayed work from timer_fn when it is being canceled
 Date:   Mon,  9 Nov 2020 13:55:24 +0100
-Message-Id: <20201109125024.490409774@linuxfoundation.org>
+Message-Id: <20201109125030.351958579@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Zqiang <qiang.zhang@windriver.com>
 
-commit 3c4e0dff2095c579b142d5a0693257f1c58b4804 upstream.
+commit 6993d0fdbee0eb38bfac350aa016f65ad11ed3b1 upstream.
 
-It's buggy:
+There is a small race window when a delayed work is being canceled and
+the work still might be queued from the timer_fn:
 
-On Fri, Nov 06, 2020 at 10:30:08PM +0800, Minh Yuan wrote:
-> We recently discovered a slab-out-of-bounds read in fbcon in the latest
-> kernel ( v5.10-rc2 for now ).  The root cause of this vulnerability is that
-> "fbcon_do_set_font" did not handle "vc->vc_font.data" and
-> "vc->vc_font.height" correctly, and the patch
-> <https://lkml.org/lkml/2020/9/27/223> for VT_RESIZEX can't handle this
-> issue.
->
-> Specifically, we use KD_FONT_OP_SET to set a small font.data for tty6, and
-> use  KD_FONT_OP_SET again to set a large font.height for tty1. After that,
-> we use KD_FONT_OP_COPY to assign tty6's vc_font.data to tty1's vc_font.data
-> in "fbcon_do_set_font", while tty1 retains the original larger
-> height. Obviously, this will cause an out-of-bounds read, because we can
-> access a smaller vc_font.data with a larger vc_font.height.
+	CPU0						CPU1
+kthread_cancel_delayed_work_sync()
+   __kthread_cancel_work_sync()
+     __kthread_cancel_work()
+        work->canceling++;
+					      kthread_delayed_work_timer_fn()
+						   kthread_insert_work();
 
-Further there was only one user ever.
-- Android's loadfont, busybox and console-tools only ever use OP_GET
-  and OP_SET
-- fbset documentation only mentions the kernel cmdline font: option,
-  not anything else.
-- systemd used OP_COPY before release 232 published in Nov 2016
+BUG: kthread_insert_work() should not get called when work->canceling is
+set.
 
-Now unfortunately the crucial report seems to have gone down with
-gmane, and the commit message doesn't say much. But the pull request
-hints at OP_COPY being broken
-
-https://github.com/systemd/systemd/pull/3651
-
-So in other words, this never worked, and the only project which
-foolishly every tried to use it, realized that rather quickly too.
-
-Instead of trying to fix security issues here on dead code by adding
-missing checks, fix the entire thing by removing the functionality.
-
-Note that systemd code using the OP_COPY function ignored the return
-value, so it doesn't matter what we're doing here really - just in
-case a lone server somewhere happens to be extremely unlucky and
-running an affected old version of systemd. The relevant code from
-font_copy_to_all_vcs() in systemd was:
-
-	/* copy font from active VT, where the font was uploaded to */
-	cfo.op = KD_FONT_OP_COPY;
-	cfo.height = vcs.v_active-1; /* tty1 == index 0 */
-	(void) ioctl(vcfd, KDFONTOP, &cfo);
-
-Note this just disables the ioctl, garbage collecting the now unused
-callbacks is left for -next.
-
-v2: Tetsuo found the old mail, which allowed me to find it on another
-archive. Add the link too.
-
-Acked-by: Peilin Ye <yepeilin.cs@gmail.com>
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: Peilin Ye <yepeilin.cs@gmail.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://lore.kernel.org/r/20201108153806.3140315-1-daniel.vetter@ffwll.ch
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201014083030.16895-1-qiang.zhang@windriver.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt.c |   24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+ kernel/kthread.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4226,27 +4226,6 @@ static int con_font_default(struct vc_da
- 	return rc;
- }
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -828,7 +828,8 @@ void kthread_delayed_work_timer_fn(unsig
+ 	/* Move the work from worker->delayed_work_list. */
+ 	WARN_ON_ONCE(list_empty(&work->node));
+ 	list_del_init(&work->node);
+-	kthread_insert_work(worker, work, &worker->work_list);
++	if (!work->canceling)
++		kthread_insert_work(worker, work, &worker->work_list);
  
--static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
--{
--	int con = op->height;
--	int rc;
--
--
--	console_lock();
--	if (vc->vc_mode != KD_TEXT)
--		rc = -EINVAL;
--	else if (!vc->vc_sw->con_font_copy)
--		rc = -ENOSYS;
--	else if (con < 0 || !vc_cons_allocated(con))
--		rc = -ENOTTY;
--	else if (con == vc->vc_num)	/* nothing to do */
--		rc = 0;
--	else
--		rc = vc->vc_sw->con_font_copy(vc, con);
--	console_unlock();
--	return rc;
--}
--
- int con_font_op(struct vc_data *vc, struct console_font_op *op)
- {
- 	switch (op->op) {
-@@ -4257,7 +4236,8 @@ int con_font_op(struct vc_data *vc, stru
- 	case KD_FONT_OP_SET_DEFAULT:
- 		return con_font_default(vc, op);
- 	case KD_FONT_OP_COPY:
--		return con_font_copy(vc, op);
-+		/* was buggy and never really used */
-+		return -EINVAL;
- 	}
- 	return -ENOSYS;
+ 	spin_unlock(&worker->lock);
  }
 
 
