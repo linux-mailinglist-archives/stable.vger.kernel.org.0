@@ -2,131 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5716B2AC267
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:34:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F702AC26D
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:34:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730443AbgKIReE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 12:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35402 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729879AbgKIReE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 12:34:04 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A9AC0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 09:34:04 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id w6so3300472pfu.1
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 09:34:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MomoK3UbWLGVH0o3jRK/FJ0dxGxwgTjcaFcKcEax1ZU=;
-        b=qTAvriPGYDnyb9yTB1HmGMhqFvnYYBEc7og20mbHyoD3ySVqLrsiYSAW0g3cCk7iUx
-         GEivVjUKHnr6ya0NMyu0Nbqgu8ZaGpW+3r8JzF2hP34q4hx2+7ZXED8ubs44DQcSVKeX
-         tMkUND4vLhNgnctbxvAX28EUumsihLhPklLftJAwwb2XMsWuqHMxiG1uMI5K6FqmBFbf
-         lBAwSj5VKDM3XP24JZXRPV3G0YkrSv9D3rFJJe+CESDwXG5lIRWin6zvdIJNcnLDNXoP
-         wQU3AuBYcb8MhyhrBxprvjEC54pf2Mw08969vX+V3QFLBQIcjN/BrdjcgCwJx6vUzeFm
-         mrGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MomoK3UbWLGVH0o3jRK/FJ0dxGxwgTjcaFcKcEax1ZU=;
-        b=Jm+WZCRGE+39ciHBPvazpgBKdj8fkOBb0WIvU0SNGKjqTR3NkHfUEMLbR/e4GByTIl
-         seqctxfh4YjpygAsQgwQpORJABC+6q2ycNvx6qmI5d1nzTzZiQweCYPNUYigzNiV1tzn
-         u0m8O89NWfD7o0S/J3eTM5FCcUILC/MBVRL8lZYLOCD5N8GO+yWAwk/9NSCffVsvWFTj
-         otws7W7fpQwv9mH+OKypfH8KHhgczV9aMpx37rFPC5PYQNU/lGxEIUV7S8OMiEnE6oXP
-         S+H95QzE/0wOufBCHlDD0QwKNo3x8ZW+2n5IQ4xwgPPpHZlP+H/j0zXzYRN1OsRJh6ac
-         7OFA==
-X-Gm-Message-State: AOAM531DRuIoSgSIuivPmWPHVV9VOnKzZ0xrB99rrUs6658b0McVZjnC
-        R7Yrcy1VQ1hDbmFuzebaVIzCrCxsbOOGaw==
-X-Google-Smtp-Source: ABdhPJx16kME5hawVXHAVN0E28GfJ7X2/e7DZR3NvmRg51xjeA4TzZvb3GibDYed36B1S4bW5feDlA==
-X-Received: by 2002:a62:8709:0:b029:18b:23db:7712 with SMTP id i9-20020a6287090000b029018b23db7712mr14666452pfe.66.1604943243474;
-        Mon, 09 Nov 2020 09:34:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s21sm10684870pgk.52.2020.11.09.09.34.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2020 09:34:02 -0800 (PST)
-Message-ID: <5fa97d8a.1c69fb81.c2df3.6969@mx.google.com>
-Date:   Mon, 09 Nov 2020 09:34:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1730565AbgKIRe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:34:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729879AbgKIRe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 12:34:57 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 821D42083B;
+        Mon,  9 Nov 2020 17:34:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604943297;
+        bh=WOz2r84zuf/e0rPpEQJrjhamEinApEVHUzULldZlnUY=;
+        h=Subject:To:From:Date:From;
+        b=Ly4Cg6FrHaF8mh6vwcTq4hGPbJ2oQXqmeeHveKHXoMk5rv//bZkSfzX9VS21FDYmp
+         X7pPpUBJ0AR8RbEj+rDi89L/OJxn/wnqNaLXDGEYeaSBznBsmHNYoU/MtE/Xnth/rc
+         cpi73m825NPGEpwzQ0l57DJgyN6OOmXJfNNyZbyI=
+Subject: patch "firmware: xilinx: fix out-of-bounds access" added to char-misc-linus
+To:     arnd@arndb.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 09 Nov 2020 18:35:55 +0100
+Message-ID: <1604943355780@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.204-48-g3793076c5323
-Subject: stable-rc/queue/4.14 baseline: 168 runs,
- 1 regressions (v4.14.204-48-g3793076c5323)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 168 runs, 1 regressions (v4.14.204-48-g37930=
-76c5323)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+    firmware: xilinx: fix out-of-bounds access
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From f3217d6f2f7a76b36a3326ad58c8897f4d5fbe31 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Mon, 26 Oct 2020 16:54:36 +0100
+Subject: firmware: xilinx: fix out-of-bounds access
+
+The zynqmp_pm_set_suspend_mode() and zynqmp_pm_get_trustzone_version()
+functions pass values as api_id into zynqmp_pm_invoke_fn
+that are beyond PM_API_MAX, resulting in an out-of-bounds access:
+
+drivers/firmware/xilinx/zynqmp.c: In function 'zynqmp_pm_set_suspend_mode':
+drivers/firmware/xilinx/zynqmp.c:150:24: warning: array subscript 2562 is above array bounds of 'u32[64]' {aka 'unsigned int[64]'} [-Warray-bounds]
+  150 |  if (zynqmp_pm_features[api_id] != PM_FEATURE_UNCHECKED)
+      |      ~~~~~~~~~~~~~~~~~~^~~~~~~~
+drivers/firmware/xilinx/zynqmp.c:28:12: note: while referencing 'zynqmp_pm_features'
+   28 | static u32 zynqmp_pm_features[PM_API_MAX];
+      |            ^~~~~~~~~~~~~~~~~~
+
+Replace the resulting undefined behavior with an error return.
+This may break some things that happen to work at the moment
+but seems better than randomly overwriting kernel data.
+
+I assume we need additional fixes for the two functions that now
+return an error.
+
+Fixes: 76582671eb5d ("firmware: xilinx: Add Zynqmp firmware driver")
+Fixes: e178df31cf41 ("firmware: xilinx: Implement ZynqMP power management APIs")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201026155449.3703142-1-arnd@kernel.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+ drivers/firmware/xilinx/zynqmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/firmware/xilinx/zynqmp.c b/drivers/firmware/xilinx/zynqmp.c
+index 8d1ff2454e2e..efb8a66efc68 100644
+--- a/drivers/firmware/xilinx/zynqmp.c
++++ b/drivers/firmware/xilinx/zynqmp.c
+@@ -147,6 +147,9 @@ static int zynqmp_pm_feature(u32 api_id)
+ 		return 0;
+ 
+ 	/* Return value if feature is already checked */
++	if (api_id > ARRAY_SIZE(zynqmp_pm_features))
++		return PM_FEATURE_INVALID;
++
+ 	if (zynqmp_pm_features[api_id] != PM_FEATURE_UNCHECKED)
+ 		return zynqmp_pm_features[api_id];
+ 
+-- 
+2.29.2
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.204-48-g3793076c5323/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.204-48-g3793076c5323
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3793076c5323cb144fbb4984f9b327113a2a0f22 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa9491b4863c4811cdb8854
-
-  Results:     2 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--48-g3793076c5323/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.204=
--48-g3793076c5323/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa9491b4863c48=
-11cdb8858
-        new failure (last pass: v4.14.204-48-g22f907ea2f6d4)
-        2 lines
-
-    2020-11-09 13:50:16.121000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
