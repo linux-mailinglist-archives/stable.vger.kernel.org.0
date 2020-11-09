@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB4A2ABBF1
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D09202ABB86
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731155AbgKINcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:32:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59822 "EHLO mail.kernel.org"
+        id S1732026AbgKINKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:10:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731246AbgKINHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:07:05 -0500
+        id S1729723AbgKINKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:10:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B8122076E;
-        Mon,  9 Nov 2020 13:07:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BAB82083B;
+        Mon,  9 Nov 2020 13:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927224;
-        bh=GFIFI44qs4r6l4lmcWfvQhJQNiQN67Chm1RWxlpTfHw=;
+        s=default; t=1604927415;
+        bh=3cwa2+oW48qbbKajQym3cjbPzZISxKfmoExe6aZKujk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zC2IEcZDI5OM/i/dV8dRmg2muWa3XS9LXuCYcUcsVMEShRBHjx1DEMH6MJQ2p2KFr
-         iJnJfuzShGRthJQIz8at2NGhvRa+mbrC9sLIZHDCoAXEq0J5QBP9ttmk1u0WeWX9Ez
-         cFQYhiovPIS4SJJXzNXfRXhqLjQtwm6r5Jj+rWUc=
+        b=co6E/S3A7EOxMGSPKgpep0tcpRSiG01oA8s+tr7qmP60KZJZdnP7kuCP3rYW/27rr
+         /RBXBsCLTFyV0xKRxLmiwsyECPN5dYre25XaBD8+IvrrnSZwGcwJPwLKQmVpPH3osO
+         cTb143disXsi7T/351cbKn36nnSuQmIcSv9y+Gjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddy Wu <eddy_wu@trendmicro.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 36/48] fork: fix copy_process(CLONE_PARENT) race with the exiting ->real_parent
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Lee Duncan <lduncan@suse.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 51/71] scsi: core: Dont start concurrent async scan on same host
 Date:   Mon,  9 Nov 2020 13:55:45 +0100
-Message-Id: <20201109125018.531280982@linuxfoundation.org>
+Message-Id: <20201109125022.293280895@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddy Wu <itseddy0402@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit b4e00444cab4c3f3fec876dc0cccc8cbb0d1a948 upstream.
+[ Upstream commit 831e3405c2a344018a18fcc2665acc5a38c3a707 ]
 
-current->group_leader->exit_signal may change during copy_process() if
-current->real_parent exits.
+The current scanning mechanism is supposed to fall back to a synchronous
+host scan if an asynchronous scan is in progress. However, this rule isn't
+strictly respected, scsi_prep_async_scan() doesn't hold scan_mutex when
+checking shost->async_scan. When scsi_scan_host() is called concurrently,
+two async scans on same host can be started and a hang in do_scan_async()
+is observed.
 
-Move the assignment inside tasklist_lock to avoid the race.
+Fixes this issue by checking & setting shost->async_scan atomically with
+shost->scan_mutex.
 
-Signed-off-by: Eddy Wu <eddy_wu@trendmicro.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20201010032539.426615-1-ming.lei@redhat.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/scsi_scan.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1833,14 +1833,9 @@ static __latent_entropy struct task_stru
- 	/* ok, now we should be set up.. */
- 	p->pid = pid_nr(pid);
- 	if (clone_flags & CLONE_THREAD) {
--		p->exit_signal = -1;
- 		p->group_leader = current->group_leader;
- 		p->tgid = current->tgid;
- 	} else {
--		if (clone_flags & CLONE_PARENT)
--			p->exit_signal = current->group_leader->exit_signal;
--		else
--			p->exit_signal = (clone_flags & CSIGNAL);
- 		p->group_leader = p;
- 		p->tgid = p->pid;
- 	}
-@@ -1885,9 +1880,14 @@ static __latent_entropy struct task_stru
- 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
- 		p->real_parent = current->real_parent;
- 		p->parent_exec_id = current->parent_exec_id;
-+		if (clone_flags & CLONE_THREAD)
-+			p->exit_signal = -1;
-+		else
-+			p->exit_signal = current->group_leader->exit_signal;
- 	} else {
- 		p->real_parent = current;
- 		p->parent_exec_id = current->self_exec_id;
-+		p->exit_signal = (clone_flags & CSIGNAL);
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 9a7e3a3bd5ce8..009a5b2aa3d02 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -1722,15 +1722,16 @@ static void scsi_sysfs_add_devices(struct Scsi_Host *shost)
+  */
+ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ {
+-	struct async_scan_data *data;
++	struct async_scan_data *data = NULL;
+ 	unsigned long flags;
+ 
+ 	if (strncmp(scsi_scan_type, "sync", 4) == 0)
+ 		return NULL;
+ 
++	mutex_lock(&shost->scan_mutex);
+ 	if (shost->async_scan) {
+ 		shost_printk(KERN_DEBUG, shost, "%s called twice\n", __func__);
+-		return NULL;
++		goto err;
  	}
  
- 	klp_copy_process(p);
+ 	data = kmalloc(sizeof(*data), GFP_KERNEL);
+@@ -1741,7 +1742,6 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 		goto err;
+ 	init_completion(&data->prev_finished);
+ 
+-	mutex_lock(&shost->scan_mutex);
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	shost->async_scan = 1;
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+@@ -1756,6 +1756,7 @@ static struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
+ 	return data;
+ 
+  err:
++	mutex_unlock(&shost->scan_mutex);
+ 	kfree(data);
+ 	return NULL;
+ }
+-- 
+2.27.0
+
 
 
