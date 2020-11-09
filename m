@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8508F2ABAAD
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E292ABAB0
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387746AbgKINVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:21:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
+        id S2388093AbgKINVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:21:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387674AbgKINV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:29 -0500
+        id S2388090AbgKINVf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C942A20897;
-        Mon,  9 Nov 2020 13:21:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A230F2065D;
+        Mon,  9 Nov 2020 13:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928088;
-        bh=fC/JYmbH4oM/EsD7rGtTjO14BaL5Az1WFDW3CSh2ceQ=;
+        s=default; t=1604928094;
+        bh=OrBBqNpj4um0W3Z1ypB0ujgiH2V8/kvdg9LB+qdIoPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noQoZX/6++Cm05LD7UgMyH+M0Lpd5W4qG++yc2JsRRbIb4PVJu89Kf2Fp6ptVUKM5
-         OpMIqcIZ3KOpxkRbdSAPvIuIUDuXiEr3lQSivj5GH1MjsgcJ7n5JnW3V5FmAnEEStu
-         EqkIHkhRyhaXB4q0m7dTn4e5819W3Ur6slTfJImg=
+        b=NzwuPw99Qqbj6jico3MB8LeNn7cDPM95LcjoHkwVcS1VvzFSTIjcB7c/+Z+SulzTC
+         yYHap40/1G3gyWoYwsN20xI67synImweqEbLCpXv/QOC5iUQAY8cuZNf/RHikqiuwk
+         wXEnYK533wcHlVwof0N2RxEwvk+A6fs0PFLxG5zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.9 123/133] usb: mtu3: fix panic in mtu3_gadget_stop()
-Date:   Mon,  9 Nov 2020 13:56:25 +0100
-Message-Id: <20201109125036.604426515@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.9 124/133] io_uring: fix link lookup racing with link timeout
+Date:   Mon,  9 Nov 2020 13:56:26 +0100
+Message-Id: <20201109125036.650991539@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -42,71 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 20914919ad31849ee2b9cfe0428f4a20335c9e2a upstream.
+commit 9a472ef7a3690ac0b77ebfb04c88fa795de2adea upstream.
 
-This patch fixes a possible issue when mtu3_gadget_stop()
-already assigned NULL to mtu->gadget_driver during mtu_gadget_disconnect().
+We can't just go over linked requests because it may race with linked
+timeouts. Take ctx->completion_lock in that case.
 
-[<ffffff9008161974>] notifier_call_chain+0xa4/0x128
-[<ffffff9008161fd4>] __atomic_notifier_call_chain+0x84/0x138
-[<ffffff9008162ec0>] notify_die+0xb0/0x120
-[<ffffff900809e340>] die+0x1f8/0x5d0
-[<ffffff90080d03b4>] __do_kernel_fault+0x19c/0x280
-[<ffffff90080d04dc>] do_bad_area+0x44/0x140
-[<ffffff90080d0f9c>] do_translation_fault+0x4c/0x90
-[<ffffff9008080a78>] do_mem_abort+0xb8/0x258
-[<ffffff90080849d0>] el1_da+0x24/0x3c
-[<ffffff9009bde01c>] mtu3_gadget_disconnect+0xac/0x128
-[<ffffff9009bd576c>] mtu3_irq+0x34c/0xc18
-[<ffffff90082ac03c>] __handle_irq_event_percpu+0x2ac/0xcd0
-[<ffffff90082acae0>] handle_irq_event_percpu+0x80/0x138
-[<ffffff90082acc44>] handle_irq_event+0xac/0x148
-[<ffffff90082b71cc>] handle_fasteoi_irq+0x234/0x568
-[<ffffff90082a8708>] generic_handle_irq+0x48/0x68
-[<ffffff90082a96ac>] __handle_domain_irq+0x264/0x1740
-[<ffffff90080819f4>] gic_handle_irq+0x14c/0x250
-[<ffffff9008084cec>] el1_irq+0xec/0x194
-[<ffffff90085b985c>] dma_pool_alloc+0x6e4/0xae0
-[<ffffff9008d7f890>] cmdq_mbox_pool_alloc_impl+0xb0/0x238
-[<ffffff9008d80904>] cmdq_pkt_alloc_buf+0x2dc/0x7c0
-[<ffffff9008d80f60>] cmdq_pkt_add_cmd_buffer+0x178/0x270
-[<ffffff9008d82320>] cmdq_pkt_perf_begin+0x108/0x148
-[<ffffff9008d824d8>] cmdq_pkt_create+0x178/0x1f0
-[<ffffff9008f96230>] mtk_crtc_config_default_path+0x328/0x7a0
-[<ffffff90090246cc>] mtk_drm_idlemgr_kick+0xa6c/0x1460
-[<ffffff9008f9bbb4>] mtk_drm_crtc_atomic_begin+0x1a4/0x1a68
-[<ffffff9008e8df9c>] drm_atomic_helper_commit_planes+0x154/0x878
-[<ffffff9008f2fb70>] mtk_atomic_complete.isra.16+0xe80/0x19c8
-[<ffffff9008f30910>] mtk_atomic_commit+0x258/0x898
-[<ffffff9008ef142c>] drm_atomic_commit+0xcc/0x108
-[<ffffff9008ef7cf0>] drm_mode_atomic_ioctl+0x1c20/0x2580
-[<ffffff9008ebc768>] drm_ioctl_kernel+0x118/0x1b0
-[<ffffff9008ebcde8>] drm_ioctl+0x5c0/0x920
-[<ffffff900863b030>] do_vfs_ioctl+0x188/0x1820
-[<ffffff900863c754>] SyS_ioctl+0x8c/0xa0
-
-Fixes: df2069acb005 ("usb: Add MediaTek USB3 DRD driver")
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Acked-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1604642069-20961-1-git-send-email-macpaul.lin@mediatek.com
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/mtu3/mtu3_gadget.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -564,6 +564,7 @@ static int mtu3_gadget_stop(struct usb_g
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8176,7 +8176,21 @@ static bool io_timeout_remove_link(struc
  
- 	spin_unlock_irqrestore(&mtu->lock, flags);
- 
-+	synchronize_irq(mtu->irq);
- 	return 0;
+ static bool io_cancel_link_cb(struct io_wq_work *work, void *data)
+ {
+-	return io_match_link(container_of(work, struct io_kiocb, work), data);
++	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
++	bool ret;
++
++	if (req->flags & REQ_F_LINK_TIMEOUT) {
++		unsigned long flags;
++		struct io_ring_ctx *ctx = req->ctx;
++
++		/* protect against races with linked timeouts */
++		spin_lock_irqsave(&ctx->completion_lock, flags);
++		ret = io_match_link(req, data);
++		spin_unlock_irqrestore(&ctx->completion_lock, flags);
++	} else {
++		ret = io_match_link(req, data);
++	}
++	return ret;
  }
  
+ static void io_attempt_cancel(struct io_ring_ctx *ctx, struct io_kiocb *req)
 
 
