@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1B12AB90F
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E11522AB9C0
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729723AbgKINEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:04:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57210 "EHLO mail.kernel.org"
+        id S1730884AbgKINMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:12:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730619AbgKINEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:04:04 -0500
+        id S1731617AbgKINMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:12:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3813320663;
-        Mon,  9 Nov 2020 13:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA6E12083B;
+        Mon,  9 Nov 2020 13:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927043;
-        bh=FCYJJ/2cH0dstbpRZxaKjF+DFq7oQ1F7MjNd2KlXfBQ=;
+        s=default; t=1604927539;
+        bh=cSJ/RsGc9f7YVACYaB3aFcsj4bcpor8oWROiIyS/Hhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGFFtOE8biOrUoJKYse3UGPaK+GaQH8Hni7TWovbZZS7f6m5Iws2+iCoE8eCKgxgv
-         gFhA+HBK3yN22HBTxWc8xWSDwDPlGCPW9Jb8jEsJpnWkHPrmDoEAUd9J97F3yJO7Ry
-         3I5FML1brbzI/qB/kJB/Mm4unahpRu/peeBRNhaw=
+        b=F7eosBqWoTCrU4LRbnK4e+avxjxzGDC24Md1nCX+BJ2b98p1EUTjKXBb7yZcgHY8Z
+         C3o9dz8IjFI5ahpoXg5lKIOAWq1TDopgEPRmW2195TyA5ELnK8XCNInpc6HO6+uBKh
+         SnrtMmh7pGj0brjoAJESFNrDMd5dxNQlBPqh4xVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Stefan Bader <stefan.bader@canonical.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Ben Hutchings <benh@debian.org>
-Subject: [PATCH 4.9 092/117] xen/events: dont use chip_data for legacy IRQs
-Date:   Mon,  9 Nov 2020 13:55:18 +0100
-Message-Id: <20201109125030.063293478@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Lee Jones <lee.jones@linaro.org>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 22/85] Fonts: Replace discarded const qualifier
+Date:   Mon,  9 Nov 2020 13:55:19 +0100
+Message-Id: <20201109125023.655803190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +44,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit 0891fb39ba67bd7ae023ea0d367297ffff010781 upstream.
+commit 9522750c66c689b739e151fcdf895420dc81efc0 upstream.
 
-Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Xen is using the chip_data pointer for storing IRQ specific data. When
-running as a HVM domain this can result in problems for legacy IRQs, as
-those might use chip_data for their own purposes.
+Commit 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in
+fonts") introduced the following error when building rpc_defconfig (only
+this build appears to be affected):
 
-Use a local array for this purpose in case of legacy IRQs, avoiding the
-double use.
+ `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+ make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+ make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
 
-Cc: stable@vger.kernel.org
-Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefan Bader <stefan.bader@canonical.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <benh@debian.org>
+The .data section is discarded at link time.  Reinstating acorndata_8x8 as
+const ensures it is still available after linking.  Do the same for the
+other 12 built-in fonts as well, for consistency purposes.
+
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts")
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Co-developed-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201102183242.2031659-1-yepeilin.cs@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/events/events_base.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -91,6 +91,8 @@ static bool (*pirq_needs_eoi)(unsigned i
- /* Xen will never allocate port zero for any purpose. */
- #define VALID_EVTCHN(chn)	((chn) != 0)
+---
+ lib/fonts/font_10x18.c     |    2 +-
+ lib/fonts/font_6x10.c      |    2 +-
+ lib/fonts/font_6x11.c      |    2 +-
+ lib/fonts/font_7x14.c      |    2 +-
+ lib/fonts/font_8x16.c      |    2 +-
+ lib/fonts/font_8x8.c       |    2 +-
+ lib/fonts/font_acorn_8x8.c |    2 +-
+ lib/fonts/font_mini_4x6.c  |    2 +-
+ lib/fonts/font_pearl_8x8.c |    2 +-
+ lib/fonts/font_sun12x22.c  |    2 +-
+ lib/fonts/font_sun8x16.c   |    2 +-
+ lib/fonts/font_ter16x32.c  |    2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
+
+--- a/lib/fonts/font_10x18.c
++++ b/lib/fonts/font_10x18.c
+@@ -8,7 +8,7 @@
  
-+static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
-+
- static struct irq_chip xen_dynamic_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
-@@ -155,7 +157,18 @@ int get_evtchn_to_irq(unsigned evtchn)
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_chip_data(irq);
-+	if (irq < nr_legacy_irqs())
-+		return legacy_info_ptrs[irq];
-+	else
-+		return irq_get_chip_data(irq);
-+}
-+
-+static void set_info_for_irq(unsigned int irq, struct irq_info *info)
-+{
-+	if (irq < nr_legacy_irqs())
-+		legacy_info_ptrs[irq] = info;
-+	else
-+		irq_set_chip_data(irq, info);
- }
+ #define FONTDATAMAX 9216
  
- /* Constructors for packed IRQ information. */
-@@ -384,7 +397,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
+-static struct font_data fontdata_10x18 = {
++static const struct font_data fontdata_10x18 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, 0x00, /* 0000000000 */
+--- a/lib/fonts/font_6x10.c
++++ b/lib/fonts/font_6x10.c
+@@ -3,7 +3,7 @@
  
--	irq_set_chip_data(irq, info);
-+	set_info_for_irq(irq, info);
+ #define FONTDATAMAX 2560
  
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -433,14 +446,14 @@ static int __must_check xen_allocate_irq
+-static struct font_data fontdata_6x10 = {
++static const struct font_data fontdata_6x10 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_6x11.c
++++ b/lib/fonts/font_6x11.c
+@@ -9,7 +9,7 @@
  
- static void xen_free_irq(unsigned irq)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+ #define FONTDATAMAX (11*256)
  
- 	if (WARN_ON(!info))
- 		return;
+-static struct font_data fontdata_6x11 = {
++static const struct font_data fontdata_6x11 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_7x14.c
++++ b/lib/fonts/font_7x14.c
+@@ -8,7 +8,7 @@
  
- 	list_del(&info->list);
+ #define FONTDATAMAX 3584
  
--	irq_set_chip_data(irq, NULL);
-+	set_info_for_irq(irq, NULL);
+-static struct font_data fontdata_7x14 = {
++static const struct font_data fontdata_7x14 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 0000000 */
+--- a/lib/fonts/font_8x16.c
++++ b/lib/fonts/font_8x16.c
+@@ -10,7 +10,7 @@
  
- 	WARN_ON(info->refcnt > 0);
+ #define FONTDATAMAX 4096
  
-@@ -610,7 +623,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+-static struct font_data fontdata_8x16 = {
++static const struct font_data fontdata_8x16 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_8x8.c
++++ b/lib/fonts/font_8x8.c
+@@ -9,7 +9,7 @@
  
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1114,7 +1127,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
+ #define FONTDATAMAX 2048
  
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+-static struct font_data fontdata_8x8 = {
++static const struct font_data fontdata_8x8 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_acorn_8x8.c
++++ b/lib/fonts/font_acorn_8x8.c
+@@ -5,7 +5,7 @@
  
- 	if (WARN_ON(!info))
- 		return;
-@@ -1148,7 +1161,7 @@ int evtchn_make_refcounted(unsigned int
- 	if (irq == -1)
- 		return -ENOENT;
+ #define FONTDATAMAX 2048
  
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
+-static struct font_data acorndata_8x8 = {
++static const struct font_data acorndata_8x8 = {
+ { 0, 0, FONTDATAMAX, 0 }, {
+ /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
+ /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
+--- a/lib/fonts/font_mini_4x6.c
++++ b/lib/fonts/font_mini_4x6.c
+@@ -43,7 +43,7 @@ __END__;
  
- 	if (!info)
- 		return -ENOENT;
-@@ -1176,7 +1189,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
+ #define FONTDATAMAX 1536
  
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
+-static struct font_data fontdata_mini_4x6 = {
++static const struct font_data fontdata_mini_4x6 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/*{*/
+ 	  	/*   Char 0: ' '  */
+--- a/lib/fonts/font_pearl_8x8.c
++++ b/lib/fonts/font_pearl_8x8.c
+@@ -14,7 +14,7 @@
  
- 	if (!info)
- 		goto done;
+ #define FONTDATAMAX 2048
+ 
+-static struct font_data fontdata_pearl8x8 = {
++static const struct font_data fontdata_pearl8x8 = {
+    { 0, 0, FONTDATAMAX, 0 }, {
+    /* 0 0x00 '^@' */
+    0x00, /* 00000000 */
+--- a/lib/fonts/font_sun12x22.c
++++ b/lib/fonts/font_sun12x22.c
+@@ -3,7 +3,7 @@
+ 
+ #define FONTDATAMAX 11264
+ 
+-static struct font_data fontdata_sun12x22 = {
++static const struct font_data fontdata_sun12x22 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, 0x00, /* 000000000000 */
+--- a/lib/fonts/font_sun8x16.c
++++ b/lib/fonts/font_sun8x16.c
+@@ -3,7 +3,7 @@
+ 
+ #define FONTDATAMAX 4096
+ 
+-static struct font_data fontdata_sun8x16 = {
++static const struct font_data fontdata_sun8x16 = {
+ { 0, 0, FONTDATAMAX, 0 }, {
+ /* */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ /* */ 0x00,0x00,0x7e,0x81,0xa5,0x81,0x81,0xbd,0x99,0x81,0x81,0x7e,0x00,0x00,0x00,0x00,
+--- a/lib/fonts/font_ter16x32.c
++++ b/lib/fonts/font_ter16x32.c
+@@ -4,7 +4,7 @@
+ 
+ #define FONTDATAMAX 16384
+ 
+-static struct font_data fontdata_ter16x32 = {
++static const struct font_data fontdata_ter16x32 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00, 0x7f, 0xfc, 0x7f, 0xfc,
 
 
