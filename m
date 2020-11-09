@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED852ABD7F
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E19C2ABCC9
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:41:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbgKINqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:46:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52040 "EHLO mail.kernel.org"
+        id S1730396AbgKINjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729999AbgKIM5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:57:32 -0500
+        id S1730353AbgKINCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:02:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CD8A20684;
-        Mon,  9 Nov 2020 12:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB28E20684;
+        Mon,  9 Nov 2020 13:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926652;
-        bh=z2FW9ugi5dedmmn4QtO7JOx61d2Qha7FZtph8t1rbxU=;
+        s=default; t=1604926959;
+        bh=4wtCFZ77tCguYW9Fce8f1taCn22d1ZNwbf2hVTgyuxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0pFRmFxkK7v5yhKFvIo4cBJb0+jtTIX4yNNkBgaPW0ABKbMBvQ6aBWXvq1XXqugd
-         u3dEhmn4CTGpbcJWIATYoErIITH+V8rt53yoRZbHTLKUw2tpB5su7Xpt5QbCgSSMAM
-         CZY1SI5ScvC+JMV8YjZ7G7CLQdjRfNLe3YVuUWiE=
+        b=kXdMLDYSnzGCedhx2QRExtI81889h1ZS0mWo90pwt69i7dfX9DeO8D93SKD7dU/wU
+         2F3pE37G9r2ArD7lG2zzA04878rDtTsSnMeTcqhlEXq5SJp6atce2w2rDMnXuPKuCC
+         Ha1xWUVKD9e1/sxdzElJC071fqn2FXJ0muUp98zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.4 42/86] vt: keyboard, simplify vt_kdgkbsent
+Subject: [PATCH 4.9 063/117] vt: keyboard, simplify vt_kdgkbsent
 Date:   Mon,  9 Nov 2020 13:54:49 +0100
-Message-Id: <20201109125022.867933622@linuxfoundation.org>
+Message-Id: <20201109125028.656979062@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/tty/vt/keyboard.c
 +++ b/drivers/tty/vt/keyboard.c
-@@ -1973,9 +1973,7 @@ out:
+@@ -1963,9 +1963,7 @@ out:
  int vt_do_kdgkb_ioctl(int cmd, struct kbsentry __user *user_kdgkb, int perm)
  {
  	struct kbsentry *kbs;
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int sz, fnw_sz;
  	int delta;
  	char *first_free, *fj, *fnw;
-@@ -2001,23 +1999,15 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+@@ -1991,23 +1989,15 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
  	i = kbs->kb_func;
  
  	switch (cmd) {
