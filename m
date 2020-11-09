@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF472ABBD4
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17ACE2ABB9A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730752AbgKINb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:31:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34236 "EHLO mail.kernel.org"
+        id S1732582AbgKINMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:12:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730931AbgKINJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:09:17 -0500
+        id S1732546AbgKINML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:12:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DFBD20731;
-        Mon,  9 Nov 2020 13:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01C1E2076E;
+        Mon,  9 Nov 2020 13:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927356;
-        bh=fqkd3J7PxfSZN8b53+ZRU0sKCm72tFn640C8C2F2RPw=;
+        s=default; t=1604927530;
+        bh=BjGt8GDopeSM3gZ1nWWAZcXAqLRJr+0iISeU1sQ3PU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEhsnXFxXuz9iZrzjimGukva1uRfCifLIjefK3gZIMsMi2fBQHrlSkHm2qRK2oANO
-         DXwnESkMbXEmW0dEldlIO/oNkkwSjAqPoFMwTtrctXiiyQyXO1IYx3tbCXQ87i2Djn
-         Ws2eX+GELR1VqivLlmgbNGJR/6IWqHy6tEwpyFOY=
+        b=juGzCVl8qIxGDiklQ/AqW5XHgA1bNIOodFspjXGMR4cvakMZllWFul4JiQvqoRpYA
+         /0XyPsgeB9uFcB4VIooKaCUhCCrXzAVm453frQYrlOZifsYMBa48Ue+MyYUXBUKPL9
+         EogA9kB/+lCXFiHTLfgzpIh5mPqib1rMZERM12Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Klaus Doth <krnl@doth.eu>,
-        Mark Deneen <mdeneen@saucontech.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 04/71] cadence: force nonlinear buffers to be cloned
-Date:   Mon,  9 Nov 2020 13:54:58 +0100
-Message-Id: <20201109125020.110090756@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.4 02/85] drm/i915/gt: Delay execlist processing for tgl
+Date:   Mon,  9 Nov 2020 13:54:59 +0100
+Message-Id: <20201109125022.735129144@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Deneen <mdeneen@saucontech.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 403dc16796f5516acf23d94a1cd9eba564d03210 ]
+commit 9b99e5ba3e5d68039bd6b657e4bbe520a3521f4c upstream.
 
-In my test setup, I had a SAMA5D27 device configured with ip forwarding, and
-second device with usb ethernet (r8152) sending ICMP packets.  If the packet
-was larger than about 220 bytes, the SAMA5 device would "oops" with the
-following trace:
+When running gem_exec_nop, it floods the system with many requests (with
+the goal of userspace submitting faster than the HW can process a single
+empty batch). This causes the driver to continually resubmit new
+requests onto the end of an active context, a flood of lite-restore
+preemptions. If we time this just right, Tigerlake hangs.
 
-kernel BUG at net/core/skbuff.c:1863!
-Internal error: Oops - BUG: 0 [#1] ARM
-Modules linked in: xt_MASQUERADE ppp_async ppp_generic slhc iptable_nat xt_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 can_raw can bridge stp llc ipt_REJECT nf_reject_ipv4 sd_mod cdc_ether usbnet usb_storage r8152 scsi_mod mii o
-ption usb_wwan usbserial micrel macb at91_sama5d2_adc phylink gpio_sama5d2_piobu m_can_platform m_can industrialio_triggered_buffer kfifo_buf of_mdio can_dev fixed_phy sdhci_of_at91 sdhci_pltfm libphy sdhci mmc_core ohci_at91 ehci_atmel o
-hci_hcd iio_rescale industrialio sch_fq_codel spidev prox2_hal(O)
-CPU: 0 PID: 0 Comm: swapper Tainted: G           O      5.9.1-prox2+ #1
-Hardware name: Atmel SAMA5
-PC is at skb_put+0x3c/0x50
-LR is at macb_start_xmit+0x134/0xad0 [macb]
-pc : [<c05258cc>]    lr : [<bf0ea5b8>]    psr: 20070113
-sp : c0d01a60  ip : c07232c0  fp : c4250000
-r10: c0d03cc8  r9 : 00000000  r8 : c0d038c0
-r7 : 00000000  r6 : 00000008  r5 : c59b66c0  r4 : 0000002a
-r3 : 8f659eff  r2 : c59e9eea  r1 : 00000001  r0 : c59b66c0
-Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c53c7d  Table: 2640c059  DAC: 00000051
-Process swapper (pid: 0, stack limit = 0x75002d81)
+Inserting a small delay between the processing of CS events and
+submitting the next context, prevents the hang. Naturally it does not
+occur with debugging enabled. The suspicion then is that this is related
+to the issues with the CS event buffer, and inserting an mmio read of
+the CS pointer status appears to be very successful in preventing the
+hang. Other registers, or uncached reads, or plain mb, do not prevent
+the hang, suggesting that register is key -- but that the hang can be
+prevented by a simple udelay, suggests it is just a timing issue like
+that encountered by commit 233c1ae3c83f ("drm/i915/gt: Wait for CSB
+entries on Tigerlake"). Also note that the hang is not prevented by
+applying CTX_DESC_FORCE_RESTORE, or by inserting a delay on the GPU
+between requests.
 
-<snipped stack>
-
-[<c05258cc>] (skb_put) from [<bf0ea5b8>] (macb_start_xmit+0x134/0xad0 [macb])
-[<bf0ea5b8>] (macb_start_xmit [macb]) from [<c053e504>] (dev_hard_start_xmit+0x90/0x11c)
-[<c053e504>] (dev_hard_start_xmit) from [<c0571180>] (sch_direct_xmit+0x124/0x260)
-[<c0571180>] (sch_direct_xmit) from [<c053eae4>] (__dev_queue_xmit+0x4b0/0x6d0)
-[<c053eae4>] (__dev_queue_xmit) from [<c05a5650>] (ip_finish_output2+0x350/0x580)
-[<c05a5650>] (ip_finish_output2) from [<c05a7e24>] (ip_output+0xb4/0x13c)
-[<c05a7e24>] (ip_output) from [<c05a39d0>] (ip_forward+0x474/0x500)
-[<c05a39d0>] (ip_forward) from [<c05a13d8>] (ip_sublist_rcv_finish+0x3c/0x50)
-[<c05a13d8>] (ip_sublist_rcv_finish) from [<c05a19b8>] (ip_sublist_rcv+0x11c/0x188)
-[<c05a19b8>] (ip_sublist_rcv) from [<c05a2494>] (ip_list_rcv+0xf8/0x124)
-[<c05a2494>] (ip_list_rcv) from [<c05403c4>] (__netif_receive_skb_list_core+0x1a0/0x20c)
-[<c05403c4>] (__netif_receive_skb_list_core) from [<c05405c4>] (netif_receive_skb_list_internal+0x194/0x230)
-[<c05405c4>] (netif_receive_skb_list_internal) from [<c0540684>] (gro_normal_list.part.0+0x14/0x28)
-[<c0540684>] (gro_normal_list.part.0) from [<c0541280>] (napi_complete_done+0x16c/0x210)
-[<c0541280>] (napi_complete_done) from [<bf14c1c0>] (r8152_poll+0x684/0x708 [r8152])
-[<bf14c1c0>] (r8152_poll [r8152]) from [<c0541424>] (net_rx_action+0x100/0x328)
-[<c0541424>] (net_rx_action) from [<c01012ec>] (__do_softirq+0xec/0x274)
-[<c01012ec>] (__do_softirq) from [<c012d6d4>] (irq_exit+0xcc/0xd0)
-[<c012d6d4>] (irq_exit) from [<c0160960>] (__handle_domain_irq+0x58/0xa4)
-[<c0160960>] (__handle_domain_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x90)
-Exception stack(0xc0d01ef0 to 0xc0d01f38)
-1ee0:                                     00000000 0000003d 0c31f383 c0d0fa00
-1f00: c0d2eb80 00000000 c0d2e630 4dad8c49 4da967b0 0000003d 0000003d 00000000
-1f20: fffffff5 c0d01f40 c04e0f88 c04e0f8c 30070013 ffffffff
-[<c0100b0c>] (__irq_svc) from [<c04e0f8c>] (cpuidle_enter_state+0x7c/0x378)
-[<c04e0f8c>] (cpuidle_enter_state) from [<c04e12c4>] (cpuidle_enter+0x28/0x38)
-[<c04e12c4>] (cpuidle_enter) from [<c014f710>] (do_idle+0x194/0x214)
-[<c014f710>] (do_idle) from [<c014fa50>] (cpu_startup_entry+0xc/0x14)
-[<c014fa50>] (cpu_startup_entry) from [<c0a00dc8>] (start_kernel+0x46c/0x4a0)
-Code: e580c054 8a000002 e1a00002 e8bd8070 (e7f001f2)
----[ end trace 146c8a334115490c ]---
-
-The solution was to force nonlinear buffers to be cloned.  This was previously
-reported by Klaus Doth (https://www.spinics.net/lists/netdev/msg556937.html)
-but never formally submitted as a patch.
-
-This is the third revision, hopefully the formatting is correct this time!
-
-Suggested-by: Klaus Doth <krnl@doth.eu>
-Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
-Signed-off-by: Mark Deneen <mdeneen@saucontech.com>
-Link: https://lore.kernel.org/r/20201030155814.622831-1-mdeneen@saucontech.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Bruce Chang <yu.bruce.chang@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Acked-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201015195023.32346-1-chris@chris-wilson.co.uk
+(cherry picked from commit 6ca7217dffaf1abba91558e67a2efb655ac91405)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/cadence/macb_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1704,7 +1704,8 @@ static inline int macb_clear_csum(struct
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1574,6 +1574,9 @@ static void process_csb(struct intel_eng
+ 			if (!inject_preempt_hang(execlists))
+ 				ring_set_paused(engine, 0);
  
- static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
- {
--	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb);
-+	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb) ||
-+		      skb_is_nonlinear(*skb);
- 	int padlen = ETH_ZLEN - (*skb)->len;
- 	int headroom = skb_headroom(*skb);
- 	int tailroom = skb_tailroom(*skb);
++			/* XXX Magic delay for tgl */
++			ENGINE_POSTING_READ(engine, RING_CONTEXT_STATUS_PTR);
++
+ 			WRITE_ONCE(execlists->pending[0], NULL);
+ 			break;
+ 
 
 
