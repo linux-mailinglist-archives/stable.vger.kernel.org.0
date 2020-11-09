@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 111012ABBAC
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C192ABD6D
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731865AbgKIN3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38260 "EHLO mail.kernel.org"
+        id S1729549AbgKINp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:45:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732692AbgKINMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:37 -0500
+        id S1730095AbgKIM6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5862D20789;
-        Mon,  9 Nov 2020 13:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA9420684;
+        Mon,  9 Nov 2020 12:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927557;
-        bh=JxC5bddqapCCWZTkXed8pvD3gk2KGlQJJha3wVJqFRU=;
+        s=default; t=1604926683;
+        bh=xj7NOZy15D+CbPwt/mLuqfGXfXmYgnv8lgWNkLViJzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCa5bVgK2qGD5TYisqiviUKI3m/dkKbu7uYM1XVnVnQkXxJd6gzjcGWfz4D5YeH3R
-         P08cs6PtpY/pslzUOWR4/aJ4DMIDwcFILLUCdkTPqIAefwmRo/uBmB0rNIPEJPdcHZ
-         VvvtA1WmpceY2e1ImZhSE54TFYZ54Vh5g5NdmICU=
+        b=yS27tjMqyel2G32wxl85Gde3Y99//18EsNSV98z6GiflEf95ZAy7j5uqYZdcWs9Q5
+         Wg8+68S4D9yIet+R0DC2weicgFGNOJskvydXWEMP/YOTR8AtLTb6Xg9gMoSGUvNybm
+         VBJs19GMIPcvd1KrLKiyfdHPwbmgvFCNWWlyt9Kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mateusz Gorski <mateusz.gorski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 04/85] ASoC: Intel: Skylake: Add alternative topology binary name
-Date:   Mon,  9 Nov 2020 13:55:01 +0100
-Message-Id: <20201109125022.832734852@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Jiri Slaby <jirislaby@kernel.org>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 55/86] tty: make FONTX ioctl use the tty pointer they were actually passed
+Date:   Mon,  9 Nov 2020 13:55:02 +0100
+Message-Id: <20201109125023.443461798@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Gorski <mateusz.gorski@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 1b290ef023b3eeb4f4688b582fecb773915ef937 upstream.
+commit 90bfdeef83f1d6c696039b6a917190dcbbad3220 upstream.
 
-Add alternative topology binary file name based on used machine driver
-and fallback to use this name after failed attempt to load topology file
-with name based on NHLT.
-This change addresses multiple issues with current mechanism, for
-example - there are devices without NHLT table, and that currently
-results in tplg_name being empty.
+Some of the font tty ioctl's always used the current foreground VC for
+their operations.  Don't do that then.
 
-Signed-off-by: Mateusz Gorski <mateusz.gorski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200427132727.24942-2-mateusz.gorski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes a data race on fg_console.
+
+Side note: both Michael Ellerman and Jiri Slaby point out that all these
+ioctls are deprecated, and should probably have been removed long ago,
+and everything seems to be using the KDFONTOP ioctl instead.
+
+In fact, Michael points out that it looks like busybox's loadfont
+program seems to have switched over to using KDFONTOP exactly _because_
+of this bug (ahem.. 12 years ago ;-).
+
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-topology.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -14,6 +14,7 @@
- #include <linux/uuid.h>
- #include <sound/intel-nhlt.h>
- #include <sound/soc.h>
-+#include <sound/soc-acpi.h>
- #include <sound/soc-topology.h>
- #include <uapi/sound/snd_sst_tokens.h>
- #include <uapi/sound/skl-tplg-interface.h>
-@@ -3565,8 +3566,20 @@ int skl_tplg_init(struct snd_soc_compone
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -243,7 +243,7 @@ int vt_waitactive(int n)
  
- 	ret = request_firmware(&fw, skl->tplg_name, bus->dev);
- 	if (ret < 0) {
--		dev_info(bus->dev, "tplg fw %s load failed with %d, falling back to dfw_sst.bin",
--				skl->tplg_name, ret);
-+		char alt_tplg_name[64];
+ 
+ static inline int 
+-do_fontx_ioctl(int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
++do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
+ {
+ 	struct consolefontdesc cfdarg;
+ 	int i;
+@@ -261,15 +261,16 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		return con_font_op(vc_cons[fg_console].d, op);
+-	case GIO_FONTX: {
++		return con_font_op(vc, op);
 +
-+		snprintf(alt_tplg_name, sizeof(alt_tplg_name), "%s-tplg.bin",
-+			 skl->mach->drv_name);
-+		dev_info(bus->dev, "tplg fw %s load failed with %d, trying alternative tplg name %s",
-+			 skl->tplg_name, ret, alt_tplg_name);
-+
-+		ret = request_firmware(&fw, alt_tplg_name, bus->dev);
-+		if (!ret)
-+			goto component_load;
-+
-+		dev_info(bus->dev, "tplg %s failed with %d, falling back to dfw_sst.bin",
-+			 alt_tplg_name, ret);
-+
- 		ret = request_firmware(&fw, "dfw_sst.bin", bus->dev);
- 		if (ret < 0) {
- 			dev_err(bus->dev, "Fallback tplg fw %s load failed with %d\n",
-@@ -3575,6 +3588,8 @@ int skl_tplg_init(struct snd_soc_compone
- 		}
++	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+ 		op->width = 8;
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = cfdarg.chardata;
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -277,7 +278,6 @@ do_fontx_ioctl(int cmd, struct consolefo
+ 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+ 			return -EFAULT;
+ 		return 0;
+-		}
+ 	}
+ 	return -EINVAL;
+ }
+@@ -927,7 +927,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 0;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
  	}
  
-+component_load:
+@@ -938,7 +938,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 		op.height = 32;
+ 		op.charcount = 256;
+ 		op.data = up;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		break;
+ 	}
+ 
+@@ -955,7 +955,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = do_fontx_ioctl(cmd, up, perm, &op);
++		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case PIO_FONTRESET:
+@@ -972,11 +972,11 @@ int vt_ioctl(struct tty_struct *tty,
+ 		{
+ 		op.op = KD_FONT_OP_SET_DEFAULT;
+ 		op.data = NULL;
+-		ret = con_font_op(vc_cons[fg_console].d, &op);
++		ret = con_font_op(vc, &op);
+ 		if (ret)
+ 			break;
+ 		console_lock();
+-		con_set_default_unimap(vc_cons[fg_console].d);
++		con_set_default_unimap(vc);
+ 		console_unlock();
+ 		break;
+ 		}
+@@ -1109,8 +1109,9 @@ struct compat_consolefontdesc {
+ };
+ 
+ static inline int
+-compat_fontx_ioctl(int cmd, struct compat_consolefontdesc __user *user_cfd,
+-			 int perm, struct console_font_op *op)
++compat_fontx_ioctl(struct vc_data *vc, int cmd,
++		   struct compat_consolefontdesc __user *user_cfd,
++		   int perm, struct console_font_op *op)
+ {
+ 	struct compat_consolefontdesc cfdarg;
+ 	int i;
+@@ -1128,7 +1129,8 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		return con_font_op(vc_cons[fg_console].d, op);
++		return con_font_op(vc, op);
 +
- 	/*
- 	 * The complete tplg for SKL is loaded as index 0, we don't use
- 	 * any other index
+ 	case GIO_FONTX:
+ 		op->op = KD_FONT_OP_GET;
+ 		op->flags = KD_FONT_FLAG_OLD;
+@@ -1136,7 +1138,7 @@ compat_fontx_ioctl(int cmd, struct compa
+ 		op->height = cfdarg.charheight;
+ 		op->charcount = cfdarg.charcount;
+ 		op->data = compat_ptr(cfdarg.chardata);
+-		i = con_font_op(vc_cons[fg_console].d, op);
++		i = con_font_op(vc, op);
+ 		if (i)
+ 			return i;
+ 		cfdarg.charheight = op->height;
+@@ -1231,7 +1233,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 	 */
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		ret = compat_fontx_ioctl(cmd, up, perm, &op);
++		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
+ 		break;
+ 
+ 	case KDFONTOP:
 
 
