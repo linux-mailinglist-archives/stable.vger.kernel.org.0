@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEDE2ABD1A
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36EA02ABD37
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730502AbgKINnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:43:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
+        id S1730030AbgKINm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:42:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730500AbgKINAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:23 -0500
+        id S1730502AbgKINA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A16C420789;
-        Mon,  9 Nov 2020 13:00:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 804E720684;
+        Mon,  9 Nov 2020 13:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926823;
-        bh=Mq9T2I5lz78Cwv1Ns8Lttt5Ot8InoesOyxtqrAR41+s=;
+        s=default; t=1604926826;
+        bh=Jgnn8GoI7D8swA4JQ5DxH/63GCBrrC5loXSvgV+AMRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJcDzyGX194LnPxPk5dn6cCU9tMsUpFO3LVySSYE+y7clb6OBcQzJTMXjBWyaYbRW
-         iy4icyixd8+z9sBQjezcmGbP4Tu/5sPbOfBAP+7KFVpb80Z4kLZYKlsOJmr+R7Ohw7
-         yc6l4Dg2RNvCx1VVkVNJQl2fLSnjcxANaIh14UYg=
+        b=Rh8aYK3JRFcTak2BogrkMSgke0g+RibXLM3atn/ZRpYmw4rbto6FssQ9ElFzx4EaQ
+         7+LAB2ET65cKQIjKH9JXy6BYqlTRJ954PTqcY3Qi17wxUsWpWl1190yFRPrMXGyNaK
+         cMEKmXZsAQO2n0tGb/r6ZOXc4TyJYEVPOb0Cpao8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 009/117] p54: avoid accessing the data mapped to streaming DMA
-Date:   Mon,  9 Nov 2020 13:53:55 +0100
-Message-Id: <20201109125026.092455728@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.9 010/117] mtd: lpddr: Fix bad logic in print_drs_error
+Date:   Mon,  9 Nov 2020 13:53:56 +0100
+Message-Id: <20201109125026.141875520@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -43,56 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 478762855b5ae9f68fa6ead1edf7abada70fcd5f upstream.
+commit 1c9c02bb22684f6949d2e7ddc0a3ff364fd5a6fc upstream.
 
-In p54p_tx(), skb->data is mapped to streaming DMA on line 337:
-  mapping = pci_map_single(..., skb->data, ...);
+Update logic for broken test. Use a more common logging style.
 
-Then skb->data is accessed on line 349:
-  desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
+It appears the logic in this function is broken for the
+consecutive tests of
 
-This access may cause data inconsistency between CPU cache and hardware.
+        if (prog_status & 0x3)
+                ...
+        else if (prog_status & 0x2)
+                ...
+        else (prog_status & 0x1)
+                ...
 
-To fix this problem, ((struct p54_hdr *)skb->data)->req_id is stored in
-a local variable before DMA mapping, and then the driver accesses this
-local variable instead of skb->data.
+Likely the first test should be
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200802132949.26788-1-baijiaju@tsinghua.edu.cn
+        if ((prog_status & 0x3) == 0x3)
+
+Found by inspection of include files using printk.
+
+Fixes: eb3db27507f7 ("[MTD] LPDDR PFOW definition")
+Cc: stable@vger.kernel.org
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/3fb0e29f5b601db8be2938a01d974b00c8788501.1588016644.git.gustavo@embeddedor.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intersil/p54/p54pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/mtd/pfow.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intersil/p54/p54pci.c
-+++ b/drivers/net/wireless/intersil/p54/p54pci.c
-@@ -332,10 +332,12 @@ static void p54p_tx(struct ieee80211_hw
- 	struct p54p_desc *desc;
- 	dma_addr_t mapping;
- 	u32 idx, i;
-+	__le32 device_addr;
+--- a/include/linux/mtd/pfow.h
++++ b/include/linux/mtd/pfow.h
+@@ -127,7 +127,7 @@ static inline void print_drs_error(unsig
  
- 	spin_lock_irqsave(&priv->lock, flags);
- 	idx = le32_to_cpu(ring_control->host_idx[1]);
- 	i = idx % ARRAY_SIZE(ring_control->tx_data);
-+	device_addr = ((struct p54_hdr *)skb->data)->req_id;
- 
- 	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
- 				 PCI_DMA_TODEVICE);
-@@ -349,7 +351,7 @@ static void p54p_tx(struct ieee80211_hw
- 
- 	desc = &ring_control->tx_data[i];
- 	desc->host_addr = cpu_to_le32(mapping);
--	desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
-+	desc->device_addr = device_addr;
- 	desc->len = cpu_to_le16(skb->len);
- 	desc->flags = 0;
- 
+ 	if (!(dsr & DSR_AVAILABLE))
+ 		printk(KERN_NOTICE"DSR.15: (0) Device not Available\n");
+-	if (prog_status & 0x03)
++	if ((prog_status & 0x03) == 0x03)
+ 		printk(KERN_NOTICE"DSR.9,8: (11) Attempt to program invalid "
+ 						"half with 41h command\n");
+ 	else if (prog_status & 0x02)
 
 
