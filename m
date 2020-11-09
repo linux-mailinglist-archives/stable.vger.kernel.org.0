@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12C12ABD9E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFAFC2ABC9D
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729426AbgKINrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:47:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51494 "EHLO mail.kernel.org"
+        id S1731940AbgKINjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729666AbgKIM4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:56:51 -0500
+        id S1730689AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:03:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E5942076E;
-        Mon,  9 Nov 2020 12:56:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56626216C4;
+        Mon,  9 Nov 2020 13:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926609;
-        bh=U7vM9XcSuh9duXPTACBac/jzASl8voBIeL9UsB1fTTM=;
+        s=default; t=1604927014;
+        bh=EO39JHmwbidWafUliPC9EV1rvv8YHW5Upw6Y2l7PU9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5cU5Ud0oEs9ujpHapwp7O1teIqzZ3Zr1hD+SHtHC76uRn+b1q+7yXlBjKc/x7INp
-         W5zgcMPKcwz81AP9mYGb8ebyzCmV9c3K/3OUwRq7CFWiQ3Rsx/h0onotpp9CnyXOlV
-         RDtIENIyZ264TL2r/bzoD1sShxn4dEbo+Dpmhsag=
+        b=WZNLKYc+eGa809qeNrjYSHgWaVfJq3emGSuO+ln7cNF3VDUKD303o4RuR+T47wVC+
+         wcOZVOj3qcNzUNejBs1udcINNUF3hnlFvI6JjeEdCTSAfDiRxg6Uptxma4P+Lz5UcS
+         YT0eoryN3NtUOD/5VYtHF4qtuV7hoTsP5iZxaZAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af90d47a37376844e731@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/86] gfs2: add validation checks for size of superblock
-Date:   Mon,  9 Nov 2020 13:54:36 +0100
-Message-Id: <20201109125022.258961644@linuxfoundation.org>
+        stable@vger.kernel.org, jim@photojim.ca,
+        Ben Hutchings <ben@decadent.org.uk>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 051/117] ACPI / extlog: Check for RDMSR failure
+Date:   Mon,  9 Nov 2020 13:54:37 +0100
+Message-Id: <20201109125028.092400503@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit 0ddc5154b24c96f20e94d653b0a814438de6032b ]
+commit 7cecb47f55e00282f972a1e0b09136c8cd938221 upstream.
 
-In gfs2_check_sb(), no validation checks are performed with regards to
-the size of the superblock.
-syzkaller detected a slab-out-of-bounds bug that was primarily caused
-because the block size for a superblock was set to zero.
-A valid size for a superblock is a power of 2 between 512 and PAGE_SIZE.
-Performing validation checks and ensuring that the size of the superblock
-is valid fixes this bug.
+extlog_init() uses rdmsrl() to read an MSR, which on older CPUs
+provokes a error message at boot:
 
-Reported-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Tested-by: syzbot+af90d47a37376844e731@syzkaller.appspotmail.com
-Suggested-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-[Minor code reordering.]
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    unchecked MSR access error: RDMSR from 0x179 at rIP: 0xcd047307 (native_read_msr+0x7/0x40)
+
+Use rdmsrl_safe() instead, and return -ENODEV if it fails.
+
+Reported-by: jim@photojim.ca
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/gfs2/ops_fstype.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/acpi/acpi_extlog.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index b7b43d00cc6d7..8ed2b1a716376 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -160,15 +160,19 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		return -EINVAL;
- 	}
+--- a/drivers/acpi/acpi_extlog.c
++++ b/drivers/acpi/acpi_extlog.c
+@@ -223,9 +223,9 @@ static int __init extlog_init(void)
+ 	u64 cap;
+ 	int rc;
  
--	/*  If format numbers match exactly, we're done.  */
+-	rdmsrl(MSR_IA32_MCG_CAP, cap);
 -
--	if (sb->sb_fs_format == GFS2_FORMAT_FS &&
--	    sb->sb_multihost_format == GFS2_FORMAT_MULTI)
--		return 0;
-+	if (sb->sb_fs_format != GFS2_FORMAT_FS ||
-+	    sb->sb_multihost_format != GFS2_FORMAT_MULTI) {
-+		fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+		return -EINVAL;
-+	}
+-	if (!(cap & MCG_ELOG_P) || !extlog_get_l1addr())
++	if (rdmsrl_safe(MSR_IA32_MCG_CAP, &cap) ||
++	    !(cap & MCG_ELOG_P) ||
++	    !extlog_get_l1addr())
+ 		return -ENODEV;
  
--	fs_warn(sdp, "Unknown on-disk format, unable to mount\n");
-+	if (sb->sb_bsize < 512 || sb->sb_bsize > PAGE_SIZE ||
-+	    (sb->sb_bsize & (sb->sb_bsize - 1))) {
-+		pr_warn("Invalid superblock size\n");
-+		return -EINVAL;
-+	}
- 
--	return -EINVAL;
-+	return 0;
- }
- 
- static void end_bio_io_page(struct bio *bio)
--- 
-2.27.0
-
+ 	if (get_edac_report_status() == EDAC_REPORTING_FORCE) {
 
 
