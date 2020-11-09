@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF192AB942
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7922AB99C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731378AbgKINHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60442 "EHLO mail.kernel.org"
+        id S1732096AbgKINKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbgKINHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:07:36 -0500
+        id S1731556AbgKINKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:10:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B26320663;
-        Mon,  9 Nov 2020 13:07:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FE4E20663;
+        Mon,  9 Nov 2020 13:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927256;
-        bh=mglHCfp/UlQYcz/a9qJD1teai+Xwpt9IhvQcoqPxHFo=;
+        s=default; t=1604927447;
+        bh=gU9rQtG0oQr6ptDAImzJrPwFUA2qU4LsX4Lok2yyc9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUGl9dkKYeXvRE9Yq5bUi88JwrpdVHBHlvBLDqYsKdALdEq8O+w2y5EmlkEHWnrgv
-         7Vrfl3rvar94CZVfWqEbHdTfTcHfiBSnLMn6ISfKNjA95jEkzkOlH82Df6VpPqwN1F
-         5I7GiL9eG9vHN/9svk/H1Y8aEyLUs1M3hZRcQW2s=
+        b=Bg9O2aGqor3ah6W0AO6TRGuQfSVuNq9MYdvA4PIH9ZrJmOs8z4dmi/b1CxQuH2U5C
+         Yvr1oFDjL/RdF12nZp0RxWpvNJbaRNAgRkPIFGGA9MHO0oY/ohi1ZtpJ9jfGGy92JB
+         NDNlNE7A7Jn8KMV0KZKH2pBK5NbW8mL4MuVTDaiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Waldemar Brodkorb <wbx@uclibc-ng.org>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.14 46/48] Revert "ARC: entry: fix potential EFA clobber when TIF_SYSCALL_TRACE"
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 61/71] USB: serial: option: add LE910Cx compositions 0x1203, 0x1230, 0x1231
 Date:   Mon,  9 Nov 2020 13:55:55 +0100
-Message-Id: <20201109125019.028611206@linuxfoundation.org>
+Message-Id: <20201109125022.774241715@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-This reverts commit 00fdec98d9881bf5173af09aebd353ab3b9ac729.
-(but only from 5.2 and prior kernels)
+commit 489979b4aab490b6b917c11dc02d81b4b742784a upstream.
 
-The original commit was a preventive fix based on code-review and was
-auto-picked for stable back-port (for better or worse).
-It was OK for v5.3+ kernels, but turned up needing an implicit change
-68e5c6f073bcf70 "(ARC: entry: EV_Trap expects r10 (vs. r9) to have
- exception cause)" merged in v5.3 which itself was not backported.
-So to summarize the stable backport of this patch for v5.2 and prior
-kernels is busted and it won't boot.
+Add following Telit LE910Cx compositions:
 
-The obvious solution is backport 68e5c6f073bcf70 but that is a pain as
-it doesn't revert cleanly and each of affected kernels (so far v4.19,
-v4.14, v4.9, v4.4) needs a slightly different massaged varaint.
-So the easier fix is to simply revert the backport from 5.2 and prior.
-The issue was not a big deal as it would cause strace to sporadically
-not work correctly.
+0x1203: rndis, tty, adb, tty, tty, tty, tty
+0x1230: tty, adb, rmnet, audio, tty, tty, tty, tty
+0x1231: rndis, tty, adb, audio, tty, tty, tty, tty
 
-Waldemar Brodkorb first reported this when running ARC uClibc regressions
-on latest stable kernels (with offending backport). Once he bisected it,
-the analysis was trivial, so thx to him for this.
-
-Reported-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-Bisected-by: Waldemar Brodkorb <wbx@uclibc-ng.org>
-Cc: stable <stable@vger.kernel.org> # 5.2 and prior
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20201031225458.10512-1-dnlplm@gmail.com
+[ johan: add comments after entries ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arc/kernel/entry.S |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -156,6 +156,7 @@ END(EV_Extension)
- tracesys:
- 	; save EFA in case tracer wants the PC of traced task
- 	; using ERET won't work since next-PC has already committed
-+	lr  r12, [efa]
- 	GET_CURR_TASK_FIELD_PTR   TASK_THREAD, r11
- 	st  r12, [r11, THREAD_FAULT_ADDR]	; thread.fault_address
- 
-@@ -198,9 +199,15 @@ tracesys_exit:
- ; Breakpoint TRAP
- ; ---------------------------------------------
- trap_with_param:
--	mov r0, r12	; EFA in case ptracer/gdb wants stop_pc
-+
-+	; stop_pc info by gdb needs this info
-+	lr  r0, [efa]
- 	mov r1, sp
- 
-+	; Now that we have read EFA, it is safe to do "fake" rtie
-+	;   and get out of CPU exception mode
-+	FAKE_RET_FROM_EXCPN
-+
- 	; Save callee regs in case gdb wants to have a look
- 	; SP will grow up by size of CALLEE Reg-File
- 	; NOTE: clobbers r12
-@@ -227,10 +234,6 @@ ENTRY(EV_Trap)
- 
- 	EXCEPTION_PROLOGUE
- 
--	lr  r12, [efa]
--
--	FAKE_RET_FROM_EXCPN
--
- 	;============ TRAP 1   :breakpoints
- 	; Check ECR for trap with arg (PROLOGUE ensures r9 has ECR)
- 	bmsk.f 0, r9, 7
-@@ -238,6 +241,9 @@ ENTRY(EV_Trap)
- 
- 	;============ TRAP  (no param): syscall top level
- 
-+	; First return from Exception to pure K mode (Exception/IRQs renabled)
-+	FAKE_RET_FROM_EXCPN
-+
- 	; If syscall tracing ongoing, invoke pre-post-hooks
- 	GET_CURR_THR_INFO_FLAGS   r10
- 	btst r10, TIF_SYSCALL_TRACE
+---
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1203,6 +1203,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1203, 0xff),	/* Telit LE910Cx (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
+@@ -1217,6 +1219,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1230, 0xff),	/* Telit LE910Cx (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
 
 
