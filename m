@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE822AB8DB
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:58:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7E02AB8E1
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 13:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730137AbgKIM6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 07:58:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52820 "EHLO mail.kernel.org"
+        id S1730210AbgKIM6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729756AbgKIM6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:58:35 -0500
+        id S1730204AbgKIM6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B71420684;
-        Mon,  9 Nov 2020 12:58:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B367820789;
+        Mon,  9 Nov 2020 12:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926714;
-        bh=3jOALTZJ7jsfanqiKG8WKIBa9+/JITdXFoVkX53gBXU=;
+        s=default; t=1604926728;
+        bh=Ey0Nc0jburOL/RDGAUWLXgT8pEAJnG7fRuUoT90S7vI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uFDjdY0ILKnKBhAc22DiHWJdSCC/gXuVbElJHw4uc57rsrJ7q2rfy4Jiy2aUylU0e
-         pXqalqKGdLWjbDbOxDNDaOwNTrOPE+OKj+rRhbNgBspGQO43gjEpZrgEF6bh3bR4RY
-         oTgS7jNSTGB7U5UVZUkYCQxoOUHvCZEvWhW9Hgew=
+        b=Am/5DVAHcDxdkhnG6cYACL7JbA5oxxgAnysWGsCtYwUT2z0TZl9dMUJWspksD7py2
+         aszKEjbuPyqK2LFGVHNTrpe22tXo8Wk4Tybnf3fzt8jp81Y6w2NOPUQzZo679h3KfA
+         hwiFEniB7g1MomyV6iW7RGK3U2YuxtXkfxXkhz3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6ea1f7a8df64596ef4d7@syzkaller.appspotmail.com,
-        syzbot+e9cc557752ab126c1b99@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Hoang Huu Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 65/86] tipc: fix use-after-free in tipc_bcast_get_mode
-Date:   Mon,  9 Nov 2020 13:55:12 +0100
-Message-Id: <20201109125023.890801731@linuxfoundation.org>
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.4 70/86] ftrace: Fix recursion check for NMI test
+Date:   Mon,  9 Nov 2020 13:55:17 +0100
+Message-Id: <20201109125024.145854804@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -46,101 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Huu Le <hoang.h.le@dektech.com.au>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit fdeba99b1e58ecd18c2940c453e19e4ef20ff591 upstream.
+commit ee11b93f95eabdf8198edd4668bf9102e7248270 upstream.
 
-Syzbot has reported those issues as:
+The code that checks recursion will work to only do the recursion check once
+if there's nested checks. The top one will do the check, the other nested
+checks will see recursion was already checked and return zero for its "bit".
+On the return side, nothing will be done if the "bit" is zero.
 
-==================================================================
-BUG: KASAN: use-after-free in tipc_bcast_get_mode+0x3ab/0x400 net/tipc/bcast.c:759
-Read of size 1 at addr ffff88805e6b3571 by task kworker/0:6/3850
+The problem is that zero is returned for the "good" bit when in NMI context.
+This will set the bit for NMIs making it look like *all* NMI tracing is
+recursing, and prevent tracing of anything in NMI context!
 
-CPU: 0 PID: 3850 Comm: kworker/0:6 Not tainted 5.8.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events tipc_net_finalize_work
+The simple fix is to return "bit + 1" and subtract that bit on the end to
+get the real bit.
 
-Thread 1's call trace:
-[...]
-  kfree+0x103/0x2c0 mm/slab.c:3757 <- bcbase releasing
-  tipc_bcast_stop+0x1b0/0x2f0 net/tipc/bcast.c:721
-  tipc_exit_net+0x24/0x270 net/tipc/core.c:112
-[...]
-
-Thread 2's call trace:
-[...]
-  tipc_bcast_get_mode+0x3ab/0x400 net/tipc/bcast.c:759 <- bcbase
-has already been freed by Thread 1
-
-  tipc_node_broadcast+0x9e/0xcc0 net/tipc/node.c:1744
-  tipc_nametbl_publish+0x60b/0x970 net/tipc/name_table.c:752
-  tipc_net_finalize net/tipc/net.c:141 [inline]
-  tipc_net_finalize+0x1fa/0x310 net/tipc/net.c:131
-  tipc_net_finalize_work+0x55/0x80 net/tipc/net.c:150
-[...]
-
-==================================================================
-BUG: KASAN: use-after-free in tipc_named_reinit+0xef/0x290 net/tipc/name_distr.c:344
-Read of size 8 at addr ffff888052ab2000 by task kworker/0:13/30628
-CPU: 0 PID: 30628 Comm: kworker/0:13 Not tainted 5.8.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events tipc_net_finalize_work
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1f0/0x31e lib/dump_stack.c:118
- print_address_description+0x66/0x5a0 mm/kasan/report.c:383
- __kasan_report mm/kasan/report.c:513 [inline]
- kasan_report+0x132/0x1d0 mm/kasan/report.c:530
- tipc_named_reinit+0xef/0x290 net/tipc/name_distr.c:344
- tipc_net_finalize+0x85/0xe0 net/tipc/net.c:138
- tipc_net_finalize_work+0x50/0x70 net/tipc/net.c:150
- process_one_work+0x789/0xfc0 kernel/workqueue.c:2269
- worker_thread+0xaa4/0x1460 kernel/workqueue.c:2415
- kthread+0x37e/0x3a0 drivers/block/aoe/aoecmd.c:1234
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:293
-[...]
-Freed by task 14058:
- save_stack mm/kasan/common.c:48 [inline]
- set_track mm/kasan/common.c:56 [inline]
- kasan_set_free_info mm/kasan/common.c:316 [inline]
- __kasan_slab_free+0x114/0x170 mm/kasan/common.c:455
- __cache_free mm/slab.c:3426 [inline]
- kfree+0x10a/0x220 mm/slab.c:3757
- tipc_exit_net+0x29/0x50 net/tipc/core.c:113
- ops_exit_list net/core/net_namespace.c:186 [inline]
- cleanup_net+0x708/0xba0 net/core/net_namespace.c:603
- process_one_work+0x789/0xfc0 kernel/workqueue.c:2269
- worker_thread+0xaa4/0x1460 kernel/workqueue.c:2415
- kthread+0x37e/0x3a0 drivers/block/aoe/aoecmd.c:1234
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:293
-
-Fix it by calling flush_scheduled_work() to make sure the
-tipc_net_finalize_work() stopped before releasing bcbase object.
-
-Reported-by: syzbot+6ea1f7a8df64596ef4d7@syzkaller.appspotmail.com
-Reported-by: syzbot+e9cc557752ab126c1b99@syzkaller.appspotmail.com
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Huu Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/core.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/trace/trace.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -88,6 +88,11 @@ out_sk_rht:
- static void __net_exit tipc_exit_net(struct net *net)
- {
- 	tipc_net_stop(net);
-+
-+	/* Make sure the tipc_net_finalize_work stopped
-+	 * before releasing the resources.
-+	 */
-+	flush_scheduled_work();
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -529,7 +529,7 @@ static __always_inline int trace_test_an
+ 	current->trace_recursion = val;
+ 	barrier();
+ 
+-	return bit;
++	return bit + 1;
+ }
+ 
+ static __always_inline void trace_clear_recursion(int bit)
+@@ -539,6 +539,7 @@ static __always_inline void trace_clear_
+ 	if (!bit)
+ 		return;
+ 
++	bit--;
+ 	bit = 1 << bit;
+ 	val &= ~bit;
+ 
 
 
