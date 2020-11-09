@@ -2,72 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C4B2AB76B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 12:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 218562AB768
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 12:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727826AbgKILo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 06:44:28 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58560 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727311AbgKILo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 06:44:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604922267;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=h6TYroRXtCD628XhupjpJPqcGpnszR5hhlavErGBPkk=;
-        b=fY4a8QiMplWZTRVh9/E6s/PQpjJ5fLmPsXleEEcZtJqdpAn1ele60zxiBnm09xhmd7Od15
-        NcdFe8mdIzswVeValuaOx5pGWAVMSWW3dAn5VozfNzCu4/gd5m6Aj1oI25uHdzqQ4NOJAL
-        nzcnHe9HZkFcFt5gj3DxokaioFsYPeM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-165-K7_EuLKJNACMG2lfTf7Yrg-1; Mon, 09 Nov 2020 06:44:25 -0500
-X-MC-Unique: K7_EuLKJNACMG2lfTf7Yrg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1729292AbgKILnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 06:43:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727311AbgKILnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 06:43:52 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 649D1188C122;
-        Mon,  9 Nov 2020 11:44:24 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.193.116])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 694EA60DA0;
-        Mon,  9 Nov 2020 11:44:23 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Mon,  9 Nov 2020 12:44:24 +0100 (CET)
-Date:   Mon, 9 Nov 2020 12:44:22 +0100
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] fork: fix copy_process(CLONE_PARENT) race with the
- exiting ->real_parent
-Message-ID: <20201109114421.GA30446@redhat.com>
-References: <20201107064722.GA139215@arch-e3.localdomain>
- <CAHk-=whjyOuO-xwov7UWidBOkWyZv84TVA18hBb01V-hiML+yg@mail.gmail.com>
- <CAHk-=wgukcYn0xpqJ+Vda1Zw9wxPCxV0L_ZX6AmpgapT9Lp2mw@mail.gmail.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id B4A5A20789;
+        Mon,  9 Nov 2020 11:43:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604922231;
+        bh=PYG/t8cgnN0DROMTJhPKE5TMqpEZ4rNKTZqNwXdVvIk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yfpavlva+m5+0oZRrWiiM0V+wNBLfltuIA3gP6Yk/MCN5YZxFtdCFreUVvN5CEjzG
+         kLExU5POHU5wQuVHk3hX40lG4JxWYBQYC1vTP9ioP/A+XYd0hlnGsvDSAUmc7Yfyci
+         iIkKmboH9jF9+5zwy5M1gw5FNa7M2Ic3zietbIiA=
+Date:   Mon, 9 Nov 2020 12:44:51 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: Re: [PATCH v4.19] tools: perf: Fix build error in v4.19.y
+Message-ID: <20201109114451.GE1769924@kroah.com>
+References: <20201108003124.100732-1-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wgukcYn0xpqJ+Vda1Zw9wxPCxV0L_ZX6AmpgapT9Lp2mw@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201108003124.100732-1-linux@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/08, Linus Torvalds wrote:
->
-> But it does look like a real data race, and the fix looks small and
-> obvious enough that I think it's stable material.
+On Sat, Nov 07, 2020 at 04:31:24PM -0800, Guenter Roeck wrote:
+> perf may fail to build in v4.19.y with the following error.
+> 
+> util/evsel.c: In function ‘perf_evsel__exit’:
+> util/util.h:25:28: error:
+> 	passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
+> 
+> This is observed (at least) with gcc v6.5.0. The underlying problem is
+> the following statement.
+> 	zfree(&evsel->pmu_name);
+> evsel->pmu_name is decared 'const *'. zfree in turn is defined as
+> 	#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
+> and thus passes the const * to free(). The problem is not seen
+> in the upstream kernel since zfree() has been rewritten there.
+> 
+> The problem has been introduced into v4.19.y with the backport of upstream
+> commit d4953f7ef1a2 (perf parse-events: Fix 3 use after frees found with
+> clang ASAN).
+> 
+> One possible fix of this problem would be to not declare pmu_name
+> as const. This patch chooses to typecast the parameter of zfree()
+> to void *, following the guidance from the upstream kernel which
+> does the same since commit 7f7c536f23e6a ("tools lib: Adopt
+> zalloc()/zfree() from tools/perf")
+> 
+> Fixes: a0100a363098 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> This patch only applies to v4.19.y and has no upstream equivalent.
+> 
+>  tools/perf/util/util.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+> index dc58254a2b69..8c01b2cfdb1a 100644
+> --- a/tools/perf/util/util.h
+> +++ b/tools/perf/util/util.h
+> @@ -22,7 +22,7 @@ static inline void *zalloc(size_t size)
+>  	return calloc(1, size);
+>  }
+>  
+> -#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
+> +#define zfree(ptr) ({ free((void *)*ptr); *ptr = NULL; })
+>  
+>  struct dirent;
+>  struct nsinfo;
+> -- 
+> 2.17.1
+> 
 
-Agreed, the patch looks fine for -stable. I don't think that
-cgroup_can_fork() could ever use thread_group_leader() or anything
-else which checks ->exit_code...
+Now queued up, thanks.
 
-And I see that Greg has already sent the patches with the correct
-modifications for the case when we need "clone_flags & CSIGNAL"
-rather than args->exit_signal.
-
-Thanks Greg,
-
-Oleg.
-
+greg k-h
