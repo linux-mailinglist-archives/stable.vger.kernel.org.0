@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD632ABAA5
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E1C2ABADB
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731556AbgKINVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388012AbgKINVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 9 Nov 2020 08:21:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388016AbgKINVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:21:06 -0500
+        id S1731378AbgKINVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E526B2076E;
-        Mon,  9 Nov 2020 13:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B747B20731;
+        Mon,  9 Nov 2020 13:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928065;
-        bh=09Gh9YBp1iWL0yx1aqmdbXmYWJb/gHDnh6epx6VqfIQ=;
+        s=default; t=1604928068;
+        bh=8jU8YRDsnJQt9GoP2tCqObzSV/epvN9YXHzwMWPz1cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gsfy8UpUgurDAzYQK3eLknKHXCqDGKqVr5n4rH+4NjirsrYpJUMiMCIMXngcdxBo
-         N7ke4khXLc8UF+CnzxwUtZjiUvf4j5x8849jRb2MDWNuOhKEChCvCcU//YxA/55SkP
-         z+V9H7LkHodHEOG82DJxDQLzy96DVppxiLmq6xs4=
+        b=oIhLZA7sixmh5b2tVx6i7iUjbcCPcghaW0lQEeMNMx/9mPdQzOsTmMQnb1/EmnnqC
+         J7j5hjrdf9Lb/3NO4FraUsodRofsxryGD7qelwLwu8ReuINz2uOWN1F869yFU785u+
+         DAqw0mYEKm7K6EdNm79jh0D3D2T4yKwNcamIb9h4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>
-Subject: [PATCH 5.9 115/133] serial: 8250_mtk: Fix uart_get_baud_rate warning
-Date:   Mon,  9 Nov 2020 13:56:17 +0100
-Message-Id: <20201109125036.221818276@linuxfoundation.org>
+        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+Subject: [PATCH 5.9 116/133] serial: txx9: add missing platform_driver_unregister() on error in serial_txx9_init
+Date:   Mon,  9 Nov 2020 13:56:18 +0100
+Message-Id: <20201109125036.269355216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -41,38 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claire Chang <tientzu@chromium.org>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 912ab37c798770f21b182d656937072b58553378 upstream.
+commit 0c5fc92622ed5531ff324b20f014e9e3092f0187 upstream.
 
-Mediatek 8250 port supports speed higher than uartclk / 16. If the baud
-rates in both the new and the old termios setting are higher than
-uartclk / 16, the WARN_ON in uart_get_baud_rate() will be triggered.
-Passing NULL as the old termios so uart_get_baud_rate() will use
-uartclk / 16 - 1 as the new baud rate which will be replaced by the
-original baud rate later by tty_termios_encode_baud_rate() in
-mtk8250_set_termios().
+Add the missing platform_driver_unregister() before return
+from serial_txx9_init in the error handling case when failed
+to register serial_txx9_pci_driver with macro ENABLE_SERIAL_TXX9_PCI
+defined.
 
-Fixes: 551e553f0d4a ("serial: 8250_mtk: Fix high-speed baud rates clamping")
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Link: https://lore.kernel.org/r/20201102120749.374458-1-tientzu@chromium.org
+Fixes: ab4382d27412 ("tty: move drivers/serial/ to drivers/tty/serial/")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201103084942.109076-1-miaoqinglang@huawei.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/8250/8250_mtk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/serial_txx9.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -317,7 +317,7 @@ mtk8250_set_termios(struct uart_port *po
- 	 */
- 	baud = tty_termios_baud_rate(termios);
+--- a/drivers/tty/serial/serial_txx9.c
++++ b/drivers/tty/serial/serial_txx9.c
+@@ -1280,6 +1280,9 @@ static int __init serial_txx9_init(void)
  
--	serial8250_do_set_termios(port, termios, old);
-+	serial8250_do_set_termios(port, termios, NULL);
- 
- 	tty_termios_encode_baud_rate(termios, baud, baud);
- 
+ #ifdef ENABLE_SERIAL_TXX9_PCI
+ 	ret = pci_register_driver(&serial_txx9_pci_driver);
++	if (ret) {
++		platform_driver_unregister(&serial_txx9_plat_driver);
++	}
+ #endif
+ 	if (ret == 0)
+ 		goto out;
 
 
