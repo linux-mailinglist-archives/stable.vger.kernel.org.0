@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2EB2ABD41
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B54C42ABC6A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730260AbgKINoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:44:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
+        id S1730860AbgKINhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:37:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbgKIM7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:04 -0500
+        id S1730734AbgKINEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42C342084C;
-        Mon,  9 Nov 2020 12:59:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 338A92076E;
+        Mon,  9 Nov 2020 13:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926742;
-        bh=GyEvx6frgt88vBR1k0fBG/S5MKjUpJDCfLHN1tv5K4E=;
+        s=default; t=1604927055;
+        bh=JM8xHKIfsxaqL7UNLhAks+xIK/g6aUSoPpDjthCpzl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLTUiR2kGdqFUPaOTJaHiPd8KkEAk9txGv/VtWn/JFAe3bMKgbb0Qk7oQKK/B+i4o
-         03Qv5JgFi3yrdIl5OCWqii53YMov5ZZOqjtE8wBTyH4TjGFNFlxhzvpbsvZWmq32F9
-         uc35Nb4uvytCCHrKYmP5X67GcGWXdVcvfCJgI9D0=
+        b=iVaRKWuTzRV5pq8nMwPN5VNwghN1mLzFwtzQvIHxu0SYv8vzzMBPxKPXgA6gInEX5
+         kawVWgjMQvsnQnFLvStl/AmjyEOkTG+Idt3JFPpZhUnwt2G8bricFN9ww/W5MovYEo
+         XAJ6wyN+UfHGKbgNWLNT7omKzZ8Tftv6y3l5ppe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 74/86] of: Fix reserved-memory overlap detection
-Date:   Mon,  9 Nov 2020 13:55:21 +0100
-Message-Id: <20201109125024.341276491@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Lee Jones <lee.jones@linaro.org>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.9 096/117] Fonts: Replace discarded const qualifier
+Date:   Mon,  9 Nov 2020 13:55:22 +0100
+Message-Id: <20201109125030.257841878@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,85 +44,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit ca05f33316559a04867295dd49f85aeedbfd6bfd ]
+commit 9522750c66c689b739e151fcdf895420dc81efc0 upstream.
 
-The reserved-memory overlap detection code fails to detect overlaps if
-either of the regions starts at address 0x0.  The code explicitly checks
-for and ignores such regions, apparently in order to ignore dynamically
-allocated regions which have an address of 0x0 at this point.  These
-dynamically allocated regions also have a size of 0x0 at this point, so
-fix this by removing the check and sorting the dynamically allocated
-regions ahead of any static regions at address 0x0.
+Commit 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in
+fonts") introduced the following error when building rpc_defconfig (only
+this build appears to be affected):
 
-For example, there are two overlaps in this case but they are not
-currently reported:
+ `acorndata_8x8' referenced in section `.text' of arch/arm/boot/compressed/ll_char_wr.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ `acorndata_8x8' referenced in section `.data.rel.ro' of arch/arm/boot/compressed/font.o:
+    defined in discarded section `.data' of arch/arm/boot/compressed/font.o
+ make[3]: *** [/scratch/linux/arch/arm/boot/compressed/Makefile:191: arch/arm/boot/compressed/vmlinux] Error 1
+ make[2]: *** [/scratch/linux/arch/arm/boot/Makefile:61: arch/arm/boot/compressed/vmlinux] Error 2
+ make[1]: *** [/scratch/linux/arch/arm/Makefile:317: zImage] Error 2
 
-	foo@0 {
-	        reg = <0x0 0x2000>;
-	};
+The .data section is discarded at link time.  Reinstating acorndata_8x8 as
+const ensures it is still available after linking.  Do the same for the
+other 12 built-in fonts as well, for consistency purposes.
 
-	bar@0 {
-	        reg = <0x0 0x1000>;
-	};
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6735b4632def ("Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts")
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Co-developed-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201102183242.2031659-1-yepeilin.cs@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-	baz@1000 {
-	        reg = <0x1000 0x1000>;
-	};
-
-	quux {
-	        size = <0x1000>;
-	};
-
-but they are after this patch:
-
- OF: reserved mem: OVERLAP DETECTED!
- bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x00002000)
- OF: reserved mem: OVERLAP DETECTED!
- foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x00002000)
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/ded6fd6b47b58741aabdcc6967f73eca6a3f311e.1603273666.git-series.vincent.whitchurch@axis.com
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/of_reserved_mem.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ lib/fonts/font_10x18.c     |    2 +-
+ lib/fonts/font_6x10.c      |    2 +-
+ lib/fonts/font_6x11.c      |    2 +-
+ lib/fonts/font_7x14.c      |    2 +-
+ lib/fonts/font_8x16.c      |    2 +-
+ lib/fonts/font_8x8.c       |    2 +-
+ lib/fonts/font_acorn_8x8.c |    2 +-
+ lib/fonts/font_mini_4x6.c  |    2 +-
+ lib/fonts/font_pearl_8x8.c |    2 +-
+ lib/fonts/font_sun12x22.c  |    2 +-
+ lib/fonts/font_sun8x16.c   |    2 +-
+ 11 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 07dd81586c52b..7ccf077c72a05 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -218,6 +218,16 @@ static int __init __rmem_cmp(const void *a, const void *b)
- 	if (ra->base > rb->base)
- 		return 1;
+--- a/lib/fonts/font_10x18.c
++++ b/lib/fonts/font_10x18.c
+@@ -7,7 +7,7 @@
  
-+	/*
-+	 * Put the dynamic allocations (address == 0, size == 0) before static
-+	 * allocations at address 0x0 so that overlap detection works
-+	 * correctly.
-+	 */
-+	if (ra->size < rb->size)
-+		return -1;
-+	if (ra->size > rb->size)
-+		return 1;
-+
- 	return 0;
- }
+ #define FONTDATAMAX 9216
  
-@@ -235,8 +245,7 @@ static void __init __rmem_check_for_overlap(void)
+-static struct font_data fontdata_10x18 = {
++static const struct font_data fontdata_10x18 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, 0x00, /* 0000000000 */
+--- a/lib/fonts/font_6x10.c
++++ b/lib/fonts/font_6x10.c
+@@ -2,7 +2,7 @@
  
- 		this = &reserved_mem[i];
- 		next = &reserved_mem[i + 1];
--		if (!(this->base && next->base))
--			continue;
-+
- 		if (this->base + this->size > next->base) {
- 			phys_addr_t this_end, next_end;
+ #define FONTDATAMAX 2560
  
--- 
-2.27.0
-
+-static struct font_data fontdata_6x10 = {
++static const struct font_data fontdata_6x10 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_6x11.c
++++ b/lib/fonts/font_6x11.c
+@@ -8,7 +8,7 @@
+ 
+ #define FONTDATAMAX (11*256)
+ 
+-static struct font_data fontdata_6x11 = {
++static const struct font_data fontdata_6x11 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_7x14.c
++++ b/lib/fonts/font_7x14.c
+@@ -7,7 +7,7 @@
+ 
+ #define FONTDATAMAX 3584
+ 
+-static struct font_data fontdata_7x14 = {
++static const struct font_data fontdata_7x14 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 0000000 */
+--- a/lib/fonts/font_8x16.c
++++ b/lib/fonts/font_8x16.c
+@@ -9,7 +9,7 @@
+ 
+ #define FONTDATAMAX 4096
+ 
+-static struct font_data fontdata_8x16 = {
++static const struct font_data fontdata_8x16 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_8x8.c
++++ b/lib/fonts/font_8x8.c
+@@ -8,7 +8,7 @@
+ 
+ #define FONTDATAMAX 2048
+ 
+-static struct font_data fontdata_8x8 = {
++static const struct font_data fontdata_8x8 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, /* 00000000 */
+--- a/lib/fonts/font_acorn_8x8.c
++++ b/lib/fonts/font_acorn_8x8.c
+@@ -4,7 +4,7 @@
+ 
+ #define FONTDATAMAX 2048
+ 
+-static struct font_data acorndata_8x8 = {
++static const struct font_data acorndata_8x8 = {
+ { 0, 0, FONTDATAMAX, 0 }, {
+ /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
+ /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
+--- a/lib/fonts/font_mini_4x6.c
++++ b/lib/fonts/font_mini_4x6.c
+@@ -43,7 +43,7 @@ __END__;
+ 
+ #define FONTDATAMAX 1536
+ 
+-static struct font_data fontdata_mini_4x6 = {
++static const struct font_data fontdata_mini_4x6 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/*{*/
+ 	  	/*   Char 0: ' '  */
+--- a/lib/fonts/font_pearl_8x8.c
++++ b/lib/fonts/font_pearl_8x8.c
+@@ -13,7 +13,7 @@
+ 
+ #define FONTDATAMAX 2048
+ 
+-static struct font_data fontdata_pearl8x8 = {
++static const struct font_data fontdata_pearl8x8 = {
+    { 0, 0, FONTDATAMAX, 0 }, {
+    /* 0 0x00 '^@' */
+    0x00, /* 00000000 */
+--- a/lib/fonts/font_sun12x22.c
++++ b/lib/fonts/font_sun12x22.c
+@@ -2,7 +2,7 @@
+ 
+ #define FONTDATAMAX 11264
+ 
+-static struct font_data fontdata_sun12x22 = {
++static const struct font_data fontdata_sun12x22 = {
+ 	{ 0, 0, FONTDATAMAX, 0 }, {
+ 	/* 0 0x00 '^@' */
+ 	0x00, 0x00, /* 000000000000 */
+--- a/lib/fonts/font_sun8x16.c
++++ b/lib/fonts/font_sun8x16.c
+@@ -2,7 +2,7 @@
+ 
+ #define FONTDATAMAX 4096
+ 
+-static struct font_data fontdata_sun8x16 = {
++static const struct font_data fontdata_sun8x16 = {
+ { 0, 0, FONTDATAMAX, 0 }, {
+ /* */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ /* */ 0x00,0x00,0x7e,0x81,0xa5,0x81,0x81,0xbd,0x99,0x81,0x81,0x7e,0x00,0x00,0x00,0x00,
 
 
