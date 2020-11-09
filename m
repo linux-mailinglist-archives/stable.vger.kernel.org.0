@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A802ABB8F
+	by mail.lfdr.de (Postfix) with ESMTP id F00632ABB91
 	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731728AbgKINLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:11:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36786 "EHLO mail.kernel.org"
+        id S1732356AbgKINLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730578AbgKINLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:11:16 -0500
+        id S1732338AbgKINLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CF222076E;
-        Mon,  9 Nov 2020 13:11:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D914020789;
+        Mon,  9 Nov 2020 13:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927475;
-        bh=HKtZLGfCgdWvCQ5U3VKuBC3uFGSb0cHEyo6P1ocRbho=;
+        s=default; t=1604927481;
+        bh=n+0I3kFxRqODhcO7EJmoydwwNB6HooWUnbUeEpaFC/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXHM9T227u5tV0YgNvf3pthHRx3/TvRRlqSpdB3GYpa4/0sJu8DWcOj4MMRMWMFrg
-         MS4bLEW8+z/mO8iJek+fbmVTscSdnFgJQgfKbVSrttxua5qMxnQ/SObkIdjTmuUzNq
-         YaISzdAG0VVkW3+HUiUqrMhqbpKH6BRwTrXTFefo=
+        b=vhyNVFuCKj4f7SjumdlD1AJeNv+uIl0HaGUkVBMIvaP1hpWnoervuKiGfQDho8m3g
+         4AFKYyjbopYe/y5SMxBESNgTBZ/553j6067KfMrvMQS1ssF/TG5RGrSaEl1LQtI2M1
+         BIwyyz7skYtLPcgxSd+2SfrhaOBCjXCJTRr7UIzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.19 65/71] ARC: stack unwinding: avoid indefinite looping
-Date:   Mon,  9 Nov 2020 13:55:59 +0100
-Message-Id: <20201109125022.964669721@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>
+Subject: [PATCH 4.19 67/71] PM: runtime: Resume the device earlier in __device_release_driver()
+Date:   Mon,  9 Nov 2020 13:56:01 +0100
+Message-Id: <20201109125023.047558144@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
 References: <20201109125019.906191744@linuxfoundation.org>
@@ -41,72 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 328d2168ca524d501fc4b133d6be076142bd305c upstream.
+commit 9226c504e364158a17a68ff1fe9d67d266922f50 upstream.
 
-Currently stack unwinder is a while(1) loop which relies on the dwarf
-unwinder to signal termination, which in turn relies on dwarf info to do
-so. This in theory could cause an infinite loop if the dwarf info was
-somehow messed up or the register contents were etc.
+Since the device is resumed from runtime-suspend in
+__device_release_driver() anyway, it is better to do that before
+looking for busy managed device links from it to consumers, because
+if there are any, device_links_unbind_consumers() will be called
+and it will cause the consumer devices' drivers to unbind, so the
+consumer devices will be runtime-resumed.  In turn, resuming each
+consumer device will cause the supplier to be resumed and when the
+runtime PM references from the given consumer to it are dropped, it
+may be suspended.  Then, the runtime-resume of the next consumer
+will cause the supplier to resume again and so on.
 
-This fix thus detects the excessive looping and breaks the loop.
+Update the code accordingly.
 
-| Mem: 26184K used, 1009136K free, 0K shrd, 0K buff, 14416K cached
-| CPU:  0.0% usr 72.8% sys  0.0% nic 27.1% idle  0.0% io  0.0% irq  0.0% sirq
-| Load average: 4.33 2.60 1.11 2/74 139
-|   PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
-|   133     2 root     SWN      0  0.0   3 22.9 [rcu_torture_rea]
-|   132     2 root     SWN      0  0.0   0 22.0 [rcu_torture_rea]
-|   131     2 root     SWN      0  0.0   3 21.5 [rcu_torture_rea]
-|   126     2 root     RW       0  0.0   2  5.4 [rcu_torture_wri]
-|   129     2 root     SWN      0  0.0   0  0.2 [rcu_torture_fak]
-|   137     2 root     SW       0  0.0   0  0.2 [rcu_torture_cbf]
-|   127     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   138   115 root     R     1464  0.1   2  0.1 top
-|   130     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   128     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   115     1 root     S     1472  0.1   1  0.0 -/bin/sh
-|   104     1 root     S     1464  0.1   0  0.0 inetd
-|     1     0 root     S     1456  0.1   2  0.0 init
-|    78     1 root     S     1456  0.1   0  0.0 syslogd -O /var/log/messages
-|   134     2 root     SW       0  0.0   2  0.0 [rcu_torture_sta]
-|    10     2 root     IW       0  0.0   1  0.0 [rcu_preempt]
-|    88     2 root     IW       0  0.0   1  0.0 [kworker/1:1-eve]
-|    66     2 root     IW       0  0.0   2  0.0 [kworker/2:2-eve]
-|    39     2 root     IW       0  0.0   2  0.0 [kworker/2:1-eve]
-| unwinder looping too long, aborting !
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 9ed9895370ae ("driver core: Functional dependencies tracking support")
+Cc: All applicable <stable@vger.kernel.org> # All applicable
+Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/stacktrace.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/base/dd.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/arc/kernel/stacktrace.c
-+++ b/arch/arc/kernel/stacktrace.c
-@@ -115,7 +115,7 @@ arc_unwind_core(struct task_struct *tsk,
- 		int (*consumer_fn) (unsigned int, void *), void *arg)
- {
- #ifdef CONFIG_ARC_DW2_UNWIND
--	int ret = 0;
-+	int ret = 0, cnt = 0;
- 	unsigned int address;
- 	struct unwind_frame_info frame_info;
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -931,6 +931,8 @@ static void __device_release_driver(stru
  
-@@ -135,6 +135,11 @@ arc_unwind_core(struct task_struct *tsk,
- 			break;
- 
- 		frame_info.regs.r63 = frame_info.regs.r31;
+ 	drv = dev->driver;
+ 	if (drv) {
++		pm_runtime_get_sync(dev);
 +
-+		if (cnt++ > 128) {
-+			printk("unwinder looping too long, aborting !\n");
-+			return 0;
-+		}
- 	}
+ 		while (device_links_busy(dev)) {
+ 			device_unlock(dev);
+ 			if (parent && dev->bus->need_parent_lock)
+@@ -946,11 +948,12 @@ static void __device_release_driver(stru
+ 			 * have released the driver successfully while this one
+ 			 * was waiting, so check for that.
+ 			 */
+-			if (dev->driver != drv)
++			if (dev->driver != drv) {
++				pm_runtime_put(dev);
+ 				return;
++			}
+ 		}
  
- 	return address;		/* return the last address it saw */
+-		pm_runtime_get_sync(dev);
+ 		pm_runtime_clean_up_links(dev);
+ 
+ 		driver_sysfs_remove(dev);
 
 
