@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1882ABD21
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B7E2ABBC4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730403AbgKINng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:43:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54088 "EHLO mail.kernel.org"
+        id S1730581AbgKINa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:30:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730408AbgKIM7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:54 -0500
+        id S1732227AbgKINLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF8C20789;
-        Mon,  9 Nov 2020 12:59:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306CE2076E;
+        Mon,  9 Nov 2020 13:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926794;
-        bh=zI94Fjt1LxO8dQyFj8RFvyuAwoLB2+02+ybwG2pZAmw=;
+        s=default; t=1604927464;
+        bh=+FB1FH7ICDnCr9bPOEuBAQ5xpS1csOJY4TfhZX0cOo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kb4PBHxkPyLh0k+ikizURkea1BZ2dAjq/AKY+o7B2KqHZuU3OkNdIbPu2+tYjBNcj
-         UsGkV4oz1pZb2cQtdy/7ZJHrRVWGsL4UzdYmJ4/LJrjBMouLqHf/uODlWLLKdvF7Hf
-         J3qOLOrTWW8KylsJeoh623oWO+v8dWwSBCqp7JTY=
+        b=tPG9sSRD9QJ9JE22pL0MZr8/u2AzaNryyojZXAbRr8xfSEgoLfh4icEz3UxOFjY6l
+         tY5u/KQqBfjUOJLOFr0SZsSjhheMbp31iRexYyG3qV9IkNGlgNDrF3Amaf46cjwPoK
+         f24KRQ70msEgbrPDlKTcCDEIuEaAyPdtT6p+Piqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.4 85/86] ARC: stack unwinding: avoid indefinite looping
+        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>, Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 38/71] kthread_worker: prevent queuing delayed work from timer_fn when it is being canceled
 Date:   Mon,  9 Nov 2020 13:55:32 +0100
-Message-Id: <20201109125024.873064392@linuxfoundation.org>
+Message-Id: <20201109125021.698796738@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-commit 328d2168ca524d501fc4b133d6be076142bd305c upstream.
+commit 6993d0fdbee0eb38bfac350aa016f65ad11ed3b1 upstream.
 
-Currently stack unwinder is a while(1) loop which relies on the dwarf
-unwinder to signal termination, which in turn relies on dwarf info to do
-so. This in theory could cause an infinite loop if the dwarf info was
-somehow messed up or the register contents were etc.
+There is a small race window when a delayed work is being canceled and
+the work still might be queued from the timer_fn:
 
-This fix thus detects the excessive looping and breaks the loop.
+	CPU0						CPU1
+kthread_cancel_delayed_work_sync()
+   __kthread_cancel_work_sync()
+     __kthread_cancel_work()
+        work->canceling++;
+					      kthread_delayed_work_timer_fn()
+						   kthread_insert_work();
 
-| Mem: 26184K used, 1009136K free, 0K shrd, 0K buff, 14416K cached
-| CPU:  0.0% usr 72.8% sys  0.0% nic 27.1% idle  0.0% io  0.0% irq  0.0% sirq
-| Load average: 4.33 2.60 1.11 2/74 139
-|   PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
-|   133     2 root     SWN      0  0.0   3 22.9 [rcu_torture_rea]
-|   132     2 root     SWN      0  0.0   0 22.0 [rcu_torture_rea]
-|   131     2 root     SWN      0  0.0   3 21.5 [rcu_torture_rea]
-|   126     2 root     RW       0  0.0   2  5.4 [rcu_torture_wri]
-|   129     2 root     SWN      0  0.0   0  0.2 [rcu_torture_fak]
-|   137     2 root     SW       0  0.0   0  0.2 [rcu_torture_cbf]
-|   127     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   138   115 root     R     1464  0.1   2  0.1 top
-|   130     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   128     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   115     1 root     S     1472  0.1   1  0.0 -/bin/sh
-|   104     1 root     S     1464  0.1   0  0.0 inetd
-|     1     0 root     S     1456  0.1   2  0.0 init
-|    78     1 root     S     1456  0.1   0  0.0 syslogd -O /var/log/messages
-|   134     2 root     SW       0  0.0   2  0.0 [rcu_torture_sta]
-|    10     2 root     IW       0  0.0   1  0.0 [rcu_preempt]
-|    88     2 root     IW       0  0.0   1  0.0 [kworker/1:1-eve]
-|    66     2 root     IW       0  0.0   2  0.0 [kworker/2:2-eve]
-|    39     2 root     IW       0  0.0   2  0.0 [kworker/2:1-eve]
-| unwinder looping too long, aborting !
+BUG: kthread_insert_work() should not get called when work->canceling is
+set.
 
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lkml.kernel.org/r/20201014083030.16895-1-qiang.zhang@windriver.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/stacktrace.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ kernel/kthread.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arc/kernel/stacktrace.c
-+++ b/arch/arc/kernel/stacktrace.c
-@@ -113,7 +113,7 @@ arc_unwind_core(struct task_struct *tsk,
- 		int (*consumer_fn) (unsigned int, void *), void *arg)
- {
- #ifdef CONFIG_ARC_DW2_UNWIND
--	int ret = 0;
-+	int ret = 0, cnt = 0;
- 	unsigned int address;
- 	struct unwind_frame_info frame_info;
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -863,7 +863,8 @@ void kthread_delayed_work_timer_fn(struc
+ 	/* Move the work from worker->delayed_work_list. */
+ 	WARN_ON_ONCE(list_empty(&work->node));
+ 	list_del_init(&work->node);
+-	kthread_insert_work(worker, work, &worker->work_list);
++	if (!work->canceling)
++		kthread_insert_work(worker, work, &worker->work_list);
  
-@@ -133,6 +133,11 @@ arc_unwind_core(struct task_struct *tsk,
- 			break;
- 
- 		frame_info.regs.r63 = frame_info.regs.r31;
-+
-+		if (cnt++ > 128) {
-+			printk("unwinder looping too long, aborting !\n");
-+			return 0;
-+		}
- 	}
- 
- 	return address;		/* return the last address it saw */
+ 	spin_unlock(&worker->lock);
+ }
 
 
