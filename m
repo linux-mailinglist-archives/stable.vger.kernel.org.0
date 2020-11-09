@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0491F2ABA8B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE882AB9F4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387894AbgKINUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:20:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47844 "EHLO mail.kernel.org"
+        id S1733106AbgKINOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:14:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387898AbgKINUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:20:16 -0500
+        id S1733112AbgKINOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:14:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8015020867;
-        Mon,  9 Nov 2020 13:20:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 992D120663;
+        Mon,  9 Nov 2020 13:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928016;
-        bh=qEnNBZdx0/2ucAEMWvQZqnsi9phuE+GSp96wOAyyyqU=;
+        s=default; t=1604927662;
+        bh=vMtewPdBvv1FklAZf9lAytO92hlgMpriCRSga6pzIqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgXq77nuGgn+ZfbUL1FiOz4cf1gSmdG8N5gBsLG4PTYsrfia8UZp6tKCtKR4O/d2n
-         b6x3LmjLKJONWQU8P+ChiAsxXDj7E3wzpCQywOKLuO/F0L18Oc4KHdAtx0HVMPtsap
-         vfVeCChzwIiV/pfQjb4ge6aITVgoIwIGl4sPN1HI=
+        b=lFUxls2ioaRCgOwjgB4RgJCj1Dr4f2w3YqVjUjPe3drEEYjjHevBc0UTIhLYYL5o/
+         u/GI24HtqHjnhGCesszRdkpL5hOGutGCR7NuJFIQXIdUhaZ24W6hV2jVyYhBaZ2Kh6
+         S+29Rtc9+AjQcU5HXa1cEbgEPGFFOTiCy2Or1Juw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Hundeb=C3=B8ll?= <martin@geanix.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.9 068/133] spi: bcm2835: fix gpio cs level inversion
-Date:   Mon,  9 Nov 2020 13:55:30 +0100
-Message-Id: <20201109125034.006058294@linuxfoundation.org>
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 34/85] ring-buffer: Fix recursion protection transitions between interrupt context
+Date:   Mon,  9 Nov 2020 13:55:31 +0100
+Message-Id: <20201109125024.229282109@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Hundebøll <martin@geanix.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 5e31ba0c0543a04483b53151eb5b7413efece94c upstream.
+commit b02414c8f045ab3b9afc816c3735bc98c5c3d262 upstream.
 
-The work on improving gpio chip-select in spi core, and the following
-fixes, has caused the bcm2835 spi driver to use wrong levels. Fix this
-by simply removing level handling in the bcm2835 driver, and let the
-core do its work.
+The recursion protection of the ring buffer depends on preempt_count() to be
+correct. But it is possible that the ring buffer gets called after an
+interrupt comes in but before it updates the preempt_count(). This will
+trigger a false positive in the recursion code.
 
-Fixes: 3e5ec1db8bfe ("spi: Fix SPI_CS_HIGH setting when using native and GPIO CS")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Martin Hundebøll <martin@geanix.com>
-Link: https://lore.kernel.org/r/20201014090230.2706810-1-martin@geanix.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use the same trick from the ftrace function callback recursion code which
+uses a "transition" bit that gets set, to allow for a single recursion for
+to handle transitions between contexts.
+
+Cc: stable@vger.kernel.org
+Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm2835.c |   12 ------------
- 1 file changed, 12 deletions(-)
+ kernel/trace/ring_buffer.c |   58 +++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 46 insertions(+), 12 deletions(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1259,18 +1259,6 @@ static int bcm2835_spi_setup(struct spi_
- 	if (!chip)
- 		return 0;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -422,14 +422,16 @@ struct rb_event_info {
  
--	/*
--	 * Retrieve the corresponding GPIO line used for CS.
--	 * The inversion semantics will be handled by the GPIO core
--	 * code, so we pass GPIOD_OUT_LOW for "unasserted" and
--	 * the correct flag for inversion semantics. The SPI_CS_HIGH
--	 * on spi->mode cannot be checked for polarity in this case
--	 * as the flag use_gpio_descriptors enforces SPI_CS_HIGH.
--	 */
--	if (of_property_read_bool(spi->dev.of_node, "spi-cs-high"))
--		lflags = GPIO_ACTIVE_HIGH;
--	else
--		lflags = GPIO_ACTIVE_LOW;
- 	spi->cs_gpiod = gpiochip_request_own_desc(chip, 8 - spi->chip_select,
- 						  DRV_NAME,
- 						  lflags,
+ /*
+  * Used for which event context the event is in.
+- *  NMI     = 0
+- *  IRQ     = 1
+- *  SOFTIRQ = 2
+- *  NORMAL  = 3
++ *  TRANSITION = 0
++ *  NMI     = 1
++ *  IRQ     = 2
++ *  SOFTIRQ = 3
++ *  NORMAL  = 4
+  *
+  * See trace_recursive_lock() comment below for more details.
+  */
+ enum {
++	RB_CTX_TRANSITION,
+ 	RB_CTX_NMI,
+ 	RB_CTX_IRQ,
+ 	RB_CTX_SOFTIRQ,
+@@ -2660,10 +2662,10 @@ rb_wakeups(struct ring_buffer *buffer, s
+  * a bit of overhead in something as critical as function tracing,
+  * we use a bitmask trick.
+  *
+- *  bit 0 =  NMI context
+- *  bit 1 =  IRQ context
+- *  bit 2 =  SoftIRQ context
+- *  bit 3 =  normal context.
++ *  bit 1 =  NMI context
++ *  bit 2 =  IRQ context
++ *  bit 3 =  SoftIRQ context
++ *  bit 4 =  normal context.
+  *
+  * This works because this is the order of contexts that can
+  * preempt other contexts. A SoftIRQ never preempts an IRQ
+@@ -2686,6 +2688,30 @@ rb_wakeups(struct ring_buffer *buffer, s
+  * The least significant bit can be cleared this way, and it
+  * just so happens that it is the same bit corresponding to
+  * the current context.
++ *
++ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
++ * is set when a recursion is detected at the current context, and if
++ * the TRANSITION bit is already set, it will fail the recursion.
++ * This is needed because there's a lag between the changing of
++ * interrupt context and updating the preempt count. In this case,
++ * a false positive will be found. To handle this, one extra recursion
++ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
++ * bit is already set, then it is considered a recursion and the function
++ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
++ *
++ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
++ * to be cleared. Even if it wasn't the context that set it. That is,
++ * if an interrupt comes in while NORMAL bit is set and the ring buffer
++ * is called before preempt_count() is updated, since the check will
++ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
++ * NMI then comes in, it will set the NMI bit, but when the NMI code
++ * does the trace_recursive_unlock() it will clear the TRANSTION bit
++ * and leave the NMI bit set. But this is fine, because the interrupt
++ * code that set the TRANSITION bit will then clear the NMI bit when it
++ * calls trace_recursive_unlock(). If another NMI comes in, it will
++ * set the TRANSITION bit and continue.
++ *
++ * Note: The TRANSITION bit only handles a single transition between context.
+  */
+ 
+ static __always_inline int
+@@ -2701,8 +2727,16 @@ trace_recursive_lock(struct ring_buffer_
+ 		bit = pc & NMI_MASK ? RB_CTX_NMI :
+ 			pc & HARDIRQ_MASK ? RB_CTX_IRQ : RB_CTX_SOFTIRQ;
+ 
+-	if (unlikely(val & (1 << (bit + cpu_buffer->nest))))
+-		return 1;
++	if (unlikely(val & (1 << (bit + cpu_buffer->nest)))) {
++		/*
++		 * It is possible that this was called by transitioning
++		 * between interrupt context, and preempt_count() has not
++		 * been updated yet. In this case, use the TRANSITION bit.
++		 */
++		bit = RB_CTX_TRANSITION;
++		if (val & (1 << (bit + cpu_buffer->nest)))
++			return 1;
++	}
+ 
+ 	val |= (1 << (bit + cpu_buffer->nest));
+ 	cpu_buffer->current_context = val;
+@@ -2717,8 +2751,8 @@ trace_recursive_unlock(struct ring_buffe
+ 		cpu_buffer->current_context - (1 << cpu_buffer->nest);
+ }
+ 
+-/* The recursive locking above uses 4 bits */
+-#define NESTED_BITS 4
++/* The recursive locking above uses 5 bits */
++#define NESTED_BITS 5
+ 
+ /**
+  * ring_buffer_nest_start - Allow to trace while nested
 
 
