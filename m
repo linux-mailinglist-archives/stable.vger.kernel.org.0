@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A5F22ABA77
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF152AB9E3
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:14:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387783AbgKINTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:19:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46918 "EHLO mail.kernel.org"
+        id S1732980AbgKINNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:13:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387786AbgKINTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:19:31 -0500
+        id S1731621AbgKINNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:13:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9C3220663;
-        Mon,  9 Nov 2020 13:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E45CE20867;
+        Mon,  9 Nov 2020 13:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927970;
+        s=default; t=1604927615;
         bh=gLHIgoD2vt9hPiX3wLzXW2G/zO/wNF9ivi/BFLeyUOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtqpNGrooT+FO0bT53nhK3qEJ1L0i01maoWgyhF+lHP328lrn80AveNxrlIUgqgYb
-         pM7Z6rqs2eniP2jp/tkHUryOTvxz5LkovGqs4ewhTrSr+CsQwfq9HTj0WWvQY6zrRn
-         pW2hve4dV3Sfs1ydWQzRyF4V77t3HTH4xDFl+R0E=
+        b=Ll6zP0iBZ0UU6Jy69D/IueR+2DYu2cwvwDjEW868YX+8pJePk+ggScPpAJZ4i7swD
+         ajshjj98UolsOhkep9MkgKKFSO3EG1DAcJY7z77AHuogTBqvhmtfV7D7buCucOht00
+         GVTYrPH5Kkzh8tdxgiU+Y3z645HUaVK3NOaMiYgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
         Jernej Skrabec <jernej.skrabec@siol.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 083/133] drm/sun4i: frontend: Fix the scaler phase on A33
+Subject: [PATCH 5.4 48/85] drm/sun4i: frontend: Fix the scaler phase on A33
 Date:   Mon,  9 Nov 2020 13:55:45 +0100
-Message-Id: <20201109125034.712520764@linuxfoundation.org>
+Message-Id: <20201109125024.889304102@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
