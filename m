@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91212ABA98
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5855D2ABA01
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:15:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387969AbgKINUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:20:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48364 "EHLO mail.kernel.org"
+        id S1733228AbgKINOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:14:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387960AbgKINUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:20:43 -0500
+        id S1730936AbgKINOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:14:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BAEF2083B;
-        Mon,  9 Nov 2020 13:20:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12AEF20663;
+        Mon,  9 Nov 2020 13:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928042;
-        bh=/t+3jZHJb1n+jV2ThxdF7BUzZJwvGnf3gsuDXnIyPRA=;
+        s=default; t=1604927685;
+        bh=+ygSuQHw3/v88x5CVHerg+ymLJphdgbHYhg9SSG8rZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7WpGmibd1r1lJTdmsuHr4WkGG4Ttunn7QREomqOxVmSdA6Mk3LRjhd1oqD8wzwzl
-         2dsYGWGipB/nuD7QdJD0NU3pQPks129cWrFSm4XCyTu8Iygez2ZV+f5/pKdt3/B9gd
-         qkCbjQFvKdAmLKlSsVYym8UwuCunVJQCawKWu3iI=
+        b=YJYvAx5cHrXZKujnuaf22WNHnnX4B7vkV/VRpIuesuWZdKw/uGd1+V3+8Pw3s4nhn
+         QWWLKYf+rsz3H3OvI81okrSN2061yC7Cj9FcGNc+LvvDL2tb1GHuL6uvgjrklNzzNq
+         fSe2su2Y+ZxlgB1z6uddiVMYyL0p8phqHdip7gOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddy Wu <eddy_wu@trendmicro.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 108/133] fork: fix copy_process(CLONE_PARENT) race with the exiting ->real_parent
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>
+Subject: [PATCH 5.4 73/85] tty: serial: fsl_lpuart: add LS1028A support
 Date:   Mon,  9 Nov 2020 13:56:10 +0100
-Message-Id: <20201109125035.885276818@linuxfoundation.org>
+Message-Id: <20201109125026.083533458@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddy Wu <itseddy0402@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-commit b4e00444cab4c3f3fec876dc0cccc8cbb0d1a948 upstream.
+commit c2f448cff22a7ed09281f02bde084b0ce3bc61ed upstream.
 
-current->group_leader->exit_signal may change during copy_process() if
-current->real_parent exits.
+The LS1028A uses little endian register access and has a different FIFO
+size encoding.
 
-Move the assignment inside tasklist_lock to avoid the race.
-
-Signed-off-by: Eddy Wu <eddy_wu@trendmicro.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20200306214433.23215-4-michael@walle.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2167,14 +2167,9 @@ static __latent_entropy struct task_stru
- 	/* ok, now we should be set up.. */
- 	p->pid = pid_nr(pid);
- 	if (clone_flags & CLONE_THREAD) {
--		p->exit_signal = -1;
- 		p->group_leader = current->group_leader;
- 		p->tgid = current->tgid;
- 	} else {
--		if (clone_flags & CLONE_PARENT)
--			p->exit_signal = current->group_leader->exit_signal;
--		else
--			p->exit_signal = args->exit_signal;
- 		p->group_leader = p;
- 		p->tgid = p->pid;
- 	}
-@@ -2218,9 +2213,14 @@ static __latent_entropy struct task_stru
- 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
- 		p->real_parent = current->real_parent;
- 		p->parent_exec_id = current->parent_exec_id;
-+		if (clone_flags & CLONE_THREAD)
-+			p->exit_signal = -1;
-+		else
-+			p->exit_signal = current->group_leader->exit_signal;
- 	} else {
- 		p->real_parent = current;
- 		p->parent_exec_id = current->self_exec_id;
-+		p->exit_signal = args->exit_signal;
- 	}
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -238,6 +238,7 @@ static DEFINE_IDA(fsl_lpuart_ida);
+ enum lpuart_type {
+ 	VF610_LPUART,
+ 	LS1021A_LPUART,
++	LS1028A_LPUART,
+ 	IMX7ULP_LPUART,
+ 	IMX8QXP_LPUART,
+ };
+@@ -282,11 +283,16 @@ static const struct lpuart_soc_data vf_d
+ 	.iotype = UPIO_MEM,
+ };
  
- 	klp_copy_process(p);
+-static const struct lpuart_soc_data ls_data = {
++static const struct lpuart_soc_data ls1021a_data = {
+ 	.devtype = LS1021A_LPUART,
+ 	.iotype = UPIO_MEM32BE,
+ };
+ 
++static const struct lpuart_soc_data ls1028a_data = {
++	.devtype = LS1028A_LPUART,
++	.iotype = UPIO_MEM32,
++};
++
+ static struct lpuart_soc_data imx7ulp_data = {
+ 	.devtype = IMX7ULP_LPUART,
+ 	.iotype = UPIO_MEM32,
+@@ -301,7 +307,8 @@ static struct lpuart_soc_data imx8qxp_da
+ 
+ static const struct of_device_id lpuart_dt_ids[] = {
+ 	{ .compatible = "fsl,vf610-lpuart",	.data = &vf_data, },
+-	{ .compatible = "fsl,ls1021a-lpuart",	.data = &ls_data, },
++	{ .compatible = "fsl,ls1021a-lpuart",	.data = &ls1021a_data, },
++	{ .compatible = "fsl,ls1028a-lpuart",	.data = &ls1028a_data, },
+ 	{ .compatible = "fsl,imx7ulp-lpuart",	.data = &imx7ulp_data, },
+ 	{ .compatible = "fsl,imx8qxp-lpuart",	.data = &imx8qxp_data, },
+ 	{ /* sentinel */ }
+@@ -311,6 +318,11 @@ MODULE_DEVICE_TABLE(of, lpuart_dt_ids);
+ /* Forward declare this for the dma callbacks*/
+ static void lpuart_dma_tx_complete(void *arg);
+ 
++static inline bool is_ls1028a_lpuart(struct lpuart_port *sport)
++{
++	return sport->devtype == LS1028A_LPUART;
++}
++
+ static inline bool is_imx8qxp_lpuart(struct lpuart_port *sport)
+ {
+ 	return sport->devtype == IMX8QXP_LPUART;
+@@ -1553,6 +1565,17 @@ static int lpuart32_startup(struct uart_
+ 	sport->rxfifo_size = UARTFIFO_DEPTH((temp >> UARTFIFO_RXSIZE_OFF) &
+ 					    UARTFIFO_FIFOSIZE_MASK);
+ 
++	/*
++	 * The LS1028A has a fixed length of 16 words. Although it supports the
++	 * RX/TXSIZE fields their encoding is different. Eg the reference manual
++	 * states 0b101 is 16 words.
++	 */
++	if (is_ls1028a_lpuart(sport)) {
++		sport->rxfifo_size = 16;
++		sport->txfifo_size = 16;
++		sport->port.fifosize = sport->txfifo_size;
++	}
++
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+ 	lpuart32_setup_watermark_enable(sport);
 
 
