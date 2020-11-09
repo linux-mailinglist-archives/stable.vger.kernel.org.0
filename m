@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD4282ABB9E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4688E2ABC69
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732659AbgKINMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:12:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
+        id S1730269AbgKINhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:37:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732637AbgKINMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:32 -0500
+        id S1730739AbgKINEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:04:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 518AE20789;
-        Mon,  9 Nov 2020 13:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 139AC206C0;
+        Mon,  9 Nov 2020 13:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927551;
-        bh=Kk3NPcaaJYgOkJGlul0BRCJPwgZlDPFEo56bhI9Iyi8=;
+        s=default; t=1604927058;
+        bh=Ddoh0zPJ0nESyfDNkjlmhetNYQNkUuxzicuDI5+jPMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsCM+iQYKivnBo8vGNIdg+LUcHuOIaeT0kvObx6XBGGD8c4q+u9vBj4WfQHwG/uZL
-         IV3Ihbg9bb/58GeldLLNlNupbeWBkK0LB2wyo801SdXHnZcBQkhQR34g47jMnblHHH
-         3FFrSYplYDaNOp8IyyEI3w+K3hwELbOCidAopZlg=
+        b=DRF4WFSmow4xp2fiPuo+Qncq8mQqYabyTDpty6BBBvE9tuY+QqxwmdyuMG3fFM3ey
+         YAVSAYL+PpRc3+46hNS7JyPcXt2QKCHYgMBrSeoiYhRYPcmCoBl1Hwyi+qNia4kgoh
+         DZ5dGuT1euyRVrHz4sl7+1zr6DI5M2HkKKm6ckkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 26/85] ALSA: usb-audio: add usb vendor id as DSD-capable for Khadas devices
+Subject: [PATCH 4.9 097/117] ALSA: usb-audio: Add implicit feedback quirk for Qu-16
 Date:   Mon,  9 Nov 2020 13:55:23 +0100
-Message-Id: <20201109125023.840273348@linuxfoundation.org>
+Message-Id: <20201109125030.307505870@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Lapkin <art@khadas.com>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-commit 07815a2b3501adeaae6384a25b9c4a9c81dae59f upstream.
+commit 0938ecae432e7ac8b01080c35dd81d50a1e43033 upstream.
 
-Khadas audio devices ( USB_ID_VENDOR 0x3353 )
-have DSD-capable implementations from XMOS
-need add new usb vendor id for recognition
+This patch fixes audio distortion on playback for the Allen&Heath
+Qu-16.
 
-Signed-off-by: Artem Lapkin <art@khadas.com>
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201103103311.5435-1-art@khadas.com
+Link: https://lore.kernel.org/r/20201104115717.GA19046@b4.vu
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks.c |    1 +
+ sound/usb/pcm.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1732,6 +1732,7 @@ u64 snd_usb_interface_dsd_format_quirks(
- 	case 0x278b:  /* Rotel? */
- 	case 0x292b:  /* Gustard/Ess based devices */
- 	case 0x2ab6:  /* T+A devices */
-+	case 0x3353:  /* Khadas devices */
- 	case 0x3842:  /* EVGA */
- 	case 0xc502:  /* HiBy devices */
- 		if (fp->dsd_raw)
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -332,6 +332,7 @@ static int set_sync_ep_implicit_fb_quirk
+ 	switch (subs->stream->chip->usb_id) {
+ 	case USB_ID(0x0763, 0x2030): /* M-Audio Fast Track C400 */
+ 	case USB_ID(0x0763, 0x2031): /* M-Audio Fast Track C600 */
++	case USB_ID(0x22f0, 0x0006): /* Allen&Heath Qu-16 */
+ 		ep = 0x81;
+ 		iface = usb_ifnum_to_if(dev, 3);
+ 
 
 
