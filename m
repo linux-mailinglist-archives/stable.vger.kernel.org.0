@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCCC2ABC0B
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C072ABD59
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731099AbgKINde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:33:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
+        id S1730138AbgKINp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbgKINGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:30 -0500
+        id S1730148AbgKIM6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4A820731;
-        Mon,  9 Nov 2020 13:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BE90207BC;
+        Mon,  9 Nov 2020 12:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927189;
-        bh=Z1wDiC3HwG946bzh2U4H7Ti5P50tZ77K2E8iE2Ezgis=;
+        s=default; t=1604926717;
+        bh=+tt37svqy+fddvsPEmD3LdnwtsZuAVeM9WFhb28/sS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHxVPbew85M5y5St8TuwYxo01ejBG8LXKvYhilafoU+0Y1tSeR9H01hDjpmhITAXA
-         er9I3AzjtpBkpq98iMW7NpvM/+SiIJJFRsjRl2X1ey3eoMYombYiHEEJqVqEhId4/k
-         oBOf7LFsuC/92p5p8WXnB0ZBdSH559u0Pa98MLbs=
+        b=TA+pagBbtTikPKTBTYBAr8FCV4SIzAbmRUo1hIsE7gufcTvVpDgGBVJ1ISzM36HaJ
+         TH4zejvbt/5Hxr5mBScMNwcp/jnmp3LbpmQN4eHL5ruqv4UrbClxiv3+xm3cngadif
+         CRucGrfc628FnQchVGdlNflydag4xTGYjOVwNSsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Claudiu Manoil <claudiu.manoil@nxp.com>
-Subject: [PATCH 4.14 04/48] gianfar: Replace skb_realloc_headroom with skb_cow_head for PTP
+Subject: [PATCH 4.4 66/86] gianfar: Replace skb_realloc_headroom with skb_cow_head for PTP
 Date:   Mon,  9 Nov 2020 13:55:13 +0100
-Message-Id: <20201109125016.950173940@linuxfoundation.org>
+Message-Id: <20201109125023.939912373@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/freescale/gianfar.c
 +++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -2370,20 +2370,12 @@ static netdev_tx_t gfar_start_xmit(struc
+@@ -2353,20 +2353,12 @@ static int gfar_start_xmit(struct sk_buf
  		fcb_len = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
  
  	/* make space for additional header when fcb is needed */
