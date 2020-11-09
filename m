@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF5A2ABD0C
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1E92ABD4C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730417AbgKINAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:00:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54326 "EHLO mail.kernel.org"
+        id S1730112AbgKINpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730433AbgKINAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:12 -0500
+        id S1730411AbgKINAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0914207BC;
-        Mon,  9 Nov 2020 13:00:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D02D1216C4;
+        Mon,  9 Nov 2020 13:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926811;
-        bh=zZ7orDji2vb815BGMy8W7wwBHaPtZXTZ24EOyC1X92c=;
+        s=default; t=1604926814;
+        bh=JLcEgLdL/kL4nRVPKC9wWdDIZP3QmaLJDeSXO5Gt35Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDc0gqe73viFOZyBkro6jVyO5Llsu6209jvvEnJrbmL+BX90zv0v5r6HkyfKx9V+a
-         Y23n9GStOU4VMJqq2eT+6Si9vneafbewk69JRt7wBjmc9vvefKsKOdMtVGtOoebwei
-         Q14RJrcUdJtQG4bbkwvnFYuRaa4OA1knoSbl3Slg=
+        b=0Rt2mgqUr3CLe2BOK/uip1GEt2/Epr0+Yxwd02K6Nfe7X9NFhUjJUxyhLwAG9861M
+         hKKfHodZDKGZnNPOzpdVObopMgo32hJCOrExtomfi4AIQnnOnElHNuMuTDrkT3eqjN
+         8at4/dKEIzDJbRkXbv5LVC/sV/r/zB0QFE4Emhew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Thang Hoang Ngo <thang.h.ngo@dektech.com.au>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Xin Long <lucien.xin@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 005/117] ravb: Fix bit fields checking in ravb_hwtstamp_get()
-Date:   Mon,  9 Nov 2020 13:53:51 +0100
-Message-Id: <20201109125025.892293291@linuxfoundation.org>
+Subject: [PATCH 4.9 006/117] tipc: fix memory leak caused by tipc_buf_append()
+Date:   Mon,  9 Nov 2020 13:53:52 +0100
+Message-Id: <20201109125025.942325540@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -44,69 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
+[ Upstream commit ceb1eb2fb609c88363e06618b8d4bbf7815a4e03 ]
 
-In the function ravb_hwtstamp_get() in ravb_main.c with the existing
-values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
-(0x6)
+Commit ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
+replaced skb_unshare() with skb_copy() to not reduce the data reference
+counter of the original skb intentionally. This is not the correct
+way to handle the cloned skb because it causes memory leak in 2
+following cases:
+ 1/ Sending multicast messages via broadcast link
+  The original skb list is cloned to the local skb list for local
+  destination. After that, the data reference counter of each skb
+  in the original list has the value of 2. This causes each skb not
+  to be freed after receiving ACK:
+  tipc_link_advance_transmq()
+  {
+   ...
+   /* release skb */
+   __skb_unlink(skb, &l->transmq);
+   kfree_skb(skb); <-- memory exists after being freed
+  }
 
-if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
-else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-	config.rx_filter = HWTSTAMP_FILTER_ALL;
+ 2/ Sending multicast messages via replicast link
+  Similar to the above case, each skb cannot be freed after purging
+  the skb list:
+  tipc_mcast_xmit()
+  {
+   ...
+   __skb_queue_purge(pkts); <-- memory exists after being freed
+  }
 
-if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
-it will never be reached.
+This commit fixes this issue by using skb_unshare() instead. Besides,
+to avoid use-after-free error reported by KASAN, the pointer to the
+fragment is set to NULL before calling skb_unshare() to make sure that
+the original skb is not freed after freeing the fragment 2 times in
+case skb_unshare() returns NULL.
 
-This issue can be verified with 'hwtstamp_config' testing program
-(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
-to ALL and subsequent retrieving it gives incorrect value:
-
-$ hwtstamp_config eth0 OFF ALL
-flags = 0
-tx_type = OFF
-rx_filter = ALL
-$ hwtstamp_config eth0
-flags = 0
-tx_type = OFF
-rx_filter = PTP_V2_L2_EVENT
-
-Correct this by converting if-else's to switch.
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Reported-by: Julia Lawall <julia.lawall@inria.fr>
-Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
+Fixes: ed42989eab57 ("tipc: fix the skb_unshare() in tipc_buf_append()")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Reported-by: Thang Hoang Ngo <thang.h.ngo@dektech.com.au>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Link: https://lore.kernel.org/r/20201027032403.1823-1-tung.q.nguyen@dektech.com.au
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/tipc/msg.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1729,12 +1729,16 @@ static int ravb_hwtstamp_get(struct net_
- 	config.flags = 0;
- 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
- 						HWTSTAMP_TX_OFF;
--	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
-+	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
-+	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
- 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
--	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
-+		break;
-+	case RAVB_RXTSTAMP_TYPE_ALL:
- 		config.rx_filter = HWTSTAMP_FILTER_ALL;
--	else
-+		break;
-+	default:
- 		config.rx_filter = HWTSTAMP_FILTER_NONE;
-+	}
- 
- 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
- 		-EFAULT : 0;
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -140,12 +140,11 @@ int tipc_buf_append(struct sk_buff **hea
+ 	if (fragid == FIRST_FRAGMENT) {
+ 		if (unlikely(head))
+ 			goto err;
+-		if (skb_cloned(frag))
+-			frag = skb_copy(frag, GFP_ATOMIC);
++		*buf = NULL;
++		frag = skb_unshare(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+-		*buf = NULL;
+ 		TIPC_SKB_CB(head)->tail = NULL;
+ 		if (skb_is_nonlinear(head)) {
+ 			skb_walk_frags(head, tail) {
 
 
