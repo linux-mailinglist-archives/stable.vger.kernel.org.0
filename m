@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B56E2ABC14
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DC32ABD1F
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730748AbgKINd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58826 "EHLO mail.kernel.org"
+        id S1730419AbgKINna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:43:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgKINGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:01 -0500
+        id S1729874AbgKIM75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11E96206C0;
-        Mon,  9 Nov 2020 13:05:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CCE62084C;
+        Mon,  9 Nov 2020 12:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927160;
-        bh=C6nedIJpJZKheagyONJTZkJ4kWfca7XQdltWRj5Kw7s=;
+        s=default; t=1604926797;
+        bh=8jezqxlAno3DY7SheT6ufjWCdh737YaEpt+Tu9UIoxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGGDOEhVDMZTHFs3DopCO7X70wivwS5azzRkVcZN3pOgIO/annMOnZD2krcC/riSb
-         4P2lsntwsnpz97cOc/g8tnA6YQIVg4zNbdE2tPM29GOIkIHsHMELMs4XntOZSX7IQV
-         ZfxYUXV0riiRHSQGmDgy4LVwvg70lRUIuvWzFrOY=
+        b=X2Koi6DtcBjk7aa8gFGDjxzDtIzCildfNXY9BGonqWpsJ49WkKiRsTifjdVYhcHvY
+         rA6pF1sQH7r3BgUDLUYSfIAvBLryyRnPekl29ZtSC+c+1jXz0FVuxvL7wy7vSdNsrL
+         +Id6vWpj+iV6Al9EbHq7/o+WA5DA2QAKhS/uKAB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martyna Szapar <martyna.szapar@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 14/48] i40e: Fix of memory leak and integer truncation in i40e_virtchnl.c
+        stable@vger.kernel.org, Roman Kiryanov <rkir@google.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 76/86] vsock: use ns_capable_noaudit() on socket create
 Date:   Mon,  9 Nov 2020 13:55:23 +0100
-Message-Id: <20201109125017.444598697@linuxfoundation.org>
+Message-Id: <20201109125024.442701162@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martyna Szapar <martyna.szapar@intel.com>
+From: Jeff Vander Stoep <jeffv@google.com>
 
-commit 24474f2709af6729b9b1da1c5e160ab62e25e3a4 upstream.
+[ Upstream commit af545bb5ee53f5261db631db2ac4cde54038bdaf ]
 
-Fixed possible memory leak in i40e_vc_add_cloud_filter function:
-cfilter is being allocated and in some error conditions
-the function returns without freeing the memory.
+During __vsock_create() CAP_NET_ADMIN is used to determine if the
+vsock_sock->trusted should be set to true. This value is used later
+for determing if a remote connection should be allowed to connect
+to a restricted VM. Unfortunately, if the caller doesn't have
+CAP_NET_ADMIN, an audit message such as an selinux denial is
+generated even if the caller does not want a trusted socket.
 
-Fix of integer truncation from u16 (type of queue_id value) to u8
-when calling i40e_vc_isvalid_queue_id function.
+Logging errors on success is confusing. To avoid this, switch the
+capable(CAP_NET_ADMIN) check to the noaudit version.
 
-Signed-off-by: Martyna Szapar <martyna.szapar@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-[bwh: Backported to 4.14: i40e_vc_add_cloud_filter() does not exist
- but the integer truncation is still possible]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Roman Kiryanov <rkir@google.com>
+https://android-review.googlesource.com/c/device/generic/goldfish/+/1468545/
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20201023143757.377574-1-jeffv@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    2 +-
+ net/vmw_vsock/af_vsock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -189,7 +189,7 @@ static inline bool i40e_vc_isvalid_vsi_i
-  * check for the valid queue id
-  **/
- static inline bool i40e_vc_isvalid_queue_id(struct i40e_vf *vf, u16 vsi_id,
--					    u8 qid)
-+					    u16 qid)
- {
- 	struct i40e_pf *pf = vf->pf;
- 	struct i40e_vsi *vsi = i40e_find_vsi_from_id(pf, vsi_id);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index a645352e366aa..07b1a2775210b 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -633,7 +633,7 @@ struct sock *__vsock_create(struct net *net,
+ 		vsk->owner = get_cred(psk->owner);
+ 		vsk->connect_timeout = psk->connect_timeout;
+ 	} else {
+-		vsk->trusted = capable(CAP_NET_ADMIN);
++		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
+ 		vsk->connect_timeout = VSOCK_DEFAULT_CONNECT_TIMEOUT;
+ 	}
+-- 
+2.27.0
+
 
 
