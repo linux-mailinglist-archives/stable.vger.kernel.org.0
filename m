@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1309A2ABC0D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B37662ABC38
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731094AbgKINdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:33:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S1731869AbgKINf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:35:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731055AbgKINGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:23 -0500
+        id S1730839AbgKINFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:05:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D979216C4;
-        Mon,  9 Nov 2020 13:06:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDDE21D40;
+        Mon,  9 Nov 2020 13:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927178;
-        bh=HHnj1utKXUgABVCCmuo7SJDoE6X7E/TgAIv24PHlGfc=;
+        s=default; t=1604927119;
+        bh=0d5mbr8golkF2uyLE7azfmyXcCyXmpgRp8/Y4gZob2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPV0TLQM/GiQVq86YV4IbLOlhvgw8zFrAkvwZjzas/wcUt8JwjbzImW+IvNIOxFiz
-         5KGSM3pB+jEn05qJioJFXKKjjm8TM5q2VBSrKYkuU0Xa0hOvLlNlmRjyL/zn6L0RN0
-         UP+rUv2UMcK8FXPQ+IX8R3PVYmV1XYZ5o9TsVQSo=
+        b=fu+D/3bdk6vI5KpFtUEmCnBhxCPfbv+uNt0engwIXH2dRAk5YAOmjLLWdhNCWPqyA
+         TOo43LvUoMcQpYn+iw6TmmrIjmxCureblgAwIdGpeoAXDyHPngvstN0Yz1P8H/ZmQs
+         HsbwijMaXcEQwlgk3q9kyJ6L9EKFf32iNE1AznJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Stefan Bader <stefan.bader@canonical.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Ben Hutchings <benh@debian.org>
-Subject: [PATCH 4.14 02/48] xen/events: dont use chip_data for legacy IRQs
-Date:   Mon,  9 Nov 2020 13:55:11 +0100
-Message-Id: <20201109125016.859402737@linuxfoundation.org>
+        stable@vger.kernel.org, Ferry Toth <fntoth@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 086/117] device property: Keep secondary firmware node secondary by type
+Date:   Mon,  9 Nov 2020 13:55:12 +0100
+Message-Id: <20201109125029.772123248@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 0891fb39ba67bd7ae023ea0d367297ffff010781 upstream.
+commit d5dcce0c414fcbfe4c2037b66ac69ea5f9b3f75c upstream.
 
-Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Xen is using the chip_data pointer for storing IRQ specific data. When
-running as a HVM domain this can result in problems for legacy IRQs, as
-those might use chip_data for their own purposes.
+Behind primary and secondary we understand the type of the nodes
+which might define their ordering. However, if primary node gone,
+we can't maintain the ordering by definition of the linked list.
+Thus, by ordering secondary node becomes first in the list.
+But in this case the meaning of it is still secondary (or auxiliary).
+The type of the node is maintained by the secondary pointer in it:
 
-Use a local array for this purpose in case of legacy IRQs, avoiding the
-double use.
+	secondary pointer		Meaning
+	NULL or valid			primary node
+	ERR_PTR(-ENODEV)		secondary node
 
-Cc: stable@vger.kernel.org
-Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefan Bader <stefan.bader@canonical.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <benh@debian.org>
+So, if by some reason we do the following sequence of calls
+
+	set_primary_fwnode(dev, NULL);
+	set_primary_fwnode(dev, primary);
+
+we should preserve secondary node.
+
+This concept is supported by the description of set_primary_fwnode()
+along with implementation of set_secondary_fwnode(). Hence, fix
+the commit c15e1bdda436 to follow this as well.
+
+Fixes: c15e1bdda436 ("device property: Fix the secondary firmware node handling in set_primary_fwnode()")
+Cc: Ferry Toth <fntoth@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Tested-by: Ferry Toth <fntoth@gmail.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/events/events_base.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -90,6 +90,8 @@ static bool (*pirq_needs_eoi)(unsigned i
- /* Xen will never allocate port zero for any purpose. */
- #define VALID_EVTCHN(chn)	((chn) != 0)
- 
-+static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
-+
- static struct irq_chip xen_dynamic_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
-@@ -154,7 +156,18 @@ int get_evtchn_to_irq(unsigned evtchn)
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_chip_data(irq);
-+	if (irq < nr_legacy_irqs())
-+		return legacy_info_ptrs[irq];
-+	else
-+		return irq_get_chip_data(irq);
-+}
-+
-+static void set_info_for_irq(unsigned int irq, struct irq_info *info)
-+{
-+	if (irq < nr_legacy_irqs())
-+		legacy_info_ptrs[irq] = info;
-+	else
-+		irq_set_chip_data(irq, info);
- }
- 
- /* Constructors for packed IRQ information. */
-@@ -375,7 +388,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
- 
--	irq_set_chip_data(irq, info);
-+	set_info_for_irq(irq, info);
- 
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -424,14 +437,14 @@ static int __must_check xen_allocate_irq
- 
- static void xen_free_irq(unsigned irq)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
- 
- 	list_del(&info->list);
- 
--	irq_set_chip_data(irq, NULL);
-+	set_info_for_irq(irq, NULL);
- 
- 	WARN_ON(info->refcnt > 0);
- 
-@@ -601,7 +614,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1105,7 +1118,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
-@@ -1139,7 +1152,7 @@ int evtchn_make_refcounted(unsigned int
- 	if (irq == -1)
- 		return -ENOENT;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		return -ENOENT;
-@@ -1167,7 +1180,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		goto done;
+---
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2362,7 +2362,7 @@ void set_primary_fwnode(struct device *d
+ 	} else {
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+-			fn->secondary = NULL;
++			fn->secondary = ERR_PTR(-ENODEV);
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
