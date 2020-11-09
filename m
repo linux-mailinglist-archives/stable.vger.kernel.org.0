@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64972ABB52
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F1B2ABAA3
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731271AbgKIN1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:27:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S2387770AbgKINVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733270AbgKINPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:15:04 -0500
+        id S2388012AbgKINVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FFCA216C4;
-        Mon,  9 Nov 2020 13:15:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 031BC206D8;
+        Mon,  9 Nov 2020 13:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927703;
-        bh=M0G466X9KyROxK/ZmhJEsQmpTXTT0u9NemVAF6Vjwbo=;
+        s=default; t=1604928062;
+        bh=8YdJdY382QSEOjK9jFF6B7jhR85Sfy/nDMfGLnlL7Kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oyPE5Fqbyjpfdgt5XkTJ5rvQ4uadmIT74QKn+s5GNMnVpv66zazg2aImPNbthf0NN
-         I3S7X8nebHnBaRNpnguNmcMP0o70WViIsIb2ffq/ydIR1vCjQTCclaGWRbIowFRki3
-         IH3SA+KQssMWnKDmk94eML3uaCEc013Kpv6c1IHk=
+        b=Uw1AZN4O6CaLKs2i3doMddrDLMvMyowIsEroXtPP+lmMQqr2EElUIMIjSzI0LfIqB
+         UJiSlZ65UPgmNw8gTWRF0TP36eA+uL24S6t8v/y2vgVj1Q5NdJ+sjBzdiHNx7wxRi0
+         KxCMJrAZz363Ht4fnubq51qYvEnP2LjUnZ0Lb6jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.4 79/85] ARC: stack unwinding: avoid indefinite looping
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 114/133] powerpc/40x: Always fault when _PAGE_ACCESSED is not set
 Date:   Mon,  9 Nov 2020 13:56:16 +0100
-Message-Id: <20201109125026.372872473@linuxfoundation.org>
+Message-Id: <20201109125036.171681591@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 328d2168ca524d501fc4b133d6be076142bd305c upstream.
+commit 0540b0d2ce9073fd2a736d636218faa61c99e572 upstream.
 
-Currently stack unwinder is a while(1) loop which relies on the dwarf
-unwinder to signal termination, which in turn relies on dwarf info to do
-so. This in theory could cause an infinite loop if the dwarf info was
-somehow messed up or the register contents were etc.
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-This fix thus detects the excessive looping and breaks the loop.
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
 
-| Mem: 26184K used, 1009136K free, 0K shrd, 0K buff, 14416K cached
-| CPU:  0.0% usr 72.8% sys  0.0% nic 27.1% idle  0.0% io  0.0% irq  0.0% sirq
-| Load average: 4.33 2.60 1.11 2/74 139
-|   PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
-|   133     2 root     SWN      0  0.0   3 22.9 [rcu_torture_rea]
-|   132     2 root     SWN      0  0.0   0 22.0 [rcu_torture_rea]
-|   131     2 root     SWN      0  0.0   3 21.5 [rcu_torture_rea]
-|   126     2 root     RW       0  0.0   2  5.4 [rcu_torture_wri]
-|   129     2 root     SWN      0  0.0   0  0.2 [rcu_torture_fak]
-|   137     2 root     SW       0  0.0   0  0.2 [rcu_torture_cbf]
-|   127     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   138   115 root     R     1464  0.1   2  0.1 top
-|   130     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   128     2 root     SWN      0  0.0   0  0.1 [rcu_torture_fak]
-|   115     1 root     S     1472  0.1   1  0.0 -/bin/sh
-|   104     1 root     S     1464  0.1   0  0.0 inetd
-|     1     0 root     S     1456  0.1   2  0.0 init
-|    78     1 root     S     1456  0.1   0  0.0 syslogd -O /var/log/messages
-|   134     2 root     SW       0  0.0   2  0.0 [rcu_torture_sta]
-|    10     2 root     IW       0  0.0   1  0.0 [rcu_preempt]
-|    88     2 root     IW       0  0.0   1  0.0 [kworker/1:1-eve]
-|    66     2 root     IW       0  0.0   2  0.0 [kworker/2:2-eve]
-|    39     2 root     IW       0  0.0   2  0.0 [kworker/2:1-eve]
-| unwinder looping too long, aborting !
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: 2c74e2586bb9 ("powerpc/40x: Rework 40x PTE access and TLB miss")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b02ca2ed2d3676a096219b48c0f69ec982a75bcf.1602342801.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/stacktrace.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/head_40x.S |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/arch/arc/kernel/stacktrace.c
-+++ b/arch/arc/kernel/stacktrace.c
-@@ -112,7 +112,7 @@ arc_unwind_core(struct task_struct *tsk,
- 		int (*consumer_fn) (unsigned int, void *), void *arg)
- {
- #ifdef CONFIG_ARC_DW2_UNWIND
--	int ret = 0;
-+	int ret = 0, cnt = 0;
- 	unsigned int address;
- 	struct unwind_frame_info frame_info;
+--- a/arch/powerpc/kernel/head_40x.S
++++ b/arch/powerpc/kernel/head_40x.S
+@@ -285,11 +285,7 @@ _ENTRY(saved_ksp_limit)
  
-@@ -132,6 +132,11 @@ arc_unwind_core(struct task_struct *tsk,
- 			break;
+ 	rlwimi	r11, r10, 22, 20, 29	/* Compute PTE address */
+ 	lwz	r11, 0(r11)		/* Get Linux PTE */
+-#ifdef CONFIG_SWAP
+ 	li	r9, _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r9, _PAGE_PRESENT
+-#endif
+ 	andc.	r9, r9, r11		/* Check permission */
+ 	bne	5f
  
- 		frame_info.regs.r63 = frame_info.regs.r31;
-+
-+		if (cnt++ > 128) {
-+			printk("unwinder looping too long, aborting !\n");
-+			return 0;
-+		}
- 	}
+@@ -370,11 +366,7 @@ _ENTRY(saved_ksp_limit)
  
- 	return address;		/* return the last address it saw */
+ 	rlwimi	r11, r10, 22, 20, 29	/* Compute PTE address */
+ 	lwz	r11, 0(r11)		/* Get Linux PTE */
+-#ifdef CONFIG_SWAP
+ 	li	r9, _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+-#else
+-	li	r9, _PAGE_PRESENT | _PAGE_EXEC
+-#endif
+ 	andc.	r9, r9, r11		/* Check permission */
+ 	bne	5f
+ 
 
 
