@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B502ABA0E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4680B2ABAA6
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730490AbgKINPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:15:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41996 "EHLO mail.kernel.org"
+        id S2388043AbgKINVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:21:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732868AbgKINPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:15:15 -0500
+        id S2388040AbgKINVO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D00F62083B;
-        Mon,  9 Nov 2020 13:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EC6C20867;
+        Mon,  9 Nov 2020 13:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927714;
-        bh=W5IgeIx3Jf/YRZvTtGpprJ0NmG+awwEypcUFt7nTa8Y=;
+        s=default; t=1604928074;
+        bh=oIzrjqALwh4CjykziVsw6dBqKuXuoY1y0StWWD4AfAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eww1/HDxzjSpiuOZ1aTGKc4SMcRMl2YHATS4hDUIKztK4+ucH2j7XewKIJsPBD4sT
-         wNm6ber9qHZ0HF1GDcxoqHy8Og5+4qj/0bPj2e5Zlq5rW64s37VglR+NFrlV5fqJRO
-         dNuIDTOIXoyLgG0XPxyOzhWgBlx0zcdwNxFEltQo=
+        b=sDaENIMSRrHsnbx9rqXnO2ntamM6BNxsRLxG4fqLK2koQI+7yjyMlKMMBoNP+eBML
+         AKrG3svPZ10G9j4N/5x4+3Hw7Y2oIb7FTM901/W5cTtdgG1hSS2pC4cvI/etAOTowf
+         XaneleHj0F/HrnNOZXGIpX4zZRiQWzbw50G3gu3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>
-Subject: [PATCH 5.4 82/85] PM: runtime: Resume the device earlier in __device_release_driver()
-Date:   Mon,  9 Nov 2020 13:56:19 +0100
-Message-Id: <20201109125026.519215147@linuxfoundation.org>
+        stable@vger.kernel.org, Ziyi Cao <kernel@septs.pw>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.9 118/133] USB: serial: option: add Quectel EC200T module support
+Date:   Mon,  9 Nov 2020 13:56:20 +0100
+Message-Id: <20201109125036.366807948@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Ziyi Cao <kernel@septs.pw>
 
-commit 9226c504e364158a17a68ff1fe9d67d266922f50 upstream.
+commit a46b973bced1ba57420752bf38426acd9f6cbfa6 upstream.
 
-Since the device is resumed from runtime-suspend in
-__device_release_driver() anyway, it is better to do that before
-looking for busy managed device links from it to consumers, because
-if there are any, device_links_unbind_consumers() will be called
-and it will cause the consumer devices' drivers to unbind, so the
-consumer devices will be runtime-resumed.  In turn, resuming each
-consumer device will cause the supplier to be resumed and when the
-runtime PM references from the given consumer to it are dropped, it
-may be suspended.  Then, the runtime-resume of the next consumer
-will cause the supplier to resume again and so on.
+Add usb product id of the Quectel EC200T module.
 
-Update the code accordingly.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Fixes: 9ed9895370ae ("driver core: Functional dependencies tracking support")
-Cc: All applicable <stable@vger.kernel.org> # All applicable
-Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ziyi Cao <kernel@septs.pw>
+Link: https://lore.kernel.org/r/17f8a2a3-ce0f-4be7-8544-8fdf286907d0@www.fastmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/dd.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -1105,6 +1105,8 @@ static void __device_release_driver(stru
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -250,6 +250,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
++#define QUECTEL_PRODUCT_EC200T			0x6026
  
- 	drv = dev->driver;
- 	if (drv) {
-+		pm_runtime_get_sync(dev);
-+
- 		while (device_links_busy(dev)) {
- 			__device_driver_unlock(dev, parent);
+ #define CMOTECH_VENDOR_ID			0x16d8
+ #define CMOTECH_PRODUCT_6001			0x6001
+@@ -1117,6 +1118,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
+ 	  .driver_info = ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
  
-@@ -1116,12 +1118,12 @@ static void __device_release_driver(stru
- 			 * have released the driver successfully while this one
- 			 * was waiting, so check for that.
- 			 */
--			if (dev->driver != drv)
-+			if (dev->driver != drv) {
-+				pm_runtime_put(dev);
- 				return;
-+			}
- 		}
- 
--		pm_runtime_get_sync(dev);
--
- 		driver_sysfs_remove(dev);
- 
- 		if (dev->bus)
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
 
 
