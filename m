@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF982AC509
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 20:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C722AC50C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 20:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729941AbgKITdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 14:33:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53982 "EHLO
+        id S1730804AbgKITd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 14:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729831AbgKITdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 14:33:53 -0500
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931D4C0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 11:33:53 -0800 (PST)
-Received: by mail-pl1-x642.google.com with SMTP id b12so5234748plr.4
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 11:33:53 -0800 (PST)
+        with ESMTP id S1730726AbgKITd7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 14:33:59 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44ACEC0613D3
+        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 11:33:59 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id w4so7988779pgg.13
+        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 11:33:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
         h=message-id:subject:from:to:cc:date:in-reply-to:references
          :user-agent:mime-version:content-transfer-encoding;
         bh=sl29wqUIKXUufuIQiygXdmzoEm6rqS29bZj53/PfalY=;
-        b=rvyUomPgC8XCrgeDWSNTQj9AEa0PMaWcO2LJETBW/O24i2TRt7q83VLZuqMnC605pU
-         VJ/18KhJOoVqtSMVsXfKbVpm8OcxQ/c7rjx3LSVf1IS+WgS09PvHfizixSx6EW3WBiiu
-         SFOON18VSD8xTn+SuRIUR8KiQLJg5+pdCjCTKBIMMHSV74AJHW6qiIpXt/Ozg/aEo0jx
-         Od93Wluzar++QafE6AncvhnZ1Jy3ExYKVbwqSfiOqW/CkDSVz6DdDdQvHJSPelOFcj9x
-         rqnujpBB62NTuOyCCPPwOroda8ygcHTauUt81ooXNPKc8Fo9Rae5vGOg79KycTUHobjM
-         o+nw==
+        b=ZcZO2PLLz2GIuM/Eud3LPbVrSNLtOdJ6x/yz6u+n9QiQ0mnRhrGr/rFgXxpO1GkXbu
+         vobfG0GW89ymrR+c6coo2RMdqDAV3/vwJAD/og1rsjk5wJdgdiwCa0kYKT6rqy9bBhCY
+         BGTDfJTGNwzsKlGpznZDiYYR6nDdXWLE/2CNqyG7XD+23wl5rwrD3N30fLGfSGfanltX
+         psZ71ITbly183FD3/4o0LSXZ2F/P/4rOt3tRH1EdrDlAYrqOKDLl59BuPDeJhhztOMm4
+         0K46cWMO7mEndgzy9NoNSB7itaf0dBS1fuMbLCMp7/p6JLgbLcyBFL3J6ufsz6oKkYR2
+         FwYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
         bh=sl29wqUIKXUufuIQiygXdmzoEm6rqS29bZj53/PfalY=;
-        b=gJZgg3y/E8bIqlUmAADhc4e5iHmTDD0HHDVzpnQ3QqkXZ8hXpsU0yTSPmbsmo51yRL
-         Lya46C5FCTVkONNWQROpjpkkid/m0iAPwGZgpATrmvuvco+U6KbY8AqY727wyFDNClJ9
-         pQIQByYytImg1HAWIwL2vnXMdPqaM9ur0kfToIJlopQASSDRG6EeTKWGQob7+MSELOHH
-         FBSemDJgh5cPYDXpqU3qo8YVjJIBmAJFpr5d9CvscFJ/KYkf4rEZVIp10jmK5MbvS2UK
-         Uw0OQUiBHHCTd6Jqa/JBxibszOEW8eJWZnpvVu7WSPMa4anfLXK1OMvlYrcOdGh0z6bR
-         B6KQ==
-X-Gm-Message-State: AOAM530bPr4VDmndaWTzgJ/9OkR3RCd2ql2Ti+kQZ2oQUIn/pNf+LUQn
-        U9B6CPg6CiMFrZ1/ssUOMgQ0IuTtFwtS4zyK
-X-Google-Smtp-Source: ABdhPJz5xme62fW/912aMQTOQ0tv95Dx+TQLWZI60GeTY/1ifbraWz13s2vTPiFgr7CGuUWQYa18/g==
-X-Received: by 2002:a17:902:ed52:b029:d7:d0af:f89f with SMTP id y18-20020a170902ed52b02900d7d0aff89fmr10082637plb.26.1604950432884;
-        Mon, 09 Nov 2020 11:33:52 -0800 (PST)
+        b=IMWEyfzgewEuJVbyjsPPNDFlYfmRdkB84JpM3c729m3f5GJjUZjAlClu7mHqhZe0yT
+         TRfkc8VcVrtMpHHBApElwT/dwDgMSClnTIZwhrGHTYtpsb2Gl3/aY7aSTyNWnAZk8o1n
+         ok8+Sr3RGUDrPPYuCo2A/qZ8dleoPcbdXsWHIFOAD4Sa8He1wYVC70wt9EHC7B/3KEF2
+         8+BXRk+4AZVlxEKi5pJD8d4NXFer7DqFR7pl56PVD/rt9FQt+hRnMpTOTruGfRrbUMC+
+         kLJOhb5AP/RxPwnt2y0YB2MdKL/VU9QoTqdq1KbdWLA+/rWUVj1sA+9NiIAgZYxbKdlG
+         t7Og==
+X-Gm-Message-State: AOAM530F/LktnT2oyWRzoQzYxjq1uWCshO1+W85jPPs6Ce9KQyGV8mUG
+        boENHOnmPHGGCd+GnIpgXXWYFQ==
+X-Google-Smtp-Source: ABdhPJwmm9Ci6gGF1rDiD72aOfp2oku2i0dQAi/79ykvrQtaD0eJ2vGX5mEf4L2GK/OJ30YNN14wQA==
+X-Received: by 2002:a62:52d7:0:b029:18b:7093:fb88 with SMTP id g206-20020a6252d70000b029018b7093fb88mr15225978pfb.76.1604950438878;
+        Mon, 09 Nov 2020 11:33:58 -0800 (PST)
 Received: from debian ([122.174.251.176])
-        by smtp.gmail.com with ESMTPSA id l17sm264565pjy.29.2020.11.09.11.32.10
+        by smtp.gmail.com with ESMTPSA id v7sm11643247pfu.39.2020.11.09.11.33.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2020 11:33:52 -0800 (PST)
-Message-ID: <00f6908d6a5bab39b585ed03dc5533b6f256109f.camel@rajagiritech.edu.in>
+        Mon, 09 Nov 2020 11:33:58 -0800 (PST)
+Message-ID: <72209d415e20d2453e57100d246c659e8f44f0d9.camel@rajagiritech.edu.in>
 Subject: Re: [PATCH 5.9 000/133] 5.9.7-rc1 review
 From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -55,7 +55,7 @@ To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Date:   Tue, 10 Nov 2020 01:02:08 +0530
+Date:   Tue, 10 Nov 2020 01:03:53 +0530
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
 Content-Type: text/plain; charset="UTF-8"
