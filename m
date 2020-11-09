@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9249E2ABA93
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CEC12ABAF3
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387483AbgKINUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:20:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48116 "EHLO mail.kernel.org"
+        id S1732557AbgKINPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:15:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387475AbgKINUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:20:32 -0500
+        id S1732122AbgKINPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032282083B;
-        Mon,  9 Nov 2020 13:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21ABD20789;
+        Mon,  9 Nov 2020 13:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604928030;
-        bh=v/A80OfUdI2AyrGVlqxGk0BEl2vN5DxgvY1qGsxjCmU=;
+        s=default; t=1604927743;
+        bh=hsC/FcjwnIkkaHCSmTzFKRF6otCFQ+C6OZJCYFpWabQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMmfLZyI6PhtrfYhjhT9+Tpy4hO5y/pdcHfGlidj7Qrhbsz4oPse4MtHzfd6EgsCi
-         xUcWQYsouiYlOW6ltTXMVkc/xYKNs0OkbH5Ikjg4oEfpibDYjqiXyvUmUrxA+hkbCC
-         DGNt61jS+X2earo31Otn6X6Cfhyx/JlaVXAArg6A=
+        b=jrtsq87km43MeerV/rP8YQ6FeJMaLHstJgRr+xv3CMmhqBl6M6iy4npvGg0K8Cl9Y
+         FDdX/MeAOhYwia71KW9ZMGwzBpTgPlSTuD/sdyBpCHGvqzMHHiZH+ajY40f7MiCupR
+         dnBG/GXYHXNK4q+A/6w/OklJCiXPuhmv0g/H4t3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 104/133] arm64/smp: Move rcu_cpu_starting() earlier
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 69/85] USB: serial: cyberjack: fix write-URB completion race
 Date:   Mon,  9 Nov 2020 13:56:06 +0100
-Message-Id: <20201109125035.690427751@linuxfoundation.org>
+Message-Id: <20201109125025.886751519@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit ce3d31ad3cac765484463b4f5a0b6b1f8f1a963e ]
+commit 985616f0457d9f555fff417d0da56174f70cc14f upstream.
 
-The call to rcu_cpu_starting() in secondary_start_kernel() is not early
-enough in the CPU-hotplug onlining process, which results in lockdep
-splats as follows:
+The write-URB busy flag was being cleared before the completion handler
+was done with the URB, something which could lead to corrupt transfers
+due to a racing write request if the URB is resubmitted.
 
- WARNING: suspicious RCU usage
- -----------------------------
- kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
- other info that might help us debug this:
-
- RCU used illegally from offline CPU!
- rcu_scheduler_active = 1, debug_locks = 1
- no locks held by swapper/1/0.
-
- Call trace:
-  dump_backtrace+0x0/0x3c8
-  show_stack+0x14/0x60
-  dump_stack+0x14c/0x1c4
-  lockdep_rcu_suspicious+0x134/0x14c
-  __lock_acquire+0x1c30/0x2600
-  lock_acquire+0x274/0xc48
-  _raw_spin_lock+0xc8/0x140
-  vprintk_emit+0x90/0x3d0
-  vprintk_default+0x34/0x40
-  vprintk_func+0x378/0x590
-  printk+0xa8/0xd4
-  __cpuinfo_store_cpu+0x71c/0x868
-  cpuinfo_store_cpu+0x2c/0xc8
-  secondary_start_kernel+0x244/0x318
-
-This is avoided by moving the call to rcu_cpu_starting up near the
-beginning of the secondary_start_kernel() function.
-
-Signed-off-by: Qian Cai <cai@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
-Link: https://lore.kernel.org/r/20201028182614.13655-1-cai@redhat.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/smp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/cyberjack.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 355ee9eed4dde..98c059b6bacae 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -213,6 +213,7 @@ asmlinkage notrace void secondary_start_kernel(void)
- 	if (system_uses_irq_prio_masking())
- 		init_gic_priority_masking();
+--- a/drivers/usb/serial/cyberjack.c
++++ b/drivers/usb/serial/cyberjack.c
+@@ -357,11 +357,12 @@ static void cyberjack_write_bulk_callbac
+ 	struct device *dev = &port->dev;
+ 	int status = urb->status;
+ 	unsigned long flags;
++	bool resubmitted = false;
  
-+	rcu_cpu_starting(cpu);
- 	preempt_disable();
- 	trace_hardirqs_off();
+-	set_bit(0, &port->write_urbs_free);
+ 	if (status) {
+ 		dev_dbg(dev, "%s - nonzero write bulk status received: %d\n",
+ 			__func__, status);
++		set_bit(0, &port->write_urbs_free);
+ 		return;
+ 	}
  
--- 
-2.27.0
-
+@@ -394,6 +395,8 @@ static void cyberjack_write_bulk_callbac
+ 			goto exit;
+ 		}
+ 
++		resubmitted = true;
++
+ 		dev_dbg(dev, "%s - priv->wrsent=%d\n", __func__, priv->wrsent);
+ 		dev_dbg(dev, "%s - priv->wrfilled=%d\n", __func__, priv->wrfilled);
+ 
+@@ -410,6 +413,8 @@ static void cyberjack_write_bulk_callbac
+ 
+ exit:
+ 	spin_unlock_irqrestore(&priv->lock, flags);
++	if (!resubmitted)
++		set_bit(0, &port->write_urbs_free);
+ 	usb_serial_port_softint(port);
+ }
+ 
 
 
